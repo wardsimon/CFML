@@ -51,7 +51,7 @@
     private
 
     !---- List of public subroutines ----!
-    public :: close_scroll_window, error_message, info_message, question_message, warning_message, &
+    public :: Close_scroll_window, error_message, info_message, question_message, warning_message, &
               stop_message, write_scroll_text
 
     !---- Definitions ----!
