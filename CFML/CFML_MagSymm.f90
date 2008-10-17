@@ -439,7 +439,7 @@
           ! Detect keywords
 
           ! Read magnetic model
-          write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+          ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
           if (lowline(1:6) == "magmod") then
              read(unit=lowline(8:),fmt=*,iostat=ier) magmod
              if (ier /= 0) then
@@ -488,7 +488,7 @@
              do !repeat reading until continuous KVECT lines are exhausted
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                 if (lowline(1:5) == "kvect") then
                    num_k=num_k+1
@@ -530,7 +530,7 @@
                 do  !repeat reading until continuous MAGDOM lines are exhausted
                    i=i+1
                    lowline=adjustl(l_case(file_cfl%line(i)))
-                   write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                   ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                    if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                    if (lowline(1:6) == "magdom") then
                       num_dom=num_dom+1
@@ -591,7 +591,7 @@
              do  !repeat reading until continuous icoebf lines are exhausted
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                 if (lowline(1:5) == "icomp") then
                    num_irrep=num_irrep+1
@@ -636,7 +636,7 @@
              do  !repeat reading until continuous MSYM lines are exhausted
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                 if (lowline(1:4) == "msym") then
                    num_msym=num_msym+1
@@ -665,7 +665,7 @@
              if (n < 0) then  !Read the imaginary part of the basis functions
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                !write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:4) == "basi") then
                    read(unit=lowline(5:),fmt=*,iostat=ier) (bi(:,j),j=1,abs(n))
                    if (ier /= 0) then
@@ -688,7 +688,7 @@
              do  !repeat reading until continuous BASR or BASI lines are exhausted
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                !write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                 if (lowline(1:4) == "basr") then
                    num_irrep=num_irrep+1
@@ -704,7 +704,7 @@
                    if (n < 0) then  !Read the imaginary part of the basis functions
                       i=i+1
                       lowline=adjustl(l_case(file_cfl%line(i)))
-                      write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                      !write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                       if (lowline(1:4) == "basi") then
                          read(unit=lowline(5:),fmt=*,iostat=ier) (bi(:,j),j=1,abs(n))
                          if (ier /= 0) then
@@ -770,7 +770,7 @@
              do  !repeat reading until continuous SPK lines are exhausted
                 i=i+1
                 lowline=adjustl(l_case(file_cfl%line(i)))
-                write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
+                !write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                 if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                 if (lowline(1:3) == "skp") then
                    num_skp=num_skp+1
@@ -1026,8 +1026,8 @@
        if ( i > 2) then
           symb=symb(1:1)//symb(i:)
        end if
-       write(*,*) " Space group symbol: ", trim(symb)
-       write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " in positions: ",(syp(i),i=1,ng)
+       !write(*,*) " Space group symbol: ", trim(symb)
+       !write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " in positions: ",(syp(i),i=1,ng)
 
        call Set_SpaceGroup(symb, SG%SpG)
 
@@ -1430,7 +1430,7 @@
           end do  !j=1,ng over all primed symmetry
        end do    !i=2,m over all symmetry operators of Space Group
 
-       write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " Correspond to operators: ",(numop(i),i=1,ng)
+       !write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " Correspond to operators: ",(numop(i),i=1,ng)
 
        ! if(allocated(tab)) deallocate(tab)
        ! allocate(tab(m,m))
