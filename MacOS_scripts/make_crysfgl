@@ -1,0 +1,246 @@
+#!/bin/sh
+# Script para la compilacion de CrysFGL
+# Author: JGP + JRC
+#
+if [ a$1 = a ]
+then
+cat << !
+make_crysfgl: Make the CrysFGL Library for Fortran Linux Compilers
+Syntax      : make_crysfgl af95:g95:gfortran:ifort:lf95 [deb]
+!
+exit
+fi
+#
+# Compiler Name
+#
+COMP=$1
+if [ $COMP != "lf95" ]
+then
+   if [ $COMP != "g95" ]
+   then
+      if [ $COMP != "gfortran" ]
+      then
+         if [ $COMP != "ifort" ]
+         then
+            if [ $COMP != "af95" ]
+	    then
+               echo "Compiler Name was wrong!!!"
+	       exit
+	    fi
+         fi
+      fi
+   fi
+fi
+#
+# Detect if Directories exists
+#
+case $COMP
+in
+   'af95')
+       if [ -d "./Absoft" ]
+       then
+          if [ -d "./Absoft/LibGL" ]
+	  then
+	     echo " "
+	  else
+	     mkdir "./Absoft/LibGL"
+	  fi
+       else
+          mkdir "Absoft"
+	  mkdir "./Absoft/LibGL"
+       fi
+          ;;
+   'g95')
+       if [ -d "./G95" ]
+       then
+          if [ -d "./G95/LibGL" ]
+	  then
+	     echo " "
+	  else
+	     mkdir "./G95/LibGL"
+	  fi
+       else
+          mkdir "Absoft"
+	  mkdir "./Absoft/LibGL"
+       fi
+          ;;
+   'gfortran')
+       if [ -d "./GFortran" ]
+       then
+          if [ -d "./GFortran/LibGL" ]
+	  then
+	     echo " "
+	  else
+	     mkdir "./GFortran/LibGL"
+	  fi
+       else
+          mkdir "GFortran"
+	  mkdir "./GFortran/LibGL"
+       fi
+          ;;
+   'ifort')
+       if [ -d "./Intel" ]
+       then
+          if [ -d "./Intel/LibGL" ]
+	  then
+	     echo " "
+	  else
+	     mkdir "./Intel/LibGL"
+	  fi
+       else
+          mkdir "Intel"
+	  mkdir "./Intel/LibGL"
+       fi
+          ;;
+   'lf95')
+       if [ -d "./Lahey" ]
+       then
+          if [ -d "./Lahey/LibGL" ]
+	  then
+	     echo " "
+	  else
+	     mkdir "./Lahey/LibGL"
+	  fi
+       else
+          mkdir "Lahey"
+	  mkdir "./Lahey/LibGL"
+       fi
+          ;;
+esac
+#
+# More options
+#
+MODE=win
+DEBUG=nodeb
+if [ $# -ge 1 ]
+then
+   DEBUG=deb
+fi
+#
+# Compilation Options
+#
+if [ $DEBUG = "deb" ]
+then
+   case $COMP
+   in
+      'af95')
+          OPT1="-c -g -O0"
+            ;;
+      'g95')
+          OPT1="-c -g -Wall"
+            ;;
+      'gfortran')
+          OPT1="-c -g -Wall"
+            ;;
+      'ifort')
+          OPT1="-c -g -warn -vec-report0"
+            ;;
+      'lf95')
+          OPT1="-c -g"
+             ;;
+   esac
+else
+   case $COMP
+   in
+      'af95')
+          OPT1="-c -O2 -t 2"
+            ;;
+      'g95')
+          OPT1="-c -O"
+            ;;
+      'gfortran')
+          OPT1="-c -O"
+            ;;
+      'ifort')
+          OPT1="-c -O -warn -vec-report0"
+            ;;
+      'lf95')
+          OPT1="-c -O --nchk --tpp"
+             ;;
+   esac
+fi
+#
+# External Libraries Options
+#
+case $COMP
+in
+   'af95')
+       INC="-p/Applications/wint/lib.abi -p../../Absoft/LibW"
+       ;;
+   'g95')
+       INC="-I/Applications/wint/lib.g95 -I../../G95/LibW"
+       ;;
+   'gfortran')
+       INC=""
+       ;;
+   'ifort')
+       INC="-I/Applications/wint/lib.ifi -I../../Intel/LibW"
+       ;;
+   'lf95')
+       INC=""
+       ;;
+esac
+#
+# Changing to the Src Directory
+#
+cd ./Src/CFGL
+#
+# Compilation Process
+#
+echo " ########################################################"
+echo " #### Fortran CFGL Library                     (3.0) ####"
+echo " #### JRC - LC - JGP                       2005-2008 ####"
+echo " ########################################################"
+$COMP $OPT1  WCFGL_Constant.f90            $INC
+$COMP $OPT1  WCFGL_Atomic_Table.f90        $INC
+$COMP $OPT1  WCFGL_Objects_Definition.f90  $INC
+$COMP $OPT1  WCFGL_Geometry.f90            $INC
+$COMP $OPT1  WCFGL_Chull3D.f90             $INC
+$COMP $OPT1  WCFGL_Quaternion.f90          $INC
+$COMP $OPT1  WCFGL_Trackball.f90           $INC
+$COMP $OPT1  WCFGL_Metrix.f90              $INC
+$COMP $OPT1  WCFGL_Glatom.f90              $INC
+$COMP $OPT1  WCFGL_Glbond.f90              $INC
+$COMP $OPT1  WCFGL_Atom_Tree.f90           $INC
+$COMP $OPT1  WCFGL_Matom_Tree.f90          $INC
+$COMP $OPT1  WCFGL_Bond_Tree.f90           $INC
+$COMP $OPT1  WCFGL_Glpoly.f90              $INC
+$COMP $OPT1  WCFGL_Poly_Tree.f90           $INC
+$COMP $OPT1  WCFGL_Display.f90             $INC
+$COMP $OPT1  WCFGL_IO.f90                  $INC
+#
+# Making CrysFGL Library
+#
+   case $COMP
+   in
+      'af95')
+          ar cr libwcrysfgl.a *.o
+	  mv *.mod ../../Absoft/LibGL
+	  mv *.a ../../Absoft/LibGL
+            ;;
+      'g95')
+          ar cr libwcrysfgl.a *.o
+	  mv *.mod ../../G95/LibGL
+	  mv *.a ../../G95/LibGL
+             ;;
+      'gfortran')
+          ar cr libwcrysfgl.a *.o
+	  mv *.mod ../../GFortran/LibGL
+	  mv *.a ../../GFortran/LibGL
+             ;;
+      'ifort')
+          ar cr libwcrysfgl.a *.o
+	  mv *.mod ../../Intel/LibGL
+	  mv *.a ../../Intel/LibGL
+             ;;
+      'lf95')
+          $COMP *.o --out libwcrysfgl.a --nshared
+	  mv *.mod ../../Lahey/LibGL
+	  mv *.a ../../Lahey/LibGL
+             ;;
+   esac
+rm *.o
+#
+# Changing to default directory
+#
+cd ../..
