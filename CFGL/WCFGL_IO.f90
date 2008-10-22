@@ -34,7 +34,10 @@ module WCFGL_IO
                                             is_rotax, is_xsym, is_msym, is_color, is_radius, no_line,&
                                             is_bond, is_multiple, is_nodisplay,is_poly,&
                                             is_genr,is_conn, is_skp, is_bkg, num_g,is_group,is_edge_color,&
-                                            num_k,num_xsym,num_msym,kchoice,msymchoice,num_skp,mstart, is_edges, is_envelop, is_envelop_color
+                                            num_k,num_xsym,num_msym,kchoice,msymchoice,num_skp,mstart, &
+                                            is_edges, is_envelop, is_envelop_color,is_molecule,&
+                                            i
+
     logical                              :: ierror, dead, multiple,g_begin,mphase_begin,&
                                             k_begin,msym_begin,matom_begin,group,edges,matom_envelop,matom_edges,matom_envcolor
     character(len=256)                   :: line,upline
@@ -42,7 +45,7 @@ module WCFGL_IO
     character(len=2)                     :: symbol, symbol1, symbol2
     character(len=10)                    :: label, label1, label2
     character(len=1)                     :: lattice
-    real, dimension(3)                   :: pos, a, angle, axis, edgecolor
+    real, dimension(3)                   :: pos, a, angle, axis, edgecolor,pos1,pos2
     real, dimension(3,24)                :: all_k=0.0
     real,dimension(4)                    :: color, background_color, envelop_color
     real                                 :: xmin, xmax, norm, theta, phi, angx,angy,angz, &
@@ -66,17 +69,19 @@ module WCFGL_IO
     scal  =1.0
     arrow_pos  = -0.5
 
-    ierror=      .false.
-    dead=        .false.
-    g_begin =    .true.
-    mphase_begin=.false.
-    k_begin =    .true.
-    msym_begin = .true.
-    group      = .false.
-    envelop    = .false.
-    matom_envcolor=.false.
-
+    ierror        = .false.
+    dead          = .false.
+    g_begin       = .true.
+    mphase_begin  = .false.
+    k_begin       = .true.
+    msym_begin    = .true.
+    group         = .false.
+    envelop       = .false.
+    matom_envcolor= .false.
+    molecule      = .false.
     maxval_poly = 1.9
+    pos1=2.0
+    pos2=-2.0
     !-------End initialise parameters
 
     call define_spacegroup("P 1")
@@ -94,7 +99,6 @@ module WCFGL_IO
       call empty_poly_list()
       call erase_magnetic_phase()
       if(present(qview))  qview=quat(1.0,(/0.0,0.0,0.0/))
-
       do
         read (unit=1,fmt="(a)", iostat=ier) line
         ! READING ERROR
@@ -137,7 +141,10 @@ module WCFGL_IO
           is_edges     = index(upline,"EDGE")
           is_edge_color= index(upline,"EDGECOL")
           is_envelop   = index(upline,"ENVELOP")
+          is_molecule  = index(upline,"MOLECULE")
+          if(is_molecule /= 0) molecule=.true.
           is_envelop_color = index(upline,"ENVELOPCOL")
+
           if(index(upline,"ARROW_DISP") /= 0) arrow_pos=0.0
           ! READ OPTIONAL KEYWORDS
 
@@ -150,7 +157,7 @@ module WCFGL_IO
             read(unit=line(is_color+5:),fmt=*,iostat=ier) color
             if (ier /= 0) then
               ierror=.true.
-            end if
+           end if
           end if
 
           if (is_radius /= 0) then
@@ -306,6 +313,10 @@ module WCFGL_IO
             if (ier /= 0) then
               ierror=.true.
             else
+              do i=1,3
+                if(pos(i) < pos1(i)) pos1(i) = pos(i)
+                if(pos(i) > pos2(i)) pos2(i) = pos(i)
+              end do
               if (is_radius == 0) radius=get_radius_from_symbol(symbol)
               if (is_color  == 0) then
                 call push_atom(label=label, symbol=symbol, xf=pos, Biso=0.5, radius=radius,dead=dead)
@@ -520,7 +531,9 @@ module WCFGL_IO
       end do
       close(unit=1)
     end if
-
+    if(molecule) then
+       call define_box(pos1(1),pos2(1),pos1(2),pos2(2),pos1(3),pos2(3))
+    end if
     return
 
   end subroutine read_fst_file

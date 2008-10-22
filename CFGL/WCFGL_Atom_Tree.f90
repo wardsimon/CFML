@@ -30,7 +30,6 @@ module WCFGL_atom_tree
 
   integer, pointer, save, private          :: main_atom_list => null()
 
-
   real(glfloat), parameter, private        :: eps=0.0002
 
   contains
@@ -81,7 +80,7 @@ module WCFGL_atom_tree
     end if
 
     current_node%dead=dead
-    current_node%dlist=glgenlists(1)                                 ! Associate a display list.
+    current_node%dlist=glgenlists(1)             ! Associate a display list.
 
     call construct_atom_dlist(current_node)
 
@@ -105,23 +104,33 @@ module WCFGL_atom_tree
 
     call glnewlist(atom_pointer%dlist,GL_COMPILE)                    ! Create display list
     call glmaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,atom_pointer%atom%color(1:3))
-    do i=int(current_box(1))-1,int(current_box(2))+1
-      do j=int(current_box(3))-1,int(current_box(4))+1
-        do k=int(current_box(5))-1, int(current_box(6))+1
-          do l=1, eq_at
-            pos=atom_pointer%atom%xf_eq(:,l)+real((/i,j,k/))
-            if (in_limit(pos)) then
-              trans=f2c(pos)
-              call glpushmatrix()
-              call gltranslatef(trans(1),trans(2),trans(3))
-              call glscalef(atom_pointer%atom%radius,atom_pointer%atom%radius,atom_pointer%atom%radius)
-              call glcalllist(atom_definition)
-              call glpopmatrix()
-            end if
-          end do
+    if(molecule) then
+       pos=atom_pointer%atom%xf_eq(:,1)
+       trans=f2c(pos)
+       call glpushmatrix()
+       call gltranslatef(trans(1),trans(2),trans(3))
+       call glscalef(atom_pointer%atom%radius,atom_pointer%atom%radius,atom_pointer%atom%radius)
+       call glcalllist(atom_definition)
+       call glpopmatrix()
+    else
+      do i=int(current_box(1))-1,int(current_box(2))+1
+        do j=int(current_box(3))-1,int(current_box(4))+1
+          do k=int(current_box(5))-1, int(current_box(6))+1
+            do l=1, eq_at
+              pos=atom_pointer%atom%xf_eq(:,l)+real((/i,j,k/))
+              if (in_limit(pos)) then
+                trans=f2c(pos)
+                call glpushmatrix()
+                call gltranslatef(trans(1),trans(2),trans(3))
+                call glscalef(atom_pointer%atom%radius,atom_pointer%atom%radius,atom_pointer%atom%radius)
+                call glcalllist(atom_definition)
+                call glpopmatrix()
+              end if
+            end do
+         end do
         end do
       end do
-    end do
+    end if
   call glendlist()
 
   return

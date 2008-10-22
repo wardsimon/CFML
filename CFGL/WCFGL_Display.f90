@@ -3,7 +3,7 @@ module WCFGL_display
   use OPENGL
   use WCFGL_metrix
   use WCFGL_trackball
-  use WCFGL_atom_tree,  only : draw_atoms
+  use WCFGL_atom_tree,  only : draw_atoms, molecule
   use WCFGL_matom_tree, only : draw_matoms
   use WCFGL_bond_tree,  only : draw_bonds
   use WCFGL_poly_tree,  only : draw_polys
@@ -110,8 +110,9 @@ module WCFGL_display
       call glmultmatrixf(current_rot_matrix)
       call gltranslatef(-current_baricentre(1),-current_baricentre(2),-current_baricentre(3))
 
-      call draw_cell()
-      call draw_axes()
+
+      if(.not. molecule) call draw_cell()
+      if(.not. molecule) call draw_axes()
       call draw_atoms()
       call draw_bonds()
       call draw_matoms()
