@@ -126,6 +126,12 @@
 !!----       GET_DERIV_ORTH_CELL
 !!----       GET_PRIMITIVE_CELL
 !!----       INIT_ERR_CRYS
+!!----       NIGGLI_CELL                 [Overloaded]
+!!--++       NIGGLI_CELL_ABC             [Private]
+!!--++       NIGGLI_CELL_NIGGLIMAT       [Private]
+!!--++       NIGGLI_CELL_PARAMS          [Private]
+!!--++       NIGGLI_CELL_TYPE            [Private]
+!!--++       NIGGLI_CELL_VECT            [Private]
 !!--++       RECIP                       [Private]
 !!----       SET_CRYSTAL_CELL
 !!----       WRITE_CRYSTAL_CELL
@@ -134,8 +140,8 @@
  Module Crystal_Types
 
     !---- Use files ----!
-    use Math_Gen , only: cosd, sind, acosd, eps, sp, pi
-    use Math_3D,   only: matrix_inverse
+    use Math_Gen , only: cosd, sind, acosd, eps, sp, pi, swap
+    use Math_3D,   only: matrix_inverse, determ_V
 
     implicit none
 
@@ -151,17 +157,20 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_err_crys, Change_Setting_Cell,Set_Crystal_Cell,       &
+    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,       &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell, &
               Get_Primitive_Cell
 
     !---- List of public overloaded procedures: subroutines ----!
 
+    public :: Niggli_Cell
+
     !---- List of private functions ----!
     private :: metrics
 
     !---- List of private Subroutines ----!
-    private :: Recip, Get_Cryst_Orthog_Matrix
+    private :: Recip, Get_Cryst_Orthog_Matrix, Niggli_Cell_Vect, Niggli_Cell_Params, &
+               Niggli_Cell_type, Niggli_Cell_abc,  Niggli_Cell_nigglimat
 
     !---- Definitions ----!
 
@@ -200,7 +209,7 @@
 
     !!----
     !!---- ERR_CRYS
-    !!----    logical, public :: err_crys
+    !!----    logical, public :: Err_Crys
     !!----
     !!----    Logical Variable indicating an error in CRYSTAL_TYPES module
     !!----
@@ -228,6 +237,38 @@
     !!--++ Update: February - 2005
     !!
     real(kind=sp), parameter, private :: tpi2=2.0*pi*pi
+
+    !!--++
+    !!--++ Identity
+    !!--++    real(kind=sp), dimension(3,3), parameter :: identity=reshape ((/1.0,0.0,0.0,
+    !!--++                                                                    0.0,1.0,0.0,
+    !!--++                                                                    0.0,0.0,1.0/),(/3,3/))
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Identity matrix
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+    real,    dimension(3,3), parameter  :: identity=reshape ((/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+
+    !!---- Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
+    !!---- There are an infinite number of primitive unit cells generating the same lattice L.
+    !!---- N={a,b,c} is a Buerger cell if and only if |a|+|b|+|c| is a minimal value for all primitive
+    !!---- cells of L.
+    !!---- N is a Niggli cell of L if  (i) it is as Buerger cell of L and
+    !!----                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
+    !!----                  / a.a  b.b  c.c \       /  s11  s22  s33 \
+    !!----   Niggli matrix  |               |   =   |                |
+    !!----                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
+    !!----
+
+    Interface  Niggli_Cell                   !   The first(s) argument(s) is(are)
+      Module Procedure Niggli_Cell_abc       !List of cell parameters passed as a 6D vector
+      Module Procedure Niggli_Cell_nigglimat !Niggli matrix passed as a 2x3 matrix (ultimately applying the algorithm)
+      Module Procedure Niggli_Cell_Params    !List of cell parameters a,b,c,alpha,beta,gamma
+      Module Procedure Niggli_Cell_type      !The object Cell is passed as argument
+      Module Procedure Niggli_Cell_Vect      !Input three vectors in Cartesian components
+    End Interface  Niggli_Cell
 
  Contains
 
@@ -727,8 +768,8 @@
                           Car_Symbol ="a"
                           Car_System ="Triclinic"
                  else
-                          err_crys=.true.
-                          err_mess_crys=" Error obtaining Crystal Familiy"
+                          Err_Crys=.true.
+                          Err_Mess_Crys=" Error obtaining Crystal Familiy"
                  end if
 
           case (2) ! two angles are equal
@@ -740,8 +781,8 @@
                                 Car_Symbol ="h"
                                 Car_System ="Hexagonal"
                                  else
-                                          err_crys=.true.
-                                err_mess_crys=" Error obtaining Crystal Familiy"
+                                          Err_Crys=.true.
+                                Err_Mess_Crys=" Error obtaining Crystal Familiy"
                                  end if
                           else
                    !---- Monoclinic ----!
@@ -757,8 +798,8 @@
                              Car_Symbol ="m"
                              Car_System ="Monoclinic"
                           else
-                                 err_crys=.true.
-                             err_mess_crys=" Error obtaining Crystal Familiy"
+                                 Err_Crys=.true.
+                             Err_Mess_Crys=" Error obtaining Crystal Familiy"
                           end if
                  end if
 
@@ -779,7 +820,7 @@
                                              Car_System ="Tetragonal"
                                           else
                                                  err_crys=.true.
-                                   err_mess_crys=" Error obtaining Crystal Familiy"
+                                   Err_Mess_Crys=" Error obtaining Crystal Familiy"
                                           end if
 
                                  case (3)
@@ -796,8 +837,8 @@
                                  Car_Symbol ="h"
                                  Car_System ="Trigonal"
                           else
-                                 err_crys=.true.
-                             err_mess_crys=" Error obtaining Crystal Familiy"
+                                 Err_Crys=.true.
+                             Err_Mess_Crys=" Error obtaining Crystal Familiy"
                           end if
                  end if
 
@@ -1090,7 +1131,7 @@
       type(Crystal_Cell_Type), intent(in)  :: centred_cell
       type(Crystal_Cell_Type), intent(out) :: primitive_cell
       real, dimension(3,3),    intent(out) :: transfm
-      
+
       !---- Local variables ----!
       integer              :: i
       real, dimension(3)   :: celp,celang
@@ -1141,11 +1182,384 @@
     !!
     Subroutine Init_Err_Crys()
 
-       err_crys=.false.
-       err_mess_crys=" "
+       Err_Crys=.false.
+       Err_Mess_Crys=" "
 
        return
     End Subroutine Init_Err_Crys
+
+    !!--++
+    !!--++ Subroutine Niggli_Cell_abc(ad,Niggli_Point,celln,trans)
+    !!--++   real,dimension(6),                intent(in out) :: ad
+    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
+    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
+    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++
+    !!--++
+    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    Calculates the Niggli cell when the input is the list of cell parameters
+    !!--++    provided as a 6D vector.
+    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+
+    Subroutine Niggli_Cell_abc(ad,Niggli_Point,celln,trans)    !Scalar algorithm
+      real,dimension(6),                intent(in out) :: ad
+      real,dimension(5),      optional, intent(out)    :: Niggli_Point
+      type(Crystal_Cell_Type),optional, intent(out)    :: celln
+      real, dimension(3,3),   optional, intent(out)    :: trans
+      !--- Local variables ---!
+      real, dimension(2,3)    :: n_mat
+      type(Crystal_Cell_Type) :: celda
+
+      n_mat(1,1)=ad(1)*ad(1); n_mat(1,2)=ad(2)*ad(2); n_mat(1,3)=ad(3)*ad(3)
+      n_mat(2,1)=ad(2)*ad(3)*cosd(ad(4))
+      n_mat(2,2)=ad(1)*ad(3)*cosd(ad(5))
+      n_mat(2,3)=ad(1)*ad(2)*cosd(ad(6))
+      if(present(Niggli_Point)) then
+         if (present(trans)) then
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+         else
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+         end if
+      else if(present(trans)) then
+        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+      else
+        call Niggli_Cell_nigglimat(n_mat,celln=celda)
+      end if
+      if(Err_Crys) return
+      if(present(celln)) celln=celda
+
+      !Reconstruct the new cell (Niggli Cell)
+      ad(1) = sqrt(n_mat(1,1));  ad(2) = sqrt(n_mat(1,2)); ad(3) = sqrt(n_mat(1,3))
+      ad(4) = acosd(n_mat(2,1)/(ad(2)*ad(3)*2.0))
+      ad(5) = acosd(n_mat(2,2)/(ad(1)*ad(3)*2.0))
+      ad(6) = acosd(n_mat(2,1)/(ad(1)*ad(2)*2.0))
+      return
+    End Subroutine Niggli_Cell_abc
+
+    !!--++
+    !!--++ Subroutine Niggli_Cell_Nigglimat(n_mat,Niggli_Point,celln,trans)    !Scalar algorithm
+    !!--++   real,dimension(2,3),              intent(in out) :: n_mat
+    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
+    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
+    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++
+    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    Calculates the Niggli cell when the input is the Niggli Matrix (part of the metrics)
+    !!--++    Applies the scalar algorithm of I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+    Subroutine Niggli_Cell_Nigglimat(n_mat,Niggli_Point,celln,trans)    !Scalar algorithm
+      real,dimension(2,3),              intent(in out) :: n_mat
+      real,dimension(5),      optional, intent(out)    :: Niggli_Point
+      type(Crystal_Cell_Type),optional, intent(out)    :: celln
+      real, dimension(3,3),   optional, intent(out)    :: trans
+      !--- Local variables ---!
+      real :: A,B,C,u,v,w,eps
+      real, dimension(3,3) :: trm,aux
+      real, dimension(3)   :: cel,ang
+      integer :: iu,iv,iw, ncount !ncount is the counter no more that Numiter=100 iterations are permitted
+                                  !In case of exhausting the iteration Err_Crys=.true. but the current cell
+                                  !is output anyway
+      real,parameter :: epr=0.0001     !Relative epsilon
+      integer, parameter :: numiter=100
+      logical :: ok
+      ! N is a Niggli cell of L if  (i) it is as Buerger cell of L and
+      !                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
+      !                  / a.a  b.b  c.c \       /  s11  s22  s33 \
+      !   Niggli matrix  |               |   =   |                |
+      !                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
+      !
+      ! I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
+      ! Krivy-Gruber algorithms safely implemented (suggestion of Ralf Grosse-Kunsleve)
+      ! R.W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta Cryst A60, 1-6 (2004)
+      ! Epsilon: e
+      !    x < y -> x < y-e;    x > y -> y < x-e
+      !   x <= y -> .not. y < x-e;   x >= y -> .not. x < y-e
+      !   x == y -> .not. (x < y-e .or. y < x-e)
+      !
+      A=n_mat(1,1); B=n_mat(1,2); C=n_mat(1,3)
+      u=2.0*n_mat(2,1); v=2.0*n_mat(2,2); w=2.0*n_mat(2,3)
+      eps=epr*(A*B*C)**(1.0/6.0)
+      trm=identity
+      ncount=0
+      ok=.true.
+      do
+
+         ncount=ncount+1
+         if(ncount > numiter) then
+           ok=.false.
+           exit
+         end if
+        !if(A > B .or. ( A == B  .and. abs(u) > abs(v)) ) then  ! A1
+         if(B < A-eps .or. ( .not.( A < B-eps .or. B < A-eps)  .and. abs(v) < abs(u)-eps ) ) then  ! A1
+           call swap(A,B)
+           call swap(u,v)
+           aux=reshape ((/  0.0,1.0,0.0, 1.0,0.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+           trm=matmul(aux,trm)
+         end if
+        !if(B > C .or. ( B == C .and. abs(v) > abs(w)) ) then  ! A2
+         if(C < B-eps .or. ( .not.( C < B-eps .or. B < C-eps) .and. abs(w) < abs(v)-eps) ) then  ! A2
+           call swap(B,C)
+           call swap(v,w)
+           aux=reshape ((/1.0,0.0,0.0, 0.0,0.0,1.0,  0.0,1.0,0.0/),(/3,3/))
+           trm=matmul(aux,trm)
+           cycle
+         end if
+
+        !if (u*v*w > 0.0) then                                 ! A3
+         iu=1; iv=1; iw=1
+         if( u < -eps) iu=-1
+         if( v < -eps) iv=-1
+         if( w < -eps) iw=-1
+         aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
+         if(abs(u) < eps) iu=0
+         if(abs(v) < eps) iv=0
+         if(abs(w) < eps) iw=0
+         if (iu*iv*iw > 0) then                                 ! A3
+           u=abs(u)
+           v=abs(v)
+           w=abs(w)
+           trm=matmul(aux,trm)
+         else                                                   !A4
+           u=-abs(u)
+           v=-abs(v)
+           w=-abs(w)
+           aux=-aux
+           trm=matmul(aux,trm)
+         end if
+
+        !if( abs(u) > B .or. ( u == B .and. 2.0*v < w) .or. ( u == -B .and. w < 0.0)) then  ! A5
+         if( B < abs(u)-eps  .or. ( .not.(u < B-eps .or. B < u-eps) .and. 2.0*v < w-eps) .or. &
+           ( .not.(u < -B-eps .or. -B < u-eps) .and. w < -eps)) then  ! A5
+            iu=1; if( u < -eps) iu=-1
+            C = B+C - u * iu
+            v =  v  - w * iu
+            u = u - 2.0*B*iu
+            aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 0.0,-real(iu),1.0/),(/3,3/))
+            trm=matmul(aux,trm)
+            cycle
+         end if
+        !if( abs(v) > A .or. ( v == A .and. 2.0*u < w) .or. ( v == -A .and. w < 0.0)) then  ! A6
+         if( A < abs(v)-eps .or. (.not. (v < A-eps .or. A < v-eps) .and. 2.0*u < w-eps) .or. &
+           ( .not.( v < -A-eps .or. -A < v-eps) .and. w < -eps)) then  ! A6
+            iv=1; if( v < -eps) iv=-1
+            C = A+C - v * iv
+            u =  u  - w * iv
+            v = v - 2.0*A*iv
+            aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
+            trm=matmul(aux,trm)
+            cycle
+         end if
+        !if( abs(w) > A .or. ( w == A .and. 2.0*u < v) .or. ( w == -A .and. v < 0.0)) then  ! A7
+         if( A < abs(w)-eps .or. ( .not. (w < A-eps .or. A < w-eps) .and. 2.0*u < v-eps) .or. &
+           ( .not. (w < -A-eps .or. -A < w-eps) .and. v < -eps)) then  ! A7
+            iw=1; if( w < -eps) iw=-1
+            B = A+B - w * iw
+            u =  u  - v * iw
+            w = w - 2.0*A*iw
+            aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+            trm=matmul(aux,trm)
+            cycle
+         end if
+
+        !if(u+v+w+A+B < 0.0 .or. (u+v+w+A+B == 0.0 .and. 2.0*(A+v)+w > 0.0 )) then  ! A8
+         if(u+v+w+A+B < -eps .or. ( abs(u+v+w+A+B) < eps .and. 2.0*(A+v)+w > eps )) then  ! A8
+           C=A+B+C+u+v+w
+           u=2.0*B+u+w
+           v=2.0*A+v+w
+           aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 1.0,1.0,1.0/),(/3,3/))
+           trm=matmul(aux,trm)
+           cycle
+         end if
+         exit
+      end do
+
+      !Reconstruct the new Niggli matrix
+      n_mat(1,1)=A; n_mat(1,2)=B; n_mat(1,3)=C
+      n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
+      if(present(trans)) trans=trm
+
+      if(.not. ok) Then
+       Err_Crys=.true.
+       Err_Mess_Crys=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
+       return
+      end if
+      if(present(Niggli_point)) then
+        Niggli_point(1)= A/C
+        Niggli_point(2)= B/C
+        Niggli_point(3)= u/C
+        Niggli_point(4)= v/C
+        Niggli_point(5)= w/C
+      end if
+      if(present(celln)) then
+        !Reconstruct the new cell (Niggli Cell)
+        cel(1) = sqrt(A);  cel(2) = sqrt(B); cel(3) = sqrt(C)
+        ang(1) = acosd(u/(cel(2)*cel(3)*2.0))
+        ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
+        ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
+        call Set_Crystal_Cell(cel,ang, Celln)
+      end if
+      return
+    End Subroutine Niggli_Cell_nigglimat
+
+    !!--++
+    !!--++ Subroutine Niggli_Cell_Params(a,b,c,al,be,ga,Niggli_Point,celln,trans)
+    !!--++   real,                             intent (in out)  :: a,b,c,al,be,ga
+    !!--++   real,dimension(5),      optional, intent(out)      :: Niggli_Point
+    !!--++   type(Crystal_Cell_Type),optional, intent(out)      :: celln
+    !!--++   real, dimension(3,3),   optional, intent(out)      :: trans
+    !!--++
+    !!--++
+    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    Calculates the Niggli cell when the input is the list of cell parameters
+    !!--++    provided as six scalars.
+    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+    Subroutine Niggli_Cell_Params(a,b,c,al,be,ga,Niggli_Point,celln,trans)
+      real,                             intent (in out)  :: a,b,c,al,be,ga
+      real,dimension(5),      optional, intent(out)      :: Niggli_Point
+      type(Crystal_Cell_Type),optional, intent(out)      :: celln
+      real, dimension(3,3),   optional, intent(out)      :: trans
+      !--- Local variables ---!
+      type(Crystal_Cell_Type) :: celda
+      real, dimension(2,3)    :: n_mat
+      call Init_Err_Crys()
+      if( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
+        Err_Crys=.true.
+        Err_Mess_Crys=" The provided angles cannot set a unit cell!"
+        return
+      end if
+      Call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
+      if(Err_Crys) return
+
+      n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
+      n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
+
+      if(present(Niggli_Point)) then
+         if (present(trans)) then
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+         else
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+         end if
+      else if(present(trans)) then
+        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+      else
+        call Niggli_Cell_nigglimat(n_mat,celln=celda)
+      end if
+      if(Err_Crys) return
+      if(present(celln)) then
+         celln=celda
+      else
+         a=celda%cell(1); b=celda%cell(2); c=celda%cell(3)
+         al=celda%ang(1); be=celda%ang(2); ga=celda%ang(3)
+      end if
+      return
+    End Subroutine Niggli_Cell_Params
+
+    !!--++
+    !!--++ Subroutine Niggli_Cell_Type(cell,Niggli_Point,celln,trans)
+    !!--++   type(Crystal_Cell_Type),          intent(in out ) :: cell
+    !!--++   real,dimension(5),      optional, intent(out)     :: Niggli_Point
+    !!--++   type(Crystal_Cell_Type),optional, intent(out)     :: celln
+    !!--++   real, dimension(3,3),   optional, intent(out)     :: trans
+    !!--++
+    !!--++
+    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    Calculates the Niggli cell when the input is an object of type Crystal_Cell_Type
+    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+    Subroutine Niggli_Cell_Type(cell,Niggli_Point,celln,trans)
+      type(Crystal_Cell_Type),          intent(in out ) :: cell
+      real,dimension(5),      optional, intent(out)     :: Niggli_Point
+      type(Crystal_Cell_Type),optional, intent(out)     :: celln
+      real, dimension(3,3),   optional, intent(out)     :: trans
+      !--- Local variables ---!
+      type(Crystal_Cell_Type) :: celda
+      real, dimension(2,3)    :: n_mat
+
+      call Init_Err_Crys()
+      celda=cell
+      n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
+      n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
+
+      if(present(Niggli_Point)) then
+         if (present(trans)) then
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+         else
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+         end if
+      else if(present(trans)) then
+        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+      else
+        call Niggli_Cell_nigglimat(n_mat,celln=celda)
+      end if
+      if(Err_Crys) return
+      if(present(celln)) then
+        celln=celda
+      else
+        cell=celda
+      end if
+      return
+    End Subroutine Niggli_Cell_Type
+
+    !!--++
+    !!--++ Subroutine Niggli_Cell_Vect(a,b,c,Niggli_Point,celln,trans)
+    !!--++   real,dimension(3),                intent(in)     :: a,b,c
+    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
+    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
+    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++
+    !!--++
+    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    Calculates the Niggli cell when the input is given as three vectors
+    !!--++    in Cartesian components. A test of linear indenpendency is performed.
+    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++
+    !!--++ Update: October - 2008
+    !!
+    Subroutine Niggli_Cell_Vect(a,b,c,Niggli_Point,celln,trans)
+      real,dimension(3),                intent(in)     :: a,b,c
+      real,dimension(5),      optional, intent(out)    :: Niggli_Point
+      type(Crystal_Cell_Type),optional, intent(out)    :: celln
+      real, dimension(3,3),   optional, intent(out)    :: trans
+      !--- Local variables ---!
+      real, dimension(2,3)    :: n_mat
+      type(Crystal_Cell_Type) :: celda
+      real :: det
+
+      det=determ_V(a,b,c)
+      if(abs(det) < 0.0001) then
+        Err_Crys=.true.
+        Err_Mess_Crys=" The three input vectors are nor linearly independent!"
+        return
+      end if
+      n_mat(1,1)=dot_product(a,a); n_mat(1,2)=dot_product(b,b); n_mat(1,3)=dot_product(c,c)
+      n_mat(2,1)=dot_product(b,c); n_mat(2,2)=dot_product(a,c); n_mat(2,3)=dot_product(a,b)
+
+      if(present(Niggli_Point)) then
+         if (present(trans)) then
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+         else
+           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+         end if
+      else if(present(trans)) then
+        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+      else
+        call Niggli_Cell_nigglimat(n_mat,celln=celda)
+      end if
+      if(Err_Crys) return
+      if(present(celln)) celln=celda
+
+      return
+    End Subroutine Niggli_Cell_Vect
 
     !!--++
     !!--++ Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
@@ -1161,6 +1575,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
+
     Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
        !---- Arguments ----!
        real(kind=sp), dimension(3), intent(in ) :: a,ang
@@ -1221,7 +1636,7 @@
        !---- Local Variables ----!
        integer :: ifail
 
-       call init_err_crys()
+       call Init_Err_Crys()
 
        if (present(scell) .and. present(sangl)) then
          Celda%cell_std=scell
@@ -1246,7 +1661,7 @@
 
        if (ifail /= 0) then
           err_crys=.true.
-          err_mess_crys=" Bad cell parameters "
+          Err_Mess_Crys=" Bad cell parameters "
           return
        end if
 
