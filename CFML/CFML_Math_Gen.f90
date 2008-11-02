@@ -76,6 +76,7 @@
 !!--++       CO_LINEAR_C               [Overloaded]
 !!--++       CO_LINEAR_I               [Overloaded]
 !!--++       CO_LINEAR_R               [Overloaded]
+!!----       CO_PRIME
 !!----       EQUAL_MATRIX
 !!--++       EQUAL_MATRIX_I            [Overloaded]
 !!--++       EQUAL_MATRIX_R            [Overloaded]
@@ -179,7 +180,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Bessj0, Bessj1, Bessj, Factorial, Pgcd, Ppcm, Modulo_Lat
+    public :: Bessj0, Bessj1, Bessj, Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime
 
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
@@ -187,12 +188,12 @@
               Zbelong, Imaxloc, Iminloc
 
     !---- List of private functions ----!
-    private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,      &
-               Atand_dp, Atand_sp, Cosd_dp, Cosd_sp, Sind_dp, Sind_sp, Tand_dp,   &
-               Tand_sp, Negligiblec, Negligibler, Pythag_dp, Pythag_sp,           &
+    private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
+               Atand_dp, Atand_sp, Cosd_dp, Cosd_sp, Sind_dp, Sind_sp, Tand_dp,    &
+               Tand_sp, Negligiblec, Negligibler, Pythag_dp, Pythag_sp,            &
                Co_linear_C, Co_linear_I, Co_linear_R, Equal_Matrix_I,              &
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
-               Outerprod_dp, Outerprod_sp, Traza_C, Traza_I, Traza_R, ZbelongM,   &
+               Outerprod_dp, Outerprod_sp, Traza_C, Traza_I, Traza_R, ZbelongM,    &
                ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I
 
     !---- List of public subroutines ----!
@@ -213,7 +214,7 @@
                Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition
 
     !---- Definitions ----!
-    
+
     !!----
     !!---- DP
     !!----    DP: Double precision ( dp = selected_real_kind(14,80) )
@@ -1380,7 +1381,7 @@
     !!--++    (OVERLOADED)
     !!--++    Determines if two integer vectors are co-linear
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: October - 2008
     !!
     Function Co_linear_I(a,b,n) Result(co_linear)
        !---- Argument ----!
@@ -1390,7 +1391,7 @@
 
        !---- Local variables ----!
        integer       :: i,ia,ib
-       real(kind=sp) :: c
+       real(kind=sp) :: c,d
 
        co_linear=.true.
        do i=1,n
@@ -1411,7 +1412,7 @@
        else
           c=real(a(ia))/real(b(ib))
           do i=1,n
-             if (abs( a(i)-nint(c*real(b(i))) ) > 0) then
+             if (abs( real(a(i))-c*real(b(i)) ) > epss) then
                 co_linear=.false.
                 return
              end if
@@ -1470,6 +1471,55 @@
 
        return
     End Function Co_linear_R
+
+    !!----
+    !!---- Function Co_Prime(v,imax) result(cop)
+    !!----   integer, dimension(:), intent(in) :: v
+    !!----   integer,               intent(in) :: imax !Maximun prime number to be tested
+    !!----   Logical                           :: cop
+    !!----
+    !!---- Provides the value .TRUE. if the array V contains
+    !!---- co-primes integers: there is no common divisor for all
+    !!---- the integers. Only the first 20 prime numbers are tested
+    !!---- The value of imax the the maximum prime number to be tested (imax <=71)
+    !!----
+    !!---- Update: October - 2008
+    !!
+    Function Co_Prime(v,imax) result(cop)
+      integer, dimension(:), intent(in) :: v
+      integer,               intent(in) :: imax
+      Logical                           :: cop
+      !---- Local variables ----!
+      integer :: i,j,im,k,dimv
+      integer, dimension(20), parameter :: primes = (/2,3,5,7,11,13,17,19,23,29,31,37,41,43,&
+                                                     47,53,59,61,67,71/)
+
+      cop=.true.
+      if(imax > 71) return
+      !If the maximum value of the indices is 1 they are not coprimes
+      if(maxval(abs(v)) == 1) return
+      if(maxval(abs(v)) == 0) then
+        cop=.false.
+        return
+      end if
+      !Search the maximum prime number to be tested
+      do i=1,20
+        if(imax > primes(i)) cycle
+        im=i
+        exit
+      end do
+       !Indices greater than 1
+      dimv=size(v)
+      do_p: do i=1,im
+       k=primes(i)
+       do j=1,dimv
+        if( mod(v(j),k) /= 0) cycle do_p
+       end do
+       cop=.false.
+       exit
+      end do do_p
+      return
+    End Function Co_Prime
 
     !!----
     !!---- Logical Function Equal_Matrix(A,B,N)
@@ -1905,7 +1955,7 @@
 
        return
     End Function Outerprod_sp
-    
+
     !!----
     !!---- Function Traza(A)
     !!----    complex/integer/real(kind=sp), dimension(:,:), intent(in)  :: a
@@ -3107,14 +3157,14 @@
 
        return
     End Subroutine Partition
-    
-    !!---- 
+
+    !!----
     !!---- Subroutine Points_In_Line2D(X1, XN, N, XP)
     !!----    real, dimension(2),   intent(in)  :: X1   ! Point1 in 2D
     !!----    real, dimension(2),   intent(in)  :: XN   ! PointN in 2D
     !!----    integer,              intent(in)  :: N    ! Number of Total points
     !!----    real, dimension(:,:), intent(out) :: XP   ! List of points
-    !!---- 
+    !!----
     !!----    The routine calculate N points belonging to the line defined
     !!----    by X1 and Xn with equal distance between them. XP contains
     !!----    X1,X2,.....,XN points.
@@ -3126,30 +3176,30 @@
        real, dimension(2),   intent(in)  :: X1   ! Point1 in 2D
        real, dimension(2),   intent(in)  :: XN   ! PointN in 2D
        integer,              intent(in)  :: N    ! Number of Total points
-       real, dimension(:,:), intent(out) :: XP   ! List of points 
-       
+       real, dimension(:,:), intent(out) :: XP   ! List of points
+
        !---- Local Variables ----!
        integer :: i
        real    :: ml,bl,dl,t
        real    :: a,b,c,d
        real    :: xa,xb
-       
+
        xp=0.0
-       
+
        if (n <= 1) return
-       
+
        !---- Calculating the distance between two points to
        !---- eliminate rare considerations as the same point
        dl=sqrt( (xn(1)-x1(1))**2 + (xn(2)-x1(2))**2 )
        if (dl <= 0.0001) return
-          
+
        !---- When N=2 is trivial case ----!
        if (n == 2) then
           xp(:,1)=x1
           xp(:,2)=xn
           return
-       end if   
-       
+       end if
+
        !---- Case 1: Y=cte ----!
        !Xn(2) and X1(2) are equal, then we have a line  with Y=cte
        if (abs(xn(2)-x1(2)) <= 0.0001) then
@@ -3160,18 +3210,18 @@
              do i=2,n-1
                 xp(1,i)=xp(1,i-1)+d
                 xp(2,i)=xp(2,1)
-             end do   
+             end do
           else
              do i=2,n-1
                 xp(1,i)=xp(1,i-1)-d
                 xp(2,i)=xp(2,1)
              end do
-          end if    
+          end if
           xp(:,n)=xn
-          
-          return  
+
+          return
        end if
-       
+
        !---- Case 2: X=cte ----!
        !Xn(1) - X1(1) are equal, then we have a line with X=cte
        if (abs(xn(1)-x1(1)) <= 0.0001) then
@@ -3182,34 +3232,34 @@
              do i=2,n-1
                 xp(1,i)=xp(1,1)
                 xp(2,i)=xp(2,i-1)+d
-             end do   
+             end do
           else
              do i=2,n-1
                 xp(1,i)=xp(1,1)
                 xp(2,i)=xp(2,i-1)-d
              end do
-          end if    
+          end if
           xp(:,n)=xn
-          
-          return  
+
+          return
        end if
-       
+
        !---- Case 3: General case ----!
        ml=(x1(2)-xn(2))/(x1(1)-xn(1))
        bl=x1(2) - (ml * x1(1))
-       
+
        !---- Distance between X1 and XN ----!
        dl=sqrt( (xn(1)-x1(1))**2 + (xn(2)-x1(2))**2 )
-    
-       !---- Creating the list ----!      
+
+       !---- Creating the list ----!
        a=ml**2 + 1.0
        b=2.0 *( ml*(bl-x1(2)) -x1(1) )
-       
+
        xp(:,1)=x1
        do i=2,n-1
           t=(dl**2)*((real(i-1)/real(n-1))**2)
           c=(x1(2)-bl)**2 + x1(1)**2 - t
-          
+
           xa=(-b + sqrt(b**2 - 4.0*a*c))/(2.0*a)
           xb=(-b - sqrt(b**2 - 4.0*a*c))/(2.0*a)
           if (x1(1) <= xa .and. xa <= xn(1)) then
@@ -3218,12 +3268,12 @@
           else
              xp(1,i)=xb
              xp(2,i)=ml*xb+bl
-          end if      
-       end do   
+          end if
+       end do
        xp(:,n)=xn
-       
+
        return
-    End Subroutine Points_In_Line2D    
+    End Subroutine Points_In_Line2D
 
     !!----
     !!---- Subroutine Rank(a,tol,r)
@@ -3681,7 +3731,7 @@
     !!----    real(kind=sp),    intent(in)                   :: ypn   !  In -> Derivate of Point N
     !!----    real(kind=sp),    intent(out),    dimension(n) :: y2    ! Out -> array containing second derivatives
     !!----                                                                     at the given points
-    !!----    Spline  N points 
+    !!----    Spline  N points
     !!----
     !!---- Update: February - 2005
     !!
