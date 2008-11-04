@@ -96,7 +96,7 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort
+!!--++    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand
 !!--++    Use MATH_3D,  only : Matrix_Inverse, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
@@ -142,7 +142,7 @@
  Module Crystal_Types
 
     !---- Use files ----!
-    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort
+    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand
     Use MATH_3D,  only : Matrix_Inverse, determ_V, Cross_Product
 
     implicit none
