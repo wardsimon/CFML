@@ -3,7 +3,7 @@ if not x%1 == x goto CONT
 rem
 cls
 cd .\src\cfml
-echo
+echo ""
 echo MAKE_CRYSFML: Make the CrysFML Library
 echo Syntax: make_crysfml [f95/lf95/g95/ifort/gfortran] [win/rwin] [debug]
 echo                            --- compiler ---        ---  options  ---
