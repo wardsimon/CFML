@@ -23,6 +23,7 @@
 !!----       CROSS_PRODUCT
 !!--++       CROSS_PRODUCT_dp          [Overloaded]
 !!--++       CROSS_PRODUCT_sp          [Overloaded]
+!!--++       CROSS_PRODUCT_in          [Overloaded]
 !!----       DETERM_A
 !!--++       DETERM_A_I                [Overloaded]
 !!--++       DETERM_A_R                [Overloaded]
@@ -135,6 +136,7 @@
     Interface  Cross_Product
        Module Procedure Cross_product_sp
        Module Procedure Cross_product_dp
+       Module Procedure Cross_product_in
     End Interface
 
     Interface  Determ_A
@@ -233,6 +235,31 @@
 
        return
     End Function Cross_Product_sp
+    
+    !!--++
+    !!--++ Function  Cross_Product_in(U,V) Result(W)
+    !!--++    integer, dimension(3), intent( in) :: u   !  In -> Vector 1
+    !!--++    integer, dimension(3), intent( in) :: v   !  In -> Vector 2
+    !!--++    integer, dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the cross product of integer vectors u and v
+    !!--++    In the indices are givent w.r.t the direct lattice, the cross product
+    !!--++    are indices w.r.t. reciprocal lattice and viceversa.
+    !!--++
+    !!--++ Update: November - 2008
+    !!
+    Function Cross_Product_in(u,v) Result(w)
+       !---- Argument ----!
+       integer, dimension(3), intent( in) :: u,v
+       integer, dimension(3)              :: w
+
+       w(1)=u(2)*v(3)-u(3)*v(2)  ! i  j   k !
+       w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
+       w(3)=u(1)*v(2)-u(2)*v(1)  !v1  v2  v3!
+
+       return
+    End Function Cross_Product_in
 
     !!----
     !!---- Function Determ_A(A)

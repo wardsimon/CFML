@@ -127,6 +127,7 @@
 !!--++       DIAGONALIZE_SYMM          [Overloaded]
 !!--++       EIGSRT                    [Private]
 !!----       FIRST_DERIVATIVE
+!!----       IN_SORT
 !!----       INVERT_MATRIX
 !!----       LINEAR_DEPENDENT
 !!--++       LINEAR_DEPENDENTC         [Overloaded]
@@ -184,7 +185,7 @@
 
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
-              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Traza,     &
+              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Traza,    &
               Zbelong, Imaxloc, Iminloc
 
     !---- List of private functions ----!
@@ -198,7 +199,7 @@
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,     &
-               Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,           &
+               Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,   &
                First_Derivative, Second_Derivative, Smoothing_proc, Points_in_Line2D
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -2597,6 +2598,55 @@
        return
     End Subroutine First_Derivative
 
+    !!----
+    !!---- Subroutine In_Sort(id,n,p,q)
+    !!----    integer, dimension(:), intent(in) :: id  !Integer array to be sorted                    
+    !!----    integer,               intent(in) :: n   !Number items in the array                     
+    !!----    integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call  
+    !!----    integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id            
+    !!--<<
+    !!----    Subroutine to order in ascending mode the integer array "id".
+    !!----    The input value "n" is the number of items to be ordered in "id".
+    !!----    The array "p" is the initial pointer to "id" (coming from a previous call)
+    !!----    The final pointer holding the order of items.
+    !!-->>
+    !!----
+    !!---- Update: November - 2008
+    !!
+    Subroutine In_Sort(id,n,p,q)
+      integer, dimension(:), intent(in) :: id  !Integer array to be sorted
+      integer,               intent(in) :: n   !Number items in the array
+      integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
+      integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
+      !--- Local Variables ----!
+      integer :: i,j,k,l,m
+      integer, dimension(:),allocatable :: it
+
+      l=minval(id)
+      m=maxval(id)
+      l=l-1
+      m=m-l
+      allocate(it(m))
+      it(1:m)=0
+      do i=1,n
+        j=id(p(i))-l
+        it(j)=it(j)+1
+      end do
+      j=0
+      do i=1,m
+        k=j
+        j=j+it(i)
+        it(i)=k
+      end do
+      do i=1,n
+        j=id(p(i))-l
+        it(j)=it(j)+1
+        j=it(j)
+        q(j)=p(i)
+      end do
+      return
+    End Subroutine In_Sort
+    
     !!----
     !!---- Subroutine Invert_Matrix(a,b,singular,perm)
     !!----    real(kind=sp), dimension(:,:),  intent( in) :: a
