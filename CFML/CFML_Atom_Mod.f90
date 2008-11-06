@@ -77,7 +77,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Equiv_Atm, wrt_lab
+    public :: Equiv_Atm, Wrt_Lab
 
     !---- List of public subroutines ----!
     public :: Allocate_Atoms_Cell, Allocate_Atom_List, Atlist1_Extencell_Atlist2,     &
@@ -512,7 +512,7 @@
     !!---- Subroutine Allocate_Atom_List(N,A, Fail)
     !!----    integer, intent(in)                    :: n    !  In -> Number of elements of A
     !!----    type (atom_list_type), intent(in out)  :: A    !  In -> Objet to be allocated
-    !!----    logical, optional,     intent(out)     :: fail 
+    !!----    logical, optional,     intent(out)     :: fail
     !!----
     !!----    Allocation of objet A of type atom_list. This subroutine
     !!----    should be called before using an object of type atom_list.
@@ -540,7 +540,7 @@
        do i=1,n
           call init_atom_type(A%atom(i))
        end do
-       
+
        return
     End Subroutine Allocate_atom_list
 
@@ -971,7 +971,7 @@
        character(len=4)                   :: car
        integer                            :: i,j,k,nc,ntot,ier
        integer, dimension(:), allocatable :: np
-       real                               :: dis 
+       real                               :: dis
        real, dimension(3)                 :: pto1,pto2,xr
 
        !---- Calculating the new dimension for NAtm ----!
@@ -1408,7 +1408,7 @@
        write(unit=lun,fmt="(a,6a12)") "Cell ",text
        write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
        call Write_Atoms_CFL(Atm,Lun,cel)
-       
+
        return
     End Subroutine Write_CFL
 
