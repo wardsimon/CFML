@@ -96,8 +96,9 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand
-!!--++    Use MATH_3D,  only : Matrix_Inverse, determ_V, Cross_Product
+!!--++    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
+!!--++                         Co_Linear
+!!--++    Use MATH_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
 !!----    CRYSTAL_CELL_TYPE
@@ -122,6 +123,7 @@
 !!----
 !!----    Subroutines:
 !!----       CHANGE_SETTING_CELL
+!!----       GET_CONVENTIONAL_CELL
 !!----       GET_CRYST_FAMILY
 !!--++       GET_CRYST_ORTHOG_MATRIX     [Private]
 !!----       GET_DERIV_ORTH_CELL
@@ -142,8 +144,9 @@
  Module Crystal_Types
 
     !---- Use files ----!
-    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand
-    Use MATH_3D,  only : Matrix_Inverse, determ_V, Cross_Product
+    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
+                         Co_Linear
+    Use MATH_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
     implicit none
 
@@ -161,7 +164,8 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,       &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell, &
-              Get_Primitive_Cell, Get_Two_Fold_Axes
+              Get_Primitive_Cell, Get_Two_Fold_Axes, Get_Conventional_Cell
+
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -224,18 +228,20 @@
     !!----     real,   dimension(3)    :: a,b,c       ! Cartesian components of direct cell parameters
     !!----  End Type Twofold_Axes_Type
     !!----
+    !!----  All components are initialised to zero in the type declaration
+    !!----
     !!---- Update: October - 2008
     !!
     Type, public :: Twofold_Axes_Type
-       integer                 :: ntwo
-       real                    :: tol
-       real   ,dimension(3,12) :: caxes
-       integer,dimension(3,12) :: dtwofold
-       integer,dimension(3,12) :: rtwofold
-       integer,dimension(12)   :: dot
-       real,   dimension(12)   :: cross
-       real,   dimension(12)   :: maxes
-       real,   dimension(3)    :: a,b,c
+       integer                 :: ntwo=0
+       real                    :: tol=3.0
+       real   ,dimension(3,12) :: caxes=0.0
+       integer,dimension(3,12) :: dtwofold=0
+       integer,dimension(3,12) :: rtwofold=0
+       integer,dimension(12)   :: dot=0
+       real,   dimension(12)   :: cross=0.0
+       real,   dimension(12)   :: maxes=0.0
+       real,   dimension(3)    :: a=0.0,b=0.0,c=0.0
     End Type Twofold_Axes_Type
 
     !!----
@@ -721,6 +727,539 @@
 
        return
     End Subroutine Change_Setting_Cell
+
+    !!----
+    !!---- Subroutine Get_Conventional_Cell(twofold,Cell,tr,message,ok)
+    !!----   Type(Twofold_Axes_Type), intent(in)  :: twofold
+    !!----   Type(Crystal_Cell_Type), intent(out) :: Cell
+    !!----   integer, dimension(3,3), intent(out) :: tr
+    !!----   character(len=*),        intent(out) :: message
+    !!----   logical,                 intent(out) :: ok
+    !!----
+    !!----  This subroutine provides the "conventional" (or quasi! being still tested )
+    !!----  from the supplied object "twofold" that has been obtained from a previous
+    !!----  call to Get_Two_Fold_Axes. The conventional unit cell can be deduced from
+    !!----  the distribution of two-fold axes in the lattice. The cell produced in this
+    !!----  procedure applies some rules for obtaining the conventional cell, for instance
+    !!----  in monoclinic lattices (a single two-fold axis) the two-fold axis is along
+    !!----  b and the final cell is right handed with a <= c and beta >= 90. It may be
+    !!----  A,C or I centred. The convertion to the C-centred setting in the A and I
+    !!----  centring, is not attempted. The angular tolerance for accepting a two-fold
+    !!----  axis, or higher order axes, as such has been previously set into twofold%tol
+    !!----  component.
+    !!----
+    !!---- Update: November - 2008
+    !!----
+    Subroutine Get_Conventional_Cell(twofold,Cell,tr,message,ok)
+      Type(Twofold_Axes_Type), intent(in)  :: twofold
+      Type(Crystal_Cell_Type), intent(out) :: Cell
+      integer, dimension(3,3), intent(out) :: tr
+      character(len=*),        intent(out) :: message
+      logical,                 intent(out) :: ok
+      !---- Local variables ----!
+      integer, dimension(1)    :: ix
+      integer, dimension(2)    :: ab
+      integer, dimension(3)    :: rw,h1,h2
+      integer, dimension(66)   :: inp
+      integer, dimension(3,48) :: row
+      real,    dimension(3)    :: u,v1,v2,v3,a,b,c,vec,vi,vj,vk
+      real,    dimension(48)   :: mv
+      real,    dimension(66)   :: ang
+      integer :: iu,iv,iw,nax,i,j,k,m,namina,naminb,naminc,ia
+      real    :: dot,ep,domina,dominb,dominc,aij,aik,ajk
+      logical :: hexap, hexac
+      real    :: delt
+
+      a=twofold%a; b=twofold%b; c=twofold%c
+      delt=twofold%tol
+      ep=cosd(90.0-delt)
+      domina=9.0e+30; dominc=domina
+      tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
+      ab=0; mv=0.0; ang=0.0; row=0; inp=0
+      ok=.true.
+
+      Select Case(twofold%ntwo)
+
+        Case (1)    !Monoclinic
+          v2=twofold%caxes(:,1)
+          u = v2/twofold%maxes(1)
+          tr(2,:)=twofold%dtwofold(:,1)
+          nax=0
+          do iu=-3,3
+            do iv=-3,3
+              do_iw: do iw=0,3
+                 rw=(/iu,iv,iw/)
+                ! if(iu == 0 .and. iv == 0 .and. iw == 0) cycle
+                 if(.not. Co_prime(rw,3)) cycle
+                 vec=real(iu)*a+real(iv)*b+real(iw)*c
+                 dot=sqrt(dot_product(vec,vec))
+                 vec=vec/dot
+                 if(abs(dot_product(u,vec)) < ep) then
+                   do m=1,nax
+                      if(co_linear(rw,row(:,m),3)) cycle do_iw
+                   end do
+                   nax=nax+1
+                   row(:,nax) = rw
+                   mv(nax) = dot
+                   if(dot < domina) then
+                     domina=dot
+                     namina=nax
+                     tr(1,:)=rw
+                     v1=real(iu)*a+real(iv)*b+real(iw)*c
+                   end if
+                 end if
+              end do do_iw
+            end do
+          end do
+          do i=1,nax
+            if(i == namina) cycle
+            if(mv(i) < dominc) then
+              dominc=mv(i)
+              naminc=i
+            end if
+          end do
+          tr(3,:)=row(:,naminc)
+          v3=row(1,naminc)*a+row(2,naminc)*b+row(3,naminc)*c
+          !Length of the three basis vectors should be stored in mv(1),mv(2),mv(3)
+          mv(1)=sqrt(dot_product(v1,v1))
+          mv(2)=sqrt(dot_product(v2,v2))
+          mv(3)=sqrt(dot_product(v3,v3))
+          !The two shortest vectors perpendicular to the primary twofold axis have been found
+          !and the transformation matrix has been constructed
+          namina=determ_A(tr)
+          if(namina < 0) then   !right handed system
+           tr(2,:)=-tr(2,:)
+           v2=-v2
+           namina=-namina
+          end if
+          !Test if beta is lower than 90 in such a case invert c and b
+          dominb=dot_product(v1/mv(1),v3/mv(3))
+          if(dominb > 0.0) then  !angle beta < 90
+            tr(2,:)=-tr(2,:)
+            v2=-v2
+            tr(3,:)=-tr(3,:)
+            v3=-v3
+          end if
+
+          Select Case (namina)
+             Case(1)
+               message="Monoclinic, primitive cell"
+             Case(2)
+               rw=matmul((/0,1,1/),tr)
+               if(.not. co_prime(rw,3)) then
+                  message="Monoclinic, A-centred cell"
+               else
+                  rw=matmul((/1,1,1/),tr)
+                  if(.not. co_prime(rw,3)) then
+                     message="Monoclinic, I-centred cell"
+                  else
+                     rw=matmul((/1,1,0/),tr)
+                     if(.not. co_prime(rw,3)) message="Monoclinic, C-centred cell"
+                  end if
+               end if
+
+             Case(3:)
+               message="Error in monoclinic cell"
+               ok=.false.
+          End Select
+
+        Case (3)    !Orthorhombic/Rhombohedral
+
+          u(1:3)=twofold%maxes(1:3)
+          ix=minloc(u)
+          namina=ix(1)
+          ix=maxloc(u)
+          naminc=ix(1)
+          if(naminc == namina) then
+            namina=1; naminb=2; naminc=3
+          else
+            do i=1,3
+             if(i == namina) cycle
+             if(i == naminc) cycle
+             naminb=i
+             exit
+            end do
+          end if
+          tr(1,:) = twofold%dtwofold(:,namina)
+          tr(2,:) = twofold%dtwofold(:,naminb)
+          tr(3,:) = twofold%dtwofold(:,naminc)
+          v1 = twofold%caxes(:,namina)
+          v2 = twofold%caxes(:,naminb)
+          v3 = twofold%caxes(:,naminc)
+          mv(1)=twofold%maxes(namina)
+          mv(2)=twofold%maxes(naminb)
+          mv(3)=twofold%maxes(naminc)
+          !Check the system by verifying that the two-fold axes form 90 (orthorhombic)
+          !or 120 degrees (Rhombohedral)
+          domina=dot_product(v2/mv(2),v3/mv(3))
+          dominb=dot_product(v1/mv(1),v3/mv(3))
+          dominc=dot_product(v1/mv(1),v2/mv(2))
+
+          if(abs(domina) < ep .and. abs(dominb) < ep .and. abs(dominc) < ep) then !orthorhombic
+            namina=determ_A(tr)
+            if(namina < 0) then
+             tr(3,:)=-tr(3,:)
+             v3=-v3
+             namina=-namina
+            end if
+            Select Case (namina)
+               Case(1)
+                 message="Orthorhombic, Primitive cell"
+               Case(2)
+                  rw=matmul((/0,1,1/),tr)
+                  if(.not. co_prime(rw,3)) then
+                     message="Orthorhombic, A-centred cell"
+                  else
+                     rw=matmul((/1,1,1/),tr)
+                     if(.not. co_prime(rw,3)) then
+                        message="Orthorhombic, I-centred cell"
+                     else
+                        rw=matmul((/1,1,0/),tr)
+                        if(.not. co_prime(rw,3)) then
+                            message="Orthorhombic, C-centred cell"
+                        else
+                            rw=matmul((/1,0,1/),tr)
+                            if(.not. co_prime(rw,3)) message="Orthorhombic, B-centred cell"
+                        end if
+                     end if
+                  end if
+
+               Case(3:)
+                 message="Orthorhombic, F-centred cell"
+            End Select
+
+          else !Rhombohedral/Trigonal
+
+            !In the Rhombohedral system the two-fold axes are in the plane perpendicular to
+            !the three-fold axis, and valid a,b, vectors can be chosen among any two two-fold
+            !axes forming an angle of 120 degrees
+            !verify that 1 and 2 form 120
+            ang(1)=acosd(domina)    !2-3
+            ang(2)=acosd(dominb)    !1-3
+            ang(3)=acosd(dominc)    !1-2
+            dot=1.0
+            iu=1
+            j=0
+            do i=1,3
+              if(abs(ang(i)-120.0) < delt) then
+                j=i
+                exit
+              end if
+            end do
+
+            if( j == 0) then
+              do i=1,3
+                if(abs(ang(i)-60.0) < delt) then
+                  j=i
+                  dot=-1.0
+                  iu=-1
+                  exit
+                end if
+              end do
+            End if
+
+            if( j == 0) then
+
+              message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+              ok=.false.
+              return
+
+            else
+
+              Select Case (j)
+
+                case(1)
+                   vi=v2
+                   vj=dot*v3
+                   h1=tr(2,:); h2=iu*tr(3,:)
+                   tr(3,:)=tr(1,:)
+                   tr(1,:)=h1
+                   tr(2,:)=h2
+
+                case(2)
+                   vi=v1
+                   vj=dot*v3
+                   h2=iu*tr(3,:)
+                   tr(3,:)=tr(2,:)
+                   tr(2,:)=h2
+
+                case(3)
+                   vi=v1
+                   vj=dot*v2
+                   tr(2,:)=iu*tr(2,:)
+
+              End Select
+
+              v1 = vi
+              v2 = vj
+              mv(1)=sqrt(dot_product(v1,v1))
+              mv(2)=sqrt(dot_product(v2,v2))
+              vi=v1/mv(1)
+              vj=v2/mv(2)
+              ok=.false.
+              do_iu: do iu=-3,3
+                do iv=-3,3
+                  do iw=0,3
+                      rw=(/iu,iv,iw/)
+                      if(.not. Co_prime(rw,3)) cycle
+                      vec=real(iu)*a+real(iv)*b+real(iw)*c
+                      dot=sqrt(dot_product(vec,vec))
+                      vec=vec/dot
+                      if(abs(dot_product(vi,vec)) < ep  .and. abs(dot_product(vj,vec)) < ep) then
+                        tr(3,:)=rw
+                        ok=.true.
+                        exit do_iu
+                      end if
+                  end do
+                end do
+              end do do_iu
+
+              If(ok) then
+                namina=determ_A(tr)
+                if(namina < 0) then
+                 tr(3,:)=-tr(3,:)
+                 namina=-namina
+                end if
+                v3 = tr(3,1)*a+tr(3,2)*b+tr(3,3)*c
+                mv(3)=sqrt(dot_product(v3,v3))
+                Select Case (namina)
+                  case(1)
+                     message="Primitive hexagonal cell"
+                  case(3)
+                     rw=matmul((/2,1,1/),tr)
+                     if(.not. co_prime(rw,3)) then
+                       message="Rhombohedral, obverse setting cell"
+                     else
+                       message="Rhombohedral, reverse setting cell"
+                     end if
+                End Select
+              Else
+                 message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+                 ok=.false.
+                 return
+              End if
+            End if !j==0
+
+          End if  !orthorhombic test
+
+        Case (5)    !Tetragonal
+          m=0
+          inp=0
+          mv(1:5)=twofold%maxes(1:5)
+          do i=1,twofold%ntwo-1
+            vi=twofold%caxes(:,i)/twofold%maxes(i)
+            do j=i+1,twofold%ntwo
+              vj=twofold%caxes(:,j)/twofold%maxes(j)
+              m=m+1
+              ang(m)=acosd(dot_product(vi,vj))
+              if(abs(ang(m)-45.0) < delt .or. abs(ang(m)-135.0) < delt) then
+                inp(i)=1
+                inp(j)=1
+                if(mv(i) > mv(j)) then
+                  ia=j
+                else
+                  ia=i
+                end if
+                if(ab(1) == 0) then
+                  ab(1) = ia
+                else
+                  ab(2) = ia
+                end if
+              end if
+            end do
+          end do
+
+          !Determination of the c-axis (that making 90 degree with all the others)
+          ix=minloc(inp)
+          naminc=ix(1)
+          !The two axes forming a,b are those of indices ab(1) and ab(2)
+          namina=ab(1)
+          naminb=ab(2)
+          if(namina == 0 .or. naminb == 0) then
+            ok=.false.
+            message="Basis vectors a-b not found!"
+            return
+          end if
+          tr(1,:) = twofold%dtwofold(:,namina)
+          tr(2,:) = twofold%dtwofold(:,naminb)
+          tr(3,:) = twofold%dtwofold(:,naminc)
+          v1 = twofold%caxes(:,namina)
+          v2 = twofold%caxes(:,naminb)
+          v3 = twofold%caxes(:,naminc)
+          mv(1)=twofold%maxes(namina)
+          mv(2)=twofold%maxes(naminb)
+          mv(3)=twofold%maxes(naminc)
+          namina=determ_A(tr)
+          if(namina < 0) then
+           tr(3,:)=-tr(3,:)
+           v3=-v3
+           namina=-namina
+          end if
+
+          Select Case (namina)
+             Case(1)
+               message="Tetragonal, Primitive cell"
+             Case(2)
+               message="Tetragonal, I-centred cell"
+             Case(3:)
+               message="Error in tetragonal cell"
+               ok=.false.
+               return
+          End Select
+
+        Case (7)    !Hexagonal
+
+          m=0
+          inp=0
+          mv(1:7)=twofold%maxes(1:7)
+          hexap=.false.;  hexac=.false.
+          !Search tha a-b plane
+          do_ii:do i=1,twofold%ntwo-1
+            vi=twofold%caxes(:,i)/twofold%maxes(i)
+            do j=i+1,twofold%ntwo
+                vj=twofold%caxes(:,j)/twofold%maxes(j)
+                aij=acosd(dot_product(vi,vj))
+                if(abs(aij-120.0) < delt) then
+                  if(abs(mv(i)-mv(j)) < 0.2 .and. .not. hexap ) then
+                   rw(1)=i; rw(2)=j
+                   u(1)=mv(i); u(2)=mv(j)
+                   hexap=.true.
+                   exit do_ii
+                  end if
+                end if
+            end do
+          end do do_ii
+
+          if(hexap) then ! Search the c-axis, it should be also a two-fold axis!
+                         ! because Op(6).Op(6).Op(6)=Op(2)
+            v1 = twofold%caxes(:,rw(1))
+            v2 = twofold%caxes(:,rw(2))
+            vj=v1/u(1)
+            vk=v2/u(2)
+            do i=1,twofold%ntwo
+               vi=twofold%caxes(:,i)/twofold%maxes(i)
+                aij=acosd(dot_product(vi,vj))
+                aik=acosd(dot_product(vi,vk))
+                if(abs(aij-90.0) < delt .and. abs(aik-90.0) < delt ) then
+                  rw(3)=i
+                  u(3)= mv(i)
+                  hexac=.true.
+                  exit
+                end if
+            end do
+          else
+            ok=.false.
+            return
+          end if
+
+          if(hexac) then
+            do i=1,3
+              tr(i,:) = twofold%dtwofold(:,rw(i))
+              mv(i)=u(i)
+            end do
+            v3 = twofold%caxes(:,rw(3))
+            namina=determ_A(tr)
+            if(namina < 0) then
+             tr(3,:)=-tr(3,:)
+             v3=-v3
+             namina=-namina
+            end if
+
+            Select Case (namina)
+               Case(1)
+                 message="Hexagonal, Primitive cell"
+               Case(2:)
+                 message="Hexagonal, centred cell? possible mistake"
+            End Select
+
+          else
+
+            ok=.false.
+            message="The c-axis of a hexagonal cell was not found!"
+            return
+
+          end if
+
+        Case (9)   !Cubic
+
+          m=0
+          inp=0
+          mv(1:9)=twofold%maxes(1:9)
+          do_i:do i=1,twofold%ntwo-2
+            vi=twofold%caxes(:,i)/twofold%maxes(i)
+            do j=i+1,twofold%ntwo-1
+              vj=twofold%caxes(:,j)/twofold%maxes(j)
+              do k=j+1,twofold%ntwo
+                vk=twofold%caxes(:,k)/twofold%maxes(k)
+                aij=acosd(dot_product(vi,vj))
+                aik=acosd(dot_product(vi,vk))
+                ajk=acosd(dot_product(vj,vk))
+                if(abs(aij-90.0) < delt .and. abs(aik-90.0) < delt .and. abs(ajk-90.0) < delt ) then
+                  if(abs(mv(i)-mv(j)) < 0.2 .and. abs(mv(i)-mv(k)) < 0.2 .and. abs(mv(j)-mv(k)) < 0.2 ) then
+                   rw(1)=i; rw(2)=j; rw(3)=k
+                   u(1)=mv(i); u(2)=mv(j); u(3)=mv(k)
+                   exit do_i
+                  end if
+                end if
+              end do
+            end do
+          end do do_i
+          do i=1,3
+            tr(i,:) = twofold%dtwofold(:,rw(i))
+            mv(i)=u(i)
+          end do
+          v1 = twofold%caxes(:,rw(1))
+          v2 = twofold%caxes(:,rw(2))
+          v3 = twofold%caxes(:,rw(3))
+          namina=determ_A(tr)
+          if(namina < 0) then
+           tr(3,:)=-tr(3,:)
+           v3=-v3
+           namina=-namina
+          end if
+
+          Select Case (namina)
+             Case(1)
+               message="Cubic, Primitive cell"
+             Case(2)
+                rw=matmul((/0,1,1/),tr)
+                if(.not. co_prime(rw,3)) then
+                   message="Cubic, A-centred cell"
+                else
+                   rw=matmul((/1,1,1/),tr)
+                   if(.not. co_prime(rw,3)) then
+                      message="Cubic, I-centred cell"
+                   else
+                      rw=matmul((/1,1,0/),tr)
+                      if(.not. co_prime(rw,3)) then
+                          message="Cubic, C-centred cell"
+                      else
+                          rw=matmul((/1,0,1/),tr)
+                          if(.not. co_prime(rw,3)) message="Cubic, B-centred cell"
+                      end if
+                   end if
+                end if
+
+             Case(3:)
+               message="Cubic, F-centred cell"
+          End Select
+
+        case default
+
+          write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
+          ok=.false.
+          return
+
+      End Select
+
+      !Calculation of the new cell
+      ang(1)=acosd(dot_product(v2/mv(2),v3/mv(3)))
+      ang(2)=acosd(dot_product(v1/mv(1),v3/mv(3)))
+      ang(3)=acosd(dot_product(v1/mv(1),v2/mv(2)))
+      Call Set_Crystal_Cell(mv(1:3),ang(1:3),Cell)
+      ok=.true.
+      return
+    End Subroutine Get_Conventional_Cell
 
     !!----
     !!---- Subroutine Get_Cryst_Family(Cell,Car_Family,Car_Symbol,Car_System)
