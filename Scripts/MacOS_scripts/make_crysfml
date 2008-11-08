@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script para la compilacion de CrysFMl
+# Script para la compilacion de CrysFML
 # Author: JGP
 #
 if [ a$1 = a ]
