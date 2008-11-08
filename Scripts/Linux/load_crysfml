@@ -1,0 +1,26 @@
+#!/bin/sh
+# ---- WINDOWS CFML DIRECTORY 
+WCFML=/media/sda2/CrysFML/Src/CFML
+WCFGL=/media/sda2/CrysFML/Src/CFGL
+#
+# Copy/Convert CFML Files
+#
+cd ./Src/CFML
+rm -rf *.f90
+cp $WCFML/*.f90 .
+up2lo *.f90
+fromdos *.f90
+chmod 666 *.f90
+#
+# Copy/Convert CFGL Files
+#
+cd ../CFGL
+rm -rf *.f90
+cp $WCFGL/*.f90 .
+up2lo *.f90
+fromdos *.f90
+chmod 666 *.f90
+#
+# End of Script
+#
+cd ../..
