@@ -179,6 +179,10 @@
     !!----    character (len=8), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
     !!---- End Type atoms_cell_type
     !!----
+    !!---- This type is mostly used for distance-angle and Bond-valence calculations.
+    !!---- It holds the position and coordination of all the atoms in the conventional
+    !!---- unit cell as well as their distances to neighbours atoms.
+    !!----
     !!---- Update: February - 2005
     !!
     Type, public :: atoms_cell_type
@@ -1073,7 +1077,7 @@
     !!----    logical,                intent(in)     :: iprin   !  In -> .true. for writing in Lun
     !!----    logical,                intent(in)     :: conven  !  In -> .true. for using the whole conventional unit cell
     !!----    type(Space_Group_Type), intent(in)     :: SpG     !  In -> Space Group Information
-    !!----    type(atom_list_type),  intent(in out) :: A       !  In -> Atom List (asymmetric unit)
+    !!----    type(atom_list_type),  intent(in out) :: A        !  In -> Atom List (asymmetric unit)
     !!----                                                        Out -> Updated Atom List (multiplicity of sites)
     !!----    type(atoms_cell_type),  intent(out)    :: Ac      ! Out -> Atoms in unit cell
     !!----
@@ -1089,7 +1093,7 @@
        integer,                intent(in)     :: lun
        logical,                intent(in)     :: iprin,conven
        type(Space_Group_Type), intent(in)     :: SpG
-       type(atom_list_type),  intent(in out) :: A
+       type(atom_list_type),   intent(in out) :: A
        type(atoms_cell_type),  intent(in out) :: Ac
 
        !---- Local Variables ----!
