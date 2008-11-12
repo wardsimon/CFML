@@ -96,7 +96,7 @@ Program Calc_structure_factors
                                  hkl%ref(i)%S, hkl%ref(i)%Fc, hkl%ref(i)%Phase,   &
                                  real(fc), aimag(fc), i, sqrt(sf2)
        end do
-     !Calculation for X-rays
+     !Calculation for X-rays assume Cu-Ka radiation
        call Init_Structure_Factors(hkl,A,Spg,lun=lun)
        call Structure_Factors(A,SpG,hkl)
        call Write_Structure_Factors(lun,hkl)
