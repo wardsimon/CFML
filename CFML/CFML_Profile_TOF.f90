@@ -570,7 +570,7 @@ Module Tof_Profiles
     !!----    type(deriv_TOF), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen 
-    !!--..    Author:Laurent C Chapon
+    !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
     !!---- Update: October - 2005
     !!
@@ -665,7 +665,7 @@ Module Tof_Profiles
     !!----    type(deriv_TOF), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele 
-    !!--..    Author:Laurent C Chapon
+    !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
     !!---- Update: October - 2005
     !!
