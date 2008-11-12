@@ -8,8 +8,8 @@
 !!----         tabulated items in the module Symmetry_Tables. In particular
 !!----         the correspondence of non standard settings Hermann-Mauguin
 !!----         symbols and Hall symbols for space groups.
-!!----         The generation of the public type Space_Group_Type is done
-!!----         using a variety of algorithms and methods.
+!!----         The construction of variables of the public type Space_Group_Type
+!!----         is done by using a variety of algorithms and methods.
 !!----         Many procedures for handling symmetry (symbolic and algebraic)
 !!----         are provided in this module.
 !!----
