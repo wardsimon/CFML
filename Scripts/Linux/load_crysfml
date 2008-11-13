@@ -1,4 +1,5 @@
 #!/bin/sh
+# Testing
 # ---- WINDOWS CFML DIRECTORY 
 WCFML=/media/sda2/CrysFML/Src/CFML
 WCFGL=/media/sda2/CrysFML/Src/CFGL
