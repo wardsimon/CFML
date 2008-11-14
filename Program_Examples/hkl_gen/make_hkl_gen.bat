@@ -44,7 +44,5 @@ rem **---- GFORTRAN Compiler ----**
 :GFOR
    goto END
 rem
-   del *.obj *.o *.mod *.exe *.map
-rem
 :END
    del *.obj *.mod *.o *.map *.bak > nul
