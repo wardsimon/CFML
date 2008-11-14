@@ -172,6 +172,7 @@ Program Optimizing_structures
           do i=1,fich_cfl%nlines
             line=adjustl(u_case(fich_cfl%line(i)))
             if(line(1:7) == "HKL-OBS") then
+              line=fich_cfl%line(i)
               j=index(line,"!")
               if(j /= 0) line=trim(line(1:j-1))
               filhkl= adjustl(line(9:))
@@ -195,6 +196,7 @@ Program Optimizing_structures
               exit
             end if
           end do
+
           if(Icost(7) == 1) then
              call read_observations(trim(filhkl),Cell,SpG,.true.,Oh,hkl)
           else

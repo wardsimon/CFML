@@ -94,6 +94,7 @@
 
 
       call get_logunit(i_hkl)
+      write(*,*)  "  Logical unit ", i_hkl
       open(unit=i_hkl, file=trim(file_hkl), status="old", action="read",position="rewind",iostat=ier)
       if(ier /= 0) then
         err_observ=.true.
@@ -199,7 +200,6 @@
       type(Observation_List_Type):: O
 
 
-
       call get_logunit(i_hkl)
       open(unit=i_hkl, file=trim(file_hkl), status="old", action="read",position="rewind",iostat=ier)
       if(ier /= 0) then
@@ -207,7 +207,6 @@
         err_mess_observ="  Error opening the file: "//trim(file_hkl)
         return
       end if
-
       call number_lines(trim(file_hkl),nlines)
 
       !Allocate local types to the maximum possible value
@@ -227,7 +226,7 @@
       if(allocated(point)) deallocate(point)
       allocate(point(2,nlines))
 
-      if(index(file_hkl,".int") /= 0) then
+      if(index(file_hkl,".int") /= 0 .or. index(file_hkl,".INT") /= 0) then
           read(unit=i_hkl,fmt=*)
           read(unit=i_hkl,fmt=*)
           read(unit=i_hkl,fmt=*) wavel_int
