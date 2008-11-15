@@ -56,7 +56,7 @@
 
     !!----
     !!---- Bond_Length_Table
-    !!----    real, private, allocatable, dimension(:,:,:) :: Bond_Length_Table
+    !!----    real, public, allocatable, dimension(:,:,:) :: Bond_Length_Table
     !!----
     !!----    Variable to hold the Bonds length between type of atoms. Order by Z
     !!----

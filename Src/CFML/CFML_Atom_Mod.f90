@@ -117,7 +117,7 @@
     !!----    real(kind=sp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
     !!----    real(kind=sp)                           :: Ueq           ! Uequiv
     !!----    real(kind=sp),dimension(6)              :: mU            !
-    !!----    real(kind=sp),dimension(6)              :: lU            !
+    !!----    integer,dimension(6)                    :: lU            !
     !!----    real(kind=sp)                           :: Charge        ! Charge
     !!----    real(kind=sp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
