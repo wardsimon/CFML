@@ -68,7 +68,6 @@ module WCFGL_IO
     mstart=0
     scal  =1.0
     arrow_pos  = -0.5
-
     ierror        = .false.
     dead          = .false.
     g_begin       = .true.
@@ -82,16 +81,15 @@ module WCFGL_IO
     maxval_poly = 1.9
     pos1=2.0
     pos2=-2.0
+    call define_spacegroup("P 1")
     !-------End initialise parameters
 
-    call define_spacegroup("P 1")
 
-    open(unit=1,file=filename,status="old",iostat=ier)
+    open(unit=1,file=trim(filename),status="old",iostat=ier)
 
     if (ier/=0) then
       ierror =.true.
     else
-
       call init_box()
       call empty_atom_list()
       call empty_bond_list()
@@ -530,9 +528,9 @@ module WCFGL_IO
         end if
       end do
       close(unit=1)
-    end if
-    if(molecule) then
-       call define_box(pos1(1),pos2(1),pos1(2),pos2(2),pos1(3),pos2(3))
+      if(molecule) then
+        call define_box(pos1(1),pos2(1),pos1(2),pos2(2),pos1(3),pos2(3))
+      end if
     end if
     return
 
