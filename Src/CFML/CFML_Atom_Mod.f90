@@ -65,7 +65,7 @@
     Use Math_3D,                   only: matrix_diageigen
     Use String_Utilities,          only: setnum_std
     Use Crystal_Types,             only: Crystal_Cell_Type, convert_b_betas,    &
-                                         convert_b_u, convert_betas_b,          &
+                                         Convert_b_u, convert_betas_b,          &
                                          convert_betas_u, convert_u_b,          &
                                          convert_u_betas, u_equiv
     Use Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
