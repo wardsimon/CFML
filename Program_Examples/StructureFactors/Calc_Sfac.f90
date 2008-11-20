@@ -3,11 +3,11 @@
 !!----          Example of simple program using CFML
 !!----
 !!---- Author: Juan Rodriguez-Carvajal
-!!---- Revision: Nov-2008
+!!---- Revision: November-2008
 !!
 Program Calc_Structure_Factors
    !---- Use Modules ----!
-   !use F2KCLI   ! Uncomment for Lahey Compiler 
+   !use F2KCLI   ! Uncomment for Lahey Compiler
    use crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
    use Atom_Module,              only: Atom_List_Type, Write_Atom_List
    use crystal_types,            only: Crystal_Cell_Type, Write_Crystal_Cell
@@ -15,26 +15,26 @@ Program Calc_Structure_Factors
    use IO_Formats,               only: Readn_set_Xtal_Structure,err_mess_form,err_form,file_list_type
    use Structure_Factor_Module,  only: Structure_Factors, Write_Structure_Factors, &
                                        Init_Structure_Factors,Calc_StrFactor
- 
+
    !---- Variables ----!
    implicit none
-   
+
    type (file_list_type)       :: fich_cfl
    type (space_group_type)     :: SpG
    type (Atom_list_Type)       :: A
    type (Crystal_Cell_Type)    :: Cell
    type (Reflection_List_Type) :: hkl
-   
+
    character(len=256)          :: filcod     !Name of the input file
    character(len=15)           :: sinthlamb  !String with stlmax (2nd cmdline argument)
    real                        :: stlmax     !Maximum Sin(Theta)/Lambda
    real                        :: sn,sf2
    integer                     :: MaxNumRef, Num, lun=1, ier,i
    complex                     :: fc
-   
+
    integer                     :: narg
    Logical                     :: esta, arggiven=.false.,sthlgiven=.false.
-   
+
    !---- Arguments on the command line ----!
    narg=command_argument_count()
 
@@ -42,7 +42,7 @@ Program Calc_Structure_Factors
       call get_command_argument(1,filcod)
       arggiven=.true.
    end if
-   
+
    if (narg > 1) then
       call get_command_argument(2,sinthlamb)
       read(unit=sinthlamb,fmt=*,iostat=ier) stlmax
@@ -88,7 +88,7 @@ Program Calc_Structure_Factors
       end if
       call Readn_set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpG,A,Mode="CFL",file_list=fich_cfl)
    end if
-   
+
    if (err_form) then
       write(unit=*,fmt="(a)") trim(err_mess_form)
    else
@@ -96,13 +96,13 @@ Program Calc_Structure_Factors
       call Write_SpaceGroup(SpG,lun)
       call Write_Atom_List(A,lun=lun)
       MaxNumRef = get_maxnumref(stlmax,Cell%CellVol,mult=SpG%Multip)
-   
+
       !> Calculation for neutron scattering
       call Hkl_Uni(Cell,Spg,.true.,0.0,stlmax,"s",MaxNumRef,hkl)
       call Init_Structure_Factors(hkl,A,Spg,mode="NUC",lun=lun)
       call Structure_Factors(A,SpG,hkl,mode="NUC")
       call Write_Structure_Factors(lun,hkl,mode="NUC")
-      
+
       !> Test of the new structure factor subroutine
       write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
       do i=1, hkl%nref
@@ -111,12 +111,12 @@ Program Calc_Structure_Factors
          write(unit=lun,fmt="(3i4,i5,5f12.5,i8,f12.5)") hkl%ref(i)%h, hkl%ref(i)%mult, &
               hkl%ref(i)%S, hkl%ref(i)%Fc, hkl%ref(i)%Phase, real(fc), aimag(fc), i, sqrt(sf2)
       end do
-     
+
       !> Calculation for X-rays assume Cu-Ka radiation
       call Init_Structure_Factors(hkl,A,Spg,lun=lun)
       call Structure_Factors(A,SpG,hkl)
       call Write_Structure_Factors(lun,hkl)
-     
+
       !> Test of the new structure factor subroutine
       write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
       do i=1, hkl%nref
@@ -133,7 +133,7 @@ Program Calc_Structure_Factors
    do i=1,fich_cfl%nlines
       write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//fich_cfl%line(i)
    end do
-   
+
    close(unit=lun)
 End Program Calc_Structure_Factors
 
