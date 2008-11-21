@@ -89,8 +89,8 @@
 !!--..   A symmetry operator R is equivalent to a transformation
 !!--..   M = inv(Rt) acting on basis vectors => G' = inv(Rt) G inv(R) = G
 !!--..   The anisotropic temperature factors Beta is defined in reciprocal
-!!--..   space: is a tensor like Q*, the transformation of beta under a
-!!--..   symmetry operator is then :
+!!--..   space: is a tensor like Q*, the transformation of beta under
+!!--..   a symmetry operator is then :
 !!--..
 !!--..           Beta' = Inv(Mt) Beta inv(M) = R Beta Rt
 !!--..
