@@ -345,58 +345,61 @@ Program Optimizing_structures
    stop
 End Program Optimizing_structures
 
-    Subroutine Write_FST(fst_file,v,cost)
-      use String_Utilities,  only:  get_logunit
-      Use Refinement_Codes,  only:  VState_to_AtomsPar
-      use cost_functions,    only:  Cell,A,SpG
+Subroutine Write_FST(fst_file,v,cost)
+   !---- Arguments ----!
+   use CFML_String_Utilities,      only:  get_logunit
+   Use CFML_Keywords_Code_Parser,  only:  VState_to_AtomsPar
+   use cost_functions,             only:  Cell,A,SpG
 
-       character(len=*),     intent(in):: fst_file
-       real,dimension(:),    intent(in):: v
-       real,                 intent(in):: cost
-       !----- Local variables -----!
-       integer :: lun,i,nc, ier
-       character(len=132)                 :: file_fst,fst_cmd
-       character(len=30), dimension(10)   :: cmds
+   character(len=*),     intent(in):: fst_file
+   real,dimension(:),    intent(in):: v
+   real,                 intent(in):: cost
+   
+   !----- Local variables -----!
+   integer :: lun,i,nc, ier
+   character(len=132)                 :: file_fst,fst_cmd
+   character(len=30), dimension(10)   :: cmds
 
-       i=index(fst_file,".fst")
-       file_fst=fst_file(1:i+3)
-       fst_cmd=adjustl(fst_file(i+4:))
-       nc=0
+   i=index(fst_file,".fst")
+   file_fst=fst_file(1:i+3)
+   fst_cmd=adjustl(fst_file(i+4:))
+   nc=0
 
-       do
-         i=index(fst_cmd,";")
-         if(i /= 0) then
-           nc=nc+1
-           cmds(nc)=fst_cmd(1:i-1)
-           fst_cmd=fst_cmd(i+1:)
-         else
-           nc=nc+1
-           cmds(nc)=fst_cmd
-           exit
-         end if
-       end do
+   do
+     i=index(fst_cmd,";")
+     if(i /= 0) then
+       nc=nc+1
+       cmds(nc)=fst_cmd(1:i-1)
+       fst_cmd=fst_cmd(i+1:)
+     else
+       nc=nc+1
+       cmds(nc)=fst_cmd
+       exit
+     end if
+   end do
 
-       !Update the atom parameters
-       call VState_to_AtomsPar(A,mode="V")
+   !Update the atom parameters
+   call VState_to_AtomsPar(A,mode="V")
 
-       call get_logunit(lun)
-       open(unit=lun, file=trim(file_fst), status="replace",action="write",position="rewind",iostat=ier)
-       if(ier == 0) then
-        write(unit=lun,fmt="(a)") "TITLE  FST-file generated with Write_FST"
-        write(unit=lun,fmt="(a)") "SPACEG "//trim(Spg%SPG_Symb)
-        write(unit=lun,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
-        write(unit=lun,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
-        do i=1,A%natoms
-          write(unit=lun,fmt="(a,a,3f12.5)")"Atom "//A%atom(i)%lab, A%atom(i)%chemsymb, A%atom(i)%x
-        end do
-        do i=1,nc
-          write(unit=lun,fmt="(a)") trim(cmds(i))
-        end do
-        write(unit=lun,fmt="(a)") "!"
-        call flush(lun)
-        close(unit=lun)
-       end if
-       return
-    End Subroutine Write_FST
+   call get_logunit(lun)
+   open(unit=lun, file=trim(file_fst), status="replace",action="write",position="rewind",iostat=ier)
+   if (ier == 0) then
+      write(unit=lun,fmt="(a)") "TITLE  FST-file generated with Write_FST"
+      write(unit=lun,fmt="(a)") "SPACEG "//trim(Spg%SPG_Symb)
+      write(unit=lun,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
+      write(unit=lun,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
+      do i=1,A%natoms
+         write(unit=lun,fmt="(a,a,3f12.5)")"Atom "//A%atom(i)%lab, A%atom(i)%chemsymb, A%atom(i)%x
+      end do
+      do i=1,nc
+         write(unit=lun,fmt="(a)") trim(cmds(i))
+      end do
+      write(unit=lun,fmt="(a)") "!"
+      call flush(lun)
+      close(unit=lun)
+   end if
+   
+   return
+End Subroutine Write_FST
 
 

@@ -1,0 +1,31 @@
+#! /bin/sh
+# Load Examples files for CrysFML Library from Windows Source
+# Author: Javier Gonzalez-Platas
+# Revision: Nov-2008
+#
+# ---- WINDOWS CFML DIRECTORY ---- 
+WCFMLEX=/media/VistaOS/CrysFML/Program_Examples
+#
+# Copy/Convert Examples Files
+#
+if [ -d "../Program_Examples" ]
+then
+   rm -rf ../Program_Examples/*
+else
+   mkdir "../Program_Examples"
+fi
+cd ../Program_Examples
+cp -r $WCFMLEX/* .
+chmod -R 755 *
+#
+# Copy/Convert CFGL Files
+#
+for var in $(ls)
+do
+   chmod 666 ./$var/*
+   fromdos ./$var/*.f90
+done
+#
+# End of Script
+#
+cd ../Src

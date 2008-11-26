@@ -4,8 +4,8 @@
 # Revision: Nov-2008
 #
 # ---- WINDOWS CFML DIRECTORY ---- 
-WCFML=/media/VistaOS/CrysFML_SVN/Src/CFML
-WCFGL=/media/VistaOS/CrysFML_SVN/Src/CFGL
+WCFML=/media/VistaOS/CrysFML/Src/CFML
+WCFGL=/media/VistaOS/CrysFML/Src/CFGL
 #
 # Copy/Convert CFML Files
 #
