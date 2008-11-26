@@ -1,7 +1,7 @@
 #!/bin/sh
 # Compilation script for CrysFML library
 # Author: Javier Gonzalez-Platas
-# Revision: Oct-2008
+# Revision: Nov-2008
 #
 if [ a$1 = a ]
 then
@@ -253,44 +253,43 @@ then
 fi
 $COMP $OPT1  CFML_Math_Gen.f90
 $COMP $OPT1  CFML_String_Util.f90
-$COMP $OPT1  CFML_Random.f90
-$COMP $OPT1  CFML_FFT.f90
-$COMP $OPT1  CFML_FFT_nF.f90
-$COMP $OPT1  CFML_Profile_TOF.f90
-$COMP $OPT1  CFML_Profile_Finger.f90
-$COMP $OPT1  CFML_Profile_Functs.f90
-$COMP $OPT1  CFML_Optimization.f90
-$COMP $OPT1  CFML_Optimization_LSQ.f90
-$COMP $OPT1  CFML_Math_3D.f90
-$COMP $OPT1  CFML_Spher_Harm.f90
-$COMP $OPT2  CFML_Sym_Table.f90
-$COMP $OPT2  CFML_Chem_Scatt.f90
-$COMP $OPT1  CFML_Cryst_Types.f90
-$COMP $OPT1  CFML_Diffpatt.f90
-$COMP $OPT2  CFML_Bonds_Table.f90
-$COMP $OPT1  CFML_Symmetry.f90
-$COMP $OPT1  CFML_Reflct_Util.f90
-$COMP $OPT1  CFML_Atom_Mod.f90
-$COMP $OPT1  CFML_Sfac.f90
-$COMP $OPT1  CFML_Propagk.f90
-$COMP $OPT1  CFML_Geom_Calc.f90
-$COMP $OPT1  CFML_Maps.f90
-$COMP $OPT1  CFML_Molecules.f90
-$COMP $OPT1  CFML_Form_CIF.f90
-$COMP $OPT1  CFML_Conf_Calc.f90
-$COMP $OPT1  CFML_Refcodes.f90
-$COMP $OPT1  CFML_Polar.f90
-$COMP $OPT1  CFML_MagSymm.f90
-$COMP $OPT1  CFML_Msfac.f90
-$COMP $OPT1  CFML_ILL_Instrm_Data.f90
-$COMP $OPT1  CFML_SXTAL_Geom.f90
 if [ $MODE = "con" ]
 then
    $COMP $OPT1  CFML_IO_Mess.f90       $INC
 else
    $COMP $OPT1  CFML_IO_Messwin.f90       $INC
 fi
+$COMP $OPT1  CFML_Random.f90
+$COMP $OPT1  CFML_FFTs.f90
+$COMP $OPT1  CFML_Profile_TOF.f90
+$COMP $OPT1  CFML_Profile_Finger.f90
+$COMP $OPT1  CFML_Profile_Functs.f90
+$COMP $OPT1  CFML_Math_3D.f90
+$COMP $OPT1  CFML_Spher_Harm.f90
+$COMP $OPT1  CFML_Optimization.f90
+$COMP $OPT1  CFML_Optimization_LSQ.f90
+$COMP $OPT2  CFML_Sym_Table.f90
+$COMP $OPT2  CFML_Chem_Scatt.f90
+$COMP $OPT1  CFML_Diffpatt.f90
+$COMP $OPT2  CFML_Bonds_Table.f90
+$COMP $OPT1  CFML_Cryst_Types.f90
+$COMP $OPT1  CFML_Symmetry.f90
+$COMP $OPT1  CFML_ILL_Instrm_Data.f90
+$COMP $OPT1  CFML_Reflct_Util.f90
+$COMP $OPT1  CFML_Atom_Mod.f90
+$COMP $OPT1  CFML_Polar.f90
+$COMP $OPT1  CFML_SXTAL_Geom.f90
+$COMP $OPT1  CFML_Sfac.f90
+$COMP $OPT1  CFML_Geom_Calc.f90
+$COMP $OPT1  CFML_Propagk.f90
+$COMP $OPT1  CFML_Maps.f90
+$COMP $OPT1  CFML_Molecules.f90
+$COMP $OPT1  CFML_Conf_Calc.f90
+$COMP $OPT1  CFML_Form_CIF.f90
+$COMP $OPT1  CFML_Refcodes.f90
 $COMP $OPT1  CFML_Optimization_SAn.f90 $INC
+$COMP $OPT1  CFML_MagSymm.f90
+$COMP $OPT1  CFML_Msfac.f90
 #
 # Making CrysFML Library
 #
