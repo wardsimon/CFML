@@ -51,7 +51,7 @@
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     use CFML_Crystal_Metrics,              only: Crystal_Cell_Type
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
-    use CFML_Atom_Definitions,                only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
+    use CFML_Atom_TypeDef,                only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
                                           Deallocate_Atom_List, AtList1_ExtenCell_AtList2
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
     use CFML_Geometry_Calc,          only: Coord_Info, Distance

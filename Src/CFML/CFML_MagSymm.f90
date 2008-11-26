@@ -19,7 +19,7 @@
 !!--++                                         err_mess_symm,err_symm
 !!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
 !!--++    Use CFML_IO_Formats,                only: file_list_type
-!!--++    Use CFML_Atom_Definitions,               only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_Atom_TypeDef,               only: Allocate_mAtom_list, mAtom_List_Type
 !!----
 !!---- VARIABLES
 !!--..    Types
@@ -54,7 +54,7 @@
                                          err_mess_symm,err_symm, set_SpG_Mult_Table,ApplySO
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
     Use CFML_IO_Formats,                only: file_list_type
-    Use CFML_Atom_Definitions,               only: Allocate_mAtom_list, mAtom_List_Type
+    Use CFML_Atom_TypeDef,               only: Allocate_mAtom_list, mAtom_List_Type
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                          Magnetic_Form
     Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K

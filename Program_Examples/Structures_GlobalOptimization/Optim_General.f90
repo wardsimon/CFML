@@ -2,7 +2,7 @@ Program Optimizing_structures
    !---- Use Modules ----!
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case
-   use CFML_Atom_Definitions,          only: Atom_List_Type, Write_Atom_List
+   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,&

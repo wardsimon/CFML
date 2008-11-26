@@ -72,7 +72,7 @@
     use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
     use CFML_Crystal_Metrics,              only: Crystal_Cell_Type, Get_Deriv_Orth_Cell
-    use CFML_Atom_Definitions,                only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
+    use CFML_Atom_TypeDef,                only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
                                           searchop, Read_SymTrans_Code, Write_SymTrans_Code
 

@@ -317,7 +317,7 @@
     use CFML_Math_General,                  only: acosd, asind,  cp, eps, cosd, sind, to_rad
     use CFML_Math_3D,                   only: cross_product, Get_Spheric_Coord
     use CFML_Crystallographic_Symmetry, only: Space_Group_type, Write_SpaceGroup
-    use CFML_Atom_Definitions,               only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
+    use CFML_Atom_TypeDef,               only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
     use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_mess_crys, &
                                          Write_Crystal_Cell
     use CFML_String_Utilities,          only: u_case, l_case, getword, getnum, cutst

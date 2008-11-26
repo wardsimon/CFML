@@ -8,7 +8,7 @@
 Program SPG_Info
    !---- Use Modules ----!
    use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
-                                        Write_SpaceGroup
+                                             Write_SpaceGroup
                                           
    !---- Variables ----!                                       
    implicit none

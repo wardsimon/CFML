@@ -6,7 +6,7 @@
  Module Menu_3
     !---- Use File ----!
     use CFML_Crystallographic_Symmetry
-    use CFML_Atom_Definitions
+    use CFML_Atom_TypeDef
     use CFML_string_utilities, only: getnum
 
     !---- Variables ----!

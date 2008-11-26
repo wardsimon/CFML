@@ -8,7 +8,7 @@
 Program Calc_Structure_Factors
    !---- Use Modules ----!
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
-   use CFML_Atom_Definitions,          only: Atom_List_Type, Write_Atom_List
+   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type, Hkl_Uni, get_maxnumref
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,file_list_type

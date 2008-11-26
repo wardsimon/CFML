@@ -74,7 +74,7 @@
     Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
                                          Convert_B_Betas, U_Equiv
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup, Get_Multip_Pos
-    Use CFML_Atom_Definitions,               only: Atom_Type, Init_Atom_Type,atom_list_type,         &
+    Use CFML_Atom_TypeDef,               only: Atom_Type, Init_Atom_Type,atom_list_type,         &
                                          Allocate_atom_list, Deallocate_atom_list
     Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Mess_Molec,Molecular_Crystal_Type, &
                                          Read_Molecule, Set_Euler_Matrix, Write_Molecule

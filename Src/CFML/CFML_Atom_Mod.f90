@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: CFML_Atom_Definitions
+!!---- MODULE: CFML_Atom_TypeDef
 !!----   INFO: Subroutines related to Atoms definitions
 !!----
 !!---- HISTORY
@@ -57,7 +57,7 @@
 !!----       WRITE_ATOMS_CFL
 !!----
 !!
- Module CFML_Atom_Definitions
+ Module CFML_Atom_TypeDef
 
     !---- Use Files ----!
     !Use Mod_fun    !To be commented for non-F compilers
@@ -1416,4 +1416,4 @@
        return
     End Subroutine Write_CFL
 
- End Module CFML_Atom_Definitions
+ End Module CFML_Atom_TypeDef

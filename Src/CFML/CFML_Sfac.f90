@@ -14,7 +14,7 @@
 !!--++     Use CFML_Scattering_Chemical_Tables
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
 !!--++     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-!!--++     Use CFML_Atom_Definitions,                 only: atom_list_type
+!!--++     Use CFML_Atom_TypeDef,                 only: atom_list_type
 !!--++     Use CFML_Math_General,                    only: sp, tpi, atan2d
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case
 !!----
@@ -60,7 +60,7 @@
     Use CFML_Scattering_Chemical_Tables
     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-    Use CFML_Atom_Definitions,                 only: atom_list_type
+    Use CFML_Atom_TypeDef,                 only: atom_list_type
 
     !---- Variables ----!
     implicit none

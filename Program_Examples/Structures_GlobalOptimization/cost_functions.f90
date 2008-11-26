@@ -8,7 +8,7 @@
 
       use CFML_IO_Formats,                only: file_list_type
       use CFML_string_utilities,          only: l_case
-      Use CFML_Atom_Definitions,          only: Atom_List_Type
+      Use CFML_Atom_TypeDef,              only: Atom_List_Type
       Use CFML_crystal_Metrics,           only: Crystal_Cell_Type
       Use CFML_Reflections_Utilities,     only: Reflection_List_Type
       Use CFML_Structure_Factors,         only: Structure_Factors,Init_Structure_Factors, &

@@ -18,7 +18,7 @@
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
 !!--++     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Magnetic_Domain_type
 !!--++     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-!!--++     Use CFML_Atom_Definitions,                 only: Matom_list_type
+!!--++     Use CFML_Atom_TypeDef,                 only: Matom_list_type
 !!--++     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 !!----
 !!---- VARIABLES
@@ -70,7 +70,7 @@
     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Write_Magnetic_Structure, &
                                            Magnetic_Domain_type
     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-    Use CFML_Atom_Definitions,                 only: Matom_list_type, Allocate_mAtom_list
+    Use CFML_Atom_TypeDef,                 only: Matom_list_type, Allocate_mAtom_list
     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 
     !---- Variables ----!
