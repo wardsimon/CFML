@@ -1,8 +1,7 @@
 wCrysFML
 +CFML_math_gen&
 +CFML_random&
-+CFML_fft&
-+CFML_fft_nF&
++CFML_ffts&
 +CFML_profile_tof&
 +CFML_profile_finger&
 +CFML_profile_functs&

@@ -7,7 +7,7 @@ module WCFGL_glpoly
   use WCFGL_atom_tree
   use WCFGL_bond_tree
   use WCFGL_chull3D
-  use winteracter
+  use Winteracter
   implicit none
 
   type ::  gl_poly

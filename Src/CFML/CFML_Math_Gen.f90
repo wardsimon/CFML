@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MATH_GEN
+!!---- MODULE: CFML_Math_General
 !!----   INFO: Mathematic general utilities for use in Crystallography and
 !!----         Solid State Physics and Chemistry.
 !!----
@@ -22,8 +22,8 @@
 !!----    EPS
 !!--++    EPSS                         [Private]
 !!--++    EP_SS                        [Private]
-!!----    ERR_MATH_GEN
-!!----    ERR_MESS_MATH_GEN
+!!----    ERR_CFML_Math_General
+!!----    ERR_MESS_CFML_Math_General
 !!----    PI
 !!----    TO_DEG
 !!----    TO_RAD
@@ -171,10 +171,7 @@
 !!--++       TRED2                     [Private]
 !!--++
 !!
- Module Math_Gen
-
-    !---- Use Modules ----!
-    !Use Mod_fun    !To be commented for non-F compilers
+ Module CFML_Math_General
 
     !---- Variables ----!
     implicit none
@@ -283,24 +280,24 @@
     real(kind=sp), parameter, private :: ep_ss=1.0E-12_sp
 
     !!----
-    !!---- ERR_MATH_GEN
-    !!----    logical :: err_math_gen
+    !!---- ERR_CFML_Math_General
+    !!----    logical :: err_CFML_Math_General
     !!----
-    !!----    Logical Variable indicating an error in MATH_GEN module
+    !!----    Logical Variable indicating an error in CFML_Math_General module
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public :: err_math_gen
+    logical, public :: err_CFML_Math_General
 
     !!----
-    !!---- ERR_MESS_MATH_GEN
-    !!----    character(len=150) :: err_mess_math_gen
+    !!---- ERR_MESS_CFML_Math_General
+    !!----    character(len=150) :: err_mess_CFML_Math_General
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public:: err_mess_math_gen
+    character(len=150), public:: err_mess_CFML_Math_General
 
     !!----
     !!---- PI
@@ -2137,14 +2134,14 @@
     !!----
     !!---- Subroutine Init_Err_Mathgen()
     !!----
-    !!----    Initialize the errors flags in Math_Gen
+    !!----    Initialize the errors flags in CFML_Math_General
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Init_Err_MathGen()
 
-       err_math_gen=.false.
-       err_mess_math_gen=" "
+       err_CFML_Math_General=.false.
+       err_mess_CFML_Math_General=" "
 
        return
     End Subroutine Init_Err_MathGen
@@ -2430,8 +2427,8 @@
        e_val=0.0
        call init_err_mathgen()
        if (n > size(A,1) .or. n > size(A,2)) then
-          err_math_gen=.true.
-          err_mess_math_gen=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -2484,8 +2481,8 @@
        e_val=0.0
        call init_err_mathgen()
        if (n > size(A,1) .or. n > size(A,2)) then
-          err_math_gen=.true.
-          err_mess_math_gen=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -2780,8 +2777,8 @@
        call init_err_mathgen()
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentC: Error in dimension of input matrix or vector"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentC: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2812,8 +2809,8 @@
           call rank(c,tol,r)
           if(r == min(n1+1,2*nb)) Linear_Dependent=.false.
        else
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentC: input dimension of vector incompatible with matrix"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentC: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -2856,8 +2853,8 @@
        call init_err_mathgen()
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentI: Error in dimension of input matrix or vector"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentI: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2876,8 +2873,8 @@
           call rank(c,tol,r)
           if(r == min(n1,nb)) Linear_Dependent=.false.
        else
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentI: input dimension of vector incompatible with matrix"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentI: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -2920,8 +2917,8 @@
        call init_err_mathgen()
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentR: Error in dimension of input matrix or vector"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentR: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2940,8 +2937,8 @@
           call rank(c,tol,r)
           if(r == min(n1,nb)) Linear_Dependent=.false.
        else
-          err_math_gen=.true.
-          err_mess_math_gen=" Linear_DependentR: input dimension of vector incompatible with matrix"
+          err_CFML_Math_General=.true.
+          err_mess_CFML_Math_General=" Linear_DependentR: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -3361,7 +3358,7 @@
 
        u=a
        call svdcmp(u,w,v)
-       if (err_math_gen) then
+       if (err_CFML_Math_General) then
           r=0
        else
           r=0
@@ -3398,7 +3395,7 @@
 
        u=a
        call svdcmp(u,w,v)
-       if (err_math_gen) then
+       if (err_CFML_Math_General) then
           r=0
        else
           r=0
@@ -3615,8 +3612,8 @@
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                err_math_gen=.true.
-                err_mess_Math_Gen=" NSTACK too small in SORT"
+                err_CFML_Math_General=.true.
+                err_mess_CFML_Math_General=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -3729,8 +3726,8 @@
              indx(j)=indxt
              jstack=jstack+2
              if (jstack > nstack) then
-                err_math_gen=.true.
-                err_mess_Math_Gen=" NSTACK too small in SORT"
+                err_CFML_Math_General=.true.
+                err_mess_CFML_Math_General=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -3927,8 +3924,8 @@
        n=size(a,2)
        call init_err_mathgen()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          err_math_gen = .true.
-          err_mess_math_gen = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
+          err_CFML_Math_General = .true.
+          err_mess_CFML_Math_General = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
           return
        end if
        g=0.0_dp
@@ -4034,8 +4031,8 @@
                 exit
              end if
              if (its == num_its) then
-                err_math_gen = .true.
-                err_mess_math_gen = " => SVDcmp_dp: convergence not reached ! "
+                err_CFML_Math_General = .true.
+                err_mess_CFML_Math_General = " => SVDcmp_dp: convergence not reached ! "
                 return
              end if
              x=w(l)
@@ -4120,8 +4117,8 @@
        n=size(a,2)
        call init_err_mathgen()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
-          err_math_gen = .true.
-          err_mess_math_gen = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
+          err_CFML_Math_General = .true.
+          err_mess_CFML_Math_General = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
           return
        end if
        g=0.0
@@ -4227,8 +4224,8 @@
                 exit
              end if
              if (its == num_its) then
-                err_math_gen = .true.
-                err_mess_math_gen = " => SVDcmp_sp: convergence not reached ! "
+                err_CFML_Math_General = .true.
+                err_mess_CFML_Math_General = " => SVDcmp_sp: convergence not reached ! "
                 return
              end if
              x=w(l)             !Shift from ottom 2-y-2 minor.
@@ -4651,8 +4648,8 @@
 
              if (m /= l) then
                 if (iter == 40) then
-                   err_math_gen=.true.
-                   err_mess_Math_Gen=" Too many iterations in TQLI1"
+                   err_CFML_Math_General=.true.
+                   err_mess_CFML_Math_General=" Too many iterations in TQLI1"
                    exit
                 end if
 
@@ -4748,8 +4745,8 @@
              m=mv
              if (m /= l) then
                 if (iter == 40) then
-                   err_math_gen=.true.
-                   err_mess_Math_Gen=" Too many iterations in TQLI2"
+                   err_CFML_Math_General=.true.
+                   err_mess_CFML_Math_General=" Too many iterations in TQLI2"
                    exit
                 end if
 
@@ -4991,5 +4988,5 @@
        return
     End Subroutine Tred2
 
- End Module Math_Gen
+ End Module CFML_Math_General
 

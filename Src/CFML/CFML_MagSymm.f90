@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MAGNETIC_SYMMETRY
+!!---- MODULE: CFML_Magnetic_Symmetry
 !!----   INFO: Series of procedures handling operations with Magnetic Symmetry
 !!----         and Magnetic Structures
 !!----
@@ -12,14 +12,14 @@
 !!----            April - 2005. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use Math_gen,                  only: Sp, tpi, Modulo_Lat
-!!--++    Use Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
-!!--++    Use Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
+!!--++    Use CFML_Math_General,                  only: Sp, tpi, Modulo_Lat
+!!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
+!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
 !!--++                                         Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
 !!--++                                         err_mess_symm,err_symm
-!!--++    Use String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
-!!--++    Use IO_Formats,                only: file_list_type
-!!--++    Use Atom_Module,               only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
+!!--++    Use CFML_IO_Formats,                only: file_list_type
+!!--++    Use CFML_Atom_Definitions,               only: Allocate_mAtom_list, mAtom_List_Type
 !!----
 !!---- VARIABLES
 !!--..    Types
@@ -44,20 +44,20 @@
 !!----       WRITE_SHUBNIKOV_GROUP
 !!----
 !!
- Module Magnetic_Symmetry
+ Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use Math_gen,                  only: Sp, tpi, Modulo_Lat
-    Use Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
-    Use Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
+    Use CFML_Math_General,                  only: Sp, tpi, Modulo_Lat
+    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
                                          Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
                                          err_mess_symm,err_symm, set_SpG_Mult_Table,ApplySO
-    Use String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
-    Use IO_Formats,                only: file_list_type
-    Use Atom_Module,               only: Allocate_mAtom_list, mAtom_List_Type
-    Use Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
+    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
+    Use CFML_IO_Formats,                only: file_list_type
+    Use CFML_Atom_Definitions,               only: Allocate_mAtom_list, mAtom_List_Type
+    Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                          Magnetic_Form
-    Use Propagation_vectors,       only: K_Equiv_Minus_K
+    Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
 
     !---- Variables ----!
     implicit none
@@ -210,7 +210,7 @@
     !!---- ERR_MAGSYM
     !!----    logical, public :: err_MagSym
     !!----
-    !!----    Logical Variable indicating an error in Magnetic_Symmetry
+    !!----    Logical Variable indicating an error in CFML_Magnetic_Symmetry
     !!----
     !!---- Update: April - 2005
     !!
@@ -1755,5 +1755,5 @@
        return
     End Subroutine Write_Shubnikov_Group
 
- End Module Magnetic_Symmetry
+ End Module CFML_Magnetic_Symmetry
 

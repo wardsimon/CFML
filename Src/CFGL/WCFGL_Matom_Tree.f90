@@ -5,14 +5,14 @@ module WCFGL_matom_tree
 ! Updated : Now linked list of magnetic atoms
 !------------------------------------------------
   use OPENGL
-  use WCFGL_constant,             only : PI
+  use WCFGL_constant,                  only : PI
   use WCFGL_atomic_table
-  use WCFGL_objects_definition,   only : moment_definition, init_moment
+  use WCFGL_objects_definition,        only : moment_definition, init_moment
   use WCFGL_metrix
-  use Propagation_vectors,        only : k_equiv_minus_k
-  use math_gen,                   only : modulo_lat
-  use crystallographic_symmetry,  only : read_xsym, read_msymm, &
-                                        set_spacegroup, space_group_type
+  use CFML_Propagation_Vectors,        only : k_equiv_minus_k
+  use CFML_Math_General,               only : modulo_lat
+  use CFML_Crystallographic_Symmetry,  only : read_xsym, read_msymm, &
+                                              set_spacegroup, space_group_type
   implicit none
 
   character(len=1),  public, pointer                 :: current_magnetic_lattice => null()

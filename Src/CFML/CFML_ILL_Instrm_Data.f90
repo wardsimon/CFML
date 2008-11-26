@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: ILL_INSTRM_DATA
+!!---- MODULE: CFML_ILL_Instrm_Data
 !!----   INFO: Subroutines related to Instrument information from ILL
 !!----
 !!---- HISTORY
@@ -126,11 +126,11 @@
 !!----       WRITE_SXTAL_NUMOR
 !!----
 !!
-Module ILL_Instrm_data
+Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
-   Use Math_gen,         only: sp,dp,pi,to_deg,to_rad,cosd,sind, eps
-   use String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
-   use Math_3D,          only: Err_Math_3D,Err_Mess_Math_3D, Cross_Product, Determ_A, Determ_V, &
+   Use CFML_Math_General,         only: sp,dp,pi,to_deg,to_rad,cosd,sind, eps
+   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
+   use CFML_Math_3D,          only: err_math_3d,err_mess_math_3d, Cross_Product, Determ_A, Determ_V, &
                                invert => Invert_A
    !---- Variables ----!
    Implicit none
@@ -1650,4 +1650,4 @@ Module ILL_Instrm_data
        return
     End Subroutine Write_SXTAL_Numor
 
- End Module ILL_Instrm_data
+ End Module CFML_ILL_Instrm_Data

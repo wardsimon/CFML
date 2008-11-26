@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: IO_MESSAGES
+!!---- MODULE: CFML_IO_MESSAGES
 !!----   INFO: Input / Output General Messages. It is convenient to use these intermediate procedures instead of
 !!----         Fortran Write(*,*) or Print*, because it is much more simple to modify a program for making a GUI.
 !!----         Usually GUI tools and libraries need special calls to dialog boxes for screen messages. These
@@ -31,7 +31,7 @@
 !!----       WRITE_SCROLL_TEXT
 !!----
 !!
- Module IO_Messages
+ Module CFML_IO_Messages
     !---- Use Modules ----!
 
     !---- Definitions ----!
@@ -165,4 +165,4 @@
        return
     End Subroutine Write_Scroll_Text
 
- End Module IO_Messages
+ End Module CFML_IO_Messages

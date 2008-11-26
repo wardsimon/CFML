@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: DIFFRACTION_PATTERNS_MOD
+!!---- MODULE: CFML_Diffraction_Patterns
 !!----   INFO: Diffraction Patterns Information
 !!----
 !!---- HISTORY
@@ -48,10 +48,10 @@
 !!----       WRITE_PATTERN_XYSIG
 !!----
 !!
- Module Diffraction_patterns_mod
+ Module CFML_Diffraction_Patterns
     !---- Use Modules ----!
-    Use Math_gen,         only : sp, spline, splint, locate
-    use String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
+    Use CFML_Math_General,         only : sp, spline, splint, locate
+    use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
                                  get_logunit, u_case, getword
 
     implicit none
@@ -2938,4 +2938,4 @@
        return
     End Subroutine Write_Pattern_XYSig
 
- End Module Diffraction_Patterns_Mod
+ End Module CFML_Diffraction_Patterns

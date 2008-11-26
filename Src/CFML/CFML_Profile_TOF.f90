@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: TOF_PROFILES
+!!---- MODULE: CFML_PowderProfiles_TOF
 !!----   INFO: This module contains variables and procedures used by programs aiming
 !!----         to handle T.O.F. powder diffraction patterns. The public procedures
 !!----         have only one (erfc, erfcp) two (tof_Jorgensen, tof_Jorgensen_VonDreele)
@@ -46,7 +46,7 @@
 !!----       TOF_JORGENSEN_VONDREELE
 !!----
 !!
-Module Tof_Profiles
+Module CFML_PowderProfiles_TOF
     !---- Use Modules ----!
 
     !---- Variables ----!
@@ -796,4 +796,4 @@ Module Tof_Profiles
        return
     End Subroutine Tof_Jorgensen_Vondreele
 
-End Module  Tof_Profiles
+End Module  CFML_PowderProfiles_TOF

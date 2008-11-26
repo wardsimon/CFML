@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: REFINEMENT_CODES
+!!---- MODULE: CFML_Keywords_Code_Parser
 !!----   INFO: Refinable Codes for Parameters
 !!----
 !!---- HISTORY
@@ -89,15 +89,15 @@
 !!----       WRITE_RESTRAINTS_OBSCALC
 !!----
 !!
- Module Refinement_Codes
+ Module CFML_Keywords_Code_Parser
     !---- Modules ----!
-    Use Math_Gen,                  only: Sp, Sort
-    Use String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
-    Use Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
+    Use CFML_Math_General,                  only: Sp, Sort
+    Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
                                          Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb
-    Use Atom_Module,               only: Atom_list_Type  !, Atom_Type
-    Use Molecular_Crystals,        only: Molecule_Type, Molecular_Crystal_Type
-    Use IO_Formats,                only: File_List_Type
+    Use CFML_Atom_Definitions,               only: Atom_list_Type  !, Atom_Type
+    Use CFML_Molecular_Crystals,        only: Molecule_Type, Molecular_Crystal_Type
+    Use CFML_IO_Formats,                only: File_List_Type
 
     !---- Variables ----!
     implicit none
@@ -7493,4 +7493,4 @@
        return
     End Subroutine Write_Restraints_ObsCalc
 
- End Module Refinement_Codes
+ End Module CFML_Keywords_Code_Parser

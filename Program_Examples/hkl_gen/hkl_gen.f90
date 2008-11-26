@@ -7,11 +7,11 @@
 !!
 Program Test_HKL_GEN
    !---- Use Modules ----!
-   use Math_gen,                  only : asind
-   use Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
-                                        Write_SpaceGroup
-   use Crystal_types,             only: Crystal_Cell_Type,set_crystal_cell,Write_Crystal_Cell
-   use Reflections_utilities,     only: Reflect_Type, get_maxnumref, HKL_uni !HKL_gen
+   use CFML_Math_General,               only: asind
+   use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, set_SpaceGroup, &
+                                              Write_SpaceGroup
+   use CFML_Crystal_Metrics,            only: Crystal_Cell_Type,set_crystal_cell,Write_Crystal_Cell
+   use CFML_Reflections_utilities,      only: Reflect_Type, get_maxnumref, HKL_uni !HKL_gen
 
    !---- Variables ----!
    implicit none

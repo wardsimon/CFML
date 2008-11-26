@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: REFLECTIONS_UTILITIES
+!!---- MODULE: CFML_Reflections_Utilities
 !!----   INFO: Series of procedures handling operation with
 !!----         Bragg reflections
 !!----
@@ -13,10 +13,10 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
-!!--++    Use Crystal_Types,             only: Crystal_Cell_Type
-!!--++    Use String_Utilities,          only: l_case
-!!--++    Use Math_gen,                  only: sort,sp
+!!--++    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
+!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
+!!--++    Use CFML_String_Utilities,          only: l_case
+!!--++    Use CFML_Math_General,                  only: sort,sp
 !!----
 !!---- VARIABLES
 !!--++    EPS                      [Private]
@@ -89,14 +89,14 @@
 !!----
 !!----
 !!
- Module Reflections_Utilities
+ Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
     !Use Mod_fun    !To be commented for non-F compilers
-    Use Math_gen,                  only: sp, pi, sort
-    Use String_Utilities,          only: l_case
-    Use Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
-    Use Crystal_Types,             only: Crystal_Cell_Type
+    Use CFML_Math_General,                  only: sp, pi, sort
+    Use CFML_String_Utilities,          only: l_case
+    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
+    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
 
     !---- Variables ----!
     implicit none
@@ -147,7 +147,7 @@
     !!---- ERR_REFL
     !!----    logical, public :: err_refl
     !!----
-    !!----    Logical Variable indicating an error in REFLECTIONS_UTILITIES module
+    !!----    Logical Variable indicating an error in CFML_Reflections_Utilities module
     !!----
     !!---- Update: February - 2005
     !!
@@ -4361,5 +4361,5 @@
        return
     End Subroutine Write_RefList_Info
 
- End Module Reflections_Utilities
+ End Module CFML_Reflections_Utilities
 

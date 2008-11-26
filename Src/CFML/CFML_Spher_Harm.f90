@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: SPHERICAL_HARMONICS
+!!---- MODULE: CFML_Spherical_Harmonics
 !!----   INFO: Spherical Harmonics routines
 !!----
 !!---- HISTORY
@@ -10,7 +10,7 @@
 !!----            January - 2000    Based in public codes. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN, only: sp,dp, eps, pi, to_rad
+!!--++    Use CFML_Math_General, only: sp,dp, eps, pi, to_rad
 !!----
 !!---- VARIABLES
 !!----    ERR_MESS_SPHER
@@ -34,10 +34,10 @@
 !!----       SPHJN
 !!----
 !!
- Module Spherical_Harmonics
+ Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use Math_Gen, Only: Sp, Dp, Eps, Pi, To_Rad
+    Use CFML_Math_General, Only: Sp, Dp, Eps, Pi, To_Rad
 
     implicit none
 
@@ -69,7 +69,7 @@
     !!---- ERR_SPHER
     !!----    logical, public    :: err_spher
     !!----
-    !!----    Logical Variable indicating an error in SPHERICAL_HARMONICS module
+    !!----    Logical Variable indicating an error in CFML_Spherical_Harmonics module
     !!----
     !!---- Update: February - 2005
     !!
@@ -625,7 +625,7 @@
     !!----
     !!---- Subroutine Init_Err_Spher()
     !!----
-    !!----    Initialize the errors flags in Spherical_Harmonics
+    !!----    Initialize the errors flags in CFML_Spherical_Harmonics
     !!----
     !!---- Update: February - 2005
     !!
@@ -854,7 +854,7 @@
        return
     End Subroutine Sphjn
 
- End Module Spherical_Harmonics
+ End Module CFML_Spherical_Harmonics
 
 
 

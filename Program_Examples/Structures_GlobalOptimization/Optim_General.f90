@@ -1,30 +1,30 @@
 Program Optimizing_structures
    !---- Use Modules ----!
-   use crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
-   use string_utilities,          only: u_case
-   use Atom_Module,               only: Atom_List_Type, Write_Atom_List
-   use crystal_types,             only: Crystal_Cell_Type, Write_Crystal_Cell
-   use Reflections_Utilities,     only: Reflection_List_Type
-   use IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,&
-                                        file_list_type, File2File_List
-   use Configuration_Calculations,only: calc_BVS
-   use Structure_Factor_Module,   only: Structure_Factors, Write_Structure_Factors, &
-                                        Init_Structure_Factors, err_sfac,err_mess_sfac
-   use Refinement_Codes,          only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,&
-                                        Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
-                                        Write_Info_RefCodes, Err_RefCodes, Err_Mess_RefCodes, &
-                                        allocate_restparam, Write_restraints_ObsCalc
-   use Optimization_SAN,          only: SimAnn_Conditions_type, state_Vector_Type, Multistate_Vector_Type, &
-                                        err_mess_SAN,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
-                                        Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
-                                        Write_SimAnn_MStateV, SimAnneal_MultiConf,Set_SimAnn_MStateV, &
-                                        Sann_Opt_MultiConf
-   use observed_reflections,      only: Read_observations,Observation_Type,Observation_List_Type, &
-                                        Write_ObsCalc_SFactors,err_observ,err_mess_observ, SumGobs,&
-                                        wavel_int, Write_FoFc_Powder
-   use cost_functions,            only: Cell,A,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
-                                        General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
-                                        Write_FinalCost,wavel,diff_mode
+   use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
+   use CFML_string_utilities,          only: u_case
+   use CFML_Atom_Definitions,          only: Atom_List_Type, Write_Atom_List
+   use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
+   use CFML_Reflections_Utilities,     only: Reflection_List_Type
+   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,&
+                                             file_list_type, File2File_List
+   use CFML_BVS_Energy_Calc,           only: calc_BVS
+   use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
+                                             Init_Structure_Factors, err_sfac,err_mess_sfac
+   use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,&
+                                             Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
+                                             Write_Info_RefCodes, Err_RefCodes, Err_Mess_RefCodes, &
+                                             allocate_restparam, Write_restraints_ObsCalc
+   use CFML_Simulated_Annealing,       only: SimAnn_Conditions_type, state_Vector_Type, Multistate_Vector_Type, &
+                                             err_mess_SAN,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
+                                             Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
+                                             Write_SimAnn_MStateV, SimAnneal_MultiConf,Set_SimAnn_MStateV, &
+                                             Sann_Opt_MultiConf
+   use observed_reflections,           only: Read_observations,Observation_Type,Observation_List_Type, &
+                                             Write_ObsCalc_SFactors,err_observ,err_mess_observ, SumGobs,&
+                                             wavel_int, Write_FoFc_Powder
+   use cost_functions,                 only: Cell,A,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
+                                             General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
+                                             Write_FinalCost,wavel,diff_mode
    !---- Local Variables ----!
    implicit none
    type (file_list_type)              :: fich_cfl,fich_rest

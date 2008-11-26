@@ -5,9 +5,9 @@
 !!
  Module Menu_3
     !---- Use File ----!
-    use Crystallographic_Symmetry
-    use Atom_Module
-    use string_utilities, only: getnum
+    use CFML_Crystallographic_Symmetry
+    use CFML_Atom_Definitions
+    use CFML_string_utilities, only: getnum
 
     !---- Variables ----!
     implicit none

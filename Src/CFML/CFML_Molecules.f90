@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MOLECULAR_CRYSTALS
+!!---- MODULE: CFML_Molecular_Crystals
 !!----   INFO: Module to define molecules on Crystals
 !!----
 !!---- HISTORY
@@ -311,18 +311,18 @@
 !!----       ZMATRIX_TO_SPHERICAL
 !!----
 !!
- Module Molecular_Crystals
+ Module CFML_Molecular_Crystals
 
     !---- Use Modules ----!
-    use Math_Gen,                  only: acosd, asind,  cp, eps, cosd, sind, to_rad
-    use Math_3D,                   only: cross_product, Get_Spheric_Coord
-    use Crystallographic_symmetry, only: Space_Group_type, Write_SpaceGroup
-    use Atom_Module,               only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
-    use Crystal_Types,             only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_mess_crys, &
+    use CFML_Math_General,                  only: acosd, asind,  cp, eps, cosd, sind, to_rad
+    use CFML_Math_3D,                   only: cross_product, Get_Spheric_Coord
+    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Write_SpaceGroup
+    use CFML_Atom_Definitions,               only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
+    use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_mess_crys, &
                                          Write_Crystal_Cell
-    use String_Utilities,          only: u_case, l_case, getword, getnum, cutst
-    use Geom_Calculations,         only: angle_dihedral,distance,Get_PhiTheChi
-    use Scattering_Chemical_Tables,only: Num_Chem_Info,Chem_Info,Set_Chem_Info,Remove_Chem_Info,Get_ChemSymb
+    use CFML_String_Utilities,          only: u_case, l_case, getword, getnum, cutst
+    use CFML_Geometry_Calc,         only: angle_dihedral,distance,Get_PhiTheChi
+    use CFML_Scattering_Chemical_Tables,only: Num_Chem_Info,Chem_Info,Set_Chem_Info,Remove_Chem_Info,Get_ChemSymb
 
     implicit none
 
@@ -4531,4 +4531,4 @@
        return
     End Subroutine Zmatrix_to_Spherical
 
- End Module Molecular_Crystals
+ End Module CFML_Molecular_Crystals

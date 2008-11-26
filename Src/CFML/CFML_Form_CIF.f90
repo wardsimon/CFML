@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: IO_FORMATS
+!!---- MODULE: CFML_IO_Formats
 !!----   INFO: Creation/Conversion for several formats
 !!----
 !!---- HISTORY
@@ -66,19 +66,19 @@
 !!----       WRITE_SHX_TEMPLATE
 !!----
 !!
- Module IO_Formats
+ Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use Math_gen,                  only: sp,pi, sind, eps
-    Use String_Utilities
-    Use Crystal_Types,             only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
+    Use CFML_Math_General,                  only: sp,pi, sind, eps
+    Use CFML_String_Utilities
+    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
                                          Convert_B_Betas, U_Equiv
-    Use Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup, Get_Multip_Pos
-    Use Atom_Module,               only: Atom_Type, Init_Atom_Type,atom_list_type,         &
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup, Get_Multip_Pos
+    Use CFML_Atom_Definitions,               only: Atom_Type, Init_Atom_Type,atom_list_type,         &
                                          Allocate_atom_list, Deallocate_atom_list
-    Use Molecular_Crystals,        only: Err_Molec, Err_Mess_Molec,Molecular_Crystal_Type, &
+    Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Mess_Molec,Molecular_Crystal_Type, &
                                          Read_Molecule, Set_Euler_Matrix, Write_Molecule
-    Use Geom_Calculations,         only: Point_List_Type, Get_Euler_from_Fract
+    Use CFML_Geometry_Calc,         only: Point_List_Type, Get_Euler_from_Fract
 
     !---- Variables ----!
     implicit none
@@ -113,7 +113,7 @@
     !!---- ERR_FORM
     !!----    logical, public :: err_form
     !!----
-    !!----    Logical Variable indicating an error in IO_FORMATS
+    !!----    Logical Variable indicating an error in CFML_IO_Formats
     !!----
     !!---- Update: February - 2005
     !!
@@ -3955,5 +3955,5 @@
        return
     End Subroutine Write_Shx_Template
 
- End Module IO_Formats
+ End Module CFML_IO_Formats
 

@@ -7,14 +7,13 @@
 !!
 Program Calc_Structure_Factors
    !---- Use Modules ----!
-   !use F2KCLI   ! Uncomment for Lahey Compiler
-   use crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
-   use Atom_Module,              only: Atom_List_Type, Write_Atom_List
-   use crystal_types,            only: Crystal_Cell_Type, Write_Crystal_Cell
-   use Reflections_Utilities,    only: Reflection_List_Type, Hkl_Uni, get_maxnumref
-   use IO_Formats,               only: Readn_set_Xtal_Structure,err_mess_form,err_form,file_list_type
-   use Structure_Factor_Module,  only: Structure_Factors, Write_Structure_Factors, &
-                                       Init_Structure_Factors,Calc_StrFactor
+   use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
+   use CFML_Atom_Definitions,          only: Atom_List_Type, Write_Atom_List
+   use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
+   use CFML_Reflections_Utilities,     only: Reflection_List_Type, Hkl_Uni, get_maxnumref
+   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,file_list_type
+   use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
+                                             Init_Structure_Factors,Calc_StrFactor
 
    !---- Variables ----!
    implicit none

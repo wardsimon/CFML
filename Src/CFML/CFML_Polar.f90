@@ -2,14 +2,14 @@
 !!---- Copyleft(C) 2005 - 2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Marc Janoschek
 !!----
-!!---- MODULE: POLAR_MODULE
+!!---- MODULE: CFML_Polarimetry
 !!----   INFO: Subroutines and Functions to calculate the polarisation tensor
-!!----   as it will be measured. It uses matrices defined in Crystal_Types in
+!!----   as it will be measured. It uses matrices defined in CFML_Crystal_Metrics in
 !!----   order to calculate the polar tensor with respect to the coordinate
 !!----   frame defined in the Blume equations (Phys. Rev. Vol. 130 p.1670-1676,
 !!----   1963, see also the definitions below in magn_Inter_Vec_PF). As input
 !!----   the nuclear structure factor, the magnetic interaction vector with
-!!----   respect to the crystal frame and the matrices defined in Crystal_Types
+!!----   respect to the crystal frame and the matrices defined in CFML_Crystal_Metrics
 !!----   for the crystal frame are needed.
 !!----
 !!---- HISTORY
@@ -19,9 +19,9 @@
 !!----                             output of matrices of many reflections in one file
 !!----
 !!---- DEPENDENCIES
-!!--++    use Crystal_Types, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-!!--++    Use Math_gen,      only: sp
-!!--++    USE Math_3D,       only: Cross_Product
+!!--++    use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
+!!--++    Use CFML_Math_General,      only: sp
+!!--++    USE CFML_Math_3D,       only: Cross_Product
 !!----
 !!---- VARIABLES
 !!----    POLAR_INFO_TYPE
@@ -45,11 +45,11 @@
 !!----       WRITE_POLAR_LINE
 !!----
 !!
- Module Polar_Module
+ Module CFML_Polarimetry
     !---- Used External Modules ----!
-    use Crystal_Types, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-    Use Math_gen,      only: sp, tpi
-    USE Math_3D,       ONLY: Cross_Product
+    use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
+    Use CFML_Math_General,      only: sp, tpi
+    USE CFML_Math_3D,       ONLY: Cross_Product
 
     !---- Variables ----!
     implicit none
@@ -650,4 +650,4 @@
        return
     End Subroutine Write_Polar_line
 
- End Module Polar_Module
+ End Module CFML_Polarimetry

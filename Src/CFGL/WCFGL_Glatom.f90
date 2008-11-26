@@ -4,8 +4,8 @@ module WCFGL_glatom
 ! July 2004.
 ! Updated :
 !------------------------------------------------
-  use crystallographic_symmetry, only : space_group_type, ApplySO
-  use math_gen,                  only : modulo_lat
+  use CFML_Math_General,              only : modulo_lat
+  use CFML_Crystallographic_Symmetry, only : space_group_type, ApplySO
 
   implicit none
 

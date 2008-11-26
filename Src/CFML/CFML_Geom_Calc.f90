@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: GEOM_CALCULATIONS
+!!---- MODULE: CFML_Geometry_Calc
 !!----   INFO: Routines for Geometry Calculations
 !!----
 !!---- HISTORY
@@ -12,9 +12,9 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++    Math_3D:  Cross_Product
-!!--++    Math_Gen: Eps, Pi, Acosd, Cp, Sp, Cosd, Sind, To_Rad, To_Deg
-!!--++    Crystal_Types: Crystal_Cell_Type
+!!--++    CFML_Math_3D:  Cross_Product
+!!--++    CFML_Math_General: Eps, Pi, Acosd, Cp, Sp, Cosd, Sind, To_Rad, To_Deg
+!!--++    CFML_Crystal_Metrics: Crystal_Cell_Type
 !!----
 !!---- VARIABLES
 !!----    COORDINATION_TYPE
@@ -64,16 +64,16 @@
 !!----       SET_TDIST_COORDINATION
 !!----
 !!
- Module Geom_Calculations
+ Module CFML_Geometry_Calc
 
     !---- Use Modules ----!
     !Use Mod_fun    !To be commented for non-F compilers
-    use Math_Gen,                   only: Sp, Cp, eps, pi, acosd, cosd, sind, to_rad, to_deg, Modulo_Lat
-    use Math_3D,                    only: Cross_Product, Matrix_Inverse
-    use String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
-    use Crystal_Types,              only: Crystal_Cell_Type, Get_Deriv_Orth_Cell
-    use Atom_Module,                only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
-    use Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
+    use CFML_Math_General,                   only: Sp, Cp, eps, pi, acosd, cosd, sind, to_rad, to_deg, Modulo_Lat
+    use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
+    use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
+    use CFML_Crystal_Metrics,              only: Crystal_Cell_Type, Get_Deriv_Orth_Cell
+    use CFML_Atom_Definitions,                only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
+    use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
                                           searchop, Read_SymTrans_Code, Write_SymTrans_Code
 
     implicit none
@@ -154,7 +154,7 @@
     !!---- ERR_GEOM
     !!----    logical, public  :: err_geom
     !!----
-    !!----    Logical Variable indicating an error in GEOM_CALCULATIONS module
+    !!----    Logical Variable indicating an error in CFML_Geometry_Calc module
     !!----
     !!---- Update: February - 2005
     !!
@@ -1930,7 +1930,7 @@
     !!----
     !!---- Subroutine Init_Err_Geom()
     !!----
-    !!----    Initialize the errors flags in Geom_Calculations
+    !!----    Initialize the errors flags in CFML_Geometry_Calc
     !!----
     !!---- Update: February - 2005
     !!
@@ -2308,4 +2308,4 @@
        return
     End Subroutine Set_TDist_Coordination
 
- End Module Geom_Calculations
+ End Module CFML_Geometry_Calc

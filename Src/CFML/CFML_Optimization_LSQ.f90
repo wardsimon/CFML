@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: OPTIMIZATION_LSQ
+!!---- MODULE: CFML_Optimization_LSQ
 !!----   INFO: Module implementing several algorithms for non-linear least-squares.
 !!----         At present only the Levenberg-Marquardt method is implemented.
 !!----
@@ -11,7 +11,7 @@
 !!----
 !!----    October - 1997 Created by JRC
 !!---- DEPENDENCIES
-!!--++    Use Math_Gen,     only : Sp, Dp, Invert_Matrix
+!!--++    Use CFML_Math_General,     only : Sp, Dp, Invert_Matrix
 !!----
 !!---- VARIABLES
 !!----    ERR_LSQ
@@ -37,9 +37,9 @@
 !!--++       OUTPUT_FINAL        [Private]
 !!----
 !!
- Module Optimization_LSQ
+ Module CFML_Optimization_LSQ
     !---- Use Files ----!
-    Use Math_Gen, only: Sp, Dp, Invert_Matrix
+    Use CFML_Math_General, only: Sp, Dp, Invert_Matrix
 
     implicit none
 
@@ -852,4 +852,4 @@
        return
     End Subroutine Output_Final
 
- End Module Optimization_LSQ
+ End Module CFML_Optimization_LSQ

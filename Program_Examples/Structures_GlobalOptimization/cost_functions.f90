@@ -1,26 +1,26 @@
   Module cost_functions
-      Use crystallographic_symmetry  ,only: space_group_type, ApplySO, Read_SymTrans_Code
-      Use Geom_Calculations,          only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
-                                            allocate_coordination_type
-      Use Configuration_Calculations, only: Cost_BVS, Atoms_Conf_list_Type, species_on_list, &
-                                            Allocate_Atoms_Conf_list, err_conf, err_mess_conf, &
-                                            Cost_BVS_CoulombRep, set_Table_d0_B
+      Use CFML_crystallographic_symmetry, only: space_group_type, ApplySO, Read_SymTrans_Code
+      Use CFML_Geometry_Calc,             only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
+                                                allocate_coordination_type
+      Use CFML_BVS_Energy_Calc,           only: Cost_BVS, Atoms_Conf_list_Type, species_on_list, &
+                                                Allocate_Atoms_Conf_list, err_conf, err_mess_conf, &
+                                                Cost_BVS_CoulombRep, set_Table_d0_B
 
-      use IO_Formats,                 only: file_list_type
-      use string_utilities,           only: l_case
-      Use Atom_Module,                only: Atom_List_Type
-      Use crystal_types,              only: Crystal_Cell_Type
-      Use Reflections_Utilities,      only: Reflection_List_Type
-      Use Structure_Factor_Module,    only: Structure_Factors,Init_Structure_Factors, &
-                                            Calc_StrFactor, Modify_SF
-      Use observed_reflections,       only: Observation_Type,Observation_List_Type, SumGobs,ScaleFact,wavel_int
-      Use Molecular_Crystals,         only: Molecular_Crystal_Type
+      use CFML_IO_Formats,                only: file_list_type
+      use CFML_string_utilities,          only: l_case
+      Use CFML_Atom_Definitions,          only: Atom_List_Type
+      Use CFML_crystal_Metrics,           only: Crystal_Cell_Type
+      Use CFML_Reflections_Utilities,     only: Reflection_List_Type
+      Use CFML_Structure_Factors,         only: Structure_Factors,Init_Structure_Factors, &
+                                                Calc_StrFactor, Modify_SF
+      Use observed_reflections,           only: Observation_Type,Observation_List_Type, SumGobs,ScaleFact,wavel_int
+      Use CFML_Molecular_Crystals,        only: Molecular_Crystal_Type
 
-      Use Refinement_Codes,           only: NP_Max,NP_Refi, v_Vec,v_Shift,v_Bounds,v_BCon,v_Name, v_List, &
-                                            VState_to_AtomsPar, &
-                                            Distance_Restraint_Type, Dis_Rest, NP_Rest_Dis, &
-                                            Angle_Restraint_Type, Ang_Rest, NP_Rest_Ang,    &
-                                            Torsion_Restraint_Type, Tor_Rest, NP_Rest_Tor
+      Use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi, v_Vec,v_Shift,v_Bounds,v_BCon,v_Name, v_List, &
+                                                VState_to_AtomsPar, &
+                                                Distance_Restraint_Type, Dis_Rest, NP_Rest_Dis, &
+                                                Angle_Restraint_Type, Ang_Rest, NP_Rest_Ang,    &
+                                                Torsion_Restraint_Type, Tor_Rest, NP_Rest_Tor
       implicit none
       private
 

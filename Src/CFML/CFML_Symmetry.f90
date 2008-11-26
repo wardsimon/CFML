@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: CRYSTALLOGRAPHIC_SYMMETRY
+!!---- MODULE: CFML_Crystallographic_Symmetry
 !!----   INFO: This module constains everything needed for handling symmetry
 !!----         in Crystallography. Part of the information is obtained from
 !!----         tabulated items in the module Symmetry_Tables. In particular
@@ -21,12 +21,12 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use Math_gen,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
-!!--++    Use Math_3d,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
-!!--++    Use String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
+!!--++    Use CFML_Math_General,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
+!!--++    Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
+!!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
 !!--++                                Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
 !!--++                                U_case, Ucase, Getnum, Frac_Trans_2Dig
-!!--++    Use Symmetry_Tables
+!!--++    Use CFML_Symmetry_Tables
 !!----
 !!----
 !!---- VARIABLES
@@ -133,16 +133,16 @@
 !!--..       (==)
 !!----
 !!
- Module Crystallographic_Symmetry
+ Module CFML_Crystallographic_Symmetry
 
     !---- Used External Modules ----!
-    Use Math_gen,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix,         &
+    Use CFML_Math_General,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix,         &
                                 Equal_Vector,Sort
-    Use Math_3d,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
-    Use String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
+    Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
+    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
                                 Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
                                 U_case, Ucase, Getnum, Frac_trans_2Dig
-    Use Symmetry_Tables
+    Use CFML_Symmetry_Tables
 
     implicit none
 
@@ -9029,4 +9029,4 @@
        return
     End Subroutine Wyckoff_Orbit
 
- End Module Crystallographic_Symmetry
+ End Module CFML_Crystallographic_Symmetry

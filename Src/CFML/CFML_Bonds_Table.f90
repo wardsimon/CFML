@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: BONDS_TABLE
+!!---- MODULE:CFML_Bond_Tables
 !!----   INFO: This module constains a simple subroutine providing the list
 !!----         of the usual bonds between atoms. There are three possible
 !!----         mode for each bonds.
@@ -17,7 +17,7 @@
 !!----            June - 2004 Created by JGP
 !!----
 !!---- DEPENDENCIES
-!!----    Scattering_Chemical_Tables, only: Get_ChemSymb
+!!----    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 !!----
 !!----
 !!---- VARIABLES
@@ -37,9 +37,9 @@
 !!----       SET_BONDS_TABLE
 !!----
 !!
- Module Bonds_Table
+ Module CFML_Bond_Tables
     !---- Use Modules ----!
-    Use Scattering_Chemical_Tables, only: Get_ChemSymb
+    Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
     !---- Variables ----!
     implicit none
@@ -68,7 +68,7 @@
     !!---- ERR_BOND
     !!----    logical :: err_bond
     !!----
-    !!----    Logical Variable indicating an error in BONDS_TABLE module
+    !!----    Logical Variable indicating an error in CFML_Bond_Tables module
     !!----
     !!---- Update: February - 2005
     !!
@@ -2346,4 +2346,4 @@
     End Subroutine Set_Bonds_Table
 
 
- End Module Bonds_Table
+ End Module CFML_Bond_Tables

@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: OPTIMIZATION_SAN
+!!---- MODULE: CFML_Simulated_Annealing
 !!----   INFO: Module for Global Optimization using Simulated Annealing.
 !!----         Currently there is available only a generic Simulated Anneling subroutine
 !!----         That must be called with the name of a user-supplied subroutine to calculate
@@ -14,9 +14,9 @@
 !!----         of the SIMANN_CONDITIONS_TYPE user-defined variable.
 !!----
 !!---- DEPENDENCIES
-!!--++     use IO_Messages, mess => write_scroll_text
-!!--++     use String_Utilities, only: u_case
-!!--++     use IO_formats,       only: File_List_Type
+!!--++     use CFML_IO_Messages, mess => write_scroll_text
+!!--++     use CFML_String_Utilities, only: u_case
+!!--++     use CFML_IO_Formats,       only: File_List_Type
 !!----
 !!---- HISTORY
 !!----    Update: March - 2005
@@ -56,11 +56,11 @@
 !!----       WRITE_SIMANN_STATEV
 !!----
 !!
- Module Optimization_SAN
+ Module CFML_Simulated_Annealing
     !---- Use Files ----!
-    use IO_Messages, mess => write_scroll_text
-    use String_Utilities, only: u_case
-    use IO_formats,       only: File_List_Type
+    use CFML_IO_Messages, mess => write_scroll_text
+    use CFML_String_Utilities, only: u_case
+    use CFML_IO_Formats,       only: File_List_Type
 
     !---- Variables ----!
     implicit none
@@ -2035,4 +2035,4 @@
        return
     End Subroutine Write_SimAnn_StateV
 
- End Module Optimization_SAN
+ End Module CFML_Simulated_Annealing

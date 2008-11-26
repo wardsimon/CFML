@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MATH_3D
+!!---- MODULE: CFML_Math_3D
 !!----   INFO: Simple mathematics general utilities for 3D Systems
 !!----
 !!---- HISTORY
@@ -11,12 +11,12 @@
 !!----            October  - 1996  Routines created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN,   only: sp, dp, pi, cosd, sind, to_rad, to_deg
+!!--++    Use CFML_Math_General,   only: sp, dp, pi, cosd, sind, to_rad, to_deg
 !!----
 !!---- VARIABLES
 !!--++    EPS                          [Private]
-!!----    ERR_MATH_3D
-!!----    ERR_MESS_MATH_3D
+!!----    ERR_Math_3D
+!!----    ERR_Mess_Math_3D
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -68,10 +68,10 @@
 !!----       RESOLV_SIST_3X3
 !!----
 !!
- Module Math_3D
+ Module CFML_Math_3D
 
     !---- Use Modules ----!
-    Use Math_gen, only: sp, dp, pi, cosd, sind, to_rad, to_deg
+    Use CFML_Math_General, only: sp, dp, pi, cosd, sind, to_rad, to_deg
 
     implicit none
 
@@ -113,24 +113,24 @@
     real(kind=sp), private ::  eps = 0.00001
 
     !!----
-    !!---- ERR_MATH_3D
-    !!----    logical :: err_math_3d
+    !!---- ERR_Math_3D
+    !!----    logical :: ERR_Math_3D
     !!----
-    !!----    Logical Variable indicating an error in MATH_3D module
+    !!----    Logical Variable indicating an error in CFML_Math_3D module
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public  :: err_math_3d
+    logical, public  :: ERR_Math_3D
 
     !!----
-    !!---- ERR_MESS_MATH_3D
-    !!----    character(len=150) :: err_mess_math_3d
+    !!---- ERR_Mess_Math_3D
+    !!----    character(len=150) :: ERR_Mess_Math_3D
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_math_3d
+    character(len=150), public :: ERR_Mess_Math_3D
 
     !---- Interfaces - Overlapp ----!
     Interface  Cross_Product
@@ -610,7 +610,7 @@
     !!----
     !!---- Subroutine Init_Err_Math3D()
     !!----
-    !!----    Initialize the errors flags in Math_3d
+    !!----    Initialize the errors flags in CFML_Math_3D
     !!----
     !!---- Update: February - 2005
     !!
@@ -1195,8 +1195,8 @@
           sigma1=sigma2
        end do
 
-       Err_Math_3D =.true.
-       Err_Mess_Math_3D=" Convergence not reached in diagonalization "
+       err_math_3d =.true.
+       err_mess_math_3d=" Convergence not reached in diagonalization "
 
        return
     End Subroutine Matrix_DiagEigen
@@ -1238,8 +1238,8 @@
 
        if (abs(dmat) < epso) then
           ifail=1
-          Err_Math_3D =.true.
-          Err_Mess_Math_3D="Singular Matrix: inversion impossible"
+          err_math_3d =.true.
+          err_mess_math_3d="Singular Matrix: inversion impossible"
           return
        end if
 
@@ -2273,4 +2273,4 @@
        return
     End Subroutine Resolv_Sist_3x3
 
- End Module Math_3D
+ End Module CFML_Math_3D

@@ -5,85 +5,77 @@ rem
    cd ../../cfml
 rem
    echo **---- Level 0 ----**
-   echo .... Mathematical,String_Utilities, Profile Functions,
-   echo .... Graphical, Optimization Modules
+   echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
    ifort /c CFML_math_gen.f90         /debug:full /check /traceback /nologo
    ifort /c CFML_string_util.f90      /debug:full /check /traceback /nologo
+   ifort /c CFML_io_mess.f90          /debug:full /check /traceback /nologo
    ifort /c CFML_random.f90           /debug:full /check /traceback /nologo
-   ifort /c CFML_fft.f90              /debug:full /check /traceback /nologo
-   ifort /c CFML_fft_nF.f90           /debug:full /check /traceback /nologo
+   ifort /c CFML_ffts.f90             /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_TOF.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_Finger.f90   /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_Functs.f90   /debug:full /check /traceback /nologo
-   ifort /c CFML_optimization.f90     /debug:full /check /traceback /nologo
-   ifort /c CFML_optimization_lsq.f90 /debug:full /check /traceback /nologo
 rem
-echo **---- Level 1 ----**
-echo .... Math_3D, Spher_Harm
+   echo **---- Level 1 ----**
+   echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90          /debug:full /check /traceback /nologo
    ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo
-rem
-   echo **---- Level 2 ----**
-   echo .... Sym_Table, Chem_Scatt, Cryst_Types, DiffPatt Modules
-rem
+   ifort /c CFML_optimization.f90     /debug:full /check /traceback /nologo
+   ifort /c CFML_optimization_lsq.f90 /debug:full /check /traceback /nologo
    ifort /c CFML_sym_table.f90        /debug:full /check /traceback /nologo
    ifort /c CFML_chem_scatt.f90       /debug:full /check /traceback /nologo
-   ifort /c CFML_cryst_types.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_diffpatt.f90         /debug:full /check /traceback /nologo
 rem
-   echo **---- Level 3 ----**
-   echo .... Bonds_Table, Symmetry Modules
+   echo **---- Level 2 ----**
+   echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
    ifort /c CFML_bonds_table.f90      /debug:full /check /traceback /nologo
+   ifort /c CFML_cryst_types.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_symmetry.f90         /debug:full /check /traceback /nologo
+   ifort /c CFML_ILL_Instrm_data.f90  /debug:full /check /traceback /nologo
 rem
-   echo **---- Level 4 ----**
-   echo .... Reflct_Util, Atom_Mod Modules
+   echo **---- Level 3 ----**
+   echo .... Reflections, Atoms, Polarimetry
 rem
    ifort /c CFML_reflct_util.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_atom_mod.f90         /debug:full /check /traceback /nologo
+   ifort /c CFML_polar.f90            /debug:full /check /traceback /nologo
+   ifort /c CFML_SXTAL_Geom.f90       /debug:full /check /traceback /nologo
 rem
-   echo **---- Level 5 ----**
-   echo .... Sfac, Propagk, Geom_Calc, Maps, Molecules Modules
+   echo **---- Level 4 ----**
+   echo .... Structure Factors, Geometry Calculations, Propag Vectors
 rem
    ifort /c CFML_sfac.f90             /debug:full /check /traceback /nologo
-   ifort /c CFML_propagk.f90          /debug:full /check /traceback /nologo
    ifort /c CFML_geom_calc.f90        /debug:full /check /traceback /nologo
+   ifort /c CFML_propagk.f90          /debug:full /check /traceback /nologo
+rem
+   echo **---- Level 5 ----**
+   echo .... Molecules, Maps, BVS, Energy Configurations
+rem
    ifort /c CFML_maps.f90             /debug:full /check /traceback /nologo
    ifort /c CFML_molecules.f90        /debug:full /check /traceback /nologo
+   ifort /c CFML_conf_calc.f90        /debug:full /check /traceback /nologo
 rem
    echo **---- Level 6 ----**
-   echo .... Form_CIF, Conf_Calc, RefCodes Modules
+   echo .... Formats
 rem
    ifort /c CFML_form_cif.f90         /debug:full /check /traceback /nologo
-   ifort /c CFML_conf_calc.f90        /debug:full /check /traceback /nologo
-   ifort /c CFML_refcodes.f90         /debug:full /check /traceback /nologo
 rem
    echo **---- Level 7 ----**
-   echo .... Polar, Symm, SFac for Magnetic  Modules
+   echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem   
-   ifort /c CFML_polar.f90            /debug:full /check /traceback /nologo
+   ifort /c CFML_refcodes.f90         /debug:full /check /traceback /nologo
+   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /nologo
    ifort /c CFML_magsymm.f90          /debug:full /check /traceback /nologo
    ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo
 rem
-   echo **---- Level 7 ----**
-   echo .... ILL_Instrm_data, CFML_SXTAL_geom Modules
-rem
-   ifort /c CFML_ILL_Instrm_data.f90  /debug:full /check /traceback /nologo
-   ifort /c CFML_SXTAL_geom.f90       /debug:full /check /traceback /nologo
-rem
    echo **---- Level 8 ----**
-   echo .... IO_Mess Module
+   echo .... Magnetic Structure Factors
 rem
-   ifort /c CFML_io_mess.f90          /debug:full /check /traceback /nologo
+   ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo 
 rem
-   echo **---- Level 9 ----**
-   echo .... Optimization Simulated Annealing Module
 rem   
-   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /nologo
-rem
    echo **---- Crysfml Library: Console (DEBUG) version ----**
 rem
    lib /out:crysfml.lib *.obj
@@ -98,5 +90,5 @@ rem
    copy *.mod ..\..\Intel\LibC > nul
    move *.lib ..\..\Intel\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
-rem                            
+rem        
    cd ..\Scripts\Windows

@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal et al.
 !!----
-!!---- MODULE: SXTAL_GEOM
+!!---- MODULE: CFML_Geometry_SXTAL
 !!----   INFO: Module for making geometrical calculations in single crystal instruments.
 !!----         All subroutines gathered in this module have been taken from packages
 !!----         at ILL maintained informally by different people. When the original authors
@@ -186,12 +186,12 @@
 !!----       Z4FRZ1
 !!----
 !!
- Module Sxtal_Geom
+ Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
-    Use Math_Gen,         Only: To_Deg,To_Rad,cosd,sind,atan2d,acosd,asind,tand
-    Use Math_3d,          Only: Cross_Product, invert => invert_A
-    Use Crystal_Types,    Only: Crystal_Cell_Type
-    Use ILL_Instrm_data,  Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
+    Use CFML_Math_General,      Only: To_Deg,To_Rad,cosd,sind,atan2d,acosd,asind,tand
+    Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
+    Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type
+    Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
 
     !---- Variables ----!
     Implicit None
@@ -2265,4 +2265,4 @@
        Return
     End Subroutine z4frz1
 
- End Module Sxtal_Geom
+ End Module CFML_Geometry_SXTAL

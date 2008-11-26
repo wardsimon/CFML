@@ -6,7 +6,7 @@ module WCFGL_quaternion
 !------------------------------------------------
   use WCFGL_constant
   use WCFGL_geometry
-  use Math_gen, only: sind,cosd
+  use CFML_Math_General, only: sind,cosd
 
   implicit none
 

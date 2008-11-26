@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: SYMMETRY_TABLES
+!!---- MODULE: CFML_Symmetry_Tables
 !!----   INFO: Tabulated information on Crystallogrphic Symmetry
 !!----
 !!---- HISTORY
@@ -11,8 +11,8 @@
 !!----            June - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN,   only: sp
-!!--++    Use STRING_UTILITIES, only: U_case
+!!--++    Use CFML_Math_General,   only: sp
+!!--++    Use CFML_String_Utilities, only: U_case
 !!----
 !!---- VARIABLES
 !!----    BC_D6H
@@ -65,10 +65,10 @@
 !!----       SET_WYCKOFF_INFO
 !!----
 !!
- Module Symmetry_Tables
+ Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use Math_Gen,         only: Sp
-    Use String_Utilities, only: U_Case
+    Use CFML_Math_General,         only: Sp
+    Use CFML_String_Utilities, only: U_Case
 
     !---- Variables ----!
     implicit none
@@ -4987,4 +4987,4 @@
        return
     End Subroutine Set_Wyckoff_Info
 
- End Module Symmetry_Tables
+ End Module CFML_Symmetry_Tables

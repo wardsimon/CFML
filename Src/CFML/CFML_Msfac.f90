@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MAGNETIC_STRUCTURE_FACTOR
+!!---- MODULE: CFML_Magnetic_Structure_Factors
 !!----   INFO: Main module for Structure Factors Calculations
 !!----
 !!---- HISTORY
@@ -10,16 +10,16 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++     Use Math_Gen,                    only: sp, tpi, atan2d, sort
-!!--++     Use String_Utilities,            only: L_Case,U_Case, Get_LogUnit
-!!--++     Use Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
+!!--++     Use CFML_Math_General,                    only: sp, tpi, atan2d, sort
+!!--++     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
+!!--++     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
 !!--++                                            Magnetic_Form
-!!--++     Use Crystal_Types,               only: Crystal_Cell_type
-!!--++     Use Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
-!!--++     Use Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Magnetic_Domain_type
-!!--++     Use Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-!!--++     Use Atom_Module,                 only: Matom_list_type
-!!--++     Use Propagation_vectors,         only: K_Equiv_Minus_K
+!!--++     Use CFML_Crystal_Metrics,               only: Crystal_Cell_type
+!!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
+!!--++     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Magnetic_Domain_type
+!!--++     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
+!!--++     Use CFML_Atom_Definitions,                 only: Matom_list_type
+!!--++     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 !!----
 !!---- VARIABLES
 !!--..    Types
@@ -59,19 +59,19 @@
 !!----       WRITE_MAG_STRUCTURE_FACTORS
 !!----
 !!
- Module Magnetic_Structure_Factor
+ Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use Math_Gen,                    only: sp, tpi, atan2d, sort
-    Use String_Utilities,            only: L_Case,U_Case, Get_LogUnit
-    Use Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
+    Use CFML_Math_General,                    only: sp, tpi, atan2d, sort
+    Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
+    Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                            Magnetic_Form
-    Use Crystal_Types,               only: Crystal_Cell_type
-    Use Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
-    Use Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Write_Magnetic_Structure, &
+    Use CFML_Crystal_Metrics,               only: Crystal_Cell_type
+    Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
+    Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Write_Magnetic_Structure, &
                                            Magnetic_Domain_type
-    Use Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-    Use Atom_Module,                 only: Matom_list_type, Allocate_mAtom_list
-    Use Propagation_vectors,         only: K_Equiv_Minus_K
+    Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
+    Use CFML_Atom_Definitions,                 only: Matom_list_type, Allocate_mAtom_list
+    Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 
     !---- Variables ----!
     implicit none
@@ -226,7 +226,7 @@
     !!---- ERR_MESS_MSFAC
     !!----    character(len=150), public :: err_mess_msfac
     !!----
-    !!----    String containing information about the last error in Magnetic_Structure_Factor_Module
+    !!----    String containing information about the last error in Magnetic_CFML_Structure_Factors
     !!----
     !!---- Update: April - 2005
     !!
@@ -236,7 +236,7 @@
     !!---- ERR_MSFAC
     !!----    logical, public :: err_msfac
     !!----
-    !!----    Logical Variable indicating an error in Magnetic_Structure_Factor_Module
+    !!----    Logical Variable indicating an error in Magnetic_CFML_Structure_Factors
     !!----
     !!---- Update: April - 2005
     !!
@@ -1754,4 +1754,4 @@
        return
     End Subroutine Write_Mag_Structure_Factors
 
- End Module Magnetic_Structure_Factor
+ End Module CFML_Magnetic_Structure_Factors

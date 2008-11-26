@@ -2,17 +2,17 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: MAPS_CALCULATIONS
+!!---- MODULE: CFML_Maps_Calculations
 !!----   INFO: Subroutines related to operations on the array's map
 !!----
 !!---- HISTORY
 !!----    Update: January - 2004
 !!----
 !!---- DEPENDENCIES
-!!--++    Use Math_Gen,                  only: sp
-!!--++    Use Crystallographic_Symmetry, only: Space_Group_Type
-!!--++    Use Crystal_Types,             only: Crystal_Cell_Type
-!!--++    Use Geom_Calculations,         only: Distance
+!!--++    Use CFML_Math_General,                  only: sp
+!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
+!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
+!!--++    Use CFML_Geometry_Calc,         only: Distance
 !!----
 !!---- VARIABLES
 !!----    CUBE_INFO_TYPE
@@ -46,14 +46,14 @@
 !!----       STATISTIC_MAP
 !!----
 !!
- Module Maps_Calculations
+ Module CFML_Maps_Calculations
 
     !---- Use Modules ----!
     !Use Mod_fun    !To be commented for non-F compilers
-    use Math_Gen,                  only: sp
-    use Crystallographic_Symmetry, only: Space_Group_Type, ApplySO
-    use Crystal_Types,             only: Crystal_Cell_Type
-    use Geom_Calculations,         only: Distance
+    use CFML_Math_General,                  only: sp
+    use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySO
+    use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
+    use CFML_Geometry_Calc,         only: Distance
 
     implicit none
 
@@ -110,7 +110,7 @@
     !!---- ERR_MAPS
     !!----    logical, public  :: err_maps
     !!----
-    !!----    Logical Variable indicating an error in MAPS_CALCULATIONS module
+    !!----    Logical Variable indicating an error in CFML_Maps_Calculations module
     !!----
     !!---- Update: February - 2005
     !!
@@ -1382,7 +1382,7 @@
     !!----
     !!---- Subroutine Init_Err_Maps( )
     !!----
-    !!----    Initialize the errors flags in Maps_Calculations
+    !!----    Initialize the errors flags in CFML_Maps_Calculations
     !!----
     !!---- Update: February - 2005
     !!
@@ -2299,4 +2299,4 @@
     End Subroutine Statistic_Map
 
 
- End Module Maps_Calculations
+ End Module CFML_Maps_Calculations

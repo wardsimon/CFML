@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: ATOM_MODULE
+!!---- MODULE: CFML_Atom_Definitions
 !!----   INFO: Subroutines related to Atoms definitions
 !!----
 !!---- HISTORY
@@ -12,14 +12,14 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use Math_Gen,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
-!!--++    Use Math_3D,                   only: matrix_diageigen
-!!--++    Use String_Utilities,          only: setnum_std
-!!--++    Use Crystal_Types,             only: Crystal_Cell_Type, convert_b_betas,    &
+!!--++    Use CFML_Math_General,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
+!!--++    Use CFML_Math_3D,                   only: matrix_diageigen
+!!--++    Use CFML_String_Utilities,          only: setnum_std
+!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, convert_b_betas,    &
 !!--++                                         convert_b_u, convert_betas_b,          &
 !!--++                                         convert_betas_u, convert_u_b,          &
 !!--++                                         convert_u_betas, u_equiv
-!!--++    Use Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
+!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
 !!--++                                         Get_Multip_Pos
 !!--++
 !!----
@@ -57,18 +57,18 @@
 !!----       WRITE_ATOMS_CFL
 !!----
 !!
- Module Atom_Module
+ Module CFML_Atom_Definitions
 
     !---- Use Files ----!
     !Use Mod_fun    !To be commented for non-F compilers
-    Use Math_Gen,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
-    Use Math_3D,                   only: matrix_diageigen
-    Use String_Utilities,          only: setnum_std
-    Use Crystal_Types,             only: Crystal_Cell_Type, convert_b_betas,    &
+    Use CFML_Math_General,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
+    Use CFML_Math_3D,                   only: matrix_diageigen
+    Use CFML_String_Utilities,          only: setnum_std
+    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, convert_b_betas,    &
                                          Convert_b_u, convert_betas_b,          &
                                          convert_betas_u, convert_u_b,          &
                                          convert_u_betas, u_equiv
-    Use Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
                                          Get_Multip_Pos
 
     !---- Variables ----!
@@ -1416,4 +1416,4 @@
        return
     End Subroutine Write_CFL
 
- End Module Atom_Module
+ End Module CFML_Atom_Definitions

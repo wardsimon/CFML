@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: SCATTERING_CHEMICAL_TABLES
+!!---- MODULE: CFML_Scattering_Chemical_Tables
 !!----
 !!----   INFO: Tabulated information about atomic chemical and scattering data. A set of fortran
 !!----         TYPEs and variables are defined. Tables are declared as allocatable arrays of
@@ -17,8 +17,8 @@
 !!----             November - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN,         only: Sp
-!!--++    Use STRING_UTILITIES, only: L_Case, U_Case
+!!--++    Use CFML_Math_General,         only: Sp
+!!--++    Use CFML_String_Utilities, only: L_Case, U_Case
 !!----
 !!---- VARIABLES
 !!----    ANOMALOUS_SC_TYPE
@@ -61,10 +61,10 @@
 !!----       SET_XRAY_FORM
 !!----
 !!
- Module Scattering_Chemical_Tables
+ Module CFML_Scattering_Chemical_Tables
     !---- Use Modules ----!
-    Use Math_Gen,         only: Sp
-    Use String_Utilities, only: U_Case, L_Case
+    Use CFML_Math_General,         only: Sp
+    Use CFML_String_Utilities, only: U_Case, L_Case
 
     implicit none
 
@@ -2050,5 +2050,5 @@
        return
     End  Subroutine Set_Xray_Form
 
- End Module Scattering_Chemical_Tables
+ End Module CFML_Scattering_Chemical_Tables
 

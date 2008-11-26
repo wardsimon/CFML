@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: PROPAGATION_VECTORS
+!!---- MODULE: CFML_Propagation_Vectors
 !!----   INFO: Series of procedures handling operation with Propagation
 !!----         vectors
 !!----
@@ -12,9 +12,9 @@
 !!----            January - 2000. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use Math_gen,                  only: Sp, Zbelong
-!!--++    Use Crystallographic_Symmetry, only: Space_Group_Type
-!!--++    Use Reflections_Utilities,     only: Hkl_R, Hkl_Equal
+!!--++    Use CFML_Math_General,                  only: Sp, Zbelong
+!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
+!!--++    Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal
 !!----
 !!---- VARIABLES
 !!--++    EPS                      [Private]
@@ -31,13 +31,13 @@
 !!----       WRITE_GROUP_K
 !!----
 !!
- Module Propagation_vectors
+ Module CFML_Propagation_Vectors
 
     !---- Use Modules ----!
     !Use Mod_fun    !To be commented for non-F compilers
-    Use Math_gen,                  only: Sp, Zbelong
-    Use Crystallographic_Symmetry, only: Space_Group_Type
-    Use Reflections_Utilities,     only: Hkl_R, Hkl_Equal
+    Use CFML_Math_General,                  only: Sp, Zbelong
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
+    Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal
 
     !---- Variables ----!
     implicit none
@@ -425,5 +425,5 @@
        return
     End Subroutine Write_Group_k
 
- End Module Propagation_vectors
+ End Module CFML_Propagation_Vectors
 

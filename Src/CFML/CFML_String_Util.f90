@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: STRING_UTILITIES
+!!---- MODULE: CFML_String_Utilities
 !!----   INFO: Manipulation of strings with alfanumeric characters
 !!----
 !!---- HISTORY
@@ -11,7 +11,7 @@
 !!----                            All routines have general I/O parameters
 !!----
 !!---- DEPENDENCIES
-!!--++    Use Math_Gen, only: Sp, Negligible Zbelong
+!!--++    Use CFML_Math_General, only: Sp, Negligible Zbelong
 !!----
 !!---- VARIABLES
 !!--++    CTAB                    [Private]
@@ -81,9 +81,9 @@
 !!----       UCASE
 !!----
 !!
- Module String_Utilities
+ Module CFML_String_Utilities
     !---- Use Modules ----!
-    use Math_Gen, only: Sp, Negligible, Zbelong
+    use CFML_Math_General, only: Sp, Negligible, Zbelong
 
     implicit none
 
@@ -141,7 +141,7 @@
     !!---- ERR_STRING
     !!----    logical :: err_string
     !!----
-    !!----    Logical Variable indicating an error in STRING_UTILITIES module
+    !!----    Logical Variable indicating an error in CFML_String_Utilities module
     !!----
     !!---- Update: February - 2005
     !!
@@ -2490,4 +2490,4 @@
        return
     End Subroutine Ucase
 
- End Module String_Utilities
+ End Module CFML_String_Utilities

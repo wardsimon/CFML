@@ -7,10 +7,10 @@
 !!
 Program Test_Subgroups
     !---- Use Modules ----!
-    use crystallographic_symmetry, only:  get_T_SubGroups,space_group_type, &
-                                          set_spacegroup, write_spacegroup, &
-                                          Lattice_trans,similar_transf_SG
-    use math_3d,                   only : determ_a
+    use CFML_crystallographic_symmetry, only:  get_T_SubGroups,space_group_type, &
+                                               set_spacegroup, write_spacegroup, &
+                                               Lattice_trans,similar_transf_SG
+    use CFML_math_3d,                   only:  determ_a
 
     !---- Variables ----!
     implicit none

@@ -7,7 +7,7 @@ module WCFGL_display
   use WCFGL_matom_tree, only : draw_matoms
   use WCFGL_bond_tree,  only : draw_bonds
   use WCFGL_poly_tree,  only : draw_polys
-  use winteracter
+  use Winteracter
 
   implicit none
 

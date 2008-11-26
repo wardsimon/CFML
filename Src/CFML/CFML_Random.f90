@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: RANDOM_GENER
+!!---- MODULE: CFML_Random_Generators
 !!----   INFO: A module for random number generation for differents
 !!----         distributions.
 !!----
@@ -124,7 +124,7 @@
 !!----       SEED_RANDOM_NUMBER
 !!----
 !!
- Module Random_Gener
+ Module CFML_Random_Generators
 
     !---- Use Modules ----!
 
@@ -158,7 +158,7 @@
     !!---- ERR_RANDOM
     !!----    logical, public :: err_random
     !!----
-    !!----    Logical Variable indicating an error in RANDOM_GENER module
+    !!----    Logical Variable indicating an error in CFML_Random_Generators module
     !!----
     !!---- Update: February - 2005
     !!
@@ -403,7 +403,7 @@
     !!----
     !!---- Subroutine Init_Err_Random()
     !!----
-    !!----    Initialize the errors flags in Random_Gener
+    !!----    Initialize the errors flags in CFML_Random_Generators
     !!----
     !!---- Update: February - 2005
     !!
@@ -1730,4 +1730,4 @@
        return
     End Subroutine Seed_Random_Number
 
- End Module Random_Gener
+ End Module CFML_Random_Generators

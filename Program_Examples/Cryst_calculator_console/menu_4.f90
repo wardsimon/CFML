@@ -5,8 +5,8 @@
 !!
  Module Menu_4
    !---- Use File ----!
-   use scattering_chemical_tables
-   use string_utilities
+   use CFML_scattering_chemical_tables
+   use CFML_string_utilities
 
    !---- Variables ----!
    implicit none

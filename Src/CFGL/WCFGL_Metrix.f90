@@ -7,9 +7,9 @@ module WCFGL_metrix
 !
 !------------------------------------------------
   use OPENGL
-  use WCFGL_constant,             only : deg2rad
+  use WCFGL_constant,                 only : deg2rad
   use WCFGL_geometry
-  use crystallographic_symmetry, only : space_group_type, set_spacegroup, Err_symm
+  use CFML_crystallographic_symmetry, only : space_group_type, set_spacegroup, Err_symm
   use WCFGL_objects_definition
     
   implicit none

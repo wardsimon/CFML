@@ -3,7 +3,7 @@
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!----
-!!---- MODULE: CRYSTAL_TYPES
+!!---- MODULE: CFML_Crystal_Metrics
 !!----   INFO: Module to define crystallographic types and to provide
 !!----         automatic crystallographic operations.
 !!----
@@ -96,9 +96,9 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
+!!--++    Use CFML_Math_General, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
 !!--++                         Co_Linear
-!!--++    Use MATH_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+!!--++    Use CFML_Math_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
 !!----    CRYSTAL_CELL_TYPE
@@ -141,12 +141,12 @@
 !!----       WRITE_CRYSTAL_CELL
 !!----
 !!
- Module Crystal_Types
+ Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use MATH_GEN, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
+    Use CFML_Math_General, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
                          Co_Linear
-    Use MATH_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+    Use CFML_Math_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
     implicit none
 
@@ -248,7 +248,7 @@
     !!---- ERR_CRYS
     !!----    logical, public :: Err_Crys
     !!----
-    !!----    Logical Variable indicating an error in CRYSTAL_TYPES module
+    !!----    Logical Variable indicating an error in CFML_Crystal_Metrics module
     !!----
     !!---- Update: February - 2005
     !!
@@ -2390,4 +2390,4 @@
        return
     End Subroutine Write_Crystal_Cell
 
- End Module Crystal_Types
+ End Module CFML_Crystal_Metrics

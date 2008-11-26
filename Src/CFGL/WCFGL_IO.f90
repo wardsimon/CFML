@@ -11,8 +11,8 @@ module WCFGL_IO
   use WCFGL_matom_tree
   use WCFGL_bond_tree
   use WCFGL_poly_tree
-  use string_utilities, only: u_case
-  use Math_gen, only: sind,cosd
+  use CFML_String_Utilities,    only: u_case
+  use CFML_Math_General,        only: sind,cosd
   use WCFGL_display
   use WCFGL_quaternion
   use WCFGL_objects_definition, only: arrow_pos

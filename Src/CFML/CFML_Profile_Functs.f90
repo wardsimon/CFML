@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE:  PROFILE_FUNCTIONS
+!!---- MODULE:  CFML_PowderProfiles_CW
 !!----   INFO:  Calculation of peak profile functions
 !!----
 !!---- HISTORY
@@ -35,7 +35,7 @@
 !!----      SPLIT_PSEUDOVOIGT_DER
 !!----
 !!
- Module Profile_Functions
+ Module CFML_PowderProfiles_CW
     !---- Use Files ----!
 
     !---- Variables ----!
@@ -683,4 +683,4 @@
        return
     End Subroutine Split_Pseudovoigt_Der
 
- End Module Profile_Functions
+ End Module CFML_PowderProfiles_CW

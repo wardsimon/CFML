@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: OPTIMIZATION_PROCEDURES
+!!---- MODULE: CFML_Optimization_General
 !!----   INFO: Module implementing several algorithms for global and local
 !!----         optimization.
 !!----
@@ -11,7 +11,7 @@
 !!----
 !!----    April - 2004 Created by JRC
 !!---- DEPENDENCIES
-!!--++    use MATH_GEN, only: cp
+!!--++    use CFML_Math_General, only: cp
 !!----
 !!---- VARIABLES
 !!----    ERR_OPTIM
@@ -41,10 +41,10 @@
 !!----       WRITE_OPTIMIZATION_CONDITIONS
 !!----
 !!
- Module Optimization_Procedures
+ Module CFML_Optimization_General
     !---- Use Files ----!
-    use Math_Gen,         only: cp
-    use String_Utilities, only: l_case
+    use CFML_Math_General,         only: cp
+    use CFML_String_Utilities, only: l_case
 
     implicit none
 
@@ -199,7 +199,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use Math_Gen,  only: cp
+    !!----          use CFML_Math_General,  only: cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -257,7 +257,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1208,7 +1208,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1657,7 +1657,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1721,7 +1721,7 @@
     !!--++
     !!--++  Interface
     !!--++     Subroutine Model_Functn(nparm,x, f)
-    !!--++        Use Math_gen, only : cp
+    !!--++        Use CFML_Math_General, only : cp
     !!--++        real(kind=cp),dimension(:), intent(in)  :: x
     !!--++        real(kind=cp),              intent(out) :: f
     !!--++        integer,                    intent(in)  :: nparm
@@ -1767,7 +1767,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2241,7 +2241,7 @@
     !!----  integer, optional,    intent(in)      :: ipr     ! Logical unit for printing if the parameter C%IOUT /= 0.
     !!----  Interface
     !!----     Subroutine Model_Functn(nparm,x, f)
-    !!----        Use Math_gen, only : cp
+    !!----        Use CFML_Math_General, only : cp
     !!----        real(kind=cp),dimension(:), intent(in)  :: x
     !!----        real(kind=cp),              intent(out) :: f
     !!----        integer,                    intent(in)  :: nparm
@@ -2277,7 +2277,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2319,7 +2319,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use Math_Gen,  only: cp
+    !!----          use CFML_Math_General,  only: cp
     !!----          integer,                             intent(in) :: N
     !!----          real(kind=cp),dimension(:),          intent(in) :: X
     !!----          real(kind=cp),                       intent(out):: F
@@ -2343,7 +2343,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2511,7 +2511,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use Math_Gen,  only: cp
+    !!----          use CFML_Math_General,  only: cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -2536,7 +2536,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2618,7 +2618,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use Math_Gen,  only: cp
+    !!----          use CFML_Math_General,  only: cp
     !!----          integer,                             intent(in) :: n
     !!----          real(kind=cp),dimension(:),          intent(in) :: x
     !!----          real(kind=cp),                       intent(out):: f
@@ -2686,7 +2686,7 @@
        real, dimension(:), intent(in)     :: maxi
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2784,7 +2784,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,p, func)                  ! name of the user's subroutine - arguments (P,FUNC)
-    !!----          use math_gen, only: cp                           ! which returns the function value for a given set of
+    !!----          use CFML_Math_General, only: cp                           ! which returns the function value for a given set of
     !!----          integer,                      intent(in)  :: n   ! Number of parameters
     !!----          real (kind=cp), dimension(:), intent(in)  :: p   ! parameter values in array P.
     !!----          real (kind=cp),               intent(out) :: func
@@ -2864,7 +2864,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use Math_Gen,  only: cp
+             use CFML_Math_General,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -3808,4 +3808,4 @@
        return
     End Subroutine Write_Optimization_Conditions
 
- End Module Optimization_Procedures
+ End Module CFML_Optimization_General

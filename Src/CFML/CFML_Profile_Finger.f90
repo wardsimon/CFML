@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2008,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: PROF_FINGER
+!!---- MODULE: CFML_PowderProfiles_Finger
 !!----   INFO: Asymmetry due to axial divergence using the method of Finger, Cox and
 !!----         Jephcoat, J. Appl. Cryst. 27, 892, 1992.
 !!----
@@ -27,7 +27,7 @@
 !!--++       PSVOIGTIAN             [Private]
 !!----
 !!
- Module Prof_Finger
+ Module CFML_PowderProfiles_Finger
     !---- Use Modules ----!
 
     !---- Variables ----!
@@ -1278,4 +1278,4 @@
       return
    End Subroutine Psvoigtian
 
-End Module Prof_Finger
+End Module CFML_PowderProfiles_Finger

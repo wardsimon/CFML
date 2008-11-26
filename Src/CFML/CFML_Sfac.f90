@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2005,              Version: 3.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: STRUCTURE_FACTOR_MODULE
+!!---- MODULE: CFML_Structure_Factors
 !!----   INFO: Main module for Structure Factors Calculations
 !!----
 !!---- HISTORY
@@ -11,12 +11,12 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++     Use Scattering_Chemical_Tables
-!!--++     Use Crystallographic_Symmetry,   only: Space_Group_Type
-!!--++     Use Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-!!--++     Use Atom_Module,                 only: atom_list_type
-!!--++     Use Math_Gen,                    only: sp, tpi, atan2d
-!!--++     Use String_Utilities,            only: L_Case,U_Case
+!!--++     Use CFML_Scattering_Chemical_Tables
+!!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
+!!--++     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
+!!--++     Use CFML_Atom_Definitions,                 only: atom_list_type
+!!--++     Use CFML_Math_General,                    only: sp, tpi, atan2d
+!!--++     Use CFML_String_Utilities,            only: L_Case,U_Case
 !!----
 !!---- VARIABLES
 !!--++    AF0                          [Private]
@@ -52,15 +52,15 @@
 !!----       WRITE_STRUCTURE_FACTORS
 !!----
 !!
- Module Structure_Factor_Module
+ Module CFML_Structure_Factors
 
     !---- Use Modules ----!
-    Use Math_Gen,                    only: sp, tpi, atan2d
-    Use String_Utilities,            only: L_Case,U_Case
-    Use Scattering_Chemical_Tables
-    Use Crystallographic_Symmetry,   only: Space_Group_Type
-    Use Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-    Use Atom_Module,                 only: atom_list_type
+    Use CFML_Math_General,                    only: sp, tpi, atan2d
+    Use CFML_String_Utilities,            only: L_Case,U_Case
+    Use CFML_Scattering_Chemical_Tables
+    Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
+    Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
+    Use CFML_Atom_Definitions,                 only: atom_list_type
 
     !---- Variables ----!
     implicit none
@@ -1425,4 +1425,4 @@
        return
     End Subroutine Write_Structure_Factors
 
- End Module Structure_Factor_Module
+ End Module CFML_Structure_Factors
