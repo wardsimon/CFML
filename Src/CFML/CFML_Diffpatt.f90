@@ -50,9 +50,9 @@
 !!
  Module CFML_Diffraction_Patterns
     !---- Use Modules ----!
-    Use CFML_Math_General,         only : sp, spline, splint, locate
+    Use CFML_Math_General,     only : sp, spline, splint, locate
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
-                                 get_logunit, u_case, getword
+                                      get_logunit, u_case, getword
 
     implicit none
 
