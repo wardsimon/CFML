@@ -145,8 +145,8 @@
 
     !---- Use files ----!
     Use CFML_Math_General, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
-                         Co_Linear
-    Use CFML_Math_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+                                  Co_Linear
+    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
     implicit none
 
@@ -169,7 +169,7 @@
 
     !---- List of public overloaded procedures: subroutines ----!
 
-    public :: Niggli_Cell
+    public  :: Niggli_Cell
 
     !---- List of private functions ----!
     private :: metrics
@@ -288,23 +288,25 @@
     !!
     real,    dimension(3,3), parameter  :: identity=reshape ((/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
 
-    !!---- Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
-    !!---- There are an infinite number of primitive unit cells generating the same lattice L.
-    !!---- N={a,b,c} is a Buerger cell if and only if |a|+|b|+|c| is a minimal value for all primitive
-    !!---- cells of L.
-    !!---- N is a Niggli cell of L if  (i) it is as Buerger cell of L and
-    !!----                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
-    !!----                  / a.a  b.b  c.c \       /  s11  s22  s33 \
-    !!----   Niggli matrix  |               |   =   |                |
-    !!----                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
-    !!----
+    !---- Interfaces - Overloaded ----!
+    
+    !!--.. Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
+    !!--.. There are an infinite number of primitive unit cells generating the same lattice L.
+    !!--.. N={a,b,c} is a Buerger cell if and only if |a|+|b|+|c| is a minimal value for all primitive
+    !!--.. cells of L.
+    !!--.. N is a Niggli cell of L if  (i) it is as Buerger cell of L and
+    !!--..                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
+    !!--..                  / a.a  b.b  c.c \       /  s11  s22  s33 \
+    !!--..   Niggli matrix  |               |   =   |                |
+    !!--..                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
+    !!--..
 
-    Interface  Niggli_Cell                   !   The first(s) argument(s) is(are)
-      Module Procedure Niggli_Cell_abc       !List of cell parameters passed as a 6D vector
-      Module Procedure Niggli_Cell_nigglimat !Niggli matrix passed as a 2x3 matrix (ultimately applying the algorithm)
-      Module Procedure Niggli_Cell_Params    !List of cell parameters a,b,c,alpha,beta,gamma
-      Module Procedure Niggli_Cell_type      !The object Cell is passed as argument
-      Module Procedure Niggli_Cell_Vect      !Input three vectors in Cartesian components
+    Interface  Niggli_Cell                   ! The first(s) argument(s) is(are)
+      Module Procedure Niggli_Cell_abc       ! List of cell parameters passed as a 6D vector
+      Module Procedure Niggli_Cell_nigglimat ! Niggli matrix passed as a 2x3 matrix (ultimately applying the algorithm)
+      Module Procedure Niggli_Cell_Params    ! List of cell parameters a,b,c,alpha,beta,gamma
+      Module Procedure Niggli_Cell_type      ! The object Cell is passed as argument
+      Module Procedure Niggli_Cell_Vect      ! Input three vectors in Cartesian components
     End Interface  Niggli_Cell
 
  Contains

@@ -23,8 +23,8 @@
 !!----    BVS_TABLE
 !!----    ERR_CONF
 !!----    ERR_MESS_CONF
-!!----    TABLE_B
-!!----    TABLE_D0
+!!--++    TABLE_B
+!!--++    TABLE_D0
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -47,14 +47,14 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_Math_General,                   only: Sp, Sort_Strings
+    Use CFML_Math_General,               only: Sp, Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
-    use CFML_Crystal_Metrics,              only: Crystal_Cell_Type
-    use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
-    use CFML_Atom_TypeDef,                only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
-                                          Deallocate_Atom_List, AtList1_ExtenCell_AtList2
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
-    use CFML_Geometry_Calc,          only: Coord_Info, Distance
+    use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
+    use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
+    use CFML_Atom_TypeDef,               only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
+                                               Deallocate_Atom_List, AtList1_ExtenCell_AtList2
+    use CFML_Geometry_Calc,              only: Coord_Info, Distance
 
     !---- Variables ----!
     implicit none
@@ -138,9 +138,9 @@
     !!--..
     !!---- Type, public :: Bvs_Par_Type
     !!----    character (len=4)               :: Symb      ! Chemical symbol
-    !!----    real,   dimension(bvs_anions_n) :: d0        ! D0 Parameter
-    !!----    real,   dimension(bvs_anions_n) :: b_par     ! B Parameter
-    !!----    integer,dimension(bvs_anions_n) :: reference ! Integer pointing to the reference paper
+    !!----    real,   dimension(bvs_anions_n) :: D0        ! D0 Parameter
+    !!----    real,   dimension(bvs_anions_n) :: B_Par     ! B Parameter
+    !!----    integer,dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
     !!---- End Type Bvs_Par_Type
     !!----
     !!----    Definition for BVS Parameters

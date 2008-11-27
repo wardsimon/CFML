@@ -21,11 +21,11 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Math_General,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
-!!--++    Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
+!!--++    Use CFML_Math_General,     only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
 !!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
-!!--++                                Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
-!!--++                                U_case, Ucase, Getnum, Frac_Trans_2Dig
+!!--++                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
+!!--++                                     U_case, Ucase, Getnum, Frac_Trans_2Dig
+!!--++    Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
 !!--++    Use CFML_Symmetry_Tables
 !!----
 !!----
@@ -136,12 +136,12 @@
  Module CFML_Crystallographic_Symmetry
 
     !---- Used External Modules ----!
-    Use CFML_Math_General,         only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix,         &
-                                Equal_Vector,Sort
+    Use CFML_Math_General,     only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix,         &
+                                     Equal_Vector,Sort
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
-                                Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
-                                U_case, Ucase, Getnum, Frac_trans_2Dig
+                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
+                                     U_case, Ucase, Getnum, Frac_trans_2Dig
     Use CFML_Symmetry_Tables
 
     implicit none

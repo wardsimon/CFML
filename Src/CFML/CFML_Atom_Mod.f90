@@ -12,15 +12,15 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Math_General,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
+!!--++    Use CFML_Math_General,              only: Sp, Pi, Modulo_Lat, Equal_Vector
 !!--++    Use CFML_Math_3D,                   only: matrix_diageigen
 !!--++    Use CFML_String_Utilities,          only: setnum_std
-!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, convert_b_betas,    &
-!!--++                                         convert_b_u, convert_betas_b,          &
-!!--++                                         convert_betas_u, convert_u_b,          &
-!!--++                                         convert_u_betas, u_equiv
+!!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
+!!--++                                              convert_b_u, convert_betas_b,          &
+!!--++                                              convert_betas_u, convert_u_b,          &
+!!--++                                              convert_u_betas, u_equiv
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
-!!--++                                         Get_Multip_Pos
+!!--++                                              Get_Multip_Pos
 !!--++
 !!----
 !!---- VARIABLES
@@ -60,16 +60,15 @@
  Module CFML_Atom_TypeDef
 
     !---- Use Files ----!
-    !Use Mod_fun    !To be commented for non-F compilers
-    Use CFML_Math_General,                  only: Sp, Pi, Modulo_Lat, Equal_Vector
-    Use CFML_Math_3D,                   only: matrix_diageigen
+    Use CFML_Math_General,              only: Sp, Pi, Modulo_Lat, Equal_Vector
     Use CFML_String_Utilities,          only: setnum_std
-    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, convert_b_betas,    &
-                                         Convert_b_u, convert_betas_b,          &
-                                         convert_betas_u, convert_u_b,          &
-                                         convert_u_betas, u_equiv
+    Use CFML_Math_3D,                   only: matrix_diageigen
+    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
+                                              Convert_b_u, convert_betas_b,          &
+                                              convert_betas_u, convert_u_b,          &
+                                              convert_u_betas, u_equiv
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo, Lattice_Trans, &
-                                         Get_Multip_Pos
+                                              Get_Multip_Pos
 
     !---- Variables ----!
     implicit none
