@@ -79,8 +79,8 @@ module WCFGL_glatom
 
     allocate(xtemp(3,spaceG%multip))
     L=1
-    xtemp(:,1)=atom%xf
     if(.not. molecule) then
+      xtemp(:,1)=modulo_lat(atom%xf)
       do_eq:do j=2, spaceG%multip
         xx=ApplySO(spaceG%Symop(j),xtemp(:,1))
         xx=modulo_lat(xx)
@@ -93,6 +93,8 @@ module WCFGL_glatom
         L=L+1
         xtemp(:,L)=xx(:)
       end do do_eq
+    else
+      xtemp(:,1)=atom%xf
     end if
     allocate(atom%xf_eq(3,L))
 
