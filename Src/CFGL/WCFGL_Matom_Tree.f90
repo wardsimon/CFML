@@ -179,7 +179,7 @@ module WCFGL_matom_tree
     type(space_group_type) :: space
     integer                :: numlat, nsym, i, j, l, eq_at
     integer :: sim(3,3)
-    real    :: tt(3), p_mag, tphas(3), rtrans(3)
+    real    :: tt(3), p_mag, tphas(3), rtrans(3), va(3),vb(3), xm(3)
     complex :: rephas1, rephas2
     real    :: skjrealpart(3),skjimpart(3)
     logical :: envelop_flag, edges_flag
@@ -203,7 +203,8 @@ module WCFGL_matom_tree
 
     current_node%label   = label
     current_node%symbol  = symbol
-    current_node%xf      = modulo_lat(xf)
+    xm                   = modulo_lat(xf)
+    current_node%xf      = xm
     current_node%group   = group
     current_node%dead    = dead
 
@@ -234,9 +235,10 @@ module WCFGL_matom_tree
     do i=1, numlat     ! Sum over number of lattice translations
       do j=1, nsym     ! Sum over number of symmetry operators
         call read_xsym(current_xsym_list(j),1,sim,tt)
-        current_node%xf_eq(:,j+(i-1)*nsym)=modulo_lat(matmul(sim,xf) &
-        +tt+space%latt_trans(:,i))
-        tphas=modulo_lat(matmul(sim,xf)+tt+space%latt_trans(:,i))-(matmul(sim,xf)+tt)
+        va=matmul(sim,xm)+tt                          !va=matmul(sim,xf)+tt  <---- Usign xf is a bug
+        vb=modulo_lat(va+space%latt_trans(:,i))
+        current_node%xf_eq(:,j+(i-1)*nsym)=vb
+        tphas=vb-va
         do l=1, num_contrib   ! Sum over all contribs
           skjrealpart= real(current_node%moment(l)%skj)
           skjimpart  =AIMAG(current_node%moment(l)%skj)
