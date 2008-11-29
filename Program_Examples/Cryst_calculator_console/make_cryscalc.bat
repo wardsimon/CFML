@@ -31,7 +31,7 @@ rem ****---- Lahey Compiler ----****
    lf95 -c menu_3.f90  -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
    lf95 -c menu_4.f90  -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
    lf95 -c calsym.f90  -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95  *.obj -out CrysCalc -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC" -lib c:\CrysFML\lahey\LibC\CrysFML
+   lf95  *.obj -out CrysCalc -tp -nomap -stchk -nchk -o1 -lib c:\CrysFML\lahey\LibC\CrysFML
    goto END
 rem
 rem ****---- Intel Compiler ----****

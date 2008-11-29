@@ -27,9 +27,9 @@ rem
 rem ****---- Lahey Compiler ----****
 :LF95
    lf95 -c hkl_gen.f90    -info  -o1 -chk -mod ".;C:\crysFML\lahey\libC"
-   lf95 *.obj -out hkl_gen  -o1 -mod ".;C:\crysFML\lahey\LibC" -lib C:\crysFML\lahey\libC\crysFML 
+   lf95 *.obj -out hkl_gen  -o1 -lib C:\crysFML\lahey\libC\crysFML
    goto END
-rem      
+rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c hkl_gen.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
