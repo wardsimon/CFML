@@ -1,7 +1,7 @@
 #! /bin/sh
 # Compilation for CrysFML + CrysFGL libraries
 # Author: Javier Gonzalez-Platas
-# Revision: Oct-2008
+# Date: Dic-2008
 #
 if [ a$1 = a ]
 then
@@ -49,3 +49,7 @@ fi
 # Load Examples
 #
 ./Scripts/Linux/load_cfml_exam
+#
+# Load Help
+#
+./Scripts/Linux/load_cfml_help

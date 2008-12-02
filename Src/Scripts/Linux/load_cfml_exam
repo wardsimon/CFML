@@ -1,7 +1,7 @@
 #! /bin/sh
 # Load Examples files for CrysFML Library from Windows Source
 # Author: Javier Gonzalez-Platas
-# Revision: Nov-2008
+# Date: Dic-2008
 #
 # ---- WINDOWS CFML DIRECTORY ---- 
 WCFMLEX=/media/VistaOS/CrysFML/Program_Examples

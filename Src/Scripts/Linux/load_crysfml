@@ -1,7 +1,7 @@
 #! /bin/sh
 # Load files for CrysFML Library from Windows Source
 # Author: Javier Gonzalez-Platas
-# Revision: Nov-2008
+# Date: Dic-2008
 #
 # ---- WINDOWS CFML DIRECTORY ---- 
 WCFML=/media/VistaOS/CrysFML/Src/CFML
@@ -19,7 +19,6 @@ else
 fi
 cd ./CFML
 cp $WCFML/*.f90 .
-# up2lo *.f90
 fromdos *.f90
 chmod 666 *.f90
 #
@@ -27,7 +26,6 @@ chmod 666 *.f90
 #
 cd ../CFGL
 cp $WCFGL/*.f90 .
-# up2lo *.f90
 fromdos *.f90
 chmod 666 *.f90
 #

@@ -1,8 +1,7 @@
 #! /bin/sh
 # Compilation script for CrysFGL library
-# Author: Javier Gonzalez-Platas
-#         Juan Rodriguez-Carvajal
-# Revision: Nov-2008
+# Author: Javier Gonzalez-Platas (Script)
+# Date: Dic-2008
 #
 if [ a$1 = a ]
 then

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Compilation script for CrysFML library
 # Author: Javier Gonzalez-Platas
-# Revision: Nov-2008
+# Date: Dic-2008
 #
 if [ a$1 = a ]
 then
@@ -257,7 +257,7 @@ if [ $MODE = "con" ]
 then
    $COMP $OPT1  CFML_IO_Mess.f90       $INC
 else
-   $COMP $OPT1  CFML_IO_Messwin.f90       $INC
+   $COMP $OPT1  CFML_IO_MessWin.f90       $INC
 fi
 $COMP $OPT1  CFML_Random.f90
 $COMP $OPT1  CFML_FFTs.f90
