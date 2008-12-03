@@ -5,20 +5,19 @@ module WCFGL_IO
 ! Updated : October 2004.
 ! IO for Winteracter
 !------------------------------------------------
+  use CFML_String_Utilities,    only: u_case
+  use CFML_Math_General,        only: sind,cosd
+  use WCFGL_objects_definition, only: arrow_pos
   use WCFGL_metrix
   use WCFGL_atomic_table
   use WCFGL_atom_tree
   use WCFGL_matom_tree
   use WCFGL_bond_tree
   use WCFGL_poly_tree
-  use CFML_String_Utilities,    only: u_case
-  use CFML_Math_General,        only: sind,cosd
   use WCFGL_display
   use WCFGL_quaternion
-  use WCFGL_objects_definition, only: arrow_pos
 
   implicit none
-
      Logical, public          :: error_IO = .false.
      character(len=80),public :: mess_error_IO=" "
 
@@ -35,11 +34,10 @@ module WCFGL_IO
                                             is_bond, is_multiple, is_nodisplay,is_poly,&
                                             is_genr,is_conn, is_skp, is_bkg, num_g,is_group,is_edge_color,&
                                             num_k,num_xsym,num_msym,kchoice,msymchoice,num_skp,mstart, &
-                                            is_edges, is_envelop, is_envelop_color,is_molecule,&
-                                            i
-
+                                            is_edges, is_envelop, is_envelop_color,is_molecule, i
     logical                              :: ierror, dead, multiple,g_begin,mphase_begin,&
-                                            k_begin,msym_begin,matom_begin,group,edges,matom_envelop,matom_edges,matom_envcolor
+                                            k_begin,msym_begin,matom_begin,group,edges,matom_envelop,&
+                                            matom_edges,matom_envcolor
     character(len=256)                   :: line,upline
     character(len=80)                    :: spacegr
     character(len=2)                     :: symbol, symbol1, symbol2
@@ -507,10 +505,13 @@ module WCFGL_IO
                   matom_begin=.false.
                   if (matom_envcolor) then
                   call push_matom(label, symbol,pos, my_point2k, my_point2msym, my_Skj,&
-                                   my_phikj,my_color,scal,.false.,group,num_skp,matom_envelop,envelop_color=envelop_color,edges=matom_edges,edges_color=(/edgecolor,1.0/),edges_radius=radius)
+                                   my_phikj,my_color,scal,.false.,group,num_skp,matom_envelop,&
+                                   envelop_color=envelop_color,edges=matom_edges,edges_color=(/edgecolor,1.0/),&
+                                   edges_radius=radius)
                   else
-				  call push_matom(label, symbol,pos, my_point2k, my_point2msym, my_Skj,&
-                                   my_phikj,my_color,scal,.false.,group,num_skp,matom_envelop,edges=matom_edges,edges_color=(/edgecolor,1.0/),edges_radius=radius)
+                                  call push_matom(label, symbol,pos, my_point2k, my_point2msym, my_Skj,&
+                                   my_phikj,my_color,scal,.false.,group,num_skp,matom_envelop,edges=matom_edges,&
+                                   edges_color=(/edgecolor,1.0/),edges_radius=radius)
                   end if
                   matom_envcolor=.false.
                   group=.false.
@@ -533,7 +534,6 @@ module WCFGL_IO
       end if
     end if
     return
-
   end subroutine read_fst_file
 !------------------------------------------------------------------------------
   subroutine write_fst_file(filename,qview)
@@ -589,11 +589,11 @@ module WCFGL_IO
 
      ! SPACE GROUP
       if (associated(current_space_group)) then
-      	 if(current_space_group%SPG_Symb == "unknown") then
-      	  do i=1,current_space_group%multip
-      	    write(unit=1,fmt='(a)')"GENR "//trim(current_space_group%symopsymb(i))
-      	  end do
-      	 else
+         if(current_space_group%SPG_Symb == "unknown") then
+          do i=1,current_space_group%multip
+            write(unit=1,fmt='(a)')"GENR "//trim(current_space_group%symopsymb(i))
+          end do
+         else
            write(unit=1,fmt='(2a)') "SPACEG ", current_space_group%SPG_Symb
          end if
       end if
