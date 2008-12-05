@@ -502,7 +502,7 @@
        if (abs(x-1.0) < eps .or. abs(x+1.0) < eps) then
           pphi=0.0
        else
-          pphi=atan2(u(2),u(1))  !This is the good fucntion to obtain the true spherical angles
+          pphi=atan2(u(2),u(1))  !This is the good function to obtain the true spherical angles
        end if
        if (p > 0) then
           pphi = cos(m*pphi)     !cos(m*phi)
