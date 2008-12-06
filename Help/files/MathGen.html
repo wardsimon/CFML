@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Math_Gen</title>
+<html><head><title>CFML_Math_General</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Normal text */
+body, table /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -66,7 +66,6 @@ span.rvts9 /* Font Hint Italic */
 span.rvts10
 {
  font-size: 12pt;
- font-weight: bold;
 }
 span.rvts11 /* Font Style */
 {
@@ -78,19 +77,6 @@ span.rvts12 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
-}
-span.rvts13 /* Font Style */
-{
- font-family: 'Verdana', 'Geneva', sans-serif;
- font-style: italic;
- color: #c0c0c0;
-}
-a.rvts14, span.rvts14 /* Font Style */
-{
- font-family: 'Verdana', 'Geneva', sans-serif;
- font-style: italic;
- color: #6666ff;
- text-decoration: underline;
 }
 /* ========== Para Styles ========== */
 p,ul,ol /* Paragraph Style */
@@ -104,162 +90,26 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2
-{
- margin: 0px 0px 0px 24px;
-}
-.rvps3
-{
- margin: 0px 0px 0px 48px;
-}
-.rvps4 /* Paragraph Style */
+.rvps2 /* Paragraph Style */
 {
  background: #3366ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps5 /* Paragraph Style */
+.rvps3 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
  margin: 20px 0px 0px 0px;
 }
-.rvps6 /* Paragraph Style */
-{
- border-color: #c0c0c0;
- border-style: solid;
- border-width: 1px;
- border-right: none;
- border-bottom: none;
- border-left: none;
- background: #ffffff;
- padding: 3px 0px 0px 0px;
- margin: 27px 0px 0px 0px;
-}
 --></style>
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?MathGen.html"; }</script>
-<meta name="generator" content="HelpNDoc Free"></head>
+<meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps4><span class=rvts11>Math_Gen</span></p>
-<p>Mathematic general utilities for use in Crystallography and Solid State Physics and Chemistry</p>
-<p><br></p>
-<p><span class=rvts10>Variables</span></p>
-<p><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li>Info variables</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">ERR_MATH_GEN</li>
-<li class=rvps3 style="margin-left: 0">ERR_MESS_MATH_GEN</li>
-</ul></ul>
-<p class=rvps3><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li>Precision variables</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li>CP</li>
-<li class=rvps2 style="margin-left: 0">DEPS</li>
-<li class=rvps2 style="margin-left: 0">DP</li>
-<li class=rvps2 style="margin-left: 0">EPS</li>
-<li class=rvps2 style="margin-left: 0">SP</li>
-</ul></ul>
-<p class=rvps2><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li>Trigonometric variables</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">PI</li>
-<li class=rvps2 style="margin-left: 0">TO_DEG</li>
-<li class=rvps2 style="margin-left: 0">TO_RAD</li>
-<li class=rvps2 style="margin-left: 0">TPI</li>
-</ul></ul>
-<p><br></p>
-<p><span class=rvts10>Procedures</span></p>
+<p class=rvps2><span class=rvts11>Math_Gen</span></p>
+<p><span class=rvts10>Module containing general utilities of mathematics for use in Crystallography and Solid State Physics and Chemistry</span></p>
 <p><span class=rvts10><br></span></p>
-<p class=rvps2><span class=rvts10>Functions</span></p>
-<p class=rvps2><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Array functions</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">CO_LINEAR</li>
-<li class=rvps3 style="margin-left: 0">EQUAL_MATRIX</li>
-<li class=rvps3 style="margin-left: 0">EQUAL_VECTOR</li>
-<li class=rvps3 style="margin-left: 0">IMAXLOC</li>
-<li class=rvps3 style="margin-left: 0">IMINLOC</li>
-<li class=rvps3 style="margin-left: 0">LOCATE</li>
-<li class=rvps3 style="margin-left: 0">MODULO_LAT</li>
-<li class=rvps3 style="margin-left: 0">OUTERPROD</li>
-<li class=rvps3 style="margin-left: 0">TRAZA</li>
-<li class=rvps3 style="margin-left: 0">ZBELONG</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Scalar functions</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">FACTORIAL</li>
-<li class=rvps3 style="margin-left: 0">NEGLIGIBLE</li>
-<li class=rvps3 style="margin-left: 0">PGCD</li>
-<li class=rvps3 style="margin-left: 0">PPCM</li>
-<li class=rvps3 style="margin-left: 0">PYTHAG</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Special functions</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">BESSJ0</li>
-<li class=rvps3 style="margin-left: 0">BESSJ1</li>
-<li class=rvps3 style="margin-left: 0">BESSJ</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Trigonometric functions</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">ACOSD</li>
-<li class=rvps3 style="margin-left: 0">ASIND</li>
-<li class=rvps3 style="margin-left: 0">ATAN2D</li>
-<li class=rvps3 style="margin-left: 0">ATAND</li>
-<li class=rvps3 style="margin-left: 0">COSD</li>
-<li class=rvps3 style="margin-left: 0">SIND</li>
-<li class=rvps3 style="margin-left: 0">TAND</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<p class=rvps2><span class=rvts10>Subroutines</span></p>
-<p class=rvps2><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Array routines</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">DETERMINANT</li>
-<li class=rvps3 style="margin-left: 0">DIAGONALIZE_SH</li>
-<li class=rvps3 style="margin-left: 0">FIRST_DERIVATIVE</li>
-<li class=rvps3 style="margin-left: 0">INVERT_MATRIX</li>
-<li class=rvps3 style="margin-left: 0">LINEAR_DEPENDT</li>
-<li class=rvps3 style="margin-left: 0">LU_BACKSUB</li>
-<li class=rvps3 style="margin-left: 0">LU_DECOMP</li>
-<li class=rvps3 style="margin-left: 0">MATINV</li>
-<li class=rvps3 style="margin-left: 0">RANK</li>
-<li class=rvps3 style="margin-left: 0">SECOND DERIVATIVE</li>
-<li class=rvps3 style="margin-left: 0">SMOOTHING_PROC</li>
-<li class=rvps3 style="margin-left: 0">SORT</li>
-<li class=rvps3 style="margin-left: 0">SORT_STRINGS</li>
-<li class=rvps3 style="margin-left: 0">SPLINE</li>
-<li class=rvps3 style="margin-left: 0">SPLINT</li>
-<li class=rvps3 style="margin-left: 0">SVCMP</li>
-<li class=rvps3 style="margin-left: 0">SWAP</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<p class=rvps2><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Initialize routines</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">INIT_ERR_MATHGEN</li>
-<li class=rvps3 style="margin-left: 0">SET_EPSG</li>
-<li class=rvps3 style="margin-left: 0">SET_EPSG_DEFAULT</li>
-</ul></ul></ul>
-<p class=rvps3><br></p>
-<p class=rvps2><br></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps2 style="margin-left: 0">Trigonometric routines</li>
-<ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
-<li class=rvps3 style="margin-left: 0">RTAN</li>
-</ul></ul></ul>
-<p class=rvps5><span class=rvts12>Copyleft © 2008, FullProf Suite Team</span></p>
-<p class=rvps6><span class=rvts13>This help file has been generated by the freeware version of </span><a class=rvts14 href="http://www.ibe-software.com/products/software/helpndoc/" target="_blank">HelpNDoc</a></p>
+<p><br></p>
+<p class=rvps3><span class=rvts12>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

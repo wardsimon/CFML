@@ -1,0 +1,448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>SPACE_GROUP_TYPE</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-size: 12pt;
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts13
+{
+ color: #0000ff;
+}
+span.rvts14
+{
+ color: #ff0000;
+}
+span.rvts15
+{
+ color: #ff6600;
+}
+span.rvts16 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts17 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2
+{
+ margin: 0px 0px 0px 24px;
+}
+.rvps3 /* Paragraph Style */
+{
+ background: #3366ff;
+ margin: 0px 0px 20px 0px;
+}
+.rvps4 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SPACEGROUPTYPE.html"; }</script>
+<meta name="generator" content="HelpNDoc Full"></head>
+<body>
+
+<p class=rvps3><span class=rvts16>SPACE_GROUP_TYPE</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=342>
+<p><span class=rvts10><br></span></p>
+</td>
+<td width=185>
+<p><span class=rvts11>Variable</span></p>
+</td>
+<td width=369>
+<p><span class=rvts11>Definition</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts12>TYPE</span><span class=rvts10> :: SPACE_GROUP_TYPE</span></p>
+</td>
+<td width=185><br>
+</td>
+<td width=369><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>NumSpg</p>
+</td>
+<td width=369>
+<p>Number of the Space Group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>20</span>)</p>
+</td>
+<td width=185>
+<p>SPG_Symb</p>
+</td>
+<td width=369>
+<p>Hermann-Mauguin Symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>16</span>)</p>
+</td>
+<td width=185>
+<p>Hall&nbsp; </p>
+</td>
+<td width=369>
+<p>Hall symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>)</p>
+</td>
+<td width=185>
+<p>CrystalSys</p>
+</td>
+<td width=369>
+<p>Crystal System</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>5</span>)</p>
+</td>
+<td width=185>
+<p>Laue</p>
+</td>
+<td width=369>
+<p>Laue Class</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>5</span>)</p>
+</td>
+<td width=185>
+<p>PG</p>
+</td>
+<td width=369>
+<p>Point group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>5</span>)</p>
+</td>
+<td width=185>
+<p>Info</p>
+</td>
+<td width=369>
+<p>Extra information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+</td>
+<td width=185>
+<p>SG_Setting</p>
+</td>
+<td width=369>
+<p>Information about the SG setting:</p>
+<p class=rvps2>IT</p>
+<p class=rvps2>KO</p>
+<p class=rvps2>ML</p>
+<p class=rvps2>ZA</p>
+<p class=rvps2>Standard</p>
+<p class=rvps2>UnConventional</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>LOGICAL</span></p>
+</td>
+<td width=185>
+<p>Hexa</p>
+</td>
+<td width=369><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
+</td>
+<td width=185>
+<p>SPG_Lat</p>
+</td>
+<td width=369>
+<p>Lattice type</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>2</span>)</p>
+</td>
+<td width=185>
+<p>SPG_LatSy</p>
+</td>
+<td width=369>
+<p>Lattice type Symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>NumLat</p>
+</td>
+<td width=369>
+<p>Number of lattice points in a cell</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(<span class=rvts14>3</span>,<span class=rvts14>12</span>)</p>
+</td>
+<td width=185>
+<p>Latt_Trans</p>
+</td>
+<td width=369>
+<p>Lattice translations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>51</span>)</p>
+</td>
+<td width=185>
+<p>Bravais</p>
+</td>
+<td width=369>
+<p>String with Bravais symbol + translations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+</td>
+<td width=185>
+<p>Centre</p>
+</td>
+<td width=369>
+<p>Information about Centric or Acentric</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>Centred</p>
+</td>
+<td width=369>
+<p>=0&nbsp;&nbsp;&nbsp; Centric (-1 no at origin)</p>
+<p>=1&nbsp;&nbsp;&nbsp; Acentric</p>
+<p>=2&nbsp;&nbsp;&nbsp; Centric (-1 at origin)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(<span class=rvts14>3</span>)</p>
+</td>
+<td width=185>
+<p>Centre_Coord</p>
+</td>
+<td width=369>
+<p>Fractional coordinates of the inversion centre</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>NumOps</p>
+</td>
+<td width=369>
+<p>Number of reduced set of S.O.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>Multip</p>
+</td>
+<td width=369>
+<p>Multiplicity of the general position</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>INTEGER</span></p>
+</td>
+<td width=185>
+<p>Num_Gen</p>
+</td>
+<td width=369>
+<p>Minimum number of operators to generate the Group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>TYPE </span>(SYM_OPER_TYPE),<span class=rvts13> DIMENSION(</span><span class=rvts14>192</span><span class=rvts13>)</span></p>
+</td>
+<td width=185>
+<p>SymOp</p>
+</td>
+<td width=369>
+<p>Symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>40</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>192</span>)</p>
+</td>
+<td width=185>
+<p>SymopSymb</p>
+</td>
+<td width=369>
+<p>Strings form of symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>TYPE </span>(WYCKOFF_TYPE)</p>
+</td>
+<td width=185>
+<p>Wyckoff</p>
+</td>
+<td width=369>
+<p>Wyckoff Information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts13>REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(<span class=rvts14>3</span>,<span class=rvts14>2</span>)</p>
+</td>
+<td width=185>
+<p>R_Asym_Unit</p>
+</td>
+<td width=369>
+<p>Asymmetric unit in real space</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=342>
+<p><span class=rvts12>END TYPE</span><span class=rvts10> SPACE_GROUP_TYPE</span></p>
+</td>
+<td width=185><br>
+</td>
+<td width=369><br>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p class=rvps4><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
+
+</body></html>

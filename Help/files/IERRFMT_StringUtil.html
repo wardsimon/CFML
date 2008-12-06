@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Normal text */
+body, table /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -65,31 +65,28 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
+ font-size: 12pt;
+}
+span.rvts11
+{
+ font-size: 14pt;
  font-weight: bold;
 }
-span.rvts11 /* Font Style */
+span.rvts12
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts12 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
-}
-span.rvts13 /* Font Style */
-{
- font-family: 'Verdana', 'Geneva', sans-serif;
- font-style: italic;
- color: #c0c0c0;
-}
-a.rvts14, span.rvts14 /* Font Style */
-{
- font-family: 'Verdana', 'Geneva', sans-serif;
- font-style: italic;
- color: #6666ff;
- text-decoration: underline;
 }
 /* ========== Para Styles ========== */
 p,ul,ol /* Paragraph Style */
@@ -114,176 +111,154 @@ p,ul,ol /* Paragraph Style */
  background: #e4e4e4;
  margin: 20px 0px 0px 0px;
 }
-.rvps4 /* Paragraph Style */
-{
- border-color: #c0c0c0;
- border-style: solid;
- border-width: 1px;
- border-right: none;
- border-bottom: none;
- border-left: none;
- background: #ffffff;
- padding: 3px 0px 0px 0px;
- margin: 27px 0px 0px 0px;
-}
 --></style>
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?IERRFMT_StringUtil.html"; }</script>
-<meta name="generator" content="HelpNDoc Free"></head>
+<meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts11>IERR_FMT</span></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
-<tr valign=top>
-<td width="15%" style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
-</td>
-<td width="56%" style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>IERR_FMT</p>
-</td>
-</tr>
-</table>
-</div>
-<p><br></p>
-<p>Integer value signaling if an error has occurred. The error code is according to next information:</p>
+<p class=rvps2><span class=rvts13>IERR_FMT</span></p>
+<p><span class=rvts11>INTEGER :: IERR_FMT</span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10>This variable contains information about the error on </span><span class=rvts12>FINDFMT</span><span class=rvts10> procedure. </span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10>The error code is according to next information:</span></p>
 <p><br></p>
 <p><br></p>
 <div><table width="75%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
 <tr valign=top>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>Code</span></p>
+<p class=rvps1><span class=rvts12>Code</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Meaning</span></p>
+<p><span class=rvts12>Meaning</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>-2</span></p>
+<p class=rvps1><span class=rvts12>-2</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>FORTRAN read error</p>
+<p><span class=rvts10>FORTRAN read error</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>-1</span></p>
+<p class=rvps1><span class=rvts12>-1</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>End of file</p>
+<p><span class=rvts10>End of file</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>0</span></p>
+<p class=rvps1><span class=rvts12>0</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>No Error</p>
+<p><span class=rvts10>No Error</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>1</span></p>
+<p class=rvps1><span class=rvts12>1</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Empty format descriptor (0 field)</p>
+<p><span class=rvts10>Empty format descriptor (0 field)</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>2</span></p>
+<p class=rvps1><span class=rvts12>2</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Data string read error</p>
+<p><span class=rvts10>Data string read error</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>3</span></p>
+<p class=rvps1><span class=rvts12>3</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Integer field found real </p>
+<p><span class=rvts10>Integer field found real </span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>4</span></p>
+<p class=rvps1><span class=rvts12>4</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Begged dot, sign or "e" character</p>
+<p><span class=rvts10>Begged dot, sign or "e" character</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>5</span></p>
+<p class=rvps1><span class=rvts12>5</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Invalid character in an integer field</p>
+<p><span class=rvts10>Invalid character in an integer field</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>6</span></p>
+<p class=rvps1><span class=rvts12>6</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Invalid field in format descriptor</p>
+<p><span class=rvts10>Invalid field in format descriptor</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>7</span></p>
+<p class=rvps1><span class=rvts12>7</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Invalid character in a numeric field</p>
+<p><span class=rvts10>Invalid character in a numeric field</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>8</span></p>
+<p class=rvps1><span class=rvts12>8</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>0 character in current field</p>
+<p><span class=rvts10>0 character in current field</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>9</span></p>
+<p class=rvps1><span class=rvts12>9</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Format string length exceeded</p>
+<p><span class=rvts10>Format string length exceeded</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>10</span></p>
+<p class=rvps1><span class=rvts12>10</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Separator missing</p>
+<p><span class=rvts10>Separator missing</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>11</span></p>
+<p class=rvps1><span class=rvts12>11</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Incomplete E or D format</p>
+<p><span class=rvts10>Incomplete E or D format</span></p>
 </td>
 </tr>
 <tr valign=middle>
 <td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts10>12</span></p>
+<p class=rvps1><span class=rvts12>12</span></p>
 </td>
 <td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Incomplete number</p>
+<p><span class=rvts10>Incomplete number</span></p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts10>NOTE</span>: This variable is used in the procedure FINDFMT</p>
 <p>&nbsp; </p>
 <p><br></p>
-<p class=rvps3><span class=rvts12>Copyleft © 2008, FullProf Suite Team</span></p>
-<p class=rvps4><span class=rvts13>This help file has been generated by the freeware version of </span><a class=rvts14 href="http://www.ibe-software.com/products/software/helpndoc/" target="_blank">HelpNDoc</a></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>
