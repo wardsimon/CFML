@@ -2768,62 +2768,76 @@
     End Subroutine Hkl_Gen
 
     !!----
-    !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex)
+    !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!----    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----    or
-    !!----    Type (Reflection_List_Type),          intent(out):: Reflex          !List of generated hkl,mult, s
+    !!----    Type (Reflection_List_Type),       intent(out):: Reflex          !List of generated hkl,mult, s
+    !!----    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
     !!----
-    !!----    Calculate all allowed reflections up to a maximum value of
-    !!----    sin_theta/lambda.  The output is not ordered.
+    !!----    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!----    The output is not ordered but the user can obtain the reflections generated
+    !!----    in a particular way by providing the integer vector "ord", containing a permutation
+    !!----    of the three numbers 1,2,3. By default the loop generating the hkl-indices uses
+    !!----    the vector ord=(/3,2,1/), this means that the inner loop (more rapidly changing index)
+    !!----    is the l-index, then the k-index and finally the h-index.
     !!----
     !!---- Update: May - 2006
     !!
-    
+
     !!--++
-    !!--++ Subroutine  Hkl_Gen_Sxtal_Reflect(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex)
+    !!--++ Subroutine  Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!--++    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
+    !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculate all allowed reflections up to a maximum value of
-    !!--++    sin_theta/lambda.  The output is not ordered.
+    !!--++    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!--++    The reflections are stored in the array Reflex, with components of type: Reflect_Type
+    !!--++    The output is not ordered but the user can obtain the reflections generated
+    !!--++    in a particular way by providing the integer vector "ord", containing a permutation
+    !!--++    of the three numbers 1,2,3. By default the loop generating the hkl-indices uses
+    !!--++    the vector ord=(/3,2,1/), this means that the inner loop (more rapidly changing index)
+    !!--++    is the l-index, then the k-index and finally the h-index.
     !!--++
     !!--++ Update: May - 2006
     !!
-    Subroutine Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex)
+    Subroutine Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
        !---- Arguments ----!
        type (Crystal_Cell_Type),          intent(in)     :: crystalcell
        type (Space_Group_Type) ,          intent(in)     :: spacegroup
        real(kind=sp),                     intent(in)     :: stlmax
        integer,                           intent(out)    :: num_ref
        type (Reflect_Type), dimension(:), intent(out)    :: reflex
-
+       Integer, dimension(3), optional,   intent(in)     :: ord
        !---- Local variables ----!
        real(kind=sp)         :: sval
-       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref
-       integer, dimension(3) :: hh,nulo
+       integer               :: h,k,l,hmax,kmax,lmax, maxref
+       integer, dimension(3) :: hh,nulo,od,imin,imax
 
        nulo=0
        maxref=size(reflex)
        hmax=nint(CrystalCell%cell(1)*2.0*stlmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*stlmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*stlmax+1.0)
-       hmin=-hmax
-       kmin=-kmax
-       lmin=-lmax
+       imin=(/-hmax,-kmax,-lmax/)
+       imax=(/ hmax, kmax, lmax/)
+       od=(/3,2,1/)
+       if(present(ord)) od=ord
 
        num_ref=0
-       ext_do: do h=hmin,hmax
-          do k=kmin,kmax
-             do l=lmin,lmax
-                hh=(/h,k,l/)
+       ext_do: do h=imin(od(3)),imax(od(3))
+          do k=imin(od(2)),imax(od(2))
+             do l=imin(od(1)),imax(od(1))
+                hh(od(3))=h
+                hh(od(2))=k
+                hh(od(1))=l
                 if (hkl_equal(hh,nulo)) cycle
                 sval=hkl_s(hh,crystalcell)
                 if (sval > stlmax) cycle
@@ -2834,9 +2848,9 @@
                    exit ext_do
                 end if
                 reflex(num_ref)%h    = hh
-                reflex(num_ref)%mult = 1
+                reflex(num_ref)%mult = hkl_mult(hh,SpaceGroup,.false.)
                 reflex(num_ref)%S    = sval
-             end do
+            end do
           end do
        end do ext_do
 
@@ -2844,31 +2858,38 @@
     End Subroutine Hkl_Gen_Sxtal_Reflection
 
     !!--++
-    !!--++ Subroutine  Hkl_Gen_Sxtal_list(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex)
+    !!--++ Subroutine  Hkl_Gen_Sxtal_list(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!--++    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
-    !!--++    Type(Reflection_List_Type),        intent(out):: reflex   !Ordered set of reflections
+    !!--++    Type(Reflection_List_Type),        intent(out):: reflex          !Generated set of reflections
+    !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculate all allowed reflections up to a maximum value of
-    !!--++    sin_theta/lambda.  The output is not ordered.
+    !!--++    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!--++    The reflections are stored in the scalar object Reflex of type: Reflection_List_Type
+    !!--++    The output is not ordered but the user can obtain the reflections generated
+    !!--++    in a particular way by providing the integer vector "ord", containing a permutation
+    !!--++    of the three numbers 1,2,3. By default the loop generating the hkl-indices uses
+    !!--++    the vector ord=(/3,2,1/), this means that the inner loop (more rapidly changing index)
+    !!--++    is the l-index, then the k-index and finally the h-index.
     !!--++
     !!--++ Update: May - 2006
     !!
-    Subroutine Hkl_Gen_Sxtal_List(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex)
+    Subroutine Hkl_Gen_Sxtal_List(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
        !---- Arguments ----!
        type (Crystal_Cell_Type),            intent(in)     :: crystalcell
        type (Space_Group_Type) ,            intent(in)     :: spacegroup
        real(kind=sp),                       intent(in)     :: stlmax
        integer,                             intent(out)    :: num_ref
        Type(Reflection_List_Type),          intent(out)    :: reflex   !Ordered set of reflections
+       Integer, dimension(3), optional,     intent(in)     :: ord
 
        !---- Local variables ----!
        real(kind=sp)         :: sval
-       integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref,i
-       integer, dimension(3) :: hh,nulo
+       integer               :: h,k,l,hmax,kmax,lmax, maxref,i
+       integer, dimension(3) :: hh,nulo,od,imin,imax
        Type(Reflection_Type), dimension(:), allocatable :: tmp_reflex
 
        nulo=0
@@ -2876,18 +2897,22 @@
        hmax=nint(CrystalCell%cell(1)*2.0*stlmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*stlmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*stlmax+1.0)
-       hmin=-hmax
-       kmin=-kmax
-       lmin=-lmax
+       imin=(/-hmax,-kmax,-lmax/)
+       imax=(/ hmax, kmax, lmax/)
+       od=(/3,2,1/)
+       if(present(ord)) od=ord
+
        maxref=(2*hmax+1)*(2*kmax+1)*(2*lmax+1)
        if(allocated(tmp_reflex)) deallocate(tmp_reflex)
        allocate(tmp_reflex(maxref))
 
        num_ref=0
-       ext_do: do h=hmin,hmax
-          do k=kmin,kmax
-             do l=lmin,lmax
-                hh=(/h,k,l/)
+       ext_do: do h=imin(od(3)),imax(od(3))
+          do k=imin(od(2)),imax(od(2))
+             do l=imin(od(1)),imax(od(1))
+                hh(od(3))=h
+                hh(od(2))=k
+                hh(od(1))=l
                 if (hkl_equal(hh,nulo)) cycle
                 sval=hkl_s(hh,crystalcell)
                 if (sval > stlmax) cycle
@@ -2898,7 +2923,7 @@
                    exit ext_do
                 end if
                 tmp_reflex(num_ref)%h    = hh
-                tmp_reflex(num_ref)%mult = 1
+                tmp_reflex(num_ref)%mult = hkl_mult(hh,SpaceGroup,.false.)
                 tmp_reflex(num_ref)%S    = sval
              end do
           end do
@@ -3061,9 +3086,9 @@
           vmax=1.0/(2.0*min(value1,value2))
        end if
 
-       hmax=nint(CrystalCell%cell(1)*2.0*vmax)
-       kmax=nint(CrystalCell%cell(2)*2.0*vmax)
-       lmax=nint(CrystalCell%cell(3)*2.0*vmax)
+       hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
+       kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
+       lmax=nint(CrystalCell%cell(3)*2.0*vmax+1.0)
        lmin= 0  !l positive or zero except for -3 1 m (see below)
 
        !---- Select approximate region to generate reflections depending
@@ -3222,9 +3247,9 @@
           vmax=1.0/(2.0*min(value1,value2))
        end if
 
-       hmax=nint(CrystalCell%cell(1)*2.0*vmax)
-       kmax=nint(CrystalCell%cell(2)*2.0*vmax)
-       lmax=nint(CrystalCell%cell(3)*2.0*vmax)
+       hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
+       kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
+       lmax=nint(CrystalCell%cell(3)*2.0*vmax+1.0)
        lmin= 0  !l positive or zero except for -3 1 m (see below)
 
        !---- Select approximate region to generate reflections depending
@@ -3382,9 +3407,9 @@
           vmax=1.0/(2.0*min(value1,value2))
        end if
 
-       hmax=nint(CrystalCell%cell(1)*2.0*vmax)
-       kmax=nint(CrystalCell%cell(2)*2.0*vmax)
-       lmax=nint(CrystalCell%cell(3)*2.0*vmax)
+       hmax=nint(CrystalCell%cell(1)*2.0*vmax+1.0)
+       kmax=nint(CrystalCell%cell(2)*2.0*vmax+1.0)
+       lmax=nint(CrystalCell%cell(3)*2.0*vmax+1.0)
        lmin= 0  !l positive or zero except for -3 1 m (see below)
 
        !---- Select approximate region to generate reflections depending
@@ -3577,7 +3602,7 @@
     !!--++ Update: August - 2005
     !!
     Subroutine Init_Ref_Cond()
-    
+
        Hkl_Ref_Conditions(1:20)(1:80)   = (/  &
              "(h k l)    h+k=2n : xy0 centred face (C)                                        " , &
              "(h k l)    k+l=2n : 0yz centred face (A)                                        " , &
@@ -3639,7 +3664,7 @@
              "(0 0 0 l)    l=3n : screw axis // [00l] axis with 4c/6 translation (64)         " , &
              "(0 0 0 l)    l=6n : screw axis // [00l] axis with  c/6 translation (61)         " , &
              "(0 0 0 l)    l=6n : screw axis // [00l] axis with 5c/6 translation (65)         " /)
-         
+
        return
     End Subroutine Init_Ref_Cond
 

@@ -28,11 +28,11 @@ Program Test_HKL_GEN
    logical                    :: info
 
    type (Reflect_Type),allocatable, dimension(:) :: reflections
-   
+
    !---- Initializing ----!
    info=.true.
    num=0
-   
+
    !---- Procedure ----!
    do
       write(unit=*,fmt="(/,a)") " ==================================="
@@ -44,41 +44,41 @@ Program Test_HKL_GEN
          write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall symbol or number): "
          read(unit=*,fmt="(a)") spgr
          if (len_trim(spgr)==0) exit
-         
+
          !> Set the SpaceGroup Information
          call set_spacegroup(spgr,grp_espacial)
-         
+
          !> Load Cell Parameters according to the Crystal System
          !> defined by the Space Group
          Select Case(grp_espacial%CrystalSys)
             case("Triclinic")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,b,c,alpha,beta,gamma): "
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(2),celda(3),angulo(1),angulo(2),angulo(3)
-         
+
             case("Monoclinic")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,b,c,beta): "
                angulo(1)=90.0
                angulo(3)=90.0
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(2),celda(3),angulo(2)
-         
+
             case("Orthorhombic")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,b,c): "
                angulo(1:3)=90.0
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(2),celda(3)
-         
+
             case("Tetragonal")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,c): "
                angulo(1:3)=90.0
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(3)
                celda(2)=celda(1)
-         
+
             case("Rhombohedral","Hexagonal")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameters (a,c): "
                angulo(1:2)=90.0
                angulo(3)=120.0
                read(unit=*,fmt=*,iostat=ier) celda(1),celda(3)
                celda(2)=celda(1)
-         
+
             case("Cubic")
                write(unit=*,fmt="(a)",advance="no") " => Cell parameter (a): "
                angulo(1:3)=90.0
@@ -95,14 +95,20 @@ Program Test_HKL_GEN
          info=.false.
          write(unit=*,fmt="(a)",advance="no") " => Give the wavelength: "
          read(unit=*,fmt=*) lambda
+         !Resolution sphere d*(max)=2.0/Lambda => maximum admissible sinTheta/Lambda =1/Lambda
       end if
-      
+
       !> Set the range for HKL calculation
       write(unit=*,fmt=*) " "
       write(unit=*,fmt="(a)",advance="no") " => Interval in Sin_Theta/Lambda (2 reals, if val1 < 0 => stops): "
       read(unit=*,fmt=*,iostat=ier) val1,val2
       if(ier /= 0) cycle
       if (val1 < 0.0) exit
+      if(val2 > 1.0/Lambda ) then
+        val2 = 1.0/Lambda
+        write(unit=*,fmt="(a,f8.4)")  " => The maximum Sin_Theta/Lambda available for the current wavelength is: ",val2
+        write(unit=*,fmt="(a,2f8.4,a)") " => Interval in Sin_Theta/Lambda is then changed to: (",val1,val2,")"
+      end if
 
       texto = "  1/Angtroms (Sin_Theta/Lambda)"
       car="s"
@@ -129,13 +135,13 @@ Program Test_HKL_GEN
       write(unit=1,fmt="(a)")   "    =========================="
       write(unit=1,fmt="(a)")   "    LIST OF UNIQUE REFLECTIONS"
       write(unit=1,fmt="(a,/)") "    =========================="
-      
+
       !> Write the SpaceGroup information
       call Write_SpaceGroup(grp_espacial,1)
-      
+
       !> Write the Cell parameters information
       call Write_Crystal_Cell(Cell,1)
-      
+
       !> Write the Reflections
       write(unit=1,fmt="(/,a,2f8.4,a,/)") " => List of reflections within: ",val1,val2,texto
       do i=1,num
