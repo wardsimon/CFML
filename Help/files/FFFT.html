@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>POINTS_INTERVAL_TYPE</title>
+<html><head><title>F_FFT</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,16 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 12pt;
- font-style: italic;
- font-weight: bold;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-size: 12pt;
+ font-style: italic;
  font-weight: bold;
- color: #0000ff;
 }
 span.rvts13
 {
- color: #0000ff;
+ color: #ff6600;
 }
 span.rvts14 /* Font Style */
 {
@@ -119,76 +116,56 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?POINTSINTERVALTYPE.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?FFFT.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts14>POINTS_INTERVAL_TYPE</span></p>
+<p class=rvps2><span class=rvts14>F_FFT</span></p>
+<p><span class=rvts10>FUNCTION F_FFT ( XX, TYP)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=330>
-<p><span class=rvts10><br></span></p>
+<p><span class=rvts11>COMPLEX, DIMENSION </span>(:)</p>
 </td>
 <td width=98>
-<p><span class=rvts11>Variable</span></p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
+<p>XX</p>
 </td>
 <td width=369>
-<p><span class=rvts11>Definition</span></p>
+<p>Real array containing real parts of transform</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=330>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: POINTS_INTERVAL_TYPE</span></p>
-</td>
-<td width=98><br>
-</td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330>
-<p><span class=rvts13>INTEGER</span></p>
+<p><span class=rvts11>CHARACTER (</span><span class=rvts13>LEN</span><span class=rvts11>=</span>*<span class=rvts11>), OPTIONAL</span></p>
 </td>
 <td width=98>
-<p>Np</p>
-</td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330>
-<p><span class=rvts13>REAL</span></p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
 <td width=98>
-<p>Low</p>
+<p>TYP</p>
 </td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330>
-<p><span class=rvts13>REAL</span></p>
-</td>
-<td width=98>
-<p>High</p>
-</td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> POINTS_INTERVAL_TYPE</span></p>
-</td>
-<td width=98><br>
-</td>
-<td width=369><br>
+<td width=369>
+<p>= INV backward transform. forward transform for the rest </p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
+<p>This Function is a slight modification of a complex split radix FFT routine presented by C.S. Burrus. </p>
+<p><br></p>
+<p>There is no control of the error consisting in giving a dimension that is not a power of two. It is the responsibility of the user to provide a complex&nbsp; array of dimension equal to a power of 2.</p>
+<p><br></p>
+<p><span class=rvts12>Example:</span></p>
+<p><br></p>
+<p>FX = F_FFT(X)</p>
+<p><br></p>
+<p>Y = F_FFT(FY,"INV")</p>
+<p> </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

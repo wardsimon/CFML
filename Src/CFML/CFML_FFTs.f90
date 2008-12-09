@@ -135,11 +135,12 @@
 !!----
 !!---- VARIABLES
 !!--++    FFTKIND                  [Private]
-!!--++    STATUSF                  [Private]
 !!--++    COS72                    [Private]
-!!--++    SIN72                    [Private]
-!!--++    SIN60                    [Private]
 !!--++    PI                       [Private]
+!!--++    SIN60                    [Private]
+!!--++    SIN72                    [Private]
+!!--++    STATUSF                  [Private]
+!!--..
 !!----    POINTS_INTERVAL_TYPE
 !!----
 !!---- PROCEDURES
@@ -208,16 +209,6 @@ Module CFML_FFT
    integer, private, parameter:: Fftkind = Kind(0.0) !--- Adjust Here For Other Precisions
 
    !!--++
-   !!--++ STATUSF
-   !!--++    integer, private, Save     :: StatusF
-   !!--++
-   !!--++    Information on FFT Routines
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   integer, private, Save     :: StatusF    !--- Shifted To Here As Elf90 Does Not Allow
-                                            !    Arguments To Be Intent(Out)
-   !!--++
    !!--++ COS72
    !!--++    Real(Fftkind), Parameter:: Cos72
    !!--++
@@ -228,6 +219,28 @@ Module CFML_FFT
    !!
    Real(Fftkind), Parameter:: Cos72 = 0.30901699437494742_Fftkind
 
+   !!--++
+   !!--++ PI
+   !!--++    Real(Fftkind), Parameter:: Pi
+   !!--++
+   !!--++    (PRIVATE)
+   !!--++    Pi    = 3.14159265358979323_Fftkind
+   !!--++
+   !!--++ Update: February - 2005
+   !!
+   Real(Fftkind), Parameter:: Pi    = 3.14159265358979323_Fftkind
+   
+   !!--++
+   !!--++ SIN60
+   !!--++    Real(Fftkind), Parameter:: Sin60
+   !!--++
+   !!--++    (PRIVATE)
+   !!--++    Sin60 = 0.86602540378443865_Fftkind
+   !!--++
+   !!--++ Update: February - 2005
+   !!
+   Real(Fftkind), Parameter:: Sin60 = 0.86602540378443865_Fftkind
+   
    !!--++
    !!--++ SIN72
    !!--++    Real(Fftkind), Parameter:: Sin72
@@ -240,27 +253,15 @@ Module CFML_FFT
    Real(Fftkind), Parameter:: Sin72 = 0.95105651629515357_Fftkind
 
    !!--++
-   !!--++ SIN60
-   !!--++    Real(Fftkind), Parameter:: Sin60
+   !!--++ STATUSF
+   !!--++    integer, private, Save     :: StatusF
    !!--++
-   !!--++    (PRIVATE)
-   !!--++    Sin60 = 0.86602540378443865_Fftkind
-   !!--++
-   !!--++ Update: February - 2005
-   !!
-   Real(Fftkind), Parameter:: Sin60 = 0.86602540378443865_Fftkind
-
-   !!--++
-   !!--++ PI
-   !!--++    Real(Fftkind), Parameter:: Pi
-   !!--++
-   !!--++    (PRIVATE)
-   !!--++    Pi    = 3.14159265358979323_Fftkind
+   !!--++    Information on FFT Routines
    !!--++
    !!--++ Update: February - 2005
    !!
-   Real(Fftkind), Parameter:: Pi    = 3.14159265358979323_Fftkind
-
+   integer, private, Save     :: StatusF    !--- Shifted To Here As Elf90 Does Not Allow
+                                            !    Arguments To Be Intent(Out) 
    !!----
    !!---- TYPE, public :: Points_Interval_Type
    !!--..
