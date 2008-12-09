@@ -3,7 +3,7 @@
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Symmetry_Tables
-!!----   INFO: Tabulated information on Crystallogrphic Symmetry
+!!----   INFO: Tabulated information on Crystallographic Symmetry
 !!----
 !!---- HISTORY
 !!----    Update: January - 2005

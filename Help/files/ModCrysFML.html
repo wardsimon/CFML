@@ -1,0 +1,695 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Modules on CrysFML</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-weight: bold;
+ text-decoration: underline;
+}
+span.rvts11
+{
+ font-size: 12pt;
+}
+span.rvts12
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts13
+{
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts14
+{
+ font-weight: bold;
+}
+span.rvts15
+{
+ font-style: italic;
+}
+span.rvts16 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts17 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2 /* Paragraph Style */
+{
+ background: #3366ff;
+ margin: 0px 0px 20px 0px;
+}
+.rvps3 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ModCrysFML.html"; }</script>
+<meta name="generator" content="HelpNDoc Full"></head>
+<body>
+
+<p class=rvps2><span class=rvts16>Modules on CrysFML Library</span></p>
+<p>We have defined several levels for modules within <span class=rvts13>CrysFML</span> library for reasons of simplicity but this will not be important for the end user. </p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts12>Level 0</span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=152>
+<p><span class=rvts13>Concept</span></p>
+</td>
+<td width=329>
+<p><span class=rvts13>Module Name</span></p>
+</td>
+<td>
+<p><span class=rvts13>Purpose</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Mathematics...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_FFT</span></p>
+</td>
+<td>
+<p>FFT calculations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Math_General</span></p>
+</td>
+<td>
+<p>Mathematic general utilities for use in Crystallography and Solid State Physics and Chemistry<span class=rvts11>.</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Random</span></p>
+</td>
+<td>
+<p>Random number generation for different distributions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Messages...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_IO_Messages</span></p>
+</td>
+<td>
+<p>Input / Output general messages</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Profiles...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_PowderProfiles_CW</span></p>
+</td>
+<td>
+<p>Calculation of peak profile functions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_PowderProfiles_Finger</span></p>
+</td>
+<td>
+<p>Routines for calculations of asymmetry due to axial divergence (Finger, Cox and Jephcoat)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_PowderProfiles_TOF</span></p>
+</td>
+<td>
+<p>Contains variables and procedures used by programs aiming to handle T.O.F. powder diffraction patterns</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Strings...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_String_Utilities</span></p>
+</td>
+<td>
+<p>Manipulation of strings with alphanumeric characters</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts12>Level 1</span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=152>
+<p><span class=rvts13>Concept</span></p>
+</td>
+<td width=329>
+<p><span class=rvts13>Module Name</span></p>
+</td>
+<td>
+<p><span class=rvts13>Purpose</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Chemical Tables...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Scattering_Chemical_Tables</span></p>
+</td>
+<td>
+<p>Tabulated information about atomic chemical and scattering data</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15><br></span></p>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Mathematics...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Math_3D</span></p>
+</td>
+<td>
+<p>Simple mathematics general utilities for 3D Systems</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Spherical_Harmonics</span></p>
+</td>
+<td>
+<p>Spherical Harmonics routines</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Optimization...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Optimization_General</span></p>
+</td>
+<td>
+<p>Module implementing several algorithms for global and local optimization</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Optimization_LSQ</span></p>
+</td>
+<td>
+<p>Module implementing several algorithms for non-linear least-squares</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Patterns...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Diffraction_Patterns</span></p>
+</td>
+<td>
+<p>Diffraction Patterns Information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Symmetry Tables...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Symmetry_Tables</span></p>
+</td>
+<td>
+<p>Tabulated information on Crystallographic Symmetry</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts12>Level 2</span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=152>
+<p><span class=rvts13>Concept</span></p>
+</td>
+<td width=329>
+<p><span class=rvts13>Module Name</span></p>
+</td>
+<td>
+<p><span class=rvts13>Purpose</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Bonds Tables...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Bond_Tables</span></p>
+</td>
+<td>
+<p>Contain a simple subroutine providing the list of the usual bonds between atoms</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15><br></span></p>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Crystal Metrics...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Crystal_Metrics</span></p>
+</td>
+<td>
+<p>Define crystallographic types and to provide automatic crystallographic operations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Instrumentation on ILL...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_ILL_Instrm_Data</span></p>
+</td>
+<td>
+<p>Related to Instrument information from ILL</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Symmetry Information...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Crystallographic_Symmetry</span></p>
+</td>
+<td>
+<p>Contain everything needed for handling symmetry in Crystallography.</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts12>Level 3</span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=152>
+<p><span class=rvts13>Concept</span></p>
+</td>
+<td width=329>
+<p><span class=rvts13>Module Name</span></p>
+</td>
+<td>
+<p><span class=rvts13>Purpose</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Atoms...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Atom_TypeDef</span></p>
+</td>
+<td>
+<p>Related to Atoms definitions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15><br></span></p>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Geometry...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Geometric_SXTAL</span></p>
+</td>
+<td>
+<p>Making geometrical calculations in single crystal instruments</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Polarimetry...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Polarimetry</span></p>
+</td>
+<td>
+<p>Procedures to calculate the polarization tensor as it will be measured</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Reflections...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Reflections_Utilities</span></p>
+</td>
+<td>
+<p>Procedures handling operation with Bragg reflections</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts12>Level 4</span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=152>
+<p><span class=rvts13>Concept</span></p>
+</td>
+<td width=329>
+<p><span class=rvts13>Module Name</span></p>
+</td>
+<td>
+<p><span class=rvts13>Purpose</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Atoms...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Atom_TypeDef</span></p>
+</td>
+<td>
+<p>Related to Atoms definitions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15><br></span></p>
+</td>
+<td width=329>
+<p><span class=rvts14><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Geometry...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Geometric_SXTAL</span></p>
+</td>
+<td>
+<p>Making geometrical calculations in single crystal instruments</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Polarimetry...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Polarimetry</span></p>
+</td>
+<td>
+<p>Procedures to calculate the polarization tensor as it will be measured</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152>
+<p><span class=rvts15>Reflections...</span></p>
+</td>
+<td width=329>
+<p><span class=rvts14>CFML_Reflections_Utilities</span></p>
+</td>
+<td>
+<p>Procedures handling operation with Bragg reflections</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12><br></span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts12>Level 5</span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts12>Level 6</span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts11>Level 7</span></p>
+<p><span class=rvts11><br></span></p>
+<p><br></p>
+<p><span class=rvts10>Level 0</span></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li>Math_Gen</li>
+<li>String_Utilities</li>
+<li>Ramdom_Gener</li>
+<li>FFT_Harm</li>
+<li>FFT_Gen</li>
+<li>TOF_Profiles</li>
+<li>Prof_Finger</li>
+<li>Profile_Functions</li>
+<li>Iso_Surfaces</li>
+<li>Optimization_Procedures</li>
+<li>Optimization_LSQ</li>
+</ul>
+<p><br></p>
+<p>Level 1</p>
+<p><br></p>
+<p><br></p>
+<p>Level 2</p>
+<p><br></p>
+<p><br></p>
+<p>Level 3</p>
+<p><br></p>
+<p><br></p>
+<p>Level 4</p>
+<p><br></p>
+<p><br></p>
+<p>Level 5</p>
+<p><br></p>
+<p><br></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
+
+</body></html>
