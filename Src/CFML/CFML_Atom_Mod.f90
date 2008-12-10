@@ -121,7 +121,7 @@
     !!----    real(kind=sp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
-    !!----    real(kind=sp),dimension(10)             :: VarF          ! Free parameters to for different purposes
+    !!----    real(kind=sp),dimension(10)             :: VarF          ! Free variables used for different purposes
     !!---- End Type Atom_Type
     !!----
     !!---- Update: March - 2005
