@@ -20,7 +20,7 @@
 !!--++    Winteracter or X/Winteracter Library
 !!----
 !!---- VARIABLES
-!!--++    ICWINDOW                     [Private]
+!!----    WIN_CONSOLE
 !!--++    WSCROLL                      [Private]
 !!----
 !!---- PROCEDURES

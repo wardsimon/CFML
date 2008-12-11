@@ -65,24 +65,30 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts12
 {
- font-weight: bold;
+ color: #0000ff;
 }
-span.rvts13 /* Font Style */
+a.rvts13, span.rvts13
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts13:hover { color: #0000ff; }
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -99,12 +105,20 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ margin: 0px 0px 0px 3px;
+}
+.rvps3
+{
+ text-align: right;
+}
+.rvps4 /* Paragraph Style */
 {
  background: #3366ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps3 /* Paragraph Style */
+.rvps5 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -115,64 +129,72 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>LU_BACKSUB</span></p>
-<p><span class=rvts10>LU_BACKSUB (</span><span class=rvts11>A, INDX, B</span><span class=rvts10>)</span></p>
+<p class=rvps4><span class=rvts14>LU_BACKSUB</span></p>
+<p><span class=rvts11>SUBROUTINE LU_BACKSUB (A, INDX, B)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=296>
+<p><span class=rvts12>REAL, DIMENSION </span>(:,:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=98>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=34 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=45>
 <p>A</p>
 </td>
-<td width=305 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Input array</p>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p>Input Array</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION (:)</p>
+<td width=296>
+<p><span class=rvts12>INTEGER, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=98>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=34 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=45>
 <p>INDX</p>
 </td>
-<td width=305 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Permutation vector returnned by LU_DECOMP</p>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p>Permutation vector returnned by <a class=rvts13 href="LUDECOMP_MathGen.html">LU_DECOMP</a></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:)</p>
+<td width=296>
+<p><span class=rvts12>REAL, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN OUT)</p>
+<td width=98>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span> <span class=rvts12>OUT</span>)</p>
 </td>
-<td width=34 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=45>
 <p>B</p>
 </td>
-<td width=305 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>IN: right-hand-side vector </p>
-<p>OUT: Solutions of the linear system</p>
+<td width=40>
+<p class=rvps3>IN:</p>
+<p class=rvps3>OUT:</p>
+</td>
+<td width=410>
+<p class=rvps2>Right-hand-side vector</p>
+<p>Solutions of the linear system</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that solves the set of N linear equations <span class=rvts12>A</span> · <span class=rvts12>X</span> = <span class=rvts12>B</span></p>
-<p><span class=rvts12><br></span></p>
+<p>Subroutine that solves the set of N linear equations <span class=rvts10>A</span> · <span class=rvts10>X</span> = <span class=rvts10>B</span></p>
+<p><span class=rvts10><br></span></p>
 <p>A and INDX are not modified by this routine and can be left in place for successive calls with different right-hand sides B</p>
 <p><br></p>
-<p><span class=rvts12>NOTE</span>: Here the matrix A (N,N) is not as the original matrix A, but rather as its LU decomposition, determined</p>
-<p>by the routine LU_DECOMP. </p>
+<p><span class=rvts10>NOTE</span>: Here the matrix A (N,N) is not as the original matrix A, but rather as its LU decomposition, determined by the routine <a class=rvts13 href="LUDECOMP_MathGen.html">LU_DECOMP</a>. </p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

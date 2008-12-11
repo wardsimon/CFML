@@ -65,18 +65,17 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-size: 14pt;
+ font-style: italic;
  font-weight: bold;
- color: #ff0000;
 }
 span.rvts13 /* Font Style */
 {
@@ -118,131 +117,129 @@ p,ul,ol /* Paragraph Style */
 <body>
 
 <p class=rvps2><span class=rvts13>DIAGONALIZE_SH</span></p>
-<p><span class=rvts10>DIAGONALIZE_SH (</span><span class=rvts11>A, N, E_VAL, </span><span class=rvts12>E_VECT</span><span class=rvts10>)</span></p>
+<p><span class=rvts10>SUBROUTINE DIAGONALIZE_SH (A, N, E_VAL, E_VECT)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>COMPLEX, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts11>COMPLEX, DIMENSION </span>(:,:)</p>
 </td>
-<td width=90 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Array (N x N)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=90 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension for Square Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts11>REAL, DIMENSION </span>(:)</p>
 </td>
-<td width=90 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>E_VAL</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Eigen values sorted in descending order</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>COMPLEX, OPTIONAL, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts11>COMPLEX, DIMENSION </span>(:,:)<span class=rvts11>, OPTIONAL</span></p>
 </td>
-<td width=90 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT(OUT)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>E_VECT</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Eigenvectors</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>or</p>
+<p><span class=rvts12>or</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts11>REAL, DIMENSION </span>(:,:)</p>
 </td>
-<td width=92 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=55 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=235 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Array (N x N)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=92 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=55 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=235 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension for Square Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts11>REAL, DIMENSION </span>(:)</p>
 </td>
-<td width=92 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=55 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>E_VAL</p>
 </td>
-<td width=235 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Eigen values sorted in descending order</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=239 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, OPTIONAL, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts11>REAL, DIMENSION </span>(:,:)<span class=rvts11>, OPTIONAL</span></p>
 </td>
-<td width=92 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT(OUT)</p>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=55 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>E_VECT</p>
 </td>
-<td width=235 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Eigenvectors</p>
 </td>
 </tr>
 </table>
 </div>
-<p><br></p>
 <p><br></p>
 <p>Subroutine that diagonalizes Symmetric/Hermitian matrices. </p>
 <p><br></p>

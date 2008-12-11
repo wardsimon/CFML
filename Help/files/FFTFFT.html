@@ -77,13 +77,17 @@ span.rvts12
  font-style: italic;
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -116,7 +120,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>FFT</span></p>
+<p class=rvps2><span class=rvts14>FFT</span></p>
 <p><span class=rvts10>FUNCTION FFT ( ARRAY, DIM, INV)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
@@ -265,9 +269,18 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts12><br></span></p>
 <p><span class=rvts12>...</span></p>
 <p><br></p>
-<p> Calculation of FFT from 1 to up 7 dimensions</p>
+<p>Multivariate Fast Fourier Transform (from 1 to up 7 dimensions).</p>
+<p>It is an implementation of Singleton's mixed-radix algorithm, RC Singleton, Stanford Research Institute, Sept. 1968.</p>
 <p><br></p>
+<p><span class=rvts13>NOTE:</span> Transformation results will always be scaled by the square root of the product of sizes of each dimension in dim.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p><span class=rvts12>Example:</span></p>
+<p><br></p>
+<p>Let A be a L*M*N three dimensional complex array. Then result = fft(A) will produce a three dimensional transform, scaled by sqrt(L*M*N).</p>
+<p><br></p>
+<p>result = fft(A, dim=(/1,3/)) will transform with respect to the first and the third dimension, scaled by sqrt(L*N).</p>
+<p>result = fft(fft(A), inv=.true.) should (approximately) reproduce A. </p>
+<p><br></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

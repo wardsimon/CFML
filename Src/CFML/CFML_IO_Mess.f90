@@ -27,7 +27,7 @@
 !!----       ERROR_MESSAGE
 !!----       INFO_MESSAGE
 !!----       PRINT_MESS
-!!----       WAIT
+!!----       WAIT_MESS
 !!----       WRITE_SCROLL_TEXT
 !!----
 !!
@@ -38,7 +38,7 @@
     implicit none
 
     !---- List of public subroutines ----!
-    public :: Info_Message, Error_Message, Print_Mess, Wait, write_scroll_text
+    public :: Info_Message, Error_Message, Print_Mess, Wait_Mess, write_scroll_text
 
 
  Contains
@@ -127,14 +127,14 @@
     End Subroutine Print_Mess
 
     !!----
-    !!---- Subroutine Wait(Message)
+    !!---- Subroutine Wait_Mess(Message)
     !!----    character(len=*), optional, intent(in) :: Message
     !!----
     !!----    Similar to Pause for Console version
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Wait(Message)
+    Subroutine Wait_Mess(Message)
        !---- Argument ----!
        character(len=*), optional, intent(in) :: Message
 
@@ -145,8 +145,9 @@
        if (present(message)) write(unit=*,fmt="(a)", advance="no") message
        read(unit=*,fmt="(a)") car
        if( car == " ") return
+       
        return
-    End Subroutine Wait
+    End Subroutine Wait_Mess
 
     !!----
     !!---- SUBROUTINE WRITE_SCROLL_TEXT(Line)

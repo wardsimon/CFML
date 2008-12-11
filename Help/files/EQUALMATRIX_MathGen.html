@@ -69,20 +69,25 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts12
 {
- font-size: 14pt;
+ color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -115,88 +120,105 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>EQUAL_MATRIX</span></p>
-<p><span class=rvts11>EQUAL_MATRIX (</span><span class=rvts12>A,B,N</span><span class=rvts11>)</span></p>
+<p class=rvps2><span class=rvts14>EQUAL_MATRIX</span></p>
+<p><span class=rvts11>LOGICAL FUNCTION EQUAL_MATRIX (A, B, N)</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #ffffff #000000 #000000 #ffffff; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION(:,:)</p>
+<td width=260>
+<p><span class=rvts12>INTEGER</span>, <span class=rvts12>DIMENSION</span>(:,:)</p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>A</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Array of dimension N x N</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION(:,:)</p>
+<td width=260>
+<p><span class=rvts12>INTEGER</span>, <span class=rvts12>DIMENSION</span>(:,:)</p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>B</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Array of dimension N x N</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=260>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>N</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Dimension of A and B arrays</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>or</p>
+<p><span class=rvts13>or</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #ffffff #000000 #000000 #ffffff; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=260>
+<p><span class=rvts12>REAL</span>, <span class=rvts12>DIMENSION</span>(:,:)</p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>A</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Array of dimension N x N</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=260>
+<p><span class=rvts12>REAL</span>, <span class=rvts12>DIMENSION</span>(:,:)</p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>B</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Array of dimension N x N</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=260>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=31 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=75>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+</td>
+<td width=73>
 <p>N</p>
 </td>
-<td width=399 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=315>
 <p>Dimension of A and B arrays</p>
 </td>
 </tr>
 </table>
 </div>
-<p><br></p>
 <p><br></p>
 <p>Logical function that returns the <span class=rvts10>.TRUE.</span> value if the array <span class=rvts10>A</span> is equal to array <span class=rvts10>B</span></p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

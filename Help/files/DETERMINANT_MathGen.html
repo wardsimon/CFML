@@ -65,24 +65,34 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts12
 {
+ color: #0000ff;
+}
+span.rvts13
+{
+ font-size: 7pt;
+ vertical-align: super;
+}
+span.rvts14
+{
+ font-style: italic;
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -115,98 +125,97 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>DETERMINANT</span></p>
-<p><span class=rvts10>DETERMINANT (</span><span class=rvts11>A,N,DETERM</span><span class=rvts10>)</span></p>
+<p class=rvps2><span class=rvts15>DETERMINANT</span></p>
+<p><span class=rvts11>SUBROUTINE DETERMINANT (A, N, DETERM)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>COMPLEX, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts12>COMPLEX, DIMENSION </span>(:,:)</p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Array (N x N)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension for Square Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL</p>
+<td width=274>
+<p><span class=rvts12>REAL</span></p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT(OUT)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>DETERM</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Det(Re[A]**2]) + Det(Im[A**2])</p>
+<td width=319>
+<p>Det(Re[A<span class=rvts13>2</span>]) + Det(Im[A<span class=rvts13>2</span>])</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>or</p>
+<p><span class=rvts14>or</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=274>
+<p><span class=rvts12>REAL, DIMENSION </span>(:,:)</p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Array (N x N)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension for Square Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=210 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL</p>
+<td width=274>
+<p><span class=rvts12>REAL</span></p>
 </td>
-<td width=83 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT(OUT)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
 </td>
-<td width=65 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>DETERM</p>
 </td>
-<td width=263 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Determinant of A</p>
 </td>
 </tr>
@@ -215,8 +224,8 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine that calculates the determinant of a real or integer square matrix and a pseudo-determinant for the complex square matrix.</p>
 <p><br></p>
-<p><span class=rvts12>NOTE:</span>&nbsp; The calculated value is only useful for linear dependency purposes. It tell us if the complex matrix is singular or not.</p>
+<p><span class=rvts10>NOTE:</span>&nbsp; The calculated value is only useful for linear dependency purposes. It tell us if the complex matrix is singular or not.</p>
 <p> </p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

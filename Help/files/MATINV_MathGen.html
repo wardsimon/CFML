@@ -65,20 +65,25 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ color: #0000ff;
 }
-span.rvts12 /* Font Style */
+span.rvts12
+{
+ font-size: 7pt;
+ vertical-align: super;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts13 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -95,12 +100,16 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ text-align: right;
+}
+.rvps3 /* Paragraph Style */
 {
  background: #3366ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps3 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -111,37 +120,44 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts12>MATINV</span></p>
-<p><span class=rvts10>MATINV (</span><span class=rvts11>A, N</span><span class=rvts10>)</span></p>
+<p class=rvps3><span class=rvts13>MATINV</span></p>
+<p><span class=rvts10>SUBROUTINE MATINV (A, N)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:,:)</p>
+<td width=278>
+<p><span class=rvts11>REAL, DIMENSION </span>(:,:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN OUT)</p>
+<td width=107>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=34 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=65>
 <p>A</p>
 </td>
-<td width=305 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Input array A(N,N)</p>
+<td width=50>
+<p class=rvps2>IN:</p>
+<p class=rvps2>OUT:</p>
+</td>
+<td width=396>
+<p>Input Array</p>
+<p>A<span class=rvts12>-1</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=278>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=107>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=34 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=65>
 <p>N</p>
 </td>
-<td width=305 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Dimension of </p>
+<td width=50>
+<p class=rvps2><br></p>
+</td>
+<td width=396>
+<p>Dimension of A</p>
 </td>
 </tr>
 </table>
@@ -150,6 +166,6 @@ p,ul,ol /* Paragraph Style */
 <p>Subroutine for inverting a real square matrix.&nbsp; The input matrix is replaced in output with its inverse</p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

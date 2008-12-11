@@ -65,21 +65,21 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
+ font-style: italic;
  font-weight: bold;
 }
 span.rvts12
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts13
 {
- font-style: italic;
- font-weight: bold;
+ color: #0000ff;
 }
 span.rvts14 /* Font Style */
 {
@@ -121,105 +121,106 @@ p,ul,ol /* Paragraph Style */
 <body>
 
 <p class=rvps2><span class=rvts14>RANDOM_MVNORM</span></p>
-<p><span class=rvts10>RANDOM_MVNORM (</span><span class=rvts12>N,</span><span class=rvts10> </span><span class=rvts12>H, D, F, FIRST, X, IER</span><span class=rvts10>)</span></p>
-<p><span class=rvts11><br></span></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<p><span class=rvts12>SUBROUTINE RANDOM_MVNORM (N, H, D, F, FIRST, X, IER)</span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=197 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts13>INTEGER</span></p>
 </td>
-<td width=96 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=38 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=383 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Number of variates in vector (input,integer &gt;= 1)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION (N)</p>
+<td width=274>
+<p><span class=rvts13>REAL, DIMENSION</span>(N)</p>
 </td>
-<td width=96 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=38 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>H</p>
 </td>
-<td width=383 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Vector of means</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION (N*(N+1)/2</p>
+<td width=274>
+<p><span class=rvts13>REAL, DIMENSION</span>(N*(N+1)/2)</p>
 </td>
-<td width=96 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=38 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>D</p>
 </td>
-<td width=383 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Variance matrix (j&gt; = i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION (N*(N+1)/2</p>
+<td width=274>
+<p><span class=rvts13>REAL, DIMENSION</span>(N*(N+1)/2)</p>
 </td>
-<td width=96 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=38 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>F</p>
 </td>
-<td width=383 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Parameter of distribution (0 &lt; real)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>LOGICAL</p>
+<td width=274>
+<p><span class=rvts13>LOGICAL</span></p>
 </td>
-<td width=96 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=38 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>FIRST</p>
 </td>
-<td width=383 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts11>.TRUE.</span> if this is the first call of the routine or if the distribution has changed since the last call of the routine.</p>
-<p><span class=rvts11>.FALSE. </span> otherwise</p>
+<td width=319>
+<p><span class=rvts10>.TRUE.</span> if this is the first call of the routine or if the distribution has changed since the last call of the routine.</p>
+<p><span class=rvts10>.FALSE. </span> otherwise</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION (N)</p>
+<td width=274>
+<p><span class=rvts13>REAL, DIMENSION</span>(N)</p>
 </td>
-<td width=96 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
 </td>
-<td width=38 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>X</p>
 </td>
-<td width=383 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Delivered vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=197 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts13>INTEGER</span></p>
 </td>
-<td width=96 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
 </td>
-<td width=38 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>IER</p>
 </td>
-<td width=383 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>= 1 if the input covariance matrix is not +ve definite</p>
 <p>= 0 otherwise</p>
 </td>
@@ -227,11 +228,9 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p><br></p>
 <p>Subroutine that generates an n variate random normal vector using a Cholesky decomposition.</p>
 <p><br></p>
-<p><span class=rvts11>NOTE</span>: Reference to the book from Dagpunar, J. <span class=rvts13>Principles of random variate generation, </span>Clarendon Press, Oxford, 1988.</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISBN 0-19-852202-9</p>
+<p><span class=rvts10>NOTE</span>: Reference to the book from Dagpunar, J. <span class=rvts11>Principles of random variate generation, </span>Clarendon Press, Oxford, 1988. ISBN 0-19-852202-9</p>
 <p><br></p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>

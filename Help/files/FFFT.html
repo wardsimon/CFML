@@ -81,13 +81,23 @@ span.rvts13
 {
  color: #ff6600;
 }
-span.rvts14 /* Font Style */
+span.rvts14
+{
+ font-weight: bold;
+}
+a.rvts15, span.rvts15
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts15:hover { color: #0000ff; }
+span.rvts16 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts17 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -120,7 +130,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts14>F_FFT</span></p>
+<p class=rvps2><span class=rvts16>F_FFT</span></p>
 <p><span class=rvts10>FUNCTION F_FFT ( XX, TYP)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
@@ -156,9 +166,9 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p><br></p>
-<p>This Function is a slight modification of a complex split radix FFT routine presented by C.S. Burrus. </p>
+<p>This function is a slight modification of a complex split radix FFT routine presented by C.S. Burrus. This function is similar to subroutine <a class=rvts15 href="SFFT.html">SFFT</a> and it is useful only when one is interested in conserving the original array.</p>
 <p><br></p>
-<p>There is no control of the error consisting in giving a dimension that is not a power of two. It is the responsibility of the user to provide a complex&nbsp; array of dimension equal to a power of 2.</p>
+<p><span class=rvts14>NOTE:</span> There is no control of the error consisting in giving a dimension that is not a power of two. It is the responsibility of the user to provide a complex&nbsp; array of dimension equal to a power of 2.</p>
 <p><br></p>
 <p><span class=rvts12>Example:</span></p>
 <p><br></p>
@@ -166,6 +176,6 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Y = F_FFT(FY,"INV")</p>
 <p> </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

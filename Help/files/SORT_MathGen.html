@@ -65,24 +65,29 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts12
 {
+ color: #0000ff;
+}
+span.rvts13
+{
+ font-style: italic;
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -115,107 +120,105 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>SORT</span></p>
-<p><span class=rvts10>SORT (</span><span class=rvts11>A, N, INDX</span><span class=rvts10>)</span></p>
+<p class=rvps2><span class=rvts14>SORT</span></p>
+<p><span class=rvts11>SUBROUTINE SORT (A, N, INDX)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts12>INTEGER, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Input vector of N Values</p>
+<td width=319>
+<p>Input vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension of A</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts12>INTEGER, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>INDX</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Vector containing the initial index</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>or</p>
+<p><span class=rvts13>or</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts12>REAL, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>A</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Input vector of N Values</p>
+<td width=319>
+<p>Input vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>N</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Dimension of A</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=178 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, DIMENSION(:)</p>
+<td width=274>
+<p><span class=rvts12>INTEGER, DIMENSION </span>(:)</p>
 </td>
-<td width=104 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
 </td>
-<td width=49 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>INDX</p>
 </td>
-<td width=290 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Vector containing the initial index</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
+<p>Subroutine that sorts an array such the <span class=rvts10>A </span>( INDX (j) ) is in ascending order for j=1,2,...,N.</p>
 <p><br></p>
-<p>Subroutine that sorts an array such the <span class=rvts12>A </span>( INDX (j) ) is in ascending order for j=1,2,...,N.</p>
-<p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

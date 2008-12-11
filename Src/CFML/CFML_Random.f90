@@ -1369,7 +1369,7 @@
 
     !!----
     !!---- Subroutine Random_Normal(Fn_Val)
-    !!----    real(kind=sp)  :: fn_val
+    !!----    real(kind=sp), intent(out)  :: fn_val
     !!----
     !!--..    Adapted from the following Fortran 77 code ALGORITHM 712,
     !!--..    Collected Algorithms From Acm.

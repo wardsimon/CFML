@@ -1493,29 +1493,30 @@
                                                      47,53,59,61,67,71/)
 
       cop=.true.
-      if(imax > 71) return
-      !If the maximum value of the indices is 1 they are not coprimes
-      if(maxval(abs(v)) == 1) return
-      if(maxval(abs(v)) == 0) then
-        cop=.false.
-        return
+      if (imax > 71) return
+      !---- If the maximum value of the indices is 1 they are not coprimes
+      if (maxval(abs(v)) == 1) return
+      if (maxval(abs(v)) == 0) then
+         cop=.false.
+         return
       end if
-      !Search the maximum prime number to be tested
+      !---- Search the maximum prime number to be tested
       do i=1,20
-        if(imax > primes(i)) cycle
-        im=i
-        exit
+         if(imax > primes(i)) cycle
+         im=i
+         exit
       end do
-       !Indices greater than 1
+      !---- Indices greater than 1
       dimv=size(v)
       do_p: do i=1,im
-       k=primes(i)
-       do j=1,dimv
-        if( mod(v(j),k) /= 0) cycle do_p
-       end do
-       cop=.false.
-       exit
+         k=primes(i)
+         do j=1,dimv
+            if( mod(v(j),k) /= 0) cycle do_p
+         end do
+         cop=.false.
+         exit
       end do do_p
+      
       return
     End Function Co_Prime
 
@@ -2611,37 +2612,40 @@
     !!---- Update: November - 2008
     !!
     Subroutine In_Sort(id,n,p,q)
-      integer, dimension(:), intent(in) :: id  !Integer array to be sorted
-      integer,               intent(in) :: n   !Number items in the array
-      integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
-      integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
-      !--- Local Variables ----!
-      integer :: i,j,k,l,m
-      integer, dimension(:),allocatable :: it
+       !---- Arguments ----!
+       integer, dimension(:), intent(in) :: id  !Integer array to be sorted
+       integer,               intent(in) :: n   !Number items in the array
+       integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
+       integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
+      
+       !--- Local Variables ----!
+       integer :: i,j,k,l,m
+       integer, dimension(:),allocatable :: it
 
-      l=minval(id)
-      m=maxval(id)
-      l=l-1
-      m=m-l
-      allocate(it(m))
-      it(1:m)=0
-      do i=1,n
-        j=id(p(i))-l
-        it(j)=it(j)+1
-      end do
-      j=0
-      do i=1,m
-        k=j
-        j=j+it(i)
-        it(i)=k
-      end do
-      do i=1,n
-        j=id(p(i))-l
-        it(j)=it(j)+1
-        j=it(j)
-        q(j)=p(i)
-      end do
-      return
+       l=minval(id)
+       m=maxval(id)
+       l=l-1
+       m=m-l
+       allocate(it(m))
+       it(1:m)=0
+       do i=1,n
+          j=id(p(i))-l
+          it(j)=it(j)+1
+       end do
+       j=0
+       do i=1,m
+          k=j
+          j=j+it(i)
+          it(i)=k
+       end do
+       do i=1,n
+          j=id(p(i))-l
+          it(j)=it(j)+1
+          j=it(j)
+          q(j)=p(i)
+       end do
+      
+       return
     End Subroutine In_Sort
     
     !!----
@@ -3466,39 +3470,39 @@
     !!----
     !!---- Update: January - 2006
     !!
-    Subroutine Smoothing_Proc(datY,nb_points, nb_iter, datYs)
+    Subroutine Smoothing_Proc(Y, N, Niter, Ys)
        !---- Arguments ----!
-       real,    dimension(:),            intent(in out) :: datY
-       integer,                          intent(in)     :: nb_points
-       integer,                          intent(in)     :: nb_iter
-       real,    dimension(:), optional,  intent(out)    :: datYs
+       real,    dimension(:),            intent(in out) :: Y
+       integer,                          intent(in)     :: n
+       integer,                          intent(in)     :: niter
+       real,    dimension(:), optional,  intent(out)    :: Ys
 
        !---- Local Variables ----!
        integer                    :: n1, n2
        integer                    :: i, iter
-       real, dimension (nb_points):: Ys
+       real, dimension (n):: datYs
 
 
        n1 = 4
-       n2 = nb_points-3
+       n2 = n-3
 
-       do iter = 1 ,nb_iter
-          Ys(n1-1)=((datY(n1-2)+datY(n1))*10.0+(datY(n1-3)+datY(n1+1))*5.0+datY(n1+2))/31.0
-          Ys(n1-2)=((datY(n1-3)+datY(n1-1))*10.0+datY(n1)*5.0+datY(n1+1))/26.0
-          Ys(n1-3)=(datY(n1-2)*10.0+datY(n1-1)*5.0+datY(n1))/16.0
+       do iter = 1 ,niter
+          datYs(n1-1)=((Y(n1-2)+Y(n1))*10.0+(Y(n1-3)+Y(n1+1))*5.0+Y(n1+2))/31.0
+          datYs(n1-2)=((Y(n1-3)+Y(n1-1))*10.0+Y(n1)*5.0+Y(n1+1))/26.0
+          datYs(n1-3)=(Y(n1-2)*10.0+Y(n1-1)*5.0+Y(n1))/16.0
 
           do i=n1,n2
-             Ys(i)=(datY(i-3)+datY(i+3)+5.0*(datY(i-2)+datY(i+2))+10.0*(datY(i-1)+datY(i+1)))/ 32.0
+             datYs(i)=(Y(i-3)+Y(i+3)+5.0*(Y(i-2)+Y(i+2))+10.0*(Y(i-1)+Y(i+1)))/ 32.0
           end do
 
-          Ys(n2+1)=((datY(n2+2)+datY(n2))*10.0+(datY(n2+3)+datY(n2-1))*5.0+datY(n2-2))/31.0
-          Ys(n2+2)=((datY(n2+3)+datY(n2+1))*10.0+datY(n2)*5.0+datY(n2-1))/26.0
-          Ys(n2+3)=(datY(n2+2)*10.0+datY(n2+1)*5.0+datY(n2))/16.0
+          datYs(n2+1)=((Y(n2+2)+Y(n2))*10.0+(Y(n2+3)+Y(n2-1))*5.0+Y(n2-2))/31.0
+          datYs(n2+2)=((Y(n2+3)+Y(n2+1))*10.0+Y(n2)*5.0+Y(n2-1))/26.0
+          datYs(n2+3)=(Y(n2+2)*10.0+Y(n2+1)*5.0+Y(n2))/16.0
 
-          if(present(datYs)) then
-             datYs(1:nb_points) = Ys(1:nb_points)
+          if(present(Ys)) then
+             Ys(1:n) = datYs(1:n)
           else
-             datY(1:nb_points) = Ys(1:nb_points)
+             Y(1:n) = datYs(1:n)
           end if
        end do
 
