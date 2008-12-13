@@ -65,20 +65,24 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ color: #0000ff;
 }
-span.rvts12 /* Font Style */
+span.rvts12
+{
+ color: #ff6600;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts13 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -111,61 +115,72 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts12>EQUAL_SETS_TEXT</span></p>
-<p><span class=rvts10>EQUAL_SETS_TEXT (</span><span class=rvts11>TEXT1, N1, TEXT2, N2</span><span class=rvts10>)</span></p>
+<p class=rvps2><span class=rvts13>EQUAL_SETS_TEXT</span></p>
+<p><span class=rvts10>LOGICAL FUNCTION EQUAL_SETS_TEXT (TEXT1, N1, TEXT2, N2)</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #ffffff #000000 #000000 #ffffff; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=230 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*), DIMENSION(:)</p>
+<td width=330>
+<p><span class=rvts11>CHARACTER (</span><span class=rvts12>LEN</span><span class=rvts11>=</span>*<span class=rvts11>), DIMENSION </span>(:)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
 <p>TEXT1</p>
 </td>
-<td width=341 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=369>
 <p>String vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=230 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=330>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
 <p>N1</p>
 </td>
-<td width=341 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=369>
 <p>Number of lines on TEXT1</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=230 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*), DIMENSION(:)</p>
+<td width=330>
+<p><span class=rvts11>CHARACTER (</span><span class=rvts12>LEN</span><span class=rvts11>=</span>*<span class=rvts11>), DIMENSION </span>(:)</p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
 <p>TEXT2</p>
 </td>
-<td width=341 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=369>
 <p>String vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=230 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=330>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=56 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
 <p>N2</p>
 </td>
-<td width=341 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=369>
 <p>Number of lines on TEXT2</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Logical function that determines if two sets of text lines are equal irrespective of the order of the lines. </p>
-<p><br></p>
-<p>The function is true if the two sets of text&nbsp; have the same lines in whatever order. Two lines are equal only if they have the same length and all their component characters are equal and in the same order.</p>
+<p>The function is true if the two sets of text&nbsp; have the same lines in whatever order. </p>
+<p>Two lines are equal only if they have the same length and all their component characters are equal and in the same order.</p>
 <p> </p>
-<p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

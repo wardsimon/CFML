@@ -65,18 +65,16 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-size: 14pt;
- font-weight: bold;
- color: #ff0000;
+ color: #ff6600;
 }
 span.rvts13 /* Font Style */
 {
@@ -101,12 +99,16 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ text-align: right;
+}
+.rvps3 /* Paragraph Style */
 {
  background: #3366ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps3 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -117,73 +119,84 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>CUTST</span></p>
-<p><span class=rvts10>CUTST (</span><span class=rvts11>LINE1, </span><span class=rvts12>NLONG1, LINE2, NLONG2</span><span class=rvts10>)</span></p>
+<p class=rvps3><span class=rvts13>CUTST</span></p>
+<p><span class=rvts10>SUBROUTINE CUTST (LINE1, NLONG1, LINE2, NLONG2)</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=217 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*)</p>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=101 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN OUT)</p>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=67 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=62>
 <p>LINE1</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>IN: Input string</p>
-<p>OUT: Input string without the first word</p>
+<td width=32>
+<p class=rvps2>IN:</p>
+<p class=rvps2>OUT:</p>
+</td>
+<td width=410>
+<p>Input string</p>
+<p>Input string without the first word</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=217 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, OPTIONAL</p>
+<td width=285>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=101 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=67 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=62>
 <p>NLONG1</p>
 </td>
-<td width=236 height=17 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Give the length of Line1 on Output</p>
+<td width=32>
+<p class=rvps2><br></p>
+</td>
+<td width=410>
+<p>If present, give the length of LINE1</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=217 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*), OPTIONAL</p>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=101 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=67 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=62>
 <p>LINE2</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>The first word of String on Input</p>
+<td width=32>
+<p class=rvps2><br></p>
+</td>
+<td width=410>
+<p>If present, the first word of string on Input</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=217 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, OPTIONAL</p>
+<td width=285>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=101 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=67 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>DETERM</p>
+<td width=62>
+<p>NLONG2</p>
 </td>
-<td width=236 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Give the length of Line2 on Output</p>
+<td width=32>
+<p class=rvps2><br></p>
+</td>
+<td width=410>
+<p>If present, give the length of LINE2</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><br></p>
-<p>Subroutine that removes the first word of the input String. Provides (optionally) a string with the first word.</p>
-<p> </p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p>Subroutine that removes the first word of the input String</p>
+<p class=rvps4><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

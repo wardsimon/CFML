@@ -65,25 +65,37 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-style: italic;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts12
 {
- font-style: italic;
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ color: #0000ff;
+}
+span.rvts14
+{
+ color: #ff0000;
+}
+span.rvts15
+{
+ color: #ff6600;
+}
+span.rvts16 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts17 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -116,48 +128,48 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>FRAC_TRANS_1DIG</span></p>
-<p><span class=rvts10>FRAC_TRANS_1DIG (</span><span class=rvts11>V, CHARF</span><span class=rvts10>)</span></p>
-<p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<p class=rvps2><span class=rvts16>FRAC_TRANS_1DIG</span></p>
+<p><span class=rvts11>SUBROUTINE FRAC_TRANS_1DIG (V, CHARF)</span></p>
+<p><span class=rvts12><br></span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=158 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>REAL, DIMENSION(3)</p>
+<td width=274>
+<p><span class=rvts13>REAL, DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=105 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>V</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Input vector</p>
+<td width=319>
+<p>Vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=158 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*)</p>
+<td width=274>
+<p><span class=rvts13>CHARACTER</span> (<span class=rvts15>LEN</span>=*)</p>
 </td>
-<td width=105 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=101>
+<p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>CHARF</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>String</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><br></p>
 <p>Subroutine returning a string describing a 3D translation vector written in fractional form as quotient of 1-digit integers with sign.</p>
 <p><br></p>
-<p><span class=rvts12>Example:</span></p>
+<p><span class=rvts10>Example:</span></p>
 <p><br></p>
-<p>V= (0.25, -0.4, 0.3333)&nbsp; -&gt; CHARF="(1/4,-2/5,1/3)"</p>
+<p>Input:  &nbsp; &nbsp; &nbsp; &nbsp;V= (0.25, -0.4, 0.3333)</p>
+<p>Output:  &nbsp; &nbsp; &nbsp; &nbsp;CHARF="(1/4,-2/5,1/3)"</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

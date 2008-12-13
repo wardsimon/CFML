@@ -65,24 +65,28 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
+ font-weight: bold;
 }
 span.rvts12
 {
- font-weight: bold;
+ color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ color: #ff6600;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -115,58 +119,58 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>READING_LINES</span></p>
-<p><span class=rvts10>READING_LINES (</span><span class=rvts11>FILENAME, NLINES, FILEVAR</span><span class=rvts10>)</span></p>
+<p class=rvps2><span class=rvts14>READING_LINES</span></p>
+<p><span class=rvts11>SUBROUTINE READING_LINES (FILENAME, NLINES, FILEVAR)</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=229 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*)</p>
+<td width=274>
+<p><span class=rvts12>CHARACTER</span> (<span class=rvts13>LEN</span>=*)</p>
 </td>
-<td width=112 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>NTENT (IN)</p>
+<td width=116>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=72>
 <p>FILENAME</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>Name of the File</p>
+<td width=319>
+<p>Name of the input file</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=229 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts12>INTEGER</span></p>
 </td>
-<td width=112 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=116>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=72>
 <p>NLINES</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Number of lines to read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=229 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*), DIMENSION (:)</p>
+<td width=274>
+<p><span class=rvts12>CHARACTER</span> (<span class=rvts13>LEN</span>=*), <span class=rvts12>DIMENSION</span>(:)</p>
 </td>
-<td width=112 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=116>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=72>
 <p>FILEVAR</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>String vector</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that reads <span class=rvts12>NLINES</span> of the input file and put the information on <span class=rvts12>FILEVAR</span>. If the file was opened, then a rewind command is performed.</p>
+<p>Subroutine that reads <span class=rvts10>NLINES</span> of the input file and put the information on <span class=rvts10>FILEVAR</span>. If the file was opened, then a rewind command is performed.</p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

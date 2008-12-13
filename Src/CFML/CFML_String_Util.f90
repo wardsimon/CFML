@@ -427,7 +427,7 @@
     !!----    integer,                        intent(in) :: N1      ! In -> Lines on Text1 variable
     !!----    character(len=*), dimension(:), intent(in) :: Text2   ! In -> String array
     !!----    integer,                        intent(in) :: N2      ! In -> Lines on Text2 variable
-    !!----    logical                                    :: Equal_sets_texto
+    !!----    logical                                    :: Equal_Sets_Texto
     !!----
     !!----    Determine if two sets of text lines are equal irrespective of the
     !!----    order of the lines. The function is true if the two sets of text

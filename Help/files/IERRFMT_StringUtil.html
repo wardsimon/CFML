@@ -69,21 +69,26 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts12
 {
  font-size: 12pt;
  font-weight: bold;
+ color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -116,141 +121,141 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>IERR_FMT</span></p>
-<p><span class=rvts11>INTEGER :: IERR_FMT</span></p>
+<p class=rvps2><span class=rvts14>IERR_FMT</span></p>
+<p><span class=rvts12>INTEGER</span><span class=rvts11> :: IERR_FMT</span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>This variable contains information about the error on </span><span class=rvts12>FINDFMT</span><span class=rvts10> procedure. </span></p>
-<p><span class=rvts10><br></span></p>
-<p><span class=rvts10>The error code is according to next information:</span></p>
+<p>This variable contains information about the error on <span class=rvts13>FINDFMT</span> procedure. </p>
+<p><br></p>
+<p>The error code is according to next information:</p>
 <p><br></p>
 <p><br></p>
-<div><table width="75%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="75%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>Code</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>Code</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts12>Meaning</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>-2</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>FORTRAN read error</span></p>
+<td width=430>
+<p><span class=rvts13>Meaning</span></p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>-1</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>-2</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>End of file</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>0</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>No Error</span></p>
+<td width=430>
+<p>FORTRAN read error</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>1</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>-1</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Empty format descriptor (0 field)</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>2</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Data string read error</span></p>
+<td width=430>
+<p>End of file</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>3</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>0</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Integer field found real </span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>4</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Begged dot, sign or "e" character</span></p>
+<td width=430>
+<p>No Error</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>5</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>1</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Invalid character in an integer field</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>6</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Invalid field in format descriptor</span></p>
+<td width=430>
+<p>Empty format descriptor (0 field)</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>7</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>2</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Invalid character in a numeric field</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>8</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>0 character in current field</span></p>
+<td width=430>
+<p>Data string read error</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>9</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>3</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Format string length exceeded</span></p>
-</td>
-</tr>
-<tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>10</span></p>
-</td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Separator missing</span></p>
+<td width=430>
+<p>Integer field found real </p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>11</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>4</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Incomplete E or D format</span></p>
+<td width=430>
+<p>Begged dot, sign or "e" character</p>
 </td>
 </tr>
 <tr valign=middle>
-<td width=40 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p class=rvps1><span class=rvts12>12</span></p>
+<td width=40>
+<p class=rvps1><span class=rvts13>5</span></p>
 </td>
-<td width=430 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p><span class=rvts10>Incomplete number</span></p>
+<td width=430>
+<p>Invalid character in an integer field</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>6</span></p>
+</td>
+<td width=430>
+<p>Invalid field in format descriptor</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>7</span></p>
+</td>
+<td width=430>
+<p>Invalid character in a numeric field</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>8</span></p>
+</td>
+<td width=430>
+<p>0 character in current field</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>9</span></p>
+</td>
+<td width=430>
+<p>Format string length exceeded</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>10</span></p>
+</td>
+<td width=430>
+<p>Separator missing</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>11</span></p>
+</td>
+<td width=430>
+<p>Incomplete E or D format</p>
+</td>
+</tr>
+<tr valign=middle>
+<td width=40>
+<p class=rvps1><span class=rvts13>12</span></p>
+</td>
+<td width=430>
+<p>Incomplete number</p>
 </td>
 </tr>
 </table>
@@ -259,6 +264,6 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>&nbsp; </p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

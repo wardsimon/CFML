@@ -65,20 +65,24 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 14pt;
+ color: #0000ff;
 }
-span.rvts12 /* Font Style */
+span.rvts12
+{
+ color: #ff6600;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts13 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -111,35 +115,35 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts12>NUMBER_LINES</span></p>
-<p><span class=rvts10>NUMBER_LINES (</span><span class=rvts11>FILENAME, N</span><span class=rvts10> )</span></p>
+<p class=rvps2><span class=rvts13>NUMBER_LINES</span></p>
+<p><span class=rvts10>SUBROUTINE NUMBER_LINES (FILENAME, N )</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=158 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>CHARACTER (LEN=*)</p>
+<td width=274>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=105 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=116>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>NLINE</p>
+<td width=72>
+<p>FILENAME</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Name of the input file</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=158 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER</p>
+<td width=274>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=105 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (OUT)</p>
+<td width=116>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=72>
 <p>N</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Number of lines in the file</p>
 </td>
 </tr>
@@ -148,6 +152,6 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine that gives the number of lines contained in a file. If the file is opened, a rewind command is performed.</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

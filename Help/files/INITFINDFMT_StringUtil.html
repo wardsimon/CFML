@@ -65,26 +65,30 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 14pt;
  font-weight: bold;
 }
 span.rvts11
 {
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts12
 {
- font-size: 14pt;
- font-weight: bold;
- color: #ff0000;
+ color: #0000ff;
 }
-span.rvts13 /* Font Style */
+a.rvts13, span.rvts13
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts13:hover { color: #0000ff; }
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -117,31 +121,29 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>INIT_FINDFMT</span></p>
-<p><span class=rvts10>INIT_FINDFMT (</span><span class=rvts12>NLINE</span><span class=rvts10> )</span></p>
+<p class=rvps2><span class=rvts14>INIT_FINDFMT</span></p>
+<p><span class=rvts11>SUBROUTINE INIT_FINDFMT (NLINE )</span></p>
 <p><br></p>
-<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-color: #000000; border-style: solid;">
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=158 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTEGER, OPTIONAL</p>
+<td width=274>
+<p><span class=rvts12>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=105 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
-<p>INTENT (IN)</p>
+<td width=101>
+<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=84 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=56>
 <p>NLINE</p>
 </td>
-<td width=274 style="border-color : #000000 #ffffff #ffffff #000000; border-style: solid;">
+<td width=319>
 <p>Number of the line</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that initializes the subroutine FINDMT and MESS_FINDFMT is initialized to zero lines. </p>
-<p><br></p>
-<p>The current line in the file is also to initialized to zero or put to the value NLINE if the optional argument is present</p>
-<p><span class=rvts11><br></span></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p>Subroutine that initializes the subroutine <a class=rvts13 href="FINDFMT_StringUtil.html">FINDMT</a> and <a class=rvts13 href="MESSFINDFMT_StringUtil.html">MESS_FINDFMT</a> is initialized to zero lines. The current line in the file is also to initialized to zero or put to the value NLINE if the optional argument is present</p>
+<p><span class=rvts10><br></span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>
