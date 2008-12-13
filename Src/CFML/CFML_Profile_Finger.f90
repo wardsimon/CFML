@@ -34,7 +34,7 @@
     implicit none
 
     !---- List of Public Subroutines ----!
-    public :: init_prof_val,prof_val
+    public :: init_prof_val, prof_val
 
     !---- List of Private Subroutines ----!
     private:: lorentzian, gaussian, psvoigtian

@@ -655,7 +655,7 @@ Module CFML_PowderProfiles_TOF
     End Subroutine Tof_Jorgensen
 
     !!----
-    !!---- Subroutine Tof_Jorgensen_Vondreele((Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
+    !!---- Subroutine Tof_Jorgensen_Vondreele((Dt,Alfa,Beta,Gamma, Eta,Tof_Peak,Deriv)
     !!----    real(kind=sp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
     !!----    real(kind=sp),             intent( in) :: alfa     !  alfa  : units microsecs-1
     !!----    real(kind=sp),             intent( in) :: beta     !  beta  : units microsecs-1
