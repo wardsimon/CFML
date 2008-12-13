@@ -98,10 +98,10 @@
 !!--..                          |     0            0         1  |
 !!--..    All angles, except Chi, are left-handed rotations about their respective axes.
 !!--..
-!!--..    In this module the origin of the Omega angle is different from that of BL. 
+!!--..    In this module the origin of the Omega angle is different from that of BL.
 !!--..    The Omega angle is always evaluated from the YL laboratory axis instead of
 !!--..    taking the origin from the YTheta axis. This means that the bisecting geometry
-!!--..    condition is Omega=Theta instead of Omega=0. This makes a change in some BL 
+!!--..    condition is Omega=Theta instead of Omega=0. This makes a change in some BL
 !!--..    equations to which we have to add the value of Theta.
 !!--..
 !!--..    Basic Diffractometer equations:
@@ -406,9 +406,9 @@
           ierr=1
           Return
        End If
-       theta =asind(sint)  
+       theta =asind(sint)
        om=theta       !Theta = omega in bisecting geometry
-       tteta=2.0*theta    
+       tteta=2.0*theta
 
        If (tteta < ttmin .or. tteta > ttmax) Then
           ierr=1
@@ -425,7 +425,7 @@
                ph=180.0+ph
              End If
 
-             If(ph >  180.0) ph=ph-360.0  
+             If(ph >  180.0) ph=ph-360.0
              If(ph < -180.0) ph=ph+360.0
              If(ch >  180.0) ch=ch-360.0
              If(ch < -180.0) ch=ch+360.0
@@ -462,7 +462,7 @@
     !!----    [TZ]=[OM].[CH].[PH].[TS].[PSI]-1 if [R]=[OM].[CH].[PH]
     !!----    then [R]'=[TZ].[PSI].[TS]-1
     !!----    The om,ch,ph angles are provided, on input, to calculate the components
-    !!----    of the vector vlab1 in the Theta-system for Psi=0 
+    !!----    of the vector vlab1 in the Theta-system for Psi=0
     !!----    Used only in the Flat_Cone_vertDet subroutine.
     !!----
     !!---- Update: April 2008
@@ -480,7 +480,7 @@
        Real,Dimension(3,3) :: r,dum1,dum2,ts,tz
 
        z1=vlab1
-       Call z4frz1(z1,om,ch,ph,z4) 
+       Call z4frz1(z1,om,ch,ph,z4)
        Call refvec(vhkl,ub,vs,vz,ierr)
        Call triple(z1,vs,ts,ierr)
        Call triple(z4,vz,tz,ierr)
@@ -964,7 +964,7 @@
        !---- Get CH1 and PH as for bisecting geometry
        Call Angs_4c_bisecting(wave,z1,twoth,theta,ch1,ph,ierr)
        If (ierr == 0) Then
-          If (Abs(cosd(nu)) <= 0.0001) Then  
+          If (Abs(cosd(nu)) <= 0.0001) Then
              !---- One unique vector can diffract at ABS(NU)=90. (for which THETA=45)
              If (.Not. (theta > 44.99 .and. theta < 45.01) )  Then
                 ierr=-1
@@ -1114,7 +1114,7 @@
     !!----    Real, Intent(Out), Dimension(3,3)     :: b
     !!----
     !!--<<   Calculation of [B] matrix
-    !!----   BUZING&LEVY ACTA CRYST.(1967)22,457-464  EQUATION 3
+    !!----   BUSING&LEVY ACTA CRYST.(1967)22,457-464  EQUATION 3
     !!----   WOOSTER R. SCI. INSTRUM. (1962)39,103
     !!----      C%cell  : Direct cell parameters
     !!----      C%rcell : Reciprocal cell parameters
@@ -1657,7 +1657,7 @@
     !!----    reflections except when vhkl is parallel to c* in which case
     !!----    the vector b* plays the role of c* in the above prescription.
     !!----    The vector vhkl is provided with components in the reciprocal
-    !!----    lattice. 
+    !!----    lattice.
     !!----
     !!---- Update: July 2008
     !!
@@ -1680,9 +1680,9 @@
          ierr=-1
          return
        else
-       	 ierr=0
+         ierr=0
        end if
-       h0=Cross_Product(hn,h1) 
+       h0=Cross_Product(hn,h1)
        If (Sum(Abs(h0)) > 0.0001) Then
           h0=h1         !vhkl IS NOT parallel to c*(=h1), so h1 can be used as reference
        Else
@@ -1727,7 +1727,7 @@
 
        !angl_4C=(/ 2Theta, Omega, Chi, Phi /)
        !angl_NB=(/ Gamma, Omega_nb, nu /)
-       
+
        !.....NU NB
        sint=Sind(angl_4C(1)/2.0)
        sint2=sint*sint
@@ -1792,7 +1792,7 @@
     !!----   Conversion of diffraction angles from the geometry
     !!----   NORMAL-BEAM  === TO ==>  4-CERCLES
     !!-->>      "ANGL_NB()"                         "ANGL_4C()"
-    !!----    (/ Gamma, Omega_nb, nu /)  (/ 2Theta, Omega, Chi, Phi /)  
+    !!----    (/ Gamma, Omega_nb, nu /)  (/ 2Theta, Omega, Chi, Phi /)
     !!----
     !!---- Update: April 2008
     !!
@@ -1895,8 +1895,8 @@
     !!----
     !!----    MPSD +VE -> Find Wave, NuP, GamP; given GamM, Xcel, Zcel and Time
     !!----    MPSD -VE -> Find Xcel, Zcel, Time; given Wave, NuP, GamP and GamM
-    !!----    (Routine not tested, probably obsolete for present SXD!!!) 
-    !!-->>     
+    !!----    (Routine not tested, probably obsolete for present SXD!!!)
+    !!-->>
     !!----
     !!---- Update: April 2008
     !!
@@ -2018,10 +2018,10 @@
        Real,Dimension(3) ::  z4
        !Real :: th  !Not needed
 
-                                    ! Original: th=(tth/2.0)                             
+                                    ! Original: th=(tth/2.0)
        z4(1)=sind(tth)/wave         ! ( 2.0*sind(th)*cosd(th))/wave
        z4(2)=(cosd(tth)-1.0)/wave   ! (-2.0*sind(th)*sind(th))/wave
-       z4(3)=0.0                    ! 0.0 
+       z4(3)=0.0                    ! 0.0
        Call z1frz4(z4,om,ch,ph,z1)
 
        Return
@@ -2222,7 +2222,7 @@
     !!----    Real, Intent(In)                 :: ga,nu
     !!----    Real, Intent(Out), Dimension(3)  :: z4
     !!----
-    !!----    Calculates diffraction vector of a reflection in the 
+    !!----    Calculates diffraction vector of a reflection in the
     !!----    laboratory system from the angles GA and NU.
     !!----
     !!---- Update: April 2008
