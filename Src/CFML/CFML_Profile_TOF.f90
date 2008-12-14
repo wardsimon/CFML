@@ -27,7 +27,7 @@
 !!--++    SP                   [Private]
 !!--++    INV_8LN2             [Private]
 !!--++    TWO_OVER_PI          [Private]
-!!----    DERIV_TOF
+!!----    DERIV_TOF_TYPE
 !!----    LORCOMP
 !!----
 !!---- PROCEDURES
@@ -103,13 +103,13 @@ Module CFML_PowderProfiles_TOF
 
     !!--.. The following public type contains the derivatives with respect to different
     !!--.. parameters of the peak shape functions
-    !!--.. The calling program should define a variable of type deriv_TOF, if needed, and
+    !!--.. The calling program should define a variable of type Deriv_TOF_Type, if needed, and
     !!--.. invoke the functions with the appropriate arguments
 
     !!----
-    !!---- TYPE :: DERIV_TOF
+    !!---- TYPE :: DERIV_TOF_TYPE
     !!--..
-    !!---- Type, public :: deriv_TOF
+    !!---- Type, public :: Deriv_TOF_Type
     !!----    real(kind=sp) :: alfa     ! omega_a  DOmega/Dalpha
     !!----    real(kind=sp) :: beta     ! omega_b  DOmega/Dbeta
     !!----    real(kind=sp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
@@ -117,11 +117,11 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=sp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
     !!----    real(kind=sp) :: eta      ! omega_e  DOmega/Deta                     "
     !!----    real(kind=sp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
-    !!---- End Type deriv_TOF
+    !!---- End Type Deriv_TOF_Type
     !!----
     !!---- Update: October - 2005
     !!
-    Type, Public :: Deriv_TOF
+    Type, Public :: Deriv_TOF_Type
        real(kind=sp) :: alfa     ! omega_a  DOmega/Dalpha
        real(kind=sp) :: beta     ! omega_b  DOmega/Dbeta
        real(kind=sp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
@@ -129,7 +129,7 @@ Module CFML_PowderProfiles_TOF
        real(kind=sp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
        real(kind=sp) :: eta      ! omega_e  DOmega/Deta                     "
        real(kind=sp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
-    End Type Deriv_TOF
+    End Type Deriv_TOF_Type
     
     !!----
     !!---- LORCOMP
@@ -329,7 +329,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=sp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
     !!----    real(kind=sp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
     !!----    real(kind=sp),             intent(out) :: tof_peak
-    !!----    type(deriv_TOF), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
+    !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Carpenter 
     !!--..    Author:Laurent C Chapon
@@ -347,7 +347,7 @@ Module CFML_PowderProfiles_TOF
        real(kind=sp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
        real(kind=sp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
        real(kind=sp),             intent(out) :: tof_peak
-       type(deriv_TOF), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
+       type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
 
        !---- local variables ----!
        integer          :: i,udiv,vdiv,sdiv,rdiv
@@ -567,7 +567,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=sp),             intent( in)  :: beta     !  beta  : units microsecs-1
     !!----    real(kind=sp),             intent( in)  :: sigma    !  sigma : units microsecs**2
     !!----    real(kind=sp),             intent(out)  :: tof_peak
-    !!----    type(deriv_TOF), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
+    !!----    type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen 
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
@@ -581,7 +581,7 @@ Module CFML_PowderProfiles_TOF
        real(kind=sp),             intent( in)  :: beta     !  beta  : units microsecs-1
        real(kind=sp),             intent( in)  :: sigma    !  sigma : units microsecs**2
        real(kind=sp),             intent(out)  :: tof_peak
-       type(deriv_TOF), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
+       type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
 
        !---- Local Variables ----!
        integer        :: i, udiv, vdiv
@@ -662,7 +662,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=sp),             intent( in) :: gamma    !  gamma : units microsecs
     !!----    real(kind=sp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
     !!----    real(kind=sp),             intent(out) :: tof_peak
-    !!----    type(deriv_TOF), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
+    !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele 
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
@@ -677,7 +677,7 @@ Module CFML_PowderProfiles_TOF
        real(kind=sp),             intent( in) :: gamma    !  gamma : units microsecs
        real(kind=sp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
        real(kind=sp),             intent(out) :: tof_peak
-       type(deriv_TOF), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
+       type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
 
        !---- local variables ----!
        complex(kind=dp):: z1,z2,fz1,fz2
