@@ -115,7 +115,7 @@ Module CFML_Constants
    !!----
    !!----    Epsilon value
    !!----
-   !!---- Update: February - 2005
+   !!---- Update: January - 2009 
    !!
    real(kind=dp), parameter, public :: deps=0.00000001_dp
 
@@ -125,7 +125,7 @@ Module CFML_Constants
    !!----
    !!----     Epsilon value
    !!----
-   !!----  Update: February - 2005
+   !!----  Update: January - 2009 
    !!
    real(kind=cp),  parameter, public  ::  eps=0.00001_cp
    

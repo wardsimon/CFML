@@ -106,7 +106,7 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
- background: #3366ff;
+ background: #0000ff;
  margin: 0px 0px 20px 0px;
 }
 .rvps3 /* Paragraph Style */
@@ -306,7 +306,7 @@ p,ul,ol /* Paragraph Style */
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=274>
-<p><span class=rvts12>REAL, DIMENSION </span>(:)</p>
+<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION </span>(:)</p>
 </td>
 <td width=101>
 <p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
@@ -334,7 +334,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=274>
-<p><span class=rvts12>REAL, DIMENSION </span>(:,:)</p>
+<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION </span>(:,:)</p>
 </td>
 <td width=101>
 <p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
@@ -391,13 +391,13 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>This subroutine provides a .TRUE. value if the vector A is linear dependent of the vectors constituting the rows (columns) of the matrix B. </p>
+<p>This subroutine provides a <span class=rvts10>.TRUE.</span> value if the vector <span class=rvts10>A</span> is linear dependent of the vectors constituting the rows (columns) of the matrix <span class=rvts10>B</span>. </p>
 <p><br></p>
-<p>The problem is equivalent to determine the rank (in algebraic sense) of the composite matrix C(nb+1,mb)=(B/A) or C(nb,mb+1)=(B|A). In the first case it is supposed that na = mb and in the second na = nb and the rank of B is min(nb, mb). </p>
+<p>The problem is equivalent to determine the rank (in algebraic sense) of the composite matrix C(NB+1,MB)=(B/A) or C(NB,MB+1)=(B|A). In the first case it is supposed that NA = MB and in the second NA = NB and the rank of B is min(NB, MB). </p>
 <p><br></p>
-<p>If na /= nb and na /= mb an error condition is generated. The function uses floating arithmetic for all types.</p>
+<p>If NA /= NB and NA /= MB an error condition is generated. The function uses floating arithmetic for all types.</p>
 <p><br></p>
-<p><span class=rvts10>NOTE</span>: The actual dimension of vector A should be na=max(nb,mb).</p>
+<p><span class=rvts10>NOTE</span>: The actual dimension of vector A should be NA=max(NB,MB).</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 

@@ -77,13 +77,17 @@ span.rvts12
  font-style: italic;
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -102,7 +106,7 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
- background: #3366ff;
+ background: #0000ff;
  margin: 0px 0px 20px 0px;
 }
 .rvps3 /* Paragraph Style */
@@ -116,7 +120,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>LOCATE</span></p>
+<p class=rvps2><span class=rvts14>LOCATE</span></p>
 <p><span class=rvts10>INTEGER FUNCTION LOCATE (XX, N, X)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
@@ -150,7 +154,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=260>
-<p><span class=rvts11>REAL</span></p>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
 <td width=75>
 <p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
@@ -170,7 +174,7 @@ p,ul,ol /* Paragraph Style */
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=260>
-<p><span class=rvts11>REAL</span>, <span class=rvts11>DIMENSION</span>(:)</p>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
 </td>
 <td width=75>
 <p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
@@ -198,7 +202,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=260>
-<p><span class=rvts11>REAL</span></p>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
 <td width=75>
 <p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
@@ -213,9 +217,9 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Function for locating the index j of an array XX(N)&nbsp; satisfying that XX(J) &lt;= X &lt; XX(J+1)</p>
+<p>Function for locating the index j of an array <span class=rvts13>XX(N)</span>&nbsp; satisfying that <span class=rvts13>XX(J)</span> &lt;= <span class=rvts13>X</span> &lt; <span class=rvts13>XX(J+1)</span></p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

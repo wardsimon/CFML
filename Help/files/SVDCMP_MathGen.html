@@ -65,25 +65,35 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 7pt;
- vertical-align: super;
-}
-span.rvts11
-{
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts12
+span.rvts11
 {
  color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts12
+{
+ font-weight: bold;
+}
+span.rvts13
+{
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts14
+{
+ font-size: 7pt;
+ font-weight: bold;
+ vertical-align: super;
+}
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -106,7 +116,7 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps3 /* Paragraph Style */
 {
- background: #3366ff;
+ background: #0000ff;
  margin: 0px 0px 20px 0px;
 }
 .rvps4 /* Paragraph Style */
@@ -120,16 +130,16 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps3><span class=rvts13>SVDCMP</span></p>
-<p><span class=rvts11>SUBROUTINE SVDCMP (A, W, V)</span></p>
+<p class=rvps3><span class=rvts15>SVDCMP</span></p>
+<p><span class=rvts10>SUBROUTINE SVDCMP (A, W, V)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>SP</span>)<span class=rvts12>, DIMENSION </span>(:,:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>SP</span>)<span class=rvts11>, DIMENSION </span>(:,:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
 <td width=45>
 <p>A</p>
@@ -145,10 +155,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>SP</span>)<span class=rvts12>, DIMENSION </span>(:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>SP</span>)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
 <td width=45>
 <p>W</p>
@@ -162,10 +172,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>SP</span>)<span class=rvts12>, DIMENSION </span>(:,:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>SP</span>)<span class=rvts11>, DIMENSION </span>(:,:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
 <td width=45>
 <p>V</p>
@@ -180,15 +190,15 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>or</p>
+<p><span class=rvts13>or</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>DP</span>)<span class=rvts12>, DIMENSION </span>(:,:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>DP</span>)<span class=rvts11>, DIMENSION </span>(:,:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
 <td width=45>
 <p>A</p>
@@ -204,10 +214,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>DP</span>)<span class=rvts12>, DIMENSION </span>(:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>DP</span>)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
 <td width=45>
 <p>W</p>
@@ -221,10 +231,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=296>
-<p><span class=rvts12>REAL </span>(<span class=rvts12>KIND</span>=<span class=rvts12>DP</span>)<span class=rvts12>, DIMENSION </span>(:,:)</p>
+<p><span class=rvts11>REAL </span>(<span class=rvts11>KIND</span>=<span class=rvts11>DP</span>)<span class=rvts11>, DIMENSION </span>(:,:)</p>
 </td>
 <td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
 <td width=45>
 <p>V</p>
@@ -239,8 +249,8 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that computes the computes its singular value decomposition, A = U ·W ·V<span class=rvts10>T</span></p>
+<p>Subroutine that computes the computes its singular value decomposition, <span class=rvts12>A = U ·W ·V</span><span class=rvts14>T</span></p>
 <p><br></p>
-<p class=rvps4><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>
