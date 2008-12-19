@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Math_General
@@ -7,27 +7,18 @@
 !!----         Solid State Physics and Chemistry.
 !!----
 !!---- HISTORY
-!!----    Update: November - 2007  JGP
+!!----    Update: January  - 2009  JGP
 !!----            August   - 1990  Based in public codes. Created by JRC
 !!----
 !!---- DEPENDENCIES
 !!----
-!!----    MOD_FUN    !To be commented for non-F compilers
+!!----    CFML_Constants
 !!----
 !!---- VARIABLES
-!!----    DP
-!!----    SP
-!!----    CP
-!!----    DEPS
-!!----    EPS
 !!--++    EPSS                         [Private]
 !!--++    EP_SS                        [Private]
 !!----    ERR_MathGen
-!!----    ERR_Mess_MathGen
-!!----    PI
-!!----    TO_DEG
-!!----    TO_RAD
-!!----    TPI
+!!----    ERR_MathGen_Mess
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -172,9 +163,12 @@
 !!--++
 !!
  Module CFML_Math_General
-
+    !---- Use Modules ----!
+    Use CFML_Constants
+    
     !---- Variables ----!
     implicit none
+    
     private
 
     !---- List of public functions ----!
@@ -213,53 +207,9 @@
 
     !---- Definitions ----!
 
-    !!----
-    !!---- DP
-    !!----    DP: Double precision ( dp = selected_real_kind(14,80) )
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: dp = selected_real_kind(14,80)
-
-    !!----
-    !!---- SP
-    !!----    SP: Single precision ( sp = selected_real_kind(6,30) )
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: sp = selected_real_kind(6,30)
-
-    !!----
-    !!---- CP
-    !!----    CP: Current precision
-    !!----
-    !!---- Update: February - 2005
-    !!
-    integer, parameter, public :: cp = sp
-
-    !!----
-    !!---- DEPS
-    !!----    real(kind=dp), parameter :: deps=0.00000001_dp
-    !!----
-    !!----    Epsilon value
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=dp), parameter, public :: deps=0.00000001_dp
-
-    !!----
-    !!----  EPS
-    !!----     real(kind=sp), public ::  eps=0.00001_sp
-    !!----
-    !!----     Epsilon value
-    !!----
-    !!----  Update: February - 2005
-    !!
-    real(kind=sp),  parameter, public  ::  eps=0.00001_sp
-
     !!--++
     !!--++ EPSS
-    !!--++    real(kind=sp)  :: epss=1.0E-5_sp
+    !!--++    real(kind=cp)  :: epss=1.0E-5_cp
     !!--++
     !!--++    Internal epsilon value used for comparing reals to integers
     !!--++    in crystallographic applications where the maximum precision in the
@@ -267,17 +217,17 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp),   private :: epss=1.0E-5_sp
+    real(kind=cp),   private :: epss=1.0E-5_cp
 
     !!--++
     !!--++ EP_SS
-    !!--++    real(kind=sp), parameter, private  :: ep_ss=1.0E-12_sp
+    !!--++    real(kind=cp), parameter, private  :: ep_ss=1.0E-12_cp
     !!--++
     !!--++    Internal epsilon value used for comparison in matrix operations
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private :: ep_ss=1.0E-12_sp
+    real(kind=cp), parameter, private :: ep_ss=1.0E-12_cp
 
     !!----
     !!---- ERR_MathGen
@@ -290,55 +240,14 @@
     logical, public :: ERR_MathGen
 
     !!----
-    !!---- ERR_Mess_MathGen
-    !!----    character(len=150) :: ERR_Mess_MathGen
+    !!---- ERR_MathGen_Mess
+    !!----    character(len=150) :: ERR_MathGen_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public:: ERR_Mess_MathGen
-
-    !!----
-    !!---- PI
-    !!----    real(kind=dp), parameter ::  pi = 3.141592653589793238463_dp
-    !!----
-    !!----    Pi value
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=dp), parameter, public    ::  pi = 3.141592653589793238463_dp
-
-    !!----
-    !!---- TO_DEG
-    !!----    real(kind=dp), parameter ::  to_DEG = 180.0_dp/pi
-    !!----
-    !!----    Conversion from Rad to Degree
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=dp), parameter, public    ::  to_DEG  = 180.0_dp/pi
-
-    !!----
-    !!---- TO_RAD
-    !!----    real(kind=dp), parameter ::  to_RAD  = pi/180.0_dp
-    !!----
-    !!----    Conversion from Degree to Rad
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=dp), parameter, public    ::  to_RAD  = pi/180.0_dp
-
-    !!----
-    !!---- TPI
-    !!----  real(kind=dp), parameter ::  tpi = 6.283185307179586476925_dp
-    !!----
-    !!----  2.0*Pi value
-    !!----
-    !!---- Update: February - 2005
-    !!
-    real(kind=dp), parameter, public ::  tpi = 6.283185307179586476925_dp
-
+    character(len=150), public:: ERR_MathGen_Mess
 
     !---- Interfaces - Overloaded ----!
     Interface  Acosd
@@ -885,8 +794,8 @@
     !!
     Elemental Function Bessj0(x) Result(bessj_0)
        !---- Arguments ----!
-       real(kind=sp), intent(in) :: x
-       real(kind=sp)             :: bessj_0
+       real(kind=cp), intent(in) :: x
+       real(kind=cp)             :: bessj_0
 
        !---- Local variables ----!
        real(kind=dp), parameter :: p1=   1.0_dp
@@ -913,7 +822,7 @@
        real(kind=dp), parameter :: s6=             1.0_dp
 
        real(kind=dp)            :: y
-       real(kind=sp)            :: ax, xx, z
+       real(kind=cp)            :: ax, xx, z
 
        if (abs(x) < 1.0e-05) then
           bessj_0=1.0
@@ -946,8 +855,8 @@
     !!
     Elemental Function Bessj1(x) Result(bessj_1)
        !---- Arguments ----!
-       real(kind=sp), intent(in) :: x
-       real(kind=sp)             :: bessj_1
+       real(kind=cp), intent(in) :: x
+       real(kind=cp)             :: bessj_1
 
        !---- Local variales ----!
        real(kind=dp), parameter :: p1= 1.0_dp
@@ -974,7 +883,7 @@
        real(kind=dp), parameter :: s6=            1.0_dp
 
        real(kind=dp)            :: y
-       real(kind=sp)            :: ax,xx,z
+       real(kind=cp)            :: ax,xx,z
 
        if (abs(x) < 1.0e-05) then
           bessj_1=0.0
@@ -1009,13 +918,13 @@
     Function Bessj(n,x) Result (bessj_n)
        !---- Arguments ----!
        integer,        intent(in)  :: n
-       real (kind=sp), intent(in)  :: x
-       real (kind=sp)              :: bessj_n
+       real (kind=cp), intent(in)  :: x
+       real (kind=cp)              :: bessj_n
 
        !---- Local Arguments ----!
        integer,    parameter       :: iacc=40
        integer                     :: j,jsum,m
-       real (kind=sp), parameter   :: bigno=1.e10,bigni=1.e-10
+       real (kind=cp), parameter   :: bigno=1.e10,bigni=1.e-10
        real                        :: ax,bj,bjm,suma,tox
        real, save                  :: bjp
 
@@ -1149,7 +1058,7 @@
     !!
     Elemental Function Negligibler(v) Result(neglig)
        !---- Argument ----!
-       real(kind=sp), intent( in) :: v
+       real(kind=cp), intent( in) :: v
        logical                    :: Neglig
 
        Neglig=.false.
@@ -1422,8 +1331,8 @@
 
     !!--++
     !!--++ Logical Function Co_Linear_R(A, B, N)
-    !!--++    real(kind=sp), dimension(:), intent(in)  :: a
-    !!--++    real(kind=sp), dimension(:), intent(in)  :: b
+    !!--++    real(kind=cp), dimension(:), intent(in)  :: a
+    !!--++    real(kind=cp), dimension(:), intent(in)  :: b
     !!--++    integer,                     intent(in)  :: n
     !!--++
     !!--++    (OVERLOADED)
@@ -1433,7 +1342,7 @@
     !!
     Function Co_linear_R(a,b,n) Result(co_linear)
        !---- Argument ----!
-       real(kind=sp), dimension(:), intent(in) :: a,b
+       real(kind=cp), dimension(:), intent(in) :: a,b
        integer,                     intent(in) :: n
        logical                                 :: co_linear
 
@@ -1522,7 +1431,7 @@
 
     !!----
     !!---- Logical Function Equal_Matrix(A,B,N)
-    !!----    integer/real(kind=sp), dimension(:,:), intent(in)  :: a,b
+    !!----    integer/real(kind=cp), dimension(:,:), intent(in)  :: a,b
     !!----    integer,                               intent(in)  :: n
     !!----
     !!----    Provides the value .TRUE. if the array A is equal to array B
@@ -1574,7 +1483,7 @@
     !!
     Function Equal_Matrix_R(a,b,n) result(info)
        !---- Argument ----!
-       real(kind=sp), dimension(:,:)   , intent(in) :: a,b
+       real(kind=cp), dimension(:,:)   , intent(in) :: a,b
        integer,                          intent(in) :: n
        logical                                      :: info
 
@@ -1644,7 +1553,7 @@
     !!
     Function Equal_Vector_R(a,b,n) result(info)
        !---- Argument ----!
-       real(kind=sp), dimension(:)   ,   intent(in) :: a,b
+       real(kind=cp), dimension(:)   ,   intent(in) :: a,b
        integer,                          intent(in) :: n
        logical                                      :: info
 
@@ -1704,7 +1613,7 @@
     !!
     Function Imaxloc_R(arr) Result(mav)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in) :: arr
+       real(kind=cp), dimension(:), intent(in) :: arr
        integer                                 :: mav
 
        !---- Local variables ----!
@@ -1760,7 +1669,7 @@
     !!
     Function Iminloc_R(arr)  Result(miv)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in) :: arr
+       real(kind=cp), dimension(:), intent(in) :: arr
        integer                                 :: miv
 
        !---- Local variables ----!
@@ -1831,9 +1740,9 @@
 
     !!--++
     !!--++ Function Locate_R(xx, n, x) Result(j)
-    !!--++    real(kind=sp), dimension(:),intent(in)  :: xx
+    !!--++    real(kind=cp), dimension(:),intent(in)  :: xx
     !!--++    integer ,                   intent(in)  :: n
-    !!--++    real(kind=sp),              intent(in)  :: x
+    !!--++    real(kind=cp),              intent(in)  :: x
     !!--++    integer ,                   intent(out) :: j
     !!--++
     !!--++    Subroutine for locating the index J of an array XX(N)
@@ -1846,9 +1755,9 @@
     !!
     Function Locate_R(xx,n,x) Result(j)
        !---- Argument ----!
-       real(kind=sp), dimension(:), intent(in):: xx
+       real(kind=cp), dimension(:), intent(in):: xx
        integer ,                    intent(in):: n
-       real(kind=sp),               intent(in):: x
+       real(kind=cp),               intent(in):: x
        integer                                :: j
 
        !---- Local Variables ----!
@@ -1872,7 +1781,7 @@
 
     !!----
     !!---- Function Modulo_Lat(U)
-    !!----    real(kind=sp), dimension(:), intent(in) :: u
+    !!----    real(kind=cp), dimension(:), intent(in) :: u
     !!----
     !!----    Reduces a real vector to another with components in
     !!----    the interval [0,1)
@@ -1881,10 +1790,10 @@
     !!
     Function Modulo_Lat(u) result(v)
        !---- Argument ----!
-       real(kind=sp), dimension(:), intent( in) :: u
-       real(kind=sp), dimension(1:size(u))      :: v
+       real(kind=cp), dimension(:), intent( in) :: u
+       real(kind=cp), dimension(1:size(u))      :: v
 
-       v=mod(u+10.0_sp,1.0_sp)
+       v=mod(u+10.0_cp,1.0_cp)
 
        return
     End Function  Modulo_Lat
@@ -1957,7 +1866,7 @@
 
     !!----
     !!---- Function Traza(A)
-    !!----    complex/integer/real(kind=sp), dimension(:,:), intent(in)  :: a
+    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: a
     !!----
     !!----    Provides the trace of a complex/real or integer matrix
     !!----
@@ -2027,8 +1936,8 @@
     !!
     Function Traza_R(a) Result(b)
        !---- Argument ----!
-       real(kind=sp), dimension(:,:), intent(in) :: a
-       real(kind=sp)                             :: b
+       real(kind=cp), dimension(:,:), intent(in) :: a
+       real(kind=cp)                             :: b
 
        !---- Local variables ----!
        integer :: i,imax
@@ -2044,11 +1953,11 @@
 
     !!----
     !!---- Logical Function Zbelong(V)
-    !!----    real(kind=sp),   dimension(:,:), intent( in) :: v
+    !!----    real(kind=cp),   dimension(:,:), intent( in) :: v
     !!----                      or
-    !!----    real(kind=sp),   dimension(:),   intent( in) :: v
+    !!----    real(kind=cp),   dimension(:),   intent( in) :: v
     !!----                      or
-    !!----    real(kind=sp),                   intent( in) :: v
+    !!----    real(kind=cp),                   intent( in) :: v
     !!----
     !!----    Provides the value .TRUE. if the real(kind=sp) number (or array) V is close enough
     !!----    (whithin EPS) to an integer.
@@ -2067,11 +1976,11 @@
     !!
     Function ZbelongM(v) Result(belong)
        !---- Argument ----!
-       real(kind=sp),   dimension(:,:), intent( in) :: v
+       real(kind=cp),   dimension(:,:), intent( in) :: v
        logical                                      :: belong
 
        !---- Local variables ----!
-       real(kind=sp),   dimension(size(v,1),size(v,2)) :: vec
+       real(kind=cp),   dimension(size(v,1),size(v,2)) :: vec
 
        vec= abs(real(nint (v))-v)
        belong=.not. ANY(vec > epss)
@@ -2081,7 +1990,7 @@
 
     !!--++
     !!--++ Logical Function ZbelongN(A)
-    !!--++    real(kind=sp),  intent(in)  :: a
+    !!--++    real(kind=cp),  intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real(kind=sp) number is an Integer
@@ -2090,7 +1999,7 @@
    !!
     Function ZbelongN(a) Result(belong)
        !---- Argument ----!
-       real(kind=sp), intent( in) :: a
+       real(kind=cp), intent( in) :: a
        logical                    :: belong
 
        belong=.false.
@@ -2111,12 +2020,12 @@
     !!
     Function ZbelongV(v) Result(belong)
        !---- Argument ----!
-       real(kind=sp),   dimension(:), intent( in) :: v
+       real(kind=cp),   dimension(:), intent( in) :: v
        logical                                    :: belong
 
        !---- Local variables ----!
        integer                             :: i
-       real(kind=sp),   dimension(size(v)) :: vec
+       real(kind=cp),   dimension(size(v)) :: vec
 
        belong=.false.
        vec= abs(real(nint (v))-v)
@@ -2142,14 +2051,14 @@
     Subroutine Init_Err_MathGen()
 
        ERR_MathGen=.false.
-       ERR_Mess_MathGen=" "
+       ERR_MathGen_Mess=" "
 
        return
     End Subroutine Init_Err_MathGen
 
     !!----
     !!---- Subroutine Set_Epsg(Neweps)
-    !!----    real(kind=sp), intent( in) :: neweps
+    !!----    real(kind=cp), intent( in) :: neweps
     !!----
     !!----    Sets global EPSS to the value "neweps"
     !!----
@@ -2157,7 +2066,7 @@
     !!
     Subroutine Set_Epsg(Neweps)
        !---- Arguments ----!
-       real(kind=sp), intent( in) :: neweps
+       real(kind=cp), intent( in) :: neweps
 
        epss=neweps
 
@@ -2315,11 +2224,11 @@
        !---- Arguments ----!
        complex, dimension(:,:), intent( in) :: A
        integer,                 intent( in) :: n
-       real(kind=sp),           intent(out) :: determ
+       real(kind=cp),           intent(out) :: determ
 
        !---- local variables ----!
-       real(kind=sp),    dimension(2*n,2*n) :: AC   !real(kind=sp) square matrix
-       real(kind=sp)                        :: d
+       real(kind=cp),    dimension(2*n,2*n) :: AC   !real(kind=sp) square matrix
+       real(kind=cp)                        :: d
        integer                              :: i,nn
        logical                              :: singular
 
@@ -2347,9 +2256,9 @@
 
     !!--++
     !!--++ Subroutine Determinant_R(A,n,determ)
-    !!--++    real(kind=sp), dimension(:,:),intent( in) :: A   (input square matrix (n,n))
+    !!--++    real(kind=cp), dimension(:,:),intent( in) :: A   (input square matrix (n,n))
     !!--++    integer,                      intent( in) :: n   (actual dimension of A)
-    !!--++    real(kind=sp),                intent(out) :: determ  (determinant )
+    !!--++    real(kind=cp),                intent(out) :: determ  (determinant )
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real(kind=sp) square matrix.
@@ -2358,13 +2267,13 @@
     !!
     Subroutine Determinant_R(A,n,determ)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent( in) :: A
+       real(kind=cp), dimension(:,:), intent( in) :: A
        integer,                       intent( in) :: n
-       real(kind=sp),                 intent(out) :: determ
+       real(kind=cp),                 intent(out) :: determ
 
        !---- local variables ----!
-       real(kind=sp),    dimension(n,n)  :: AC
-       real(kind=sp)                     :: d
+       real(kind=cp),    dimension(n,n)  :: AC
+       real(kind=cp)                     :: d
        integer                           :: i
        logical                           :: singular
 
@@ -2389,7 +2298,7 @@
     !!---- Subroutine Diagonalize_SH(A,N,E_val,E_vect)
     !!----    complex/real,      dimension(:,:), intent( in)  :: A
     !!----    integer,                           intent( in)  :: n
-    !!----    real(kind=sp),     dimension(:),   intent(out)  :: E_val
+    !!----    real(kind=cp),     dimension(:),   intent(out)  :: E_val
     !!----    complex, optional, dimension(:,:), intent(out)  :: E_vect
     !!----
     !!----    Diagonalize Symmetric/Hermitian matrices.
@@ -2403,7 +2312,7 @@
     !!--++ Subroutine Diagonalize_Herm(a,n,e_val,e_vect)
     !!--++    complex,           dimension(:,:), intent( in)  :: A
     !!--++    integer,                           intent( in)  :: n
-    !!--++    real(kind=sp),     dimension(:),   intent(out)  :: E_val
+    !!--++    real(kind=cp),     dimension(:),   intent(out)  :: E_val
     !!--++    complex, optional, dimension(:,:), intent(out)  :: E_vect
     !!--++
     !!--++    (OVERLOADED)
@@ -2417,19 +2326,19 @@
        !---- Arguments ----!
        complex,           dimension(:,:), intent( in)  :: A
        integer,                           intent( in)  :: n
-       real(kind=sp),     dimension(:),   intent(out)  :: E_val
+       real(kind=cp),     dimension(:),   intent(out)  :: E_val
        complex, optional, dimension(:,:), intent(out)  :: E_vect
 
        !---- Local variables ----!
-       real(kind=sp),        dimension(2*n,2*n)   :: aux
-       real(kind=sp),        dimension(2*n)       :: e,d
+       real(kind=cp),        dimension(2*n,2*n)   :: aux
+       real(kind=cp),        dimension(2*n)       :: e,d
        integer :: nn
 
        e_val=0.0
        call init_err_mathgen()
        if (n > size(A,1) .or. n > size(A,2)) then
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
+          ERR_MathGen_Mess=" Diagonalize_HERM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -2456,10 +2365,10 @@
 
     !!--++
     !!--++ Subroutine Diagonalize_Symm(a,n,e_val,e_vect)
-    !!--++    real(kind=sp)            dimension(:,:),intent( in)  :: A      (input matrix with)
+    !!--++    real(kind=cp)            dimension(:,:),intent( in)  :: A      (input matrix with)
     !!--++    integer,                                intent( in)  :: n      (actual dimension)
-    !!--++    real(kind=sp),           dimension(:),  intent(out)  :: E_val  (eigenvalues)
-    !!--++    real(kind=sp), optional, dimension(:,:),intent(out)  :: E_vect (eigenvectors)
+    !!--++    real(kind=cp),           dimension(:),  intent(out)  :: E_val  (eigenvalues)
+    !!--++    real(kind=cp), optional, dimension(:,:),intent(out)  :: E_vect (eigenvectors)
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Diagonalize symmetric matrices
@@ -2470,20 +2379,20 @@
     !!
     Subroutine Diagonalize_Symm(A,n,E_Val,E_vect)
        !---- Arguments ----!
-       real(kind=sp),           dimension(:,:), intent( in)  :: A
+       real(kind=cp),           dimension(:,:), intent( in)  :: A
        integer,                                 intent( in)  :: n
-       real(kind=sp),           dimension(:),   intent(out)  :: E_val
-       real(kind=sp), optional, dimension(:,:), intent(out)  :: E_vect
+       real(kind=cp),           dimension(:),   intent(out)  :: E_val
+       real(kind=cp), optional, dimension(:,:), intent(out)  :: E_vect
 
        !---- Local variables ----!
-       real(kind=sp),        dimension(n,n)   :: aux
-       real(kind=sp),        dimension(n)     :: e
+       real(kind=cp),        dimension(n,n)   :: aux
+       real(kind=cp),        dimension(n)     :: e
 
        e_val=0.0
        call init_err_mathgen()
        if (n > size(A,1) .or. n > size(A,2)) then
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
+          ERR_MathGen_Mess=" Diagonalize_SYMM: Error in dimension of input matrix: A(m,m) with m < n "
           return
        end if
 
@@ -2504,8 +2413,8 @@
 
     !!--++
     !!--++ Subroutine Eigsrt(d,v,n,io)
-    !!--++    real(kind=sp), dimension(:),   intent(in out) :: d
-    !!--++    real(kind=sp), dimension(:,:), intent(in out) :: v
+    !!--++    real(kind=cp), dimension(:),   intent(in out) :: d
+    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: v
     !!--++    integer,                       intent (in)    :: n
     !!--++    integer,                       intent (in)    :: io
     !!--++
@@ -2520,14 +2429,14 @@
     !!
     Subroutine Eigsrt(d,v,n,io)
        !---- Arguments ----!
-       real(kind=sp), dimension(:),   intent(in out) :: d
-       real(kind=sp), dimension(:,:), intent(in out) :: v
+       real(kind=cp), dimension(:),   intent(in out) :: d
+       real(kind=cp), dimension(:,:), intent(in out) :: v
        integer,                       intent(in)     :: n
        integer,                       intent(in)     :: io
 
        !---- Local Variables ----!
        integer          :: i,j,k
-       real(kind=sp)    :: p
+       real(kind=cp)    :: p
 
        do i=1,n-1
           k=i
@@ -2556,12 +2465,12 @@
 
     !!----
     !!---- Subroutine First_Derivative(x, y, n, d2y, d1y)
-    !!----    real(kind=sp),    intent(in),     dimension(:) :: x     !  In -> Array X
-    !!----    real(kind=sp),    intent(in),     dimension(:) :: y     !  In -> Array Yi=F(Xi)
+    !!----    real(kind=cp),    intent(in),     dimension(:) :: x     !  In -> Array X
+    !!----    real(kind=cp),    intent(in),     dimension(:) :: y     !  In -> Array Yi=F(Xi)
     !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=sp),    intent(in),     dimension(:) :: d2y   !  In -> array containing second derivatives
+    !!----    real(kind=cp),    intent(in),     dimension(:) :: d2y   !  In -> array containing second derivatives
     !!----                                                                     at the given points
-    !!----    real(kind=sp),    intent(out),    dimension(:) :: d1y   ! Out -> array containing first derivatives
+    !!----    real(kind=cp),    intent(out),    dimension(:) :: d1y   ! Out -> array containing first derivatives
     !!----                                                                     at the given points
     !!----
     !!----    Calculate the First derivate values of the N points
@@ -2570,11 +2479,11 @@
     !!
     Subroutine First_Derivative(x,y,n,d2y,d1y)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in)  :: x
-       real(kind=sp), dimension(:), intent(in)  :: y
+       real(kind=cp), dimension(:), intent(in)  :: x
+       real(kind=cp), dimension(:), intent(in)  :: y
        integer ,                    intent(in)  :: n
-       real(kind=sp), dimension(:), intent(in)  :: d2y
-       real(kind=sp), dimension(:), intent(out) :: d1y
+       real(kind=cp), dimension(:), intent(in)  :: d2y
+       real(kind=cp), dimension(:), intent(out) :: d1y
 
        !---- Local Variables ----!
        integer       :: i
@@ -2650,8 +2559,8 @@
     
     !!----
     !!---- Subroutine Invert_Matrix(a,b,singular,perm)
-    !!----    real(kind=sp), dimension(:,:),  intent( in) :: a
-    !!----    real(kind=sp), dimension(:,:),  intent(out) :: b
+    !!----    real(kind=cp), dimension(:,:),  intent( in) :: a
+    !!----    real(kind=cp), dimension(:,:),  intent(out) :: b
     !!----    LOGICAL,                        intent(out) :: singular
     !!----    integer, dimension(:),optional, intent(out) :: perm
     !!--<<
@@ -2668,16 +2577,16 @@
     !!
     Subroutine Invert_Matrix(a,b,singular,perm)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:),  intent(in ) :: a
-       real(kind=sp), dimension(:,:),  intent(out) :: b
+       real(kind=cp), dimension(:,:),  intent(in ) :: a
+       real(kind=cp), dimension(:,:),  intent(out) :: b
        logical,                        intent(out) :: singular
        integer, dimension(:),optional, intent(out) :: perm
 
        !---- Local variables ----!
        integer                                       :: i,n
        integer,       dimension(size(a,1))           :: indx
-       real(kind=sp)                                 :: d, det
-       real(kind=sp), dimension(size(a,1),size(a,1)) :: lu
+       real(kind=cp)                                 :: d, det
+       real(kind=cp), dimension(size(a,1),size(a,1)) :: lu
 
        n=size(a,1)
        lu=a(1:n,1:n)
@@ -2713,8 +2622,8 @@
 
     !!----
     !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,linear_dependent)
-    !!----    complex/integer/real(kind=sp), dimension(:),   intent(in)  :: a
-    !!----    complex/integer/real(kind=sp), dimension(:,:), intent(in)  :: b
+    !!----    complex/integer/real(kind=cp), dimension(:),   intent(in)  :: a
+    !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: b
     !!----    integer,                                       intent(in)  :: na,nb,mb
     !!----    logical,                                       intent(out) :: Linear_Dependent
     !!--<<
@@ -2782,7 +2691,7 @@
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentC: Error in dimension of input matrix or vector"
+          ERR_MathGen_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2814,7 +2723,7 @@
           if(r == min(n1+1,2*nb)) Linear_Dependent=.false.
        else
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentC: input dimension of vector incompatible with matrix"
+          ERR_MathGen_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -2858,7 +2767,7 @@
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentI: Error in dimension of input matrix or vector"
+          ERR_MathGen_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2878,7 +2787,7 @@
           if(r == min(n1,nb)) Linear_Dependent=.false.
        else
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentI: input dimension of vector incompatible with matrix"
+          ERR_MathGen_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -2886,8 +2795,8 @@
 
     !!--++
     !!--++ Subroutine Linear_DependentR(a,na,b,nb,mb,linear_dependent)
-    !!--++    real(kind=sp), dimension(:),   intent(in)  :: a
-    !!--++    real(kind=sp), dimension(:,:), intent(in)  :: b
+    !!--++    real(kind=cp), dimension(:),   intent(in)  :: a
+    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: b
     !!--++    integer,                       intent(in)  :: na,nb,mb
     !!--++    logical,                                       intent(out) :: Linear_Dependent
     !!--++
@@ -2907,8 +2816,8 @@
     !!
     Subroutine Linear_DependentR(A,na,B,nb,mb,Linear_Dependent)
        !---- Arguments ----!
-       real(kind=sp), dimension(:),   intent(in)  :: a
-       real(kind=sp), dimension(:,:), intent(in)  :: b
+       real(kind=cp), dimension(:),   intent(in)  :: a
+       real(kind=cp), dimension(:,:), intent(in)  :: b
        integer,                       intent(in)  :: na,nb,mb
        logical,                       intent(out) :: Linear_Dependent
 
@@ -2922,7 +2831,7 @@
        Linear_Dependent=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentR: Error in dimension of input matrix or vector"
+          ERR_MathGen_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
           return
        end if
 
@@ -2942,7 +2851,7 @@
           if(r == min(n1,nb)) Linear_Dependent=.false.
        else
           ERR_MathGen=.true.
-          ERR_Mess_MathGen=" Linear_DependentR: input dimension of vector incompatible with matrix"
+          ERR_MathGen_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"
        end if
 
        return
@@ -2950,9 +2859,9 @@
 
     !!----
     !!---- Subroutine LU_Backsub(a,indx,b)
-    !!----    real(kind=sp),    dimension(:,:),intent(in)     :: a
+    !!----    real(kind=cp),    dimension(:,:),intent(in)     :: a
     !!----    integer,          dimension(:),  intent(in)     :: indx
-    !!----    real(kind=sp),    dimension(:),  intent(in out) :: b
+    !!----    real(kind=cp),    dimension(:),  intent(in out) :: b
     !!--<<
     !!----    Adapted from Numerical Recipes.
     !!----    Solves the set of N linear equations A · X = B. Here the N × N matrix A is input,
@@ -2969,13 +2878,13 @@
     !!
     Subroutine LU_Backsub(a,indx,b)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in)     :: a
+       real(kind=cp), dimension(:,:), intent(in)     :: a
        integer,         dimension(:), intent(in)     :: indx
-       real(kind=sp),   dimension(:), intent(in out) :: b
+       real(kind=cp),   dimension(:), intent(in out) :: b
 
        !---- Local Variables ----!
        integer       :: i,ii,ll,n
-       real(kind=sp) :: summ
+       real(kind=cp) :: summ
 
        n=size(a,1)
        ii=0              !When ii is set to a positive value, it will become the index
@@ -3000,8 +2909,8 @@
 
     !!----
     !!---- Subroutine LU_Decomp(a,d,singular,indx)
-    !!----    real(kind=sp),    dimension(:,:),intent(in out) :: a
-    !!----    real(kind=sp),                   intent(out)    :: d
+    !!----    real(kind=cp),    dimension(:,:),intent(in out) :: a
+    !!----    real(kind=cp),                   intent(out)    :: d
     !!----    logical,                         intent(out)    :: singular
     !!----    integer, dimension(:), optional, intent(out)    :: indx
     !!--<<
@@ -3018,14 +2927,14 @@
     !!
     Subroutine LU_Decomp(a,d,singular,indx)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a
-       real(kind=sp),                 intent(out)    :: d
+       real(kind=cp), dimension(:,:), intent(in out) :: a
+       real(kind=cp),                 intent(out)    :: d
        logical,                       intent(out)    :: singular
        integer,  dimension(:), intent(out), optional :: indx
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
-       real(kind=sp), parameter           :: vtiny = 1.0e-20_sp !A small number.
+       real(kind=cp), dimension(size(a,1)):: vv  !vv stores the implicit scaling of each row.
+       real(kind=cp), parameter           :: vtiny = 1.0e-20_sp !A small number.
        integer                            :: j,imax,n
 
        singular=.false.
@@ -3059,7 +2968,7 @@
 
     !!----
     !!---- Subroutine Matinv(a,n)
-    !!----    real(kind=sp), dimension(:,:),intent(in out) :: a
+    !!----    real(kind=cp), dimension(:,:),intent(in out) :: a
     !!----    integer     ,                 intent(in)     :: n
     !!----
     !!----  Subroutine for inverting a real square matrix.
@@ -3069,11 +2978,11 @@
     !!
     Subroutine Matinv(a,n)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a
+       real(kind=cp), dimension(:,:), intent(in out) :: a
        integer     ,                  intent(in)     :: n
 
        !---- Local variables ----!
-       real(kind=sp)                 :: amax,savec
+       real(kind=cp)                 :: amax,savec
        integer, dimension(size(a,1)) :: ik,jk
        integer                       :: i,j,k,l
 
@@ -3211,10 +3120,10 @@
 
     !!----
     !!---- Subroutine Points_In_Line2D(X1, XN, N, XP)
-    !!----    real, dimension(2),   intent(in)  :: X1   ! Point1 in 2D
-    !!----    real, dimension(2),   intent(in)  :: XN   ! PointN in 2D
-    !!----    integer,              intent(in)  :: N    ! Number of Total points
-    !!----    real, dimension(:,:), intent(out) :: XP   ! List of points
+    !!----    real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
+    !!----    real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
+    !!----    integer,                       intent(in)  :: N    ! Number of Total points
+    !!----    real(kind=cp), dimension(:,:), intent(out) :: XP   ! List of points
     !!----
     !!----    The routine calculate N points belonging to the line defined
     !!----    by X1 and Xn with equal distance between them. XP contains
@@ -3224,16 +3133,16 @@
     !!
     Subroutine Points_In_Line2D(X1, XN, N, XP)
        !---- Arguments ----!
-       real, dimension(2),   intent(in)  :: X1   ! Point1 in 2D
-       real, dimension(2),   intent(in)  :: XN   ! PointN in 2D
-       integer,              intent(in)  :: N    ! Number of Total points
-       real, dimension(:,:), intent(out) :: XP   ! List of points
+       real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
+       real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
+       integer,                       intent(in)  :: N    ! Number of Total points
+       real(kind=cp), dimension(:,:), intent(out) :: XP   ! List of points
 
        !---- Local Variables ----!
        integer :: i
-       real    :: ml,bl,dl,t
-       real    :: a,b,c,d
-       real    :: xa,xb
+       real(kind=cp)    :: ml,bl,dl,t
+       real(kind=cp)    :: a,b,c,d
+       real(kind=cp)    :: xa,xb
 
        xp=0.0
 
@@ -3413,10 +3322,10 @@
 
     !!----
     !!---- Subroutine Second_Derivative(x, y, n, d2y)
-    !!----    real(kind=sp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=sp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
+    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
+    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
     !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=sp),    intent(out),    dimension(n) :: d2y    ! Out -> array containing second derivatives
+    !!----    real(kind=cp),    intent(out),    dimension(n) :: d2y    ! Out -> array containing second derivatives
     !!----                                                                     at the given points
     !!----
     !!----    Calculate the second derivate of N Points
@@ -3425,15 +3334,15 @@
     !!
     Subroutine Second_Derivative(x,y,n,d2y)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in)  :: x
-       real(kind=sp), dimension(:), intent(in)  :: y
+       real(kind=cp), dimension(:), intent(in)  :: x
+       real(kind=cp), dimension(:), intent(in)  :: y
        integer ,                    intent(in)  :: n
-       real(kind=sp), dimension(:), intent(out) :: d2y
+       real(kind=cp), dimension(:), intent(out) :: d2y
 
        !---- Local Variables ----!
        integer                     :: i, k
-       real(kind=sp), dimension(n) :: u
-       real(kind=sp)               :: yp1, ypn, sig, p, qn, un
+       real(kind=cp), dimension(n) :: u
+       real(kind=cp)               :: yp1, ypn, sig, p, qn, un
 
        yp1=(y(2) - y(1))   / (x(2) - x(1))     ! derivative at point 1
        ypn=(y(n) - y(n-1)) / (x(n) - x(n-1))   ! derivative at point n
@@ -3461,10 +3370,10 @@
 
     !!----
     !!---- Subroutine Smoothing_Proc(Y, N, NIter, Ys)
-    !!----    real,    dimension(:),           intent(in out) :: Y      !  In Out-> Array to be smoothed
-    !!----    integer,                         intent(in)     :: N      !  In -> Number of points
-    !!----    integer,                         intent(in)     :: NIter  !  In -> Number of iterations
-    !!----    real,    dimension(:), optional, intent(out)    :: datY   !  Out-> Array smoothed
+    !!----    real(kind=cp),    dimension(:),           intent(in out) :: Y      !  In Out-> Array to be smoothed
+    !!----    integer,                                  intent(in)     :: N      !  In -> Number of points
+    !!----    integer,                                  intent(in)     :: NIter  !  In -> Number of iterations
+    !!----    real(kind=cp),    dimension(:), optional, intent(out)    :: datY   !  Out-> Array smoothed
     !!----
     !!----    Procedure to smooth the array values
     !!----
@@ -3472,15 +3381,15 @@
     !!
     Subroutine Smoothing_Proc(Y, N, Niter, Ys)
        !---- Arguments ----!
-       real,    dimension(:),            intent(in out) :: Y
-       integer,                          intent(in)     :: n
-       integer,                          intent(in)     :: niter
-       real,    dimension(:), optional,  intent(out)    :: Ys
+       real(kind=cp),dimension(:),            intent(in out) :: Y
+       integer,                               intent(in)     :: n
+       integer,                               intent(in)     :: niter
+       real(kind=cp),dimension(:), optional,  intent(out)    :: Ys
 
        !---- Local Variables ----!
-       integer                    :: n1, n2
-       integer                    :: i, iter
-       real, dimension (n):: datYs
+       integer                     :: n1, n2
+       integer                     :: i, iter
+       real(kind=cp), dimension (n):: datYs
 
 
        n1 = 4
@@ -3511,7 +3420,7 @@
 
     !!---
     !!---- Subroutine Sort(a,n,indx)
-    !!----    integer/real(kind=sp)  dimension(:), intent( in) :: a
+    !!----    integer/real(kind=cp)  dimension(:), intent( in) :: a
     !!----    integer,                             intent( in) :: n
     !!----    integer,               dimension(:), intent(out) :: indx
     !!----
@@ -3617,7 +3526,7 @@
              jstack=jstack+2
              if (jstack > nstack) then
                 ERR_MathGen=.true.
-                ERR_Mess_MathGen=" NSTACK too small in SORT"
+                ERR_MathGen_Mess=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -3637,7 +3546,7 @@
 
     !!--++
     !!--++ Subroutine Sort_R(arr,n,indx)
-    !!--++    real(kind=sp),dimension(:), intent( in) :: arr
+    !!--++    real(kind=cp),dimension(:), intent( in) :: arr
     !!--++    integer,                    intent( in) :: n
     !!--++    integer,      dimension(:), intent(out) :: indx
     !!--++
@@ -3649,7 +3558,7 @@
     !!
     Subroutine Sort_R(arr,n,indx)
        !---- Arguments ----!
-       real(kind=sp),dimension(:), intent(in) :: arr
+       real(kind=cp),dimension(:), intent(in) :: arr
        integer,                    intent(in) :: n
        integer,      dimension(:), intent(out):: indx
 
@@ -3658,7 +3567,7 @@
        integer, parameter           :: nstack=50  !nstack=2log2(n)
        integer, dimension(nstack)   :: istack
        integer :: i,indxt,ir,itemp,j,jstack,k,l
-       real(kind=sp)    :: a
+       real(kind=cp)    :: a
 
        call init_Err_MathGen()
        do j=1,n
@@ -3731,7 +3640,7 @@
              jstack=jstack+2
              if (jstack > nstack) then
                 ERR_MathGen=.true.
-                ERR_Mess_MathGen=" NSTACK too small in SORT"
+                ERR_MathGen_Mess=" NSTACK too small in SORT"
                 return
              end if
              if (ir-i+1 >= j-l) then
@@ -3775,12 +3684,12 @@
 
     !!----
     !!---- Subroutine Spline(x, y, n, yp1, ypn, y2)
-    !!----    real(kind=sp),    intent(in),     dimension(n) :: x     !  In -> Array X
-    !!----    real(kind=sp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
+    !!----    real(kind=cp),    intent(in),     dimension(n) :: x     !  In -> Array X
+    !!----    real(kind=cp),    intent(in),     dimension(n) :: y     !  In -> Array Yi=F(Xi)
     !!----    integer ,         intent(in)                   :: n     !  In -> Dimension of X, Y
-    !!----    real(kind=sp),    intent(in)                   :: yp1   !  In -> Derivate of Point 1
-    !!----    real(kind=sp),    intent(in)                   :: ypn   !  In -> Derivate of Point N
-    !!----    real(kind=sp),    intent(out),    dimension(n) :: y2    ! Out -> array containing second derivatives
+    !!----    real(kind=cp),    intent(in)                   :: yp1   !  In -> Derivate of Point 1
+    !!----    real(kind=cp),    intent(in)                   :: ypn   !  In -> Derivate of Point N
+    !!----    real(kind=cp),    intent(out),    dimension(n) :: y2    ! Out -> array containing second derivatives
     !!----                                                                     at the given points
     !!----    Spline  N points
     !!----
@@ -3788,17 +3697,17 @@
     !!
     Subroutine Spline(x,y,n,yp1,ypn,y2)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in)  :: x
-       real(kind=sp), dimension(:), intent(in)  :: y
+       real(kind=cp), dimension(:), intent(in)  :: x
+       real(kind=cp), dimension(:), intent(in)  :: y
        integer ,                    intent(in)  :: n
-       real(kind=sp),               intent(in)  :: yp1
-       real(kind=sp),               intent(in)  :: ypn
-       real(kind=sp), dimension(:), intent(out) :: y2
+       real(kind=cp),               intent(in)  :: yp1
+       real(kind=cp),               intent(in)  :: ypn
+       real(kind=cp), dimension(:), intent(out) :: y2
 
        !---- Local Variables ----!
        integer                     :: i, k
-       real(kind=sp), dimension(n) :: u
-       real(kind=sp)               :: sig, p, qn, un
+       real(kind=cp), dimension(n) :: u
+       real(kind=cp)               :: sig, p, qn, un
 
        if (yp1 > 1.0e+30) then
           y2(1)=0.0
@@ -3832,12 +3741,12 @@
 
     !!----
     !!---- Subroutine Splint(x, y, y2, n, xp, yp)
-    !!----    real(kind=sp),    intent(in), dimension(n) :: x  !  In -> Array X
-    !!----    real(kind=sp),    intent(in), dimension(n) :: y  !  In -> Array Y=F(X)
-    !!----    real(kind=sp),    intent(in), dimension(n) :: y2 !  In -> Array Second Derivatives in X
+    !!----    real(kind=cp),    intent(in), dimension(n) :: x  !  In -> Array X
+    !!----    real(kind=cp),    intent(in), dimension(n) :: y  !  In -> Array Y=F(X)
+    !!----    real(kind=cp),    intent(in), dimension(n) :: y2 !  In -> Array Second Derivatives in X
     !!----    integer ,         intent(in)               :: n  !  In -> Dimension of XA,YA,Y2A
-    !!----    real(kind=sp),    intent(in)               :: xp !  In -> Point to evaluate
-    !!----    real(kind=sp),    intent(out),             :: yp ! Out -> Interpoled value
+    !!----    real(kind=cp),    intent(in)               :: xp !  In -> Point to evaluate
+    !!----    real(kind=cp),    intent(out),             :: yp ! Out -> Interpoled value
     !!----
     !!----    Spline Interpolation
     !!----
@@ -3845,16 +3754,16 @@
     !!
     Subroutine Splint(xa,ya,y2a,n,x,y)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in)  :: xa
-       real(kind=sp), dimension(:), intent(in)  :: ya
-       real(kind=sp), dimension(:), intent(in)  :: y2a
+       real(kind=cp), dimension(:), intent(in)  :: xa
+       real(kind=cp), dimension(:), intent(in)  :: ya
+       real(kind=cp), dimension(:), intent(in)  :: y2a
        integer ,                    intent(in)  :: n
-       real(kind=sp),               intent(in)  :: x
-       real(kind=sp),               intent(out) :: y
+       real(kind=cp),               intent(in)  :: x
+       real(kind=cp),               intent(out) :: y
 
        !---- Local Variables ----!
-       INTEGER          :: klo, khi, k
-       real(kind=sp)    :: h, a, b
+       integer          :: klo, khi, k
+       real(kind=cp)    :: h, a, b
 
        klo=1
        khi=n
@@ -3929,7 +3838,7 @@
        call init_err_mathgen()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
           ERR_MathGen = .true.
-          ERR_Mess_MathGen = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
+          ERR_MathGen_Mess = " => Physical dimensions of arguments in SVDcmp_dp are not compatible "
           return
        end if
        g=0.0_dp
@@ -4036,7 +3945,7 @@
              end if
              if (its == num_its) then
                 ERR_MathGen = .true.
-                ERR_Mess_MathGen = " => SVDcmp_dp: convergence not reached ! "
+                ERR_MathGen_Mess = " => SVDcmp_dp: convergence not reached ! "
                 return
              end if
              x=w(l)
@@ -4122,7 +4031,7 @@
        call init_err_mathgen()
        if ( .not. (size(v,1) == n .and. size(v,2) == n .and. size(w) == n)) then
           ERR_MathGen = .true.
-          ERR_Mess_MathGen = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
+          ERR_MathGen_Mess = " => Physical dimensions of arguments in SVDcmp_sp are not compatible "
           return
        end if
        g=0.0
@@ -4229,7 +4138,7 @@
              end if
              if (its == num_its) then
                 ERR_MathGen = .true.
-                ERR_Mess_MathGen = " => SVDcmp_sp: convergence not reached ! "
+                ERR_MathGen_Mess = " => SVDcmp_sp: convergence not reached ! "
                 return
              end if
              x=w(l)             !Shift from ottom 2-y-2 minor.
@@ -4283,19 +4192,19 @@
 
     !!----
     !!---- Subroutine Swap(a,b) or Swap(a,b,mask)
-    !!----    integer,real(sp),complex, intent( in out) :: a, b
+    !!----    integer,real(cp),complex, intent( in out) :: a, b
     !!----      or
-    !!----    integer,real(sp),complex, dimension(:), intent( in out) :: a, b
+    !!----    integer,real(cp),complex, dimension(:), intent( in out) :: a, b
     !!----      or
-    !!----    integer,real(sp),complex, dimension(:,:), intent( in out) :: a, b
+    !!----    integer,real(cp),complex, dimension(:,:), intent( in out) :: a, b
     !!----      or
-    !!----    real(kind=sp),  intent(in out) :: a,b
+    !!----    real(kind=cp),  intent(in out) :: a,b
     !!----    logical,        intent(in)     :: mask
     !!----      or
-    !!----    real(kind=sp), dimension(:), intent(in out) :: a,b
+    !!----    real(kind=cp), dimension(:), intent(in out) :: a,b
     !!----    logical,       dimension(:), intent(in)     :: mask
     !!----      or
-    !!----    real(kind=sp), dimension(:,:), intent(in out) :: a,b
+    !!----    real(kind=cp), dimension(:,:), intent(in out) :: a,b
     !!----    logical,       dimension(:,:), intent(in)     :: mask
     !!----
     !!----    Swap the contents of a and b, when mask (if given) is true.
@@ -4459,8 +4368,8 @@
     !!
     Subroutine Swap_R(A,B)
        !---- Arguments ----!
-       real(kind=sp), intent(in out) :: a
-       real(kind=sp), intent(in out) :: b
+       real(kind=cp), intent(in out) :: a
+       real(kind=cp), intent(in out) :: b
 
        !---- Local variables ----!
        real(kind=sp) :: dum
@@ -4483,11 +4392,11 @@
     !!
     Subroutine Swap_Rm(A,B)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a
-       real(kind=sp), dimension(:,:), intent(in out) :: b
+       real(kind=cp), dimension(:,:), intent(in out) :: a
+       real(kind=cp), dimension(:,:), intent(in out) :: b
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a,1),size(a,2)) :: dum
+       real(kind=cp), dimension(size(a,1),size(a,2)) :: dum
 
        dum=a
        a=b
@@ -4507,11 +4416,11 @@
     !!
     Subroutine Swap_Rv(A,B)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in out) :: a
-       real(kind=sp), dimension(:), intent(in out) :: b
+       real(kind=cp), dimension(:), intent(in out) :: a
+       real(kind=cp), dimension(:), intent(in out) :: b
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a)) :: dum
+       real(kind=cp), dimension(size(a)) :: dum
 
        dum=a
        a=b
@@ -4532,12 +4441,12 @@
     !!
     Subroutine Masked_Swap_R(A,B,Mask)
        !---- Arguments ----!
-       real(kind=sp), intent(in out) :: a
-       real(kind=sp), intent(in out) :: b
+       real(kind=cp), intent(in out) :: a
+       real(kind=cp), intent(in out) :: b
        logical,           intent(in) :: mask
 
        !---- Local Variables ----!
-       real(kind=sp) :: swp
+       real(kind=cp) :: swp
 
        if (mask) then
           swp=a
@@ -4550,7 +4459,7 @@
 
     !!--++
     !!--++ Subroutine Masked_Swap_Rm(A,B,Mask)
-    !!--++    real(kind=sp), dimension(:,:),intent(in out) :: a,b
+    !!--++    real(kind=cp), dimension(:,:),intent(in out) :: a,b
     !!--++    logical,       dimension(:,:),    intent(in) :: mask
     !!--++
     !!--++    (OVERLOADED)
@@ -4560,12 +4469,12 @@
     !!
     Subroutine Masked_Swap_Rm(A,B,Mask)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a
-       real(kind=sp), dimension(:,:), intent(in out) :: b
+       real(kind=cp), dimension(:,:), intent(in out) :: a
+       real(kind=cp), dimension(:,:), intent(in out) :: b
        logical,       dimension(:,:), intent(in)     :: mask
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a,1),size(a,2)) :: swp
+       real(kind=cp), dimension(size(a,1),size(a,2)) :: swp
 
        where (mask)
           swp=a
@@ -4578,7 +4487,7 @@
 
     !!--++
     !!--++ Subroutine Masked_Swap_Rv(A,B,Mask)
-    !!--++    real(kind=sp), dimension(:),intent(in out) :: a,b
+    !!--++    real(kind=cp), dimension(:),intent(in out) :: a,b
     !!--++    logical,       dimension(:),    intent(in) :: mask
     !!--++
     !!--++    (OVERLOADED)
@@ -4588,12 +4497,12 @@
     !!
     Subroutine Masked_Swap_Rv(A,B,Mask)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in out) :: a
-       real(kind=sp), dimension(:), intent(in out) :: b
+       real(kind=cp), dimension(:), intent(in out) :: a
+       real(kind=cp), dimension(:), intent(in out) :: b
        logical,       dimension(:), intent(in)     :: mask
 
        !---- Local variables ----!
-       real(kind=sp), dimension(size(a))           :: swp
+       real(kind=cp), dimension(size(a))           :: swp
 
        where (mask)
           swp=a
@@ -4606,8 +4515,8 @@
 
     !!--++
     !!--++ Subroutine Tqli1(d,e,n)
-    !!--++    real(kind=sp), dimension(:), intent (in out):: d
-    !!--++    real(kind=sp), dimension(:), intent (in out):: e
+    !!--++    real(kind=cp), dimension(:), intent (in out):: d
+    !!--++    real(kind=cp), dimension(:), intent (in out):: e
     !!--++    integer,                     intent (in)    :: n
     !!--++
     !!--++    (PRIVATE)
@@ -4624,12 +4533,12 @@
     !!
     Subroutine Tqli1(d,e,n)
        !---- Arguments ----!
-       real(kind=sp), dimension(:), intent(in out):: d, e ! d(np),e(np)
+       real(kind=cp), dimension(:), intent(in out):: d, e ! d(np),e(np)
        integer,                     intent(in )   :: n
 
        !---- Local variables ----!
        integer      :: i, iter, l, m, mv
-       real(kind=sp):: b, c, dd, f, g, p, r, s, comp
+       real(kind=cp):: b, c, dd, f, g, p, r, s, comp
 
        call init_Err_MathGen()
        do i=2,n
@@ -4653,7 +4562,7 @@
              if (m /= l) then
                 if (iter == 40) then
                    ERR_MathGen=.true.
-                   ERR_Mess_MathGen=" Too many iterations in TQLI1"
+                   ERR_MathGen_Mess=" Too many iterations in TQLI1"
                    exit
                 end if
 
@@ -4696,10 +4605,10 @@
 
     !!--++
     !!--++ Subroutine Tqli2(d,e,n,z)
-    !!--++    real(kind=sp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=sp), dimension(:)  , intent (in out):: e
+    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
+    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
     !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=sp), dimension(:,:), intent (in out):: z
+    !!--++    real(kind=cp), dimension(:,:), intent (in out):: z
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
@@ -4720,13 +4629,13 @@
     !!
     Subroutine Tqli2(d,e,n,z)
        !---- Arguments ----!
-       real(kind=sp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
+       real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
        integer,                       intent(in )    :: n
-       real(kind=sp), dimension(:,:), intent(in out) :: z    ! z(np,np)
+       real(kind=cp), dimension(:,:), intent(in out) :: z    ! z(np,np)
 
        !---- Local Variables ----!
        integer       :: i, iter, k, l, m, mv
-       real(kind=sp) :: b, c, dd, f, g, p, r, s, comp
+       real(kind=cp) :: b, c, dd, f, g, p, r, s, comp
 
        call init_Err_MathGen()
        do i=2,n
@@ -4750,7 +4659,7 @@
              if (m /= l) then
                 if (iter == 40) then
                    ERR_MathGen=.true.
-                   ERR_Mess_MathGen=" Too many iterations in TQLI2"
+                   ERR_MathGen_Mess=" Too many iterations in TQLI2"
                    exit
                 end if
 
@@ -4802,10 +4711,10 @@
 
     !!--++
     !!--++ Subroutine Tred1(a,n,d,e)
-    !!--++    real(kind=sp), dimension(:,:), intent (in out):: a
+    !!--++    real(kind=cp), dimension(:,:), intent (in out):: a
     !!--++    integer,                       intent (in)    :: n
-    !!--++    real(kind=sp), dimension(:)  , intent (in out):: d
-    !!--++    real(kind=sp), dimension(:)  , intent (in out):: e
+    !!--++    real(kind=cp), dimension(:)  , intent (in out):: d
+    !!--++    real(kind=cp), dimension(:)  , intent (in out):: e
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find only eigenvalues
@@ -4820,13 +4729,13 @@
     !!
     Subroutine Tred1(a,n,d,e)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a    ! a(np,np)
+       real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
-       real(kind=sp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
+       real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
 
        !---- Local Variables ----!
        integer :: i, j, k, l
-       real(kind=sp)    :: f, g, h, hh, scala
+       real(kind=cp)    :: f, g, h, hh, scala
 
        do i=n,2,-1
           l=i-1
@@ -4886,10 +4795,10 @@
 
     !!--++
     !!--++ Subroutine Tred2(a,n,d,e)
-    !!--++    real(kind=sp), dimension(:,:), intent (in out) :: a
+    !!--++    real(kind=cp), dimension(:,:), intent (in out) :: a
     !!--++    integer,                       intent (in)     :: n
-    !!--++    real(kind=sp), dimension(:)  , intent (in out) :: d
-    !!--++    real(kind=sp), dimension(:)  , intent (in out) :: e
+    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: d
+    !!--++    real(kind=cp), dimension(:)  , intent (in out) :: e
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find the complete set
@@ -4903,13 +4812,13 @@
     !!
     Subroutine Tred2(a,n,d,e)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:), intent(in out) :: a    ! a(np,np)
+       real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
-       real(kind=sp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
+       real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
 
        !---- Local variables ----!
        integer :: i, j, k, l
-       real(kind=sp)    :: f, g, h, hh, scala
+       real(kind=cp)    :: f, g, h, hh, scala
 
        do i=n,2,-1
           l=i-1

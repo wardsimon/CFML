@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_FFT
@@ -132,6 +132,7 @@
 !!--..             Alan.Miller @ mel.dms.csiro.au
 !!--..
 !!---- DEPENDENCIES
+!!----    CFML_Constants, only: cp
 !!----
 !!---- VARIABLES
 !!--++    FFTKIND                  [Private]
@@ -168,11 +169,11 @@
 !!----
 !!
 Module CFML_FFT
-
    !---- Use Modules ----!
-
+   use CFML_Constants, only : cp
+   
    !---- Local Variables ----!
-   implicit None
+   implicit none
 
    private
 
@@ -266,17 +267,17 @@ Module CFML_FFT
    !!---- TYPE, public :: Points_Interval_Type
    !!--..
    !!---- Type, public :: Points_Interval_Type
-   !!----   integer    :: np
-   !!----   real       :: low
-   !!----   real       :: high
+   !!----   integer       :: Np
+   !!----   real(kind=cp) :: Low
+   !!----   real(kind=cp) :: High
    !!---- End Type Points_Interval_Type
    !!----
    !!---- Update: April 2005
    !!----
    Type, public :: Points_Interval_Type
-     integer    :: np
-     real       :: low
-     real       :: high
+     integer       :: Np
+     real(kind=cp) :: Low
+     real(kind=cp) :: High
    End Type Points_Interval_Type
    
    !---- Interfaces - Overlapp ----!
@@ -296,21 +297,21 @@ Module CFML_FFT
     
     !!----
     !!---- Pure Function Convol(F,Pf,G,Pg,Interval)  Result(Conv)
-    !!----    real,dimension(:),          intent(in) :: Pf
-    !!----    real,dimension(:),          intent(in) :: Pg
+    !!----    real(kind=cp),dimension(:),          intent(in) :: Pf
+    !!----    real(kind=cp),dimension(:),          intent(in) :: Pg
     !!----    type(Points_Interval_Type), intent(in) :: Interval
-    !!----    real, dimension(interval%np)           :: conv
+    !!----    real(kind=cp), dimension(interval%np)           :: conv
     !!----    Interface F_Function
     !!----       Pure Function f(x,parf)  result (vf)
-    !!----          real,              intent(in) :: x
-    !!----          real, dimension(:),intent(in) :: parf
-    !!----          real                          :: vf
+    !!----          real(kind=cp),              intent(in) :: x
+    !!----          real(kind=cp), dimension(:),intent(in) :: parf
+    !!----          real(kind=cp)                          :: vf
     !!----       End Function f
     !!----    End Interface F_Function
     !!----    Interface G_Function
     !!----       Pure function g(x,parg)  result (vg)
-    !!----          real, intent(in)              :: x
-    !!----          real, dimension(:),intent(in) :: parg
+    !!----          real(kind=cp), intent(in)              :: x
+    !!----          real(kind=cp), dimension(:),intent(in) :: parg
     !!----       End Function G
     !!----    End Interface G_Function
     !!----
@@ -335,28 +336,30 @@ Module CFML_FFT
     !!
     Pure Function Convol(F,Pf,G,Pg,Interval) Result(Conv)
        !---- Arguments ----!
-       real,dimension(:),          intent(in) :: pf
-       real,dimension(:),          intent(in) :: pg
+       real(kind=cp),dimension(:),          intent(in) :: pf
+       real(kind=cp),dimension(:),          intent(in) :: pg
        type(Points_Interval_Type), intent(in) :: interval
-       real, dimension(interval%np)           :: conv
+       real(kind=cp), dimension(interval%np)           :: conv
        Interface F_Function
           Pure function f(x,parf)  result (vf)
-             real,              intent(in) :: x
-             real, dimension(:),intent(in) :: parf
-             real                          :: vf
+             use CFML_Constants, only: cp
+             real(kind=cp),              intent(in) :: x
+             real(kind=cp), dimension(:),intent(in) :: parf
+             real(kind=cp)                          :: vf
           End Function F
        End Interface F_Function
        Interface G_Function
           Pure Function G(X,Parg)  Result (Vg)
-             real,              intent(in) :: x
-             real, dimension(:),intent(in) :: parg
-             real                          :: vg
+             use CFML_Constants, only: cp
+             real(kind=cp),              intent(in) :: x
+             real(kind=cp), dimension(:),intent(in) :: parg
+             real(kind=cp)                          :: vg
           End Function G
        End Interface G_Function
 
        !---- Local variables ----!
        integer                         :: i, n, nd2
-       real                            :: step,xvar, value, area
+       real(kind=cp)                   :: step,xvar, value, area
        complex, dimension(interval%np) :: fx,gx,convo
 
        n=interval%np-1
@@ -404,21 +407,21 @@ Module CFML_FFT
 
     !!----
     !!---- Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np)  Result(Conv)
-    !!----    real,dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
-    !!----    real,dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
-    !!----    real,                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-    !!----    integer,                    intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
+    !!----    real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
+    !!----    real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
+    !!----    real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
+    !!----    integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
     !!----    Interface F_Function
     !!----       Pure function f(x,parf)  result (vf)
-    !!----          real,              intent(in) :: x
-    !!----          real, dimension(:),intent(in) :: parf
-    !!----          real                          :: vf
+    !!----          real(kind=cp),              intent(in) :: x
+    !!----          real(kind=cp), dimension(:),intent(in) :: parf
+    !!----          real(kind=cp)                          :: vf
     !!----       End Function F
     !!----    End Interface F_Function
     !!----    Interface G_Function
     !!----       Pure function g(x,parg)  result (vg)
-    !!----          real, intent(in)              :: x
-    !!----          real, dimension(:),intent(in) :: parg
+    !!----          real(kind=cp), intent(in)              :: x
+    !!----          real(kind=cp), dimension(:),intent(in) :: parg
     !!----       End Function G
     !!----    End Interface G_Function
     !!----
@@ -443,32 +446,34 @@ Module CFML_FFT
     !!
     Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np) Result(Conv)
        !---- Arguments ----!
-       real,dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
-       real,dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
-       real,                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-       integer,                    intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
-       real, dimension(np)                    :: conv
+       real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
+       real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
+       real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
+       integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
+       real(kind=cp), dimension(np)                    :: conv
        Interface F_Function
           Pure Function F(X,Parf)  Result (Vf)
-             real,              intent(in) :: x
-             real, dimension(:),intent(in) :: parf
-             real                          :: vf
+             use CFML_Constants, only: cp
+             real(kind=cp),              intent(in) :: x
+             real(kind=cp), dimension(:),intent(in) :: parf
+             real(kind=cp)                          :: vf
           End Function F
        End Interface F_Function
        Interface G_Function
           Pure Function G(X,Parg) Result (Vg)
-             real,              intent(in) :: x
-             real, dimension(:),intent(in) :: parg
-             real                          :: vg
+             use CFML_Constants, only: cp
+             real(kind=cp),              intent(in) :: x
+             real(kind=cp), dimension(:),intent(in) :: parg
+             real(kind=cp)                          :: vg
           End Function G
        End Interface G_Function
 
        !---- Local variables ----!
-       integer                           :: i,j, n, nd2, m
-       real                              :: step, xvar, value, area, a,b, nstep
-       logical                           :: is_powerof2
-       complex, dimension(:),allocatable :: fx,gx,convo
-       real,    dimension(:),allocatable :: xv
+       integer                                 :: i,j, n, nd2, m
+       real(kind=cp)                           :: step, xvar, value, area, a,b, nstep
+       logical                                 :: is_powerof2
+       complex, dimension(:),allocatable       :: fx,gx,convo
+       real(kind=cp), dimension(:),allocatable :: xv
 
        ! m will be the effective number of points used in FFT
        do i=1,20
@@ -584,12 +589,12 @@ Module CFML_FFT
        complex, dimension(size(XX))           :: fft
 
        !---- Local variables ----!
-       integer                   :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
-       real                      :: r1, r2, s1, s2, s3, xt
-       real                      :: e, a, a3, cc1, ss1, cc3, ss3
-       real, parameter           :: twopi=6.2831853071795864769
-       real, dimension(size(XX)) :: x
-       real, dimension(size(XX)) :: y
+       integer                            :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
+       real(kind=cp)                      :: r1, r2, s1, s2, s3, xt
+       real(kind=cp)                      :: e, a, a3, cc1, ss1, cc3, ss3
+       real(kind=cp), parameter           :: twopi=6.2831853071795864769
+       real(kind=cp), dimension(size(XX)) :: x
+       real(kind=cp), dimension(size(XX)) :: y
 
        n=size(xx)
        m=0
@@ -1739,11 +1744,11 @@ Module CFML_FFT
        integer, dimension(3)              :: m,ngr,np
        integer, dimension(:), allocatable :: inv
 
-       real                               :: t,r,theta,root2,awr,awi
-       real                               :: ak0_0,ak0_1,ak1_0,ak1_1,ak2_0,ak2_1,ak3_0,ak3_1
-       real, dimension(2*size(aa))        :: a
-       real, dimension(2)                 :: w, w2, w3
-       real, dimension(:), allocatable    :: s
+       real(kind=cp)                               :: t,r,theta,root2,awr,awi
+       real(kind=cp)                               :: ak0_0,ak0_1,ak1_0,ak1_1,ak2_0,ak2_1,ak3_0,ak3_1
+       real(kind=cp), dimension(2*size(aa))        :: a
+       real(kind=cp), dimension(2)                 :: w, w2, w3
+       real(kind=cp), dimension(:), allocatable    :: s
 
        !---- Init ----!
        iferr = 0
@@ -2260,12 +2265,12 @@ Module CFML_FFT
        integer, optional,         intent(   out) :: Iferr
 
        !---- Local variables ----!
-       integer  :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
-       real     :: r1, r2, s1, s2, s3, xt
-       real     :: e, a, a3, cc1, ss1, cc3, ss3
-       real, parameter :: twopi=6.2831853071795864769
-       real, dimension(size(XX)) :: x
-       real, dimension(size(XX)) :: y
+       integer                            :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
+       real(kind=cp)                      :: r1, r2, s1, s2, s3, xt
+       real(kind=cp)                      :: e, a, a3, cc1, ss1, cc3, ss3
+       real(kind=cp), parameter           :: twopi=6.2831853071795864769
+       real(kind=cp), dimension(size(XX)) :: x
+       real(kind=cp), dimension(size(XX)) :: y
 
        n=size(xx)
        m=0

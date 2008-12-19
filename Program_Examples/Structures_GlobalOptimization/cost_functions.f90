@@ -3,7 +3,7 @@
       Use CFML_Geometry_Calc,             only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
                                                 allocate_coordination_type
       Use CFML_BVS_Energy_Calc,           only: Cost_BVS, Atoms_Conf_list_Type, species_on_list, &
-                                                Allocate_Atoms_Conf_list, err_conf, err_mess_conf, &
+                                                Allocate_Atoms_Conf_list, err_conf, err_conf_mess, &
                                                 Cost_BVS_CoulombRep, set_Table_d0_B
 
       use CFML_IO_Formats,                only: file_list_type
@@ -207,14 +207,14 @@
              Call Species_on_List(Ac,Spg%Multip,tol)
              if(err_conf) then
                err_cost=.true.
-               err_mess_cost=err_mess_conf
+               err_mess_cost=err_conf_mess
                return
              end if
 
              call set_Table_d0_B(Ac)
              if(err_conf) then
                err_cost=.true.
-               err_mess_cost=err_mess_conf
+               err_mess_cost=err_conf_mess
                return
              end if
              !Allocation of the global variable "Coord_Info" in Geom_Calculations

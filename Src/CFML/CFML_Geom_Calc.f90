@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Geometry_Calc
@@ -13,7 +13,8 @@
 !!----
 !!---- DEPENDENCIES
 !!--++    CFML_Math_3D:  Cross_Product
-!!--++    CFML_Math_General: Eps, Pi, Acosd, Cp, Sp, Cosd, Sind, To_Rad, To_Deg
+!!--++    CFML_Constants: Eps, Pi, Cp, Sp, To_Rad, To_Deg
+!!--++    CFML_Math_General: Acosd, Cosd, Sind
 !!--++    CFML_Crystal_Metrics: Crystal_Cell_Type
 !!----
 !!---- VARIABLES
@@ -21,7 +22,7 @@
 !!----    COORD_INFO
 !!--++    EPSI
 !!----    ERR_GEOM
-!!----    ERR_MESS_GEOM
+!!----    ERR_GEOM_MESS
 !!----    POINT_LIST_TYPE
 !!----
 !!---- PROCEDURES
@@ -67,7 +68,8 @@
  Module CFML_Geometry_Calc
 
     !---- Use Modules ----!
-    use CFML_Math_General,               only: Sp, Cp, eps, pi, acosd, cosd, sind, to_rad, to_deg, Modulo_Lat
+    use CFML_Constants,                 only: Sp, Cp, eps, pi, to_rad, to_deg
+    use CFML_Math_General,               only: acosd, cosd, sind, Modulo_Lat
     use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type, Get_Deriv_Orth_Cell
@@ -109,9 +111,9 @@
     !!----    integer,       dimension(:,:),   allocatable :: N_Cooatm  ! Pointer to the ordinal number in the list of the attached
     !!----                                                              ! atom to the atom given by the first index
     !!----    integer,       dimension(:,:),   allocatable :: N_Sym     !
-    !!----    real(kind=sp), dimension(:,:),   allocatable :: Dist      ! List of distances related to an atom
-    !!----    real(kind=sp), dimension(:,:),   allocatable :: S_Dist    ! List of Sigma(distances)
-    !!----    real(kind=sp), dimension(:,:,:), allocatable :: Tr_coo    !
+    !!----    real(kind=cp), dimension(:,:),   allocatable :: Dist      ! List of distances related to an atom
+    !!----    real(kind=cp), dimension(:,:),   allocatable :: S_Dist    ! List of Sigma(distances)
+    !!----    real(kind=cp), dimension(:,:,:), allocatable :: Tr_coo    !
     !!---- End type Coordination_Type
     !!----
     !!---- Update: February - 2005
@@ -123,9 +125,9 @@
        integer,       dimension(:,:),   allocatable :: N_Cooatm  ! Pointer to the ordinal number in the list of the attached
                                                                  ! atom to the atom given by the first index
        integer,       dimension(:,:),   allocatable :: N_Sym     ! Number of symmetry operator to apply to N_Cooatm
-       real(kind=sp), dimension(:,:),   allocatable :: Dist      ! List of distances related to an atom
-       real(kind=sp), dimension(:,:),   allocatable :: S_Dist    ! List of Sigma(distances)
-       real(kind=sp), dimension(:,:,:), allocatable :: Tr_coo
+       real(kind=cp), dimension(:,:),   allocatable :: Dist      ! List of distances related to an atom
+       real(kind=cp), dimension(:,:),   allocatable :: S_Dist    ! List of Sigma(distances)
+       real(kind=cp), dimension(:,:,:), allocatable :: Tr_coo
     End type Coordination_Type
 
     !!----
@@ -140,14 +142,14 @@
 
     !!--++
     !!--++ EPSI
-    !!--++    real(kind=sp), parameter :: epsi=0.001
+    !!--++    real(kind=cp), parameter :: epsi=0.001
     !!--++
     !!--++    (PRIVATE)
     !!--++    Epsilon for roughly comparing distances
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private :: epsi=0.001
+    real(kind=cp), parameter, private :: epsi=0.001
 
     !!----
     !!---- ERR_GEOM
@@ -160,14 +162,14 @@
     logical, public  :: err_geom
 
     !!----
-    !!---- ERR_MESS_GEOM
-    !!----    character(len=150), public :: err_mess_geom
+    !!---- ERR_Geom_Mess
+    !!----    character(len=150), public :: ERR_Geom_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_geom
+    character(len=150), public :: ERR_Geom_Mess
 
 
     !!----
@@ -177,7 +179,7 @@
     !!----    integer                                       :: np   !number of points in list
     !!----    character(len=12), dimension(:),  allocatable :: nam  !name/label associated to each point
     !!----    integer,           dimension(:),  allocatable :: p    !integer pointer for various purposes
-    !!----    real,              dimension(:,:),allocatable :: x    !fractional coordinates of points
+    !!----    real(kind=cp)      dimension(:,:),allocatable :: x    !fractional coordinates of points
     !!---- End type Point_List_Type
     !!----
     !!---- Update: February - 2005
@@ -186,7 +188,7 @@
        integer                                       :: np   !number of points in list
        character(len=12), dimension(:),  allocatable :: nam  !name/label associated to each point
        integer,           dimension(:),  allocatable :: p    !integer pointer for various purposes
-       real,              dimension(:,:),allocatable :: x    !fractional coordinates of points
+       real(kind=cp),     dimension(:,:),allocatable :: x    !fractional coordinates of points
     End type point_list_type
 
 
@@ -495,7 +497,7 @@
        real(kind=cp), intent(in) :: x
        real(kind=cp)             :: xmod
 
-       xmod=mod(x+10.0_sp,1.0_sp)
+       xmod=mod(x+10.0_cp,1.0_cp)
 
        return
     End Function Coord_ModN
@@ -514,19 +516,19 @@
        real(kind=cp), dimension(:), intent(in) :: x
        real(kind=cp), dimension(size(x))       :: xmod
 
-       xmod=mod(x+10.0_sp,1.0_sp)
+       xmod=mod(x+10.0_cp,1.0_cp)
 
        return
     End Function Coord_ModV
 
     !!----
     !!---- Function Distance(X0,X1,Cell or Code) Result(D)
-    !!----    real(kind=sp), dimension(3),        intent(in) :: x0     !  In -> Point 1
-    !!----    real(kind=sp), dimension(3),        intent(in) :: x1     !  In -> Point 2
+    !!----    real(kind=cp), dimension(3),        intent(in) :: x0     !  In -> Point 1
+    !!----    real(kind=cp), dimension(3),        intent(in) :: x1     !  In -> Point 2
     !!----    Type (Crystal_Cell_Type),           intent(in) :: Cell   !  In -> Cell parameters
     !!----    Or
     !!----    character(len=*), optional,         intent(in) :: Code
-    !!----    real(kind=sp)                                  :: d      ! Out -> Distance
+    !!----    real(kind=cp)                                  :: d      ! Out -> Distance
     !!----
     !!----    Calculate distance between two points.
     !!----       Fractional Coordinates: Use Cell
@@ -538,10 +540,10 @@
 
     !!--++
     !!--++ Function Distance_Fr(X0,X1,Celda) Result(D)
-    !!--++    real(kind=sp), dimension(3),  intent(in) :: x0     !  In -> Point 1
-    !!--++    real(kind=sp), dimension(3),  intent(in) :: x1     !  In -> Point 2
+    !!--++    real(kind=cp), dimension(3),  intent(in) :: x0     !  In -> Point 1
+    !!--++    real(kind=cp), dimension(3),  intent(in) :: x1     !  In -> Point 2
     !!--++    Type (Crystal_Cell_Type),     intent(in) :: Celda  !  In -> Cell parameters
-    !!--++    real(kind=sp)                                  :: d      ! Put -> Distance
+    !!--++    real(kind=cp)                                  :: d      ! Put -> Distance
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate distance between two points in Fractional
@@ -550,12 +552,12 @@
     !!
     Function Distance_Fr(X0,X1,Celda) Result(Dis)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: x0,x1
+       real(kind=cp), dimension(3), intent(in) :: x0,x1
        type (Crystal_Cell_Type),    intent(in) :: Celda
-       real(kind=sp)                           :: dis
+       real(kind=cp)                           :: dis
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3) :: xr
+       real(kind=cp), dimension(3) :: xr
 
        xr = matmul(celda%Cr_Orth_cel,x1-x0)
        dis=sqrt(dot_product(xr,xr))
@@ -565,10 +567,10 @@
 
     !!--++
     !!--++ Function Distance_SC(X0,X1,Code) Result(D)
-    !!--++    real(kind=sp), dimension(3),        intent(in) :: x0     !  In -> Point 1
-    !!--++    real(kind=sp), dimension(3),        intent(in) :: x1     !  In -> Point 2
+    !!--++    real(kind=cp), dimension(3),        intent(in) :: x0     !  In -> Point 1
+    !!--++    real(kind=cp), dimension(3),        intent(in) :: x1     !  In -> Point 2
     !!--++    character(len=*), optional,         intent(in) :: Code
-    !!--++    real(kind=sp)                                  :: d      ! Put -> Distance
+    !!--++    real(kind=cp)                                  :: d      ! Put -> Distance
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate distance between two points in Cartesian or Spherical
@@ -579,12 +581,12 @@
     !!
     Function Distance_SC(X0,X1,Code) Result(Dis)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: x0,x1
+       real(kind=cp), dimension(3), intent(in) :: x0,x1
        character(len=*), optional,  intent(in) :: Code
-       real(kind=sp)                           :: dis
+       real(kind=cp)                           :: dis
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3) :: xr,xi,xj
+       real(kind=cp), dimension(3) :: xr,xi,xj
 
        xr=0.0
        if (present(code)) then
@@ -613,11 +615,11 @@
 
     !!----
     !!---- Function Matrix_Phithechi(Phi,Theta,Chi,Code) Result(M)
-    !!----    real(kind=sp),                intent(in) :: Phi
-    !!----    real(kind=sp),                intent(in) :: Theta
-    !!----    real(kind=sp),                intent(in) :: Chi
+    !!----    real(kind=cp),                intent(in) :: Phi
+    !!----    real(kind=cp),                intent(in) :: Theta
+    !!----    real(kind=cp),                intent(in) :: Chi
     !!----    character(len=*), optional,   intent(in) :: Code
-    !!----    real(kind=sp), dimension(3,3)            :: M    ! Put -> Active Rotation Matrix
+    !!----    real(kind=cp), dimension(3,3)            :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the composition
     !!----    of a rotation around z of angle Chi, followed by a rotation of angle Theta
@@ -636,14 +638,14 @@
     !!
     Function Matrix_Phithechi(Phi,Theta,Chi,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=sp),                intent(in) :: Phi
-       real(kind=sp),                intent(in) :: Theta
-       real(kind=sp),                intent(in) :: Chi
+       real(kind=cp),                intent(in) :: Phi
+       real(kind=cp),                intent(in) :: Theta
+       real(kind=cp),                intent(in) :: Chi
        character(len=*), optional,   intent(in) :: Code
-       real(kind=sp), dimension(3,3)            :: Mt
+       real(kind=cp), dimension(3,3)            :: Mt
 
        !---- Local Variables ----!
-       real(kind=sp) :: p,t,c
+       real(kind=cp) :: p,t,c
 
        if (present(code)) then
           select case (code(1:1))
@@ -677,9 +679,9 @@
 
     !!----
     !!---- Function Matrix_Rx(Phi,Code) Result(M)
-    !!----    real(kind=sp),                      intent(in) :: Phi
+    !!----    real(kind=cp),                      intent(in) :: Phi
     !!----    character(len=*), optional,         intent(in) :: Code
-    !!----    real(kind=sp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
+    !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the x-axis.
@@ -690,12 +692,12 @@
     !!
     Function Matrix_Rx(Phi,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=sp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Phi
        character(len=*), optional,  intent(in) :: Code
-       real(kind=sp), dimension(3,3)           :: Mt
+       real(kind=cp), dimension(3,3)           :: Mt
 
        !---- Local Variables ----!
-       real(kind=sp) :: p
+       real(kind=cp) :: p
 
        if (present(code)) then
           select case (code(1:1))
@@ -723,9 +725,9 @@
 
     !!----
     !!---- Function Matrix_Ry(Phi,Code) Result(M)
-    !!----    real(kind=sp),                      intent(in) :: Phi
+    !!----    real(kind=cp),                      intent(in) :: Phi
     !!----    character(len=*), optional,         intent(in) :: Code
-    !!----    real(kind=sp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
+    !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the y-axis.
@@ -736,12 +738,12 @@
     !!
     Function Matrix_Ry(Phi,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=sp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Phi
        character(len=*), optional,  intent(in) :: Code
-       real(kind=sp), dimension(3,3)           :: Mt
+       real(kind=cp), dimension(3,3)           :: Mt
 
        !---- Local Variables ----!
-       real(kind=sp) :: p
+       real(kind=cp) :: p
 
        if (present(code)) then
           select case (code(1:1))
@@ -769,9 +771,9 @@
 
     !!----
     !!---- Function Matrix_Rz(Phi,Code) Result(M)
-    !!----    real(kind=sp),                      intent(in) :: Phi
+    !!----    real(kind=cp),                      intent(in) :: Phi
     !!----    character(len=*), optional,         intent(in) :: Code
-    !!----    real(kind=sp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
+    !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the z-axis.
@@ -782,12 +784,12 @@
     !!
     Function Matrix_Rz(Phi,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=sp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Phi
        character(len=*), optional,  intent(in) :: Code
-       real(kind=sp), dimension(3,3)           :: Mt
+       real(kind=cp), dimension(3,3)           :: Mt
 
        !---- Local Variables ----!
-       real(kind=sp) :: p
+       real(kind=cp) :: p
 
        if (present(code)) then
           select case (code(1:1))
@@ -821,7 +823,7 @@
     !!---- Subroutine Allocate_Coordination_Type(nasu,numops,dmax,Max_Coor)
     !!----    integer,       intent(in) :: nasu      !  In -> Number of atoms in asymmetric unit
     !!----    integer,       intent(in) :: numops    !  In -> Number of S.O. excluding lattice centerings
-    !!----    real(kind=sp), intent(in) :: dmax      !  In -> Maximun distance to be calculated
+    !!----    real(kind=cp), intent(in) :: dmax      !  In -> Maximun distance to be calculated
     !!----    integer,      intent(out) :: Max_Coor  !  Maximum coordination allowed
     !!----
     !!----    Allocation of Coordination_Type.
@@ -833,7 +835,7 @@
        !---- Arguments ----!
        integer,       intent(in) :: nasu
        integer,       intent(in) :: numops
-       real(kind=sp), intent(in) :: dmax
+       real(kind=cp), intent(in) :: dmax
        integer,      intent(out) :: Max_Coor
 
        !---- local variables ----!
@@ -907,8 +909,8 @@
 
     !!----
     !!---- Subroutine Calc_Dist_Angle(Dmax, Dangl, Cell, Spg, A, Lun)
-    !!----    real(kind=sp),            intent(in)             :: dmax   !  In -> Max. Distance to calculate
-    !!----    real(kind=sp),            intent(in)             :: dangl  !  In -> Max. distance for angle calculations
+    !!----    real(kind=cp),            intent(in)             :: dmax   !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),            intent(in)             :: dangl  !  In -> Max. distance for angle calculations
     !!----    type (Crystal_cell_type), intent(in)             :: Cell   !  In -> Object of Crytal_Cell_Type
     !!----    type (Space_Group_type),  intent(in)             :: SpG    !  In -> Object of Space_Group_Type
     !!----    type (atom_list_type),   intent(in)             :: A      !  In -> Object of atom_list_type
@@ -926,7 +928,7 @@
     !!
     Subroutine Calc_Dist_Angle(Dmax, Dangl, Cell, Spg, A, Lun)
        !---- Arguments ----!
-       real(kind=sp),            intent(in)   :: Dmax, Dangl
+       real(kind=cp),            intent(in)   :: Dmax, Dangl
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
        type (atom_list_type),   intent(in)   :: A
@@ -942,11 +944,11 @@
        character(len= 90)                 :: form2= &
                                              "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
        integer, dimension(3)              :: ic1,ic2
-       real(kind=sp),    dimension(3)     :: xx,x1,xo,Tn,xr, QD
-       real(kind=sp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
+       real(kind=cp),    dimension(3)     :: xx,x1,xo,Tn,xr, QD
+       real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
 
-       real(kind=sp), allocatable,dimension(:,:) :: uu
-       real(kind=sp), allocatable,dimension(:,:) :: bcoo
+       real(kind=cp), allocatable,dimension(:,:) :: uu
+       real(kind=cp), allocatable,dimension(:,:) :: bcoo
 
        iprin=.false.
        if (present(lun)) then
@@ -1033,7 +1035,7 @@
 
                             if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                                err_geom=.true.
-                               err_mess_geom=" => Too many distances around atom: "//nam
+                               ERR_Geom_Mess=" => Too many distances around atom: "//nam
                                return
                             end if
 
@@ -1075,11 +1077,11 @@
                 xx(:)=bcoo(:,k)-bcoo(:,j)
                 xr = matmul(Cell%Cr_Orth_cel,xx)
                 da12=sqrt(dot_product(xr,xr))
-                cang12=0.5_sp*(da1/da2+da2/da1-da12*da12/da1/da2)
+                cang12=0.5_cp*(da1/da2+da2/da1-da12*da12/da1/da2)
                 ang12=acosd(cang12)
-                cang1=0.5_sp*(da12/da2+da2/da12-da1*da1/da12/da2)
+                cang1=0.5_cp*(da12/da2+da2/da12-da1*da1/da12/da2)
                 ang1=acosd(cang1)
-                ang2=180.0_sp-ang1-ang12
+                ang2=180.0_cp-ang1-ang12
 
                 if (iprin) then
                     write(unit=lun,fmt="(/,3(a,f8.4))")  &
@@ -1097,8 +1099,8 @@
 
     !!----
     !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
-    !!----    real(kind=sp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
-    !!----    real(kind=sp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
+    !!----    real(kind=cp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
     !!----    type (Crystal_cell_type), intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
     !!----    type (Space_Group_type),  intent(in)   :: SpG      !  In -> Object of Space_Group_Type
     !!----    type (atom_list_type),    intent(in)   :: A        !  In -> Object of atom_list_type
@@ -1118,7 +1120,7 @@
     !!
     Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
        !---- Arguments ----!
-       real(kind=sp),            intent(in)   :: dmax, dangl
+       real(kind=cp),            intent(in)   :: dmax, dangl
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
        type (atom_list_type),    intent(in)   :: A
@@ -1140,15 +1142,15 @@
                                              "("" "",3I4,""  ("",a ,"")-("",a ,""):"",a12,""   "",a,""  "",3F9.5)"
        integer, dimension(3)              :: ic1,ic2
        integer, dimension(192)            :: itnum
-       real(kind=sp),dimension(3,3,6)     :: DerM
-       real(kind=sp),    dimension(3)     :: xx,x1,xo,Tn, QD,so,ss,s1,s2,x2,tr1,tr2
-       real(kind=sp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
-       real(kind=sp)                      :: sdd,sda1,sda2,sda12,sang12,sang2,sang1,srel1,srel2,srel12
+       real(kind=cp),dimension(3,3,6)     :: DerM
+       real(kind=cp),    dimension(3)     :: xx,x1,xo,Tn, QD,so,ss,s1,s2,x2,tr1,tr2
+       real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
+       real(kind=cp)                      :: sdd,sda1,sda2,sda12,sang12,sang2,sang1,srel1,srel2,srel12
 
-       real(kind=sp), allocatable, dimension(:,:) :: uu
-       real(kind=sp), allocatable, dimension(:,:) :: bcoo
-       real(kind=sp), allocatable, dimension(:,:) :: sbcoo
-       real(kind=sp), allocatable, dimension(:,:) :: trcoo
+       real(kind=cp), allocatable, dimension(:,:) :: uu
+       real(kind=cp), allocatable, dimension(:,:) :: bcoo
+       real(kind=cp), allocatable, dimension(:,:) :: sbcoo
+       real(kind=cp), allocatable, dimension(:,:) :: trcoo
 
        character(len=132), dimension(:), allocatable  :: const_text
        character(len=132), dimension(:), allocatable  :: dist_text
@@ -1318,7 +1320,7 @@
                             Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
                             if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                                err_geom=.true.
-                               err_mess_geom=" => Too many distances around atom: "//nam
+                               ERR_Geom_Mess=" => Too many distances around atom: "//nam
                                return
                             end if
                             lk=lk+1
@@ -1440,11 +1442,11 @@
                 call distance_and_sigma(Cell,derM,x1,x2,s1,s2,da12,sda12)
                 if( da12 < 0.0001) cycle
 
-                cang12=0.5_sp*(da1/da2+da2/da1-da12*da12/da1/da2)
+                cang12=0.5_cp*(da1/da2+da2/da1-da12*da12/da1/da2)
                 ang12=ACOSd(cang12)
-                cang1=0.5_sp*(da12/da2+da2/da12-da1*da1/da12/da2)
+                cang1=0.5_cp*(da12/da2+da2/da12-da1*da1/da12/da2)
                 ang1=ACOSd(cang1)
-                ang2=180.0_sp-ang1-ang12
+                ang2=180.0_cp-ang1-ang12
 
                ! if(abs(abs(cang12)-1.0) < 0.0001) then
                !   sang12=0.0
@@ -1665,23 +1667,23 @@
     !!----
     !!---- Subroutine Distance_and_Sigma(Cellp,DerM,x0,x1,s0,s1,dis,s)
     !!----    Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
-    !!----    real(kind=sp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
-    !!----    real(kind=sp), dimension(3),     intent(in)  :: x0,x1,s0,s1   ! Two points in fractional coordinates and sigmas
-    !!----    real(kind=sp),                   intent(out) :: dis,s         ! Distance and sigma
+    !!----    real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
+    !!----    real(kind=cp), dimension(3),     intent(in)  :: x0,x1,s0,s1   ! Two points in fractional coordinates and sigmas
+    !!----    real(kind=cp),                   intent(out) :: dis,s         ! Distance and sigma
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Distance_and_Sigma(Cellp,DerM,x0,x1,s0,s1,dis,s)
        !---- Arguments ----!
        Type(Crystal_Cell_Type),         intent(in)  :: Cellp         ! Cell object
-       real(kind=sp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
-       real(kind=sp), dimension(3),     intent(in)  :: x0,x1,s0,s1   ! Two points in fractional coordinates and sigmas
-       real(kind=sp),                   intent(out) :: dis,s         ! Distance and sigma
+       real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
+       real(kind=cp), dimension(3),     intent(in)  :: x0,x1,s0,s1   ! Two points in fractional coordinates and sigmas
+       real(kind=cp),                   intent(out) :: dis,s         ! Distance and sigma
 
        !---- Local variables ----!
        integer                     :: i
-       real(kind=sp), dimension(3) :: xc,xf
-       real(kind=sp), dimension(6) :: dc,df
+       real(kind=cp), dimension(3) :: xc,xf
+       real(kind=cp), dimension(6) :: dc,df
 
        xf=x1-x0
        xc = matmul(cellp%Cr_Orth_cel,xf)
@@ -1706,10 +1708,10 @@
 
     !!----
     !!----  Subroutine Get_Euler_From_Fract(X1,X2,X3,Mt,Phi,Theta,Chi,Eum,Code)
-    !!----    real(kind=sp),           dimension(3),   intent (in) :: x1,x2,x3
-    !!----    real(kind=sp),           dimension(3,3), intent (in) :: M !Matrix transforming to Cartesian coordinates
-    !!----    real(kind=sp),                           intent(out) :: theta,phi,chi
-    !!----    real(kind=sp), optional, dimension(3,3), intent(out) :: EuM
+    !!----    real(kind=cp),           dimension(3),   intent (in) :: x1,x2,x3
+    !!----    real(kind=cp),           dimension(3,3), intent (in) :: M !Matrix transforming to Cartesian coordinates
+    !!----    real(kind=cp),                           intent(out) :: theta,phi,chi
+    !!----    real(kind=cp), optional, dimension(3,3), intent(out) :: EuM
     !!----    character(len=*), optional,              intent (in) :: Code
     !!----
     !!----  Subroutine to obtain the Euler angles (2nd setting) of a Cartesian frame having
@@ -1720,15 +1722,15 @@
     !!
     Subroutine Get_Euler_From_Fract(X1,X2,X3,Mt,Phi,Theta,Chi,Eum,Code)
        !---- Arguments ----!
-       real(kind=sp),           dimension(3),   intent (in) :: x1,x2,x3
-       real(kind=sp),           dimension(3,3), intent (in) :: Mt
-       real(kind=sp),                           intent(out) :: theta,phi,chi
-       real(kind=sp), optional, dimension(3,3), intent(out) :: EuM
+       real(kind=cp),           dimension(3),   intent (in) :: x1,x2,x3
+       real(kind=cp),           dimension(3,3), intent (in) :: Mt
+       real(kind=cp),                           intent(out) :: theta,phi,chi
+       real(kind=cp), optional, dimension(3,3), intent(out) :: EuM
        character(len=*), optional,              intent (in) :: Code
 
        !---- Local variables ----!
-       real(kind=sp), dimension(3)   :: u,v,w
-       real(kind=sp), dimension(3,3) :: rot
+       real(kind=cp), dimension(3)   :: u,v,w
+       real(kind=cp), dimension(3,3) :: rot
 
 !  U = ( cosPhi cosTheta cosChi - sinPhi sinChi,   sinPhi cosTheta cosChi+cosPhi sinChi,  -sinTheta cosChi)
 !  V = (-sinPhi cosChi   - cosPhi cosTheta sinChi, cosPhi cosChi -sinPhi cosTheta sinChi,  sinTheta sinChi)
@@ -1765,10 +1767,10 @@
 
     !!----
     !!---- Subroutine Get_PhiTheChi(Mt,Phi,Theta,Chi,Code)
-    !!----    real(kind=sp), dimension(3,3),intent(in)  :: Mt
-    !!----    real(kind=sp),                intent(out) :: Phi
-    !!----    real(kind=sp),                intent(out) :: Theta
-    !!----    real(kind=sp),                intent(out) :: Chi
+    !!----    real(kind=cp), dimension(3,3),intent(in)  :: Mt
+    !!----    real(kind=cp),                intent(out) :: Phi
+    !!----    real(kind=cp),                intent(out) :: Theta
+    !!----    real(kind=cp),                intent(out) :: Chi
     !!----    character(len=*), optional,   intent(in)  :: Code
     !!----
     !!----    Calculate the Euler Angles corresponding to an orthogonal matrix
@@ -1787,22 +1789,22 @@
     !!
     Subroutine Get_PhiTheChi(Mt,Phi,Theta,Chi,Code)
        !---- Arguments ----!
-       real(kind=sp), dimension(3,3),intent(in)  :: Mt
-       real(kind=sp),                intent(out) :: Phi
-       real(kind=sp),                intent(out) :: Theta
-       real(kind=sp),                intent(out) :: Chi
+       real(kind=cp), dimension(3,3),intent(in)  :: Mt
+       real(kind=cp),                intent(out) :: Phi
+       real(kind=cp),                intent(out) :: Theta
+       real(kind=cp),                intent(out) :: Chi
        character(len=*), optional,   intent(in)  :: Code
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3,3):: MTT
-       real(kind=sp), parameter, dimension(3,3) :: &
+       real(kind=cp), dimension(3,3):: MTT
+       real(kind=cp), parameter, dimension(3,3) :: &
                       identity = reshape ( (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
 
        MTT=transpose(Mt)
        MTT=matmul(MTT,Mt)-identity
        if (sum(abs(MTT)) > 5.0*eps) then
           err_geom=.true.
-          err_mess_geom=" Error in Get_PhiTheChi ... the input matrix is not orthogonal! "
+          ERR_Geom_Mess=" Error in Get_PhiTheChi ... the input matrix is not orthogonal! "
           return
        end if
        if (abs(Mt(3,3)-1.0) < eps) then  !M(3,3)=cos(Theta)
@@ -1936,14 +1938,14 @@
     Subroutine Init_Err_Geom()
 
        err_geom=.false.
-       err_mess_geom=" "
+       ERR_Geom_Mess=" "
 
        return
     End Subroutine Init_Err_Geom
 
     !!----
     !!---- Subroutine P1_Dist(Dmax, Cell, Spg, Ac, Lun)
-    !!----    real(kind=sp),            intent(in)    :: dmax      !  In -> Max. Distance to be calculated
+    !!----    real(kind=cp),            intent(in)    :: dmax      !  In -> Max. Distance to be calculated
     !!----    type (Crystal_cell_Type), intent(in)    :: Cell      !  In -> Object of Crystal_cell_Type
     !!----    type (Space_Group_Type),  intent(in)    :: SpG       !  In -> Object of Space_Group_Type
     !!----    type (Atoms_Cell_Type),   intent(in out):: Ac        !  In -> Object of Atoms_Cell_Type
@@ -1960,7 +1962,7 @@
     !!
     Subroutine P1_Dist(Dmax, Cell, Spg, Ac, Lun)
        !---- Arguments ----!
-       real(kind=sp),            intent(in)       :: dmax
+       real(kind=cp),            intent(in)       :: dmax
        type (Crystal_cell_Type), intent(in)       :: Cell
        type (Space_Group_Type),  intent(in)       :: SpG
        type (Atoms_Cell_Type),   intent(in out)   :: Ac
@@ -1975,9 +1977,9 @@
        integer                                :: i,k,lk,i1,i2,i3,jl,nn,L,inew,ne,id
        integer, dimension(3)                  :: ic1,ic2
        integer, dimension(Ac%nat,Ac%nat)      :: mn  !neighbouring matrix
-       real(kind=sp)                          :: T,dd
-       real(kind=sp), dimension(3)            :: xx,x1,xo,Tn,xr, QD
-       real(kind=sp), dimension(3,Ac%nat*Ac%nat*spg%multip) :: u
+       real(kind=cp)                          :: T,dd
+       real(kind=cp), dimension(3)            :: xx,x1,xo,Tn,xr, QD
+       real(kind=cp), dimension(3,Ac%nat*Ac%nat*spg%multip) :: u
 
        iprint=.false.
        if (present(lun)) then
@@ -2034,7 +2036,7 @@
                          ne=ne+1
                          IF (ne > id) THEN
                             err_geom=.true.
-                            err_mess_geom="Too many connected atoms! in sub. P1_dist"
+                            ERR_Geom_Mess="Too many connected atoms! in sub. P1_dist"
                             return
                          END IF
                          Ac%neighb_atom(i,ne)=k    !Pointer to the number of atom connected to i
@@ -2075,7 +2077,7 @@
     !!----
     !!---- Subroutine Print_Distances(Lun, Dmax, Cell, Spg, A)
     !!----    integer,                  intent(in)   :: lun    !  In -> Logical Unit for writing
-    !!----    real(kind=sp),            intent(in)   :: dmax   !  In -> Max. Distance to be calculated
+    !!----    real(kind=cp),            intent(in)   :: dmax   !  In -> Max. Distance to be calculated
     !!----    type (Crystal_cell_Type), intent(in)   :: Cell   !  In -> Object of Crystal_cell_Type
     !!----    type (Space_Group_Type),  intent(in)   :: SpG    !  In -> Object of Space_Group_Type
     !!----    type (atom_list_type),   intent(in)   :: A      !  In -> Object of atom_list_type
@@ -2091,7 +2093,7 @@
     Subroutine Print_Distances(Lun, Dmax, Cell, Spg, A)
        !-- Arguments --!
        integer,                  intent(in)   :: lun
-       real(kind=sp),            intent(in)   :: dmax
+       real(kind=cp),            intent(in)   :: dmax
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
        type (atom_list_type),   intent(in)   :: A
@@ -2104,9 +2106,9 @@
        character(len=54)                 :: form2= &
                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
        integer,          dimension(3)    :: ic1,ic2
-       real(kind=sp),    dimension(3)    :: xx,x1,xo,Tn,xr, QD
-       real(kind=sp)                     :: T,dd
-       real(kind=sp), dimension(3,A%Natoms*Spg%multip) :: uu
+       real(kind=cp),    dimension(3)    :: xx,x1,xo,Tn,xr, QD
+       real(kind=cp)                     :: T,dd
+       real(kind=cp), dimension(3,A%Natoms*Spg%multip) :: uu
 
        qd(:)=1.0/cell%rcell(:)
        ic2(:)= nint(dmax/cell%cell(:)+1.0)
@@ -2226,8 +2228,8 @@
     !!----
     !!---- Subroutine Set_TDist_Coordination(Max_coor,Dmax, Cell, Spg, A)
     !!----    integer,                  intent(in)   :: max_coor !  Maximum expected coordination
-    !!----    real(kind=sp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
-    !!----    real(kind=sp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
+    !!----    real(kind=cp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
     !!----    type (Crystal_cell_type), intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
     !!----    type (Space_Group_type),  intent(in)   :: SpG      !  In -> Object of Space_Group_Type
     !!----    type (atom_list_type),   intent(in)    :: A        !  In -> Object of atom_list_type
@@ -2245,7 +2247,7 @@
     Subroutine Set_TDist_Coordination(max_coor,Dmax, Cell, Spg, A)
        !---- Arguments ----!
        integer,                  intent(in)   :: max_coor
-       real(kind=sp),            intent(in)   :: dmax
+       real(kind=cp),            intent(in)   :: dmax
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
        type (atom_list_type),    intent(in)   :: A
@@ -2253,9 +2255,9 @@
        !---- Local Variables ----!
        integer                              :: i,j,k,lk,i1,i2,i3,nn,L
        integer,       dimension(3)          :: ic1,ic2
-       real(kind=sp), dimension(3)          :: xx,x1,xo,Tn,xr, QD
-       real(kind=sp)                        :: T,dd
-       real(kind=sp), dimension(3,max_coor) :: uu
+       real(kind=cp), dimension(3)          :: xx,x1,xo,Tn,xr, QD
+       real(kind=cp)                        :: T,dd
+       real(kind=cp), dimension(3,max_coor) :: uu
 
       ! call init_err_geom()  !Control of error
 
@@ -2289,7 +2291,7 @@
                            ! Control not performed ... it is supposed that max_coor is large enough
                            !if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                            !   err_geom=.true.
-                           !   err_mess_geom=" => Too many distances around an atom"
+                           !   ERR_Geom_Mess=" => Too many distances around an atom"
                            !   return
                            !end if
                             lk=lk+1

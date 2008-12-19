@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Simulated_Annealing
@@ -33,7 +33,7 @@
 !!----    SIMANN_CONDITIONS_TYPE
 !!----    STATE_VECTOR_TYPE
 !!--..
-!!----    ERR_MESS_SAN
+!!----    ERR_San_Mess
 !!----    ERR_SAN
 !!----
 !!---- PROCEDURES
@@ -214,14 +214,14 @@
     End Type State_Vector_Type
 
     !!----
-    !!---- ERR_MESS_SAN
-    !!----    character (len=150), public  :: err_mess_SAN
+    !!---- ERR_SAN_MESS
+    !!----    character (len=150), public  :: ERR_San_Mess
     !!----
     !!----    Error message provided if an error condition occurs.
     !!----
     !!---- Update: February - 2005
     !!
-    character (len=150), public   :: err_mess_SAN=" "
+    character (len=150), public   :: ERR_San_Mess=" "
 
     !!----
     !!---- ERR_SAN
@@ -304,12 +304,12 @@
        err_san=.false.
        if (vs%npar == 0) then
           err_san=.true.
-          err_mess_san=" Zero parameters for the vector state: PROVIDE a number > 0 for variable: NPAR"
+          ERR_San_Mess=" Zero parameters for the vector state: PROVIDE a number > 0 for variable: NPAR"
           return
        end if
        if (c%nm_cycl <= 1) then
           err_san=.true.
-          err_mess_san=" Too small value for the number of MCcycles/Temp : PROVIDE a number > 1 for variable: NM_CYCL"
+          ERR_San_Mess=" Too small value for the number of MCcycles/Temp : PROVIDE a number > 1 for variable: NM_CYCL"
           return
        end if
 
@@ -360,12 +360,12 @@
        err_san=.false.
        if (vs%npar == 0) then
           err_san=.true.
-          err_mess_san=" Zero parameters for the vector state: PROVIDE a number > 0 for variable: NPAR"
+          ERR_San_Mess=" Zero parameters for the vector state: PROVIDE a number > 0 for variable: NPAR"
           return
        end if
        if (c%nm_cycl <= 1) then
           err_san=.true.
-          err_mess_san=" Too small value for the number of MCcycles/Temp : PROVIDE a number > 1 for variable: NM_CYCL"
+          ERR_San_Mess=" Too small value for the number of MCcycles/Temp : PROVIDE a number > 1 for variable: NM_CYCL"
           return
        end if
 
@@ -596,7 +596,7 @@
 
        call checkm(c,vs)
        if (err_san) then
-          call mess(err_mess_san)
+          call mess(ERR_San_Mess)
           return
        end if
 
@@ -1046,15 +1046,15 @@
        if (notset) then
           err_SAN =.true.
           if (noinst) then
-             err_mess_SAN=" => No Simulated Annealing conditions in input file "
+             ERR_San_Mess=" => No Simulated Annealing conditions in input file "
           else if(.not. tempar) then
-             err_mess_SAN=&
+             ERR_San_Mess=&
              " => Unable to set Simulated Annealing conditions (Error in line: TemParM T_ini anneal num_temps num_therm)"
           else if(.not. algor) then
-             err_mess_SAN= &
+             ERR_San_Mess= &
              " => Unable to set Simulated Annealing conditions (Error in line: Algor_T  nalgor  num_conf  nm_cycl   num_therm)"
           else
-             err_mess_SAN=" Unable to set Simulated Annealing conditions (Error in CFL file) "
+             ERR_San_Mess=" Unable to set Simulated Annealing conditions (Error in CFL file) "
           end if
        end if
 
@@ -1091,7 +1091,7 @@
        integer :: j
        if (n > np_SAN) then
           err_SAN =.true.
-          write(unit=err_mess_SAN,fmt="(a,i4,a)") " => Too many parameters! Simulated Anneling module limited to ",&
+          write(unit=ERR_San_Mess,fmt="(a,i4,a)") " => Too many parameters! Simulated Anneling module limited to ",&
                np_SAN," parameters"
           return
        end if
@@ -1155,7 +1155,7 @@
 
        if (n > np_SAN) then
           err_SAN =.true.
-          write(unit=err_mess_SAN,fmt="(a,i4,a)") " => Too many parameters! Simulated Anneling module limited to ",&
+          write(unit=ERR_San_Mess,fmt="(a,i4,a)") " => Too many parameters! Simulated Anneling module limited to ",&
                np_SAN," parameters"
           return
        end if
@@ -1245,7 +1245,7 @@
 
        call check(c,vs)
        if (err_san) then
-          call mess(err_mess_san)
+          call mess(ERR_San_Mess)
           return
        end if
        seed(1)=c%seed
@@ -1574,7 +1574,7 @@
 
        call checkm(c,vs)
        if (err_san) then
-          call mess(err_mess_san)
+          call mess(ERR_San_Mess)
           return
        end if
 

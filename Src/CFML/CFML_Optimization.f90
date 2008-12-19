@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Optimization_General
@@ -11,11 +11,12 @@
 !!----
 !!----    April - 2004 Created by JRC
 !!---- DEPENDENCIES
-!!--++    use CFML_Math_General, only: cp
+!!--++    use CFML_Constants,       only: cp    
+!!--++    use CFML_String_Utilities, only: l_case  
 !!----
 !!---- VARIABLES
 !!----    ERR_OPTIM
-!!----    ERR_MESS_OPTIM
+!!----    ERR_OPTIM_MESS
 !!--++    METHOD                               [Private]
 !!----    OPT_CONDITIONS_TYPE
 !!----
@@ -43,7 +44,7 @@
 !!
  Module CFML_Optimization_General
     !---- Use Files ----!
-    use CFML_Math_General,         only: cp
+    use CFML_Constants,       only: cp
     use CFML_String_Utilities, only: l_case
 
     implicit none
@@ -70,16 +71,6 @@
     !---- Variable Definitions ----!
 
     !!----
-    !!---- ERR_MESS_OPTIM
-    !!----    character(len=150), public :: Err_Mess_Optim
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: Err_Mess_Optim
-
-    !!----
     !!---- ERR_OPTIM
     !!----    logical, public :: Err_Optim
     !!----
@@ -88,6 +79,16 @@
     !!---- Update: February - 2005
     !!
     logical, public :: Err_Optim
+     
+    !!----
+    !!---- ERR_Optim_Mess
+    !!----    character(len=150), public :: ERR_Optim_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
+    !!
+    character(len=150), public :: ERR_Optim_Mess
 
     !!--++
     !!--++ METHOD
@@ -199,7 +200,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Math_General,  only: cp
+    !!----          use CFML_Constants, only:cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -257,7 +258,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1208,7 +1209,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1235,8 +1236,8 @@
 
        if (nparm <= 0) then
           Err_Optim=.true.
-          Err_Mess_Optim="  ERROR: Negative number of parameters! "
-          write(unit=ipr,fmt="(a)")   Err_Mess_Optim
+          ERR_Optim_Mess="  ERROR: Negative number of parameters! "
+          write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
           return
        end if
 
@@ -1245,8 +1246,8 @@
           mmax(i) = maxi(i)
           if (mmin(i) == mmax(i)) then
              Err_Optim=.true.
-             write(unit=Err_Mess_Optim,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
-             write(unit=ipr,fmt="(a)")   Err_Mess_Optim
+             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
              return
           end if
        end do
@@ -1657,7 +1658,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1684,7 +1685,7 @@
     Subroutine Init_Err_Optim()
 
        err_optim=.false.
-       err_mess_optim=" "
+       ERR_Optim_Mess=" "
 
        return
     End Subroutine Init_Err_Optim
@@ -1767,7 +1768,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2277,7 +2278,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2293,8 +2294,8 @@
        do i = 1, n
           if (mini(i) == maxi(i)) then
              Err_Optim=.true.
-             write(unit=Err_Mess_Optim,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
-             if(present(ipr)) write(unit=ipr,fmt="(a)")   Err_Mess_Optim
+             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             if(present(ipr)) write(unit=ipr,fmt="(a)")   ERR_Optim_Mess
              return
           end if
           mmax(i) = (maxi(i)-mini(i)) * 0.5
@@ -2319,7 +2320,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Math_General,  only: cp
+    !!----          use CFML_Constants, only:cp
     !!----          integer,                             intent(in) :: N
     !!----          real(kind=cp),dimension(:),          intent(in) :: X
     !!----          real(kind=cp),                       intent(out):: F
@@ -2343,7 +2344,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2511,7 +2512,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Math_General,  only: cp
+    !!----          use CFML_Constants, only:cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -2536,7 +2537,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2618,7 +2619,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Math_General,  only: cp
+    !!----          use CFML_Constants, only:cp
     !!----          integer,                             intent(in) :: n
     !!----          real(kind=cp),dimension(:),          intent(in) :: x
     !!----          real(kind=cp),                       intent(out):: f
@@ -2686,7 +2687,7 @@
        real, dimension(:), intent(in)     :: maxi
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2864,7 +2865,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Math_General,  only: cp
+             use CFML_Constants,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -3444,7 +3445,7 @@
               end do
               if (.not. mth) then
                  Err_Optim=.true.
-                 Err_Mess_Optim="ERROR, no optimization method has been provided!"
+                 ERR_Optim_Mess="ERROR, no optimization method has been provided!"
                  return
               end if
 
@@ -3456,7 +3457,7 @@
                        read(unit=file_lines(j)(ipos+7:), fmt=*, iostat=ier) rval
                        if (ier /= 0) then
                           Err_Optim=.true.
-                          write(unit=Err_Mess_Optim,fmt="(a)") "ERROR reading optimization condition: "//keyword(k)
+                          write(unit=ERR_Optim_Mess,fmt="(a)") "ERROR reading optimization condition: "//keyword(k)
                           return
                        end if
                     

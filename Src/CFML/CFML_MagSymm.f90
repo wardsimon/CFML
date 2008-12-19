@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Magnetic_Symmetry
@@ -12,14 +12,15 @@
 !!----            April - 2005. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,                  only: Sp, tpi, Modulo_Lat
+!!--++    Use CFML_Constants,                only: Sp, tpi
+!!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
 !!--++                                         Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
-!!--++                                         err_mess_symm,err_symm
+!!--++                                         err_symm,err_symm_mess
 !!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
 !!--++    Use CFML_IO_Formats,                only: file_list_type
-!!--++    Use CFML_Atom_TypeDef,               only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
 !!----
 !!---- VARIABLES
 !!--..    Types
@@ -29,7 +30,7 @@
 !!----    MAGSYMM_K_TYPE
 !!--..
 !!----    ERR_MAGSYM
-!!----    ERR_MESS_MAGSYM
+!!----    ERR_MAGSYM_MESS
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -47,16 +48,17 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_Math_General,                  only: Sp, tpi, Modulo_Lat
+    Use CFML_Constants,                only: Sp, tpi
+    Use CFML_Math_General,              only: Modulo_Lat
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
-                                         Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
-                                         err_mess_symm,err_symm, set_SpG_Mult_Table,ApplySO
+                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
+                                              err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
     Use CFML_IO_Formats,                only: file_list_type
-    Use CFML_Atom_TypeDef,               only: Allocate_mAtom_list, mAtom_List_Type
+    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
-                                         Magnetic_Form
+                                              Magnetic_Form
     Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
 
     !---- Variables ----!
@@ -217,14 +219,14 @@
     logical, public :: err_MagSym
 
     !!----
-    !!---- ERR_MESS_MAGSYM
-    !!----    character(len=150), public :: err_mess_MagSym
+    !!---- ERR_MAGSYM_MESS
+    !!----    character(len=150), public :: ERR_MagSym_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: April - 2005
     !!
-    character(len=150), public :: err_mess_MagSym
+    character(len=150), public :: ERR_MagSym_Mess
 
  Contains
 
@@ -268,7 +270,7 @@
     Subroutine Init_Err_MagSym()
 
        err_magsym=.false.
-       err_mess_magsym=" "
+       ERR_MagSym_Mess=" "
 
        return
     End Subroutine Init_Err_MagSym
@@ -391,7 +393,7 @@
 
        if (n_ini == 0 .or. n_end == 0) then
           err_magsym=.true.
-          err_mess_magsym=" No magnetig phase found in file!"
+          ERR_MagSym_Mess=" No magnetig phase found in file!"
           return
        end if
 
@@ -444,7 +446,7 @@
              read(unit=lowline(8:),fmt=*,iostat=ier) magmod
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading magnetic model name in magnetic phase"
+                ERR_MagSym_Mess=" Error reading magnetic model name in magnetic phase"
                 return
              end if
              MGp%MagModel= adjustl(magmod)
@@ -456,7 +458,7 @@
              read(unit=lowline(9:),fmt=*,iostat=ier) lattice
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading lattice type in magnetic phase"
+                ERR_MagSym_Mess=" Error reading lattice type in magnetic phase"
                 return
              end if
              lattice=adjustl(lattice)
@@ -482,7 +484,7 @@
              read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading propagation vectors"
+                ERR_MagSym_Mess=" Error reading propagation vectors"
                 return
              end if
              do !repeat reading until continuous KVECT lines are exhausted
@@ -495,7 +497,7 @@
                    read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
                    if (ier /= 0) then
                       err_magsym=.true.
-                      err_mess_magsym=" Error reading propagation vectors"
+                      ERR_MagSym_Mess=" Error reading propagation vectors"
                       return
                    end if
                 else
@@ -522,7 +524,7 @@
                 end if
                 if (ier /= 0) then
                    err_magsym=.true.
-                   err_mess_magsym=" Error reading magnetic S-domains"
+                   ERR_MagSym_Mess=" Error reading magnetic S-domains"
                    return
                 end if
                 Mag_Dom%nd = num_dom
@@ -545,7 +547,7 @@
                       end if
                       if (ier /= 0) then
                          err_magsym=.true.
-                         err_mess_magsym=" Error reading magnetic S-domains"
+                         ERR_MagSym_Mess=" Error reading magnetic S-domains"
                          return
                       end if
                       Mag_Dom%nd = num_dom
@@ -564,13 +566,13 @@
              read(unit=lowline(7:),fmt=*,iostat=ier) MGp%nirreps
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading number of irreducible representations"
+                ERR_MagSym_Mess=" Error reading number of irreducible representations"
                 return
              end if
              read(unit=lowline(7:),fmt=*,iostat=ier) n, (MGp%nbas(j),j=1,MGp%nirreps)
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading number of basis functions of irreducible representations"
+                ERR_MagSym_Mess=" Error reading number of basis functions of irreducible representations"
                 return
              end if
              irreps_given=.true.
@@ -585,7 +587,7 @@
              read(unit=lowline(6:),fmt=*,iostat=ier) MGp%icomp(1:abs(n),num_irrep)
              if (ier /= 0) then
                 err_magsym=.true.
-                err_mess_magsym=" Error reading real/imaginary indicators of BF coeff. of irreducible representations"
+                ERR_MagSym_Mess=" Error reading real/imaginary indicators of BF coeff. of irreducible representations"
                 return
              end if
              do  !repeat reading until continuous icoebf lines are exhausted
@@ -599,7 +601,7 @@
                    read(unit=lowline(6:),fmt=*,iostat=ier) MGp%icomp(1:abs(n),num_irrep)
                    if (ier /= 0) then
                       err_magsym=.true.
-                      err_mess_magsym=" Error reading real/imaginary indicators of BF coeff. of irreducible representations"
+                      ERR_MagSym_Mess=" Error reading real/imaginary indicators of BF coeff. of irreducible representations"
                       return
                    end if
                 else
@@ -658,7 +660,7 @@
              read(unit=lowline(5:),fmt=*,iostat=ier) (br(:,j),j=1,abs(n))
              if (ier /= 0) then
                 err_magsym=.true.
-                write(unit=err_mess_magsym,fmt="(2(a,i3))")" Error reading basis fuctions (BASR) of irrep ",num_irrep,&
+                write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Error reading basis fuctions (BASR) of irrep ",num_irrep,&
                                                            " for symmetry operator # ",num_xsym
                 return
              end if
@@ -670,13 +672,13 @@
                    read(unit=lowline(5:),fmt=*,iostat=ier) (bi(:,j),j=1,abs(n))
                    if (ier /= 0) then
                       err_magsym=.true.
-                      write(unit=err_mess_magsym,fmt="(2(a,i3))")" Error reading basis fuctions (BASI) of irrep ",num_irrep,&
+                      write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Error reading basis fuctions (BASI) of irrep ",num_irrep,&
                                                                  " for symmetry operator # ",num_xsym
                       return
                    end if
                 else
                    err_magsym=.true.
-                   write(unit=err_mess_magsym,fmt="(2(a,i3))")" Lacking BASI keyword of irrep ",num_irrep,&
+                   write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Lacking BASI keyword of irrep ",num_irrep,&
                                                                " for symmetry operator # ",num_xsym
                    return
                 end if
@@ -697,7 +699,7 @@
                    read(unit=lowline(5:),fmt=*,iostat=ier) (br(:,j),j=1,abs(n))
                    if (ier /= 0) then
                       err_magsym=.true.
-                      write(unit=err_mess_magsym,fmt="(2(a,i3))")" Error reading basis fuctions (BASR) of irrep ",num_irrep,&
+                      write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Error reading basis fuctions (BASR) of irrep ",num_irrep,&
                                                                  " for symmetry operator # ",num_xsym
                       return
                    end if
@@ -709,13 +711,13 @@
                          read(unit=lowline(5:),fmt=*,iostat=ier) (bi(:,j),j=1,abs(n))
                          if (ier /= 0) then
                             err_magsym=.true.
-                            write(unit=err_mess_magsym,fmt="(2(a,i3))")" Error reading basis fuctions (BASI) of irrep ",num_irrep,&
+                            write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Error reading basis fuctions (BASI) of irrep ",num_irrep,&
                                                                        " for symmetry operator # ",num_xsym
                             return
                          end if
                       else
                          err_magsym=.true.
-                         write(unit=err_mess_magsym,fmt="(2(a,i3))")" Lacking BASI keyword of irrep ",num_irrep,&
+                         write(unit=ERR_MagSym_Mess,fmt="(2(a,i3))")" Lacking BASI keyword of irrep ",num_irrep,&
                                                                     " for symmetry operator # ",num_xsym
                          return
                       end if
@@ -744,7 +746,7 @@
                                                   Am%atom(num_matom)%occ         !occupation
              if (ier /= 0) then
                 err_magsym=.true.
-                write(unit=err_mess_magsym,fmt="(a,i4)")" Error reading magnetic atom #",num_matom
+                write(unit=ERR_MagSym_Mess,fmt="(a,i4)")" Error reading magnetic atom #",num_matom
                 return
              end if
              skp_begin=.true.
@@ -758,7 +760,7 @@
              read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,rsk,isk,ph
              if (ier /= 0) then
                 err_magsym=.true.
-                write(unit=err_mess_magsym,fmt="(a,i3)") " Error reading Fourier Coefficient #", num_skp
+                write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Fourier Coefficient #", num_skp
                 return
              end if
              Am%atom(num_matom)%nvk= num_skp
@@ -776,13 +778,13 @@
                    num_skp=num_skp+1
                    if (num_skp > 12) then
                       err_magsym=.true.
-                      err_mess_magsym= " Too many Fourier Coefficients, the maximum allowed is 12! "
+                      ERR_MagSym_Mess= " Too many Fourier Coefficients, the maximum allowed is 12! "
                       return
                    end if
                    read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,rsk,isk,ph
                    if (ier /= 0) then
                       err_magsym=.true.
-                      write(unit=err_mess_magsym,fmt="(a,i3)") " Error reading Fourier Coefficient #", num_skp
+                      write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Fourier Coefficient #", num_skp
                       return
                    end if
                    Am%atom(num_matom)%nvk= num_skp
@@ -806,7 +808,7 @@
              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
              if (ier /= 0) then
                 err_magsym=.true.
-                write(unit=err_mess_magsym,fmt="(a,i3)") " Error reading Coefficient of Basis Functions #", num_skp
+                write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Coefficient of Basis Functions #", num_skp
                 return
              end if
              Am%atom(num_matom)%nvk= num_skp
@@ -823,7 +825,7 @@
                    num_skp=num_skp+1
                    if (num_skp > 12) then
                       err_magsym=.true.
-                      err_mess_magsym= " Too many sets of Coefficients, the maximum allowed is 12! "
+                      ERR_MagSym_Mess= " Too many sets of Coefficients, the maximum allowed is 12! "
                       return
                    end if
                    read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
@@ -831,7 +833,7 @@
                    read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
                    if (ier /= 0) then
                       err_magsym=.true.
-                      write(unit=err_mess_magsym,fmt="(a,i3)") " Error reading Coefficient of Basis Functions #", num_skp
+                      write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Coefficient of Basis Functions #", num_skp
                       return
                    end if
                    Am%atom(num_matom)%nvk= num_skp
@@ -878,7 +880,7 @@
        end do
        if (err_symm) then
           err_magsym=.true.
-          write(unit=err_mess_magsym,fmt="(a)") " Error reading symmetry: "//trim(err_mess_symm)
+          write(unit=ERR_MagSym_Mess,fmt="(a)") " Error reading symmetry: "//trim(err_symm_mess)
           return
        end if
 
@@ -942,7 +944,7 @@
              SGo=SG
           else
              err_magsym=.true.
-             err_mess_magsym=" Shubnikov Group has not been provided "
+             ERR_MagSym_Mess=" Shubnikov Group has not been provided "
           end if
        end if
 

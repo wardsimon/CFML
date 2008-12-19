@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal et al.
 !!----
 !!---- MODULE: CFML_Geometry_SXTAL
@@ -31,7 +31,7 @@
 !!--..
 !!--..    Some words about notation and conventions
 !!--..
-!!--..    A reflection in r.l.u. units is represented by a real vector h
+!!--..    A reflection in r.l.u. units is represented by a real(kind=cp) vector h
 !!--..    The same vector referred to the Cartesian laboratory system when all
 !!--..    motor angles are set to zero is noted as z1, so that [z1]= [UB] [h]
 !!--..    where [] denotes a column matrices for 3-D vectors.
@@ -188,7 +188,8 @@
 !!
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
-    Use CFML_Math_General,      Only: To_Deg,To_Rad,cosd,sind,atan2d,acosd,asind,tand
+    Use CFML_Constants,        Only: Cp,To_Deg,To_Rad
+    Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand
     Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
     Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type
     Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
@@ -213,66 +214,71 @@
     !!---- TYPE :: PSD_VAL
     !!--..
     !!---- Type, public :: Psd_Val       !Set of caracteristic parameters of the PSD
-    !!----    Real      :: xoff          !
-    !!----    Real      :: zoff          !
-    !!----    Real      :: radius        !
-    !!----    Real      :: yoff          !
-    !!----    Real      :: cgap          !
-    !!----    Real      :: agap          !
-    !!----    Integer   :: ncat          !
-    !!----    Integer   :: nano          !
-    !!----    Integer   :: ipsd          !
+    !!----    real(kind=cp)  :: xoff          !
+    !!----    real(kind=cp)  :: zoff          !
+    !!----    real(kind=cp)  :: radius        !
+    !!----    real(kind=cp)  :: yoff          !
+    !!----    real(kind=cp)  :: cgap          !
+    !!----    real(kind=cp)  :: agap          !
+    !!----    Integer        :: ncat          !
+    !!----    Integer        :: nano          !
+    !!----    Integer        :: ipsd          !
     !!---- End Type Psd_Val
     !!----
     !!---- Update: April - 2008
     !!
     Type, Public :: Psd_Val
-       Real      :: xoff
-       Real      :: zoff
-       Real      :: radius
-       Real      :: yoff
-       Real      :: cgap
-       Real      :: agap
-       Integer   :: ncat
-       Integer   :: nano
-       Integer   :: ipsd
+       real(kind=cp)  :: xoff
+       real(kind=cp)  :: zoff
+       real(kind=cp)  :: radius
+       real(kind=cp)  :: yoff
+       real(kind=cp)  :: cgap
+       real(kind=cp)  :: agap
+       Integer        :: ncat
+       Integer        :: nano
+       Integer        :: ipsd
     End Type Psd_Val
 
-
-
+    !!----
+    !!---- PSD
+    !!----    Type(Psd_Val), Public :: psd
+    !!----
+    !!----
+    !!---- Update: January - 2009
+    !!
     Type(Psd_Val), Public :: psd
 
     !!----
     !!---- TYPE :: SXD_VAL
     !!--..
     !!---- Type, public :: Sxd_Val        !Set of caracteristic parameters of the diffractometr SXD (old?) at ISIS
-    !!----    Real      :: distms         !Not tested! (used only in the subroutine sxdpsd)
-    !!----    Real      :: distsd         !
-    !!----    Real      :: dimx           !
-    !!----    Real      :: dimz           !
-    !!----    Real      :: xoff           !
-    !!----    Real      :: yoff           !
-    !!----    Real      :: zoff           !
-    !!----    Real      :: toff           !
-    !!----    Real      :: velcon         !
-    !!----    Integer   :: nxcel          !
-    !!----    Integer   :: nzcel          !
+    !!----    real(kind=cp)      :: distms         !Not tested! (used only in the subroutine sxdpsd)
+    !!----    real(kind=cp)      :: distsd         !
+    !!----    real(kind=cp)      :: dimx           !
+    !!----    real(kind=cp)      :: dimz           !
+    !!----    real(kind=cp)      :: xoff           !
+    !!----    real(kind=cp)      :: yoff           !
+    !!----    real(kind=cp)      :: zoff           !
+    !!----    real(kind=cp)      :: toff           !
+    !!----    real(kind=cp)      :: velcon         !
+    !!----    Integer            :: nxcel          !
+    !!----    Integer            :: nzcel          !
     !!---- End Type Sxd_Val
     !!----
     !!---- Update: April - 2008
     !!
     Type, Public :: Sxd_Val
-       Real      :: distms
-       Real      :: distsd
-       Real      :: dimx
-       Real      :: dimz
-       Real      :: xoff
-       Real      :: yoff
-       Real      :: zoff
-       Real      :: toff
-       Real      :: velcon
-       Integer   :: nxcel
-       Integer   :: nzcel
+       real(kind=cp)      :: distms
+       real(kind=cp)      :: distsd
+       real(kind=cp)      :: dimx
+       real(kind=cp)      :: dimz
+       real(kind=cp)      :: xoff
+       real(kind=cp)      :: yoff
+       real(kind=cp)      :: zoff
+       real(kind=cp)      :: toff
+       real(kind=cp)      :: velcon
+       Integer            :: nxcel
+       Integer            :: nzcel
     End Type Sxd_Val
 
     !!--++
@@ -299,10 +305,10 @@
 
     !!----
     !!---- Subroutine Angs_4c_bisecting(wave,z1,tth,om,ch,ph,ierr)
-    !!----    Real, Intent(In)                :: wave
-    !!----    Real, Intent(In), Dimension(3)  :: z1
-    !!----    Real, Intent(Out)               :: tth,om,ch,ph
-    !!----    Integer, Intent(Out)            :: ierr
+    !!----    real(kind=cp), Intent(In)                :: wave
+    !!----    real(kind=cp), Intent(In), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(Out)               :: tth,om,ch,ph
+    !!----    Integer, Intent(Out)                     :: ierr
     !!----
     !!----    Calculate 2-THETA, OMEGA (=THETA), CHI, PHI to put the
     !!----    vector Z1 in the bisecting diffraction condition. The
@@ -314,13 +320,13 @@
     !!
     Subroutine Angs_4c_bisecting(wave,z1,tth,om,ch,ph,ierr)
        !---- Arguments ----!
-       Real, Intent(In)                :: wave
-       Real, Intent(In), Dimension(3)  :: z1
-       Real, Intent(Out)               :: tth,om,ch,ph
-       Integer, Intent(Out)            :: ierr
+       real(kind=cp), Intent(In)                :: wave
+       real(kind=cp), Intent(In), Dimension(3)  :: z1
+       real(kind=cp), Intent(Out)               :: tth,om,ch,ph
+       Integer, Intent(Out)                     :: ierr
 
        !---- Local Variables ----!
-       Real :: th, ds
+       real(kind=cp) :: th, ds
 
        ierr=0
        Call Equatorial_Chi_Phi(z1,ch,ph) !Eq. 38 of Busing & Levy
@@ -340,12 +346,12 @@
 
     !!----
     !!---- Subroutine calang(h,tteta,om,ch,ph,ierr,wav,ubm,geom)
-    !!----    Real,Dimension(3),  Intent(In) :: h
-    !!----    Real,               Intent(Out):: tteta,om,ch,ph
-    !!----    Integer,            Intent(Out):: ierr
-    !!----    real,                optional, intent(in) :: wav
-    !!----    real, dimension(3,3),optional, intent(in) :: ubm
-    !!----    integer,             optional, intent(in) :: geom
+    !!----    real(kind=cp),Dimension(3),             Intent(In) :: h
+    !!----    real(kind=cp),                          Intent(Out):: tteta,om,ch,ph
+    !!----    Integer,                                Intent(Out):: ierr
+    !!----    real(kind=cp),                optional, intent(in) :: wav
+    !!----    real(kind=cp), dimension(3,3),optional, intent(in) :: ubm
+    !!----    integer,                      optional, intent(in) :: geom
     !!----
     !!--<<    Original comments:
     !!----    SUBROUTINE *** CALANG ***
@@ -365,18 +371,18 @@
     !!
     Subroutine calang(h,tteta,om,ch,ph,ierr,wav,ubm,geom)
        !---- Arguments ----!
-       Real,Dimension(3),             Intent(In) :: h
-       Real,                          Intent(Out):: tteta,om,ch,ph
-       Integer,                       Intent(Out):: ierr
-       real,                optional, intent(in) :: wav
-       real, dimension(3,3),optional, intent(in) :: ubm
-       integer,             optional, intent(in) :: geom
+       real(kind=cp),Dimension(3),             Intent(In) :: h
+       real(kind=cp),                          Intent(Out):: tteta,om,ch,ph
+       Integer,                                Intent(Out):: ierr
+       real(kind=cp),                optional, intent(in) :: wav
+       real(kind=cp), dimension(3,3),optional, intent(in) :: ubm
+       integer,                      optional, intent(in) :: geom
 
        !--- Local Variables ---!
-       Real                 :: ttmax,ttmin,sint,wave,chmax,diff,ds,theta
-       Real, Dimension(3)   :: z1
-       Real, Dimension(3,3) :: ub
-       Integer              :: igeom
+       real(kind=cp)                 :: ttmax,ttmin,sint,wave,chmax,diff,ds,theta
+       real(kind=cp), Dimension(3)   :: z1
+       real(kind=cp), Dimension(3,3) :: ub
+       Integer                       :: igeom
 
        !---- Set local variables with the current instrument
        if (present(wav) .and. present(ubm) .and. present(geom)) then
@@ -451,11 +457,11 @@
 
     !!----
     !!---- Subroutine Calc_Om_Chi_Phi(vhkl,vlab1,psi,ub,om,ch,ph,ierr)
-    !!----    Real, Intent(In),Dimension(3)     :: vhkl,vlab1
-    !!----    Real, Intent(In)                  :: psi
-    !!----    Real, Intent(In),Dimension(3,3)   :: ub
-    !!----    Real, Intent(In Out)              :: om,ch,ph
-    !!----    Integer, Intent(Out)              :: ierr
+    !!----    real(kind=cp), Intent(In),Dimension(3)     :: vhkl,vlab1
+    !!----    real(kind=cp), Intent(In)                  :: psi
+    !!----    real(kind=cp), Intent(In),Dimension(3,3)   :: ub
+    !!----    real(kind=cp), Intent(In Out)              :: om,ch,ph
+    !!----    Integer, Intent(Out)                       :: ierr
     !!----
     !!----    Calculate OM, CH, PH for diffraction vector at azimuthal angle PSI
     !!----    from the diffraction condition expressed as :
@@ -469,15 +475,15 @@
     !!
     Subroutine Calc_Om_Chi_Phi(vhkl,vlab1,psi,ub,om,ch,ph,ierr)
        !---- Arguments ----!
-       Real, Intent(In),Dimension(3)     :: vhkl,vlab1
-       Real, Intent(In)                  :: psi
-       Real, Intent(In),Dimension(3,3)   :: ub
-       Real, Intent(In Out)              :: om,ch,ph
-       Integer, Intent(Out)              :: ierr
+       real(kind=cp), Intent(In),Dimension(3)     :: vhkl,vlab1
+       real(kind=cp), Intent(In)                  :: psi
+       real(kind=cp), Intent(In),Dimension(3,3)   :: ub
+       real(kind=cp), Intent(In Out)              :: om,ch,ph
+       Integer, Intent(Out)                       :: ierr
 
        !--- Local Variables ---!
-       Real,Dimension(3)   :: z1,z4,vs,vz
-       Real,Dimension(3,3) :: r,dum1,dum2,ts,tz
+       real(kind=cp),Dimension(3)   :: z1,z4,vs,vz
+       real(kind=cp),Dimension(3,3) :: r,dum1,dum2,ts,tz
 
        z1=vlab1
        Call z4frz1(z1,om,ch,ph,z4)
@@ -516,11 +522,11 @@
 
     !!----
     !!---- Subroutine Calc_Psi(vhkl,vlab1,om,ch,ph,ub,psi,ierr)
-    !!----    Real, Intent(In),Dimension(3)        :: vhkl,vlab1
-    !!----    Real, Intent(In)                     :: om,ch,ph
-    !!----    Real, Intent(In),Dimension(3,3)      :: ub
-    !!----    Real, Intent(Out)                    :: psi
-    !!----    Integer, Intent(Out)                 :: ierr
+    !!----    real(kind=cp), Intent(In),Dimension(3)        :: vhkl,vlab1
+    !!----    real(kind=cp), Intent(In)                     :: om,ch,ph
+    !!----    real(kind=cp), Intent(In),Dimension(3,3)      :: ub
+    !!----    real(kind=cp), Intent(Out)                    :: psi
+    !!----    Integer, Intent(Out)                          :: ierr
     !!----
     !!--<<    Calculate PSI for the reflection VHKL positioned at OM, CH and PH.
     !!----    The value of PSI is taken to be zero when (the values of OM, CH, PH
@@ -545,15 +551,15 @@
     !!
     Subroutine Calc_Psi(vhkl,vlab1,om,ch,ph,ub,psi,ierr)
        !---- Arguments ----!
-       Real, Intent(In),Dimension(3)        :: vhkl,vlab1
-       Real, Intent(In)                     :: om,ch,ph
-       Real, Intent(In),Dimension(3,3)      :: ub
-       Real, Intent(Out)                    :: psi
-       Integer, Intent(Out)                 :: ierr
+       real(kind=cp), Intent(In),Dimension(3)        :: vhkl,vlab1
+       real(kind=cp), Intent(In)                     :: om,ch,ph
+       real(kind=cp), Intent(In),Dimension(3,3)      :: ub
+       real(kind=cp), Intent(Out)                    :: psi
+       Integer, Intent(Out)                          :: ierr
 
        !--- Local Variables ---!
-       Real,Dimension(3)   ::  z1,z4,vs,vz
-       Real,Dimension(3,3) :: dum1,dum2,dum3,ts,tz
+       real(kind=cp),Dimension(3)   ::  z1,z4,vs,vz
+       real(kind=cp),Dimension(3,3) :: dum1,dum2,dum3,ts,tz
 
        z1=vlab1
        Call z4frz1(z1,om,ch,ph,z4)
@@ -576,7 +582,7 @@
 
     !!----
     !!---- Subroutine cell_fr_UB(ub,ipr,dcel,rcel)
-    !!----    Real,Dimension(3,3), Intent(In) :: ub
+    !!----    real(kind=cp),Dimension(3,3), Intent(In) :: ub
     !!----    Integer,             Intent(In) :: ipr
     !!----
     !!----    Calculate and print cell parameters from UB-matrix
@@ -585,20 +591,20 @@
     !!
     Subroutine cell_fr_UB(ub,ipr,dcel,rcel)
        !---- Arguments ----!
-       Real,Dimension(3,3),         Intent(In) :: ub
-       Integer,                     Intent(In) :: ipr
-       Real,Dimension(6), optional,Intent(out) :: dcel,rcel
+       real(kind=cp),Dimension(3,3),         Intent(In)  :: ub
+       Integer,                              Intent(In)  :: ipr
+       real(kind=cp),Dimension(6), optional, Intent(out) :: dcel,rcel
 
        !--- Local Variables ---!
-       Real, Dimension(3,3) :: g,sg,ubinv,angle
-       Real, Dimension(3)   :: acal,angcal,cala,calang
-       integer              :: i,j,k,jn,kn
-       real                 :: x
+       real(kind=cp), Dimension(3,3) :: g,sg,ubinv,angle
+       real(kind=cp), Dimension(3)   :: acal,angcal,cala,calang
+       integer                       :: i,j,k,jn,kn
+       real(kind=cp)                 :: x
 
        g=Matmul(Transpose(ub),ub)
        sg=g
        !..inverse matrix g=b'b  to get direct cell parameters
-       !..On first run through loop calculation of reciprocal cell, second do real cell
+       !..On first run through loop calculation of reciprocal cell, second do real(kind=cp) cell
        Do k=1,2
            If(k==2) sg=invert(sg)
            g=sg
@@ -655,8 +661,8 @@
 
     !!----
     !!---- Subroutine Chi_mat(chi,dum)
-    !!----    Real, Intent(In)                   :: chi
-    !!----    Real, Intent(Out), Dimension(3,3)  :: dum
+    !!----    real(kind=cp), Intent(In)                   :: chi
+    !!----    real(kind=cp), Intent(Out), Dimension(3,3)  :: dum
     !!----
     !!----    Calculate the Busing and Levy conventional rotation matrix for CHI (eq. 9)
     !!----    The CHI angle must be provided in degrees.
@@ -665,8 +671,8 @@
     !!
     Subroutine Chi_mat(chi,dum)
        !---- Arguments ----!
-       Real, Intent(In)                   :: chi
-       Real, Intent(Out), Dimension(3,3)  :: dum
+       real(kind=cp), Intent(In)                   :: chi
+       real(kind=cp), Intent(Out), Dimension(3,3)  :: dum
 
        dum=0.0
        dum(1,1)=cosd(chi)
@@ -680,15 +686,15 @@
 
     !!----
     !!---- Subroutine d19amd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
-    !!----    Integer, Intent(In)   :: mpsd
-    !!----    Real, Intent(In)      :: gamm
-    !!----    Real, Intent(In Out)  :: gamp
-    !!----    Real, Intent(In Out)  :: nup
-    !!----    Real, Intent(Out)     :: xobs
-    !!----    Real, Intent(Out)     :: zobs
-    !!----    Real, Intent(in Out)  :: cath
-    !!----    Real, Intent(in Out)  :: anod
-    !!----    Integer, Intent(Out)  :: ierr
+    !!----    Integer, Intent(In)            :: mpsd
+    !!----    real(kind=cp), Intent(In)      :: gamm
+    !!----    real(kind=cp), Intent(In Out)  :: gamp
+    !!----    real(kind=cp), Intent(In Out)  :: nup
+    !!----    real(kind=cp), Intent(Out)     :: xobs
+    !!----    real(kind=cp), Intent(Out)     :: zobs
+    !!----    real(kind=cp), Intent(in Out)  :: cath
+    !!----    real(kind=cp), Intent(in Out)  :: anod
+    !!----    Integer, Intent(Out)           :: ierr
     !!----
     !!--<<    Original Comment:
     !!----    Specifically for D19A bannana detector, 4 x 64 degrees - 16 x 512
@@ -706,21 +712,21 @@
     !!
     Subroutine d19amd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
        !---- Arguments ----!
-       Integer, Intent(In)      :: mpsd
-       Real,    Intent(In)      :: gamm
-       Real,    Intent(In Out)  :: gamp
-       Real,    Intent(In Out)  :: nup
-       Real,    Intent(Out)     :: xobs
-       Real,    Intent(Out)     :: zobs
-       Real,    Intent(in Out)  :: cath
-       Real,    Intent(in Out)  :: anod
-       Integer, Intent(Out)     :: ierr
+       Integer, Intent(In)               :: mpsd
+       real(kind=cp),    Intent(In)      :: gamm
+       real(kind=cp),    Intent(In Out)  :: gamp
+       real(kind=cp),    Intent(In Out)  :: nup
+       real(kind=cp),    Intent(Out)     :: xobs
+       real(kind=cp),    Intent(Out)     :: zobs
+       real(kind=cp),    Intent(in Out)  :: cath
+       real(kind=cp),    Intent(in Out)  :: anod
+       Integer, Intent(Out)              :: ierr
 
        !--- Local Variables ---!
-       Real :: cmid, amid, delga, td, tn, e, f, g, cd, a, b, z, d
+       real(kind=cp) :: cmid, amid, delga, td, tn, e, f, g, cd, a, b, z, d
 
-       cmid=Real(psd%ncat-1)/2.0
-       amid=Real(psd%nano-1)/2.0
+       cmid=real(psd%ncat-1)/2.0
+       amid=real(psd%nano-1)/2.0
        ierr = 0
 
        If (mpsd < 0) Then
@@ -745,8 +751,8 @@
              cath=cmid - xobs/psd%cgap                           ! D9
           End If
 
-          If (anod > 0.0 .AND. anod < Real(psd%nano-1) .AND.  &
-             cath > 0.0 .AND. cath < Real(psd%ncat-1)) Return
+          If (anod > 0.0 .AND. anod < real(psd%nano-1) .AND.  &
+             cath > 0.0 .AND. cath < real(psd%ncat-1)) Return
              ierr=-1
           Else
              If (psd%ipsd == 1)Then                 ! Vertically curved detector
@@ -775,12 +781,12 @@
 
     !!----
     !!---- Subroutine d19psd(mpsd,ga,nu,cath,anod,ierr)
-    !!----    Integer, Intent(In Out)   :: mpsd
-    !!----    Real, Intent(In Out)      :: ga
-    !!----    Real, Intent(In Out)      :: nu
-    !!----    Real, Intent(In Out)      :: cath
-    !!----    Real, Intent(In Out)      :: anod
-    !!----    Integer, Intent(In Out)   :: ierr
+    !!----    Integer, Intent(In Out)            :: mpsd
+    !!----    real(kind=cp), Intent(In Out)      :: ga
+    !!----    real(kind=cp), Intent(In Out)      :: nu
+    !!----    real(kind=cp), Intent(In Out)      :: cath
+    !!----    real(kind=cp), Intent(In Out)      :: anod
+    !!----    Integer, Intent(In Out)            :: ierr
     !!----
     !!--<<    Original Comment:
     !!----    Specifically for D19A bannana detector, 4 X 64 degrees - 16 X 512
@@ -797,19 +803,19 @@
     !!
     Subroutine d19psd(mpsd,ga,nu,cath,anod,ierr)
        !---- Arguments ----!
-       Integer, Intent(In)       :: mpsd
-       Real, Intent(In Out)      :: ga
-       Real, Intent(In Out)      :: nu
-       Real, Intent(In Out)      :: cath
-       Real, Intent(In Out)      :: anod
-       Integer, Intent(In Out)   :: ierr
+       Integer, Intent(In)                :: mpsd
+       real(kind=cp), Intent(In Out)      :: ga
+       real(kind=cp), Intent(In Out)      :: nu
+       real(kind=cp), Intent(In Out)      :: cath
+       real(kind=cp), Intent(In Out)      :: anod
+       Integer, Intent(In Out)            :: ierr
 
        !--- Local Variables ---!
-       Real :: nurad,cmid,amid
-       Real :: xo,yo,a,b,z,d
+       real(kind=cp) :: nurad,cmid,amid
+       real(kind=cp) :: xo,yo,a,b,z,d
 
-       cmid=Real(psd%ncat-1)/2.0
-       amid=Real(psd%nano-1)/2.0
+       cmid=real(psd%ncat-1)/2.0
+       amid=real(psd%nano-1)/2.0
 
        If (mpsd >= 0) Then
           xo=(cmid-cath)*psd%cgap
@@ -824,11 +830,11 @@
           xo=-psd%xoff
           cath=cmid-xo/psd%cgap
 
-          If (cath > 0.0 .AND. cath < Real(psd%ncat-1)) Then
+          If (cath > 0.0 .AND. cath < real(psd%ncat-1)) Then
              nurad=nu*To_Rad
              yo=psd%radius*(nurad - Asin((psd%zoff*cosd(nu)-psd%yoff*sind(nu))/psd%radius))
              anod=amid-yo/psd%agap
-             If ( .Not. (anod > 0.0 .AND. anod < Real(psd%nano-1)) ) Then
+             If ( .Not. (anod > 0.0 .AND. anod < real(psd%nano-1)) ) Then
                 ierr=-1
                 xo=0.0
                 yo=0.0
@@ -844,11 +850,11 @@
     End Subroutine d19psd
     !!----
     !!---- Subroutine dspace(wave,vhkl,cell,ds,th,ierr)
-    !!----    Real, Intent(In)               :: wave
-    !!----    Real, Intent(In),Dimension(3)  :: vhkl
-    !!----    Real, Intent(In),Dimension(6)  :: cell
-    !!----    Real, Intent(Out)              :: ds,th
-    !!----    Integer, Intent(Out)           :: ierr
+    !!----    real(kind=cp), Intent(In)               :: wave
+    !!----    real(kind=cp), Intent(In),Dimension(3)  :: vhkl
+    !!----    real(kind=cp), Intent(In),Dimension(6)  :: cell
+    !!----    real(kind=cp), Intent(Out)              :: ds,th
+    !!----    Integer, Intent(Out)                    :: ierr
     !!----
     !!----    Calculate d-spacing and theta from cell parameters
     !!----    and wavelength assume triclinic symmetry. The reflection
@@ -858,14 +864,14 @@
     !!
     Subroutine dspace(wave,vhkl,cell,ds,th,ierr)
        !---- Arguments ----!
-       Real, Intent(In)               :: wave
-       Real, Intent(In),Dimension(3)  :: vhkl
-       Real, Intent(In),Dimension(6)  :: cell
-       Real, Intent(Out)              :: ds,th
-       Integer, Intent(Out)           :: ierr
+       real(kind=cp), Intent(In)               :: wave
+       real(kind=cp), Intent(In),Dimension(3)  :: vhkl
+       real(kind=cp), Intent(In),Dimension(6)  :: cell
+       real(kind=cp), Intent(Out)              :: ds,th
+       Integer, Intent(Out)                    :: ierr
 
        !--- Local Variables ---!
-       Real :: a,b,c,al,be,ga,d,e,f,g, sint
+       real(kind=cp) :: a,b,c,al,be,ga,d,e,f,g, sint
 
        a=vhkl(1)/cell(1)
        b=vhkl(2)/cell(2)
@@ -903,8 +909,8 @@
 
     !!----
     !!---- Subroutine Equatorial_Chi_Phi(z1,ch,ph)
-    !!----    Real, Intent(In), Dimension(3)  :: z1
-    !!----    Real, Intent(Out)               :: ch,ph
+    !!----    real(kind=cp), Intent(In), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(Out)               :: ch,ph
     !!----
     !!----    Calculate CHI, PHI to put the vector Z1 in the equatorial plane
     !!----    The reciprocal vector Z1 is given in cartesian components with
@@ -914,11 +920,11 @@
     !!
     Subroutine Equatorial_Chi_Phi(z1,ch,ph)
        !---- Arguments ----!
-       Real, Intent(In), Dimension(3)  :: z1
-       Real, Intent(Out)               :: ch,ph
+       real(kind=cp), Intent(In), Dimension(3)  :: z1
+       real(kind=cp), Intent(Out)               :: ch,ph
 
        !---- Local Variables ----!
-       Real :: d
+       real(kind=cp) :: d
 
        If (z1(1) /= 0.0 .or. z1(2) /= 0.0)  Then
           ph=atan2d(z1(2),z1(1))
@@ -935,11 +941,11 @@
 
     !!----
     !!---- Subroutine fixdnu(wave,z1,ch,ph,ga,om,nu,ierr)
-    !!----    Real, Intent(In)               :: wave
-    !!----    Real, Intent(In), Dimension(3) :: z1
-    !!----    Real, Intent(In)               :: nu
-    !!----    Real, Intent(Out)              :: ch,ph,ga,om
-    !!----    Integer, Intent(Out)           :: ierr
+    !!----    real(kind=cp), Intent(In)               :: wave
+    !!----    real(kind=cp), Intent(In), Dimension(3) :: z1
+    !!----    real(kind=cp), Intent(In)               :: nu
+    !!----    real(kind=cp), Intent(Out)              :: ch,ph,ga,om
+    !!----    Integer, Intent(Out)                    :: ierr
     !!----
     !!----    Calculate a setting CH,PH,GA,OM to put the diffracted beam at NU.
     !!----    PH puts the diffraction vector Z1 into the CHI circle (as for
@@ -950,15 +956,15 @@
     !!
     Subroutine fixdnu(wave,z1,nu,ch,ph,ga,om,ierr)
        !---- Arguments ----!
-       Real, Intent(In)               :: wave
-       Real, Intent(In), Dimension(3) :: z1
-       Real, Intent(In)               :: nu
-       Real, Intent(Out)              :: ch,ph,ga,om
-       Integer, Intent(Out)           :: ierr
+       real(kind=cp), Intent(In)               :: wave
+       real(kind=cp), Intent(In), Dimension(3) :: z1
+       real(kind=cp), Intent(In)               :: nu
+       real(kind=cp), Intent(Out)              :: ch,ph,ga,om
+       Integer, Intent(Out)                    :: ierr
 
        !--- Local Variables ---!
-       Real, Dimension(3) ::  z4
-       Real :: ch1,ch2,twoth,theta, cosga
+       real(kind=cp), Dimension(3) ::  z4
+       real(kind=cp) :: ch1,ch2,twoth,theta, cosga
 
        ierr=0
        !---- Get CH1 and PH as for bisecting geometry
@@ -1005,35 +1011,35 @@
     End Subroutine fixdnu
     !!----
     !!---- Subroutine Flat_Cone_vertDet(wave,z1,ub,vrho,rho,ch,ph,ga,om,nu,ierr)
-    !!----    Real, Intent(In)                   :: wave
-    !!----    Real, Intent(In),  Dimension(3)    :: z1
-    !!----    Real, Intent(In),Dimension(3,3)    :: ub
-    !!----    Real, Intent(In Out), Dimension(3) :: vrho
-    !!----    Real, Intent(Out)                  :: rho,ch,ph,ga,om,nu
-    !!----    Integer, Intent(Out)               :: ierr
+    !!----    real(kind=cp), Intent(In)                   :: wave
+    !!----    real(kind=cp), Intent(In),  Dimension(3)    :: z1
+    !!----    real(kind=cp), Intent(In),Dimension(3,3)    :: ub
+    !!----    real(kind=cp), Intent(In Out), Dimension(3) :: vrho
+    !!----    real(kind=cp), Intent(Out)                  :: rho,ch,ph,ga,om,nu
+    !!----    Integer, Intent(Out)                        :: ierr
     !!----
     !!----    Calculate RHO (=PSI) about given rotation vector VRHO (and the
     !!----    corresponding angles OM, CH, PH) to put the vector Z1 into the
     !!----    flat-cone diffracting position. Calculate resulting GAMMA and NU.
     !!----
-    !!--<<    V = [UB].H = [UB].[G].D where D is a real-space vector.
+    !!--<<    V = [UB].H = [UB].[G].D where D is a real(kind=cp)-space vector.
     !!-->>        [G]-1 = [B]T.[B] = [UB]T.[UB] hence V = [[UB]T]-1.D
     !!----
     !!---- Update: April 2008
     !!
     Subroutine Flat_Cone_vertDet(wave,z1,ub,vrho,rho,ch,ph,ga,om,nu,ierr)
        !---- Arguments ----!
-       Real, Intent(In)                      :: wave
-       Real, Intent(In),     Dimension(3)    :: z1
-       Real, Intent(In),   Dimension(3,3)    :: ub
-       Real, Intent(In Out), Dimension(3)    :: vrho
-       Real, Intent(Out)                     :: rho,ch,ph,ga,om,nu
-       Integer, Intent(Out)                  :: ierr
+       real(kind=cp), Intent(In)                      :: wave
+       real(kind=cp), Intent(In),     Dimension(3)    :: z1
+       real(kind=cp), Intent(In),   Dimension(3,3)    :: ub
+       real(kind=cp), Intent(In Out), Dimension(3)    :: vrho
+       real(kind=cp), Intent(Out)                     :: rho,ch,ph,ga,om,nu
+       Integer, Intent(Out)                           :: ierr
 
        !---- Local Variables ----!
-       Real, Dimension(3)   ::  z3, z4, v1
-       Real, Dimension(3,3) ::  dum1
-       Real                 ::  pstar, theta, duf, sinmu, cosnu, psi1,csi1,csi2
+       real(kind=cp), Dimension(3)   ::  z3, z4, v1
+       real(kind=cp), Dimension(3,3) ::  dum1
+       real(kind=cp)                 ::  pstar, theta, duf, sinmu, cosnu, psi1,csi1,csi2
 
        dum1=Transpose(ub)
        dum1=invert(dum1)
@@ -1111,7 +1117,7 @@
     !!----
     !!---- Subroutine genb(c,b)
     !!----    Type(Crystal_Cell_Type), Intent(In)   :: c
-    !!----    Real, Intent(Out), Dimension(3,3)     :: b
+    !!----    real(kind=cp), Intent(Out), Dimension(3,3)     :: b
     !!----
     !!--<<   Calculation of [B] matrix
     !!----   BUSING&LEVY ACTA CRYST.(1967)22,457-464  EQUATION 3
@@ -1125,8 +1131,8 @@
     !!
     Subroutine genb(c,b)
        !---- Arguments ----!
-       Type(Crystal_Cell_Type), Intent(In)   :: c
-       Real, Intent(Out), Dimension(3,3)     :: b
+       Type(Crystal_Cell_Type),      Intent(In)   :: c
+       real(kind=cp), Dimension(3,3),Intent(Out)  :: b
 
        b(1,1)=c%rcell(1)
        b(1,2)=c%rcell(2)*cosd(c%rang(3))
@@ -1143,10 +1149,10 @@
 
     !!----
     !!---- Subroutine genub(b,h1,h2,h1o,h2o,ub, ierr)
-    !!----    Real, Dimension(3,3), Intent(In)  :: b
-    !!----    Real, Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
-    !!----    Real, Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
-    !!----    Real, Dimension(3,3), Intent(Out) :: ub
+    !!----    real(kind=cp), Dimension(3,3), Intent(In)  :: b
+    !!----    real(kind=cp), Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
+    !!----    real(kind=cp), Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
+    !!----    real(kind=cp), Dimension(3,3), Intent(Out) :: ub
     !!----
     !!----    Original from   A.Filhol  25/05/84
     !!----    Given the [B] matrix, the Miller indices of two reflections, h1 & h2,
@@ -1162,15 +1168,15 @@
     !!
     Subroutine genub(b,h1,h2,h1o,h2o,ub, ierr)
        !---- Arguments ----!
-       Real, Dimension(3,3), Intent(In)  :: b
-       Real, Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
-       Real, Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
-       Real, Dimension(3,3), Intent(Out) :: ub
+       real(kind=cp), Dimension(3,3), Intent(In)  :: b
+       real(kind=cp), Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
+       real(kind=cp), Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
+       real(kind=cp), Dimension(3,3), Intent(Out) :: ub
 
        !--- Local Variables ---!
-       Real, Dimension(3)  :: h1c,h2c,v1,v2
-       Real, Dimension(3,3):: trpc,trpo,u
-       Integer :: ierr
+       real(kind=cp), Dimension(3)  :: h1c,h2c,v1,v2
+       real(kind=cp), Dimension(3,3):: trpc,trpo,u
+       Integer                      :: ierr
 
        !Calculation of the reciprocal components in the cartesian reciprocal axes
        h1c=Matmul(b,h1)
@@ -1198,10 +1204,10 @@
 
     !!----
     !!---- Subroutine Get_Angs_NB(wave,z1,ga,om,nu,ierr)
-    !!----    Real, Intent(In)                      :: wave
-    !!----    Real, Intent(In),Dimension(3)         :: z1
-    !!----    Real, Intent(Out)                     :: ga,om,nu
-    !!----    Integer, Intent(Out)                  :: ierr
+    !!----    real(kind=cp), Intent(In)                      :: wave
+    !!----    real(kind=cp), Intent(In),Dimension(3)         :: z1
+    !!----    real(kind=cp), Intent(Out)                     :: ga,om,nu
+    !!----    Integer, Intent(Out)                           :: ierr
     !!----
     !!----    Calculate normal-beam angles GAMMA, OMEGA, NU to put the
     !!----    vector Z1 into the diffracting condition.
@@ -1210,15 +1216,15 @@
     !!
     Subroutine Get_Angs_NB(wave,z1,ga,om,nu,ierr)
        !---- Arguments ----!
-       Real, Intent(In)                      :: wave
-       Real, Intent(In),Dimension(3)         :: z1
-       Real, Intent(Out)                     :: ga,om,nu
-       Integer, Intent(Out)                  :: ierr
+       real(kind=cp), Intent(In)                      :: wave
+       real(kind=cp), Intent(In),Dimension(3)         :: z1
+       real(kind=cp), Intent(Out)                     :: ga,om,nu
+       Integer, Intent(Out)                           :: ierr
 
        !--- Local Variables ---!
-       Real, Dimension(3)   ::  znew
-       Real, Dimension(3,3) ::  dum
-       Real :: theta,d,a,sint,b
+       real(kind=cp), Dimension(3)   ::  znew
+       real(kind=cp), Dimension(3,3) ::  dum
+       real(kind=cp)                 :: theta,d,a,sint,b
 
        Call Get_dspacing_theta(wave,z1,d,theta,ierr)
        ga=0.0
@@ -1255,12 +1261,12 @@
 
     !!----
     !!---- Subroutine Get_dspacing_theta(wave,z1,ds,th,ierr)
-    !!----    Real, Intent(In)                 :: wave
-    !!----    Real, Intent(In), Dimension(3)   :: z1
-    !!----    Real, Intent(Out)                :: ds,th
-    !!----    Integer, Intent(Out)             :: ierr
+    !!----    real(kind=cp), Intent(In)                 :: wave
+    !!----    real(kind=cp), Intent(In), Dimension(3)   :: z1
+    !!----    real(kind=cp), Intent(Out)                :: ds,th
+    !!----    Integer, Intent(Out)                      :: ierr
     !!----
-    !!----    Calculate D-spacing (real space) and THETA from the length of Z1
+    !!----    Calculate D-spacing (real(kind=cp) space) and THETA from the length of Z1
     !!----    The reciprocal vector Z1 is given in cartesian components with
     !!----    respect to the laboratory system. If ierr=1 the calculated d-spacing
     !!----    is is fixed to 0.0 as well as theta. This error condition appears when
@@ -1271,13 +1277,13 @@
     !!
     Subroutine Get_dspacing_theta(wave,z1,ds,th,ierr)
        !---- Arguments ----!
-       Real, Intent(In)                 :: wave
-       Real, Intent(In), Dimension(3)   :: z1
-       Real, Intent(Out)                :: ds,th
-       Integer, Intent(Out)             :: ierr
+       real(kind=cp), Intent(In)                 :: wave
+       real(kind=cp), Intent(In), Dimension(3)   :: z1
+       real(kind=cp), Intent(Out)                :: ds,th
+       Integer, Intent(Out)                      :: ierr
 
        !---- Local Variables ---!
-       Real :: dstar, sint
+       real(kind=cp) :: dstar, sint
 
        ierr=0
        dstar=Sqrt(Dot_Product(z1,z1))
@@ -1301,11 +1307,11 @@
 
     !!----
     !!---- Subroutine Get_GaOmNu_frChiPhi(wave,z1,ch,ph,ga,om,nu,ierr)
-    !!----    Real, Intent(In)                :: wave
-    !!----    Real, Intent(In), Dimension(3)  :: z1
-    !!----    Real, Intent(In)                :: ch,ph
-    !!----    Real, Intent(Out)               :: ga,om,nu
-    !!----    Integer, Intent(Out)            :: ierr
+    !!----    real(kind=cp), Intent(In)                :: wave
+    !!----    real(kind=cp), Intent(In), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(In)                :: ch,ph
+    !!----    real(kind=cp), Intent(Out)               :: ga,om,nu
+    !!----    Integer, Intent(Out)                     :: ierr
     !!----
     !!----    Given CHI & PHI, calculate normal-beam angles GAMMA, OMEGA, NU
     !!----    to put the vector Z1 into the diffraction condition.
@@ -1318,14 +1324,14 @@
     !!
     Subroutine Get_GaOmNu_frChiPhi(wave,z1,ch,ph,ga,om,nu,ierr)
        !---- Arguments ----!
-       Real, Intent(In)                :: wave
-       Real, Intent(In), Dimension(3)  :: z1
-       Real, Intent(In)                :: ch,ph
-       Real, Intent(Out)               :: ga,om,nu
-       Integer, Intent(Out)            :: ierr
+       real(kind=cp), Intent(In)                :: wave
+       real(kind=cp), Intent(In), Dimension(3)  :: z1
+       real(kind=cp), Intent(In)                :: ch,ph
+       real(kind=cp), Intent(Out)               :: ga,om,nu
+       Integer, Intent(Out)                     :: ierr
 
        !--- Local Variables ---!
-       Real,Dimension(3) :: z3
+       real(kind=cp),Dimension(3) :: z3
 
        Call z3frz1(z1,ch,ph,z3)
        Call Get_Angs_NB(wave,z3,ga,om,nu,ierr)
@@ -1335,8 +1341,8 @@
 
     !!----
     !!---- Subroutine Get_WaveGaNu_frZ4(z4,wave,ga,nu,ierr)
-    !!----    Real,    Intent(In), Dimension(3)  :: z4
-    !!----    Real,    Intent(Out)               :: wave,ga,nu
+    !!----    real(kind=cp),    Intent(In), Dimension(3)  :: z4
+    !!----    real(kind=cp),    Intent(Out)               :: wave,ga,nu
     !!----    Integer, Intent(Out)               :: ierr
     !!----
     !!----    Calculate GA, NU and wavelength for diffraction
@@ -1346,12 +1352,12 @@
     !!
     Subroutine Get_WaveGaNu_frZ4(z4,wave,ga,nu,ierr)
        !---- Arguments ----!
-       Real,    Intent(In), Dimension(3)  :: z4
-       Real,    Intent(Out)               :: wave,ga,nu
-       Integer, Intent(Out)               :: ierr
+       real(kind=cp),    Intent(In), Dimension(3)  :: z4
+       real(kind=cp),    Intent(Out)               :: wave,ga,nu
+       Integer, Intent(Out)                        :: ierr
 
        !--- Local Variables ---!
-       Real :: a,b,sinnu, cosnu,cosga, singa
+       real(kind=cp) :: a,b,sinnu, cosnu,cosga, singa
 
        a=-2.0*z4(2)
        b=Dot_Product(z4,z4)
@@ -1390,18 +1396,18 @@
 
     !!----
     !!---- Subroutine Get_z1_D9angls(wave,ttheta,om,ch,ph,z1)
-    !!----    real,               intent (in)  :: wave,ttheta,om,ch,ph
-    !!----    real, dimension(3), intent (out) :: z1
+    !!----    real(kind=cp),               intent (in)  :: wave,ttheta,om,ch,ph
+    !!----    real(kind=cp), dimension(3), intent (out) :: z1
     !!----
     !!---- Update: April 2008
     !!
     Subroutine Get_z1_D9angls(wave,ttheta,om,ch,ph,z1)
        !---- Arguments ----!
-       real,               intent (in)  :: wave,ttheta,om,ch,ph
-       real, dimension(3), intent (out) :: z1
+       real(kind=cp),               intent (in)  :: wave,ttheta,om,ch,ph
+       real(kind=cp), dimension(3), intent (out) :: z1
 
        !--- Local Variables ---!
-       real :: th,dsp,ome,cosom,coski,cosfi,sinom,sinfi
+       real(kind=cp) :: th,dsp,ome,cosom,coski,cosfi,sinom,sinfi
 
        th=ttheta*0.5
        dsp= 2.0*sind(th)/wave
@@ -1423,19 +1429,19 @@
     !!---- Subroutine Get_z1_from_pixel(npx,npz,snum,z1)
     !!----    integer,                intent(in)  :: npx,npz
     !!----    type(SXTAL_Numor_type), intent(in)  :: snum
-    !!----    real, dimension(3),     intent(out) :: z1
+    !!----    real(kind=cp), dimension(3),     intent(out) :: z1
     !!----
     !!---- Update: April 2008
     !!
     Subroutine Get_z1_from_pixel(npx,npz,snum,z1)
        !---- Arguments ----!
-       integer,                intent(in)  :: npx,npz
-       type(SXTAL_Numor_type), intent(in)  :: snum
-       real, dimension(3),     intent(out) :: z1
+       integer,                      intent(in)  :: npx,npz
+       type(SXTAL_Numor_type),       intent(in)  :: snum
+       real(kind=cp), dimension(3),  intent(out) :: z1
 
        !---- Local Variables ----!
        integer :: ier, mpsd
-       real    :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
+       real(kind=cp)    :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
        mpsd  = 1  !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in d19amd
        phim  = snum%angles(1)
@@ -1458,7 +1464,7 @@
 
     !!----
     !!---- Subroutine normal(v,ierr)
-    !!----    Real, Intent(In Out), Dimension(3)   :: v
+    !!----    real(kind=cp), Intent(In Out), Dimension(3)   :: v
     !!----    Integer, Intent(Out)                 :: ierr
     !!----
     !!----    Normalise vector V (in Cartesian components)
@@ -1467,11 +1473,11 @@
     !!
     Subroutine normal(v,ierr)
        !---- Argument ----!
-       Real, Intent(In Out), Dimension(3)   :: v
-       Integer, Intent(Out)                 :: ierr
+       real(kind=cp), Intent(In Out), Dimension(3)   :: v
+       Integer, Intent(Out)                          :: ierr
 
        !--- Local Variables ---!
-       Real :: d
+       real(kind=cp) :: d
 
        d=Dot_Product(v,v)
        If (d <= 0.0) Then
@@ -1487,13 +1493,13 @@
 
     !!----
     !!---- Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer)
-    !!----    Real,                 Intent(In)         :: wav    ! Wavelength
-    !!----    Real, dimension(3,3), Intent(In)         :: ub     ! [UB] matrix
-    !!----    Real, dimension(3),   Intent(In)         :: h      ! Miller indices of reflection h
-    !!----    Integer,              Intent(In Out)     :: sig    ! -1 for negative gammas
-    !!----    Real, dimension(:),   Intent(Out)        :: anbcal ! Normal beam angles
-    !!----    Integer,              Intent(In Out)     :: ier    ! Zero correction on input, Error flag on output
-    !!----    Real, dimension(3),   Intent(In),optional:: zer    ! zero corrections of NB angles in degrees
+    !!----    real(kind=cp),                 Intent(In)         :: wav    ! Wavelength
+    !!----    real(kind=cp), dimension(3,3), Intent(In)         :: ub     ! [UB] matrix
+    !!----    real(kind=cp), dimension(3),   Intent(In)         :: h      ! Miller indices of reflection h
+    !!----    Integer,                       Intent(In Out)     :: sig    ! -1 for negative gammas
+    !!----    real(kind=cp), dimension(:),   Intent(Out)        :: anbcal ! Normal beam angles
+    !!----    Integer,                       Intent(In Out)     :: ier    ! Zero correction on input, Error flag on output
+    !!----    real(kind=cp), dimension(3),   Intent(In),optional:: zer    ! zero corrections of NB angles in degrees
     !!----
     !!--<<    Based on the subroutine CANNB from  A.FILHOL 01-Avr-1981 & 08-Aou-1984
     !!----    Calculation of the normal-beam diffraction angles for reflection h()
@@ -1516,17 +1522,17 @@
     !!
     Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer)
        !---- Arguments ----!
-       Real,                 Intent(In)          :: wav
-       Real, dimension(3,3), Intent(In)          :: ub
-       Real, dimension(3),   Intent(In)          :: h
-       Integer,              Intent(In Out)      :: sig
-       Real, dimension(:),   Intent(Out)         :: anbcal
-       Integer,              Intent(Out)         :: ier
-       Real, dimension(3),   Intent(In),optional :: zer
+       real(kind=cp),                 Intent(In)          :: wav
+       real(kind=cp), dimension(3,3), Intent(In)          :: ub
+       real(kind=cp), dimension(3),   Intent(In)          :: h
+       Integer,                       Intent(In Out)      :: sig
+       real(kind=cp), dimension(:),   Intent(Out)         :: anbcal
+       Integer,                       Intent(Out)         :: ier
+       real(kind=cp), dimension(3),   Intent(In),optional :: zer
 
        !---- Local Variables ----!
-       Real, Dimension(3) ::  z1,zo1
-       Real               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2
+       real(kind=cp), Dimension(3) ::  z1,zo1
+       real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2
 
        ier=0
        anbcal(:)=0.0
@@ -1555,7 +1561,7 @@
 
        !-- Bragg angle THETA
        thc = Asind(sthc)
-       thc = Real(sig)*thc
+       thc = real(sig)*thc
 
        !-- NU   (Elevation angle of detector)
        snu=wav*z1(3)         !Sin(nu)
@@ -1595,8 +1601,8 @@
 
     !!----
     !!---- Subroutine Phi_mat(phi,dum)
-    !!----    Real, Intent(In)                   :: phi
-    !!----    Real, Intent(Out), Dimension(3,3)  :: dum
+    !!----    real(kind=cp), Intent(In)                   :: phi
+    !!----    real(kind=cp), Intent(Out), Dimension(3,3)  :: dum
     !!----
     !!----    Calculate the Busing and Levy conventional rotation matrix for PHI
     !!----    or OMEGA [eq. 8 & 10]. The PHI/OMEGA angle must be provided in degrees.
@@ -1605,8 +1611,8 @@
     !!
     Subroutine Phi_mat(phi,dum)
        !---- Arguments ----!
-       Real, Intent(In)                 :: phi
-       Real, Intent(Out), Dimension(3,3):: dum
+       real(kind=cp), Intent(In)                 :: phi
+       real(kind=cp), Intent(Out), Dimension(3,3):: dum
 
        dum=0.0
        dum(1,1)= cosd(phi)
@@ -1620,8 +1626,8 @@
 
     !!----
     !!---- Subroutine Psi_mat(psi,dum)
-    !!----    Real, Intent(In)                   :: psi
-    !!----    Real, Intent(Out), Dimension(3,3)  :: dum
+    !!----    real(kind=cp), Intent(In)                   :: psi
+    !!----    real(kind=cp), Intent(Out), Dimension(3,3)  :: dum
     !!----
     !!----    Calculate the Busing and Levy  [eq. 46] conventional rotation matrix for PSI
     !!----    The PSI angle must be provided in degrees.
@@ -1630,8 +1636,8 @@
     !!
     Subroutine Psi_mat(psi,dum)
        !---- Arguments ----!
-       Real, Intent(In)                 :: psi
-       Real, Intent(Out), Dimension(3,3):: dum
+       real(kind=cp), Intent(In)                 :: psi
+       real(kind=cp), Intent(Out), Dimension(3,3):: dum
 
        dum=0.0
        dum(1,1)=1.0
@@ -1645,9 +1651,9 @@
 
     !!----
     !!---- Subroutine refvec(vhkl,ub,vs,vz,ierr)
-    !!----    Real, Intent(In),  Dimension(3)       :: vhkl
-    !!----    Real, Intent(In),  Dimension(3,3)     :: ub
-    !!----    Real, Intent(Out), Dimension(3)       :: vs,vz
+    !!----    real(kind=cp), Intent(In),  Dimension(3)       :: vhkl
+    !!----    real(kind=cp), Intent(In),  Dimension(3,3)     :: ub
+    !!----    real(kind=cp), Intent(Out), Dimension(3)       :: vs,vz
     !!----    Integer, Intent(Out)                  :: ierr
     !!----
     !!----    Calculate vs,vz as reference vectors for defining Psi=0
@@ -1663,14 +1669,14 @@
     !!
     Subroutine refvec(vhkl,ub,vs,vz,ierr)
        !---- Arguments ----!
-       Real, Intent(In),  Dimension(3)       :: vhkl
-       Real, Intent(In),  Dimension(3,3)     :: ub
-       Real, Intent(Out), Dimension(3)       :: vs,vz
-       Integer, Intent(Out)                  :: ierr
+       real(kind=cp), Intent(In),  Dimension(3)       :: vhkl
+       real(kind=cp), Intent(In),  Dimension(3,3)     :: ub
+       real(kind=cp), Intent(Out), Dimension(3)       :: vs,vz
+       Integer, Intent(Out)                           :: ierr
 
        !--- Local Variables ---!
-       Real,Dimension(3) :: hn,h0
-       Real,Dimension(3) :: h1=(/0.0,0.0,1.0/),h2=(/0.0,1.0,0.0/),v0=(/0.0,0.0,1.0/)
+       real(kind=cp),Dimension(3) :: hn,h0
+       real(kind=cp),Dimension(3) :: h1=(/0.0,0.0,1.0/),h2=(/0.0,1.0,0.0/),v0=(/0.0,0.0,1.0/)
 
        !---- Test if VHKL is parallel to H1
        hn=vhkl
@@ -1696,9 +1702,9 @@
 
     !!----
     !!---- Subroutine s4cnb(angl_4C,angl_NB,ierr)
-    !!----    Real, dimension(4), Intent(In)     :: angl_4C
-    !!----    Real, dimension(3), Intent(Out)    :: angl_NB
-    !!----    Integer,            Intent(Out)    :: ierr
+    !!----    real(kind=cp), dimension(4), Intent(In)     :: angl_4C
+    !!----    real(kind=cp), dimension(3), Intent(Out)    :: angl_NB
+    !!----    Integer,                     Intent(Out)    :: ierr
     !!----
     !!--<<    Subroutine *** S4CNB ***   A.Filhol & M.Thomas
     !!----    Conversion of diffraction angles from the geometry
@@ -1715,12 +1721,12 @@
     !!
     Subroutine s4cnb(angl_4C,angl_NB,ierr)
        !---- Arguments ----!
-       Real, dimension(4), Intent(In)     :: angl_4C
-       Real, dimension(3), Intent(Out)    :: angl_NB
-       Integer,            Intent(Out)    :: ierr
+       real(kind=cp), dimension(4), Intent(In)     :: angl_4C
+       real(kind=cp), dimension(3), Intent(Out)    :: angl_NB
+       Integer,                     Intent(Out)    :: ierr
 
        !--- Local variables ---!
-       Real :: si, sint, sint2, sinnu, phi
+       real(kind=cp) :: si, sint, sint2, sinnu, phi
 
        si=1.0
        ierr=0
@@ -1785,8 +1791,8 @@
 
     !!----
     !!---- Subroutine snb4c(angl_NB,angl_4C)
-    !!----    Real, dimension(3), Intent(In )  :: angl_NB(3)
-    !!----    Real, dimension(4), Intent(Out)  :: angl_4C(4)
+    !!----    real(kind=cp), dimension(3), Intent(In )  :: angl_NB(3)
+    !!----    real(kind=cp), dimension(4), Intent(Out)  :: angl_4C(4)
     !!--<<
     !!----    Subroutine ***SNB4C ***      A.Filhol & M.Thomas (I.L.L.)
     !!----   Conversion of diffraction angles from the geometry
@@ -1798,11 +1804,11 @@
     !!
     Subroutine snb4c(angl_NB,angl_4C)
        !---- Arguments ----!
-       Real, dimension(3), Intent(In )  :: angl_NB(3)
-       Real, dimension(4), Intent(Out)  :: angl_4C(4)
+       real(kind=cp), dimension(3), Intent(In )  :: angl_NB(3)
+       real(kind=cp), dimension(4), Intent(Out)  :: angl_4C(4)
 
        !--- Local variables ---!
-       Real :: si, sint, sint2, sinnu, phi
+       real(kind=cp) :: si, sint, sint2, sinnu, phi
 
        si=1.0
        !.....2THETA 4C
@@ -1833,9 +1839,9 @@
     !!----
     !!---- Subroutine sxdpsd(mpsd,gamm,wave,nup,gamp,xobs,zobs, xcel,time,zcel,ierr)
     !!----    Integer, Intent(In)          :: mpsd
-    !!----    Real,    Intent(In)          :: gamm
-    !!----    Real,    Intent(In Out)      :: wave,nup,gamp
-    !!----    Real,    Intent(Out)         :: xobs,zobs, xcel,time,zcel
+    !!----    real(kind=cp),    Intent(In)          :: gamm
+    !!----    real(kind=cp),    Intent(In Out)      :: wave,nup,gamp
+    !!----    real(kind=cp),    Intent(Out)         :: xobs,zobs, xcel,time,zcel
     !!----    Integer, Intent(Out)         :: ierr
     !!----
     !!--<<    Original comments:
@@ -1902,17 +1908,17 @@
     !!
     Subroutine sxdpsd(mpsd,gamm,wave,nup,gamp,xobs,zobs, xcel,time,zcel,ierr)
        !---- Arguments ----!
-       Integer, Intent(In)          :: mpsd
-       Real,    Intent(In)          :: gamm
-       Real,    Intent(In Out)      :: wave,nup,gamp
-       Real,    Intent(Out)         :: xobs,zobs, xcel,time,zcel
-       Integer, Intent(Out)         :: ierr
+       Integer, Intent(In)                   :: mpsd
+       real(kind=cp),    Intent(In)          :: gamm
+       real(kind=cp),    Intent(In Out)      :: wave,nup,gamp
+       real(kind=cp),    Intent(Out)         :: xobs,zobs, xcel,time,zcel
+       Integer, Intent(Out)                  :: ierr
 
        !--- Local variables ---!
-       Real :: xmax,zmax, a, b, c, d, e, timtot, distot, delga, td, f, tn
+       real(kind=cp) :: xmax,zmax, a, b, c, d, e, timtot, distot, delga, td, f, tn
 
-       xmax=Real(sxd%nxcel/2)
-       zmax=Real(sxd%nzcel/2)
+       xmax=real(sxd%nxcel/2)
+       zmax=real(sxd%nzcel/2)
        If (mpsd < 0) Then
           !---- Xcel and Zcel are the coords. in pixels of P from C, on the PSD
           !---- NuP, GamP are the angular coordinates of P from the sample
@@ -1925,12 +1931,12 @@
           td=tand(delga)
           a=b*td
           xobs=a - sxd%xoff
-          xcel=xobs*Real(sxd%nxcel)/sxd%dimx
+          xcel=xobs*real(sxd%nxcel)/sxd%dimx
           f=Sqrt(1.0 + td*td)
           tn=tand(nup)
           c=b*f*tn
           zobs=c -sxd%zoff
-          zcel=zobs*Real(sxd%nzcel)/sxd%dimz
+          zcel=zobs*real(sxd%nzcel)/sxd%dimz
           If (Abs(xcel) > xmax .or. Abs(zcel) > zmax) then
              ierr=-1
              return
@@ -1948,8 +1954,8 @@
           !---- Xobs and Zobs are the coords. in mm of P from C on the PSD surface
           !---- (A,B,C) are the coordinates of P from the sample in the lab system
 
-          xobs=xcel*sxd%dimx/Real(sxd%nxcel)
-          zobs=zcel*sxd%dimz/Real(sxd%nzcel)
+          xobs=xcel*sxd%dimx/real(sxd%nxcel)
+          zobs=zcel*sxd%dimz/real(sxd%nzcel)
           a=xobs  +sxd%xoff
           b=sxd%distsd+sxd%yoff
           c=zobs  +sxd%zoff
@@ -1967,9 +1973,9 @@
 
     !!----
     !!---- Subroutine triple(v1,v2,tv,ierr)
-    !!----    Real,    Intent(In Out), Dimension(3)  :: v1,v2
-    !!----    Real,    Intent(Out),    Dimension(3,3):: tv
-    !!----    Integer, Intent(Out)                   :: ierr
+    !!----    real(kind=cp),    Intent(In Out), Dimension(3)  :: v1,v2
+    !!----    real(kind=cp),    Intent(Out),    Dimension(3,3):: tv
+    !!----    Integer, Intent(Out)                            :: ierr
     !!----
     !!----    Construct orthonormal triplet matrix TV, with column vectors :
     !!----    V1, (V1 x V2) x V1, V1 x V2.
@@ -1978,12 +1984,12 @@
     !!
     Subroutine triple(v1,v2,tv,ierr)
        !---- Arguments ----!
-       Real,    Intent(In Out), Dimension(3)  :: v1,v2  !they come back normalized and V2 perp. to V1
-       Real,    Intent(Out),    Dimension(3,3):: tv
-       Integer, Intent(Out)                   :: ierr
+       real(kind=cp),    Intent(In Out), Dimension(3)  :: v1,v2  !they come back normalized and V2 perp. to V1
+       real(kind=cp),    Intent(Out),    Dimension(3,3):: tv
+       Integer, Intent(Out)                            :: ierr
 
        !--- Local Variables ---!
-       Real,Dimension(3) :: v3
+       real(kind=cp),Dimension(3) :: v3
 
        Call normal(v1,ierr)
        v3=Cross_Product(v1,v2)
@@ -2000,8 +2006,8 @@
 
     !!----
     !!---- Subroutine z1frfc(wave,tth,om,ch,ph,z1)
-    !!----    Real, Intent(In)               :: wave,tth,om,ch,ph
-    !!----    Real, Intent(Out),Dimension(3) :: z1
+    !!----    real(kind=cp), Intent(In)               :: wave,tth,om,ch,ph
+    !!----    real(kind=cp), Intent(Out),Dimension(3) :: z1
     !!----
     !!----    Z1 from Four Circle diffractometer angles
     !!----    Calculate diffraction vector Z1 from TTH, OM, CH, PH (Need not
@@ -2011,12 +2017,12 @@
     !!
     Subroutine z1frfc(wave,tth,om,ch,ph,z1)
        !---- Argument ----!
-       Real, Intent(In)               :: wave,tth,om,ch,ph
-       Real, Intent(Out),Dimension(3) :: z1
+       real(kind=cp), Intent(In)               :: wave,tth,om,ch,ph
+       real(kind=cp), Intent(Out),Dimension(3) :: z1
 
        !--- Local Variables ---!
-       Real,Dimension(3) ::  z4
-       !Real :: th  !Not needed
+       real(kind=cp),Dimension(3) ::  z4
+       !real(kind=cp) :: th  !Not needed
 
                                     ! Original: th=(tth/2.0)
        z4(1)=sind(tth)/wave         ! ( 2.0*sind(th)*cosd(th))/wave
@@ -2029,8 +2035,8 @@
 
     !!----
     !!---- Subroutine z1frmd(wave,ch,ph,ga,om,nu,z1)
-    !!----    Real, Intent(In)                 :: wave,ch,ph,ga,om,nu
-    !!----    Real, Intent(Out), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(In)                 :: wave,ch,ph,ga,om,nu
+    !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
     !!----    Z1 from Four Circle + PSD detector diffractometer angles
     !!----    Calculate diffraction vector Z1 from CH, PH, GA, OM, NU
@@ -2041,11 +2047,11 @@
     !!
     Subroutine z1frmd(wave,ch,ph,ga,om,nu,z1)
        !---- Argument ----!
-       Real, Intent(In)                 :: wave,ch,ph,ga,om,nu
-       Real, Intent(Out), Dimension(3)  :: z1
+       real(kind=cp), Intent(In)                 :: wave,ch,ph,ga,om,nu
+       real(kind=cp), Intent(Out), Dimension(3)  :: z1
 
        !--- Local Variables ---!
-       Real, Dimension(3)   ::  z3
+       real(kind=cp), Dimension(3)   ::  z3
        Call z1frnb(wave,ga,om,nu,z3)
        Call z1frz3(z3,ch,ph,z1)
 
@@ -2054,8 +2060,8 @@
 
     !!----
     !!---- Subroutine z1frnb(wave,ga,om,nu,z1)
-    !!----    Real, Intent(In)                 :: wave,ga,om,nu
-    !!----    Real, Intent(Out), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(In)                 :: wave,ga,om,nu
+    !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
     !!----    Z1 from Normal Beam diffractometer angles
     !!----    Calculate diffraction vector Z1 from GA, OM, NU, assuming CH=PH=0
@@ -2066,12 +2072,12 @@
     !!
     Subroutine z1frnb(wave,ga,om,nu,z1)
        !---- Arguments ----!
-       Real, Intent(In)                 :: wave,ga,om,nu
-       Real, Intent(Out), Dimension(3)  :: z1
+       real(kind=cp), Intent(In)                 :: wave,ga,om,nu
+       real(kind=cp), Intent(Out), Dimension(3)  :: z1
 
        !--- Local Variables ---!
-       Real, Dimension(3,3) ::  omg
-       Real, Dimension(3)   ::  z4
+       real(kind=cp), Dimension(3,3) ::  omg
+       real(kind=cp), Dimension(3)   ::  z4
 
        Call z4frgn(wave,ga,nu,z4)
        Call Phi_mat(om,omg)
@@ -2082,9 +2088,9 @@
 
     !!----
     !!---- Subroutine z1frz2(z2,ph,z1)
-    !!----    Real, Intent(In ), Dimension(3)  :: z2
-    !!----    Real, Intent(In )                :: ph
-    !!----    Real, Intent(Out), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(In ), Dimension(3)  :: z2
+    !!----    real(kind=cp), Intent(In )                :: ph
+    !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
     !!----    Calculate Z1 = [PHI]T.Z2
     !!----
@@ -2092,12 +2098,12 @@
     !!
     Subroutine z1frz2(z2,ph,z1)
        !---- Arguments ----!
-       Real, Intent(In ), Dimension(3)  :: z2
-       Real, Intent(In )                :: ph
-       Real, Intent(Out), Dimension(3)  :: z1
+       real(kind=cp), Intent(In ), Dimension(3)  :: z2
+       real(kind=cp), Intent(In )                :: ph
+       real(kind=cp), Intent(Out), Dimension(3)  :: z1
 
        !--- Local Variables ---!
-       Real,Dimension(3,3)  :: phim
+       real(kind=cp),Dimension(3,3)  :: phim
 
        Call Phi_mat(ph,phim)
        z1=Matmul(Transpose(phim),z2)
@@ -2107,9 +2113,9 @@
 
     !!----
     !!----   Subroutine z1frz3(z3,ch,ph,z1)
-    !!----      Real, Intent(In), Dimension(3)   :: z3
-    !!----      Real, Intent(In)                 :: ch,ph
-    !!----      Real, Intent(Out), Dimension(3)  :: z1
+    !!----      real(kind=cp), Intent(In), Dimension(3)   :: z3
+    !!----      real(kind=cp), Intent(In)                 :: ch,ph
+    !!----      real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
     !!----    CALCULATE Z1 = [PHI]T.[CHI]T.Z3
     !!----
@@ -2117,13 +2123,13 @@
     !!
     Subroutine z1frz3(z3,ch,ph,z1)
        !---- Arguments ----!
-       Real, Intent(In), Dimension(3)   :: z3
-       Real, Intent(In)                 :: ch,ph
-       Real, Intent(Out), Dimension(3)  :: z1
+       real(kind=cp), Intent(In), Dimension(3)   :: z3
+       real(kind=cp), Intent(In)                 :: ch,ph
+       real(kind=cp), Intent(Out), Dimension(3)  :: z1
 
        !--- Local Variables ---!
-       Real,Dimension(3)    :: z2
-       Real,Dimension(3,3)  :: chim
+       real(kind=cp),Dimension(3)    :: z2
+       real(kind=cp),Dimension(3,3)  :: chim
 
        !----
        Call Chi_mat(ch,chim)
@@ -2135,9 +2141,9 @@
 
     !!----
     !!---- Subroutine z1frz4(z4,om,ch,ph,z1)
-    !!----    Real, Intent(In), Dimension(3)   :: z4
-    !!----    Real, Intent(In)                 :: om,ch,ph
-    !!----    Real, Intent(Out), Dimension(3)  :: z1
+    !!----    real(kind=cp), Intent(In), Dimension(3)   :: z4
+    !!----    real(kind=cp), Intent(In)                 :: om,ch,ph
+    !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
     !!----    Calculate Z1 = [PHI]T.[CHI]T.[OM]T.Z4
     !!----
@@ -2145,13 +2151,13 @@
     !!
     Subroutine z1frz4(z4,om,ch,ph,z1)
        !---- Arguments ----!
-       Real, Intent(In), Dimension(3)   :: z4
-       Real, Intent(In)                 :: om,ch,ph
-       Real, Intent(Out), Dimension(3)  :: z1
+       real(kind=cp), Intent(In), Dimension(3)   :: z4
+       real(kind=cp), Intent(In)                 :: om,ch,ph
+       real(kind=cp), Intent(Out), Dimension(3)  :: z1
 
        !--- Local Variables ---!
-       Real,Dimension(3)    :: z3
-       Real,Dimension(3,3)  :: phim
+       real(kind=cp),Dimension(3)    :: z3
+       real(kind=cp),Dimension(3,3)  :: phim
 
        Call Phi_mat(om,phim)
        z3=Matmul(Transpose(phim),z4)
@@ -2162,9 +2168,9 @@
 
     !!----
     !!---- Subroutine z2frz1(z1,ph,z2)
-    !!----    Real, Intent(In),Dimension(3)    :: z1
-    !!----    Real, Intent(In)                 :: ph
-    !!----    Real, Intent(Out),Dimension(3)   :: z2
+    !!----    real(kind=cp), Intent(In),Dimension(3)    :: z1
+    !!----    real(kind=cp), Intent(In)                 :: ph
+    !!----    real(kind=cp), Intent(Out),Dimension(3)   :: z2
     !!----
     !!----    Calculate Z2 = [PHI].Z1
     !!----    The reciprocal vector Z1 is given in cartesian components with
@@ -2174,12 +2180,12 @@
     !!
     Subroutine z2frz1(z1,ph,z2)
        !---- Arguments ----!
-       Real, Intent(In),Dimension(3)    :: z1
-       Real, Intent(In)                 :: ph
-       Real, Intent(Out),Dimension(3)   :: z2
+       real(kind=cp), Intent(In),Dimension(3)    :: z1
+       real(kind=cp), Intent(In)                 :: ph
+       real(kind=cp), Intent(Out),Dimension(3)   :: z2
 
        !--- Local Variables ---!
-       Real, Dimension(3,3) ::  dum
+       real(kind=cp), Dimension(3,3) ::  dum
 
        Call Phi_mat(ph,dum)
        z2=Matmul(dum,z1)
@@ -2189,9 +2195,9 @@
 
     !!----
     !!---- Subroutine z3frz1(z1,ch,ph,z3)
-    !!----    Real, Intent(In), Dimension(3)    :: z1
-    !!----    Real, Intent(In)                  :: ch,ph
-    !!----    Real, Intent(Out), Dimension(3)   :: z3
+    !!----    real(kind=cp), Intent(In), Dimension(3)    :: z1
+    !!----    real(kind=cp), Intent(In)                  :: ch,ph
+    !!----    real(kind=cp), Intent(Out), Dimension(3)   :: z3
     !!----
     !!----    Calculate Z3 = [CHI].Z2 = [CHI].[PHI].Z1
     !!----    The reciprocal vector Z1 is given in cartesian components with
@@ -2201,13 +2207,13 @@
     !!
     Subroutine z3frz1(z1,ch,ph,z3)
        !---- Arguments ----!
-       Real, Intent(In), Dimension(3)    :: z1
-       Real, Intent(In)                  :: ch,ph
-       Real, Intent(Out), Dimension(3)   :: z3
+       real(kind=cp), Intent(In), Dimension(3)    :: z1
+       real(kind=cp), Intent(In)                  :: ch,ph
+       real(kind=cp), Intent(Out), Dimension(3)   :: z3
 
        !--- Local Variables ---!
-       Real, Dimension(3)   ::  z2
-       Real, Dimension(3,3) ::  dum
+       real(kind=cp), Dimension(3)   ::  z2
+       real(kind=cp), Dimension(3,3) ::  dum
 
        Call z2frz1(z1,ph,z2)
        Call Chi_mat(ch,dum)
@@ -2218,9 +2224,9 @@
 
     !!----
     !!---- Subroutine z4frgn(wave,ga,nu,z4)
-    !!----    Real, Intent(In)                 :: wave
-    !!----    Real, Intent(In)                 :: ga,nu
-    !!----    Real, Intent(Out), Dimension(3)  :: z4
+    !!----    real(kind=cp), Intent(In)                 :: wave
+    !!----    real(kind=cp), Intent(In)                 :: ga,nu
+    !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z4
     !!----
     !!----    Calculates diffraction vector of a reflection in the
     !!----    laboratory system from the angles GA and NU.
@@ -2229,9 +2235,9 @@
     !!
     Subroutine z4frgn(wave,ga,nu,z4)
        !---- Arguments ----!
-       Real, Intent(In)                 :: wave
-       Real, Intent(In)                 :: ga,nu
-       Real, Intent(Out), Dimension(3)  :: z4
+       real(kind=cp), Intent(In)                 :: wave
+       real(kind=cp), Intent(In)                 :: ga,nu
+       real(kind=cp), Intent(Out), Dimension(3)  :: z4
 
        z4(1)=( sind(ga)*cosd(nu)     )/wave
        z4(2)=( cosd(ga)*cosd(nu)-1.0 )/wave  ! without 1 => Cartesian system on the
@@ -2242,9 +2248,9 @@
 
     !!----
     !!---- Subroutine z4frz1(z1,om,ch,ph,z4)
-    !!----    Real, Intent(In), Dimension(3)     :: z1
-    !!----    Real, Intent(In)                   :: om,ch,ph
-    !!----    Real, Intent(Out), Dimension(3)    :: z4
+    !!----    real(kind=cp), Intent(In), Dimension(3)     :: z1
+    !!----    real(kind=cp), Intent(In)                   :: om,ch,ph
+    !!----    real(kind=cp), Intent(Out), Dimension(3)    :: z4
     !!----
     !!----    Calculate Z4 = [OM].[CHI].[PHI].Z1
     !!----
@@ -2252,13 +2258,13 @@
     !!
     Subroutine z4frz1(z1,om,ch,ph,z4)
        !---- Arguments ----!
-       Real, Intent(In), Dimension(3)     :: z1
-       Real, Intent(In)                   :: om,ch,ph
-       Real, Intent(Out), Dimension(3)    :: z4
+       real(kind=cp), Intent(In), Dimension(3)     :: z1
+       real(kind=cp), Intent(In)                   :: om,ch,ph
+       real(kind=cp), Intent(Out), Dimension(3)    :: z4
 
        !--- Local Variables ---!
-       Real, Dimension(3)  ::  z3
-       Real, Dimension(3,3)::  omg
+       real(kind=cp), Dimension(3)  ::  z3
+       real(kind=cp), Dimension(3,3)::  omg
 
        Call z3frz1(z1,ch,ph,z3)
        Call Phi_mat(om,omg)

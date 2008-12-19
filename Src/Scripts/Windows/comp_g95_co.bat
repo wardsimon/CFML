@@ -7,11 +7,14 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   g95 -c CFML_math_gen.f90         -O3  -std=f2003  -funroll-loops  -msse2  >  out
-   g95 -c CFML_string_util.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   g95 -c CFML_io_mess.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_Constant.f90         -O3  -std=f2003  -funroll-loops  -msse2  >  out
+rem
+   g95 -c CFML_math_gen.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_spher_harm.f90       -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_random.f90           -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_ffts.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_string_util.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_io_mess.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_Profile_TOF.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_Profile_Finger.f90   -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_Profile_Functs.f90   -O3  -std=f2003  -funroll-loops  -msse2  >> out
@@ -20,7 +23,6 @@ rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    g95 -c CFML_math_3D.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   g95 -c CFML_spher_harm.f90       -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_optimization.f90     -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_optimization_lsq.f90 -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_sym_table.f90        -O0  -std=f2003  -funroll-loops  -msse2  >> out

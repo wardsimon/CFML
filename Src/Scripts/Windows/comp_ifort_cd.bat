@@ -7,11 +7,14 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
+   ifort /c CFML_Constant.f90         /debug:full /check /traceback /nologo
+rem 
    ifort /c CFML_math_gen.f90         /debug:full /check /traceback /nologo
-   ifort /c CFML_string_util.f90      /debug:full /check /traceback /nologo
-   ifort /c CFML_io_mess.f90          /debug:full /check /traceback /nologo
+   ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo
    ifort /c CFML_random.f90           /debug:full /check /traceback /nologo
    ifort /c CFML_ffts.f90             /debug:full /check /traceback /nologo
+   ifort /c CFML_string_util.f90      /debug:full /check /traceback /nologo
+   ifort /c CFML_io_mess.f90          /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_TOF.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_Finger.f90   /debug:full /check /traceback /nologo
    ifort /c CFML_Profile_Functs.f90   /debug:full /check /traceback /nologo
@@ -20,7 +23,6 @@ rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90          /debug:full /check /traceback /nologo
-   ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo
    ifort /c CFML_optimization.f90     /debug:full /check /traceback /nologo
    ifort /c CFML_optimization_lsq.f90 /debug:full /check /traceback /nologo
    ifort /c CFML_sym_table.f90        /debug:full /check /traceback /nologo

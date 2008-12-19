@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_PowderProfiles_TOF
@@ -23,8 +23,6 @@
 !!----             Laurent C. Chapon (ISIS/RAL) => Ikeda-Carperter function
 !!----
 !!---- VARIABLES
-!!--++    DP                   [Private]
-!!--++    SP                   [Private]
 !!--++    INV_8LN2             [Private]
 !!--++    TWO_OVER_PI          [Private]
 !!----    DERIV_TOF_TYPE
@@ -48,7 +46,8 @@
 !!
 Module CFML_PowderProfiles_TOF
     !---- Use Modules ----!
-
+    Use CFML_Constants, only: cp, dp, sp
+    
     !---- Variables ----!
     implicit none
 
@@ -60,26 +59,6 @@ Module CFML_PowderProfiles_TOF
 
 
     !---- Definitions ----!
-
-    !!--++
-    !!--++ DP
-    !!--++    integer, parameter,private   :: dp = selected_real_kind(14, 300)
-    !!--++
-    !!--++    Private variable
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    integer, parameter,private   :: dp = selected_real_kind(14, 300)
-
-    !!--++
-    !!--++ SP
-    !!--++    integer, parameter,private   :: sp = selected_real_kind(6, 30)
-    !!--++
-    !!--++    Private variable
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    integer, parameter,private   :: sp = selected_real_kind(6, 30)
 
     !!--++
     !!--++ INV_8LN2
@@ -110,25 +89,25 @@ Module CFML_PowderProfiles_TOF
     !!---- TYPE :: DERIV_TOF_TYPE
     !!--..
     !!---- Type, public :: Deriv_TOF_Type
-    !!----    real(kind=sp) :: alfa     ! omega_a  DOmega/Dalpha
-    !!----    real(kind=sp) :: beta     ! omega_b  DOmega/Dbeta
-    !!----    real(kind=sp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
-    !!----    real(kind=sp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
-    !!----    real(kind=sp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
-    !!----    real(kind=sp) :: eta      ! omega_e  DOmega/Deta                     "
-    !!----    real(kind=sp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
+    !!----    real(kind=cp) :: alfa     ! omega_a  DOmega/Dalpha
+    !!----    real(kind=cp) :: beta     ! omega_b  DOmega/Dbeta
+    !!----    real(kind=cp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
+    !!----    real(kind=cp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
+    !!----    real(kind=cp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
+    !!----    real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
+    !!----    real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
     !!---- End Type Deriv_TOF_Type
     !!----
     !!---- Update: October - 2005
     !!
     Type, Public :: Deriv_TOF_Type
-       real(kind=sp) :: alfa     ! omega_a  DOmega/Dalpha
-       real(kind=sp) :: beta     ! omega_b  DOmega/Dbeta
-       real(kind=sp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
-       real(kind=sp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
-       real(kind=sp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
-       real(kind=sp) :: eta      ! omega_e  DOmega/Deta                     "
-       real(kind=sp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
+       real(kind=cp) :: alfa     ! omega_a  DOmega/Dalpha
+       real(kind=cp) :: beta     ! omega_b  DOmega/Dbeta
+       real(kind=cp) :: dt       ! omega_t  DOmega/Ddt      (dt=TOFi-TOF(Bragg))
+       real(kind=cp) :: sigma    ! omega_s  DOmega/Dsigma   (for tof_Jorgensen function)
+       real(kind=cp) :: gamma    ! omega_g  DOmega/Dgamma   (for tof_Jorgensen_VonDreele function)
+       real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
+       real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
     End Type Deriv_TOF_Type
     
     !!----
@@ -320,15 +299,15 @@ Module CFML_PowderProfiles_TOF
     
     !!----
     !!---- Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
-    !!----    real(kind=sp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
-    !!----    real(kind=sp),             intent( in) :: d         ! d-spacing of the peak in A
-    !!----    real(kind=sp),             intent( in) :: alfa      !  alfa  : units microsecs-1
-    !!----    real(kind=sp),             intent( in) :: beta      !  beta  : units microsecs-1
-    !!----    real(kind=sp),             intent( in) :: gamma     !  gamma : units microsecs
-    !!----    real(kind=sp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
-    !!----    real(kind=sp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
-    !!----    real(kind=sp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
-    !!----    real(kind=sp),             intent(out) :: tof_peak
+    !!----    real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
+    !!----    real(kind=cp),             intent( in) :: d         ! d-spacing of the peak in A
+    !!----    real(kind=cp),             intent( in) :: alfa      !  alfa  : units microsecs-1
+    !!----    real(kind=cp),             intent( in) :: beta      !  beta  : units microsecs-1
+    !!----    real(kind=cp),             intent( in) :: gamma     !  gamma : units microsecs
+    !!----    real(kind=cp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
+    !!----    real(kind=cp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
+    !!----    real(kind=cp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
+    !!----    real(kind=cp),             intent(out) :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Carpenter 
@@ -338,15 +317,15 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=sp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
-       real(kind=sp),             intent( in) :: d         ! d-spacing of the peak in A
-       real(kind=sp),             intent( in) :: alfa      !  alfa  : units microsecs-1
-       real(kind=sp),             intent( in) :: beta      !  beta  : units microsecs-1
-       real(kind=sp),             intent( in) :: gamma     !  gamma : units microsecs
-       real(kind=sp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
-       real(kind=sp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
-       real(kind=sp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
-       real(kind=sp),             intent(out) :: tof_peak
+       real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
+       real(kind=cp),             intent( in) :: d         ! d-spacing of the peak in A
+       real(kind=cp),             intent( in) :: alfa      !  alfa  : units microsecs-1
+       real(kind=cp),             intent( in) :: beta      !  beta  : units microsecs-1
+       real(kind=cp),             intent( in) :: gamma     !  gamma : units microsecs
+       real(kind=cp),             intent( in) :: eta       !  eta   : mixing coefficient calculated using TCH
+       real(kind=cp),             intent( in) :: kappa     ! Mixing coeficient of the Ikeda-Carpenter function
+       real(kind=cp),             intent( in) :: tof_theta ! This is the value of 2sin(theta)
+       real(kind=cp),             intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
 
        !---- local variables ----!
@@ -562,11 +541,11 @@ Module CFML_PowderProfiles_TOF
 
     !!----
     !!---- Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
-    !!----    real(kind=sp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
-    !!----    real(kind=sp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
-    !!----    real(kind=sp),             intent( in)  :: beta     !  beta  : units microsecs-1
-    !!----    real(kind=sp),             intent( in)  :: sigma    !  sigma : units microsecs**2
-    !!----    real(kind=sp),             intent(out)  :: tof_peak
+    !!----    real(kind=cp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
+    !!----    real(kind=cp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
+    !!----    real(kind=cp),             intent( in)  :: beta     !  beta  : units microsecs-1
+    !!----    real(kind=cp),             intent( in)  :: sigma    !  sigma : units microsecs**2
+    !!----    real(kind=cp),             intent(out)  :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen 
@@ -576,11 +555,11 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=sp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
-       real(kind=sp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
-       real(kind=sp),             intent( in)  :: beta     !  beta  : units microsecs-1
-       real(kind=sp),             intent( in)  :: sigma    !  sigma : units microsecs**2
-       real(kind=sp),             intent(out)  :: tof_peak
+       real(kind=cp),             intent( in)  :: dt       !  dt = TOF(channel i) -TOF(Bragg position): units microsecs
+       real(kind=cp),             intent( in)  :: alfa     !  alfa  : units microsecs-1
+       real(kind=cp),             intent( in)  :: beta     !  beta  : units microsecs-1
+       real(kind=cp),             intent( in)  :: sigma    !  sigma : units microsecs**2
+       real(kind=cp),             intent(out)  :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
 
        !---- Local Variables ----!
@@ -656,12 +635,12 @@ Module CFML_PowderProfiles_TOF
 
     !!----
     !!---- Subroutine Tof_Jorgensen_Vondreele((Dt,Alfa,Beta,Gamma, Eta,Tof_Peak,Deriv)
-    !!----    real(kind=sp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
-    !!----    real(kind=sp),             intent( in) :: alfa     !  alfa  : units microsecs-1
-    !!----    real(kind=sp),             intent( in) :: beta     !  beta  : units microsecs-1
-    !!----    real(kind=sp),             intent( in) :: gamma    !  gamma : units microsecs
-    !!----    real(kind=sp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
-    !!----    real(kind=sp),             intent(out) :: tof_peak
+    !!----    real(kind=cp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
+    !!----    real(kind=cp),             intent( in) :: alfa     !  alfa  : units microsecs-1
+    !!----    real(kind=cp),             intent( in) :: beta     !  beta  : units microsecs-1
+    !!----    real(kind=cp),             intent( in) :: gamma    !  gamma : units microsecs
+    !!----    real(kind=cp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
+    !!----    real(kind=cp),             intent(out) :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
     !!----
     !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele 
@@ -671,12 +650,12 @@ Module CFML_PowderProfiles_TOF
     !!
     Subroutine Tof_Jorgensen_Vondreele(Dt,Alfa,Beta,Gamma,Eta,Tof_Peak,Deriv)
        !---- Arguments ----!
-       real(kind=sp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
-       real(kind=sp),             intent( in) :: alfa     !  alfa  : units microsecs-1
-       real(kind=sp),             intent( in) :: beta     !  beta  : units microsecs-1
-       real(kind=sp),             intent( in) :: gamma    !  gamma : units microsecs
-       real(kind=sp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
-       real(kind=sp),             intent(out) :: tof_peak
+       real(kind=cp),             intent( in) :: dt       ! dt = TOF(channel i) -TOF(Bragg position)
+       real(kind=cp),             intent( in) :: alfa     !  alfa  : units microsecs-1
+       real(kind=cp),             intent( in) :: beta     !  beta  : units microsecs-1
+       real(kind=cp),             intent( in) :: gamma    !  gamma : units microsecs
+       real(kind=cp),             intent( in) :: eta      !  eta   : mixing coefficient calculated using TCH
+       real(kind=cp),             intent(out) :: tof_peak
        type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
 
        !---- local variables ----!

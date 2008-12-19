@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Math_3D
@@ -11,19 +11,20 @@
 !!----            October  - 1996  Routines created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,   only: sp, dp, pi, cosd, sind, to_rad, to_deg
+!!--++    Use CFML_Constants,   only: cp, sp, dp, pi, to_rad, to_deg
+!!--++    Use CFML_Math_General, only: cosd, sind
 !!----
 !!---- VARIABLES
-!!--++    EPS                          [Private]
-!!----    ERR_Math_3D
-!!----    ERR_Mess_Math_3D
+!!--++    EPS
+!!----    ERR_Math3D
+!!----    ERR_Math3D_Mess
 !!----
 !!---- PROCEDURES
 !!----    Functions:
 !!----       CROSS_PRODUCT
 !!--++       CROSS_PRODUCT_dp          [Overloaded]
-!!--++       CROSS_PRODUCT_sp          [Overloaded]
 !!--++       CROSS_PRODUCT_in          [Overloaded]
+!!--++       CROSS_PRODUCT_sp          [Overloaded]
 !!----       DETERM_A
 !!--++       DETERM_A_I                [Overloaded]
 !!--++       DETERM_A_R                [Overloaded]
@@ -71,7 +72,8 @@
  Module CFML_Math_3D
 
     !---- Use Modules ----!
-    Use CFML_Math_General, only: sp, dp, pi, cosd, sind, to_rad, to_deg
+    Use CFML_Constants,   only: cp, sp, dp, pi, to_rad, to_deg
+    Use CFML_Math_General, only: cosd, sind
 
     implicit none
 
@@ -99,38 +101,36 @@
                Get_Spheric_Coord_sp
 
     !---- Definitions ----!
-
-    !!--++
-    !!--++ EPS
-    !!--++    real(kind=sp), private :: eps
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    epsilon value may be changed by calling to the public procedure
-    !!--++    Set_Eps
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=sp), private ::  eps = 0.00001
+    !!--++                                                
+    !!--++  EPS                                           
+    !!--++     real(kind=cp), private ::  eps=0.00001_cp   
+    !!--++                                                
+    !!--++  (PRIVATE)                                              
+    !!--++     Epsilon value                              
+    !!--++                                                
+    !!--++  Update: February - 2005                       
+    !!                                                    
+    real(kind=cp),  private  ::  eps=0.00001_cp 
 
     !!----
-    !!---- ERR_Math_3D
-    !!----    logical :: ERR_Math_3D
+    !!---- ERR_Math3D
+    !!----    logical :: ERR_Math3D
     !!----
     !!----    Logical Variable indicating an error in CFML_Math_3D module
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public  :: ERR_Math_3D
+    logical, public  :: ERR_Math3D
 
     !!----
-    !!---- ERR_Mess_Math_3D
-    !!----    character(len=150) :: ERR_Mess_Math_3D
+    !!---- ERR_Math3D_Mess
+    !!----    character(len=150) :: ERR_Math3D_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Mess_Math_3D
+    character(len=150), public :: ERR_Math3D_Mess
 
     !---- Interfaces - Overlapp ----!
     Interface  Cross_Product
@@ -213,30 +213,6 @@
     End Function Cross_Product_dp
 
     !!--++
-    !!--++ Function  Cross_Product_sp(U,V) Result(W)
-    !!--++    real(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
-    !!--++    real(kind=sp), dimension(3), intent( in) :: v   !  In -> Vector 2
-    !!--++    real(kind=sp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
-    !!--++
-    !!--++    (OVERLOADED)
-    !!--++    Calculates the cross product of vectors u and v
-    !!--++    Vectors, w= u x v, are given in cartesian components.
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    Function Cross_Product_sp(u,v) Result(w)
-       !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in) :: u,v
-       real(kind=sp), dimension(3)              :: w
-
-       w(1)=u(2)*v(3)-u(3)*v(2)  ! i  j   k !
-       w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
-       w(3)=u(1)*v(2)-u(2)*v(1)  !v1  v2  v3!
-
-       return
-    End Function Cross_Product_sp
-    
-    !!--++
     !!--++ Function  Cross_Product_in(U,V) Result(W)
     !!--++    integer, dimension(3), intent( in) :: u   !  In -> Vector 1
     !!--++    integer, dimension(3), intent( in) :: v   !  In -> Vector 2
@@ -260,10 +236,34 @@
 
        return
     End Function Cross_Product_in
+    
+    !!--++
+    !!--++ Function  Cross_Product_sp(U,V) Result(W)
+    !!--++    real(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
+    !!--++    real(kind=sp), dimension(3), intent( in) :: v   !  In -> Vector 2
+    !!--++    real(kind=sp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the cross product of vectors u and v
+    !!--++    Vectors, w= u x v, are given in cartesian components.
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    Function Cross_Product_sp(u,v) Result(w)
+       !---- Argument ----!
+       real(kind=sp), dimension(3), intent( in) :: u,v
+       real(kind=sp), dimension(3)              :: w
 
+       w(1)=u(2)*v(3)-u(3)*v(2)  ! i  j   k !
+       w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
+       w(3)=u(1)*v(2)-u(2)*v(1)  !v1  v2  v3!
+
+       return
+    End Function Cross_Product_sp
+    
     !!----
     !!---- Function Determ_A(A)
-    !!----    integer/real(kind=sp), dimension(3,3), intent(in)  :: a
+    !!----    integer/real(kind=cp), dimension(3,3), intent(in)  :: a
     !!----
     !!----    Calculates the determinant of an integer/real 3x3 matrix
     !!----
@@ -292,7 +292,7 @@
 
     !!--++
     !!--++ Function Determ_A_R(A)
-    !!--++    real(kind=sp), dimension(3,3), intent(in)  :: a
+    !!--++    real(kind=cp), dimension(3,3), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of a real 3x3 matrix
@@ -301,8 +301,8 @@
     !!
     Function Determ_A_R(A) Result (determ)
        !---- Argument ----!
-       real(kind=sp), dimension(3,3), intent(in) :: A
-       real(kind=sp)                             :: determ
+       real(kind=cp), dimension(3,3), intent(in) :: A
+       real(kind=cp)                             :: determ
 
        determ=A(1,1)*A(2,2)*A(3,3)+A(2,1)*A(3,2)*A(1,3)+A(1,2)*A(2,3)*A(3,1) &
              -A(1,3)*A(2,2)*A(3,1)-A(1,1)*A(3,2)*A(2,3)-A(1,2)*A(2,1)*A(3,3)
@@ -312,7 +312,7 @@
 
     !!----
     !!---- Function  Determ_V(a,b,c)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: a,b,c
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: a,b,c
     !!----
     !!----    Calculates the determinant of the components of three vectors
     !!----
@@ -349,7 +349,7 @@
 
     !!--++
     !!--++ Function Determ_V_R(A,B,C)
-    !!--++    real(kin=sp), dimension(3), intent(in) :: a,b,c
+    !!--++    real(kin=cp), dimension(3), intent(in) :: a,b,c
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the determinant of the components of three vectors
@@ -358,8 +358,8 @@
     !!
     Function Determ_V_R(a,b,c) Result(det)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: a,b,c
-       real(kind=sp)                           :: det
+       real(kind=cp), dimension(3), intent(in) :: a,b,c
+       real(kind=cp)                           :: det
 
        !---- Local variables ----!
        integer :: i,j,k
@@ -464,9 +464,9 @@
 
     !!----
     !!---- Function Rotate_OX(X,Angle) Result (Vec)
-    !!----    real, dimension(3), intent(in) :: x       !  In -> Vector
-    !!----    real,               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real, dimension(3)             :: vec     ! Out -> Vector
+    !!----    real(kind=cp), dimension(3), intent(in) :: x       !  In -> Vector
+    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
+    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
     !!----
     !!----    X Rotation. Positive rotation is counter-clockwise
     !!----
@@ -474,22 +474,22 @@
     !!
     Function Rotate_OX(X,Angle) Result(vec)
        !---- Arguments ----!
-       real, dimension(3), intent(in) :: x
-       real,               intent(in) :: angle
-       real, dimension(3)             :: vec
+       real(kind=cp), dimension(3), intent(in) :: x
+       real(kind=cp),               intent(in) :: angle
+       real(kind=cp), dimension(3)             :: vec
 
        !---- Variables locales ----!
-       real, dimension(3,3)           :: rot
+       real(kind=cp), dimension(3,3)           :: rot
 
        rot(1,1)=  1.0
-       rot(2,1)=  0.0
-       rot(3,1)=  0.0
+       rot(2,1)=  0.0_cp
+       rot(3,1)=  0.0_cp
 
-       rot(1,2)=  0.0
+       rot(1,2)=  0.0_cp
        rot(2,2)=  cosd(angle)
        rot(3,2)=  sind(angle)
 
-       rot(1,3)=  0.0
+       rot(1,3)=  0.0_cp
        rot(2,3)=  -sind(angle)
        rot(3,3)=  cosd(angle)
 
@@ -500,9 +500,9 @@
 
     !!----
     !!---- Function Rotate_OY(Y,Angle) Result (Vec)
-    !!----    real, dimension(3), intent(in) :: y       !  In -> Vector
-    !!----    real,               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real, dimension(3)             :: vec     ! Out -> Vector
+    !!----    real(kind=cp), dimension(3), intent(in) :: y       !  In -> Vector
+    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
+    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
     !!----
     !!----    Y Rotation.
     !!----
@@ -510,23 +510,23 @@
     !!
     Function Rotate_OY(Y,Angle) Result(vec)
        !---- Arguments ----!
-       real, dimension(3), intent(in) :: y
-       real,               intent(in) :: angle     ! Angulo en grados
-       real, dimension(3)             :: vec
+       real(kind=cp), dimension(3), intent(in) :: y
+       real(kind=cp),               intent(in) :: angle     ! Angulo en grados
+       real(kind=cp), dimension(3)             :: vec
 
        !---- Variables locales ----!
-       real, dimension(3,3)           :: rot
+       real(kind=cp), dimension(3,3)           :: rot
 
        rot(1,1)=  cosd(angle)
-       rot(2,1)=  0.0
+       rot(2,1)=  0.0_cp
        rot(3,1)=  -sind(angle)
 
-       rot(1,2)=  0.0
-       rot(2,2)=  1.0
-       rot(3,2)=  0.0
+       rot(1,2)=  0.0_cp
+       rot(2,2)=  1.0_cp
+       rot(3,2)=  0.0_cp
 
        rot(1,3)= sind(angle)
-       rot(2,3)= 0.0
+       rot(2,3)= 0.0_cp
        rot(3,3)= cosd(angle)
 
       vec=matmul(rot,y)
@@ -536,9 +536,9 @@
 
     !!----
     !!---- Function Rotate_OZ(Z,Angle) Result (Vec)
-    !!----    real, dimension(3), intent(in) :: z       !  In -> Vector
-    !!----    real,               intent(in) :: angle   !  In -> Angle (Degrees)
-    !!----    real, dimension(3)             :: vec     ! Out -> Vector
+    !!----    real(kind=cp), dimension(3), intent(in) :: z       !  In -> Vector
+    !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
+    !!----    real(kind=cp), dimension(3)             :: vec     ! Out -> Vector
     !!----
     !!----    Z Rotation
     !!----
@@ -546,24 +546,24 @@
     !!
     Function Rotate_OZ(Z,Angle) Result(vec)
        !---- Arguments ----!
-       real, dimension(3), intent(in) :: z
-       real,               intent(in) :: angle
-       real, dimension(3)             :: vec
+       real(kind=cp), dimension(3), intent(in) :: z
+       real(kind=cp),               intent(in) :: angle
+       real(kind=cp), dimension(3)             :: vec
 
        !---- Variables locales ----!
-       real, dimension(3,3)           :: rot
+       real(kind=cp), dimension(3,3)           :: rot
 
        rot(1,1)=  cosd(angle)
        rot(2,1)=  sind(angle)
-       rot(3,1)=  0.0
+       rot(3,1)=  0.0_cp
 
        rot(1,2)=  -sind(angle)
        rot(2,2)=  cosd(angle)
-       rot(3,2)=  0.0
+       rot(3,2)=  0.0_cp
 
-       rot(1,3)=  0.0
-       rot(2,3)=  0.0
-       rot(3,3)=  1.0
+       rot(1,3)=  0.0_cp
+       rot(2,3)=  0.0_cp
+       rot(3,3)=  1.0_cp
 
        vec=matmul(rot,z)
 
@@ -572,9 +572,9 @@
 
     !!----
     !!---- Function Veclength(A,B) Result(c)
-    !!----    real(kind=sp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=sp), dimension(3),   intent(in)  :: b
-    !!----    real(kind=sp),                             :: c
+    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
+    !!----    real(kind=cp), dimension(3),   intent(in)  :: b
+    !!----    real(kind=cp),                             :: c
     !!----
     !!----    Length of vector B when A is the Crystallographic
     !!----    to orthogonal matrix length=c
@@ -583,13 +583,13 @@
     !!
     Function Veclength(a,b) Result(c)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  , dimension(3,3)       :: a
-       real(kind=sp), intent(in)  , dimension(3  )       :: b
-       real(kind=sp)                                     :: c
+       real(kind=cp), intent(in)  , dimension(3,3)       :: a
+       real(kind=cp), intent(in)  , dimension(3  )       :: b
+       real(kind=cp)                                     :: c
 
        !---- Local variables ----!
        integer                     :: i,j
-       real(kind=sp), dimension(3) :: v
+       real(kind=cp), dimension(3) :: v
 
        v=0.0
        do i = 1,3
@@ -616,15 +616,15 @@
     !!
     Subroutine Init_Err_Math3D()
 
-       err_math_3d=.false.
-       err_mess_math_3d=" "
+       ERR_Math3D=.false.
+       ERR_Math3D_Mess=" "
 
        return
     End Subroutine Init_Err_Math3D
 
     !!----
     !!---- Subroutine Set_Eps(Neweps)
-    !!----    real(kind=sp), intent( in) :: neweps
+    !!----    real(kind=cp), intent( in) :: neweps
     !!----
     !!----    Sets global EPS to the value "neweps"
     !!----
@@ -632,7 +632,7 @@
     !!
     Subroutine Set_Eps(Neweps)
        !---- Arguments ----!
-       real(kind=sp), intent( in) :: neweps
+       real(kind=cp), intent( in) :: neweps
 
        eps=neweps
 
@@ -930,13 +930,13 @@
 
     !!----
     !!---- Subroutine Get_Plane_from_Points(P1,P2,P3,A,B,C,D)
-    !!----    real(kind=sp), dimension(3), intent(in) :: P1
-    !!----    real(kind=sp), dimension(3), intent(in) :: P2
-    !!----    real(kind=sp), dimension(3), intent(in) :: P3
-    !!----    real(kind=sp),               intent(out):: A
-    !!----    real(kind=sp),               intent(out):: B
-    !!----    real(kind=sp),               intent(out):: C
-    !!----    real(kind=sp),               intent(out):: D
+    !!----    real(kind=cp), dimension(3), intent(in) :: P1
+    !!----    real(kind=cp), dimension(3), intent(in) :: P2
+    !!----    real(kind=cp), dimension(3), intent(in) :: P3
+    !!----    real(kind=cp),               intent(out):: A
+    !!----    real(kind=cp),               intent(out):: B
+    !!----    real(kind=cp),               intent(out):: C
+    !!----    real(kind=cp),               intent(out):: D
     !!----
     !!----    Caculate the implicit form of a Plane in 3D as
     !!----    A * X + B * Y + C * Z + D = 0
@@ -945,13 +945,13 @@
     !!
     Subroutine Get_Plane_from_Points(P1, P2, P3, A, B, C, D)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: P1
-       real(kind=sp), dimension(3), intent(in) :: P2
-       real(kind=sp), dimension(3), intent(in) :: P3
-       real(kind=sp),               intent(out):: A
-       real(kind=sp),               intent(out):: B
-       real(kind=sp),               intent(out):: C
-       real(kind=sp),               intent(out):: D
+       real(kind=cp), dimension(3), intent(in) :: P1
+       real(kind=cp), dimension(3), intent(in) :: P2
+       real(kind=cp), dimension(3), intent(in) :: P3
+       real(kind=cp),               intent(out):: A
+       real(kind=cp),               intent(out):: B
+       real(kind=cp),               intent(out):: C
+       real(kind=cp),               intent(out):: D
 
        a = ( p2(2) - p1(2) ) * ( p3(3) - p1(3) ) &
            - ( p2(3) - p1(3) ) * ( p3(2) - p1(2) )
@@ -1091,9 +1091,9 @@
 
     !!----
     !!---- Subroutine Matrix_DiagEigen(A, V, C)
-    !!----    real(kind=sp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=sp), dimension(3),   intent(out) :: v
-    !!----    real(kind=sp), dimension(3,3), intent(out) :: c
+    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
+    !!----    real(kind=cp), dimension(3),   intent(out) :: v
+    !!----    real(kind=cp), dimension(3,3), intent(out) :: c
     !!----
     !!----    Diagonalize the matrix A, put eigenvalues in V and
     !!----    eigenvectors in C
@@ -1102,18 +1102,18 @@
     !!
     Subroutine Matrix_DiagEigen(a,v,c)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  , dimension(3,3)    :: a
-       real(kind=sp), intent(out) , dimension(3)      :: v
-       real(kind=sp), intent(out) , dimension(3,3)    :: c
+       real(kind=cp), intent(in)  , dimension(3,3)    :: a
+       real(kind=cp), intent(out) , dimension(3)      :: v
+       real(kind=cp), intent(out) , dimension(3,3)    :: c
 
        !---- Local Variables ----!
        integer, parameter            :: n=3
        integer                       :: i, j, k, itmax, nm1, ip1, iter
-       real(kind=sp), dimension(3)   :: u
-       real(kind=sp), dimension(3,3) :: e
-       real(kind=sp), parameter      :: eps1=1.e-7 , eps2=1.e-7 , eps3=1.e-7
-       real(kind=sp)                 :: sigma1, offdsq, p, q, spq, csa, sna
-       real(kind=sp)                 :: holdik, holdki, sigma2
+       real(kind=cp), dimension(3)   :: u
+       real(kind=cp), dimension(3,3) :: e
+       real(kind=cp), parameter      :: eps1=1.e-7 , eps2=1.e-7 , eps3=1.e-7
+       real(kind=cp)                 :: sigma1, offdsq, p, q, spq, csa, sna
+       real(kind=cp)                 :: holdik, holdki, sigma2
 
        call init_err_math3d()
        nm1=n-1
@@ -1195,16 +1195,16 @@
           sigma1=sigma2
        end do
 
-       err_math_3d =.true.
-       err_mess_math_3d=" Convergence not reached in diagonalization "
+       ERR_Math3D =.true.
+       ERR_Math3D_Mess=" Convergence not reached in diagonalization "
 
        return
     End Subroutine Matrix_DiagEigen
 
     !!----
     !!---- Subroutine Matrix_Inverse(A, B, Ifail)
-    !!----    real(kind=sp), dimension(3,3), intent(in)  :: a
-    !!----    real(kind=sp), dimension(3,3), intent(out) :: b
+    !!----    real(kind=cp), dimension(3,3), intent(in)  :: a
+    !!----    real(kind=cp), dimension(3,3), intent(out) :: b
     !!----    integer                      , intent(out) :: ifail
     !!----                                                  0 = OK; 1 = Fail
     !!----
@@ -1214,13 +1214,13 @@
     !!
     Subroutine Matrix_Inverse(a,b,ifail)
        !---- Argument ----!
-       real(kind=sp), dimension(3,3), intent(in)  :: a
-       real(kind=sp), dimension(3,3), intent(out) :: b
+       real(kind=cp), dimension(3,3), intent(in)  :: a
+       real(kind=cp), dimension(3,3), intent(out) :: b
        integer                      , intent(out) :: ifail
 
        !---- Local variables ----!
-       real(kind=sp), parameter :: epso=1.0e-20
-       real(kind=sp)            :: dmat
+       real(kind=cp), parameter :: epso=1.0e-20
+       real(kind=cp)            :: dmat
 
        ifail=0
        call init_err_math3d()
@@ -1238,8 +1238,8 @@
 
        if (abs(dmat) < epso) then
           ifail=1
-          err_math_3d =.true.
-          err_mess_math_3d="Singular Matrix: inversion impossible"
+          ERR_Math3D =.true.
+          ERR_Math3D_Mess="Singular Matrix: inversion impossible"
           return
        end if
 
@@ -1251,9 +1251,9 @@
     !!----
     !!---- Subroutine Resolv_Sist_1X2(W,T,Ts,X,Ix)
     !!----    integer,       dimension(2),      intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=sp),                    intent(in) :: t     !  In -> Input value
-    !!----    real(kind=sp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=sp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
+    !!----    real(kind=cp),                    intent(in) :: t     !  In -> Input value
+    !!----    real(kind=cp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
+    !!----    real(kind=cp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
     !!----    integer, dimension(2),            intent(out):: ix    ! Out -> determine if solution
     !!----                                                                   1: x, 2: y, 3: z
     !!--<<
@@ -1266,9 +1266,9 @@
     Subroutine Resolv_Sist_1x2(w,t,ts,x,ix)
        !---- Arguments ----!
        integer,dimension(2), intent( in) :: w
-       real(kind=sp),                 intent( in) :: t
-       real(kind=sp), dimension(2),   intent(out) :: ts
-       real(kind=sp), dimension(2),   intent(out) :: x
+       real(kind=cp),                 intent( in) :: t
+       real(kind=cp), dimension(2),   intent(out) :: ts
+       real(kind=cp), dimension(2),   intent(out) :: x
        integer,dimension(2), intent(out) :: ix
 
        !---- Initialize ----!
@@ -1283,8 +1283,8 @@
              ix(1)=1
              ix(2)=2
           else
-             err_math_3d=.true.
-             err_mess_math_3d="Inconsistent solution (1x2)"
+             ERR_Math3D=.true.
+             ERR_Math3D_Mess="Inconsistent solution (1x2)"
           end if
           return
        end if
@@ -1313,9 +1313,9 @@
     !!----
     !!---- Subroutine Resolv_Sist_1X3(W,T,Ts,X,Ix)
     !!----    integer, dimension(3),            intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=sp),                    intent(in) :: t     !  In -> Input value
-    !!----    real(kind=sp), dimension(3),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=sp), dimension(3),      intent(out):: x     ! Out -> Fixed value for x,y,z
+    !!----    real(kind=cp),                    intent(in) :: t     !  In -> Input value
+    !!----    real(kind=cp), dimension(3),      intent(out):: ts    ! Out -> Fixed value of solution
+    !!----    real(kind=cp), dimension(3),      intent(out):: x     ! Out -> Fixed value for x,y,z
     !!----    integer, dimension(3),            intent(out):: ix    ! Out -> determine if solution
     !!----                                                                   1: x, 2: y, 3: z
     !!--<<
@@ -1328,17 +1328,17 @@
     Subroutine Resolv_Sist_1x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer,dimension(3), intent( in) :: w
-       real(kind=sp),                 intent( in) :: t
-       real(kind=sp), dimension(3),   intent(out) :: ts
-       real(kind=sp), dimension(3),   intent(out) :: x
+       real(kind=cp),                 intent( in) :: t
+       real(kind=cp), dimension(3),   intent(out) :: ts
+       real(kind=cp), dimension(3),   intent(out) :: x
        integer,dimension(3), intent(out) :: ix
 
        !---- Local Variables ----!
        integer               :: i, zeros
        integer, dimension(2) :: w1
        integer, dimension(2) :: ix1
-       real(kind=sp), dimension(2)    :: ts1
-       real(kind=sp), dimension(2)    :: x1
+       real(kind=cp), dimension(2)    :: ts1
+       real(kind=cp), dimension(2)    :: x1
 
        !---- Initialize ----!
        ts = 0.0
@@ -1358,8 +1358,8 @@
                    ix(i)=i
                 end do
              else
-                err_math_3d=.true.
-                err_mess_math_3d="Inconsistent solution (1 x 3)"
+                ERR_Math3D=.true.
+                ERR_Math3D_Mess="Inconsistent solution (1 x 3)"
              end if
 
           case (2)
@@ -1417,8 +1417,8 @@
                end select
 
           case (0)
-             err_math_3d=.true.
-             err_mess_math_3d="Inconsistent case ax+by+cz=t (1x3)"
+             ERR_Math3D=.true.
+             ERR_Math3D_Mess="Inconsistent case ax+by+cz=t (1x3)"
        end select
 
        return
@@ -1427,9 +1427,9 @@
     !!----
     !!---- Subroutine Resolv_Sist_2X2(W,T,Ts,X,Ix)
     !!----    integer, dimension(2,2),          intent(in) :: w     !  In -> Input vector
-    !!----    real(kind=sp), dimension(2),      intent(in) :: t     !  In -> Input value
-    !!----    real(kind=sp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
-    !!----    real(kind=sp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
+    !!----    real(kind=cp), dimension(2),      intent(in) :: t     !  In -> Input value
+    !!----    real(kind=cp), dimension(2),      intent(out):: ts    ! Out -> Fixed value of solution
+    !!----    real(kind=cp), dimension(2),      intent(out):: x     ! Out -> Fixed value for x,y
     !!----    integer, dimension(2),            intent(out):: ix    ! Out -> determine if solution
     !!----                                                                   1: x, 2: y, 3: z
     !!--<<
@@ -1443,15 +1443,15 @@
     Subroutine Resolv_Sist_2x2(w,t,ts,x,ix)
        !---- Arguments ----!
        integer,dimension(2,2), intent( in) :: w
-       real(kind=sp),dimension(2),      intent( in) :: t
-       real(kind=sp),dimension(2),      intent(out) :: ts
-       real(kind=sp),dimension(2),      intent(out) :: x
+       real(kind=cp),dimension(2),      intent( in) :: t
+       real(kind=cp),dimension(2),      intent(out) :: ts
+       real(kind=cp),dimension(2),      intent(out) :: x
        integer,dimension(2),   intent(out) :: ix
 
        !---- Local Variables ----!
        integer                 :: i,deter
        integer, dimension(2)   :: zeros,colum
-       real(kind=sp)           :: rden, rnum
+       real(kind=cp)           :: rden, rnum
 
        !---- Initialize ----!
        ts    = 0.0
@@ -1484,8 +1484,8 @@
                    ix(1)=1
                    ix(2)=2
                 else
-                   err_math_3d=.true.
-                   err_mess_math_3d="Inconsistent solution (2x2)"
+                   ERR_Math3D=.true.
+                   ERR_Math3D_Mess="Inconsistent solution (2x2)"
                 end if
 
              case (1)
@@ -1530,9 +1530,9 @@
     !!----
     !!---- Subroutine Resolv_Sist_2X3(W,T,Ts,X,Ix)
     !!----    integer, dimension(2,3),          intent(in) :: w      !  In -> Input vector
-    !!----    real(kind=sp), dimension(2),      intent(in) :: t      !  In -> Input value
-    !!----    real(kind=sp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
-    !!----    real(kind=sp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
+    !!----    real(kind=cp), dimension(2),      intent(in) :: t      !  In -> Input value
+    !!----    real(kind=cp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
+    !!----    real(kind=cp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
     !!----    integer, dimension(3),            intent(out):: ix     ! Out -> determine if solution
     !!----                                                                    1: x, 2: y, 3: z
     !!----               w11 x1 + w12 x2 + w13 x3 = t1
@@ -1544,9 +1544,9 @@
     Subroutine Resolv_Sist_2x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer,dimension(2,3),          intent( in) :: w
-       real(kind=sp),dimension(2),      intent( in) :: t
-       real(kind=sp),dimension(3),      intent(out) :: ts
-       real(kind=sp),dimension(3),      intent(out) :: x
+       real(kind=cp),dimension(2),      intent( in) :: t
+       real(kind=cp),dimension(3),      intent(out) :: ts
+       real(kind=cp),dimension(3),      intent(out) :: x
        integer,dimension(3),            intent(out) :: ix
 
        !---- Local Variables ----!
@@ -1557,9 +1557,9 @@
        integer, dimension(2,2) :: w1
        integer, dimension(2,3) :: wm
        integer, dimension(2)   :: wc
-       real(kind=sp)                    :: tc
-       real(kind=sp), dimension(2)      :: tm
-       real(kind=sp), dimension(2)      :: ts1, x1
+       real(kind=cp)                    :: tc
+       real(kind=cp), dimension(2)      :: tm
+       real(kind=cp), dimension(2)      :: ts1, x1
 
        !---- Initialize ----!
        ts    = 0.0
@@ -1579,8 +1579,8 @@
                    ix(i)=i
                 end do
              else
-                err_math_3d=.true.
-                err_mess_math_3d="Inconsistent solution in (2x3)"
+                ERR_Math3D=.true.
+                ERR_Math3D_Mess="Inconsistent solution in (2x3)"
              end if
 
           case (2)
@@ -2024,9 +2024,9 @@
     !!----
     !!---- Subroutine Resolv_Sist_3X3(W,T,Ts,X,Ix)
     !!----    integer, dimension(3,3),          intent(in) :: w      !  In -> Input vector
-    !!----    real(kind=sp), dimension(3),      intent(in) :: t      !  In -> Input value
-    !!----    real(kind=sp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
-    !!----    real(kind=sp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
+    !!----    real(kind=cp), dimension(3),      intent(in) :: t      !  In -> Input value
+    !!----    real(kind=cp), dimension(3),      intent(out):: ts     ! Out -> Fixed value of solution
+    !!----    real(kind=cp), dimension(3),      intent(out):: x      ! Out -> Fixed value for x,y
     !!----    integer, dimension(3),            intent(out):: ix     ! Out -> determine if solution
     !!----                                                                     1: x, 2: y, 3: z
     !!--<<
@@ -2041,9 +2041,9 @@
     Subroutine Resolv_Sist_3x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(3,3),          intent(in) :: w
-       real(kind=sp), dimension(3),      intent(in) :: t
-       real(kind=sp), dimension(3),      intent(out):: ts
-       real(kind=sp), dimension(3),      intent(out):: x
+       real(kind=cp), dimension(3),      intent(in) :: t
+       real(kind=cp), dimension(3),      intent(out):: ts
+       real(kind=cp), dimension(3),      intent(out):: x
        integer, dimension(3),            intent(out):: ix
 
        !---- Local variables ----!
@@ -2051,10 +2051,10 @@
        integer, dimension(3)   :: fila
        integer, dimension(3,3) :: w1
        integer, dimension(2,3) :: wm
-       real(kind=sp)                    :: rnum, rden
-       real(kind=sp), dimension(3)      :: t1
-       real(kind=sp), dimension(2)      :: tm
-       real(kind=sp),dimension(3,3)     :: rw
+       real(kind=cp)                    :: rnum, rden
+       real(kind=cp), dimension(3)      :: t1
+       real(kind=cp), dimension(2)      :: tm
+       real(kind=cp),dimension(3,3)     :: rw
 
        !---- Initialize ----!
        ts  = 0.0
@@ -2100,8 +2100,8 @@
                       ix(i)=i
                    end do
                 else
-                   err_math_3d=.true.
-                   err_mess_math_3d="Inconsistent system (3 x 3)"
+                   ERR_Math3D=.true.
+                   ERR_Math3D_Mess="Inconsistent system (3 x 3)"
                 end if
 
              !---- Two rows with zeroes ----!

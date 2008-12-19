@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 2005 - 2008,              Version: 3.0
+!!---- Copyleft(C) 1999 - 2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Marc Janoschek
 !!----
 !!---- MODULE: CFML_Polarimetry
@@ -20,8 +20,8 @@
 !!----
 !!---- DEPENDENCIES
 !!--++    use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-!!--++    Use CFML_Math_General,      only: sp
-!!--++    USE CFML_Math_3D,       only: Cross_Product
+!!--++    Use CFML_Constants,      only: cp,tpi
+!!--++    USE CFML_Math_3D,         only: Cross_Product
 !!----
 !!---- VARIABLES
 !!----    POLAR_INFO_TYPE
@@ -47,9 +47,9 @@
 !!
  Module CFML_Polarimetry
     !---- Used External Modules ----!
-    use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-    Use CFML_Math_General,      only: sp, tpi
-    USE CFML_Math_3D,       ONLY: Cross_Product
+    Use CFML_Constants,      only: cp, tpi
+    Use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
+    Use CFML_Math_3D,         only: Cross_Product
 
     !---- Variables ----!
     implicit none
@@ -78,45 +78,45 @@
     !!---- TYPE :: Polar_Info_tpye
     !!--..
     !!---- Type, public :: Polar_Info_type
-    !!----     real(kind=sp), dimension (3)    :: H     ! Scattering vector in hkl
-    !!----     real(kind=sp), dimension (3)    :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
+    !!----     real(kind=cp), dimension (3)    :: H     ! Scattering vector in hkl
+    !!----     real(kind=cp), dimension (3)    :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
     !!----     type(crystal_cell_type)         :: Cell  ! Unit Cell of Crystal
-    !!----     real(kind=sp)                   :: P     ! magnitude of initial polarisation vector
+    !!----     real(kind=cp)                   :: P     ! magnitude of initial polarisation vector
     !!----     complex, dimension (3)          :: MIV   ! magnetic interaction vector
     !!----     complex                         :: NSF   ! nuclear structure factor
-    !!----     real(kind=sp)                   :: NC    ! nuclear scattering contribution
-    !!----     real(kind=sp)                   :: MY    ! magnetic contribution along y
-    !!----     real(kind=sp)                   :: MZ    ! magnetic contribution along z
-    !!----     real(kind=sp)                   :: RY    ! real part of nuclear magnetic interference term along y
-    !!----     real(kind=sp)                   :: RZ    ! real part of nuclear magnetic interference term along z
-    !!----     real(kind=sp)                   :: IY    ! imaginary part of nuclear magnetic interference term along y
-    !!----     real(kind=sp)                   :: IZ    ! imaginary part of nuclear magnetic interference term along y
-    !!----     real(kind=sp)                   :: TC    ! chiral contribution
-    !!----     real(kind=sp)                   :: MM    ! magnetic-magnetic interference term
-    !!----     real(kind=sp), dimension (3)    :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
-    !!----     real(kind=sp), dimension (3,3)  :: Pij   ! the polarisation tensor
+    !!----     real(kind=cp)                   :: NC    ! nuclear scattering contribution
+    !!----     real(kind=cp)                   :: MY    ! magnetic contribution along y
+    !!----     real(kind=cp)                   :: MZ    ! magnetic contribution along z
+    !!----     real(kind=cp)                   :: RY    ! real part of nuclear magnetic interference term along y
+    !!----     real(kind=cp)                   :: RZ    ! real part of nuclear magnetic interference term along z
+    !!----     real(kind=cp)                   :: IY    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp)                   :: IZ    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp)                   :: TC    ! chiral contribution
+    !!----     real(kind=cp)                   :: MM    ! magnetic-magnetic interference term
+    !!----     real(kind=cp), dimension (3)    :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
+    !!----     real(kind=cp), dimension (3,3)  :: Pij   ! the polarisation tensor
     !!---- End Type Polar_Info_type
     !!----
     !!---- Update: April 2008
     !!
     Type, public :: Polar_Info_type
-       REAL(KIND=sp), DIMENSION (3)     :: H
-       REAL(KIND=sp), DIMENSION (3)     :: SPV
+       real(kind=cp), DIMENSION (3)     :: H
+       real(kind=cp), DIMENSION (3)     :: SPV
        TYPE(Crystal_Cell_Type)          :: Cell
-       REAL(KIND=sp)                    :: P
+       real(kind=cp)                    :: P
        COMPLEX, DIMENSION (3)           :: MIV
        COMPLEX                          :: NSF
-       REAL(KIND=sp)                    :: NC
-       REAL(KIND=sp)                    :: MY
-       REAL(KIND=sp)                    :: MZ
-       REAL(KIND=sp)                    :: RY
-       REAL(KIND=sp)                    :: RZ
-       REAL(KIND=sp)                    :: IY
-       REAL(KIND=sp)                    :: IZ
-       REAL(KIND=sp)                    :: TC
-       REAL(KIND=sp)                    :: MM
-       REAL(KIND=sp), DIMENSION (3)     :: CS
-       REAL(KIND=sp), DIMENSION (3,3)   :: Pij
+       real(kind=cp)                    :: NC
+       real(kind=cp)                    :: MY
+       real(kind=cp)                    :: MZ
+       real(kind=cp)                    :: RY
+       real(kind=cp)                    :: RZ
+       real(kind=cp)                    :: IY
+       real(kind=cp)                    :: IZ
+       real(kind=cp)                    :: TC
+       real(kind=cp)                    :: MM
+       real(kind=cp), DIMENSION (3)     :: CS
+       real(kind=cp), DIMENSION (3,3)   :: Pij
     End Type Polar_Info_type
 
  Contains
@@ -129,7 +129,7 @@
     !!--++ Function Im_Nm_Y(Nsf, Miv_Pf) Result(I_Nm_Y)
     !!--++    Complex,               intent( in)  :: NSF      !  In  -> Nuclear Structure Factor
     !!--++    Complex, dimension(3), intent( in)  :: MIV_PF   !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                       :: I_NM_Y   !  Out -> Imaginary part of nuclear magnetic interference contribution along Y
+    !!--++    real(kind=cp)                       :: I_NM_Y   !  Out -> Imaginary part of nuclear magnetic interference contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the imaginary part of the nuclear magnetic interference contribution along Y
@@ -141,7 +141,7 @@
        !---- Argument ----!
        Complex,               intent( in)  :: NSF
        Complex, dimension(3), intent( in)  :: MIV_PF
-       Real(kind=sp)                       :: I_NM_Y
+       real(kind=cp)                       :: I_NM_Y
        
        I_NM_Y = AIMAG(NSF * CONJG(MIV_PF(2)) - CONJG(NSF) * MIV_PF(2))
        
@@ -152,7 +152,7 @@
     !!--++ Real Function Im_Nm_Z(Nsf, Miv_Pf) Result(I_Nm_Z)
     !!--++    Complex,               intent(in) :: NSF     !  In -> Nuclear Structure Factor
     !!--++    Complex, dimension(3), intent(in) :: MIV_PF  !  In -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                     :: I_NM_Z  !  Out-> Imaginary part of nuclear magnetic interference contribution along Z
+    !!--++    real(kind=cp)                     :: I_NM_Z  !  Out-> Imaginary part of nuclear magnetic interference contribution along Z
     !!--++
     !!--++    (Private)
     !!--++    Calculates the imaginary part of the nuclear magnetic interference contribution along Z
@@ -164,7 +164,7 @@
        !---- Argument ----!
        Complex,               intent(in) :: NSF
        Complex, dimension(3), intent(in) :: MIV_PF
-       Real(kind=sp)                     :: I_NM_Z
+       real(kind=cp)                     :: I_NM_Z
        
        !---- Local variables ----!
 
@@ -176,7 +176,7 @@
     !!--++
     !!--++ Function Mag_Y(Miv_Pf) Result(My)
     !!--++    Complex, dimension(3), intent( in) :: MIV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                      :: MY     !  Out -> Magnetic contribution along Y
+    !!--++    real(kind=cp)                      :: MY     !  Out -> Magnetic contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic contribution along Y to scattering in the polarisation
@@ -187,7 +187,7 @@
     Function Mag_Y(Miv_Pf) Result(My)
        !---- Argument ----!
        Complex, dimension(3), intent( in)  :: MIV_PF
-       Real(kind=sp)                       :: MY
+       real(kind=cp)                       :: MY
        
        !---- Local variables ----!
 
@@ -199,7 +199,7 @@
     !!--++
     !!--++ Function Mag_Z(Miv_Pf) Result(Mz)
     !!--++    Complex, dimension(3), intent( in):: MIV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                     :: MZ      !  Out -> Magnetic contribution along Z
+    !!--++    real(kind=cp)                     :: MZ      !  Out -> Magnetic contribution along Z
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic contribution along Z to scattering in the polarisation
@@ -210,7 +210,7 @@
     Function Mag_Z(Miv_Pf) Result(Mz)
        !---- Argument ----!
        Complex, dimension(3), intent( in)       :: MIV_PF
-       Real(kind=sp)                            :: MZ
+       real(kind=cp)                            :: MZ
        
        !---- Local variables ----!
 
@@ -222,8 +222,8 @@
     !!--++
     !!--++ Function Magn_Inter_Vec_Pf(Miv,H,Spv, Cell) Result(Miv_Pf)
     !!--++    Complex, dimension(3), intent( in)       :: MIV            !  In -> Magnetic Interaction Vector
-    !!--++    Real(kind=sp), dimension(3), intent( in) :: H              !  In -> Scattering Vector in hkl
-    !!--++    Real(kind=sp), dimension(3), intent( in) :: SPV            !  In -> Second Scattering plane vector in hkl
+    !!--++    real(kind=cp), dimension(3), intent( in) :: H              !  In -> Scattering Vector in hkl
+    !!--++    real(kind=cp), dimension(3), intent( in) :: SPV            !  In -> Second Scattering plane vector in hkl
     !!--++    Type (Crystal_Cell_Type),  intent(in)    :: Cell           !  In -> Cell variable which holds transformation matrices
     !!--++    Complex, dimension(3)                    :: MIV_PF         !  Out -> Magnetic Interaction Vector in polarisation coordinate frame
     !!--++
@@ -264,14 +264,14 @@
     Function Magn_Inter_Vec_Pf(Miv,H,Spv, Cell) Result(Miv_Pf)
        !---- Argument ----!
        Complex, dimension(3),       intent(in) :: MIV
-       Real(kind=sp), dimension(3), intent(in) :: H
-       Real(kind=sp), dimension(3), intent(in) :: SPV
+       real(kind=cp), dimension(3), intent(in) :: H
+       real(kind=cp), dimension(3), intent(in) :: SPV
        Type (Crystal_Cell_Type),    intent(in) :: Cell
        Complex, dimension(3)                   :: MIV_PF
 
        !---- Local variables ----!
-       REAL(KIND=sp), DIMENSION (3)            :: QSV,Q,SV,X,Y,Z
-       REAL(KIND=sp), DIMENSION (3,3)          :: M
+       real(kind=cp), DIMENSION (3)            :: QSV,Q,SV,X,Y,Z
+       real(kind=cp), DIMENSION (3,3)          :: M
        INTEGER                                 :: i
 
        Q = Cart_Vector("R",H,Cell)
@@ -297,7 +297,7 @@
     !!--++
     !!--++ Function Mm(Nsf, Miv_Pf) Result(Mmc)
     !!--++    Complex, dimension(3), intent( in) :: MIV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                      :: MMC    !  Out -> magnetic magnetic interference terme
+    !!--++    real(kind=cp)                      :: MMC    !  Out -> magnetic magnetic interference terme
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic magnetic interfernce contribution to scattering in the
@@ -308,7 +308,7 @@
     Function Mm(Miv_Pf) Result(Mmc)
        !---- Argument ----!
        Complex, dimension(3), intent( in) :: MIV_PF
-       Real(kind=sp)                      :: MMC
+       real(kind=cp)                      :: MMC
        
        !---- Local variables ----!
 
@@ -321,7 +321,7 @@
     !!--++ Function Nuc_Contr(Nsf, Miv_Pf) Result(Nsc)
     !!--++    Complex,               intent( in):: NSF     !  In  -> Nuclear Structure Factor
     !!--++    Complex, dimension(3), intent( in):: MIV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                     :: NSC     !  Out -> nuclear scattering contribution
+    !!--++    real(kind=cp)                     :: NSC     !  Out -> nuclear scattering contribution
     !!--++
     !!--++    (Private)
     !!--++    Calculates the nuclear contribution to scattering in the polarisation coordinate frame according to the Blume equations
@@ -331,7 +331,7 @@
     Function Nuc_Contr(Nsf) Result(Nsc)
        !---- Argument ----!
        Complex, intent( in)                     :: NSF
-       Real(kind=sp)                            :: NSC
+       real(kind=cp)                            :: NSC
        
        !---- Local variables ----!
 
@@ -344,7 +344,7 @@
     !!--++ Function Real_Nm_Y(Nsf, Miv_Pf) Result(R_Nm_Y)
     !!--++    Complex,               intent(in)  :: NSF     !  In  -> Nuclear Structure Factor
     !!--++    Complex, dimension(3), intent(in)  :: MIV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                      :: R_NM_Y  !  Out -> real part of nuclear magnetic interference contribution along Y
+    !!--++    real(kind=cp)                      :: R_NM_Y  !  Out -> real part of nuclear magnetic interference contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the real part of the nuclear magnetic interference contribution along Y to scattering in the polarisation coordinate frame according to the Blume equations
@@ -355,7 +355,7 @@
        !---- Argument ----!
        Complex,               intent(in)  :: NSF
        Complex, dimension(3), intent(in)  :: MIV_PF
-       Real(kind=sp)                      :: R_NM_Y
+       real(kind=cp)                      :: R_NM_Y
        
        !---- Local variables ----!
 
@@ -368,7 +368,7 @@
     !!--++ Function Real_Nm_Z(Nsf, Miv_Pf) Result(R_Nm_Z)
     !!--++    Complex, intent( in)               :: NSF            !  In  -> Nuclear Structure Factor
     !!--++    Complex, dimension(3), intent( in) :: MIV_PF         !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                      :: R_NM_Z         !  Out -> nuclear real part of magnetic interference contribution along Z
+    !!--++    real(kind=cp)                      :: R_NM_Z         !  Out -> nuclear real part of magnetic interference contribution along Z
     !!--++
     !!--++    (Private)
     !!--++    Calculates the real part of the nuclear magnetic interference contribution along Z
@@ -380,7 +380,7 @@
        !---- Argument ----!
        Complex, intent( in)                     :: NSF
        Complex, dimension(3), intent( in)       :: MIV_PF
-       Real(kind=sp)                            :: R_NM_Z
+       real(kind=cp)                            :: R_NM_Z
        
        !---- Local variables ----!
 
@@ -392,7 +392,7 @@
     !!--++
     !!--++ Function Tchiral(Nsf, Miv_Pf) Result(Tc)
     !!--++    Complex, dimension(3), intent( in)  :: MIV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    Real(kind=sp)                       :: TC     !  Out -> chiral contribution
+    !!--++    real(kind=cp)                       :: TC     !  Out -> chiral contribution
     !!--++
     !!--++    (Private)
     !!--++    Calculates the chiral contribution to scattering in the polarisation coordinate frame
@@ -403,7 +403,7 @@
     Function Tchiral(Miv_Pf) Result(Tc)
        !---- Argument ----!
        Complex, dimension(3), intent( in) :: MIV_PF
-       Real(kind=sp)                      :: TC
+       real(kind=cp)                      :: TC
        
        !---- Local variables ----!
 
@@ -419,9 +419,9 @@
     !!----
     !!---- Subroutine Set_Polar_Info(Cell, H, Spv, Pin, Nsf, Miv, Polari)
     !!----    Type (Crystal_Cell_Type),  intent(in)    :: Cell   !  In -> Cell variable
-    !!----    REAL(KIND=sp), DIMENSION (3),intent(in)  :: H      !  In -> Scattering vector in hkl
-    !!----    Real(kind=sp), dimension(3), intent( in) :: SPV    !  In -> Second Scattering plane vector in hkl
-    !!----    Real(kind=sp), intent( in)               :: Pin    !  In -> magnitude of initial polarisation
+    !!----    real(kind=cp), DIMENSION (3),intent(in)  :: H      !  In -> Scattering vector in hkl
+    !!----    real(kind=cp), dimension(3), intent( in) :: SPV    !  In -> Second Scattering plane vector in hkl
+    !!----    real(kind=cp), intent( in)               :: Pin    !  In -> magnitude of initial polarisation
     !!----    COMPLEX, intent( in)                     :: NSF    !  In -> Nuclear Scattering Factor
     !!----    COMPLEX, dimension(3), intent( in)       :: MIV    !  In -> Magnetic interaction vector
     !!----    Type (Polar_Info_type), intent( out)     :: Polari !  Out ->type with all information about polarisation in
@@ -434,16 +434,16 @@
     Subroutine Set_Polar_Info(Cell, H, Spv, Pin, Nsf, Miv, Polari)
        !---- Arguments ----!
        Type (Crystal_Cell_Type),  intent(in)         :: Cell
-       REAL(KIND=sp), DIMENSION (3),intent(in)       :: H
-       Real(kind=sp), dimension(3), intent( in)      :: SPV
-       Real(kind=sp), intent( in)                    :: Pin
+       real(kind=cp), DIMENSION (3),intent(in)       :: H
+       real(kind=cp), dimension(3), intent( in)      :: SPV
+       real(kind=cp), intent( in)                    :: Pin
        COMPLEX, intent( in)                          :: NSF
        COMPLEX, dimension(3), intent( in)            :: MIV
        Type (Polar_Info_type), intent( out)          :: Polari
 
        !---- Local variables ----!
-       REAL(KIND=sp), DIMENSION (3)     :: sigma        ! elastic cross for different inicdent polarisation directions
-       REAL(KIND=sp)                    :: nc, my, mz, rnmy, rnmz, inmy, inmz, tc, mmc, A !the different contribution to cross-section
+       real(kind=cp), DIMENSION (3)     :: sigma        ! elastic cross for different inicdent polarisation directions
+       real(kind=cp)                    :: nc, my, mz, rnmy, rnmz, inmy, inmz, tc, mmc, A !the different contribution to cross-section
        COMPLEX, DIMENSION (3)           :: MIV_PF       !MIV in polarisation frame
 
 
@@ -522,8 +522,8 @@
     !!
     Subroutine Write_Polar_Info(Polari, Lun, info)
        !---- Arguments ----!
-       Type (Polar_Info_type), intent( in)     :: Polari !
-       integer, optional, intent(in)           :: Lun
+       Type (Polar_Info_type),    intent( in)  :: Polari !
+       integer, optional,         intent(in)   :: Lun
        character(len=*),OPTIONAL, intent( in)  :: info
        !---- Local variables ----!
        integer            :: iunit
@@ -625,7 +625,7 @@
     Subroutine Write_Polar_Line(Polari, Lun)
        !---- Arguments ----!
        Type (Polar_Info_type), intent( in)     :: Polari !
-       integer, optional, intent(in)           :: Lun
+       integer, optional,      intent(in)      :: Lun
        
        !---- Local variables ----!
        integer            :: iunit

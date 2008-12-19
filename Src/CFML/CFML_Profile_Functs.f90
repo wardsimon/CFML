@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE:  CFML_PowderProfiles_CW
@@ -9,6 +9,7 @@
 !!----    Update: October - 2005
 !!----
 !!---- DEPENDENCIES
+!!----    CFML_Constants, only: cp
 !!----
 !!---- VARIABLES
 !!----
@@ -37,7 +38,8 @@
 !!
  Module CFML_PowderProfiles_CW
     !---- Use Files ----!
-
+    Use CFML_Constants, only: cp
+    
     !---- Variables ----!
     implicit none
 
@@ -53,20 +55,20 @@
  Contains
     !!----
     !!---- Pure Function Back_To_Back_Exp(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in) :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: bb_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: bb_val
 
        !--- Local variables ---!
-       real :: alfa,beta,N
+       real(kind=cp) :: alfa,beta,N
 
        alfa=par(1)
        beta=par(2)
@@ -82,20 +84,20 @@
 
     !!----
     !!---- Pure Function Exponential(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in) :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Exponential(X,Par) Result (Ex_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: ex_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: ex_val
 
        !--- Local variables ---!
-       real :: alfa
+       real(kind=cp) :: alfa
 
        if (x < 0.0) then
           ex_val=0.0
@@ -109,20 +111,20 @@
 
     !!----
     !!---- Pure Function Gaussian(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in) :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Gaussian(X,Par) Result (Gauss_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: gauss_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: gauss_val
 
        !--- Local variables ---!
-       real :: H,ag,bg
+       real(kind=cp) :: H,ag,bg
 
        H=par(1)
        ag= 0.93943727869965133377234032841018/H
@@ -134,17 +136,17 @@
 
     !!----
     !!---- Pure Function Hat(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in) :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Hat(X,Par) Result (H_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: h_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: h_val
 
        !--- Local variables ---!
        real :: hw
@@ -162,17 +164,17 @@
 
     !!----
     !!---- Pure Function Ikeda_Carpenter(X,Par)
-    !!----    real,              intent(in) :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in) :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
        !---- Arguments ---!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: ik_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: ik_val
 
        !--- Local variables ---!
        real :: alfa,beta,R,amb,a3,x2,exb,exa,ramb,poly
@@ -206,12 +208,12 @@
     !!
     Pure Function Lorentzian(X,Par) Result (Lor_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: lor_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: lor_val
 
        !--- Local variables ---!
-       real :: H,al,bl
+       real(kind=cp) :: H,al,bl
 
        H=par(1)
        al= 0.63661977236758134307553505349006/H
@@ -223,20 +225,20 @@
 
     !!----
     !!---- Pure Function Pseudovoigt(X,Par)
-    !!----    real,              intent(in)  :: x
-    !!----    real, dimension(:),intent(in) :: Par
+    !!----    real(kind=cp),              intent(in)  :: x
+    !!----    real(kind=cp), dimension(:),intent(in) :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: pv_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: pv_val
 
        !--- Local variables ---!
-       real :: eta,H,x2,ag,bg,al,bl,lor,gauss
+       real(kind=cp) :: eta,H,x2,ag,bg,al,bl,lor,gauss
 
        H=par(1)
        eta=par(2)
@@ -254,20 +256,20 @@
 
     !!----
     !!---- Pure Function Split_Pseudovoigt(X,Par)
-    !!----    real,              intent(in)  :: x
-    !!----    real, dimension(:),intent(in)  :: Par
+    !!----    real(kind=cp),              intent(in)  :: x
+    !!----    real(kind=cp), dimension(:),intent(in)  :: Par
     !!----
     !!----
     !!---- Update: October - 2005
     !!
     Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
-       real,              intent(in) :: x
-       real, dimension(:),intent(in) :: par
-       real                          :: pv_val
+       real(kind=cp),              intent(in) :: x
+       real(kind=cp), dimension(:),intent(in) :: par
+       real(kind=cp)                          :: pv_val
 
        !--- Local variables ---!
-       real :: eta1,eta2,eta,H1,H2,hsq,Norm,x2,bg,bl,lor,gauss
+       real(kind=cp) :: eta1,eta2,eta,H1,H2,hsq,Norm,x2,bg,bl,lor,gauss
 
        H1=par(1)
        H2=par(2)
@@ -294,22 +296,22 @@
 
     !!----
     !!---- Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: bb_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: bb_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
        !---- Arguments ----!
-       real,                        intent(in)  :: x
-       real,           dimension(:),intent(in)  :: par
-       real,                        intent(out) :: bb_val
-       real, optional, dimension(:),intent(out) :: dpar
+       real(kind=cp),                        intent(in)  :: x
+       real(kind=cp),           dimension(:),intent(in)  :: par
+       real(kind=cp),                        intent(out) :: bb_val
+       real(kind=cp), optional, dimension(:),intent(out) :: dpar
 
        !--- Local variables ---!
-       real :: alfa,beta,N,derX,derAlf,derBet
+       real(kind=cp) :: alfa,beta,N,derX,derAlf,derBet
 
        alfa=par(1)
        beta=par(2)
@@ -338,22 +340,22 @@
 
     !!----
     !!---- Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: ex_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: ex_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
        !---- Arguments ----!
-       real,                        intent(in) :: x
-       real,           dimension(:),intent(in) :: par
-       real,                        intent(out):: ex_val
-       real, optional, dimension(:),intent(out):: dpar
+       real(kind=cp),                        intent(in) :: x
+       real(kind=cp),           dimension(:),intent(in) :: par
+       real(kind=cp),                        intent(out):: ex_val
+       real(kind=cp), optional, dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real :: alfa
+       real(kind=cp) :: alfa
 
        if (x < 0.0) then
           ex_val=0.0
@@ -373,22 +375,22 @@
 
     !!----
     !!---- Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: Gauss_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: Gauss_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
        !---- Arguments ----!
-       real,                       intent(in) :: x
-       real,          dimension(:),intent(in) :: par
-       real,                       intent(out):: gauss_val
-       real, optional,dimension(:),intent(out):: dpar
+       real(kind=cp),                       intent(in) :: x
+       real(kind=cp),          dimension(:),intent(in) :: par
+       real(kind=cp),                       intent(out):: gauss_val
+       real(kind=cp), optional,dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real :: H,ag,bg, gaussp,dgaussH,x2
+       real(kind=cp) :: H,ag,bg, gaussp,dgaussH,x2
 
        H=par(1)
        ag= 0.93943727869965133377234032841018/H
@@ -406,22 +408,22 @@
 
     !!----
     !!---- Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: H_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: H_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
        !---- Arguments ----!
-       real,                        intent(in)  :: x
-       real,           dimension(:),intent(in)  :: par
-       real,                        intent(out) :: h_val
-       real, optional, dimension(:),intent(out) :: dpar
+       real(kind=cp),                        intent(in)  :: x
+       real(kind=cp),           dimension(:),intent(in)  :: par
+       real(kind=cp),                        intent(out) :: h_val
+       real(kind=cp), optional, dimension(:),intent(out) :: dpar
 
        !--- Local variables ---!
-       real :: hw
+       real(kind=cp) :: hw
 
        hw=par(1)*0.5
 
@@ -442,23 +444,23 @@
 
     !!----
     !!---- Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: Ik_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: Ik_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
        !---- Arguments ----!
-       real,                        intent(in)  :: x
-       real,           dimension(:),intent(in)  :: par
-       real,                        intent(out) :: ik_val
-       real, optional, dimension(:),intent(out) :: dpar
+       real(kind=cp),                        intent(in)  :: x
+       real(kind=cp),           dimension(:),intent(in)  :: par
+       real(kind=cp),                        intent(out) :: ik_val
+       real(kind=cp), optional, dimension(:),intent(out) :: dpar
 
        !--- Local variables ---!
-       real :: alfa,beta,R,amb,a3,x2,exb,exa,ramb,poly
-       real :: derX, derAlf, derBet, derR
+       real(kind=cp) :: alfa,beta,R,amb,a3,x2,exb,exa,ramb,poly
+       real(kind=cp) :: derX, derAlf, derBet, derR
 
        if (x < 0.0) then
           ik_val=0.0
@@ -496,22 +498,22 @@
 
     !!----
     !!---- Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: Lor_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: Lor_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
        !---- Arguments ----!
-       real,                        intent(in) :: x
-       real,           dimension(:),intent(in) :: par
-       real,                        intent(out):: lor_val
-       real, optional, dimension(:),intent(out):: dpar
+       real(kind=cp),                        intent(in) :: x
+       real(kind=cp),           dimension(:),intent(in) :: par
+       real(kind=cp),                        intent(out):: lor_val
+       real(kind=cp), optional, dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real :: H,al,bl,lorp,dlorh,x2
+       real(kind=cp) :: H,al,bl,lorp,dlorh,x2
 
        H=par(1)
        al= 0.63661977236758134307553505349006/H
@@ -529,23 +531,23 @@
 
     !!----
     !!---- Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: Pv_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: Pv_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
-       real,                       intent(in) :: x
-       real, dimension(:),         intent(in) :: par
-       real,                       intent(out):: pv_val
-       real, optional,dimension(:),intent(out):: dpar
+       real(kind=cp),                       intent(in) :: x
+       real(kind=cp), dimension(:),         intent(in) :: par
+       real(kind=cp),                       intent(out):: pv_val
+       real(kind=cp), optional,dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real :: eta,H,x2,ag,bg,al,bl,lor,gauss, invH,invH2
-       real :: derH,derEta,derx,dlorH,dgaussH,lorp,gaussp
+       real(kind=cp) :: eta,H,x2,ag,bg,al,bl,lor,gauss, invH,invH2
+       real(kind=cp) :: derH,derEta,derx,dlorH,dgaussH,lorp,gaussp
 
        H=par(1)
        eta=par(2)
@@ -586,24 +588,24 @@
 
     !!----
     !!---- Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
-    !!----    real,                        intent(in)  :: x
-    !!----    real,           dimension(:),intent(in)  :: par
-    !!----    real,                        intent(out) :: Pv_val
-    !!----    real, optional, dimension(:),intent(out) :: dpar
+    !!----    real(kind=cp),                        intent(in)  :: x
+    !!----    real(kind=cp),           dimension(:),intent(in)  :: par
+    !!----    real(kind=cp),                        intent(out) :: Pv_val
+    !!----    real(kind=cp), optional, dimension(:),intent(out) :: dpar
     !!----
     !!---- Update: October - 2005
     !!
     Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
-       real,                       intent(in) :: x
-       real, dimension(:),         intent(in) :: par
-       real,                       intent(out):: pv_val
-       real, optional,dimension(:),intent(out):: dpar
+       real(kind=cp),                       intent(in) :: x
+       real(kind=cp), dimension(:),         intent(in) :: par
+       real(kind=cp),                       intent(out):: pv_val
+       real(kind=cp), optional,dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real :: eta1,eta2,eta,H1,H2,hsq,Norm,x2,bg,bl,lor,gauss,  &
-               derH1,derH2,derEta1,derEta2,derx,dlorH,dgaussH,   &
-               lorp,gaussp, invH, Numer
+       real(kind=cp) :: eta1,eta2,eta,H1,H2,hsq,Norm,x2,bg,bl,lor,gauss,  &
+                        derH1,derH2,derEta1,derEta2,derx,dlorH,dgaussH,   &
+                        lorp,gaussp, invH, Numer
 
        H1=par(1)
        H2=par(2)

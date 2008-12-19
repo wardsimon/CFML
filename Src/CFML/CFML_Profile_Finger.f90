@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_PowderProfiles_Finger
@@ -11,10 +11,9 @@
 !!----    Author : L. Finger and Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB)
 !!----
 !!---- VARIABLES
-!!--++    SP                        [Private]
 !!--++    NTERMS                    [Private]
 !!--++    FSTTERM                   [Private]
-!!----    INITIALIZED
+!!----    INIT_PROFVAL
 !!--++    WP                        [Private]
 !!--++    XP                        [Private]
 !!----
@@ -29,7 +28,8 @@
 !!
  Module CFML_PowderProfiles_Finger
     !---- Use Modules ----!
-
+    Use CFML_Constants, only: cp
+    
     !---- Variables ----!
     implicit none
 
@@ -38,16 +38,6 @@
 
     !---- List of Private Subroutines ----!
     private:: lorentzian, gaussian, psvoigtian
-
-    !!--++
-    !!--++ SP
-    !!--++    integer, parameter,private   :: sp = selected_real_kind(6, 30)
-    !!--++
-    !!--++    Private variable
-    !!--++
-    !!--++ Update: October - 2005
-    !!
-    integer, parameter,private   :: sp = selected_real_kind(6, 30)
 
     !!--++
     !!--++ NTERMS
@@ -66,13 +56,13 @@
     integer, private,dimension(14)     :: fstterm=(/0, 3, 8,18,38,68,108,158,233,333,483,683,983,1383/)
 
     !!----
-    !!---- INITIALIZED
-    !!----    logical, public  :: initialized
+    !!---- INIT_PROFVAL
+    !!----    logical, public  :: init_profval
     !!----
     !!----
     !!---- Update: October - 2005
     !!
-    logical, public :: initialized=.false.
+    logical, public :: init_profval=.false.
 
     !!--++
     !!--++ WP
@@ -82,7 +72,7 @@
     !!--++
     !!--++ Update: October - 2005
     !!
-    real(kind=sp),private,dimension(0:1883) :: wp
+    real(kind=cp),private,dimension(0:1883) :: wp
 
     !!--++
     !!--++ XP
@@ -92,17 +82,17 @@
     !!--++
     !!--++ Update: October - 2005
     !!
-    real(kind=sp),private,dimension(0:1883) :: xp
+    real(kind=cp),private,dimension(0:1883) :: xp
 
  Contains
     !!--++
     !!--++ Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
-    !!--++    real(kind=sp), intent(in)  :: pos
-    !!--++    real(kind=sp), intent(in)  :: pos0
-    !!--++    real(kind=sp), intent(in)  :: gamma
-    !!--++    real(kind=sp), intent(out) :: dgdt    !is derivative of G wrt Pos0
-    !!--++    real(kind=sp), intent(out) :: dgdg    !is derivative of G wrt Gamma
-    !!--++    real(kind=sp), intent(out) :: gauss
+    !!--++    real(kind=cp), intent(in)  :: pos
+    !!--++    real(kind=cp), intent(in)  :: pos0
+    !!--++    real(kind=cp), intent(in)  :: gamma
+    !!--++    real(kind=cp), intent(out) :: dgdt    !is derivative of G wrt Pos0
+    !!--++    real(kind=cp), intent(out) :: dgdg    !is derivative of G wrt Gamma
+    !!--++    real(kind=cp), intent(out) :: gauss
     !!--++
     !!--++    (Private)
     !!--++    Return value of Gaussian at 'Pos' for peak at 'Pos0' and 'Gamma'
@@ -111,17 +101,17 @@
     !!
     Subroutine Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: pos
-       real(kind=sp), intent(in)  :: pos0
-       real(kind=sp), intent(in)  :: gamma
-       real(kind=sp), intent(out) :: dgdt
-       real(kind=sp), intent(out) :: dgdg
-       real(kind=sp), intent(out) :: gauss
+       real(kind=cp), intent(in)  :: pos
+       real(kind=cp), intent(in)  :: pos0
+       real(kind=cp), intent(in)  :: gamma
+       real(kind=cp), intent(out) :: dgdt
+       real(kind=cp), intent(out) :: dgdg
+       real(kind=cp), intent(out) :: gauss
 
        !---- Local Variables ----!
-       real(kind=sp),parameter    ::   c= 1.66510922   ! 2*sqrt(ln2)
-       real(kind=sp),parameter    ::  cg= 0.939437279  ! 2*sqrt(ln2/pi)
-       real(kind=sp)              ::  delp , temp
+       real(kind=cp),parameter    ::   c= 1.66510922   ! 2*sqrt(ln2)
+       real(kind=cp),parameter    ::  cg= 0.939437279  ! 2*sqrt(ln2/pi)
+       real(kind=cp)              ::  delp , temp
 
        delp = pos - pos0
        if (abs(delp)/gamma > 6.0 ) then
@@ -1003,19 +993,19 @@
          0.7640548E-04,0.6654832E-04,0.5669051E-04,0.4683217E-04,0.3697344E-04,  &
          0.2711461E-04,0.1725677E-04,0.7413338E-05/)
 
-       initialized=.true.
+       init_profval=.true.
 
        return
     End Subroutine Init_Prof_Val
 
     !!--++
     !!--++ Subroutine Lorentzian(Pos , Pos0 , Gamma , Dldt , Dldg, Lorentz )
-    !!--++    real(kind=sp), intent(in)  :: pos
-    !!--++    real(kind=sp), intent(in)  :: pos0
-    !!--++    real(kind=sp), intent(in)  :: gamma
-    !!--++    real(kind=sp), intent(out) :: dldt    !is derivative of L wrt Pos0
-    !!--++    real(kind=sp), intent(out) :: dldg    !is derivative of L wrt Gamma
-    !!--++    real(kind=sp), intent(out) :: Lorentz
+    !!--++    real(kind=cp), intent(in)  :: pos
+    !!--++    real(kind=cp), intent(in)  :: pos0
+    !!--++    real(kind=cp), intent(in)  :: gamma
+    !!--++    real(kind=cp), intent(out) :: dldt    !is derivative of L wrt Pos0
+    !!--++    real(kind=cp), intent(out) :: dldg    !is derivative of L wrt Gamma
+    !!--++    real(kind=cp), intent(out) :: Lorentz
     !!--++
     !!--++    (Private)
     !!--++    Return value of Lorentzian at 'Pos' for peak at 'Pos0' and 'Gamma'
@@ -1024,16 +1014,16 @@
     !!
     Subroutine Lorentzian(Pos , Pos0 , Gamma , Dldt , Dldg, Lorentz )
        !---- Arguments ----!
-       real(kind=sp), intent(in) :: pos
-       real(kind=sp), intent(in) :: pos0
-       real(kind=sp), intent(in) :: gamma
-       real(kind=sp), intent(out):: dldt
-       real(kind=sp), intent(out):: dldg
-       real(kind=sp), intent(out):: lorentz
+       real(kind=cp), intent(in) :: pos
+       real(kind=cp), intent(in) :: pos0
+       real(kind=cp), intent(in) :: gamma
+       real(kind=cp), intent(out):: dldt
+       real(kind=cp), intent(out):: dldg
+       real(kind=cp), intent(out):: lorentz
 
        !---- Local Variables ----!
-       real(kind=sp), parameter  :: cl=0.636619772 ! 2/pi
-       real(kind=sp)             ::  delp , denom
+       real(kind=cp), parameter  :: cl=0.636619772 ! 2/pi
+       real(kind=cp)             :: delp , denom
 
        delp = pos - pos0
        denom = 4.0 * delp**2 + gamma**2
@@ -1046,18 +1036,18 @@
 
     !!----
     !!---- Subroutine Prof_Val(Eta,Gamma,S_L,D_L,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym )
-    !!----    real(kind=sp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
-    !!----    real(kind=sp), intent(in)   :: gamma        ! FWHM
-    !!----    real(kind=sp), intent(in)   :: s_l          ! source width/detector distance
-    !!----    real(kind=sp), intent(in)   :: d_l          ! detector width/detector distance
-    !!----    real(kind=sp), intent(in)   :: twoth        ! point at which to evaluate the profile
-    !!----    real(kind=sp), intent(in)   :: twoth0       ! two theta value for peak
-    !!----    real(kind=sp), intent(out)  :: dprdt        ! derivative of profile wrt TwoTH0
-    !!----    real(kind=sp), intent(out)  :: dprdg        ! derivative of profile wrt Gamma
-    !!----    real(kind=sp), intent(out)  :: dprde        ! derivative of profile wrt Eta
-    !!----    real(kind=sp), intent(out)  :: dprds        ! derivative of profile wrt S_L
-    !!----    real(kind=sp), intent(out)  :: dprdd        ! derivative of profile wrt D_L
-    !!----    real(kind=sp), intent(out)  :: profval
+    !!----    real(kind=cp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
+    !!----    real(kind=cp), intent(in)   :: gamma        ! FWHM
+    !!----    real(kind=cp), intent(in)   :: s_l          ! source width/detector distance
+    !!----    real(kind=cp), intent(in)   :: d_l          ! detector width/detector distance
+    !!----    real(kind=cp), intent(in)   :: twoth        ! point at which to evaluate the profile
+    !!----    real(kind=cp), intent(in)   :: twoth0       ! two theta value for peak
+    !!----    real(kind=cp), intent(out)  :: dprdt        ! derivative of profile wrt TwoTH0
+    !!----    real(kind=cp), intent(out)  :: dprdg        ! derivative of profile wrt Gamma
+    !!----    real(kind=cp), intent(out)  :: dprde        ! derivative of profile wrt Eta
+    !!----    real(kind=cp), intent(out)  :: dprds        ! derivative of profile wrt S_L
+    !!----    real(kind=cp), intent(out)  :: dprdd        ! derivative of profile wrt D_L
+    !!----    real(kind=cp), intent(out)  :: profval
     !!----    logical,       intent(in)   :: use_asym     ! true if asymmetry to be used
     !!----
     !!----    Return value of Profile
@@ -1068,44 +1058,44 @@
     !!
     Subroutine Prof_Val(Eta,Gamma,S_L,D_L,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym )
        !---- Arguments ----!
-       real(kind=sp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
-       real(kind=sp), intent(in)   :: gamma        ! FWHM
-       real(kind=sp), intent(in)   :: s_l          ! source width/detector distance
-       real(kind=sp), intent(in)   :: d_l          ! detector width/detector distance
-       real(kind=sp), intent(in)   :: twoth        ! point at which to evaluate the profile
-       real(kind=sp), intent(in)   :: twoth0       ! two theta value for peak
-       real(kind=sp), intent(out)  :: dprdt        ! derivative of profile wrt TwoTH0
-       real(kind=sp), intent(out)  :: dprdg        ! derivative of profile wrt Gamma
-       real(kind=sp), intent(out)  :: dprde        ! derivative of profile wrt Eta
-       real(kind=sp), intent(out)  :: dprds        ! derivative of profile wrt S_L
-       real(kind=sp), intent(out)  :: dprdd        ! derivative of profile wrt D_L
-       real(kind=sp), intent(out)  :: profval
+       real(kind=cp), intent(in)   :: eta          ! mixing coefficient between Gaussian and Lorentzian
+       real(kind=cp), intent(in)   :: gamma        ! FWHM
+       real(kind=cp), intent(in)   :: s_l          ! source width/detector distance
+       real(kind=cp), intent(in)   :: d_l          ! detector width/detector distance
+       real(kind=cp), intent(in)   :: twoth        ! point at which to evaluate the profile
+       real(kind=cp), intent(in)   :: twoth0       ! two theta value for peak
+       real(kind=cp), intent(out)  :: dprdt        ! derivative of profile wrt TwoTH0
+       real(kind=cp), intent(out)  :: dprdg        ! derivative of profile wrt Gamma
+       real(kind=cp), intent(out)  :: dprde        ! derivative of profile wrt Eta
+       real(kind=cp), intent(out)  :: dprds        ! derivative of profile wrt S_L
+       real(kind=cp), intent(out)  :: dprdd        ! derivative of profile wrt D_L
+       real(kind=cp), intent(out)  :: profval
        logical,       intent(in)   :: use_asym     ! true if asymmetry to be used
 
        !---- Local Variables ----!
-       real(kind=sp),parameter :: rad=57.2957795
+       real(kind=cp),parameter :: rad=57.2957795
 
        integer        :: arraynum , k , ngt, ngt2 , it
        integer        :: ctrl_nsteps
-       real(kind=sp)  :: csth               ! cos(theta)
-       real(kind=sp)  :: cstwoth            ! cos(2theta)
-       real(kind=sp)  :: apb                ! (S + H)/L
-       real(kind=sp)  :: amb                ! (S - H)/L
-       real(kind=sp)  :: apb2               ! (ApB) **2
-       real(kind=sp)  :: einfl              ! 2phi value for inflection point
-       real(kind=sp)  :: emin               ! 2phi value for minimum
-       real(kind=sp)  :: deminda            ! derivative of Emin wrt A
-       real(kind=sp)  :: tmp , tmp1 , tmp2  ! intermediate values
-       real(kind=sp)  :: delta              ! Angle of integration for convolution
-       real(kind=sp)  :: ddeltada           ! derivative of DELTA wrt A (S/L)
-       real(kind=sp)  :: sindelta           ! sine of DELTA
-       real(kind=sp)  :: cosdelta           ! cosine of DELTA
-       real(kind=sp)  :: tandelta           ! tangent of DELTA
-       real(kind=sp)  :: rcosdelta          ! 1/cos(DELTA)
-       real(kind=sp)  :: f , dfda
-       real(kind=sp)  :: g , dgda , dgdb , psvoigt
-       real(kind=sp)  :: sumwg , sumwrg , sumwdgda , sumwrdgda ,sumwdgdb , sumwrdgdb
-       real(kind=sp)  :: sumwgdrdg , sumwgdrde , sumwgdrda , sumwgdrd2t
+       real(kind=cp)  :: csth               ! cos(theta)
+       real(kind=cp)  :: cstwoth            ! cos(2theta)
+       real(kind=cp)  :: apb                ! (S + H)/L
+       real(kind=cp)  :: amb                ! (S - H)/L
+       real(kind=cp)  :: apb2               ! (ApB) **2
+       real(kind=cp)  :: einfl              ! 2phi value for inflection point
+       real(kind=cp)  :: emin               ! 2phi value for minimum
+       real(kind=cp)  :: deminda            ! derivative of Emin wrt A
+       real(kind=cp)  :: tmp , tmp1 , tmp2  ! intermediate values
+       real(kind=cp)  :: delta              ! Angle of integration for convolution
+       real(kind=cp)  :: ddeltada           ! derivative of DELTA wrt A (S/L)
+       real(kind=cp)  :: sindelta           ! sine of DELTA
+       real(kind=cp)  :: cosdelta           ! cosine of DELTA
+       real(kind=cp)  :: tandelta           ! tangent of DELTA
+       real(kind=cp)  :: rcosdelta          ! 1/cos(DELTA)
+       real(kind=cp)  :: f , dfda
+       real(kind=cp)  :: g , dgda , dgdb , psvoigt
+       real(kind=cp)  :: sumwg , sumwrg , sumwdgda , sumwrdgda ,sumwdgdb , sumwrdgdb
+       real(kind=cp)  :: sumwgdrdg , sumwgdrde , sumwgdrda , sumwgdrd2t
 
        csth = COS(twoth0 * 0.5/rad)
        IF (ABS(csth) < 1.0E-15) csth = 1.0E-15
@@ -1235,14 +1225,14 @@
 
     !!--++
     !!--++ Subroutine Psvoigtian(Twoth , Twoth0 , Eta , Gamma, Dprdt , Dprdg , Dprde, Psvoigt )
-    !!--++    real(kind=sp), intent(in)  :: twoth     ! point at which to evaluate the profile
-    !!--++    real(kind=sp), intent(in)  :: twoth0    ! two theta value for peak
-    !!--++    real(kind=sp), intent(in)  :: eta       ! mixing coefficient between Gaussian and Lorentzian
-    !!--++    real(kind=sp), intent(in)  :: gamma     ! FWHM
-    !!--++    real(kind=sp), intent(out) :: dprdt     ! derivative of profile wrt TwoTH0
-    !!--++    real(kind=sp), intent(out) :: dprdg     ! derivative of profile wrt Gamma
-    !!--++    real(kind=sp), intent(out) :: dprde     ! derivative of profile wrt Eta
-    !!--++    real(kind=sp), intent(out) :: psvoigt
+    !!--++    real(kind=cp), intent(in)  :: twoth     ! point at which to evaluate the profile
+    !!--++    real(kind=cp), intent(in)  :: twoth0    ! two theta value for peak
+    !!--++    real(kind=cp), intent(in)  :: eta       ! mixing coefficient between Gaussian and Lorentzian
+    !!--++    real(kind=cp), intent(in)  :: gamma     ! FWHM
+    !!--++    real(kind=cp), intent(out) :: dprdt     ! derivative of profile wrt TwoTH0
+    !!--++    real(kind=cp), intent(out) :: dprdg     ! derivative of profile wrt Gamma
+    !!--++    real(kind=cp), intent(out) :: dprde     ! derivative of profile wrt Eta
+    !!--++    real(kind=cp), intent(out) :: psvoigt
     !!--++
     !!--++    (Private)
     !!--++    Returns value of Pseudo Voigt
@@ -1251,19 +1241,19 @@
     !!
     Subroutine Psvoigtian(Twoth , Twoth0 , Eta , Gamma, Dprdt , Dprdg , Dprde, Psvoigt )
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: twoth     ! point at which to evaluate the profile
-       real(kind=sp), intent(in)  :: twoth0    ! two theta value for peak
-       real(kind=sp), intent(in)  :: eta       ! mixing coefficient between Gaussian and Lorentzian
-       real(kind=sp), intent(in)  :: gamma     ! FWHM
-       real(kind=sp), intent(out) :: dprdt     ! derivative of profile wrt TwoTH0
-       real(kind=sp), intent(out) :: dprdg     ! derivative of profile wrt Gamma
-       real(kind=sp), intent(out) :: dprde     ! derivative of profile wrt Eta
-       real(kind=sp), intent(out) :: psvoigt
+       real(kind=cp), intent(in)  :: twoth     ! point at which to evaluate the profile
+       real(kind=cp), intent(in)  :: twoth0    ! two theta value for peak
+       real(kind=cp), intent(in)  :: eta       ! mixing coefficient between Gaussian and Lorentzian
+       real(kind=cp), intent(in)  :: gamma     ! FWHM
+       real(kind=cp), intent(out) :: dprdt     ! derivative of profile wrt TwoTH0
+       real(kind=cp), intent(out) :: dprdg     ! derivative of profile wrt Gamma
+       real(kind=cp), intent(out) :: dprde     ! derivative of profile wrt Eta
+       real(kind=cp), intent(out) :: psvoigt
 
        !---- Local Variables ----!
-      real(kind=sp) :: g,gauss           ! Gaussian part
-      real(kind=sp) :: l,lorentz         ! Lorentzian part
-      real(kind=sp) :: dgdt , dgdg , dldt , dldg
+      real(kind=cp) :: g,gauss           ! Gaussian part
+      real(kind=cp) :: l,lorentz         ! Lorentzian part
+      real(kind=cp) :: dgdt , dgdg , dldt , dldg
 
 
       call gaussian(twoth , twoth0 , gamma , dgdt , dgdg ,gauss)

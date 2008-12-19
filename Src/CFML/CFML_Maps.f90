@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Maps_Calculations
@@ -9,16 +9,16 @@
 !!----    Update: January - 2004
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,                  only: sp
+!!--++    Use CFML_Constants,                only: cp
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
-!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
-!!--++    Use CFML_Geometry_Calc,         only: Distance
+!!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
+!!--++    Use CFML_Geometry_Calc,             only: Distance
 !!----
 !!---- VARIABLES
 !!----    CUBE_INFO_TYPE
 !!----    CUBE_INFO
 !!----    ERR_MAPS
-!!----    ERR_MESS_MAPS
+!!----    ERR_MAPS_MESS
 !!----    MAX_POINTS
 !!----
 !!---- PROCEDURES
@@ -49,11 +49,10 @@
  Module CFML_Maps_Calculations
 
     !---- Use Modules ----!
-    !Use Mod_fun    !To be commented for non-F compilers
-    use CFML_Math_General,                  only: sp
+    use CFML_Constants,                only: cp, eps
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySO
-    use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
-    use CFML_Geometry_Calc,         only: Distance
+    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
+    use CFML_Geometry_Calc,             only: Distance
 
     implicit none
 
@@ -117,14 +116,14 @@
     logical, public  :: err_maps
 
     !!----
-    !!---- ERR_MESS_MAPS
-    !!----    character(len=150), public :: err_mess_maps
+    !!---- ERR_MAPS_MESS
+    !!----    character(len=150), public :: ERR_Maps_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_maps
+    character(len=150), public :: ERR_Maps_Mess
 
     !!----
     !!---- MAX_POINTS
@@ -199,14 +198,14 @@
        integer,                  intent(in) :: i
        integer,                  intent(in) :: j
        integer,                  intent(in) :: k
-       real(kind=sp), dimension(3)          :: pto
+       real(kind=cp), dimension(3)          :: pto
 
        !---- Local variables ----!
        integer       :: ntx,nty,ntz
        integer       :: i1,i2,i3,j1,j2,j3,k1,k2,k3
-       real(kind=sp) :: a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19
-       real(kind=sp) :: b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19
-       real(kind=sp) :: b,c,d,h,kk,l,e,f,g,det,deltax,deltay,deltaz,x,y,z,dx,dy,dz
+       real(kind=cp) :: a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19
+       real(kind=cp) :: b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19
+       real(kind=cp) :: b,c,d,h,kk,l,e,f,g,det,deltax,deltay,deltaz,x,y,z,dx,dy,dz
 
        !---- Calculation of the peak position ----!
        ntx=size(nr3d,1)
@@ -346,8 +345,8 @@
     !!----     integer, intent(in) :: code_edge
     !!----     or
     !!----     integer, intent(in) :: code_edge
-    !!----     real,    intent(in) :: d0, d1,d2,d3,d4,d5,d6,d7,d8,d9
-    !!----     real, dimension(3)  :: v
+    !!----     real(kind=cp),    intent(in) :: d0, d1,d2,d3,d4,d5,d6,d7,d8,d9
+    !!----     real(kind=cp), dimension(3)  :: v
     !!----
     !!----     Return the relative position point from (i,j,k) of V1
     !!----     Given a binary dataset, linear interpolation is not needed to
@@ -361,8 +360,8 @@
     !!--++
     !!--++ Function Vertice_Point_Cal(Code_Edge,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9) Result(V)
     !!--++     integer, intent(in) :: code_edge                         !  In ->
-    !!--++     real,    intent(in) :: d0, d1,d2,d3,d4,d5,d6,d7,d8,d9    !  In ->
-    !!--++     real, dimension(3)  :: v                                 ! Out ->
+    !!--++     real(kind=cp),    intent(in) :: d0, d1,d2,d3,d4,d5,d6,d7,d8,d9    !  In ->
+    !!--++     real(kind=cp), dimension(3)  :: v                                 ! Out ->
     !!--++
     !!--++     (OVERLOADED)
     !!--++     Return the relative position point from (i,j,k) of V1
@@ -375,13 +374,12 @@
     !!
     Function Vertice_Point_Cal(Code_Edge,D0,D1,D2,D3,D4,D5,D6,D7,D8) Result(V)
        !---- Arguments ----!
-       integer, intent(in) :: code_edge
-       real,    intent(in) :: d0,d1,d2,d3,d4,d5,d6,d7,d8
-       real,    parameter  :: eps=0.0001
-       real, dimension(3)  :: v
+       integer,          intent(in) :: code_edge
+       real(kind=cp),    intent(in) :: d0,d1,d2,d3,d4,d5,d6,d7,d8
+       real(kind=cp), dimension(3)  :: v
 
        !---- Local Variables ----!
-       real               :: dmin,dmax,dd
+       real(kind=cp)               :: dmin,dmax,dd
 
        v=0.0
        select case (code_edge)
@@ -488,8 +486,8 @@
 
     !!--++
     !!--++ Function Vertice_Point_Fix(Code_Edge) Result(V)
-    !!--++     integer, intent(in) :: code_edge
-    !!--++     real, dimension(3)  :: v
+    !!--++     integer,          intent(in) :: code_edge
+    !!--++     real(kind=cp), dimension(3)  :: v
     !!--++
     !!--++     (OVERLOADED)
     !!--++     Return the relative position point from (i,j,k) of V1
@@ -499,8 +497,8 @@
     !!
     Function Vertice_Point_Fix(Code_Edge) Result(V)
        !---- Arguments ----!
-       integer, intent(in) :: code_edge
-       real, dimension(3)  :: v
+       integer,          intent(in) :: code_edge
+       real(kind=cp), dimension(3)  :: v
 
        !---- Local Variables ----!
 
@@ -605,18 +603,18 @@
 
     !!----
     !!---- Function VPoint_in_Cube(R,S,T,X000,X001,X010,X011,X100,X101 X110,X111) Result(X)
-    !!----    real, intent(in) :: R
-    !!----    real, intent(in) :: S
-    !!----    real, intent(in) :: T
-    !!----    real, intent(in) :: X000
-    !!----    real, intent(in) :: X001
-    !!----    real, intent(in) :: X010
-    !!----    real, intent(in) :: X011
-    !!----    real, intent(in) :: X100
-    !!----    real, intent(in) :: X101
-    !!----    real, intent(in) :: X110
-    !!----    real, intent(in) :: X111
-    !!----    real             :: X
+    !!----    real(kind=cp), intent(in) :: R
+    !!----    real(kind=cp), intent(in) :: S
+    !!----    real(kind=cp), intent(in) :: T
+    !!----    real(kind=cp), intent(in) :: X000
+    !!----    real(kind=cp), intent(in) :: X001
+    !!----    real(kind=cp), intent(in) :: X010
+    !!----    real(kind=cp), intent(in) :: X011
+    !!----    real(kind=cp), intent(in) :: X100
+    !!----    real(kind=cp), intent(in) :: X101
+    !!----    real(kind=cp), intent(in) :: X110
+    !!----    real(kind=cp), intent(in) :: X111
+    !!----    real(kind=cp)             :: X
     !!----
     !!----    Function that interpolate the value into a cube
     !!----
@@ -692,18 +690,18 @@
     !!
     Function VPoint_in_Cube(R,S,T,X000,X001,X010,X011,X100,X101,X110,X111) Result(X)
        !---- Arguments ----!
-       real, intent(in) :: R
-       real, intent(in) :: S
-       real, intent(in) :: T
-       real, intent(in) :: X000
-       real, intent(in) :: X001
-       real, intent(in) :: X010
-       real, intent(in) :: X011
-       real, intent(in) :: X100
-       real, intent(in) :: X101
-       real, intent(in) :: X110
-       real, intent(in) :: X111
-       real             :: X
+       real(kind=cp), intent(in) :: R
+       real(kind=cp), intent(in) :: S
+       real(kind=cp), intent(in) :: T
+       real(kind=cp), intent(in) :: X000
+       real(kind=cp), intent(in) :: X001
+       real(kind=cp), intent(in) :: X010
+       real(kind=cp), intent(in) :: X011
+       real(kind=cp), intent(in) :: X100
+       real(kind=cp), intent(in) :: X101
+       real(kind=cp), intent(in) :: X110
+       real(kind=cp), intent(in) :: X111
+       real(kind=cp)             :: X
 
        x = &
                1.0E+00     * ( + x000 ) &
@@ -720,9 +718,9 @@
 
     !!----
     !!---- Function VPoint_in_Line(R, X0, X1) Result (X)
-    !!----    real, intent(in) :: R       ! R is distance between the ends points
-    !!----    real, intent(in) :: X0      ! Value of the Point 0
-    !!----    real, intent(in) :: X1      ! Value of the Point 1
+    !!----    real(kind=cp), intent(in) :: R       ! R is distance between the ends points
+    !!----    real(kind=cp), intent(in) :: X0      ! Value of the Point 0
+    !!----    real(kind=cp), intent(in) :: X1      ! Value of the Point 1
     !!----
     !!----    Function that interpolate the value
     !!----
@@ -758,10 +756,10 @@
     !!
     Function VPoint_in_Line(R, X0, X1) Result (X)
        !---- Arguments ----!
-       real, intent(in) :: R
-       real, intent(in) :: X0
-       real, intent(in) :: X1
-       real             :: X
+       real(kind=cp), intent(in) :: R
+       real(kind=cp), intent(in) :: X0
+       real(kind=cp), intent(in) :: X1
+       real(kind=cp)             :: X
 
        x = ( 1.0 - r ) * x0 + r * x1
 
@@ -770,13 +768,13 @@
 
     !!----
     !!---- Function VPoint_in_Square(R, S, X00, X01, X10, X11) Result(X)
-    !!----    real, intent(in) :: r     !
-    !!----    real, intent(in) :: s     !
-    !!----    real, intent(in) :: x00   !
-    !!----    real, intent(in) :: x01   !
-    !!----    real, intent(in) :: x10   !
-    !!----    real, intent(in) :: x11   !
-    !!----    real             :: x     !
+    !!----    real(kind=cp), intent(in) :: r     !
+    !!----    real(kind=cp), intent(in) :: s     !
+    !!----    real(kind=cp), intent(in) :: x00   !
+    !!----    real(kind=cp), intent(in) :: x01   !
+    !!----    real(kind=cp), intent(in) :: x10   !
+    !!----    real(kind=cp), intent(in) :: x11   !
+    !!----    real(kind=cp)             :: x     !
     !!----
     !!----    Function that interpolate the value on square
     !!----
@@ -856,13 +854,13 @@
     !!
     Function VPoint_in_Square(R, S, X00, X01, X10, X11) Result(x)
        !---- Arguments ----!
-       real, intent(in) :: r
-       real, intent(in) :: s
-       real, intent(in) :: x00
-       real, intent(in) :: x01
-       real, intent(in) :: x10
-       real, intent(in) :: x11
-       real             :: x
+       real(kind=cp), intent(in) :: r
+       real(kind=cp), intent(in) :: s
+       real(kind=cp), intent(in) :: x00
+       real(kind=cp), intent(in) :: x01
+       real(kind=cp), intent(in) :: x10
+       real(kind=cp), intent(in) :: x11
+       real(kind=cp)             :: x
 
        x =             + x00 &
            + r *     ( - x00 + x10 ) &
@@ -874,9 +872,9 @@
 
     !!--++
     !!--++ Pure Function xy_sect(p1,p2,h,xh) result(sect)
-    !!--++    integer,              intent(in) :: p1,p2
-    !!--++    real, dimension(0:4), intent(in) :: h,xh
-    !!--++    real                             :: sect
+    !!--++    integer,                       intent(in) :: p1,p2
+    !!--++    real(kind=cp), dimension(0:4), intent(in) :: h,xh
+    !!--++    real(kind=cp)                             :: sect
     !!--++   
     !!--++    (Private)
     !!--++    Calculates the intersection of lines
@@ -885,9 +883,9 @@
     !!--++ Update: August - 2005
     !!
     Pure Function xy_sect(p1,p2,h,xy) result(sect)
-      integer,              intent(in) :: p1,p2
-      real, dimension(0:4), intent(in) :: h,xy
-      real                             :: sect
+      integer,                       intent(in) :: p1,p2
+      real(kind=cp), dimension(0:4), intent(in) :: h,xy
+      real(kind=cp)                             :: sect
       sect= (h(p2)*xy(p1)-h(p1)*xy(p2))/(h(p2)-h(p1))
       return
     End Function xy_sect
@@ -898,15 +896,15 @@
 
     !!----
     !!---- Subroutine Calculate_Contour2D(d,ilb,iub,jlb,jub,x,y,z,nlv,ntp,xyz)
-    !!----    integer,                           intent(in)     :: ilb,iub    ! Lower and upper limits on the first dimension
-    !!----    integer,                           intent(in)     :: jlb,jub    ! Lower and upper limits for the second dimension
-    !!----    real, dimension (ilb:iub,jlb:jub), intent(in)     :: d          ! Section 2D
-    !!----    real, dimension (ilb:iub),         intent(in)     :: x          ! Limits values on X
-    !!----    real, dimension (jlb:jub),         intent(in)     :: y          ! Limits values on Y
-    !!----    real, dimension (:),               intent(in)     :: z          ! Level values
-    !!----    integer,                           intent(in)     :: nlv        ! Number of levels
-    !!----    integer,                           intent(in out) :: ntp        ! Number of points
-    !!----    real, dimension (:,:),             intent(out)    :: xyz        ! XY Points
+    !!----    integer,                                    intent(in)     :: ilb,iub    ! Lower and upper limits on the first dimension
+    !!----    integer,                                    intent(in)     :: jlb,jub    ! Lower and upper limits for the second dimension
+    !!----    real(kind=cp), dimension (ilb:iub,jlb:jub), intent(in)     :: d          ! Section 2D
+    !!----    real(kind=cp), dimension (ilb:iub),         intent(in)     :: x          ! Limits values on X
+    !!----    real(kind=cp), dimension (jlb:jub),         intent(in)     :: y          ! Limits values on Y
+    !!----    real(kind=cp), dimension (:),               intent(in)     :: z          ! Level values
+    !!----    integer,                                    intent(in)     :: nlv        ! Number of levels
+    !!----    integer,                                    intent(in out) :: ntp        ! Number of points
+    !!----    real(kind=cp), dimension (:,:),             intent(out)    :: xyz        ! XY Points
     !!----
     !!----     Subroutine for Contour 2D
     !!----
@@ -914,15 +912,15 @@
     !!
     Subroutine Calculate_Contour2D(d,ilb,iub,jlb,jub,x,y,z,nlv,npt,xyz)
        !---- Arguments ----!
-       integer,                           intent(in)     :: ilb,iub
-       integer,                           intent(in)     :: jlb,jub
-       real, dimension (ilb:iub,jlb:jub), intent(in)     :: d
-       real, dimension (ilb:iub),         intent(in)     :: x
-       real, dimension (jlb:jub),         intent(in)     :: y
-       real, dimension (:),               intent(in)     :: z
-       integer,                           intent(in)     :: nlv ! numeri de liveli
-       integer,                           intent(in out) :: npt ! punti
-       real, dimension (:,:),             intent(out)    :: xyz
+       integer,                                    intent(in)     :: ilb,iub
+       integer,                                    intent(in)     :: jlb,jub
+       real(kind=cp), dimension (ilb:iub,jlb:jub), intent(in)     :: d
+       real(kind=cp), dimension (ilb:iub),         intent(in)     :: x
+       real(kind=cp), dimension (jlb:jub),         intent(in)     :: y
+       real(kind=cp), dimension (:),               intent(in)     :: z
+       integer,                                    intent(in)     :: nlv ! numeri de liveli
+       integer,                                    intent(in out) :: npt ! punti
+       real(kind=cp), dimension (:,:),             intent(out)    :: xyz
 
        !---- Local variables ----!
        integer                             :: j,i,k,m,m1,m2,m3
@@ -930,8 +928,8 @@
        integer, dimension (0:4)            :: sh
        integer, dimension (1:4)            :: im=(/0,1,1,0/), jm=(/0,0,1,1/)
        integer, dimension (-1:1,-1:1,-1:1) :: castab
-       real, dimension (0:4)               :: h, xh, yh
-       real                                :: dmin,dmax,x1,y1,x2,y2
+       real(kind=cp), dimension (0:4)      :: h, xh, yh
+       real(kind=cp)                       :: dmin,dmax,x1,y1,x2,y2
 
        !---- Use statement functions for the line intersections => replaced by a pure private function
        ! xsect(p1,p2)=(h(p2)*xh(p1)-h(p1)*xh(p2))/(h(p2)-h(p1))
@@ -1069,15 +1067,15 @@
 
     !!----
     !!---- Subroutine Calculate_Mesh(Rho,Ngrid,Nlevel,Levels,MC_Method,Npoints,Xyz,Limits,Step)
-    !!----    real,    dimension(:,:,:),         intent(in)     :: Rho
-    !!----    integer, dimension(3),             intent(in)     :: Ngrid
-    !!----    integer,                           intent(in)     :: Nlevel
-    !!----    real,    dimension(nlevel),        intent(in)     :: Levels
-    !!----    character(len=*),                  intent(in)     :: MC_Method
-    !!----    integer, dimension(nlevel),        intent(out)    :: Npoints
-    !!----    real,    dimension(:,:),           intent(out)    :: Xyz
-    !!----    real,    dimension(2,3), optional, intent(in)     :: Limits
-    !!----    integer, dimension(3), optional,   intent(in)     :: Step
+    !!----    real(kind=cp),    dimension(:,:,:),         intent(in)     :: Rho
+    !!----    integer, dimension(3),                      intent(in)     :: Ngrid
+    !!----    integer,                                    intent(in)     :: Nlevel
+    !!----    real(kind=cp),    dimension(nlevel),        intent(in)     :: Levels
+    !!----    character(len=*),                           intent(in)     :: MC_Method
+    !!----    integer, dimension(nlevel),                 intent(out)    :: Npoints
+    !!----    real(kind=cp),    dimension(:,:),           intent(out)    :: Xyz
+    !!----    real(kind=cp),    dimension(2,3), optional, intent(in)     :: Limits
+    !!----    integer, dimension(3), optional,            intent(in)     :: Step
     !!----
     !!----    Calculate the 3D Contour
     !!----
@@ -1085,31 +1083,31 @@
     !!
     Subroutine Calculate_Mesh(Rho,Ngrid,Nlevel,Levels,MC_Method,NPoints,Xyz,Limits,Step)
        !---- Arguments ----!
-       real,    dimension(:,:,:),         intent(in)           :: Rho
-       integer, dimension(3),             intent(in)           :: ngrid
-       integer,                           intent(in)           :: nlevel
-       real,    dimension(nlevel),        intent(in)           :: Levels
-       character(len=*),                  intent(in)           :: MC_Method
-       integer, dimension(nlevel),        intent(out)          :: NPoints
-       real,    dimension(:,:),           intent(out)          :: Xyz
-       real,    dimension(2,3), optional, intent(in)           :: Limits
-       integer, dimension(3), optional,   intent(in)           :: Step
+       real(kind=cp),    dimension(:,:,:),         intent(in)           :: Rho
+       integer, dimension(3),                      intent(in)           :: ngrid
+       integer,                                    intent(in)           :: nlevel
+       real(kind=cp),    dimension(nlevel),        intent(in)           :: Levels
+       character(len=*),                           intent(in)           :: MC_Method
+       integer, dimension(nlevel),                 intent(out)          :: NPoints
+       real(kind=cp),    dimension(:,:),           intent(out)          :: Xyz
+       real(kind=cp),    dimension(2,3), optional, intent(in)           :: Limits
+       integer, dimension(3), optional,            intent(in)           :: Step
 
        !---- Local Variables ----!
-       character(len=2)      :: mc_char
-       integer               :: i,ii,j,k,n,lv,ntr
-       integer               :: ind,nelem,ncase
-       integer               :: nx_ini,nx_fin,ny_ini,ny_fin,nz_ini,nz_fin
-       integer               :: i1,j1,k1,i2,j2,k2,i3,j3,k3,i4,j4,k4
-       integer               :: i5,j5,k5,i6,j6,k6,i7,j7,k7,i8,j8,k8
-       integer, dimension(8) :: iv
-       integer, dimension(10):: icode
-       integer, dimension(3) :: istep
-       !integer               :: itype
-       real                  :: dx,dy,dz,dxs,dys,dzs
-       real                  :: den1,den2,den3,den4,den5,den6,den7,den8
-       real                  :: xmax,xmin,ymax,ymin,zmin,zmax
-       real,dimension(3,10)  :: xp
+       character(len=2)               :: mc_char
+       integer                        :: i,ii,j,k,n,lv,ntr
+       integer                        :: ind,nelem,ncase
+       integer                        :: nx_ini,nx_fin,ny_ini,ny_fin,nz_ini,nz_fin
+       integer                        :: i1,j1,k1,i2,j2,k2,i3,j3,k3,i4,j4,k4
+       integer                        :: i5,j5,k5,i6,j6,k6,i7,j7,k7,i8,j8,k8
+       integer, dimension(8)          :: iv
+       integer, dimension(10)         :: icode
+       integer, dimension(3)          :: istep
+       !integer                       :: itype
+       real(kind=cp)                  :: dx,dy,dz,dxs,dys,dzs
+       real(kind=cp)                  :: den1,den2,den3,den4,den5,den6,den7,den8
+       real(kind=cp)                  :: xmax,xmin,ymax,ymin,zmin,zmax
+       real(kind=cp),dimension(3,10)  :: xp
 
        logical               :: mc
 
@@ -1388,18 +1386,18 @@
     !!
     Subroutine Init_Err_Maps()
 
-       err_maps=.false.
-       err_mess_maps=" "
+       ERR_Maps=.false.
+       ERR_Maps_Mess=" "
 
        return
     End Subroutine Init_Err_Maps
 
     !!----
     !!---- Subroutine Load_ExtentedMap(Rho,Ngrid,Limits,Rhonew)
-    !!----    real, dimension(:,:,:), intent(in) :: rho
-    !!----    integer, dimension(3),  intent(in) :: ngrid
-    !!----    real,dimension(2,3),    intent(in) :: limits
-    !!----    real, dimension(:,:,:), intent(out):: rhonew
+    !!----    real(kind=cp), dimension(:,:,:), intent(in) :: rho
+    !!----    integer, dimension(3),           intent(in) :: ngrid
+    !!----    real(kind=cp),dimension(2,3),    intent(in) :: limits
+    !!----    real(kind=cp), dimension(:,:,:), intent(out):: rhonew
     !!----
     !!----    Rhonew has one dimension more in each dimension that Rho
     !!----    This routine is useful for 2D representation.
@@ -1409,21 +1407,20 @@
     !!
     Subroutine Load_ExtendedMap(Rho,Ngrid,Limits,Rhonew)
        !---- Arguments ----!
-       real, dimension(:,:,:), intent(in) :: rho
-       integer, dimension(3),  intent(in) :: ngrid
-       real,dimension(2,3),    intent(in) :: limits
-       real, dimension(:,:,:), intent(out):: rhonew
+       real(kind=cp), dimension(:,:,:), intent(in) :: rho
+       integer, dimension(3),           intent(in) :: ngrid
+       real(kind=cp),dimension(2,3),    intent(in) :: limits
+       real(kind=cp), dimension(:,:,:), intent(out):: rhonew
 
        !---- Local Variables ----!
-       integer            :: nx,ny,nz,nx1,ny1,nz1
-       integer            :: i,j,k !,ii,jj,kk
-       integer            :: ii1,ii2,jj1,jj2,kk1,kk2
-       real               :: dx, dy, dz !, xinc, yinc, zinc
-       real               :: xval,yval,zval
-       real               :: v1,v2,v3,v4,v5,v6,v7,v8,r,s,t,valor
-       real               :: x1,y1,z1,xx1,xx2,yy1,yy2,zz1,zz2
-       real, dimension(3) :: rinc
-       real, parameter    :: eps=0.0001
+       integer                     :: nx,ny,nz,nx1,ny1,nz1
+       integer                     :: i,j,k !,ii,jj,kk
+       integer                     :: ii1,ii2,jj1,jj2,kk1,kk2
+       real(kind=cp)               :: dx, dy, dz !, xinc, yinc, zinc
+       real(kind=cp)               :: xval,yval,zval
+       real(kind=cp)               :: v1,v2,v3,v4,v5,v6,v7,v8,r,s,t,valor
+       real(kind=cp)               :: x1,y1,z1,xx1,xx2,yy1,yy2,zz1,zz2
+       real(kind=cp), dimension(3) :: rinc
 
        nx=ngrid(1)
        ny=ngrid(2)
@@ -1595,13 +1592,13 @@
 
     !!----
     !!---- SUBROUTINE Load_Section(Rho,ngrid,imap,section,limits,ngrid2,dmap)
-    !!----    real, dimension(:,:,:), intent(in) :: rho
-    !!----    integer, dimension(3),  intent(in) :: ngrid
-    !!----    integer,                intent(in) :: imap
-    !!----    integer,                intent(in) :: section
-    !!----    real, dimension(2,2),   intent(in) :: limits
-    !!----    integer, dimension(2),  intent(in) :: ngrid2
-    !!----    real, dimension(:,:),   intent(out):: dmap
+    !!----    real(kind=cp), dimension(:,:,:), intent(in) :: rho
+    !!----    integer, dimension(3),           intent(in) :: ngrid
+    !!----    integer,                         intent(in) :: imap
+    !!----    integer,                         intent(in) :: section
+    !!----    real(kind=cp), dimension(2,2),   intent(in) :: limits
+    !!----    integer, dimension(2),           intent(in) :: ngrid2
+    !!----    real(kind=cp), dimension(:,:),   intent(out):: dmap
     !!----
     !!----    This routine only works with fractional coordinates
     !!----
@@ -1609,22 +1606,22 @@
     !!
     Subroutine Load_Section(Rho,ngrid,imap,section,limits,ngrid2,dmap)
        !---- Arguments ----!
-       real, dimension(:,:,:), intent(in) :: rho
-       integer, dimension(3),  intent(in) :: ngrid
-       integer,                intent(in) :: imap
-       integer,                intent(in) :: section
-       real, dimension(2,2),   intent(in) :: limits
-       integer, dimension(2),  intent(in) :: ngrid2
-       real, dimension(:,:),   intent(out):: dmap
+       real(kind=cp), dimension(:,:,:), intent(in) :: rho
+       integer, dimension(3),           intent(in) :: ngrid
+       integer,                         intent(in) :: imap
+       integer,                         intent(in) :: section
+       real(kind=cp), dimension(2,2),   intent(in) :: limits
+       integer, dimension(2),           intent(in) :: ngrid2
+       real(kind=cp), dimension(:,:),   intent(out):: dmap
 
        !---- Local Variables ----!
        integer :: ndimx, ndimy
        integer :: i,j,ii1,ii2,jj1,jj2,kk
 
-       real            :: uinc,vinc
-       real            :: uu,vv,x1,y1
-       real            :: dx,dy,f1,f2,f3,z1,z2,z3,z4
-       real            :: xx1,xx2,yy1,yy2
+       real(kind=cp)            :: uinc,vinc
+       real(kind=cp)            :: uu,vv,x1,y1
+       real(kind=cp)            :: dx,dy,f1,f2,f3,z1,z2,z3,z4
+       real(kind=cp)            :: xx1,xx2,yy1,yy2
 
        !---- Contorno ----!
        dmap = 0.0
@@ -1728,11 +1725,11 @@
 
     !!--++
     !!--++ Subroutine Peak_List(Pto,Grp,Cell,Npeaks,Peaks)
-    !!--++    real(kind=sp), dimension(4),   intent(in)     :: Pto      ! New position to add on the List
+    !!--++    real(kind=cp), dimension(4),   intent(in)     :: Pto      ! New position to add on the List
     !!--++    type(space_group_type),        intent(in)     :: Grp      ! Space Group
     !!--++    type(crystal_cell_type),       intent(in)     :: Cell     ! Cell
     !!--++    integer,                       intent(in out) :: NPeaks   ! Number of peaks on the list
-    !!--++    real(kind=sp), dimension(:,:), intent(in out) :: Peaks    ! List of Peaks
+    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: Peaks    ! List of Peaks
     !!--++
     !!--++    (Private)
     !!--++    Add a new peak position on the list if there aren't
@@ -1742,16 +1739,15 @@
     !!
     Subroutine Peak_List(Pto,Grp,Cell,Npks,Pks)
        !---- Arguments ----!
-       real(kind=sp), dimension(4),   intent(in)     :: Pto
+       real(kind=cp), dimension(4),   intent(in)     :: Pto
        type(space_group_type),        intent(in)     :: Grp
        type(crystal_cell_type),       intent(in)     :: Cell
        integer,                       intent(in out) :: NPks
-       real(kind=sp), dimension(:,:), intent(in out) :: Pks
+       real(kind=cp), dimension(:,:), intent(in out) :: Pks
 
        !---- Local variables ----!
        integer                      :: i,j
-       real(kind=sp), parameter     :: eps=0.002
-       real(kind=sp), dimension (3) :: pto1,pto2
+       real(kind=cp), dimension (3) :: pto1,pto2
 
        !---- Pto in asymmetric unit ----!
        do i=1,grp%multip
@@ -1790,11 +1786,11 @@
 
     !!----
     !!---- Subroutine Search_Peaks(Rho,Grp,Cell,Npeaks_to_Found,Peaks,Abs_Code)
-    !!----    real(kind=sp), dimension(:,:,:),    intent(in)      :: Rho         ! The Map
+    !!----    real(kind=cp), dimension(:,:,:),    intent(in)      :: Rho         ! The Map
     !!----    type(space_group_type),             intent(in)      :: Grp         ! Space Group
     !!----    type(crystal_cell_type),            intent(in)      :: Celda       ! Cell
     !!----    integer,                            intent(in out)  :: NPFound     ! Number of peaks to found
-    !!----    real(kind=sp), dimension(4,NPfound),intent(out)     :: Peaks       ! Peak List
+    !!----    real(kind=cp), dimension(4,NPfound),intent(out)     :: Peaks       ! Peak List
     !!----    logical, optional,                  intent(in)      :: Abs_Code    ! logical to use absolute value on Rho
     !!----
     !!----    General procedure to search peaks on Rho
@@ -1803,11 +1799,11 @@
     !!
     Subroutine Search_Peaks(Rho,Grp,Cell,NPFound,Pks,Abs_Code)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:,:),    intent(in)      :: Rho
+       real(kind=cp), dimension(:,:,:),    intent(in)      :: Rho
        type(space_group_type),             intent(in)      :: Grp
        type(crystal_cell_type),            intent(in)      :: Cell
        integer,                            intent(in out)  :: NPFound
-       real(kind=sp), dimension(:,:),      intent(out)     :: Pks
+       real(kind=cp), dimension(:,:),      intent(out)     :: Pks
        logical, optional,                  intent(in)      :: Abs_Code
 
        !---- Local Variables ----!
@@ -1818,9 +1814,9 @@
        integer                                    :: ia,ja,ka
        integer                                    :: i,j,k,ji,ji11,ji21,i11,i21
        integer                                    :: izt1t,izt2t,izt3t
-       real(kind=sp), parameter                   :: fac_max=1.0e3
-       real(kind=sp)                              :: denabsmax,fac_scale
-       real(kind=sp), dimension(4)                :: pto
+       real(kind=cp), parameter                   :: fac_max=1.0e3
+       real(kind=cp)                              :: denabsmax,fac_scale
+       real(kind=cp), dimension(4)                :: pto
        integer, dimension (size(rho,1),size(rho,2),size(rho,3)):: nr3d   !automatic array
 
        !---- Init ----!
@@ -2241,11 +2237,11 @@
 
     !!----
     !!---- Subroutine Statistic_Map(Rho,MaxV,MinV,AveV,SigmaV)
-    !!----    real(kind=sp), dimension(:,:,:), intent(in) :: Rho
-    !!----    real(kind=sp),                   intent(out):: MaxV      ! Maximum value of Rho
-    !!----    real(kind=sp),                   intent(out):: MinV      ! Minimum value of Rho
-    !!----    real(kind=sp),                   intent(out):: AveV      ! Average value of Rho
-    !!----    real(kind=sp),                   intent(out):: SigmaV    ! Sigma value of Rho
+    !!----    real(kind=cp), dimension(:,:,:), intent(in) :: Rho
+    !!----    real(kind=cp),                   intent(out):: MaxV      ! Maximum value of Rho
+    !!----    real(kind=cp),                   intent(out):: MinV      ! Minimum value of Rho
+    !!----    real(kind=cp),                   intent(out):: AveV      ! Average value of Rho
+    !!----    real(kind=cp),                   intent(out):: SigmaV    ! Sigma value of Rho
     !!----
     !!----    Some statistic parameters of the map
     !!----
@@ -2253,11 +2249,11 @@
     !!
     Subroutine Statistic_Map(Rho,MaxV,MinV,AveV,SigmaV)
        !---- Arguments ----!
-       real(kind=sp), dimension(:,:,:), intent(in) :: Rho
-       real(kind=sp),                   intent(out):: MaxV
-       real(kind=sp),                   intent(out):: MinV
-       real(kind=sp),                   intent(out):: AveV
-       real(kind=sp),                   intent(out):: SigmaV
+       real(kind=cp), dimension(:,:,:), intent(in) :: Rho
+       real(kind=cp),                   intent(out):: MaxV
+       real(kind=cp),                   intent(out):: MinV
+       real(kind=cp),                   intent(out):: AveV
+       real(kind=cp),                   intent(out):: SigmaV
 
        !---- Local Variables ----!
        integer :: i,j,k
@@ -2270,7 +2266,7 @@
        nw=size(rho,3)
        if (nu*nv*nw == 0) then
           err_maps=.true.
-          err_mess_maps="Some dimension on Rho is zero"
+          ERR_Maps_Mess="Some dimension on Rho is zero"
           return
        end if
 

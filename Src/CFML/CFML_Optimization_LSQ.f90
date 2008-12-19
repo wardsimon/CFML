@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Optimization_LSQ
@@ -11,12 +11,13 @@
 !!----
 !!----    October - 1997 Created by JRC
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,     only : Sp, Dp, Invert_Matrix
+!!--++    Use CFML_Constants,    only : Cp, Dp
+!!--++    Use CFML_Math_General,  only : Invert_Matrix
 !!----
 !!---- VARIABLES
 !!----    ERR_LSQ
-!!----    ERR_MESS_LSQ
-!!----    NPAR
+!!----    ERR_LSQ_MESS
+!!----    MAX_FREE_PAR
 !!----    LSQ_CONDITIONS_TYPE
 !!----    LSQ_STATE_VECTOR_TYPE
 !!--++    CH                      [Private]
@@ -39,7 +40,8 @@
 !!
  Module CFML_Optimization_LSQ
     !---- Use Files ----!
-    Use CFML_Math_General, only: Sp, Dp, Invert_Matrix
+    Use CFML_Constants,   only: Cp, Dp
+    Use CFML_Math_General, only: Invert_Matrix
 
     implicit none
 
@@ -70,28 +72,28 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public   :: Err_lsq =.false.
+    logical, public   :: ERR_Lsq =.false.
 
     !!----
-    !!---- ERR_MESS_LSQ
-    !!----    Character(len=132), public  :: ERR_MESS_LSQ
+    !!---- ERR_LSQ_MESS
+    !!----    Character(len=150), public  :: Err_Lsq_Mess
     !!----
     !!----    Character variable containing the error message associated to the
     !!----    ocurrence of an error condition
     !!----
     !!---- Update: February - 2005
     !!
-    Character(len=132), public  :: ERR_MESS_LSQ
-
+    Character(len=150), public  :: ERR_Lsq_Mess
+    
     !!----
-    !!---- NPAR
-    !!----    integer, parameter, public  :: npar
+    !!---- MAX_FREE_PAR
+    !!----    integer, parameter, public  :: Max_Free_Par
     !!----
     !!----    Maximum number of free parameters (500)
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public   :: npar=500   !Maximum number of free parameters
+    integer, parameter, public   :: Max_Free_Par=500   !Maximum number of free parameters
 
     !!----
     !!----  Type, public :: LSQ_Conditions_type
@@ -99,9 +101,9 @@
     !!----     logical          :: reached =.false.! if true convergence was reached in the algorithm
     !!----     integer          :: corrmax=50      ! value of correlation in % to output
     !!----     integer          :: icyc            ! number of cycles of refinement
-    !!----     integer          :: npvar           !number of effective free parameters of the model
+    !!----     integer          :: npvar           ! number of effective free parameters of the model
     !!----     integer          :: iw              ! indicator for weighting scheme (if iw=1 => w=1/yc)
-    !!----     real(kind=sp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
+    !!----     real(kind=cp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
     !!----                                         ! the intial value before fixing it
     !!----  End Type LSQ_Conditions_type
     !!----
@@ -116,17 +118,17 @@
        integer          :: icyc            ! number of cycles of refinement
        integer          :: npvar           ! number of effective free parameters of the model
        integer          :: iw              ! indicator for weighting scheme (if iw=1 => w=1/yc)
-       real(kind=sp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
+       real(kind=cp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
                                            ! the intial value before fixing it
     End Type LSQ_Conditions_type
 
     !!----
     !!----  Type, public :: LSQ_State_Vector_type
-    !!----     integer                            :: np         !total number of model parameters <= npar
-    !!----     real(kind=sp),     dimension(npar) :: pv         !Vector of parameters
-    !!----     real(kind=sp),     dimension(npar) :: spv        !Vector of standard deviations
-    !!----     integer,           dimension(npar) :: code       !pointer for selecting variable parameters
-    !!----     character(len=15), dimension(npar) :: nampar=" " !Names of parameters
+    !!----     integer                                    :: np         !total number of model parameters <= Max_Free_Par
+    !!----     real(kind=cp),     dimension(Max_Free_Par) :: pv         !Vector of parameters
+    !!----     real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
+    !!----     integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
+    !!----     character(len=15), dimension(Max_Free_Par) :: nampar=" " !Names of parameters
     !!----  End Type LSQ_State_Vector_type
     !!----
     !!----  Derived type encapsulating the vector state defining a set of parameter
@@ -136,65 +138,65 @@
     !!
 
     Type, public :: LSQ_State_Vector_type
-       integer                            :: np         !total number of model parameters <= npar
-       real(kind=sp),     dimension(npar) :: pv         !Vector of parameters
-       real(kind=sp),     dimension(npar) :: spv        !Vector of standard deviations
-       integer,           dimension(npar) :: code       !pointer for selecting variable parameters
-       character(len=15), dimension(npar) :: nampar     !Names of parameters
+       integer                                    :: np         !total number of model parameters <= Max_Free_Par
+       real(kind=cp),     dimension(Max_Free_Par) :: pv         !Vector of parameters
+       real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
+       integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
+       character(len=15), dimension(Max_Free_Par) :: nampar     !Names of parameters
     End Type LSQ_State_Vector_type
 
     !!--++
     !!--++ CH
-    !!--++    real(kind=sp),     dimension(npar), private   :: ch
+    !!--++    real(kind=cp),     dimension(Max_Free_Par), private   :: ch
     !!--++
     !!--++    (PRIVATE)
     !!--++    Vector holding the change in the values of parameters (ch = pn - pv)
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(npar), private   :: ch         ! ch = pn - pv
+    real(kind=cp), dimension(Max_Free_Par), private   :: ch         ! ch = pn - pv
 
     !!--++
     !!--++ CORREL
-    !!--++    real(kind=sp), dimension(npar,npar), public  :: correl
+    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: correl
     !!--++
     !!--++    Variance/covariance/correlation matrix
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(npar,npar), private  :: correl     !Variance/covariance/correlation matrix
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: correl     !Variance/covariance/correlation matrix
 
 
     !!--++
     !!--++ CURV_MAT
-    !!--++    real(kind=sp), dimension(npar,npar), public  :: curv_mat
+    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: curv_mat
     !!--++
     !!--++    Curvature matrix
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(npar,npar), private  :: curv_mat   !Curvature matrix
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: curv_mat   !Curvature matrix
 
     !!--++
     !!--++ NAMFREE
-    !!--++    character(len=15), dimension(npar), private   :: namfree
+    !!--++    character(len=15), dimension(Max_Free_Par), private   :: namfree
     !!--++
     !!--++  (PRIVATE)
     !!--++  Names of refined parameters
     !!--++
     !!--++ Update: February - 2005
     !!
-    character(len=15), dimension(npar), private   :: namfree    !Names of refined parameters
+    character(len=15), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
 
     !!--++
     !!--++ PN
-    !!--++    real(kind=sp), dimension(npar), public   :: pn
+    !!--++    real(kind=cp), dimension(Max_Free_Par), public   :: pn
     !!--++
     !!--++    Vector with new values of parameters
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(npar), private   :: pn   !Vector with new values of parameters
+    real(kind=cp), dimension(Max_Free_Par), private   :: pn   !Vector with new values of parameters
 
 
  Contains
@@ -203,11 +205,11 @@
 
     !!--++
     !!--++ Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
-    !!--++    integer, intent(in)              :: Nfr
-    !!--++    integer, intent(in)              :: Nobs
-    !!--++    real,    intent(in),dimension(:) :: y
-    !!--++    real,    intent(in),dimension(:) :: w
-    !!--++    real,    intent(in),dimension(:) :: yc
+    !!--++    integer, intent(in)                    :: Nfr
+    !!--++    integer, intent(in)                    :: Nobs
+    !!--++    real(kind=cp), intent(in),dimension(:) :: y
+    !!--++    real(kind=cp), intent(in),dimension(:) :: w
+    !!--++    real(kind=cp), intent(in),dimension(:) :: yc
     !!--++
     !!--++    (PRIVATE)
     !!--++    Evaluate reduced chi2
@@ -216,11 +218,11 @@
     !!
     Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
        !---- Arguments ----!
-       integer, intent(in)              :: nfr,nobs
-       real,    intent(in),dimension(:) :: y
-       real,    intent(in),dimension(:) :: w
-       real,    intent(in),dimension(:) :: yc
-       real(kind=sp)                    :: chisq
+       integer,                    intent(in) :: nfr,nobs
+       real(kind=cp),dimension(:), intent(in) :: y
+       real(kind=cp),dimension(:), intent(in) :: w
+       real(kind=cp),dimension(:), intent(in) :: yc
+       real(kind=cp)                          :: chisq
 
        !---- Local variables ----!
        integer :: i
@@ -238,11 +240,11 @@
 
     !!--++
     !!--++ Subroutine Box_Constraints(A,Sa,Fixed,c,vs)
-    !!--++    real, dimension (npar), intent(in out) :: a
-    !!--++    real, dimension (npar), intent(in out) :: sa
-    !!--++    logical               , intent(   out) :: fixed
-    !!--++    Type(LSQ_Conditions_type),  intent(in) :: c     !conditions for refinement
-    !!--++    Type(LSQ_State_Vector_type),intent(in) :: vs    !State vector
+    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: a
+    !!--++    real(kind=cp), dimension (Max_Free_Par), intent(in out) :: sa
+    !!--++    logical                        , intent(   out) :: fixed
+    !!--++    Type(LSQ_Conditions_type),       intent(in)     :: c     !conditions for refinement
+    !!--++    Type(LSQ_State_Vector_type),     intent(in)     :: vs    !State vector
     !!--++
     !!--++    (PRIVATE)
     !!--++    This subroutine avoid a peak-position parameter undergoing a change
@@ -255,16 +257,16 @@
     !!
     Subroutine Box_Constraints(A,Sa,Fixed,c,vs)
        !---- Arguments ----!
-       real, dimension (npar), intent(in out) :: a
-       real, dimension (npar), intent(in out) :: sa
-       logical               , intent(   out) :: fixed
-       Type(LSQ_Conditions_type),  intent(in) :: c     !conditions for refinement
-       Type(LSQ_State_Vector_type),intent(in) :: vs    !State vector
+       real(kind=cp), dimension (Max_Free_Par), intent(in out) :: a
+       real(kind=cp), dimension (Max_Free_Par), intent(in out) :: sa
+       logical                        , intent(   out) :: fixed
+       Type(LSQ_Conditions_type),       intent(in)     :: c     !conditions for refinement
+       Type(LSQ_State_Vector_type),     intent(in)     :: vs    !State vector
 
        !---- Local variables ----!
-       integer :: i,ncount
-       real    :: per
-       logical :: ifi
+       integer       :: i,ncount
+       real(kind=cp) :: per
+       logical       :: ifi
 
        fixed=.false.
        ncount=0
@@ -292,26 +294,27 @@
 
     !!--++
     !!--++  Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c,vs, A, Sa, Fl, Yc, Chir, Ifail)
-    !!--++     real,    dimension(:),      intent(in)      :: x     !vector with abcisae
-    !!--++     real,    dimension(:),      intent(in)      :: y     !Observed values
-    !!--++     real,    dimension(:),      intent(in out)  :: w     !weight of observations
-    !!--++     integer,                    intent(in)      :: nobs  !number of observations
-    !!--++     Type(LSQ_Conditions_type),  intent(in)      :: c     !conditions for refinement
-    !!--++     Type(LSQ_State_Vector_type),intent(in out)  :: vs    !State vector
-    !!--++     real,dimension(:),          intent(in out)  :: a     !vector of parameter
-    !!--++     real,dimension(:),          intent(in out)  :: sa    !estimated standard deviations
-    !!--++     real,                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real,dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real,                       intent(out)     :: chir
+    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
+    !!--++     real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
+    !!--++     real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
+    !!--++     integer,                             intent(in)      :: nobs  !number of observations
+    !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
+    !!--++     Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State vector
+    !!--++     real(kind=sp),dimension(:),          intent(in out)  :: a     !vector of parameter
+    !!--++     real(kind=sp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
+    !!--++     real(kind=sp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+    !!--++     real(kind=sp),dimension(:),          intent(out)     :: yc    !Calculated
+    !!--++     real(kind=sp),                       intent(out)     :: chir
     !!--++     integer,                    intent(out)     :: ifail
     !!--++
     !!--++     Interface
     !!--++      Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!--++           integer,                    intent(in) :: iv
-    !!--++           real,                       intent(in) :: xv
-    !!--++           real,dimension(:),          intent(in) :: aa
-    !!--++           real,                       intent(out):: ycalc
-    !!--++           real,dimension(:),optional, intent(out):: der
+    !!--++         use CFML_Constants, only: cp
+    !!--++         integer,                             intent(in) :: iv
+    !!--++         real(kind=cp),                       intent(in) :: xv
+    !!--++         real(kind=cp),dimension(:),          intent(in) :: aa
+    !!--++         real(kind=cp),                       intent(out):: ycalc
+    !!--++         real(kind=cp),dimension(:),optional, intent(out):: der
     !!--++      End Subroutine Model_Functn
     !!--++     End Interface
     !!--++
@@ -319,36 +322,37 @@
     !!
     Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c, vs, A, Sa, Fl, Yc, Chir, Ifail)
        !---- Arguments ----!
-       real,    dimension(:),      intent(in)      :: x     !vector with abcisae
-       real,    dimension(:),      intent(in)      :: y     !Observed values
-       real,    dimension(:),      intent(in out)  :: w     !weight of observations
-       integer,                    intent(in)      :: nobs  !number of observations
-       Type(LSQ_Conditions_type),  intent(in)      :: c     !conditions for refinement
-       Type(LSQ_State_Vector_type),intent(in out)  :: vs    !State vector
-       real,dimension(:),          intent(in out)  :: a     !vector of parameter
-       real,dimension(:),          intent(in out)  :: sa    !estimated standard deviations
-       real,                       intent(in out)  :: fl    !Marquardt LAMBDA value
-       real,dimension(:),          intent(out)     :: yc    !Calculated
-       real,                       intent(out)     :: chir
+       real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
+       real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
+       real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
+       integer,                             intent(in)      :: nobs  !number of observations
+       Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
+       Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State vector
+       real(kind=cp),dimension(:),          intent(in out)  :: a     !vector of parameter
+       real(kind=cp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
+       real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+       real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
+       real(kind=cp),                       intent(out)     :: chir
        integer,                    intent(out)     :: ifail
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-             integer,                    intent(in) :: iv
-             real,                       intent(in) :: xv
-             real,dimension(:),          intent(in) :: aa
-             real,                       intent(out):: ycalc
-             real,dimension(:),optional, intent(out):: der
+           use CFML_Constants, only: cp
+           integer,                             intent(in) :: iv
+           real(kind=cp),                       intent(in) :: xv
+           real(kind=cp),dimension(:),          intent(in) :: aa
+           real(kind=cp),                       intent(out):: ycalc
+           real(kind=cp),dimension(:),optional, intent(out):: der
         End Subroutine Model_Functn
        End Interface
 
        !---- Local variables ----!
-       real                     :: chisq1
-       integer                  :: ntrials
-       integer                  :: nfr,j,i,k,ntr
-       logical                  :: change_par
-       real,  dimension(c%npvar):: beta, b, der
-       logical                  :: singular
+       logical                          :: change_par
+       logical                          :: singular
+       integer                          :: ntrials
+       integer                          :: nfr,j,i,k,ntr
+       real(kind=cp)                    :: chisq1
+       real(kind=cp), dimension(c%npvar):: beta, b, der
 
 
        ntrials=100
@@ -379,7 +383,7 @@
        do i=1,c%npvar
           if (curv_mat(i,i) < 1.0e-30) then
              Err_lsq =.true.
-             write(unit=err_mess_lsq,fmt="(a,i5,a,a)")  &
+             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",i," -> ",trim(namfree(i))
              ifail=2
              return
@@ -414,7 +418,7 @@
                    exit
                 end if
              end do
-             write(unit=err_mess_lsq,fmt="(a,i5,a,a)")  &
+             write(unit=Err_Lsq_Mess,fmt="(a,i5,a,a)")  &
                   " => Singular matrix!!, problem with parameter no.:",j," -> ",trim(namfree(j))
              ifail=2
              return
@@ -472,26 +476,27 @@
 
     !!----
     !!---- Subroutine Marquardt_Fit(Model_Functn, X, Y, W, Yc, Nobs, c, vs, Ipr, Chi2, scroll_lines)
-    !!----    real(kind=sp), dimension(:),intent(in)     :: x      !Vector of x-values
-    !!----    real(kind=sp), dimension(:),intent(in)     :: y      !Vector of observed y-values
-    !!----    real(kind=sp), dimension(:),intent(in out) :: w      !Vector of weights-values (1/variance)
-    !!----    real(kind=sp), dimension(:),intent(   out) :: yc     !Vector of calculated y-values
+    !!----    real(kind=cp), dimension(:),intent(in)     :: x      !Vector of x-values
+    !!----    real(kind=cp), dimension(:),intent(in)     :: y      !Vector of observed y-values
+    !!----    real(kind=cp), dimension(:),intent(in out) :: w      !Vector of weights-values (1/variance)
+    !!----    real(kind=cp), dimension(:),intent(   out) :: yc     !Vector of calculated y-values
     !!----    integer                    ,intent(in)     :: nobs   !Number of effective components of x,y,w,yc
     !!----    type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
     !!----    type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
     !!----    integer                    ,intent(in)     :: Ipr    !Logical unit for writing
-    !!----    real(kind=sp),              intent(out)    :: chi2   !Reduced Chi-2
+    !!----    real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
     !!----    character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
     !!----                                                                           !in this text for treatment in the calling program
     !!----
     !!----    Model_functn                                            !Name of the subroutine calculating yc(i) for point x(i)
     !!----    Interface                                               !Interface for the Model_Functn subroutine
     !!----       Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!----            integer,                    intent(in) :: iv     !Number of the component: "i" in x(i)
-    !!----            real,                       intent(in) :: xv     !Value of x(i)
-    !!----            real,                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-    !!----            real,dimension(:),          intent(in) :: aa     !Vector of parameters
-    !!----            real,dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
+    !!----            use CFML_Constants, only: cp
+    !!----            integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
+    !!----            real(kind=cp),                       intent(in) :: xv     !Value of x(i)
+    !!----            real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
+    !!----            real(kind=cp),dimension(:),          intent(in) :: aa     !Vector of parameters
+    !!----            real(kind=cp),dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
     !!----       End Subroutine Model_Functn
     !!----    End Interface
     !!----
@@ -530,32 +535,33 @@
     !!
     Subroutine Marquardt_Fit(Model_Functn,X,Y,W,Yc,Nobs,c,vs,Ipr,Chi2,scroll_lines)
        !---- Arguments ----!
-       real(kind=sp),   dimension(:), intent(in)             :: x,y
-       real(kind=sp),   dimension(:), intent(in out)         :: w
-       real(kind=sp),   dimension(:), intent(   out)         :: yc
+       real(kind=cp),   dimension(:), intent(in)             :: x,y
+       real(kind=cp),   dimension(:), intent(in out)         :: w
+       real(kind=cp),   dimension(:), intent(   out)         :: yc
        integer,                       intent(in)             :: nobs,Ipr
        type(LSQ_conditions_type),     intent(in out)         :: c
        type(LSQ_State_Vector_type),   intent(in out)         :: vs
-       real(kind=sp),                 intent(   out)         :: chi2
+       real(kind=cp),                 intent(   out)         :: chi2
        character(len=*),dimension(:), intent(out), optional  :: scroll_lines
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-             integer,                    intent(in) :: iv
-             real,                       intent(in) :: xv
-             real,dimension(:),          intent(in) :: aa
-             real,                       intent(out):: ycalc
-             real,dimension(:),optional, intent(out):: der
+           use CFML_Constants, only: cp  
+           integer,                             intent(in) :: iv
+           real(kind=cp),                       intent(in) :: xv
+           real(kind=cp),dimension(:),          intent(in) :: aa
+           real(kind=cp),                       intent(out):: ycalc
+           real(kind=cp),dimension(:),optional, intent(out):: der
         End Subroutine Model_Functn
        End Interface
 
        !---- local variables ----!
-       real(kind=sp), dimension(npar) :: a,sa
-       integer                        :: ifail
-       integer                        :: i,ncount,li,ntex
-       real(kind=sp)                  :: fl,chi1
-       logical                        :: fixed, write_cyc
-       character(len=132)             :: line
+       logical                                :: fixed, write_cyc
+       character(len=132)                     :: line
+       integer                                :: ifail
+       integer                                :: i,ncount,li,ntex
+       real(kind=cp)                          :: fl,chi1
+       real(kind=cp), dimension(Max_Free_Par) :: a,sa
 
        fixed = .false.
        write_cyc=.true.
@@ -704,13 +710,11 @@
        return
     End Subroutine Marquardt_Fit
 
-
-
     !!--++
     !!--++  Subroutine Output_Cyc(Ic,Lun,Chi2,vs)
     !!--++   integer,                    intent(in) :: ic  !cycle number
     !!--++   integer,                    intent(in) :: lun !logical number of the output file
-    !!--++   real,                       intent(in) :: chi2
+    !!--++   real(kind=cp),              intent(in) :: chi2
     !!--++   type(LSQ_State_Vector_type),intent(in) :: vs
     !!--++
     !!--++  (PRIVATE)
@@ -722,11 +726,12 @@
        !---- Arguments ----!
        integer,                    intent(in) :: ic  !cycle number
        integer,                    intent(in) :: lun !logical number of the output file
-       real,                       intent(in) :: chi2
+       real(kind=cp),              intent(in) :: chi2
        type(LSQ_State_Vector_type),intent(in) :: vs
+       
        !---- Local variables ----!
-       integer                          :: i,j
-       real                             :: rat
+       integer       :: i,j
+       real(kind=cp) :: rat
 
        !---- Writing during cycles ----!
        write(unit=lun,fmt="(/,/,a,i5,a,f14.6)")" => Cycle No.:",ic,"  Chi2 =",chi2
@@ -750,13 +755,13 @@
 
     !!--++
     !!--++  Subroutine Output_Final(Chi2,Nobs,X,Y,Yc,W,Lun,c,vs)
-    !!--++   real,                       intent(in)     :: chi2
-    !!--++   real,                       intent(in)     :: FL
+    !!--++   real(kind=cp),              intent(in)     :: chi2
+    !!--++   real(kind=cp),              intent(in)     :: FL
     !!--++   integer,                    intent(in)     :: nobs
-    !!--++   real,dimension(:),          intent(in)     :: x
-    !!--++   real,dimension(:),          intent(in)     :: y
-    !!--++   real,dimension(:),          intent(in)     :: yc
-    !!--++   real,dimension(:),          intent(in)     :: w
+    !!--++   real(kind=cp),dimension(:), intent(in)     :: x
+    !!--++   real(kind=cp),dimension(:), intent(in)     :: y
+    !!--++   real(kind=cp),dimension(:), intent(in)     :: yc
+    !!--++   real(kind=cp),dimension(:), intent(in)     :: w
     !!--++   integer,                    intent(in)     :: lun
     !!--++   type(LSQ_conditions_type),  intent(in)     :: c
     !!--++   type(LSQ_State_Vector_type),intent(in)     :: vs
@@ -768,21 +773,21 @@
     !!
     Subroutine Output_Final(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs)
        !---- Arguments ----!
-       real,                       intent(in)     :: chi2
-       real,                       intent(in)     :: FL
+       real(kind=cp),              intent(in)     :: chi2
+       real(kind=cp),              intent(in)     :: FL
        integer,                    intent(in)     :: nobs
-       real,dimension(:),          intent(in)     :: x
-       real,dimension(:),          intent(in)     :: y
-       real,dimension(:),          intent(in)     :: yc
-       real,dimension(:),          intent(in)     :: w
+       real(kind=cp),dimension(:), intent(in)     :: x
+       real(kind=cp),dimension(:), intent(in)     :: y
+       real(kind=cp),dimension(:), intent(in)     :: yc
+       real(kind=cp),dimension(:), intent(in)     :: w
        integer,                    intent(in)     :: lun
        type(LSQ_conditions_type),  intent(in)     :: c
        type(LSQ_State_Vector_type),intent(in)     :: vs
 
        !---- Local variables ----!
-       real(kind=dp)                    :: rfact,rwfact,riobs,rex
-       integer                          :: i,j,inum
-       real                             :: del,g2
+       integer       :: i,j,inum
+       real(kind=dp) :: rfact,rwfact,riobs,rex
+       real(kind=cp) :: del,g2
 
        !---- Final calculation and writings R-Factors calculations ----!
        rfact=0.0

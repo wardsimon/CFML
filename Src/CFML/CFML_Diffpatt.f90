@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Diffraction_Patterns
@@ -10,11 +10,15 @@
 !!----            January - 2004  Created by JRC
 !!----
 !!---- DEPENDENCIES
+!!----    Use CFML_Constants,       only : cp
+!!----    Use CFML_Math_General,     only : spline, splint, locate
+!!----    Use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
+!!----                                      get_logunit, u_case, getword
 !!----
 !!---- VARIABLES
 !!----    DIFFRACTION_PATTERN_TYPE
 !!----    ERR_DIFFPATT
-!!----    ERR_MESS_DIFFPATT
+!!----    ERR_DIFFPATT_MESS
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -50,7 +54,8 @@
 !!
  Module CFML_Diffraction_Patterns
     !---- Use Modules ----!
-    Use CFML_Math_General,     only : sp, spline, splint, locate
+    Use CFML_Constants,       only : cp
+    Use CFML_Math_General,     only : spline, splint, locate
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
                                       get_logunit, u_case, getword
 
@@ -82,15 +87,15 @@
     !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
-    !!----    real(kind=sp)                               :: xmin
-    !!----    real(kind=sp)                               :: xmax
-    !!----    real(kind=sp)                               :: ymin
-    !!----    real(kind=sp)                               :: ymax
-    !!----    real(kind=sp)                               :: scal
-    !!----    real(kind=sp)                               :: monitor
-    !!----    real(kind=sp)                               :: step
-    !!----    real(kind=sp)                               :: Tsamp         !Sample Temperature
-    !!----    real(kind=sp)                               :: Tset          !Setting Temperature (wished temperature)
+    !!----    real(kind=cp)                               :: xmin
+    !!----    real(kind=cp)                               :: xmax
+    !!----    real(kind=cp)                               :: ymin
+    !!----    real(kind=cp)                               :: ymax
+    !!----    real(kind=cp)                               :: scal
+    !!----    real(kind=cp)                               :: monitor
+    !!----    real(kind=cp)                               :: step
+    !!----    real(kind=cp)                               :: Tsamp         !Sample Temperature
+    !!----    real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
     !!----    integer                                     :: npts          !Number of points
     !!----    logical                                     :: ct_step       !Constant step
     !!----    logical                                     :: gy,gycalc,&
@@ -102,13 +107,13 @@
     !!----                                                   al_sigma, &
     !!----                                                   al_istat
     !!----
-    !!----    real(kind=sp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
-    !!----    real(kind=sp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
-    !!----    real(kind=sp), dimension (:), allocatable   :: y             ! Experimental intensity
-    !!----    real(kind=sp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
+    !!----    real(kind=cp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+    !!----    real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
+    !!----    real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
+    !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
     !!----    integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
-    !!----    real(kind=sp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
-    !!----    real(kind=sp), dimension (:), allocatable   :: bgr           ! Background
+    !!----    real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
+    !!----    real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
     !!----
     !!---- End Type Diffraction_Pattern_Type
     !!----
@@ -122,15 +127,15 @@
        character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
        character(len=20)                           :: instr         !file type
        character(len=512)                          :: filename      !file name
-       real(kind=sp)                               :: xmin
-       real(kind=sp)                               :: xmax
-       real(kind=sp)                               :: ymin
-       real(kind=sp)                               :: ymax
-       real(kind=sp)                               :: scal
-       real(kind=sp)                               :: monitor
-       real(kind=sp)                               :: step
-       real(kind=sp)                               :: Tsamp         !Sample Temperature
-       real(kind=sp)                               :: Tset          !Setting Temperature (wished temperature)
+       real(kind=cp)                               :: xmin
+       real(kind=cp)                               :: xmax
+       real(kind=cp)                               :: ymin
+       real(kind=cp)                               :: ymax
+       real(kind=cp)                               :: scal
+       real(kind=cp)                               :: monitor
+       real(kind=cp)                               :: step
+       real(kind=cp)                               :: Tsamp         !Sample Temperature
+       real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
        integer                                     :: npts          !Number of points
        logical                                     :: ct_step       !Constant step
        logical                                     :: gy,gycalc,&
@@ -142,13 +147,13 @@
                                                       al_sigma, &
                                                       al_istat
 
-       real(kind=sp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
-       real(kind=sp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
-       real(kind=sp), dimension (:), allocatable   :: y             ! Experimental intensity
-       real(kind=sp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
+       real(kind=cp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+       real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
+       real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
+       real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
        integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
-       real(kind=sp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
-       real(kind=sp), dimension (:), allocatable   :: bgr           ! Background
+       real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
+       real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
     End Type Diffraction_Pattern_Type
 
     !!----
@@ -159,18 +164,17 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public :: err_diffpatt=.false.
+    logical, public :: ERR_Diffpatt=.false.
 
     !!----
-    !!---- ERR_MESS_DIFFPATT
-    !!----    character(len=150), public :: Err_Mess_Diffpatt
+    !!---- ERR_DIFFPATT_MESS
+    !!----    character(len=150), public :: ERR_DiffPatt_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_diffpatt=" "
-
+    character(len=150), public :: ERR_DiffPatt_Mess=" "
 
     !---- Interfaces - Overlap ----!
     Interface Read_Pattern
@@ -210,7 +214,7 @@
 
        if (n <= 0) then
           err_diffpatt=.true.
-          err_mess_diffpatt=" Attempt to allocate Diffraction_Pattern with 0-dimension "
+          ERR_DiffPatt_Mess=" Attempt to allocate Diffraction_Pattern with 0-dimension "
           return
        end if
 
@@ -260,8 +264,8 @@
     !!
     Subroutine Init_Err_DiffPatt()
 
-       err_diffpatt=.false.
-       err_mess_diffpatt=" "
+       ERR_DiffPatt=.false.
+       ERR_DiffPatt_Mess=" "
 
        return
     End Subroutine Init_Err_Diffpatt
@@ -360,27 +364,27 @@
        type (diffraction_pattern_type), intent(in out)   :: dif_pat
 
        !---- local variables ----!
-       logical                               :: esta
-       character (len=132)                   :: line
-       integer                               :: bck_points
-       integer                               :: i,j,i_bck
-       integer                               :: ier, alloc_error
-       real , dimension (:), allocatable     :: bck_v
-       real , dimension (:), allocatable     :: bck_p
+       logical                                       :: esta
+       character (len=132)                           :: line
+       integer                                       :: bck_points
+       integer                                       :: i,j,i_bck
+       integer                                       :: ier, alloc_error
+       real(kind=cp), dimension (:), allocatable     :: bck_v
+       real(kind=cp), dimension (:), allocatable     :: bck_p
 
        call init_err_diffpatt()
 
        inquire(file=bck_file, exist =esta)
        if (.not. esta) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" The file "//trim(bck_file)//" doesn't exist"
+          ERR_DiffPatt_Mess=" The file "//trim(bck_file)//" doesn't exist"
           return
        else
           call get_logunit(i_bck)
           open(unit=i_bck,file=trim(bck_file),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error opening the file: "//trim(bck_file)
+             ERR_DiffPatt_Mess=" Error opening the file: "//trim(bck_file)
              return
           end if
        end if
@@ -400,7 +404,7 @@
        allocate(bck_v(bck_points+1),stat= alloc_error)
        if (alloc_error /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Allocation error reading background points"
+          ERR_DiffPatt_Mess=" Allocation error reading background points"
           return
        end if
 
@@ -408,7 +412,7 @@
        allocate(bck_p(bck_points+1), stat= alloc_error)
        if (alloc_error /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Allocation error reading background points"
+          ERR_DiffPatt_Mess=" Allocation error reading background points"
           return
        end if
 
@@ -422,7 +426,7 @@
           read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading background file!"
+             ERR_DiffPatt_Mess=" Error reading background file!"
              return
           end if
        end do
@@ -436,14 +440,14 @@
 
           case default
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Not a valid mode"
+             ERR_DiffPatt_Mess=" Not a valid mode"
              return
        end select
 
        close(unit=i_bck,iostat=ier)
        if (ier/=0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Problems closing data file"
+          ERR_DiffPatt_Mess=" Problems closing data file"
           return
        end if
 
@@ -486,14 +490,14 @@
        character(len=180)                           :: txt1
        integer                                      :: i, nlines, j, no, ier
        integer, dimension(:), allocatable           :: iww
-       real                                         :: rmoni, rmoniold, cnorm
+       real(kind=cp)                                :: rmoni, rmoniold, cnorm
 
        call init_err_diffpatt()
 
        read(unit=i_dat,fmt="(a)",iostat=ier) txt1
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
        pat%title=txt1
@@ -505,21 +509,21 @@
        read(unit=i_dat,fmt="(tr16,F8.3)",iostat=ier) pat%step
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(F8.3)",iostat=ier)pat%xmin
        if (ier /= 0)then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(2f8.0)",iostat=ier) rmoni,rmoniold
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
        pat%monitor=rmoni
@@ -535,7 +539,7 @@
        pat%npts  = 10*nlines
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -549,7 +553,7 @@
           read(unit=i_dat,fmt="(10(i2,f6.0))",iostat=ier)(iww(j+no),pat%y(j+no),no=1,10)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+             ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
              return
           end if
           if(abs(pat%y(j+1)+1000.0) < 1.0e-03) exit
@@ -592,7 +596,7 @@
        read(unit=i_dat,fmt=*,iostat=ier)pat%xmin,pat%step,pat%xmax
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
        pat%title=" No title: data format -> old D1A"
@@ -604,7 +608,7 @@
        pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -616,7 +620,7 @@
        read(unit=i_dat,fmt="(10(i2,f6.0))",iostat=ier)(iww(i),pat%y(i),i=1,pat%npts)
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
@@ -650,7 +654,7 @@
        character(len=180)                           :: line
        integer                                      :: i,j,ier
        integer, dimension(:), allocatable           :: iww
-       real(kind=sp)                                :: aux
+       real(kind=cp)                                :: aux
 
        call init_err_diffpatt()
 
@@ -658,7 +662,7 @@
           read(unit=i_dat,fmt="(a)", iostat=ier)line
           if (ier /= 0 )then
              Err_diffpatt=.true.
-             Err_mess_diffpatt=" Error in  Intensity file, check your instr parameter!"
+             ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
              return
           end if
           if( i == 2) pat%title=line
@@ -668,20 +672,20 @@
        read(unit=i_dat,fmt="(f13.0,tr10,f8.3,tr45,4f9.3)  ",iostat=ier) pat%monitor,pat%xmin,pat%step,pat%tset,aux,pat%tsamp
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(i4)",iostat=ier) pat%npts
        if (ier /= 0 )then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -694,7 +698,7 @@
 
        if (ier /= 0 )then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
@@ -703,7 +707,7 @@
        read(unit=i_dat,fmt=*,iostat=ier)line
        if (ier /= 0 )then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
       end if
 
@@ -741,7 +745,7 @@
        read(unit=i_dat,fmt="(A)",iostat=ier)txt1
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file (first line), check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file (first line), check your instr parameter!"
           return
        end if
        pat%title=txt1
@@ -753,20 +757,20 @@
        read(unit=i_dat,fmt="(A)",iostat=ier)txt1
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file (second line), check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file (second line), check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt=*,iostat=ier) pat%xmin,pat%step,pat%xmax
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error reading 2theta_min,step,2theta_max (third line), check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error reading 2theta_min,step,2theta_max (third line), check your instr parameter!"
           return
        end if
        pat%npts = (pat%xmax - pat%xmin)/pat%step + 1.005
        if (pat%npts < 20)then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Number of points too low! check your instr parameter!"
+          ERR_DiffPatt_Mess=" Number of points too low! check your instr parameter!"
           return
        end if
 
@@ -775,7 +779,7 @@
        read(unit=i_dat,fmt="(10f8.0)",iostat=ier)(pat%y(i),i=1,pat%npts)
        if (ier > 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file (intensities), check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file (intensities), check your instr parameter!"
           return
        end if
 
@@ -787,7 +791,7 @@
          read(unit=i_dat,fmt="(10f8.0)",iostat=ier)(pat%sigma(i),i=1,pat%npts)
          if (ier /= 0) then
             Err_diffpatt=.true.
-            Err_Mess_DiffPatt=" Error in Intensity file (sigmas), check your instr parameter!"
+            ERR_DiffPatt_Mess=" Error in Intensity file (sigmas), check your instr parameter!"
             return
          end if
        end if
@@ -835,7 +839,7 @@
           read(unit=i_dat,fmt="(a)",iostat=ier) aline
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" End of file *.dat"
+             ERR_DiffPatt_Mess=" End of file *.dat"
              return
           else
              if(.not. title_given) then
@@ -853,7 +857,7 @@
                    no=no+1
                    if (no > 7)then
                       Err_diffpatt=.true.
-                      Err_Mess_DiffPatt=" Error on Intensity file, check your instr parameter "
+                      ERR_DiffPatt_Mess=" Error on Intensity file, check your instr parameter "
                       return
                    else
                       cycle
@@ -861,7 +865,7 @@
                 end if
                 if (pat%step <= 1.0e-6 ) then
                     Err_diffpatt=.true.
-                    Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+                    ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
                     return
                 end if
                 i=index(aline,"TSAMP")
@@ -877,7 +881,7 @@
 
        if (pat%npts <= 10 .or. pat%xmax <  pat%xmin  .or. pat%step > pat%xmax) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
           return
        end if
 
@@ -887,7 +891,7 @@
        read(unit=i_dat,fmt=*,iostat=ier)(pat%y(i),i=1,pat%npts)
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter"
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter"
           return
        end if
        do i=1,pat%npts
@@ -916,8 +920,8 @@
        !---- Local Variables ----!
        character(len=180)                           :: txt1, txt2, txt3
        integer                                      :: i, ier, ivari
-       real(kind=sp)                                :: cnorm
-       real(kind=sp)                                :: rmon1, rmon2
+       real(kind=cp)                                :: cnorm
+       real(kind=cp)                                :: rmon1, rmon2
 
 
        call init_err_diffpatt()
@@ -926,35 +930,35 @@
        pat%title=txt1
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
 
        read(unit=i_dat,fmt="(A)",iostat=ier)txt2                  !2
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
 
        read(unit=i_dat,fmt="(A)",iostat=ier)txt3                  !3
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
 
        read(unit=i_dat,fmt="(I6,tr1,2F10.3,i5,2f10.1)",iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
        if (ier /= 0 )then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
        pat%monitor=rmon1
 
        if (pat%npts <= 0) then
          Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -964,14 +968,14 @@
        read(unit=i_dat,fmt="(3F10.0)",iostat=ier)pat%xmin,pat%step,pat%xmax              !5
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
 
        read(unit=i_dat,fmt=*,iostat=ier)(pat%y(i),i=1, pat%npts)
        if (ier /= 0 )then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
 
@@ -979,7 +983,7 @@
           read(unit=i_dat,fmt=*,iostat=ier)(pat%sigma(i),i=1, pat%npts)
           if (ier /= 0 ) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter! "
+             ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
              return
           end if
           cnorm=0.0
@@ -1032,9 +1036,9 @@
        integer                                      :: ibank,nchan,nrec, ier !, jobtyp
        integer,          dimension(:), allocatable  :: iww
        integer,          dimension(40)              :: pointi, pointf
-       real(kind=sp),    dimension(4)               :: bcoef
-       real(kind=sp)                                :: divi
-       real                                         :: cnorm
+       real(kind=cp),    dimension(4)               :: bcoef
+       real(kind=cp)                                :: divi
+       real(kind=cp)                                :: cnorm
        logical                                      :: ok
        logical                                      :: tof !used only for some type of formats
 
@@ -1073,7 +1077,7 @@
 
           if (bank_missed) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" => Error in the input GSAS-file: BANK not found!"
+             ERR_DiffPatt_Mess=" => Error in the input GSAS-file: BANK not found!"
              return
           end if
        else
@@ -1102,7 +1106,7 @@
              read(unit=i_dat,fmt="(a)",iostat=ier) line  !continue reading the file up to finding
              if(ier /= 0) then
                Err_diffpatt=.true.
-               write(unit=Err_Mess_DiffPatt,fmt="(a,i2,a)") " Error in Intensity file, BANK number: ",nbank," not found!"
+               write(unit=ERR_DiffPatt_Mess,fmt="(a,i2,a)") " Error in Intensity file, BANK number: ",nbank," not found!"
                return
              end if
              if (line(1:4) == "BANK") then               !the good bank
@@ -1123,7 +1127,7 @@
          pat%npts=nchan
          if (pat%npts <= 0)then
             Err_diffpatt=.true.
-            Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+            ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
             return
          end if
 
@@ -1140,7 +1144,7 @@
                pat%xmax=pat%xmin+(pat%npts-1)*pat%step
             else
                Err_diffpatt=.true.
-               Err_Mess_DiffPatt=" => Only BINTYP=CONST is allowed for ESD data"
+               ERR_DiffPatt_Mess=" => Only BINTYP=CONST is allowed for ESD data"
                return
             end if
             if(tof) then
@@ -1182,7 +1186,7 @@
                cnorm=cnorm/real(pat%npts)
             else
                Err_diffpatt=.true.
-               Err_Mess_DiffPatt=" => Only BINTYP=CONST is allowed for ESD data"
+               ERR_DiffPatt_Mess=" => Only BINTYP=CONST is allowed for ESD data"
                return
             end if
 
@@ -1226,7 +1230,7 @@
                pat%xmax=pat%x(pat%npts)
             else
                Err_diffpatt=.true.
-               Err_Mess_DiffPatt=" =>  Only BINTYP=RALF or CONST is allowed for ALT data"
+               ERR_DiffPatt_Mess=" =>  Only BINTYP=RALF or CONST is allowed for ALT data"
             end if
          end if
          exit !we have finished reading the good bank
@@ -1256,16 +1260,16 @@
        integer,                                                    intent(in out) :: npat
 
        !---- Local Variables ----!
-       real                                            :: fac_y
-       real                                            :: cnorm
-       real                                            :: sumavar
+       real(kind=cp)                                   :: fac_y
+       real(kind=cp)                                   :: cnorm
+       real(kind=cp)                                   :: sumavar
        integer                                         :: ntt, i, j, ier
        integer                                         :: n_pat      !index of current pattern
        integer, dimension(npat)                        :: npp        !number of points per pattern
        character(len=120)                              :: txt1
        character(len=132)                              :: aline
-       real(kind=sp)                                   :: divi
-       real(kind=sp), parameter                        :: eps1=1.0e-1
+       real(kind=cp)                                   :: divi
+       real(kind=cp), parameter                        :: eps1=1.0e-1
        logical                                         :: bankfound
        logical, save                                   :: ralf_type, title_given
 
@@ -1299,7 +1303,7 @@
 
        if (npat <= 0 .or. n_pat > npat) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, wrong number of patterns !"
+          ERR_DiffPatt_Mess=" Error in Intensity file, wrong number of patterns !"
           return
        end if
 
@@ -1341,7 +1345,7 @@
                 read(unit=aline,fmt=*,iostat=ier) pat(n_pat)%x(i),pat(n_pat)%y(i),pat(n_pat)%sigma(i)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
-                   Err_Mess_DiffPatt=" Error reading an ISIS profile DATA file"
+                   ERR_DiffPatt_Mess=" Error reading an ISIS profile DATA file"
                    return
                 end if
 
@@ -1378,7 +1382,7 @@
                 read(unit=aline,fmt=*,iostat=ier) pat(n_pat)%x(i),pat(n_pat)%y(i),pat(n_pat)%sigma(i)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
-                   Err_Mess_DiffPatt=" Error reading an ISIS profile DATA file"
+                   ERR_DiffPatt_Mess=" Error reading an ISIS profile DATA file"
                    return
                 end if
                 if(abs(pat(n_pat)%x(i)) < eps1 .and. pat(n_pat)%y(i) < eps1 .and. pat(n_pat)%sigma(i) < eps1) exit
@@ -1447,14 +1451,14 @@
        inquire(file=filename,exist=esta)
        if ( .not. esta) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" The file "//trim(filename)//" doesn't exist"
+          ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
           return
        else
           call get_logunit(i_dat)
           open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error opening the file "//trim(filename)
+             ERR_DiffPatt_Mess=" Error opening the file "//trim(filename)
              return
           end if
           dif_pat%filename=trim(filename)
@@ -1476,7 +1480,7 @@
 
               case default
                  Err_diffpatt=.true.
-                 Err_Mess_DiffPatt="Invalid Mode"
+                 ERR_DiffPatt_Mess="Invalid Mode"
                  return
           end select
           return
@@ -1485,7 +1489,7 @@
 
        if (ier/=0) then
            Err_diffpatt=.true.
-           Err_Mess_DiffPatt=" Problems closing data file"
+           ERR_DiffPatt_Mess=" Problems closing data file"
        end if
 
        return
@@ -1528,7 +1532,7 @@
           read(unit=aline,fmt=*,iostat=ier) pat%xmin,pat%step,pat%xmax
           if (ier /= 0 ) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+             ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
              return
           end if
           exit
@@ -1537,7 +1541,7 @@
        pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -1550,13 +1554,13 @@
           read(unit=i_dat,fmt="(10F8.0)",iostat=ier)(pat%y(j+no),no=1,10)
           if (ier /= 0 ) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in (NLS) Intensity file, check your instr parameter!1"
+             ERR_DiffPatt_Mess=" Error in (NLS) Intensity file, check your instr parameter!1"
              return
           end if
           read(unit=i_dat,fmt="(10F8.0)",iostat=ier)(pat%sigma(j+no),no=1,10)
           if (ier /= 0 ) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in (NLS) Intensity file, check your instr parameter!2"
+             ERR_DiffPatt_Mess=" Error in (NLS) Intensity file, check your instr parameter!2"
              return
           end if
           j = j+10
@@ -1604,14 +1608,14 @@
        inquire(file=filename,exist=esta)
        if (.not. esta) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" The file "//trim(filename)//" doesn't exist"
+          ERR_DiffPatt_Mess=" The file "//trim(filename)//" doesn't exist"
           return
        else
           call get_logunit(i_dat)
           open(unit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error opening the file: "//trim(filename)
+             ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)
              return
           end if
           dif_pat%filename=trim(filename)
@@ -1747,7 +1751,7 @@
        close(unit=i_dat,iostat=ier)
        if (ier/=0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Problems closing the data file: "//trim(filename)
+          ERR_DiffPatt_Mess=" Problems closing the data file: "//trim(filename)
        end if
 
        return
@@ -1770,7 +1774,7 @@
        !---- Local Variables ----!
        character (len=180)                          :: line
        integer                                      :: i, j, long, ier
-       real(kind=sp)                                :: alpha1, alpha2, ratio_I
+       real(kind=cp)                                :: alpha1, alpha2, ratio_I
 
 
        call init_err_diffpatt()
@@ -1786,7 +1790,7 @@
           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile CSV-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile CSV-DATA file: end of file"
              return
           end if
           long=LEN_TRIM(line)
@@ -1820,7 +1824,7 @@
 
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in (Csv)Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in (Csv)Intensity file, Number of points negative or zero!"
           return
        end if
 
@@ -1870,7 +1874,7 @@
        !---- Local Variables ----!
        character (len=132)                          :: line
        integer                                      :: i, j, long , k, ier
-       real(kind=sp)                                :: alpha1, alpha2, ratio_I
+       real(kind=cp)                                :: alpha1, alpha2, ratio_I
 
        call init_err_diffpatt()
 
@@ -1887,7 +1891,7 @@
           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile JCP-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile JCP-DATA file: end of file"
              return
           end if
           if( k == 1) pat%title=line
@@ -1899,7 +1903,7 @@
              read(unit=line(22:long),fmt=*, IOSTAT=ier) alpha1
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile  file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile  file: end of file"
                 return
              end if
              pat%conv(1)= alpha1
@@ -1908,7 +1912,7 @@
              read(unit=line(22:long),fmt=*, IOSTAT=ier) alpha2
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
               pat%conv(2)= alpha2
@@ -1917,7 +1921,7 @@
              read(unit=line(34:long),fmt=*, IOSTAT=ier) ratio_I
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
              pat%conv(3)= ratio_I
@@ -1926,7 +1930,7 @@
              read(unit=line(11:long),fmt=*, IOSTAT=ier) pat%xmin
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
 
@@ -1934,7 +1938,7 @@
              read(unit=line(11:long),fmt=*, IOSTAT=ier) pat%xmax
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
 
@@ -1942,7 +1946,7 @@
              read(unit=line(11:long),fmt=*, IOSTAT=ier) pat%step
              if (ier /= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
 
@@ -1950,7 +1954,7 @@
              read(unit=line(12:long),fmt=*, IOSTAT=ier) pat%npts
              if (ier /= 0 .or. pat%npts <=0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                 return
              end if
 
@@ -1963,7 +1967,7 @@
                 read(unit=i_dat,fmt="(f9.3,tr1,5f11.3)",iostat=ier) pat%x(i),(pat%y(i+j),j=0,4)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
-                   Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+                   ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
                    return
                 end if
 
@@ -2005,7 +2009,7 @@
        !---- Local Variables ----!
        character (len=132)                            :: line, newline
        integer                                        :: i, j, long, ier, n, nb_lignes, np
-       real(kind=sp)                                  :: alpha1, alpha2, ratio !, ratio_I
+       real(kind=cp)                                  :: alpha1, alpha2, ratio !, ratio_I
        logical                                        :: title_given
 
        call init_err_diffpatt()
@@ -2022,7 +2026,7 @@
           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile UDF-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile UDF-DATA file: end of file"
              return
           end if
           if(.not. title_given) then
@@ -2054,7 +2058,7 @@
              pat%npts=(pat%xmax-pat%xmin)/pat%step+1.2
              if (pat%npts <= 0) then
                 Err_diffpatt=.true.
-                Err_Mess_DiffPatt=" Error reading a profile UDF-DATA file: end of file"
+                ERR_DiffPatt_Mess=" Error reading a profile UDF-DATA file: end of file"
                 return
              end if
 
@@ -2068,7 +2072,7 @@
                 read(unit=i_dat,fmt= "(7(f8.0,tr1),F8.0)", IOSTAT=ier) (pat%y(i+n),i=1,7), pat%y(n+8)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
-                   Err_Mess_DiffPatt=" Error reading a profile UDF-DATA file: end of file"
+                   ERR_DiffPatt_Mess=" Error reading a profile UDF-DATA file: end of file"
                    return
                 end if
                 n = n + 8
@@ -2129,7 +2133,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
              return
           end if
           i1= index(XRDML_line(1), "<positions axis=""2Theta"" unit=""deg"">")
@@ -2141,7 +2145,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
              return
           end if
           i1= index(XRDML_line(1), "<startPosition>")
@@ -2156,7 +2160,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
              return
           end if
           i1= index(XRDML_line(1), "<endPosition>")
@@ -2171,7 +2175,7 @@
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
              return
           end if
           i1= index(XRDML_line(1), "<intensities unit=""counts"">")
@@ -2193,7 +2197,7 @@
        pat%npts=i1
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+          ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
           return
        end if
 
@@ -2203,7 +2207,7 @@
        read(unit=XRDML_intensities_line(1), fmt=*, iostat=ier) (pat%y(i),i=1,pat%npts)
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error reading a profile XRDML-DATA file: end of file"
+          ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
           return
        end if
        do i=1,pat%npts
@@ -2240,7 +2244,7 @@
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
        integer                                      :: i, j, i1, long, nb_sep, nb_col, n, ier
-       real                                         :: step_time
+       real(kind=cp)                                :: step_time
 
 
        call init_err_diffpatt()
@@ -2263,7 +2267,7 @@
            read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
            if (ier/=0) then
               Err_diffpatt=.true.
-              Err_Mess_DiffPatt=" Error on Socabim UXD Intensity file, check your mode parameter!"
+              ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
               return
            end if
            IF (line(1:7) == "_COUNTS") THEN
@@ -2309,7 +2313,7 @@
              pat%npts= nint((160.0-pat%xmin)/pat%step+1.0)
            else
              Err_diffpatt=.true.
-             Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+             ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
              return
            end if
         end if
@@ -2321,7 +2325,7 @@
         read(unit=i_dat,fmt= "(a)", IOSTAT=ier) line
         if (ier/=0) then
            Err_diffpatt=.true.
-           Err_Mess_DiffPatt=" Error on Socabim UXD Intensity file, check your instr parameter!"
+           ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
            return
         end if
         i1 = INDEX(line, CHAR(9))      ! "TAB" ?
@@ -2341,7 +2345,7 @@
            call getword(line,dire,nb_col)
            if (nb_col ==0) then
               Err_diffpatt=.true.
-              Err_Mess_DiffPatt=" Error on Socabim UXD Intensity file, check your instr parameter!"
+              ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
               return
            end if
            free_format = .true.
@@ -2372,7 +2376,7 @@
               call getword(line,dire,nb_col)
               if (nb_col==0) then
                  Err_diffpatt=.true.
-                 Err_Mess_DiffPatt=" Error on Socabim UXD Intensity file, check your instr parameter!"
+                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
                  return
               end if
               if (string_2THETACOUNTS  .or. string_2THETACPS)then
@@ -2469,8 +2473,8 @@
        character(len=180)                           :: txt1
        character(len=132)                           :: txt2
        character(len=132)                           :: txt3
-       real, dimension(:), allocatable              :: bk
-       real(kind=sp)                                :: cnorma
+       real(kind=cp), dimension(:), allocatable     :: bk
+       real(kind=cp)                                :: cnorma
        integer                                      :: i,ier
 
        call init_err_diffpatt()
@@ -2483,42 +2487,42 @@
        pat%title=txt1
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(A)",iostat=ier)txt2   !2
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(A)",iostat=ier)txt3   !3
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt="(A)",iostat=ier)txt3                  !4
        if (ier /= 0)then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
        read(unit=i_dat,fmt=*,iostat=ier)pat%xmin,pat%step,pat%xmax
        if (ier /= 0)then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
        pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
        if (pat%npts <=0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
@@ -2530,7 +2534,7 @@
        read(unit=i_dat,fmt="(5(F6.0,F10.0))",iostat=ier)(bk(i),pat%y(i),i=1,pat%npts)
        if (ier /= 0) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error in  Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in  Intensity file, check your instr parameter!"
           return
        end if
 
@@ -2539,7 +2543,7 @@
        DO i=1,pat%npts
           IF (bk(i) < 1.0E-06) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Zero time in *.DAT "
+             ERR_DiffPatt_Mess=" Zero time in *.DAT "
              return
           end if
           cnorma=cnorma+bk(i)
@@ -2575,10 +2579,10 @@
        character(len=180)                           :: txt1, aline, fmtfields, fmtformat
        character (len=5)                            :: date1
        integer                                      :: line_da, ntt, interpol, i, j,ier,npp
-       real(kind=sp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm
-       real(kind=sp)                                :: ycor, xt, stepin, ypn
-       real(kind=sp), parameter                     :: eps1=1.0E-6
-       real(kind=sp), dimension(:), allocatable     :: yc, bk
+       real(kind=cp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm
+       real(kind=cp)                                :: ycor, xt, stepin, ypn
+       real(kind=cp), parameter                     :: eps1=1.0E-6
+       real(kind=cp), dimension(:), allocatable     :: yc, bk
 
        call init_err_diffpatt()
 
@@ -2603,7 +2607,7 @@
        pat%npts  =   npp
        if (pat%npts <= 0) then
           Err_diffpatt=.true.
-          Err_mess_diffpatt=" Error in Intensity file, Number of points negative or zero!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of points negative or zero!"
           return
        end if
        rewind(unit=i_dat)
@@ -2616,7 +2620,7 @@
               read(unit=i_dat,fmt="(a)", iostat=ier) txt1
               if (ier /= 0) then
                  Err_diffpatt=.true.
-                 Err_Mess_DiffPatt=" Error reading a profile DATA file of XYSigma format"
+                 ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
                  return
               end if
               txt1=adjustl(txt1)
@@ -2633,7 +2637,7 @@
               read(unit=i_dat,fmt="(a)", iostat=ier) txt1
               if (ier /= 0) then
                  Err_diffpatt=.true.
-                 Err_Mess_DiffPatt=" Error reading a profile DATA file of XYSigma format"
+                 ERR_DiffPatt_Mess=" Error reading a profile DATA file of XYSigma format"
                  return
               end if
 
@@ -2646,7 +2650,7 @@
                  call findfmt(i_dat,aline,fmtfields,fmtformat)
                  if (ierr_fmt /= 0) then
                     Err_diffpatt=.true.
-                    Err_Mess_DiffPatt=" Error reading"
+                    ERR_DiffPatt_Mess=" Error reading"
                     return
                  end if
 
@@ -2666,8 +2670,6 @@
               end if
            end do
        end if
-
-
 
        if (interpol == 0) then
           pat%ct_step = .false.
@@ -2689,7 +2691,7 @@
           if (ierr_fmt == -1) exit
           if (ierr_fmt /= 0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error reading X,Y, Sigma in profile DATA file"
+             ERR_DiffPatt_Mess=" Error reading X,Y, Sigma in profile DATA file"
              return
           end if
           if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
@@ -2697,7 +2699,7 @@
           read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i)
           if (ier /=0) then
              Err_diffpatt=.true.
-             Err_Mess_DiffPatt=" Error in Intensity file, check your instr parameter!"
+             ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
              return
           end if
           IF (i > 10 .and. ABS(pat%x(i)) < eps1 .AND. pat%y(i) < eps1 .AND.  pat%sigma(i) < eps1) exit
@@ -2787,8 +2789,8 @@
     !!--++
     !!--++ Subroutine Set_Background_Inter(Difpat,Bcky,Bckx,N)
     !!--++    type (diffraction_pattern_type), intent(in out)  :: difPat
-    !!--++    real (kind=sp), dimension(:),    intent(in out ) :: bcky
-    !!--++    real (kind=sp), dimension(:),    intent(in out ) :: bckx
+    !!--++    real (kind=cp), dimension(:),    intent(in out ) :: bcky
+    !!--++    real (kind=cp), dimension(:),    intent(in out ) :: bckx
     !!--++    integer,                         intent(in    )  :: n
     !!--++
     !!--++    (PRIVATE)
@@ -2799,14 +2801,13 @@
     Subroutine Set_Background_Inter(Difpat,Bcky,Bckx,N)
        !---- Arguments ----!
        type (diffraction_pattern_type),intent(in out) :: difpat
-       real (kind=sp), dimension(:),   intent(in out) :: bcky
-       real (kind=sp), dimension(:),   intent(in out) :: bckx
+       real (kind=cp), dimension(:),   intent(in out) :: bcky
+       real (kind=cp), dimension(:),   intent(in out) :: bckx
        integer,                        intent(in    ) :: n
 
        !---- Local variables ----!
        integer                                        :: nbx, nbac1 , i , j  , nxx
        real                                           :: difl, difr , thx , delt, slope, bstep,p
-
 
        nbx=1
        nbac1=n
@@ -2858,8 +2859,8 @@
     !!--++
     !!--++ Subroutine Set_Background_Poly( Difpat,Bkpos,Bckx,N)
     !!--++    type (diffraction_pattern_type), intent(in out) :: difPat
-    !!--++    real (kind=sp),                  intent(in    ) :: bkpos
-    !!--++    real (kind=sp), dimension(:),    intent(in    ) :: bckx
+    !!--++    real (kind=cp),                  intent(in    ) :: bkpos
+    !!--++    real (kind=cp), dimension(:),    intent(in    ) :: bckx
     !!--++    integer,                         intent(in    ) :: n
     !!--++
     !!--++    (PRIVATE)
@@ -2870,8 +2871,8 @@
     Subroutine Set_Background_Poly( Difpat,Bkpos,Bckx,N)
        !---- Arguments ----!
        type (diffraction_pattern_type), intent(in out) :: difpat
-       real (kind=sp),                  intent(in    ) :: bkpos
-       real (kind=sp), dimension(:),    intent(in    ) :: bckx
+       real (kind=cp),                  intent(in    ) :: bkpos
+       real (kind=cp), dimension(:),    intent(in    ) :: bckx
        integer,                         intent(in    ) :: n
 
        !---- Local Variables ----!
@@ -2912,7 +2913,7 @@
        open(unit=i_dat,file=trim(namefile),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          Err_Mess_DiffPatt=" Error opening the file: "//trim(namefile)//" for writing!"
+          ERR_DiffPatt_Mess=" Error opening the file: "//trim(namefile)//" for writing!"
           return
        end if
        write(unit=i_dat,fmt="(a)")"XYDATA"

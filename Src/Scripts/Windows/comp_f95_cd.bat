@@ -7,11 +7,14 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   f95 -c -g CFML_math_gen.f90           >  out
-   f95 -c -g CFML_string_util.f90        >> out
-   f95 -c -g CFML_io_mess.f90            >> out
+   f95 -c -g CFML_Constant.f90           >  out
+rem
+   f95 -c -g CFML_math_gen.f90           >> out
+   f95 -c -g CFML_spher_harm.f90         >> out
    f95 -c -g CFML_random.f90             >> out
    f95 -c -g CFML_ffts.f90               >> out
+   f95 -c -g CFML_string_util.f90        >> out
+   f95 -c -g CFML_io_mess.f90            >> out
    f95 -c -g CFML_Profile_TOF.f90        >> out
    f95 -c -g CFML_Profile_Finger.f90     >> out
    f95 -c -g CFML_Profile_Functs.f90     >> out
@@ -20,7 +23,6 @@ rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    f95 -c -g CFML_math_3D.f90            >> out
-   f95 -c -g CFML_spher_harm.f90         >> out
    f95 -c -g CFML_optimization.f90       >> out
    f95 -c -g CFML_optimization_lsq.f90   >> out
    f95 -c -g CFML_sym_table.f90          >> out

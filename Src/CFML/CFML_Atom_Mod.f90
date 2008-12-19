@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Atom_TypeDef
@@ -12,7 +12,8 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Math_General,              only: Sp, Pi, Modulo_Lat, Equal_Vector
+!!--++    Use CFML_Constants,                only: Sp, Pi
+!!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
 !!--++    Use CFML_Math_3D,                   only: matrix_diageigen
 !!--++    Use CFML_String_Utilities,          only: setnum_std
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
@@ -30,7 +31,7 @@
 !!----    MATOM_TYPE
 !!----    MATOM_LIST_TYPE
 !!----    ERR_ATMD
-!!----    ERR_MESS_ATMD
+!!----    ERR_ATMD_MESS
 !!--++    R_ATOM           [Private]
 !!----
 !!---- PROCEDURES
@@ -59,8 +60,9 @@
 !!
  Module CFML_Atom_TypeDef
 
-    !---- Use Files ----!
-    Use CFML_Math_General,              only: Sp, Pi, Modulo_Lat, Equal_Vector
+    !---- Use Files ----!     
+    Use CFML_Constants,                only: Cp, Pi
+    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
     Use CFML_String_Utilities,          only: setnum_std
     Use CFML_Math_3D,                   only: matrix_diageigen
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
@@ -98,30 +100,30 @@
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=sp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=sp),dimension(3)              :: x_std         ! Standar deviations
-    !!----    real(kind=sp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
+    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
+    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standar deviations
+    !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
     !!----    integer,      dimension(3)              :: lx            ! Numbers of LSQ parameters for coordinates
-    !!----    real(kind=sp)                           :: occ           ! occupation factor
-    !!----    real(kind=sp)                           :: occ_std       ! Standard deviation of occupation factor
-    !!----    real(kind=sp)                           :: mOcc          !
+    !!----    real(kind=cp)                           :: occ           ! occupation factor
+    !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
+    !!----    real(kind=cp)                           :: mOcc          !
     !!----    integer                                 :: lOcc          !
-    !!----    real(kind=sp)                           :: Biso          ! Isotropic B-factor
-    !!----    real(kind=sp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
-    !!----    real(kind=sp)                           :: mBiso         !
+    !!----    real(kind=cp)                           :: Biso          ! Isotropic B-factor
+    !!----    real(kind=cp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
+    !!----    real(kind=cp)                           :: mBiso         !
     !!----    integer                                 :: lBiso         !
     !!----    character(len=4)                        :: utype         ! type of anisotropic thermal parameters: u_ij, b_ij, beta, none
     !!----    character(len=5)                        :: thtype        ! "isotr","aniso","other"
-    !!----    real(kind=sp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
-    !!----    real(kind=sp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
-    !!----    real(kind=sp)                           :: Ueq           ! Uequiv
-    !!----    real(kind=sp),dimension(6)              :: mU            !
+    !!----    real(kind=cp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
+    !!----    real(kind=cp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
+    !!----    real(kind=cp)                           :: Ueq           ! Uequiv
+    !!----    real(kind=cp),dimension(6)              :: mU            !
     !!----    integer,dimension(6)                    :: lU            !
-    !!----    real(kind=sp)                           :: Charge        ! Charge
-    !!----    real(kind=sp)                           :: Moment        ! Moment
+    !!----    real(kind=cp)                           :: Charge        ! Charge
+    !!----    real(kind=cp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
-    !!----    real(kind=sp),dimension(10)             :: VarF          ! Free variables used for different purposes
+    !!----    real(kind=cp),dimension(10)             :: VarF          ! Free variables used for different purposes
     !!---- End Type Atom_Type
     !!----
     !!---- Update: March - 2005
@@ -133,30 +135,30 @@
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
-       real(kind=sp),dimension(3)               :: X
-       real(kind=sp),dimension(3)               :: X_Std
-       real(kind=sp),dimension(3)               :: MX
+       real(kind=cp),dimension(3)               :: X
+       real(kind=cp),dimension(3)               :: X_Std
+       real(kind=cp),dimension(3)               :: MX
        integer,      dimension(3)               :: LX
-       real(kind=sp)                            :: Occ
-       real(kind=sp)                            :: Occ_Std
-       real(kind=sp)                            :: MOcc
+       real(kind=cp)                            :: Occ
+       real(kind=cp)                            :: Occ_Std
+       real(kind=cp)                            :: MOcc
        integer                                  :: LOcc
-       real(kind=sp)                            :: Biso
-       real(kind=sp)                            :: Biso_std
-       real(kind=sp)                            :: MBiso
+       real(kind=cp)                            :: Biso
+       real(kind=cp)                            :: Biso_std
+       real(kind=cp)                            :: MBiso
        integer                                  :: LBiso
        character(len=4)                         :: Utype
        character(len=5)                         :: ThType
-       real(kind=sp),dimension(6)               :: U
-       real(kind=sp),dimension(6)               :: U_std
-       real(kind=sp)                            :: Ueq
-       real(kind=sp),dimension(6)               :: MU
+       real(kind=cp),dimension(6)               :: U
+       real(kind=cp),dimension(6)               :: U_std
+       real(kind=cp)                            :: Ueq
+       real(kind=cp),dimension(6)               :: MU
        integer,      dimension(6)               :: LU
-       real(kind=sp)                            :: Charge
-       real(kind=sp)                            :: Moment
+       real(kind=cp)                            :: Charge
+       real(kind=cp)                            :: Moment
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
-       real(kind=sp),dimension(10)              :: VarF
+       real(kind=cp),dimension(10)              :: VarF
     End Type Atom_Type
 
     !!----
@@ -165,16 +167,16 @@
     !!---- Type, public :: atoms_cell_type
     !!----    integer                                      :: nat         ! -> Total number of atoms
     !!----    character(len=10), dimension(:), allocatable :: noms        ! -> Name of atoms   (nat)
-    !!----    real(kind=sp),   dimension(:,:), allocatable :: xyz         ! -> Fractional coordinates (3,nat)
-    !!----    real(kind=sp),     dimension(:), allocatable :: charge
-    !!----    real(kind=sp),     dimension(:), allocatable :: moment
-    !!----    real(kind=sp),   dimension(:,:), allocatable :: Var_free    ! -> Free variables (10,nat)
+    !!----    real(kind=cp),   dimension(:,:), allocatable :: xyz         ! -> Fractional coordinates (3,nat)
+    !!----    real(kind=cp),     dimension(:), allocatable :: charge
+    !!----    real(kind=cp),     dimension(:), allocatable :: moment
+    !!----    real(kind=cp),   dimension(:,:), allocatable :: Var_free    ! -> Free variables (10,nat)
     !!----    integer,           dimension(:), allocatable :: neighb      ! -> Number of neighbours (nat)
     !!----    integer,        dimension( :,:), allocatable :: neighb_atom ! -> Ptr.->neighbour (# in list)(nat,idp)
-    !!----    real(kind=sp),  dimension( :,:), allocatable :: distance    ! -> Corresponding distances (nat,idp)
-    !!----    real(kind=sp),dimension(:, :,:), allocatable :: trans       ! -> Lattice translations   (3,nat,idp)
+    !!----    real(kind=cp),  dimension( :,:), allocatable :: distance    ! -> Corresponding distances (nat,idp)
+    !!----    real(kind=cp),dimension(:, :,:), allocatable :: trans       ! -> Lattice translations   (3,nat,idp)
     !!----    integer                                      :: ndist       ! -> Number of distinct distances
-    !!----    real(kind=sp),     dimension(:), allocatable :: ddist       ! -> List of distinct distances(nat*idp)
+    !!----    real(kind=cp),     dimension(:), allocatable :: ddist       ! -> List of distinct distances(nat*idp)
     !!----    character (len=8), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
     !!---- End Type atoms_cell_type
     !!----
@@ -187,16 +189,16 @@
     Type, public :: atoms_cell_type
        integer                                            :: nat
        character (len=10),      dimension(:), allocatable :: noms
-       real(kind=sp),         dimension(:,:), allocatable :: xyz
-       real(kind=sp),           dimension(:), allocatable :: charge
-       real(kind=sp),           dimension(:), allocatable :: moment
-       real(kind=sp),         dimension(:,:), allocatable :: var_free
+       real(kind=cp),         dimension(:,:), allocatable :: xyz
+       real(kind=cp),           dimension(:), allocatable :: charge
+       real(kind=cp),           dimension(:), allocatable :: moment
+       real(kind=cp),         dimension(:,:), allocatable :: var_free
        integer,                 dimension(:), allocatable :: neighb
        integer,              dimension( :,:), allocatable :: neighb_atom
-       real(kind=sp),        dimension( :,:), allocatable :: distance
-       real(kind=sp),      dimension(:, :,:), allocatable :: trans
+       real(kind=cp),        dimension( :,:), allocatable :: distance
+       real(kind=cp),      dimension(:, :,:), allocatable :: trans
        integer                                            :: ndist
-       real(kind=sp),           dimension(:), allocatable :: ddist
+       real(kind=cp),           dimension(:), allocatable :: ddist
        character (len=8),       dimension(:), allocatable :: ddlab
     End Type atoms_cell_type
 
@@ -225,46 +227,46 @@
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
-    !!----    real(kind=sp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=sp),dimension(3)              :: x_std         ! Standar deviations
-    !!----    real(kind=sp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
+    !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
+    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standar deviations
+    !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
     !!----    integer,      dimension(3)              :: lx            ! Numbers of LSQ parameters for coordinates
-    !!----    real(kind=sp)                           :: occ           ! occupation factor
-    !!----    real(kind=sp)                           :: occ_std       ! Standard deviation of occupation factor
-    !!----    real(kind=sp)                           :: mOcc          !
+    !!----    real(kind=cp)                           :: occ           ! occupation factor
+    !!----    real(kind=cp)                           :: occ_std       ! Standard deviation of occupation factor
+    !!----    real(kind=cp)                           :: mOcc          !
     !!----    integer                                 :: lOcc          !
-    !!----    real(kind=sp)                           :: Biso          ! Isotropic B-factor
-    !!----    real(kind=sp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
-    !!----    real(kind=sp)                           :: mBiso         !
+    !!----    real(kind=cp)                           :: Biso          ! Isotropic B-factor
+    !!----    real(kind=cp)                           :: Biso_std      ! Standard deviation of Isotropic B-factor
+    !!----    real(kind=cp)                           :: mBiso         !
     !!----    integer                                 :: lBiso         !
     !!----    character(len=4)                        :: utype         ! type of anisotropic thermal parameters: u_ij, b_ij, beta, none
     !!----    character(len=5)                        :: thtype        ! "isotr","aniso","other"
-    !!----    real(kind=sp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
-    !!----    real(kind=sp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
-    !!----    real(kind=sp)                           :: Ueq           ! Uequiv
-    !!----    real(kind=sp),dimension(6)              :: mU            !
-    !!----    real(kind=sp),dimension(6)              :: lU            !
-    !!----    real(kind=sp)                           :: Charge        ! Charge
-    !!----    real(kind=sp)                           :: Moment        ! Moment
+    !!----    real(kind=cp),dimension(6)              :: U             ! U11, U22, U33, U12, U13, U23
+    !!----    real(kind=cp),dimension(6)              :: U_std         ! Standar_Deviations of U"s
+    !!----    real(kind=cp)                           :: Ueq           ! Uequiv
+    !!----    real(kind=cp),dimension(6)              :: mU            !
+    !!----    real(kind=cp),dimension(6)              :: lU            !
+    !!----    real(kind=cp)                           :: Charge        ! Charge
+    !!----    real(kind=cp)                           :: Moment        ! Moment
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
-    !!----    real(kind=sp),dimension(10)             :: VarF          ! Free parameters to load
+    !!----    real(kind=cp),dimension(10)             :: VarF          ! Free parameters to load
     !!----                           ===================
     !!----                           Magnetic parameters
     !!----                           ===================
     !!----    integer                                 :: nvk           ! Number of propagation vectors (excluding -k)
     !!----    integer,      dimension(12)             :: imat          ! Number of the magnetic matrices/irrep set to be applied
-    !!----    real(kind=sp),dimension(3,12)           :: SkR           ! Real part of Fourier Coefficient
-    !!----    real(kind=sp),dimension(3,12)           :: mSkR          ! Multipliers for the real part of Fourier coefficients
+    !!----    real(kind=cp),dimension(3,12)           :: SkR           ! Real part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: mSkR          ! Multipliers for the real part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lskr          ! Numbers in the list of LSQ parameters
-    !!----    real(kind=sp),dimension(3,12)           :: SkI           ! Imaginary part of Fourier Coefficient
-    !!----    real(kind=sp),dimension(3,12)           :: mSki          ! Multipliers for the imaginary part of Fourier coefficients
+    !!----    real(kind=cp),dimension(3,12)           :: SkI           ! Imaginary part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: mSki          ! Multipliers for the imaginary part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lski          ! Numbers in the list of LSQ parameters
-    !!----    real(kind=sp),dimension(12)             :: mphas         ! Magnetic Phase in fractions of 2pi
-    !!----    real(kind=sp),dimension(12)             :: mmphas        ! Multiplier for the magnetic phase
+    !!----    real(kind=cp),dimension(12)             :: mphas         ! Magnetic Phase in fractions of 2pi
+    !!----    real(kind=cp),dimension(12)             :: mmphas        ! Multiplier for the magnetic phase
     !!----    integer,dimension(12)                   :: lmphas        ! Number in the list of LSQ parameters
-    !!----    real(kind=sp),dimension(12,12)          :: cbas          ! Coefficients of the basis functions of irreps, the second index is 1:nvk
-    !!----    real(kind=sp),dimension(12,12)          :: mbas          ! multiplier for the coefficients of the basis functions of irreps
+    !!----    real(kind=cp),dimension(12,12)          :: cbas          ! Coefficients of the basis functions of irreps, the second index is 1:nvk
+    !!----    real(kind=cp),dimension(12,12)          :: mbas          ! multiplier for the coefficients of the basis functions of irreps
     !!----    integer,dimension(12,12)                :: lbas          ! Numbers in the list of LSQ parameters
     !!---- End Type mAtom_Type
     !!----
@@ -277,48 +279,48 @@
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
-       real(kind=sp),dimension(3)               :: X
-       real(kind=sp),dimension(3)               :: X_Std
-       real(kind=sp),dimension(3)               :: MX
+       real(kind=cp),dimension(3)               :: X
+       real(kind=cp),dimension(3)               :: X_Std
+       real(kind=cp),dimension(3)               :: MX
        integer,      dimension(3)               :: LX
-       real(kind=sp)                            :: Occ
-       real(kind=sp)                            :: Occ_Std
-       real(kind=sp)                            :: MOcc
+       real(kind=cp)                            :: Occ
+       real(kind=cp)                            :: Occ_Std
+       real(kind=cp)                            :: MOcc
        integer                                  :: LOcc
-       real(kind=sp)                            :: Biso
-       real(kind=sp)                            :: Biso_std
-       real(kind=sp)                            :: MBiso
+       real(kind=cp)                            :: Biso
+       real(kind=cp)                            :: Biso_std
+       real(kind=cp)                            :: MBiso
        integer                                  :: LBiso
        character(len=4)                         :: Utype
        character(len=5)                         :: ThType
-       real(kind=sp),dimension(6)               :: U
-       real(kind=sp),dimension(6)               :: U_std
-       real(kind=sp)                            :: Ueq
-       real(kind=sp),dimension(6)               :: MU
+       real(kind=cp),dimension(6)               :: U
+       real(kind=cp),dimension(6)               :: U_std
+       real(kind=cp)                            :: Ueq
+       real(kind=cp),dimension(6)               :: MU
        integer,      dimension(6)               :: LU
-       real(kind=sp)                            :: Charge
-       real(kind=sp)                            :: Moment
+       real(kind=cp)                            :: Charge
+       real(kind=cp)                            :: Moment
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
-       real(kind=sp),dimension(10)              :: VarF
+       real(kind=cp),dimension(10)              :: VarF
 
        integer                                 :: nvk
        integer,      dimension(12)             :: imat
 
-       real(kind=sp),dimension(3,12)           :: SkR
-       real(kind=sp),dimension(3,12)           :: mSkR
+       real(kind=cp),dimension(3,12)           :: SkR
+       real(kind=cp),dimension(3,12)           :: mSkR
        integer,      dimension(3,12)           :: lskr
 
-       real(kind=sp),dimension(3,12)           :: SkI
-       real(kind=sp),dimension(3,12)           :: mSki
+       real(kind=cp),dimension(3,12)           :: SkI
+       real(kind=cp),dimension(3,12)           :: mSki
        integer,      dimension(3,12)           :: lski
 
-       real(kind=sp),dimension(12)             :: mphas
-       real(kind=sp),dimension(12)             :: mmphas
+       real(kind=cp),dimension(12)             :: mphas
+       real(kind=cp),dimension(12)             :: mmphas
        integer,dimension(12)                   :: lmphas
 
-       real(kind=sp),dimension(12,12)          :: cbas
-       real(kind=sp),dimension(12,12)          :: mbas
+       real(kind=cp),dimension(12,12)          :: cbas
+       real(kind=cp),dimension(12,12)          :: mbas
        integer,dimension(12,12)                :: lbas
 
     End Type mAtom_Type
@@ -346,28 +348,28 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public  :: err_atmd
+    logical, public  :: ERR_Atmd
 
     !!----
-    !!---- ERR_MESS_ATMD
-    !!----    character(len=150), public:: err_mess_atmd
+    !!---- ERR_ATMD_MESS
+    !!----    character(len=150), public:: Err_Atmd_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_atmd
+    character(len=150), public :: Err_Atmd_Mess
 
     !!--++
     !!--++ R_ATOM
-    !!--++    real(kind=sp), parameter, private :: r_atom=1.1
+    !!--++    real(kind=cp), parameter, private :: r_atom=1.1
     !!--++
     !!--++    (PRIVATE)
     !!--++    Average atomic radius. Value taken for internal calculations.
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private :: r_atom=1.1
+    real(kind=cp), parameter, private :: r_atom=1.1
 
  Contains
 
@@ -453,7 +455,7 @@
     !!---- Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
     !!----    integer, intent(in)                      :: nasu    !  In -> Number of atoms in asymmetric unit
     !!----    integer, intent(in)                      :: mul     !  In -> General multiplicity of the Space Group
-    !!----    real(kind=sp),    intent(in)             :: dmax    !  In -> Maximun distance to be calculated
+    !!----    real(kind=cp),    intent(in)             :: dmax    !  In -> Maximun distance to be calculated
     !!----    type (atoms_cell_type), intent(in out)   :: Ac      !  In -> Object of type atoms_cell_type
     !!----                                                          Out -> Allocated and initialized object Ac
     !!----
@@ -471,9 +473,9 @@
     !!
     Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
        !---- Arguments ----!
-       integer, intent(in)                    :: nasu
-       integer, intent(in)                    :: mul
-       real(kind=sp),    intent(in)           :: dmax
+       integer,                intent(in)     :: nasu
+       integer,                intent(in)     :: mul
+       real(kind=cp),          intent(in)     :: dmax
        type (atoms_cell_type), intent(in out) :: Ac
 
        !---- local variables ----!
@@ -597,8 +599,8 @@
 
        !---- Local Variables ----!
        type(atom_list_type)                  :: b
-       real(kind=sp),dimension(3)            :: xo,xx
-       real(kind=sp),dimension(3,Spg%multip) :: u
+       real(kind=cp),dimension(3)            :: xo,xx
+       real(kind=cp),dimension(3,Spg%multip) :: u
        integer                               :: k,j,l,nt,npeq,n
        character(len=4)                      :: fmm
 
@@ -746,7 +748,7 @@
 
        !---- Local variables ----!
        integer                    :: i
-       real(kind=sp),dimension(6) :: u
+       real(kind=cp),dimension(6) :: u
 
        do i=1,Ac%natoms
           u=Ac%atom(i)%u(1:6)
@@ -937,8 +939,8 @@
     !!
     Subroutine Init_Err_Atmd()
 
-       err_atmd=.false.
-       err_mess_atmd=" "
+       ERR_Atmd=.false.
+       ERR_Atmd_Mess=" "
 
        return
     End Subroutine Init_Err_Atmd
@@ -948,7 +950,7 @@
     !!----    type(Crystal_Cell_Type),        intent(in) :: Cell  ! Cell object
     !!----    type(atom_list_type),           intent(in) :: Atm   ! Atoms List
     !!----    integer,                        intent(in) :: Npks  ! Number of Peaks on Pks
-    !!----    real(kind=sp), dimension(:,:),  intent(in) :: Pks   ! Lis of Peaks
+    !!----    real(kind=cp), dimension(:,:),  intent(in) :: Pks   ! Lis of Peaks
     !!----    type(Space_Group_Type),         intent(in) :: Grp   ! Space Group Information
     !!----    type(atom_list_type),           intent(out):: NAtm  ! New Atoms+Peaks List
     !!----
@@ -963,19 +965,19 @@
     !!
     Subroutine Merge_Atoms_Peaks(Cell,Atm,Npks,Pks,Grp,NAtm)
        !---- Arguments ----!
-       type(Crystal_Cell_Type), intent(in) :: Cell
-       type(atom_list_type),    intent(in) :: Atm
-       integer,                 intent(in) :: Npks
-       real, dimension(:,:),    intent(in) :: Pks
-       type(Space_Group_Type),  intent(in) :: Grp
-       type(atom_list_type),    intent(out):: NAtm
+       type(Crystal_Cell_Type),       intent(in) :: Cell
+       type(atom_list_type),          intent(in) :: Atm
+       integer,                       intent(in) :: Npks
+       real(kind=cp), dimension(:,:), intent(in) :: Pks
+       type(Space_Group_Type),        intent(in) :: Grp
+       type(atom_list_type),          intent(out):: NAtm
 
        !---- Local variables ----!
        character(len=4)                   :: car
        integer                            :: i,j,k,nc,ntot,ier
        integer, dimension(:), allocatable :: np
-       real                               :: dis
-       real, dimension(3)                 :: pto1,pto2,xr
+       real(kind=cp)                      :: dis
+       real(kind=cp), dimension(3)        :: pto1,pto2,xr
 
        !---- Calculating the new dimension for NAtm ----!
        if (allocated(np)) deallocate(np)
@@ -1096,12 +1098,12 @@
        type(atoms_cell_type),  intent(in out) :: Ac
 
        !---- Local Variables ----!
-       real(kind=sp),dimension(3)            :: xx,xo,v
+       real(kind=cp),dimension(3)            :: xx,xo,v
        integer                               :: k,j,l,nt,npeq,n
        character (len=6)                     :: fmm
        character (len=5)                     :: nam, namn, nami
-       real(kind=sp)                         :: qc, mom, qcn, momn
-       real(kind=sp),dimension(3,Spg%multip) :: u
+       real(kind=cp)                         :: qc, mom, qcn, momn
+       real(kind=cp),dimension(3,Spg%multip) :: u
 
        npeq=SpG%numops
        if (SpG%centred == 2) npeq=npeq*2
@@ -1185,10 +1187,10 @@
        !---- Local Variables ----!
        character(len=1)               :: car
        integer                        :: i, j, lv,iunit
-       real(kind=sp)                  :: biso
-       real(kind=sp), dimension(3)    :: rms
-       real(kind=sp), dimension(6)    :: u,b,bet
-       real(kind=sp), dimension(3,3)  :: beta,eigen
+       real(kind=cp)                  :: biso
+       real(kind=cp), dimension(3)    :: rms
+       real(kind=cp), dimension(6)    :: u,b,bet
+       real(kind=cp), dimension(3,3)  :: beta,eigen
        logical                        :: aniso
 
        iunit=6
@@ -1315,7 +1317,7 @@
        !---- Local Variables ----!
        character(len=30),dimension(6) :: text
        integer                        :: i, j, iunit
-       real(kind=sp), dimension(6)    :: u,bet,sb
+       real(kind=cp), dimension(6)    :: u,bet,sb
 
        iunit=6
        if (present(lun)) iunit=lun
@@ -1394,8 +1396,8 @@
        type (atom_list_type),    intent(in)    :: Atm
 
        !----- Local variables -----!
-       integer :: j !,loc
-       real(kind=sp), dimension(6)     :: a,sa
+       integer                         :: j !,loc
+       real(kind=cp), dimension(6)     :: a,sa
        character(len=30), dimension(6) :: text
 
        write(unit=lun,fmt="(a)") "!  Automatically generated CFL file (Write_CFL)"

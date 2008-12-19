@@ -8,11 +8,14 @@ rem
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
    lf95 -c f2kcli.f90                -o1 -nchk   >  out
+   lf95 -c CFML_Constant.f90         -o1 -nchk   >> out
+rem 
    lf95 -c CFML_math_gen.f90         -o1 -nchk   >> out
-   lf95 -c CFML_string_util.f90      -o1 -nchk   >> out
-   lf95 -c CFML_io_mess.f90          -o1 -nchk   >> out
+   lf95 -c CFML_spher_harm.f90       -o1 -nchk   >> out
    lf95 -c CFML_random.f90           -o1 -nchk   >> out
    lf95 -c CFML_ffts.f90             -o1 -nchk   >> out
+   lf95 -c CFML_string_util.f90      -o1 -nchk   >> out
+   lf95 -c CFML_io_mess.f90          -o1 -nchk   >> out
    lf95 -c CFML_Profile_TOF.f90      -o1 -nchk   >> out
    lf95 -c CFML_Profile_Finger.f90   -o1 -nchk   >> out
    lf95 -c CFML_Profile_Functs.f90   -o1 -nchk   >> out
@@ -21,7 +24,6 @@ rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    lf95 -c CFML_math_3D.f90          -o1 -nchk   >> out
-   lf95 -c CFML_spher_harm.f90       -o1 -nchk   >> out
    lf95 -c CFML_optimization.f90     -o1 -nchk   >> out
    lf95 -c CFML_optimization_lsq.f90 -o1 -nchk   >> out
    lf95 -c CFML_sym_table.f90        -o0 -nchk   >> out

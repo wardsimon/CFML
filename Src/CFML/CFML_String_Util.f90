@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -11,12 +11,14 @@
 !!----                            All routines have general I/O parameters
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General, only: Sp, Negligible Zbelong
+!!--++    Use CFML_Constants,   only: cp
+!!--++    Use CFML_Math_General, only: Negligible Zbelong
 !!----
 !!---- VARIABLES
 !!--++    CTAB                    [Private]
 !!--++    DIGIT                   [Private]
-!!----    ERR_MESS_STRING
+!!----    DIRSLASH
+!!----    ERR_String_Mess
 !!----    ERR_STRING
 !!----    ERR_TEXT_TYPE
 !!--++    IENDFMT                 [Private]
@@ -83,14 +85,15 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_Math_General, only: Sp, Negligible, Zbelong
+    use CFML_Constants,   only: cp
+    use CFML_Math_General, only: Negligible, Zbelong
 
     implicit none
 
     private
 
     !---- List of public functions ----!
-    public :: Equal_Sets_Text,  L_Case, Pack_String, U_Case
+    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case
 
     !---- List of public subroutines ----!
     public :: Cutst, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std, Getword, &
@@ -105,6 +108,16 @@
 
     !---- Definitions ----!
 
+    !!----                                                        
+    !!---- DIRSLASH                                                  
+    !!----    character (len=1), public, parameter :: dirslash="\"
+    !!----                                                        
+    !!----    Separator of Directories: "\" for Windows and "/" for the rest
+    !!----                                                        
+    !!---- Update: January - 2009                                
+    !!                                                            
+    character (len=1), public, parameter :: dirslash="\" 
+ 
     !!--++
     !!--++ CTAB
     !!--++    character (len=*), private, parameter :: cTab=Char(9)
@@ -128,16 +141,6 @@
     character (len=*), private, parameter :: digit="0123456789.-"
 
     !!----
-    !!---- ERR_MESS_STRING
-    !!----    character(len=150) :: err_mess_string
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: err_mess_string
-
-    !!----
     !!---- ERR_STRING
     !!----    logical :: err_string
     !!----
@@ -146,6 +149,16 @@
     !!---- Update: February - 2005
     !!
     logical, public :: err_string
+    
+    !!----
+    !!---- ERR_String_Mess
+    !!----    character(len=150) :: ERR_String_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
+    !!
+    character(len=150), public :: ERR_String_Mess
 
     !!----
     !!---- TYPE :: ERR_TEXT_TYPE
@@ -1050,7 +1063,7 @@
 
     !!----
     !!---- Subroutine Frac_Trans_1Dig(v,CharF)
-    !!----    real(kind=sp), dimension(3), intent( in)   :: V     !In -> Vector: v(1)=0.25, v(2)=-0.4, v(3)=0.33333
+    !!----    real(kind=cp), dimension(3), intent( in)   :: V     !In -> Vector: v(1)=0.25, v(2)=-0.4, v(3)=0.33333
     !!----    character (len=* ),          intent(out)   :: CharF ! Out -> String: "(1/4,-2/5,1/3)"
     !!----
     !!----    Subroutine returning a string describing a
@@ -1061,7 +1074,7 @@
     !!
     Subroutine Frac_Trans_1Dig(v,CharF)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in)   :: v
+       real(kind=cp), dimension(3), intent( in)   :: v
        character (len=* ),          intent(out)   :: CharF
 
        !---- Local Variables ----!
@@ -1083,7 +1096,7 @@
 
     !!----
     !!---- Subroutine Frac_Trans_2Dig(v,CharF)
-    !!----    real(kind=sp), dimension(3), intent( in) :: V       !  In -> Vector: v(1)=0.3, v(2)=-0.4, v(3)=-5.5
+    !!----    real(kind=cp), dimension(3), intent( in) :: V       !  In -> Vector: v(1)=0.3, v(2)=-0.4, v(3)=-5.5
     !!----    character (len=* ),          intent(out) :: CharF   ! Out -> String: "(3/10,-2/5,-11/2)"
     !!----
     !!----    Subroutine returning a string describing a
@@ -1094,7 +1107,7 @@
     !!
     Subroutine Frac_Trans_2Dig(v,CharF)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in) :: v
+       real(kind=cp), dimension(3), intent( in) :: v
        character (len=* ),          intent(out) :: CharF
 
        !---- Local Variables ----!
@@ -1118,7 +1131,7 @@
 
     !!----
     !!---- Subroutine Get_Fraction_1Dig(V,Fracc)
-    !!----    real(kind=sp),      intent( in) :: V       !  In -> Input real(kind=sp) number
+    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real(kind=sp) number
     !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
     !!----
     !!----    Get a string with the most simple fraction that uses single digits
@@ -1129,12 +1142,12 @@
     !!
     Subroutine Get_Fraction_1Dig(V,Fracc)
        !---- Argument ----!
-       real(kind=sp),    intent( in) :: v
+       real(kind=cp),    intent( in) :: v
        character(len=*), intent(out) :: fracc
 
        !---- Local variables ----!
        integer          ::  numerator, denominator
-       real(kind=sp)    ::  num, denom, frac
+       real(kind=cp)    ::  num, denom, frac
 
        fracc="**/*"
        if (Zbelong(v)) then
@@ -1168,7 +1181,7 @@
 
     !!----
     !!---- Subroutine Get_Fraction_2Dig(V,Fracc)
-    !!----    real(kind=sp),      intent( in) :: V       !  In -> Input real(kind=sp) number
+    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real(kind=sp) number
     !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
     !!----
     !!----    Get a string with the most simple fraction that uses up to two
@@ -1179,24 +1192,24 @@
     !!
     Subroutine Get_Fraction_2Dig(v,fracc)
        !---- Argument ----!
-       real(kind=sp),    intent( in) :: v
+       real(kind=cp),    intent( in) :: v
        character(len=*), intent(out) :: fracc
 
        !---- Local variables ----!
        character (len=16) :: formm
-       real(kind=sp)      :: num, denom, frac
+       real(kind=cp)      :: num, denom, frac
        integer            :: numerator, denominator
 
        fracc="***/**"
        if (Zbelong(v)) then
           fracc="      "
-          if (v > 0.0_sp) then
+          if (v > 0.0_cp) then
              formm="(a,i1)"
-             if(v >=10.0_sp) formm="(a,i2)"
+             if(v >=10.0_cp) formm="(a,i2)"
              write(unit=fracc,fmt=formm) "+", nint(v)
           else
              formm="(i2)"
-             if(v >=10.0_sp) formm="(i3)"
+             if(v >=10.0_cp) formm="(i3)"
              write(unit=fracc,fmt=formm) nint(v)
           end if
        else
@@ -1211,7 +1224,7 @@
                    if(numerator >=10 .and. denominator <=  9) formm="(a1,i2,a1,i1)"
                    if(numerator >=10 .and. denominator >= 10) formm="(a1,i2,a1,i2)"
                    if(numerator <= 9 .and. denominator >= 10) formm="(a1,i1,a1,i2)"
-                   if (v > 0.0_sp) then
+                   if (v > 0.0_cp) then
                       write(unit=fracc,fmt=formm) "+",numerator,"/",denominator
                    else
                       write(unit=fracc,fmt=formm) "-",numerator,"/",denominator
@@ -1260,20 +1273,20 @@
     !!----
     !!---- Subroutine Getnum(Line, Vet, Ivet, Iv)
     !!----    character(len=*),              intent( in) :: Line    !  In -> Input String to convert
-    !!----    real(kind=sp), dimension(:),   intent(out) :: Vet     ! Out -> Vector of real numbers
+    !!----    real(kind=cp), dimension(:),   intent(out) :: Vet     ! Out -> Vector of real numbers
     !!----    integer,dimension(:),          intent(out) :: Ivet    ! Out -> Vector of integer numbers
     !!----    integer,                       intent(out) :: Iv      ! Out -> Number of numbers in Vet/Ivet
     !!----
     !!----    Converts a string to numbers and write on VET/IVET if real/integer. Control
     !!----    of errors is possible by inquiring the global variables ERR_STRING and
-    !!----    ERR_MESS_STRING
+    !!----    ERR_String_Mess
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Getnum(line,vet,ivet,iv)
        !---- Argument ----!
        character (len=*),          intent ( in) :: line
-       real(kind=sp), dimension(:),intent (out) :: vet
+       real(kind=cp), dimension(:),intent (out) :: vet
        integer, dimension(:),      intent (out) :: ivet
        integer,                    intent (out) :: iv
 
@@ -1282,8 +1295,8 @@
        character (len=len(line)) :: resto,cifre
        integer                   :: i,isum,ncharl,nchard,isegno,iniz,ipoi,idec,idig
        integer                   :: nchart, npos,nchard1,isum_exp,ioper
-       real(kind=sp)             :: suma,segno,dec
-       real(kind=sp)             :: sum_m
+       real(kind=cp)             :: suma,segno,dec
+       real(kind=cp)             :: sum_m
 
        !---- Initializing variables ----!
        call init_err_string()
@@ -1313,7 +1326,7 @@
           end do
           if (.not. numero) then
              err_string=.true.
-             err_mess_string="The variable cannot be computed as a number in GETNUM "
+             ERR_String_Mess="The variable cannot be computed as a number in GETNUM "
              return
           end if
 
@@ -1351,7 +1364,7 @@
                 end if
              else
                 err_string=.true.
-                err_mess_string="Limits of digit variable exceeded in GETNUM"
+                ERR_String_Mess="Limits of digit variable exceeded in GETNUM"
                 return
              end if
           end do
@@ -1373,7 +1386,7 @@
                    isum_exp=isum_exp*10+(idig-1)
                 else
                    err_string=.true.
-                   err_mess_string="Limits of digit variable exceeded in GETNUM"
+                   ERR_String_Mess="Limits of digit variable exceeded in GETNUM"
                    return
                 end if
              end do
@@ -1406,21 +1419,21 @@
     !!----
     !!---- Subroutine Getnum_Std(Line, Value, Std, Ic)
     !!----    character(len=*),            intent( in) :: Line    !  In -> Input String
-    !!----    real(kind=sp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real(kind=sp) numbers
-    !!----    real(kind=sp), dimension(:), intent(out) :: Std     ! Out -> Vector of standard deviation values
+    !!----    real(kind=cp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real(kind=sp) numbers
+    !!----    real(kind=cp), dimension(:), intent(out) :: Std     ! Out -> Vector of standard deviation values
     !!----    integer,                     intent(out) :: Ic      ! Out -> Number of components of vector Value
     !!----
     !!----    Converts a string to a numbers with standard deviation with format: x.fffff(s)
     !!----    Control of errors is possible by inquiring the global variables ERR_STRING
-    !!----    and ERR_MESS_STRING.
+    !!----    and ERR_String_Mess.
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine GetNum_Std(line, value, std, ic)
        !----Arguments ----!
        character(len=*),             intent( in) :: line
-       real(kind=sp), dimension(:),  intent(out) :: value
-       real(kind=sp), dimension(:),  intent(out) :: std
+       real(kind=cp), dimension(:),  intent(out) :: value
+       real(kind=cp), dimension(:),  intent(out) :: std
        integer,                      intent(out) :: ic
 
        !---- Local Variables ----!
@@ -1428,7 +1441,7 @@
        integer                                :: iv,nlong
        integer                                :: np, np1, np2
        integer, dimension(size(value))        :: ivet
-       real(kind=sp), dimension(size(value))  :: vet
+       real(kind=cp), dimension(size(value))  :: vet
 
        value=0.0
        std  =0.0
@@ -1438,7 +1451,7 @@
        !---- Initial Checks ----!
        if (len_trim(line) == 0) then
           err_string=.true.
-          err_mess_string="Blank line"
+          ERR_String_Mess="Blank line"
           return
        end if
        resto=adjustl(line)
@@ -1453,7 +1466,7 @@
                (np1==0 .and. np2 >0) .or.     &  ! "(" doesn"t exists
                (np2==0 .and. np1 >0) ) then      ! ")" doesn"t exists
              err_string=.true.
-             err_mess_string="Wrong format using Standard values"
+             ERR_String_Mess="Wrong format using Standard values"
              return
           end if
 
@@ -1461,7 +1474,7 @@
              call getnum(dire,vet,ivet,iv)
              if (iv /= 1 .or. err_string) then
                 err_string=.true.
-                err_mess_string="Bad format"
+                ERR_String_Mess="Bad format"
                 return
              end if
              ic=ic+1
@@ -1473,7 +1486,7 @@
                 call getnum(numm,vet,ivet,iv)
                 if (iv /= 1 .or. err_string) then
                    err_string=.true.
-                   err_mess_string="Bad format"
+                   ERR_String_Mess="Bad format"
                    return
                 end if
                 ic=ic+1
@@ -1482,7 +1495,7 @@
                 call getnum(numm,vet,ivet,iv)
                 if (iv /= 1) then
                    err_string=.true.
-                   err_mess_string="Bad format"
+                   ERR_String_Mess="Bad format"
                    return
                 end if
                 std(ic)=vet(1)
@@ -1491,7 +1504,7 @@
                 call getnum(numm,vet,ivet,iv)
                 if (iv /= 1 .or. err_string) then
                    err_string=.true.
-                   err_mess_string="Bad format"
+                   ERR_String_Mess="Bad format"
                    return
                 end if
                 ic=ic+1
@@ -1500,7 +1513,7 @@
                 call getnum(numm,vet,ivet,iv)
                 if (iv /= 1 .or. err_string) then
                    err_string=.true.
-                   err_mess_string="Bad format"
+                   ERR_String_Mess="Bad format"
                    return
                 end if
                 std(ic)=vet(1)/(10.0**np)
@@ -1520,7 +1533,7 @@
     !!----    Determines the number of words (Ic) in the string "Line" and generates a
     !!----    character vector "Dire" with separated words.
     !!----    Control of errors is possible by inquiring the global variables ERR_STRING
-    !!----    and ERR_MESS_STRING.
+    !!----    and ERR_String_Mess.
     !!----
     !!---- Update: February - 2005
     !!
@@ -1547,7 +1560,7 @@
           ic=ic+1
           if (ic > ndim) then
              err_string=.true.
-             err_mess_string="Dimension of DIRE exceeded"
+             ERR_String_Mess="Dimension of DIRE exceeded"
              exit
           end if
           dire(ic)=line2(:nlong2)
@@ -1578,14 +1591,14 @@
     !!---- Subroutine Init_Err_String()
     !!----
     !!----    Initializes general error variables for this module as:
-    !!----    ERR_STRING=.false. ;  ERR_MESS_STRING=" "
+    !!----    ERR_STRING=.false. ;  ERR_String_Mess=" "
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Init_Err_String()
 
        err_string=.false.
-       err_mess_string=" "
+       ERR_String_Mess=" "
 
        return
     End Subroutine Init_Err_String
@@ -1759,7 +1772,7 @@
        end do
        if(n_col == 0) then
               err_string=.true.
-              err_mess_string="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
+              ERR_String_Mess="Illegal format string passed to subroutine:  NumCol_from_NumFmt"
        end if
        return
     End Subroutine NumCol_from_NumFmt
@@ -1823,7 +1836,7 @@
     !!----    integer,                                intent(in)      :: Nline_End    !  In -> Pointer to final position to search
     !!----    character(len=*),                       intent(in)      :: Keyword      !  In -> Word to search
     !!----    character(len=*),                       intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    real(kind=sp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real(kind=sp) numbers
     !!----    integer,dimension(:),         optional  intent(out)     :: Ivet         ! Out -> Vector for integer numbers
     !!----    integer,                      optional, intent(out)     :: Iv           ! Out -> Number of numbers
     !!----
@@ -1840,7 +1853,7 @@
        integer,                                  intent(in)      :: nline_end
        character(len=*),                         intent(in)      :: keyword
        character(len=*),                         intent(out)     :: string
-       real(kind=sp),dimension(:),     optional, intent(out)     :: vet
+       real(kind=cp),dimension(:),     optional, intent(out)     :: vet
        integer,dimension(:),           optional, intent(out)     :: ivet
        integer,                        optional, intent(out)     :: iv
 
@@ -1901,7 +1914,7 @@
     !!----                                                                  ! Out -> Pointer to final position in search
     !!----    integer,                       intent(in)      :: Nline_End   !  In -> Pointer to final position to search
     !!----    character(len=*),              intent(in)      :: Keyword     !  In -> Word to search
-    !!----    real(kind=sp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real(kind=sp) numbers
     !!----    integer,dimension(:),          intent(out)     :: Ivet        ! Out -> Vector for integer numbers
     !!----    integer,                       intent(out)     :: Iv          ! Out -> Number of components
     !!----
@@ -1916,7 +1929,7 @@
        integer,                        intent(in out) :: nline_ini
        integer,                        intent(in)     :: nline_end
        character(len=*),               intent(in)     :: keyword
-       real(kind=sp),dimension(:),     intent(out)    :: vet
+       real(kind=cp),dimension(:),     intent(out)    :: vet
        integer,dimension(:),           intent(out)    :: ivet
        integer,                        intent(out)    :: iv
 
@@ -1958,8 +1971,8 @@
     !!----                                                                   ! Out -> Pointer to final position in search
     !!----    integer,                        intent(in)     :: Nline_End    !  In -> Pointer to final position to search
     !!----    character(len=*),               intent(in)     :: Keyword      !  In -> Word to search
-    !!----    real(kind=sp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real(kind=sp) numbers
-    !!----    real(kind=sp),dimension(:),     intent(out)    :: Vet2         ! Out -> Vector of standard deviations
+    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet2         ! Out -> Vector of standard deviations
     !!----    integer,                        intent(out)    :: Iv           ! Out -> Number of components
     !!----
     !!----    Read parameters and standard deviation on the line of "filevar" starting with a particular "keyword".
@@ -1973,8 +1986,8 @@
        integer,                         intent(in out) :: nline_ini
        integer,                         intent(in)     :: nline_end
        character(len=*),                intent(in)     :: keyword
-       real(kind=sp),dimension(:),      intent(out)    :: vet1
-       real(kind=sp),dimension(:),      intent(out)    :: vet2
+       real(kind=cp),dimension(:),      intent(out)    :: vet1
+       real(kind=cp),dimension(:),      intent(out)    :: vet2
        integer,                         intent(out)    :: iv
 
        !---- Local Variable ----!
@@ -2037,7 +2050,7 @@
        inquire (file=filename,exist=info)
        if (.not. info) then
           err_string=.true.
-          err_mess_string="Not exist the file"
+          ERR_String_Mess="Not exist the file"
           return
        end if
 
@@ -2068,8 +2081,8 @@
     !!----
     !!----
     !!---- Subroutine SetNum_Std(Value,Std,Line)
-    !!----    real(kind=sp),            intent(in)  :: Value
-    !!----    real(kind=sp),            intent(in)  :: Std
+    !!----    real(kind=cp),            intent(in)  :: Value
+    !!----    real(kind=cp),            intent(in)  :: Std
     !!----    character(len=*),intent (out):: Line
     !!----
     !!----    String with real(kind=sp) value and standar deviation
@@ -2079,15 +2092,15 @@
     !!
     Subroutine SetNum_Std(Value, Std, Line)
        !---- Argument ----!
-       real(kind=sp),   intent(in)  :: Value
-       real(kind=sp),   intent(in)  :: Std
+       real(kind=cp),   intent(in)  :: Value
+       real(kind=cp),   intent(in)  :: Std
        character(len=*),intent (out):: Line
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
        character(len=20) :: aux
        integer           :: n,np,iy,long
-       real(kind=sp)     :: y
+       real(kind=cp)     :: y
 
        if (abs(std) < 0.0000001) then
           if (abs(value) > 999999.0) then

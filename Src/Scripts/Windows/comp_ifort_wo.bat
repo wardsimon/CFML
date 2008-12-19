@@ -7,11 +7,14 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical,String_Utilities, Messages, Profile Functions
 rem
+   ifort /c CFML_Constant.f90         /O2 /nologo /Qvec-report0
+rem
    ifort /c CFML_math_gen.f90         /O2 /nologo /Qvec-report0
-   ifort /c CFML_string_util.f90      /O2 /nologo /Qvec-report0
-   ifort /c CFML_io_messwin.f90       /O2 /nologo /Qvec-report0 /Ic:\wint\lib.if8
+   ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
    ifort /c CFML_random.f90           /O2 /nologo /Qvec-report0
    ifort /c CFML_ffts.f90             /O2 /nologo /Qvec-report0
+   ifort /c CFML_string_util.f90      /O2 /nologo /Qvec-report0
+   ifort /c CFML_io_messwin.f90       /O2 /nologo /Qvec-report0 /Ic:\wint\lib.if8
    ifort /c CFML_Profile_TOF.f90      /O2 /nologo /Qvec-report0
    ifort /c CFML_Profile_Finger.f90   /O2 /nologo /Qvec-report0
    ifort /c CFML_Profile_Functs.f90   /O2 /nologo /Qvec-report0
@@ -20,7 +23,6 @@ rem
    echo .... Mathematical, Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90          /O2 /nologo /Qvec-report0
-   ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization.f90     /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization_lsq.f90 /O2 /nologo /Qvec-report0
    ifort /c CFML_sym_table.f90        /Od /nologo /Qvec-report0

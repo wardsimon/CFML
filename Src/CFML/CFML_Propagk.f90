@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Propagation_Vectors
@@ -12,7 +12,8 @@
 !!----            January - 2000. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,                  only: Sp, Zbelong
+!!--++    Use CFML_Constants,                only: Cp
+!!--++    Use CFML_Math_General,              only: Zbelong
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
 !!--++    Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal
 !!----
@@ -34,8 +35,8 @@
  Module CFML_Propagation_Vectors
 
     !---- Use Modules ----!
-    !Use Mod_fun    !To be commented for non-F compilers
-    Use CFML_Math_General,                  only: Sp, Zbelong
+    Use CFML_Constants,                only: Cp, Eps
+    Use CFML_Math_General,              only: Zbelong
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
     Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal
 
@@ -52,17 +53,6 @@
 
     !---- Definitions ----!
 
-    !!--++
-    !!--++ EPS
-    !!--++    real(kind=sp), private, parameter :: eps
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Eps parameter
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=sp), private, parameter :: eps = 0.00001
-
     !!----
     !!---- TYPE :: GROUP_K_TYPE
     !!--..
@@ -73,7 +63,7 @@
     !!----    integer,      dimension(192)  :: p              !Pointer to operations of G0 that changes/fix k
     !!----                                                    !First indices: G_k, last indices: Stark
     !!----    integer                       :: nk             !Number of star arms
-    !!----    real(kind=sp),dimension(3,24) :: stark          !Star of the wave vector k
+    !!----    real(kind=cp),dimension(3,24) :: stark          !Star of the wave vector k
     !!---- End Type Group_K_Type
     !!----
     !!--<<
@@ -97,7 +87,7 @@
        integer, dimension(192)          :: p=0
        integer, dimension(48,48)        :: co=0
        integer                          :: nk=0
-       real(kind=sp),dimension(3,48)    :: stark=0.0
+       real(kind=cp),dimension(3,48)    :: stark=0.0
     End Type Group_k_Type
 
  Contains
@@ -108,25 +98,25 @@
 
     !!----
     !!---- Logical Function  Hk_Equiv(H,K, Spacegk ,Friedel)
-    !!----    real(kind=sp), dimension(3), intent(in) :: h
-    !!----    real(kind=sp), dimension(3), intent(in) :: k
+    !!----    real(kind=cp), dimension(3), intent(in) :: h
+    !!----    real(kind=cp), dimension(3), intent(in) :: k
     !!----    Type (Group_k_Type),         intent(in) :: SpaceGk
     !!----    logical, optional,           intent(in) :: Friedel
     !!----
-    !!----    Calculate if two real(kind=sp) reflections are equivalent
+    !!----    Calculate if two real(kind=cp) reflections are equivalent
     !!----
     !!---- Update: February - 2005
     !!
     Function Hk_Equiv(H,K,Spacegk,Friedel) Result (Info)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent (in) :: h,k
+       real(kind=cp), dimension(3), intent (in) :: h,k
        Type (Group_k_Type),         intent (in) :: SpaceGk
        logical, optional,           intent(in)  :: Friedel
        logical                                  :: info
 
        !---- Local Variables ----!
        integer                    :: i,j
-       real(kind=sp), dimension(3):: hh
+       real(kind=cp), dimension(3):: hh
 
        info=.false.
        do i=1, SpaceGk%ngk
@@ -151,8 +141,8 @@
 
     !!----
     !!---- Logical Function  K_Equiv(H,K,Latyp)  Result (Info)
-    !!----    real(kind=sp), dimension(3),    intent (in) :: h      !  In ->
-    !!----    real(kind=sp), dimension(3),    intent (in) :: k      !  In ->
+    !!----    real(kind=cp), dimension(3),    intent (in) :: h      !  In ->
+    !!----    real(kind=cp), dimension(3),    intent (in) :: k      !  In ->
     !!----    character (len=*),              intent (in) :: latyp  !  In ->
     !!----
     !!----    Calculate if two k-vectors are equivalent in the sense
@@ -163,13 +153,13 @@
     !!
     Function K_Equiv(H,K,Latyp) Result (Info)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),intent (in) :: h,k
+       real(kind=cp), dimension(3),intent (in) :: h,k
        character (len=*),          intent (in) :: latyp
        logical                                 :: info
 
        !---- Local Variables ----!
        character(len=1)             :: latypc
-       real(kind=sp), dimension(3)  :: vec
+       real(kind=cp), dimension(3)  :: vec
        integer, dimension(3)        :: ivec
 
        info=.false.
@@ -201,7 +191,7 @@
 
     !!----
     !!---- Logical Function K_Equiv_Minus_K(Vec,Lat) Result(Equiv)
-    !!----    real(kind=sp), dimension(3), intent(in) :: vec      !  In ->
+    !!----    real(kind=cp), dimension(3), intent(in) :: vec      !  In ->
     !!----    character (len=*),           intent(in) :: Lat      !  In ->
     !!----    logical                                 :: equiv
     !!----
@@ -211,7 +201,7 @@
     !!
     Function K_Equiv_Minus_K(Vec,Lat) result(equiv)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent(in) :: vec
+       real(kind=cp), dimension(3), intent(in) :: vec
        character(len=*),            intent(in) :: Lat
        logical                                 :: equiv
 
@@ -280,12 +270,12 @@
     !!
     Subroutine K_Star(K,Spacegroup,Gk)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent (in) :: k
+       real(kind=cp), dimension(3), intent (in) :: k
        Type (Space_Group_Type),     intent (in) :: SpaceGroup
        Type (Group_k_Type),         intent(out) :: Gk
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3):: h
+       real(kind=cp), dimension(3):: h
        integer, dimension(48)     :: ind=1
        integer                    :: i, j, ng
 
@@ -355,7 +345,7 @@
        Integer, optional,     intent(in) :: lun
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3):: h,k
+       real(kind=cp), dimension(3):: h,k
        character(len=4)           :: kvec
        character(len=22)          :: formato
        integer                    :: i, j, lu, l, m

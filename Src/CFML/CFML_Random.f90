@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Random_Generators
@@ -79,12 +79,11 @@
 !!--..       e-mail: Alan.Miller @ vic.cmis.csiro.au
 !!----
 !!---- DEPENDENCIES
+!!--++    CFML_Constants, only: cp, dp
 !!----
 !!---- VARIABLES
-!!----    ERR_MESS_RANDOM
+!!----    ERR_RANDOM_MESS
 !!----    ERR_RANDOM
-!!--++    DP                        [Private]
-!!--++    SP                        [Private]
 !!--++    HALF                      [Private]
 !!--++    ONE                       [Private]
 !!--++    TWO                       [Private]
@@ -125,9 +124,10 @@
 !!----
 !!
  Module CFML_Random_Generators
-
     !---- Use Modules ----!
-
+    Use CFML_Constants,   only: cp,dp
+    
+    !---- Local Variables ----! 
     implicit none
 
     !---- List of public subroutines ----!
@@ -142,18 +142,6 @@
 
     !---- Definitions ----!
 
-    !---- Local Variables ----!
-
-    !!----
-    !!---- ERR_MESS_RANDOM
-    !!----    character(len=150), public :: Err_Mess_Random
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: Err_Mess_Random = " "
-
     !!----
     !!---- ERR_RANDOM
     !!----    logical, public :: err_random
@@ -163,28 +151,16 @@
     !!---- Update: February - 2005
     !!
     logical, public :: err_random
-
-    !!--++
-    !!--++ DP
-    !!--++    integer, parameter, private  :: dp
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    DP: Double precision
-    !!--++
-    !!--++ Update: February - 2005
+    
+    !!----
+    !!---- ERR_RANDOM_MESS
+    !!----    character(len=150), public :: ERR_Random_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
     !!
-    integer, parameter, private  :: dp = selected_real_kind(12, 60)
-
-    !!--++
-    !!--++ SP
-    !!--++    integer, parameter, private  :: sp
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    SP: Simple Precision
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    integer, parameter, private  :: sp = selected_real_kind(6, 30)
+    character(len=150), public :: ERR_Random_Mess = " "
 
     !!--++
     !!--++ HALF
@@ -195,7 +171,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: half = 0.5
+    real(kind=cp), parameter, private  :: half = 0.5
 
     !!--++
     !!--++ ONE
@@ -206,7 +182,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: one = 1.0
+    real(kind=cp), parameter, private  :: one = 1.0
 
     !!--++
     !!--++ TWO
@@ -217,7 +193,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: two = 2.0
+    real(kind=cp), parameter, private  :: two = 2.0
 
     !!--++
     !!--++ VLARGE
@@ -228,7 +204,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: vlarge = huge(1.0)
+    real(kind=cp), parameter, private  :: vlarge = huge(1.0)
 
     !!--++
     !!--++ VSMALL
@@ -239,7 +215,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: vsmall = tiny(1.0)
+    real(kind=cp), parameter, private  :: vsmall = tiny(1.0)
 
     !!--++
     !!--++ ZERO
@@ -250,7 +226,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private  :: zero = 0.0
+    real(kind=cp), parameter, private  :: zero = 0.0
 
  Contains
 
@@ -261,9 +237,9 @@
     !!--++
     !!--++ Subroutine Bin_Prob(N, P, R,Fn_Val)
     !!--++    integer,          intent(in) :: n         !  In ->
-    !!--++    real(kind=sp),    intent(in) :: p         !  In ->
+    !!--++    real(kind=cp),    intent(in) :: p         !  In ->
     !!--++    integer,          intent(in) :: r         !  In ->
-    !!--++    real(kind=sp)    ,intent(out):: fn_val    ! Out ->
+    !!--++    real(kind=cp)    ,intent(out):: fn_val    ! Out ->
     !!--++
     !!--++    (PRIVATE)
     !!--++    Calculate a binomial probability
@@ -273,8 +249,8 @@
     Subroutine Bin_Prob(N, P, R, Fn_Val)
        !---- Arguments ----!
        integer, intent(in)         :: n, r
-       real(kind=sp), intent(in)   :: p
-       real(kind=sp),intent(out)   :: fn_val
+       real(kind=cp), intent(in)   :: p
+       real(kind=cp),intent(out)   :: fn_val
 
        !---- Local variable ----!
        real(kind=dp)               :: n1,r1,nr1,rn1,rr1,rnr1
@@ -294,7 +270,7 @@
     !!--++
     !!--++ Subroutine Gg_F(Methodeg,Gg)
     !!--++    integer,          intent(in) :: methodeg
-    !!--++    real(kind=sp)    ,intent(out):: gg
+    !!--++    real(kind=cp)    ,intent(out):: gg
     !!--++
     !!--++    (PRIVATE)
     !!--++
@@ -303,12 +279,12 @@
     Subroutine Gg_F(Methodeg,Gg)
        !---- Arguments ----!
        integer,       intent(in) :: methodeg
-       real(kind=sp), intent(out):: gg
+       real(kind=cp), intent(out):: gg
 
        !---- Local variables ----!
-       real(kind=sp), parameter :: dpi  =6.283185308       ! 2*pi
-       real(kind=sp), parameter :: sqdse=0.857763885       ! sqrt(2/e)
-       real(kind=sp)            :: u,v,ran1,ran2
+       real(kind=cp), parameter :: dpi  =6.283185308       ! 2*pi
+       real(kind=cp), parameter :: sqdse=0.857763885       ! sqrt(2/e)
+       real(kind=cp)            :: u,v,ran1,ran2
        logical                  :: sifin
 
        if (methodeg == 2)then
@@ -333,7 +309,7 @@
 
     !!--++
     !!--++ Subroutine Gpg_F(Mt,Methodeg,Gpstab,Gpg)
-    !!--++    real(kind=sp),    intent(in) :: mt
+    !!--++    real(kind=cp),    intent(in) :: mt
     !!--++    integer,          intent(in) :: methodeg
     !!--++    integer,          intent(in) :: gpstab
     !!--++    integer,          intent(out):: gpg
@@ -345,13 +321,13 @@
     !!
     Subroutine Gpg_F(Mt,Methodeg,Gpstab,Gpg)
        !---- Arguments ----!
-       real(kind=sp), intent(in) :: mt
+       real(kind=cp), intent(in) :: mt
        integer,       intent(in) :: methodeg,gpstab
        integer      , intent(out):: gpg
 
        !---- Local variables ----!
        integer       :: x
-       real(kind=sp) :: gg
+       real(kind=cp) :: gg
 
        if (gpstab <= 0) then
           call gg_f(methodeg,gg)
@@ -368,7 +344,7 @@
 
     !!--++
     !!--++ Subroutine Gpp_F(Mt,Gpp)
-    !!--++    real(kind=sp),    intent(in) :: mt
+    !!--++    real(kind=cp),    intent(in) :: mt
     !!--++    integer,          intent(out):: gpp
     !!--++
     !!--++    (PRIVATE)
@@ -378,11 +354,11 @@
     !!
     Subroutine Gpp_F(Mt,Gpp)
        !---- Arguments ----!
-       real(kind=sp), intent(in) :: mt
+       real(kind=cp), intent(in) :: mt
        integer     , intent(out) :: gpp
 
        !---- Local variables ----!
-       real(kind=sp) :: p,r,ran
+       real(kind=cp) :: p,r,ran
        integer       :: k
 
        call random_number(ran)
@@ -410,17 +386,17 @@
     Subroutine Init_Err_Random()
 
        err_random=.false.
-       err_mess_random=" "
+       ERR_Random_Mess=" "
 
        return
     End Subroutine Init_Err_Random
 
     !!--++
     !!--++ Subroutine Integral(A, B, Resultt, Dk)
-    !!--++    real(kind=sp), intent(in)  :: a
-    !!--++    real(kind=sp), intent(in)  :: b
-    !!--++    real(kind=sp), intent(out) :: resultt
-    !!--++    real(kind=sp), intent(in)  :: dk
+    !!--++    real(kind=cp), intent(in)  :: a
+    !!--++    real(kind=cp), intent(in)  :: b
+    !!--++    real(kind=cp), intent(out) :: resultt
+    !!--++    real(kind=cp), intent(in)  :: dk
     !!--++
     !!--++    (PRIVATE)
     !!--++    Gaussian integration of exp(k.cosx) from a to b.
@@ -430,8 +406,8 @@
     Subroutine Integral(A, B, Resultt, Dk)
        !---- Arguments ----!
        real(kind=dp), intent(in)      :: dk
-       real(kind=sp), intent(in)      :: a, b
-       real(kind=sp), intent(out)     :: resultt
+       real(kind=cp), intent(in)      :: a, b
+       real(kind=cp), intent(out)     :: resultt
 
        !---- Local variables ----!
        real(kind=dp)             :: xmid, rangee, x1, x2
@@ -455,8 +431,8 @@
 
     !!--++
     !!--++ Subroutine Lngamma(X,Fn_Val)
-    !!--++    real(kind=sp) (kind=dp), intent(in) :: x         !  In ->
-    !!--++    real(kind=sp) (kind=dp)             :: fn_val    ! Out ->
+    !!--++    real(kind=cp) (kind=dp), intent(in) :: x         !  In ->
+    !!--++    real(kind=cp) (kind=dp)             :: fn_val    ! Out ->
     !!--++
     !!--++    (PRIVATE)
     !!--++    Logarithm to base e of the gamma subroutine.
@@ -503,7 +479,7 @@
        end do
 
        !---- Use a polynomial approximation to Stirling"s formula.
-       !---- N.B. The real(kind=sp) Stirling"s formula is used here, not
+       !---- N.B. The real(kind=cp) Stirling"s formula is used here, not
        !---- the simpler, but less accurate formula given by De Moivre
        !---- in a letter to Stirling, which is the one usually quoted.
        arg = arg - 0.5_dp
@@ -520,10 +496,10 @@
 
     !!----
     !!---- Subroutine Random_Beta(Aa, Bb, First,Fn_Val)
-    !!----    real(kind=sp), intent(in)    :: aa          !  In -> shape parameter from distribution (0 < real)
-    !!----    real(kind=sp), intent(in)    :: bb          !  In -> shape parameter from distribution (0 < real)
+    !!----    real(kind=cp), intent(in)    :: aa          !  In -> shape parameter from distribution (0 < real)
+    !!----    real(kind=cp), intent(in)    :: bb          !  In -> shape parameter from distribution (0 < real)
     !!----    logical, intent(in)          :: first       !  In ->
-    !!----    real(kind=sp)                :: fn_val      ! Out ->
+    !!----    real(kind=cp)                :: fn_val      ! Out ->
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -537,20 +513,20 @@
     !!
     Subroutine Random_Beta(Aa, Bb, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)    :: aa, bb
+       real(kind=cp), intent(in)    :: aa, bb
        logical, intent(in)          :: first
-       real(kind=sp),intent(out)    :: fn_val
+       real(kind=cp),intent(out)    :: fn_val
 
        !---- Local variables ----!
-       real(kind=sp), parameter  :: aln4 = 1.3862944_sp
-       real(kind=sp)             :: a, b, g, r, s, x, y, z
-       real(kind=sp), save       :: d, f, h, t, c
+       real(kind=cp), parameter  :: aln4 = 1.3862944_cp
+       real(kind=cp)             :: a, b, g, r, s, x, y, z
+       real(kind=cp), save       :: d, f, h, t, c
        logical,       save       :: swap
 
        call init_err_random()
        if (aa <= zero .or. bb <= zero) then
           err_random=.true.
-          err_mess_random="Impermissible Shape Parameter Value(s)"
+          ERR_Random_Mess="Impermissible Shape Parameter Value(s)"
           return
        end if
 
@@ -604,7 +580,7 @@
     !!----
     !!---- Subroutine Random_Binomial1(N, P, First,Ival)
     !!----    integer,       intent(in) :: n          !  In -> Number Of Bernoulli Trials       (1 <= Integer)
-    !!----    real(kind=sp), intent(in) :: p          !  In -> Bernoulli Success Probability    (0 <= Real <= 1)
+    !!----    real(kind=cp), intent(in) :: p          !  In -> Bernoulli Success Probability    (0 <= Real <= 1)
     !!----    logical,       intent(in) :: first      !  In -> .TRUE. for the first call using the current parameter values
     !!----                                                     .FALSE. if the values of (n,p) are unchanged from last call
     !!----    integer,       intent(out):: ival       ! Out ->
@@ -622,15 +598,15 @@
     Subroutine Random_Binomial1(N, P, First, Ival)
        !---- Arguments ----!
        integer,       intent(in)  :: n
-       real(kind=sp), intent(in)  :: p
+       real(kind=cp), intent(in)  :: p
        logical,       intent(in)  :: first
        integer,       intent(out) :: ival
 
        !---- Local variables ----!
        integer                  :: ru, rd
        integer, save            :: r0
-       real(kind=sp)            :: u, pd, pu
-       real(kind=sp), save      :: odds_ratio, p_r
+       real(kind=cp)            :: u, pd, pu
+       real(kind=cp), save      :: odds_ratio, p_r
 
        if (first) then
           r0 = (n+1)*p
@@ -681,7 +657,7 @@
     !!---- Subroutine Random_Binomial2(N, Pp, First, Ival)
     !!----    integer,       intent(in) :: n      !  In -> The number of trials in the binomial distribution
     !!----                                           from which a random deviate is to be generated.
-    !!----    real(kind=sp), intent(in) :: pp     !  In -> The probability of an event in each trial of the
+    !!----    real(kind=cp), intent(in) :: pp     !  In -> The probability of an event in each trial of the
     !!----                                           binomial distribution from which a random deviate
     !!----                                           is to be generated.
     !!----    logical,       intent(in) :: first  !  In -> .TRUE. for the first call to perform initialization
@@ -700,16 +676,16 @@
     !!
     Subroutine Random_Binomial2(N, Pp, First, Ival)
        !---- Arguments ----!
-       real(kind=sp), intent(in)    :: pp
+       real(kind=cp), intent(in)    :: pp
        integer, intent(in)          :: n
        logical, intent(in)          :: first
        integer, intent(out)         :: ival
 
        !---- local variables ----!
-       real(kind=sp)            :: alv, amaxp, f, f1, f2, u, v, w, w2, x, x1, x2, ynorm, z, z2
+       real(kind=cp)            :: alv, amaxp, f, f1, f2, u, v, w, w2, x, x1, x2, ynorm, z, z2
        integer                  :: i, ix, ix1, k, mp
        integer, save            :: m
-       real(kind=sp), save      :: p, q, xnp, ffm, fm, xnpq, p1, xm, xl, xr, c, al, xll,  &
+       real(kind=cp), save      :: p, q, xnp, ffm, fm, xnpq, p1, xm, xl, xr, c, al, xll,  &
                                    xlr, p2, p3, p4, qn, r, g
 
        !---- setup, perform only when parameters change
@@ -872,7 +848,7 @@
 
     !!----
     !!---- Subroutine Random_Cauchy(Fn_Val)
-    !!----    real(kind=sp) ,intent(out):: fn_val
+    !!----    real(kind=cp) ,intent(out):: fn_val
     !!----
     !!----    Generate a random deviate from the standard Cauchy distribution
     !!----
@@ -880,10 +856,10 @@
     !!
     Subroutine Random_Cauchy(Fn_Val)
        !---- Arguments ----!
-       real(kind=sp),intent(out):: fn_val
+       real(kind=cp),intent(out):: fn_val
 
        !---- Local variables ----!
-       real(kind=sp),dimension(2)     :: v
+       real(kind=cp),dimension(2)     :: v
 
        do
           call random_number(v)
@@ -901,7 +877,7 @@
     !!---- Subroutine Random_Chisq(Ndf, First,Fn_Val)
     !!----    integer,       intent(in) :: ndf      !  In ->
     !!----    logical,       intent(in) :: first    !  In ->
-    !!----    real(kind=sp) ,intent(out):: fn_val   ! Out ->
+    !!----    real(kind=cp) ,intent(out):: fn_val   ! Out ->
     !!----
     !!----    Generates a random variate from the chi-squared
     !!----    distribution with ndf degrees of freedom
@@ -912,7 +888,7 @@
        !---- Arguments ----!
        integer, intent(in) :: ndf
        logical, intent(in) :: first
-       real(kind=sp) ,intent(out)  :: fn_val
+       real(kind=cp) ,intent(out)  :: fn_val
 
        call random_gamma(half*ndf, first, fn_val)
        fn_val = two * fn_val
@@ -922,7 +898,7 @@
 
     !!----
     !!---- Subroutine Random_Exponential(Fn_Val)
-    !!----    real(kind=sp) ,intent(out)   :: fn_val
+    !!----    real(kind=cp) ,intent(out)   :: fn_val
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -935,10 +911,10 @@
     !!
     Subroutine Random_Exponential(Fn_Val)
        !---- Arguments ----!
-       real(kind=sp),intent(out)  :: fn_val
+       real(kind=cp),intent(out)  :: fn_val
 
        !---- Local variable ----!
-       real(kind=sp)  :: r
+       real(kind=cp)  :: r
 
        do
           call random_number(r)
@@ -952,9 +928,9 @@
 
     !!----
     !!---- Subroutine Random_Gamma(S, First,Fn_Val)
-    !!----    real(kind=sp), intent(in)  :: s       !  In -> shape parameter of distribution (0.0 < real)
+    !!----    real(kind=cp), intent(in)  :: s       !  In -> shape parameter of distribution (0.0 < real)
     !!----    logical,       intent(in)  :: first   !  In ->
-    !!----    real(kind=sp) ,intent(out) :: fn_val  ! Out ->
+    !!----    real(kind=cp) ,intent(out) :: fn_val  ! Out ->
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -970,14 +946,14 @@
     !!
     Subroutine Random_Gamma(S, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: s
+       real(kind=cp), intent(in)  :: s
        logical, intent(in)        :: first
-       real(kind=sp) ,intent(out) :: fn_val
+       real(kind=cp) ,intent(out) :: fn_val
 
        call init_err_random()
        if (s <= zero) then
           err_random=.true.
-          err_mess_random="Shape Parameter Value Must Be Positive"
+          ERR_Random_Mess="Shape Parameter Value Must Be Positive"
           return
        end if
 
@@ -994,9 +970,9 @@
 
     !!----
     !!---- Subroutine Random_Gamma1(S, First,Fn_Val)
-    !!----    real(kind=sp), intent(in) :: s       !  In -> shape parameter of distribution (1.0 < real)
+    !!----    real(kind=cp), intent(in) :: s       !  In -> shape parameter of distribution (1.0 < real)
     !!----    logical,       intent(in) :: first
-    !!----    real(kind=sp) ,intent(out):: fn_val
+    !!----    real(kind=cp) ,intent(out):: fn_val
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1010,19 +986,19 @@
     !!
     Subroutine Random_Gamma1(S, First,Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)   :: s
+       real(kind=cp), intent(in)   :: s
        logical,       intent(in)   :: first
-       real(kind=sp) ,intent(out)  :: fn_val
+       real(kind=cp) ,intent(out)  :: fn_val
 
        !---- Local variables ----!
-       real(kind=sp)            :: d, r, g, f, x
-       real(kind=sp), save      :: b, h
-       real(kind=sp), parameter :: sixty4 = 64.0, three = 3.0, pt75 = 0.75
+       real(kind=cp)            :: d, r, g, f, x
+       real(kind=cp), save      :: b, h
+       real(kind=cp), parameter :: sixty4 = 64.0, three = 3.0, pt75 = 0.75
 
        call init_err_random()
        if (s <= one) then
           err_random=.true.
-          err_mess_random="Impermissible Shape Parameter Value"
+          ERR_Random_Mess="Impermissible Shape Parameter Value"
           return
        end if
 
@@ -1051,9 +1027,9 @@
 
     !!----
     !!---- Subroutine Random_Gamma2(S, First,Fn_Val)
-    !!----    real(kind=sp), intent(in)  :: s        !  In -> shape parameter of distribution (1.0 < real)
+    !!----    real(kind=cp), intent(in)  :: s        !  In -> shape parameter of distribution (1.0 < real)
     !!----    logical,       intent(in)  :: first
-    !!----    real(kind=sp) ,intent(out) :: fn_val
+    !!----    real(kind=cp) ,intent(out) :: fn_val
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1067,18 +1043,18 @@
     !!
     Subroutine Random_Gamma2(S, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: s
+       real(kind=cp), intent(in)  :: s
        logical,       intent(in)  :: first
-       real(kind=sp) ,intent(out) :: fn_val
+       real(kind=cp) ,intent(out) :: fn_val
 
        !---- Local variables ----!
-       real(kind=sp)       :: r, x, w
-       real(kind=sp), save :: a, p, c, uf, vr, d
+       real(kind=cp)       :: r, x, w
+       real(kind=cp), save :: a, p, c, uf, vr, d
 
        call init_err_random()
        if (s <= zero .or. s >= one) then
           err_random=.true.
-          err_mess_random="Shape Parameter Value Outside Permitted Range"
+          ERR_Random_Mess="Shape Parameter Value Outside Permitted Range"
           return
        end if
 
@@ -1087,7 +1063,7 @@
           p = a/(a + s*exp(-a))
           if (s < vsmall) then
              err_random=.true.
-             err_mess_random="Shape Parameter Value Too Small"
+             ERR_Random_Mess="Shape Parameter Value Too Small"
              return
           end if
           c = one/s
@@ -1125,10 +1101,10 @@
 
     !!----
     !!---- Subroutine Random_Inv_Gauss(H, B, First, Fn_Val)
-    !!----    real(kind=sp), intent(in)    :: h       !  In -> parameter of distribution (0 <= real)
-    !!----    real(kind=sp), intent(in)    :: b       !  In -> parameter of distribution (0 < real)
+    !!----    real(kind=cp), intent(in)    :: h       !  In -> parameter of distribution (0 <= real)
+    !!----    real(kind=cp), intent(in)    :: b       !  In -> parameter of distribution (0 < real)
     !!----    logical,       intent(in)    :: first
-    !!----    real(kind=sp), intent(out)   :: fn_val
+    !!----    real(kind=cp), intent(out)   :: fn_val
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1143,26 +1119,26 @@
     !!
     Subroutine Random_Inv_Gauss(H, B, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: h, b
+       real(kind=cp), intent(in)  :: h, b
        logical,       intent(in)  :: first
-       real(kind=sp), intent(out) :: fn_val
+       real(kind=cp), intent(out) :: fn_val
 
        !---- Local variables ----!
-       real(kind=sp)            :: ym, xm, r, w, r1, r2, x
-       real(kind=sp), save      :: a, c, d, e
-       real(kind=sp), parameter :: quart = 0.25
+       real(kind=cp)            :: ym, xm, r, w, r1, r2, x
+       real(kind=cp), save      :: a, c, d, e
+       real(kind=cp), parameter :: quart = 0.25
 
         call init_err_random()
        if (h < zero .or. b <= zero) then
            err_random=.true.
-           err_mess_random="Impermissible Distribution Parameter Values"
+           ERR_Random_Mess="Impermissible Distribution Parameter Values"
           return
        end if
 
        if (first) then                        ! initialization, if necessary
           if (h > quart*b*sqrt(vlarge)) then
              err_random=.true.               !Not possible in F (pure Functions!)
-             err_mess_random="The Ratio H:B Is Too Small"
+             ERR_Random_Mess="The Ratio H:B Is Too Small"
              return
           end if
           e = b*b
@@ -1170,7 +1146,7 @@
           ym = (-d + sqrt(d*d + e))/b
           if (ym < vsmall) then
              err_random=.true.
-             err_mess_random="The Value Of B Is Too Small"
+             ERR_Random_Mess="The Value Of B Is Too Small"
              return
           end if
 
@@ -1183,7 +1159,7 @@
           a = w**(-half*h) * sqrt(xm/ym) * exp(-e*(r - ym - one/ym))
           if (a < vsmall) then
              err_random=.true.
-             err_mess_random="The Value Of H Is Too Large"
+             ERR_Random_Mess="The Value Of H Is Too Large"
              return
           end if
           c = -d*log(xm) - e*r
@@ -1206,10 +1182,10 @@
     !!----
     !!---- Subroutine Random_Mvnorm(N, H, D, F, First, X, Ier)
     !!----    integer,       intent(in)  :: n            !  In -> number of variates in vector (input,integer >= 1)
-    !!----    real(kind=sp), intent(in)  :: h(n)         !  In -> vector of means
-    !!----    real(kind=sp), intent(in)  :: d(n*(n+1)/2) !  In -> variance matrix (j> = i)
-    !!----    real(kind=sp), intent(out) :: f(n*(n+1)/2) ! Out -> lower triangular decomposition of variance matrix (j <= i)
-    !!----    real(kind=sp), intent(out) :: x(n)         ! Out -> delivered vector
+    !!----    real(kind=cp), intent(in)  :: h(n)         !  In -> vector of means
+    !!----    real(kind=cp), intent(in)  :: d(n*(n+1)/2) !  In -> variance matrix (j> = i)
+    !!----    real(kind=cp), intent(out) :: f(n*(n+1)/2) ! Out -> lower triangular decomposition of variance matrix (j <= i)
+    !!----    real(kind=cp), intent(out) :: x(n)         ! Out -> delivered vector
     !!----    logical,       intent(in)  :: first        !  In -> .true. if this is the first call of the routine
     !!----                                                         or if the distribution has changed since the last
     !!----                                                         call of the routine. otherwise set to .false.
@@ -1228,22 +1204,22 @@
     Subroutine Random_Mvnorm(N, H, D, F, First, X, Ier)
        !---- Arguments ----!
        integer, intent(in)  :: n
-       real(kind=sp), dimension(n),        intent(in) :: h
-       real(kind=sp), dimension(n*(n+1)/2),intent(in) :: d
-       real(kind=sp), dimension(n),        intent(out):: x
-       real(kind=sp), dimension(n*(n+1)/2),intent(out):: f
+       real(kind=cp), dimension(n),        intent(in) :: h
+       real(kind=cp), dimension(n*(n+1)/2),intent(in) :: d
+       real(kind=cp), dimension(n),        intent(out):: x
+       real(kind=cp), dimension(n*(n+1)/2),intent(out):: f
        logical,                            intent(in) :: first
        integer,                            intent(out):: ier
 
        !---- Local variables ----!
        integer       :: j, i, m
-       real(kind=sp) :: y, v
+       real(kind=cp) :: y, v
        integer, save :: n2
 
         call init_err_random()
        if (n < 1) then
           err_random=.true.
-          err_mess_random="Size Of Vector Is Non Positive"
+          ERR_Random_Mess="Size Of Vector Is Non Positive"
           return
        end if
        ier = 0
@@ -1294,9 +1270,9 @@
 
     !!----
     !!---- Subroutine Random_Neg_Binomial(Sk, P, Ival)
-    !!----    real(kind=sp), intent(in)    :: sk     !  In -> Number of failures required (dagpunar's words!)
+    !!----    real(kind=cp), intent(in)    :: sk     !  In -> Number of failures required (dagpunar's words!)
     !!----                                                    the "power" parameter of the negative binomial  (0 < real)
-    !!----    real(kind=sp), intent(in)    :: p      !  In -> bernoulli success probability  (0 < real(kind=sp) < 1)
+    !!----    real(kind=cp), intent(in)    :: p      !  In -> bernoulli success probability  (0 < real(kind=cp) < 1)
     !!----    integer,       intent(out)   :: ival
     !!----
     !!----    Generates a random negative binomial variate using unstored
@@ -1314,19 +1290,19 @@
     !!
     Subroutine Random_Neg_Binomial(Sk, P, Ival)
        !---- Arguments ----!
-       real(kind=sp), intent(in)   :: sk, p
+       real(kind=cp), intent(in)   :: sk, p
        integer , intent(out)       :: ival
 
        !---- Local variables ----!
-       !---- the parameter uln = -log(machine"s smallest real(kind=sp) number).
-       real(kind=sp), parameter    :: h = 0.7
-       real(kind=sp)               :: q, x, st, uln, v, r, s, y, g
+       !---- the parameter uln = -log(machine"s smallest real(kind=cp) number).
+       real(kind=cp), parameter    :: h = 0.7
+       real(kind=cp)               :: q, x, st, uln, v, r, s, y, g
        integer            :: k, i, n
 
        call init_err_random()
        if (sk <= zero .or. p <= zero .or. p >= one) then
           err_random=.true.
-          err_mess_random="impermissible distribution parameter values"
+          ERR_Random_Mess="impermissible distribution parameter values"
           return
        end if
        q = one - p
@@ -1349,7 +1325,7 @@
        uln = -LOG(vsmall)
        if (st > -uln/log(q)) then
           err_random=.true.
-          err_mess_random=" P Is Too Large For This Value Of Sk"
+          ERR_Random_Mess=" P Is Too Large For This Value Of Sk"
           return
        end if
        y = q**st
@@ -1369,7 +1345,7 @@
 
     !!----
     !!---- Subroutine Random_Normal(Fn_Val)
-    !!----    real(kind=sp), intent(out)  :: fn_val
+    !!----    real(kind=cp), intent(out)  :: fn_val
     !!----
     !!--..    Adapted from the following Fortran 77 code ALGORITHM 712,
     !!--..    Collected Algorithms From Acm.
@@ -1385,7 +1361,7 @@
     !!
     Subroutine Random_Normal(Fn_Val)
        !---- Arguments ----!
-       Real(kind=sp),intent(out) :: fn_val
+       Real(kind=cp),intent(out) :: fn_val
 
        !---- Local variables ----!
        Real :: s = 0.449871, t = -0.386595, a = 0.19600, b = 0.25472,           &
@@ -1435,7 +1411,7 @@
 
        !---- Local variables ----!
        integer :: i, j, k
-       real(kind=sp)    :: wk
+       real(kind=cp)    :: wk
 
        do i = 1, n
           order(i) = i
@@ -1458,7 +1434,7 @@
 
     !!----
     !!---- Subroutine Random_Poisson(Mu,Genpoi)
-    !!----    real(kind=sp), intent(in)    :: mu
+    !!----    real(kind=cp), intent(in)    :: mu
     !!----    integer , intent(out)        :: genpoi
     !!----
     !!----    Generates a single random deviate from a Poisson distribution
@@ -1475,7 +1451,7 @@
     !!
     Subroutine Random_Poisson(mt, Genpoi)
        !---- Arguments ----!
-       real(kind=sp), intent(in)    :: mt
+       real(kind=cp), intent(in)    :: mt
        integer ,      intent(out)   :: Genpoi
 
        !---- Local Variables ----!
@@ -1516,7 +1492,7 @@
     !!----
     !!---- Subroutine Random_T(M, Fn_Val)
     !!----    integer,      intent(in) :: m       !  In -> degrees of freedom of distribution (1 <= 1nteger)
-    !!----    real(kind=sp),intent(out):: fn_val
+    !!----    real(kind=cp),intent(out):: fn_val
     !!----
     !!--..    Adapted from Fortran 77 code from the book:
     !!--..    Dagpunar, J. "Principles of random variate generation"
@@ -1530,19 +1506,19 @@
     Subroutine Random_T(M, Fn_Val)
        !---- Arguments ----!
        integer,      intent(in)  :: m
-       real(kind=sp),intent(out) :: fn_val
+       real(kind=cp),intent(out) :: fn_val
 
        !---- Local variables ----!
-       real(kind=sp), save      :: s, c, a, f, g
-       real(kind=sp)            :: r, x, v
-       real(kind=sp), parameter :: three = 3.0, four = 4.0, quart = 0.25,   &
+       real(kind=cp), save      :: s, c, a, f, g
+       real(kind=cp)            :: r, x, v
+       real(kind=cp), parameter :: three = 3.0, four = 4.0, quart = 0.25,   &
                                    five = 5.0, sixteen = 16.0
        integer                  :: mm = 0
 
        call init_err_random()
        if (m < 1) then
           err_random=.true.
-          err_mess_random="Impermissible Degrees Of Freedom"
+          ERR_Random_Mess="Impermissible Degrees Of Freedom"
           return
        end if
 
@@ -1580,10 +1556,10 @@
 
     !!----
     !!---- Subroutine Random_Von_Mises(K, First, Fn_Val)
-    !!----    real(kind=sp), intent(in)  :: k        !  In -> Parameter of the von Mises distribution
+    !!----    real(kind=cp), intent(in)  :: k        !  In -> Parameter of the von Mises distribution
     !!----    logical,       intent(in)  :: first    !  In -> set to .TRUE. the first time that the subroutine
     !!----                                                    is called
-    !!----    real(kind=sp) ,intent(out) :: fn_val
+    !!----    real(kind=cp) ,intent(out) :: fn_val
     !!----
     !!--..    When first = .TRUE., the subroutine sets up starting
     !!--..    values and may be very much slower.
@@ -1594,30 +1570,30 @@
     !!
     Subroutine Random_Von_Mises(K, First, Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: k
+       real(kind=cp), intent(in)  :: k
        logical,       intent(in)  :: first
-       real(kind=sp) ,intent(out) :: fn_val
+       real(kind=cp) ,intent(out) :: fn_val
 
        !---- Local variables ----!
        integer                             :: j, n
        integer, save                       :: nk
-       real(kind=sp), parameter            :: pi = 3.14159265
-       real(kind=sp), save,dimension(20)   :: p
-       real(kind=sp), save,dimension(0:20) :: theta
-       real(kind=sp)                       :: sump, r, th, lambda, rlast
+       real(kind=cp), parameter            :: pi = 3.14159265
+       real(kind=cp), save,dimension(20)   :: p
+       real(kind=cp), save,dimension(0:20) :: theta
+       real(kind=cp)                       :: sump, r, th, lambda, rlast
        real(kind=dp)                       :: dk
 
        call init_err_random()
        if (first) then                        ! initialization, if necessary
           if (k < zero) then
              err_random=.true.
-             err_mess_random="Error in argument k for random_von_Mises"
+             ERR_Random_Mess="Error in argument k for random_von_Mises"
              return
           end if
           nk = k + k + one
           if (nk > 20) then
              err_random=.true.
-             err_mess_random="Error in argument k for random_von_Mises"
+             ERR_Random_Mess="Error in argument k for random_von_Mises"
              return
           end if
           dk = k
@@ -1673,8 +1649,8 @@
 
     !!----
     !!---- Subroutine Random_Weibull(A, Fn_Val)
-    !!----    real(kind=sp), intent(in)  :: a
-    !!----    real(kind=sp), intent(out) :: fn_val
+    !!----    real(kind=cp), intent(in)  :: a
+    !!----    real(kind=cp), intent(out) :: fn_val
     !!----                                a
     !!----                         a-1  -x
     !!----               f(x) = a.x    e
@@ -1686,8 +1662,8 @@
     !!
     Subroutine Random_Weibull(a, Fn_Val)
        !---- Arguments ----!
-       real(kind=sp), intent(in)  :: a
-       real(kind=sp) ,intent(out) :: fn_val
+       real(kind=cp), intent(in)  :: a
+       real(kind=cp) ,intent(out) :: fn_val
 
        !---- For speed, there is no checking that a is
        !---- not zero or very small.

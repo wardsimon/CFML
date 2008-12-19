@@ -5,17 +5,17 @@ Program Optimizing_structures
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
-   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,&
+   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,&
                                              file_list_type, File2File_List
    use CFML_BVS_Energy_Calc,           only: calc_BVS
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
-                                             Init_Structure_Factors, err_sfac,err_mess_sfac
+                                             Init_Structure_Factors, err_sfac,err_sfac_mess
    use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,&
                                              Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
-                                             Write_Info_RefCodes, Err_RefCodes, Err_Mess_RefCodes, &
+                                             Write_Info_RefCodes, Err_RefCodes, err_refcodes_mess, &
                                              allocate_restparam, Write_restraints_ObsCalc
    use CFML_Simulated_Annealing,       only: SimAnn_Conditions_type, state_Vector_Type, Multistate_Vector_Type, &
-                                             err_mess_SAN,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
+                                             err_san_mess,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
                                              Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
                                              Write_SimAnn_MStateV, SimAnneal_MultiConf,Set_SimAnn_MStateV, &
                                              Sann_Opt_MultiConf
@@ -85,7 +85,7 @@ Program Optimizing_structures
    call Readn_set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpG,A,Mode="CFL",file_list=fich_cfl)
 
    If(err_form) then
-     write(unit=*,fmt="(a)") trim(err_mess_form)
+     write(unit=*,fmt="(a)") trim(err_form_mess)
    else
      call Write_Crystal_Cell(Cell,lun)
      call Write_SpaceGroup(SpG,lun)
@@ -114,7 +114,7 @@ Program Optimizing_structures
               inquire(file=trim(filrest),exist=esta)
               call File2File_List(filrest,fich_rest)
               If(err_form) then
-                 write(unit=*,fmt="(a)") trim(err_mess_form)
+                 write(unit=*,fmt="(a)") trim(err_form_mess)
                  stop
               else
                  rest_file=.true.
@@ -133,12 +133,12 @@ Program Optimizing_structures
      call Init_RefCodes(A)
      call Read_RefCodes_File(fich_cfl,1,fich_cfl%nlines,A,Spg)
      if(Err_RefCodes) then
-       write(unit=*,fmt="(a)") trim(Err_Mess_RefCodes)
+       write(unit=*,fmt="(a)") trim(err_refcodes_mess)
      end if
      if(rest_file) then
         call Read_RefCodes_File(fich_rest,1,fich_rest%nlines,A,Spg)
         if(Err_RefCodes) then
-          write(unit=*,fmt="(a)") trim(Err_Mess_RefCodes)
+          write(unit=*,fmt="(a)") trim(err_refcodes_mess)
         end if
      end if
      call Write_Info_RefCodes(A,Spg,lun)
@@ -264,7 +264,7 @@ Program Optimizing_structures
          call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
           if(err_sfac) then
              write(unit=*,fmt="(a)") " => Error in Structure factor calculations"
-             write(unit=*,fmt="(a)") trim(err_mess_sfac)
+             write(unit=*,fmt="(a)") trim(err_sfac_mess)
             stop
           end if
      End if !Icost(1) == 1
@@ -273,7 +273,7 @@ Program Optimizing_structures
      call Set_SimAnn_Cond(fich_cfl,c)
       if(err_SAN) then
          write(unit=*,fmt="(a)") " => Error setting Simulated Annealing conditions"
-         write(unit=*,fmt="(a)") trim(err_mess_SAN)
+         write(unit=*,fmt="(a)") trim(err_san_mess)
         stop
       end if
      call Write_SimAnn_Cond(lun,c)
@@ -285,7 +285,7 @@ Program Optimizing_structures
          call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vs)
           if(err_SAN) then
              write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
-             write(unit=*,fmt="(a)") trim(err_mess_SAN)
+             write(unit=*,fmt="(a)") trim(err_san_mess)
             stop
           end if
          call Write_SimAnn_StateV(lun,vs,"INITIAL STATE")
@@ -301,7 +301,7 @@ Program Optimizing_structures
          call Set_SimAnn_MStateV(NP_Refi,c%num_conf,V_BCon,V_Bounds,V_Name,V_Vec,mvs)
           if(err_SAN) then
              write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
-             write(unit=*,fmt="(a)") trim(err_mess_SAN)
+             write(unit=*,fmt="(a)") trim(err_san_mess)
             stop
           end if
          call Write_SimAnn_MStateV(lun,mvs,"INITIAL STATE")

@@ -14,7 +14,7 @@
 !!----
 !!---- VARIABLES
 !!----    ERR_FORM
-!!----    ERR_MESS_FORM
+!!----    ERR_FORM_MESS
 !!----    INTERVAL_TYPE
 !!----    JOB_INFO_TYPE
 !!----
@@ -69,16 +69,17 @@
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_Math_General,                  only: sp,pi, sind, eps
+    Use CFML_Constants,                only: cp,sp,pi,eps
+    Use CFML_Math_General,              only: sind
     Use CFML_String_Utilities
-    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
-                                         Convert_B_Betas, U_Equiv
+    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
+                                              Convert_B_Betas, U_Equiv
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Set_SpaceGroup, Get_Multip_Pos
-    Use CFML_Atom_TypeDef,               only: Atom_Type, Init_Atom_Type,atom_list_type,         &
-                                         Allocate_atom_list, Deallocate_atom_list
-    Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Mess_Molec,Molecular_Crystal_Type, &
-                                         Read_Molecule, Set_Euler_Matrix, Write_Molecule
-    Use CFML_Geometry_Calc,         only: Point_List_Type, Get_Euler_from_Fract
+    Use CFML_Atom_TypeDef,              only: Atom_Type, Init_Atom_Type,atom_list_type,         &
+                                              Allocate_atom_list, Deallocate_atom_list
+    Use CFML_Molecular_Crystals,        only: Err_Molec, Err_Molec_Mess,Molecular_Crystal_Type, &
+                                              Read_Molecule, Set_Euler_Matrix, Write_Molecule
+    Use CFML_Geometry_Calc,             only: Point_List_Type, Get_Euler_from_Fract
 
     !---- Variables ----!
     implicit none
@@ -120,14 +121,14 @@
     logical, public :: err_form
 
     !!----
-    !!---- ERR_MESS_FORM
-    !!----    character(len=150), public :: err_mess_form
+    !!---- ERR_FORM_MESS
+    !!----    character(len=150), public :: ERR_Form_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_form
+    character(len=150), public :: ERR_Form_Mess
 
     !!----
     !!---- TYPE :: INTERVAL_TYPE
@@ -246,7 +247,7 @@
        call Number_Lines(trim(File_dat), nlines)
        if (nlines==0) then
           err_form=.true.
-          err_mess_form="The file "//trim(File_dat)//" contains nothing"
+          ERR_Form_Mess="The file "//trim(File_dat)//" contains nothing"
           return
        else
           file_list%nlines=nlines
@@ -513,7 +514,7 @@
     Subroutine Init_Err_Form()
 
        err_form=.false.
-       err_mess_form=" "
+       ERR_Form_Mess=" "
 
        return
     End Subroutine Init_Err_Form
@@ -551,7 +552,7 @@
        call cutst(line,nlong1,dire)
        if (u_case(dire) /= "ATOM") then
           err_form=.true.
-          err_mess_form=" Error reading the ATOM keyword"
+          ERR_Form_Mess=" Error reading the ATOM keyword"
           return
        end if
 
@@ -577,14 +578,14 @@
       ! call getnum(line,vet,ivet,iv)
        if (iv <= 0) then
           err_form=.true.
-          err_mess_form= "Error reading parameters of atom:"//atomo%lab
+          ERR_Form_Mess= "Error reading parameters of atom:"//atomo%lab
           return
        end if
 
        !---- Coordinates  ----!
        if (iv < 3) then
           err_form=.true.
-          err_mess_form= "Error reading Coordinates of atom:"//atomo%lab
+          ERR_Form_Mess= "Error reading Coordinates of atom:"//atomo%lab
           return
        end if
 
@@ -678,14 +679,14 @@
        call cutst(line,nlong1,dire)
        if (u_case(dire) /= "CELL") then
           err_form=.true.
-          err_mess_form=" Error reading the CELL keyword"
+          ERR_Form_Mess=" Error reading the CELL keyword"
           return
        end if
 
        call getnum(line,vet,ivet,iv)
        if (iv /= 6 ) then
           err_form=.true.
-          err_mess_form=" Error reading the Cell Parameters"
+          ERR_Form_Mess=" Error reading the Cell Parameters"
           return
        else
           celda=vet
@@ -785,7 +786,7 @@
 
        if (any(lugar(3:5) == 0)) then
           err_form=.true.
-          err_mess_form=" Error reading atoms"
+          ERR_Form_Mess=" Error reading atoms"
           return
        end if
        nct=count(lugar > 0)
@@ -1609,7 +1610,7 @@
        call read_key_value(filevar,i,j,"cell",vet,ivet,iv)
        if (iv /=6) then
           err_form=.true.
-          err_mess_form=" Bad Cell Parameters..."
+          ERR_Form_Mess=" Bad Cell Parameters..."
           return
        else
           celda=vet(:)
@@ -1655,7 +1656,7 @@
        call read_key_valueST(filevar,i,j,"cell",vet1,vet2,iv)
        if (iv /=6) then
           err_form=.true.
-          err_mess_form=" Bad Cell Parameters..."
+          ERR_Form_Mess=" Bad Cell Parameters..."
           return
        end if
        call Set_Crystal_Cell(vet1(1:3),vet1(4:6),celda,"A")
@@ -1803,7 +1804,7 @@
        end if
        if (len_trim(spg) == 0 ) then
           err_form=.true.
-          err_mess_form=" Problems reading the Space Group symbol/number"
+          ERR_Form_Mess=" Problems reading the Space Group symbol/number"
           return
        end if
 
@@ -1857,7 +1858,7 @@
        call read_key_value(filevar,i,j,"trans",vet,ivet,iv)
        if (iv /= 12) then
           err_form=.true.
-          err_mess_form=" Bad matrix/origin setting..."
+          ERR_Form_Mess=" Bad matrix/origin setting..."
           return
        else
           trans(1,1:3)=vet(1:3)
@@ -2377,7 +2378,7 @@
 
         if (iv /= 6) then
           err_form=.true.
-          err_mess_form="  Error reading the anisotropic thermal parameters of atom:"//atomo%lab
+          ERR_Form_Mess="  Error reading the anisotropic thermal parameters of atom:"//atomo%lab
           return
        end if
        atomo%U(1:6)=vet1(1:6)
@@ -2541,7 +2542,7 @@
              if (npos == 0) cycle
              call read_molecule(file_dat,n_ini,n_end,molcrys%mol(n))
              err_form=err_molec
-             err_mess_form=err_mess_molec
+             ERR_Form_Mess=err_molec_mess
              if (err_form) then
                 molcrys%n_mol=n-1
                 return
@@ -2633,7 +2634,7 @@
              ndata=ndata+1
              if (ndata > maxph-1) then
                 err_form=.true.
-                err_mess_form=" => Too many phases in this file "
+                ERR_Form_Mess=" => Too many phases in this file "
                 return
              end if
              ip(ndata)=i   !Pointer to the number of the line starting a single phase
@@ -2672,7 +2673,7 @@
 
           if (noper ==0) then
              err_form=.true.
-             err_mess_form=" => No Space Group/No Symmetry information in this file "
+             ERR_Form_Mess=" => No Space Group/No Symmetry information in this file "
              return
           else
              call Set_SpaceGroup("  ",SpG,symm_car,noper,"GEN")
@@ -2864,7 +2865,7 @@
        call Number_Lines(trim(filenam), nlines)
        if (nlines==0) then
           err_form=.true.
-          err_mess_form="The file "//trim(filenam)//" contains nothing"
+          ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
           return
        else
           if (allocated(file_dat)) deallocate( file_dat)
@@ -2982,7 +2983,7 @@
        call Number_Lines(trim(filenam), nlines)
        if (nlines==0) then
           err_form=.true.
-          err_mess_form="The file "//trim(filenam)//" contains nothing"
+          ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
           return
        else
           if (allocated(file_dat)) deallocate( file_dat)

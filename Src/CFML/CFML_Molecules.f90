@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Molecular_Crystals
@@ -267,8 +267,8 @@
 !!---- DEPENDENCIES
 !!----
 !!---- VARIABLES
-!!----    ERR_MESS_MOLEC
 !!----    ERR_MOLEC
+!!----    ERR_MOLEC_MESS
 !!----    MOLECULE_TYPE
 !!----    MOLECULAR_CRYSTAL_TYPE
 !!----
@@ -314,14 +314,15 @@
  Module CFML_Molecular_Crystals
 
     !---- Use Modules ----!
-    use CFML_Math_General,                  only: acosd, asind,  cp, eps, cosd, sind, to_rad
+    use CFML_Constants,                only: cp, eps, to_rad
+    use CFML_Math_General,              only: acosd, asind, cosd, sind
     use CFML_Math_3D,                   only: cross_product, Get_Spheric_Coord
     use CFML_Crystallographic_Symmetry, only: Space_Group_type, Write_SpaceGroup
-    use CFML_Atom_TypeDef,               only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
-    use CFML_Crystal_Metrics,             only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_mess_crys, &
-                                         Write_Crystal_Cell
+    use CFML_Atom_TypeDef,              only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
+    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_Crys_Mess, &
+                                              Write_Crystal_Cell
     use CFML_String_Utilities,          only: u_case, l_case, getword, getnum, cutst
-    use CFML_Geometry_Calc,         only: angle_dihedral,distance,Get_PhiTheChi
+    use CFML_Geometry_Calc,             only: angle_dihedral,distance,Get_PhiTheChi
     use CFML_Scattering_Chemical_Tables,only: Num_Chem_Info,Chem_Info,Set_Chem_Info,Remove_Chem_Info,Get_ChemSymb
 
     implicit none
@@ -353,14 +354,14 @@
     !---- Definitions ----!
 
     !!----
-    !!---- ERR_MESS_MOLEC
-    !!----    character(len=256), public :: Err_Mess_Molec
+    !!---- ERR_MOLEC_MESS
+    !!----    character(len=150), public :: ERR_Molec_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=256), public :: Err_Mess_Molec
+    character(len=150), public :: ERR_Molec_Mess
 
     !!----
     !!---- ERR_MOLEC
@@ -396,19 +397,19 @@
     !!----                                                                     !"TL ": Translational + Librational
     !!----                                                                     !"TLS": Translational + Librational + Correlation
     !!----     real(kind=cp), dimension(3)                     :: xcentre      !Fractional coordinates of the centre
-    !!----     real,          dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
+    !!----     real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
     !!----     integer,       dimension(3)                     :: lxcentre     !Numbers of LSQ parameters for Fractional coordinates of the centre
     !!----     real(kind=cp), dimension(3)                     :: Orient       !Orientation angles (Euler angles or variant ...)
-    !!----     real,          dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
+    !!----     real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
     !!----     integer,       dimension(3)                     :: lOrient      !Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)
     !!----     real(kind=cp), dimension(6)                     :: T_TLS        !Translational Thermal factor tensor
-    !!----     real,          dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
+    !!----     real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
     !!----     integer,       dimension(6)                     :: lT_TLS       !Numbers of LSQ parameters for Translational Thermal factor tensor
     !!----     real(kind=cp), dimension(6)                     :: L_TLS        !Librational Thermal factor tensor
-    !!----     real,          dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
+    !!----     real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
     !!----     integer,       dimension(6)                     :: lL_TLS       !Numbers of LSQ parameters for Librational Thermal factor tensor
     !!----     real(kind=cp), dimension(3,3)                   :: S_TLS        !TL-correlation Thermal factor
-    !!----     real,          dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
+    !!----     real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
     !!----     integer,       dimension(3,3)                   :: lS_TLS       !Numbers of LSQ parameters for TL-correlation Thermal factor
     !!----     real(kind=cp), dimension(3,3)                   :: Euler        !Euler matrix
     !!----     character(len=6),  allocatable, dimension(  :)  :: AtName       !Atom Name
@@ -416,13 +417,13 @@
     !!----     integer,           allocatable, dimension(  :)  :: AtZ          !Atomic Number
     !!----     integer,           allocatable, dimension(:,:)  :: Ptr          !Pointer to scat.factors (first index -> pattern)
     !!----     real(kind=cp),     allocatable, dimension(:,:)  :: I_coor       !Internal coordinates (d,ang,dang)
-    !!----     real,              allocatable, dimension(:,:)  :: mI_coor      !Refinement codes of internal coordinates
+    !!----     real(kind=cp),     allocatable, dimension(:,:)  :: mI_coor      !Refinement codes of internal coordinates
     !!----     integer,           allocatable, dimension(:,:)  :: lI_coor      !Numbers of LSQ parameters for internal coordinates
     !!----     real(kind=cp),     allocatable, dimension(  :)  :: biso         !Isotropic temperature factor
-    !!----     real,              allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
+    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
     !!----     integer,           allocatable, dimension(  :)  :: lbiso        !Numbers of LSQ parameters for Isotropic temperature factor
     !!----     real(kind=cp),     allocatable, dimension(  :)  :: occ          !Occupation factor
-    !!----     real,              allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
+    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
     !!----     integer,           allocatable, dimension(  :)  :: locc         !Numbers of LSQ parameters for Occupation factor
     !!----     integer,           allocatable, dimension(  :)  :: Nb           !Number of neighbours
     !!----     integer,           allocatable, dimension(:,:)  :: inb          !Index of neighbous
@@ -453,19 +454,19 @@
                                                                        !"TL ": Translational + Librational
                                                                        !"TLS": Translational + Librational + Correlation
        real(kind=cp), dimension(3)                     :: xcentre      !Fractional coordinates of the centre
-       real,          dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
+       real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
        integer,       dimension(3)                     :: lxcentre     !Numbers of LSQ parameters for Fractional coordinates of the centre
        real(kind=cp), dimension(3)                     :: Orient       !Orientation angles (Euler angles or variant ...)
-       real,          dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
+       real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
        integer,       dimension(3)                     :: lOrient      !Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)
        real(kind=cp), dimension(6)                     :: T_TLS        !Translational Thermal factor tensor
-       real,          dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
+       real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
        integer,       dimension(6)                     :: lT_TLS       !Numbers of LSQ parameters for Translational Thermal factor tensor
        real(kind=cp), dimension(6)                     :: L_TLS        !Librational Thermal factor tensor
-       real,          dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
+       real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
        integer,       dimension(6)                     :: lL_TLS       !Numbers of LSQ parameters for Librational Thermal factor tensor
        real(kind=cp), dimension(3,3)                   :: S_TLS        !TL-correlation Thermal factor
-       real,          dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
+       real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
        integer,       dimension(3,3)                   :: lS_TLS       !Numbers of LSQ parameters for TL-correlation Thermal factor
        real(kind=cp), dimension(3,3)                   :: Euler        !Euler matrix
        character(len=6),  allocatable, dimension(  :)  :: AtName       !Atom Name
@@ -473,13 +474,13 @@
        integer,           allocatable, dimension(  :)  :: AtZ          !Atomic Number
        integer,           allocatable, dimension(:,:)  :: Ptr          !Pointer to scat.factors (first index -> pattern)
        real(kind=cp),     allocatable, dimension(:,:)  :: I_coor       !Internal coordinates (d,ang,dang)
-       real,              allocatable, dimension(:,:)  :: mI_Coor      !Refinement codes of internal coordinates
+       real(kind=cp),     allocatable, dimension(:,:)  :: mI_Coor      !Refinement codes of internal coordinates
        integer,           allocatable, dimension(:,:)  :: lI_coor      !Numbers of LSQ parameters for internal coordinates
        real(kind=cp),     allocatable, dimension(  :)  :: biso         !Isotropic temperature factor
-       real,              allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
+       real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
        integer,           allocatable, dimension(  :)  :: lbiso        !Numbers of LSQ parameters for Isotropic temperature factor
        real(kind=cp),     allocatable, dimension(  :)  :: occ          !Occupation factor
-       real,              allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
+       real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
        integer,           allocatable, dimension(  :)  :: locc         !Numbers of LSQ parameters for Occupation factor
        integer,           allocatable, dimension(  :)  :: Nb           !Number of neighbours
        integer,           allocatable, dimension(:,:)  :: INb          !Index of neighbous
@@ -564,20 +565,20 @@
        !---- Controls ----!
        if (molecule%coor_type /= "C") then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Fractional: the input molecule is not in Cartesian coordinates"
+          ERR_Molec_Mess="Error in Cartesian_to_Fractional: the input molecule is not in Cartesian coordinates"
           return
        end if
 
        na=molecule%natoms
        if (na <=0) then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Fractional: No atoms are defined on molecule variable"
+          ERR_Molec_Mess="Error in Cartesian_to_Fractional: No atoms are defined on molecule variable"
           return
        end if
 
        if (.not. molecule%in_xtal) then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Fractional: the input molecule haven't crystal information"
+          ERR_Molec_Mess="Error in Cartesian_to_Fractional: the input molecule haven't crystal information"
           return
        end if
 
@@ -609,7 +610,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Cartesian_to_Fractional: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Cartesian_to_Fractional: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -649,14 +650,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "C") then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Spherical: the input molecule is not in Cartesian coordinates"
+          ERR_Molec_Mess="Error in Cartesian_to_Spherical: the input molecule is not in Cartesian coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Spherical: No atoms are defined"
+          ERR_Molec_Mess="Error in Cartesian_to_Spherical: No atoms are defined"
           return
        end if
 
@@ -677,7 +678,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Cartesian_to_Spherical: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Cartesian_to_Spherical: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -693,8 +694,8 @@
     !!----    type (Molecule_type), intent(in out)           :: Molecule
     !!----    type (Molecule_type), intent(   out), optional :: NewMolecule
     !!----    Type(Crystal_Cell_Type), intent(in),  optional :: Cell
-    !!----    real,                 intent(in    ), optional :: D_min
-    !!----    real,                 intent(in    ), optional :: D_max
+    !!----    real(kind=cp),        intent(in    ), optional :: D_min
+    !!----    real(kind=cp),        intent(in    ), optional :: D_max
     !!----
     !!----    Subroutine to transform the internal coordinates of a molecule
     !!----    from cartesian coordinates to  Z-matrix.
@@ -716,8 +717,8 @@
        type (Molecule_type), intent(in out)           :: Molecule
        type (Molecule_type), intent(   out), optional :: NewMolecule
        Type(Crystal_Cell_Type), intent(in),  optional :: Cell
-       real,                 intent(in    ), optional :: D_min
-       real,                 intent(in    ), optional :: D_max
+       real(kind=cp),        intent(in    ), optional :: D_min
+       real(kind=cp),        intent(in    ), optional :: D_max
 
        !---- Local variables -----!
        integer                       :: i,na,j,k,n,mode
@@ -729,20 +730,20 @@
        !---- Controls ----!
        if (molecule%coor_type /= "C") then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Zmatrix: the input molecule is not in Cartesian coordinates"
+          ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: the input molecule is not in Cartesian coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Zmatrix: Not atoms are defined"
+          ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: Not atoms are defined"
           return
        end if
 
        if (na < 3) then
           err_molec=.true.
-          err_mess_molec="Error in Cartesian_to_Zmatrix: You need at least three atoms"
+          ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: You need at least three atoms"
           return
        end if
 
@@ -762,7 +763,7 @@
                 call create_connectivity_cartesian(molecule,dmin=d_min,dmax=d_max)
           end select
           if (err_molec) then
-             err_mess_molec="Error in Cartesian_to_Zmatrix: the connectivity is wrong"
+             ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: the connectivity is wrong"
              return
           end if
           molecule%is_connect=.true.
@@ -846,7 +847,7 @@
           else
              if (dot_product(ri,ri) > eps) then
                 err_molec=.true.
-                err_mess_molec="Error in Cartesian_to_Zmatrix: First atom not at the origin => a cell has to be provided "
+                ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: First atom not at the origin => a cell has to be provided "
                 return
              end if
           end if
@@ -859,7 +860,7 @@
           n  = molecule%conn(3,i)     !Z-matrix if cartesian/spherical coordinates are given.
           if ( j == 0 .or. k == 0 .or. n == 0) then
              err_molec=.true.
-             err_mess_molec="Error in Cartesian_to_Zmatrix: the connectivity is wrong for atom: " &
+             ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: the connectivity is wrong for atom: " &
                             //molecule%Atname(i)
              return
           end if
@@ -875,7 +876,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Cartesian_to_Zmatrix: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Cartesian_to_Zmatrix: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -888,9 +889,9 @@
 
     !!--++
     !!--++ Subroutine Create_Connectivity_Cartesian(Molecule, Dmin, Dmax)
-    !!--++    type (Molecule_type), intent(in out):: Molecule
-    !!--++    real, optional,       intent(in)    :: Dmin
-    !!--++    real, optional,       intent(in)    :: Dmax
+    !!--++    type (Molecule_type),          intent(in out):: Molecule
+    !!--++    real(kind=cp), optional,       intent(in)    :: Dmin
+    !!--++    real(kind=cp), optional,       intent(in)    :: Dmax
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine that create the connectivity for the molecule.
@@ -901,20 +902,20 @@
     !!
     Subroutine Create_Connectivity_Cartesian(Molecule,Dmin,Dmax)
        !---- Arguments ----!
-       type (Molecule_type), intent(in out):: Molecule
-       real, optional,       intent(in)    :: Dmin
-       real, optional,       intent(in)    :: Dmax
+       type (Molecule_type),          intent(in out):: Molecule
+       real(kind=cp), optional,       intent(in)    :: Dmin
+       real(kind=cp), optional,       intent(in)    :: Dmax
 
        !---- Local variables ----!
-       logical                                             :: re_order
-       integer                                             :: i,j,k,l,m,nc1,nc2,nc3
-       integer, dimension(molecule%natoms,molecule%natoms) :: T_Conn
-       integer, dimension(3,molecule%natoms)               :: T_N
-       integer, dimension(molecule%natoms)                 :: T_Ind
-       real,    dimension(molecule%natoms,molecule%natoms) :: T_Dist
-       real                                                :: d_min, d_max
-       real                                                :: dist !,ang,tors
-       type (Molecule_type)                                :: Newmol
+       logical                                                      :: re_order
+       integer                                                      :: i,j,k,l,m,nc1,nc2,nc3
+       integer, dimension(molecule%natoms,molecule%natoms)          :: T_Conn
+       integer, dimension(3,molecule%natoms)                        :: T_N
+       integer, dimension(molecule%natoms)                          :: T_Ind
+       real(kind=cp),    dimension(molecule%natoms,molecule%natoms) :: T_Dist
+       real(kind=cp)                                                :: d_min, d_max
+       real(kind=cp)                                                :: dist !,ang,tors
+       type (Molecule_type)                                         :: Newmol
 
 
        !---- Initialize ----!
@@ -930,7 +931,7 @@
        !---- Controls ----!
        if (molecule%coor_type /= "C") then
           err_molec=.true.
-          err_mess_molec="Error in Connectivity: the input molecule is not in Cartesian coordinates"
+          ERR_Molec_Mess="Error in Connectivity: the input molecule is not in Cartesian coordinates"
           return
        end if
 
@@ -1025,7 +1026,7 @@
 
           if (j == 0) then
              err_molec=.true.
-             err_mess_molec="Error in Connectivity: Some Index are zeros"
+             ERR_Molec_Mess="Error in Connectivity: Some Index are zeros"
              return
           end if
 
@@ -1126,17 +1127,17 @@
              case (2)
                 if (T_N(1,i) == 0) then
                    err_molec=.true.
-                   err_mess_molec="Error in Connectivity: Some Index are zeros"
+                   ERR_Molec_Mess="Error in Connectivity: Some Index are zeros"
                 end if
              case (3)
                 if (any(T_N(1:2,i) == 0)) then
                    err_molec=.true.
-                   err_mess_molec="Error in Connectivity: Some Index are zeros"
+                   ERR_Molec_Mess="Error in Connectivity: Some Index are zeros"
                 end if
              case (4:)
                 if (any(T_N(:,i) == 0)) then
                    err_molec=.true.
-                   err_mess_molec="Error in Connectivity: Some Index are zeros"
+                   ERR_Molec_Mess="Error in Connectivity: Some Index are zeros"
                 end if
           end select
        end do
@@ -1189,13 +1190,13 @@
 
        if (n_x == n_or) then
           err_molec=.true.
-          err_mess_molec="The atom defining origin and X axis is the same"
+          ERR_Molec_Mess="The atom defining origin and X axis is the same"
           return
        end if
 
        if (n_xy == n_or .or. n_xy ==n_x) then
           err_molec=.true.
-          err_mess_molec="The atom defining the Plane XY is equal to the origin or that define the X axis"
+          ERR_Molec_Mess="The atom defining the Plane XY is equal to the origin or that define the X axis"
           return
        end if
 
@@ -1458,7 +1459,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Fix_Order: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fix_Order: The optional variable was not dimensioned!"
              return
           end if
           Newmolecule=Newmol
@@ -1503,11 +1504,11 @@
        real(kind=cp),dimension(3,3),intent(out), optional :: Mat
 
        !---- Local variables ----!
-       integer                   :: n_or, n_x, n_xy
-       integer                   :: i
-       real,dimension(3)         :: u1,u2,u3
-       real,dimension(3,3)       :: R
-       type (Molecule_type)      :: Newmol
+       integer                       :: n_or, n_x, n_xy
+       integer                       :: i
+       real(kind=cp),dimension(3)    :: u1,u2,u3
+       real(kind=cp),dimension(3,3)  :: R
+       type (Molecule_type)          :: Newmol
 
        n_or=1
        n_x =2
@@ -1544,7 +1545,7 @@
        if (present(Newmolecule)) then
           if (NewMol%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Fix_Orient_Cartesian: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fix_Orient_Cartesian: The optional variable was not dimensioned!"
              return
           end if
           Newmolecule=Newmol
@@ -1557,13 +1558,13 @@
 
     !!----
     !!---- Subroutine Empiric_Formula(Atm/Molcrys/Molecule,Formula,Form_Weight)
-    !!----    type(Atom_List_Type), intent(in)  :: Atm
+    !!----    type(Atom_List_Type),          intent(in)  :: Atm
     !!----    or
-    !!----    type(molecular_crystal_type), intent(in)  :: Molcrys
+    !!----    type(molecular_crystal_type),  intent(in)  :: Molcrys
     !!----    or
-    !!----    type(molecule_type),  intent(in)  :: Molecule
-    !!----    character(len=*),     intent(out) :: Formula
-    !!----    real, optional,       intent(out) :: Form_Weight
+    !!----    type(molecule_type),           intent(in)  :: Molecule
+    !!----    character(len=*),              intent(out) :: Formula
+    !!----    real(kind=cp), optional,       intent(out) :: Form_Weight
     !!----
     !!----    Obtain the Empiric Formula from Atm/Molcrys/Molecule variable
     !!----
@@ -1572,9 +1573,9 @@
 
     !!--++
     !!--++ Subroutine Empiric_Formula_FAtom(Atm,Formula,Form_Weight)
-    !!--++    type(Atom_List_Type), intent(in)  :: Atm
-    !!--++    character(len=*),     intent(out) :: Formula
-    !!--++    real, optional,       intent(out) :: Form_Weight
+    !!--++    type(Atom_List_Type),    intent(in)  :: Atm
+    !!--++    character(len=*),        intent(out) :: Formula
+    !!--++    real(kind=cp), optional, intent(out) :: Form_Weight
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Obtain the Empiric Formula from Atm variable
@@ -1583,17 +1584,16 @@
     !!
     Subroutine Empiric_Formula_FAtom(Atm,Formula,Form_Weight)
        !---- Arguments ----!
-       type(Atom_List_Type), intent(in)  :: Atm
-       character(len=*),     intent(out) :: Formula
-       real, optional,       intent(out) :: Form_Weight
+       type(Atom_List_Type),     intent(in)  :: Atm
+       character(len=*),         intent(out) :: Formula
+       real(kind=cp), optional,  intent(out) :: Form_Weight
 
        !---- Local variables ----!
        character(len=2)                  :: car
        character(len=5)                  :: numcar
        integer                           :: i,j
        integer, dimension(Num_Chem_Info) :: N_PT
-       real                              :: weight
-
+       real(kind=cp)                     :: weight
 
        !---- Init ----!
        N_PT=0
@@ -1645,7 +1645,7 @@
     !!--++ Subroutine Empiric_Formula_Molcrys(Molcrys,Formula,Form_Weight)
     !!--++    type(molecular_crystal_type), intent(in)  :: Molcrys
     !!--++    character(len=*),             intent(out) :: Formula
-    !!--++    real, optional,               intent(out) :: Form_Weight
+    !!--++    real(kind=cp), optional,      intent(out) :: Form_Weight
     !!--++
     !!--++    (Overloaded)
     !!--++    Obtain the Empiric Formula from Molecule variable and
@@ -1657,14 +1657,14 @@
        !---- Arguments ----!
        type(molecular_crystal_type), intent(in)  :: Molcrys
        character(len=*),             intent(out) :: Formula
-       real, optional,               intent(out) :: Form_Weight
+       real(kind=cp), optional,      intent(out) :: Form_Weight
 
        !---- Local variables ----!
        character(len=2)                  :: car
        character(len=5)                  :: numcar
        integer                           :: i,j,k
        integer, dimension(Num_Chem_Info) :: N_PT
-       real                              :: weight
+       real(kind=cp)                     :: weight
 
 
        !---- Init ----!
@@ -1729,9 +1729,9 @@
 
     !!--++
     !!--++ Subroutine Empiric_Formula_Molec(Molecule,Formula,Form_Weight)
-    !!--++    type(molecule_type), intent(in)  :: Molecule
-    !!--++    character(len=*),    intent(out) :: Formula
-    !!--++    real, optional,      intent(out) :: Form_Weight
+    !!--++    type(molecule_type),     intent(in)  :: Molecule
+    !!--++    character(len=*),        intent(out) :: Formula
+    !!--++    real(kind=cp), optional, intent(out) :: Form_Weight
     !!--++
     !!--++    (Overloaded)
     !!--++    Obtain the Empiric Formula from Molecule variable and
@@ -1741,16 +1741,16 @@
     !!
     Subroutine Empiric_Formula_Molec(Molecule,Formula,Form_Weight)
        !---- Arguments ----!
-       type(molecule_type), intent(in)  :: Molecule
-       character(len=*),    intent(out) :: Formula
-       real, optional,      intent(out) :: Form_Weight
+       type(molecule_type),      intent(in)  :: Molecule
+       character(len=*),         intent(out) :: Formula
+       real(kind=cp), optional,  intent(out) :: Form_Weight
 
        !---- Local variables ----!
        character(len=2)                  :: car
        character(len=5)                  :: numcar
        integer                           :: i,j
        integer, dimension(Num_Chem_Info) :: N_PT
-       real                              :: weight
+       real(kind=cp)                     :: weight
 
        !---- Init ----!
        N_PT=0
@@ -1831,14 +1831,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "F") then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Cartesian: the input molecule is not in fractional coordinates"
+          ERR_Molec_Mess="Error in Fractional_to_Cartesian: the input molecule is not in fractional coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Cartesian: No atoms are defined"
+          ERR_Molec_Mess="Error in Fractional_to_Cartesian: No atoms are defined"
           return
        end if
 
@@ -1875,7 +1875,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Fractional to Cartesian: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fractional to Cartesian: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -1915,14 +1915,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "F") then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Spherical: the input molecule is not in Fractional coordinates"
+          ERR_Molec_Mess="Error in Fractional_to_Spherical: the input molecule is not in Fractional coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Spherical: No atoms are defined"
+          ERR_Molec_Mess="Error in Fractional_to_Spherical: No atoms are defined"
           return
        end if
 
@@ -1931,14 +1931,14 @@
        NewMol= Molecule
        call Fractional_to_Cartesian(NewMol,Cell)
        if (err_molec) then
-          err_mess_molec="Error in Fractional_to_Spherical: Intermediate procedure fail (I)!"
+          ERR_Molec_Mess="Error in Fractional_to_Spherical: Intermediate procedure fail (I)!"
           return
        end if
 
        !---- Step 2 ----!
        call Cartesian_to_Spherical(NewMol)
        if (err_molec) then
-          err_mess_molec="Error in Fractional_to_Spherical: Intermediate procedure fail (II)!"
+          ERR_Molec_Mess="Error in Fractional_to_Spherical: Intermediate procedure fail (II)!"
           return
        end if
 
@@ -1947,7 +1947,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Fractional to Spherical: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fractional to Spherical: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -1990,14 +1990,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "F") then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Zmatrix: the input molecule is not in Fractional coordinates"
+          ERR_Molec_Mess="Error in Fractional_to_Zmatrix: the input molecule is not in Fractional coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Fractional_to_Spherical: No atoms are defined"
+          ERR_Molec_Mess="Error in Fractional_to_Spherical: No atoms are defined"
           return
        end if
 
@@ -2006,14 +2006,14 @@
        NewMol=Molecule
        call Fractional_to_Cartesian(NewMol,Cell)
        if (err_molec) then
-          err_mess_molec="Error in Fractional_to_Zmatrix: Intermediate procedure fail (I)!"
+          ERR_Molec_Mess="Error in Fractional_to_Zmatrix: Intermediate procedure fail (I)!"
           return
        end if
 
        !---- Step 2 ----!
        call Cartesian_to_Zmatrix(NewMol, Cell=Cell)  !The cell is needed to eventually take into account
        if (err_molec) then                           !a different Cartesian frame on the input molecule
-          err_mess_molec="Error in Fractional_to_Zmatrix: Intermediate procedure fail (II)!"
+          ERR_Molec_Mess="Error in Fractional_to_Zmatrix: Intermediate procedure fail (II)!"
           return
        end if
 
@@ -2022,7 +2022,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Fractional to ZMatrix: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fractional to ZMatrix: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -2135,7 +2135,7 @@
     Subroutine Init_Err_Molec()
 
        err_molec=.false.
-       err_mess_molec=" "
+       ERR_Molec_Mess=" "
 
        return
     End Subroutine Init_Err_Molec
@@ -2355,7 +2355,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2387,7 +2387,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2403,7 +2403,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2417,7 +2417,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2441,7 +2441,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2479,7 +2479,7 @@
                       end if
                    else
                       err_molec=.true.
-                      err_mess_molec="You need the Cell_Type on this routine"
+                      ERR_Molec_Mess="You need the Cell_Type on this routine"
                       call init_molecule(newmol)
                       return
                    end if
@@ -2598,7 +2598,7 @@
              if (u_case(line(1:4)) /= "ATOM") cycle
           else
              err_molec=.true.
-             err_mess_molec="Atoms Information not found in file! "
+             ERR_Molec_Mess="Atoms Information not found in file! "
              return
           end if
 
@@ -2606,7 +2606,7 @@
           call getnum(line,vet,ivet,iv)
           if (iv /= 1) then
              err_molec=.true.
-             err_mess_molec="Number of Free atoms not found in file! "
+             ERR_Molec_Mess="Number of Free atoms not found in file! "
              return
           end if
           N=ivet(1)
@@ -2617,7 +2617,7 @@
           read(unit=lun,fmt="(a)",iostat=ier) line
           if (ier /=0) then
              err_molec=.true.
-             err_mess_molec="Free atoms Information was incomplete "
+             ERR_Molec_Mess="Free atoms Information was incomplete "
              return
           end if
           call cutst(line,nlong,label)
@@ -2654,7 +2654,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of free atoms "
+                   ERR_Molec_Mess="Error reading the refinement codes of free atoms "
                    return
                 end if
                 line=adjustl(line)
@@ -2674,7 +2674,7 @@
 
                 case default
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of free atoms  "
+                   ERR_Molec_Mess="Error reading the refinement codes of free atoms  "
                    return
              end select
           end if
@@ -2820,7 +2820,7 @@
           else
              if(.not. mol_found) then
               err_molec=.true.
-              err_mess_molec="Molecule not found in file! "
+              ERR_Molec_Mess="Molecule not found in file! "
              end if
              return
           end if
@@ -2834,7 +2834,7 @@
           call getword(line,dire,ic)
           if (ic /= 4) then
              err_molec=.true.
-             err_mess_molec="Instruction: MOLE[X] N_Atoms Molecule_Name Coordinates_Type, not found in file! "
+             ERR_Molec_Mess="Instruction: MOLE[X] N_Atoms Molecule_Name Coordinates_Type, not found in file! "
              return
           end if
 
@@ -2845,7 +2845,7 @@
              Molecule%Name_mol =dire(3)
           else
              err_molec=.true.
-             err_mess_molec="Error reading the number of atoms in a molecule: "//trim(line)
+             ERR_Molec_Mess="Error reading the number of atoms in a molecule: "//trim(line)
              return
           end if
 
@@ -2860,7 +2860,7 @@
                 molecule%coor_type="Z"
              case default
                 err_molec=.true.
-                err_mess_molec="Coordinates Type for Molecule Unknown! "
+                ERR_Molec_Mess="Coordinates Type for Molecule Unknown! "
                 return
           end select ! dire
           exit !The molecule has been found
@@ -2882,7 +2882,7 @@
              read(unit=lun,fmt="(a)", iostat=ier) line
              if (ier /= 0) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(line)
@@ -2896,7 +2896,7 @@
           call getword(line,dire,ic)
           if (ic /= 8) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
 
@@ -2904,7 +2904,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 3) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%xcentre=vet(1:3)
@@ -2913,7 +2913,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 3) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%orient=vet(1:3)
@@ -2925,7 +2925,7 @@
              read(unit=lun,fmt="(a)", iostat=ier) line
              if (ier /= 0) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(line)
@@ -2938,7 +2938,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 6) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%mxcentre=vet(1:3)
@@ -2961,7 +2961,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -2974,7 +2974,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor T of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor T of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%T_TLS=vet(1:6)
@@ -2983,7 +2983,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -2996,7 +2996,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the codes of tensor T of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the codes of tensor T of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mT_TLS=vet(1:6)
@@ -3007,7 +3007,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -3020,7 +3020,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor L of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor L of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%L_TLS=vet(1:6)
@@ -3029,7 +3029,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -3042,7 +3042,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the codes of the tensor L of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the codes of the tensor L of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mL_TLS=vet(1:6)
@@ -3053,7 +3053,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -3066,7 +3066,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 9) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor S of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor S of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%S_TLS(1,:)=vet(1:3)
@@ -3077,7 +3077,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(line)
@@ -3090,7 +3090,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 9) then
                 err_molec=.true.
-                err_mess_molec="Error reading the code of tensor S of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the code of tensor S of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mS_TLS(1,:)=vet(1:3)
@@ -3108,7 +3108,7 @@
              read(unit=lun,fmt="(a)", iostat=ier) line
              if (ier /= 0) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(line)
@@ -3133,7 +3133,7 @@
              npos=index(line(1:ic)," ",back=.true.)
              if (npos <=0) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information (II)! "
+                ERR_Molec_Mess="Error reading Molecule information (II)! "
                 return
              end if
              line=line(1:npos)
@@ -3203,7 +3203,7 @@
 
              case default
                 err_molec=.true.
-                err_mess_molec="Error reading the atoms in the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the atoms in the molecule: "//trim(Molecule%Name_mol)
                 return
 
           end select ! ic
@@ -3220,7 +3220,7 @@
              if (i == 3 .and. (ivet(4) == 0 .or. ivet(5) == 0))                    err_molec=.true.
              if (i > 3 .and. (ivet(4) == 0 .or. ivet(5) == 0 .or. ivet(6) == 0))   err_molec=.true.
              if (err_molec) then
-                err_mess_molec = "The Z-matrix connectivity is wrong: "//trim(line)
+                ERR_Molec_Mess = "The Z-matrix connectivity is wrong: "//trim(line)
                 return
              end if
           else
@@ -3238,7 +3238,7 @@
                 read(unit=lun,fmt="(a)", iostat=ier) line
                 if (ier /= 0) then
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
+                   ERR_Molec_Mess="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
                    return
                 end if
                 line=adjustl(line)
@@ -3260,7 +3260,7 @@
 
                 case default
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
+                   ERR_Molec_Mess="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
                    return
              end select
           end if
@@ -3350,7 +3350,7 @@
           n_ini=n_ini+1
           if (n_ini > n_end) then
              err_molec=.true.
-             err_mess_molec="Not found Molecule"
+             ERR_Molec_Mess="Not found Molecule"
              return
           end if
           line=adjustl(file_dat(n_ini))
@@ -3364,7 +3364,7 @@
           call getword(line,dire,ic)
           if (ic /= 4) then
              err_molec=.true.
-             err_mess_molec="Instruction: MOLE[X] N_Atoms Molecule_Name Coordinates_Type, not found! "
+             ERR_Molec_Mess="Instruction: MOLE[X] N_Atoms Molecule_Name Coordinates_Type, not found! "
              return
           end if
 
@@ -3372,7 +3372,7 @@
           read(unit=dire(2),fmt=*,iostat=ier) na
           if(ier /= 0) then
              err_molec=.true.
-             err_mess_molec="Error reading the number of atoms in a molecule: "//trim(line)
+             ERR_Molec_Mess="Error reading the number of atoms in a molecule: "//trim(line)
              return
           else
              if (na > 0) then
@@ -3380,7 +3380,7 @@
                 Molecule%Name_mol =dire(3)
              else
                 err_molec=.true.
-                err_mess_molec="Error reading the number of atoms in a molecule: "//trim(line)
+                ERR_Molec_Mess="Error reading the number of atoms in a molecule: "//trim(line)
                 return
              end if
           end if
@@ -3396,7 +3396,7 @@
                 molecule%coor_type="Z"
              case default
                 err_molec=.true.
-                err_mess_molec="Coordinates Type for Molecule Unknown! "
+                ERR_Molec_Mess="Coordinates Type for Molecule Unknown! "
                 return
           end select ! dire
 
@@ -3420,7 +3420,7 @@
              n_ini=n_ini+1
              if (n_ini > n_end) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(file_dat(n_ini))
@@ -3434,7 +3434,7 @@
           call getword(line,dire,ic)
           if (ic /= 8) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
 
@@ -3442,7 +3442,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 3) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%xcentre=vet(1:3)
@@ -3451,7 +3451,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 3) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%orient=vet(1:3)
@@ -3463,7 +3463,7 @@
              n_ini=n_ini+1
              if (n_ini > n_end) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(file_dat(n_ini))
@@ -3476,7 +3476,7 @@
           call getnum(line,vet,ivet,ic)
           if (ic /= 6) then
              err_molec=.true.
-             err_mess_molec="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
+             ERR_Molec_Mess="Error reading the position and angles of the molecule: "//trim(Molecule%Name_mol)
              return
           end if
           Molecule%mxcentre=vet(1:3)
@@ -3499,7 +3499,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3512,7 +3512,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor T of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor T of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%T_TLS=vet(1:6)
@@ -3521,7 +3521,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3534,7 +3534,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the codes of tensor T of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the codes of tensor T of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mT_TLS=vet(1:6)
@@ -3545,7 +3545,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3558,7 +3558,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor L of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor L of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%L_TLS=vet(1:6)
@@ -3567,7 +3567,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3580,7 +3580,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 6) then
                 err_molec=.true.
-                err_mess_molec="Error reading the codes of the tensor L of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the codes of the tensor L of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mL_TLS=vet(1:6)
@@ -3591,7 +3591,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3604,7 +3604,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 9) then
                 err_molec=.true.
-                err_mess_molec="Error reading the tensor S of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the tensor S of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%S_TLS(1,:)=vet(1:3)
@@ -3615,7 +3615,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading Molecule information! "
+                   ERR_Molec_Mess="Error reading Molecule information! "
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3628,7 +3628,7 @@
              call getnum(line,vet,ivet,ic)
              if (ic /= 9) then
                 err_molec=.true.
-                err_mess_molec="Error reading the code of tensor S of the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the code of tensor S of the molecule: "//trim(Molecule%Name_mol)
                 return
              end if
              Molecule%mS_TLS(1,:)=vet(1:3)
@@ -3646,7 +3646,7 @@
              n_ini=n_ini+1
              if (n_ini > n_end) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information! "
+                ERR_Molec_Mess="Error reading Molecule information! "
                 return
              end if
              line=adjustl(file_dat(n_ini))
@@ -3671,7 +3671,7 @@
              npos=index(line(1:ic)," ",back=.true.)
              if (npos <=0) then
                 err_molec=.true.
-                err_mess_molec="Error reading Molecule information (II)! "
+                ERR_Molec_Mess="Error reading Molecule information (II)! "
                 return
              end if
              line=line(1:npos)
@@ -3741,7 +3741,7 @@
 
              case default
                 err_molec=.true.
-                err_mess_molec="Error reading the atoms in the molecule: "//trim(Molecule%Name_mol)
+                ERR_Molec_Mess="Error reading the atoms in the molecule: "//trim(Molecule%Name_mol)
                 return
 
           end select ! ic
@@ -3756,7 +3756,7 @@
              if (i == 3 .and. (ivet(4) == 0 .or. ivet(5) == 0))                    err_molec=.true.
              if (i > 3 .and. (ivet(4) == 0 .or. ivet(5) == 0 .or. ivet(6) == 0))   err_molec=.true.
              if (err_molec) then
-                err_mess_molec = "The Z-matrix connectivity is wrong: "//trim(line)
+                ERR_Molec_Mess = "The Z-matrix connectivity is wrong: "//trim(line)
                 return
              end if
           else
@@ -3774,7 +3774,7 @@
                 n_ini=n_ini+1
                 if (n_ini > n_end) then
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
+                   ERR_Molec_Mess="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
                    return
                 end if
                 line=adjustl(file_dat(n_ini))
@@ -3796,7 +3796,7 @@
 
                 case default
                    err_molec=.true.
-                   err_mess_molec="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
+                   ERR_Molec_Mess="Error reading the refinement codes of atoms in the molecule: "//trim(Molecule%Name_mol)
                    return
              end select
           end if
@@ -3886,14 +3886,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "S") then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_Cartesian: the input molecule is not in Spherical coordinates"
+          ERR_Molec_Mess="Error in Spherical_to_Cartesian: the input molecule is not in Spherical coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_Cartesian: No atoms are defined"
+          ERR_Molec_Mess="Error in Spherical_to_Cartesian: No atoms are defined"
           return
        end if
 
@@ -3915,7 +3915,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Spherical to Cartesian: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Spherical to Cartesian: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -3955,14 +3955,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "S") then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_Fractional: the input molecule is not in Spherical coordinates"
+          ERR_Molec_Mess="Error in Spherical_to_Fractional: the input molecule is not in Spherical coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_Fractional: No atoms are defined"
+          ERR_Molec_Mess="Error in Spherical_to_Fractional: No atoms are defined"
           return
        end if
 
@@ -3971,14 +3971,14 @@
        newmol=Molecule
        call Spherical_to_Cartesian(NewMol)
        if (err_molec) then
-          err_mess_molec="Error in Spherical_to_Fractional: Intermediate procedure fail (I)!"
+          ERR_Molec_Mess="Error in Spherical_to_Fractional: Intermediate procedure fail (I)!"
           return
        end if
 
        !---- Step 2 ----!
        call Cartesian_to_Fractional(NewMol,Cell)
        if (err_molec) then
-          err_mess_molec="Error in Spherical_to_Fractional: Intermediate procedure fail (II)!"
+          ERR_Molec_Mess="Error in Spherical_to_Fractional: Intermediate procedure fail (II)!"
           return
        end if
 
@@ -3987,7 +3987,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Spherical to Fractional: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Spherical to Fractional: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -4027,14 +4027,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "S") then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_ZMatrix: the input molecule is not in Spherical coordinates"
+          ERR_Molec_Mess="Error in Spherical_to_ZMatrix: the input molecule is not in Spherical coordinates"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Spherical_to_ZMatrix: No atoms are defined"
+          ERR_Molec_Mess="Error in Spherical_to_ZMatrix: No atoms are defined"
           return
        end if
 
@@ -4043,7 +4043,7 @@
        newmol= Molecule
        call Spherical_to_Cartesian(NewMol)
        if (err_molec) then
-          err_mess_molec="Error in Spherical_to_Zmatrix: Intermediate procedure fail (I)!"
+          ERR_Molec_Mess="Error in Spherical_to_Zmatrix: Intermediate procedure fail (I)!"
           return
        end if
 
@@ -4054,7 +4054,7 @@
           call Cartesian_to_Zmatrix(NewMol)
        end if
        if (err_molec) then
-          err_mess_molec="Error in Spherical_to_Zmatrix: Intermediate procedure fail (II)!"
+          ERR_Molec_Mess="Error in Spherical_to_Zmatrix: Intermediate procedure fail (II)!"
           return
       end if
 
@@ -4063,7 +4063,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in Spherical to ZMatrix: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Spherical to ZMatrix: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -4328,14 +4328,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "Z") then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Cartesian: the input molecule is not a Z-matrix"
+          ERR_Molec_Mess="Error in Zmatrix_to_Cartesian: the input molecule is not a Z-matrix"
           return
        end if
 
        na= Molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Cartesian: Not atoms are defined"
+          ERR_Molec_Mess="Error in Zmatrix_to_Cartesian: Not atoms are defined"
           return
        end if
 
@@ -4391,7 +4391,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in ZMatrix to Cartesian: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in ZMatrix to Cartesian: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -4430,14 +4430,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "Z") then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Fractional: the input molecule is not in Zmatrix coordinates"
+          ERR_Molec_Mess="Error in Zmatrix_to_Fractional: the input molecule is not in Zmatrix coordinates"
           return
        end if
 
        na=molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Fractional: No atoms found"
+          ERR_Molec_Mess="Error in Zmatrix_to_Fractional: No atoms found"
           return
        end if
 
@@ -4450,7 +4450,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in ZMatrix_to_Fractional: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in ZMatrix_to_Fractional: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol
@@ -4488,14 +4488,14 @@
        !---- Controls ----!
        if (molecule%coor_type /= "Z") then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Spherical: the input molecule is not in Zmatrix coordinates"
+          ERR_Molec_Mess="Error in Zmatrix_to_Spherical: the input molecule is not in Zmatrix coordinates"
           return
        end if
 
        na=molecule%natoms
        if (na <= 0) then
           err_molec=.true.
-          err_mess_molec="Error in Zmatrix_to_Fractional: No atoms found"
+          ERR_Molec_Mess="Error in Zmatrix_to_Fractional: No atoms found"
           return
        end if
 
@@ -4504,14 +4504,14 @@
        newmol=Molecule
        call Zmatrix_to_Cartesian(NewMol)
        if (err_molec) then
-          err_mess_molec="Error in Zmatrix_to_Spherical: Intermediate procedure fail (I)!"
+          ERR_Molec_Mess="Error in Zmatrix_to_Spherical: Intermediate procedure fail (I)!"
           return
        end if
 
        !---- Step 2 ----!
        call Cartesian_to_Spherical(NewMol)
        if (err_molec) then
-          err_mess_molec="Error in Zmatrix_to_Spherical: Intermediate procedure fail (II)!"
+          ERR_Molec_Mess="Error in Zmatrix_to_Spherical: Intermediate procedure fail (II)!"
           return
        end if
 
@@ -4520,7 +4520,7 @@
           call Init_molecule(NewMolecule,na)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             err_mess_molec="Error in ZMatrix to Spherical: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in ZMatrix to Spherical: The optional variable was not dimensioned!"
              return
           end if
           NewMolecule=newmol

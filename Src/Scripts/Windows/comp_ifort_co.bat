@@ -7,11 +7,14 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
+   ifort /c CFML_Constant.f90         /O2 /nologo /Qvec-report0
+rem   
    ifort /c CFML_math_gen.f90         /O2 /nologo /Qvec-report0
+   ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0 
+   ifort /c CFML_random.f90           /O2 /nologo /Qvec-report0 
+   ifort /c CFML_ffts.f90             /O2 /nologo /Qvec-report0
    ifort /c CFML_string_util.f90      /O2 /nologo /Qvec-report0
    ifort /c CFML_io_mess.f90          /O2 /nologo /Qvec-report0
-   ifort /c CFML_random.f90           /O2 /nologo /Qvec-report0
-   ifort /c CFML_ffts.f90             /O2 /nologo /Qvec-report0
    ifort /c CFML_Profile_TOF.f90      /O2 /nologo /Qvec-report0
    ifort /c CFML_Profile_Finger.f90   /O2 /nologo /Qvec-report0
    ifort /c CFML_Profile_Functs.f90   /O2 /nologo /Qvec-report0
@@ -20,7 +23,6 @@ rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90          /O2 /nologo /Qvec-report0
-   ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization.f90     /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization_lsq.f90 /O2 /nologo /Qvec-report0
    ifort /c CFML_sym_table.f90        /Od /nologo /Qvec-report0
@@ -48,7 +50,7 @@ rem
 rem
    ifort /c CFML_sfac.f90             /O2 /nologo /Qvec-report0
    ifort /c CFML_geom_calc.f90        /O2 /nologo /Qvec-report0
-   ifort /c CFML_propagk.f90          /O2 /nologo /Qvec-report0
+   ifort /c CFML_propagk.f90          /O2 /nologo /Qvec-report0  
 rem
    echo **---- Level 5 ----**
    echo .... Molecules, Maps, BVS, Energy Configurations
@@ -66,7 +68,7 @@ echo **---- Level 7 ----**
 echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
    ifort /c CFML_refcodes.f90         /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization_san.f90 /O2 /nologo /Qvec-report0
-   ifort /c CFML_magsymm.f90          /O2 /nologo /Qvec-report0
+   ifort /c CFML_magsymm.f90          /O2 /nologo /Qvec-report0   
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors

@@ -7,12 +7,12 @@
 !!
 Program Calc_Structure_Factors
    !---- Use Modules ----!
-   use f2kcli  !Comment for Fortran 2003 compliant (Environment module) compilers
+   !use f2kcli  !Comment for Fortran 2003 compliant (Environment module) compilers
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type, Hkl_Uni, get_maxnumref
-   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_mess_form,err_form,file_list_type
+   use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
                                              Init_Structure_Factors,Calc_StrFactor
 
@@ -90,7 +90,7 @@ Program Calc_Structure_Factors
    end if
 
    if (err_form) then
-      write(unit=*,fmt="(a)") trim(err_mess_form)
+      write(unit=*,fmt="(a)") trim(err_form_mess)
    else
       call Write_Crystal_Cell(Cell,lun)
       call Write_SpaceGroup(SpG,lun)

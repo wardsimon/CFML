@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Structure_Factors
@@ -14,8 +14,9 @@
 !!--++     Use CFML_Scattering_Chemical_Tables
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
 !!--++     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-!!--++     Use CFML_Atom_TypeDef,                 only: atom_list_type
-!!--++     Use CFML_Math_General,                    only: sp, tpi, atan2d
+!!--++     Use CFML_Atom_TypeDef,                only: atom_list_type
+!!--++     Use CFML_Constants,                  only: sp, tpi
+!!--++     Use CFML_Math_General,                only: atan2d
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case
 !!----
 !!---- VARIABLES
@@ -24,8 +25,8 @@
 !!--++    AFPP                         [Private]
 !!--++    AJH                          [Private]
 !!--++    BJH                          [Private]
-!!----    ERR_MESS_SFAC
 !!----    ERR_SFAC
+!!----    ERR_SFAC_MESS
 !!--++    HR_TYPE                      [Private]
 !!--++    HR                           [Private]
 !!--++    HT                           [Private]
@@ -55,12 +56,13 @@
  Module CFML_Structure_Factors
 
     !---- Use Modules ----!
-    Use CFML_Math_General,                    only: sp, tpi, atan2d
+    Use CFML_Constants,                  only: cp, tpi
+    Use CFML_Math_General,                only: atan2d
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables
     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
-    Use CFML_Atom_TypeDef,                 only: atom_list_type
+    Use CFML_Atom_TypeDef,                only: atom_list_type
 
     !---- Variables ----!
     implicit none
@@ -85,40 +87,40 @@
 
     !!--++
     !!--++ AF0
-    !!--++     real(kind=sp), dimension(:,:), allocatable, private :: AF0
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: AF0
     !!--++
     !!--++     Array for Atomic Factor. The dimensions are
     !!--++           AF0(Natoms,NRef)
     !!--++
     !!--++ Update: December - 2003
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: AF0
+    real(kind=cp), dimension(:,:), allocatable, private :: AF0
 
     !!--++
     !!--++ AFP
-    !!--++     real(kind=sp), dimension(:), allocatable, private :: AFP
+    !!--++     real(kind=cp), dimension(:), allocatable, private :: AFP
     !!--++
     !!--++     Array for real part of anomalous scattering form factor.
     !!--++     The dimension is: AFP(Natoms)
     !!--++
     !!--++ Update: December - 2003
     !!
-    real(kind=sp), dimension(:), allocatable, private :: AFP
+    real(kind=cp), dimension(:), allocatable, private :: AFP
 
     !!--++
     !!--++ AFPP
-    !!--++     real(kind=sp), dimension(:), allocatable, private :: AFPP
+    !!--++     real(kind=cp), dimension(:), allocatable, private :: AFPP
     !!--++
     !!--++     Array for imaginary part of anomalous scattering form factor.
     !!--++     The dimension is: AFPP(Natoms)
     !!--++
     !!--++ Update: December - 2003
     !!
-    real(kind=sp), dimension(:), allocatable, private :: AFPP
+    real(kind=cp), dimension(:), allocatable, private :: AFPP
 
     !!--++
     !!--++ AJH
-    !!--++     real(kind=sp), dimension(:,:), allocatable, private :: Ajh
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: Ajh
     !!--++
     !!--++     Array for Aj(h). The dimensions are
     !!--++           Ajh(Natoms,Nref)
@@ -127,11 +129,11 @@
     !!--++
     !!--++ Update: December - 2003
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: AJH
+    real(kind=cp), dimension(:,:), allocatable, private :: AJH
 
     !!--++
     !!--++ BJH
-    !!--++     real(kind=sp), dimension(:,:), allocatable, private :: Bjh
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: Bjh
     !!--++
     !!--++     Array for Bj(h). The dimensions are
     !!--++           Bjh(Natoms,Nref)
@@ -140,27 +142,27 @@
     !!--++
     !!--++ Update: December - 2003
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: BJH
+    real(kind=cp), dimension(:,:), allocatable, private :: BJH
+    
+    !!----                       
+    !!---- ERR_SFAC              
+    !!----    logical, public :: 
+    !!----                       
+    !!----    Logical Variable in
+    !!----                       
+    !!---- Update: February - 200
+    !!                           
+    logical, public :: ERR_SFac  
 
     !!----
-    !!---- ERR_MESS_SFAC
-    !!----    character(len=150), public :: err_mess_sfac
+    !!---- ERR_SFac_Mess
+    !!----    character(len=150), public :: ERR_SFac_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_sfac
-
-    !!----
-    !!---- ERR_SFAC
-    !!----    logical, public :: err_sfac
-    !!----
-    !!----    Logical Variable indicating an error in SF_Calculation module
-    !!----
-    !!---- Update: February - 2005
-    !!
-    logical, public :: err_sfac
+    character(len=150), public :: ERR_SFac_Mess
 
     !!--++
     !!--++    Type :: HR_Type
@@ -189,14 +191,14 @@
 
     !!--++
     !!--++ HT
-    !!--++    real(kind=sp), dimension(:,:), allocatable, private :: Ht
+    !!--++    real(kind=cp), dimension(:,:), allocatable, private :: Ht
     !!--++
     !!--++    Array for HT Calculations. The dimension are
     !!--++          HT(Natoms,Nref)
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: HT
+    real(kind=cp), dimension(:,:), allocatable, private :: HT
 
     !!----
     !!---- SF_Initialized
@@ -210,14 +212,14 @@
 
     !!--++
     !!--++ TH
-    !!--++    real(kind=sp), dimension(:,:), allocatable, private :: Th
+    !!--++    real(kind=cp), dimension(:,:), allocatable, private :: Th
     !!--++
     !!--++    Array for TH Calculations. The dimension are
     !!--++          TH(Natoms,Nref)
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: TH
+    real(kind=cp), dimension(:,:), allocatable, private :: TH
 
  Contains
 
@@ -225,10 +227,10 @@
 
     !!--++
     !!--++ Function Fj(s,a,b,c)
-    !!--++    real(kind=sp),             intent(in) :: s
-    !!--++    real(kind=sp),dimension(4),intent(in) :: a
-    !!--++    real(kind=sp),dimension(4),intent(in) :: b
-    !!--++    real(kind=sp),             intent(in) :: c
+    !!--++    real(kind=cp),             intent(in) :: s
+    !!--++    real(kind=cp),dimension(4),intent(in) :: a
+    !!--++    real(kind=cp),dimension(4),intent(in) :: b
+    !!--++    real(kind=cp),             intent(in) :: c
     !!--++
     !!--++    (Private)
     !!--++    Atomic scattering factor calculation according to:
@@ -238,11 +240,11 @@
     !!
     Function Fj(s,a,b,c) Result(res)
        !---- Arguments ----!
-       real(kind=sp),             intent(in) :: s
-       real(kind=sp),dimension(4),intent(in) :: a
-       real(kind=sp),dimension(4),intent(in) :: b
-       real(kind=sp),             intent(in) :: c
-       real(kind=sp)                         :: res
+       real(kind=cp),             intent(in) :: s
+       real(kind=cp),dimension(4),intent(in) :: a
+       real(kind=cp),dimension(4),intent(in) :: b
+       real(kind=cp),             intent(in) :: c
+       real(kind=cp)                         :: res
 
        !---- Local variables ----!
        integer :: i
@@ -277,9 +279,9 @@
 
        !---- Local Variables ----!
        integer                       :: i,j,k
-       real(kind=sp)                 :: arg,anis
-       real(kind=sp),dimension(3)    :: h
-       real(kind=sp),dimension(6)    :: beta
+       real(kind=cp)                 :: arg,anis
+       real(kind=cp),dimension(3)    :: h
+       real(kind=cp),dimension(6)    :: beta
 
        Ajh=0.0
        Bjh=0.0
@@ -357,12 +359,12 @@
        !---- Local Variables ----!
        character(len=1)                      :: modi
        integer                               :: i,j,k,m
-       real(kind=sp)                         :: arg,anis,cosr,sinr,scosr,ssinr,fr,der !,fi
-       real(kind=sp)                         :: a1,a2,a3,a4,b1,b2,b3,b4,av,bv,f
-       real(kind=sp),dimension(3)            :: h
-       real(kind=sp),dimension(6)            :: beta
-       real(kind=sp),dimension(Atm%natoms)   :: frc,frs,otr,oti,afpxn
-       real(kind=sp),dimension(9,Atm%natoms) :: drs,drc
+       real(kind=cp)                         :: arg,anis,cosr,sinr,scosr,ssinr,fr,der !,fi
+       real(kind=cp)                         :: a1,a2,a3,a4,b1,b2,b3,b4,av,bv,f
+       real(kind=cp),dimension(3)            :: h
+       real(kind=cp),dimension(6)            :: beta
+       real(kind=cp),dimension(Atm%natoms)   :: frc,frs,otr,oti,afpxn
+       real(kind=cp),dimension(9,Atm%natoms) :: drs,drc
 
        !--- Initialising local variables
        a1=0.0
@@ -620,7 +622,7 @@
 
        !---- Local variables ----!
        integer          :: i,j
-       real(kind=sp)    :: b,s
+       real(kind=cp)    :: b,s
 
        !---- Isotropic model ----!
        do j=1,reflex%nref
@@ -638,7 +640,7 @@
     !!--++ Subroutine Create_Table_AF0_Xray(Reflex,Atm,lambda,lun)
     !!--++    type(reflection_List_type), intent(in) :: Reflex
     !!--++    type(atom_list_type),      intent(in) :: Atm
-    !!--++    real(kind=sp), optiona      intent(in) :: lambda
+    !!--++    real(kind=cp), optiona      intent(in) :: lambda
     !!--++    integer, optional,          intent(in) :: lun
     !!--++
     !!--++    (Private)
@@ -651,14 +653,14 @@
        !---- Arguments ----!
        type(reflection_list_type), intent(in) :: Reflex
        type(atom_list_type),      intent(in) :: Atm
-       real(kind=sp), optional,    intent(in) :: lambda
+       real(kind=cp), optional,    intent(in) :: lambda
        integer, optional,          intent(in) :: lun
 
        !---- Local Variables ----!
        character(len=4)               :: symbcar
        integer                        :: i,j, k,n,L
        integer, dimension(atm%natoms) :: ix,jx,ia
-       real(kind=sp)                  :: dmin,d
+       real(kind=cp)                  :: dmin,d
 
        !---- Init ----!
        err_sfac=.false.
@@ -721,7 +723,7 @@
 
        if (any(ix==0)) then
           err_sfac=.true.
-          err_mess_sfac="The Species "//symbcar//" was not found"
+          ERR_SFac_Mess="The Species "//symbcar//" was not found"
        else
           !---- Fill AF Table ----!
           do j=1,reflex%nref
@@ -773,8 +775,8 @@
        character(len=4)                        :: symbcar
        integer                                 :: i,k,n
        character(len=4), dimension(atm%natoms) :: symb
-       real(kind=sp),    dimension(atm%natoms) :: bs
-       real(kind=sp)                           :: b
+       real(kind=cp),    dimension(atm%natoms) :: bs
+       real(kind=cp)                           :: b
 
        !---- Init ----!
        err_sfac=.false.
@@ -791,7 +793,7 @@
           call Get_Fermi_Length(symbcar,b)
           if (abs(b) < 0.0001) then
              err_sfac=.true.
-             err_mess_sfac="The Fermi Length of Species "//symbcar//" was not found"
+             ERR_SFac_Mess="The Fermi Length of Species "//symbcar//" was not found"
              return
           else
              afp(i) = b
@@ -856,7 +858,7 @@
     !!----    type(atom_list_type),               intent(in) :: Atm
     !!----    type(space_group_type),              intent(in) :: Grp
     !!----    character(len=*),          optional, intent(in) :: Mode
-    !!----    real(kind=sp),             optional, intent(in) :: lambda
+    !!----    real(kind=cp),             optional, intent(in) :: lambda
     !!----    integer,                   optional, intent(in) :: lun  !Logical unit for writing scatt-factors
     !!----
     !!----    Allocates and initializes arrays for Structure Factors calculations.
@@ -870,7 +872,7 @@
        type(atom_list_type),                intent(in) :: Atm
        type(space_group_type),              intent(in) :: Grp
        character(len=*),          optional, intent(in) :: Mode
-       real(kind=sp),             optional, intent(in) :: lambda
+       real(kind=cp),             optional, intent(in) :: lambda
        integer,                   optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -887,7 +889,7 @@
        allocate(AF0(Natm,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for AF0"
+          ERR_SFac_Mess="Error on memory for AF0"
           return
        end if
        AF0=0.0
@@ -897,7 +899,7 @@
        allocate(AFP(Natm),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for AFP"
+          ERR_SFac_Mess="Error on memory for AFP"
           return
        end if
        AFP=0.0
@@ -906,7 +908,7 @@
        allocate(AFPP(Natm),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for AFPP"
+          ERR_SFac_Mess="Error on memory for AFPP"
           return
        end if
        AFPP=0.0
@@ -916,7 +918,7 @@
        allocate(HR(Multr,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for HR"
+          ERR_SFac_Mess="Error on memory for HR"
           return
        end if
        HR=HR_Type(0)
@@ -926,7 +928,7 @@
        allocate(HT(Multr,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for HTR"
+          ERR_SFac_Mess="Error on memory for HTR"
           return
        end if
        HT=0.0
@@ -935,7 +937,7 @@
        allocate(TH(Natm,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error on memory for HTR"
+          ERR_SFac_Mess="Error on memory for HTR"
           return
        end if
        TH=0.0
@@ -944,7 +946,7 @@
        allocate(Ajh(Natm,Reflex%Nref), stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error in Memory for Aj(h)"
+          ERR_SFac_Mess="Error in Memory for Aj(h)"
           return
        end if
        Ajh=0.0
@@ -953,7 +955,7 @@
        allocate(Bjh(Natm,Reflex%Nref), stat=ierr)
        if (ierr /=0) then
           err_sfac=.true.
-          err_mess_sfac="Error in Memory for Bj(h)"
+          ERR_SFac_Mess="Error in Memory for Bj(h)"
           return
        end if
        Bjh=0.0
@@ -1021,7 +1023,7 @@
        !---- Local variables ----!
        character(len=2) :: typ
        integer          :: i,j,k,ii
-       real(kind=sp)    :: arg,b,s
+       real(kind=cp)    :: arg,b,s
 
        typ="CO"
        if (present(partyp)) typ=adjustl(partyp)
@@ -1098,7 +1100,7 @@
     !!--++    type(atom_list_type),              intent(in) :: Atm
     !!--++    type(space_group_type),             intent(in) :: Grp
     !!--++    character(len=*), optional,         intent(in) :: Mode
-    !!--++    real(kind=sp), optional,            intent(in) :: lambda
+    !!--++    real(kind=cp), optional,            intent(in) :: lambda
     !!--++    integer, optional,                  intent(in) :: lun
     !!--++
     !!--++    (Private)
@@ -1113,7 +1115,7 @@
        type(atom_list_type),              intent(in) :: Atm
        type(space_group_type),             intent(in) :: Grp
        character(len=*), optional,         intent(in) :: Mode
-       real(kind=sp), optional,            intent(in) :: lambda
+       real(kind=cp), optional,            intent(in) :: lambda
        integer, optional,                  intent(in) :: lun
 
        !---- Local variables ----!
@@ -1177,7 +1179,7 @@
     !!----    type(space_group_type),             intent(in)     :: Grp
     !!----    type(reflection_list_type),         intent(in out) :: Reflex
     !!----    character(len=*), optional,         intent(in)     :: Mode
-    !!----    real(kind=sp), optional,            intent(in)     :: lambda
+    !!----    real(kind=cp), optional,            intent(in)     :: lambda
     !!----
     !!----    Calculate the Structure Factors from a list of Atoms
     !!----    and a set of reflections. A call to Init_Structure_Factors
@@ -1192,7 +1194,7 @@
        type(space_group_type),             intent(in)     :: Grp
        type(reflection_list_type),         intent(in out) :: Reflex
        character(len=*), optional,         intent(in)     :: Mode
-       real(kind=sp), optional,            intent(in)     :: lambda
+       real(kind=cp), optional,            intent(in)     :: lambda
 
        !Provisional items
        ! integer::i,j
@@ -1263,8 +1265,8 @@
 
        !---- Local Variables ----!
        integer                                     :: i,j
-       real(kind=sp)                               :: a,b, ph
-       real(kind=sp), dimension(natm,reflex%nref)  :: aa,bb,cc,dd
+       real(kind=cp)                               :: a,b, ph
+       real(kind=cp), dimension(natm,reflex%nref)  :: aa,bb,cc,dd
 
 
        ! A(h)=SIG(i){(f0+Deltaf')*OCC*Tiso*Ag}    asfa=a-d
@@ -1339,8 +1341,8 @@
 
        !---- Local Variables ----!
        integer                                     :: i,j
-       real(kind=sp)                               :: a,b, ph
-       real(kind=sp), dimension(natm,reflex%nref)  :: aa,bb
+       real(kind=cp)                               :: a,b, ph
+       real(kind=cp), dimension(natm,reflex%nref)  :: aa,bb
 
        if (icent == 2) then    !Calculation for centrosymmetric structures
 

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Keywords_Code_Parser
@@ -22,7 +22,7 @@
 !!----    CODE_NAM
 !!----    DIS_REST
 !!----    ERR_REFCODES
-!!----    ERR_MESS_REFCODES
+!!----    ERR_REFCODES_MESS
 !!--++    NCODE                        [Private]
 !!--++    NKEY                         [Private]
 !!----    KEY_CODE
@@ -91,11 +91,12 @@
 !!
  Module CFML_Keywords_Code_Parser
     !---- Modules ----!
-    Use CFML_Math_General,                  only: Sp, Sort
+    Use CFML_Constants,                only: Sp
+    Use CFML_Math_General,              only: Sort
     Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
-                                         Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb
-    Use CFML_Atom_TypeDef,               only: Atom_list_Type  !, Atom_Type
+                                              Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb
+    Use CFML_Atom_TypeDef,              only: Atom_list_Type  !, Atom_Type
     Use CFML_Molecular_Crystals,        only: Molecule_Type, Molecular_Crystal_Type
     Use CFML_IO_Formats,                only: File_List_Type
 
@@ -243,14 +244,14 @@
     logical, public :: Err_RefCodes = .false.
 
     !!----
-    !!---- ERR_MESS_REFCODES
-    !!----    character(len=150), public :: Err_Mess_RefCodes
+    !!---- ERR_REFCODES_MESS
+    !!----    character(len=150), public :: ERR_RefCodes_Mess
     !!----
     !!----    Error variable messages
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=150), public :: Err_Mess_RefCodes = " "
+    character(len=150), public :: ERR_RefCodes_Mess = " "
 
     !!--++
     !!--++ NCODE
@@ -1138,7 +1139,7 @@
        call init_err_refcodes()
        if (Na <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Number of atom no defined"
+          ERR_RefCodes_Mess="Number of atom no defined"
           return
        end if
 
@@ -1152,7 +1153,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case ( 1:3)
@@ -1194,7 +1195,7 @@
 
                       case (13:)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined for this type of variable "
+                         ERR_RefCodes_Mess="Option not defined for this type of variable "
                          return
                    end select ! nb
 
@@ -1255,7 +1256,7 @@
 
                 case (6:)
                    err_refcodes=.true.
-                   err_mess_refcodes="Incompatible information for this type of variable "
+                   ERR_RefCodes_Mess="Incompatible information for this type of variable "
                    return
              end select
 
@@ -1269,7 +1270,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case ( 1:3)
@@ -1363,7 +1364,7 @@
 
                       case (13:)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined by this type of variables"
+                         ERR_RefCodes_Mess="Option Not defined by this type of variables"
                          return
 
                    end select ! nb
@@ -1505,7 +1506,7 @@
 
                 case(6:)
                    err_refcodes=.true.
-                   err_mess_refcodes="Option Not defined by this type of variables"
+                   ERR_RefCodes_Mess="Option Not defined by this type of variables"
                    return
              end select
        end select
@@ -1551,7 +1552,7 @@
        call init_err_refcodes()
        if (Na <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Number of atom no defined"
+          ERR_RefCodes_Mess="Number of atom no defined"
           return
        end if
 
@@ -1565,7 +1566,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case ( 1:3)
@@ -1640,7 +1641,7 @@
                             end if
                          else
                             err_refcodes=.true.
-                            err_mess_refcodes="Option Not defined"
+                            ERR_RefCodes_Mess="Option Not defined"
                             return
                          end if
 
@@ -1655,7 +1656,7 @@
                             end do
                          else
                             err_refcodes=.true.
-                            err_mess_refcodes="Option Not defined"
+                            ERR_RefCodes_Mess="Option Not defined"
                             return
                          end if
 
@@ -1664,7 +1665,7 @@
                          select case (nmol)
                             case (-1)
                                err_refcodes=.true.
-                               err_mess_refcodes="Option Not defined"
+                               ERR_RefCodes_Mess="Option Not defined"
                                return
 
                             case (0)
@@ -1687,7 +1688,7 @@
                          select case (nmol)
                             case (-1)
                                err_refcodes=.true.
-                               err_mess_refcodes="Option Not defined"
+                               ERR_RefCodes_Mess="Option Not defined"
                                return
 
                             case (0)
@@ -1788,7 +1789,7 @@
                       end do
                    else
                       err_refcodes=.true.
-                      err_mess_refcodes="Option Not defined"
+                      ERR_RefCodes_Mess="Option Not defined"
                       return
                    end if
 
@@ -1867,7 +1868,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -1910,7 +1911,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -1937,7 +1938,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -1973,7 +1974,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case ( 1:3)
@@ -2121,7 +2122,7 @@
                             end if
                          else
                             err_refcodes=.true.
-                            err_mess_refcodes="Option Not defined"
+                            ERR_RefCodes_Mess="Option Not defined"
                             return
                          end if
 
@@ -2148,7 +2149,7 @@
                             end do
                          else
                             err_refcodes=.true.
-                            err_mess_refcodes="Option Not defined"
+                            ERR_RefCodes_Mess="Option Not defined"
                             return
                          end if
 
@@ -2157,7 +2158,7 @@
                          select case (nmol)
                             case (-1)
                                err_refcodes=.true.
-                               err_mess_refcodes="Option Not defined"
+                               ERR_RefCodes_Mess="Option Not defined"
                                return
 
                             case (0)
@@ -2200,7 +2201,7 @@
                          select case (nmol)
                             case (-1)
                                err_refcodes=.true.
-                               err_mess_refcodes="Option Not defined"
+                               ERR_RefCodes_Mess="Option Not defined"
                                return
 
                             case (0)
@@ -2394,7 +2395,7 @@
                       end do
                    else
                       err_refcodes=.true.
-                      err_mess_refcodes="Option Not defined"
+                      ERR_RefCodes_Mess="Option Not defined"
                       return
                    end if
 
@@ -2547,7 +2548,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -2592,7 +2593,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -2639,7 +2640,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -2686,7 +2687,7 @@
                    select case (nmol)
                       case (-1)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option Not defined"
+                         ERR_RefCodes_Mess="Option Not defined"
                          return
 
                       case (0)
@@ -2774,7 +2775,7 @@
        call init_err_refcodes()
        if (Na <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Number of atom no defined"
+          ERR_RefCodes_Mess="Number of atom no defined"
           return
        end if
 
@@ -2789,7 +2790,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case ( 1:3)
@@ -2816,7 +2817,7 @@
                       case ( 6:12)
                          !---- B11_, ..., B23_ ----!
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case (13:15)
@@ -2864,7 +2865,7 @@
                 case (4)
                    !---- BAN ----!
                    err_refcodes=.true.
-                   err_mess_refcodes="Option not defined"
+                   ERR_RefCodes_Mess="Option not defined"
                    return
 
                 case (5)
@@ -2930,7 +2931,7 @@
                    select case (nb)
                       case (0)
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case ( 1:3)
@@ -2987,7 +2988,7 @@
                       case ( 6:12)
                          !---- B11_, ..., B23_ ----!
                          err_refcodes=.true.
-                         err_mess_refcodes="Option not defined"
+                         ERR_RefCodes_Mess="Option not defined"
                          return
 
                       case (13:15)
@@ -3081,7 +3082,7 @@
                 case (4)
                    !---- BAN ----!
                    err_refcodes=.true.
-                   err_mess_refcodes="Option not defined"
+                   ERR_RefCodes_Mess="Option not defined"
                    return
 
                 case (5)
@@ -3609,7 +3610,7 @@
        call getword(line,label,ic)
        if (ic < 2) then
           err_refcodes=.true.
-          err_mess_refcodes="EQUAL keyword needs two labels: "//trim(line)
+          ERR_RefCodes_Mess="EQUAL keyword needs two labels: "//trim(line)
           return
        end if
 
@@ -3622,7 +3623,7 @@
        npos=index(label(1),"_")
        if (npos ==0) then
           err_refcodes=.true.
-          err_mess_refcodes="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
+          ERR_RefCodes_Mess="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
           return
        end if
 
@@ -3635,7 +3636,7 @@
        end do
        if (na == 0) then
           err_refcodes=.true.
-          err_mess_refcodes=" Atom label not found for "//trim(line)
+          ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
           return
        end if
 
@@ -3648,7 +3649,7 @@
        end do
        if (nb == 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Code-name not found for parameter name: "//trim(label(1))
+          ERR_RefCodes_Mess="Code-name not found for parameter name: "//trim(label(1))
           return
        end if
 
@@ -3669,14 +3670,14 @@
              fac_0=FAtom%atom(na)%mu(1)
           case (13:)
              err_refcodes=.true.
-             err_mess_refcodes="Incompatible Code-name for parameter name: "//trim(label(1))
+             ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
              return
        end select ! nb
 
        if (nb < ncode) then
           if (nl == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="No refinable parameter was selected for "//trim(label(1))
+             ERR_RefCodes_Mess="No refinable parameter was selected for "//trim(label(1))
              return
           end if
        end if
@@ -3690,7 +3691,7 @@
           npos=index(label(n),"_")
           if (npos ==0) then
              err_refcodes=.true.
-             err_mess_refcodes="No CrysFML code-name was found for "//trim(label(n))
+             ERR_RefCodes_Mess="No CrysFML code-name was found for "//trim(label(n))
              return
           end if
 
@@ -3703,7 +3704,7 @@
           end do
           if (nc == 0) then
              err_refcodes=.true.
-             err_mess_refcodes=" Atom label not found for "//trim(label(n))
+             ERR_RefCodes_Mess=" Atom label not found for "//trim(label(n))
              return
           end if
 
@@ -3716,7 +3717,7 @@
           end do
           if (nd == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="Code-name not found for "//trim(label(n))
+             ERR_RefCodes_Mess="Code-name not found for "//trim(label(n))
              return
           end if
 
@@ -3761,7 +3762,7 @@
                 np_cons=np_cons+5
              case (13:)
                 err_refcodes=.true.
-                err_mess_refcodes="Incompatible Code-name for parameter name: "//trim(label(1))
+                ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
                 return
           end select ! nb
 
@@ -3802,7 +3803,7 @@
        call getword(line,label,ic)
        if (ic < 2) then
           err_refcodes=.true.
-          err_mess_refcodes="EQUAL keyword needs two labels: "//trim(line)
+          ERR_RefCodes_Mess="EQUAL keyword needs two labels: "//trim(line)
           return
        end if
 
@@ -3814,7 +3815,7 @@
        npos=index(label(1),"_")
        if (npos ==0) then
           err_refcodes=.true.
-          err_mess_refcodes="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
+          ERR_RefCodes_Mess="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
           return
        end if
        nposm=index(u_case(label(1)),"MOL")
@@ -3860,14 +3861,14 @@
        end do
        if (nb == 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Code-name not found for parameter name: "//trim(label(1))
+          ERR_RefCodes_Mess="Code-name not found for parameter name: "//trim(label(1))
           return
        end if
 
        !---- Checking ----!
        if (nb <= 12 .and. na==0) then
           err_refcodes=.true.
-          err_mess_refcodes="Incompatible option for parameter name: "//trim(label(1))
+          ERR_RefCodes_Mess="Incompatible option for parameter name: "//trim(label(1))
           return
        end if
 
@@ -3931,7 +3932,7 @@
                    nl=molcrys%atm(na)%lu(nb-5)
              else
                 err_refcodes=.true.
-                err_mess_refcodes="Option no valid"
+                ERR_RefCodes_Mess="Option no valid"
                 return
              end if
 
@@ -3941,7 +3942,7 @@
                 fac_0=molcrys%atm(na)%mu(1)
              else
                 err_refcodes=.true.
-                err_mess_refcodes="Option no valid"
+                ERR_RefCodes_Mess="Option no valid"
                 return
              end if
 
@@ -3950,7 +3951,7 @@
              select case (nmol1)
                 case (-1)
                    err_refcodes=.true.
-                   err_mess_refcodes="Option no valid"
+                   ERR_RefCodes_Mess="Option no valid"
                    return
 
                 case (0)
@@ -3967,7 +3968,7 @@
              select case (nmol1)
                 case (-1)
                    err_refcodes=.true.
-                   err_mess_refcodes="Option no valid"
+                   ERR_RefCodes_Mess="Option no valid"
                    return
 
                 case (0)
@@ -3986,7 +3987,7 @@
        if (nb < ncode) then
           if (nl == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="No refinable parameter was selected for "//trim(label(1))
+             ERR_RefCodes_Mess="No refinable parameter was selected for "//trim(label(1))
              return
           end if
        end if
@@ -4000,7 +4001,7 @@
           npos=index(label(n),"_")
           if (npos ==0) then
              err_refcodes=.true.
-             err_mess_refcodes="No CrysFML code-name was found for "//trim(label(n))
+             ERR_RefCodes_Mess="No CrysFML code-name was found for "//trim(label(n))
              return
           end if
           nposm=index(u_case(label(n)),"MOL")
@@ -4046,14 +4047,14 @@
           end do
           if (nd == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="Code-name not found for "//trim(label(n))
+             ERR_RefCodes_Mess="Code-name not found for "//trim(label(n))
              return
           end if
 
           !---- Checking ----!
           if (nd <= 12 .and. nc==0) then
              err_refcodes=.true.
-             err_mess_refcodes="Incompatible option for parameter name: "//trim(label(n))
+             ERR_RefCodes_Mess="Incompatible option for parameter name: "//trim(label(n))
              return
           end if
 
@@ -4140,7 +4141,7 @@
                    molcrys%atm(nc)%lu(nd-5)=nl
                 else
                    err_refcodes=.true.
-                   err_mess_refcodes="Option no valid"
+                   ERR_RefCodes_Mess="Option no valid"
                    return
                 end if
 
@@ -4156,7 +4157,7 @@
                    np_cons=np_cons+5
                 else
                    err_refcodes=.true.
-                   err_mess_refcodes="Option no valid"
+                   ERR_RefCodes_Mess="Option no valid"
                    return
                 end if
 
@@ -4164,7 +4165,7 @@
                 select case (nmol2)
                    case (-1)
                       err_refcodes=.true.
-                      err_mess_refcodes="Option no valid"
+                      ERR_RefCodes_Mess="Option no valid"
                       return
 
                    case (0)
@@ -4187,7 +4188,7 @@
                 select case (nmol2)
                    case (-1)
                       err_refcodes=.true.
-                      err_mess_refcodes="Option no valid"
+                      ERR_RefCodes_Mess="Option no valid"
                       return
 
                    case (0)
@@ -4245,7 +4246,7 @@
        call getword(line,label,ic)
        if (ic < 2) then
           err_refcodes=.true.
-          err_mess_refcodes="EQUAL keyword needs two labels: "//trim(line)
+          ERR_RefCodes_Mess="EQUAL keyword needs two labels: "//trim(line)
           return
        end if
 
@@ -4257,7 +4258,7 @@
        npos=index(label(1),"_")
        if (npos ==0) then
           err_refcodes=.true.
-          err_mess_refcodes="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
+          ERR_RefCodes_Mess="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
           return
        end if
 
@@ -4278,14 +4279,14 @@
        end do
        if (nb == 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Code-name not found for parameter name: "//trim(label(1))
+          ERR_RefCodes_Mess="Code-name not found for parameter name: "//trim(label(1))
           return
        end if
 
        !---- Checking ----!
        if (nb < 6 .and. na == 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Incompatible relation: "//trim(label(1))
+          ERR_RefCodes_Mess="Incompatible relation: "//trim(label(1))
           return
        end if
 
@@ -4306,7 +4307,7 @@
           case ( 6:12)
              !---- Anisotropic Parameters ----!
              err_refcodes=.true.
-             err_mess_refcodes="Incompatible Code-name for parameter name: "//trim(label(1))
+             ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
              return
           case (13:15)
              !---- Xc_, Yc_, Zc_ ----!
@@ -4323,7 +4324,7 @@
        if (nb < ncode) then
           if (nl == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="No refinable parameter was selected for "//trim(label(1))
+             ERR_RefCodes_Mess="No refinable parameter was selected for "//trim(label(1))
              return
           end if
        end if
@@ -4337,7 +4338,7 @@
           npos=index(label(n),"_")
           if (npos ==0) then
              err_refcodes=.true.
-             err_mess_refcodes="No CrysFML code-name was found for "//trim(label(n))
+             ERR_RefCodes_Mess="No CrysFML code-name was found for "//trim(label(n))
              return
           end if
 
@@ -4358,7 +4359,7 @@
           end do
           if (nd == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="Code-name not found for "//trim(label(n))
+             ERR_RefCodes_Mess="Code-name not found for "//trim(label(n))
              return
           end if
 
@@ -4374,7 +4375,7 @@
           !---- Checking ----!
           if (nd < 6 .and. nc == 0) then
              err_refcodes=.true.
-             err_mess_refcodes="Incompatible relation: "//trim(label(n))
+             ERR_RefCodes_Mess="Incompatible relation: "//trim(label(n))
              return
           end if
 
@@ -4399,7 +4400,7 @@
                 molec%locc(nc)=nl
              case ( 6:12)
                 err_refcodes=.true.
-                err_mess_refcodes="Incompatible Code-name for "//trim(label(n))
+                ERR_RefCodes_Mess="Incompatible Code-name for "//trim(label(n))
                 return
              case (13:15)
                 !---- Xc_, Yc_, Zc_ ----!
@@ -4522,7 +4523,7 @@
 
                 case default
                    err_refcodes=.true.
-                   err_mess_refcodes="Only numbers in "//trim(line)
+                   ERR_RefCodes_Mess="Only numbers in "//trim(line)
                    return
              end select
 
@@ -4560,7 +4561,7 @@
                    end do
                    if (nb == 0) then
                       err_refcodes=.true.
-                      err_mess_refcodes="Code-name not found for "//trim(label(n_ini))
+                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
                       return
                    end if
                 end if
@@ -4573,7 +4574,7 @@
                 end do
                 if (na == 0) then
                    err_refcodes=.true.
-                   err_mess_refcodes=" Atom label not found for "//trim(line)
+                   ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
                    return
                 end if
 
@@ -4719,7 +4720,7 @@
 
                 case default
                    err_refcodes=.true.
-                   err_mess_refcodes="Only numbers in "//trim(line)
+                   ERR_RefCodes_Mess="Only numbers in "//trim(line)
                    return
              end select
 
@@ -4785,7 +4786,7 @@
                    end do
                    if (nb == 0) then
                       err_refcodes=.true.
-                      err_mess_refcodes="Code-name not found for "//trim(label(n_ini))
+                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
                       return
                    end if
                 end if
@@ -4830,7 +4831,7 @@
                 end select
                 if (na == 0) then
                    err_refcodes=.true.
-                   err_mess_refcodes=" Atom label not found for "//trim(line)
+                   ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
                    return
                 end if
 
@@ -4949,7 +4950,7 @@
 
                 case default
                    err_refcodes=.true.
-                   err_mess_refcodes="Only numbers in "//trim(line)
+                   ERR_RefCodes_Mess="Only numbers in "//trim(line)
                    return
              end select
 
@@ -4987,7 +4988,7 @@
                    end do
                    if (nb == 0) then
                       err_refcodes=.true.
-                      err_mess_refcodes="Code-name not found for "//trim(label(n_ini))
+                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
                       return
                    end if
                 end if
@@ -5000,7 +5001,7 @@
                 end do
                 if (na == 0) then
                    err_refcodes=.true.
-                   err_mess_refcodes=" Atom label not found for "//trim(line)
+                   ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
                    return
                 end if
 
@@ -5077,7 +5078,7 @@
        call getnum(dire(1),vet,ivet,iv)
        if (iv /= 1) then
           err_refcodes=.true.
-          err_mess_refcodes="Error in AFIX line: "//trim(line)
+          ERR_RefCodes_Mess="Error in AFIX line: "//trim(line)
           return
        end if
        ang=vet(1)
@@ -5100,7 +5101,7 @@
           npos=index(dire(i),"_")
           if (npos /=0) then
              err_refcodes=.true.
-             err_mess_refcodes=" The first atom in AFIX command must belong to the asymmetric unit: "//trim(Line)
+             ERR_RefCodes_Mess=" The first atom in AFIX command must belong to the asymmetric unit: "//trim(Line)
              return
           end if
           npos=index(dire(i+1),"_")
@@ -5128,7 +5129,7 @@
           end do
           if (any(ivet == 0)) then
              err_refcodes=.true.
-             err_mess_refcodes="  Some atom names in "//trim(line)//" not found in the asymmetric unit"
+             ERR_RefCodes_Mess="  Some atom names in "//trim(line)//" not found in the asymmetric unit"
              return
           end if
 
@@ -5139,7 +5140,7 @@
        end do
        if (nr <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Illegal AFIX command  "//trim(line)
+          ERR_RefCodes_Mess="Illegal AFIX command  "//trim(line)
           return
        end if
 
@@ -5197,7 +5198,7 @@
        call getnum(dire(1),vet,ivet,iv)
        if (iv /= 1) then
           err_refcodes=.true.
-          err_mess_refcodes="Error in DFIX line: "//trim(line)
+          ERR_RefCodes_Mess="Error in DFIX line: "//trim(line)
           return
        end if
        dis=vet(1)
@@ -5220,7 +5221,7 @@
           npos=index(dire(i),"_")
           if (npos /=0) then
              err_refcodes=.true.
-             err_mess_refcodes=" The first atom in DFIX command must belong to the asymmetric unit: "//trim(Line)
+             ERR_RefCodes_Mess=" The first atom in DFIX command must belong to the asymmetric unit: "//trim(Line)
              return
           end if
           npos=index(dire(i+1),"_")
@@ -5240,7 +5241,7 @@
           end do
           if (any(ivet == 0)) then
              err_refcodes=.true.
-             err_mess_refcodes="  Some atom names in"//trim(line)//" not found in the asymmetric unit"
+             ERR_RefCodes_Mess="  Some atom names in"//trim(line)//" not found in the asymmetric unit"
              return
           end if
 
@@ -5251,7 +5252,7 @@
        end do
        if (nr <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Illegal DFIX command  "//trim(line)
+          ERR_RefCodes_Mess="Illegal DFIX command  "//trim(line)
           return
        end if
 
@@ -5306,7 +5307,7 @@
        call getnum(dire(1),vet,ivet,iv)
        if (iv /= 1) then
           err_refcodes=.true.
-          err_mess_refcodes="Error in TFIX line: "//trim(line)
+          ERR_RefCodes_Mess="Error in TFIX line: "//trim(line)
           return
        end if
        tor=vet(1)
@@ -5329,7 +5330,7 @@
           npos=index(dire(i),"_")
           if (npos /=0) then
              err_refcodes=.true.
-             err_mess_refcodes=" The first atom in TFIX must belong to the asymmetric unit: "//trim(Line)
+             ERR_RefCodes_Mess=" The first atom in TFIX must belong to the asymmetric unit: "//trim(Line)
              return
           end if
           npos=index(dire(i+1),"_")
@@ -5364,7 +5365,7 @@
           end do
           if (any(ivet == 0)) then
              err_refcodes=.true.
-             err_mess_refcodes="  Some atom names in"//trim(line)//" not found in the asymmetric unit"
+             ERR_RefCodes_Mess="  Some atom names in"//trim(line)//" not found in the asymmetric unit"
              return
           end if
 
@@ -5375,7 +5376,7 @@
        end do
        if (nr <= 0) then
           err_refcodes=.true.
-          err_mess_refcodes="Illegal TFIX command  "//trim(line)
+          ERR_RefCodes_Mess="Illegal TFIX command  "//trim(line)
           return
        end if
 
@@ -5407,7 +5408,7 @@
     Subroutine Init_Err_RefCodes()
 
        err_refcodes=.false.
-       err_mess_refcodes=" "
+       ERR_RefCodes_Mess=" "
 
        return
     End Subroutine Init_Err_RefCodes
@@ -6127,7 +6128,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6144,7 +6145,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6160,7 +6161,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6177,7 +6178,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6224,7 +6225,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6241,7 +6242,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6257,7 +6258,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6274,7 +6275,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6295,7 +6296,7 @@
                 if (l == 0) cycle
                 if (l > np_refi) then
                    err_refcodes=.true.
-                   err_mess_refcodes="Number of Refinable parameters is wrong"
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                    return
                 end if
                 select case (car)
@@ -6312,7 +6313,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6328,7 +6329,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6345,7 +6346,7 @@
                 if (l == 0) cycle
                 if (l > np_refi) then
                    err_refcodes=.true.
-                   err_mess_refcodes="Number of Refinable parameters is wrong"
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                    return
                 end if
                 select case (car)
@@ -6363,7 +6364,7 @@
                 if (l == 0) cycle
                 if (l > np_refi) then
                    err_refcodes=.true.
-                   err_mess_refcodes="Number of Refinable parameters is wrong"
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                    return
                 end if
                 select case (car)
@@ -6381,7 +6382,7 @@
                 if (l == 0) cycle
                 if (l > np_refi) then
                    err_refcodes=.true.
-                   err_mess_refcodes="Number of Refinable parameters is wrong"
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                    return
                 end if
                 select case (car)
@@ -6399,7 +6400,7 @@
                 if (l == 0) cycle
                 if (l > np_refi) then
                    err_refcodes=.true.
-                   err_mess_refcodes="Number of Refinable parameters is wrong"
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                    return
                 end if
                 select case (car)
@@ -6418,7 +6419,7 @@
                    if (l == 0) cycle
                    if (l > np_refi) then
                       err_refcodes=.true.
-                      err_mess_refcodes="Number of Refinable parameters is wrong"
+                      ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                       return
                    end if
                    select case (car)
@@ -6466,7 +6467,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)
@@ -6483,7 +6484,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6499,7 +6500,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6517,7 +6518,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6535,7 +6536,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6553,7 +6554,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6571,7 +6572,7 @@
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
-             err_mess_refcodes="Number of Refinable parameters is wrong"
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
              return
           end if
           select case (car)
@@ -6590,7 +6591,7 @@
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
-                err_mess_refcodes="Number of Refinable parameters is wrong"
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
                 return
              end if
              select case (car)

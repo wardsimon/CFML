@@ -17,7 +17,7 @@
 !!----             November - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,         only: Sp
+!!--++    Use CFML_Constants,       only: Cp
 !!--++    Use CFML_String_Utilities, only: L_Case, U_Case
 !!----
 !!---- VARIABLES
@@ -63,7 +63,7 @@
 !!
  Module CFML_Scattering_Chemical_Tables
     !---- Use Modules ----!
-    Use CFML_Math_General,         only: Sp
+    Use CFML_Constants,       only: Cp
     Use CFML_String_Utilities, only: U_Case, L_Case
 
     implicit none
@@ -82,16 +82,16 @@
     !!--..
     !!---- Type, public :: Anomalous_Sc_Type
     !!----    character (len= 2)           :: Symb  ! Symbol of the Chemical species
-    !!----    real(kind=sp), dimension(5)  :: Fp    ! Delta Fp
-    !!----    real(kind=sp), dimension(5)  :: Fpp   ! Delta Fpp
+    !!----    real(kind=cp), dimension(5)  :: Fp    ! Delta Fp
+    !!----    real(kind=cp), dimension(5)  :: Fpp   ! Delta Fpp
     !!---- End Type Anomalous_Sc_Type
     !!----
     !!---- Update: February - 2005
     !!
     Type, public :: Anomalous_Sc_Type
-       character (len= 2)           :: Symb
-       real(kind=sp), dimension(5)  :: Fp
-       real(kind=sp), dimension(5)  :: Fpp
+       character(len= 2)           :: Symb
+       real(kind=cp), dimension(5)  :: Fp
+       real(kind=cp), dimension(5)  :: Fpp
     End Type Anomalous_Sc_Type
 
     !!----
@@ -117,15 +117,15 @@
     !!----    character (len= 2)         :: Symb     ! Symbol of the Element
     !!----    character (len=12)         :: Name     ! Name of the Element
     !!----    integer                    :: Z        ! Atomic Number
-    !!----    real(kind=sp)              :: AtWe     ! Atomic weight
-    !!----    real(kind=sp)              :: RCov     ! Covalent Radio
-    !!----    real(kind=sp)              :: RWaals   ! van der Waals Radio
-    !!----    real(kind=sp)              :: VAtm     ! Atomic volumen
+    !!----    real(kind=cp)              :: AtWe     ! Atomic weight
+    !!----    real(kind=cp)              :: RCov     ! Covalent Radio
+    !!----    real(kind=cp)              :: RWaals   ! van der Waals Radio
+    !!----    real(kind=cp)              :: VAtm     ! Atomic volumen
     !!----    integer, dimension(5)      :: Oxid     ! Oxidation State
-    !!----    real(kind=sp), dimension(5):: Rion     ! Ionic Radio (depending of the oxidation)
-    !!----    real(kind=sp)              :: SctF     ! Scattering length Fermi
-    !!----    real(kind=sp)              :: SedInc   ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
-    !!----    real(kind=sp)              :: Sea      ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+    !!----    real(kind=cp), dimension(5):: Rion     ! Ionic Radio (depending of the oxidation)
+    !!----    real(kind=cp)              :: SctF     ! Scattering length Fermi
+    !!----    real(kind=cp)              :: SedInc   ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
+    !!----    real(kind=cp)              :: Sea      ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
     !!---- End Type Chem_Info_Type
     !!----
     !!---- Update: February - 2005
@@ -134,15 +134,15 @@
        character (len= 2)         :: Symb          ! Symbol of the Element
        character (len=12)         :: Name          ! Name of the Element
        integer                    :: Z             ! Atomic Number
-       real(kind=sp)              :: AtWe          ! Atomic weight
-       real(kind=sp)              :: RCov          ! Covalent Radius
-       real(kind=sp)              :: RWaals        ! van der Waals Radius
-       real(kind=sp)              :: VAtm          ! Atomic volumen
+       real(kind=cp)              :: AtWe          ! Atomic weight
+       real(kind=cp)              :: RCov          ! Covalent Radius
+       real(kind=cp)              :: RWaals        ! van der Waals Radius
+       real(kind=cp)              :: VAtm          ! Atomic volumen
        integer, dimension(5)      :: Oxid          ! Oxidation State
-       real(kind=sp), dimension(5):: Rion          ! Ionic Radius (depending of the oxidation)
-       real(kind=sp)              :: SctF          ! Fermi length [10**(-12) cm]
-       real(kind=sp)              :: SedInc        ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
-       real(kind=sp)              :: Sea           ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+       real(kind=cp), dimension(5):: Rion          ! Ionic Radius (depending of the oxidation)
+       real(kind=cp)              :: SctF          ! Fermi length [10**(-12) cm]
+       real(kind=cp)              :: SedInc        ! Incoherent Scattering Neutron cross-section (barns -> [10**(-24) cm**2] )
+       real(kind=cp)              :: Sea           ! Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
     End Type Chem_Info_Type
 
     !!----
@@ -160,14 +160,14 @@
     !!--..
     !!---- Type, public :: Magnetic_Form_Type
     !!----    character (len= 4)          :: Symb   ! Symbol of the Chemical species
-    !!----    real(kind=sp), dimension(7) :: SctM   ! Scattering Factors
+    !!----    real(kind=cp), dimension(7) :: SctM   ! Scattering Factors
     !!---- End Type Magnetic_Form_Type
     !!----
     !!---- Update: February - 2005
     !!
     Type, public :: Magnetic_Form_Type
        character (len= 4)         :: Symb         ! Symbol of the Chemical species
-       real(kind=sp), dimension(7):: SctM
+       real(kind=cp), dimension(7):: SctM
     End Type Magnetic_Form_Type
 
     !!----
@@ -286,9 +286,9 @@
     !!---- Type, public :: Xray_Form_Type
     !!----    character (len= 4)         :: Symb  ! Symbol of the Chemical species
     !!----    integer                    :: Z     ! Atomic Number
-    !!----    real(kind=sp), dimension(4):: a     ! Coefficients for calculating the X-ray scattering factors
-    !!----    real(kind=sp), dimension(4):: b     ! f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
-    !!----    real(kind=sp)              :: c     ! s=sinTheta/Lambda
+    !!----    real(kind=cp), dimension(4):: a     ! Coefficients for calculating the X-ray scattering factors
+    !!----    real(kind=cp), dimension(4):: b     ! f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
+    !!----    real(kind=cp)              :: c     ! s=sinTheta/Lambda
     !!---- End Type Xray_Form_Type
     !!----
     !!---- Update: February - 2005
@@ -296,9 +296,9 @@
     Type, public :: Xray_Form_Type
        character (len= 4)         :: Symb
        integer                    :: Z
-       real(kind=sp), dimension(4):: a
-       real(kind=sp), dimension(4):: b
-       real(kind=sp)              :: c
+       real(kind=cp), dimension(4):: a
+       real(kind=cp), dimension(4):: b
+       real(kind=cp)              :: c
     End Type Xray_Form_Type
 
     !!----
@@ -316,14 +316,14 @@
     !!--..
     !!---- Type, public :: Xray_Wavelength_Type
     !!----    character (len= 2)                :: Symb  ! Symbol of the Chemical species
-    !!----    real(kind=sp), dimension(2)       :: Kalfa ! K-Serie for X-ray
+    !!----    real(kind=cp), dimension(2)       :: Kalfa ! K-Serie for X-ray
     !!---- End Type Xray_Wavelength_Type
     !!----
     !!---- Update: February - 2005
     !!
     Type, public :: Xray_Wavelength_Type
        character (len= 2)         :: Symb
-       real(kind=sp), dimension(2):: Kalfa
+       real(kind=cp), dimension(2):: Kalfa
     End Type Xray_Wavelength_Type
 
     !!----
@@ -352,7 +352,7 @@
     !!----
     !!---- Subroutine Get_Atomic_Mass(Atm,Mass)
     !!----    character(len=2), intent(in)  :: Atm
-    !!----    real(kind=sp),    intent(out) :: Mass
+    !!----    real(kind=cp),    intent(out) :: Mass
     !!----
     !!----    Provides the atomic mass given the chemical symbol of the element
     !!----    In case of problems the returned mass is ZERO.
@@ -362,7 +362,7 @@
     Subroutine Get_Atomic_Mass(atm,mass)
        !---- Arguments ----!
        character(len=2), intent (in) :: atm
-       real(kind=sp),    intent(out) :: Mass
+       real(kind=cp),    intent(out) :: Mass
 
        !---- Local variables ----!
        character(len=2) :: atm_car
@@ -429,7 +429,7 @@
     !!----
     !!---- Subroutine Get_Covalent_Radius(nam,rad)
     !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=sp),    intent(out) :: rad
+    !!----    real(kind=cp),    intent(out) :: rad
     !!----
     !!----    Provides the covalent radius given the chemical symbol of the element
     !!----    In case of problems the returned radius is 1.4 angstroms.
@@ -439,11 +439,11 @@
     Subroutine Get_Covalent_Radius(nam,rad)
        !---- Arguments ----!
        character(len=*), intent (in) :: nam
-       real(kind=sp),    intent(out) :: rad
+       real(kind=cp),    intent(out) :: rad
 
        !---- Local variables ----!
        character(len=2) :: atm_car
-       integer :: i
+       integer          :: i
 
        rad=1.4
        atm_car=u_case(nam(1:2))
@@ -462,7 +462,7 @@
     !!----
     !!---- Subroutine Get_Fermi_Length(nam,b)
     !!----    character(len=*), intent (in) :: nam
-    !!----    real(kind=sp),    intent(out) :: b
+    !!----    real(kind=cp),    intent(out) :: b
     !!----
     !!----    Provides the Fermi length (in 10-12 cm) given the chemical
     !!----    symbol of the element. In case of problems the returned Fermi
@@ -473,11 +473,11 @@
     Subroutine Get_Fermi_Length(nam,b)
        !---- Arguments ----!
        character(len=*), intent (in) :: nam
-       real(kind=sp),    intent(out) :: b
+       real(kind=cp),    intent(out) :: b
 
        !---- Local variables ----!
        character(len=2) :: atm_car
-       integer :: i
+       integer          :: i
 
        b=0.0
        atm_car=u_case(nam(1:2))
@@ -497,7 +497,7 @@
     !!---- Subroutine Get_Ionic_Radius(nam,valence,rad)
     !!----    character(len=*), intent (in) :: nam
     !!----    integer,          intent (in) :: valence
-    !!----    real(kind=sp),    intent(out) :: rad
+    !!----    real(kind=cp),    intent(out) :: rad
     !!----
     !!----    Provides the ionic radius given the chemical symbol of the element
     !!----    and the valence as an integer. In case of problems the returned radius is 0.0 angstroms.
@@ -508,11 +508,11 @@
        !---- Arguments ----!
        character(len=*), intent (in) :: nam
        integer,          intent (in) :: valence
-       real(kind=sp),    intent(out) :: rad
+       real(kind=cp),    intent(out) :: rad
 
        !---- Local variables ----!
        character(len=2) :: atm_car
-       integer :: i,j
+       integer          :: i,j
 
        rad=0.0
        atm_car=u_case(nam(1:2))

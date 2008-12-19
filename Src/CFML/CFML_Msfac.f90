@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Magnetic_Structure_Factors
@@ -10,15 +10,16 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++     Use CFML_Math_General,                    only: sp, tpi, atan2d, sort
+!!--++     Use CFML_Constants,                  only: sp, tpi
+!!--++     Use CFML_Math_General,                only: atan2d, sort
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
 !!--++     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
-!!--++                                            Magnetic_Form
-!!--++     Use CFML_Crystal_Metrics,               only: Crystal_Cell_type
+!!--++                                                 Magnetic_Form
+!!--++     Use CFML_Crystal_Metrics,             only: Crystal_Cell_type
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
 !!--++     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Magnetic_Domain_type
 !!--++     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-!!--++     Use CFML_Atom_TypeDef,                 only: Matom_list_type
+!!--++     Use CFML_Atom_TypeDef,                only: Matom_list_type
 !!--++     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 !!----
 !!---- VARIABLES
@@ -61,16 +62,17 @@
 !!
  Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use CFML_Math_General,                    only: sp, tpi, atan2d, sort
+    Use CFML_Constants,                  only: sp, tpi
+    Use CFML_Math_General,                only: atan2d, sort
     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
-                                           Magnetic_Form
-    Use CFML_Crystal_Metrics,               only: Crystal_Cell_type
+                                                Magnetic_Form
+    Use CFML_Crystal_Metrics,             only: Crystal_Cell_type
     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Write_Magnetic_Structure, &
-                                           Magnetic_Domain_type
+                                                Magnetic_Domain_type
     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
-    Use CFML_Atom_TypeDef,                 only: Matom_list_type, Allocate_mAtom_list
+    Use CFML_Atom_TypeDef,                only: Matom_list_type, Allocate_mAtom_list
     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 
     !---- Variables ----!

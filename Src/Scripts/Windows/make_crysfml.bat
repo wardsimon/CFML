@@ -1,6 +1,6 @@
 @echo off
 rem
-rem ---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 3.00 ----
+rem ---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 4.00 ----
 rem
    if not x%1 == x goto CONT
 rem
@@ -17,9 +17,9 @@ rem
 :CONT
    echo **-------------------------------------------------------**
    echo **----                                               ----**
-   echo **---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 3.00 ----**
+   echo **---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 4.00 ----**
    echo **----                                               ----**
-   echo **---- Authors: JRC-JGP                   (1999-2008)----**
+   echo **---- Authors: JRC-JGP                   (1999-2009)----**
    echo **-------------------------------------------------------**
 rem
 rem Compiler Version

@@ -1,6 +1,6 @@
 @echo off
 rem
-rem ---- CRYSFGL LIBRARY 3.00 ----
+rem ---- CRYSFGL LIBRARY 4.00 ----
 rem
    if not x%1 == x goto CONT
 rem 
@@ -16,9 +16,9 @@ rem
 :CONT
    echo **--------------------------------------------------------**
    echo **----                                                ----**
-   echo **---- CRYSTALLOGRAPHIC FORTRAN GRAPHICS LIBRARY 3.00 ----**
+   echo **---- CRYSTALLOGRAPHIC FORTRAN GRAPHICS LIBRARY 4.00 ----**
    echo **----                                                ----**
-   echo **---- Authors: JRC-LC                     (1999-2008)----**
+   echo **---- Authors: JRC-LC                     (1999-2009)----**
    echo **----                                                ----**
    echo **--------------------------------------------------------**
 rem

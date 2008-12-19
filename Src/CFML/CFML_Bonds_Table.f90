@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE:CFML_Bond_Tables
@@ -17,13 +17,14 @@
 !!----            June - 2004 Created by JGP
 !!----
 !!---- DEPENDENCIES
-!!----    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
+!!--++    CFML_Constants, only: cp
+!!--++    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 !!----
 !!----
 !!---- VARIABLES
 !!----    BONDS_LENGTH_TABLE
 !!----    ERR_BOND
-!!----    ERR_MESS_BOND
+!!----    ERR_BOND_MESS
 !!--++    SET_BT_VARIABLE
 !!----
 !!---- PROCEDURES
@@ -39,6 +40,7 @@
 !!
  Module CFML_Bond_Tables
     !---- Use Modules ----!
+    Use CFML_Constants,                 only: Cp
     Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
     !---- Variables ----!
@@ -62,7 +64,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real, public, allocatable, dimension(:,:,:) :: Bond_Length_Table
+    real(kind=cp), public, allocatable, dimension(:,:,:) :: Bond_Length_Table
 
     !----
     !!---- ERR_BOND
@@ -72,17 +74,17 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public :: err_bond
+    logical, public :: ERR_Bond
 
     !!----
-    !!---- ERR_MESS_BOND
-    !!----    character(len=150) :: err_mess_bond
+    !!---- ERR_BOND_MESS
+    !!----    character(len=150) :: ERR_Bond_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_bond
+    character(len=150), public :: ERR_Bond_Mess
 
     !!----
     !!---- Set_BT_Variable
@@ -123,9 +125,9 @@
     !!
     Subroutine Get_Bonds_Table_Symbol(Symbol1,Symbol2,Bonds)
        !---- Arguments ----!
-       character(len=*),  intent(in)  :: Symbol1
-       character(len=*),  intent(in)  :: Symbol2
-       real,dimension(3), intent(out) :: Bonds
+       character(len=*),           intent(in)  :: Symbol1
+       character(len=*),           intent(in)  :: Symbol2
+       real(kind=cp),dimension(3), intent(out) :: Bonds
 
        !---- Local Variables ----!
        character(len=2)               :: Symb1,Symb2
@@ -150,9 +152,9 @@
     !!
     Subroutine Get_Bonds_Table_Z(Z1,Z2,Bonds)
        !---- Arguments ----!
-       integer,  intent(in)  :: Z1
-       integer,  intent(in)  :: Z2
-       real,dimension(3), intent(out) :: Bonds
+       integer,                    intent(in)  :: Z1
+       integer,                    intent(in)  :: Z2
+       real(kind=cp),dimension(3), intent(out) :: Bonds
 
        Bonds=-1.0
        if (z1 <= 0 .or. z1 > 103) return
@@ -168,14 +170,14 @@
     !!---- Subroutine Init_Err_Bond()
     !!----
     !!----    Initializes general error variables for this module as:
-    !!----    ERR_BOND=.false. ;  ERR_MESS_BOND=" "
+    !!----    ERR_BOND=.false. ;  ERR_Bond_Mess=" "
     !!----
     !!---- Update: February - 2005
     !!
     Subroutine Init_Err_BOND()
 
-       err_bond=.false.
-       err_mess_bond=" "
+       ERR_Bond=.false.
+       ERR_Bond_Mess=" "
 
        return
     End Subroutine Init_Err_Bond

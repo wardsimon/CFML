@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Reflections_Utilities
@@ -14,14 +14,14 @@
 !!---- DEPENDENCIES
 !!----
 !!--++    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
-!!--++    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
+!!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!--++    Use CFML_String_Utilities,          only: l_case
-!!--++    Use CFML_Math_General,                  only: sort,sp
+!!--++    Use CFML_Math_General,              only: sort,sp
+!!--++    Use CFML_Constants,                only: sp
 !!----
 !!---- VARIABLES
-!!--++    EPS                      [Private]
 !!----    ERR_REFL
-!!----    ERR_MESS_REFL
+!!----    ERR_REFL_MESS
 !!--++    HKL_REF_COND_INI         [Private]
 !!----    HKL_REF_COND
 !!----    REFLECT_TYPE
@@ -92,11 +92,11 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    !Use Mod_fun    !To be commented for non-F compilers
-    Use CFML_Math_General,                  only: sp, pi, sort
+    Use CFML_Constants,                only: sp, cp, pi, eps  !Init Eps was 0.0001
+    Use CFML_Math_General,              only: sort
     Use CFML_String_Utilities,          only: l_case
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
-    Use CFML_Crystal_Metrics,             only: Crystal_Cell_Type
+    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 
     !---- Variables ----!
     implicit none
@@ -132,17 +132,6 @@
 
     !---- Local Variables ----!
 
-    !!--++
-    !!--++ EPS
-    !!--++    real(kind=sp), private, parameter :: eps
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Eps parameter
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=sp), private, parameter :: eps = 0.0001
-
     !!----
     !!---- ERR_REFL
     !!----    logical, public :: err_refl
@@ -151,17 +140,17 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public :: err_refl
+    logical, public :: ERR_Refl
 
     !!----
-    !!---- ERR_MESS_REFL
-    !!----    character(len=150), public :: err_mess_refl
+    !!---- ERR_REFL_MESS
+    !!----    character(len=150), public :: ERR_Refl_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: err_mess_refl
+    character(len=150), public :: ERR_Refl_Mess
 
     !!--++
     !!--++ HKL_REF_COND_INI
@@ -280,7 +269,7 @@
     !!---- Type, public :: Reflect_Type
     !!----    integer,dimension(3) :: H    ! H
     !!----    integer              :: Mult ! mutiplicity
-    !!----    real(kind=sp)        :: S    ! Sin(Theta)/lambda
+    !!----    real(kind=cp)        :: S    ! Sin(Theta)/lambda
     !!---- End Type Reflect_Type
     !!----
     !!---- Update: February - 2005
@@ -288,7 +277,7 @@
     Type, public :: Reflect_Type
        integer,dimension(3) :: H     ! H
        integer              :: Mult  ! mutiplicity
-       real(kind=sp)        :: S     ! Sin(Theta)/lambda=1/2d
+       real(kind=cp)        :: S     ! Sin(Theta)/lambda=1/2d
     End Type Reflect_Type
 
     !!----
@@ -297,16 +286,16 @@
     !!---- Type, public :: Reflection_Type
     !!----    integer,dimension(3) :: H    ! H
     !!----    integer              :: Mult ! mutiplicity
-    !!----    real(kind=sp)        :: Fo   ! Observed Structure Factor
-    !!----    real(kind=sp)        :: Fc   ! Calculated Structure Factor
-    !!----    real(kind=sp)        :: SFo  ! Sigma of  Fo
-    !!----    real(kind=sp)        :: S    ! Sin(Theta)/lambda
-    !!----    real(kind=sp)        :: W    ! Weight
-    !!----    real(kind=sp)        :: Phase! Phase in degrees
-    !!----    real(kind=sp)        :: A    ! real part of the Structure Factor
-    !!----    real(kind=sp)        :: B    ! Imaginary part of the Structure Factor
-    !!----    real(kind=sp)        :: AA   ! Free
-    !!----    real(kind=sp)        :: BB   ! Free
+    !!----    real(kind=cp)        :: Fo   ! Observed Structure Factor
+    !!----    real(kind=cp)        :: Fc   ! Calculated Structure Factor
+    !!----    real(kind=cp)        :: SFo  ! Sigma of  Fo
+    !!----    real(kind=cp)        :: S    ! Sin(Theta)/lambda
+    !!----    real(kind=cp)        :: W    ! Weight
+    !!----    real(kind=cp)        :: Phase! Phase in degrees
+    !!----    real(kind=cp)        :: A    ! real part of the Structure Factor
+    !!----    real(kind=cp)        :: B    ! Imaginary part of the Structure Factor
+    !!----    real(kind=cp)        :: AA   ! Free
+    !!----    real(kind=cp)        :: BB   ! Free
     !!---- End Type Reflection_Type
     !!----
     !!---- Update: February - 2005
@@ -314,16 +303,16 @@
     Type, public :: Reflection_Type
        integer,dimension(3) :: H     ! H
        integer              :: Mult  ! mutiplicity
-       real(kind=sp)        :: Fo    ! Observed Structure Factor
-       real(kind=sp)        :: Fc    ! Calculated Structure Factor
-       real(kind=sp)        :: SFo   ! Sigma of  Fo
-       real(kind=sp)        :: S     ! Sin(Theta)/lambda
-       real(kind=sp)        :: W     ! Weight
-       real(kind=sp)        :: Phase ! Phase in degrees
-       real(kind=sp)        :: A     ! real(kind=sp) part of the Structure Factor
-       real(kind=sp)        :: B     ! Imaginary part of the Structure Factor
-       real(kind=sp)        :: AA    ! Free
-       real(kind=sp)        :: BB    ! Free
+       real(kind=cp)        :: Fo    ! Observed Structure Factor
+       real(kind=cp)        :: Fc    ! Calculated Structure Factor
+       real(kind=cp)        :: SFo   ! Sigma of  Fo
+       real(kind=cp)        :: S     ! Sin(Theta)/lambda
+       real(kind=cp)        :: W     ! Weight
+       real(kind=cp)        :: Phase ! Phase in degrees
+       real(kind=cp)        :: A     ! real(kind=cp) part of the Structure Factor
+       real(kind=cp)        :: B     ! Imaginary part of the Structure Factor
+       real(kind=cp)        :: AA    ! Free
+       real(kind=cp)        :: BB    ! Free
     End Type Reflection_Type
 
     !!----
@@ -1133,9 +1122,9 @@
 
     !!----
     !!---- Function  Get_MaxNumRef(SinTLMax, VolCell, SinTLMin, Mult) result(numref)
-    !!----    real(kind=sp),           intent(in) :: SinTLMax !Maximum sinTheta/Lambda
-    !!----    real(kind=sp),           intent(in) :: VolCell  !Direct Cell Volume
-    !!----    real(kind=sp), optional, intent(in) :: SinTLMin !Minimum sinTheta/Lambda
+    !!----    real(kind=cp),           intent(in) :: SinTLMax !Maximum sinTheta/Lambda
+    !!----    real(kind=cp),           intent(in) :: VolCell  !Direct Cell Volume
+    !!----    real(kind=cp), optional, intent(in) :: SinTLMin !Minimum sinTheta/Lambda
     !!----    Integer,       optional, intent(in) :: Mult     !General Multiplicity
     !!----    Integer                             :: numref
     !!----
@@ -1150,14 +1139,14 @@
     !!
     Function Get_MaxNumRef(SinTLMax, VolCell, SinTLMin, Mult) Result(numref)
        !---- Arguments ----!
-       real(kind=sp),           intent(in) :: SinTLMax
-       real(kind=sp),           intent(in) :: VolCell
-       real(kind=sp), optional, intent(in) :: SinTLMin
+       real(kind=cp),           intent(in) :: SinTLMax
+       real(kind=cp),           intent(in) :: VolCell
+       real(kind=cp), optional, intent(in) :: SinTLMin
        integer,       optional, intent(in) :: Mult
        integer                             :: numref
 
        !---- Local Variables ----!
-       real(kind=sp)                      :: r3
+       real(kind=cp)                      :: r3
 
        r3=8.0*SinTLMax*SinTLMax*SinTLMax*1.05
 
@@ -1171,7 +1160,7 @@
 
     !!----
     !!---- Function  Hkl_Absen(H, Spacegroup)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
     !!----    type (Space_Group_Type),             intent(in) :: SpaceGroup
     !!----
     !!----    Returns the value ".true." if the reflection is absent.
@@ -1198,7 +1187,7 @@
        !---- Local Variables ----!
        integer, dimension(3)              :: k
        integer                            :: i
-       real(kind=sp)                      :: r1,r2
+       real(kind=cp)                      :: r1,r2
 
        info=.false.
 
@@ -1219,7 +1208,7 @@
 
     !!--++
     !!--++ Logical Function Hkl_AbsentR(H, Spacegroup)
-    !!--++    real(kind=sp), dimension(3), intent(in) :: h
+    !!--++    real(kind=cp), dimension(3), intent(in) :: h
     !!--++    Type (Space_Group_Type),     intent(in) :: SpaceGroup
     !!--++
     !!--++    (OVERLOADED)
@@ -1229,14 +1218,14 @@
     !!
     Function Hkl_AbsentR(H,Spacegroup) Result(Info)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent (in) :: h
+       real(kind=cp), dimension(3), intent (in) :: h
        Type (Space_Group_Type),     intent (in) :: SpaceGroup
        logical                                  :: info
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3)  :: k
-       integer                      :: i
-       real(kind=sp)                :: r1,r2
+       integer                      :: i  
+       real(kind=cp), dimension(3)  :: k  
+       real(kind=cp)                :: r1,r2
 
        info=.false.
        do i=1,SpaceGroup%multip
@@ -1256,8 +1245,8 @@
 
     !!----
     !!---- Logical Function  Hkl_Equal(H,K)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: k
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: k
     !!----
     !!----    Calculate if two reflections are equal
     !!----
@@ -1287,8 +1276,8 @@
 
     !!--++
     !!--++ Logical Function  Hkl_EqualR(H,K)
-    !!--++    real(kind=sp), dimension(3), intent(in) :: h
-    !!--++    real(kind=sp), dimension(3), intent(in) :: k
+    !!--++    real(kind=cp), dimension(3), intent(in) :: h
+    !!--++    real(kind=cp), dimension(3), intent(in) :: k
     !!--++
     !!--++    (OVERLOADED)
     !!--++    True if 2 reflections are equal
@@ -1297,7 +1286,7 @@
     !!
     Function Hkl_EqualR(H,K) Result (Info)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: h,k
+       real(kind=cp), dimension(3), intent(in) :: h,k
        logical                                 :: info
 
        info=.false.
@@ -1309,8 +1298,8 @@
 
     !!----
     !!---- Logical Function  Hkl_Equiv(H,K,Spacegroup,Friedel)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: k
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: k
     !!----    type (Space_Group_Type),             intent(in) :: SpaceGroup
     !!----    Logical, optional ,                  intent(in) :: Friedel
     !!----
@@ -1365,8 +1354,8 @@
 
     !!--++
     !!--++ Logical Function  Hkl_EquivR(H,K, Spacegroup,Friedel)
-    !!--++    real(kind=sp), dimension(3),      intent(in) :: h
-    !!--++    real(kind=sp), dimension(3),      intent(in) :: k
+    !!--++    real(kind=cp), dimension(3),      intent(in) :: h
+    !!--++    real(kind=cp), dimension(3),      intent(in) :: k
     !!--++    Type (Space_Group_Type),          intent(in) :: SpaceGroup
     !!--++    logical, optional,                intent(in) :: Friedel
     !!--++
@@ -1377,14 +1366,14 @@
     !!
     Function Hkl_EquivR(H,K,Spacegroup,Friedel) Result (Info)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in) :: h,k
+       real(kind=cp), dimension(3), intent(in) :: h,k
        Type (Space_Group_Type),     intent(in) :: SpaceGroup
        logical, optional,           intent(in) :: Friedel
        logical                                 :: info
 
        !---- Local Variables ----!
        integer                            :: i, nops
-       real(kind=sp), dimension(3)        :: hh
+       real(kind=cp), dimension(3)        :: hh
 
        info=.false.
        nops= SpaceGroup%numops*max(SpaceGroup%centred,1)
@@ -1409,7 +1398,7 @@
 
     !!----
     !!---- Function  Hkl_Mult(H, Spacegroup, Friedel)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
     !!----    type (Space_Group_Type),             intent(in) :: SpaceGroup
     !!----    Logical,                             intent(in) :: Friedel
     !!----
@@ -1466,7 +1455,7 @@
 
     !!--++
     !!--++ Function  Hkl_MultR(H, Spacegroup,Friedel)
-    !!--++    real(kind=sp), dimension(3),      intent(in) :: h
+    !!--++    real(kind=cp), dimension(3),      intent(in) :: h
     !!--++    Type (Space_Group_Type),          intent(in) :: SpaceGroup
     !!--++    Logical,                          intent(in) :: Friedel
     !!--++
@@ -1477,16 +1466,16 @@
     !!
     Function Hkl_MultR(H,Spacegroup,Friedel) Result(N)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent (in) :: h
+       real(kind=cp), dimension(3), intent (in) :: h
        Type (Space_Group_Type),     intent (in) :: SpaceGroup
        Logical,                     intent (in) :: Friedel
        integer                                  :: n
 
        !---- Local Variables ----!
        logical :: esta
-       real(kind=sp), dimension(3)   :: k
+       real(kind=cp), dimension(3)   :: k
        integer                       :: i,j,ng
-       real(kind=sp), dimension(3,SpaceGroup%numops):: klist
+       real(kind=cp), dimension(3,SpaceGroup%numops):: klist
 
        ng=SpaceGroup%numops
        n=1
@@ -1511,7 +1500,7 @@
 
     !!----
     !!---- Function  Hkl_R(H,Op)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
     !!----    type (Sym_Oper_Type),                intent(in) :: Op
     !!----
     !!----    Calculate the equivalent reflection
@@ -1541,7 +1530,7 @@
 
     !!--++
     !!--++ Function  Hr_R(H,Op)
-    !!--++    real(kind=sp),    dimension(3), intent(in) :: h
+    !!--++    real(kind=cp),    dimension(3), intent(in) :: h
     !!--++    type (Sym_Oper_Type),           intent(in) :: Op
     !!--++
     !!--++    (OVERLOADED)
@@ -1551,9 +1540,9 @@
     !!
     Function HR_R(H,Op) Result(K)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),  intent(in) :: h
+       real(kind=cp), dimension(3),  intent(in) :: h
        Type(Sym_Oper_Type),          intent(in) :: Op
-       real(kind=sp), dimension(3)              :: k
+       real(kind=cp), dimension(3)              :: k
 
        k = matmul(h,Op%Rot)
 
@@ -1562,7 +1551,7 @@
 
     !!----
     !!---- Function  Hkl_S(H, Crystalcell)
-    !!----    integer/real(kind=sp), dimension(3), intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3), intent(in) :: h
     !!----    type (Crystal_Cell_Type),            intent(in) :: CrystalCell
     !!--<<
     !!----    Calculates: sin_theta/lamda = 1/(2d)
@@ -1585,7 +1574,7 @@
        !---- Arguments ----!
        integer, dimension(3),    intent(in)  :: h
        type (Crystal_Cell_Type), intent (in) :: CrystalCell
-       real(kind=sp)                         :: s
+       real(kind=cp)                         :: s
 
        s= 0.5*sqrt( h(1)*h(1)*CrystalCell%GR(1,1) + h(2)*h(2)*CrystalCell%GR(2,2) + &
                     h(3)*h(3)*CrystalCell%GR(3,3) + 2.0*h(1)*h(2)*CrystalCell%GR(1,2) + &
@@ -1596,7 +1585,7 @@
 
     !!--++
     !!--++ Function  HS_R(H, Crystalcell)
-    !!--++    real(kind=sp), dimension(3),       intent(in) :: h
+    !!--++    real(kind=cp), dimension(3),       intent(in) :: h
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell
     !!--++
     !!--++    (OVERLOADED)
@@ -1606,9 +1595,9 @@
     !!
     Function HS_R (H,Crystalcell) Result(S)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),intent(in)  :: h
+       real(kind=cp), dimension(3),intent(in)  :: h
        type (Crystal_Cell_Type),   intent (in) :: CrystalCell
-       real(kind=sp)                           :: s
+       real(kind=cp)                           :: s
 
        s= 0.5*sqrt( h(1)*h(1)*CrystalCell%GR(1,1) + h(2)*h(2)*CrystalCell%GR(2,2) + &
                     h(3)*h(3)*CrystalCell%GR(3,3) + 2.0*h(1)*h(2)*CrystalCell%GR(1,2) + &
@@ -1620,7 +1609,7 @@
 
     !!----
     !!----  Function  Unit_Cart_Hkl(H, Crystalcell) Result (U)
-    !!----     integer/real(kind=sp), dimension(3), intent(in) :: h
+    !!----     integer/real(kind=cp), dimension(3), intent(in) :: h
     !!----     type (Crystal_Cell_Type),            intent(in) :: CrystalCell
     !!----
     !!----     Calculate a unitary vector in the cartesian crystal frame
@@ -1633,7 +1622,7 @@
     !!--++ Function Unit_Cart_Hkli(H, Crystalcell) Result (U)
     !!--++    integer, dimension(3),    intent(in) :: h
     !!--++    Type (Crystal_Cell_Type), intent(in) :: CrystalCell
-    !!--++    real(kind=sp),dimension(3)           :: u
+    !!--++    real(kind=cp),dimension(3)           :: u
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate a unitary vector in the cartesian crystal
@@ -1645,10 +1634,10 @@
        !---- Arguments ----!
        integer, dimension(3),    intent(in)  :: h
        type (Crystal_Cell_Type), intent (in) :: CrystalCell
-       real(kind=sp), dimension(3)           :: u
+       real(kind=cp), dimension(3)           :: u
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3)           :: v
+       real(kind=cp), dimension(3)           :: v
 
        v=matmul(CrystalCell%GR,real(h))     ![L-2]
        u=matmul(CrystalCell%Cr_Orth_cel,v)  ![L-1]
@@ -1660,9 +1649,9 @@
 
     !!--++
     !!--++ Function Unit_Cart_HklR(H, Crystalcell) Result (U)
-    !!--++    real(kind=sp), dimension(3),       intent(in) :: h
+    !!--++    real(kind=cp), dimension(3),       intent(in) :: h
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell
-    !!--++    real(kind=sp),dimension(3)                    :: u
+    !!--++    real(kind=cp),dimension(3)                    :: u
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate a unitary vector in the cartesian crystal
@@ -1672,12 +1661,12 @@
     !!
     Function Unit_Cart_HklR(H, Crystalcell) Result (U)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),intent(in)  :: h
+       real(kind=cp), dimension(3),intent(in)  :: h
        type (Crystal_Cell_Type),   intent (in) :: CrystalCell
-       real(kind=sp), dimension(3)             :: u
+       real(kind=cp), dimension(3)             :: u
 
        !---- Local Variables ----!
-       real(kind=sp), dimension(3)             :: v
+       real(kind=cp), dimension(3)             :: v
 
        v=matmul(CrystalCell%GR,h)
        u=matmul(CrystalCell%Cr_Orth_cel,v)
@@ -2500,11 +2489,11 @@
 
     !!----
     !!---- Subroutine Hkl_Equiv_List(H,Spacegroup,Friedel,Mul,Hlist)
-    !!----    integer/real(kind=sp), dimension(3),                    intent(in) :: h
+    !!----    integer/real(kind=cp), dimension(3),                    intent(in) :: h
     !!----    type (Space_Group_Type),                                intent(in) :: SpaceGroup
     !!----    logical,                                                intent(in) :: Friedel
     !!----    integer,                                                intent(out):: mul
-    !!----    integer/real(kind=sp),dimension(3,SpaceGroup%numops*2), intent(out):: hlist
+    !!----    integer/real(kind=cp),dimension(3,SpaceGroup%numops*2), intent(out):: hlist
     !!----
     !!----    Calculate the multiplicity of the reflection and the list of all
     !!----    equivalent reflections. Friedel law assumed if Friedel=.true.
@@ -2570,11 +2559,11 @@
 
     !!--++
     !!--++ Subroutine Hkl_Equiv_ListR(H,Spacegroup,Friedel,Mul,Hlist)
-    !!--++    real(kind=sp),    dimension(3),                    intent(in) :: h
+    !!--++    real(kind=cp),    dimension(3),                    intent(in) :: h
     !!--++    type (Space_Group_Type),                           intent(in) :: SpaceGroup
     !!--++    Logical,                                           intent(in) :: Friedel
     !!--++    integer,                                           intent(out):: mul     !multiplicity
-    !!--++    real(kind=sp),   dimension(3,SpaceGroup%numops*2), intent(out):: hlist
+    !!--++    real(kind=cp),   dimension(3,SpaceGroup%numops*2), intent(out):: hlist
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate the multiplicity of the reflection and the list of all
@@ -2584,15 +2573,15 @@
     !!
     Subroutine Hkl_Equiv_ListR(H,Spacegroup,Friedel,Mul,Hlist)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),                     intent (in) :: h
+       real(kind=cp), dimension(3),                     intent (in) :: h
        Type (Space_Group_Type),                         intent (in) :: SpaceGroup
        Logical,                                         intent (in) :: Friedel
        integer,                                         intent(out) :: mul
-       real(kind=sp), dimension(3,SpaceGroup%numops*2), intent (out) :: hlist
+       real(kind=cp), dimension(3,SpaceGroup%numops*2), intent (out) :: hlist
 
        !---- Local Variables ----!
        logical                    :: esta
-       real(kind=sp), dimension(3):: k
+       real(kind=cp), dimension(3):: k
        integer                    :: i,j,ng
 
        hlist = 0.0
@@ -2628,7 +2617,7 @@
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
     !!----    Logical,                           intent(in) :: Friedel         !If true, Friedel law applied
-    !!----    real(kind=sp),                     intent(in) :: value1,value2   !Range in SinTheta/Lambda
+    !!----    real(kind=cp),                     intent(in) :: value1,value2   !Range in SinTheta/Lambda
     !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----
@@ -2642,12 +2631,12 @@
        type (Crystal_Cell_Type),          intent(in)     :: crystalcell
        type (Space_Group_Type) ,          intent(in)     :: spacegroup
        Logical,                           intent(in)     :: Friedel
-       real(kind=sp),                     intent(in)     :: value1,value2
+       real(kind=cp),                     intent(in)     :: value1,value2
        integer,                           intent(out)    :: num_ref
        type (Reflect_Type), dimension(:), intent(out)    :: reflex
 
        !---- Local variables ----!
-       real(kind=sp)         :: vmin,vmax,sval
+       real(kind=cp)         :: vmin,vmax,sval
        integer               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, maxref
        integer, dimension(3) :: hh,kk,nulo
        character(len=2)      :: inf
@@ -2771,7 +2760,7 @@
     !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!----    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!----    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----    or
@@ -2792,7 +2781,7 @@
     !!--++ Subroutine  Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!--++    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
@@ -2812,12 +2801,12 @@
        !---- Arguments ----!
        type (Crystal_Cell_Type),          intent(in)     :: crystalcell
        type (Space_Group_Type) ,          intent(in)     :: spacegroup
-       real(kind=sp),                     intent(in)     :: stlmax
+       real(kind=cp),                     intent(in)     :: stlmax
        integer,                           intent(out)    :: num_ref
        type (Reflect_Type), dimension(:), intent(out)    :: reflex
        Integer, dimension(3), optional,   intent(in)     :: ord
        !---- Local variables ----!
-       real(kind=sp)         :: sval
+       real(kind=cp)         :: sval
        integer               :: h,k,l,hmax,kmax,lmax, maxref
        integer, dimension(3) :: hh,nulo,od,imin,imax
 
@@ -2861,7 +2850,7 @@
     !!--++ Subroutine  Hkl_Gen_Sxtal_list(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!--++    real(kind=sp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex          !Generated set of reflections
     !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
@@ -2881,13 +2870,13 @@
        !---- Arguments ----!
        type (Crystal_Cell_Type),            intent(in)     :: crystalcell
        type (Space_Group_Type) ,            intent(in)     :: spacegroup
-       real(kind=sp),                       intent(in)     :: stlmax
+       real(kind=cp),                       intent(in)     :: stlmax
        integer,                             intent(out)    :: num_ref
        Type(Reflection_List_Type),          intent(out)    :: reflex   !Ordered set of reflections
        Integer, dimension(3), optional,     intent(in)     :: ord
 
        !---- Local variables ----!
-       real(kind=sp)         :: sval
+       real(kind=cp)         :: sval
        integer               :: h,k,l,hmax,kmax,lmax, maxref,i
        integer, dimension(3) :: hh,nulo,od,imin,imax
        Type(Reflection_Type), dimension(:), allocatable :: tmp_reflex
@@ -2954,11 +2943,11 @@
 
     !!----
     !!---- Subroutine  Hkl_Rp(H,Phase, Op,K, Phasen, Op)
-    !!----    integer/real(kind=sp), dimension(3), intent(in)  :: h
-    !!----    real(kind=sp),                       intent(in)  :: phase
+    !!----    integer/real(kind=cp), dimension(3), intent(in)  :: h
+    !!----    real(kind=cp),                       intent(in)  :: phase
     !!----    type (Sym_Oper_Type),                intent(in)  :: Op
-    !!----    integer/real(kind=sp), dimension(3), intent(out) :: k
-    !!----    real(kind=sp),                       intent(out) :: phasen
+    !!----    integer/real(kind=cp), dimension(3), intent(out) :: k
+    !!----    real(kind=cp),                       intent(out) :: phasen
     !!----
     !!----    Calculate the equivalent reflection and Phase
     !!----
@@ -2968,10 +2957,10 @@
     !!--++
     !!--++ Subroutine Hkl_RpI(H,Phase,Op,K,Phasen)
     !!--++    integer,dimension(3),   intent(in) :: h
-    !!--++    real(kind=sp),          intent(in) :: phase
+    !!--++    real(kind=cp),          intent(in) :: phase
     !!--++    type (Sym_Oper_Type),   intent(in) :: Op
     !!--++    integer,dimension(3),   intent(out):: k
-    !!--++    real(kind=sp),          intent(out):: phasen
+    !!--++    real(kind=cp),          intent(out):: phasen
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate the equivalent reflection and new phase
@@ -2981,10 +2970,10 @@
     Subroutine Hkl_RpI(H, Phase, Op, K, Phasen)
        !---- Arguments ----!
        integer, dimension(3), intent (in) :: h
-       real(kind=sp),         intent (in) :: phase
+       real(kind=cp),         intent (in) :: phase
        Type(Sym_Oper_Type),   intent (in) :: Op
        integer, dimension(3), intent (out):: k
-       real(kind=sp),         intent (out):: phasen
+       real(kind=cp),         intent (out):: phasen
 
        k = matmul(h,Op%Rot)
        phasen= phase - 360.0*dot_product(Op%Tr,real(h))
@@ -2995,11 +2984,11 @@
 
     !!--++
     !!--++ Subroutine Hkl_RpR(H,Phase,Op,K,Phasen)
-    !!--++     real(kind=sp),dimension(3),   intent(in) :: h
-    !!--++     real(kind=sp),                intent(in) :: phase
+    !!--++     real(kind=cp),dimension(3),   intent(in) :: h
+    !!--++     real(kind=cp),                intent(in) :: phase
     !!--++     type (Sym_Oper_Type),         intent(in) :: Op
-    !!--++     real(kind=sp),dimension(3),   intent(out):: k
-    !!--++     real(kind=sp),                intent(out):: phasen
+    !!--++     real(kind=cp),dimension(3),   intent(out):: k
+    !!--++     real(kind=cp),                intent(out):: phasen
     !!--++
     !!--++     (OVERLOADED)
     !!--++     Calculate the equivalent reflection and new phase
@@ -3008,11 +2997,11 @@
     !!
     Subroutine Hkl_RpR(h, phase, Op, k, phasen)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),intent (in) :: h
-       real(kind=sp),              intent (in) :: phase
+       real(kind=cp), dimension(3),intent (in) :: h
+       real(kind=cp),              intent (in) :: phase
        Type(Sym_Oper_Type),        intent(in)  :: Op
-       real(kind=sp), dimension(3),intent (out):: k
-       real(kind=sp),              intent (out):: phasen
+       real(kind=cp), dimension(3),intent (out):: k
+       real(kind=cp),              intent (out):: phasen
 
        k = matmul(h,Op%Rot)
        phasen= phase - 360.0_sp*dot_product(Op%Tr,h)
@@ -3026,7 +3015,7 @@
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!----    Logical,                           intent(in) :: Friedel
-    !!----    real(kind=sp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
+    !!----    real(kind=cp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
     !!----    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!----    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
@@ -3046,7 +3035,7 @@
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
-    !!--++    real(kind=sp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
@@ -3062,19 +3051,19 @@
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
        Logical,                              intent(in)     :: Friedel
-       real(kind=sp),                        intent(in)     :: value1,value2
+       real(kind=cp),                        intent(in)     :: value1,value2
        character(len=1),                     intent(in)     :: code
        integer,                              intent(out)    :: num_ref
        type (Reflect_Type),    dimension(:), intent(out)    :: reflex
 
        !---- Local variables ----!
-       real(kind=sp)                         :: vmin,vmax,sval
+       real(kind=cp)                         :: vmin,vmax,sval
        integer                               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, i, maxref
        integer, dimension(3)                 :: hh,kk,nulo
        integer,  dimension(  size(reflex))   :: ind
        integer,  dimension(  size(reflex))   :: mul
        integer,  dimension(3,size(reflex))   :: hkl
-       real(kind=sp),dimension(size(reflex)) :: sv
+       real(kind=cp),dimension(size(reflex)) :: sv
        character(len=2)                      :: inf
 
        nulo=0
@@ -3207,7 +3196,7 @@
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
-    !!--++    real(kind=sp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
@@ -3223,19 +3212,19 @@
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
        Logical,                              intent(in)     :: Friedel
-       real(kind=sp),                        intent(in)     :: value1,value2
+       real(kind=cp),                        intent(in)     :: value1,value2
        character(len=1),                     intent(in)     :: code
        integer,                              intent(out)    :: num_ref
        type (Reflection_Type), dimension(:), intent(out)    :: reflex
 
        !---- Local variables ----!
-       real(kind=sp)                         :: vmin,vmax,sval
+       real(kind=cp)                         :: vmin,vmax,sval
        integer                               :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, i, maxref
        integer, dimension(3)                 :: hh,kk,nulo
        integer,  dimension(  size(reflex))   :: ind
        integer,  dimension(  size(reflex))   :: mul
        integer,  dimension(3,size(reflex))   :: hkl
-       real(kind=sp),dimension(size(reflex)) :: sv
+       real(kind=cp),dimension(size(reflex)) :: sv
        character(len=2)                      :: inf
 
        nulo=0
@@ -3368,7 +3357,7 @@
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
-    !!--++    real(kind=sp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: value1,value2 !Range in sintheta/Lambda
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(in) :: MaxRef   !Maximum Number of reflections to be generated
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex   !Ordered set of reflections
@@ -3384,19 +3373,19 @@
        type (Crystal_Cell_Type),       intent(in)     :: crystalcell
        type (Space_Group_Type) ,       intent(in)     :: spacegroup
        Logical,                        intent(in)     :: Friedel
-       real(kind=sp),                  intent(in)     :: value1,value2
+       real(kind=cp),                  intent(in)     :: value1,value2
        character(len=1),               intent(in)     :: code
        integer,                        intent(in)     :: MaxRef
        type (Reflection_List_Type),    intent(out)    :: reflex
 
        !---- Local variables ----!
-       real(kind=sp)                   :: vmin,vmax,sval
+       real(kind=cp)                   :: vmin,vmax,sval
        integer                         :: h,k,l,hmin,kmin,lmin,hmax,kmax,lmax, i, num_ref
        integer, dimension(3)           :: hh,kk,nulo
        integer,  dimension(  MaxRef)   :: ind
        integer,  dimension(  MaxRef)   :: mul
        integer,  dimension(3,MaxRef)   :: hkl
-       real(kind=sp),dimension(MaxRef) :: sv
+       real(kind=cp),dimension(MaxRef) :: sv
        character(len=2)                :: inf
 
        nulo=0
@@ -3547,7 +3536,7 @@
     Subroutine Init_Err_Refl()
 
        err_refl=.false.
-       err_mess_refl=" "
+       ERR_Refl_Mess=" "
 
        return
     End Subroutine Init_Err_Refl
@@ -4312,7 +4301,7 @@
                 line(11:)="hkl: h >=0, k >=0, l >=0 with h >=k  and k >=l"
              case default
                 err_refl=.true.
-                err_mess_refl=" SpaceGroup Laue Wrong"
+                ERR_Refl_Mess=" SpaceGroup Laue Wrong"
                 return
           end select
        end if

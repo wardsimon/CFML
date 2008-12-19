@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Spherical_Harmonics
@@ -10,11 +10,11 @@
 !!----            January - 2000    Based in public codes. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General, only: sp,dp, eps, pi, to_rad
+!!--++    Use CFML_Constants, only: cp, dp, eps, pi, to_rad
 !!----
 !!---- VARIABLES
-!!----    ERR_MESS_SPHER
 !!----    ERR_SPHER
+!!----    ERR_SPHER_MESS
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -37,7 +37,7 @@
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use CFML_Math_General, Only: Sp, Dp, Eps, Pi, To_Rad
+    Use CFML_Constants, Only: Cp, Dp, Eps, Pi, To_Rad
 
     implicit none
 
@@ -56,16 +56,6 @@
     !---- Definitions ----!
 
     !!----
-    !!---- ERR_MESS_SPHER
-    !!----    character(len=150), public :: err_mess_spher
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: err_mess_spher
-
-    !!----
     !!---- ERR_SPHER
     !!----    logical, public    :: err_spher
     !!----
@@ -73,7 +63,17 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public    :: err_spher
+    logical, public    :: ERR_Spher
+    
+    !!----
+    !!---- ERR_Spher_Mess
+    !!----    character(len=150), public :: ERR_Spher_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
+    !!
+    character(len=150), public :: ERR_Spher_Mess
 
  Contains
 
@@ -83,9 +83,9 @@
     !!---- Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
     !!----    integer,         intent(in) :: l
     !!----    integer,         intent(in) :: m
-    !!----    real(kind=sp),   intent(in) :: theta
-    !!----    real(kind=sp),   intent(in) :: phi
-    !!----    real(kind=sp)               :: Klm
+    !!----    real(kind=cp),   intent(in) :: theta
+    !!----    real(kind=cp),   intent(in) :: phi
+    !!----    real(kind=cp)               :: Klm
     !!----
     !!----    Calculation of the cubic harmonics given in Table 3 of reference
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
@@ -96,8 +96,8 @@
     Pure Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
        !---- Arguments ----!
        integer,      intent (in) :: l,m
-       real(kind=sp),intent (in) :: theta,phi
-       real(kind=sp)             :: klm
+       real(kind=cp),intent (in) :: theta,phi
+       real(kind=cp)             :: klm
 
        select case (l)
           case(0)   ! 0 1
@@ -151,8 +151,8 @@
     !!---- Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
     !!----    integer,                    intent(in) :: l
     !!----    integer,                    intent(in) :: m
-    !!----    real(kind=sp),dimension(3), intent(in) :: u
-    !!----    real(kind=sp)                          :: Klm
+    !!----    real(kind=cp),dimension(3), intent(in) :: u
+    !!----    real(kind=cp)                          :: Klm
     !!--<<
     !!----    Calculation of the cubic harmonics given in Table 3 of reference
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
@@ -166,8 +166,8 @@
     Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
        !---- Arguments ----!
        integer,                    intent (in) :: l,m
-       real(kind=sp),dimension(3), intent (in) :: u
-       real(kind=sp)                           :: Klm
+       real(kind=cp),dimension(3), intent (in) :: u
+       real(kind=cp)                           :: Klm
 
        select case (l)
           case(0)   ! 0 1
@@ -302,9 +302,9 @@
     !!---- Function Int_Slater_Bessel(N,L,Z,S) Result(Int_Slater_Besselv)
     !!----    integer,           intent(in) :: n
     !!----    integer,           intent(in) :: l
-    !!----    real(kind=sp),     intent(in) :: z
-    !!----    real(kind=sp),     intent(in) :: s
-    !!----    real(kind=sp)                 :: Int_Slater_Besselv
+    !!----    real(kind=cp),     intent(in) :: z
+    !!----    real(kind=cp),     intent(in) :: s
+    !!----    real(kind=cp)                 :: Int_Slater_Besselv
     !!--<<
     !!----    Returns the integral:
     !!----    Int[0,inf]{r**(n+2)*exp(-chi*r)*j_l(s*r)} dr
@@ -317,11 +317,11 @@
     Pure Function Int_Slater_Bessel(N,L,Z,S) Result(Int_Slater_Besselv)
        !---- arguments ----!
        integer,       intent(in) :: n, l
-       real(kind=sp), intent(in) :: z, s
-       real(kind=sp)             :: int_slater_besselv
+       real(kind=cp), intent(in) :: z, s
+       real(kind=cp)             :: int_slater_besselv
 
        !---- Local Variables ----!
-       real(kind=sp)  :: isb0, tmp
+       real(kind=cp)  :: isb0, tmp
        integer        :: fact, i
 
        Int_Slater_Besselv =0.0
@@ -368,8 +368,8 @@
     !!--++ Function Plgndr(L,M,X) Result(Plmx)
     !!--++    integer,       intent(in) :: l
     !!--++    integer,       intent(in) :: m
-    !!--++    real(kind=sp), intent(in) :: x
-    !!--++    real(kind=sp)             :: plmx
+    !!--++    real(kind=cp), intent(in) :: x
+    !!--++    real(kind=cp)             :: plmx
     !!--++
     !!--++    (PRIVATE)
     !!--++    Compute the Legendre Polynomial Pml(x). Here m and l are
@@ -381,12 +381,12 @@
     Pure Function Plgndr(l,m,x) result(plmx)
        !---- Arguments ----!
        integer,      intent (in) :: l,m
-       real(kind=sp),intent (in) :: x
-       real(kind=sp)             :: plmx
+       real(kind=cp),intent (in) :: x
+       real(kind=cp)             :: plmx
 
        !---- Local variables ----!
        integer       :: i, ll
-       real(kind=sp) :: fact, pll, pmm, pmmp1, somx2
+       real(kind=cp) :: fact, pll, pmm, pmmp1, somx2
 
        if (m < 0 .or. m > l .or. abs(x) > 1.0) then
           plmx=0.0
@@ -427,9 +427,9 @@
     !!----    integer,       intent(in) :: l         !  In -> Index l >= 0
     !!----    integer,       intent(in) :: m         !  In -> Index m <= l
     !!----    integer,       intent(in) :: p         !  In -> +1: cosinus, -1: sinus
-    !!----    real(kind=sp), intent(in) :: theta     !  In -> Spherical coordinate in degree
-    !!----    real(kind=sp), intent(in) :: phi       !  In -> Spherical coordinate in degree
-    !!----    real(kind=sp)             :: ylmp      ! Out -> Value of ylmn(theta,phi)
+    !!----    real(kind=cp), intent(in) :: theta     !  In -> Spherical coordinate in degree
+    !!----    real(kind=cp), intent(in) :: phi       !  In -> Spherical coordinate in degree
+    !!----    real(kind=cp)             :: ylmp      ! Out -> Value of ylmn(theta,phi)
     !!----
     !!----    real(kind=sp) Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!----    Input spherical coordinates Theta & Phi in degrees
@@ -439,12 +439,12 @@
     Pure Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
        !---- Arguments ----!
        integer,      intent (in) :: l,m,p
-       real(kind=sp),intent (in) :: theta,phi
-       real(kind=sp)             :: ylmp
+       real(kind=cp),intent (in) :: theta,phi
+       real(kind=cp)             :: ylmp
 
        !---- Local Variables ----!
        real(kind=dp)             :: norm
-       real(kind=sp)             :: pphi,x
+       real(kind=cp)             :: pphi,x
        integer                   :: i
 
        x=cos(theta*to_rad)
@@ -474,8 +474,8 @@
     !!----    integer,                    intent(in) :: l       !  In -> Index l >= 0
     !!----    integer,                    intent(in) :: m       !  In -> Index m <= l
     !!----    integer,                    intent(in) :: p       !  In -> +1: cosinus, -1: sinus
-    !!----    real(kind=sp),dimension(3), intent(in) :: u       !  In -> unit vector in cartesian coordinates
-    !!----    real(kind=sp)                          :: ylmp    ! Out -> Value of ylmn(u)
+    !!----    real(kind=cp),dimension(3), intent(in) :: u       !  In -> unit vector in cartesian coordinates
+    !!----    real(kind=cp)                          :: ylmp    ! Out -> Value of ylmn(u)
     !!--<<
     !!----    Real Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!----    Input U: unit vector in cartesian coordinates
@@ -485,12 +485,12 @@
     Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
        !---- Arguments ----!
        integer,                    intent (in) :: l,m,p
-       real(kind=sp),dimension(3), intent (in) :: u
-       real(kind=sp)                           :: ylmp
+       real(kind=cp),dimension(3), intent (in) :: u
+       real(kind=cp)                           :: ylmp
 
        !---- Local Variables ----!
        real(kind=dp)             :: norm
-       real(kind=sp)             :: pphi,x,ss
+       real(kind=cp)             :: pphi,x,ss
        integer                   :: i
 
        ss=dot_product(u,u)
@@ -631,8 +631,8 @@
     !!
     Subroutine Init_Err_Spher()
 
-       err_spher=.false.
-       err_mess_spher=" "
+       ERR_Spher=.false.
+       ERR_Spher_Mess=" "
 
        return
     End Subroutine Init_Err_Spher
@@ -778,7 +778,7 @@
           case default
 
              err_spher=.true.
-             err_mess_spher=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
+             ERR_Spher_Mess=" Wrong cubic point group passed to subroutine: pikout_lj_cubic "
 
        end select
 

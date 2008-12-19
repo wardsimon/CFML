@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Crystallographic_Symmetry
@@ -21,7 +21,8 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Math_General,     only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
+!!--++    Use CFML_Constants,       only: Cp
+!!--++    Use CFML_Math_General,     only: Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
 !!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
 !!--++                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
 !!--++                                     U_case, Ucase, Getnum, Frac_Trans_2Dig
@@ -31,9 +32,9 @@
 !!----
 !!---- VARIABLES
 !!----    CUBIC
-!!--++    EPS                          [Private]
-!!----    ERR_MESS_SYMM
+!!--++    EPS_SYMM                     [Private]
 !!----    ERR_SYMM
+!!----    ERR_SYMM_MESS
 !!--++    GENER_OPER_TYPE              [Private]
 !!----    HEXA
 !!----    HEXAG
@@ -136,7 +137,8 @@
  Module CFML_Crystallographic_Symmetry
 
     !---- Used External Modules ----!
-    Use CFML_Math_General,     only: Sp, Traza, Zbelong, Modulo_Lat, equal_matrix,         &
+    Use CFML_Constants,       only: cp
+    Use CFML_Math_General,     only: Traza, Zbelong, Modulo_Lat, equal_matrix,             &
                                      Equal_Vector,Sort
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
@@ -193,25 +195,25 @@
     integer, parameter, public :: Cubic = 554
 
     !!--++
-    !!--++ EPS
-    !!--++    real(kind=sp), parameter, private :: eps
+    !!--++ eps_symm
+    !!--++    real(kind=cp), parameter, private :: eps_symm
     !!--++
     !!--++    (PRIVATE)
     !!--++    Epsilon for comparisons within this module
     !!--++
     !!--++ Update: February - 2005
     !!
-    real(kind=sp), parameter, private :: eps  = 0.0002
+    real(kind=cp), parameter, private :: eps_symm  = 0.0002_cp
 
     !!----
-    !!---- ERR_MESS_SYMM
-    !!----    character(len=150), public :: Err_Mess_Symm
+    !!---- ERR_SYMM_MESS
+    !!----    character(len=150), public :: ERR_Symm_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: Err_Mess_Symm
+    character(len=150), public :: ERR_Symm_Mess
 
     !!----
     !!---- ERR_SYMM
@@ -285,14 +287,14 @@
 
     !!----
     !!---- LTR
-    !!----    real(kind=sp), dimension(3,10), public  :: Ltr
+    !!----    real(kind=cp), dimension(3,10), public  :: Ltr
     !!----
     !!----    Centering Lattice Translations, up to 10 lattice centring
     !!----    vectors are allowed. Conventional lattice centring need only 4 vectors
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,12), public  :: Ltr            ! Centering Lattice Translations
+    real(kind=cp), dimension(3,12), public  :: Ltr            ! Centering Lattice Translations
 
     !!----
     !!---- MONOC
@@ -349,7 +351,7 @@
     !!--..
     !!---- Type, public :: Sym_Oper_Type
     !!----    integer,       dimension(3,3) :: Rot     !  Rotational Part of Symmetry Operator
-    !!----    real(kind=sp), dimension(3)   :: Tr      !  Traslational part of Symmetry Operator
+    !!----    real(kind=cp), dimension(3)   :: Tr      !  Traslational part of Symmetry Operator
     !!---- End Type  Sym_Oper_Type
     !!----
     !!----    Definition of Variable
@@ -358,7 +360,7 @@
     !!
     Type, public :: Sym_Oper_Type
        integer,       dimension(3,3) :: Rot
-       real(kind=sp), dimension(3)   :: Tr
+       real(kind=cp), dimension(3)   :: Tr
     End Type Sym_Oper_Type
 
     !!----
@@ -419,20 +421,20 @@
     !!----    Character(len= 1)                  :: SPG_lat       ! Lattice type
     !!----    Character(len= 2)                  :: SPG_latsy     ! Lattice type Symbol
     !!----    Integer                            :: NumLat        ! Number of lattice points in a cell
-    !!----    real(kind=sp), dimension(3,12)     :: Latt_trans    ! Lattice translations
+    !!----    real(kind=cp), dimension(3,12)     :: Latt_trans    ! Lattice translations
     !!----    Character(len=51)                  :: Bravais       ! String with Bravais symbol + translations
     !!----    Character(len=80)                  :: Centre        ! Information about Centric or Acentric
     !!----    Integer                            :: Centred       ! =0 Centric(-1 no at origin)
     !!----                                                        ! =1 Acentric
     !!----                                                        ! =2 Centric(-1 at origin)
-    !!----    real(kind=sp), dimension(3)        :: Centre_coord  ! Fractional coordinates of the inversion centre
+    !!----    real(kind=cp), dimension(3)        :: Centre_coord  ! Fractional coordinates of the inversion centre
     !!----    Integer                            :: NumOps        ! Number of reduced set of S.O.
     !!----    Integer                            :: Multip        ! Multiplicity of the general position
     !!----    Integer                            :: Num_gen       ! Minimum number of operators to generate the Group
     !!----    type(Sym_Oper_Type), dimension(192):: SymOp         ! Symmetry operators
     !!----    Character(len=40), dimension(192)  :: SymopSymb     ! Strings form of symmetry operators
     !!----    type(wyckoff_type)                 :: Wyckoff       ! Wyckoff Information
-    !!----    real(kind=sp), dimension(3,2)      :: R_Asym_Unit   ! Asymmetric unit in real space
+    !!----    real(kind=cp), dimension(3,2)      :: R_Asym_Unit   ! Asymmetric unit in real space
     !!---- End Type Space_Group_Type
     !!----
     !!----     Definition of a variable type Space_Group_Type
@@ -452,18 +454,18 @@
        character(len= 1)                    :: SPG_lat          ! Lattice type
        character(len= 2)                    :: SPG_latsy        ! Lattice type Symbol
        integer                              :: NumLat           ! Number of lattice points in a cell
-       real(kind=sp), dimension(3,12)       :: Latt_trans       ! Lattice translations
+       real(kind=cp), dimension(3,12)       :: Latt_trans       ! Lattice translations
        character(len=51)                    :: Bravais          ! String with Bravais symbol + translations
        character(len=80)                    :: Centre           ! Alphanumeric information about the center of symmetry
        integer                              :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=sp), dimension(3)          :: Centre_coord     ! Fractional coordinates of the inversion centre
+       real(kind=cp), dimension(3)          :: Centre_coord     ! Fractional coordinates of the inversion centre
        integer                              :: NumOps           ! Number of reduced set of S.O.
        integer                              :: Multip           ! Multiplicity of the general position
        integer                              :: Num_gen          ! Minimum number of operators to generate the Group
        type(Sym_Oper_Type), dimension(192)  :: SymOp            ! Symmetry operators
        character(len=40), dimension(192)    :: SymopSymb        ! Strings form of symmetry operators
        type(Wyckoff_Type)                   :: Wyckoff          ! Wyckoff Information
-       real(kind=sp),dimension(3,2)         :: R_Asym_Unit      ! Asymmetric unit in real(kind=sp) space
+       real(kind=cp),dimension(3,2)         :: R_Asym_Unit      ! Asymmetric unit in real(kind=cp) space
     End Type Space_Group_Type
 
     !!----
@@ -525,8 +527,8 @@
     !!----
     !!---- Function Applyso(Op,V) Result(Applysop)
     !!----    Type(Sym_Oper_Type),          intent(in) :: Op        !  In -> Symmetry Operator Type
-    !!----    real(kind=sp), dimension(3) , intent(in) :: v         !  In -> Vector
-    !!----    real(kind=sp), dimension(3)              :: ApplySOp  ! Out -> Output vector
+    !!----    real(kind=cp), dimension(3) , intent(in) :: v         !  In -> Vector
+    !!----    real(kind=cp), dimension(3)              :: ApplySOp  ! Out -> Output vector
     !!----
     !!----    Apply a symmetry operator to a vector:  Vp = ApplySO(Op,v)
     !!----
@@ -535,8 +537,8 @@
     Function ApplySO(Op,V) Result(Applysop)
        !---- Arguments ----!
        Type(Sym_Oper_Type),          intent(in) :: Op
-       real(kind=sp), dimension(3),  intent(in) :: v
-       real(kind=sp), dimension(3)              :: ApplySOp
+       real(kind=cp), dimension(3),  intent(in) :: v
+       real(kind=cp), dimension(3)              :: ApplySOp
 
        ApplySOp = matmul(Op%Rot,v) + Op%tr
 
@@ -545,8 +547,8 @@
 
     !!----
     !!---- Function Axes_Rotation(R) Result(N)
-    !!----    real(kind=sp), dimension(3,3), intent  (in) :: r    !  In -> Rotation part of Symmetry Operator
-    !!----    integer                                     :: n    ! Out -> Orden of the Rotation Part
+    !!----    integer, dimension(3,3), intent  (in) :: r    !  In -> Rotation part of Symmetry Operator
+    !!----    integer                               :: n    ! Out -> Orden of the Rotation Part
     !!----
     !!----    Determine the orden of rotation (valid for all bases). Return a zero
     !!----    if any error occurs.
@@ -618,12 +620,12 @@
 
        aeqb=.false.
        do i=1,3
-          if (abs(Syma%tr(i)-Symb%tr(i)) > eps) return
+          if (abs(Syma%tr(i)-Symb%tr(i)) > eps_symm) return
        end do
 
        do i=1,3
           do j=1,3
-             if (abs(Syma%Rot(i,j)-Symb%Rot(i,j)) > eps) return
+             if (abs(Syma%Rot(i,j)-Symb%Rot(i,j)) > eps_symm) return
           end do
        end do
        aeqb=.true.
@@ -652,8 +654,8 @@
        logical                          :: aeqb
 
        !---- Local variables ----!
-       integer :: i,j
-       real, dimension(3) :: tr
+       integer                     :: i,j
+       real(kind=cp), dimension(3) :: tr
 
        aeqb=.false.
        tr= Syma%tr-Symb%tr
@@ -705,7 +707,7 @@
 
     !!----
     !!----  Function Get_Multip_Pos(X,Spg) Result(Mult)
-    !!----    real(kind=sp), dimension(3), intent (in) :: x        !  In -> Position vector
+    !!----    real(kind=cp), dimension(3), intent (in) :: x        !  In -> Position vector
     !!----    type(Space_Group_type),      intent (in) :: spgr     !  In -> Space Group
     !!----    integer                                  :: mult     !  Result -> Multiplicity
     !!----
@@ -715,14 +717,14 @@
     !!
     Function Get_Multip_Pos(x,Spg) Result(mult)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),  intent (in) :: x
+       real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
        integer                                   :: mult
 
        !---- Local variables ----!
        integer                                :: j, nt
-       real(kind=sp), dimension(3)            :: xx,v
-       real(kind=sp), dimension(3,Spg%multip) :: u
+       real(kind=cp), dimension(3)            :: xx,v
+       real(kind=cp), dimension(3,Spg%multip) :: u
 
        mult=1
        u(:,1)=x(:)
@@ -745,9 +747,9 @@
 
     !!----
     !!---- Function Get_Occ_Site(Pto,Spg) Result(Occ)
-    !!----    real(kind=sp),dimension(3),intent (in) :: Pto ! Point for Occupancy calculation
+    !!----    real(kind=cp),dimension(3),intent (in) :: Pto ! Point for Occupancy calculation
     !!----    Type (Space_Group_Type),   intent(in)  :: Spg ! Space Group
-    !!----    real(kind=sp)                          :: Occ ! Result
+    !!----    real(kind=cp)                          :: Occ ! Result
     !!----
     !!----    Obtain the occupancy factor (site multiplicity/multiplicity) for Pto
     !!----
@@ -755,9 +757,9 @@
     !!
     Function Get_Occ_Site(Pto,Spg) Result(Occ)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),intent(in) :: Pto
+       real(kind=cp), dimension(3),intent(in) :: Pto
        type (Space_Group_Type),    intent(in) :: Spg
-       real(kind=sp)                          :: Occ
+       real(kind=cp)                          :: Occ
 
        !---- Local Variables ----!
        Occ=real(Get_Multip_pos(pto,Spg))/real(Spg%multip)
@@ -966,7 +968,7 @@
 
     !!----
     !!---- Logical Function Lattice_Trans(V,Lat) Result(Lattice_Transl)
-    !!----    real(kind=sp), dimension(3), intent( in) :: v              !  In -> Vector
+    !!----    real(kind=cp), dimension(3), intent( in) :: v              !  In -> Vector
     !!----    character(len=*),            intent( in) :: Lat            !  In -> Lattice Character
     !!----    logical                                  :: Lattice_Transl ! Out -> .True. or .False.
     !!----
@@ -977,12 +979,12 @@
     !!
     Function Lattice_Trans(V,Lat) Result(Lattice_Transl)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent( in) :: v
+       real(kind=cp), dimension(3), intent( in) :: v
        character(len=*),            intent( in) :: Lat
        logical                                  :: Lattice_Transl
 
        !---- Local variables ----!
-       real(kind=sp)   , dimension(3) :: vec
+       real(kind=cp)   , dimension(3) :: vec
        integer                        :: i
 
        Lattice_Transl=.false.
@@ -1151,11 +1153,11 @@
              end do
              if (.not. is_there) then
                 err_symm=.true.
-                err_mess_symm=" The symbol: "//HMS(i,j)//" is not allowed"
+                ERR_Symm_Mess=" The symbol: "//HMS(i,j)//" is not allowed"
                 return
              else if (five == 1) then
                 err_symm=.true.
-                err_mess_symm=" The fivefold axis is not allowed"
+                ERR_Symm_Mess=" The fivefold axis is not allowed"
                 return
              end if
           end do
@@ -1174,19 +1176,19 @@
              end do
              if (is_there) then
                 err_symm=.true.
-                err_mess_symm=" The symbol: "//HMS(i,j)// &
+                ERR_Symm_Mess=" The symbol: "//HMS(i,j)// &
                               " has been repeated within the same symmetry direction"
                 return
              end if
              if (axis .and. Is_plane(HMS(i,j+1))) then
                 err_symm=.true.
-                err_mess_symm=" A rotation axis cannot be immediately followed by a plane"//char(13)//&
+                ERR_Symm_Mess=" A rotation axis cannot be immediately followed by a plane"//char(13)//&
                               " within the same symmetry direction"
                 return
              end if
              if (plane .and. Is_axis(HMS(i,j+1))) then
                 err_symm=.true.
-                err_mess_symm=" A mirror plane cannot be immediately followed by a rotation axis"//char(13)//&
+                ERR_Symm_Mess=" A mirror plane cannot be immediately followed by a rotation axis"//char(13)//&
                               " within the same symmetry direction"
                 return
              end if
@@ -1204,7 +1206,7 @@
           end do
           if (ncount > 1) then
              err_symm=.true.
-             err_mess_symm=" There is more than one plane within the same symmetry direction"
+             ERR_Symm_Mess=" There is more than one plane within the same symmetry direction"
              return
           end if
        end do
@@ -1223,7 +1225,7 @@
           !   if (iachar(HMS(i,1)) < iachar(HMS(i,2))) then
              if (HMS(i,1) <  HMS(i,2) ) then
                 err_symm=.true.
-                err_mess_symm=" Screw axis: "//HMS(i,1)//" "//HMS(i,2)//" not allowed"
+                ERR_Symm_Mess=" Screw axis: "//HMS(i,1)//" "//HMS(i,2)//" not allowed"
                 return
              end if
           end if
@@ -1273,7 +1275,7 @@
     !!----
     !!---- Subroutine Get_Centring_Vectors(L,Latc)
     !!----    integer,                        intent (in out) :: L     ! Number of centring vectors
-    !!----    real(kind=sp), dimension(:,:),  intent (in out) :: latc  ! Centering vectors
+    !!----    real(kind=cp), dimension(:,:),  intent (in out) :: latc  ! Centering vectors
     !!----
     !!----    Subroutine to complete the centring vectors of a centered lattice
     !!----    It is useful when non-conventional lattices are used.
@@ -1283,16 +1285,16 @@
     Subroutine Get_Centring_Vectors(L,Latc)
        !---- Arguments ----!
        integer,                       intent (in out) :: L
-       real(kind=sp), dimension(:,:), intent (in out) :: latc  !(3,n)
+       real(kind=cp), dimension(:,:), intent (in out) :: latc  !(3,n)
 
        !---- Local variables ----!
        logical                                  :: isnew
-       real(kind=sp), dimension(3,size(latc,2)) :: latinv
-       real(kind=sp), dimension(3)              :: v
+       real(kind=cp), dimension(3,size(latc,2)) :: latinv
+       real(kind=cp), dimension(3)              :: v
        integer                                  :: i,j,k, imax, jmax, kmax, lm
 
        latinv=0.0
-       where (abs(latc)> eps)
+       where (abs(latc)> eps_symm)
           latinv=1.0/latc
        end where
 
@@ -1312,10 +1314,10 @@
                 do j=0,jmax
                    v=latc(:,1)*real(i)+latc(:,2)*real(j)
                    v=Modulo_Lat(v)
-                   if (sum(abs(v)) < 3.0*eps) cycle
+                   if (sum(abs(v)) < 3.0*eps_symm) cycle
                    isnew=.true.
                    do lm=1,L
-                      if (sum(abs(v-latc(:,lm))) < 3.0*eps) then
+                      if (sum(abs(v-latc(:,lm))) < 3.0*eps_symm) then
                          isnew=.false.
                          exit
                       end if
@@ -1337,10 +1339,10 @@
                     do k=0,kmax
                        v=latc(:,1)*real(i)+latc(:,2)*real(j)+latc(:,3)*real(k)
                        v=Modulo_Lat(v)
-                       if (sum(abs(v)) < 3.0*eps) cycle
+                       if (sum(abs(v)) < 3.0*eps_symm) cycle
                        isnew=.true.
                        do lm=1,L
-                          if (sum(abs(v-latc(:,lm))) < 3.0*eps) then
+                          if (sum(abs(v-latc(:,lm))) < 3.0*eps_symm) then
                              isnew=.false.
                              exit
                           end if
@@ -1443,7 +1445,7 @@
                  nrot_6 =nrot_6  +1
               case default
                  err_symm=.true.
-                 err_mess_symm= " Axes rotation wrong"
+                 ERR_Symm_Mess= " Axes rotation wrong"
                  return
           end select
        end do
@@ -1607,8 +1609,8 @@
                                                                    0, 0, 0, 0, &
                                                                    0, 0, 0, 0/),(/4,4/))
 
-       real(kind=sp), dimension(3,24)          :: ts
-       real(kind=sp), dimension(3)             :: ts1
+       real(kind=cp), dimension(3,24)          :: ts
+       real(kind=cp), dimension(3)             :: ts1
        type (Gener_Oper_Type),dimension(5) :: generador
 
        !---- Initial Values ----!
@@ -2076,7 +2078,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2090,7 +2092,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2106,7 +2108,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2119,7 +2121,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2132,7 +2134,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2147,7 +2149,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2163,7 +2165,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2180,7 +2182,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2192,7 +2194,7 @@
 
                    if (ngen > 4) then
                       err_symm=.true.
-                      err_mess_symm=" Error in generators"
+                      ERR_Symm_Mess=" Error in generators"
                       return
                    end if
                    generador(ngen)%orden= orden
@@ -2414,7 +2416,7 @@
     !!----
     !!---- Subroutine Get_Lattice_Type(L, Latc, Lattyp)
     !!----    integer,                        intent(in)  :: L         !  number of centring vectors
-    !!----    real(kind=sp), dimension(:,:),  intent(in)  :: Latc      ! (3,11) centring vectors
+    !!----    real(kind=cp), dimension(:,:),  intent(in)  :: Latc      ! (3,11) centring vectors
     !!----    character(len=*),               intent(out) :: lattyp    ! Lattice symbol
     !!----
     !!----    Subroutine to get the lattice symbol from a set of centring vectors.
@@ -2424,7 +2426,7 @@
     Subroutine Get_Lattice_Type(L, Latc, lattyp)
        !---- Arguments ----!
        integer,                        intent( in) :: L
-       real(kind=sp), dimension(:,:),  intent( in) :: Latc
+       real(kind=cp), dimension(:,:),  intent( in) :: Latc
        character(len=*),               intent(out) :: lattyp
 
        !---- Local variables ----!
@@ -2550,7 +2552,7 @@
        call init_err_symm()
        if (spacegroup%numops == 0) then
           err_symm=.true.
-          err_mess_symm=" No symmetry operators are given"
+          ERR_Symm_Mess=" No symmetry operators are given"
           return
        end if
        do i=1,spacegroup%numops
@@ -2578,7 +2580,7 @@
                 nrot_6 =nrot_6  +1
              case default
                 err_symm=.true.
-                err_mess_symm=" Rotation Not Determined"
+                ERR_Symm_Mess=" Rotation Not Determined"
                 return
           end select
        end do
@@ -2843,7 +2845,7 @@
        call init_err_symm()
        if (ilaue < 1 .or. ilaue > 16) then
           err_symm=.true.
-          err_mess_symm=" Laue Number Incorrect"
+          ERR_Symm_Mess=" Laue Number Incorrect"
        else
           str=laue_class(ilaue)
        end if
@@ -2853,10 +2855,10 @@
 
     !!----
     !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,str,prim)
-    !!----    real(kind=sp), dimension(3),  intent (in) :: x     !  In -> Position vector
+    !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,                      intent(out) :: mult  !  Out -> Multiplicity
-    !!----    real, dimension(:,:),         intent(out) :: orb   !  Out -> List of equivalent positions
+    !!----    real(kind=cp), dimension(:,:),intent(out) :: orb   !  Out -> List of equivalent positions
     !!----    integer,dimension(:),optional,intent(out) :: ptr   !  Out -> Pointer to effective symops
     !!----    integer,dimension(:),optional,intent(out) :: str   !  Out -> Pointer to stabilizer
     !!----    character(len=*),    optional,intent( in) :: prim  !  In  -> If given, only the primitive cell is considered
@@ -2870,17 +2872,17 @@
     !!
     Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,str,prim)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),  intent (in) :: x
+       real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
        integer,                      intent(out) :: mult
-       real(kind=sp),dimension(:,:), intent(out) :: orb
+       real(kind=cp),dimension(:,:), intent(out) :: orb
        integer,dimension(:),optional,intent(out) :: ptr
        integer,dimension(:),optional,intent(out) :: str
        character(len=*),    optional,intent( in) :: prim
 
        !---- Local variables ----!
        integer                                :: j, nt,is
-       real(kind=sp), dimension(3)            :: xx,v
+       real(kind=cp), dimension(3)            :: xx,v
        character(len=1)                       :: laty
 
        laty="P"
@@ -2935,7 +2937,7 @@
        call init_err_symm()
        if (ipg < 1 .or. ipg > 39) then
           err_symm=.true.
-          err_mess_symm=" Point Group Number Incorrect"
+          ERR_Symm_Mess=" Point Group Number Incorrect"
        else
           str=point_group(ipg)
        end if
@@ -2946,7 +2948,7 @@
     !!--++
     !!--++ Subroutine Get_Seitz(N_Op,Tt,Seitz_Symb)
     !!--++    integer,                     intent( in) :: n_op          !  In -> Number of the rotational matrix
-    !!--++    real(kind=sp), dimension(3), intent( in) :: tt            !  In -> Translation part
+    !!--++    real(kind=cp), dimension(3), intent( in) :: tt            !  In -> Translation part
     !!--++    character (len=*),           intent(out) :: Seitz_symb    ! Out -> Seitz Symbol
     !!--++
     !!--++    (PRIVATE)
@@ -2959,14 +2961,14 @@
     Subroutine Get_Seitz(n_op,tt,Seitz_symb)
        !---- Arguments ----!
        integer,                     intent( in) :: n_op
-       real(kind=sp), dimension(3), intent( in) :: tt
+       real(kind=cp), dimension(3), intent( in) :: tt
        character (len=*),           intent(out) :: Seitz_symb
 
        !---- Local variables ----!
        character (len=*), dimension(16), parameter  :: fracc =(/" 0 ","1/2","1/3","2/3",    &
                         "1/4","3/4","1/6","5/6","1/8","3/8","5/8","7/8","1  ","2  ","3  ","4  "/)
        integer :: i,j,ini
-       real(kind=sp), dimension(16), parameter :: frac= (/0.0, 0.5,1.0/3.0,2.0/3.0,0.25,0.75, &
+       real(kind=cp), dimension(16), parameter :: frac= (/0.0, 0.5,1.0/3.0,2.0/3.0,0.25,0.75, &
                                                   1.0/6.0,5.0/6.0,0.125,0.375,0.625,0.875,1.0,2.0,3.0,4.0/)
 
        if (hexa) then
@@ -2978,7 +2980,7 @@
        end if
        xyz:do i=1,3
           do j=1,16
-             if (abs(frac(j)-abs(tt(i))) < eps) then
+             if (abs(frac(j)-abs(tt(i))) < eps_symm) then
                 if (tt(i) < 0.0) then
                    Seitz_symb(ini:ini+3)="-"//fracc(j)
                 else
@@ -2997,8 +2999,8 @@
 
     !!--++
     !!--++ Subroutine Get_Setting_Info(Mat,orig,setting,matkind)
-    !!--++    real(kind=sp), dimension (3,3),intent( in)    :: Mat     ! Matrix transforming the basis
-    !!--++    real(kind=sp), dimension (  3),intent( in)    :: orig    ! Coordinates of the new origin
+    !!--++    real(kind=cp), dimension (3,3),intent( in)    :: Mat     ! Matrix transforming the basis
+    !!--++    real(kind=cp), dimension (  3),intent( in)    :: orig    ! Coordinates of the new origin
     !!--++    character (len=*),             intent(out)    :: setting ! String with the new setting
     !!--++    character (len=*), optional,   intent( in)    :: matkind ! Type of the input matrix
     !!--++
@@ -3015,14 +3017,14 @@
     !!
     Subroutine Get_Setting_Info(Mat,orig,setting,matkind)
        !---- Arguments ----!
-       real(kind=sp), dimension (3,3),intent( in)    :: Mat
-       real(kind=sp), dimension (  3),intent( in)    :: orig
+       real(kind=cp), dimension (3,3),intent( in)    :: Mat
+       real(kind=cp), dimension (  3),intent( in)    :: orig
        character (len=*),             intent(out)    :: setting
        character (len=*), optional,   intent( in)    :: matkind
 
        !---- local variables ----!
-       real(kind=sp), dimension (  3), parameter  :: nul = (/ 0.0, 0.0, 0.0/)
-       real(kind=sp), dimension (3,3)  :: S
+       real(kind=cp), dimension (  3), parameter  :: nul = (/ 0.0, 0.0, 0.0/)
+       real(kind=cp), dimension (3,3)  :: S
        character (len=22)     :: tro
        integer                :: i
 
@@ -3065,10 +3067,10 @@
     !!----                                                                   1   2   3   4   5   6   7   8
     !!----                                                                   "P","A","B","C","I","R","F","Z"
     !!----    integer,                     intent(in ) :: NG        !  In -> Number of symmetry operators
-    !!----    real(kind=sp),dimension(:,:),intent(in ) :: TS        !  In -> Translation parts of the symmetry operators(3,48)
+    !!----    real(kind=cp),dimension(:,:),intent(in ) :: TS        !  In -> Translation parts of the symmetry operators(3,48)
     !!----    integer, dimension(:,:,:),   intent(in ) :: SS        !  In -> Rotation parts of the symmetry operators (3,3,48)
     !!----    character (len=2),           intent(out) :: latsy     ! Out -> Bravais Lattice symbol
-    !!----    real(kind=sp),dimension(3)  ,intent(out) :: Co        ! Out -> Coordinates of origin
+    !!----    real(kind=cp),dimension(3)  ,intent(out) :: Co        ! Out -> Coordinates of origin
     !!----    character (len=1),           intent(out) :: SpaceGen  ! Out -> Type of Cell
     !!----
     !!----    Determines some of items of the object Space_Group_Type from FIXed
@@ -3083,9 +3085,9 @@
        integer,                      intent(   out) :: Ibravl
        integer,                      intent(   in ) :: Ng
        integer, dimension(:,:,:),    intent(   in ) :: Ss  !(3,3,48)
-       real(kind=sp),dimension(:,:), intent(   in ) :: Ts  !(3  ,48)
+       real(kind=cp),dimension(:,:), intent(   in ) :: Ts  !(3  ,48)
        character (len= 2),           intent(   out) :: Latsy
-       real(kind=sp),dimension(3),   intent(   out) :: Co
+       real(kind=cp),dimension(3),   intent(   out) :: Co
        character (len= 1),           intent(   out) :: SpaceGen
 
        !---- Local Variables ----!
@@ -3102,7 +3104,7 @@
                                                                    0, 0, 1, 0, &
                                                                    0, 0, 0, 1/),(/4,4/))
        integer, dimension(6)          :: latt_given
-       real(kind=sp), dimension(3,11) :: latc
+       real(kind=cp), dimension(3,11) :: latc
        integer, dimension(3)          :: tt
        integer                        :: i,j,l
 
@@ -3210,7 +3212,7 @@
           call latsym(SpaceGen,L,latc)
        else
           err_symm=.true.
-          err_mess_symm=" Lattice Type couldn't be determined"
+          ERR_Symm_Mess=" Lattice Type couldn't be determined"
           return
        end if
 
@@ -3251,10 +3253,10 @@
     !!----                                                             ! Out -> Number of symmetry operators
     !!----    integer, dimension(:,:,:),    intent(in out):: SS        !  In -> Rotation parts of the given generators  (3,3,48)
     !!----                                                             ! Out -> Rotation parts of the symmetry operators
-    !!----    real(kind=sp),dimension(:,:), intent(in out):: TS        !  In -> Translation parts of the given generators  (3,48)
+    !!----    real(kind=cp),dimension(:,:), intent(in out):: TS        !  In -> Translation parts of the given generators  (3,48)
     !!----                                                             ! Out -> Translation parts of the symmetry operators
     !!----    character (len=2),            intent(out)   :: latsy     ! Out -> Bravais Lattice symbol
-    !!----    real(kind=sp),dimension(3),   intent(out)   :: Co        ! Out -> Coordinates of origin
+    !!----    real(kind=cp),dimension(3),   intent(out)   :: Co        ! Out -> Coordinates of origin
     !!----    integer,                      intent(out)   :: Num_g     ! Out -> Minimum number of generators
     !!----    character (len=1),            intent(out)   :: SpaceGen  ! Out -> Type of Cell
     !!----
@@ -3269,9 +3271,9 @@
        integer,                      intent(   out) :: Ibravl
        integer,                      intent(in out) :: Ng
        integer, dimension(:,:,:),    intent(in out) :: Ss ! (3,3,48)
-       real(kind=sp),dimension(:,:), intent(in out) :: Ts ! (3  ,48)
+       real(kind=cp),dimension(:,:), intent(in out) :: Ts ! (3  ,48)
        character (len=*),            intent(   out) :: Latsy
-       real(kind=sp),dimension(3),   intent(   out) :: Co
+       real(kind=cp),dimension(3),   intent(   out) :: Co
        integer,                      intent(   out) :: Num_g
        character (len=*),            intent(   out) :: SpaceGen
 
@@ -3293,7 +3295,7 @@
        integer, dimension(4,4,24)     :: tabla
        integer, dimension(4,4)        :: m1,m2
        integer, dimension(3)          :: tt,tt1
-       real(kind=sp), dimension(3,11) :: latc
+       real(kind=cp), dimension(3,11) :: latc
        integer :: i,j,k,n,nop,nopp,ipos,nt,ntp,L,jcen
        integer :: tx, ty, tz
        logical :: cen_found
@@ -3484,7 +3486,7 @@
           call latsym(SpaceGen,L,latc)
        else
           err_symm=.true.
-          err_mess_symm=" Lattice Type couldn't be determined"
+          ERR_Symm_Mess=" Lattice Type couldn't be determined"
           return
        end if
 
@@ -3707,7 +3709,7 @@
              nt=nt+1
              if (nt > 24) then
                 err_symm=.true.
-                err_mess_symm=" Dimension of Table exceeded (I)"
+                ERR_Symm_Mess=" Dimension of Table exceeded (I)"
                 return
              end if
              tabla(:,:,nt)=m2
@@ -3899,7 +3901,7 @@
                 nt=nt+1
                 if (nt > 24) then
                    err_symm=.true.
-                   err_mess_symm=" Dimension of Table exceeded (II)"
+                   ERR_Symm_Mess=" Dimension of Table exceeded (II)"
                    return
                 end if
                 tabla(:,:,nt)=m2
@@ -3963,10 +3965,10 @@
     !!----                                                                  1   2   3   4   5   6   7
     !!----                                                                 "P","A","B","C","I","R","F"
     !!----    integer,                   intent(out)  :: NG        ! Out -> Number of symmetry operators
-    !!----    real(kind=sp),    dimension(:,:),   intent(out)  :: TS        ! Out -> Translation parts of the symmetry operators  (3,48)
+    !!----    real(kind=cp),    dimension(:,:),   intent(out)  :: TS        ! Out -> Translation parts of the symmetry operators  (3,48)
     !!----    integer, dimension(:,:,:), intent(out)  :: SS        ! Out -> Rotation parts of the symmetry operators     (3,3,48)
     !!----    character (len=2),         intent(out)  :: latsy     ! Out -> Bravais lattice symbol
-    !!----    real(kind=sp), dimension(3),        intent(out)  :: Co        ! Out -> Coordinates of symmetry center
+    !!----    real(kind=cp), dimension(3),        intent(out)  :: Co        ! Out -> Coordinates of symmetry center
     !!----    integer,                   intent(out)  :: num_g     ! Out -> Number of generators
     !!----    character (len=20),        intent( in)  :: Hall      !  In -> Hall Spacegroup symbol
     !!----
@@ -3983,9 +3985,9 @@
        integer,                   intent(out) :: Ibravl
        integer,                   intent(out) :: Ng
        integer, dimension(:,:,:), intent(out) :: Ss  !(3,3,48)
-       real(kind=sp),    dimension(:,:),   intent(out) :: Ts  !(3,48)
+       real(kind=cp),    dimension(:,:),   intent(out) :: Ts  !(3,48)
        character (len= 2),        intent(out) :: Latsy
-       real(kind=sp),    dimension(3),     intent(out) :: Co
+       real(kind=cp),    dimension(3),     intent(out) :: Co
        integer,                   intent(out) :: Num_g
        character (len=*),         intent( in) :: Hall
 
@@ -4134,7 +4136,7 @@
        end do
        if (ibravl == 0) then
           err_symm=.true.
-          err_mess_symm=" IBRAVL is Equal Zero"
+          ERR_Symm_Mess=" IBRAVL is Equal Zero"
           return
        end if
        pos_ini=pos_ini+2
@@ -4568,7 +4570,7 @@
              nt=nt+1
              if (nt > 24) then
                 err_symm=.true.
-                err_mess_symm=" Dimension of Table exceeded (I)"
+                ERR_Symm_Mess=" Dimension of Table exceeded (I)"
                 return
              end if
              tabla(:,:,nt)=m2
@@ -4759,7 +4761,7 @@
                 nt=nt+1
                 if (nt > 24) then
                    err_symm=.true.
-                   err_mess_symm=" Dimension of Table exceeded (II)"
+                   ERR_Symm_Mess=" Dimension of Table exceeded (II)"
                    return
                 end if
                 tabla(:,:,nt)=m2
@@ -4797,7 +4799,7 @@
     !!----                                                                       1   2   3   4   5   6   7
     !!----                                                                      "P","A","B","C","F","I","R"
     !!----    integer,                        intent(out)  :: NG        ! Out -> Number of symmetry operators
-    !!----    real(kind=sp),dimension(:,:),   intent(out)  :: TS        ! Out -> Translation parts of the symmetry operators
+    !!----    real(kind=cp),dimension(:,:),   intent(out)  :: TS        ! Out -> Translation parts of the symmetry operators
     !!----    integer, dimension(:,:,:),      intent(out)  :: SS        ! Out -> Rotation parts of the symmetry operators
     !!----    character (len=2),              intent(out)  :: latsy     ! Out -> Bravais lattice symbol
     !!----    character (len=20),             intent( in)  :: SpaceH    !  In -> H-M Spacegroup symbol
@@ -4817,7 +4819,7 @@
        integer,                   intent(out) :: IBRAVL
        integer,                   intent(out) :: NG
        integer, dimension(:,:,:), intent(out) :: Ss  !(3,3,48)
-       real(kind=sp),    dimension(:,:),   intent(out) :: Ts  !(3,48)
+       real(kind=cp),    dimension(:,:),   intent(out) :: Ts  !(3,48)
        character (len= 2),        intent(out) :: Latsy
        character (len=*),         intent( in) :: SpaceH
 
@@ -4829,8 +4831,8 @@
        integer :: SYS,i,j,k,l,NBR,NE,MM,ID,IC,NS,IND,NBL,NLQ,MA
        integer, dimension(3) ::  NMA
        integer, dimension(3,3) :: E
-       real(kind=sp) :: TC
-       real(kind=sp), dimension(   3):: TE, SH
+       real(kind=cp) :: TC
+       real(kind=cp), dimension(   3):: TE, SH
 
        NMA = 0
        SH  = 0.25
@@ -4873,7 +4875,7 @@
 
              if (ibravl == 0) then
                 err_symm=.true.
-                err_mess_symm=" Wrong space-group symbol: "//SpaceH
+                ERR_Symm_Mess=" Wrong space-group symbol: "//SpaceH
                 return
              else if (IBRAVL == 5) then     !These changes are to conform with
                 IBRAVL=7                    !the definition of LAT in SYMMETRY
@@ -5042,7 +5044,7 @@
                    end do
                    do i=1,3
                       tc=ts(i,2)+ts(i,3)+ts(i,4)
-                      if (abs(tc) < eps .or. abs(tc-1.0) < eps) cycle
+                      if (abs(tc) < eps_symm .or. abs(tc-1.0) < eps_symm) cycle
                       IF (HMS(1,1) == "M" .AND. HMS(2,1) == "N".OR.         &
                           HMS(2,1) == "M" .AND. HMS(3,1) == "N".OR.         &
                           HMS(3,1) == "M" .AND. HMS(1,1) == "N")    THEN
@@ -5053,7 +5055,7 @@
                       end if
                       do j=1,3
                          if (id/=j) then
-                            if (abs(ts(i,1+j)-0.5) > eps) ts(i,1+j)=0.5
+                            if (abs(ts(i,1+j)-0.5) > eps_symm) ts(i,1+j)=0.5
                          end if
                       end do
                    end do
@@ -5062,7 +5064,7 @@
                 end if   ! it was else
 
                    tc=ts(1,2)+ts(2,3)+ts(3,4)
-                   if (abs(tc) < eps) then
+                   if (abs(tc) < eps_symm) then
                       call mod_trans(ng,ns,ts,isymce)
                       return
                    end if
@@ -5081,7 +5083,7 @@
                          ts(k,1+l)=0.5
                          cycle
                       end if
-                      if (abs(ts(i,1+i)) < eps) cycle
+                      if (abs(ts(i,1+i)) < eps_symm) cycle
                       mm=i-1
                       if (mm == 0) mm=mm+3
                       ts(i,1+mm)=0.5
@@ -5094,7 +5096,7 @@
                    k=1+i
                    if (k > 3) k=k-3
                    tc=ts(i,1+k)+ts(i,1+6-i-k)
-                   if (abs(tc-1.0) < eps) tc=0.0
+                   if (abs(tc-1.0) < eps_symm) tc=0.0
                    ts(i,1+i)=tc
                 end do
 
@@ -5181,9 +5183,9 @@
              ts(3,3)=ss(3,3,2)*ts(3,2)+ts(3,2)
              do i=1,3
                 if (nbr == 6                                 &
-                            .and. abs(ts(1,3)-0.5) < eps     &
-                            .and. abs(ts(2,3)-0.5) < eps     &
-                            .and. abs(ts(3,3)-0.5) < eps) ts(i,3)=0.0
+                            .and. abs(ts(1,3)-0.5) < eps_symm     &
+                            .and. abs(ts(2,3)-0.5) < eps_symm     &
+                            .and. abs(ts(3,3)-0.5) < eps_symm) ts(i,3)=0.0
              end do
              do i=1,3
                 ts(i,4)=ts(i,2)
@@ -5434,7 +5436,7 @@
 
     !!----
     !!---- Subroutine Get_Stabilizer(X,Spg,Order,Ptr)
-    !!----    real(kind=sp), dimension(3), intent (in)  :: x     ! real(kind=sp) space position (fractional coordinates)
+    !!----    real(kind=cp), dimension(3), intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
     !!----    type(Space_Group_type),      intent (in)  :: Spg   ! Space group
     !!----    integer,                     intent(out)  :: order ! Number of sym.op. keeping invariant the position x
     !!----    integer, dimension(:),       intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
@@ -5448,13 +5450,13 @@
     !!
     Subroutine Get_Stabilizer(X,Spg,Order,Ptr)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent (in)  :: x     ! real(kind=sp) space position (fractional coordinates)
+       real(kind=cp), dimension(3), intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
        type(Space_Group_type),      intent (in)  :: Spg   ! Space group
        integer,                     intent(out)  :: order ! Number of sym.op. keeping invariant the position x
        integer, dimension(:),       intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
                                                          ! of the stabilizer of x
        !---- Local variables ----!
-       real(kind=sp), dimension(3):: xx
+       real(kind=cp), dimension(3):: xx
        integer                    ::  j,n
 
        order  = 1    !Identity belongs always to the stabilizer
@@ -5475,8 +5477,8 @@
 
     !!----
     !!---- Subroutine Get_String_Resolv(T,X,Ix,Symb)
-    !!----    real(kind=sp), dimension(3), intent( in) :: t      !  In -> Traslation part
-    !!----    real(kind=sp), dimension(3), intent( in) :: x      !  In -> real(kind=sp) part of variable
+    !!----    real(kind=cp), dimension(3), intent( in) :: t      !  In -> Traslation part
+    !!----    real(kind=cp), dimension(3), intent( in) :: x      !  In -> real(kind=cp) part of variable
     !!----    integer, dimension(3),       intent( in) :: ix     !  In -> Frags: 1:x, 2:y, 3:z
     !!----    character (len=*),           intent(out) :: symb   ! Out -> String
     !!----
@@ -5487,15 +5489,15 @@
     !!
     Subroutine Get_String_Resolv(t,x,ix,symb)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),      intent( in) :: t
-       real(kind=sp), dimension(3),      intent( in) :: x
+       real(kind=cp), dimension(3),      intent( in) :: t
+       real(kind=cp), dimension(3),      intent( in) :: x
        integer, dimension(3),   intent( in) :: ix
        character (len=*),       intent(out) :: symb
 
        !---- Local Variables ----!
        character(len=10) :: car
        integer           :: i, np, npos
-       real(kind=sp),dimension(3) :: xx
+       real(kind=cp),dimension(3) :: xx
 
        !---- Main ----!
        xx=x
@@ -5512,7 +5514,7 @@
        npos=1
        do i=1,3
           !---- Only t value ----!
-          if (abs(xx(i)) <= eps) then
+          if (abs(xx(i)) <= eps_symm) then
              call get_fraction_2dig(t(i),car)
              car=adjustl(car)
              if (car(1:1) == "+") car=car(2:)
@@ -5528,7 +5530,7 @@
 
           call get_fraction_2dig(xx(i),car)
           car=adjustl(car)
-          if (abs(abs(xx(i)) - 1.0) <= eps) then
+          if (abs(abs(xx(i)) - 1.0) <= eps_symm) then
              if (car(1:2) == "+1") car=car(3:)
              if (car(1:2) == "-1") car(2:)=car(3:)
           else
@@ -5566,7 +5568,7 @@
 
     !!----
     !!----  Subroutine Get_SubOrbits(X,Spg,ptr,Mult,orb,ind,conv)
-    !!----    real(kind=sp), dimension(3),  intent (in) :: x     !  In -> Position vector
+    !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,dimension(:),         intent( in) :: ptr   !  In -> Pointer to symops of a subgroup
     !!----    integer,                      intent(out) :: mult  !  Out -> Multiplicity
@@ -5589,17 +5591,17 @@
     !!
     Subroutine Get_SubOrbits(x,Spg,ptr,mult,orb,ind,conv)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),    intent (in) :: x
+       real(kind=cp), dimension(3),    intent (in) :: x
        type(Space_Group_type),         intent (in) :: spg
        integer,dimension(:),           intent( in) :: ptr
        integer,                        intent(out) :: mult
-       real(kind=sp),dimension(:,:),   intent(out) :: orb
+       real(kind=cp),dimension(:,:),   intent(out) :: orb
        integer,dimension(:),           intent(out) :: ind
        character(len=*), optional,     intent( in) :: conv
 
        !---- Local variables ----!
        integer                                 :: i,j, nt,is, numorb
-       real(kind=sp), dimension(3)             :: xx,v,xi
+       real(kind=cp), dimension(3)             :: xx,v,xi
        character(len=1)                        :: laty
 
        laty=Spg%spg_lat
@@ -5728,8 +5730,8 @@
 
     !!----
     !!---- Subroutine Get_SymSymb(Sim,Tt,Strsym)
-    !!----    real(kind=sp)/integer, dimension(3,3), intent( in)    :: sim      !  In -> Rotational part of the S.O.
-    !!----    real(kind=sp), dimension( 3),          intent( in)    :: tt       !  In -> Translational part of the S.O.
+    !!----    real(kind=cp)/integer, dimension(3,3), intent( in)    :: sim      !  In -> Rotational part of the S.O.
+    !!----    real(kind=cp), dimension( 3),          intent( in)    :: tt       !  In -> Translational part of the S.O.
     !!----    character (len=*),                     intent(out)    :: Strsym   ! Out -> String in th form X,Y,-Z, ...
     !!----
     !!----    Obtain the Jones Faithful representation of a symmetry operator
@@ -5740,7 +5742,7 @@
     !!--++
     !!--++ Subroutine Get_SymsymbI(Sim,Tt,Strsym)
     !!--++    integer, dimension(3,3),      intent( in)    :: sim      !  In -> Rotational part of the S.O.
-    !!--++    real(kind=sp), dimension( 3), intent( in)    :: tt       !  In -> Translational part of the S.O.
+    !!--++    real(kind=cp), dimension( 3), intent( in)    :: tt       !  In -> Translational part of the S.O.
     !!--++    character (len=*),            intent(out)    :: Strsym   ! Out -> String in th form X,Y,-Z, ...
     !!--++
     !!--++    (OVERLOADED)
@@ -5751,7 +5753,7 @@
     Subroutine Get_SymSymbI(Sim,Tt,Strsym)
        !---- Arguments ----!
        integer, dimension(3,3),     intent( in) :: sim
-       real(kind=sp), dimension(3), intent( in) :: tt
+       real(kind=cp), dimension(3), intent( in) :: tt
        character (len=*),           intent(out) :: Strsym
 
        !---- Local variables ----!
@@ -5794,7 +5796,7 @@
              lenx=len_trim(auxc)
           end do
 
-          if (abs(tt(i)) > eps) then
+          if (abs(tt(i)) > eps_symm) then
              call get_fraction_2dig(tt(i),fracc)
              write(unit=xyzt(i),fmt="(a,a,a)") auxc(1:lenx),fracc,","
           else
@@ -5817,8 +5819,8 @@
 
     !!--++
     !!--++  Subroutine Get_SymSymbR(X,T,Symb)
-    !!--++     real(kind=sp),    dimension(3,3),    intent( in) :: x
-    !!--++     real(kind=sp),    dimension(3),      intent( in) :: t
+    !!--++     real(kind=cp),    dimension(3,3),    intent( in) :: x
+    !!--++     real(kind=cp),    dimension(3),      intent( in) :: t
     !!--++     character (len=*),                   intent(out) :: symb
     !!--++
     !!--++     (OVERLOADED)
@@ -5829,14 +5831,14 @@
     !!
     Subroutine Get_SymSymbR(X,T,Symb)
        !---- Arguments ----!
-       real(kind=sp),    dimension(3,3), intent( in) :: x
-       real(kind=sp),    dimension(3),   intent( in) :: t
+       real(kind=cp),    dimension(3,3), intent( in) :: x
+       real(kind=cp),    dimension(3),   intent( in) :: t
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
        character(len= 12):: car
        integer           :: i,j,k, np,npp,npos
-       real(kind=sp)              :: suma
+       real(kind=cp)              :: suma
 
        !---- Main ----!
        symb=" "
@@ -5847,7 +5849,7 @@
              if (abs(x(i,j)) > 0.0 ) then
                 call get_fraction_1dig(x(i,j),car)
                 car=adjustl(car)
-                if (abs(abs(x(i,j))-1.0) <= eps) then
+                if (abs(abs(x(i,j))-1.0) <= eps_symm) then
                      if (npp == 0) then
                         select case (car(1:2))
                            case ("-1")
@@ -5910,7 +5912,7 @@
              end if
           end do
 
-          if (abs(t(i)) <= eps .and. npp /= 0) then
+          if (abs(t(i)) <= eps_symm .and. npp /= 0) then
              if (i < 3) then
                 symb(npos:)=", "
                 npos=len_trim(symb)+2
@@ -5924,7 +5926,7 @@
           do j=1,3
              suma=suma+abs(x(i,j))
           end do
-          if (suma <= 3.0*eps) then
+          if (suma <= 3.0*eps_symm) then
              if (car(1:1) == "+") car=car(2:4)//" "
           end if
           np=len_trim(car)
@@ -6066,7 +6068,7 @@
     Subroutine Init_Err_Symm()
 
        err_symm=.false.
-       err_mess_symm=" "
+       ERR_Symm_Mess=" "
 
        return
     End Subroutine Init_Err_Symm
@@ -6074,9 +6076,9 @@
     !!----
     !!---- Subroutine Inverse_Symm(R,T,S,U)
     !!----    integer, dimension(3,3),     intent(in)  :: R     !  In -> Rotational Part
-    !!----    real(kind=sp), dimension(3), intent(in)  :: t     !  In -> Traslational part
+    !!----    real(kind=cp), dimension(3), intent(in)  :: t     !  In -> Traslational part
     !!----    integer, dimension(3,3),     intent(out) :: S     ! Out -> New Rotational part
-    !!----    real(kind=sp), dimension(3), intent(out) :: u     ! Out -> new traslational part
+    !!----    real(kind=cp), dimension(3), intent(out) :: u     ! Out -> new traslational part
     !!----
     !!----    Calculates the inverse of the symmetry operator (R,t)
     !!----
@@ -6085,13 +6087,13 @@
     Subroutine Inverse_Symm(R,t,S,u)
        !---- Arguments ----!
        integer, dimension(3,3),     intent(in)  :: R
-       real(kind=sp), dimension(3), intent(in)  :: t
+       real(kind=cp), dimension(3), intent(in)  :: t
        integer, dimension(3,3),     intent(out) :: S
-       real(kind=sp), dimension(3), intent(out) :: u
+       real(kind=cp), dimension(3), intent(out) :: u
 
        !---- Local variables ----!
        integer                        :: ifail
-       real(kind=sp), dimension(3,3)  :: a,b
+       real(kind=cp), dimension(3,3)  :: a,b
 
        call init_err_symm()
        a=real(r)
@@ -6101,7 +6103,7 @@
        call matrix_inverse(a,b,ifail)
        if (ifail /= 0) then
           err_symm=.true.
-          err_mess_symm= "Inversion Matrix Failed"
+          ERR_Symm_Mess= "Inversion Matrix Failed"
           return
        end if
        s=nint(b)
@@ -6114,7 +6116,7 @@
     !!---- Subroutine Latsym(Symb,Numl,Latc)
     !!----    character (len=*),                       intent(in)  :: SYMB  !  In -> Space Group H-M/Hall symbol
     !!----    integer, optional,                       intent(in)  :: numL  !  Number of centring vectors
-    !!----    real(kind=sp),optional, dimension(3,11), intent(in)  :: latc  !  Centering vectors
+    !!----    real(kind=cp),optional, dimension(3,11), intent(in)  :: latc  !  Centering vectors
     !!----
     !!--<<        Inlat  Lattice type & associated translations
     !!----          1     P: { 000 }
@@ -6136,7 +6138,7 @@
        !---- Argument ----!
        character(len=*),                intent(in)  :: SYMB
        integer, optional,               intent(in)  :: numL
-       real(kind=sp),optional, dimension(3,11),  intent(in)  :: latc
+       real(kind=cp),optional, dimension(3,11),  intent(in)  :: latc
 
        !---- Local variables ----!
        character(len=1)                        :: LAT
@@ -6225,11 +6227,11 @@
               end do
              else
                err_symm=.true.
-               err_mess_symm="Unconventional Lattice Symbol Z needs centring vectors"
+               ERR_Symm_Mess="Unconventional Lattice Symbol Z needs centring vectors"
              end if
           case default
              err_symm=.true.
-             err_mess_symm="Wrong Lattice Symbol "//LAT
+             ERR_Symm_Mess="Wrong Lattice Symbol "//LAT
        end select
 
        LAT_type=LAT
@@ -6240,7 +6242,7 @@
     !!--++
     !!--++ Subroutine Max_Conv_Lattice_Type(L, Latc, Lattyp)
     !!--++    integer,                        intent(in)  :: L         !  number of centring vectors
-    !!--++    real(kind=sp), dimension(:,:),  intent(in)  :: Latc      ! (3,11) centring vectors
+    !!--++    real(kind=cp), dimension(:,:),  intent(in)  :: Latc      ! (3,11) centring vectors
     !!--++    character(len=*),               intent(out) :: lattyp    ! Lattice symbol
     !!--++
     !!--++    (PRIVATE)
@@ -6253,7 +6255,7 @@
     Subroutine Max_Conv_Lattice_Type(L, Latc, lattyp)
        !---- Arguments ----!
        integer,                        intent( in) :: L
-       real(kind=sp), dimension(:,:),  intent( in) :: Latc
+       real(kind=cp), dimension(:,:),  intent( in) :: Latc
        character(len=*),               intent(out) :: lattyp
 
        !---- Local variables ----!
@@ -6324,7 +6326,7 @@
     !!--++ Subroutine Mod_Trans(Ng, Ns, Ts, Isymce)
     !!--++    integer, intent( in)                           :: ng      ! In -> Number of operators
     !!--++    integer, intent( in)                           :: ns      ! In ->
-    !!--++    real(kind=sp), dimension(3,24), intent(in out) :: ts      ! In -> Traslation part
+    !!--++    real(kind=cp), dimension(3,24), intent(in out) :: ts      ! In -> Traslation part
     !!--++                                                                Out ->
     !!--++    integer, intent(out),optional                  :: isymce  ! Out -> Origin information
     !!--++                                                                0= Ccenter of Inversion in the Origin
@@ -6341,7 +6343,7 @@
     Subroutine Mod_Trans(Ng,Ns,Ts,Isymce)
        !---- Arguments ----!
        integer, intent(          in)                  :: ng,ns
-       real(kind=sp), dimension(3,24), intent(in out) :: ts
+       real(kind=cp), dimension(3,24), intent(in out) :: ts
        integer, intent(out),optional                  :: isymce
 
        !---- Local Variables ----!
@@ -6360,7 +6362,7 @@
     !!----    character (len=*),       intent( in) :: Info   !  In -> Input string with S.Op.
     !!----                                                            in the form: MSYM  u,w,w,p_mag
     !!----    integer, dimension(3,3), intent(out) :: sim    ! Out -> Rotation matrix
-    !!----    real(kind=sp),           intent(out) :: p_mag  ! Out -> magnetic phase
+    !!----    real(kind=cp),           intent(out) :: p_mag  ! Out -> magnetic phase
     !!----
     !!----    Read magnetic symmetry operators in the form U,V,W, etc...
     !!----    Provides the magnetic rotational matrix and phase associated to a MSYM symbol
@@ -6371,7 +6373,7 @@
        !---- Arguments ----!
        character (len=*),       intent( in) :: Info
        integer, dimension(3,3), intent(out) :: sim
-       real(kind=sp),           intent(out) :: p_mag
+       real(kind=cp),           intent(out) :: p_mag
 
        !---- Local variables ----!
        integer ::  i,imax,nop,s,ifound,j,ioerr,istart,mod_istart
@@ -6421,7 +6423,7 @@
                 s=-1
              else
                 err_symm=.true.
-                err_mess_symm=" Invalid character... "//aux(I:I)//" in Sym. Op."
+                ERR_Symm_Mess=" Invalid character... "//aux(I:I)//" in Sym. Op."
                 return
              end if
           end do    !End loop through the string
@@ -6432,21 +6434,21 @@
 
           if (ifound == 0) then
              err_symm=.true.
-             err_mess_symm=" Blank operator field "//info
+             ERR_Symm_Mess=" Blank operator field "//info
              return
           end if
        end do    !End external loop over the three expected items
 
        if (determ_A(sim) == 0) then      !Verify it is a suitable s.o.
           err_symm=.true.
-          err_mess_symm=" The above operator is wrong "//info
+          ERR_Symm_Mess=" The above operator is wrong "//info
           return
        end if
 
        if (ifound == 1) return
 
        err_symm=.true.
-       err_mess_symm=" The above operator is wrong "//info
+       ERR_Symm_Mess=" The above operator is wrong "//info
 
        return
     End Subroutine Read_Msymm
@@ -6455,7 +6457,7 @@
     !!---- Subroutine Read_SymTrans_Code(Code,N,Tr)
     !!----    character (len=*),          intent( in) :: Code
     !!----    integer,                    intent(out) :: N
-    !!----    real(kind=sp),dimension(3), intent(out) :: Tr
+    !!----    real(kind=cp),dimension(3), intent(out) :: Tr
     !!----
     !!----    Read a Code string for reference the symmetry operator and the
     !!----    Traslation applied.
@@ -6469,7 +6471,7 @@
        !---- Arguments ----!
        character (len=*),          intent( in) :: Code
        integer,                    intent(out) :: N
-       real(kind=sp),dimension(3), intent(out) :: Tr
+       real(kind=cp),dimension(3), intent(out) :: Tr
 
        !---- Local variables ----!
        character(len=8) :: car
@@ -6514,7 +6516,7 @@
     !!----                                                                             in the form: SYMM  x,-y+1/2,z
     !!----    integer,                               intent(in)     :: istart !  In -> Starting index of info to read in.
     !!----    integer, dimension(3,3),               intent(out)    :: sim    ! Out -> Rotational part of S.O.
-    !!----    real(kind=sp), optional, dimension(3), intent(out)    :: tt     ! Out -> Traslational part of S.O.
+    !!----    real(kind=cp), optional, dimension(3), intent(out)    :: tt     ! Out -> Traslational part of S.O.
     !!----
     !!----    Read symmetry or transformation operators in the form X,Y,Z, etc...
     !!----    Provides the rotational matrix and translation associated a to SYMM symbol
@@ -6527,13 +6529,13 @@
        character (len=*),            intent(in)              :: Info
        integer,                      intent(in)              :: istart
        integer, dimension(3,3),      intent(out)             :: sim
-       real(kind=sp), optional, dimension(3), intent(out)    :: tt
+       real(kind=cp), optional, dimension(3), intent(out)    :: tt
 
        !---- Local variables ----!
        character (len=*), dimension(10), parameter :: ANUM=(/"1","2","3","4","5","6","7","8","9","0"/)
        integer, dimension(10), parameter           :: NUM =(/1,2,3,4,5,6,7,8,9,0/)
        integer :: i,imax,nop,s,np,isl,ifound,ip,k,mod_istart,ST=0,I_P,ist
-       real(kind=sp) :: t,a
+       real(kind=cp) :: t,a
 
        call init_err_symm()
        imax=len_trim(info)
@@ -6598,7 +6600,7 @@
                    end if
                 end do
                 err_symm=.true.
-                err_mess_symm=" Invalid character... "//INFO(I:I)//" in Sym. Op."
+                ERR_Symm_Mess=" Invalid character... "//INFO(I:I)//" in Sym. Op."
                 return
              end if
           end do  loop_string   !end loop through the string (index:i= ist,imax)
@@ -6611,21 +6613,21 @@
           if (present(tt)) tt(nop)=t
           if (ifound == 0) then
              err_symm=.true.
-             err_mess_symm=" Blank operator field"
+             ERR_Symm_Mess=" Blank operator field"
              return
           end if
        end do    !End external loop over the three expected items (index:NOP)
 
        if (determ_A(sim) == 0) then      !Verify it is a suitable s.o.
           err_symm=.true.
-          err_mess_symm=" The above operator is wrong: "//info
+          ERR_Symm_Mess=" The above operator is wrong: "//info
           return
        end if
 
        if (ifound == 1) return
 
        err_symm=.true.
-       err_mess_symm=" The above operator is wrong: "//info
+       ERR_Symm_Mess=" The above operator is wrong: "//info
 
        return
     End Subroutine Read_Xsym
@@ -6668,13 +6670,13 @@
           if (Isl /= 0) return
 
           if (ipass >=2 ) then
-             err_mess_symm=" Try to re-write your S.O. using a rotational part"
+             ERR_Symm_Mess=" Try to re-write your S.O. using a rotational part"
              if (i1 == 1 .and.  i2 == 24) then
-                err_mess_symm=trim(err_mess_symm)//" identical to a S.O. of the space group P m -3 m"
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m"
              else if(i1 == 25 .and.  i2 == 36) then
-                err_mess_symm=trim(err_mess_symm)//" identical to a S.O. of the space group P 6/m m m"
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P 6/m m m"
              else
-                err_mess_symm=trim(err_mess_symm)//" identical to a S.O. of the space group P m -3 m or P 6/m m m"
+                ERR_Symm_Mess=trim(ERR_Symm_Mess)//" identical to a S.O. of the space group P m -3 m or P 6/m m m"
              end if
              err_symm=.true.
              return
@@ -6738,10 +6740,10 @@
        integer                          :: m,l,ngm,k,ier
        integer                          :: ng
        integer,      dimension(3,3,48)  :: ss
-       real(kind=sp),dimension(3,48)    :: ts
-       real(kind=sp),dimension(3)       :: co
-       real(kind=sp),dimension(1)       :: vet
-       real(kind=sp),dimension(3)       :: vec
+       real(kind=cp),dimension(3,48)    :: ts
+       real(kind=cp),dimension(3)       :: co
+       real(kind=cp),dimension(1)       :: vet
+       real(kind=cp),dimension(3)       :: vec
 
        !---- Inicializing Space Group ----!
        call init_err_symm()
@@ -6858,7 +6860,7 @@
                 end do
              else
                 err_symm=.true.
-                err_mess_symm=" Number of Space Group out of limits"
+                ERR_Symm_Mess=" Number of Space Group out of limits"
                 return
              end if
           end if
@@ -6875,7 +6877,7 @@
                 end do
              else
                 err_symm=.true.
-                err_mess_symm=" Generators should be provided if FIX option is Used"
+                ERR_Symm_Mess=" Generators should be provided if FIX option is Used"
                 return
              end if
              call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm)
@@ -6902,7 +6904,7 @@
                 end do
              else
                 err_symm=.true.
-                err_mess_symm=" Generators should be provided in GEN calling Set_SpaceGroup"
+                ERR_Symm_Mess=" Generators should be provided in GEN calling Set_SpaceGroup"
                 return
              end if
              call Get_SO_from_Gener(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy, &
@@ -7035,7 +7037,7 @@
              call get_generators(spgm,gener)
              if (err_symtab) then
                 err_symm=.true.
-                err_mess_symm=" Problems in SpaceGroup: "//trim(spgm)//" => the HM symbol or the number is incorrect "
+                ERR_Symm_Mess=" Problems in SpaceGroup: "//trim(spgm)//" => the HM symbol or the number is incorrect "
                 return
              else  !Decode gener in generators to construct the space group
                 k=0
@@ -7100,7 +7102,7 @@
 
           case default
              err_symm=.true.
-             err_mess_symm=" Problems in SpaceGroup"
+             ERR_Symm_Mess=" Problems in SpaceGroup"
              return
        end select
 
@@ -7244,7 +7246,7 @@
            end do
            if(tab(i,j) == 0) then
              err_symm=.true.
-             err_mess_symm=" Problems constructing the multiplication Table of the space group: "//trim(spg%spg_symb)
+             ERR_Symm_Mess=" Problems constructing the multiplication Table of the space group: "//trim(spg%spg_symb)
              return
            end if
          end do
@@ -7281,7 +7283,7 @@
        integer                 :: i,j,num
        integer, dimension(4,4) :: s, si, st, sti, w
        integer, dimension(3,3) :: r, r_inv, rt, rt_inv
-       real(kind=sp), dimension(3)      :: t, t_inv, tt, tt_inv
+       real(kind=cp), dimension(3)      :: t, t_inv, tt, tt_inv
 
        !---- Initializing variables ----!
        call init_err_symm()
@@ -7297,17 +7299,17 @@
        !---- Checking data ----!
        if (len_trim (car1) == 0) then
           err_symm=.true.
-          err_mess_symm=" Blank Option"
+          ERR_Symm_Mess=" Blank Option"
           return
        end if
        if (len_trim (car2) == 0) then
           err_symm=.true.
-          err_mess_symm=" Blank Option"
+          ERR_Symm_Mess=" Blank Option"
           return
        end if
        if (SpaceGroup%NumSpg <= 0 .or. SpaceGroup%NumSpg > 230 ) then
           err_symm=.true.
-          err_mess_symm=" Space Group Not Defined..."
+          ERR_Symm_Mess=" Space Group Not Defined..."
           return
        end if
        SpaceGroup%SG_setting="Changed from "//car1//" to "//car2
@@ -7576,7 +7578,7 @@
           w=matmul(s,w)
           w=matmul(w,si)
           SpaceGroup%Symop(i)%Rot = w(1:3,1:3)
-          SpaceGroup%Symop(i)%Tr  = mod(real(w(1:3,4)/24.0)+10.0_sp,1.0_sp)
+          SpaceGroup%Symop(i)%Tr  = mod(real(w(1:3,4)/24.0)+10.0_cp,1.0_cp)
        end do
        do i=1,SpaceGroup%numops
           call Get_SymSymb(SpaceGroup%Symop(i)%Rot,  &
@@ -7588,8 +7590,8 @@
 
     !!----
     !!---- Subroutine Similar_Transf_Sg(Mat,Orig,Spg,Spgn,Matkind)
-    !!----    real(kind=sp), dimension (3,3),   intent( in)    :: Mat     ! Matrix transforming the basis
-    !!----    real(kind=sp), dimension (  3),   intent( in)    :: orig    ! Coordinates of the new origin
+    !!----    real(kind=cp), dimension (3,3),   intent( in)    :: Mat     ! Matrix transforming the basis
+    !!----    real(kind=cp), dimension (  3),   intent( in)    :: orig    ! Coordinates of the new origin
     !!----    type (Space_Group_Type) ,         intent( in)    :: SpG     ! Initial space group
     !!----    type (Space_Group_Type) ,         intent(out)    :: SpGn    ! Maximum subgroup of SpG
     !!----    character (len=*), optional,      intent( in)    :: matkind ! Type of the input matrix
@@ -7623,8 +7625,8 @@
     !!
     Subroutine Similar_Transf_SG(Mat,orig,SpG,SpGn,matkind,Fix_lat)
        !---- Arguments ----!
-       real(kind=sp), dimension (3,3),   intent( in)    :: Mat
-       real(kind=sp), dimension (  3),   intent( in)    :: orig
+       real(kind=cp), dimension (3,3),   intent( in)    :: Mat
+       real(kind=cp), dimension (  3),   intent( in)    :: orig
        type (Space_Group_Type) ,         intent( in)    :: SpG
        type (Space_Group_Type) ,         intent(out)    :: SpGn
        character (len=*), optional,      intent( in)    :: matkind
@@ -7632,14 +7634,14 @@
 
        !--- Local variables ---!
        integer                 :: ifail, i, j, k, det, L, im, nc, m, ngm, ngen, Isystm
-       real(kind=sp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
+       real(kind=cp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
                                                                    0.0,1.0,0.0,  &
                                                                    0.0,0.0,1.0/),(/3,3/))
-       real(kind=sp), dimension (3,48) :: newlat = 0.0
-       real(kind=sp), dimension (3,3)  :: S, Sinv, rot, rotn
+       real(kind=cp), dimension (3,48) :: newlat = 0.0
+       real(kind=cp), dimension (3,3)  :: S, Sinv, rot, rotn
        integer,       dimension (3,3)  :: irot
-       real(kind=sp), dimension (  3)  :: tr, trn, v
-       real(kind=sp)                   :: rmin,rmax
+       real(kind=cp), dimension (  3)  :: tr, trn, v
+       real(kind=cp)                   :: rmin,rmax
        logical                         :: latt
        character(len=40),dimension(60) :: gen
        integer,       dimension (60)   :: pt
@@ -7667,7 +7669,7 @@
        call matrix_inverse(S,Sinv,ifail)
        if (ifail /= 0) then
           err_symm=.true.
-          err_mess_symm= "Inversion Matrix Failed on: similar_SG"
+          ERR_Symm_Mess= "Inversion Matrix Failed on: similar_SG"
           return
        end if
 
@@ -7678,7 +7680,7 @@
           if (SpG%NumLat > 1) then  !Original lattice is centered
              do i=2,SpG%NumLat      !Transform the centring vectors to the new lattice
                 v=Modulo_Lat(matmul(Sinv,SpG%Latt_trans(:,i)))
-                if (sum(v) < eps) cycle
+                if (sum(v) < eps_symm) cycle
                 L=L+1
                 newlat(:,L)=v
              end do
@@ -7695,10 +7697,10 @@
                       v(3) = k
                       if (nint(sum(v)) == 0) cycle
                       tr=Modulo_Lat(matmul(Sinv,v))
-                      if (sum(tr) < eps) cycle
+                      if (sum(tr) < eps_symm) cycle
                       latt =.true.
                       do m=1,L
-                         if (sum(abs(tr-newlat(:,m))) < eps) then
+                         if (sum(abs(tr-newlat(:,m))) < eps_symm) then
                             latt =.false.
                             exit
                          end if
@@ -7906,7 +7908,7 @@
     !!----    character(len=*),            intent (in) :: Symb    !  In  -> Symmetry string
     !!----
     !!----    integer, dimension(6),       intent(out) :: B_Ind   !  Out -> B Index
-    !!----    real(kind=sp), dimension(6), intent(out) :: B_Fac   !  Out -> B Factor
+    !!----    real(kind=cp), dimension(6), intent(out) :: B_Fac   !  Out -> B Factor
     !!----
     !!----    Symmetry relations among coefficients of the anisotropic temperature
     !!----    factor.
@@ -7920,7 +7922,7 @@
     !!--++ Subroutine Sym_B_Relations_Op(R,B_Ind,B_Fac)
     !!--++    integer,dimension(3,3),      intent (in) :: R
     !!--++    integer, dimension(6),       intent(out) :: B_Ind
-    !!--++    real(kind=sp), dimension(6), intent(out) :: B_Fac
+    !!--++    real(kind=cp), dimension(6), intent(out) :: B_Fac
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Symmetry relations among coefficients of the anisotropic temperature
@@ -7938,7 +7940,7 @@
        !---- Arguments ----!
        integer,dimension(3,3),      intent (in) :: R
        integer, dimension(6),       intent(out) :: B_Ind
-       real(kind=sp), dimension(6), intent(out) :: B_Fac
+       real(kind=cp), dimension(6), intent(out) :: B_Fac
 
        !---- Local variables ----!
        integer, dimension(6,6) :: rb
@@ -7947,7 +7949,7 @@
 
        !---- Init variables ----!
        err_symm=.false.
-       err_mess_symm=" "
+       ERR_Symm_Mess=" "
 
         rb(1,1)=r(1,1)*r(1,1)
         rb(1,2)=r(2,1)*r(2,1)
@@ -8075,7 +8077,7 @@
 
        if (any(b_ind==-1)) then
           err_symm=.true.
-          err_mess_symm="Symmetry relations in B Factors are wrong! "
+          ERR_Symm_Mess="Symmetry relations in B Factors are wrong! "
        end if
 
        return
@@ -8085,7 +8087,7 @@
     !!--++ Subroutine Sym_B_Relations_St(Symmcar,B_Ind,B_Fac)
     !!--++    character(len=*),            intent (in) :: Symmcar
     !!--++    integer, dimension(6),       intent(out) :: B_Ind
-    !!--++    real(kind=sp), dimension(6), intent(out) :: B_Fac
+    !!--++    real(kind=cp), dimension(6), intent(out) :: B_Fac
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Symmetry relations among coefficients of the anisotropic temperature
@@ -8099,11 +8101,11 @@
        !---- Arguments ----!
        character(len=*),            intent (in) :: Symmcar
        integer, dimension(6),       intent(out) :: B_Ind
-       real(kind=sp), dimension(6), intent(out) :: B_Fac
+       real(kind=cp), dimension(6), intent(out) :: B_Fac
 
        !---- Local variables ----!
        integer, dimension(3,3) :: a
-       real(kind=sp), dimension(3)      :: t
+       real(kind=cp), dimension(3)      :: t
 
        call read_xsym(symmcar,1,a,t)
        call sym_b_relations_op(a,b_ind,b_fac)
@@ -8140,7 +8142,7 @@
 
        !--- Local variables ---!
        integer, dimension (3,3)      :: Sa,Sb
-       real(kind=sp),dimension (3)   :: ta,tb
+       real(kind=cp),dimension (3)   :: ta,tb
 
        call Read_Xsym(syma,1,Sa,ta)
        call Read_Xsym(symb,1,Sb,tb)
@@ -8165,7 +8167,7 @@
     !!----    type(Sym_Oper_type),         intent (in) :: Op
     !!----
     !!----    integer, dimension(3,3),     intent (in) :: S
-    !!----    real(kind=sp), dimension(3), intent (in) :: t
+    !!----    real(kind=cp), dimension(3), intent (in) :: t
     !!----
     !!----    character(len=*),            intent (in) :: Symm
     !!----
@@ -8199,7 +8201,7 @@
     !!--++
     !!--++ Subroutine Symmetry_Symbol_Str(S,T,Symb)
     !!--++    integer, dimension(3,3),     intent( in) :: s
-    !!--++    real(kind=sp), dimension(3), intent( in) :: t
+    !!--++    real(kind=cp), dimension(3), intent( in) :: t
     !!--++    character (len=*),           intent(out) :: symb
     !!--++
     !!--++    (OVERLOADED)
@@ -8210,7 +8212,7 @@
     Subroutine Symmetry_Symbol_Str(S,T,Symb)
        !---- Arguments ----!
        integer,       dimension(3,3),    intent( in) :: s
-       real(kind=sp), dimension(3),      intent( in) :: t
+       real(kind=cp), dimension(3),      intent( in) :: t
        character (len=*),                intent(out) :: symb
 
        !---- Local variables ----!
@@ -8222,22 +8224,22 @@
        integer, dimension(3,3), parameter :: identidad = reshape((/1, 0, 0, &
                                                                    0, 1, 0, &
                                                                    0, 0, 1/),(/3,3/))
-       real(kind=sp)                    :: rnum
-       real(kind=sp), dimension(3)      :: t0,t1,t2,t3
-       real(kind=sp), dimension(3)      :: x1,x2,x3
-       real(kind=sp), dimension(3)      :: p0,p1,p2,p3
-       real(kind=sp), dimension(3,3)    :: ww
+       real(kind=cp)                    :: rnum
+       real(kind=cp), dimension(3)      :: t0,t1,t2,t3
+       real(kind=cp), dimension(3)      :: x1,x2,x3
+       real(kind=cp), dimension(3)      :: p0,p1,p2,p3
+       real(kind=cp), dimension(3,3)    :: ww
 
        !---- Initialize ----!
        symb=" "
        n=axes_rotation(s)
-       t0=mod(t+10.0_sp,1.0_sp)
+       t0=mod(t+10.0_cp,1.0_cp)
        x1 =0.0
        ix1=0
 
        select case (n)
           case (1) ! Traslation or identity
-             if (sum(abs(t)) <= 3.0*eps) then
+             if (sum(abs(t)) <= 3.0*eps_symm) then
                 symb(1:1) ="1"
              else
                 symb(1:3)="t ("
@@ -8291,7 +8293,7 @@
                    p2(3)=-(p2(1)*p1(1) + p2(2)*p1(2))/p1(3)
              end select
              do i=1,3
-                if (abs(p2(i) - p0(i)) <= eps) p2(i)=p2(i)*p2(i)+0.5*real(i)
+                if (abs(p2(i) - p0(i)) <= eps_symm) p2(i)=p2(i)*p2(i)+0.5*real(i)
              end do
 
              !---- P3 ----!
@@ -8321,8 +8323,8 @@
 
           case (-2)  ! Reflection or glide reflection
              t1=matmul(s,t0)+t0
-             if (t1(1) <= eps .and. t1(2) <= eps .and. &
-                 t1(3) <= eps) then        ! Pure Reflection
+             if (t1(1) <= eps_symm .and. t1(2) <= eps_symm .and. &
+                 t1(3) <= eps_symm) then        ! Pure Reflection
 
                 !----Mirror Plane ----!
                 w=s-identidad
@@ -8341,52 +8343,52 @@
                 symb(1:2)="g "
 
                 !---- a: (1/2, 0, 0) ----!
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(2)) <= eps) .and. &
-                     (abs(t3(3)) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(2)) <= eps_symm) .and. &
+                     (abs(t3(3)) <= eps_symm) ) then
                    symb(1:2)="a "
                 end if
 
                 !---- b: (0, 1/2, 0) ----!
-                if ( (abs(t3(2) - 0.5) <= eps) .and. (abs(t3(1)) <= eps) .and. &
-                     (abs(t3(3)) <= eps) ) then
+                if ( (abs(t3(2) - 0.5) <= eps_symm) .and. (abs(t3(1)) <= eps_symm) .and. &
+                     (abs(t3(3)) <= eps_symm) ) then
                    symb(1:2)="b "
                 end if
 
                 !---- c: (0, 0, 1/2) ----!
-                if ( (abs(t3(3) - 0.5) <= eps) .and. (abs(t3(2)) <= eps) .and. &
-                     (abs(t3(1)) <= eps) ) then
+                if ( (abs(t3(3) - 0.5) <= eps_symm) .and. (abs(t3(2)) <= eps_symm) .and. &
+                     (abs(t3(1)) <= eps_symm) ) then
                    symb(1:2)="c "
                 end if
 
                 !---- n: ( 1/2, 1/2, 0); (0, 1/2, 1/2); (1/2, 0, 1/2) ----!
                 !---- n: ( 1/2, 1/2, 1/2) ----!
                 !---- n: (-1/2, 1/2, 1/2); (1/2, -1/2, 1/2); (1/2, 1/2, -1/2) ----!
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(2) - 0.5) <= eps) .and. &
-                     (abs(t3(3)) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(2) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(3)) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(2) - 0.5) <= eps) .and. (abs(t3(3) - 0.5) <= eps) .and. &
-                     (abs(t3(1)) <= eps) ) then
+                if ( (abs(t3(2) - 0.5) <= eps_symm) .and. (abs(t3(3) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(1)) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(3) - 0.5) <= eps) .and. &
-                     (abs(t3(2)) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(3) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(2)) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(2) - 0.5) <= eps) .and. &
-                     (abs(t3(3) - 0.5) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(2) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(3) - 0.5) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(1) + 0.5) <= eps) .and. (abs(t3(2) - 0.5) <= eps) .and. &
-                     (abs(t3(3) - 0.5) <= eps) ) then
+                if ( (abs(t3(1) + 0.5) <= eps_symm) .and. (abs(t3(2) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(3) - 0.5) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(2) + 0.5) <= eps) .and. &
-                     (abs(t3(3) - 0.5) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(2) + 0.5) <= eps_symm) .and. &
+                     (abs(t3(3) - 0.5) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
-                if ( (abs(t3(1) - 0.5) <= eps) .and. (abs(t3(2) - 0.5) <= eps) .and. &
-                     (abs(t3(3) + 0.5) <= eps) ) then
+                if ( (abs(t3(1) - 0.5) <= eps_symm) .and. (abs(t3(2) - 0.5) <= eps_symm) .and. &
+                     (abs(t3(3) + 0.5) <= eps_symm) ) then
                    symb(1:2)="n "
                 end if
 
@@ -8394,44 +8396,44 @@
                 !---- d: ( 1/4, 1/4,+-1/4); (+-1/4, 1/4, 1/4); (1/4,+-1/4, 1/4) ----!
                 !---- d: (-1/4, 1/4,+-1/4); (+-1/4,-1/4, 1/4); (1/4,+-1/4,-1/4) ----!
                 p3=t3
-                p3=mod(p3+10.0_sp,1.0_sp)
+                p3=mod(p3+10.0_cp,1.0_cp)
                 do i=1,3
                    if (p3(i) > 0.5) p3(i)=p3(i) -1.0
                 end do
-                if ( (abs(p3(1) - 0.25) <= eps) .and. (abs(abs(p3(2)) - 0.25) <= eps) .and. &
-                     (abs(p3(3)) <= eps) ) then
+                if ( (abs(p3(1) - 0.25) <= eps_symm) .and. (abs(abs(p3(2)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(3)) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(2) - 0.25) <= eps) .and. (abs(abs(p3(3)) - 0.25) <= eps) .and. &
-                     (abs(p3(1)) <= eps) ) then
+                if ( (abs(p3(2) - 0.25) <= eps_symm) .and. (abs(abs(p3(3)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(1)) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(3) - 0.25) <= eps) .and. (abs(abs(p3(1)) - 0.25) <= eps) .and. &
-                     (abs(p3(2)) <= eps) ) then
+                if ( (abs(p3(3) - 0.25) <= eps_symm) .and. (abs(abs(p3(1)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(2)) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(1) - 0.25) <= eps) .and. (abs(abs(p3(3)) - 0.25) <= eps) .and. &
-                     (abs(p3(2) - 0.25) <= eps) ) then
+                if ( (abs(p3(1) - 0.25) <= eps_symm) .and. (abs(abs(p3(3)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(2) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(2) - 0.25) <= eps) .and. (abs(abs(p3(1)) - 0.25) <= eps) .and. &
-                     (abs(p3(3) - 0.25) <= eps) ) then
+                if ( (abs(p3(2) - 0.25) <= eps_symm) .and. (abs(abs(p3(1)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(3) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(1) - 0.25) <= eps) .and. (abs(abs(p3(2)) - 0.25) <= eps) .and. &
-                     (abs(p3(3) - 0.25) <= eps) ) then
+                if ( (abs(p3(1) - 0.25) <= eps_symm) .and. (abs(abs(p3(2)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(3) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(1) + 0.25) <= eps) .and. (abs(abs(p3(3)) - 0.25) <= eps) .and. &
-                     (abs(p3(2) - 0.25) <= eps) ) then
+                if ( (abs(p3(1) + 0.25) <= eps_symm) .and. (abs(abs(p3(3)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(2) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(2) + 0.25) <= eps) .and. (abs(abs(p3(1)) - 0.25) <= eps) .and. &
-                     (abs(p3(3) - 0.25) <= eps) ) then
+                if ( (abs(p3(2) + 0.25) <= eps_symm) .and. (abs(abs(p3(1)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(3) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
-                if ( (abs(p3(3) + 0.25) <= eps) .and. (abs(abs(p3(2)) - 0.25) <= eps) .and. &
-                     (abs(p3(1) - 0.25) <= eps) ) then
+                if ( (abs(p3(3) + 0.25) <= eps_symm) .and. (abs(abs(p3(2)) - 0.25) <= eps_symm) .and. &
+                     (abs(p3(1) - 0.25) <= eps_symm) ) then
                    symb(1:2)="d "
                 end if
                 npos=3
@@ -8469,8 +8471,8 @@
                 w=matmul(w,s)
                 t1=t1+matmul(w,t0)
              end do
-             if (abs(t1(1)) <= eps .and. abs(t1(2)) <= eps &
-                 .and. abs(t1(3)) <= eps) then              ! Pure rotation
+             if (abs(t1(1)) <= eps_symm .and. abs(t1(2)) <= eps_symm &
+                 .and. abs(t1(3)) <= eps_symm) then              ! Pure rotation
 
                 !---- Rotations axes ----!
                 w=s-identidad
@@ -8511,7 +8513,7 @@
                       p2(3)=-(p2(1)*p1(1) + p2(2)*p1(2))/p1(3)
                 end select
                 do i=1,3
-                   if (abs(p2(i) - p0(i)) <= eps) p2(i)=p2(i)*p2(i)+0.5*real(i)
+                   if (abs(p2(i) - p0(i)) <= eps_symm) p2(i)=p2(i)*p2(i)+0.5*real(i)
                 end do
 
                 !---- P3 ----!
@@ -8579,7 +8581,7 @@
                       p2(3)=-(p2(1)*p1(1) + p2(2)*p1(2))/p1(3)
                 end select
                 do i=1,3
-                   if (abs(p2(i) - p0(i)) <= eps) p2(i)=p2(i)*p2(i)+0.5*real(i)
+                   if (abs(p2(i) - p0(i)) <= eps_symm) p2(i)=p2(i)*p2(i)+0.5*real(i)
                 end do
 
                 !---- P3 ----!
@@ -8638,7 +8640,7 @@
 
        !--- Local variables ---!
        integer, dimension (3,3)      :: s
-       real(kind=sp),    dimension (3)        :: t
+       real(kind=cp),    dimension (3)        :: t
 
        call Read_Xsym(symm,1,s,t)
        call symmetry_symbol_str(s,t,symb)
@@ -8779,8 +8781,8 @@
     !!----    integer,                     intent(in) :: lun       !  In -> Logical unit of the file to write
     !!----    integer,dimension(3,3),      intent(in) :: sim       !  In -> Rotational part of the S.O.
     !!----    integer,                     intent(in) :: indx      !  In -> Ordinal of the current Symm.Operator
-    !!----    real(kind=sp), dimension(3), intent(in) :: tt        !  In -> Translation part of the S.O.
-    !!----    real(kind=sp),               intent(in) :: p_mag     !  In -> Magnetic phase of the magnetic S.O.
+    !!----    real(kind=cp), dimension(3), intent(in) :: tt        !  In -> Translation part of the S.O.
+    !!----    real(kind=cp),               intent(in) :: p_mag     !  In -> Magnetic phase of the magnetic S.O.
     !!----    logical,                     intent(in) :: mag       !  In -> .true. if it is a magnetic S.O.
     !!----
     !!----    Writing the reduced set of symmetry operators
@@ -8792,8 +8794,8 @@
        !---- Arguments ----!
        integer,                     intent(in) :: lun,indx
        integer, dimension(3,3),     intent(in) :: sim
-       real(kind=sp), dimension(3), intent(in) :: tt
-       real(kind=sp),               intent(in) :: p_mag
+       real(kind=cp), dimension(3), intent(in) :: tt
+       real(kind=cp),               intent(in) :: p_mag
        logical,                     intent(in) :: mag
 
        !---- Local variables ----!
@@ -8850,7 +8852,7 @@
     !!----
     !!---- Subroutine Write_SymTrans_Code(N,Tr,Code)
     !!----    integer,                    intent(in)  :: N
-    !!----    real(kind=sp),dimension(3), intent(in)  :: Tr
+    !!----    real(kind=cp),dimension(3), intent(in)  :: Tr
     !!----    character (len=*),          intent(out) :: Code
     !!----
     !!----    Write the code string for reference the symmetry operator and the
@@ -8864,7 +8866,7 @@
     Subroutine Write_SymTrans_Code(N,Tr,Code)
        !---- Arguments ----!
        integer,                    intent(in)  :: N
-       real(kind=sp),dimension(3), intent(in)  :: Tr
+       real(kind=cp),dimension(3), intent(in)  :: Tr
        character (len=*),          intent(out) :: Code
 
        !---- Local Variables ----!
@@ -8976,8 +8978,8 @@
        character(len=40)               :: symb,symb2
        integer                         :: i,j,k,num
        integer,dimension(3,3)          :: w
-       real(kind=sp),   dimension(3,3) :: w1
-       real(kind=sp), dimension(3)     :: t,t1,t2
+       real(kind=cp),   dimension(3,3) :: w1
+       real(kind=cp), dimension(3)     :: t,t1,t2
 
        Wyckoff_Orb=" "
        n=0
@@ -8994,7 +8996,7 @@
           w1=real(sgrp%symop(i)%rot)
           t1=sgrp%symop(i)%tr
           t1=applyso(sgrp%symop(i),t)
-          t1=mod(t1+10.0_sp,1.0_sp)
+          t1=mod(t1+10.0_cp,1.0_cp)
           w1=matmul(w1,real(w))
           call Get_SymSymb(w1,t1,symb)
           delete=.false.
@@ -9009,7 +9011,7 @@
           !---- Lattice Contribution ----!
           do j=2,sgrp%numlat
              t2=t1+sgrp%latt_trans(:,j)
-             t2=mod(t2+10.0_sp,1.0_sp)
+             t2=mod(t2+10.0_cp,1.0_cp)
              call Get_SymSymb(w1,t2,symb2)
              delete=.false.
              do k=1,n

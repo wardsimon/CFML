@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_BVS_Energy_Calc
@@ -22,7 +22,7 @@
 !!----    BVS_SPECIES_N
 !!----    BVS_TABLE
 !!----    ERR_CONF
-!!----    ERR_MESS_CONF
+!!----    ERR_CONF_MESS
 !!--++    TABLE_B
 !!--++    TABLE_D0
 !!----
@@ -47,7 +47,8 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_Math_General,               only: Sp, Sort_Strings
+    Use CFML_Constants,                 only: Sp,Cp
+    Use CFML_Math_General,               only: Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
@@ -186,14 +187,14 @@
     logical, public  :: err_conf
 
     !!----
-    !!---- ERR_MESS_CONF
-    !!----    character(len=150), public:: err_mess_conf
+    !!---- ERR_CONF_MESS
+    !!----    character(len=150), public:: ERR_Conf_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=150), public :: err_mess_conf
+    character(len=150), public :: ERR_Conf_Mess
 
     !!----
     !!---- TABLE_B
@@ -639,7 +640,7 @@
        end do
        if (n1 ==0) then
           err_conf=.true.
-          err_mess_conf="The point atom "//atname//" is not in the Species Table"
+          ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
           return
        end if
 
@@ -690,7 +691,7 @@
                             n2=At2%Atom(n)%ind(1)
                             if (n2 ==0) then
                                err_conf=.true.
-                               err_mess_conf="The atom is not in the Species Table"
+                               ERR_Conf_Mess="The atom is not in the Species Table"
                                return
                             end if
                             sbvs=sbvs+occ*exp((table_d0(n1,n2)-dd)/table_b(n1,n2))
@@ -752,7 +753,7 @@
                  ian=0
                  if (ic < 3 ) then
                           err_conf=.true.
-                          err_mess_conf="Cation-Anion d0 and B0 parameters must be provided"
+                          ERR_Conf_Mess="Cation-Anion d0 and B0 parameters must be provided"
                           return
                  end if
 
@@ -766,7 +767,7 @@
                  end do
                  if (icat == 0 .or. ian == 0) then
                     err_conf=.true.
-                    err_mess_conf="The given Cation or Anion cannot be found in the atom list"
+                    ERR_Conf_Mess="The given Cation or Anion cannot be found in the atom list"
                     return
                  end if
                  if (icat > ian) then
@@ -776,7 +777,7 @@
                  end if
                  if (icat > A%N_Cations) then
                     err_conf=.true.
-                    err_mess_conf="A given cation is not found in the atom list"
+                    ERR_Conf_Mess="A given cation is not found in the atom list"
                     return
                  end if
 
@@ -984,7 +985,7 @@
     Subroutine Init_Err_Conf()
 
        err_conf=.false.
-       err_mess_conf=" "
+       ERR_Conf_Mess=" "
 
        return
     End Subroutine Init_Err_Conf
@@ -2012,7 +2013,7 @@
 
        if (A%N_Spec == 0) then
           err_conf=.true.
-          err_mess_conf=" The number of different species was zero on Table_d0"
+          ERR_Conf_Mess=" The number of different species was zero on Table_d0"
           return
        end if
 
@@ -2041,7 +2042,7 @@
           if (ic == 0) then
              if(.not. present(N_bvsm)) then
                err_conf=.true.
-               err_mess_conf=" Cation not found on the internal list: "//A%Species(i)
+               ERR_Conf_Mess=" Cation not found on the internal list: "//A%Species(i)
                return
              else
                 call Complete_Table(A,N_bvsm,bvs_m)
@@ -2063,7 +2064,7 @@
              end do
              if (ia == 0) then
                 err_conf=.true.
-                err_mess_conf=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
+                ERR_Conf_Mess=" Anion not found on the internal list: "//A%Species(A%N_Cations+k)
                 return
              end if
 
@@ -2155,7 +2156,7 @@
           v=nint(a%atom(i)%charge)
           if (v == 0) then
              err_conf=.true.
-             err_mess_conf=" The Atom "//a%atom(i)%lab//"has not charge"
+             ERR_Conf_Mess=" The Atom "//a%atom(i)%lab//"has not charge"
              return
           end if
           write(unit=cv,fmt="(i2)") v

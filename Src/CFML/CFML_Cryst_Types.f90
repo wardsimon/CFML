@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!----
@@ -96,7 +96,8 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
+!!--++    Use CFML_Constants, only: Cp, Eps, Pi
+!!--++    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
 !!--++                         Co_Linear
 !!--++    Use CFML_Math_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
@@ -104,7 +105,8 @@
 !!----    CRYSTAL_CELL_TYPE
 !!----    TWOFOLD_AXES_TYPE
 !!----    ERR_CRYS
-!!----    ERR_MESS_CRYS
+!!----    ERR_CRYS_MESS
+!!--++    IDENTITY                       [Private]
 !!--++    TPI2                           [Private]
 !!----
 !!---- PROCEDURES
@@ -144,8 +146,8 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_Math_General, only : Sp, Eps, Cosd, Sind, Acosd, Pi, Co_Prime, swap, Sort, atand, &
-                                  Co_Linear
+    Use CFML_Constants,   only : Cp, Eps, Pi
+    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear
     Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
     implicit none
@@ -184,17 +186,17 @@
     !!----  TYPE :: CRYSTAL_CELL_TYPE
     !!--..
     !!----  Type, public :: Crystal_Cell_Type
-    !!----     real(kind=sp),dimension(3)   :: cell, ang          ! Direct cell parameters
-    !!----     real(kind=sp),dimension(3)   :: cell_std, ang_std  ! Standar deviations cell parameters
-    !!----     real(kind=sp),dimension(3)   :: rcell,rang         ! Reciprocal cell parameters
-    !!----     real(kind=sp),dimension(3,3) :: GD,GR              ! Direct and reciprocal Metric Tensors
-    !!----     real(kind=sp),dimension(3,3) :: Cr_Orth_cel        ! P-Matrix transforming Orthonormal
+    !!----     real(kind=cp),dimension(3)   :: cell, ang          ! Direct cell parameters
+    !!----     real(kind=cp),dimension(3)   :: cell_std, ang_std  ! Standar deviations cell parameters
+    !!----     real(kind=cp),dimension(3)   :: rcell,rang         ! Reciprocal cell parameters
+    !!----     real(kind=cp),dimension(3,3) :: GD,GR              ! Direct and reciprocal Metric Tensors
+    !!----     real(kind=cp),dimension(3,3) :: Cr_Orth_cel        ! P-Matrix transforming Orthonormal
     !!----                                                        ! basis to direct Crytal cell (as I.T.)
     !!----                                                        ! (or crystallographic components to
     !!----                                                        !  cartesian components)
-    !!----     real(kind=sp),dimension(3,3) :: Orth_Cr_cel        ! Inv(Cr_Orth_cel) -> Cartesian to cryst. components
-    !!----     real(kind=sp)                :: CellVol            ! Direct and Reciprocal
-    !!----     real(kind=sp)                :: RCellVol           ! Cell volumes
+    !!----     real(kind=cp),dimension(3,3) :: Orth_Cr_cel        ! Inv(Cr_Orth_cel) -> Cartesian to cryst. components
+    !!----     real(kind=cp)                :: CellVol            ! Direct and Reciprocal
+    !!----     real(kind=cp)                :: RCellVol           ! Cell volumes
     !!----     Character (len=1)            :: CartType           ! Cartesian Frame type: if CartType='A'
     !!----                                                        ! the Cartesian Frame has x // a.
     !!----  End Type Crystal_Cell_Type
@@ -202,14 +204,14 @@
     !!---- Update: February - 2005
     !!
     Type, public :: Crystal_Cell_Type
-       real(kind=sp),dimension(3)   :: cell, ang
-       real(kind=sp),dimension(3)   :: cell_std, ang_std
-       real(kind=sp),dimension(3)   :: rcell, rang
-       real(kind=sp),dimension(3,3) :: GD,GR
-       real(kind=sp),dimension(3,3) :: Cr_Orth_cel
-       real(kind=sp),dimension(3,3) :: Orth_Cr_cel
-       real(kind=sp)                :: CellVol
-       real(kind=sp)                :: RCellVol
+       real(kind=cp),dimension(3)   :: cell, ang
+       real(kind=cp),dimension(3)   :: cell_std, ang_std
+       real(kind=cp),dimension(3)   :: rcell, rang
+       real(kind=cp),dimension(3,3) :: GD,GR
+       real(kind=cp),dimension(3,3) :: Cr_Orth_cel
+       real(kind=cp),dimension(3,3) :: Orth_Cr_cel
+       real(kind=cp)                :: CellVol
+       real(kind=cp)                :: RCellVol
        character (len=1)            :: CartType
     End Type Crystal_Cell_Type
 
@@ -217,15 +219,15 @@
     !!----  TYPE :: TWOFOLD_AXES_TYPE
     !!--..
     !!----  Type, public :: Twofold_Axes_Type
-    !!----     integer                 :: ntwo        ! Number of two-fold axes
-    !!----     real                    :: tol         ! Angular tolerance (ca 3 degrees)
-    !!----     real   ,dimension(3,12) :: caxes       ! Cartesian components of two-fold axes
-    !!----     integer,dimension(3,12) :: dtwofold    ! Direct indices of two-fold axes
-    !!----     integer,dimension(3,12) :: rtwofold    ! Reciprocal indices of two-fold axes
-    !!----     integer,dimension(12)   :: dot         ! Scalar product of reciprocal and direct indices
-    !!----     real,   dimension(12)   :: cross       ! Angle between direct and reciprocal axes ( < tol)
-    !!----     real,   dimension(12)   :: maxes       ! Modulus of the zone axes (two-fold axes) vectors
-    !!----     real,   dimension(3)    :: a,b,c       ! Cartesian components of direct cell parameters
+    !!----     integer                       :: ntwo        ! Number of two-fold axes
+    !!----     real(kind=cp)                 :: tol         ! Angular tolerance (ca 3 degrees)
+    !!----     real(kind=cp),dimension(3,12) :: caxes       ! Cartesian components of two-fold axes
+    !!----     integer,dimension(3,12)       :: dtwofold    ! Direct indices of two-fold axes
+    !!----     integer,dimension(3,12)       :: rtwofold    ! Reciprocal indices of two-fold axes
+    !!----     integer,dimension(12)         :: dot         ! Scalar product of reciprocal and direct indices
+    !!----     real(kind=cp),dimension(12)   :: cross       ! Angle between direct and reciprocal axes ( < tol)
+    !!----     real(kind=cp),dimension(12)   :: maxes       ! Modulus of the zone axes (two-fold axes) vectors
+    !!----     real(kind=cp),dimension(3)    :: a,b,c       ! Cartesian components of direct cell parameters
     !!----  End Type Twofold_Axes_Type
     !!----
     !!----  All components are initialised to zero in the type declaration
@@ -233,15 +235,15 @@
     !!---- Update: October - 2008
     !!
     Type, public :: Twofold_Axes_Type
-       integer                 :: ntwo=0
-       real                    :: tol=3.0
-       real   ,dimension(3,12) :: caxes=0.0
-       integer,dimension(3,12) :: dtwofold=0
-       integer,dimension(3,12) :: rtwofold=0
-       integer,dimension(12)   :: dot=0
-       real,   dimension(12)   :: cross=0.0
-       real,   dimension(12)   :: maxes=0.0
-       real,   dimension(3)    :: a=0.0,b=0.0,c=0.0
+       integer                        :: ntwo=0
+       real(kind=cp)                  :: tol=3.0
+       real(kind=cp) ,dimension(3,12) :: caxes=0.0
+       integer,dimension(3,12)        :: dtwofold=0
+       integer,dimension(3,12)        :: rtwofold=0
+       integer,dimension(12)          :: dot=0
+       real(kind=cp), dimension(12)   :: cross=0.0
+       real(kind=cp), dimension(12)   :: maxes=0.0
+       real(kind=cp), dimension(3)    :: a=0.0,b=0.0,c=0.0
     End Type Twofold_Axes_Type
 
     !!----
@@ -252,32 +254,21 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public          :: Err_Crys
+    logical, public          :: ERR_Crys
 
     !!----
-    !!---- ERR_MESS_CRYS
-    !!----    character(len=150), public :: Err_Mess_Crys
+    !!---- ERR_CRYS_MESS
+    !!----    character(len=150), public :: ERR_Crys_Mess
     !!----
     !!----    String containing information about the last error
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: Err_Mess_Crys
+    character(len=150), public :: ERR_Crys_Mess
 
     !!--++
-    !!--++ TPI2
-    !!--++    real(kind=sp), parameter :: tpi2=2.0*pi*pi
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Two times PI squared
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=sp), parameter, private :: tpi2=2.0*pi*pi
-
-    !!--++
-    !!--++ Identity
-    !!--++    real(kind=sp), dimension(3,3), parameter :: identity=reshape ((/1.0,0.0,0.0,
+    !!--++ IDENTITY
+    !!--++    real(kind=cp), dimension(3,3), parameter :: identity=reshape ((/1.0,0.0,0.0,
     !!--++                                                                    0.0,1.0,0.0,
     !!--++                                                                    0.0,0.0,1.0/),(/3,3/))
     !!--++
@@ -286,7 +277,18 @@
     !!--++
     !!--++ Update: October - 2008
     !!
-    real,    dimension(3,3), parameter  :: identity=reshape ((/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+    real(kind=cp),dimension(3,3), parameter  :: identity=reshape ((/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+
+    !!--++
+    !!--++ TPI2
+    !!--++    real(kind=cp), parameter :: tpi2=2.0*pi*pi
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Two times PI squared
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    real(kind=cp), parameter, private :: tpi2=2.0*pi*pi
 
     !---- Interfaces - Overloaded ----!
     
@@ -318,9 +320,9 @@
     !!----
     !!---- Function Cart_U_Vector(Code,V,Celda) Result(Vc)
     !!----    character (len=*),             intent(in) :: code    !  In -> D: Direct, R: Reciprocal
-    !!----    real(kind=sp), dimension(3),   intent(in) :: v       !  In -> Vector
+    !!----    real(kind=cp), dimension(3),   intent(in) :: v       !  In -> Vector
     !!----    Type (Crystal_Cell_Type),      intent(in) :: Celda   !  In -> Cell Variable
-    !!----    real(kind=sp),dimension(3)                :: vc      ! Out ->
+    !!----    real(kind=cp),dimension(3)                :: vc      ! Out ->
     !!----
     !!----    Convert a vector in crystal space to unitary cartesian components
     !!----
@@ -329,12 +331,12 @@
     Function Cart_U_Vector(Code,V,Celda) Result(Vc)
        !---- Arguments ----!
        character (len=*),           intent(in) :: code
-       real(kind=sp), dimension(3), intent(in) :: v
+       real(kind=cp), dimension(3), intent(in) :: v
        type (Crystal_Cell_Type),    intent(in) :: Celda
-       real(kind=sp), dimension(3)             :: vc
+       real(kind=cp), dimension(3)             :: vc
 
        !---- Local Variables ----!
-       real(kind=sp) :: vmod
+       real(kind=cp) :: vmod
 
        vc=cart_vector(code,v,celda)
        vmod=sqrt(dot_product(vc,vc))
@@ -348,9 +350,9 @@
     !!----
     !!---- Function Cart_Vector(Code,V,Celda) Result(Vc)
     !!----    character (len=*),             intent(in) :: code     !  In -> D: Direct, R: Reciprocal
-    !!----    real(kind=sp), dimension(3),   intent(in) :: v        !  In -> Vector
+    !!----    real(kind=cp), dimension(3),   intent(in) :: v        !  In -> Vector
     !!----    Type (Crystal_Cell_Type),      intent(in) :: Celda    !  In -> Cell variable
-    !!----    real(kind=sp) dimension(3)                :: vc       ! Out ->
+    !!----    real(kind=cp) dimension(3)                :: vc       ! Out ->
     !!----
     !!----    Convert a vector in crystal space to cartesian components
     !!----
@@ -359,9 +361,9 @@
     Function Cart_Vector(Code,V,Celda) Result(Vc)
        !---- Arguments ----!
        character (len=*),           intent(in) :: code
-       real(kind=sp), dimension(3), intent(in) :: v
+       real(kind=cp), dimension(3), intent(in) :: v
        type (Crystal_Cell_Type),    intent(in) :: Celda
-       real(kind=sp), dimension(3)             :: vc
+       real(kind=cp), dimension(3)             :: vc
 
        select case (code(1:1))
           case("d","D")
@@ -387,9 +389,9 @@
 
     !!----
     !!---- Function Convert_B_Betas(B,Cell) Result(Beta)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: B
+    !!----    real(kind=cp),dimension(6), intent(in)  :: B
     !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=sp),dimension(6)              :: Beta
+    !!----    real(kind=cp),dimension(6)              :: Beta
     !!----
     !!----    Convert Thermal factors from B to Betas
     !!----
@@ -397,9 +399,9 @@
     !!
     Function Convert_B_Betas(B,Cell) Result(Beta)
        !---- Arguments ----!
-       real(kind=sp),dimension(6), intent(in)  :: B
+       real(kind=cp),dimension(6), intent(in)  :: B
        type (Crystal_cell_Type),   intent(in)  :: Cell
-       real(kind=sp),dimension(6)              :: Beta
+       real(kind=cp),dimension(6)              :: Beta
 
        beta(1)=0.25*b(1)*cell%gr(1,1)                ! beta11
        beta(2)=0.25*b(2)*cell%gr(2,2)                ! beta22
@@ -413,8 +415,8 @@
 
     !!----
     !!---- Function Convert_B_U(B) Result(U)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: B
-    !!----    real(kind=sp),dimension(6)              :: U
+    !!----    real(kind=cp),dimension(6), intent(in)  :: B
+    !!----    real(kind=cp),dimension(6)              :: U
     !!----
     !!----    Convert Thermal factors from B to U
     !!----
@@ -422,8 +424,8 @@
     !!
     Function Convert_B_U(B) Result(U)
        !---- Arguments ----!
-       real(kind=sp),dimension(6),  intent(in)  :: B
-       real(kind=sp),dimension(6)               :: U
+       real(kind=cp),dimension(6),  intent(in)  :: B
+       real(kind=cp),dimension(6)               :: U
 
        u=b/(4.0*tpi2)
 
@@ -432,9 +434,9 @@
 
     !!----
     !!---- Function Convert_Betas_B(Beta,Cell) Result(B)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: Beta
+    !!----    real(kind=cp),dimension(6), intent(in)  :: Beta
     !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=sp),dimension(6)              :: B
+    !!----    real(kind=cp),dimension(6)              :: B
     !!----
     !!----    Convert Thermal factors from Betas to B
     !!----
@@ -442,9 +444,9 @@
     !!
     Function Convert_Betas_B(Beta,Cell) Result(B)
        !---- Arguments ----!
-       real(kind=sp),dimension(6), intent(in)  :: Beta
+       real(kind=cp),dimension(6), intent(in)  :: Beta
        type (Crystal_cell_Type),   intent(in)  :: Cell
-       real(kind=sp),dimension(6)              :: B
+       real(kind=cp),dimension(6)              :: B
 
        b(1)=4.0*beta(1)/cell%gr(1,1)                  ! B11
        b(2)=4.0*beta(2)/cell%gr(2,2)                  ! B22
@@ -458,9 +460,9 @@
 
     !!----
     !!---- Function Convert_Betas_U(Beta,Cell) Result(U)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: Beta
+    !!----    real(kind=cp),dimension(6), intent(in)  :: Beta
     !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=sp),dimension(6)              :: U
+    !!----    real(kind=cp),dimension(6)              :: U
     !!----
     !!----    Convert Thermal factors from Betas to U
     !!----
@@ -468,9 +470,9 @@
     !!
     Function Convert_Betas_U(Beta,Cell) Result(U)
        !---- Arguments ----!
-       real(kind=sp),dimension(6),intent(in)  :: Beta
+       real(kind=cp),dimension(6),intent(in)  :: Beta
        type (Crystal_cell_Type),  intent(in)  :: Cell
-       real(kind=sp),dimension(6)             :: U
+       real(kind=cp),dimension(6)             :: U
 
        u(1)=beta(1)/(tpi2*cell%gr(1,1))                ! U11
        u(2)=beta(2)/(tpi2*cell%gr(2,2))                ! U22
@@ -484,8 +486,8 @@
 
     !!----
     !!---- Function Convert_U_B(U) Result(B)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: U
-    !!----    real(kind=sp),dimension(6)              :: B
+    !!----    real(kind=cp),dimension(6), intent(in)  :: U
+    !!----    real(kind=cp),dimension(6)              :: B
     !!----
     !!----    Convert Thermal factors from U to B
     !!----
@@ -493,8 +495,8 @@
     !!
     Function Convert_U_B(U) Result(B)
        !---- Arguments ----!
-       real(kind=sp),dimension(6),        intent(in)  :: U
-       real(kind=sp),dimension(6)                     :: B
+       real(kind=cp),dimension(6),        intent(in)  :: U
+       real(kind=cp),dimension(6)                     :: B
 
        b=4.0*tpi2*u
 
@@ -503,9 +505,9 @@
 
     !!----
     !!---- Function Convert_U_Betas(U,Cell) Result(Beta)
-    !!----    real(kind=sp),dimension(6), intent(in)  :: U
+    !!----    real(kind=cp),dimension(6), intent(in)  :: U
     !!----    type (Crystal_cell_Type),   intent(in)  :: Cell
-    !!----    real(kind=sp),dimension(6)              :: Beta
+    !!----    real(kind=cp),dimension(6)              :: Beta
     !!----
     !!----    Convert Thermal factors from U to Betas
     !!----
@@ -513,9 +515,9 @@
     !!
     Function Convert_U_Betas(U,Cell) Result(Beta)
        !---- Arguments ----!
-       real(kind=sp),dimension(6),intent(in)  :: U
+       real(kind=cp),dimension(6),intent(in)  :: U
        type (Crystal_cell_Type),  intent(in)  :: Cell
-       real(kind=sp),dimension(6)             :: Beta
+       real(kind=cp),dimension(6)             :: Beta
 
        beta(1)=tpi2*u(1)*cell%gr(1,1)                ! beta11
        beta(2)=tpi2*u(2)*cell%gr(2,2)                ! beta22
@@ -529,9 +531,9 @@
 
     !!--++
     !!--++ Function Metrics(A,B) Result(G)
-    !!--++    real(kind=sp), dimension(3)  , intent(in ) :: a   !  In -> Cell Parameters
-    !!--++    real(kind=sp), dimension(3)  , intent(in ) :: b   !  In -> Ang Parameters
-    !!--++    real(kind=sp), dimension(3,3)              :: g   ! Out -> Metrics array
+    !!--++    real(kind=cp), dimension(3)  , intent(in ) :: a   !  In -> Cell Parameters
+    !!--++    real(kind=cp), dimension(3)  , intent(in ) :: b   !  In -> Ang Parameters
+    !!--++    real(kind=cp), dimension(3,3)              :: g   ! Out -> Metrics array
     !!--++
     !!--++    (PRIVATE)
     !!--++    Constructs the metric tensor
@@ -540,9 +542,9 @@
     !!
     Function Metrics(A,B) Result(G)
        !---- Arguments ----!
-       real(kind=sp), dimension(3)  , intent(in ) :: a
-       real(kind=sp), dimension(3)  , intent(in ) :: b
-       real(kind=sp), dimension(3,3)              :: g
+       real(kind=cp), dimension(3)  , intent(in ) :: a
+       real(kind=cp), dimension(3)  , intent(in ) :: b
+       real(kind=cp), dimension(3,3)              :: g
 
        !---- Local Variables ----!
        integer :: i
@@ -564,10 +566,10 @@
 
     !!----
     !!---- Function Rot_Matrix(U, Phi, Celda)
-    !!----    real(kind=sp), dimension(3),        intent(in) :: U
-    !!----    real(kind=sp),                      intent(in) :: Phi
+    !!----    real(kind=cp), dimension(3),        intent(in) :: U
+    !!----    real(kind=cp),                      intent(in) :: Phi
     !!----    type (Crystal_Cell_Type), optional, intent(in) :: Celda
-    !!----    real(kind=sp), dimension(3,3)                  :: Rm
+    !!----    real(kind=cp), dimension(3,3)                  :: Rm
     !!----
     !!----    Returns the matrix (Gibbs matrix) of the active rotation of "phi" degrees
     !!----    along the "U" direction: R v = v', the vector v is tranformed to vector v'
@@ -583,14 +585,14 @@
     !!
     Function Rot_Matrix(U,Phi,Celda) Result(Rm)
        !---- Argument ----!
-       real(kind=sp), dimension(3), intent(in)        :: U
-       real(kind=sp), intent(in)                      :: phi
+       real(kind=cp), dimension(3), intent(in)        :: U
+       real(kind=cp), intent(in)                      :: phi
        type (Crystal_Cell_Type), optional, intent(in) :: Celda
-       real(kind=sp), dimension(3,3)                  :: RM
+       real(kind=cp), dimension(3,3)                  :: RM
 
        !---- Local variables ----!
-       real(kind=sp)               :: c, s, umc, umod
-       real(kind=sp), dimension(3) :: UU
+       real(kind=cp)               :: c, s, umc, umod
+       real(kind=cp), dimension(3) :: UU
 
 
        if (present(celda)) then
@@ -630,7 +632,7 @@
     !!----
     !!---- Function U_Equiv(Cell, Th_U) Result(Uequi)
     !!----    type(Crystal_Cell_Type),    intent(in)     :: Cell    !  In -> Cell variable
-    !!----    real(kind=sp), dimension(6),intent(in)     :: Th_U    !  In -> U parameters
+    !!----    real(kind=cp), dimension(6),intent(in)     :: Th_U    !  In -> U parameters
     !!----
     !!----    Subroutine to obtain the U equiv from U11 U22 U33 U23 U13 U12
     !!----
@@ -639,12 +641,12 @@
     Function U_Equiv(Cell, Th_U) Result(Uequi)
        !---- Arguments ----!
        type (Crystal_cell_Type),    intent(in)  :: Cell
-       real(kind=sp), dimension(6), intent(in)  :: Th_U
-       real(kind=sp)                            :: Uequi
+       real(kind=cp), dimension(6), intent(in)  :: Th_U
+       real(kind=cp)                            :: Uequi
 
        !---- Local variables ----!
-       real(kind=sp)    :: a, b, c, as, bs, cs, cosa, cosb, cosg
-       real(kind=sp)    :: u11, u22, u33, u23, u13, u12
+       real(kind=cp)    :: a, b, c, as, bs, cs, cosa, cosb, cosg
+       real(kind=cp)    :: u11, u22, u33, u23, u13, u12
 
        a  =cell%cell(1)
        b  =cell%cell(2)
@@ -679,7 +681,7 @@
     !!----
     !!---- Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
     !!----    type (Crystal_Cell_Type),      intent( in)    :: Cell
-    !!----    real(kind=sp), dimension (3,3),intent( in)    :: Mat
+    !!----    real(kind=cp), dimension (3,3),intent( in)    :: Mat
     !!----    type (Crystal_Cell_Type),      intent(out)    :: Celln
     !!----    character (len=*), optional,   intent (in)    :: matkind
     !!----
@@ -690,14 +692,14 @@
     Subroutine Change_Setting_Cell(Cell,Mat,Celln,Matkind)
        !---- Arguments ----!
        type (Crystal_Cell_Type),      intent( in)    :: Cell
-       real(kind=sp), dimension (3,3),intent( in)    :: Mat
+       real(kind=cp), dimension (3,3),intent( in)    :: Mat
        type (Crystal_Cell_Type),      intent(out)    :: Celln
        character(len=*),  optional,   intent (in)    :: matkind
 
        !--- Local variables ---!
        integer                       :: i
-       real(kind=sp), dimension(3)   :: cellv,angl
-       real(kind=sp), dimension(3,3) :: S,Gn,ST
+       real(kind=cp), dimension(3)   :: cellv,angl
+       real(kind=cp), dimension(3,3) :: S,Gn,ST
 
        if (present(matkind)) then
           if (matkind(1:2) == "it" .or. matkind(1:2) == "IT" ) then
@@ -1341,7 +1343,7 @@
                           Car_System ="Triclinic"
                  else
                           Err_Crys=.true.
-                          Err_Mess_Crys=" Error obtaining Crystal Familiy"
+                          ERR_Crys_Mess=" Error obtaining Crystal Familiy"
                  end if
 
           case (2) ! two angles are equal
@@ -1354,7 +1356,7 @@
                                 Car_System ="Hexagonal"
                                  else
                                           Err_Crys=.true.
-                                Err_Mess_Crys=" Error obtaining Crystal Familiy"
+                                ERR_Crys_Mess=" Error obtaining Crystal Familiy"
                                  end if
                           else
                    !---- Monoclinic ----!
@@ -1371,7 +1373,7 @@
                              Car_System ="Monoclinic"
                           else
                                  Err_Crys=.true.
-                             Err_Mess_Crys=" Error obtaining Crystal Familiy"
+                             ERR_Crys_Mess=" Error obtaining Crystal Familiy"
                           end if
                  end if
 
@@ -1392,7 +1394,7 @@
                                              Car_System ="Tetragonal"
                                           else
                                                  err_crys=.true.
-                                   Err_Mess_Crys=" Error obtaining Crystal Familiy"
+                                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
                                           end if
 
                                  case (3)
@@ -1410,7 +1412,7 @@
                                  Car_System ="Trigonal"
                           else
                                  Err_Crys=.true.
-                             Err_Mess_Crys=" Error obtaining Crystal Familiy"
+                             ERR_Crys_Mess=" Error obtaining Crystal Familiy"
                           end if
                  end if
 
@@ -1421,9 +1423,9 @@
 
     !!--++
     !!--++ Subroutine Get_Cryst_Orthog_Matrix(Cellv,Ang, Crystort,Cartype)
-    !!--++    real(kind=sp), dimension(3  ), intent (in ) :: cellv           !  In ->  a,b,c parameters
-    !!--++    real(kind=sp), dimension(3  ), intent (in ) :: ang             !  In ->  angles parameters of cell
-    !!--++    real(kind=sp), dimension(3,3), intent (out) :: CrystOrt        ! Out ->  Conversion matrix (a) = (e) CrystOrt
+    !!--++    real(kind=cp), dimension(3  ), intent (in ) :: cellv           !  In ->  a,b,c parameters
+    !!--++    real(kind=cp), dimension(3  ), intent (in ) :: ang             !  In ->  angles parameters of cell
+    !!--++    real(kind=cp), dimension(3,3), intent (out) :: CrystOrt        ! Out ->  Conversion matrix (a) = (e) CrystOrt
     !!--++    character (len=1), optional,   intent (in)  :: CarType         !  In ->  Type of Cartesian axes
     !!--++
     !!--++    (PRIVATE)
@@ -1464,12 +1466,12 @@
     !!
     Subroutine Get_Cryst_Orthog_Matrix(Cellv,Ang, Crystort,CarType)
        !---- Arguments ----!
-       real(kind=sp), dimension(3  ), intent (in ) :: cellv,ang
-       real(kind=sp), dimension(3,3), intent (out) :: CrystOrt
+       real(kind=cp), dimension(3  ), intent (in ) :: cellv,ang
+       real(kind=cp), dimension(3,3), intent (out) :: CrystOrt
        character (len=1), optional,   intent (in ) :: CarType
 
        !---- Local Variables ----!
-       real(kind=sp) :: cosgas, singas
+       real(kind=cp) :: cosgas, singas
 
        if (present(CarType)) then
           if (CarType == "A" .or. CarType == "a" ) then  ! x//a
@@ -1516,7 +1518,7 @@
     !!----
     !!---- Subroutine Get_Deriv_Orth_Cell(Cellp,De_Orthcell,Cartype)
     !!----    type(Crystal_Cell_type),         intent(in ) :: cellp
-    !!----    real(kind=sp), dimension(3,3,6), intent(out) :: de_Orthcell
+    !!----    real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
     !!----    character (len=1), optional,    intent (in ) :: CarType
     !!----
     !!----    Subroutine to get derivative matrix of the transformation matrix
@@ -1532,11 +1534,11 @@
     Subroutine Get_Deriv_Orth_Cell(Cellp,De_Orthcell,Cartype)
        !---- Arguments ----!
        type(Crystal_Cell_type),         intent(in ) :: cellp
-       real(kind=sp), dimension(3,3,6), intent(out) :: de_Orthcell
+       real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
        character (len=1), optional,    intent (in ) :: CarType
 
        !---- Local Variables ----!
-       real(kind=sp) ::  ca,cb,cg,sa,sb,sg,f,g, fa,fb,fc,ga,gb,gc
+       real(kind=cp) ::  ca,cb,cg,sa,sb,sg,f,g, fa,fb,fc,ga,gb,gc
 
        de_Orthcell=0.0
        ca=cosd(cellp%ang(1))
@@ -1852,7 +1854,7 @@
     Subroutine Init_Err_Crys()
 
        Err_Crys=.false.
-       Err_Mess_Crys=" "
+       ERR_Crys_Mess=" "
 
        return
     End Subroutine Init_Err_Crys
@@ -2054,7 +2056,7 @@
 
       if(.not. ok) Then
        Err_Crys=.true.
-       Err_Mess_Crys=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
+       ERR_Crys_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
        return
       end if
       if(present(Niggli_point)) then
@@ -2101,7 +2103,7 @@
       call Init_Err_Crys()
       if( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
         Err_Crys=.true.
-        Err_Mess_Crys=" The provided angles cannot set a unit cell!"
+        ERR_Crys_Mess=" The provided angles cannot set a unit cell!"
         return
       end if
       Call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
@@ -2207,7 +2209,7 @@
       det=determ_V(a,b,c)
       if(abs(det) < 0.0001) then
         Err_Crys=.true.
-        Err_Mess_Crys=" The three input vectors are nor linearly independent!"
+        ERR_Crys_Mess=" The three input vectors are nor linearly independent!"
         return
       end if
       n_mat(1,1)=dot_product(a,a); n_mat(1,2)=dot_product(b,b); n_mat(1,3)=dot_product(c,c)
@@ -2232,12 +2234,12 @@
 
     !!--++
     !!--++ Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
-    !!--++    real(kind=sp), dimension(3), intent(in ) :: a        !  In -> a,b,c
-    !!--++    real(kind=sp), dimension(3), intent(in ) :: ang      !  In -> alpha,beta,gamma
-    !!--++    real(kind=sp), dimension(3), intent(out) :: ar       !  In -> a*,b*,c*
-    !!--++    real(kind=sp), dimension(3), intent(out) :: angr     !  In -> alpha*,beta*,gamma*
-    !!--++    real(kind=sp),               intent(out) :: vol      ! Out -> Vol
-    !!--++    real(kind=sp),               intent(out) :: volr     ! Out -> Vol*
+    !!--++    real(kind=cp), dimension(3), intent(in ) :: a        !  In -> a,b,c
+    !!--++    real(kind=cp), dimension(3), intent(in ) :: ang      !  In -> alpha,beta,gamma
+    !!--++    real(kind=cp), dimension(3), intent(out) :: ar       !  In -> a*,b*,c*
+    !!--++    real(kind=cp), dimension(3), intent(out) :: angr     !  In -> alpha*,beta*,gamma*
+    !!--++    real(kind=cp),               intent(out) :: vol      ! Out -> Vol
+    !!--++    real(kind=cp),               intent(out) :: volr     ! Out -> Vol*
     !!--++
     !!--++    (PRIVATE)
     !!--++    Calculates the reciprocal lattice vectors and cell volume
@@ -2247,13 +2249,13 @@
 
     Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
        !---- Arguments ----!
-       real(kind=sp), dimension(3), intent(in ) :: a,ang
-       real(kind=sp), dimension(3), intent(out) :: ar,angr
-       real(kind=sp),               intent(out) :: vol,volr
+       real(kind=cp), dimension(3), intent(in ) :: a,ang
+       real(kind=cp), dimension(3), intent(out) :: ar,angr
+       real(kind=cp),               intent(out) :: vol,volr
 
        !---- Local Variables ----!
        integer        :: i
-       real(kind=sp)  :: s,p,cose
+       real(kind=cp)  :: s,p,cose
 
        p=1.0
        s=1.0
@@ -2284,11 +2286,11 @@
 
     !!----
     !!---- Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
-    !!----    real(kind=sp), dimension (3),        intent(in ) :: cellv   !  In -> a,b,c
-    !!----    real(kind=sp), dimension (3),        intent(in ) :: angl    !  In -> angles of cell parameters
+    !!----    real(kind=cp), dimension (3),        intent(in ) :: cellv   !  In -> a,b,c
+    !!----    real(kind=cp), dimension (3),        intent(in ) :: angl    !  In -> angles of cell parameters
     !!----    Type (Crystal_Cell_Type),            intent(out) :: Celda   !  Out-> Celda components
     !!----    character (len=1),          optional,intent(in ) :: CarType !  In -> Type of Cartesian Frame
-    !!----    real(kind=sp), dimension(3),optional,intent(in ) :: scell,sangl
+    !!----    real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl
     !!----
     !!----    Constructs the object "Celda" of type Crystal_Cell. Control for error
     !!----    is present
@@ -2297,10 +2299,10 @@
     !!
     Subroutine Set_Crystal_Cell(cellv,angl,Celda,CarType,scell,sangl)
        !---- Arguments ----!
-       real(kind=sp), dimension (3),        intent(in ) :: cellv, angl
+       real(kind=cp), dimension (3),        intent(in ) :: cellv, angl
        Type (Crystal_Cell_Type),            intent(out) :: Celda
        character (len=1),          optional,intent(in ) :: CarType
-       real(kind=sp), dimension(3),optional,intent(in ) :: scell,sangl
+       real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl
 
        !---- Local Variables ----!
        integer :: ifail
@@ -2330,7 +2332,7 @@
 
        if (ifail /= 0) then
           err_crys=.true.
-          Err_Mess_Crys=" Bad cell parameters "
+          ERR_Crys_Mess=" Bad cell parameters "
           return
        end if
 

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_ILL_Instrm_Data
@@ -87,6 +87,11 @@
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
 !!---- DEPENDENCIES
+!!--++   Use CFML_Constants,       only: sp, dp, cp, pi, to_deg, to_rad, eps
+!!--++   Use CFML_Math_General,     only: cosd,sind
+!!--++   use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
+!!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
+!!--++                                    invert => Invert_A
 !!----
 !!----
 !!---- VARIABLES
@@ -100,14 +105,13 @@
 !!--++    CURRENT_INSTRM_SET                [Private]
 !!----    CURRENT_ORIENT
 !!----    CYCLE_NUMBER
-!!----    ERR_ILL_INSTRM_DATA
-!!----    ERR_MESS_ILL_INSTRM_DATA
+!!----    ERR_ILLDATA
+!!----    ERR_ILLDATA_MESS
 !!----    ILL_DATA_DIRECTORY
 !!--++    ILL_TEMP_DIRECTORY                [Private]
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
 !!----    MACHINE_NAME
-!!----    SEP
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -128,9 +132,10 @@
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
-   Use CFML_Math_General,     only: sp,dp,pi,to_deg,to_rad,cosd,sind, eps
-   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
-   use CFML_Math_3D,          only: err_math_3d,err_mess_math_3d, Cross_Product, Determ_A, Determ_V, &
+   Use CFML_Constants,       only: sp, dp, cp, pi, to_deg, to_rad, eps
+   Use CFML_Math_General,     only: cosd,sind
+   use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
+   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                     invert => Invert_A
    !---- Variables ----!
    Implicit none
@@ -148,35 +153,35 @@ Module CFML_ILL_Instrm_Data
    !!---- TYPE :: DIFFRACTOMETER_TYPE
    !!--..
    !!---- Type, public :: diffractometer_type
-   !!----    character(len=80)                :: info                 !information about the instrument
-   !!----    character(len=10)                :: name_inst            !Short name of the instrument
-   !!----    character(len=15)                :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
-   !!----    character(len=6)                 :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
-   !!----    character(len=4)                 :: dist_units           !distance units: "mm  ","cm  ","inch"
-   !!----    character(len=4)                 :: angl_units           !angle units: "rad","deg"
-   !!----    character(len=30)                :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
-   !!----    real                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
-   !!----    real                             :: vert                 !Vertical dimension
-   !!----    real                             :: horiz                !Horizontal dimension
-   !!----    real                             :: agap                 !gap between anodes
-   !!----    real                             :: cgap                 !gap between cathodes
-   !!----    integer                          :: np_vert              !number of pixels in vertical direction
-   !!----    integer                          :: np_horiz             !number of pixels in horizontal direction
-   !!----    integer                          :: igeom                !1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
-   !!----    integer                          :: ipsd                 !1: Flat,2: Vertically Curved detector (used in D19amd)
-   !!----    real,dimension(3)                :: e1                   !Components of e1 in {i,j,k}
-   !!----    real,dimension(3)                :: e2                   !Components of e2 in {i,j,k}
-   !!----    real,dimension(3)                :: e3                   !Components of e3 in {i,j,k}
-   !!----    integer                          :: num_ang              !Number of angular motors
-   !!----    character(len=12),dimension(15)  :: ang_names            !Name of angular motors
-   !!----    real,dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
-   !!----    real,dimension(15)               :: ang_offsets          !Angular offsets
-   !!----    integer                          :: num_disp             !Number of displacement motors
-   !!----    character(len=12),dimension(10)  :: disp_names           !Name of displacement motors
-   !!----    real,dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
-   !!----    real,dimension(10)               :: disp_offsets         !Displacement offsets
-   !!----    real,dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
-   !!----    real,dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
+   !!----    character(len=80)                         :: info                 !information about the instrument
+   !!----    character(len=10)                         :: name_inst            !Short name of the instrument
+   !!----    character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
+   !!----    character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
+   !!----    character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
+   !!----    character(len=4)                          :: angl_units           !angle units: "rad","deg"
+   !!----    character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
+   !!----    real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
+   !!----    real(kind=cp)                             :: vert                 !Vertical dimension
+   !!----    real(kind=cp)                             :: horiz                !Horizontal dimension
+   !!----    real(kind=cp)                             :: agap                 !gap between anodes
+   !!----    real(kind=cp)                             :: cgap                 !gap between cathodes
+   !!----    integer                                   :: np_vert              !number of pixels in vertical direction
+   !!----    integer                                   :: np_horiz             !number of pixels in horizontal direction
+   !!----    integer                                   :: igeom                !1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+   !!----    integer                                   :: ipsd                 !1: Flat,2: Vertically Curved detector (used in D19amd)
+   !!----    real(kind=cp),dimension(3)                :: e1                   !Components of e1 in {i,j,k}
+   !!----    real(kind=cp),dimension(3)                :: e2                   !Components of e2 in {i,j,k}
+   !!----    real(kind=cp),dimension(3)                :: e3                   !Components of e3 in {i,j,k}
+   !!----    integer                                   :: num_ang              !Number of angular motors
+   !!----    character(len=12),dimension(15)           :: ang_names            !Name of angular motors
+   !!----    real(kind=cp),dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
+   !!----    real(kind=cp),dimension(15)               :: ang_offsets          !Angular offsets
+   !!----    integer                                   :: num_disp             !Number of displacement motors
+   !!----    character(len=12),dimension(10)           :: disp_names           !Name of displacement motors
+   !!----    real(kind=cp),dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
+   !!----    real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
+   !!----    real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
+   !!----    real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    !!---- End Type diffractometer_type
    !!----
    !!----    Definition for Diffractometer type
@@ -184,79 +189,79 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    Type, public :: diffractometer_type
-      character(len=80)                :: info                 !information about the instrument
-      character(len=10)                :: name_inst            !Short name of the instrument
-      character(len=15)                :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
-      character(len=6)                 :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
-      character(len=4)                 :: dist_units           !distance units: "mm  ","cm  ","inch"
-      character(len=4)                 :: angl_units           !angle units: "rad","deg"
-      character(len=30)                :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
-      real                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
-      real                             :: vert                 !Vertical dimension
-      real                             :: horiz                !Horizontal dimension
-      real                             :: agap                 !gap between anodes
-      real                             :: cgap                 !gap between cathodes
-      integer                          :: np_vert              !number of pixels in vertical direction
-      integer                          :: np_horiz             !number of pixels in horizontal direction
-      integer                          :: igeom                !1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
-      integer                          :: ipsd                 !1: Flat,2: Vertically Curved detector (used in D19amd)
-      real,dimension(3)                :: e1                   !Components of e1 in {i,j,k}
-      real,dimension(3)                :: e2                   !Components of e2 in {i,j,k}
-      real,dimension(3)                :: e3                   !Components of e3 in {i,j,k}
-      integer                          :: num_ang              !Number of angular motors
-      character(len=12),dimension(15)  :: ang_names            !Name of angular motors
-      real,dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
-      real,dimension(15)               :: ang_offsets          !Angular offsets
-      integer                          :: num_disp             !Number of displacement motors
-      character(len=12),dimension(10)  :: disp_names           !Name of displacement motors
-      real,dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
-      real,dimension(10)               :: disp_offsets         !Displacement offsets
-      real,dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
-      real,dimension(:,:), allocatable :: alphas  !Efficiency corrections for each pixel
+      character(len=80)                         :: info                 !information about the instrument
+      character(len=10)                         :: name_inst            !Short name of the instrument
+      character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
+      character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
+      character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
+      character(len=4)                          :: angl_units           !angle units: "rad","deg"
+      character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
+      real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
+      real(kind=cp)                             :: vert                 !Vertical dimension
+      real(kind=cp)                             :: horiz                !Horizontal dimension
+      real(kind=cp)                             :: agap                 !gap between anodes
+      real(kind=cp)                             :: cgap                 !gap between cathodes
+      integer                                   :: np_vert              !number of pixels in vertical direction
+      integer                                   :: np_horiz             !number of pixels in horizontal direction
+      integer                                   :: igeom                !1: Bissectrice (PSI=0),2: Bissecting - HiCHI, 3: Normal beam, 4:Parallel (PSI=90)
+      integer                                   :: ipsd                 !1: Flat,2: Vertically Curved detector (used in D19amd)
+      real(kind=cp),dimension(3)                :: e1                   !Components of e1 in {i,j,k}
+      real(kind=cp),dimension(3)                :: e2                   !Components of e2 in {i,j,k}
+      real(kind=cp),dimension(3)                :: e3                   !Components of e3 in {i,j,k}
+      integer                                   :: num_ang              !Number of angular motors
+      character(len=12),dimension(15)           :: ang_names            !Name of angular motors
+      real(kind=cp),dimension(15,2)             :: ang_limits           !Angular limits (up to 15 angular motors)
+      real(kind=cp),dimension(15)               :: ang_offsets          !Angular offsets
+      integer                                   :: num_disp             !Number of displacement motors
+      character(len=12),dimension(10)           :: disp_names           !Name of displacement motors
+      real(kind=cp),dimension(10,2)             :: disp_limits          !Displacement limits (up to 15 displacement motors)
+      real(kind=cp),dimension(10)               :: disp_offsets         !Displacement offsets
+      real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
+      real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    End Type diffractometer_type
    
    !!----
    !!---- TYPE :: ILL_DATA_RECORD_TYPE
    !!--..
    !!---- Type, public :: ILL_data_record_type
-   !!----    integer              :: numor      ! data set numor.
-   !!----    integer              :: nset_prime ! set number (groups of 100000 numor).
-   !!----    integer              :: ntran      ! (key2) 0 or numcomp => data transferred?
-   !!----    character(len=4)     :: inst_ch    ! instrument name (4 characters)
-   !!----    character(len=22)    :: date_ch    ! measurement date (22 characters). !it was 18
-   !!----    character(len=2)     :: fill_ch    ! 2 characters (key3) leader
-   !!----    character(len=6)     :: user_ch    ! user name (6 characters)
-   !!----    character(len=6)     :: lc_ch      ! local contact name (6 characters)
-   !!----    character(len=72)    :: text_ch    ! commentary (72characters)
-   !!----    character(len=8)     :: scan_motor ! principal scan motor name. (8 characters)
-   !!----    integer              :: nvers      !ival(1),  data version number
-   !!----    integer              :: ntype      !ival(2),  data type - single/multi/powder
-   !!----    integer              :: kctrl      !ival(3),  data function type
-   !!----    integer              :: manip      !ival(4),  principle scan angle
-   !!----    integer              :: nbang      !ival(5),  number of data saved
-   !!----    integer              :: nkmes      !ival(6),  pre-calculated number of points
-   !!----    integer              :: npdone     !ival(7),  actual number of points
-   !!----    integer              :: jcode      !ival(8),  count on monitor/time
-   !!----    integer              :: icalc      !ival(9),  angle calculation type
-   !!----    integer              :: ianal      !ival(10), analyser present (d10)
-   !!----    integer              :: imode      !ival(11), 2th motor sense (d10)
-   !!----    integer              :: itgv       !ival(12), d19/d9 fast measurement
-   !!----    integer              :: iregul     !ival(13), temperature monitor function
-   !!----    integer              :: ivolt      !ival(14), voltmeter function
-   !!----    integer              :: naxe       !ival(15), d10 (number of axes)
-   !!----    integer              :: npstart    !ival(16), point starting no frag. numor (d19/16)
-   !!----    integer              :: ilasti     !ival(17), elastic measurement (d10)
-   !!----    integer              :: isa        !ival(18), analyser motor sense (d10)
-   !!----    integer              :: flgkif     !ival(19), constant ki or kf (d10)
-   !!----    integer              :: ih_sqs     !ival(20), d10 sqs variation on h
-   !!----    integer              :: ik_sqs     !ival(21), d10 sqs variation on k
-   !!----    integer              :: nbsqs      !ival(22), d10 sqs slice number
-   !!----    integer              :: nb_cells   !ival(24), multi/powder data - number of detectors
-   !!----    integer              :: nfree1     !          data control (free).
-   !!----    integer,dimension(7) :: icdesc     !
-   !!----    real,   dimension(35):: valco      !rval( 1:35)
-   !!----    real,   dimension(10):: valdef     !rval(36:45)
-   !!----    real,   dimension(5) :: valenv     !rval(46:50)
+   !!----    integer                     :: numor      ! data set numor.
+   !!----    integer                     :: nset_prime ! set number (groups of 100000 numor).
+   !!----    integer                     :: ntran      ! (key2) 0 or numcomp => data transferred?
+   !!----    character(len=4)            :: inst_ch    ! instrument name (4 characters)
+   !!----    character(len=22)           :: date_ch    ! measurement date (22 characters). !it was 18
+   !!----    character(len=2)            :: fill_ch    ! 2 characters (key3) leader
+   !!----    character(len=6)            :: user_ch    ! user name (6 characters)
+   !!----    character(len=6)            :: lc_ch      ! local contact name (6 characters)
+   !!----    character(len=72)           :: text_ch    ! commentary (72characters)
+   !!----    character(len=8)            :: scan_motor ! principal scan motor name. (8 characters)
+   !!----    integer                     :: nvers      !ival(1),  data version number
+   !!----    integer                     :: ntype      !ival(2),  data type - single/multi/powder
+   !!----    integer                     :: kctrl      !ival(3),  data function type
+   !!----    integer                     :: manip      !ival(4),  principle scan angle
+   !!----    integer                     :: nbang      !ival(5),  number of data saved
+   !!----    integer                     :: nkmes      !ival(6),  pre-calculated number of points
+   !!----    integer                     :: npdone     !ival(7),  actual number of points
+   !!----    integer                     :: jcode      !ival(8),  count on monitor/time
+   !!----    integer                     :: icalc      !ival(9),  angle calculation type
+   !!----    integer                     :: ianal      !ival(10), analyser present (d10)
+   !!----    integer                     :: imode      !ival(11), 2th motor sense (d10)
+   !!----    integer                     :: itgv       !ival(12), d19/d9 fast measurement
+   !!----    integer                     :: iregul     !ival(13), temperature monitor function
+   !!----    integer                     :: ivolt      !ival(14), voltmeter function
+   !!----    integer                     :: naxe       !ival(15), d10 (number of axes)
+   !!----    integer                     :: npstart    !ival(16), point starting no frag. numor (d19/16)
+   !!----    integer                     :: ilasti     !ival(17), elastic measurement (d10)
+   !!----    integer                     :: isa        !ival(18), analyser motor sense (d10)
+   !!----    integer                     :: flgkif     !ival(19), constant ki or kf (d10)
+   !!----    integer                     :: ih_sqs     !ival(20), d10 sqs variation on h
+   !!----    integer                     :: ik_sqs     !ival(21), d10 sqs variation on k
+   !!----    integer                     :: nbsqs      !ival(22), d10 sqs slice number
+   !!----    integer                     :: nb_cells   !ival(24), multi/powder data - number of detectors
+   !!----    integer                     :: nfree1     !          data control (free).
+   !!----    integer,dimension(7)        :: icdesc     !
+   !!----    real(kind=cp), dimension(35):: valco      !rval( 1:35)
+   !!----    real(kind=cp), dimension(10):: valdef     !rval(36:45)
+   !!----    real(kind=cp), dimension(5) :: valenv     !rval(46:50)
    !!---- End Type ILL_data_record_type
    !!----
    !!----    Definition for Data Record type
@@ -264,74 +269,74 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!          
    Type, public :: ILL_data_record_type
-      integer              :: numor      ! data set numor.
-      integer              :: nset_prime ! set number (groups of 100000 numor).
-      integer              :: ntran      ! (key2) 0 or numcomp => data transferred?
-      character(len=4)     :: inst_ch    ! instrument name (4 characters)
-      character(len=22)    :: date_ch    ! measurement date (22 characters). !it was 18
-      character(len=2)     :: fill_ch    ! 2 characters (key3) leader
-      character(len=6)     :: user_ch    ! user name (6 characters)
-      character(len=6)     :: lc_ch      ! local contact name (6 characters)
-      character(len=72)    :: text_ch    ! commentary (72characters)
-      character(len=8)     :: scan_motor ! principal scan motor name. (8 characters)
-      integer              :: nvers      !ival(1),  data version number
-      integer              :: ntype      !ival(2),  data type - single/multi/powder
-      integer              :: kctrl      !ival(3),  data function type
-      integer              :: manip      !ival(4),  principle scan angle
-      integer              :: nbang      !ival(5),  number of data saved
-      integer              :: nkmes      !ival(6),  pre-calculated number of points
-      integer              :: npdone     !ival(7),  actual number of points
-      integer              :: jcode      !ival(8),  count on monitor/time
-      integer              :: icalc      !ival(9),  angle calculation type
-      integer              :: ianal      !ival(10), analyser present (d10)
-      integer              :: imode      !ival(11), 2th motor sense (d10)
-      integer              :: itgv       !ival(12), d19/d9 fast measurement
-      integer              :: iregul     !ival(13), temperature monitor function
-      integer              :: ivolt      !ival(14), voltmeter function
-      integer              :: naxe       !ival(15), d10 (number of axes)
-      integer              :: npstart    !ival(16), point starting no frag. numor (d19/16)
-      integer              :: ilasti     !ival(17), elastic measurement (d10)
-      integer              :: isa        !ival(18), analyser motor sense (d10)
-      integer              :: flgkif     !ival(19), constant ki or kf (d10)
-      integer              :: ih_sqs     !ival(20), d10 sqs variation on h
-      integer              :: ik_sqs     !ival(21), d10 sqs variation on k
-      integer              :: nbsqs      !ival(22), d10 sqs slice number
-      integer              :: nb_cells   !ival(24), multi/powder data - number of detectors
-      integer              :: nfree1     !          data control (free).
-      integer,dimension(7) :: icdesc     !
-      real,   dimension(35):: valco      !rval( 1:35)
-      real,   dimension(10):: valdef     !rval(36:45)
-      real,   dimension(5) :: valenv     !rval(46:50)
+      integer                     :: numor      ! data set numor.
+      integer                     :: nset_prime ! set number (groups of 100000 numor).
+      integer                     :: ntran      ! (key2) 0 or numcomp => data transferred?
+      character(len=4)            :: inst_ch    ! instrument name (4 characters)
+      character(len=22)           :: date_ch    ! measurement date (22 characters). !it was 18
+      character(len=2)            :: fill_ch    ! 2 characters (key3) leader
+      character(len=6)            :: user_ch    ! user name (6 characters)
+      character(len=6)            :: lc_ch      ! local contact name (6 characters)
+      character(len=72)           :: text_ch    ! commentary (72characters)
+      character(len=8)            :: scan_motor ! principal scan motor name. (8 characters)
+      integer                     :: nvers      !ival(1),  data version number
+      integer                     :: ntype      !ival(2),  data type - single/multi/powder
+      integer                     :: kctrl      !ival(3),  data function type
+      integer                     :: manip      !ival(4),  principle scan angle
+      integer                     :: nbang      !ival(5),  number of data saved
+      integer                     :: nkmes      !ival(6),  pre-calculated number of points
+      integer                     :: npdone     !ival(7),  actual number of points
+      integer                     :: jcode      !ival(8),  count on monitor/time
+      integer                     :: icalc      !ival(9),  angle calculation type
+      integer                     :: ianal      !ival(10), analyser present (d10)
+      integer                     :: imode      !ival(11), 2th motor sense (d10)
+      integer                     :: itgv       !ival(12), d19/d9 fast measurement
+      integer                     :: iregul     !ival(13), temperature monitor function
+      integer                     :: ivolt      !ival(14), voltmeter function
+      integer                     :: naxe       !ival(15), d10 (number of axes)
+      integer                     :: npstart    !ival(16), point starting no frag. numor (d19/16)
+      integer                     :: ilasti     !ival(17), elastic measurement (d10)
+      integer                     :: isa        !ival(18), analyser motor sense (d10)
+      integer                     :: flgkif     !ival(19), constant ki or kf (d10)
+      integer                     :: ih_sqs     !ival(20), d10 sqs variation on h
+      integer                     :: ik_sqs     !ival(21), d10 sqs variation on k
+      integer                     :: nbsqs      !ival(22), d10 sqs slice number
+      integer                     :: nb_cells   !ival(24), multi/powder data - number of detectors
+      integer                     :: nfree1     !          data control (free).
+      integer,dimension(7)        :: icdesc     !
+      real(kind=cp), dimension(35):: valco      !rval( 1:35)
+      real(kind=cp), dimension(10):: valdef     !rval(36:45)
+      real(kind=cp), dimension(5) :: valenv     !rval(46:50)
    End Type ILL_data_record_type
 
    !!----
    !!---- TYPE :: SXTAL_NUMOR_TYPE
    !!--..
    !!---- Type, public :: SXTAL_Numor_type
-   !!----    integer                           :: numor       ! Numor
-   !!----    integer                           :: manip       ! principle scan angle
-   !!----    integer                           :: icalc       ! angle calculation type
-   !!----    character(len=32)                 :: header      ! User, local contact, date
-   !!----    character(len=32)                 :: title       !
-   !!----    character(len=8)                  :: Scantype    ! omega, phi, etc...
-   !!----    real, dimension(3)                :: hmin        ! or h,k,l for omega-scans
-   !!----    real, dimension(3)                :: hmax        !
-   !!----    real, dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
-   !!----    real, dimension(3,3)              :: UB          ! UB-matrix
-   !!----    real, dimension(3)                :: dh          ! delta_h, delta_k, delta_l
-   !!----    real, dimension(3)                :: scans       ! scan start, scan step, scan width
-   !!----    real                              :: preset      !
-   !!----    real                              :: wave        ! wavelength
-   !!----    real                              :: cpl_fact    ! Coupling Factor
-   !!----    real, dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
-   !!----    integer                           :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
-   !!----    integer                           :: nframes     ! Total number of frames
-   !!----    integer                           :: nbang       ! Total number of angles moved during scan
-   !!----    integer, dimension(7)             :: icdesc      ! Integer values
-   !!----    real,allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
-   !!----                                                     ! To be allocated as tmc_ang(nbang,nframes)
-   !!----    real,allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
-   !!----                                                     ! To be allocated as counts(nbdata,nframes)
+   !!----    integer                                    :: numor       ! Numor
+   !!----    integer                                    :: manip       ! principle scan angle
+   !!----    integer                                    :: icalc       ! angle calculation type
+   !!----    character(len=32)                          :: header      ! User, local contact, date
+   !!----    character(len=32)                          :: title       !
+   !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
+   !!----    real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
+   !!----    real(kind=cp), dimension(3)                :: hmax        !
+   !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
+   !!----    real(kind=cp), dimension(3,3)              :: UB          ! UB-matrix
+   !!----    real(kind=cp), dimension(3)                :: dh          ! delta_h, delta_k, delta_l
+   !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
+   !!----    real(kind=cp)                              :: preset      !
+   !!----    real(kind=cp)                              :: wave        ! wavelength
+   !!----    real(kind=cp)                              :: cpl_fact    ! Coupling Factor
+   !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
+   !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
+   !!----    integer                                    :: nframes     ! Total number of frames
+   !!----    integer                                    :: nbang       ! Total number of angles moved during scan
+   !!----    integer, dimension(7)                      :: icdesc      ! Integer values
+   !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
+   !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
+   !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
+   !!----                                                              ! To be allocated as counts(nbdata,nframes)
    !!---- End Type SXTAL_Numor_type
    !!----
    !!----    Definition for XTAL Numor type
@@ -339,40 +344,40 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !! 
    Type, public :: SXTAL_Numor_type
-      integer                           :: numor       ! Numor
-      integer                           :: manip       ! principle scan angle
-      integer                           :: icalc       ! angle calculation type
-      character(len=32)                 :: header      ! User, local contact, date
-      character(len=32)                 :: title       !
-      character(len=8)                  :: Scantype    ! omega, phi, etc...
-      real, dimension(3)                :: hmin        ! or h,k,l for omega-scans
-      real, dimension(3)                :: hmax        !
-      real, dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
-      real, dimension(3,3)              :: UB          ! UB-matrix
-      real, dimension(3)                :: dh          ! delta_h, delta_k, delta_l
-      real, dimension(3)                :: scans       ! scan start, scan step, scan width
-      real                              :: preset      !
-      real                              :: wave        ! wavelength
-      real                              :: cpl_fact    ! Coupling Factor
-      real, dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
-      integer                           :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
-      integer                           :: nframes     ! Total number of frames
-      integer                           :: nbang       ! Total number of angles moved during scan
-      integer, dimension(7)             :: icdesc      ! Integer values
-      real,allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
-                                                       ! To be allocated as tmc_ang(nbang,nframes)
-      real,allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
-                                                       ! To be allocated as counts(nbdata,nframes)
+      integer                                    :: numor       ! Numor
+      integer                                    :: manip       ! principle scan angle
+      integer                                    :: icalc       ! angle calculation type
+      character(len=32)                          :: header      ! User, local contact, date
+      character(len=32)                          :: title       !
+      character(len=8)                           :: Scantype    ! omega, phi, etc...
+      real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
+      real(kind=cp), dimension(3)                :: hmax        !
+      real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
+      real(kind=cp), dimension(3,3)              :: UB          ! UB-matrix
+      real(kind=cp), dimension(3)                :: dh          ! delta_h, delta_k, delta_l
+      real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
+      real(kind=cp)                              :: preset      !
+      real(kind=cp)                              :: wave        ! wavelength
+      real(kind=cp)                              :: cpl_fact    ! Coupling Factor
+      real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
+      integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
+      integer                                    :: nframes     ! Total number of frames
+      integer                                    :: nbang       ! Total number of angles moved during scan
+      integer, dimension(7)                      :: icdesc      ! Integer values
+      real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
+                                                                ! To be allocated as tmc_ang(nbang,nframes)
+      real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
+                                                                ! To be allocated as counts(nbdata,nframes)
    End type SXTAL_Numor_type
 
    !!----
    !!---- TYPE :: SXTAL_ORIENT_TYPE
    !!--..
    !!---- Type, public :: SXTAL_Orient_type
-   !!----    real                :: wave       !Wavelength
-   !!----    real,dimension(3,3) :: UB         !UB matrix in Busing-Levy setting
-   !!----    real,dimension(3,3) :: UBINV      !Inverse of UB-matrix
-   !!----    real,dimension(3,3) :: CONV       !Conversion matrix to the local setting
+   !!----    real(kind=cp)                :: wave       ! Wavelength
+   !!----    real(kind=cp),dimension(3,3) :: UB         ! UB matrix in Busing-Levy setting
+   !!----    real(kind=cp),dimension(3,3) :: UBINV      ! Inverse of UB-matrix
+   !!----    real(kind=cp),dimension(3,3) :: CONV       ! Conversion matrix to the local setting
    !!---- End Type SXTAL_Orient_type
    !!----
    !!----    Definition for XTAL Orientation Parameters
@@ -380,10 +385,10 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    Type, public :: SXTAL_Orient_type
-      real                :: wave       !Wavelength
-      real,dimension(3,3) :: UB         !UB matrix in Busing-Levy setting
-      real,dimension(3,3) :: UBINV      !Inverse of UB-matrix
-      real,dimension(3,3) :: CONV       !Conversion matrix to the local setting
+      real(kind=cp)                :: wave       !Wavelength
+      real(kind=cp),dimension(3,3) :: UB         !UB matrix in Busing-Levy setting
+      real(kind=cp),dimension(3,3) :: UBINV      !Inverse of UB-matrix
+      real(kind=cp),dimension(3,3) :: CONV       !Conversion matrix to the local setting
    End type SXTAL_Orient_type
    
    !!----
@@ -429,25 +434,25 @@ Module CFML_ILL_Instrm_Data
    integer, public  ::  cycle_number
    
    !!----
-   !!---- ERR_ILL_INSTRM_DATA
-   !!----    logical, public:: Err_ILL_Instrm_data
+   !!---- ERR_ILLDATA
+   !!----    logical, public:: ERR_ILLData
    !!----
    !!----    logical variable to taking the value .true. if an error in the module
    !!----    ILL_INSTRM_DATA occurs.
    !!----
    !!---- Update: April - 2008
    !!
-   logical, public :: Err_ILL_Instrm_data=.false.
+   logical, public :: ERR_ILLData=.false.
    
    !!----
-   !!---- ERR_MESS_ILL_INSTRM_DATA
-   !!----    character(len=256), public:: Err_Mess_ILL_Instrm_data
+   !!---- ERR_ILLDATA_MESS
+   !!----    character(len=150), public:: ERR_ILLData_Mess
    !!----
    !!----    String containing information about the last error
    !!----
    !!---- Update: April - 2008
    !!
-   character(len=256), public :: Err_Mess_ILL_Instrm_data=" "
+   character(len=150), public :: ERR_ILLData_Mess=" "
 
    !!----
    !!---- ILL_DATA_DIRECTORY
@@ -502,16 +507,6 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=8),   public  ::  machine_name
    
-   !!----
-   !!---- SEP
-   !!----    character(len=1), public, parameter :: sep ="\" ! => Windows 
-   !!----
-   !!----    String containing information about the directory character
-   !!----
-   !!---- Update: April - 2008
-   !!
-   character(len=1), public, parameter :: sep ="\" ! => Windows !  "/" ! => Unix
-
  Contains
     !!----
     !!---- Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Num)
@@ -577,10 +572,10 @@ Module CFML_ILL_Instrm_Data
     
     !!----
     !!---- Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
-    !!----    integer,                   intent(in)  :: nfr,iord
-    !!----    type(SXTAL_Numor_type),    intent(in)  :: snum
-    !!----    real, dimension(:,:),     intent(out)  :: dat_2D
-    !!----    logical, optional,         intent(in)  :: appl_alphas
+    !!----    integer,                       intent(in)  :: nfr,iord
+    !!----    type(SXTAL_Numor_type),        intent(in)  :: snum
+    !!----    real(kind=cp), dimension(:,:), intent(out) :: dat_2D
+    !!----    logical, optional,             intent(in)  :: appl_alphas
     !!----
     !!--<<    Extracts into the real two-dimensional array dat_2D the counts
     !!----    of the frame number 'nfr' of the numor object 'snum', applying
@@ -595,10 +590,10 @@ Module CFML_ILL_Instrm_Data
     !!
     Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
        !---- Arguments ----!
-       integer,                   intent(in)  :: nfr,iord
-       type(SXTAL_Numor_type),    intent(in)  :: snum
-       real, dimension(:,:),      intent(out) :: dat_2D
-       logical, optional,         intent(in)  :: appl_alphas
+       integer,                       intent(in)  :: nfr,iord
+       type(SXTAL_Numor_type),        intent(in)  :: snum
+       real(kind=cp), dimension(:,:), intent(out) :: dat_2D
+       logical, optional,             intent(in)  :: appl_alphas
 
        !---- IA = anodes (1-NANO), IC = cathodes (1-NCAT)
        !   IORD = 1 for D19 Banana, IORD = 2 for D9/D10, IORD = 3 for D19 Flat.
@@ -677,8 +672,8 @@ Module CFML_ILL_Instrm_Data
     !!----    Subroutine reading the file 'filenam' where the characteristics
     !!----    of the current instrument are written. The global Current_Instrm
     !!----    variable is filled after returning from this subroutine.
-    !!----    In case of error the subroutine puts Err_ILL_Instrm_data=.true.
-    !!----    and fills the error message variable Err_Mess_ILL_Instrm_data.
+    !!----    In case of error the subroutine puts ERR_ILLData=.true.
+    !!----    and fills the error message variable ERR_ILLData_Mess.
     !!----
     !!---- Update: March - 2005
     !!
@@ -687,13 +682,13 @@ Module CFML_ILL_Instrm_Data
        character(len=*),  intent(in) :: filenam
 
        !---- Local variables ----!
-       character(len=120)    :: line
-       character(len=10)     :: key
-       integer               :: i, j, lun, ier,npx,npz, n1,n2
-       real, dimension(3,3)  :: set, ub
-       real                  :: wave
+       character(len=120)             :: line
+       character(len=10)              :: key
+       integer                        :: i, j, lun, ier,npx,npz, n1,n2
+       real(kind=cp), dimension(3,3)  :: set, ub
+       real(kind=cp)                  :: wave
 
-       logical               :: read_set, read_alphas
+       logical                        :: read_set, read_alphas
 
        npx=32  !default values
        npz=32
@@ -701,8 +696,8 @@ Module CFML_ILL_Instrm_Data
 
        open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if (ier /= 0) then
-          Err_ILL_Instrm_data=.true.
-          Err_Mess_ILL_Instrm_data="Error opening the file: "//trim(filenam)
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="Error opening the file: "//trim(filenam)
           return
        end if
 
@@ -755,24 +750,24 @@ Module CFML_ILL_Instrm_Data
                 if( j /= 0)  &
                 read(unit=Current_Instrm%detector_type(j+4:),fmt=*,iostat=ier) Current_Instrm%ipsd
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the type of detector (ipsd)"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the type of detector (ipsd)"
                   return
                 end if
 
             Case("DIST_DET")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%dist_samp_detector
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the distance sample-detector"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the distance sample-detector"
                   return
                 end if
 
             Case("WAVE")
                 read(unit=line(i+1:),fmt=*,iostat=ier) wave
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the wavelength"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength"
                   return
                 end if
 
@@ -780,8 +775,8 @@ Module CFML_ILL_Instrm_Data
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%horiz,    Current_Instrm%vert, &
                                                        Current_Instrm%np_horiz, Current_Instrm%np_vert
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the distance sample-detector"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the distance sample-detector"
                   return
                 end if
                 npx = Current_Instrm%np_horiz
@@ -790,8 +785,8 @@ Module CFML_ILL_Instrm_Data
             Case("GAPS_DET")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%agap, Current_Instrm%cgap
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data=&
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess=&
                   "Error in file: "//trim(filenam)//", reading the gaps between anodes and between cathodes"
                   return
                 end if
@@ -800,8 +795,8 @@ Module CFML_ILL_Instrm_Data
                 do j=1,3
                   read(unit=lun,fmt=*,iostat=ier) ub(j,:)
                   if(ier /= 0) then
-                    Err_ILL_Instrm_data=.true.
-                    Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the UB-matrix"
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the UB-matrix"
                     return
                   end if
                 end do
@@ -809,8 +804,8 @@ Module CFML_ILL_Instrm_Data
             Case("SETTING")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%e1, Current_Instrm%e2, Current_Instrm%e3
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the setting vectors"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the setting vectors"
                   return
                 end if
                 set(:,1)=Current_Instrm%e1
@@ -828,32 +823,32 @@ Module CFML_ILL_Instrm_Data
 
             Case("ANG_LIMITS")
                 if(n1 == 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", Number of angular motors missing!"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", Number of angular motors missing!"
                   return
                 end if
                 do j=1,n1
                   read(unit=lun,fmt=*,iostat=ier) Current_Instrm%ang_names(j), Current_Instrm%ang_Limits(j,1:2), &
                                                   Current_Instrm%ang_offsets(j)
                   if(ier /= 0) then
-                    Err_ILL_Instrm_data=.true.
-                    Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the angular limits"
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the angular limits"
                     return
                   end if
                 end do
 
             Case("DISP_LIMITS")
                 if(n2 == 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", Number of displacement motors missing!"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", Number of displacement motors missing!"
                   return
                 end if
                 do j=1,n2
                   read(unit=lun,fmt=*,iostat=ier) Current_Instrm%disp_names(j),Current_Instrm%disp_Limits(j,1:2), &
                                                   Current_Instrm%disp_offsets(1:n2)
                   if(ier /= 0) then
-                    Err_ILL_Instrm_data=.true.
-                    Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the displacement limits"
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the displacement limits"
                     return
                   end if
                 end do
@@ -861,8 +856,8 @@ Module CFML_ILL_Instrm_Data
             Case("DET_OFF")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%det_offsets
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the detector offsets"
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the detector offsets"
                   return
                 end if
 
@@ -873,8 +868,8 @@ Module CFML_ILL_Instrm_Data
                 do j=1,npz
                   read(unit=lun,fmt=*,iostat=ier) Current_Instrm%alphas(j,1:npx)
                   if(ier /= 0) then
-                    Err_ILL_Instrm_data=.true.
-                    Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading the efficiency of 2D-detector"
+                    ERR_ILLData=.true.
+                    ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the efficiency of 2D-detector"
                    return
                   end if
                 end do
@@ -910,8 +905,8 @@ Module CFML_ILL_Instrm_Data
     !!----    Read the numor "numor" from the ILL database and construct
     !!----    the object 'snum' of type SXTAL_Numor_type.
     !!----    (not completely checked yet)
-    !!----    In case of error the subroutine puts Err_ILL_Instrm_data=.true.
-    !!----    and fils the error message variable Err_Mess_ILL_Instrm_data.
+    !!----    In case of error the subroutine puts ERR_ILLData=.true.
+    !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
     !!---- Update: December - 2005
     !!
@@ -922,13 +917,13 @@ Module CFML_ILL_Instrm_Data
        type(SXTAL_Numor_type), intent(in out):: snum
 
        !---- Local variables ----!
-       character(len=280)     :: filenam
-       character(len=6)       :: inst
-       character(len=80)      :: line
-       integer                :: i,j, lun, ier
-       integer, dimension(31) :: ival
-       real,    dimension(50) :: rval
-       logical                :: existe
+       character(len=280)              :: filenam
+       character(len=6)                :: inst
+       character(len=80)               :: line
+       integer                         :: i,j, lun, ier
+       integer, dimension(31)          :: ival
+       real(kind=cp),    dimension(50) :: rval
+       logical                         :: existe    
 
        inst=adjustl(instrm)
        call lcase(inst)
@@ -942,54 +937,54 @@ Module CFML_ILL_Instrm_Data
        Select Case (inst)
 
           Case("d10","d3")
-              filenam=trim(Instrm_directory)//sep//line(1:6)
+              filenam=trim(Instrm_directory)//dirslash//line(1:6)
 
           Case("d9")
             Select case(line(1:2))
                Case("00")
-                 filenam=trim(Instrm_directory)//"d9_0"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_0"//dirslash//line(1:6)
                Case("01")
-                 filenam=trim(Instrm_directory)//"d9_1"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_1"//dirslash//line(1:6)
                Case("02")
-                 filenam=trim(Instrm_directory)//"d9_2"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_2"//dirslash//line(1:6)
                Case("03")
-                 filenam=trim(Instrm_directory)//"d9_3"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_3"//dirslash//line(1:6)
                Case("04")
-                 filenam=trim(Instrm_directory)//"d9_4"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_4"//dirslash//line(1:6)
                Case("05")
-                 filenam=trim(Instrm_directory)//"d9_5"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_5"//dirslash//line(1:6)
                Case("06")
-                 filenam=trim(Instrm_directory)//"d9_6"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_6"//dirslash//line(1:6)
                Case("07")
-                 filenam=trim(Instrm_directory)//"d9_7"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_7"//dirslash//line(1:6)
                Case("08")
-                 filenam=trim(Instrm_directory)//"d9_8"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_8"//dirslash//line(1:6)
                Case("09")
-                 filenam=trim(Instrm_directory)//"d9_9"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_9"//dirslash//line(1:6)
             End Select
 
           Case("d19")
             Select case(line(1:2))
                Case("00")
-                 filenam=trim(Instrm_directory)//"d19_0"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_0"//dirslash//line(1:6)
                Case("01")
-                 filenam=trim(Instrm_directory)//"d19_1"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_1"//dirslash//line(1:6)
                Case("02")
-                 filenam=trim(Instrm_directory)//"d19_2"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_2"//dirslash//line(1:6)
                Case("03")
-                 filenam=trim(Instrm_directory)//"d19_3"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_3"//dirslash//line(1:6)
                Case("04")
-                 filenam=trim(Instrm_directory)//"d19_4"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_4"//dirslash//line(1:6)
                Case("05")
-                 filenam=trim(Instrm_directory)//"d19_5"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_5"//dirslash//line(1:6)
                Case("06")
-                 filenam=trim(Instrm_directory)//"d19_6"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_6"//dirslash//line(1:6)
                Case("07")
-                 filenam=trim(Instrm_directory)//"d19_7"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_7"//dirslash//line(1:6)
                Case("08")
-                 filenam=trim(Instrm_directory)//"d19_8"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_8"//dirslash//line(1:6)
                Case("09")
-                 filenam=trim(Instrm_directory)//"d19_9"//sep//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_9"//dirslash//line(1:6)
             End Select
 
        End Select
@@ -1001,8 +996,8 @@ Module CFML_ILL_Instrm_Data
           if (existe) then
              call system("uncompress "//trim(filenam)//".Z >"//trim(ILL_temp_directory)//"." )
           else
-             Err_ILL_Instrm_data=.true.
-             Err_Mess_ILL_Instrm_data="The file: "//trim(filenam)//", doesn't exist!"
+             ERR_ILLData=.true.
+             ERR_ILLData_Mess="The file: "//trim(filenam)//", doesn't exist!"
              return
           end if
        end if
@@ -1010,8 +1005,8 @@ Module CFML_ILL_Instrm_Data
        call Get_LogUnit(lun)
        open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if (ier /= 0) then
-          Err_ILL_Instrm_data=.true.
-          Err_Mess_ILL_Instrm_data="Error opening the file: "//trim(filenam)//", for reading numors"
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="Error opening the file: "//trim(filenam)//", for reading numors"
           return
        end if
 
@@ -1034,8 +1029,8 @@ Module CFML_ILL_Instrm_Data
               end do
               read(unit=lun,fmt=*,iostat=ier) ival
               if(ier /= 0) then
-                Err_ILL_Instrm_data=.true.
-                Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading integer control values"
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading integer control values"
                 return
               end if
               do i=1,12
@@ -1043,8 +1038,8 @@ Module CFML_ILL_Instrm_Data
               end do
               read(unit=lun,fmt=*,iostat=ier) rval
               if(ier /= 0) then
-                Err_ILL_Instrm_data=.true.
-                Err_Mess_ILL_Instrm_data="Error in file: "//trim(filenam)//", reading real control values"
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading real control values"
                 return
               end if
               !valco      rval( 1:35)
@@ -1087,8 +1082,8 @@ Module CFML_ILL_Instrm_Data
                 read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
                 read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
                 if(ier /= 0) then
-                  Err_ILL_Instrm_data=.true.
-                  write(unit=Err_Mess_ILL_Instrm_data,fmt="(a,i4)") &
+                  ERR_ILLData=.true.
+                  write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
                      "Error in file: "//trim(filenam)//", reading counts at frame #",i
                   return
                 end if
@@ -1096,8 +1091,8 @@ Module CFML_ILL_Instrm_Data
               close(unit=lun)
 
           Case default
-              Err_ILL_Instrm_data=.true.
-              Err_Mess_ILL_Instrm_data= "Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
+              ERR_ILLData=.true.
+              ERR_ILLData_Mess= "Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
        End Select
 
        return
@@ -1105,26 +1100,26 @@ Module CFML_ILL_Instrm_Data
     
     !!----
     !!---- Subroutine Set_Current_Orient(wave,ub,setting)
-    !!----   real,                         intent(in)   :: wave
-    !!----   real, dimension(3,3),         intent(in)   :: ub
-    !!----   real, dimension(3,3),optional,intent(in)   :: setting
+    !!----   real(kind=cp),                         intent(in)   :: wave
+    !!----   real(kind=cp), dimension(3,3),         intent(in)   :: ub
+    !!----   real(kind=cp), dimension(3,3),optional,intent(in)   :: setting
     !!----
     !!----    Subroutine setting the Current_Orient global variable
     !!----    If the final UB matrix is singular an error is rised
-    !!----    by putting Err_ILL_Instrm_data=.true. and filling the
-    !!----    error message variable Err_Mess_ILL_Instrm_data.
+    !!----    by putting ERR_ILLData=.true. and filling the
+    !!----    error message variable ERR_ILLData_Mess.
     !!----
     !!---- Update: March - 2005
     !!
     Subroutine Set_Current_Orient(wave,ub,setting)
        !---- Argument ----!
-       real,                         intent(in)   :: wave
-       real, dimension(3,3),         intent(in)   :: ub
-       real, dimension(3,3),optional,intent(in)   :: setting
+       real(kind=cp),                         intent(in)   :: wave
+       real(kind=cp), dimension(3,3),         intent(in)   :: ub
+       real(kind=cp), dimension(3,3),optional,intent(in)   :: setting
        
        !--- Local variables ---!
-       real                 :: det
-       real, dimension(3,3) :: mat
+       real(kind=cp)                 :: det
+       real(kind=cp), dimension(3,3) :: mat
 
        Current_Orient%conv=reshape( (/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))
        
@@ -1137,8 +1132,8 @@ Module CFML_ILL_Instrm_Data
 
        det=determ_a(mat)
        if (abs(det) < eps) then
-          Err_ILL_Instrm_data=.true.
-          Err_Mess_ILL_Instrm_data="Singular UB or Setting Matrix"
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="Singular UB or Setting Matrix"
           return
        end if
 
@@ -1161,9 +1156,9 @@ Module CFML_ILL_Instrm_Data
     !!
     Subroutine Set_Default_Instrument()
        !---- Local Variables ----!
-       real                 :: wave
-       integer              :: npx, npz
-       real, dimension(3,3) :: ub
+       real(kind=cp)                 :: wave
+       integer                       :: npx, npz
+       real(kind=cp), dimension(3,3) :: ub
 
        Current_Instrm%det_offsets=0.0
        Current_Instrm%disp_offsets=0.0
@@ -1226,8 +1221,8 @@ Module CFML_ILL_Instrm_Data
     !!----    if not ILL_data_directory takes the default value defined in the
     !!----    declaration of the variable.
     !!----    If the directory doesn't exist the subroutine rises an error condition
-    !!----    by putting Err_ILL_Instrm_data=.true. and filling the error message
-    !!----    variable Err_Mess_ILL_Instrm_data.
+    !!----    by putting ERR_ILLData=.true. and filling the error message
+    !!----    variable ERR_ILLData_Mess.
     !!----
     !!---- Update: December - 2006
     !!
@@ -1259,16 +1254,16 @@ Module CFML_ILL_Instrm_Data
 
        !---- Add separator if absent ----!
        len_d=len_trim(ILL_data_directory)
-       if (ILL_data_directory(len_d:len_d) /= sep) ILL_data_directory(len_d+1:len_d+1)=sep
+       if (ILL_data_directory(len_d:len_d) /= dirslash) ILL_data_directory(len_d+1:len_d+1)=dirslash
 
        !---- check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
-       Err_ILL_Instrm_data=.false.
+       ERR_ILLData=.false.
 
        inquire(file=trim(ILL_data_directory)//".",exist=existe)
        if (.not. existe) then
-          Err_ILL_Instrm_data=.true.
-          Err_mess_ILL_Instrm_data="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
        end if
 
        return
@@ -1280,12 +1275,12 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!----    Assign the global public variable: Instrm_directory
     !!----    The intent 'in' variable instrm is the name of the diffractometer
-    !!----    Instrm_directory=trim(ILL_data_directory)//trim(instrm)//sep
+    !!----    Instrm_directory=trim(ILL_data_directory)//trim(instrm)//dirslash
     !!----    It is assumed that the subroutine Set_ILL_data_directory has
     !!----    already been called.
     !!----    If the directory doesn't exist the subroutine rises an error condition
-    !!----    by putting Err_ILL_Instrm_data=.true. and filling the error message
-    !!----    variable Err_Mess_ILL_Instrm_data.
+    !!----    by putting ERR_ILLData=.true. and filling the error message
+    !!----    variable ERR_ILLData_Mess.
     !!----
     !!---- Update: December - 2006
     !!
@@ -1294,17 +1289,17 @@ Module CFML_ILL_Instrm_Data
        character(len=*),  intent(in) :: instrm  !Name of the instrument
 
        !---- Local Variables ----!
-       logical :: existe
+       logical :: existe 
 
-       Instrm_directory=trim(ILL_data_directory)//trim(instrm)//sep
+       Instrm_directory=trim(ILL_data_directory)//trim(instrm)//dirslash
 
        !---- check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
-       Err_ILL_Instrm_data=.false.
+       ERR_ILLData=.false.
        inquire(file=trim(Instrm_directory)//".",exist=existe)
        if (.not. existe) then
-          Err_ILL_Instrm_data=.true.
-          Err_mess_ILL_Instrm_data="The INSTRM directory: '"//trim(Instrm_directory)//"' doesn't exist"
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="The INSTRM directory: '"//trim(Instrm_directory)//"' doesn't exist"
        end if
        Instrm_directory_set=.true.
 
@@ -1313,9 +1308,9 @@ Module CFML_ILL_Instrm_Data
 
     !!----
     !!---- Subroutine Update_Current_Instrm_UB(filenam,UB,wave)
-    !!----    character(len=*),     intent(in) :: filenam
-    !!----    real, dimension(3,3), intent(in) :: UB
-    !!----    real,                 intent(in) :: wave
+    !!----    character(len=*),              intent(in) :: filenam
+    !!----    real(kind=cp), dimension(3,3), intent(in) :: UB
+    !!----    real(kind=cp),                 intent(in) :: wave
     !!----
     !!----    Subroutine updating the file 'filenam' where the characteristics
     !!----    of the current instrument are written. The global Current_Instrm
@@ -1323,36 +1318,35 @@ Module CFML_ILL_Instrm_Data
     !!----    The file 'filenam' is re-written and the old version is saved with
     !!----    appended extension '.bak'.
     !!----    The Current_Orient global variable is also updated.
-    !!----    In case of error the subroutine puts Err_ILL_Instrm_data=.true.
-    !!----    and fils the error message variable Err_Mess_ILL_Instrm_data.
+    !!----    In case of error the subroutine puts ERR_ILLData=.true.
+    !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
     !!---- Update: December - 2005
     !!
     Subroutine Update_Current_Instrm_UB(filenam,UB,wave)
        !---- Arguments ----!
-       character(len=*),     intent(in) :: filenam
-       real, dimension(3,3), intent(in) :: UB
-       real,                 intent(in) :: wave
+       character(len=*),              intent(in) :: filenam
+       real(kind=cp), dimension(3,3), intent(in) :: UB
+       real(kind=cp),                 intent(in) :: wave
 
        !---- Local variables ----!
        character(len=120), dimension(:), allocatable :: file_lines
-       character(len=120)    :: line
-       character(len=10)     :: key
-       integer               :: i, j, lun_out, lun, ier, nlines,jw,iw,iub
-       real, dimension(3,3)  :: set
-
-       logical               :: read_wave, read_UB
+       character(len=120)            :: line
+       character(len=10)             :: key
+       integer                       :: i, j, lun_out, lun, ier, nlines,jw,iw,iub
+       real(kind=cp), dimension(3,3) :: set
+       logical                       :: read_wave, read_UB
 
        if(.not. Current_Instrm_set) then
-         Err_ILL_Instrm_data=.true.
-         Err_Mess_ILL_Instrm_data=" Current Instrument not set! (call subroutine: Read_Current_Instrm) "
+         ERR_ILLData=.true.
+         ERR_ILLData_Mess=" Current Instrument not set! (call subroutine: Read_Current_Instrm) "
          return
        end if
 
        call Number_Lines(filenam,nlines)
        if(nlines == 0) then
-         Err_ILL_Instrm_data=.true.
-         Err_Mess_ILL_Instrm_data="Error opening the file: "//trim(filenam)//" => ZERO lines found!"
+         ERR_ILLData=.true.
+         ERR_ILLData_Mess="Error opening the file: "//trim(filenam)//" => ZERO lines found!"
          return
        end if
 
@@ -1362,16 +1356,16 @@ Module CFML_ILL_Instrm_Data
        call Get_LogUnit(lun)
        open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if(ier /= 0) then
-         Err_ILL_Instrm_data=.true.
-         Err_Mess_ILL_Instrm_data="Error opening the file: "//trim(filenam)
+         ERR_ILLData=.true.
+         ERR_ILLData_Mess="Error opening the file: "//trim(filenam)
          return
        end if
 
        call Get_LogUnit(lun_out)
        open(unit=lun_out,file=trim(filenam)//".bak",status="replace", action="write",iostat=ier)
        if(ier /= 0) then
-         Err_ILL_Instrm_data=.true.
-         Err_Mess_ILL_Instrm_data="Error opening the backup file: "//trim(filenam)//".bak"
+         ERR_ILLData=.true.
+         ERR_ILLData_Mess="Error opening the backup file: "//trim(filenam)//".bak"
          return
        end if
 
@@ -1420,16 +1414,16 @@ Module CFML_ILL_Instrm_Data
        call Get_LogUnit(lun)
        open(unit=lun,file=trim(filenam),status="replace", action="write",iostat=ier)
        if(ier /= 0) then
-         Err_ILL_Instrm_data=.true.
-         Err_Mess_ILL_Instrm_data="Error updating the file: "//trim(filenam)
+         ERR_ILLData=.true.
+         ERR_ILLData_Mess="Error updating the file: "//trim(filenam)
          return
        end if
 
        do i=1,nlines
           write(unit=lun,fmt="(a)",iostat=ier) file_lines(i)
           if(ier /= 0) then
-            Err_ILL_Instrm_data=.true.
-            write(unit=Err_Mess_ILL_Instrm_data,fmt="(a,i4)")"Error updating the file: "//trim(filenam)//" at line:",i
+            ERR_ILLData=.true.
+            write(unit=ERR_ILLData_Mess,fmt="(a,i4)")"Error updating the file: "//trim(filenam)//" at line:",i
             exit
           end if
        end do
@@ -1583,8 +1577,8 @@ Module CFML_ILL_Instrm_Data
        integer,      optional, intent(in) :: lun
        
        !--- Local variables ---!
-       integer :: ipr, i, cou, ctot
-       real    :: tim,mon,ang1,ang2
+       integer       :: ipr, i, cou, ctot
+       real(kind=cp) :: tim,mon,ang1,ang2
        
        ipr=6
        if (present(lun)) ipr=lun

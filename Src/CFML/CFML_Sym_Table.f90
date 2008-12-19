@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Symmetry_Tables
@@ -11,15 +11,15 @@
 !!----            June - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Math_General,   only: sp
+!!--++    Use CFML_Constants,       only: cp
 !!--++    Use CFML_String_Utilities, only: U_case
 !!----
 !!---- VARIABLES
 !!----    BC_D6H
 !!----    BC_OH
 !!----    DEPMAT
-!!----    ERR_MESS_SYMTAB
 !!----    ERR_SYMTAB
+!!----    ERR_SYMTAB_MESS
 !!--++    IT_SET                       [Private]
 !!----    INTSYMD6H
 !!----    INTSYMOH
@@ -67,7 +67,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_Math_General,         only: Sp
+    Use CFML_Constants,       only: Cp
     Use CFML_String_Utilities, only: U_Case
 
     !---- Variables ----!
@@ -149,16 +149,6 @@
        "(    Dy, Dx   , Dz)","( Dx-Dy,   -Dy, Dz)","(-Dx   ,-Dx+Dy, Dz)"   /)
 
     !!----
-    !!---- ERR_MESS_SYMTAB
-    !!----    character(len=150), public :: Err_Mess_Symtab
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: err_mess_symtab=" "
-
-    !!----
     !!---- ERR_SYMTAB
     !!----    logical, public :: Err_Symtab
     !!----
@@ -166,7 +156,17 @@
     !!----
     !!---- Update: January - 2005
     !!
-    logical, public :: err_symtab=.false.
+    logical, public :: ERR_Symtab=.false.
+    
+    !!----
+    !!---- ERR_SYMTAB_MESS
+    !!----    character(len=150), public :: ERR_SymTab_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
+    !!
+    character(len=150), public :: ERR_SymTab_Mess=" "
 
     !!--++
     !!--++ IT_SET
@@ -283,7 +283,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,2), parameter, public :: Ltr_a =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_a =reshape ( (/0.0,0.0,0.0, 0.0,0.5,0.5/), (/3,2/) )
 
     !!----
     !!---- LTR_B
@@ -293,7 +293,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,2), parameter, public :: Ltr_b =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_b =reshape ( (/0.0,0.0,0.0, 0.5,0.0,0.5/), (/3,2/) )
 
     !!----
     !!---- LTR_C
@@ -303,7 +303,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,2), parameter, public :: Ltr_c =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_c =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.0/), (/3,2/) )
 
     !!----
     !!---- LTR_F
@@ -313,7 +313,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,4), parameter, public :: &
+    real(kind=cp), dimension(3,4), parameter, public :: &
                    Ltr_f =reshape( (/0.0,0.0,0.0, 0.0,0.5,0.5, 0.5,0.0,0.5, 0.5,0.5,0.0 /),(/3,4/) )
 
     !!----
@@ -324,7 +324,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,2), parameter, public :: Ltr_i =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
+    real(kind=cp), dimension(3,2), parameter, public :: Ltr_i =reshape ( (/0.0,0.0,0.0, 0.5,0.5,0.5/), (/3,2/) )
 
     !!----
     !!---- LTR_R
@@ -334,7 +334,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    real(kind=sp), dimension(3,3), parameter, public :: &
+    real(kind=cp), dimension(3,3), parameter, public :: &
                    Ltr_r =reshape( (/0.0,0.0,0.0, 2.0/3.0,1.0/3.0,1.0/3.0,  1.0/3.0,2.0/3.0,2.0/3.0/),(/3,3/) )
 
     !!----
@@ -687,7 +687,7 @@
 
        if (.not. ok) then
           err_symtab=.true.
-          err_mess_symtab=" Error in the symbol or number of the space group"
+          ERR_SymTab_Mess=" Error in the symbol or number of the space group"
        end if
 
        return
