@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2008,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Scattering_Chemical_Tables
