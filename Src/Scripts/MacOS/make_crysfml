@@ -12,11 +12,6 @@ Syntax        : make_crysfml af95:g95:gfortran:ifort:lf95 [win] [deb]
 exit
 fi
 #
-# Linux / MacOS Dependent Zone
-#
-#WDIR=/usr/local
-WDIR=/Applications
-#
 # Compiler Name
 #
 COMP=$1
@@ -225,19 +220,19 @@ else
    case $COMP
    in
       'af95')
-          INC="-p$WDIR/wint/lib.abm"
+          INC="-p$WINTER/lib.abm"
           ;;
       'g95')
-          INC="-I$WDIR/wint/lib.g95"
+          INC="-I$WINTER/lib.g95"
           ;;
       'gfortran')
           INC=""
           ;;
       'ifort')
-          INC="-I$WDIR/wint/lib.if8"
+          INC="-I$WINTER/lib.if8"
           ;;
       'lf95')
-          INC="--include .:$WDIR/wint/lib.l95"
+          INC="--include .:$WINTER/lib.l95"
           ;;
    esac
 fi
