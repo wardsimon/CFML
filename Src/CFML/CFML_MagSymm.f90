@@ -12,12 +12,12 @@
 !!----            April - 2005. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,                only: Sp, tpi
+!!--++    Use CFML_Constants,                 only: Sp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
-!!--++                                         Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
-!!--++                                         err_symm,err_symm_mess
+!!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
+!!--++                                              err_symm,err_symm_mess
 !!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
 !!--++    Use CFML_IO_Formats,                only: file_list_type
 !!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
@@ -48,7 +48,7 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_Constants,                only: Sp, tpi
+    Use CFML_Constants,                 only: Sp, tpi
     Use CFML_Math_General,              only: Modulo_Lat
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
@@ -421,7 +421,7 @@
        skp_begin   =.false.
        bfcoef_begin=.false.
        if (present(mag_dom)) then  !Initialise Mag_dom
-      	  Mag_dom%nd=0
+          Mag_dom%nd=0
           Mag_dom%Chir=.false.
           Mag_dom%DMat=0
           Mag_dom%pop=0.0

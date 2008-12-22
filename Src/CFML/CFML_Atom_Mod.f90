@@ -12,7 +12,7 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Constants,                only: Sp, Pi
+!!--++    Use CFML_Constants,                 only: Sp, Pi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
 !!--++    Use CFML_Math_3D,                   only: matrix_diageigen
 !!--++    Use CFML_String_Utilities,          only: setnum_std
@@ -60,8 +60,8 @@
 !!
  Module CFML_Atom_TypeDef
 
-    !---- Use Files ----!     
-    Use CFML_Constants,                only: Cp, Pi
+    !---- Use Files ----!
+    Use CFML_Constants,                 only: Cp, Pi
     Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
     Use CFML_String_Utilities,          only: setnum_std
     Use CFML_Math_3D,                   only: matrix_diageigen
