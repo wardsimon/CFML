@@ -13,13 +13,14 @@ rem
 rem
 :CONT
    cd .\scripts\windows
-   call make_crysfml %1 
+   call make_crysfml %1
    if x%2 == xall goto ALL
    goto END
-:ALL   
+:ALL
+   if x%1 == xlf95 call make_crysfml %1 rwin
    call make_crysfml %1 win
    call make_crysfgl %1
-:END   
+:END
    cd ..\..\..
 rem
 :FINAL
