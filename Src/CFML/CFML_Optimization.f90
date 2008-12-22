@@ -37,6 +37,8 @@
 !!--++       LOCAL_RAND
 !!----       NELDER_MEAD_SIMPLEX
 !!--++       PRINT_TRI_MATRIX                  [Private]
+!!--++       PUT_IN_BOX                        [Private]
+!!----       SET_OPT_CONDITIONS
 !!--++       SYMINV                            [Private]
 !!--++       UPDATE                            [Private]
 !!----       WRITE_OPTIMIZATION_CONDITIONS
