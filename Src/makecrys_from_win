@@ -6,8 +6,8 @@
 if [ a$1 = a ]
 then
 cat << !
-makecrys  : Make the Libraries CrysFML (Console , Winteracter) and CrysFGL using Fortran Linux Compilers
-Syntax    : makecrys [af95:g95:gfortran:ifort:lf95] [all]
+make_lib  : Make the Libraries CrysFML (Console , Winteracter) and CrysFGL using Fortran Linux Compilers
+Syntax    : make_lib af95:g95:gfortran:ifort:lf95
 !
 exit
 fi
@@ -33,14 +33,23 @@ then
    fi
 fi
 #
+# Load the Sources
+#
+./Scripts/Linux/load_crysfml
+#
 # Console version
 #
 ./Scripts/Linux/make_crysfml $1
 #
 # Winteracter version
 #
-if [ $2 == "all" ]
-then
-   ./Scripts/Linux/make_crysfml $1 win
-   ./Scripts/Linux/make_crysfgl $1
-fi   
+./Scripts/Linux/make_crysfml $1 win
+./Scripts/Linux/make_crysfgl $1
+#
+# Load Examples
+#
+./Scripts/Linux/load_cfml_exam
+#
+# Load Help
+#
+./Scripts/Linux/load_cfml_help

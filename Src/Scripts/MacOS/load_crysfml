@@ -1,0 +1,34 @@
+#! /bin/sh
+# Load files for CrysFML Library from Windows Source
+# Author: Javier Gonzalez-Platas
+# Date: Dic-2008
+#
+# ---- WINDOWS CFML DIRECTORY ---- 
+WCFML=/media/VistaOS/CrysFML/Src/CFML
+WCFGL=/media/VistaOS/CrysFML/Src/CFGL
+#
+# Copy/Convert CFML Files
+#
+if [ -d "CFML" ]
+then
+   rm -rf ./CFML/*
+   rm -rf ./CFGL/*
+else
+   mkdir "./CFML"
+   mkdir "./CFGL"
+fi
+cd ./CFML
+cp $WCFML/*.f90 .
+fromdos *.f90
+chmod 666 *.f90
+#
+# Copy/Convert CFGL Files
+#
+cd ../CFGL
+cp $WCFGL/*.f90 .
+fromdos *.f90
+chmod 666 *.f90
+#
+# End of Script
+#
+cd ..

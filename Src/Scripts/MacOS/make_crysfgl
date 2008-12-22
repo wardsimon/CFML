@@ -14,8 +14,8 @@ fi
 #
 # Linux / MacOS Dependent Zone
 #
-WDIR=/usr/local
-#WDIR=/Applications
+#WDIR=/usr/local
+WDIR=/Applications
 #
 # Compiler Name
 #

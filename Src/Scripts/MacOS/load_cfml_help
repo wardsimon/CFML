@@ -1,0 +1,26 @@
+#! /bin/sh
+# Load Help documentation for CrysFML Library from Windows Source
+# Author: Javier Gonzalez-Platas
+# Date: Dic-2008
+#
+# ---- WINDOWS CFML DIRECTORY ---- 
+WCFMLHLP=/media/VistaOS/CrysFML/Help
+#
+# Copy/Convert Help Files
+#
+if [ -d "../Help" ]
+then
+   rm -rf ../Help/*
+else
+   mkdir "../Help"
+fi
+cd ../Help
+cp $WCFMLHLP/*.htm .
+chmod 666 *.htm
+cp -r $WCFMLHLP/files .
+chmod -R 755 files
+chmod 666 ./files/*
+#
+# End of Script
+#
+cd ../Src
