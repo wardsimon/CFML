@@ -59,12 +59,12 @@ Program Calc_Structure_Factors
    write(unit=*,fmt=*) " "
 
    if (.not. arggiven) then
-      write(unit=*,fmt="(a)") " => Code of the file xx.cif(cfl) (give xx): "
+      write(unit=*,fmt="(a)", advance='no') " => Code of the file xx.cif(cfl) (give xx): "
       read(unit=*,fmt="(a)") filcod
       if(len_trim(filcod) == 0) stop
    end if
    if (.not. sthlgiven) then
-      write(unit=*,fmt="(a)") " => Maximum sinTheta/Lambda: "
+      write(unit=*,fmt="(a)", advance='no') " => Maximum sinTheta/Lambda: "
       read(unit=*,fmt=*) stlmax
    end if
 

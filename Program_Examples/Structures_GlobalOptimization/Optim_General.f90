@@ -54,15 +54,15 @@ Program Optimizing_structures
 
     write (unit=*,fmt="(/,/,6(a,/))")                                                  &
             "            ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
-            "                    ---- Version 0.2 April-2007----"                          , &
+            "                    ---- Version 0.3 December-2008 ----"                          , &
             "    *******************************************************************************"  , &
             "    * Optimizes a X-tal structure reading integrated intensities and a *.CFL file *"  , &
             "    *******************************************************************************"  , &
-            "                             (JRC- April 2007 )"
+            "                             (JRC- December-2008 )"
    write (unit=*,fmt=*) " "
 
    if(.not. arggiven) then
-     write(unit=*,fmt="(a)") " => Code of the file xx.cfl (give xx): "
+     write(unit=*,fmt="(a)",advance='no') " => Code of the file xx.cfl (give xx): "
      read(unit=*,fmt="(a)") filcod
      if(len_trim(filcod) == 0) stop
    end if
@@ -70,11 +70,11 @@ Program Optimizing_structures
    open(unit=lun,file=trim(filcod)//".out", status="replace",action="write")
     write(unit=lun,fmt="(/,/,6(a,/))")                                                  &
             "            ------ PROGRAM FOR OPTIMIZING X-TAL STRUCTURES ------"            , &
-            "                    ---- Version 0.2 April-2007----"                          , &
+            "                    ---- Version 0.3 December-2008 ----"                          , &
             "    *******************************************************************************"  , &
             "    * Optimizes a X-tal structure reading integrated intensities and a *.CFL file *"  , &
             "    *******************************************************************************"  , &
-            "                             (JRC- April 2007 )"
+            "                             (JRC- December-2008 )"
 
    inquire(file=trim(filcod)//".cfl",exist=esta)
    if( .not. esta) then
