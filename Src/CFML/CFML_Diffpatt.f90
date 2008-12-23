@@ -65,7 +65,7 @@
     private
 
     !---- List of public subroutines ----!
-    public ::  Init_Err_DiffPatt, Read_Background_File, Read_Pattern, &
+    public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern, &
                Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig
 
     !---- List of private subroutines ----!
@@ -255,6 +255,145 @@
 
        return
     End Subroutine Allocate_Diffraction_Pattern
+    
+    !!----
+    !!---- Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
+    !!----    type(Diffraction_Pattern_Type), intent(in out) :: Pat
+    !!----    integer,                        intent(in)     :: Ncyc 
+    !!----    integer,                        intent(in)     :: Np 
+    !!----    real(kind=cp), optional,        intent(in)     :: Xmin
+    !!----    real(kind=cp), optional,        intent(in)     :: Xmax
+    !!----
+    !!----    Calculate a Background using an iterative process according
+    !!----    to Brückner, S. (2000). J. Appl. Cryst., 33, 977-979.
+    !!----
+    !!----
+    !!---- Update: December - 2008
+    !!
+    Subroutine Calc_BackGround(Pat,Ncyc,Np, Xmin, Xmax)
+       !---- Arguments ----!
+       type(Diffraction_Pattern_Type), intent(in out) :: Pat
+       integer,                        intent(in)     :: NCyc
+       integer,                        intent(in)     :: Np
+       real(kind=cp), optional,        intent(in)     :: Xmin
+       real(kind=cp), optional,        intent(in)     :: Xmax
+   
+       !---- Variables ----!
+       integer                                 :: n,n_ini,n_fin
+       integer                                 :: i,j,k,ind1,ind2,nt
+       real(kind=cp),dimension(:), allocatable :: yc,yb
+       real(kind=cp)                           :: x_ini,x_fin, yc_min, yc_max, yc_ave
+   
+       !---- Initializing errors ----!
+       call init_err_diffpatt()
+       
+       !---- Check Pattern ----!
+       if (pat%npts < 1) then
+          err_diffpatt=.true.
+          err_diffpatt_mess='No Pattern points are defined'
+          return
+       end if
+       
+       !---- Number of points into the range ----!
+       x_ini=pat%xmin
+       x_fin=pat%xmax
+       if (present(xmin)) x_ini=xmin
+       if (present(xmax)) x_fin=xmax
+       nt=0
+       do i=1,pat%npts
+          if (pat%x(i) < x_ini) cycle
+          if (pat%x(i) > x_fin) cycle
+          nt=nt+1
+       end do  
+       if (nt < 1) then
+          err_diffpatt=.true.
+          err_diffpatt_mess='No background points was determined into the range'
+          return
+       end if  
+       
+       !---- Locating index that define the range to study ----!
+       ind1=0
+       if (abs(x_ini-pat%xmin) <= 0.0001) then
+          ind1=1
+       else   
+          ind1=locate(pat%x,pat%npts,x_ini)
+          ind1=max(ind1,1)
+          ind1=min(ind1,pat%npts)
+       end if
+       
+       ind2=0
+       if (abs(x_fin-pat%xmax) <= 0.0001) then
+          ind2=pat%npts
+       else    
+          ind2=locate(pat%x,pat%npts,x_fin) 
+          ind2=min(ind2,pat%npts)
+          ind2=max(ind2,1)
+       end if
+       
+       if (ind1 == ind2) then
+          err_diffpatt=.true.
+          err_diffpatt_mess='Lower and Upper index for Xmin and Xmax are the same'
+          return  
+       end if  
+       if (ind1 > ind2) then
+          i=ind1
+          ind1=ind2
+          ind2=i 
+       end if  
+       
+       if (ind2-ind1+1 /= nt) then
+          err_diffpatt=.true.
+          err_diffpatt_mess='Error in total numbers of points into the defined range'
+          return  
+       end if  
+       
+       !---- Allocating arrays ----!
+       allocate(yc(nt+2*np))
+       allocate(yb(nt+2*np))
+       yc=0.0
+   
+       !---- Load initial values ----!
+       n_ini=np+1
+       n_fin=np+nt
+       yc(1:np)=pat%y(ind1)
+       yc(n_ini:n_fin)=pat%y(ind1:ind2)
+       yc(n_fin+1:n_fin+np)=pat%y(ind2)
+   
+       yc_min=minval(pat%y(ind1:ind2))
+       yc_ave=sum(pat%y(ind1:ind2))/real(nt)
+       yc_max=yc_ave+2.0*(yc_ave-yc_min)
+       where(yc > yc_max) yc=yc_max
+   
+       !---- Main cycles ----!
+       do n=1,ncyc
+          yb=0.0
+          do k=n_ini,n_fin ! Points Observed
+             do i=-np,np
+                if (i == 0) cycle
+                j=k+i
+                yb(k)=yb(k)+yc(j)
+             end do 
+             yb(k)=yb(k)/real(2*np)
+          end do
+          do k=n_ini,n_fin
+             j=k-np+ind1-1
+             if (yb(k) > pat%y(j)) yb(k)=pat%y(j)
+          end do   
+          yb(1:np)=yb(n_ini)
+          yb(n_fin+1:n_fin+np)=yb(n_fin)
+          yc=yb
+       end do   
+   
+       !---- save the result ----!
+       pat%bgr=0.0
+       pat%bgr(ind1:ind2)=yc(n_ini:n_fin)
+   
+       !---- Deallocating arrays ----!
+       if (allocated(yc))deallocate(yc)
+       if (allocated(yb))deallocate(yb)
+       
+       return
+    End Subroutine Calc_BackGround
 
     !!----
     !!---- Subroutine Init_Err_DiffPatt()
