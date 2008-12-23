@@ -63,13 +63,26 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ font-weight: bold;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -86,12 +99,24 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ margin: 0px 0px 0px 3px;
+}
+.rvps3
+{
+ text-align: right;
+}
+.rvps4
+{
+ margin: 0px 0px 0px 1px;
+}
+.rvps5 /* Paragraph Style */
 {
  background: #0000ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps3 /* Paragraph Style */
+.rvps6 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -102,8 +127,275 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts10>CSENDES_GLOBAL</span></p>
+<p class=rvps5><span class=rvts13>CSENDES_GLOBAL</span></p>
+<p><span class=rvts10>SUBROUTINE CSENDES_GLOBAL( MODEL_FUNCT, MINI, MAXI, NPARM, NSAMPL, NSEL, NSIG, X0, NC, F0, IPR, MODE)</span></p>
 <p><br></p>
-<p class=rvps3><span class=rvts11>Copyleft © 2009, FullProf Suite Team</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=242>
+<p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11><br></span></p>
+</td>
+<td width=104>
+<p>MODEL_FUNCT</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p>Dummy name of the objective function to be optimized</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>MINI</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p>Vector of length NPARM containing the lower bounds</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>MAXI</p>
+</td>
+<td width=40>
+<p class=rvps3>IN:</p>
+<p class=rvps3>OUT:</p>
+</td>
+<td width=410>
+<p>Vector of length NPARM containing the upper bounds</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>NPARM</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p>Number of Parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=104>
+<p>NSAMPL</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps4>Number of sample points to be drawn uniformly in one cycle. Suggested value is 100*NPARM</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=104>
+<p>NSEL</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>Number of best points selected from the actual sample. The suggested value is twice the expected number of local minima.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>NSIG</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>The accuracy required in the parameter estimates. This convergence criterion is satisfied if on two successive iterations the parameter estimates agree, component by component, to nsig digits. The suggested value is 6.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:,:)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=104>
+<p>X0</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>Output matrix (NPARM x NC) containing NC local minimizers found</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=104>
+<p>NC</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>Number of different Local Minimizers Found</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=104>
+<p>F0</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>Output vector of NC objective function values. </p>
+<p class=rvps2>F0(I) Belongs to the parameters X0(1,I), X0(2,I), ..., X0(NPARM,I)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>IPR</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>Printing Information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=104>
+<p>MODE</p>
+</td>
+<td width=40>
+<p class=rvps3><br></p>
+</td>
+<td width=410>
+<p class=rvps2>If present the routine LOCAL_MIN_DFP is replaced by LOCAL_MIN_RAND</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (NPARM, X, F)</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
+<p>NPARM</p>
+</td>
+<td width=369>
+<p>Number of free parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
+<p>X</p>
+</td>
+<td width=369>
+<p>Variables</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98>
+<p>F</p>
+</td>
+<td width=369>
+<p>Value of Model</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><br></p>
+<p>Global optimization procedure using the Boender-Timmer-Rinnoy Kan algorithm (Local Search Method)</p>
+<p><br></p>
+<p>Global optimization is a part of nonlinear optimization, it deals with problems with (possibly) several local minima. The presented method is stochastic (i.e. not deterministic). The framework procedure, the csendes_GLOBAL routine gives a computational evidence, that the best local minimum found is with high probability the global minimum.&nbsp; This routine calls a local search routine, and a routine for generating random numbers.</p>
+<p><br></p>
+<p>Let F(X) be a real function of NPARM parameters and we are looking for&nbsp; parameter values X(I) from the given intervals [MIN(I), MAX(I)] for each&nbsp; I = 1, 2, ..., NPARM.&nbsp; The problem is to determine such a point X*, that the function value F(X) is greater than or equal to F(X*) for every X in the NPARM-dimensional interval specified by MIN(I)'s and MAX(I)'s.</p>
+<p><br></p>
+<p><br></p>
+<p class=rvps6><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

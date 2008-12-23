@@ -2527,6 +2527,9 @@
     !!----    The value of the function F, and eventually the gradient G, are output
     !!----    variables. The optimization conditions in the variable C should be
     !!----    provided for selecting the optimization algorithm
+    !!----
+    !!---- Update: February - 2005
+    !!
 
     Subroutine Local_Optimize(Model_Functn,X,F,C,G,mini,maxi,v,Ipr)
        real(kind=cp),dimension(:),           intent(in out) :: x

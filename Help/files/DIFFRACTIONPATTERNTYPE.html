@@ -119,16 +119,12 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2
-{
- margin: 0px 0px 0px 24px;
-}
-.rvps3 /* Paragraph Style */
+.rvps2 /* Paragraph Style */
 {
  background: #0000ff;
  margin: 0px 0px 20px 0px;
 }
-.rvps4 /* Paragraph Style */
+.rvps3 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -139,7 +135,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps3><span class=rvts17>DIFFRACTION_PATTERN_TYPE</span></p>
+<p class=rvps2><span class=rvts17>DIFFRACTION_PATTERN_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -167,7 +163,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>180</span>)</p>
 </td>
 <td width=185>
-<p>Title</p>
+<p>TITLE</p>
 </td>
 <td width=369>
 <p>Identification of the pattern</p>
@@ -178,7 +174,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>20</span>)</p>
 </td>
 <td width=185>
-<p>Diff_kind</p>
+<p>DIFF_KIND</p>
 </td>
 <td width=369>
 <p>Type of radiation</p>
@@ -189,16 +185,10 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>20</span>)</p>
 </td>
 <td width=185>
-<p>Scat_var</p>
+<p>SCAT_VAR</p>
 </td>
 <td width=369>
-<p>x-space: </p>
-<p class=rvps2>2<span class=rvts16>&theta;</span></p>
-<p class=rvps2>TOF</p>
-<p class=rvps2>Q</p>
-<p class=rvps2>s</p>
-<p class=rvps2>d-spacing</p>
-<p class=rvps2>sin<span class=rvts16>&theta;</span>/<span class=rvts16>&lambda;</span></p>
+<p>x-space: 2<span class=rvts16>&theta;</span>, TOF, Q, s, d-spacing, sin<span class=rvts16>&theta;</span>/<span class=rvts16>&lambda;</span></p>
 </td>
 </tr>
 <tr valign=top>
@@ -206,7 +196,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>20</span>)</p>
 </td>
 <td width=185>
-<p>Instr</p>
+<p>INSTR</p>
 </td>
 <td width=369>
 <p>File type</p>
@@ -217,7 +207,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>512</span>)</p>
 </td>
 <td width=185>
-<p>Filename</p>
+<p>FILENAME</p>
 </td>
 <td width=369>
 <p>File name</p>
@@ -225,80 +215,80 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Xmin</p>
+<p>XMIN</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Xmax</p>
+<p>XMAX</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Ymin</p>
+<p>YMIN</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Ymax</p>
+<p>YMAX</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Scal</p>
+<p>SCAL</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Monitor</p>
+<p>MONITOR</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Step</p>
+<p>STEP</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>TSamp</p>
+<p>TSAMP</p>
 </td>
 <td width=369>
 <p>Sample Temperature</p>
@@ -306,10 +296,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>TSet</p>
+<p>TSET</p>
 </td>
 <td width=369>
 <p>Setting Temperature (wished temperature)</p>
@@ -320,7 +310,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>NPts</p>
+<p>NPTS</p>
 </td>
 <td width=369>
 <p>Number of points</p>
@@ -331,7 +321,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>CT_Step</p>
+<p>CT_STEP</p>
 </td>
 <td width=369>
 <p>Constant step</p>
@@ -353,7 +343,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>GYCalc</p>
+<p>GYCALC</p>
 </td>
 <td width=369><br>
 </td>
@@ -363,7 +353,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>GBgr</p>
+<p>GBGR</p>
 </td>
 <td width=369><br>
 </td>
@@ -373,7 +363,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>GSigma</p>
+<p>GSIGMA</p>
 </td>
 <td width=369><br>
 </td>
@@ -383,7 +373,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_X</p>
+<p>AL_X</p>
 </td>
 <td width=369>
 <p>Logicals for Allocations</p>
@@ -394,7 +384,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_Y</p>
+<p>AL_Y</p>
 </td>
 <td width=369><br>
 </td>
@@ -404,7 +394,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_YCalc</p>
+<p>AL_YCALC</p>
 </td>
 <td width=369><br>
 </td>
@@ -414,7 +404,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_Bgr</p>
+<p>AL_BGR</p>
 </td>
 <td width=369><br>
 </td>
@@ -424,7 +414,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_Sigma</p>
+<p>AL_SIGMA</p>
 </td>
 <td width=369><br>
 </td>
@@ -434,17 +424,17 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Al_IStat</p>
+<p>AL_ISTAT</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=185>
-<p>Conv</p>
+<p>CONV</p>
 </td>
 <td width=369>
 <p>Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc</p>
@@ -452,7 +442,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
 <p>X</p>
@@ -463,7 +453,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
 <p>Y</p>
@@ -474,10 +464,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>Sigma</p>
+<p>SIGMA</p>
 </td>
 <td width=369>
 <p>observations VARIANCE (it is the square of sigma!)</p>
@@ -488,7 +478,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>,<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>IStat</p>
+<p>ISTAT</p>
 </td>
 <td width=369>
 <p>Information about the point "i"</p>
@@ -496,10 +486,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>YCalc</p>
+<p>YCALC</p>
 </td>
 <td width=369>
 <p>Calculated intensity</p>
@@ -507,10 +497,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL </span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>Bgr</p>
+<p>BGR</p>
 </td>
 <td width=369>
 <p>Background</p>
@@ -528,7 +518,10 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
+<p>Definition for Diffraction Pattern.</p>
 <p><br></p>
-<p class=rvps4><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
+<p><br></p>
+<p><br></p>
+<p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

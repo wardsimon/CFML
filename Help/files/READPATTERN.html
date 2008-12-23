@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>INIT_OPT_CONDITIONS</title>
+<html><head><title>READ_PATTERN</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -74,7 +74,7 @@ span.rvts11
 }
 span.rvts12
 {
- font-weight: bold;
+ color: #ff6600;
 }
 span.rvts13
 {
@@ -82,18 +82,13 @@ span.rvts13
  font-style: italic;
  font-weight: bold;
 }
-span.rvts14
-{
- font-size: 7pt;
- vertical-align: super;
-}
-span.rvts15 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -122,142 +117,123 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?INITOPTCONDITIONS.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?READPATTERN.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts15>INIT_OPT_CONDITIONS</span></p>
-<p><span class=rvts10>SUBROUTINE INIT_OPT_CONDITIONS (OPT)</span></p>
+<p class=rvps2><span class=rvts14>READ_PATTERN</span></p>
+<p><span class=rvts10>SUBROUTINE READ_PATTERN(FILENAME, DIF_PAT, MODE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=101>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=62>
+<p>FILENAME</p>
+</td>
+<td width=410>
+<p>Name of the file</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>TYPE</span>(DIFFRACTION_PATTERN_TYPE)</p>
+</td>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=62>
+<p>DIF_PAT</p>
+</td>
+<td width=410>
+<p>Pattern</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=62>
+<p>MODE</p>
+</td>
+<td width=410><br>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><span class=rvts13>or</span></p>
+<p><span class=rvts13><br></span></p>
+<p><span class=rvts10>SUBROUTINE READ_PATTERN(FILENAME, DIF_PAT, NUMPAT, MODE)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
+</td>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=67>
+<p>FILENAME</p>
+</td>
+<td width=427>
+<p>Name of the file</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>TYPE</span>(DIFFRACTION_PATTERN_TYPE), <span class=rvts11>DIMENSION</span>(:)</p>
+</td>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=67>
+<p>DIF_PAT</p>
+</td>
+<td width=427>
+<p>Pattern</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=104>
 <p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56>
-<p>OPT</p>
+<td width=67>
+<p>NUMPAT</p>
 </td>
-<td width=319>
-<p>Opt Conditions</p>
+<td width=427>
+<p>Number of Patterns</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=104>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=67>
+<p>MODE</p>
+</td>
+<td width=427><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Initialize the variable <span class=rvts12>OPT</span>. Default values are:</p>
-<p><br></p>
-<div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
-<tr valign=top>
-<td width=114>
-<p class=rvps1><span class=rvts13>Parameter</span></p>
-</td>
-<td width=119>
-<p class=rvps1><span class=rvts13>Value</span></p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>METHOD</p>
-</td>
-<td width=119>
-<p class=rvps1>SIMPLEX</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>NMETH</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>NPAR</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>MXFUN</p>
-</td>
-<td width=119>
-<p class=rvps1>1000</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>IOUT</p>
-</td>
-<td width=119>
-<p class=rvps1>2000</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>LOOPS</p>
-</td>
-<td width=119>
-<p class=rvps1>1</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>IQUAD</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>NFLAG</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>IFUN</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>ITER</p>
-</td>
-<td width=119>
-<p class=rvps1>0</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>EPS</p>
-</td>
-<td width=119>
-<p class=rvps1>10<span class=rvts14>-6</span></p>
-</td>
-</tr>
-<tr valign=top>
-<td width=114>
-<p class=rvps1>ACC</p>
-</td>
-<td width=119>
-<p class=rvps1>10<span class=rvts14>-20</span></p>
-</td>
-</tr>
-</table>
-</div>
-<p><br></p>
-<p><br></p>
-<p class=rvps3><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
+<p>Read one or several patterns from a Filename</p>
+<p> </p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

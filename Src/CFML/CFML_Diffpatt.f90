@@ -25,6 +25,7 @@
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_DIFFRACTION_PATTERN
+!!----       CALC_BACKGROUND
 !!----       INIT_ERR_DIFFPATT
 !!----       PURGE_DIFFRACTION_PATTERN
 !!----       READ_BACKGROUND_FILE
