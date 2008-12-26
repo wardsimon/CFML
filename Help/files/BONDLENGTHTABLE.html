@@ -78,13 +78,19 @@ span.rvts12
  font-weight: bold;
  color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-size: 12pt;
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -117,10 +123,12 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts13>BOND_LENGTH_TABLE</span></p>
-<p><span class=rvts12>REAL</span><span class=rvts11>, </span><span class=rvts12>DIMENSION</span><span class=rvts11>(: , : , :), </span><span class=rvts12>ALLOCATABLE</span><span class=rvts11> :: BOND_LENGTH_TABLE</span></p>
+<p class=rvps2><span class=rvts14>BOND_LENGTH_TABLE</span></p>
+<p><span class=rvts12>REAL</span><span class=rvts11>, </span><span class=rvts12>DIMENSION</span><span class=rvts11>(</span><span class=rvts13>3</span><span class=rvts11> , : , :) :: BOND_LENGTH_TABLE</span></p>
 <p><span class=rvts10><br></span></p>
 <p>Global variable holding the bond lengths between different type of atoms. Ordered by Z</p>
-<p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
+<p><br></p>
+<p>BOND_LENGTH_TABLE(1,:,:) represent the simple bond, while BOND_LENGTH_TABLE(2,:,:) represent a double bound distances or shorter distances and finally BOND_LENGTH_TABLE(3,:,:) represents the triple bond distance or the shotest distance.</p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

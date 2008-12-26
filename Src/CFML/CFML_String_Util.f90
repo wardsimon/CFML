@@ -116,7 +116,8 @@
     !!----                                                        
     !!---- Update: January - 2009                                
     !!                                                            
-    character (len=1), public, parameter :: dirslash="\" 
+    character (len=1), public, parameter :: dirslash="\"  ! For Windows
+    !character (len=1), public, parameter :: dirslash="/"  ! For Linux
  
     !!--++
     !!--++ CTAB

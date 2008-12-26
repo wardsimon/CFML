@@ -34,6 +34,7 @@
 !!----       GET_BONDS_TABLE
 !!--++       GET_BONDS_TABLE_SYMBOL              [OVERLOADED]
 !!--++       GET_BONDS_TABLE_Z                   [OVERLOADED]
+!!----       INIT_ERR_BOND
 !!----       REMOVE_BONDS_TABLE
 !!----       SET_BONDS_TABLE
 !!----
@@ -109,6 +110,9 @@
     !---- Subroutines ----!
     !!----
     !!---- Subroutine Get_Bonds_Table(Symbol1/Z1,Symbol2/Z2,Bonds)
+    !!----    character(len=*)/integer,           intent(in)  :: Symbol1
+    !!----    character(len=*)/integer,           intent(in)  :: Symbol2
+    !!----    real(kind=cp),dimension(3),         intent(out) :: Bonds
     !!----
     !!----    Fills the components of the Bond_Length_Table variable
     !!----
@@ -117,6 +121,9 @@
 
     !!--++
     !!--++ Subroutine Get_Bonds_Table_Symbol(Symbol1,Symbol2,Bonds)
+    !!--++    character(len=*),           intent(in)  :: Symbol1
+    !!--++    character(len=*),           intent(in)  :: Symbol2
+    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable
@@ -144,6 +151,9 @@
 
     !!--++
     !!--++ Subroutine Get_Bonds_Table_Z(Z1,Z2,Bonds)
+    !!--++    integer,                    intent(in)  :: Z1
+    !!--++    integer,                    intent(in)  :: Z2
+    !!--++    real(kind=cp),dimension(3), intent(out) :: Bonds
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Fills the components of the Bond_Length_Table variable

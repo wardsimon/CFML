@@ -87,7 +87,7 @@
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
 !!---- DEPENDENCIES
-!!--++   Use CFML_Constants,       only: sp, dp, cp, pi, to_deg, to_rad, eps
+!!--++   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps
 !!--++   Use CFML_Math_General,     only: cosd,sind
 !!--++   use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
 !!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
@@ -132,7 +132,7 @@
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
-   Use CFML_Constants,       only: sp, dp, cp, pi, to_deg, to_rad, eps
+   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps
    Use CFML_Math_General,     only: cosd,sind
    use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
@@ -473,18 +473,18 @@ Module CFML_ILL_Instrm_Data
    !!--++
    !!--++ Update: April - 2008
    !!
-   character(len=512), private ::  ILL_temp_directory = "d:\temp\illdata\"
+   character(len=512), private ::  ILL_temp_directory = "c:\diffraction_Windows\illdata\"
    
    !!----
    !!---- INSTRM_DIRECTORY
-   !!----    character(len=530), public :: Instrm_directory
+   !!----    character(len=512), public :: Instrm_directory
    !!----
    !!----    String containing information about the data directory for specific 
    !!----    instrument
    !!----
    !!---- Update: April - 2008
    !!
-   character(len=530), public  :: Instrm_directory = " "
+   character(len=512), public  :: Instrm_directory = " "
 
    !!--++
    !!--++ INSTRM_DIRECTORY_SET
@@ -1211,7 +1211,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Default_Instrument
 
     !!----
-    !!---- Subroutine Set_ILL_data_directory(ILL_data_try)
+    !!---- Subroutine Set_ILL_Data_Directory(ILL_data_try)
     !!----    character(len=*), optional, intent(in) :: ILL_data_try  !proposed location of ILL data
     !!----
     !!----    Assign the global public variable: ILL_data_directory
@@ -1226,12 +1226,12 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: December - 2006
     !!
-    Subroutine Set_ILL_data_directory(ILL_data_try)
+    Subroutine Set_ILL_Data_Directory(ILL_data_try)
        !---- Arguments ----!
        character(len=*), optional, intent(in) :: ILL_data_try
 
        !---- Local Variables ----!
-       character(len=256) :: ILL_data
+       character(len=512) :: ILL_data
        integer            :: len_d
        logical            :: existe
 
@@ -1240,15 +1240,13 @@ Module CFML_ILL_Instrm_Data
              ILL_data_directory =" "      !data are in the current directory
              return
           else
-             ILL_data_directory = ILL_data_try
+             ILL_data_directory =trim(ILL_data_try)
           end If
 
        else
           call getenv("ILL_DATA", ILL_data)
-          if (len_trim(ILL_data) == 0) then !Environment variable not defined, take the default value
-             !nothing to do
-          else
-             ILL_data_directory = ILL_data
+          if (len_trim(ILL_data) > 0) then 
+             ILL_data_directory = trim(ILL_data)
           end if
        end if
 
@@ -1256,9 +1254,9 @@ Module CFML_ILL_Instrm_Data
        len_d=len_trim(ILL_data_directory)
        if (ILL_data_directory(len_d:len_d) /= dirslash) ILL_data_directory(len_d+1:len_d+1)=dirslash
 
-       !---- check that the directory exist, ----!
+       !---- Check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
-       ERR_ILLData=.false.
+       err_ILLData=.false.
 
        inquire(file=trim(ILL_data_directory)//".",exist=existe)
        if (.not. existe) then

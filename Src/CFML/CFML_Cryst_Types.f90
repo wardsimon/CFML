@@ -96,10 +96,10 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants, only: Cp, Eps, Pi
-!!--++    Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
-!!--++                         Co_Linear
-!!--++    Use CFML_Math_3D,  only : Matrix_Inverse, determ_A, determ_V, Cross_Product
+!!--++    Use CFML_Constants,    only: Cp, Eps, Pi
+!!--++    Use CFML_Math_General, only: Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
+!!--++                                 Co_Linear
+!!--++    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 !!----
 !!---- VARIABLES
 !!----    CRYSTAL_CELL_TYPE
@@ -291,7 +291,7 @@
     real(kind=cp), parameter, private :: tpi2=2.0*pi*pi
 
     !---- Interfaces - Overloaded ----!
-    
+
     !!--.. Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
     !!--.. There are an infinite number of primitive unit cells generating the same lattice L.
     !!--.. N={a,b,c} is a Buerger cell if and only if |a|+|b|+|c| is a minimal value for all primitive
@@ -634,7 +634,7 @@
     !!----    type(Crystal_Cell_Type),    intent(in)     :: Cell    !  In -> Cell variable
     !!----    real(kind=cp), dimension(6),intent(in)     :: Th_U    !  In -> U parameters
     !!----
-    !!----    Subroutine to obtain the U equiv from U11 U22 U33 U23 U13 U12
+    !!----    Subroutine to obtain the U equiv from U11 U22 U33 U12 U13 U23
     !!----
     !!---- Update: February - 2005
     !!
@@ -694,7 +694,7 @@
        type (Crystal_Cell_Type),      intent( in)    :: Cell
        real(kind=cp), dimension (3,3),intent( in)    :: Mat
        type (Crystal_Cell_Type),      intent(out)    :: Celln
-       character(len=*),  optional,   intent (in)    :: matkind
+       character(len=*),  optional,   intent (in)    :: Matkind
 
        !--- Local variables ---!
        integer                       :: i
@@ -733,7 +733,7 @@
     End Subroutine Change_Setting_Cell
 
     !!----
-    !!---- Subroutine Get_Conventional_Cell(twofold,Cell,tr,message,ok)
+    !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok)
     !!----   Type(Twofold_Axes_Type), intent(in)  :: twofold
     !!----   Type(Crystal_Cell_Type), intent(out) :: Cell
     !!----   integer, dimension(3,3), intent(out) :: tr
@@ -754,505 +754,508 @@
     !!----
     !!---- Update: November - 2008
     !!----
-    Subroutine Get_Conventional_Cell(twofold,Cell,tr,message,ok)
-      Type(Twofold_Axes_Type), intent(in)  :: twofold
-      Type(Crystal_Cell_Type), intent(out) :: Cell
-      integer, dimension(3,3), intent(out) :: tr
-      character(len=*),        intent(out) :: message
-      logical,                 intent(out) :: ok
-      !---- Local variables ----!
-      integer, dimension(1)    :: ix
-      integer, dimension(2)    :: ab
-      integer, dimension(3)    :: rw,h1,h2
-      integer, dimension(66)   :: inp
-      integer, dimension(3,48) :: row
-      real,    dimension(3)    :: u,v1,v2,v3,a,b,c,vec,vi,vj,vk
-      real,    dimension(48)   :: mv
-      real,    dimension(66)   :: ang
-      integer :: iu,iv,iw,nax,i,j,k,m,namina,naminb,naminc,ia
-      real    :: dot,ep,domina,dominb,dominc,aij,aik,ajk
-      logical :: hexap, hexac
-      real    :: delt
+    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok)
+       !---- Arguments ----!
+       Type(Twofold_Axes_Type), intent(in)  :: Twofold
+       Type(Crystal_Cell_Type), intent(out) :: Cell
+       integer, dimension(3,3), intent(out) :: tr
+       character(len=*),        intent(out) :: message
+       logical,                 intent(out) :: ok
 
-      a=twofold%a; b=twofold%b; c=twofold%c
-      delt=twofold%tol
-      ep=cosd(90.0-delt)
-      domina=9.0e+30; dominc=domina
-      tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
-      ab=0; mv=0.0; ang=0.0; row=0; inp=0
-      ok=.true.
+       !---- Local variables ----!
+       integer, dimension(1)          :: ix
+       integer, dimension(2)          :: ab
+       integer, dimension(3)          :: rw,h1,h2
+       integer, dimension(66)         :: inp
+       integer, dimension(3,48)       :: row
+       real(kind=cp), dimension(3)    :: u,v1,v2,v3,a,b,c,vec,vi,vj,vk
+       real(kind=cp), dimension(48)   :: mv
+       real(kind=cp), dimension(66)   :: ang
+       integer                        :: iu,iv,iw,nax,i,j,k,m,namina,naminb,naminc,ia
+       real(kind=cp)                  :: dot,ep,domina,dominb,dominc,aij,aik,ajk
+       real(kind=cp)                  :: delt
+       logical                        :: hexap, hexac
 
-      Select Case(twofold%ntwo)
+       a=twofold%a; b=twofold%b; c=twofold%c
+       delt=twofold%tol
+       ep=cosd(90.0-delt)
+       domina=9.0e+30; dominc=domina
+       tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
+       ab=0; mv=0.0; ang=0.0; row=0; inp=0
+       ok=.true.
 
-        Case (1)    !Monoclinic
-          v2=twofold%caxes(:,1)
-          u = v2/twofold%maxes(1)
-          tr(2,:)=twofold%dtwofold(:,1)
-          nax=0
-          do iu=-3,3
-            do iv=-3,3
-              do_iw: do iw=0,3
-                 rw=(/iu,iv,iw/)
-                ! if(iu == 0 .and. iv == 0 .and. iw == 0) cycle
-                 if(.not. Co_prime(rw,3)) cycle
-                 vec=real(iu)*a+real(iv)*b+real(iw)*c
-                 dot=sqrt(dot_product(vec,vec))
-                 vec=vec/dot
-                 if(abs(dot_product(u,vec)) < ep) then
-                   do m=1,nax
-                      if(co_linear(rw,row(:,m),3)) cycle do_iw
-                   end do
-                   nax=nax+1
-                   row(:,nax) = rw
-                   mv(nax) = dot
-                   if(dot < domina) then
-                     domina=dot
-                     namina=nax
-                     tr(1,:)=rw
-                     v1=real(iu)*a+real(iv)*b+real(iw)*c
-                   end if
-                 end if
-              end do do_iw
-            end do
-          end do
-          do i=1,nax
-            if(i == namina) cycle
-            if(mv(i) < dominc) then
-              dominc=mv(i)
-              naminc=i
-            end if
-          end do
-          tr(3,:)=row(:,naminc)
-          v3=row(1,naminc)*a+row(2,naminc)*b+row(3,naminc)*c
-          !Length of the three basis vectors should be stored in mv(1),mv(2),mv(3)
-          mv(1)=sqrt(dot_product(v1,v1))
-          mv(2)=sqrt(dot_product(v2,v2))
-          mv(3)=sqrt(dot_product(v3,v3))
-          !The two shortest vectors perpendicular to the primary twofold axis have been found
-          !and the transformation matrix has been constructed
-          namina=determ_A(tr)
-          if(namina < 0) then   !right handed system
-           tr(2,:)=-tr(2,:)
-           v2=-v2
-           namina=-namina
-          end if
-          !Test if beta is lower than 90 in such a case invert c and b
-          dominb=dot_product(v1/mv(1),v3/mv(3))
-          if(dominb > 0.0) then  !angle beta < 90
-            tr(2,:)=-tr(2,:)
-            v2=-v2
-            tr(3,:)=-tr(3,:)
-            v3=-v3
-          end if
-
-          Select Case (namina)
-             Case(1)
-               message="Monoclinic, primitive cell"
-             Case(2)
-               rw=matmul((/0,1,1/),tr)
-               if(.not. co_prime(rw,3)) then
-                  message="Monoclinic, A-centred cell"
-               else
-                  rw=matmul((/1,1,1/),tr)
-                  if(.not. co_prime(rw,3)) then
-                     message="Monoclinic, I-centred cell"
-                  else
-                     rw=matmul((/1,1,0/),tr)
-                     if(.not. co_prime(rw,3)) message="Monoclinic, C-centred cell"
-                  end if
-               end if
-
-             Case(3:)
-               message="Error in monoclinic cell"
-               ok=.false.
-          End Select
-
-        Case (3)    !Orthorhombic/Rhombohedral
-
-          u(1:3)=twofold%maxes(1:3)
-          ix=minloc(u)
-          namina=ix(1)
-          ix=maxloc(u)
-          naminc=ix(1)
-          if(naminc == namina) then
-            namina=1; naminb=2; naminc=3
-          else
-            do i=1,3
-             if(i == namina) cycle
-             if(i == naminc) cycle
-             naminb=i
-             exit
-            end do
-          end if
-          tr(1,:) = twofold%dtwofold(:,namina)
-          tr(2,:) = twofold%dtwofold(:,naminb)
-          tr(3,:) = twofold%dtwofold(:,naminc)
-          v1 = twofold%caxes(:,namina)
-          v2 = twofold%caxes(:,naminb)
-          v3 = twofold%caxes(:,naminc)
-          mv(1)=twofold%maxes(namina)
-          mv(2)=twofold%maxes(naminb)
-          mv(3)=twofold%maxes(naminc)
-          !Check the system by verifying that the two-fold axes form 90 (orthorhombic)
-          !or 120 degrees (Rhombohedral)
-          domina=dot_product(v2/mv(2),v3/mv(3))
-          dominb=dot_product(v1/mv(1),v3/mv(3))
-          dominc=dot_product(v1/mv(1),v2/mv(2))
-
-          if(abs(domina) < ep .and. abs(dominb) < ep .and. abs(dominc) < ep) then !orthorhombic
-            namina=determ_A(tr)
-            if(namina < 0) then
-             tr(3,:)=-tr(3,:)
-             v3=-v3
-             namina=-namina
-            end if
-            Select Case (namina)
-               Case(1)
-                 message="Orthorhombic, Primitive cell"
-               Case(2)
-                  rw=matmul((/0,1,1/),tr)
-                  if(.not. co_prime(rw,3)) then
-                     message="Orthorhombic, A-centred cell"
-                  else
-                     rw=matmul((/1,1,1/),tr)
-                     if(.not. co_prime(rw,3)) then
-                        message="Orthorhombic, I-centred cell"
-                     else
-                        rw=matmul((/1,1,0/),tr)
-                        if(.not. co_prime(rw,3)) then
-                            message="Orthorhombic, C-centred cell"
-                        else
-                            rw=matmul((/1,0,1/),tr)
-                            if(.not. co_prime(rw,3)) message="Orthorhombic, B-centred cell"
-                        end if
-                     end if
-                  end if
-
-               Case(3:)
-                 message="Orthorhombic, F-centred cell"
-            End Select
-
-          else !Rhombohedral/Trigonal
-
-            !In the Rhombohedral system the two-fold axes are in the plane perpendicular to
-            !the three-fold axis, and valid a,b, vectors can be chosen among any two two-fold
-            !axes forming an angle of 120 degrees
-            !verify that 1 and 2 form 120
-            ang(1)=acosd(domina)    !2-3
-            ang(2)=acosd(dominb)    !1-3
-            ang(3)=acosd(dominc)    !1-2
-            dot=1.0
-            iu=1
-            j=0
-            do i=1,3
-              if(abs(ang(i)-120.0) < delt) then
-                j=i
-                exit
-              end if
-            end do
-
-            if( j == 0) then
-              do i=1,3
-                if(abs(ang(i)-60.0) < delt) then
-                  j=i
-                  dot=-1.0
-                  iu=-1
-                  exit
-                end if
-              end do
-            End if
-
-            if( j == 0) then
-
-              message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
-              ok=.false.
-              return
-
-            else
-
-              Select Case (j)
-
-                case(1)
-                   vi=v2
-                   vj=dot*v3
-                   h1=tr(2,:); h2=iu*tr(3,:)
-                   tr(3,:)=tr(1,:)
-                   tr(1,:)=h1
-                   tr(2,:)=h2
-
-                case(2)
-                   vi=v1
-                   vj=dot*v3
-                   h2=iu*tr(3,:)
-                   tr(3,:)=tr(2,:)
-                   tr(2,:)=h2
-
-                case(3)
-                   vi=v1
-                   vj=dot*v2
-                   tr(2,:)=iu*tr(2,:)
-
-              End Select
-
-              v1 = vi
-              v2 = vj
-              mv(1)=sqrt(dot_product(v1,v1))
-              mv(2)=sqrt(dot_product(v2,v2))
-              vi=v1/mv(1)
-              vj=v2/mv(2)
-              ok=.false.
-              do_iu: do iu=-3,3
+       Select Case(twofold%ntwo)
+          Case (1)    !Monoclinic
+             v2=twofold%caxes(:,1)
+             u = v2/twofold%maxes(1)
+             tr(2,:)=twofold%dtwofold(:,1)
+             nax=0
+             do iu=-3,3
                 do iv=-3,3
-                  do iw=0,3
+                   do_iw: do iw=0,3
                       rw=(/iu,iv,iw/)
-                      if(.not. Co_prime(rw,3)) cycle
+                      ! if(iu == 0 .and. iv == 0 .and. iw == 0) cycle
+                      if (.not. Co_prime(rw,3)) cycle
                       vec=real(iu)*a+real(iv)*b+real(iw)*c
                       dot=sqrt(dot_product(vec,vec))
                       vec=vec/dot
-                      if(abs(dot_product(vi,vec)) < ep  .and. abs(dot_product(vj,vec)) < ep) then
-                        tr(3,:)=rw
-                        ok=.true.
-                        exit do_iu
+                      if (abs(dot_product(u,vec)) < ep) then
+                         do m=1,nax
+                            if(co_linear(rw,row(:,m),3)) cycle do_iw
+                         end do
+                         nax=nax+1
+                         row(:,nax) = rw
+                         mv(nax) = dot
+                         if (dot < domina) then
+                            domina=dot
+                            namina=nax
+                            tr(1,:)=rw
+                            v1=real(iu)*a+real(iv)*b+real(iw)*c
+                         end if
                       end if
-                  end do
+                   end do do_iw
                 end do
-              end do do_iu
+             end do
 
-              If(ok) then
-                namina=determ_A(tr)
-                if(namina < 0) then
-                 tr(3,:)=-tr(3,:)
-                 namina=-namina
+             do i=1,nax
+                if (i == namina) cycle
+                if (mv(i) < dominc) then
+                   dominc=mv(i)
+                   naminc=i
                 end if
-                v3 = tr(3,1)*a+tr(3,2)*b+tr(3,3)*c
-                mv(3)=sqrt(dot_product(v3,v3))
-                Select Case (namina)
-                  case(1)
-                     message="Primitive hexagonal cell"
-                  case(3)
-                     rw=matmul((/2,1,1/),tr)
-                     if(.not. co_prime(rw,3)) then
-                       message="Rhombohedral, obverse setting cell"
-                     else
-                       message="Rhombohedral, reverse setting cell"
-                     end if
-                End Select
-              Else
-                 message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
-                 ok=.false.
-                 return
-              End if
-            End if !j==0
+             end do
+             tr(3,:)=row(:,naminc)
+             v3=row(1,naminc)*a+row(2,naminc)*b+row(3,naminc)*c
 
-          End if  !orthorhombic test
+             !Length of the three basis vectors should be stored in mv(1),mv(2),mv(3)
+             mv(1)=sqrt(dot_product(v1,v1))
+             mv(2)=sqrt(dot_product(v2,v2))
+             mv(3)=sqrt(dot_product(v3,v3))
 
-        Case (5)    !Tetragonal
-          m=0
-          inp=0
-          mv(1:5)=twofold%maxes(1:5)
-          do i=1,twofold%ntwo-1
-            vi=twofold%caxes(:,i)/twofold%maxes(i)
-            do j=i+1,twofold%ntwo
-              vj=twofold%caxes(:,j)/twofold%maxes(j)
-              m=m+1
-              ang(m)=acosd(dot_product(vi,vj))
-              if(abs(ang(m)-45.0) < delt .or. abs(ang(m)-135.0) < delt) then
-                inp(i)=1
-                inp(j)=1
-                if(mv(i) > mv(j)) then
-                  ia=j
-                else
-                  ia=i
-                end if
-                if(ab(1) == 0) then
-                  ab(1) = ia
-                else
-                  ab(2) = ia
-                end if
-              end if
-            end do
-          end do
+             !The two shortest vectors perpendicular to the primary twofold axis have been found
+             !and the transformation matrix has been constructed
+             namina=determ_A(tr)
+             if (namina < 0) then   !right handed system
+                tr(2,:)=-tr(2,:)
+                v2=-v2
+                namina=-namina
+             end if
 
-          !Determination of the c-axis (that making 90 degree with all the others)
-          ix=minloc(inp)
-          naminc=ix(1)
-          !The two axes forming a,b are those of indices ab(1) and ab(2)
-          namina=ab(1)
-          naminb=ab(2)
-          if(namina == 0 .or. naminb == 0) then
-            ok=.false.
-            message="Basis vectors a-b not found!"
-            return
-          end if
-          tr(1,:) = twofold%dtwofold(:,namina)
-          tr(2,:) = twofold%dtwofold(:,naminb)
-          tr(3,:) = twofold%dtwofold(:,naminc)
-          v1 = twofold%caxes(:,namina)
-          v2 = twofold%caxes(:,naminb)
-          v3 = twofold%caxes(:,naminc)
-          mv(1)=twofold%maxes(namina)
-          mv(2)=twofold%maxes(naminb)
-          mv(3)=twofold%maxes(naminc)
-          namina=determ_A(tr)
-          if(namina < 0) then
-           tr(3,:)=-tr(3,:)
-           v3=-v3
-           namina=-namina
-          end if
+             !Test if beta is lower than 90 in such a case invert c and b
+             dominb=dot_product(v1/mv(1),v3/mv(3))
+             if (dominb > 0.0) then  !angle beta < 90
+                tr(2,:)=-tr(2,:)
+                v2=-v2
+                tr(3,:)=-tr(3,:)
+                v3=-v3
+             end if
 
-          Select Case (namina)
-             Case(1)
-               message="Tetragonal, Primitive cell"
-             Case(2)
-               message="Tetragonal, I-centred cell"
-             Case(3:)
-               message="Error in tetragonal cell"
-               ok=.false.
-               return
-          End Select
-
-        Case (7)    !Hexagonal
-
-          m=0
-          inp=0
-          mv(1:7)=twofold%maxes(1:7)
-          hexap=.false.;  hexac=.false.
-          !Search tha a-b plane
-          do_ii:do i=1,twofold%ntwo-1
-            vi=twofold%caxes(:,i)/twofold%maxes(i)
-            do j=i+1,twofold%ntwo
-                vj=twofold%caxes(:,j)/twofold%maxes(j)
-                aij=acosd(dot_product(vi,vj))
-                if(abs(aij-120.0) < delt) then
-                  if(abs(mv(i)-mv(j)) < 0.2 .and. .not. hexap ) then
-                   rw(1)=i; rw(2)=j
-                   u(1)=mv(i); u(2)=mv(j)
-                   hexap=.true.
-                   exit do_ii
-                  end if
-                end if
-            end do
-          end do do_ii
-
-          if(hexap) then ! Search the c-axis, it should be also a two-fold axis!
-                         ! because Op(6).Op(6).Op(6)=Op(2)
-            v1 = twofold%caxes(:,rw(1))
-            v2 = twofold%caxes(:,rw(2))
-            vj=v1/u(1)
-            vk=v2/u(2)
-            do i=1,twofold%ntwo
-               vi=twofold%caxes(:,i)/twofold%maxes(i)
-                aij=acosd(dot_product(vi,vj))
-                aik=acosd(dot_product(vi,vk))
-                if(abs(aij-90.0) < delt .and. abs(aik-90.0) < delt ) then
-                  rw(3)=i
-                  u(3)= mv(i)
-                  hexac=.true.
-                  exit
-                end if
-            end do
-          else
-            ok=.false.
-            return
-          end if
-
-          if(hexac) then
-            do i=1,3
-              tr(i,:) = twofold%dtwofold(:,rw(i))
-              mv(i)=u(i)
-            end do
-            v3 = twofold%caxes(:,rw(3))
-            namina=determ_A(tr)
-            if(namina < 0) then
-             tr(3,:)=-tr(3,:)
-             v3=-v3
-             namina=-namina
-            end if
-
-            Select Case (namina)
-               Case(1)
-                 message="Hexagonal, Primitive cell"
-               Case(2:)
-                 message="Hexagonal, centred cell? possible mistake"
-            End Select
-
-          else
-
-            ok=.false.
-            message="The c-axis of a hexagonal cell was not found!"
-            return
-
-          end if
-
-        Case (9)   !Cubic
-
-          m=0
-          inp=0
-          mv(1:9)=twofold%maxes(1:9)
-          do_i:do i=1,twofold%ntwo-2
-            vi=twofold%caxes(:,i)/twofold%maxes(i)
-            do j=i+1,twofold%ntwo-1
-              vj=twofold%caxes(:,j)/twofold%maxes(j)
-              do k=j+1,twofold%ntwo
-                vk=twofold%caxes(:,k)/twofold%maxes(k)
-                aij=acosd(dot_product(vi,vj))
-                aik=acosd(dot_product(vi,vk))
-                ajk=acosd(dot_product(vj,vk))
-                if(abs(aij-90.0) < delt .and. abs(aik-90.0) < delt .and. abs(ajk-90.0) < delt ) then
-                  if(abs(mv(i)-mv(j)) < 0.2 .and. abs(mv(i)-mv(k)) < 0.2 .and. abs(mv(j)-mv(k)) < 0.2 ) then
-                   rw(1)=i; rw(2)=j; rw(3)=k
-                   u(1)=mv(i); u(2)=mv(j); u(3)=mv(k)
-                   exit do_i
-                  end if
-                end if
-              end do
-            end do
-          end do do_i
-          do i=1,3
-            tr(i,:) = twofold%dtwofold(:,rw(i))
-            mv(i)=u(i)
-          end do
-          v1 = twofold%caxes(:,rw(1))
-          v2 = twofold%caxes(:,rw(2))
-          v3 = twofold%caxes(:,rw(3))
-          namina=determ_A(tr)
-          if(namina < 0) then
-           tr(3,:)=-tr(3,:)
-           v3=-v3
-           namina=-namina
-          end if
-
-          Select Case (namina)
-             Case(1)
-               message="Cubic, Primitive cell"
-             Case(2)
-                rw=matmul((/0,1,1/),tr)
-                if(.not. co_prime(rw,3)) then
-                   message="Cubic, A-centred cell"
-                else
-                   rw=matmul((/1,1,1/),tr)
-                   if(.not. co_prime(rw,3)) then
-                      message="Cubic, I-centred cell"
+             Select Case (namina)
+                Case(1)
+                   message="Monoclinic, primitive cell"
+                Case(2)
+                   rw=matmul((/0,1,1/),tr)
+                   if (.not. co_prime(rw,3)) then
+                      message="Monoclinic, A-centred cell"
                    else
-                      rw=matmul((/1,1,0/),tr)
-                      if(.not. co_prime(rw,3)) then
-                          message="Cubic, C-centred cell"
+                      rw=matmul((/1,1,1/),tr)
+                      if (.not. co_prime(rw,3)) then
+                         message="Monoclinic, I-centred cell"
                       else
-                          rw=matmul((/1,0,1/),tr)
-                          if(.not. co_prime(rw,3)) message="Cubic, B-centred cell"
+                         rw=matmul((/1,1,0/),tr)
+                         if(.not. co_prime(rw,3)) message="Monoclinic, C-centred cell"
                       end if
                    end if
+
+                Case(3:)
+                   message="Error in monoclinic cell"
+                   ok=.false.
+             End Select
+
+          Case (3)    !Orthorhombic/Rhombohedral
+             u(1:3)=twofold%maxes(1:3)
+             ix=minloc(u)
+             namina=ix(1)
+             ix=maxloc(u)
+             naminc=ix(1)
+             if (naminc == namina) then
+                namina=1; naminb=2; naminc=3
+             else
+                do i=1,3
+                   if(i == namina) cycle
+                   if(i == naminc) cycle
+                   naminb=i
+                   exit
+                end do
+             end if
+             tr(1,:) = twofold%dtwofold(:,namina)
+             tr(2,:) = twofold%dtwofold(:,naminb)
+             tr(3,:) = twofold%dtwofold(:,naminc)
+             v1 = twofold%caxes(:,namina)
+             v2 = twofold%caxes(:,naminb)
+             v3 = twofold%caxes(:,naminc)
+             mv(1)=twofold%maxes(namina)
+             mv(2)=twofold%maxes(naminb)
+             mv(3)=twofold%maxes(naminc)
+
+             !Check the system by verifying that the two-fold axes form 90 (orthorhombic)
+             !or 120 degrees (Rhombohedral)
+             domina=dot_product(v2/mv(2),v3/mv(3))
+             dominb=dot_product(v1/mv(1),v3/mv(3))
+             dominc=dot_product(v1/mv(1),v2/mv(2))
+
+             if (abs(domina) < ep .and. abs(dominb) < ep .and. abs(dominc) < ep) then !orthorhombic
+                namina=determ_A(tr)
+                if (namina < 0) then
+                   tr(3,:)=-tr(3,:)
+                   v3=-v3
+                   namina=-namina
+                end if
+                Select Case (namina)
+                   Case(1)
+                      message="Orthorhombic, Primitive cell"
+
+                   Case(2)
+                      rw=matmul((/0,1,1/),tr)
+                      if (.not. co_prime(rw,3)) then
+                         message="Orthorhombic, A-centred cell"
+                      else
+                         rw=matmul((/1,1,1/),tr)
+                         if (.not. co_prime(rw,3)) then
+                            message="Orthorhombic, I-centred cell"
+                         else
+                            rw=matmul((/1,1,0/),tr)
+                            if (.not. co_prime(rw,3)) then
+                               message="Orthorhombic, C-centred cell"
+                            else
+                               rw=matmul((/1,0,1/),tr)
+                               if (.not. co_prime(rw,3)) message="Orthorhombic, B-centred cell"
+                            end if
+                         end if
+                      end if
+
+                   Case(3:)
+                      message="Orthorhombic, F-centred cell"
+                End Select
+
+             else !Rhombohedral/Trigonal
+
+                !In the Rhombohedral system the two-fold axes are in the plane perpendicular to
+                !the three-fold axis, and valid a,b, vectors can be chosen among any two two-fold
+                !axes forming an angle of 120 degrees
+                !verify that 1 and 2 form 120
+                ang(1)=acosd(domina)    !2-3
+                ang(2)=acosd(dominb)    !1-3
+                ang(3)=acosd(dominc)    !1-2
+                dot=1.0
+                iu=1
+                j=0
+                do i=1,3
+                   if (abs(ang(i)-120.0) < delt) then
+                      j=i
+                      exit
+                   end if
+                end do
+
+                if ( j == 0) then
+                   do i=1,3
+                      if (abs(ang(i)-60.0) < delt) then
+                         j=i
+                         dot=-1.0
+                         iu=-1
+                         exit
+                      end if
+                   end do
+                End if
+
+                if ( j == 0) then
+                   message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+                   ok=.false.
+                   return
+                else
+                   Select Case (j)
+                      case(1)
+                         vi=v2
+                         vj=dot*v3
+                         h1=tr(2,:); h2=iu*tr(3,:)
+                         tr(3,:)=tr(1,:)
+                         tr(1,:)=h1
+                         tr(2,:)=h2
+
+                      case(2)
+                         vi=v1
+                         vj=dot*v3
+                         h2=iu*tr(3,:)
+                         tr(3,:)=tr(2,:)
+                         tr(2,:)=h2
+
+                      case(3)
+                         vi=v1
+                         vj=dot*v2
+                         tr(2,:)=iu*tr(2,:)
+
+                   End Select
+
+                   v1 = vi
+                   v2 = vj
+                   mv(1)=sqrt(dot_product(v1,v1))
+                   mv(2)=sqrt(dot_product(v2,v2))
+                   vi=v1/mv(1)
+                   vj=v2/mv(2)
+                   ok=.false.
+
+                   do_iu: do iu=-3,3
+                      do iv=-3,3
+                         do iw=0,3
+                            rw=(/iu,iv,iw/)
+                            if (.not. Co_prime(rw,3)) cycle
+                            vec=real(iu)*a+real(iv)*b+real(iw)*c
+                            dot=sqrt(dot_product(vec,vec))
+                            vec=vec/dot
+                            if (abs(dot_product(vi,vec)) < ep  .and. abs(dot_product(vj,vec)) < ep) then
+                               tr(3,:)=rw
+                               ok=.true.
+                               exit do_iu
+                            end if
+                         end do
+                      end do
+                   end do do_iu
+
+                   If (ok) then
+                      namina=determ_A(tr)
+                      if (namina < 0) then
+                         tr(3,:)=-tr(3,:)
+                         namina=-namina
+                      end if
+                      v3 = tr(3,1)*a+tr(3,2)*b+tr(3,3)*c
+                      mv(3)=sqrt(dot_product(v3,v3))
+                      Select Case (namina)
+                         case(1)
+                            message="Primitive hexagonal cell"
+                         case(3)
+                            rw=matmul((/2,1,1/),tr)
+                            if (.not. co_prime(rw,3)) then
+                               message="Rhombohedral, obverse setting cell"
+                            else
+                               message="Rhombohedral, reverse setting cell"
+                            end if
+                      End Select
+
+                   Else
+                      message="Trigonal/Rhombohedral test failed! Supply only one two-fold axis"
+                      ok=.false.
+                      return
+                   End if
+                End if !j==0
+             End if  !orthorhombic test
+
+          Case (5)    !Tetragonal
+             m=0
+             inp=0
+             mv(1:5)=twofold%maxes(1:5)
+             do i=1,twofold%ntwo-1
+                vi=twofold%caxes(:,i)/twofold%maxes(i)
+                do j=i+1,twofold%ntwo
+                   vj=twofold%caxes(:,j)/twofold%maxes(j)
+                   m=m+1
+                   ang(m)=acosd(dot_product(vi,vj))
+                   if (abs(ang(m)-45.0) < delt .or. abs(ang(m)-135.0) < delt) then
+                      inp(i)=1
+                      inp(j)=1
+                      if (mv(i) > mv(j)) then
+                         ia=j
+                      else
+                         ia=i
+                      end if
+                      if (ab(1) == 0) then
+                         ab(1) = ia
+                      else
+                         ab(2) = ia
+                      end if
+                   end if
+                end do
+             end do
+
+             !Determination of the c-axis (that making 90 degree with all the others)
+             ix=minloc(inp)
+             naminc=ix(1)
+
+             !The two axes forming a,b are those of indices ab(1) and ab(2)
+             namina=ab(1)
+             naminb=ab(2)
+             if (namina == 0 .or. naminb == 0) then
+                ok=.false.
+                message="Basis vectors a-b not found!"
+                return
+             end if
+
+             tr(1,:) = twofold%dtwofold(:,namina)
+             tr(2,:) = twofold%dtwofold(:,naminb)
+             tr(3,:) = twofold%dtwofold(:,naminc)
+             v1 = twofold%caxes(:,namina)
+             v2 = twofold%caxes(:,naminb)
+             v3 = twofold%caxes(:,naminc)
+             mv(1)=twofold%maxes(namina)
+             mv(2)=twofold%maxes(naminb)
+             mv(3)=twofold%maxes(naminc)
+             namina=determ_A(tr)
+             if (namina < 0) then
+                tr(3,:)=-tr(3,:)
+                v3=-v3
+                namina=-namina
+             end if
+
+             Select Case (namina)
+                Case(1)
+                   message="Tetragonal, Primitive cell"
+                Case(2)
+                   message="Tetragonal, I-centred cell"
+                Case(3:)
+                   message="Error in tetragonal cell"
+                   ok=.false.
+                   return
+             End Select
+
+          Case (7)    !Hexagonal
+
+             m=0
+             inp=0
+             mv(1:7)=twofold%maxes(1:7)
+             hexap=.false.;  hexac=.false.
+
+             !Search tha a-b plane
+             do_ii:do i=1,twofold%ntwo-1
+                vi=twofold%caxes(:,i)/twofold%maxes(i)
+                do j=i+1,twofold%ntwo
+                   vj=twofold%caxes(:,j)/twofold%maxes(j)
+                   aij=acosd(dot_product(vi,vj))
+                   if (abs(aij-120.0) < delt) then
+                      if (abs(mv(i)-mv(j)) < 0.2 .and. .not. hexap ) then
+                         rw(1)=i; rw(2)=j
+                         u(1)=mv(i); u(2)=mv(j)
+                         hexap=.true.
+                         exit do_ii
+                      end if
+                   end if
+                end do
+             end do do_ii
+
+             if (hexap) then ! Search the c-axis, it should be also a two-fold axis!
+                             ! because Op(6).Op(6).Op(6)=Op(2)
+                v1 = twofold%caxes(:,rw(1))
+                v2 = twofold%caxes(:,rw(2))
+                vj=v1/u(1)
+                vk=v2/u(2)
+                do i=1,twofold%ntwo
+                   vi=twofold%caxes(:,i)/twofold%maxes(i)
+                   aij=acosd(dot_product(vi,vj))
+                   aik=acosd(dot_product(vi,vk))
+                   if (abs(aij-90.0) < delt .and. abs(aik-90.0) < delt ) then
+                      rw(3)=i
+                      u(3)= mv(i)
+                      hexac=.true.
+                      exit
+                   end if
+                end do
+             else
+                ok=.false.
+                return
+             end if
+
+             if (hexac) then
+                do i=1,3
+                   tr(i,:) = twofold%dtwofold(:,rw(i))
+                   mv(i)=u(i)
+                end do
+                v3 = twofold%caxes(:,rw(3))
+                namina=determ_A(tr)
+                if (namina < 0) then
+                   tr(3,:)=-tr(3,:)
+                   v3=-v3
+                   namina=-namina
                 end if
 
-             Case(3:)
-               message="Cubic, F-centred cell"
-          End Select
+                Select Case (namina)
+                   Case(1)
+                      message="Hexagonal, Primitive cell"
+                   Case(2:)
+                      message="Hexagonal, centred cell? possible mistake"
+                End Select
 
-        case default
+             else
+                ok=.false.
+                message="The c-axis of a hexagonal cell was not found!"
+                return
+             end if
 
-          write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
-          ok=.false.
-          return
+          Case (9)   !Cubic
+             m=0
+             inp=0
+             mv(1:9)=twofold%maxes(1:9)
+             do_i:do i=1,twofold%ntwo-2
+                vi=twofold%caxes(:,i)/twofold%maxes(i)
+                do j=i+1,twofold%ntwo-1
+                   vj=twofold%caxes(:,j)/twofold%maxes(j)
+                   do k=j+1,twofold%ntwo
+                      vk=twofold%caxes(:,k)/twofold%maxes(k)
+                      aij=acosd(dot_product(vi,vj))
+                      aik=acosd(dot_product(vi,vk))
+                      ajk=acosd(dot_product(vj,vk))
+                      if (abs(aij-90.0) < delt .and. abs(aik-90.0) < delt .and. abs(ajk-90.0) < delt ) then
+                         if (abs(mv(i)-mv(j)) < 0.2 .and. abs(mv(i)-mv(k)) < 0.2 .and. abs(mv(j)-mv(k)) < 0.2 ) then
+                            rw(1)=i; rw(2)=j; rw(3)=k
+                            u(1)=mv(i); u(2)=mv(j); u(3)=mv(k)
+                            exit do_i
+                         end if
+                      end if
+                   end do
+                end do
+             end do do_i
+
+             do i=1,3
+                tr(i,:) = twofold%dtwofold(:,rw(i))
+                mv(i)=u(i)
+             end do
+             v1 = twofold%caxes(:,rw(1))
+             v2 = twofold%caxes(:,rw(2))
+             v3 = twofold%caxes(:,rw(3))
+             namina=determ_A(tr)
+             if (namina < 0) then
+                tr(3,:)=-tr(3,:)
+                v3=-v3
+                namina=-namina
+             end if
+
+             Select Case (namina)
+                Case(1)
+                   message="Cubic, Primitive cell"
+                Case(2)
+                   rw=matmul((/0,1,1/),tr)
+                   if (.not. co_prime(rw,3)) then
+                      message="Cubic, A-centred cell"
+                   else
+                      rw=matmul((/1,1,1/),tr)
+                      if (.not. co_prime(rw,3)) then
+                         message="Cubic, I-centred cell"
+                      else
+                         rw=matmul((/1,1,0/),tr)
+                         if (.not. co_prime(rw,3)) then
+                            message="Cubic, C-centred cell"
+                         else
+                            rw=matmul((/1,0,1/),tr)
+                            if (.not. co_prime(rw,3)) message="Cubic, B-centred cell"
+                         end if
+                      end if
+                   end if
+
+                Case(3:)
+                  message="Cubic, F-centred cell"
+             End Select
+
+          case default
+             write(unit=message,fmt="(a,i3)") "Wrong number of two-fold axes! ",twofold%ntwo
+             ok=.false.
+             return
 
       End Select
 
@@ -1262,6 +1265,7 @@
       ang(3)=acosd(dot_product(v1/mv(1),v2/mv(2)))
       Call Set_Crystal_Cell(mv(1:3),ang(1:3),Cell)
       ok=.true.
+
       return
     End Subroutine Get_Conventional_Cell
 
@@ -1278,10 +1282,10 @@
     !!----
     Subroutine Get_Cryst_Family(Cell,Car_Family,Car_Symbol,Car_System)
        !---- Arguments ----!
-       type(Crystal_Cell_type),         intent(in ) :: Cell
-       character(len=*),                intent(out) :: Car_Family
-       character(len=*),                intent(out) :: Car_Symbol
-       character(len=*),                intent(out) :: Car_System
+       type(Crystal_Cell_type),   intent(in ) :: Cell
+       character(len=*),          intent(out) :: Car_Family
+       character(len=*),          intent(out) :: Car_Symbol
+       character(len=*),          intent(out) :: Car_System
 
        !---- Local variables ----!
        integer, dimension(3) :: icodp, icoda
@@ -1337,84 +1341,84 @@
        n2=count(icodp==icodp(1))
        select case (n1)
           case (1) ! all are differents
-                 if (n2 ==1) then
-                          Car_Family="Triclinic"
-                          Car_Symbol ="a"
-                          Car_System ="Triclinic"
-                 else
-                          Err_Crys=.true.
-                          ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-                 end if
+             if (n2 ==1) then
+                Car_Family="Triclinic"
+                Car_Symbol ="a"
+                Car_System ="Triclinic"
+             else
+                Err_Crys=.true.
+                ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+             end if
 
           case (2) ! two angles are equal
-                 if (icoda(1) == icoda(2)) then
-                          if (abs(cell%ang(3)-120.0) <= 0.0001) then
-                                 if (icodp(1)==icodp(2)) then
-                                          !---- Hexagonal ----!
-                                          Car_Family="Hexagonal"
-                                Car_Symbol ="h"
-                                Car_System ="Hexagonal"
-                                 else
-                                          Err_Crys=.true.
-                                ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-                                 end if
-                          else
+             if (icoda(1) == icoda(2)) then
+                if (abs(cell%ang(3)-120.0) <= 0.0001) then
+                   if (icodp(1)==icodp(2)) then
+                      !---- Hexagonal ----!
+                      Car_Family="Hexagonal"
+                      Car_Symbol ="h"
+                      Car_System ="Hexagonal"
+                   else
+                      Err_Crys=.true.
+                      ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                   end if
+                else
                    !---- Monoclinic ----!
                    Car_Family="Monoclinic"
-                             Car_Symbol ="m"
-                             Car_System ="Monoclinic"
-                          end if
+                   Car_Symbol ="m"
+                   Car_System ="Monoclinic"
+                end if
 
-                 else
-                          !---- Monoclic b-unique setting ----!
-                          if (abs(cell%ang(1)-90.0) <= 0.0001) then
-                                 Car_Family="Monoclinic"
-                             Car_Symbol ="m"
-                             Car_System ="Monoclinic"
-                          else
-                                 Err_Crys=.true.
-                             ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-                          end if
-                 end if
+             else
+                !---- Monoclic b-unique setting ----!
+                if (abs(cell%ang(1)-90.0) <= 0.0001) then
+                   Car_Family="Monoclinic"
+                   Car_Symbol ="m"
+                   Car_System ="Monoclinic"
+                else
+                   Err_Crys=.true.
+                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                end if
+             end if
 
           case (3) ! all are the same angle
-                 if (abs(cell%ang(1) - 90.000) <= 0.0001) then
-                          select case (n2)
-                                 case (1)
-                                          !---- Orthorhombic ----!
-                                          Car_Family="Orthorhombic"
-                                          Car_Symbol ="o"
-                                          Car_System ="Orthorhombic"
+             if (abs(cell%ang(1) - 90.000) <= 0.0001) then
+                select case (n2)
+                   case (1)
+                      !---- Orthorhombic ----!
+                      Car_Family="Orthorhombic"
+                      Car_Symbol ="o"
+                      Car_System ="Orthorhombic"
 
-                                 case (2)
-                                          !---- Tetragonal ----!
-                                          if (icodp(1)==icodp(2)) then
-                                                 Car_Family="Tetragonal"
-                                             Car_Symbol ="t"
-                                             Car_System ="Tetragonal"
-                                          else
-                                                 err_crys=.true.
-                                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-                                          end if
+                   case (2)
+                      !---- Tetragonal ----!
+                      if (icodp(1)==icodp(2)) then
+                         Car_Family="Tetragonal"
+                         Car_Symbol ="t"
+                         Car_System ="Tetragonal"
+                      else
+                         err_crys=.true.
+                         ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                      end if
 
-                                 case (3)
-                                          !---- Cubic ----!
-                                          Car_Family="Cubic"
-                                          Car_Symbol ="o"
-                                          Car_System ="Cubic"
+                   case (3)
+                      !---- Cubic ----!
+                      Car_Family="Cubic"
+                      Car_Symbol ="o"
+                      Car_System ="Cubic"
+                end select
 
-                          end select
-                 else
-                          if (n2 == 3) then
-                                 !---- Hexagonal with rhombohedral axes ----!
-                                 Car_Family="Hexagonal"
-                                 Car_Symbol ="h"
-                                 Car_System ="Trigonal"
-                          else
-                                 Err_Crys=.true.
-                             ERR_Crys_Mess=" Error obtaining Crystal Familiy"
-                          end if
-                 end if
+             else
+                if (n2 == 3) then
+                   !---- Hexagonal with rhombohedral axes ----!
+                   Car_Family="Hexagonal"
+                   Car_Symbol ="h"
+                   Car_System ="Trigonal"
+                else
+                   Err_Crys=.true.
+                   ERR_Crys_Mess=" Error obtaining Crystal Familiy"
+                end if
+             end if
 
        end select ! n
 
@@ -1519,7 +1523,7 @@
     !!---- Subroutine Get_Deriv_Orth_Cell(Cellp,De_Orthcell,Cartype)
     !!----    type(Crystal_Cell_type),         intent(in ) :: cellp
     !!----    real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
-    !!----    character (len=1), optional,    intent (in ) :: CarType
+    !!----    character (len=1), optional,     intent(in ) :: CarType
     !!----
     !!----    Subroutine to get derivative matrix of the transformation matrix
     !!----    to orthogonal frame. Useful for calculations of standard deviations
@@ -1535,7 +1539,7 @@
        !---- Arguments ----!
        type(Crystal_Cell_type),         intent(in ) :: cellp
        real(kind=cp), dimension(3,3,6), intent(out) :: de_Orthcell
-       character (len=1), optional,    intent (in ) :: CarType
+       character (len=1), optional,     intent(in ) :: CarType
 
        !---- Local Variables ----!
        real(kind=cp) ::  ca,cb,cg,sa,sb,sg,f,g, fa,fb,fc,ga,gb,gc
@@ -1574,11 +1578,13 @@
              !  dM_da =  (   0      0      0 )
              !           (   0      0      0 )
              de_Orthcell(1,1,1) = 1.0
+             
              !           (   0      cg     0 )
              !  dM_db =  (   0      sg     0 )
              !           (   0      0      0 )
              de_Orthcell(1,2,2) = cg
              de_Orthcell(2,2,2) = sg
+             
              !
              !            (   0          0          cb )
              !  dM_dc =   (   0          0          f  )
@@ -1586,6 +1592,7 @@
              de_Orthcell(1,3,3) = cb
              de_Orthcell(2,3,3) = f
              de_Orthcell(3,3,3) = g
+             
              !
              !             (   0          0           0   )
              ! dM_dalpha=  (   0          0          c*fa )
@@ -1593,6 +1600,7 @@
              !
              de_Orthcell(2,3,4) = cellp%cell(3)*fa
              de_Orthcell(3,3,4) = cellp%cell(3)*ga
+             
              !
              !             (   0          0         -c*sb )
              ! dM_dbeta =  (   0          0          c*fb )
@@ -1601,6 +1609,7 @@
              de_Orthcell(1,3,5) = -cellp%cell(3)*sb
              de_Orthcell(2,3,5) =  cellp%cell(3)*fb
              de_Orthcell(3,3,5) =  cellp%cell(3)*gb
+             
              !
              !              (   0        -b*sg         0   )
              ! dM_dgamma =  (   0         b*cg        c*fc )
@@ -1610,6 +1619,7 @@
              de_Orthcell(2,2,6) =  cellp%cell(2)*cg
              de_Orthcell(2,3,6) =  cellp%cell(3)*fc
              de_Orthcell(3,3,6) =  cellp%cell(3)*gc
+             
              return
           end if
        end if
@@ -1651,11 +1661,13 @@
        !           (   0      ca     0 )
        de_Orthcell(1,2,2) = sa
        de_Orthcell(3,2,2) = ca
+       
        !
        !            (   0      0      0  )
        !  dM_dc =   (   0      0      0  )
        !            (   0      0      1  )
        de_Orthcell(3,3,3) = 1
+       
        !
        !             ( a*ga         0          0 )
        ! dM_dalpha=  ( a*fa       -b*ca        0 )
@@ -1665,6 +1677,7 @@
        de_Orthcell(2,1,4) = cellp%cell(1)*fa
        de_Orthcell(2,2,4) =-cellp%cell(2)*ca
        de_Orthcell(3,2,4) = cellp%cell(2)*sa
+       
        !
        !             (  a*gb        0         0 )
        ! dM_dbeta =  (  a*fb        0         0 )
@@ -1673,6 +1686,7 @@
        de_Orthcell(1,1,5) = cellp%cell(1)*gb
        de_Orthcell(2,1,5) = cellp%cell(1)*fb
        de_Orthcell(3,1,5) =-cellp%cell(1)*sb
+       
        !
        !              (  a*gc     0      0   )
        ! dM_dgamma =  (  a*fc     0      0   )
@@ -1685,163 +1699,171 @@
     End Subroutine Get_Deriv_Orth_Cell
 
     !!----
-    !!---- Subroutine Get_Primitive_Cell(lat_type,centred_cell,primitive_cell,transfm)
-    !!----   character(len=*),        intent(in)  :: lat_type
-    !!----   type(Crystal_Cell_Type), intent(in)  :: centred_cell
-    !!----   type(Crystal_Cell_Type), intent(out) :: primitive_cell
-    !!----   real, dimension(3,3),    intent(out) :: transfm
+    !!---- Subroutine Get_Primitive_Cell(Lat_Type,Centred_Cell,Primitive_Cell,Transfm)
+    !!----    character(len=*),               intent(in)  :: lat_type
+    !!----    type(Crystal_Cell_Type),        intent(in)  :: centred_cell
+    !!----    type(Crystal_Cell_Type),        intent(out) :: primitive_cell
+    !!----    real(kind=cp), dimension(3,3),  intent(out) :: transfm
     !!----
-    !!----   Subroutine for getting the primitive cell from a centred cell
-    !!----   On input Lat_type is the lattice type: P,A,B,C,I,R or F
-    !!----   Centred_cell is the Crystal_Cell_Type of the input lattice
-    !!----   The subroutine calculates the transformation matric "transfm"
-    !!----   and provides the complete description of the primitive cell
-    !!----   in the object, of type Crystal_Cell_Type, primitive_cell.
+    !!----    Subroutine for getting the primitive cell from a centred cell
+    !!----    On input Lat_type is the lattice type: P,A,B,C,I,R or F
+    !!----    Centred_cell is the Crystal_Cell_Type of the input lattice
+    !!----    The subroutine calculates the transformation matric "transfm"
+    !!----    and provides the complete description of the primitive cell
+    !!----    in the object, of type Crystal_Cell_Type, primitive_cell.
     !!----
     !!---- Update: April - 2008
     !!
-    Subroutine Get_Primitive_Cell(lat_type,centred_cell,primitive_cell,transfm)
-      character(len=*),        intent(in)  :: lat_type
-      type(Crystal_Cell_Type), intent(in)  :: centred_cell
-      type(Crystal_Cell_Type), intent(out) :: primitive_cell
-      real, dimension(3,3),    intent(out) :: transfm
+    Subroutine Get_Primitive_Cell(Lat_Type,Centred_Cell,Primitive_Cell,Transfm)
+       !---- Arguments ----!
+       character(len=*),              intent(in)  :: lat_type
+       type(Crystal_Cell_Type),       intent(in)  :: centred_cell
+       type(Crystal_Cell_Type),       intent(out) :: primitive_cell
+       real(kind=cp), dimension(3,3), intent(out) :: transfm
 
-      !---- Local variables ----!
-      integer              :: i
-      real, dimension(3)   :: celp,celang
-      real, dimension(3,3) :: cart,metric
-      character(len=1)     :: lat
+       !---- Local variables ----!
+       integer                       :: i
+       real(kind=cp), dimension(3)   :: celp,celang
+       real(kind=cp), dimension(3,3) :: cart,metric
+       character(len=1)              :: lat
 
-      lat=adjustl(lat_type)
-      Select Case(lat)
-        case("a","A")
-           transfm= reshape((/1.0,0.0,0.0,  0.0,0.5,0.5,  0.0,-0.5,0.5/),(/3,3/))
-        case("b","B")
-           transfm= reshape((/0.5,0.0,0.5,  0.0,1.0,0.0, -0.5, 0.0,0.5/),(/3,3/))
-        case("c","C")
-           transfm= reshape((/0.5,0.5,0.0, -0.5,0.5,0.0,  0.0, 0.0,1.0/),(/3,3/))
-        case("i","I")
-           transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.5, 0.5,0.5/),(/3,3/))
-        case("r","R")
-           transfm= reshape((/2.0/3.0, 1.0/3.0, 1.0/3.0,  &
-                             -1.0/3.0, 1.0/3.0, 1.0/3.0,  &
-                             -1.0/3.0,-2.0/3.0, 1.0/3.0/),(/3,3/))
-        case("f","F")
-           transfm= reshape((/0.5,0.0,0.5,  0.5,0.5,0.0,  0.0, 0.5,0.5/),(/3,3/))
-        case default  !assumed primitive
-           primitive_cell=centred_cell
-           transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))
-           return
-      End Select
-      transfm=transpose(transfm)
-      cart=matmul(transfm,transpose(Centred_Cell%Cr_Orth_cel))
-      metric=matmul(cart,transpose(cart))
-      !---- Calculate new cell parameters from the new metric tensor
-      do i=1,3
-         Celp(i)=sqrt(metric(i,i))
-      end do
-      celang(1)=acosd(metric(2,3)/(celp(2)*celp(3)))
-      celang(2)=acosd(metric(1,3)/(celp(1)*celp(3)))
-      celang(3)=acosd(metric(1,2)/(celp(1)*celp(2)))
-      call Set_Crystal_Cell(celp,celang,primitive_cell)
-      return
+       lat=adjustl(lat_type)
+       Select Case(lat)
+          case("a","A")
+             transfm= reshape((/1.0,0.0,0.0,  0.0,0.5,0.5,  0.0,-0.5,0.5/),(/3,3/))
+          case("b","B")
+             transfm= reshape((/0.5,0.0,0.5,  0.0,1.0,0.0, -0.5, 0.0,0.5/),(/3,3/))
+          case("c","C")
+             transfm= reshape((/0.5,0.5,0.0, -0.5,0.5,0.0,  0.0, 0.0,1.0/),(/3,3/))
+          case("i","I")
+             transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.5, 0.5,0.5/),(/3,3/))
+          case("r","R")
+             transfm= reshape((/2.0/3.0, 1.0/3.0, 1.0/3.0,  &
+                               -1.0/3.0, 1.0/3.0, 1.0/3.0,  &
+                               -1.0/3.0,-2.0/3.0, 1.0/3.0/),(/3,3/))
+          case("f","F")
+             transfm= reshape((/0.5,0.0,0.5,  0.5,0.5,0.0,  0.0, 0.5,0.5/),(/3,3/))
+          case default  !assumed primitive
+             primitive_cell=centred_cell
+             transfm= reshape((/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))
+             return
+       End Select
+       transfm=transpose(transfm)
+       cart=matmul(transfm,transpose(Centred_Cell%Cr_Orth_cel))
+       metric=matmul(cart,transpose(cart))
+      
+       !---- Calculate new cell parameters from the new metric tensor
+       do i=1,3
+          Celp(i)=sqrt(metric(i,i))
+       end do
+      
+       celang(1)=acosd(metric(2,3)/(celp(2)*celp(3)))
+       celang(2)=acosd(metric(1,3)/(celp(1)*celp(3)))
+       celang(3)=acosd(metric(1,2)/(celp(1)*celp(2)))
+       call Set_Crystal_Cell(celp,celang,primitive_cell)
+      
+       return
     End Subroutine Get_Primitive_Cell
 
     !!----
-    !!---- Subroutine Get_Two_Fold_Axes(Celln,tol,twofold)
-    !!----   type(Crystal_Cell_Type), intent (in) :: Celln
-    !!----   real,                    intent (in) :: tol !angular tolerance in degrees
-    !!----   Type(Twofold_Axes_Type), intent(out) :: twofold
+    !!---- Subroutine Get_Two_Fold_Axes(Celln,Tol,Twofold)
+    !!----    type(Crystal_Cell_Type), intent (in) :: Celln
+    !!----    real(kind=cp),           intent (in) :: tol !angular tolerance in degrees
+    !!----    Type(Twofold_Axes_Type), intent(out) :: twofold
     !!----
-    !!----   Subroutine for getting the possible two-fold axes (within an
-    !!----   angular tolerance tol) existing in the lattice generated by the
-    !!----   unit cell "Celln". Strictly independed two-fold axes are stored
-    !!----   in the variable "twofold" that is of type Twofold_Axes_Type
-    !!----   The output order of the two-fold axes is ascending in their
-    !!----   modulus. Shorter vectors appears before longer ones.
-    !!----   The conditions for a reciprocal or direct row to be a two-fold
-    !!----   axis are discussed by Y. Le Page in J.Appl.Cryst. 15, 255 (1982).
+    !!----    Subroutine for getting the possible two-fold axes (within an
+    !!----    angular tolerance tol) existing in the lattice generated by the
+    !!----    unit cell "Celln". Strictly independed two-fold axes are stored
+    !!----    in the variable "twofold" that is of type Twofold_Axes_Type
+    !!----    The output order of the two-fold axes is ascending in their
+    !!----    modulus. Shorter vectors appears before longer ones.
+    !!----    The conditions for a reciprocal or direct row to be a two-fold
+    !!----    axis are discussed by Y. Le Page in J.Appl.Cryst. 15, 255 (1982).
     !!----
     !!----
     !!---- Update: November - 2008
     !!
-    Subroutine Get_Two_Fold_Axes(Celln,tol,twofold)
-      type(Crystal_Cell_Type), intent (in) :: Celln
-      real,                    intent (in) :: tol !angular tolerance in degrees
-      Type(twofold_axes_type), intent(out) :: twofold
-      !---- Local variables ----!
-      integer                  :: i,j,n,m, ih,ik,il,iu,iv,iw,imax,ntwo
-      real,    dimension(3)    :: dv, rv, a, b, c, as, bs, cs, cross
-      real,    dimension(  12) :: maxes,crossa
-      integer, dimension(  12) :: dota,ind
-      real,    dimension(3,12) :: caxes
-      integer, dimension(3,12) :: dtw,rtw
-      integer, dimension(3)    :: v,h
-      real                     :: dot,crossm
+    Subroutine Get_Two_Fold_Axes(Celln,Tol,Twofold)
+       !---- Arguments ----!
+       type(Crystal_Cell_Type), intent (in) :: Celln
+       real(kind=cp),           intent (in) :: Tol !angular tolerance in degrees
+       Type(twofold_axes_type), intent(out) :: Twofold
+      
+       !---- Local variables ----!
+       integer                        :: i,j,n,m, ih,ik,il,iu,iv,iw,imax,ntwo
+       real(kind=cp), dimension(3)    :: dv, rv, a, b, c, as, bs, cs, cross
+       real(kind=cp), dimension(  12) :: maxes,crossa
+       integer, dimension(  12)       :: dota,ind
+       real(kind=cp), dimension(3,12) :: caxes
+       integer, dimension(3,12)       :: dtw,rtw
+       integer, dimension(3)          :: v,h
+       real(kind=cp)                  :: dot,crossm
 
-      maxes=0.0; crossa=0.0; dota=0; caxes=0.0; dtw=0; rtw=0
-      a=Celln%Cr_Orth_cel(:,1)
-      b=Celln%Cr_Orth_cel(:,2)
-      c=Celln%Cr_Orth_cel(:,3)
-      twofold%a=a
-      twofold%b=b
-      twofold%c=c
-      as=cross_product(b,c)/Celln%CellVol !Reciprocal lattice vectors in
-      bs=cross_product(c,a)/Celln%CellVol !Cartesian components
-      cs=cross_product(a,b)/Celln%CellVol
-      ntwo=0
-      imax=2   !Is inough if the input cell is the Buerger or Niggli cell
-      do_iu: do iu=imax, 0,-1
-        do iv=imax,-imax,-1
-          do iw=imax,-imax,-1
-            v=(/iu,iv,iw/)
-            if(.not. Co_Prime(v,2)) cycle
-            do ih=imax,0,-1
-              do ik=imax,-imax,-1
-                do_il:do il=imax,-imax,-1
-                  h=(/ih,ik,il/)
-                  if(.not. Co_Prime(h,2)) cycle
-                  n=abs(ih*iu+ik*iv+il*iw)
-                  if( n == 2 .or. n == 1) then
-                    dv=real(iu)*a+real(iv)*b+real(iw)*c
-                    rv=real(ih)*as+real(ik)*bs+real(il)*cs
-                    cross=cross_product(dv,rv)
-                    dot=sqrt(dot_product(cross,cross))
-                    crossm=atand(dot/real(n))
-                    if(abs(crossm) <= tol) then
-                      do m=1,ntwo
-                         if(determ_V((/17,41,71/),v,dtw(:,m) ) == 0) cycle do_il
-                      end do
-                      ntwo=ntwo+1
-                      dtw(:,ntwo)= v
-                      dv=v(1)*a+v(2)*b+v(3)*c
-                      caxes(:,ntwo)=dv
-                      maxes(ntwo)=sqrt(dot_product(dv,dv))
-                      rtw(:,ntwo)= h
-                      dota(ntwo)=n
-                      crossa(ntwo)=crossm
-                    end if
-                   if(ntwo == 12) exit do_iu
-                  end if
-                end do do_il
-              end do
-            end do
+       maxes=0.0; crossa=0.0; dota=0; caxes=0.0; dtw=0; rtw=0
+       a=Celln%Cr_Orth_cel(:,1)
+       b=Celln%Cr_Orth_cel(:,2)
+       c=Celln%Cr_Orth_cel(:,3)
+       twofold%a=a
+       twofold%b=b
+       twofold%c=c
+       as=cross_product(b,c)/Celln%CellVol !Reciprocal lattice vectors in
+       bs=cross_product(c,a)/Celln%CellVol !Cartesian components
+       cs=cross_product(a,b)/Celln%CellVol
+       ntwo=0
+       imax=2   !Is inough if the input cell is the Buerger or Niggli cell
+       
+       do_iu: do iu=imax, 0,-1
+          do iv=imax,-imax,-1
+             do iw=imax,-imax,-1
+                v=(/iu,iv,iw/)
+                if (.not. Co_Prime(v,2)) cycle
+                do ih=imax,0,-1
+                   do ik=imax,-imax,-1
+                      do_il:do il=imax,-imax,-1
+                         h=(/ih,ik,il/)
+                         if (.not. Co_Prime(h,2)) cycle
+                         n=abs(ih*iu+ik*iv+il*iw)
+                         if ( n == 2 .or. n == 1) then
+                            dv=real(iu)*a+real(iv)*b+real(iw)*c
+                            rv=real(ih)*as+real(ik)*bs+real(il)*cs
+                            cross=cross_product(dv,rv)
+                            dot=sqrt(dot_product(cross,cross))
+                            crossm=atand(dot/real(n))
+                            if (abs(crossm) <= tol) then
+                               do m=1,ntwo
+                                  if (determ_V((/17,41,71/),v,dtw(:,m) ) == 0) cycle do_il
+                               end do
+                               ntwo=ntwo+1
+                               dtw(:,ntwo)= v
+                               dv=v(1)*a+v(2)*b+v(3)*c
+                               caxes(:,ntwo)=dv
+                               maxes(ntwo)=sqrt(dot_product(dv,dv))
+                               rtw(:,ntwo)= h
+                               dota(ntwo)=n
+                               crossa(ntwo)=crossm
+                            end if
+                            if (ntwo == 12) exit do_iu
+                         end if
+                      end do do_il
+                   end do
+                end do
+             end do
           end do
-        end do
-      end do do_iu
-      call sort(maxes,ntwo,ind)
-      do i=1,ntwo
-        j=ind(i)
-        twofold%dtwofold(:,i)= dtw(:,j)
-        twofold%caxes(:,i)= caxes(:,j)
-        twofold%maxes(i)= maxes(j)
-        twofold%rtwofold(:,i)= rtw(:,j)
-        twofold%dot(i)= dota(j)
-        twofold%cross(i)= crossa(j)
-      End do
-      twofold%ntwo=ntwo
-      twofold%tol=tol
-      return
+       end do do_iu
+       call sort(maxes,ntwo,ind)
+       do i=1,ntwo
+          j=ind(i)
+          twofold%dtwofold(:,i)= dtw(:,j)
+          twofold%caxes(:,i)= caxes(:,j)
+          twofold%maxes(i)= maxes(j)
+          twofold%rtwofold(:,i)= rtw(:,j)
+          twofold%dot(i)= dota(j)
+          twofold%cross(i)= crossa(j)
+       End do
+       twofold%ntwo=ntwo
+       twofold%tol=tol
+       
+       return
     End Subroutine Get_Two_Fold_Axes
 
     !!----
@@ -1859,377 +1881,433 @@
        return
     End Subroutine Init_Err_Crys
 
+    !!----
+    !!---- Subroutine Niggli_Cell(XXX,Niggli_Point,Celln,Trans)
+    !!----   XXX is one of:
+    !!----   real(kind=cp),dimension(6),              intent(in out) :: Ad             ! Cell Parameters
+    !!----   or
+    !!----   real(kind=cp),dimension(2,3),            intent(in out) :: N_Mat          ! Niggli Matrix
+    !!----   or
+    !!----   real(kind=cp)                            intent(in out) :: A, B, C, Alfa, Beta, Gamma
+    !!----   or
+    !!----   type(Crystal_Cell_Type),                 intent(in out ):: cell
+    !!----   or
+    !!----   real(kind=cp),dimension(3),              intent(in)     :: A,B,C         ! 3 vectors
+    !!----   real(kind=cp),dimension(5), optional,    intent(out)    :: Niggli_Point
+    !!----   type(Crystal_Cell_Type),optional,        intent(out)    :: Celln
+    !!----   real(kind=cp), dimension(3,3), optional, intent(out)    :: Trans
+    !!----
+    !!----    Calculates the Niggli cell 
+    !!----
+    !!---- Update: October - 2008
+    !!
+
     !!--++
-    !!--++ Subroutine Niggli_Cell_abc(ad,Niggli_Point,celln,trans)
-    !!--++   real,dimension(6),                intent(in out) :: ad
-    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
-    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
-    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++ Subroutine Niggli_Cell_ABC(Ad,Niggli_Point,Celln,Trans)
+    !!--++    real(kind=cp),dimension(6),              intent(in out) :: Ad
+    !!--++    real(kind=cp),dimension(5), optional,    intent(out)    :: Niggli_Point
+    !!--++    type(Crystal_Cell_Type),optional,        intent(out)    :: celln
+    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)    :: trans
     !!--++
-    !!--++
-    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the list of cell parameters
-    !!--++    provided as a 6D vector.
-    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++    provided as a 6D vector. Calls the subroutine Niggli_Cell_Nigglimat for 
+    !!--++    the effective calculations
     !!--++
     !!--++ Update: October - 2008
     !!
+    Subroutine Niggli_Cell_ABC(Ad,Niggli_Point,Celln,Trans)    !Scalar algorithm
+       !---- Arguments ----!
+       real(kind=cp),dimension(6),              intent(in out) :: ad
+       real(kind=cp),dimension(5), optional,    intent(out)    :: Niggli_Point
+       type(Crystal_Cell_Type),optional,        intent(out)    :: celln
+       real(kind=cp), dimension(3,3), optional, intent(out)    :: trans
 
-    Subroutine Niggli_Cell_abc(ad,Niggli_Point,celln,trans)    !Scalar algorithm
-      real,dimension(6),                intent(in out) :: ad
-      real,dimension(5),      optional, intent(out)    :: Niggli_Point
-      type(Crystal_Cell_Type),optional, intent(out)    :: celln
-      real, dimension(3,3),   optional, intent(out)    :: trans
-      !--- Local variables ---!
-      real, dimension(2,3)    :: n_mat
-      type(Crystal_Cell_Type) :: celda
+       !---- Local variables ----!
+       real(kind=cp), dimension(2,3)    :: n_mat
+       type(Crystal_Cell_Type)          :: celda
 
-      n_mat(1,1)=ad(1)*ad(1); n_mat(1,2)=ad(2)*ad(2); n_mat(1,3)=ad(3)*ad(3)
-      n_mat(2,1)=ad(2)*ad(3)*cosd(ad(4))
-      n_mat(2,2)=ad(1)*ad(3)*cosd(ad(5))
-      n_mat(2,3)=ad(1)*ad(2)*cosd(ad(6))
-      if(present(Niggli_Point)) then
-         if (present(trans)) then
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
-         else
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
-         end if
-      else if(present(trans)) then
-        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
-      else
-        call Niggli_Cell_nigglimat(n_mat,celln=celda)
-      end if
-      if(Err_Crys) return
-      if(present(celln)) celln=celda
+       n_mat(1,1)=ad(1)*ad(1)
+       n_mat(1,2)=ad(2)*ad(2)
+       n_mat(1,3)=ad(3)*ad(3)
+       n_mat(2,1)=ad(2)*ad(3)*cosd(ad(4))
+       n_mat(2,2)=ad(1)*ad(3)*cosd(ad(5))
+       n_mat(2,3)=ad(1)*ad(2)*cosd(ad(6))
+       
+       if (present(Niggli_Point)) then
+          if (present(trans)) then
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+          else
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+          end if
+       else if(present(trans)) then
+          call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+       else
+          call Niggli_Cell_nigglimat(n_mat,celln=celda)
+       end if
 
-      !Reconstruct the new cell (Niggli Cell)
-      ad(1) = sqrt(n_mat(1,1));  ad(2) = sqrt(n_mat(1,2)); ad(3) = sqrt(n_mat(1,3))
-      ad(4) = acosd(n_mat(2,1)/(ad(2)*ad(3)))
-      ad(5) = acosd(n_mat(2,2)/(ad(1)*ad(3)))
-      ad(6) = acosd(n_mat(2,1)/(ad(1)*ad(2)))
-      return
+       if (Err_Crys) return
+       if (present(celln)) celln=celda
+
+       !Reconstruct the new cell (Niggli Cell)
+       ad(1) = sqrt(n_mat(1,1))
+       ad(2) = sqrt(n_mat(1,2))
+       ad(3) = sqrt(n_mat(1,3))
+       ad(4) = acosd(n_mat(2,1)/(ad(2)*ad(3)))
+       ad(5) = acosd(n_mat(2,2)/(ad(1)*ad(3)))
+       ad(6) = acosd(n_mat(2,1)/(ad(1)*ad(2)))
+
+       return
     End Subroutine Niggli_Cell_abc
 
     !!--++
-    !!--++ Subroutine Niggli_Cell_Nigglimat(n_mat,Niggli_Point,celln,trans)    !Scalar algorithm
-    !!--++   real,dimension(2,3),              intent(in out) :: n_mat
-    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
-    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
-    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++ Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Celln,Trans)    !Scalar algorithm
+    !!--++    real(kind=cp),dimension(2,3),              intent(in out) :: n_mat
+    !!--++    real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+    !!--++    type(Crystal_Cell_Type), optional,         intent(out)    :: celln
+    !!--++    real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
     !!--++
-    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the Niggli Matrix (part of the metrics)
     !!--++    Applies the scalar algorithm of I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
     !!--++
     !!--++ Update: October - 2008
     !!
-    Subroutine Niggli_Cell_Nigglimat(n_mat,Niggli_Point,celln,trans)    !Scalar algorithm
-      real,dimension(2,3),              intent(in out) :: n_mat
-      real,dimension(5),      optional, intent(out)    :: Niggli_Point
-      type(Crystal_Cell_Type),optional, intent(out)    :: celln
-      real, dimension(3,3),   optional, intent(out)    :: trans
-      !--- Local variables ---!
-      real :: A,B,C,u,v,w,eps
-      real, dimension(3,3) :: trm,aux
-      real, dimension(3)   :: cel,ang
-      integer :: iu,iv,iw, ncount !ncount is the counter no more that Numiter=100 iterations are permitted
-                                  !In case of exhausting the iteration Err_Crys=.true. but the current cell
-                                  !is output anyway
-      real,parameter :: epr=0.0001     !Relative epsilon
-      integer, parameter :: numiter=100
-      logical :: ok
-      ! N is a Niggli cell of L if  (i) it is as Buerger cell of L and
-      !                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
-      !                  / a.a  b.b  c.c \       /  s11  s22  s33 \
-      !   Niggli matrix  |               |   =   |                |
-      !                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
-      !
-      ! I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
-      ! Krivy-Gruber algorithms safely implemented (suggestion of Ralf Grosse-Kunsleve)
-      ! R.W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta Cryst A60, 1-6 (2004)
-      ! Epsilon: e
-      !    x < y -> x < y-e;    x > y -> y < x-e
-      !   x <= y -> .not. y < x-e;   x >= y -> .not. x < y-e
-      !   x == y -> .not. (x < y-e .or. y < x-e)
-      !
-      A=n_mat(1,1); B=n_mat(1,2); C=n_mat(1,3)
-      u=2.0*n_mat(2,1); v=2.0*n_mat(2,2); w=2.0*n_mat(2,3)
-      eps=epr*(A*B*C)**(1.0/6.0)
-      trm=identity
-      ncount=0
-      ok=.true.
-      do
-
-         ncount=ncount+1
-         if(ncount > numiter) then
-           ok=.false.
-           exit
-         end if
-        !if(A > B .or. ( A == B  .and. abs(u) > abs(v)) ) then  ! A1
-         if(B < A-eps .or. ( .not.( A < B-eps .or. B < A-eps)  .and. abs(v) < abs(u)-eps ) ) then  ! A1
-           call swap(A,B)
-           call swap(u,v)
-           aux=reshape ((/  0.0,1.0,0.0, 1.0,0.0,0.0, 0.0,0.0,1.0/),(/3,3/))
-           trm=matmul(aux,trm)
-         end if
-        !if(B > C .or. ( B == C .and. abs(v) > abs(w)) ) then  ! A2
-         if(C < B-eps .or. ( .not.( C < B-eps .or. B < C-eps) .and. abs(w) < abs(v)-eps) ) then  ! A2
-           call swap(B,C)
-           call swap(v,w)
-           aux=reshape ((/1.0,0.0,0.0, 0.0,0.0,1.0,  0.0,1.0,0.0/),(/3,3/))
-           trm=matmul(aux,trm)
-           cycle
-         end if
-
-        !if (u*v*w > 0.0) then                                 ! A3
-         iu=1; iv=1; iw=1
-         if( u < -eps) iu=-1
-         if( v < -eps) iv=-1
-         if( w < -eps) iw=-1
-         aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
-         if(abs(u) < eps) iu=0
-         if(abs(v) < eps) iv=0
-         if(abs(w) < eps) iw=0
-         if (iu*iv*iw > 0) then                                 ! A3
-           u=abs(u)
-           v=abs(v)
-           w=abs(w)
-           trm=matmul(aux,trm)
-         else                                                   !A4
-           u=-abs(u)
-           v=-abs(v)
-           w=-abs(w)
-           aux=-aux
-           trm=matmul(aux,trm)
-         end if
-
-        !if( abs(u) > B .or. ( u == B .and. 2.0*v < w) .or. ( u == -B .and. w < 0.0)) then  ! A5
-         if( B < abs(u)-eps  .or. ( .not.(u < B-eps .or. B < u-eps) .and. 2.0*v < w-eps) .or. &
-           ( .not.(u < -B-eps .or. -B < u-eps) .and. w < -eps)) then  ! A5
-            iu=1; if( u < -eps) iu=-1
-            C = B+C - u * iu
-            v =  v  - w * iu
-            u = u - 2.0*B*iu
-            aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 0.0,-real(iu),1.0/),(/3,3/))
-            trm=matmul(aux,trm)
-            cycle
-         end if
-        !if( abs(v) > A .or. ( v == A .and. 2.0*u < w) .or. ( v == -A .and. w < 0.0)) then  ! A6
-         if( A < abs(v)-eps .or. (.not. (v < A-eps .or. A < v-eps) .and. 2.0*u < w-eps) .or. &
-           ( .not.( v < -A-eps .or. -A < v-eps) .and. w < -eps)) then  ! A6
-            iv=1; if( v < -eps) iv=-1
-            C = A+C - v * iv
-            u =  u  - w * iv
-            v = v - 2.0*A*iv
-            aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
-            trm=matmul(aux,trm)
-            cycle
-         end if
-        !if( abs(w) > A .or. ( w == A .and. 2.0*u < v) .or. ( w == -A .and. v < 0.0)) then  ! A7
-         if( A < abs(w)-eps .or. ( .not. (w < A-eps .or. A < w-eps) .and. 2.0*u < v-eps) .or. &
-           ( .not. (w < -A-eps .or. -A < w-eps) .and. v < -eps)) then  ! A7
-            iw=1; if( w < -eps) iw=-1
-            B = A+B - w * iw
-            u =  u  - v * iw
-            w = w - 2.0*A*iw
-            aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
-            trm=matmul(aux,trm)
-            cycle
-         end if
-
-        !if(u+v+w+A+B < 0.0 .or. (u+v+w+A+B == 0.0 .and. 2.0*(A+v)+w > 0.0 )) then  ! A8
-         if(u+v+w+A+B < -eps .or. ( abs(u+v+w+A+B) < eps .and. 2.0*(A+v)+w > eps )) then  ! A8
-           C=A+B+C+u+v+w
-           u=2.0*B+u+w
-           v=2.0*A+v+w
-           aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 1.0,1.0,1.0/),(/3,3/))
-           trm=matmul(aux,trm)
-           cycle
-         end if
-         exit
-      end do
-
-      !Reconstruct the new Niggli matrix
-      n_mat(1,1)=A; n_mat(1,2)=B; n_mat(1,3)=C
-      n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
-      if(present(trans)) trans=trm
-
-      if(.not. ok) Then
-       Err_Crys=.true.
-       ERR_Crys_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
+    Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Celln,Trans)    !Scalar algorithm
+       !---- Arguments ----! 
+       real(kind=cp),dimension(2,3),              intent(in out) :: n_mat
+       real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+       type(Crystal_Cell_Type),         optional, intent(out)    :: celln
+       real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
+      
+       !--- Local variables ---!
+       real(kind=cp)                 :: A,B,C,u,v,w,eps
+       real(kind=cp), dimension(3,3) :: trm,aux
+       real(kind=cp), dimension(3)   :: cel,ang
+       integer                       :: iu,iv,iw, ncount ! ncount is the counter no more that Numiter=100 
+                                                         ! iterations are permitted. In case of exhausting 
+                                                         ! the iteration Err_Crys=.true. but the current 
+                                                         ! cell is output anyway
+       real(kind=cp),parameter        :: epr=0.0001      !Relative epsilon
+       integer, parameter             :: numiter=100
+       logical                        :: ok
+       
+       ! N is a Niggli cell of L if  (i) it is as Buerger cell of L and
+       !                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
+       !                  / a.a  b.b  c.c \       /  s11  s22  s33 \
+       !   Niggli matrix  |               |   =   |                |
+       !                  \ b.c  a.c  a.b /       \  s23  s13  s12 /
+       !
+       ! I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
+       ! Krivy-Gruber algorithms safely implemented (suggestion of Ralf Grosse-Kunsleve)
+       ! R.W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta Cryst A60, 1-6 (2004)
+       ! Epsilon: e
+       !    x < y -> x < y-e;    x > y -> y < x-e
+       !   x <= y -> .not. y < x-e;   x >= y -> .not. x < y-e
+       !   x == y -> .not. (x < y-e .or. y < x-e)
+       !
+       A=n_mat(1,1)
+       B=n_mat(1,2)
+       C=n_mat(1,3)
+       u=2.0*n_mat(2,1)
+       v=2.0*n_mat(2,2)
+       w=2.0*n_mat(2,3)
+       eps=epr*(A*B*C)**(1.0/6.0)
+       trm=identity
+       ncount=0
+       ok=.true.
+       
+       do
+          ncount=ncount+1
+          if (ncount > numiter) then
+             ok=.false.
+             exit
+          end if
+          
+          !---- if(A > B .or. ( A == B  .and. abs(u) > abs(v)) ) then  ! A1
+          if (B < A-eps .or. ( .not.( A < B-eps .or. B < A-eps)  .and. abs(v) < abs(u)-eps ) ) then  ! A1
+             call swap(A,B)
+             call swap(u,v)
+             aux=reshape ((/  0.0,1.0,0.0, 1.0,0.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+             trm=matmul(aux,trm)
+          end if
+         
+          !---- if(B > C .or. ( B == C .and. abs(v) > abs(w)) ) then  ! A2
+          if (C < B-eps .or. ( .not.( C < B-eps .or. B < C-eps) .and. abs(w) < abs(v)-eps) ) then  ! A2
+             call swap(B,C)
+             call swap(v,w)
+             aux=reshape ((/1.0,0.0,0.0, 0.0,0.0,1.0,  0.0,1.0,0.0/),(/3,3/))
+             trm=matmul(aux,trm)
+             cycle
+          end if
+       
+          !---- if (u*v*w > 0.0) then                                 ! A3
+          iu=1; iv=1; iw=1
+          if ( u < -eps) iu=-1
+          if ( v < -eps) iv=-1
+          if ( w < -eps) iw=-1
+          aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
+          if (abs(u) < eps) iu=0
+          if (abs(v) < eps) iv=0
+          if (abs(w) < eps) iw=0
+          if (iu*iv*iw > 0) then                                      ! A3
+             u=abs(u)
+             v=abs(v)
+             w=abs(w)
+             trm=matmul(aux,trm)
+          else                                                        ! A4
+             u=-abs(u)
+             v=-abs(v)
+             w=-abs(w)
+             aux=-aux
+             trm=matmul(aux,trm)
+          end if
+       
+          !---- if( abs(u) > B .or. ( u == B .and. 2.0*v < w) .or. ( u == -B .and. w < 0.0)) then  ! A5
+          if ( B < abs(u)-eps  .or. ( .not.(u < B-eps .or. B < u-eps) .and. 2.0*v < w-eps) .or. &
+             ( .not.(u < -B-eps .or. -B < u-eps) .and. w < -eps)) then  ! A5
+             iu=1; if( u < -eps) iu=-1
+             C = B+C - u * iu
+             v =  v  - w * iu
+             u = u - 2.0*B*iu
+             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 0.0,-real(iu),1.0/),(/3,3/))
+             trm=matmul(aux,trm)
+             cycle
+          end if
+         
+          !---- if( abs(v) > A .or. ( v == A .and. 2.0*u < w) .or. ( v == -A .and. w < 0.0)) then  ! A6
+          if ( A < abs(v)-eps .or. (.not. (v < A-eps .or. A < v-eps) .and. 2.0*u < w-eps) .or. &
+             ( .not.( v < -A-eps .or. -A < v-eps) .and. w < -eps)) then  ! A6
+             iv=1; if( v < -eps) iv=-1
+             C = A+C - v * iv
+             u =  u  - w * iv
+             v = v - 2.0*A*iv
+             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
+             trm=matmul(aux,trm)
+             cycle
+          end if
+         
+          !---- if( abs(w) > A .or. ( w == A .and. 2.0*u < v) .or. ( w == -A .and. v < 0.0)) then  ! A7
+          if ( A < abs(w)-eps .or. ( .not. (w < A-eps .or. A < w-eps) .and. 2.0*u < v-eps) .or. &
+             ( .not. (w < -A-eps .or. -A < w-eps) .and. v < -eps)) then  ! A7
+             iw=1; if( w < -eps) iw=-1
+             B = A+B - w * iw
+             u =  u  - v * iw
+             w = w - 2.0*A*iw
+             aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+             trm=matmul(aux,trm)
+             cycle
+          end if
+       
+          !---- if(u+v+w+A+B < 0.0 .or. (u+v+w+A+B == 0.0 .and. 2.0*(A+v)+w > 0.0 )) then  ! A8
+          if (u+v+w+A+B < -eps .or. ( abs(u+v+w+A+B) < eps .and. 2.0*(A+v)+w > eps )) then  ! A8
+             C=A+B+C+u+v+w
+             u=2.0*B+u+w
+             v=2.0*A+v+w
+             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 1.0,1.0,1.0/),(/3,3/))
+             trm=matmul(aux,trm)
+             cycle
+          end if
+          exit
+       end do
+       
+       !---- Reconstruct the new Niggli matrix
+       n_mat(1,1)=A; n_mat(1,2)=B; n_mat(1,3)=C
+       n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
+       if (present(trans)) trans=trm
+       
+       if (.not. ok) Then
+          Err_Crys=.true.
+          ERR_Crys_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
+          return
+       end if
+       
+       if (present(Niggli_point)) then
+          Niggli_point(1)= A/C
+          Niggli_point(2)= B/C
+          Niggli_point(3)= u/C
+          Niggli_point(4)= v/C
+          Niggli_point(5)= w/C
+       end if
+       
+       if (present(celln)) then
+          !Reconstruct the new cell (Niggli Cell)
+          cel(1) = sqrt(A)
+          cel(2) = sqrt(B)
+          cel(3) = sqrt(C)
+          ang(1) = acosd(u/(cel(2)*cel(3)*2.0))
+          ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
+          ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
+          call Set_Crystal_Cell(cel,ang, Celln)
+       end if
+      
        return
-      end if
-      if(present(Niggli_point)) then
-        Niggli_point(1)= A/C
-        Niggli_point(2)= B/C
-        Niggli_point(3)= u/C
-        Niggli_point(4)= v/C
-        Niggli_point(5)= w/C
-      end if
-      if(present(celln)) then
-        !Reconstruct the new cell (Niggli Cell)
-        cel(1) = sqrt(A);  cel(2) = sqrt(B); cel(3) = sqrt(C)
-        ang(1) = acosd(u/(cel(2)*cel(3)*2.0))
-        ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
-        ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
-        call Set_Crystal_Cell(cel,ang, Celln)
-      end if
-      return
     End Subroutine Niggli_Cell_nigglimat
 
     !!--++
-    !!--++ Subroutine Niggli_Cell_Params(a,b,c,al,be,ga,Niggli_Point,celln,trans)
-    !!--++   real,                             intent (in out)  :: a,b,c,al,be,ga
-    !!--++   real,dimension(5),      optional, intent(out)      :: Niggli_Point
-    !!--++   type(Crystal_Cell_Type),optional, intent(out)      :: celln
-    !!--++   real, dimension(3,3),   optional, intent(out)      :: trans
+    !!--++ Subroutine Niggli_Cell_Params(A,B,C,Al,Be,Ga,Niggli_Point,Celln,Trans)
+    !!--++    real(kind=cp),                           intent (in out)  :: a,b,c,al,be,ga
+    !!--++    real(kind=cp),dimension(5), optional,    intent(out)      :: Niggli_Point
+    !!--++    type(Crystal_Cell_Type),optional,        intent(out)      :: celln
+    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)      :: trans
     !!--++
-    !!--++
-    !!--++    (PRIVATE, Overloads Niggli_Cell)
-    !!--++    Calculates the Niggli cell when the input is the list of cell parameters
-    !!--++    provided as six scalars.
-    !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
+    !!--++    (OVERLOAD)
+    !!--++     Calculates the Niggli cell when the input is the list of cell parameters
+    !!--++     provided as six scalars.
+    !!--++     Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!--++
     !!--++ Update: October - 2008
     !!
-    Subroutine Niggli_Cell_Params(a,b,c,al,be,ga,Niggli_Point,celln,trans)
-      real,                             intent (in out)  :: a,b,c,al,be,ga
-      real,dimension(5),      optional, intent(out)      :: Niggli_Point
-      type(Crystal_Cell_Type),optional, intent(out)      :: celln
-      real, dimension(3,3),   optional, intent(out)      :: trans
-      !--- Local variables ---!
-      type(Crystal_Cell_Type) :: celda
-      real, dimension(2,3)    :: n_mat
-      call Init_Err_Crys()
-      if( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
-        Err_Crys=.true.
-        ERR_Crys_Mess=" The provided angles cannot set a unit cell!"
-        return
-      end if
-      Call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
-      if(Err_Crys) return
+    Subroutine Niggli_Cell_Params(A,B,C,Al,Be,Ga,Niggli_Point,Celln,Trans)
+       !---- Arguments ----!
+       real(kind=cp),                           intent (in out)  :: a,b,c,al,be,ga
+       real(kind=cp),dimension(5), optional,    intent(out)      :: Niggli_Point
+       type(Crystal_Cell_Type), optional,       intent(out)      :: celln
+       real(kind=cp), dimension(3,3), optional, intent(out)      :: trans
 
-      n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
-      n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
+       !--- Local variables ---!
+       type(Crystal_Cell_Type)          :: celda
+       real(kind=cp), dimension(2,3)    :: n_mat
+      
+      
+       call Init_Err_Crys()
+       if ( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
+          Err_Crys=.true.
+          ERR_Crys_Mess=" The provided angles cannot set a unit cell!"
+          return
+       end if
+      
+       call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
+       if (Err_Crys) return
 
-      if(present(Niggli_Point)) then
-         if (present(trans)) then
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
-         else
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
-         end if
-      else if(present(trans)) then
-        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
-      else
-        call Niggli_Cell_nigglimat(n_mat,celln=celda)
-      end if
-      if(Err_Crys) return
-      if(present(celln)) then
-         celln=celda
-      else
-         a=celda%cell(1); b=celda%cell(2); c=celda%cell(3)
-         al=celda%ang(1); be=celda%ang(2); ga=celda%ang(3)
-      end if
-      return
+       n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
+       n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
+
+       if (present(Niggli_Point)) then
+          if (present(trans)) then
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+          else
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+          end if
+       else if(present(trans)) then
+          call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+       else
+          call Niggli_Cell_nigglimat(n_mat,celln=celda)
+       end if
+       if (Err_Crys) return
+       
+       if (present(celln)) then
+          celln=celda
+       else
+           a=celda%cell(1); b=celda%cell(2); c=celda%cell(3)
+          al=celda%ang(1); be=celda%ang(2); ga=celda%ang(3)
+       end if
+       
+       return
     End Subroutine Niggli_Cell_Params
 
     !!--++
-    !!--++ Subroutine Niggli_Cell_Type(cell,Niggli_Point,celln,trans)
-    !!--++   type(Crystal_Cell_Type),          intent(in out ) :: cell
-    !!--++   real,dimension(5),      optional, intent(out)     :: Niggli_Point
-    !!--++   type(Crystal_Cell_Type),optional, intent(out)     :: celln
-    !!--++   real, dimension(3,3),   optional, intent(out)     :: trans
+    !!--++ Subroutine Niggli_Cell_Type(Cell,Niggli_Point,Celln,Trans)
+    !!--++    type(Crystal_Cell_Type),                 intent(in out ) :: cell
+    !!--++    real(kind=cp),dimension(5),    optional, intent(out)     :: Niggli_Point
+    !!--++    type(Crystal_Cell_Type),       optional, intent(out)     :: celln
+    !!--++    real(kind=cp), dimension(3,3), optional, intent(out)     :: trans
     !!--++
     !!--++
-    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is an object of type Crystal_Cell_Type
     !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!--++
     !!--++ Update: October - 2008
     !!
-    Subroutine Niggli_Cell_Type(cell,Niggli_Point,celln,trans)
-      type(Crystal_Cell_Type),          intent(in out ) :: cell
-      real,dimension(5),      optional, intent(out)     :: Niggli_Point
-      type(Crystal_Cell_Type),optional, intent(out)     :: celln
-      real, dimension(3,3),   optional, intent(out)     :: trans
-      !--- Local variables ---!
-      type(Crystal_Cell_Type) :: celda
-      real, dimension(2,3)    :: n_mat
+    Subroutine Niggli_Cell_Type(cEll,Niggli_Point,Celln,Trans)
+       !---- Arguments ----!
+       type(Crystal_Cell_Type),                 intent(in out ) :: cell
+       real(kind=cp),dimension(5),    optional, intent(out)     :: Niggli_Point
+       type(Crystal_Cell_Type),       optional, intent(out)     :: celln
+       real(kind=cp), dimension(3,3), optional, intent(out)     :: trans
+      
+       !--- Local variables ---!
+       type(Crystal_Cell_Type)         :: celda
+       real(kind=cp), dimension(2,3)   :: n_mat
 
-      call Init_Err_Crys()
-      celda=cell
-      n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
-      n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
+       call Init_Err_Crys()
+       celda=cell
+       n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
+       n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
 
-      if(present(Niggli_Point)) then
-         if (present(trans)) then
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
-         else
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
-         end if
-      else if(present(trans)) then
-        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
-      else
-        call Niggli_Cell_nigglimat(n_mat,celln=celda)
-      end if
-      if(Err_Crys) return
-      if(present(celln)) then
-        celln=celda
-      else
-        cell=celda
-      end if
-      return
+       if (present(Niggli_Point)) then
+          if (present(trans)) then
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+          else
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+          end if
+       else if(present(trans)) then
+          call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+       else
+          call Niggli_Cell_nigglimat(n_mat,celln=celda)
+       end if
+       if (Err_Crys) return
+      
+       if (present(celln)) then
+          celln=celda
+       else
+          cell=celda
+       end if
+       
+       return
     End Subroutine Niggli_Cell_Type
 
     !!--++
-    !!--++ Subroutine Niggli_Cell_Vect(a,b,c,Niggli_Point,celln,trans)
-    !!--++   real,dimension(3),                intent(in)     :: a,b,c
-    !!--++   real,dimension(5),      optional, intent(out)    :: Niggli_Point
-    !!--++   type(Crystal_Cell_Type),optional, intent(out)    :: celln
-    !!--++   real, dimension(3,3),   optional, intent(out)    :: trans
+    !!--++ Subroutine Niggli_Cell_Vect(A,B,C,Niggli_Point,Celln,Trans)
+    !!--++    real(kind=cp),dimension(3),                intent(in)     :: a,b,c
+    !!--++    real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+    !!--++    type(Crystal_Cell_Type),         optional, intent(out)    :: celln
+    !!--++    real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
     !!--++
-    !!--++
-    !!--++    (PRIVATE, Overloads Niggli_Cell)
+    !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is given as three vectors
     !!--++    in Cartesian components. A test of linear indenpendency is performed.
     !!--++    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!--++
     !!--++ Update: October - 2008
     !!
-    Subroutine Niggli_Cell_Vect(a,b,c,Niggli_Point,celln,trans)
-      real,dimension(3),                intent(in)     :: a,b,c
-      real,dimension(5),      optional, intent(out)    :: Niggli_Point
-      type(Crystal_Cell_Type),optional, intent(out)    :: celln
-      real, dimension(3,3),   optional, intent(out)    :: trans
-      !--- Local variables ---!
-      real, dimension(2,3)    :: n_mat
-      type(Crystal_Cell_Type) :: celda
-      real :: det
+    Subroutine Niggli_Cell_Vect(A,B,C,Niggli_Point,Celln,Trans)
+       !---- Arguments ----!
+       real(kind=cp),dimension(3),                intent(in)     :: a,b,c
+       real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
+       type(Crystal_Cell_Type),         optional, intent(out)    :: celln
+       real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
+      
+       !--- Local variables ---!
+       type(Crystal_Cell_Type)       :: celda
+       real(kind=cp), dimension(2,3) :: n_mat
+       real(kind=cp)                 :: det
 
-      det=determ_V(a,b,c)
-      if(abs(det) < 0.0001) then
-        Err_Crys=.true.
-        ERR_Crys_Mess=" The three input vectors are nor linearly independent!"
-        return
-      end if
-      n_mat(1,1)=dot_product(a,a); n_mat(1,2)=dot_product(b,b); n_mat(1,3)=dot_product(c,c)
-      n_mat(2,1)=dot_product(b,c); n_mat(2,2)=dot_product(a,c); n_mat(2,3)=dot_product(a,b)
+       det=determ_V(a,b,c)
+       if (abs(det) < 0.0001) then
+          Err_Crys=.true.
+          ERR_Crys_Mess=" The three input vectors are nor linearly independent!"
+          return
+       end if
+       n_mat(1,1)=dot_product(a,a); n_mat(1,2)=dot_product(b,b); n_mat(1,3)=dot_product(c,c)
+       n_mat(2,1)=dot_product(b,c); n_mat(2,2)=dot_product(a,c); n_mat(2,3)=dot_product(a,b)
 
-      if(present(Niggli_Point)) then
-         if (present(trans)) then
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
-         else
-           call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
-         end if
-      else if(present(trans)) then
-        call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
-      else
-        call Niggli_Cell_nigglimat(n_mat,celln=celda)
-      end if
-      if(Err_Crys) return
-      if(present(celln)) celln=celda
+       if (present(Niggli_Point)) then
+          if (present(trans)) then
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
+          else
+             call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda)
+          end if
+       else if(present(trans)) then
+          call Niggli_Cell_nigglimat(n_mat,celln=celda,trans=trans)
+       else
+          call Niggli_Cell_nigglimat(n_mat,celln=celda)
+       end if
+       if (Err_Crys) return
+       if (present(celln)) celln=celda
 
-      return
+       return
     End Subroutine Niggli_Cell_Vect
 
     !!--++
@@ -2246,7 +2324,6 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-
     Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in ) :: a,ang
@@ -2297,7 +2374,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Set_Crystal_Cell(cellv,angl,Celda,CarType,scell,sangl)
+    Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
        !---- Arguments ----!
        real(kind=cp), dimension (3),        intent(in ) :: cellv, angl
        Type (Crystal_Cell_Type),            intent(out) :: Celda
@@ -2310,11 +2387,11 @@
        call Init_Err_Crys()
 
        if (present(scell) .and. present(sangl)) then
-         Celda%cell_std=scell
-         Celda%ang_std=sangl
+          Celda%cell_std=scell
+          Celda%ang_std=sangl
        else
-         Celda%cell_std=0.0
-         Celda%ang_std=0.0
+          Celda%cell_std=0.0
+          Celda%ang_std=0.0
        end if
 
        Celda%cell=cellv
@@ -2355,7 +2432,7 @@
     Subroutine Write_Crystal_Cell(Celda,Lun)
        !---- Arguments ----!
        Type (Crystal_Cell_Type),  intent(in) :: Celda
-       Integer,intent(in) ,  optional        :: lun
+       Integer,optional,          intent(in) :: Lun
 
        !---- Local variables ----!
        integer            :: iunit
@@ -2380,11 +2457,13 @@
        do i=1,3
           Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%GD(i,j),j=1,3),"      ", (Celda%GR(i,j),j=1,3)
        end do
-       If(Celda%CartType == "A") then
-         Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
+       
+       if (Celda%CartType == "A") then
+          Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
        else
-         Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
+          Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
        end if
+       
        Write(unit=iunit,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
        Write(unit=iunit,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
        do i=1,3

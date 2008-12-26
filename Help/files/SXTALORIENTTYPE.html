@@ -63,13 +63,38 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-size: 12pt;
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts13
+{
+ color: #0000ff;
+}
+span.rvts14
+{
+ color: #ff0000;
+}
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -102,8 +127,87 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts10>SXTAL_ORIENT_TYPE</span></p>
+<p class=rvps2><span class=rvts15>SXTAL_ORIENT_TYPE</span></p>
 <p><br></p>
-<p class=rvps3><span class=rvts11>Copyleft © 2009, FullProf Suite Team</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330>
+<p><span class=rvts10><br></span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>Variable</span></p>
+</td>
+<td width=369>
+<p><span class=rvts11>Definition</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts12>TYPE</span><span class=rvts10> :: SXTAL_ORIENT_TYPE</span></p>
+</td>
+<td width=98><br>
+</td>
+<td width=369><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+</td>
+<td width=98>
+<p>WAVE</p>
+</td>
+<td width=369>
+<p>Wavelength</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>,<span class=rvts14>3</span>)</p>
+</td>
+<td width=98>
+<p>UB</p>
+</td>
+<td width=369>
+<p>UB matrix in Busing-Levy setting</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>,<span class=rvts14>3</span>)</p>
+</td>
+<td width=98>
+<p>UBINV</p>
+</td>
+<td width=369>
+<p>Inverse of UB-matrix</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP),<span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>,<span class=rvts14>3</span>)</p>
+</td>
+<td width=98>
+<p>CONV</p>
+</td>
+<td width=369>
+<p>Conversion matrix to the local setting</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts12>END TYPE</span><span class=rvts10> SXTAL_ORIENT_TYPE</span></p>
+</td>
+<td width=98><br>
+</td>
+<td width=369><br>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Definition for XTAL Orientation Parameters</p>
+<p><br></p>
+<p class=rvps3><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

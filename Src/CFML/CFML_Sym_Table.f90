@@ -67,7 +67,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_Constants,       only: Cp
+    Use CFML_Constants,        only: cp
     Use CFML_String_Utilities, only: U_Case
 
     !---- Variables ----!

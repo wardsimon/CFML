@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>ERR_MESS_SYMM</title>
+<html><head><title>CART_U_VECTOR</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,20 +70,14 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 12pt;
- font-weight: bold;
  color: #0000ff;
 }
 span.rvts12
 {
- font-size: 12pt;
- font-weight: bold;
  color: #ff0000;
 }
 span.rvts13
 {
- font-size: 12pt;
- font-weight: bold;
  color: #ff6600;
 }
 span.rvts14 /* Font Style */
@@ -121,14 +115,61 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ERRMESSSYMM.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CARTUVECTOR.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts14>ERR_MESS_SYMM</span></p>
-<p><span class=rvts11>CHARACTER</span><span class=rvts10> (</span><span class=rvts13>LEN</span><span class=rvts11>=</span><span class=rvts12>150</span><span class=rvts10>) :: ERR_MESS_SYMM</span></p>
+<p class=rvps2><span class=rvts14>CART_U_VECTOR</span></p>
+<p><span class=rvts10>REAL FUNCTION CART_U_VECTOR(CODE, V, CELDA)</span></p>
 <p><br></p>
-<p>This variable contains information about the last error occurred in the procedures belonging to this module</p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=274>
+<p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=<span class=rvts11>*</span>)</p>
+</td>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=56>
+<p>CODE</p>
+</td>
+<td width=319>
+<p>D: Direct</p>
+<p>R: Reciprocal</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
+</td>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=56>
+<p>V</p>
+</td>
+<td width=319>
+<p>Vector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274>
+<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+</td>
+<td width=101>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=56>
+<p>CELDA</p>
+</td>
+<td width=319>
+<p>Cell parameters</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Convert a vector in crystal space to unitary cartesian components. Return a real vector of DIMENSION(3)</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
