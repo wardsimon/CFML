@@ -37,7 +37,7 @@
 !!---- PROCEDURES
 !!----    Functions:
 !!----       EQUIV_ATM
-!!----       WRT_LAB       
+!!----       WRT_LAB        
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_ATOMS_CELL
@@ -380,7 +380,7 @@
     !!---- Logical Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
     !!----    character (len=*), intent (in) :: nam1       !  In -> Atom Nam1
     !!----    character (len=*), intent (in) :: nam2       !  In -> Atom Nam2
-    !!----    character (len=*), intent (in) :: nameAt     !  In -> String containing atom names
+    !!----    character (len=*), intent (in) :: NameAt     !  In -> String containing atom names
     !!----    logical                        :: equiv_atom !  Result .true. or .false.
     !!----
     !!----    Determine whether the atoms of names "nam1" and "nam2" are included in
@@ -391,7 +391,7 @@
     Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
        !---- Arguments ----!
        character (len=*), intent (in) :: nam1,nam2
-       character (len=*), intent (in) :: nameat
+       character (len=*), intent (in) :: NameAt
        logical                        :: equiv_atom
 
        !---- Local variables ----!
@@ -1194,11 +1194,16 @@
        real(kind=cp), dimension(3,3)  :: beta,eigen
        logical                        :: aniso
 
-       iunit=6
-       lv=0
-       if (present(lun)) iunit=lun
-       if (present(level)) lv=level
 
+       iunit=6
+       if (present(lun)) iunit=lun
+       if(ats%natoms == 0) then
+         write(unit=iunit,fmt="(/,a,/)") "  => No atoms provided!"
+         return
+       end if
+
+       lv=0
+       if (present(level)) lv=level
        write(unit=iunit,fmt="(/,a)")    "        Atoms information:"
        write(unit=iunit,fmt="(a,/)")    "        ------------------"
 
@@ -1322,6 +1327,11 @@
 
        iunit=6
        if (present(lun)) iunit=lun
+
+       if(ats%natoms == 0) then
+         write (unit=iunit,fmt="(a)") "!  No atoms ..."
+         return
+       end if
 
        write (unit=iunit,fmt="(a)") &
              "!     Atom   Type       x/a           y/b           z/c           Biso          Occ"
