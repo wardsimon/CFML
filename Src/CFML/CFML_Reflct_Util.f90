@@ -1223,8 +1223,8 @@
        logical                                  :: info
 
        !---- Local Variables ----!
-       integer                      :: i  
-       real(kind=cp), dimension(3)  :: k  
+       integer                      :: i
+       real(kind=cp), dimension(3)  :: k
        real(kind=cp)                :: r1,r2
 
        info=.false.
@@ -2757,17 +2757,20 @@
     End Subroutine Hkl_Gen
 
     !!----
-    !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
+    !!---- Subroutine  Hkl_Gen_Sxtal (Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!----    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!----    real(kind=cp),                     intent(in) :: stlmin,stlmax   !Minimum and Maximum SinTheta/Lambda
     !!----    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!----    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
     !!----    or
     !!----    Type (Reflection_List_Type),       intent(out):: Reflex          !List of generated hkl,mult, s
-    !!----    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
+    !!----    Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
+    !!----    Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
     !!----
-    !!----    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!----    Calculate all allowed reflections between a minimum and a maximum value of sin_theta/lambda.
+    !!----    If the limits of indices are provided in hlim, only the reflections verifying the prescription
+    !!----    are finally kept. hlim(:,1) and hlim(:,2) contain the minimum and maximum values respectively.
     !!----    The output is not ordered but the user can obtain the reflections generated
     !!----    in a particular way by providing the integer vector "ord", containing a permutation
     !!----    of the three numbers 1,2,3. By default the loop generating the hkl-indices uses
@@ -2778,16 +2781,19 @@
     !!
 
     !!--++
-    !!--++ Subroutine  Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
+    !!--++ Subroutine  Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!--++    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: stlmin,stlmax   !Minimum and Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: Reflex          !List of generated hkl,mult, s
-    !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
+    !!--++    Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
+    !!--++    Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!--++    Calculate all allowed reflections between a minimum and a maximum value of sin_theta/lambda.
+    !!--++    If the limits of indices are provided in hlim, only the reflections verifying the prescription
+    !!--++    are finally kept. hlim(:,1) and hlim(:,2) contain the minimum and maximum values respectively.
     !!--++    The reflections are stored in the array Reflex, with components of type: Reflect_Type
     !!--++    The output is not ordered but the user can obtain the reflections generated
     !!--++    in a particular way by providing the integer vector "ord", containing a permutation
@@ -2797,14 +2803,15 @@
     !!--++
     !!--++ Update: May - 2006
     !!
-    Subroutine Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
+    Subroutine Hkl_Gen_Sxtal_Reflection(Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
        !---- Arguments ----!
-       type (Crystal_Cell_Type),          intent(in)     :: crystalcell
-       type (Space_Group_Type) ,          intent(in)     :: spacegroup
-       real(kind=cp),                     intent(in)     :: stlmax
-       integer,                           intent(out)    :: num_ref
-       type (Reflect_Type), dimension(:), intent(out)    :: reflex
-       Integer, dimension(3), optional,   intent(in)     :: ord
+       type (Crystal_Cell_Type),          intent(in)  :: crystalcell
+       type (Space_Group_Type) ,          intent(in)  :: spacegroup
+       real(kind=cp),                     intent(in)  :: stlmin,stlmax
+       integer,                           intent(out) :: num_ref
+       type (Reflect_Type), dimension(:), intent(out) :: reflex
+       Integer, dimension(3),   optional, intent(in)  :: ord
+       Integer, dimension(3,2), optional, intent(in)  :: hlim
        !---- Local variables ----!
        real(kind=cp)         :: sval
        integer               :: h,k,l,hmax,kmax,lmax, maxref
@@ -2815,8 +2822,13 @@
        hmax=nint(CrystalCell%cell(1)*2.0*stlmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*stlmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*stlmax+1.0)
-       imin=(/-hmax,-kmax,-lmax/)
-       imax=(/ hmax, kmax, lmax/)
+       if(present(hlim)) then
+         imin=hlim(:,1)
+         imax=hlim(:,2)
+       else
+         imin=(/-hmax,-kmax,-lmax/)
+         imax=(/ hmax, kmax, lmax/)
+       end if
        od=(/3,2,1/)
        if(present(ord)) od=ord
 
@@ -2829,7 +2841,7 @@
                 hh(od(1))=l
                 if (hkl_equal(hh,nulo)) cycle
                 sval=hkl_s(hh,crystalcell)
-                if (sval > stlmax) cycle
+                if (sval > stlmax .or. sval < stlmin) cycle
                 if (hkl_absent(hh,Spacegroup)) cycle
                 num_ref=num_ref+1
                 if(num_ref > maxref) then
@@ -2847,16 +2859,19 @@
     End Subroutine Hkl_Gen_Sxtal_Reflection
 
     !!--++
-    !!--++ Subroutine  Hkl_Gen_Sxtal_list(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
+    !!--++ Subroutine  Hkl_Gen_Sxtal_list(Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell     !Unit cell object
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup      !Space Group object
-    !!--++    real(kind=cp),                     intent(in) :: stlmax          !Maximum SinTheta/Lambda
+    !!--++    real(kind=cp),                     intent(in) :: stlmin,stlmax   !Minimum and Maximum SinTheta/Lambda
     !!--++    Integer            ,               intent(out):: Num_Ref         !Number of generated reflections
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex          !Generated set of reflections
-    !!--++    Integer, dimension(3), optional,   intent(in) :: ord             !Order for loop of hkl-indices
+    !!--++    Integer, dimension(3),   optional, intent(in) :: ord             !Order for loop of hkl-indices
+    !!--++    Integer, dimension(3,2), optional, intent(in) :: hlim            !hkl-limits
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculate all allowed reflections up to a maximum value of sin_theta/lambda.
+    !!--++    Calculate all allowed reflections between a minimum and a maximum value of sin_theta/lambda.
+    !!--++    If the limits of indices are provided in hlim, only the reflections verifying the prescription
+    !!--++    are finally kept. hlim(:,1) and hlim(:,2) contain the minimum and maximum values respectively.
     !!--++    The reflections are stored in the scalar object Reflex of type: Reflection_List_Type
     !!--++    The output is not ordered but the user can obtain the reflections generated
     !!--++    in a particular way by providing the integer vector "ord", containing a permutation
@@ -2866,14 +2881,15 @@
     !!--++
     !!--++ Update: May - 2006
     !!
-    Subroutine Hkl_Gen_Sxtal_List(Crystalcell,Spacegroup,stlmax,Num_Ref,Reflex,ord)
+    Subroutine Hkl_Gen_Sxtal_List(Crystalcell,Spacegroup,stlmin,stlmax,Num_Ref,Reflex,ord,hlim)
        !---- Arguments ----!
-       type (Crystal_Cell_Type),            intent(in)     :: crystalcell
-       type (Space_Group_Type) ,            intent(in)     :: spacegroup
-       real(kind=cp),                       intent(in)     :: stlmax
-       integer,                             intent(out)    :: num_ref
-       Type(Reflection_List_Type),          intent(out)    :: reflex   !Ordered set of reflections
-       Integer, dimension(3), optional,     intent(in)     :: ord
+       type (Crystal_Cell_Type),          intent(in)  :: crystalcell
+       type (Space_Group_Type) ,          intent(in)  :: spacegroup
+       real(kind=cp),                     intent(in)  :: stlmin,stlmax
+       integer,                           intent(out) :: num_ref
+       Type(Reflection_List_Type),        intent(out) :: reflex   !Ordered set of reflections
+       Integer, dimension(3),   optional, intent(in)  :: ord
+       Integer, dimension(3,2), optional, intent(in)  :: hlim
 
        !---- Local variables ----!
        real(kind=cp)         :: sval
@@ -2886,8 +2902,13 @@
        hmax=nint(CrystalCell%cell(1)*2.0*stlmax+1.0)
        kmax=nint(CrystalCell%cell(2)*2.0*stlmax+1.0)
        lmax=nint(CrystalCell%cell(3)*2.0*stlmax+1.0)
-       imin=(/-hmax,-kmax,-lmax/)
-       imax=(/ hmax, kmax, lmax/)
+       if(present(hlim)) then
+         imin=hlim(:,1)
+         imax=hlim(:,2)
+       else
+         imin=(/-hmax,-kmax,-lmax/)
+         imax=(/ hmax, kmax, lmax/)
+       end if
        od=(/3,2,1/)
        if(present(ord)) od=ord
 
@@ -2904,7 +2925,7 @@
                 hh(od(1))=l
                 if (hkl_equal(hh,nulo)) cycle
                 sval=hkl_s(hh,crystalcell)
-                if (sval > stlmax) cycle
+                if (sval > stlmax .or. sval < stlmin) cycle
                 if (hkl_absent(hh,Spacegroup)) cycle
                 num_ref=num_ref+1
                 if(num_ref > maxref) then

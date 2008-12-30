@@ -20,7 +20,7 @@ rem
    lf95 -c  WCFGL_glpoly.f90      -mod .;c:\wint\lib.l95;..\..\Lahey\LibW >> out
    lf95 -c  WCFGL_poly_tree.f90   -mod .;c:\wint\lib.l95;..\..\Lahey\LibW >> out
    lf95 -c  WCFGL_display.f90     -mod .;c:\wint\lib.l95;..\..\Lahey\LibW >> out
-   lf95 -c  WCFGL_IO.f90  -mod .;c:\wint\lib.l95;..\..\Lahey\LibW >> out
+   lf95 -c  WCFGL_IO -nstchk -mod .;c:\wint\lib.l95;..\..\Lahey\LibW >> out
 rem
    echo **---- CrysFGL Library: Winteracter version ----**
 rem

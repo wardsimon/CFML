@@ -82,7 +82,6 @@ module WCFGL_IO
     call define_spacegroup("P 1")
     !-------End initialise parameters
 
-
     open(unit=1,file=trim(filename),status="old",iostat=ier)
 
     if (ier/=0) then
@@ -169,9 +168,6 @@ module WCFGL_IO
               ierror=.true.
             end if
           end if
-
-
-
 
           if(present(qview)) then
 
@@ -493,7 +489,6 @@ module WCFGL_IO
                    num_skp=num_skp+1
                    read(unit=line(is_skp+3:),fmt=*) kchoice, msymchoice, skreal_a, skreal_b,&
                                                         skreal_c, skim_a, skim_b, skim_c, phase
-
                    my_skj(:,num_skp)=(/CMPLX(skreal_a,skim_a),CMPLX(skreal_b,skim_b),CMPLX(skreal_c,skim_c)/)
                    my_phikj(num_skp)=phase
                    my_color(:,num_skp)=color
@@ -603,11 +598,10 @@ module WCFGL_IO
       call write_bond_list(1)
      ! MAGNETIC STRUCTURE
       call write_magnetic_structure(1)
-     ! POLYHEDRAS
+     ! POLYHEDRA
       call write_poly_list(1)
      ! CLOSE
       close(unit=1)
-
     return
 
   end subroutine write_fst_file
