@@ -92,13 +92,18 @@ span.rvts15
 {
  color: #ff0000;
 }
-span.rvts16 /* Font Style */
+span.rvts16
+{
+ font-size: 7pt;
+ vertical-align: super;
+}
+span.rvts17 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts17 /* Font Style */
+span.rvts18 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -131,7 +136,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts16>ATOMS_CELL_TYPE</span></p>
+<p class=rvps2><span class=rvts17>ATOMS_CELL_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -159,7 +164,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=188>
-<p>Nat</p>
+<p>NAT</p>
 </td>
 <td width=367>
 <p>Number of Atoms</p>
@@ -170,7 +175,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>10</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Noms</p>
+<p>NOMS</p>
 </td>
 <td width=367>
 <p>Name of Atoms</p>
@@ -178,21 +183,21 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Xyz</p>
+<p>XYZ</p>
 </td>
 <td width=367>
-<p>Fractional coordinates (3, Nat)</p>
+<p>Fractional coordinates (3, NAT)</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Charge</p>
+<p>CHARGE</p>
 </td>
 <td width=367>
 <p>&nbsp;&nbsp;&nbsp; </p>
@@ -200,10 +205,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Moment</p>
+<p>MOMENT</p>
 </td>
 <td width=367>
 <p>&nbsp;&nbsp;&nbsp; </p>
@@ -211,13 +216,13 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=341 height=14>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188 height=14>
-<p>VarF</p>
+<p>VARF</p>
 </td>
 <td width=367 height=14>
-<p>Free Parameters (10, Nat)</p>
+<p>Free Parameters (10, NAT)</p>
 </td>
 </tr>
 <tr valign=top>
@@ -225,10 +230,10 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Neighb</p>
+<p>NEIGHB</p>
 </td>
 <td width=367>
-<p>Number of neighbours (Nat)</p>
+<p>Number of neighbours (NAT)</p>
 </td>
 </tr>
 <tr valign=top>
@@ -236,32 +241,32 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Neighb_Atm</p>
+<p>NEIGHB_ATM</p>
 </td>
 <td width=367>
-<p>Ptr.-&gt;neighbour (# in list)(Nat,idp)</p>
+<p>Ptr.-&gt;neighbour (# in list)(NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Distance</p>
+<p>DISTANCE</p>
 </td>
 <td width=367>
-<p>Distances (Nat,idp)</p>
+<p>Distances (NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>Trans</p>
+<p>TRANS</p>
 </td>
 <td width=367>
-<p>Lattice translations&nbsp;&nbsp; (3,Nat,idp)</p>
+<p>Lattice translations&nbsp;&nbsp; (3,NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
@@ -269,7 +274,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=188>
-<p>NDist</p>
+<p>NDIST</p>
 </td>
 <td width=367>
 <p>Number of distinct distances</p>
@@ -277,13 +282,13 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>DDist</p>
+<p>DDIST</p>
 </td>
 <td width=367>
-<p>List of distinct distances(Nat*idp)</p>
+<p>List of distinct distances(NAT*IDP)</p>
 </td>
 </tr>
 <tr valign=top>
@@ -291,10 +296,10 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>8</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188>
-<p>DDLab</p>
+<p>DDLAB</p>
 </td>
 <td width=367>
-<p>Labels of atoms at ddist (Nat*idp)</p>
+<p>Labels of atoms at ddist (NAT*IDP)</p>
 </td>
 </tr>
 <tr valign=top>
@@ -310,6 +315,9 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
+<p>where IDP is an integer number calculated as:</p>
+<p><br></p>
+<p>nint( 0.74048*(DMAX/1.1)<span class=rvts16>3 </span>) where DMAX is the maximum distance used to calculate</p>
+<p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

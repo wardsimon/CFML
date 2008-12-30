@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>ATOM_LIST_TYPE</title>
+<html><head><title>WRITE_ATOM_LIST</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,27 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 12pt;
- font-style: italic;
- font-weight: bold;
-}
-span.rvts12
-{
- font-size: 12pt;
- font-weight: bold;
  color: #0000ff;
 }
-span.rvts13
-{
- color: #0000ff;
-}
-span.rvts14 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -119,70 +107,89 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ATOMLISTTYPE.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?WRITEATOMLIST.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts14>ATOM_LIST_TYPE</span></p>
+<p class=rvps2><span class=rvts12>WRITE_ATOM_LIST</span></p>
+<p><span class=rvts10>SUBROUTINE WRITE_ATOM_LIST (ATS, LEVEL, LUN, MULT, CELL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=341>
-<p><span class=rvts10><br></span></p>
+<td width=330>
+<p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE), <span class=rvts11>DIMENSION</span>(:)</p>
 </td>
-<td width=196>
-<p><span class=rvts11>Variable</span></p>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365>
-<p><span class=rvts11>Definition</span></p>
+<td width=98>
+<p>ATS</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=341>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOM_LIST_TYPE</span></p>
-</td>
-<td width=196><br>
-</td>
-<td width=365><br>
+<td width=369>
+<p>Atom list vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=196>
-<p>NATOMS</p>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365>
-<p>Number of Atoms in the List</p>
+<td width=98>
+<p>LEVEL</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; TYPE</span> (ATOM_TYPE), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
-</td>
-<td width=196>
-<p>ATOM</p>
-</td>
-<td width=365>
-<p>Atoms information</p>
+<td width=369>
+<p>Level of printed information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> ATOM_LIST_TYPE</span></p>
+<td width=330>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=196><br>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365><br>
+<td width=98>
+<p>LUN</p>
+</td>
+<td width=369>
+<p>Unit to write</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
+<p>MULT</p>
+</td>
+<td width=369>
+<p>Multiplicity of the general position</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98>
+<p>CELL</p>
+</td>
+<td width=369>
+<p>Transform to thermal parameters</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>&nbsp;&nbsp;&nbsp; </p>
+<p>Write the atoms in the asymmetric unit</p>
 <p>&nbsp;&nbsp; </p>
-<p> </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

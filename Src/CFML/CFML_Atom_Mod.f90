@@ -12,7 +12,7 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_Constants,                 only: Sp, Pi
+!!--++    Use CFML_Constants,                 only: Cp, Pi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
 !!--++    Use CFML_Math_3D,                   only: matrix_diageigen
 !!--++    Use CFML_String_Utilities,          only: setnum_std
@@ -37,7 +37,7 @@
 !!---- PROCEDURES
 !!----    Functions:
 !!----       EQUIV_ATM
-!!--++       WRT_LAB       [Private]
+!!----       WRT_LAB       
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_ATOMS_CELL
@@ -56,6 +56,7 @@
 !!----       MULTI
 !!----       WRITE_ATOM_LIST
 !!----       WRITE_ATOMS_CFL
+!!----       WRITE_CFL
 !!----
 !!
  Module CFML_Atom_TypeDef
@@ -376,10 +377,10 @@
     !---- Functions ----!
 
     !!----
-    !!---- Logical Function Equiv_Atm(Nam1,Nam2,Namea) Result(Equiv_Atom)
+    !!---- Logical Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
     !!----    character (len=*), intent (in) :: nam1       !  In -> Atom Nam1
     !!----    character (len=*), intent (in) :: nam2       !  In -> Atom Nam2
-    !!----    character (len=*), intent (in) :: name       !  In -> String containing atom names
+    !!----    character (len=*), intent (in) :: nameAt     !  In -> String containing atom names
     !!----    logical                        :: equiv_atom !  Result .true. or .false.
     !!----
     !!----    Determine whether the atoms of names "nam1" and "nam2" are included in
@@ -387,10 +388,10 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Equiv_Atm(Nam1,Nam2,Namea) Result(Equiv_Atom)
+    Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
        !---- Arguments ----!
        character (len=*), intent (in) :: nam1,nam2
-       character (len=*), intent (in) :: namea
+       character (len=*), intent (in) :: nameat
        logical                        :: equiv_atom
 
        !---- Local variables ----!
@@ -401,9 +402,9 @@
        i1=index(nam1,"_")-1
        i2=index(nam2,"_")-1
        if (i1 < 0 .or. i2 < 0 ) return
-       if (nam1(1:i1) == namea(1:i1) .and. nam2(1:i2) == namea(5:4+i2) ) then
+       if (nam1(1:i1) == nameat(1:i1) .and. nam2(1:i2) == nameat(5:4+i2) ) then
           equiv_atom = .true.
-       else if(nam1(1:i1) == namea(5:4+i1) .and. nam2(1:i2) == namea(1:i2) ) then
+       else if(nam1(1:i1) == nameat(5:4+i1) .and. nam2(1:i2) == nameat(1:i2) ) then
           equiv_atom = .true.
        end if
 

@@ -168,7 +168,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts15>LEN</span><span class=rvts14>=</span><span class=rvts16>10</span>)</p>
 </td>
 <td width=185>
-<p>Lab</p>
+<p>LAB</p>
 </td>
 <td width=369>
 <p>Label</p>
@@ -179,7 +179,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts15>LEN</span><span class=rvts14>=</span><span class=rvts16>2</span>)</p>
 </td>
 <td width=185>
-<p>ChemSymb </p>
+<p>CHEMSYMB </p>
 </td>
 <td width=369>
 <p>Chemical symbol</p>
@@ -190,7 +190,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts15>LEN</span><span class=rvts14>=</span><span class=rvts16>4</span>)</p>
 </td>
 <td width=185>
-<p>SfacSymb</p>
+<p>SFACSYMB</p>
 </td>
 <td width=369>
 <p>Chemical symbol for SF</p>
@@ -201,7 +201,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
 <td width=185>
-<p>Active</p>
+<p>ACTIVE</p>
 </td>
 <td width=369>
 <p>Control flag</p>
@@ -223,7 +223,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>Mult</p>
+<p>MULT</p>
 </td>
 <td width=369>
 <p>Multiplicity site</p>
@@ -231,7 +231,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
 </td>
 <td width=185>
 <p>X</p>
@@ -242,10 +242,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
 </td>
 <td width=185>
-<p>X_Std</p>
+<p>X_STD</p>
 </td>
 <td width=369>
 <p>Standard deviations of X</p>
@@ -253,7 +253,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>3</span>)</p>
 </td>
 <td width=185>
 <p>MX</p>
@@ -275,10 +275,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Occ</p>
+<p>OCC</p>
 </td>
 <td width=369>
 <p>Occupation factor</p>
@@ -286,21 +286,21 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Occ_Std</p>
+<p>OCC_STD</p>
 </td>
 <td width=369>
-<p>Standard deviation of Occ</p>
+<p>Standard deviation of OCC</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>MOcc</p>
+<p>MOCC</p>
 </td>
 <td width=369>
 <p>Multiplier</p>
@@ -311,18 +311,18 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>LOcc</p>
+<p>LOCC</p>
 </td>
 <td width=369>
-<p>Ordinal number of LSQ parameter for Occ</p>
+<p>Ordinal number of LSQ parameter for OCC</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>BIso</p>
+<p>BISO</p>
 </td>
 <td width=369>
 <p>Isotropic B-Factor</p>
@@ -330,10 +330,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>BIso_Std</p>
+<p>BISO_STD</p>
 </td>
 <td width=369>
 <p>Standard deviation of BISO</p>
@@ -341,10 +341,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>MBIso</p>
+<p>MBISO</p>
 </td>
 <td width=369>
 <p>Multiplier</p>
@@ -355,10 +355,10 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>LBIso</p>
+<p>LBISO</p>
 </td>
 <td width=369>
-<p>Ordinal number of LSQ parameter for Biso</p>
+<p>Ordinal number of LSQ parameter for BISO</p>
 </td>
 </tr>
 <tr valign=top>
@@ -366,7 +366,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts15>LEN</span><span class=rvts14>=</span><span class=rvts16>4</span>)</p>
 </td>
 <td width=185>
-<p>UType</p>
+<p>UTYPE</p>
 </td>
 <td width=369>
 <p>Values are:</p>
@@ -381,7 +381,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts15>LEN</span><span class=rvts14>=</span><span class=rvts16>5</span>)</p>
 </td>
 <td width=185>
-<p>ThType</p>
+<p>THTYPE</p>
 </td>
 <td width=369>
 <p>Values are:</p>
@@ -392,7 +392,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
 </td>
 <td width=185>
 <p>U</p>
@@ -403,10 +403,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
 </td>
 <td width=185>
-<p>U_Std</p>
+<p>U_STD</p>
 </td>
 <td width=369>
 <p>Standard deviations of U's</p>
@@ -414,10 +414,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Ueq</p>
+<p>UEQ</p>
 </td>
 <td width=369>
 <p>U equivalent </p>
@@ -425,7 +425,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>6</span>)</p>
 </td>
 <td width=185>
 <p>MU</p>
@@ -447,20 +447,20 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Charge</p>
+<p>CHARGE</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP)</p>
 </td>
 <td width=185>
-<p>Moment</p>
+<p>MOMEMT</p>
 </td>
 <td width=369><br>
 </td>
@@ -470,7 +470,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; INTEGER</span>, <span class=rvts14>DIMENSION</span>(<span class=rvts16>5</span>)</p>
 </td>
 <td width=185>
-<p>Ind</p>
+<p>IND</p>
 </td>
 <td width=369>
 <p>Index vector for different purposes</p>
@@ -481,7 +481,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>NVar</p>
+<p>NVAR</p>
 </td>
 <td width=369>
 <p>Number of additional free variables (used for different purposes)</p>
@@ -489,10 +489,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>SP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>10</span>)</p>
+<p><span class=rvts14>&nbsp;&nbsp; REAL</span> (<span class=rvts14>KIND=</span>CP), <span class=rvts14>DIMENSION</span>(<span class=rvts16>10</span>)</p>
 </td>
 <td width=185>
-<p>VarF</p>
+<p>VARF</p>
 </td>
 <td width=369>
 <p>Free variables</p>

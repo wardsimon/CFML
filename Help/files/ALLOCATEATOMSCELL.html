@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>ATOM_LIST_TYPE</title>
+<html><head><title>ALLOCATE_ATOMS_CELL</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,20 +70,19 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 12pt;
- font-style: italic;
- font-weight: bold;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-size: 12pt;
- font-weight: bold;
- color: #0000ff;
+ font-size: 7pt;
+ vertical-align: super;
 }
-span.rvts13
+a.rvts13, span.rvts13
 {
  color: #0000ff;
+ text-decoration: underline;
 }
+a.rvts13:hover { color: #0000ff; }
 span.rvts14 /* Font Style */
 {
  font-size: 16pt;
@@ -119,70 +118,83 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ATOMLISTTYPE.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ALLOCATEATOMSCELL.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts14>ATOM_LIST_TYPE</span></p>
+<p class=rvps2><span class=rvts14>ALLOCATE_ATOMS_CELL</span></p>
+<p><span class=rvts10>SUBROUTINE ALLOCATE_ATOMS_CELL (NASU, MUL, DMAX, AC)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=341>
-<p><span class=rvts10><br></span></p>
+<td width=330>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=196>
-<p><span class=rvts11>Variable</span></p>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365>
-<p><span class=rvts11>Definition</span></p>
+<td width=98>
+<p>NASU</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=341>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOM_LIST_TYPE</span></p>
-</td>
-<td width=196><br>
-</td>
-<td width=365><br>
+<td width=369>
+<p>Number of atoms in asymmetric unit</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330>
+<p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=196>
-<p>NATOMS</p>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365>
-<p>Number of Atoms in the List</p>
+<td width=98>
+<p>MUL</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; TYPE</span> (ATOM_TYPE), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
-</td>
-<td width=196>
-<p>ATOM</p>
-</td>
-<td width=365>
-<p>Atoms information</p>
+<td width=369>
+<p>General multiplicity of the Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> ATOM_LIST_TYPE</span></p>
+<td width=330>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=196><br>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=365><br>
+<td width=98>
+<p>DMAX</p>
+</td>
+<td width=369>
+<p>Maximun distance to be calculated</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330>
+<p><span class=rvts11>TYPE</span>(ATOMS_CELL_TYPE)</p>
+</td>
+<td width=98>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98>
+<p>AC</p>
+</td>
+<td width=369>
+<p>Object</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>&nbsp;&nbsp;&nbsp; </p>
+<p>Allocation of objet AC of type <a class=rvts13 href="ATOMSCELLTYPE.html">ATOMS_CELL_TYPE</a>. </p>
+<p><br></p>
+<p>AC contains components with ALLOCATABLE attribute with dimension depending on the input arguments NASU, MUL and DMAX. The variables used for calculating the dimensions are:</p>
+<p><br></p>
+<p>NATCEL = NASU * MUL</p>
+<p><br></p>
+<p>IDP=NINT( 0.74048 * (DMAX/1.1)<span class=rvts12>3</span> )</p>
+<p><br></p>
+<p>Note: This subroutine should be called before using the subroutines of this module with dummy arguments of type ATOMS_CELL_TYPE.</p>
 <p>&nbsp;&nbsp; </p>
-<p> </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>
