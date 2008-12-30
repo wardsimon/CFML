@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Magnetic Variables</title>
+<html><head><title>GET_LAUE_PG</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,19 +63,30 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-a.rvts10, span.rvts10
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
 {
  color: #0000ff;
- text-decoration: underline;
 }
-a.rvts10:hover { color: #0000ff; }
-span.rvts11 /* Font Style */
+span.rvts12
+{
+ color: #ff6600;
+}
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts12 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -104,15 +115,63 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?MagVarSymTab.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?GETLAUEPG.html"; }</script>
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts11>Magnetic Variables</span></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li><a class=rvts10 href="DEPMAT.html">DEPMAT</a></li>
-<li><a class=rvts10 href="MAGMAT.html">MAGMAT</a></li>
-</ul>
-<p class=rvps3><span class=rvts12>Copyleft © 2009, FullProf Suite Team</span></p>
+<p class=rvps2><span class=rvts14>GET_LAUE_PG</span></p>
+<p><span class=rvts10>SUBROUTINE GET_LAUE_PG (SPACEGROUP, LAUE_CAR, POINT_CAR)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+</td>
+<td width=81>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=100>
+<p>SPACEGROUP</p>
+</td>
+<td width=410>
+<p>Space Group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+</td>
+<td width=81>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=100>
+<p>LAUE_CAR</p>
+</td>
+<td width=410>
+<p>String with Laue symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285>
+<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+</td>
+<td width=81>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=100>
+<p>POINT_CAR</p>
+</td>
+<td width=410>
+<p>String with Point Group symbol</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Subroutine to get the information of Laue and Point Group. </p>
+<p><br></p>
+<p><span class=rvts13>Note</span>: Point group determination is only valid for conventional bases</p>
+<p>&nbsp;&nbsp;&nbsp; </p>
+<p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

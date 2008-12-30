@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>GET_SO_FROM_GENER</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ color: #ff0000;
+}
+span.rvts13
+{
+ color: #ff6600;
+}
+span.rvts14 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts15 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2
+{
+ text-align: right;
+}
+.rvps3 /* Paragraph Style */
+{
+ background: #0000ff;
+ margin: 0px 0px 20px 0px;
+}
+.rvps4 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?GETSOFROMGENER.html"; }</script>
+<meta name="generator" content="HelpNDoc Full"></head>
+<body>
+
+<p class=rvps3><span class=rvts14>GET_SO_FROM_GENER</span></p>
+<p><span class=rvts10>SUBROUTINE GET_SO_FROM_GENER (ISYSTM, ISYMCE, IBRAVL, NG, SS, TS, LATSY, CO, NUM_G, SPACEGEN)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>ISYSTM</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>Number of the crystalline system</p>
+<p>1:T, 2:M, 3:O, 4:T, 5:R-Trg, 6:H, 7:C)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>ISYMCE</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>0: Centric (-1 not at origin)</p>
+<p>1: Acentric</p>
+<p>2: Centric (-1 at origin)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>IBRAVL</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>1:P, 2:A, 3:B, 4:C, 5:I, 6:R, 7:F, 8:Z</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=83>
+<p>NG</p>
+</td>
+<td width=40>
+<p class=rvps2>IN:</p>
+<p class=rvps2>OUT:</p>
+</td>
+<td width=470>
+<p>Number of defined generators</p>
+<p>Number of symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(:,:,:)</p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=83>
+<p>SS</p>
+</td>
+<td width=40>
+<p class=rvps2>IN:</p>
+<p class=rvps2>OUT:</p>
+</td>
+<td width=470>
+<p>Rotation parts of the given generators&nbsp; (3,3,48)</p>
+<p>Rotation parts of the symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=83>
+<p>TS</p>
+</td>
+<td width=40>
+<p class=rvps2>IN:</p>
+<p class=rvps2>OUT:</p>
+</td>
+<td width=470>
+<p>Translation parts of the given generators&nbsp; (3,48)</p>
+<p> Translation parts of the symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=<span class=rvts12>2</span>)</p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>LATSY</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>Bravais Lattice symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(<span class=rvts12>3</span>)</p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>CO</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>Coordinates of origin</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>NUM_G</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>Minimum number of generators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231>
+<p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=<span class=rvts12>1</span>)</p>
+</td>
+<td width=96>
+<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=83>
+<p>SPACEGEN</p>
+</td>
+<td width=40>
+<p class=rvps2><br></p>
+</td>
+<td width=470>
+<p>Type of Cell</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Calculates the whole set of symmetry operators from a set of given generators.</p>
+<p>&nbsp;&nbsp;&nbsp; </p>
+<p class=rvps4><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
+
+</body></html>
