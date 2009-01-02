@@ -1123,7 +1123,7 @@
        real(kind=cp),            intent(in)   :: dmax, dangl
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
-       type (atom_list_type),    intent(in)   :: A
+       type (Atom_list_type),    intent(in)   :: A
        integer, optional,        intent(in)   :: lun
        integer, optional,        intent(in)   :: lun_cons
        integer, optional,        intent(in)   :: lun_cif
@@ -1833,11 +1833,11 @@
 
     !!----
     !!---- Subroutine Get_Transf_List(Trans,Ox,Pl,Npl,Ifail)
-    !!----   real,            dimension(3,3), intent(in) :: trans   !Matrix transforming the basis
-    !!----   real,            dimension(3  ), intent(in) :: ox      !Coordinates of origin of the new basis
-    !!----   type(point_list_type),           intent(in) :: pl      !Input List of points
-    !!----   type(point_list_type),       intent(in out) :: npl     !Output list of transformed points
-    !!----   integer,                         intent(out):: ifail   !If ifail/=0 matrix inversion failed
+    !!----   real(kind=cp), dimension(3,3), intent(in) :: trans   !Matrix transforming the basis
+    !!----   real(kind=cp), dimension(3  ), intent(in) :: ox      !Coordinates of origin of the new basis
+    !!----   type(point_list_type),         intent(in) :: pl      !Input List of points
+    !!----   type(point_list_type),         intent(in out) :: npl     !Output list of transformed points
+    !!----   integer,                       intent(out):: ifail   !If ifail/=0 matrix inversion failed
     !!----
     !!----  Subroutine to get the fractional coordinates of the points of the input list "pl" in the
     !!----  new transformed cell ( a'= trans a) displaced to the new origing "ox". The coordinates
@@ -1848,18 +1848,18 @@
     !!
     Subroutine Get_Transf_List(trans,ox,pl,npl,ifail)
        !---- Arguments ----!
-       real,            dimension(3,3), intent(in) :: trans
-       real,            dimension(3  ), intent(in) :: ox
-       type(point_list_type),           intent(in) :: pl
-       type(point_list_type),       intent(in out) :: npl
-       integer,                         intent(out):: ifail
+       real(kind=cp),         dimension(3,3), intent(in) :: trans
+       real(kind=cp),         dimension(3  ), intent(in) :: ox
+       type(point_list_type),                 intent(in) :: pl
+       type(point_list_type),                 intent(in out) :: npl
+       integer,                               intent(out):: ifail
 
        !---- local variables ----!
-       integer                 :: i,j,ia,ib,ic,nat,mm
-       integer, dimension(3)   :: mini,maxi
-       real,    dimension(7,3) :: vecpar
-       real,    dimension(3,3) :: si
-       real,    dimension(3  ) :: xx, xxn,v
+       integer                       :: i,j,ia,ib,ic,nat,mm
+       integer, dimension(3)         :: mini,maxi
+       real(kind=cp), dimension(7,3) :: vecpar
+       real(kind=cp), dimension(3,3) :: si
+       real(kind=cp), dimension(3  ) :: xx, xxn,v
 
        ifail=0
        call matrix_inverse(trans,si,ifail)
@@ -2200,8 +2200,8 @@
        type(point_list_type),  intent(in out) :: pl
 
        !--- Local variables ---!
-       integer               :: i,j,norb,nt
-       real,    dimension(3) :: x,xx,v
+       integer                     :: i,j,norb,nt
+       real(kind=cp), dimension(3) :: x,xx,v
 
        norb=0
        pl%p=0

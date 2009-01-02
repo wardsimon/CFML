@@ -35,7 +35,7 @@
  Module CFML_Propagation_Vectors
 
     !---- Use Modules ----!
-    Use CFML_Constants,                only: Cp, Eps
+    Use CFML_Constants,                 only: Cp, Eps
     Use CFML_Math_General,              only: Zbelong
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
     Use CFML_Reflections_Utilities,     only: Hkl_R, Hkl_Equal

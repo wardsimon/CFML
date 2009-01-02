@@ -151,7 +151,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>Natoms</p>
+<p>NATOMS</p>
 </td>
 <td width=369>
 <p>Number of atoms</p>
@@ -162,7 +162,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
 <td width=185>
-<p>Max_Coor</p>
+<p>MAX_COOR</p>
 </td>
 <td width=369>
 <p>Maximum number of connected atoms to a given one</p>
@@ -173,7 +173,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>Coord_Num</p>
+<p>COORD_NUM</p>
 </td>
 <td width=369>
 <p>Counter of distances connected to the current atom</p>
@@ -184,7 +184,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>N_CooAtm</p>
+<p>N_COOATM</p>
 </td>
 <td width=369>
 <p>Pointer to the ordinal number in the list of the attached atom to the atom given by the first index</p>
@@ -195,17 +195,18 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>N_Sym</p>
+<p>N_SYM</p>
 </td>
-<td width=369><br>
+<td width=369>
+<p>Number of symmetry operator to apply to N_COOATM</p>
 </td>
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>Dist</p>
+<p>DIST</p>
 </td>
 <td width=369>
 <p>List of distances related to an atom</p>
@@ -213,10 +214,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:,:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>S_Dist</p>
+<p>S_DIST</p>
 </td>
 <td width=369>
 <p>List of Sigma(distances)</p>
@@ -224,10 +225,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 <tr valign=top>
 <td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>SP),<span class=rvts13> DIMENSION</span>(:,:,:),<span class=rvts13> ALLOCATABLE</span></p>
+<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP),<span class=rvts13> DIMENSION</span>(:,:,:),<span class=rvts13> ALLOCATABLE</span></p>
 </td>
 <td width=185>
-<p>Tr_Coo</p>
+<p>TR_COO</p>
 </td>
 <td width=369><br>
 </td>

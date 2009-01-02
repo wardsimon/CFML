@@ -56,7 +56,7 @@
  Module CFML_Structure_Factors
 
     !---- Use Modules ----!
-    Use CFML_Constants,                  only: cp, tpi
+    Use CFML_Constants,                   only: cp, tpi
     Use CFML_Math_General,                only: atan2d
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables
@@ -332,11 +332,11 @@
     !!----    character(len=*),                   intent(in) :: mode !S-XTAL (S) or Powder (P)
     !!----    character(len=*),                   intent(in) :: rad  !Radiation: X-rays, Neutrons
     !!----    integer,                            intent(in) :: nn
-    !!----    real,                               intent(in) :: sn !(sinTheta/Lambda)**2
+    !!----    real(kind=cp)                       intent(in) :: sn !(sinTheta/Lambda)**2
     !!----    type(atom_list_type),               intent(in) :: Atm
     !!----    type(space_group_type),             intent(in) :: Grp
-    !!----    real,                               intent(out):: sf2
-    !!----    real,dimension(:),optional,         intent(out):: deriv
+    !!----    real(kind=cp)                       intent(out):: sf2
+    !!----    real(kind=cp),dimension(:),optional,intent(out):: deriv
     !!----    complex, optional,                  intent(out):: fc
     !!----
     !!----    Calculate Structure Factor for reflection "nn" in the list
@@ -349,11 +349,11 @@
        character(len=*),                   intent(in) :: mode
        character(len=*),                   intent(in) :: rad
        integer,                            intent(in) :: nn
-       real,                               intent(in) :: sn !(sinTheta/Lambda)**2
+       real(kind=cp),                      intent(in) :: sn !(sinTheta/Lambda)**2
        type(atom_list_type),               intent(in) :: Atm
        type(space_group_type),             intent(in) :: Grp
-       real,                               intent(out):: sf2
-       real,dimension(:),optional,         intent(out):: deriv
+       real(kind=cp),                      intent(out):: sf2
+       real(kind=cp),dimension(:),optional,intent(out):: deriv
        complex, optional,                  intent(out):: fc
 
        !---- Local Variables ----!

@@ -63,13 +63,19 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+a.rvts10, span.rvts10
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts10:hover { color: #0000ff; }
+span.rvts11 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -102,8 +108,13 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Full"></head>
 <body>
 
-<p class=rvps2><span class=rvts10>Polar_Module</span></p>
+<p class=rvps2><span class=rvts11>Polar_Module</span></p>
+<p>Subroutines and Functions to calculate the polarisation tensor as it will be measured. It uses matrices defined in CFML_Crystal_Metrics in order to calculate the polar tensor with respect to the coordinate frame defined in the Blume equations (Phys. Rev. Vol. 130 p.1670-1676,1963, see also the definitions below in magn_Inter_Vec_PF). As input the nuclear structure factor, the magnetic interaction vector with respect to the crystal frame and the matrices defined in CFML_Crystal_Metrics for the crystal frame are needed.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts11>Copyleft © 2009, FullProf Suite Team</span></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li><a class=rvts10 href="VarPolarMod.html">Variables</a></li>
+<li><a class=rvts10 href="SubPolarMod.html">Subroutines</a></li>
+</ul>
+<p class=rvps3><span class=rvts12>Copyleft © 2009, FullProf Suite Team</span></p>
 
 </body></html>

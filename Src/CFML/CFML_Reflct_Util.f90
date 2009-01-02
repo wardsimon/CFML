@@ -17,7 +17,7 @@
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!--++    Use CFML_String_Utilities,          only: l_case
 !!--++    Use CFML_Math_General,              only: sort,sp
-!!--++    Use CFML_Constants,                only: sp
+!!--++    Use CFML_Constants,                 only: sp
 !!----
 !!---- VARIABLES
 !!----    ERR_REFL
@@ -92,7 +92,7 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    Use CFML_Constants,                only: sp, cp, pi, eps  !Init Eps was 0.0001
+    Use CFML_Constants,                 only: sp, cp, pi, eps  !Init Eps was 0.0001
     Use CFML_Math_General,              only: sort
     Use CFML_String_Utilities,          only: l_case
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
@@ -165,7 +165,7 @@
 
     !!----
     !!---- HKL_REF_CONDITIONS
-    !!----    character(len=*), dimension(58), parameter, public :: Hkl_Ref_Conditions
+    !!----    character(len=*), dimension(58), public :: Hkl_Ref_Conditions
     !!----
     !!----    Reflection conditions for Lattices, glide planes, screw axes
     !!--..
@@ -2963,7 +2963,7 @@
 
 
     !!----
-    !!---- Subroutine  Hkl_Rp(H,Phase, Op,K, Phasen, Op)
+    !!---- Subroutine  Hkl_Rp(H,Phase, Op,K, Phasen)
     !!----    integer/real(kind=cp), dimension(3), intent(in)  :: h
     !!----    real(kind=cp),                       intent(in)  :: phase
     !!----    type (Sym_Oper_Type),                intent(in)  :: Op
@@ -3678,15 +3678,16 @@
        return
     End Subroutine Init_Ref_Cond
 
-    !!----
-    !!---- Subroutine Integral_Conditions(Spacegroup, iunit)
-    !!----    type (Space_Group_Type), intent(in) :: Spacegroup
-    !!----    integer,optional,        intent(in) :: iunit
-    !!----
-    !!----    Integral Conditions according with I.T. Table 2.2.13.1
-    !!----    space.
-    !!----
-    !!---- Update: May - 2005
+    !!--++
+    !!--++ Subroutine Integral_Conditions(Spacegroup, iunit)
+    !!--++    type (Space_Group_Type), intent(in) :: Spacegroup
+    !!--++    integer,optional,        intent(in) :: iunit
+    !!--++
+    !!--++    (PRIVATE)  
+    !!--++    Integral Conditions according with I.T. Table 2.2.13.1
+    !!--++    space.
+    !!--++
+    !!--++ Update: May - 2005
     !!
     Subroutine Integral_Conditions(Spacegroup,iunit)
        !---- Arguments ----!
@@ -3893,14 +3894,15 @@
        return
     End Subroutine Integral_Conditions
 
-    !!----
-    !!---- Subroutine Screw_Axis_Conditions(Spacegroup, iunit)
-    !!----    type (Space_Group_Type), intent(in) :: Spacegroup
-    !!----    integer,optional,        intent(in) :: iunit
-    !!----
-    !!----    Reflections conditions for Screw axes Table 2.2.13.2
-    !!----
-    !!---- Update: May - 2005
+    !!--++
+    !!--++ Subroutine Screw_Axis_Conditions(Spacegroup, iunit)
+    !!--++    type (Space_Group_Type), intent(in) :: Spacegroup
+    !!--++    integer,optional,        intent(in) :: iunit
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Reflections conditions for Screw axes Table 2.2.13.2
+    !!--++
+    !!--++ Update: May - 2005
     !!
     Subroutine Screw_Axis_Conditions(Spacegroup,Iunit)
        !---- Arguments ----!
@@ -4206,9 +4208,9 @@
        type (Space_Group_Type), intent(in)     :: spacegroup
        integer,                 intent(in)     :: Iunit
 
-       if(.not. hkl_ref_cond_ini) then
-         call init_ref_cond()
-         hkl_ref_cond_ini=.true.
+       if (.not. hkl_ref_cond_ini) then
+          call init_ref_cond()
+          hkl_ref_cond_ini=.true.
        end if
        call integral_conditions(spacegroup,iunit)
        call glide_planes_conditions(spacegroup,iunit)
