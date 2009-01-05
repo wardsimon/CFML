@@ -354,16 +354,6 @@
     !---- Definitions ----!
 
     !!----
-    !!---- ERR_MOLEC_MESS
-    !!----    character(len=150), public :: ERR_Molec_Mess
-    !!----
-    !!----    String containing information about the last error
-    !!----
-    !!---- Update: February - 2005
-    !!
-    character(len=150), public :: ERR_Molec_Mess
-
-    !!----
     !!---- ERR_MOLEC
     !!----    logical, public :: err_molec
     !!----
@@ -372,6 +362,16 @@
     !!---- Update: February - 2005
     !!
     logical, public          :: Err_Molec
+    
+    !!----
+    !!---- ERR_MOLEC_MESS
+    !!----    character(len=150), public :: ERR_Molec_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2005
+    !!
+    character(len=150), public :: ERR_Molec_Mess
 
     !!----
     !!----  TYPE :: MOLECULE_TYPE
@@ -1962,9 +1962,6 @@
     !!---- Subroutine Fractional_to_Zmatrix(Molecule,Cell,NewMolecule)
     !!----    type (Molecule_type), intent(in out)           :: Molecule
     !!----    type (Crystal_Cell_Type), intent(in)           :: Cell
-    !!----    real(kind=cp),            intent(in)           :: Phi
-    !!----    real(kind=cp),            intent(in)           :: Theta
-    !!----    real(kind=cp),            intent(in)           :: Chi
     !!----    type (Molecule_type), intent(   out), optional :: Newmolecule
     !!----
     !!----    Subroutine to transform the internal coordinates of a
@@ -2555,9 +2552,9 @@
 
     !!----
     !!---- Subroutine Read_Free_Atoms(Lun,AtmF,N)
-    !!----    integer,                            intent(in)   :: Lun        ! Logical unit to be rad
-    !!----    type(Free_Atom_Type), dimension(:), intent(out)  :: AtmF       ! Free atoms
-    !!----    integer,                            intent(out)  :: N          ! Free atoms read
+    !!----    integer,                       intent(in)   :: Lun        ! Logical unit to be rad
+    !!----    type(Atom_Type), dimension(:), intent(out)  :: AtmF       ! Free atoms
+    !!----    integer,                       intent(out)  :: N          ! Free atoms read
     !!----
     !!--<<    Subroutine to read a set of Free Atoms from a file.
     !!----    The format is:

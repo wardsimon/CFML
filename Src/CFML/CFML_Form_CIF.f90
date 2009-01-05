@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2005,              Version: 3.0
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_Formats
@@ -69,7 +69,7 @@
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_Constants,                only: cp,sp,pi,eps
+    Use CFML_Constants,                 only: cp,sp,pi,eps
     Use CFML_Math_General,              only: sind
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
@@ -134,15 +134,15 @@
     !!---- TYPE :: INTERVAL_TYPE
     !!--..
     !!---- Type, public :: interval_type
-    !!----    real(kind=sp) :: mina  !low limit
-    !!----    real(kind=sp) :: maxb  !high limit
+    !!----    real(kind=cp) :: mina  !low limit
+    !!----    real(kind=cp) :: maxb  !high limit
     !!---- End Type interval_type
     !!----
     !!---- Update: February - 2005
     !!
     Type, public :: interval_type
-       real(kind=sp) :: mina  !low limit
-       real(kind=sp) :: maxb  !high limit
+       real(kind=cp) :: mina  !low limit
+       real(kind=cp) :: maxb  !high limit
     End Type interval_type
 
     !!----
@@ -163,8 +163,8 @@
     !!----    type(interval_type),dimension(:), allocatable :: range_Energy   ! Range in Energy
     !!----    type(interval_type),dimension(:), allocatable :: range_tof      ! Range in Time of Flight
     !!----    type(interval_type),dimension(:), allocatable :: Lambda         ! Lambda
-    !!----    real(kind=sp)      ,dimension(:), allocatable :: ratio          ! ratio lambda2/lambda1
-    !!----    real(kind=sp)      ,dimension(:), allocatable :: dtt1,dtt2      ! d-to-TOF coefficients
+    !!----    real(kind=cp)      ,dimension(:), allocatable :: ratio          ! ratio lambda2/lambda1
+    !!----    real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2      ! d-to-TOF coefficients
     !!---- End Type Job_Info_type
     !!----
     !!---- Update: February - 2005
@@ -184,8 +184,8 @@
        type(interval_type),dimension(:), allocatable :: range_Energy
        type(interval_type),dimension(:), allocatable :: range_tof
        type(interval_type),dimension(:), allocatable :: Lambda
-       real(kind=sp)      ,dimension(:), allocatable :: ratio
-       real(kind=sp)      ,dimension(:), allocatable :: dtt1,dtt2
+       real(kind=cp)      ,dimension(:), allocatable :: ratio
+       real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2
     End Type Job_Info_type
 
     !!----

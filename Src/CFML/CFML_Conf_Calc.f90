@@ -47,7 +47,7 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_Constants,                 only: Sp,Cp
+    Use CFML_Constants,                  only: Sp,Cp
     Use CFML_Math_General,               only: Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
@@ -80,10 +80,10 @@
     !!----    integer                                     :: N_Spec    ! Number of different species in the list
     !!----    integer                                     :: N_Anions  ! Number of anions in the list
     !!----    integer                                     :: N_Cations ! Number of cations in the list
-    !!----    real                                        :: Tol       ! Tolerance(%) for sum of radii conditions
-    !!----    real                                        :: totatoms  ! Total number of atoms in the unit cell
+    !!----    real(kind=cp)                               :: Tol       ! Tolerance(%) for sum of radii conditions
+    !!----    real(kind=cp)                               :: totatoms  ! Total number of atoms in the unit cell
     !!----    character(len=4), dimension(:), allocatable :: Species   ! Symbol + valence
-    !!----    real,             dimension(:), allocatable :: Radius    !ionic/atomic radius of species
+    !!----    real(kind=cp),    dimension(:), allocatable :: Radius    !ionic/atomic radius of species
     !!----    type(Atom_Type),  dimension(:), allocatable :: atom
     !!---- End Type Atoms_Conf_List_Type
     !!----
@@ -94,10 +94,10 @@
        integer                                     :: N_Spec    ! Number of different species in the list
        integer                                     :: N_Anions  ! Number of anions in the list
        integer                                     :: N_Cations ! Number of cations in the list
-       real                                        :: Tol       ! Tolerance(%) for sum of radii conditions
-       real                                        :: totatoms  ! Total number of atoms in the unit cell
+       real(kind=cp)                               :: Tol       ! Tolerance(%) for sum of radii conditions
+       real(kind=cp)                               :: totatoms  ! Total number of atoms in the unit cell
        character(len=4), dimension(:), allocatable :: Species
-       real,             dimension(:), allocatable :: Radius    !ionic/atomic radius of species
+       real(kind=cp),    dimension(:), allocatable :: Radius    !ionic/atomic radius of species
        type(Atom_Type),  dimension(:), allocatable :: Atom
     End type Atoms_Conf_List_Type
 
@@ -125,13 +125,13 @@
 
     !!----
     !!---- BVS_Anions_Rion
-    !!----    real(kind=sp), parameter, dimension(bvs_anions_n) :: bvs_anions_rion
+    !!----    real(kind=cp), parameter, dimension(bvs_anions_n) :: bvs_anions_rion
     !!----
     !!----    Radii Ionic for Anions
     !!----
     !!---- Update: March - 2005
     !!
-    real(kind=sp), parameter, dimension(bvs_anions_n), public :: bvs_anions_rion = &
+    real(kind=cp), parameter, dimension(bvs_anions_n), public :: bvs_anions_rion = &
                       (/1.40,1.19,1.67,1.95,2.16,1.84,1.98,2.21,1.71,2.12,2.22,2.08,1.35,1.80/)
 
     !!----
@@ -139,8 +139,8 @@
     !!--..
     !!---- Type, public :: Bvs_Par_Type
     !!----    character (len=4)               :: Symb      ! Chemical symbol
-    !!----    real,   dimension(bvs_anions_n) :: D0        ! D0 Parameter
-    !!----    real,   dimension(bvs_anions_n) :: B_Par     ! B Parameter
+    !!----    real(kind=cp), dimension(bvs_anions_n) :: D0        ! D0 Parameter
+    !!----    real(kind=cp), dimension(bvs_anions_n) :: B_Par     ! B Parameter
     !!----    integer,dimension(bvs_anions_n) :: refnum    ! Integer pointing to the reference paper
     !!---- End Type Bvs_Par_Type
     !!----
@@ -150,8 +150,8 @@
     !!
     Type, public :: Bvs_Par_Type
        character (len=4)                     :: Symb
-       real(kind=sp),dimension(bvs_anions_n) :: d0
-       real(kind=sp),dimension(bvs_anions_n) :: b_par
+       real(kind=cp),dimension(bvs_anions_n) :: d0
+       real(kind=cp),dimension(bvs_anions_n) :: b_par
        integer      ,dimension(bvs_anions_n) :: refnum
     End Type Bvs_Par_Type
 
@@ -204,7 +204,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    real(kind=sp),dimension(:,:), allocatable, private :: Table_b
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_b
 
     !!----
     !!---- TABLE_D0
@@ -214,7 +214,7 @@
     !!----
     !!---- Update: March - 2005
     !!
-    real(kind=sp),dimension(:,:), allocatable, private :: Table_d0
+    real(kind=cp),dimension(:,:), allocatable, private :: Table_d0
 
     !!----
     !!---- TABLE_Ref
@@ -305,12 +305,12 @@
 
     !!--++
     !!--++ Subroutine Bond_Valence(d0,b0,d,sd,bv,sbv)
-    !!--++    real(kind=sp), intent(in)  :: d0    ! BVS parameter
-    !!--++    real(kind=sp), intent(in)  :: b0    ! BVS parameter
-    !!--++    real(kind=sp), intent(in)  :: d     ! Distance
-    !!--++    real(kind=sp), intent(in)  :: sd    ! Sigma(d)
-    !!--++    real(kind=sp), intent(out) :: bv    ! BVS
-    !!--++    real(kind=sp), intent(out) :: sbv   ! Sigma(bv)
+    !!--++    real(kind=cp), intent(in)  :: d0    ! BVS parameter
+    !!--++    real(kind=cp), intent(in)  :: b0    ! BVS parameter
+    !!--++    real(kind=cp), intent(in)  :: d     ! Distance
+    !!--++    real(kind=cp), intent(in)  :: sd    ! Sigma(d)
+    !!--++    real(kind=cp), intent(out) :: bv    ! BVS
+    !!--++    real(kind=cp), intent(out) :: sbv   ! Sigma(bv)
     !!--++
     !!--++    (Private)
     !!--++    Zachariasen exponential expression of Bond Valence
@@ -319,9 +319,9 @@
     !!
     Subroutine Bond_Valence(D0,B0,D,Sd,Bv,Sbv)
        !---- Arguments ----!
-       real(kind=sp),  intent(in)  :: d0,b0  !Bond-valence parameters
-       real(kind=sp),  intent(in)  :: d,sd   !Bond distance and sigma
-       real(kind=sp),  intent(out) :: bv,sbv !Bond-valence and sigma
+       real(kind=cp),  intent(in)  :: d0,b0  !Bond-valence parameters
+       real(kind=cp),  intent(in)  :: d,sd   !Bond distance and sigma
+       real(kind=cp),  intent(out) :: bv,sbv !Bond-valence and sigma
 
        bv=EXP((d0-d)/b0)
        sbv=bv*sd/b0
@@ -583,7 +583,7 @@
     !!----    integer,                     intent(in) :: ndimy
     !!----    integer,                     intent(in) :: ndimz
     !!----    character(len=*),            intent(in) :: atname
-    !!----    real,                        intent(in) :: drmax
+    !!----    real(kind=cp),               intent(in) :: drmax
     !!----
     !!----    Calculate a map of BVS values where each point of the grid is determined
     !!----    by a specie representative defined in atname. The BVS value is evaluated
@@ -601,18 +601,18 @@
        integer,                     intent(in) :: ndimy
        integer,                     intent(in) :: ndimz
        character(len=*),            intent(in) :: atname
-       real,                        intent(in) :: drmax
+       real(kind=cp),               intent(in) :: drmax
 
        !---- Local variables ----!
-       character(len=4)                   :: car,atm
-       integer                            :: i,im,j,k,n,n1,n2
-       integer                            :: nx1,nx2,ny1,ny2,nz1,nz2
-       integer                            :: i1,j1,k1
-       integer                            :: jbvs
-       real                               :: rx1,ry1,rz1
-       real                               :: sbvs, dd, occ
-       real, dimension(3)                 :: pto,pta
-       real,dimension(:,:,:), allocatable :: map_bvs
+       character(len=4)                            :: car,atm
+       integer                                     :: i,im,j,k,n,n1,n2
+       integer                                     :: nx1,nx2,ny1,ny2,nz1,nz2
+       integer                                     :: i1,j1,k1
+       integer                                     :: jbvs
+       real(kind=cp)                               :: rx1,ry1,rz1
+       real(kind=cp)                               :: sbvs, dd, occ
+       real(kind=cp), dimension(3)                 :: pto,pta
+       real(kind=cp),dimension(:,:,:), allocatable :: map_bvs
 
        type (Atom_list_Type)              :: At1,At2
 
@@ -799,7 +799,7 @@
     !!----
     !!---- Subroutine Cost_BVS(A, GII, gic)
     !!----    type (Atoms_Conf_List_type),  intent(in)   :: A    !  In  -> Object of Atoms_Conf_List_type
-    !!----    real(kind=sp),                intent(out)  :: GII  !  OUT -> Global instability index
+    !!----    real(kind=cp),                intent(out)  :: GII  !  OUT -> Global instability index
     !!----    character(len=*),   optional, intent(in)   :: gic  ! If present GII_c is put in GII
     !!----
     !!----    Subroutine to calculate the Global Instability Index.
@@ -816,12 +816,12 @@
     Subroutine Cost_BVS(A, GII,gic)
        !---- Arguments ----!
        type (Atoms_Conf_List_type),  intent(in)  :: A    !  In -> Object of Atoms_Conf_List_type
-       real(kind=sp),                intent(out) :: GII  !  GII_a
+       real(kind=cp),                intent(out) :: GII  !  GII_a
        character(len=*),   optional, intent(in)  :: gic  !  If present GII_c is put in GII
 
        !---- Local variables ----!
        integer       :: i,j,k,icm,l,sig1,sig2
-       real(kind=sp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c
+       real(kind=cp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -865,8 +865,8 @@
     !!----
     !!---- Subroutine Cost_BVS_CoulombRep(A, GII, ERep)
     !!----    type (Atoms_Conf_List_type),  intent(in)   :: A     !  In  -> Object of Atoms_Conf_List_type
-    !!----    real(kind=sp),                intent(out)  :: GII   !  OUT -> Global instability index
-    !!----    real(kind=sp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
+    !!----    real(kind=cp),                intent(out)  :: GII   !  OUT -> Global instability index
+    !!----    real(kind=cp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
     !!----
     !!----
     !!----    Subroutine to calculate the Global Instability Index Gii_a and
@@ -891,12 +891,12 @@
     Subroutine Cost_BVS_CoulombRep(A, GII, ERep)
        !---- Arguments ----!
        type (Atoms_Conf_List_type),  intent(in)  :: A      !  In -> Object of Atoms_Conf_List_type
-       real(kind=sp),                intent(out) :: GII    !  GII_a
-       real(kind=sp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
+       real(kind=cp),                intent(out) :: GII    !  GII_a
+       real(kind=cp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
 
        !---- Local variables ----!
        integer        :: i,j,k,icm,l,sig1,sig2
-       real(kind=sp)  :: tol,fact,q2,dd,sums,q1, del, bv
+       real(kind=cp)  :: tol,fact,q2,dd,sums,q1, del, bv
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -2089,7 +2089,7 @@
     !!---- Subroutine Species_on_List(A,MulG,tol)
     !!----    type (Atoms_Conf_List_Type), intent(in out) :: A
     !!----    Integer, optional,           intent(in)     :: MulG
-    !!----    real, optional,              intent(in)     :: tol
+    !!----    real(kind=cp), optional,     intent(in)     :: tol
     !!----
     !!----    Determines the different species in the List and,
     !!----    optionally, sets the tolerance factor for ionic radii
@@ -2107,14 +2107,14 @@
        !---- Arguments ----!
        type (Atoms_Conf_List_Type), intent(in out) :: A
        Integer, optional,           intent(in)     :: MulG
-       real, optional,              intent(in)     :: tol
+       real(kind=cp), optional,     intent(in)     :: tol
 
        !---- Local variables ----!
        character(len=4), dimension(50) :: cation,anion,spec
        character(len=2)                :: car,cv
        character(len=4)                :: canio
        integer                         :: i,im,j,v,ns,nc,na
-       real                            :: fac1,fact
+       real(kind=cp)                   :: fac1,fact
 
 
        if (A%natoms == 0) return
