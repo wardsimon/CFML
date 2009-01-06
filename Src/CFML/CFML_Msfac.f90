@@ -10,7 +10,7 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++     Use CFML_Constants,                  only: sp, tpi
+!!--++     Use CFML_Constants,                   only: sp, tpi
 !!--++     Use CFML_Math_General,                only: atan2d, sort
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
 !!--++     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -30,8 +30,8 @@
 !!----    MAGHD_TYPE
 !!--++    AJH                          [Private]
 !!--++    BJH                          [Private]
-!!----    ERR_MESS_MSFAC
 !!----    ERR_MSFAC
+!!----    ERR_MSFAC_MESS
 !!--++    HR                           [Private]
 !!--++    HT                           [Private]
 !!--++    MFI                          [Private]
@@ -62,7 +62,7 @@
 !!
  Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use CFML_Constants,                  only: sp, tpi
+    Use CFML_Constants,                   only: cp, sp, tpi
     Use CFML_Math_General,                only: atan2d, sort
     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -100,7 +100,7 @@
     !!--++ TYPE :: HR_TYPE
     !!--..
     !!--++    Type, Private :: HR_Type
-    !!--++       real, dimension(3) :: H
+    !!--++       real(kind=cp), dimension(3) :: H
     !!--++    End Type HR_Type
     !!--++
     !!--++    (Private)
@@ -109,22 +109,22 @@
     !!--++ Update: April - 2005
     !!
     Type, Private :: HR_Type
-       real, dimension(3) :: H
+       real(kind=cp), dimension(3) :: H
     End Type HR_Type
 
     !!----
     !!---- TYPE :: MAGH_TYPE
     !!--..
     !!----    Type, Public  :: MagH_Type
-    !!----       logical              :: keqv_minus  !True if k equivalent to -k
-    !!----       integer              :: mult        !Multiplicity of the reflection (useful for powder calculations)
-    !!----       integer              :: num_k       !number of the propagation vector vk
-    !!----       real                 :: signp       !+1 for -vk   and -1 for +vk
-    !!----       real                 :: s           !sinTheta/Lambda
-    !!----       real                 :: sqMiV       !Square of the Magnetic Interaction vector
-    !!----       real, dimension(3)   :: H           ! H +/- k
-    !!----       complex,dimension(3) :: MsF         !magnetic structure factor
-    !!----       complex,dimension(3) :: MiV         !magnetic interaction vector
+    !!----       logical                    :: keqv_minus  !True if k equivalent to -k
+    !!----       integer                    :: mult        !Multiplicity of the reflection (useful for powder calculations)
+    !!----       integer                    :: num_k       !number of the propagation vector vk
+    !!----       real(kind=cp)              :: signp       !+1 for -vk   and -1 for +vk
+    !!----       real(kind=cp)              :: s           !sinTheta/Lambda
+    !!----       real(kind=cp)              :: sqMiV       !Square of the Magnetic Interaction vector
+    !!----       real(kind=cp), dimension(3):: H           ! H +/- k
+    !!----       complex,dimension(3)       :: MsF         !magnetic structure factor
+    !!----       complex,dimension(3)       :: MiV         !magnetic interaction vector
     !!----    End Type MagH_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
@@ -133,15 +133,15 @@
     !!---- Update: April - 2005
     !!
     Type, Public  :: MagH_Type
-       logical              :: keqv_minus  !True if k equivalent to -k
-       integer              :: mult        !Multiplicity of the reflection (useful for powder calculations)
-       integer              :: num_k       !number of the propagation vector vk
-       real                 :: signp       !+1 for -vk   and -1 for +vk
-       real                 :: s           !sinTheta/Lambda
-       real                 :: sqMiV       !Square of the Magnetic Interaction vector
-       real,   dimension(3) :: H           ! H +/- k
-       complex,dimension(3) :: MsF         !Magnetic structure factor
-       complex,dimension(3) :: MiV         !Magnetic interaction vector
+       logical                     :: keqv_minus  !True if k equivalent to -k
+       integer                     :: mult        !Multiplicity of the reflection (useful for powder calculations)
+       integer                     :: num_k       !number of the propagation vector vk
+       real(kind=cp)               :: signp       !+1 for -vk   and -1 for +vk
+       real(kind=cp)               :: s           !sinTheta/Lambda
+       real(kind=cp)               :: sqMiV       !Square of the Magnetic Interaction vector
+       real(kind=cp), dimension(3) :: H           ! H +/- k
+       complex, dimension(3)       :: MsF         !Magnetic structure factor
+       complex, dimension(3)       :: MiV         !Magnetic interaction vector
     End Type  MagH_Type
 
     !!----
@@ -167,16 +167,16 @@
     !!----  TYPE :: MAGHD_TYPE
     !!--..
     !!----     Type, Public  :: MagHD_Type
-    !!----        logical                   :: keqv_minus  !True if k equivalent to -k
-    !!----        integer                   :: num_k       !number of the propagation vector vk
-    !!----        real                      :: signp       !+1 for -vk   and -1 for +vk
-    !!----        real                      :: s           !sinTheta/Lambda
-    !!----        real                      :: sqAMiV      !Square of the Average Magnetic Interaction vector
-    !!----        real                      :: sqMiV       !Average of the Square of Magnetic Interaction vectors
-    !!----        real, dimension(3)        :: H           ! H +/- k
-    !!----        complex,dimension(3,2,24) :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
-    !!----        complex,dimension(3,2,24) :: MiV         !Magnetic interaction vector of each domain
-    !!----        complex,dimension(3)      :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
+    !!----        logical                     :: keqv_minus  !True if k equivalent to -k
+    !!----        integer                     :: num_k       !number of the propagation vector vk
+    !!----        real(kind=cp)               :: signp       !+1 for -vk   and -1 for +vk
+    !!----        real(kind=cp)               :: s           !sinTheta/Lambda
+    !!----        real(kind=cp)               :: sqAMiV      !Square of the Average Magnetic Interaction vector
+    !!----        real(kind=cp)               :: sqMiV       !Average of the Square of Magnetic Interaction vectors
+    !!----        real(kind=cp), dimension(3) :: H           ! H +/- k
+    !!----        complex,dimension(3,2,24)   :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
+    !!----        complex,dimension(3,2,24)   :: MiV         !Magnetic interaction vector of each domain
+    !!----        complex,dimension(3)        :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     !!----     End Type MagHD_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
@@ -186,21 +186,21 @@
     !!---- Update: November - 2006
     !!
     Type, Public  :: MagHD_Type
-       logical                   :: keqv_minus
-       integer                   :: num_k   !number of the propagation vector vk
-       real                      :: signp   !+1 for -vk   and -1 for +vk
-       real                      :: s       !sinTheta/Lambda
-       real                      :: sqAMiV  !Square of the Average Magnetic Interaction vector
-       real                      :: sqMiV   !Average of the Square of Magnetic Interaction vectors
-       real,   dimension(3)      :: H       ! H +/- k
-       complex,dimension(3,2,24) :: MsF     !Magnetic structure factors of each domain (second dimension for chirality domains)
-       complex,dimension(3,2,24) :: MiV     !Magnetic interaction vector of each domain
-       complex,dimension(3)      :: AMiV    !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
+       logical                     :: keqv_minus
+       integer                     :: num_k   !number of the propagation vector vk
+       real(kind=cp)               :: signp   !+1 for -vk   and -1 for +vk
+       real(kind=cp)               :: s       !sinTheta/Lambda
+       real(kind=cp)               :: sqAMiV  !Square of the Average Magnetic Interaction vector
+       real(kind=cp)               :: sqMiV   !Average of the Square of Magnetic Interaction vectors
+       real(kind=cp), dimension(3) :: H       ! H +/- k
+       complex,dimension(3,2,24)   :: MsF     !Magnetic structure factors of each domain (second dimension for chirality domains)
+       complex,dimension(3,2,24)   :: MiV     !Magnetic interaction vector of each domain
+       complex,dimension(3)        :: AMiV    !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     End Type  MagHD_Type
 
     !!--++
     !!--++ AJH
-    !!--++     real(kind=sp), dimension(:,:,:), allocatable, private :: Ajh
+    !!--++     real(kind=cp), dimension(:,:,:), allocatable, private :: Ajh
     !!--++
     !!--++     (Private)
     !!--++     Array for Aj(h). The dimensions are Ajh(3,Natoms,Nref)
@@ -209,11 +209,11 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp), dimension(:,:,:), allocatable, private :: AJH
+    real(kind=cp), dimension(:,:,:), allocatable, private :: AJH
 
     !!--++
     !!--++ BJH
-    !!--++     real(kind=sp), dimension(:,:,:), allocatable, private :: Bjh
+    !!--++     real(kind=cp), dimension(:,:,:), allocatable, private :: Bjh
     !!--++
     !!--++     (Private)
     !!--++     Array for Bj(h). The dimensions are Bjh(3,Natoms,Nref)
@@ -222,17 +222,17 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp), dimension(:,:,:), allocatable, private :: BJH
+    real(kind=cp), dimension(:,:,:), allocatable, private :: BJH
 
     !!----
-    !!---- ERR_MESS_MSFAC
-    !!----    character(len=150), public :: err_mess_msfac
+    !!---- ERR_MSFAC_MESS
+    !!----    character(len=150), public :: err_msfac_mess
     !!----
     !!----    String containing information about the last error in Magnetic_CFML_Structure_Factors
     !!----
     !!---- Update: April - 2005
     !!
-    character(len=150), public :: err_mess_msfac
+    character(len=150), public :: err_msfac_mess
 
     !!----
     !!---- ERR_MSFAC
@@ -259,7 +259,7 @@
 
     !!--++
     !!--++ HT
-    !!--++     real(kind=sp), dimension(:,:), allocatable, private :: Ht
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: Ht
     !!--++
     !!--++     (Private)
     !!--++     Array for HT Calculations. The dimension are HT(Nsymop,Nref)
@@ -268,11 +268,11 @@
     !!--++
     !!--++ Update: april - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: HT
+    real(kind=cp), dimension(:,:), allocatable, private :: HT
 
     !!--++
     !!--++ MFI
-    !!--++     real(kind=sp), dimension(:), allocatable, private :: AFPP
+    !!--++     real(kind=cp), dimension(:), allocatable, private :: AFPP
     !!--++
     !!--++     (Private)
     !!--++     Array for imaginary part of magnetic form factor.
@@ -280,18 +280,18 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: mFI
+    real(kind=cp), dimension(:,:), allocatable, private :: mFI
 
     !!--++
     !!--++ MFR
-    !!--++     real(kind=sp), dimension(:,:), allocatable, private :: mFR
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: mFR
     !!--++
     !!--++     (Private)
     !!--++     Array for Magnetic form Factors. The dimensions are mFR(Natoms,NRef)
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: mFR
+    real(kind=cp), dimension(:,:), allocatable, private :: mFR
 
     !!--++
     !!--++ MSF_INITIALIZED
@@ -306,14 +306,14 @@
 
     !!--++
     !!--++ TH
-    !!--++    real(kind=sp), dimension(:,:), allocatable, private :: Th
+    !!--++    real(kind=cp), dimension(:,:), allocatable, private :: Th
     !!--++
     !!--++    (Private)
     !!--++    Array for TH Calculations. The dimension are TH(Natoms,Nref)
     !!--++
     !!--++ Update: April - 2005
     !!
-    real(kind=sp), dimension(:,:), allocatable, private :: TH
+    real(kind=cp), dimension(:,:), allocatable, private :: TH
 
  Contains
 
@@ -323,8 +323,8 @@
 
     !!--++
     !!--++ Function Mfj(S,Coeff)
-    !!--++    real(kind=sp),             intent(in) :: s !sin Theta/Lambda
-    !!--++    real(kind=sp),dimension(7),intent(in) :: coeff
+    !!--++    real(kind=cp),             intent(in) :: s !sin Theta/Lambda
+    !!--++    real(kind=cp),dimension(7),intent(in) :: coeff
     !!--++
     !!--++    (Private)
     !!--++    Magnetic form factor calculation according to:
@@ -334,9 +334,9 @@
     !!
     Function Mfj(S,Coeff) Result(Res)
        !---- Arguments ----!
-       real(kind=sp),             intent(in) :: s  !sin Theta/Lambda
-       real(kind=sp),dimension(7),intent(in) :: coeff
-       real(kind=sp)                         :: res
+       real(kind=cp),             intent(in) :: s  !sin Theta/Lambda
+       real(kind=cp),dimension(7),intent(in) :: coeff
+       real(kind=cp)                         :: res
 
        !---- Local variables ----!
        integer :: i
@@ -376,8 +376,8 @@
 
        !---- Local variables ----!
        integer                       :: j
-       real(kind=sp)                 :: s
-       real(kind=sp),dimension(3)    :: ed,er
+       real(kind=cp)                 :: s
+       real(kind=cp),dimension(3)    :: ed,er
        complex,      dimension(3)    :: M, MiV
 
        !---- Calculation of the Magnetic Interaction vector ----!
@@ -434,13 +434,13 @@
 
        !---- Local Variables ----!
        integer                            :: i,j,k,nvk,m, n
-       real(kind=sp)                      :: arg,anis,onh,ph,s,b,ht,mFF,tho, isig, x
-       real(kind=sp),    dimension(3)     :: h,ed,er
-       real(kind=sp),    dimension(6)     :: beta
-       real(kind=sp),    dimension(3,3)   :: Mcos,Msin
-       real(kind=sp),    dimension(3)     :: ar,ai,br,bi,Ajh,Bjh,aa,bb
-       complex(kind=sp)                   :: ci
-       complex(kind=sp), dimension(3)     :: Mc, MiV, Sk, GMh
+       real(kind=cp)                      :: arg,anis,onh,ph,s,b,ht,mFF,tho, isig, x
+       real(kind=cp),    dimension(3)     :: h,ed,er
+       real(kind=cp),    dimension(6)     :: beta
+       real(kind=cp),    dimension(3,3)   :: Mcos,Msin
+       real(kind=cp),    dimension(3)     :: ar,ai,br,bi,Ajh,Bjh,aa,bb
+       complex(kind=cp)                   :: ci
+       complex(kind=cp), dimension(3)     :: Mc, MiV, Sk, GMh
 
        s=Mh%s
        if (.not. Mh%keqv_minus ) then
@@ -578,15 +578,15 @@
 
        !---- Local Variables ----!
        integer                            :: i,j,k,nvk,m, n, nd, ich, nch
-       real(kind=sp)                      :: arg,anis,onh,ph,s,b,ht,mFF,tho, isig, x
-       real(kind=sp),    dimension(3)     :: h,ed,er
-       real(kind=sp),    dimension(6)     :: beta
-       real(kind=sp),    dimension(3,3)   :: Mcos,Msin
-       real(kind=sp),    dimension(3)     :: ar,ai,br,bi,Ajh,Bjh,aa,bb,Skr,Ski
+       real(kind=cp)                      :: arg,anis,onh,ph,s,b,ht,mFF,tho, isig, x
+       real(kind=cp),    dimension(3)     :: h,ed,er
+       real(kind=cp),    dimension(6)     :: beta
+       real(kind=cp),    dimension(3,3)   :: Mcos,Msin
+       real(kind=cp),    dimension(3)     :: ar,ai,br,bi,Ajh,Bjh,aa,bb,Skr,Ski
 
-       complex(kind=sp)                   :: ci
-       complex(kind=sp), dimension(3)     :: Mc, MiV, Sk, GMh
-       real(kind=sp),dimension(2), parameter :: ch=(/1.0,-1.0/)
+       complex(kind=cp)                   :: ci
+       complex(kind=cp), dimension(3)     :: Mc, MiV, Sk, GMh
+       real(kind=cp),dimension(2), parameter :: ch=(/1.0,-1.0/)
 
        s=Mh%s
        if (.not. Mh%keqv_minus ) then
@@ -742,12 +742,12 @@
 
        !---- Local Variables ----!
        integer                       :: i,j,k,n,nvk,m, NRef
-       real(kind=sp)                 :: arg,anis,onh,ph, x, isig
-       real(kind=sp),dimension(3)    :: h
-       complex(kind=sp),dimension(3) :: Sk,GMh
-       complex(kind=sp)              :: ci
-       real(kind=sp),dimension(6)    :: beta
-       real(kind=sp),dimension(3,3)  :: Mcos,Msin
+       real(kind=cp)                 :: arg,anis,onh,ph, x, isig
+       real(kind=cp),dimension(3)    :: h
+       complex(kind=cp),dimension(3) :: Sk,GMh
+       complex(kind=cp)              :: ci
+       real(kind=cp),dimension(6)    :: beta
+       real(kind=cp),dimension(3,3)  :: Mcos,Msin
        real, dimension(3)            :: ar,ai,br,bi
 
        Ajh=0.0
@@ -889,7 +889,7 @@
 
        !---- Local variables ----!
        integer          :: i,j
-       real(kind=sp)    :: b,s
+       real(kind=cp)    :: b,s
 
        !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma ----!
        do j=1,reflex%nref
@@ -986,7 +986,7 @@
 
        if (any(ix==0)) then
           err_msfac=.true.
-          err_mess_msfac="The Species "//symbcar//" was not found"
+          err_msfac_mess="The Species "//symbcar//" was not found"
           return
        else
           !---- Fill mFR Table ----!
@@ -1021,7 +1021,7 @@
     !!---- Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder)
     !!----    type(Crystal_Cell_type), intent(in)     :: cell
     !!----    type(MagSymm_k_Type),    intent(in)     :: Grp
-    !!----    real,                    intent(in)     :: smax
+    !!----    real(kind=cp),           intent(in)     :: smax
     !!----    type(MagH_List_Type),    intent(in out) :: H
     !!----    logical, optional,       intent(in)     :: ord
     !!----    logical, optional,       intent(in)     :: powder
@@ -1036,19 +1036,19 @@
        !---- Arguments ----!
        type(Crystal_Cell_type), intent(in)     :: cell
        type(MagSymm_k_Type),    intent(in)     :: Grp
-       real,                    intent(in)     :: smax
+       real(kind=cp),           intent(in)     :: smax
        type(MagH_List_Type),    intent(in out) :: H
        logical, optional,       intent(in)     :: ord
        logical, optional,       intent(in)     :: powder
 
        !---- Local variables ----!
        integer                                       :: i,j,k, numref,num_ref,n, ng, lu, addk,nmat,ik
-       real                                          :: smgen, maxr, epv,s1,s2,sqmiv1,sqmiv2, epm
+       real(kind=cp)                                 :: smgen, maxr, epv,s1,s2,sqmiv1,sqmiv2, epm
        type(Space_Group_Type)                        :: G
        type(Reflect_Type), dimension(:), allocatable :: reflex
        type(MagH_List_Type)                          :: Hloc
        character(len=20)                             :: Symb
-       real,dimension(3)                             :: kv,hr,ks
+       real(kind=cp),dimension(3)                    :: kv,hr,ks
        logical                                       :: keq
        integer,            dimension(:), allocatable :: ind
        logical,            dimension(:), allocatable :: treated
@@ -1328,7 +1328,7 @@
     Subroutine Init_Err_MSfac()
 
        err_msfac=.false.
-       err_mess_msfac=" "
+       err_msfac_mess=" "
 
        return
     End Subroutine Init_Err_MSfac
@@ -1366,7 +1366,7 @@
        allocate(mFR(Natm,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate mFR"
+          err_msfac_mess=" Unable to allocate mFR"
           return
        end if
        mFR=0.0
@@ -1376,7 +1376,7 @@
        allocate(HR(Multr,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate HR"
+          err_msfac_mess=" Unable to allocate HR"
           return
        end if
        HR=HR_Type(0)
@@ -1386,7 +1386,7 @@
        allocate(HT(Multr,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate HTR"
+          err_msfac_mess=" Unable to allocate HTR"
           return
        end if
        HT=0.0
@@ -1395,7 +1395,7 @@
        allocate(TH(Natm,Reflex%Nref),stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate HTR"
+          err_msfac_mess=" Unable to allocate HTR"
           return
        end if
        TH=0.0
@@ -1404,7 +1404,7 @@
        allocate(Ajh(3,Natm,Reflex%Nref), stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate Aj(h)"
+          err_msfac_mess=" Unable to allocate Aj(h)"
           return
        end if
        Ajh=0.0
@@ -1413,7 +1413,7 @@
        allocate(Bjh(3,Natm,Reflex%Nref), stat=ierr)
        if (ierr /=0) then
           err_msfac=.true.
-          err_mess_msfac=" Unable to allocate Bj(h)"
+          err_msfac_mess=" Unable to allocate Bj(h)"
           return
        end if
        Bjh=0.0
@@ -1490,12 +1490,12 @@
 
        !---- Local variables ----!
        integer                       :: i,j,k,ii,nvk,m, n
-       real(kind=sp)                 :: arg,onh,anis,ph, isig, x
-       real(kind=sp),dimension(3,3)  :: Mcos,Msin
+       real(kind=cp)                 :: arg,onh,anis,ph, isig, x
+       real(kind=cp),dimension(3,3)  :: Mcos,Msin
        complex(kind=sp),dimension(3) :: Sk,GMh
        complex(kind=sp)              :: ci
-       real(kind=sp),dimension(3)    :: ar,ai,br,bi,h
-       real(kind=sp),dimension(6)    :: beta
+       real(kind=cp),dimension(3)    :: ar,ai,br,bi,h
+       real(kind=cp),dimension(6)    :: beta
 
        if (Grp%Centred == 2) then
 
@@ -1677,7 +1677,7 @@
 
        !---- Local Variables ----!
        integer                      :: i,j
-       real(kind=sp), dimension(3)  :: aa,bb
+       real(kind=cp), dimension(3)  :: aa,bb
 
 
        !---- Fj(h)*Aj(h) ----!
@@ -1724,10 +1724,10 @@
        type(MagSymm_k_Type),  intent(in) :: Grp
 
        !---- Local Variables ----!
-       integer              :: i,nv, sig, mul
-       real                 :: sqMiV, dspc
-       integer,dimension(3) :: h
-       real,   dimension(3) :: vk,hr
+       integer                     :: i,nv, sig, mul
+       real(kind=cp)               :: sqMiV, dspc
+       integer,dimension(3)        :: h
+       real(kind=cp), dimension(3) :: vk,hr
 
        write(unit=lun,fmt="(/,a)")   "    LIST OF REFLECTIONS AND MAGNETIC STRUCTURE FACTORS"
        write(unit=lun,fmt="(a,/)")   "    =================================================="
