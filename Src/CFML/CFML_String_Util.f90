@@ -11,7 +11,7 @@
 !!----                            All routines have general I/O parameters
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,   only: cp
+!!--++    Use CFML_Constants,    only: cp
 !!--++    Use CFML_Math_General, only: Negligible Zbelong
 !!----
 !!---- VARIABLES
@@ -85,7 +85,7 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_Constants,   only: cp
+    use CFML_Constants,    only: cp
     use CFML_Math_General, only: Negligible, Zbelong
 
     implicit none
@@ -108,17 +108,17 @@
 
     !---- Definitions ----!
 
-    !!----                                                        
-    !!---- DIRSLASH                                                  
+    !!----
+    !!---- DIRSLASH
     !!----    character (len=1), public, parameter :: dirslash="\"
-    !!----                                                        
+    !!----
     !!----    Separator of Directories: "\" for Windows and "/" for the rest
-    !!----                                                        
-    !!---- Update: January - 2009                                
-    !!                                                            
+    !!----
+    !!---- Update: January - 2009
+    !!
     character (len=1), public, parameter :: dirslash="\"  ! For Windows
     !character (len=1), public, parameter :: dirslash="/"  ! For Linux
- 
+
     !!--++
     !!--++ CTAB
     !!--++    character (len=*), private, parameter :: cTab=Char(9)
@@ -150,7 +150,7 @@
     !!---- Update: February - 2005
     !!
     logical, public :: err_string
-    
+
     !!----
     !!---- ERR_String_Mess
     !!----    character(len=150) :: ERR_String_Mess
@@ -670,7 +670,12 @@
              iErr_fmt = iErrStrLength          ! format string length exceeded
              return
           end if
-          FMTstring(nStr:nStr)   = Char(iFld)
+          if(iFld <= i_Nine) then
+            FMTstring(nStr:nStr)   = Char(iFld)
+          else
+            write(unit=FMTstring(nStr:),fmt="(i2)") iFld-48
+            nStr=len_trim(FMTstring)
+          end if
        end if
 
        !---- Add a separator "," after each new FORTRAN field ----!
@@ -758,10 +763,19 @@
     !!----    but with additional error checking. Thus, given a description
     !!----    of the expected fields "FindFmt" returns the format of the line
     !!----    to be decoded. Valid field descriptors are:
-    !!----    I:integer; R:real; A:free A format; 1 to 5:A1 to A5
+    !!----    I:integer; R:real; A:free A format; 1 to 14:A1 to A14
+    !!----
+    !!----    In the previous versions of this procedure the FMTfields contained
+    !!----    digits for telling the program the maximum expected number of
+    !!----    characters in a keyword. This limited the maximum length of the
+    !!----    keyword to 9. In this version we have extended this up to 14, using
+    !!----    the convention a=10, b=11, c=12, d=13 and e=14.
+    !!----    Examples:
+    !!----      FMTFields='dii9ff'
+    !!----      -> expect to read String1(1:13), 2 integers, String2(1:9) and 2 reals
     !!----
     !!----    This routine have an associated FindFMT error code (iErr_fmt)
-    !!----      -2 : FORTRAN read error
+   !!----      -2 : FORTRAN read error
     !!----      -1 : End of file
     !!----       0 : No Error
     !!----       1 : empty format descriptor (0 field)
@@ -797,7 +811,7 @@
     !!--..    !-- Free format input (Read performed by calling routine)
     !!--..       Read(unit=iLun,fmt="(a)") aLine
     !!--..       FMTfields = "5iffi"
-    !!--..       Call FindFmt(0,aLine,FMTfields,FMTstring,nC_L)
+    !!--..       Call FindFmt(0,aLine,FMTfields,FMTstring)
     !!--..       if (iErr_fmt == -1) GoTo 998 ! End of Line | Block treating
     !!--..       if (iErr_fmt /= 0)  GoTo 999 ! input error |   errors
     !!--..       Read(unit=aLine,fmt=FMTstring) String,i1,R1,R2,i2
@@ -813,7 +827,7 @@
     !!--..        end if
     !!--..        ........
     !!--..
-    !!---- Update: February - 2005
+    !!---- Update: January - 2009
     !!
     Subroutine FindFmt(Lun,aLine,FMTfields,FMTstring,idebug)
        !---- Arguments ----!
@@ -832,7 +846,7 @@
        Integer  :: nCar     ! counts characters in current format field
        Integer  :: nFld     ! counts format fields in FMTfields
        Integer  :: nStr     ! counts characters in FMTstring
-       Integer  :: iFld     ! field type -1:integer;-2:real;>0:A1 to A9
+       Integer  :: iFld     ! field type -1:integer;-2:real;>0:A1 to A14
        Integer  :: GetFTMfield     ! old function now argument of a subroutine
        Logical  :: ifSearchEnd
 
@@ -883,6 +897,8 @@
                 exit
              end if
           end do
+       else
+          l_line = len_trim(aLine)
        end if
 
        !---- Start decoding line character by character ----!
@@ -930,7 +946,7 @@
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
-          if ((iFld < iEndFMT.and.nCar == 0) .or. iFld == 0) then
+          if ((iFld < iEndFMT .and. nCar == 0) .or. iFld == 0) then
              iErr_fmt = iErrEmptyField           ! no characters in field
              return
           end if
@@ -2202,6 +2218,16 @@
              GetFTMfield = iReal
           else if (iChar(Car) >= i_One .and. iChar(Car) <= i_Nine) then
              GetFTMfield = iChar(Car)
+          else if (Car == "A") then
+             GetFTMfield = 10+i_Zero
+          else if (Car == "B") then
+             GetFTMfield = 11+i_Zero
+          else if (Car == "C") then
+             GetFTMfield = 12+i_Zero
+          else if (Car == "D") then
+             GetFTMfield = 13+i_Zero
+          else if (Car == "E") then
+             GetFTMfield = 14+i_Zero
           else
              GetFTMfield = iEndFMT
              iErr_fmt = iErrInvalField         ! Error in field definition
