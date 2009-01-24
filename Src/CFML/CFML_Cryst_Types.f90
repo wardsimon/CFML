@@ -2046,7 +2046,12 @@
           if ( u < -eps) iu=-1
           if ( v < -eps) iv=-1
           if ( w < -eps) iw=-1
-          aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
+          !aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
+          !for intel 11.0
+          aux=0.0
+          aux(1,1)=real(iu)
+          aux(2,2)=real(iv)
+          aux(3,3)=real(iw)
           if (abs(u) < eps) iu=0
           if (abs(v) < eps) iv=0
           if (abs(w) < eps) iw=0
@@ -2071,6 +2076,11 @@
              v =  v  - w * iu
              u = u - 2.0*B*iu
              aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 0.0,-real(iu),1.0/),(/3,3/))
+             aux=0.0
+             aux(1,1)=1.0
+             aux(2,2)=1.0
+             aux(2,3)=-real(iu)
+             aux(3,3)=1.0
              trm=matmul(aux,trm)
              cycle
           end if
@@ -2082,7 +2092,13 @@
              C = A+C - v * iv
              u =  u  - w * iv
              v = v - 2.0*A*iv
-             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
+             !aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
+             !for intel 11.0
+             aux=0.0
+             aux(1,1)=1.0
+             aux(2,2)=1.0
+             aux(1,3)=-real(iv)
+             aux(3,3)=1.0
              trm=matmul(aux,trm)
              cycle
           end if
@@ -2094,7 +2110,13 @@
              B = A+B - w * iw
              u =  u  - v * iw
              w = w - 2.0*A*iw
-             aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+             !aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+             !for intel
+             aux=0.0
+             aux(1,1)=1.0
+             aux(1,2)=-real(iw)
+             aux(2,2)=1.0
+             aux(3,3)=1.0
              trm=matmul(aux,trm)
              cycle
           end if
