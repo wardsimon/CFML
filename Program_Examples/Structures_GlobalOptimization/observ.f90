@@ -131,7 +131,8 @@
       call sort(sv,nlines,ic) !use ic for pointer ordering
 
       call get_logunit(itemp)
-      open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
+      ! open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
+      open(unit=itemp,status="scratch",form="unformatted",action="readwrite")
       do i=1,nlines
         j=ic(i)
         write(itemp) hkl(:,j),sv(j),fobs(j),sigma(j)
@@ -298,7 +299,8 @@
       call sort(sv,nr,ic) !use ic for pointer ordering
 
       call get_logunit(itemp)
-      open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
+      !open(unit=itemp,file="tempor",status="scratch",form="unformatted",action="readwrite")
+      open(unit=itemp,status="scratch",form="unformatted",action="readwrite")
       do i=1,nr
         j=ic(i)
         write(itemp) hkl(:,j),sv(j),point(:,j)

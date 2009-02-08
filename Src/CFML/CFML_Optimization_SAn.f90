@@ -395,7 +395,7 @@
 
     !!--++
     !!--++ Subroutine Init_Ran(seed)
-    !!--++    integer, dimension(1), intent (in) :: seed
+    !!--++    integer, dimension(:), intent (in) :: seed
     !!--++
     !!--++    (PRIVATE)
     !!--..    Calling sequence: Call RANDOM_SEED(size=k,put=seed(1:k),get=old(1:k))
@@ -409,7 +409,7 @@
     !!
     Subroutine Init_Ran(Seed)
        !---- Argument ----!
-       integer, dimension(1), intent (in) :: seed
+       integer, dimension(:), intent (in) :: seed
 
        if (seed(1) == 0) then
           call random_seed() !seed selected by the system clock

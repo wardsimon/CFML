@@ -26,26 +26,34 @@ rem ****---- Absoft Compiler ----****
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
-   lf95 -c observ.f90             -tp  -stchk -chk -o0 -mod ".;c:\CrysFML\Lahey\LibC"
-   lf95 -c cost_functions.f90     -tp  -stchk -chk -o0 -mod ".;c:\CrysFML\Lahey\LibC"
-   lf95 -c Optim_General.f90      -tp  -stchk -chk -o0 -mod ".;c:\CrysFML\Lahey\LibC"
-   lf95  *.obj -out Optim_General -tp  -stchk -chk -o0 -lib c:\CrysFML\Lahey\LibC\CrysFML
+   lf95 -c observ.f90             -tp  -nstchk -nchk  -o3 -mod ".;c:\CrysFML\Lahey\LibC"
+   lf95 -c cost_functions.f90     -tp  -nstchk -nchk  -o3 -mod ".;c:\CrysFML\Lahey\LibC"
+   lf95 -c Optim_General.f90      -tp  -nstchk -nchk  -o3 -mod ".;c:\CrysFML\Lahey\LibC"
+   lf95  *.obj -out Optim_General_lf -tp  -nstchk -nchk -o3 -lib c:\CrysFML\Lahey\LibC\CrysFML
    goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c observ.f90             /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /c cost_functions.f90     /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /c Optim_General.f90      /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:Optim_General *.obj  C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:64000000
+   ifort /c observ.f90             /O3 /nologo /IC:\CrysFML\Intel\LibC
+   ifort /c cost_functions.f90     /O3 /nologo /IC:\CrysFML\Intel\LibC
+   ifort /c Optim_General.f90      /O3 /nologo /IC:\CrysFML\Intel\LibC
+   ifort /exe:Optim_General_if *.obj  C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:64000000
    goto END
 rem
 rem **---- G95 Compiler ----**
 :G95
+   g95 -c observ.f90          -O3  -std=f2003  -funroll-loops  -msse2  -IC:\CrysFML\G95\LibC
+   g95 -c cost_functions.f90  -O3  -std=f2003  -funroll-loops  -msse2  -IC:\CrysFML\G95\LibC
+   g95 -c Optim_General.f90   -O3  -std=f2003  -funroll-loops  -msse2  -IC:\CrysFML\G95\LibC
+   g95  *.o -o  Optim_General_g95  -LC:\CrysFML\G95\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
+   gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
+   gfortran -c Optim_General.f90   -O3 -funroll-loops  -msse2  -IC:\CrysFML\GFortran\LibC
+   gfortran  *.o -o  Optim_General_gf  -LC:\CrysFML\GFortran\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
 rem
 :END

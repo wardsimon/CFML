@@ -47,7 +47,7 @@
 Module CFML_PowderProfiles_TOF
     !---- Use Modules ----!
     Use CFML_Constants, only: cp, dp, sp
-    
+
     !---- Variables ----!
     implicit none
 
@@ -109,7 +109,7 @@ Module CFML_PowderProfiles_TOF
        real(kind=cp) :: eta      ! omega_e  DOmega/Deta                     "
        real(kind=cp) :: kappa    ! omega_e  DOmega/kappa    (for tof_Carpenter function)
     End Type Deriv_TOF_Type
-    
+
     !!----
     !!---- LORCOMP
     !!----    logical, public  :: lorcomp
@@ -294,9 +294,9 @@ Module CFML_PowderProfiles_TOF
 
        return
     End Function Expi_E1
-    
+
     !---- Subroutines ----!
-    
+
     !!----
     !!---- Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
     !!----    real(kind=cp),             intent( in) :: dt        ! dt = TOF(channel i) -TOF(Bragg position)
@@ -310,7 +310,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=cp),             intent(out) :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv     ! present if derivatives are to be calculated
     !!----
-    !!----    Calculate de Profile of TOF according to Carpenter 
+    !!----    Calculate de Profile of TOF according to Carpenter
     !!--..    Author:Laurent C Chapon
     !!----
     !!---- Update: October - 2005
@@ -548,7 +548,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=cp),             intent(out)  :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out)  :: deriv    ! present if derivatives are to be calculated
     !!----
-    !!----    Calculate de Profile of TOF according to Jorgensen 
+    !!----    Calculate de Profile of TOF according to Jorgensen
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
     !!---- Update: October - 2005
@@ -643,7 +643,7 @@ Module CFML_PowderProfiles_TOF
     !!----    real(kind=cp),             intent(out) :: tof_peak
     !!----    type(Deriv_TOF_Type), optional, intent(out) :: deriv    ! present if derivatives are to be calculated
     !!----
-    !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele 
+    !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele
     !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
     !!----
     !!---- Update: October - 2005

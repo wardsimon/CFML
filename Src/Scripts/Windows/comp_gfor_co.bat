@@ -15,7 +15,9 @@ rem
    gfortran -c CFML_ffts.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_string_util.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_io_mess.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_Profile_TOF.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
+rem -std=f2003 removed in TOF because probably there is a conflict of names
+rem  is erfc an intrinsic function in  F2003?
+   gfortran -c CFML_Profile_TOF.f90      -O3              -funroll-loops  -msse2  >> out
    gfortran -c CFML_Profile_Finger.f90   -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_Profile_Functs.f90   -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
@@ -57,7 +59,8 @@ rem
 rem
    gfortran -c CFML_maps.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_molecules.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_conf_calc.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
+rem -std=f2003 removed because calls to flush subroutine
+   gfortran -c CFML_conf_calc.f90        -O3              -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 6 ----**
    echo .... Formats
@@ -66,16 +69,17 @@ rem
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
-rem   
+rem
    gfortran -c CFML_refcodes.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_optimization_san.f90 -O3  -std=f2003  -funroll-loops  -msse2  >> out
+rem -std=f2003 removed because calls to flush subroutine
+   gfortran -c CFML_optimization_san.f90 -O3              -funroll-loops  -msse2  >> out
    gfortran -c CFML_magsymm.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors
 rem
    gfortran -c CFML_msfac.f90            -O3  -std=f2003  -funroll-loops  -msse2  >> out
-rem   
+rem
    echo **---- Crysfml Library: Console version ----**
 rem
    ar cr libcrysfml.a *.o

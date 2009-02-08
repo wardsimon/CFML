@@ -1,5 +1,6 @@
 Program Optimizing_structures
    !---- Use Modules ----!
+   !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
@@ -45,10 +46,12 @@ Program Optimizing_structures
                                          fst_out=.false., local_opt=.false., rest_file=.false.
 
     !---- Arguments on the command line ----!
-    narg=iargc()
+    !narg=iargc()
+    narg=COMMAND_ARGUMENT_COUNT()
 
     if(narg > 0) then
-            call getarg(1,filcod)
+            !call getarg(1,filcod)
+            call GET_COMMAND_ARGUMENT(1,filcod)
             arggiven=.true.
     end if
 
@@ -354,7 +357,7 @@ Subroutine Write_FST(fst_file,v,cost)
    character(len=*),     intent(in):: fst_file
    real,dimension(:),    intent(in):: v
    real,                 intent(in):: cost
-   
+
    !----- Local variables -----!
    integer :: lun,i,nc, ier
    character(len=132)                 :: file_fst,fst_cmd
@@ -396,9 +399,10 @@ Subroutine Write_FST(fst_file,v,cost)
       end do
       write(unit=lun,fmt="(a)") "!"
       call flush(lun)
+      !flush(lun)
       close(unit=lun)
    end if
-   
+
    return
 End Subroutine Write_FST
 
