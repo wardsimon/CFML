@@ -6,7 +6,7 @@
 if [ a$1 = a ]
 then
 cat << !
-make_crysfml  : Make the CrysFML Library using Fortran Linux Compilers
+make_crysfml  : Make the CrysFML Library using Fortran Mac Compilers
 Syntax        : make_crysfml af95:g95:gfortran:ifort:lf95 [win] [deb]
 !
 exit
@@ -229,7 +229,7 @@ else
           INC=""
           ;;
       'ifort')
-          INC="-I$WINTER/lib.if8"
+          INC="-I$WINTER/lib.ifi"
           ;;
       'lf95')
           INC="--include .:$WINTER/lib.l95"
