@@ -29,6 +29,7 @@
 !!----       READ_CELL
 !!----       READ_CIF_ATOM
 !!----       READ_CIF_CELL
+!!----       READ_CIF_CHEMICALNAME
 !!----       READ_CIF_CONT
 !!----       READ_CIF_HALL
 !!----       READ_CIF_HM
@@ -91,7 +92,7 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Form, Read_Atom, Read_Cell, Read_Cif_Atom, Read_Cif_Cell,                 &
               Read_Cif_Cont, Read_Cif_Hall, Read_Cif_Hm, Read_Cif_Lambda, Read_Cif_Symm,         &
-              Read_Cif_Title, Read_Cif_Z, Read_File_Atom, Read_File_Spg,                         &
+              Read_Cif_Title, Read_Cif_Z, Read_File_Atom, Read_File_Spg, Read_Cif_ChemicalName,  &
               Read_File_Transf, Read_Shx_Atom, Read_Shx_Cell, Read_Shx_Cont, Read_Shx_Fvar,      &
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
@@ -1061,6 +1062,49 @@
 
        return
     End Subroutine Read_Cif_Cell
+    
+    !!----
+    !!---- Subroutine Read_Cif_ChemicalName(Filevar,Nline_Ini,Nline_End,ChemName)
+    !!----    character(len=*),  dimension(:), intent(in) :: filevar      !  In -> String vector
+    !!----    integer,           intent(in out)           :: nline_ini    !  In -> Line to start the search
+    !!----                                                                  Out -> Actual line on Filevar
+    !!----    integer,           intent(in)               :: nline_end    !  In -> Line to finish the search
+    !!----    character(len=*),  intent(out)              :: ChemName     ! Out -> Title string
+    !!----
+    !!----    Obtaining Chemical Name from Cif file
+    !!----
+    !!---- Update: March - 2009
+    !!
+    Subroutine Read_Cif_ChemicalName(Filevar,Nline_Ini,Nline_End,ChemName)
+       !---- Arguments ----!
+       character(len=*),  dimension(:), intent(in) :: filevar
+       integer,           intent(in out)           :: nline_ini
+       integer,           intent(in)               :: nline_end
+       character(len=*),  intent(out)              :: ChemName
+
+       !---- Local variables ----!
+       integer :: np, np1, np2
+
+       ChemName=" "
+       call Read_Key_StrVal(filevar,nline_ini,nline_end, &
+                            "_chemical_name_common",ChemName)
+                            
+       if (len_trim(chemname) == 0) then
+          call Read_Key_StrVal(filevar,nline_ini,nline_end, &
+                            "_chemical_name_systematic",ChemName) 
+       end if                       
+
+       if (len_trim(chemname) > 0) then
+          if (trim(chemname) =="; ?" .or. trim(chemname)=="#") chemname=" "
+          np1=index(chemname,"'")
+          np2=index(chemname,"'",back=.true.)
+          if (np1 /= 0 .and. np2 /= 0) then
+             chemname=chemname(np1+1:np2-1)
+          end if
+       end if
+
+       return
+    End Subroutine Read_Cif_ChemicalName
 
     !!----
     !!---- Subroutine Read_Cif_Cont(Filevar,Nline_Ini,Nline_End,N_Elem_Type,Elem_Type,N_Elem)
