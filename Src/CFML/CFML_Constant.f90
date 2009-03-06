@@ -3,7 +3,7 @@
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Constants
-!!----   INFO: Precision for for CrysFML library
+!!----   INFO: Precision for for CrysFML library and Operating System information
 !!----
 !!---- HISTORY
 !!--..    Update: January - 2009
@@ -48,9 +48,9 @@ Module CFML_Constants
    !!----
    !!---- Update: March 2009
    !!
-   integer, parameter :: OPS= 1
-   !integer, parameter :: OPS= 2
-   !integer, parameter :: OPS= 3
+   integer, parameter :: OPS= 1    !Windows
+   !integer, parameter :: OPS= 2    !MacOS
+   !integer, parameter :: OPS= 3    !Linux
 
    !!----
    !!---- OPS_NAME
