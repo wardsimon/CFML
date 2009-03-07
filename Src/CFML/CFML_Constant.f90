@@ -4,6 +4,7 @@
 !!----
 !!---- MODULE: CFML_Constants
 !!----   INFO: Precision for for CrysFML library and Operating System information
+!!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
 !!--..    Update: January - 2009
@@ -37,6 +38,7 @@ Module CFML_Constants
 
    !---- Variables ----!
    implicit None
+   public
 
    !------------------------------------!
    !---- Operating System variables ----!
@@ -44,23 +46,43 @@ Module CFML_Constants
 
    !!----
    !!---- OPS
-   !!----   Integer variable 1: Windows, 2: Mac, 3: Linux
+   !!----   Integer variable 1: Windows, 2: Mac, 3: Linux, ....
+   !!----   This is a variable set by the user of the library for the case
+   !!----   that there is no external library with a procedure for getting
+   !!----   the operating system.
    !!----
    !!---- Update: March 2009
    !!
-   integer, parameter :: OPS= 1    !Windows
-   !integer, parameter :: OPS= 2    !MacOS
-   !integer, parameter :: OPS= 3    !Linux
+   integer, parameter :: OPS= 1    ! Windows
+   !integer, parameter :: OPS= 2    ! Linux
+   !integer, parameter :: OPS= 3    ! MacOS
+   !integer, parameter :: OPS= 4    ! Solaris
 
    !!----
    !!---- OPS_NAME
    !!----   Character variable containing the name of the operating system
+   !!----   This is a variable set by the user of the library for the case
+   !!----   that there is no external library with a procedure for getting
+   !!----   the operating system.
    !!----
    !!---- Update: March 2009
    !!
    character(len=*), parameter :: OPS_NAME="Windows"
-   !character(len=*), parameter :: OPS_NAME="MacOS"
    !character(len=*), parameter :: OPS_NAME="Linux"
+   !character(len=*), parameter :: OPS_NAME="MacOS"
+   !character(len=*), parameter :: OPS_NAME="Solaris"
+
+   !!----
+   !!---- OPS_SEP
+   !!----   ASCII code of directory separator character
+   !!----   Here it is written explicitly as a character variable
+   !!----
+   !!---- Update: March 2009
+   !!
+   character(len=*), parameter :: OPS_SEP="\"
+   !character(len=*), parameter :: OPS_SEP="/"
+   !character(len=*), parameter :: OPS_SEP="/"
+   !character(len=*), parameter :: OPS_SEP=":"  !Old MacOS
 
    !------------------------------!
    !---- Precision Parameters ----!
@@ -108,7 +130,7 @@ Module CFML_Constants
    !!---- TO_DEG
    !!----    real(kind=dp), parameter ::  to_DEG = 180.0_dp/pi
    !!----
-   !!----    Conversion from Rad to Degree
+   !!----    Conversion from Radians to Degrees
    !!----
    !!---- Update: January - 2009
    !!
@@ -118,7 +140,7 @@ Module CFML_Constants
    !!---- TO_RAD
    !!----    real(kind=dp), parameter ::  to_RAD  = pi/180.0_dp
    !!----
-   !!----    Conversion from Degree to Rad
+   !!----    Conversion from Degrees to Radians
    !!----
    !!---- Update: January - 2009
    !!
@@ -142,7 +164,7 @@ Module CFML_Constants
    !!---- DEPS
    !!----    real(kind=dp), parameter :: deps=0.00000001_dp
    !!----
-   !!----    Epsilon value
+   !!----    Epsilon value use for comparison of real numbers
    !!----
    !!---- Update: January - 2009
    !!
@@ -152,7 +174,7 @@ Module CFML_Constants
    !!----  EPS
    !!----     real(kind=cp), public ::  eps=0.00001_cp
    !!----
-   !!----     Epsilon value
+   !!----     Epsilon value use for comparison of real numbers
    !!----
    !!----  Update: January - 2009
    !!
