@@ -16,20 +16,20 @@
 !!--..             | a*   b*.cos(gamma*)   c*.cos(beta*)            |
 !!--..      [B] =  | 0    b*.sin(gamma*)  -c*.sin(beta*).cos(alpha) |
 !!--..             ! 0          0          1/c                      |
-!!--..   
+!!--..
 !!--..          [hc] = [B] [h]
-!!--..   
+!!--..
 !!--..      Let U be the orthogonal matrix relating the phi-axis system
 !!--..      attached to the phi-shaft of the instrument with the Cartesian crystal system
 !!--..      then     [h-phi]= [U] [hc]      [h-phi] = [U] [B] [h] = [UB] [h]
-!!--..   
+!!--..
 !!--..      Let us define three more cartesian systems attached to the Chi,Omega and
 !!--..      Theta axes, coincident with phi-axis when all instrument angles are set
 !!--..      to zero :
 !!--..         [h-chi] = [PHI] [h-phi]
 !!--..         [h-omg] = [CHI] [h-chi]
 !!--..         [h-tet] = [OMG] [h-omg]
-!!--..   
+!!--..
 !!--..               |  cos(phi)      sin(phi)      0  |             |zL-axis
 !!--..       [PHI] = | -sin(phi)      cos(phi)      0  |             |
 !!--..               |     0            0           1  |             |
@@ -37,11 +37,11 @@
 !!--..               |  cos(chi)       0     sin(chi)  |            /
 !!--..       [CHI] = |     0           1       0       |           /
 !!--..               | -sin(chi)       0     cos(chi)  |          /xL-axis
-!!--..   
+!!--..
 !!--..               |  cos(omg)      sin(omg)      0  |
 !!--..       [OMG] = | -sin(omg)      cos(omg)      0  |
 !!--..               |     0            0           1  |
-!!--..   
+!!--..
 !!--..      Let us define 2 more Cartesian frames: The laboratory fixed system
 !!--..      and the 2Theta-axis system attached to the 2theta shaft. All coincide
 !!--..      for all angles equal to zero.
@@ -51,26 +51,26 @@
 !!--..               |  cos(the)      sin(the)      0  |
 !!--..       [THE] = | -sin(the)      cos(the)      0  |
 !!--..               |     0            0           1  |
-!!--..   
+!!--..
 !!--..                           |  cos(nu)      sin(nu)      0  |
 !!--..       [N] = [THE] [OMG] = | -sin(nu)      cos(nu)      0  |  with nu=omg+tet
 !!--..                           |     0            0         1  |
-!!--..   
+!!--..
 !!--..                            |  cos(mu)      sin(mu)      0  |
 !!--..       [M] = [THE]t [OMG] = | -sin(mu)      cos(mu)      0  |  with mu=omg-tet
 !!--..                            |     0            0         1  |
 !!--..    All angles, except Chi, are left-handed rotations about their respective axes.
-!!--..   
+!!--..
 !!--..      Basic Diffractometer equations:
 !!--..            q = |h| = sqrt(dot_product(hc,hc)), with [hc]=[B][h]
 !!--..      Bragg equation: sin(theta) = Lambda.q/2
 !!--..      The reflection [h] is in the diffraction position if
 !!--..           [h-tet] = [OMG] [CHI] [PHI] [U] [B] [h]
 !!--..      has the form [h-tet]t = (q, 0, 0)
-!!--..   
+!!--..
 !!--..    The orientation matrix U can be obtained from two non-colinear reflections h1 & h2,
 !!--..    provided the cell parameters are known
-!!--..   
+!!--..
 !!--..    Two kind of Busing-Levy (BL) frames are possible:
 !!--..    For both frames the origin is at sample position and the y-axis
 !!--..    positive sense is along the secondary beam (from monochromator to sample)
@@ -80,16 +80,16 @@
 !!--..    angles are from y-axis towards x-axis
 !!--..    A change of geometry is always possible by providing the components of the
 !!--..    axes {e1,e2,e3} with respect to the standard {i,j,k} BL-frame
-!!--..   
+!!--..
 !!--..    igeom=1: Bissectrice (PSI=0)
 !!--..    igeom=2: Bissecting - HiCHI
 !!--..    igeom=3: Normal beam
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
 !!---- DEPENDENCIES
-!!--++   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps
+!!--++   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
 !!--++   Use CFML_Math_General,     only: cosd,sind
-!!--++   use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
+!!--++   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
 !!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
 !!--++                                    invert => Invert_A
 !!----
@@ -107,18 +107,25 @@
 !!----    CYCLE_NUMBER
 !!----    ERR_ILLDATA
 !!----    ERR_ILLDATA_MESS
+!!--++    GOT_ILL_DATA_DIRECTORY            [Private]
+!!--++    GOT_ILL_TEMP_DIRECTORY            [Private]
 !!----    ILL_DATA_DIRECTORY
 !!--++    ILL_TEMP_DIRECTORY                [Private]
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
 !!----    MACHINE_NAME
+!!----    UNCOMPRESSCOMMAND
+!!----    YEAR
 !!----
 !!---- PROCEDURES
 !!----    Functions:
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_SXTAL_NUMORS
+!!----       GET_ABSOLUTE_DATA_PATH
+!!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
+!!----       INITIALIZE_DATA_DIRECTORY
 !!----       READ_CURRENT_INSTRM
 !!----       READ_SXTAL_NUMOR
 !!----       SET_CURRENT_ORIENT
@@ -132,23 +139,24 @@
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
-   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps
+   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, ops, ops_sep
    Use CFML_Math_General,     only: cosd,sind
-   use CFML_String_Utilities, only: dirslash, u_case, lcase, Get_LogUnit, Number_Lines
+   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                     invert => Invert_A
    !---- Variables ----!
    Implicit none
-   
+
    private
 
    !---- Public Subroutines ----!
    public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,   &
              Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
-             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D
+             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D, &
+             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_yearcycle
 
    !---- Definitions ----!
-   
+
    !!----
    !!---- TYPE :: DIFFRACTOMETER_TYPE
    !!--..
@@ -219,7 +227,7 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
       real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    End Type diffractometer_type
-   
+
    !!----
    !!---- TYPE :: ILL_DATA_RECORD_TYPE
    !!--..
@@ -267,7 +275,7 @@ Module CFML_ILL_Instrm_Data
    !!----    Definition for Data Record type
    !!----
    !!---- Update: April - 2008
-   !!          
+   !!
    Type, public :: ILL_data_record_type
       integer                     :: numor      ! data set numor.
       integer                     :: nset_prime ! set number (groups of 100000 numor).
@@ -342,7 +350,7 @@ Module CFML_ILL_Instrm_Data
    !!----    Definition for XTAL Numor type
    !!----
    !!---- Update: April - 2008
-   !! 
+   !!
    Type, public :: SXTAL_Numor_type
       integer                                    :: numor       ! Numor
       integer                                    :: manip       ! principle scan angle
@@ -390,7 +398,7 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp),dimension(3,3) :: UBINV      !Inverse of UB-matrix
       real(kind=cp),dimension(3,3) :: CONV       !Conversion matrix to the local setting
    End type SXTAL_Orient_type
-   
+
    !!----
    !!---- CURRENT_INSTRM
    !!----    type(diffractometer_type), public :: Current_Instrm
@@ -405,13 +413,13 @@ Module CFML_ILL_Instrm_Data
    !!--++ CURRENT_INSTRM_SET
    !!--++    logical, private :: Current_Instrm_set
    !!--++
-   !!--++    set to .true. if the Current_Instrm has been set up by calling 
+   !!--++    set to .true. if the Current_Instrm has been set up by calling
    !!--++    to Read_Current_Instrm
    !!--++
    !!--++ Update: April - 2008
    !!
-   logical, private :: Current_Instrm_set=.false. 
-   
+   logical, private :: Current_Instrm_set=.false.
+
    !!----
    !!---- CURRENT_ORIENT
    !!----    type(SXTAL_Orient_type), public :: Current_Orient
@@ -422,7 +430,7 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    type(SXTAL_Orient_type), public :: Current_Orient
-   
+
    !!----
    !!---- CYCLE_NUMBER
    !!----    integer, public :: cycle_number
@@ -432,7 +440,7 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    integer, public  ::  cycle_number
-   
+
    !!----
    !!---- ERR_ILLDATA
    !!----    logical, public:: ERR_ILLData
@@ -443,7 +451,7 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    logical, public :: ERR_ILLData=.false.
-   
+
    !!----
    !!---- ERR_ILLDATA_MESS
    !!----    character(len=150), public:: ERR_ILLData_Mess
@@ -459,8 +467,10 @@ Module CFML_ILL_Instrm_Data
    !!----    character(len=512), public :: ILL_data_directory
    !!----
    !!----    String containing information about the data directory for ILL
+   !!----    Initialised (automatic save attribute) for Windows case but set
+   !!----    in subroutine: Initialize_Data_Directory
    !!----
-   !!---- Update: April - 2008
+   !!---- Update: March - 2009
    !!
    character(len=512), public  ::  ILL_data_directory = "c:\diffraction_Windows\illdata\"
 
@@ -470,16 +480,18 @@ Module CFML_ILL_Instrm_Data
    !!--++
    !!--++    (Private)
    !!--++    String containing information about the data directory for ILL
+   !!--++    Initialised (automatic save attribute) for Windows case but set
+   !!--++    In subroutine: Initialize_Data_Directory
    !!--++
    !!--++ Update: April - 2008
    !!
    character(len=512), private ::  ILL_temp_directory = "c:\diffraction_Windows\illdata\"
-   
+
    !!----
    !!---- INSTRM_DIRECTORY
    !!----    character(len=512), public :: Instrm_directory
    !!----
-   !!----    String containing information about the data directory for specific 
+   !!----    String containing information about the data directory for specific
    !!----    instrument
    !!----
    !!---- Update: April - 2008
@@ -490,13 +502,36 @@ Module CFML_ILL_Instrm_Data
    !!--++ INSTRM_DIRECTORY_SET
    !!--++    logical, private:: Instrm_directory_set
    !!--++
-   !!--++    logical variable to taking the value .true. if set the instrument directory
+   !!--++    logical variable taking the value .true. if set the instrument directory
    !!--++    in correct form
    !!--++
    !!--++ Update: April - 2008
    !!
    logical, private :: Instrm_directory_set=.false.
-   
+
+   !!--++
+   !!--++ GOT_ILL_DATA_DIRECTORY
+   !!--++    logical, private:: got_ILL_data_directory
+   !!--++
+   !!--++    Logical variable taking the value .true. if the instrument directory
+   !!--++    has been obtained from subroutine Initialize_Data_Directory
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   logical, private :: got_ILL_data_directory = .false.
+
+   !!--++
+   !!--++ GOT_ILL_TEMP_DIRECTORY
+   !!--++    logical, private:: got_ILL_temp_directory
+   !!--++
+   !!--++    Logical variable taking the value .true. if the instrument directory
+   !!--++    for temporary uncompressed data has been obtained from subroutine
+   !!--++    Initialize_Data_Directory
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   logical, private :: got_ILL_temp_directory = .false.
+
    !!----
    !!---- MACHINE_NAME
    !!----    character(len=8), public :: machine_name
@@ -506,7 +541,30 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    character(len=8),   public  ::  machine_name
-   
+
+   !!----
+   !!---- UNCOMPRESSCOMMAND
+   !!----    character(len=512), public :: uncompresscommand
+   !!----
+   !!----    String containing the command for uncompressing compressed data files
+   !!----
+   !!---- Update: March - 2009
+   !!
+   character(len=512), public  ::  uncompresscommand
+
+   !!----
+   !!---- YEAR
+   !!----    Integer, public :: YEAR
+   !!----
+   !!----    Integer containing the two last figures of the "year" needed to
+   !!----    find datafiles
+   !!----
+   !!---- Update: March - 2009
+   !!
+   integer,            public  ::  year
+
+
+
  Contains
     !!----
     !!---- Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Num)
@@ -530,9 +588,9 @@ Module CFML_ILL_Instrm_Data
        integer, intent(in)                                               :: nframes
        type(SXTAL_Numor_type), allocatable, dimension(:), intent(in out) :: Num
 
-       !---- Local variables ----! 
+       !---- Local variables ----!
        integer :: i
-       
+
        if(allocated(Num)) deallocate(Num)
        allocate(Num(num_max))
 
@@ -556,20 +614,220 @@ Module CFML_ILL_Instrm_Data
           Num(i)%nbdata=0
           Num(i)%nbang=0
           Num(i)%nframes=0
-    
+
           if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
           allocate(Num(i)%tmc_ang(num_ang,nframes))
-    
+
           if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
           allocate(Num(i)%counts(ndata,nframes))
-    
+
           Num(i)%tmc_ang(:,:)=0.0
           Num(i)%counts(:,:)=0.0
        end do
 
        return
     End Subroutine Allocate_SXTAL_numors
-    
+
+
+    !!----
+    !!---- Subroutine Get_Absolute_Data_Path(numor,instrm,path,iyear,icycle)
+    !!----    integer, intent(in) :: numor
+    !!----    character(len=*), intent(in) :: instrm
+    !!----    character(len=*), intent(out) :: path
+    !!----    integer, optional, intent(in) :: iyear
+    !!----    integer, optional, intent(in) :: icycle
+    !!----
+    !!----    Finds the absolute path to any numor. The base directory
+    !!----    is set by a call to 'initialize_data_directory'. The subroutine
+    !!----    then searches for the numor in the following order:
+    !!----    1. In the subdirectory defined by the year and cycle if passed
+    !!----       as arguments to the subroutine (i.e args iyear, icycle).
+    !!----    2. In the subdirectory defined by the year and cycle of the
+    !!----       previous call to get_absolute_data_path (since numors are
+    !!----       likely to be adjacent).
+    !!----    3. In the 'data' subdirectory (since likely to process recent
+    !!----       data).
+    !!----    4. In the 'data-1' subdirectory (same logic as above)
+    !!----    5. Working from the current year and most recent cycle and
+    !!----       working back through cycles and year until the stopping
+    !!----       at the first cycle of 1973, when the first data was archived
+    !!----
+    !!----    Tries to find an uncompress numor first and then tries to find
+    !!----    a compressed numor (.Z extension). If found the numor is uncomp-
+    !!----    ressed in the a temporary directory if defined (see subroutine
+    !!----    'initialize_data_directory') or else into the current directory.
+    !!----    Nb At present no attempt is made to tidy up these uncompressed
+    !!----    numors, which could potentially litter the current directory.
+    !!----
+    !!---- Update: March - 2009
+    !!
+    Subroutine Get_Absolute_Data_Path(numor,instrm,path,iyear,icycle)
+
+      integer, intent(in) :: numor
+      character(len=*), intent(in) :: instrm
+      character(len=*), intent(out) :: path
+      integer, optional, intent(in) :: iyear
+      integer, optional, intent(in) :: icycle
+
+      character(len=*),parameter :: CURRENT_DATA = 'data'
+      character(len=*),parameter :: PREVIOUS_DATA = 'data-1'
+      character(len=*),parameter :: EXTENSION = '.Z'
+
+      character(len=6) :: numstr
+      character(len=4) :: inst
+      character(len=3) :: yearcycle
+      character(len=7) :: subdir
+      logical :: exists
+      integer :: i
+
+      if (.not. got_ILL_data_directory) call initialize_data_directory()
+
+			i = len_trim(ILL_data_directory)
+      if (.not. ILL_data_directory(i:i) == ops_sep) then
+        ILL_data_directory=trim(ILL_data_directory)//ops_sep
+      end if
+
+      write(numstr,'(I6.6)') numor
+      inst=adjustl(instrm)
+      call lcase(inst)
+
+      select case(inst)
+        case("d19","d9")
+          subdir = trim(inst)//"_" //numstr(2:2)//ops_sep
+        case default ! d10, d3 etc don't divide numors up into sub directories
+          subdir = ""
+      end select
+
+      if(present(iyear) .and. present(icycle)) then
+        write(yearcycle,"(i2.2,i1.1)") iyear,icycle
+        path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+        inquire(file=trim(path),exist=exists)
+        if(exists) return ! found numor so return
+        path = trim(path)//EXTENSION
+        inquire(file=trim(path),exist=exists)
+        if(exists) then ! uncompress into temp directory
+           if (got_ILL_temp_directory) then
+            call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+            path = trim(ILL_temp_directory)//numstr
+          else
+            call system(trim(uncompresscommand)//' '//trim(path)//' > '//'./'//numstr)
+            path = './'//numstr
+          end if
+          return ! found numor so return
+        end if
+      end if
+
+      write(yearcycle,"(i2.2,i1.1)") year,cycle_number ! try year and cycle of a previous call to routine
+      path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+      inquire(file=trim(path),exist=exists)
+      if (exists) return ! found numor so return
+      path = trim(path)//EXTENSION
+      inquire(file=trim(path),exist=exists)
+      if(exists) then ! uncompress into temp directory
+         if (got_ILL_temp_directory) then
+          call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+          path = trim(ILL_temp_directory)//numstr
+        else
+          call system(trim(uncompresscommand)//' '//trim(path)//' > '//'./'//numstr)
+          path = './'//numstr
+        end if
+        return ! found numor so return
+      end if
+
+      path = trim(ILL_data_directory)//CURRENT_DATA//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+      inquire(file=trim(path),exist=exists)
+      if(exists) return ! found numor so return
+
+      path = trim(ILL_data_directory)//PREVIOUS_DATA//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+      inquire(file=trim(path),exist=exists)
+      if(exists) return ! found numor so return
+
+      ! start from the most recent yearcycle and work search backwards
+      call get_next_yearcycle(yearcycle,.true.)
+      do
+        if (yearcycle == "") exit
+        path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+        inquire(file=trim(path),exist=exists)
+        if (exists) return
+        path = trim(path)//EXTENSION
+        inquire(file=trim(path),exist=exists)
+        if(exists) then ! uncompress into temp directory
+           if (got_ILL_temp_directory) then
+            write(*,*) trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr
+            call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+            path = trim(ILL_temp_directory)//numstr
+          else
+            call system(trim(uncompresscommand)//trim(path)//' > '//'./'//numstr)
+            path = './'//numstr
+          end if
+          return ! found numor so return
+        end if
+        call get_next_yearcycle(yearcycle)
+      end do
+
+      ! the numor was found compressed or uncompressed anywhere
+      path = ""
+      return
+
+    End Subroutine Get_Absolute_Data_Path
+
+    !!----
+    !!---- Subroutine Get_Next_yearcycle(yearcycle,reset_to_most_recent)
+    !!----    character(len=*), intent(out) :: yearcycle
+    !!----    logical, optional, intent(in) :: reset_to_most_recent
+    !!----
+    !!----    Works back through the cycles and years, returning
+    !!----    the previous yearcycle combination as a 3 character
+    !!----    string i.e.
+    !!----    if year = 6 and cycle_number = 5, returns '064'
+    !!----    if year = 6 and cycle_number = 1, returns '057'
+    !!----
+    !!----    The reset_to_most_recent flag allows the year and
+    !!----    cycle_number to be set to the most recent possible
+    !!----    If asked for a yearcycle before '731' (first cycle
+    !!----    of 1973) then returns "", since no data was archived
+    !!----    before this date.
+    !!----    (Original code from Mike Turner)
+    !!----
+    !!---- Update: March - 2009
+    !!
+     subroutine Get_Next_yearcycle(yearcycle,reset_to_most_recent)
+
+        character(len=*), intent(out) :: yearcycle
+        logical, optional, intent(in) :: reset_to_most_recent
+
+        integer, parameter    :: MAXCYCLE = 7
+        integer, dimension(8) :: dt
+        character(len=10)     :: date,time,zone
+
+        if(present(reset_to_most_recent)) then
+          if (reset_to_most_recent) then
+            call date_and_time (date, time, zone, dt)
+            year = mod(dt(1),100) ! last two digits of year
+            cycle_number = MAXCYCLE
+          end if
+        else
+          if (cycle_number /= 1) then
+            cycle_number = cycle_number -1
+          else
+            if (year == 0) then
+              year = 99
+            else
+              year = year - 1
+            end if
+            cycle_number = MAXCYCLE
+          end if
+        endif
+
+        if (year == 72) then ! no more point searching
+          yearcycle = ""
+        else
+          write(unit=yearcycle,fmt="(i2.2,i1.1)") year,cycle_number
+        end if
+        return
+
+     End Subroutine Get_Next_yearcycle
+
     !!----
     !!---- Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
     !!----    integer,                       intent(in)  :: nfr,iord
@@ -664,7 +922,108 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Get_Single_Frame_2D
-    
+
+    !!----
+    !!---- Subroutine Initialize_Data_Directory()
+    !!----
+    !!....   Original code from Mike Turner (as well as the following comments)
+    !!....     Depending on the operating system as reported by winteracter routine
+    !!....    InfoOpSystem, assigns values to the following global public variables:
+    !!....    sep, the path separator. "sep" has been replaced by "ops_sep" from CFML_Constants
+    !!....    InfoOpSystem is a function from Winteracter: replaced by OPS integer from
+    !!....    CFML_Constants
+    !!....
+    !!----    Subroutine assigning values to the following global public variables:
+    !!----    "ILL_data_directory", the base directory for the ILL data, if found then
+    !!----    the flag got_ILL_data_directory is set to true.
+    !!----    "ILL_temp_directory", a temporary directory (used for uncompressing), if
+    !!----    found the flag got_ILL_temp_directory is set to true.
+    !!----    "uncompresscommand", the command required for uncompressing the data.
+    !!----    Original code from Mike Turner, changed to make the subroutine independent of
+    !!----    the Winteracter library
+    !!----
+    !!---- Update: March - 2009
+    !!
+    Subroutine Initialize_Data_Directory()
+
+      character(len=*), parameter :: ENVVAR1 = 'ILL_data'
+      character(len=*), parameter :: ENVVAR2 = 'DI1'
+
+      logical :: exists
+
+      select case (OPS)  !OPS integer constant from CRML_Constants
+                         ! OPS=1 => Windows (ops_sep="\")  OPS >1 => UNIX (ops_sep="/")
+
+        case (1)  !Windows
+
+          uncompresscommand = 'suitable command to uncompress numors under windows'
+
+          ILL_temp_directory = 'C:\temp\'
+          inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+          if (exists) got_ILL_temp_directory = .true.
+
+          ILL_data_directory = '\\Serdon\illdata'
+          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
+          if (exists) then
+            got_ILL_temp_directory = .true.
+            return
+          end if
+
+          call getenv(ENVVAR1, ILL_data_directory)
+          if(len_trim(ILL_data_directory) /= 0) then
+            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+            if (exists) then
+              got_ILL_temp_directory = .true.
+              return
+            end if
+          end if
+
+        case (2:)  !Different variants of UNIX (Linux, MacOS, ...)
+          uncompresscommand = 'gunzip -c'
+
+          ILL_temp_directory = '/tmp/'
+          inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+          if (exists) got_ILL_temp_directory = .true.
+
+          ILL_data_directory = '/usr/illdata/'
+          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
+          if (exists) then
+            got_ILL_temp_directory = .true.
+            return
+          end if
+
+          ILL_data_directory = '/net/serdon/illdata/'
+          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
+          if (exists) then
+            got_ILL_temp_directory = .true.
+            return
+          end if
+
+          call getenv(ENVVAR1, ILL_data_directory)
+          if(len_trim(ILL_data_directory) /= 0) then
+            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+            if (exists) then
+              got_ILL_temp_directory = .true.
+              return
+            end if
+          end if
+
+          call getenv(ENVVAR2, ILL_data_directory)
+          if(len_trim(ILL_data_directory) /= 0) then
+            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+            if (exists) then
+              got_ILL_temp_directory = .true.
+              return
+            end if
+          end if
+
+        case default
+           call error_message("Fault: Unknown Operating System ")
+           stop
+        end select
+        return
+      End Subroutine Initialize_Data_Directory
+
     !!----
     !!---- Subroutine Read_Current_Instrm(filenam)
     !!----    character(len=*),  intent(in) :: filenam
@@ -895,7 +1254,7 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_Current_Instrm
-    
+
     !!----
     !!---- Subroutine Read_Numor(numor,instrm,snum)
     !!----    integer,                intent(in)    :: numor
@@ -923,7 +1282,7 @@ Module CFML_ILL_Instrm_Data
        integer                         :: i,j, lun, ier
        integer, dimension(31)          :: ival
        real(kind=cp),    dimension(50) :: rval
-       logical                         :: existe    
+       logical                         :: existe
 
        inst=adjustl(instrm)
        call lcase(inst)
@@ -937,58 +1296,58 @@ Module CFML_ILL_Instrm_Data
        Select Case (inst)
 
           Case("d10","d3")
-              filenam=trim(Instrm_directory)//dirslash//line(1:6)
+              filenam=trim(Instrm_directory)//ops_sep//line(1:6)
 
           Case("d9")
             Select case(line(1:2))
                Case("00")
-                 filenam=trim(Instrm_directory)//"d9_0"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_0"//ops_sep//line(1:6)
                Case("01")
-                 filenam=trim(Instrm_directory)//"d9_1"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_1"//ops_sep//line(1:6)
                Case("02")
-                 filenam=trim(Instrm_directory)//"d9_2"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_2"//ops_sep//line(1:6)
                Case("03")
-                 filenam=trim(Instrm_directory)//"d9_3"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_3"//ops_sep//line(1:6)
                Case("04")
-                 filenam=trim(Instrm_directory)//"d9_4"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_4"//ops_sep//line(1:6)
                Case("05")
-                 filenam=trim(Instrm_directory)//"d9_5"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_5"//ops_sep//line(1:6)
                Case("06")
-                 filenam=trim(Instrm_directory)//"d9_6"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_6"//ops_sep//line(1:6)
                Case("07")
-                 filenam=trim(Instrm_directory)//"d9_7"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_7"//ops_sep//line(1:6)
                Case("08")
-                 filenam=trim(Instrm_directory)//"d9_8"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_8"//ops_sep//line(1:6)
                Case("09")
-                 filenam=trim(Instrm_directory)//"d9_9"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d9_9"//ops_sep//line(1:6)
             End Select
 
           Case("d19")
             Select case(line(1:2))
                Case("00")
-                 filenam=trim(Instrm_directory)//"d19_0"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_0"//ops_sep//line(1:6)
                Case("01")
-                 filenam=trim(Instrm_directory)//"d19_1"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_1"//ops_sep//line(1:6)
                Case("02")
-                 filenam=trim(Instrm_directory)//"d19_2"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_2"//ops_sep//line(1:6)
                Case("03")
-                 filenam=trim(Instrm_directory)//"d19_3"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_3"//ops_sep//line(1:6)
                Case("04")
-                 filenam=trim(Instrm_directory)//"d19_4"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_4"//ops_sep//line(1:6)
                Case("05")
-                 filenam=trim(Instrm_directory)//"d19_5"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_5"//ops_sep//line(1:6)
                Case("06")
-                 filenam=trim(Instrm_directory)//"d19_6"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_6"//ops_sep//line(1:6)
                Case("07")
-                 filenam=trim(Instrm_directory)//"d19_7"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_7"//ops_sep//line(1:6)
                Case("08")
-                 filenam=trim(Instrm_directory)//"d19_8"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_8"//ops_sep//line(1:6)
                Case("09")
-                 filenam=trim(Instrm_directory)//"d19_9"//dirslash//line(1:6)
+                 filenam=trim(Instrm_directory)//"d19_9"//ops_sep//line(1:6)
             End Select
 
        End Select
-       
+
        !---- Check if the data exist uncompressed or compressed
        inquire(file=trim(filenam),exist=existe)
        if (.not. existe) then
@@ -1097,7 +1456,7 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_SXTAL_Numor
-    
+
     !!----
     !!---- Subroutine Set_Current_Orient(wave,ub,setting)
     !!----   real(kind=cp),                         intent(in)   :: wave
@@ -1116,13 +1475,13 @@ Module CFML_ILL_Instrm_Data
        real(kind=cp),                         intent(in)   :: wave
        real(kind=cp), dimension(3,3),         intent(in)   :: ub
        real(kind=cp), dimension(3,3),optional,intent(in)   :: setting
-       
+
        !--- Local variables ---!
        real(kind=cp)                 :: det
        real(kind=cp), dimension(3,3) :: mat
 
        Current_Orient%conv=reshape( (/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/),(/3,3/))
-       
+
        if (present(setting)) then
           mat=matmul(setting,ub)  !check that point
           Current_Orient%conv=setting
@@ -1245,14 +1604,14 @@ Module CFML_ILL_Instrm_Data
 
        else
           call getenv("ILL_DATA", ILL_data)
-          if (len_trim(ILL_data) > 0) then 
+          if (len_trim(ILL_data) > 0) then
              ILL_data_directory = trim(ILL_data)
           end if
        end if
 
        !---- Add separator if absent ----!
        len_d=len_trim(ILL_data_directory)
-       if (ILL_data_directory(len_d:len_d) /= dirslash) ILL_data_directory(len_d+1:len_d+1)=dirslash
+       if (ILL_data_directory(len_d:len_d) /= ops_sep) ILL_data_directory(len_d+1:len_d+1)=ops_sep
 
        !---- Check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
@@ -1273,7 +1632,7 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!----    Assign the global public variable: Instrm_directory
     !!----    The intent 'in' variable instrm is the name of the diffractometer
-    !!----    Instrm_directory=trim(ILL_data_directory)//trim(instrm)//dirslash
+    !!----    Instrm_directory=trim(ILL_data_directory)//trim(instrm)//ops_sep
     !!----    It is assumed that the subroutine Set_ILL_data_directory has
     !!----    already been called.
     !!----    If the directory doesn't exist the subroutine rises an error condition
@@ -1287,9 +1646,9 @@ Module CFML_ILL_Instrm_Data
        character(len=*),  intent(in) :: instrm  !Name of the instrument
 
        !---- Local Variables ----!
-       logical :: existe 
+       logical :: existe
 
-       Instrm_directory=trim(ILL_data_directory)//trim(instrm)//dirslash
+       Instrm_directory=trim(ILL_data_directory)//trim(instrm)//ops_sep
 
        !---- check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
@@ -1449,8 +1808,8 @@ Module CFML_ILL_Instrm_Data
        !--- Local variables ---!
        integer           :: ipr,i
        character(len=10) :: forma
-       
-       
+
+
        ipr=6
        if (present(lun)) ipr=lun
        if (.not. present(fil)) then
@@ -1553,7 +1912,7 @@ Module CFML_ILL_Instrm_Data
              write(unit=ipr,fmt=forma) Current_Instrm%alphas(i,1:Current_Instrm%np_horiz)
           end do
        end if
-       
+
        return
     End Subroutine Write_Current_Instrm_data
 
@@ -1573,11 +1932,11 @@ Module CFML_ILL_Instrm_Data
        !---- Arguments ----!
        type(SXTAL_Numor_type), intent(in) :: Num
        integer,      optional, intent(in) :: lun
-       
+
        !--- Local variables ---!
        integer       :: ipr, i, cou, ctot
        real(kind=cp) :: tim,mon,ang1,ang2
-       
+
        ipr=6
        if (present(lun)) ipr=lun
 

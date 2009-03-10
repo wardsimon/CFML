@@ -17,7 +17,6 @@
 !!---- VARIABLES
 !!--++    CTAB                    [Private]
 !!--++    DIGIT                   [Private]
-!!----    DIRSLASH
 !!----    ERR_String_Mess
 !!----    ERR_STRING
 !!----    ERR_TEXT_TYPE
@@ -107,17 +106,6 @@
 
 
     !---- Definitions ----!
-
-    !!----
-    !!---- DIRSLASH
-    !!----    character (len=1), public, parameter :: dirslash="\"
-    !!----
-    !!----    Separator of Directories: "\" for Windows and "/" for the rest
-    !!----
-    !!---- Update: January - 2009
-    !!
-    character (len=1), public, parameter :: dirslash="\"  ! For Windows
-    !character (len=1), public, parameter :: dirslash="/"  ! For Linux
 
     !!--++
     !!--++ CTAB

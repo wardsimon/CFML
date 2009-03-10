@@ -15,6 +15,7 @@
 !!--..
 !!----    OPS
 !!----    OPS_NAME
+!!----    OPS_SEP
 !!--..
 !!--..    Precision Data
 !!--..
@@ -63,7 +64,7 @@ Module CFML_Constants
    !!----   Character variable containing the name of the operating system
    !!----   This is a variable set by the user of the library for the case
    !!----   that there is no external library with a procedure for getting
-   !!----   the operating system.
+  !!----   the operating system.
    !!----
    !!---- Update: March 2009
    !!
