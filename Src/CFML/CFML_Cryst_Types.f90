@@ -1578,13 +1578,13 @@
              !  dM_da =  (   0      0      0 )
              !           (   0      0      0 )
              de_Orthcell(1,1,1) = 1.0
-             
+
              !           (   0      cg     0 )
              !  dM_db =  (   0      sg     0 )
              !           (   0      0      0 )
              de_Orthcell(1,2,2) = cg
              de_Orthcell(2,2,2) = sg
-             
+
              !
              !            (   0          0          cb )
              !  dM_dc =   (   0          0          f  )
@@ -1592,7 +1592,7 @@
              de_Orthcell(1,3,3) = cb
              de_Orthcell(2,3,3) = f
              de_Orthcell(3,3,3) = g
-             
+
              !
              !             (   0          0           0   )
              ! dM_dalpha=  (   0          0          c*fa )
@@ -1600,7 +1600,7 @@
              !
              de_Orthcell(2,3,4) = cellp%cell(3)*fa
              de_Orthcell(3,3,4) = cellp%cell(3)*ga
-             
+
              !
              !             (   0          0         -c*sb )
              ! dM_dbeta =  (   0          0          c*fb )
@@ -1609,7 +1609,7 @@
              de_Orthcell(1,3,5) = -cellp%cell(3)*sb
              de_Orthcell(2,3,5) =  cellp%cell(3)*fb
              de_Orthcell(3,3,5) =  cellp%cell(3)*gb
-             
+
              !
              !              (   0        -b*sg         0   )
              ! dM_dgamma =  (   0         b*cg        c*fc )
@@ -1619,7 +1619,7 @@
              de_Orthcell(2,2,6) =  cellp%cell(2)*cg
              de_Orthcell(2,3,6) =  cellp%cell(3)*fc
              de_Orthcell(3,3,6) =  cellp%cell(3)*gc
-             
+
              return
           end if
        end if
@@ -1661,13 +1661,13 @@
        !           (   0      ca     0 )
        de_Orthcell(1,2,2) = sa
        de_Orthcell(3,2,2) = ca
-       
+
        !
        !            (   0      0      0  )
        !  dM_dc =   (   0      0      0  )
        !            (   0      0      1  )
        de_Orthcell(3,3,3) = 1
-       
+
        !
        !             ( a*ga         0          0 )
        ! dM_dalpha=  ( a*fa       -b*ca        0 )
@@ -1677,7 +1677,7 @@
        de_Orthcell(2,1,4) = cellp%cell(1)*fa
        de_Orthcell(2,2,4) =-cellp%cell(2)*ca
        de_Orthcell(3,2,4) = cellp%cell(2)*sa
-       
+
        !
        !             (  a*gb        0         0 )
        ! dM_dbeta =  (  a*fb        0         0 )
@@ -1686,7 +1686,7 @@
        de_Orthcell(1,1,5) = cellp%cell(1)*gb
        de_Orthcell(2,1,5) = cellp%cell(1)*fb
        de_Orthcell(3,1,5) =-cellp%cell(1)*sb
-       
+
        !
        !              (  a*gc     0      0   )
        ! dM_dgamma =  (  a*fc     0      0   )
@@ -1751,17 +1751,17 @@
        transfm=transpose(transfm)
        cart=matmul(transfm,transpose(Centred_Cell%Cr_Orth_cel))
        metric=matmul(cart,transpose(cart))
-      
+
        !---- Calculate new cell parameters from the new metric tensor
        do i=1,3
           Celp(i)=sqrt(metric(i,i))
        end do
-      
+
        celang(1)=acosd(metric(2,3)/(celp(2)*celp(3)))
        celang(2)=acosd(metric(1,3)/(celp(1)*celp(3)))
        celang(3)=acosd(metric(1,2)/(celp(1)*celp(2)))
        call Set_Crystal_Cell(celp,celang,primitive_cell)
-      
+
        return
     End Subroutine Get_Primitive_Cell
 
@@ -1788,7 +1788,7 @@
        type(Crystal_Cell_Type), intent (in) :: Celln
        real(kind=cp),           intent (in) :: Tol !angular tolerance in degrees
        Type(twofold_axes_type), intent(out) :: Twofold
-      
+
        !---- Local variables ----!
        integer                        :: i,j,n,m, ih,ik,il,iu,iv,iw,imax,ntwo
        real(kind=cp), dimension(3)    :: dv, rv, a, b, c, as, bs, cs, cross
@@ -1811,7 +1811,7 @@
        cs=cross_product(a,b)/Celln%CellVol
        ntwo=0
        imax=2   !Is inough if the input cell is the Buerger or Niggli cell
-       
+
        do_iu: do iu=imax, 0,-1
           do iv=imax,-imax,-1
              do iw=imax,-imax,-1
@@ -1862,7 +1862,7 @@
        End do
        twofold%ntwo=ntwo
        twofold%tol=tol
-       
+
        return
     End Subroutine Get_Two_Fold_Axes
 
@@ -1897,7 +1897,7 @@
     !!----   type(Crystal_Cell_Type),optional,        intent(out)    :: Celln
     !!----   real(kind=cp), dimension(3,3), optional, intent(out)    :: Trans
     !!----
-    !!----    Calculates the Niggli cell 
+    !!----    Calculates the Niggli cell
     !!----
     !!---- Update: October - 2008
     !!
@@ -1911,7 +1911,7 @@
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the list of cell parameters
-    !!--++    provided as a 6D vector. Calls the subroutine Niggli_Cell_Nigglimat for 
+    !!--++    provided as a 6D vector. Calls the subroutine Niggli_Cell_Nigglimat for
     !!--++    the effective calculations
     !!--++
     !!--++ Update: October - 2008
@@ -1933,7 +1933,7 @@
        n_mat(2,1)=ad(2)*ad(3)*cosd(ad(4))
        n_mat(2,2)=ad(1)*ad(3)*cosd(ad(5))
        n_mat(2,3)=ad(1)*ad(2)*cosd(ad(6))
-       
+
        if (present(Niggli_Point)) then
           if (present(trans)) then
              call Niggli_Cell_nigglimat(n_mat,Niggli_Point,celda,trans)
@@ -1955,7 +1955,7 @@
        ad(3) = sqrt(n_mat(1,3))
        ad(4) = acosd(n_mat(2,1)/(ad(2)*ad(3)))
        ad(5) = acosd(n_mat(2,2)/(ad(1)*ad(3)))
-       ad(6) = acosd(n_mat(2,1)/(ad(1)*ad(2)))
+       ad(6) = acosd(n_mat(2,3)/(ad(1)*ad(2)))
 
        return
     End Subroutine Niggli_Cell_abc
@@ -1974,24 +1974,24 @@
     !!--++ Update: October - 2008
     !!
     Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Celln,Trans)    !Scalar algorithm
-       !---- Arguments ----! 
+       !---- Arguments ----!
        real(kind=cp),dimension(2,3),              intent(in out) :: n_mat
        real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
        type(Crystal_Cell_Type),         optional, intent(out)    :: celln
        real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
-      
+
        !--- Local variables ---!
        real(kind=cp)                 :: A,B,C,u,v,w,eps
        real(kind=cp), dimension(3,3) :: trm,aux
        real(kind=cp), dimension(3)   :: cel,ang
-       integer                       :: iu,iv,iw, ncount ! ncount is the counter no more that Numiter=100 
-                                                         ! iterations are permitted. In case of exhausting 
-                                                         ! the iteration Err_Crys=.true. but the current 
+       integer                       :: iu,iv,iw, ncount ! ncount is the counter no more that Numiter=100
+                                                         ! iterations are permitted. In case of exhausting
+                                                         ! the iteration Err_Crys=.true. but the current
                                                          ! cell is output anyway
        real(kind=cp),parameter        :: epr=0.0001      !Relative epsilon
        integer, parameter             :: numiter=100
        logical                        :: ok
-       
+
        ! N is a Niggli cell of L if  (i) it is as Buerger cell of L and
        !                            (ii) |90-alpha| + |90-beta| + |90-gamma| -> maximum
        !                  / a.a  b.b  c.c \       /  s11  s22  s33 \
@@ -2016,14 +2016,14 @@
        trm=identity
        ncount=0
        ok=.true.
-       
+
        do
           ncount=ncount+1
           if (ncount > numiter) then
              ok=.false.
              exit
           end if
-          
+
           !---- if(A > B .or. ( A == B  .and. abs(u) > abs(v)) ) then  ! A1
           if (B < A-eps .or. ( .not.( A < B-eps .or. B < A-eps)  .and. abs(v) < abs(u)-eps ) ) then  ! A1
              call swap(A,B)
@@ -2031,7 +2031,7 @@
              aux=reshape ((/  0.0,1.0,0.0, 1.0,0.0,0.0, 0.0,0.0,1.0/),(/3,3/))
              trm=matmul(aux,trm)
           end if
-         
+
           !---- if(B > C .or. ( B == C .and. abs(v) > abs(w)) ) then  ! A2
           if (C < B-eps .or. ( .not.( C < B-eps .or. B < C-eps) .and. abs(w) < abs(v)-eps) ) then  ! A2
              call swap(B,C)
@@ -2040,7 +2040,7 @@
              trm=matmul(aux,trm)
              cycle
           end if
-       
+
           !---- if (u*v*w > 0.0) then                                 ! A3
           iu=1; iv=1; iw=1
           if ( u < -eps) iu=-1
@@ -2067,7 +2067,7 @@
              aux=-aux
              trm=matmul(aux,trm)
           end if
-       
+
           !---- if( abs(u) > B .or. ( u == B .and. 2.0*v < w) .or. ( u == -B .and. w < 0.0)) then  ! A5
           if ( B < abs(u)-eps  .or. ( .not.(u < B-eps .or. B < u-eps) .and. 2.0*v < w-eps) .or. &
              ( .not.(u < -B-eps .or. -B < u-eps) .and. w < -eps)) then  ! A5
@@ -2084,7 +2084,7 @@
              trm=matmul(aux,trm)
              cycle
           end if
-         
+
           !---- if( abs(v) > A .or. ( v == A .and. 2.0*u < w) .or. ( v == -A .and. w < 0.0)) then  ! A6
           if ( A < abs(v)-eps .or. (.not. (v < A-eps .or. A < v-eps) .and. 2.0*u < w-eps) .or. &
              ( .not.( v < -A-eps .or. -A < v-eps) .and. w < -eps)) then  ! A6
@@ -2102,7 +2102,7 @@
              trm=matmul(aux,trm)
              cycle
           end if
-         
+
           !---- if( abs(w) > A .or. ( w == A .and. 2.0*u < v) .or. ( w == -A .and. v < 0.0)) then  ! A7
           if ( A < abs(w)-eps .or. ( .not. (w < A-eps .or. A < w-eps) .and. 2.0*u < v-eps) .or. &
              ( .not. (w < -A-eps .or. -A < w-eps) .and. v < -eps)) then  ! A7
@@ -2120,7 +2120,7 @@
              trm=matmul(aux,trm)
              cycle
           end if
-       
+
           !---- if(u+v+w+A+B < 0.0 .or. (u+v+w+A+B == 0.0 .and. 2.0*(A+v)+w > 0.0 )) then  ! A8
           if (u+v+w+A+B < -eps .or. ( abs(u+v+w+A+B) < eps .and. 2.0*(A+v)+w > eps )) then  ! A8
              C=A+B+C+u+v+w
@@ -2132,18 +2132,18 @@
           end if
           exit
        end do
-       
+
        !---- Reconstruct the new Niggli matrix
        n_mat(1,1)=A; n_mat(1,2)=B; n_mat(1,3)=C
        n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
        if (present(trans)) trans=trm
-       
+
        if (.not. ok) Then
           Err_Crys=.true.
           ERR_Crys_Mess=" The limit of iterations in Niggli_Cell_NiggliMat has been reached!"
           return
        end if
-       
+
        if (present(Niggli_point)) then
           Niggli_point(1)= A/C
           Niggli_point(2)= B/C
@@ -2151,7 +2151,7 @@
           Niggli_point(4)= v/C
           Niggli_point(5)= w/C
        end if
-       
+
        if (present(celln)) then
           !Reconstruct the new cell (Niggli Cell)
           cel(1) = sqrt(A)
@@ -2162,7 +2162,7 @@
           ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
           call Set_Crystal_Cell(cel,ang, Celln)
        end if
-      
+
        return
     End Subroutine Niggli_Cell_nigglimat
 
@@ -2190,15 +2190,15 @@
        !--- Local variables ---!
        type(Crystal_Cell_Type)          :: celda
        real(kind=cp), dimension(2,3)    :: n_mat
-      
-      
+
+
        call Init_Err_Crys()
        if ( al+be < ga+1.0  .or. al+ga < be+1.0 .or. be+ga < al+1.0) then
           Err_Crys=.true.
           ERR_Crys_Mess=" The provided angles cannot set a unit cell!"
           return
        end if
-      
+
        call Set_Crystal_Cell((/a,b,c/),(/al,be,ga/), Celda)
        if (Err_Crys) return
 
@@ -2217,14 +2217,14 @@
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
        if (Err_Crys) return
-       
+
        if (present(celln)) then
           celln=celda
        else
            a=celda%cell(1); b=celda%cell(2); c=celda%cell(3)
           al=celda%ang(1); be=celda%ang(2); ga=celda%ang(3)
        end if
-       
+
        return
     End Subroutine Niggli_Cell_Params
 
@@ -2248,7 +2248,7 @@
        real(kind=cp),dimension(5),    optional, intent(out)     :: Niggli_Point
        type(Crystal_Cell_Type),       optional, intent(out)     :: celln
        real(kind=cp), dimension(3,3), optional, intent(out)     :: trans
-      
+
        !--- Local variables ---!
        type(Crystal_Cell_Type)         :: celda
        real(kind=cp), dimension(2,3)   :: n_mat
@@ -2270,13 +2270,13 @@
           call Niggli_Cell_nigglimat(n_mat,celln=celda)
        end if
        if (Err_Crys) return
-      
+
        if (present(celln)) then
           celln=celda
        else
           cell=celda
        end if
-       
+
        return
     End Subroutine Niggli_Cell_Type
 
@@ -2300,7 +2300,7 @@
        real(kind=cp),dimension(5),      optional, intent(out)    :: Niggli_Point
        type(Crystal_Cell_Type),         optional, intent(out)    :: celln
        real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
-      
+
        !--- Local variables ---!
        type(Crystal_Cell_Type)       :: celda
        real(kind=cp), dimension(2,3) :: n_mat
@@ -2479,13 +2479,13 @@
        do i=1,3
           Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%GD(i,j),j=1,3),"      ", (Celda%GR(i,j),j=1,3)
        end do
-       
+
        if (Celda%CartType == "A") then
           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   "
        else
           Write(unit=iunit,fmt="(/,a,/)") " =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   "
        end if
-       
+
        Write(unit=iunit,fmt="(a)")       "     Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix"
        Write(unit=iunit,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
        do i=1,3
