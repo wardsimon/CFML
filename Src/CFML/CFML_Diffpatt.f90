@@ -255,12 +255,12 @@
 
        return
     End Subroutine Allocate_Diffraction_Pattern
-    
+
     !!----
     !!---- Subroutine Calc_BackGround(Pat, Ncyc, Np, Xmin, Xmax)
     !!----    type(Diffraction_Pattern_Type), intent(in out) :: Pat
-    !!----    integer,                        intent(in)     :: Ncyc 
-    !!----    integer,                        intent(in)     :: Np 
+    !!----    integer,                        intent(in)     :: Ncyc
+    !!----    integer,                        intent(in)     :: Np
     !!----    real(kind=cp), optional,        intent(in)     :: Xmin
     !!----    real(kind=cp), optional,        intent(in)     :: Xmax
     !!----
@@ -277,23 +277,23 @@
        integer,                        intent(in)     :: Np
        real(kind=cp), optional,        intent(in)     :: Xmin
        real(kind=cp), optional,        intent(in)     :: Xmax
-   
+
        !---- Variables ----!
        integer                                 :: n,n_ini,n_fin
        integer                                 :: i,j,k,ind1,ind2,nt
        real(kind=cp),dimension(:), allocatable :: yc,yb
        real(kind=cp)                           :: x_ini,x_fin, yc_min, yc_max, yc_ave
-   
+
        !---- Initializing errors ----!
        call init_err_diffpatt()
-       
+
        !---- Check Pattern ----!
        if (pat%npts < 1) then
           err_diffpatt=.true.
           err_diffpatt_mess='No Pattern points are defined'
           return
        end if
-       
+
        !---- Number of points into the range ----!
        x_ini=pat%xmin
        x_fin=pat%xmax
@@ -304,66 +304,66 @@
           if (pat%x(i) < x_ini) cycle
           if (pat%x(i) > x_fin) cycle
           nt=nt+1
-       end do  
+       end do
        if (nt < 1) then
           err_diffpatt=.true.
           err_diffpatt_mess='No background points was determined into the range'
           return
-       end if  
-       
+       end if
+
        !---- Locating index that define the range to study ----!
        ind1=0
        if (abs(x_ini-pat%xmin) <= 0.0001) then
           ind1=1
-       else   
+       else
           ind1=locate(pat%x,pat%npts,x_ini)
           ind1=max(ind1,1)
           ind1=min(ind1,pat%npts)
        end if
-       
+
        ind2=0
        if (abs(x_fin-pat%xmax) <= 0.0001) then
           ind2=pat%npts
-       else    
-          ind2=locate(pat%x,pat%npts,x_fin) 
+       else
+          ind2=locate(pat%x,pat%npts,x_fin)
           ind2=min(ind2,pat%npts)
           ind2=max(ind2,1)
        end if
-       
+
        if (ind1 == ind2) then
           err_diffpatt=.true.
           err_diffpatt_mess='Lower and Upper index for Xmin and Xmax are the same'
-          return  
-       end if  
+          return
+       end if
        if (ind1 > ind2) then
           i=ind1
           ind1=ind2
-          ind2=i 
-       end if  
-       
+          ind2=i
+       end if
+
        if (ind2-ind1+1 /= nt) then
           err_diffpatt=.true.
           err_diffpatt_mess='Error in total numbers of points into the defined range'
-          return  
-       end if  
-       
+          return
+       end if
+
        !---- Allocating arrays ----!
        allocate(yc(nt+2*np))
        allocate(yb(nt+2*np))
        yc=0.0
-   
+
        !---- Load initial values ----!
        n_ini=np+1
        n_fin=np+nt
        yc(1:np)=pat%y(ind1)
        yc(n_ini:n_fin)=pat%y(ind1:ind2)
        yc(n_fin+1:n_fin+np)=pat%y(ind2)
-   
+
        yc_min=minval(pat%y(ind1:ind2))
        yc_ave=sum(pat%y(ind1:ind2))/real(nt)
        yc_max=yc_ave+2.0*(yc_ave-yc_min)
        where(yc > yc_max) yc=yc_max
-   
+
        !---- Main cycles ----!
        do n=1,ncyc
           yb=0.0
@@ -372,26 +372,26 @@
                 if (i == 0) cycle
                 j=k+i
                 yb(k)=yb(k)+yc(j)
-             end do 
+             end do
              yb(k)=yb(k)/real(2*np)
           end do
           do k=n_ini,n_fin
              j=k-np+ind1-1
              if (yb(k) > pat%y(j)) yb(k)=pat%y(j)
-          end do   
+          end do
           yb(1:np)=yb(n_ini)
           yb(n_fin+1:n_fin+np)=yb(n_fin)
           yc=yb
-       end do   
-   
+       end do
+
        !---- save the result ----!
        pat%bgr=0.0
        pat%bgr(ind1:ind2)=yc(n_ini:n_fin)
-   
+
        !---- Deallocating arrays ----!
        if (allocated(yc))deallocate(yc)
        if (allocated(yb))deallocate(yb)
-       
+
        return
     End Subroutine Calc_BackGround
 
@@ -1088,7 +1088,8 @@
           return
        end if
 
-       read(unit=i_dat,fmt="(I6,tr1,2F10.3,i5,2f10.1)",iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
+       !read(unit=i_dat,fmt="(I6,tr1,2F10.3,i5,2f10.1)",iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
+       read(unit=i_dat,fmt=*,iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
        if (ier /= 0 )then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
@@ -1105,7 +1106,7 @@
        call Allocate_Diffraction_Pattern(pat)
 
 
-       read(unit=i_dat,fmt="(3F10.0)",iostat=ier)pat%xmin,pat%step,pat%xmax              !5
+       read(unit=i_dat,fmt=*,iostat=ier)pat%xmin,pat%step,pat%xmax              !5
        if (ier /= 0 ) then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
