@@ -1087,9 +1087,14 @@
           ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
           return
        end if
+       do
+         read(unit=i_dat,fmt="(A)",iostat=ier)txt3
+         txt3=adjustl(txt3)
+         if(txt3(1:1) /= "!") exit
+       end do
 
        !read(unit=i_dat,fmt="(I6,tr1,2F10.3,i5,2f10.1)",iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
-       read(unit=i_dat,fmt=*,iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
+       read(unit=txt3,fmt=*,iostat=ier)  pat%npts,pat%tsamp,pat%tset,ivari,rmon1,rmon2
        if (ier /= 0 )then
           Err_diffpatt=.true.
           ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter! "
