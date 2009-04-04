@@ -6,7 +6,7 @@
 !!----   INFO: Subroutines related to Instrument information from ILL
 !!----
 !!---- HISTORY
-!!----    Update: Aril - 2008
+!!----    Update: April - 2009
 !!----
 !!--..    The default instrument cartesian frame is that defined by
 !!--..       W.R.Busing & H.A.Levy (Acta Cryst. 22,457-464 (1967)
@@ -98,6 +98,7 @@
 !!--..    Types
 !!----    DIFFRACTOMETER_TYPE
 !!----    ILL_DATA_RECORD_TYPE
+!!----    POWDER_NUMOR_TYPE
 !!----    SXTAL_NUMOR_TYPE
 !!----    SXTAL_ORIENT_TYPE
 !!--..
@@ -114,19 +115,22 @@
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
 !!----    MACHINE_NAME
-!!----    UNCOMPRESSCOMMAND
-!!----    YEAR
+!!--++    UNCOMPRESSCOMMAND                 [Private]
+!!----    YEAR_ILLDATA
 !!----
 !!---- PROCEDURES
 !!----    Functions:
 !!----
 !!----    Subroutines:
+!!----       ALLOCATE_POWDER_NUMORS
 !!----       ALLOCATE_SXTAL_NUMORS
+!!----       DEFINE_UNCOMPRESS_PROGRAM
 !!----       GET_ABSOLUTE_DATA_PATH
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
 !!----       INITIALIZE_DATA_DIRECTORY
 !!----       READ_CURRENT_INSTRM
+!!----       READ_POWDER_NUMOR
 !!----       READ_SXTAL_NUMOR
 !!----       SET_CURRENT_ORIENT
 !!----       SET_DEFAULT_INSTRUMENT
@@ -134,13 +138,14 @@
 !!----       SET_INSTRM_DIRECTORY
 !!----       UPDATE_CURRENT_INSTRM_UB
 !!----       WRITE_CURRENT_INSTRM_DATA
+!!----       WRITE_POWDER_NUMOR
 !!----       WRITE_SXTAL_NUMOR
 !!----
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, ops, ops_sep
-   Use CFML_Math_General,     only: cosd,sind
+  Use CFML_Math_General,     only: cosd,sind
    use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                     invert => Invert_A
@@ -153,7 +158,8 @@ Module CFML_ILL_Instrm_Data
    public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,   &
              Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D, &
-             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_yearcycle
+             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle, &
+             Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
 
    !---- Definitions ----!
 
@@ -318,6 +324,59 @@ Module CFML_ILL_Instrm_Data
    End Type ILL_data_record_type
 
    !!----
+   !!---- TYPE :: POWDER_NUMOR_TYPE
+   !!--..
+   !!---- Type, public :: POWDER_Numor_type
+   !!----    integer                                    :: numor       ! Numor
+   !!----    integer                                    :: manip       ! principle scan angle
+   !!----    integer                                    :: icalc       ! angle calculation type
+   !!----    character(len=32)                          :: header      ! User, local contact, date
+   !!----    character(len=32)                          :: title       !
+   !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
+   !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
+   !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
+   !!----    real(kind=cp)                              :: monitor     !
+   !!----    real(kind=cp)                              :: time        !
+   !!----    real(kind=cp)                              :: wave        ! wavelength
+   !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
+   !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
+   !!----    integer                                    :: nframes     ! Total number of frames
+   !!----    integer                                    :: nbang       ! Total number of angles moved during scan
+   !!----    integer, dimension(7)                      :: icdesc      ! Integer values
+   !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
+   !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
+   !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
+   !!----                                                              ! To be allocated as counts(nbdata,nframes)
+   !!---- End Type POWDER_Numor_type
+   !!----
+   !!----    Definition for POWDER Numor type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: POWDER_Numor_type
+      integer                                    :: numor       ! Numor
+      integer                                    :: manip       ! principle scan angle
+      integer                                    :: icalc       ! angle calculation type
+      character(len=32)                          :: header      ! User, local contact, date
+      character(len=32)                          :: title       !
+      character(len=8)                           :: Scantype    ! omega, phi, etc...
+      real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
+      real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
+      real(kind=cp)                              :: monitor     !
+      real(kind=cp)                              :: time        !
+      real(kind=cp)                              :: wave        ! wavelength
+      real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
+      integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
+      integer                                    :: nframes     ! Total number of frames
+      integer                                    :: nbang       ! Total number of angles moved during scan
+      integer, dimension(7)                      :: icdesc      ! Integer values
+      real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
+                                                                ! To be allocated as tmc_ang(nbang,nframes)
+      real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
+                                                                ! To be allocated as counts(nbdata,nframes)
+   End type POWDER_Numor_type
+
+   !!----
    !!---- TYPE :: SXTAL_NUMOR_TYPE
    !!--..
    !!---- Type, public :: SXTAL_Numor_type
@@ -472,7 +531,7 @@ Module CFML_ILL_Instrm_Data
    !!----
    !!---- Update: March - 2009
    !!
-   character(len=512), public  ::  ILL_data_directory = "c:\diffraction_Windows\illdata\"
+   character(len=512), public  ::  ILL_Data_Directory = "c:\diffraction_Windows\illdata\"
 
    !!--++
    !!--++ ILL_TEMP_DIRECTORY
@@ -542,33 +601,96 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=8),   public  ::  machine_name
 
-   !!----
-   !!---- UNCOMPRESSCOMMAND
-   !!----    character(len=512), public :: uncompresscommand
-   !!----
-   !!----    String containing the command for uncompressing compressed data files
-   !!----
-   !!---- Update: March - 2009
+   !!--++
+   !!--++ UNCOMPRESSCOMMAND
+   !!--++    character(len=512), public :: uncompresscommand
+   !!--++
+   !!--++    String containing the command for uncompressing compressed data files
+   !!--++
+   !!--++ Update: March - 2009
    !!
-   character(len=512), public  ::  uncompresscommand
+   character(len=512), private  ::  uncompresscommand=' '
 
    !!----
    !!---- YEAR
-   !!----    Integer, public :: YEAR
+   !!----    Integer, public :: YEAR_ILLDATA
    !!----
    !!----    Integer containing the two last figures of the "year" needed to
    !!----    find datafiles
    !!----
    !!---- Update: March - 2009
    !!
-   integer,            public  ::  year
-
-
+   integer,            public  ::  year_illdata
 
  Contains
+
     !!----
-    !!---- Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Num)
-    !!----    integer, intent(in)                                               :: num_max,ndata,num_ang,nframes
+    !!---- Subroutine Allocate_POWDER_numors(num_max,ndata,num_ang,nframes,Num)
+    !!----    integer,                                            intent(in)    :: num_max
+    !!----    integer,                                            intent(in)    :: ndata
+    !!----    integer,                                            intent(in)    :: num_ang
+    !!----    integer,                                            intent(in)    :: nframes
+    !!----    type(POWDER_Numor_type), allocatable, dimension(:), intent(in out):: Num
+    !!----
+    !!--<<    Subroutine allocating and initializing the array 'Num' of type
+    !!----    Powder_Numor_type. The input arguments are:
+    !!----        num_max : number of components of the array (dimension of Num)
+    !!----        ndata   : number of pixels of a single frame
+    !!----        num_ang : number of angles moved simultaneously during the scan
+    !!----        nframes : number of frames (number of scan points)
+    !!-->>
+    !!---- Update: March - 2005
+    !!
+    Subroutine Allocate_POWDER_Numors(Num_Max,Ndata,Num_Ang,Nframes,Num)
+       !---- Arguments ----!
+       integer, intent(in)                                                :: num_max
+       integer, intent(in)                                                :: ndata
+       integer, intent(in)                                                :: num_ang
+       integer, intent(in)                                                :: nframes
+       type(Powder_Numor_type), allocatable, dimension(:), intent(in out) :: Num
+
+       !---- Local variables ----!
+       integer :: i
+
+       if (allocated(Num)) deallocate(Num)
+       allocate(Num(num_max))
+
+       do i=1, num_max
+          Num(i)%numor=0
+          Num(i)%manip=0
+          Num(i)%icalc=0
+          Num(i)%header=" "
+          Num(i)%title=" "
+          Num(i)%scantype=" "
+          Num(i)%angles=0.0
+          Num(i)%scans=0.0
+          Num(i)%monitor=0.0
+          Num(i)%time=0.0
+          Num(i)%wave=0.0
+          Num(i)%conditions=0.0
+          Num(i)%nbdata=0
+          Num(i)%nbang=0
+          Num(i)%nframes=0
+
+          if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
+          allocate(Num(i)%tmc_ang(num_ang,nframes))
+
+          if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
+          allocate(Num(i)%counts(ndata,nframes))
+
+          Num(i)%tmc_ang(:,:)=0.0
+          Num(i)%counts(:,:)=0.0
+       end do
+
+       return
+    End Subroutine Allocate_POWDER_Numors
+
+    !!----
+    !!---- Subroutine Allocate_SXTAL_Numors(Num_Max,Ndata,Num_Ang,Nframes,Num)
+    !!----    integer,                                           intent(in)     :: num_max
+    !!----    integer,                                           intent(in)     :: ndata
+    !!----    integer,                                           intent(in)     :: num_ang
+    !!----    integer,                                           intent(in)     :: nframes
     !!----    type(SXTAL_Numor_type), allocatable, dimension(:), intent(in out) :: Num
     !!----
     !!--<<    Subroutine allocating and initializing the array 'Num' of type SXTAL_Numor_type
@@ -582,10 +704,10 @@ Module CFML_ILL_Instrm_Data
     !!
     Subroutine Allocate_SXTAL_numors(num_max,ndata,num_ang,nframes,Num)
        !---- Arguments ----!
-       integer, intent(in)                                               :: num_max
-       integer, intent(in)                                               :: ndata
-       integer, intent(in)                                               :: num_ang
-       integer, intent(in)                                               :: nframes
+       integer,                                           intent(in)     :: num_max
+       integer,                                           intent(in)     :: ndata
+       integer,                                           intent(in)     :: num_ang
+       integer,                                           intent(in)     :: nframes
        type(SXTAL_Numor_type), allocatable, dimension(:), intent(in out) :: Num
 
        !---- Local variables ----!
@@ -626,16 +748,32 @@ Module CFML_ILL_Instrm_Data
        end do
 
        return
-    End Subroutine Allocate_SXTAL_numors
-
+    End Subroutine Allocate_SXTAL_Numors
 
     !!----
-    !!---- Subroutine Get_Absolute_Data_Path(numor,instrm,path,iyear,icycle)
-    !!----    integer, intent(in) :: numor
-    !!----    character(len=*), intent(in) :: instrm
-    !!----    character(len=*), intent(out) :: path
-    !!----    integer, optional, intent(in) :: iyear
-    !!----    integer, optional, intent(in) :: icycle
+    !!---- Subroutine Define_Uncompress_Program(uncompress)
+    !!----    character(len=*), intent(in) :: uncompress
+    !!----
+    !!---- Routine that define the uncompress program that you wants to use
+    !!----
+    !!---- Update:  April - 2009
+    !!
+    Subroutine Define_Uncompress_Program(uncompress)
+       !---- Argument ----!
+       character(len=*), intent(in) :: uncompress
+
+       uncompresscommand=uncompress
+
+       return
+    End Subroutine Define_Uncompress_Program
+
+    !!----
+    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyear,Icycle)
+    !!----    integer,           intent(in)  :: numor
+    !!----    character(len=*),  intent(in)  :: instrm
+    !!----    character(len=*),  intent(out) :: path
+    !!----    integer, optional, intent(in)  :: iyear
+    !!----    integer, optional, intent(in)  :: icycle
     !!----
     !!----    Finds the absolute path to any numor. The base directory
     !!----    is set by a call to 'initialize_data_directory'. The subroutine
@@ -652,181 +790,205 @@ Module CFML_ILL_Instrm_Data
     !!----       working back through cycles and year until the stopping
     !!----       at the first cycle of 1973, when the first data was archived
     !!----
-    !!----    Tries to find an uncompress numor first and then tries to find
-    !!----    a compressed numor (.Z extension). If found the numor is uncomp-
-    !!----    ressed in the a temporary directory if defined (see subroutine
-    !!----    'initialize_data_directory') or else into the current directory.
-    !!----    Nb At present no attempt is made to tidy up these uncompressed
-    !!----    numors, which could potentially litter the current directory.
+    !!--..    Tries to find an uncompress numor first and then tries to find
+    !!--..    a compressed numor (.Z extension). If found the numor is uncomp-
+    !!--..    ressed in the a temporary directory if defined (see subroutine
+    !!--..    'initialize_data_directory') or else into the current directory.
+    !!--..
+    !!--..    Nb At present no attempt is made to tidy up these uncompressed
+    !!--..    numors, which could potentially litter the current directory.
     !!----
     !!---- Update: March - 2009
     !!
-    Subroutine Get_Absolute_Data_Path(numor,instrm,path,iyear,icycle)
+    Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear,Icycle)
+       !---- Arguments ----!
+       integer,           intent(in)  :: numor
+       character(len=*),  intent(in)  :: instrm
+       character(len=*),  intent(out) :: path
+       integer, optional, intent(in)  :: iyear
+       integer, optional, intent(in)  :: icycle
 
-      integer, intent(in) :: numor
-      character(len=*), intent(in) :: instrm
-      character(len=*), intent(out) :: path
-      integer, optional, intent(in) :: iyear
-      integer, optional, intent(in) :: icycle
+       !---- Local Variables ----!
+       character(len=*),parameter :: Current_Data = 'data'
+       character(len=*),parameter :: Previous_Data = 'data-1'
+       character(len=*),parameter :: Extension = '.Z'
 
-      character(len=*),parameter :: CURRENT_DATA = 'data'
-      character(len=*),parameter :: PREVIOUS_DATA = 'data-1'
-      character(len=*),parameter :: EXTENSION = '.Z'
+       character(len=6) :: numstr
+       character(len=4) :: inst
+       character(len=3) :: yearcycle
+       character(len=7) :: subdir
+       logical          :: exists
 
-      character(len=6) :: numstr
-      character(len=4) :: inst
-      character(len=3) :: yearcycle
-      character(len=7) :: subdir
-      logical :: exists
-      integer :: i
+       integer          :: i
 
-      if (.not. got_ILL_data_directory) call initialize_data_directory()
+       ! Init value
+       path=" "
 
-			i = len_trim(ILL_data_directory)
-      if (.not. ILL_data_directory(i:i) == ops_sep) then
-        ILL_data_directory=trim(ILL_data_directory)//ops_sep
-      end if
-
-      write(numstr,'(I6.6)') numor
-      inst=adjustl(instrm)
-      call lcase(inst)
-
-      select case(inst)
-        case("d19","d9")
-          subdir = trim(inst)//"_" //numstr(2:2)//ops_sep
-        case default ! d10, d3 etc don't divide numors up into sub directories
-          subdir = ""
-      end select
-
-      if(present(iyear) .and. present(icycle)) then
-        write(yearcycle,"(i2.2,i1.1)") iyear,icycle
-        path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-        inquire(file=trim(path),exist=exists)
-        if(exists) return ! found numor so return
-        path = trim(path)//EXTENSION
-        inquire(file=trim(path),exist=exists)
-        if(exists) then ! uncompress into temp directory
-           if (got_ILL_temp_directory) then
-            call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-            path = trim(ILL_temp_directory)//numstr
-          else
-            call system(trim(uncompresscommand)//' '//trim(path)//' > '//'./'//numstr)
-            path = './'//numstr
+       ! Some compilers are unable to test the existence of file: data_diretory//ops_sep//"." !!!!!
+       ! so, got_ILL_data_directory may still be .false., ILL_data_directory has been set anyway
+       ! in initialize_data_directory(), so let us continue and set got_ILL_data_directory=.true.
+       ! if the associated numor file exist anywhere
+       if (.not. got_ILL_data_directory) then
+          call initialize_data_directory()
+       else
+          i=len_trim(ILL_data_directory)
+          if (ILL_data_directory(i:i) /= ops_sep) then
+             ILL_data_directory=trim(ILL_data_directory)//ops_sep
           end if
-          return ! found numor so return
-        end if
-      end if
+       end if
 
-      write(yearcycle,"(i2.2,i1.1)") year,cycle_number ! try year and cycle of a previous call to routine
-      path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-      inquire(file=trim(path),exist=exists)
-      if (exists) return ! found numor so return
-      path = trim(path)//EXTENSION
-      inquire(file=trim(path),exist=exists)
-      if(exists) then ! uncompress into temp directory
-         if (got_ILL_temp_directory) then
-          call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-          path = trim(ILL_temp_directory)//numstr
-        else
-          call system(trim(uncompresscommand)//' '//trim(path)//' > '//'./'//numstr)
-          path = './'//numstr
-        end if
-        return ! found numor so return
-      end if
+       ! At this point the ILL Data and Temporal directories must be defined
+       if (.not. got_ILL_Data_directory) return
+       if (.not. got_ILL_Temp_Directory) return
 
-      path = trim(ILL_data_directory)//CURRENT_DATA//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-      inquire(file=trim(path),exist=exists)
-      if(exists) return ! found numor so return
+       ! Uncompress program must be defined
+       if (len_trim(uncompresscommand) == 0) then
+          select case (ops)
+             case (1) ! Windows
+                call define_uncompress_program('7z e -y -so')
+             case (2:) ! Linux...
+                call define_uncompress_program('gunzip -c')
+          end select
+       end if
 
-      path = trim(ILL_data_directory)//PREVIOUS_DATA//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-      inquire(file=trim(path),exist=exists)
-      if(exists) return ! found numor so return
+       ! Numor character
+       write(unit=numstr,fmt='(i6.6)') numor
 
-      ! start from the most recent yearcycle and work search backwards
-      call get_next_yearcycle(yearcycle,.true.)
-      do
-        if (yearcycle == "") exit
-        path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-        inquire(file=trim(path),exist=exists)
-        if (exists) return
-        path = trim(path)//EXTENSION
-        inquire(file=trim(path),exist=exists)
-        if(exists) then ! uncompress into temp directory
-           if (got_ILL_temp_directory) then
-            write(*,*) trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr
-            call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-            path = trim(ILL_temp_directory)//numstr
-          else
-            call system(trim(uncompresscommand)//trim(path)//' > '//'./'//numstr)
-            path = './'//numstr
+       ! Instrument
+       inst=adjustl(instrm)
+       call lcase(inst)
+
+       ! Using Instrument Information
+       select case(inst)
+          case("d1b","d20","d9","d15","d19")
+             subdir = trim(inst)//"_"//numstr(2:2)//ops_sep
+          case default ! d10, d3 etc don't divide numors up into sub directories
+             subdir = ""
+       end select
+
+       if (present(iyear) .and. present(icycle)) then
+          ! Using Year+Cycle
+          write(unit=yearcycle,fmt="(i2.2,i1.1)") iyear,icycle
+          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          inquire(file=trim(path),exist=exists)
+          if (exists) return ! found numor so return
+
+          ! Using previous + compressed data
+          path = trim(path)//Extension
+          inquire(file=trim(path),exist=exists)
+          if (exists) then ! uncompress into temp directory
+             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             path = trim(ILL_temp_directory)//numstr
+             return ! found numor so return
           end if
-          return ! found numor so return
-        end if
-        call get_next_yearcycle(yearcycle)
-      end do
 
-      ! the numor was found compressed or uncompressed anywhere
-      path = ""
-      return
+          ! Using Year + Cycle of a previous call to routine
+          write(unit=yearcycle,fmt="(i2.2,i1.1)") year_illdata,cycle_number
+          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          inquire(file=trim(path),exist=exists)
+          if (exists) return ! found numor so return
 
+          ! Using previous + compressed data
+          path = trim(path)//Extension
+          inquire(file=trim(path),exist=exists)
+          if (exists) then ! uncompress into temp directory
+             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             path = trim(ILL_temp_directory)//numstr
+             return ! found numor so return
+          end if
+       end if
+
+       ! Using Current_data
+       path = trim(ILL_data_directory)//Current_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+       inquire(file=trim(path),exist=exists)
+       if (exists) return ! found numor so return
+
+       ! Using Previous data
+       path = trim(ILL_data_directory)//Previous_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+       inquire(file=trim(path),exist=exists)
+       if (exists) return ! found numor so return
+
+       ! start from the most recent yearcycle and work search backwards
+       call get_next_yearcycle(yearcycle,.true.)
+       do
+          if (yearcycle == "") exit
+
+          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          inquire(file=trim(path),exist=exists)
+          if (exists) return
+
+          path = trim(path)//Extension
+          inquire(file=trim(path),exist=exists)
+          if (exists) then ! uncompress into temp directory
+             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             path = trim(ILL_temp_directory)//numstr
+             return ! found numor so return
+          end if
+          call get_next_yearcycle(yearcycle)
+       end do
+
+       ! the numor was found compressed or uncompressed anywhere
+       path = " "
+
+       return
     End Subroutine Get_Absolute_Data_Path
 
     !!----
-    !!---- Subroutine Get_Next_yearcycle(yearcycle,reset_to_most_recent)
+    !!---- Subroutine Get_Next_YearCycle(YearCycle,Reset_To_Most_Recent)
     !!----    character(len=*), intent(out) :: yearcycle
     !!----    logical, optional, intent(in) :: reset_to_most_recent
     !!----
-    !!----    Works back through the cycles and years, returning
-    !!----    the previous yearcycle combination as a 3 character
-    !!----    string i.e.
-    !!----    if year = 6 and cycle_number = 5, returns '064'
-    !!----    if year = 6 and cycle_number = 1, returns '057'
+    !!----    Works back through the cycles and years, returning the previous
+    !!----    yearcycle combination as a 3 character string i.e.
+    !!----       if year_illdata = 6 and cycle_number = 5, returns '064'
+    !!----       if year_illdata = 6 and cycle_number = 1, returns '057'
     !!----
-    !!----    The reset_to_most_recent flag allows the year and
-    !!----    cycle_number to be set to the most recent possible
-    !!----    If asked for a yearcycle before '731' (first cycle
-    !!----    of 1973) then returns "", since no data was archived
+    !!----    The reset_to_most_recent flag allows the year_illdata and cycle_number to
+    !!----    be set to the most recent possible. If asked for a yearcycle before
+    !!----    '731' (first cycle of 1973) then returns "", since no data was archived
     !!----    before this date.
     !!----    (Original code from Mike Turner)
     !!----
     !!---- Update: March - 2009
     !!
-     subroutine Get_Next_yearcycle(yearcycle,reset_to_most_recent)
+    Subroutine Get_Next_YearCycle(Yearcycle, reset_to_most_recent)
+       !---- Argument ----!
+       character(len=*), intent(out) :: yearcycle
+       logical, optional, intent(in) :: reset_to_most_recent
 
-        character(len=*), intent(out) :: yearcycle
-        logical, optional, intent(in) :: reset_to_most_recent
+       !---- Local Variables ----!
+       integer, parameter    :: Maxcycle = 7
+       integer, dimension(8) :: dt
+       character(len=10)     :: date,time,zone
 
-        integer, parameter    :: MAXCYCLE = 7
-        integer, dimension(8) :: dt
-        character(len=10)     :: date,time,zone
-
-        if(present(reset_to_most_recent)) then
+       if (present(reset_to_most_recent)) then
           if (reset_to_most_recent) then
-            call date_and_time (date, time, zone, dt)
-            year = mod(dt(1),100) ! last two digits of year
-            cycle_number = MAXCYCLE
+             call date_and_time (date, time, zone, dt)
+             year_illdata = mod(dt(1),100) ! last two digits of year
+             cycle_number = Maxcycle
           end if
-        else
+       else
           if (cycle_number /= 1) then
-            cycle_number = cycle_number -1
+             cycle_number = cycle_number -1
           else
-            if (year == 0) then
-              year = 99
-            else
-              year = year - 1
-            end if
-            cycle_number = MAXCYCLE
+             if (year_illdata == 0) then
+                year_illdata = 99
+             else
+                year_illdata = year_illdata - 1
+             end if
+             cycle_number = Maxcycle
           end if
-        endif
+       end if
 
-        if (year == 72) then ! no more point searching
+       if (year_illdata == 72) then ! no more point searching
           yearcycle = ""
-        else
-          write(unit=yearcycle,fmt="(i2.2,i1.1)") year,cycle_number
-        end if
-        return
+       else
+          write(unit=yearcycle,fmt="(i2.2,i1.1)") year_illdata,cycle_number
+       end if
 
-     End Subroutine Get_Next_yearcycle
+       return
+
+    End Subroutine Get_Next_YearCycle
 
     !!----
     !!---- Subroutine Get_Single_Frame_2D(nfr,iord,snum,dat_2D,appl_alphas)
@@ -926,103 +1088,86 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Subroutine Initialize_Data_Directory()
     !!----
-    !!....   Original code from Mike Turner (as well as the following comments)
-    !!....     Depending on the operating system as reported by winteracter routine
+    !!....    Original code from Mike Turner (as well as the following comments)
+    !!....    Depending on the operating system as reported by winteracter routine
     !!....    InfoOpSystem, assigns values to the following global public variables:
-    !!....    sep, the path separator. "sep" has been replaced by "ops_sep" from CFML_Constants
-    !!....    InfoOpSystem is a function from Winteracter: replaced by OPS integer from
-    !!....    CFML_Constants
+    !!....    sep, the path separator. "sep" has been replaced by "ops_sep" from
+    !!....    CFML_Constants. InfoOpSystem is a function from Winteracter: replaced by
+    !!....    OPS integer from CFML_Constants
     !!....
     !!----    Subroutine assigning values to the following global public variables:
-    !!----    "ILL_data_directory", the base directory for the ILL data, if found then
-    !!----    the flag got_ILL_data_directory is set to true.
-    !!----    "ILL_temp_directory", a temporary directory (used for uncompressing), if
-    !!----    found the flag got_ILL_temp_directory is set to true.
-    !!----    "uncompresscommand", the command required for uncompressing the data.
-    !!----    Original code from Mike Turner, changed to make the subroutine independent of
-    !!----    the Winteracter library
+    !!----    ILL_Data_Directory: Base directory for the ILL data. If found then
+    !!----                        the flag got_ILL_data_directory is set to true.
+    !!----    ILL_Temp_Directory: A temporary directory (used for uncompressing). If
+    !!----                        found the flag got_ILL_temp_directory is set to true.
     !!----
-    !!---- Update: March - 2009
+    !!--..    Original code from Mike Turner, changed to make the subroutine independent
+    !!--..    of the Winteracter library.
+    !!--..
+    !!--..    The subroutine ask for enviroment variables TEMP and ILLDATA in first place and
+    !!--..    and if it return a blank then the default is set as following:
+    !!--..    Windows: ILL_Temp_Directory -> C:\Temp     ILL_Data_Directory -> \\Serdon\illdata
+    !!--..    Linux:   ILL_Temp_Directory -> $HOME/.tmp  ILL_Data_Directory -> /net/serdon/illdata
+    !!----
+    !!--..    NB: You need change this routine according to the compiler used !!!!!!
+    !!----
+    !!---- Update: April - 2009
     !!
     Subroutine Initialize_Data_Directory()
+       !---- Local Variables ----!
+       character(len=*), parameter :: Envvar1 = 'TEMP'
+       character(len=*), parameter :: Envvar2 = 'ILLDATA'
+       logical                     :: exists
 
-      character(len=*), parameter :: ENVVAR1 = 'ILL_data'
-      character(len=*), parameter :: ENVVAR2 = 'DI1'
 
-      logical :: exists
+       select case (OPS)
+          case (1)  ! Windows
+             ! Temporal
+             call getenv(ENVVAR1, ILL_Temp_Directory)
+             if (len_trim(ILL_Temp_directory) == 0) then
+                ILL_Temp_directory='C:\Temp'
+             end if
 
-      select case (OPS)  !OPS integer constant from CRML_Constants
-                         ! OPS=1 => Windows (ops_sep="\")  OPS >1 => UNIX (ops_sep="/")
+             ! ILL Data
+             call getenv(ENVVAR2, ILL_Data_Directory)
+             if (len_trim(ILL_Data_Directory) == 0) then
+                ILL_Data_Directory = '\\Serdon\illdata'
+             end if
 
-        case (1)  !Windows
+          case (2:)  !Different variants of UNIX (Linux, MacOS, ...)
+             ! Temporal
+             call getenv(ENVVAR1, ILL_Temp_Directory)
+             if (len_trim(ILL_Temp_directory) == 0) then
+                call getenv('HOME', ILL_Temp_Directory)
+                ILL_Temp_directory =trim(ILL_Temp_directory)//OPS_SEP//'.tmp'
+             end if
 
-          uncompresscommand = 'suitable command to uncompress numors under windows'
+             ! ILL Data
+             call getenv(ENVVAR2, ILL_Data_Directory)
+             if (len_trim(ILL_Data_Directory) == 0) then
+                ILL_Data_Directory = '/net/serdon/illdata'
+             end if
+       end select
+       ! Temporal
+       ILL_Temp_directory=trim(ILL_Temp_directory)//ops_sep
 
-          ILL_temp_directory = 'C:\temp\'
-          inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-          if (exists) got_ILL_temp_directory = .true.
+       ! For all compilers except for intel
+       !inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+       ! For Intel
+       inquire(directory=trim(ILL_temp_directory), exist=exists)
+       if (exists) got_ILL_temp_directory = .true.
 
-          ILL_data_directory = '\\Serdon\illdata'
-          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
-          if (exists) then
-            got_ILL_temp_directory = .true.
-            return
-          end if
+       ! ILL DATA
+       ILL_Data_Directory=trim(ILL_Data_Directory)//ops_sep
 
-          call getenv(ENVVAR1, ILL_data_directory)
-          if(len_trim(ILL_data_directory) /= 0) then
-            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-            if (exists) then
-              got_ILL_temp_directory = .true.
-              return
-            end if
-          end if
+       ! For all compilers except for intel
+       !inquire(file=trim(ILL_data_directory)//'.',exist=exists)
+       ! For Intel
+       inquire(directory=trim(ILL_data_directory), exist=exists)
+       if (exists) got_ILL_data_directory = .true.
 
-        case (2:)  !Different variants of UNIX (Linux, MacOS, ...)
-          uncompresscommand = 'gunzip -c'
-
-          ILL_temp_directory = '/tmp/'
-          inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-          if (exists) got_ILL_temp_directory = .true.
-
-          ILL_data_directory = '/usr/illdata/'
-          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
-          if (exists) then
-            got_ILL_temp_directory = .true.
-            return
-          end if
-
-          ILL_data_directory = '/net/serdon/illdata/'
-          inquire(file=trim(ILL_data_directory)//'.',exist=exists)
-          if (exists) then
-            got_ILL_temp_directory = .true.
-            return
-          end if
-
-          call getenv(ENVVAR1, ILL_data_directory)
-          if(len_trim(ILL_data_directory) /= 0) then
-            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-            if (exists) then
-              got_ILL_temp_directory = .true.
-              return
-            end if
-          end if
-
-          call getenv(ENVVAR2, ILL_data_directory)
-          if(len_trim(ILL_data_directory) /= 0) then
-            inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-            if (exists) then
-              got_ILL_temp_directory = .true.
-              return
-            end if
-          end if
-
-        case default
-           call error_message("Fault: Unknown Operating System ")
-           stop
-        end select
-        return
-      End Subroutine Initialize_Data_Directory
+       return
+    End Subroutine Initialize_Data_Directory
 
     !!----
     !!---- Subroutine Read_Current_Instrm(filenam)
@@ -1256,7 +1401,294 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Current_Instrm
 
     !!----
-    !!---- Subroutine Read_Numor(numor,instrm,snum)
+    !!---- Subroutine Read_POWDER_Numor(Numor,Instrm,Pathdir,Snum,Info)
+    !!----    integer,                 intent(in)    :: numor
+    !!----    character(len=*),        intent(in)    :: instrm
+    !!----    character(len=*),        intent(in)    :: pathdir
+    !!----    type(POWDER_Numor_type), intent(in out):: snum
+    !!----    logical, optional,       intent(in)    :: info
+    !!----
+    !!----    Read the numor "numor" from the ILL database and construct
+    !!----    the object 'snum' of type POWDER_Numor_type.
+    !!----    (not completely checked yet)
+    !!----    In case of error the subroutine puts ERR_ILLData=.true.
+    !!----    and fils the error message variable ERR_ILLData_Mess.
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Read_POWDER_Numor(numor,instrm,pathdir,snum,info)
+       !---- Arguments ----!
+       integer,                 intent(in)    :: numor
+       character(len=*),        intent(in)    :: instrm
+       character(len=*),        intent(in)    :: pathdir
+       type(POWDER_Numor_type), intent(in out):: snum
+       logical, optional,       intent(in)    :: info
+
+       !---- Local variables ----!
+       character(len=512)              :: filenam
+       character(len=6)                :: inst
+       character(len=8)                :: item
+       character(len=80)               :: line
+       integer                         :: i,j,n1,n2,n3, lun, ier
+       integer, dimension(31)          :: ival
+       real(kind=cp),    dimension(50) :: rval
+       logical                         :: existe
+
+       ! Instrument
+       inst=adjustl(instrm)
+       call lcase(inst)
+
+       ! Construct the absolute path and filename to be read
+       if (.not. got_ILL_data_directory  .or. len_trim(pathdir) == 0) then
+          call Get_Absolute_Data_Path(numor,instrm,filenam)
+       else
+          write(unit=line,fmt="(i6.6)") numor
+          i=len_trim(pathdir)
+          if (pathdir(i:i) /= ops_sep) then
+             filenam=trim(pathdir)//ops_sep//trim(line)
+          else
+             filenam=trim(pathdir)//trim(line)
+          end if
+       end if
+
+       ! Check if the data exist uncompressed or compressed
+       inquire(file=trim(filenam),exist=existe)
+       if (.not. existe) then
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess=" Error: the file: "//trim(filenam)//", doesn't exist!"
+          return
+       end if
+
+       call Get_LogUnit(lun)
+       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
+       if (ier /= 0) then
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess=" Error opening the file: "//trim(filenam)//", for reading numors"
+          return
+       end if
+
+       Select Case (inst)
+          case("d1b")
+             read(unit=lun,fmt="(a)",iostat=ier) line
+             read(unit=lun,fmt=*,iostat=ier) snum%numor
+             do i=1,3
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             snum%header=line
+             do i=1,3
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             snum%title=line(1:32)
+             do i=1,2
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             read(unit=lun,fmt=*,iostat=ier) ival
+             if (ier /= 0) then
+                 ERR_ILLData=.true.
+                 ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading integer control values"
+                 return
+             end if
+             do i=1,2
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             read(unit=lun,fmt=*,iostat=ier) rval
+             if (ier /= 0) then
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading real control values"
+                return
+             end if
+             snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
+             snum%wave=rval(18)           ! wavelength             [valco(18)]
+             snum%scans=rval(36:38)       ! start, step, end     [valdef(1:3)]
+             snum%scans(2)=0.2
+             snum%monitor=rval(39)        ! monitor               [valdef(4)]
+             snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
+             snum%nbdata=ival(24)         ! nbdata
+             snum%manip=ival(4)           ! manip
+             snum%nbang=ival(5)           ! nbang
+             snum%nframes=ival(7)         ! npdone
+             snum%icalc=ival(9)           ! icalc
+             snum%icdesc(1:7)=ival(25:31) ! icdesc
+             if (present(info)) then
+                if (info) then
+                   do j=1,4
+                      read(unit=lun,fmt="(a)",iostat=ier) line
+                   end do
+                   read(unit=lun,fmt="(a8,2i8)", iostat=ier) item,n2,n3
+                   read(unit=item,fmt=*,iostat=ier) n1
+                   if (ier /=0) n1=99999999
+                   snum%scans(1)=real(n3)*0.001
+                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
+                   snum%monitor=real(n1)
+                   snum%time=real(n2)/60000.0
+                   return
+                end if
+             end if
+             if (allocated(snum%counts)) deallocate(snum%counts)
+             allocate(snum%counts(ival(24),ival(7)))
+             snum%counts=0.0
+             if (allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
+             allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
+             snum%tmc_ang=0.0
+
+             do i=1,snum%nframes
+                do j=1,3
+                   read(unit=lun,fmt="(a)",iostat=ier) line
+                end do
+                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
+                if (j > snum%nbdata) then
+                   read(unit=lun,fmt="(a8,2i8,7f8.0)", iostat=ier) item,n2,n3, snum%counts(1:7,i)
+                   if (ier /= 0) then
+                      ERR_ILLData=.true.
+                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                      return
+                   end if
+                   read(unit=lun,fmt=*, iostat=ier) snum%counts(8:snum%nbdata,i)
+                   if (ier /= 0) then
+                      ERR_ILLData=.true.
+                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                      return
+                   end if
+
+                   !Re-afect the values of n1,n2 and n3 to Monitor, Time and initial 2Theta
+                   snum%scans(1)=real(n3)*0.001
+                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
+                   read(unit=item,fmt=*,iostat=ier) n1
+                   if (ier /=0) n1=99999999
+                   snum%monitor=real(n1)
+                   snum%time=real(n2)/60000.0
+                else
+                   read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
+                   if (ier /= 0) then
+                      ERR_ILLData=.true.
+                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                      return
+                   end if
+                end if
+             end do
+             close(unit=lun)
+
+          Case("d20")
+             snum%scans(2)=0.1
+             read(unit=lun,fmt="(a)",iostat=ier) line
+             read(unit=lun,fmt=*,iostat=ier) snum%numor
+             do i=1,4
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             snum%header=line
+             do i=1,3
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             i=index(line,":")
+             snum%header=trim(snum%header)//line(i+1:)
+             do i=1,2
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             read(unit=lun,fmt=*,iostat=ier) ival
+             if (ier /= 0) then
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading integer control values"
+                return
+             end if
+             do i=1,2
+                read(unit=lun,fmt="(a)",iostat=ier) line
+             end do
+             read(unit=lun,fmt=*,iostat=ier) rval
+             if (ier /= 0) then
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading real control values"
+                return
+             end if
+             snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
+             snum%wave=rval(18)           ! wavelength             [valco(18)]
+             snum%scans=rval(36:38)       ! start, step, end     [valdef(1:3)]
+             snum%scans(2)=0.2
+             snum%monitor=rval(39)        ! monitor               [valdef(4)]
+             snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
+             snum%nbdata=ival(24)         ! nbdata
+             snum%manip=ival(4)           ! manip
+             snum%nbang=ival(5)           ! nbang
+             snum%nframes=ival(7)         ! npdone
+             snum%icalc=ival(9)           ! icalc
+             snum%icdesc(1:7)=ival(25:31) ! icdesc
+             if (present(info)) then
+                if (info) then
+                   do j=1,4
+                      read(unit=lun,fmt="(a)",iostat=ier) line
+                   end do
+                   read(unit=lun,fmt="(a8,2i8)", iostat=ier) item,n2,n3
+                   read(unit=item,fmt=*,iostat=ier) n1
+                   if(ier /=0) n1=99999999
+                   snum%scans(1)=real(n3)*0.001
+                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
+                   snum%monitor=real(n1)
+                   snum%time=real(n2)/60000.0
+                   return
+                end if
+             end if
+             if (allocated(snum%counts)) deallocate(snum%counts)
+             allocate(snum%counts(ival(24),ival(7)))
+             snum%counts=0.0
+             if (allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
+             allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
+             snum%tmc_ang=0.0
+
+             do i=1,snum%nframes
+                do j=1,3
+                   read(unit=lun,fmt="(a)",iostat=ier) line
+                end do
+                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
+                if (j > snum%nbdata) then
+                   read(unit=lun,fmt="(a8,2i8,7f8.0)", iostat=ier) item,n2,n3, snum%counts(1:7,i)
+                   if (ier /= 0) then
+                      ERR_ILLData=.true.
+                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                      return
+                   end if
+                   read(unit=lun,fmt=*, iostat=ier) snum%counts(8:snum%nbdata,i)
+                   if (ier /= 0) then
+                      ERR_ILLData=.true.
+                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                      return
+                   end if
+                   ! Re-afect the values of n1,n2 and n3 to Monitor, Time and initial 2Theta
+                   snum%scans(1)=real(n3)*0.001
+                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
+                   read(unit=item,fmt=*,iostat=ier) n1
+                   if(ier /=0) n1=99999999
+                   snum%monitor=real(n1)
+                   snum%time=real(n2)/60000.0
+               else
+                  read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
+                  if (ier /= 0) then
+                     ERR_ILLData=.true.
+                     write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                          " Error in file: "//trim(filenam)//", reading counts at frame #",i
+                     return
+                  end if
+               end if
+            end do
+            close(unit=lun)
+
+         Case("d1a")
+         Case("d2b")
+         Case("d4c")
+
+         Case default
+            ERR_ILLData=.true.
+            ERR_ILLData_Mess= " Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
+       End Select
+
+       return
+    End Subroutine Read_POWDER_Numor
+
+    !!----
+    !!---- Subroutine Read_SXTAL_Numor(Numor,Instrm,Snum)
     !!----    integer,                intent(in)    :: numor
     !!----    character(len=*),       intent(in)    :: instrm
     !!----    type(SXTAL_Numor_type), intent(in out):: snum
@@ -1576,7 +2008,7 @@ Module CFML_ILL_Instrm_Data
     !!----    Assign the global public variable: ILL_data_directory
     !!----    If ILL_data_try=' ' data are in the current directory
     !!----    If invoked without argument, the subroutine asks for the environment
-    !!----    variable ILL_data. If it is defined ILL_data_directory=ILL_data,
+    !!----    variable ILLDATA. If it is defined ILL_data_directory=ILLDATA,
     !!----    if not ILL_data_directory takes the default value defined in the
     !!----    declaration of the variable.
     !!----    If the directory doesn't exist the subroutine rises an error condition
@@ -1597,34 +2029,50 @@ Module CFML_ILL_Instrm_Data
        if (present(ILL_data_try)) then
           if (len_trim(ILL_data_try) == 0) then
              ILL_data_directory =" "      !data are in the current directory
+             got_ILL_data_directory=.true.
              return
           else
              ILL_data_directory =trim(ILL_data_try)
           end If
 
        else
-          call getenv("ILL_DATA", ILL_data)
+          call getenv("ILLDATA", ILL_data)
           if (len_trim(ILL_data) > 0) then
              ILL_data_directory = trim(ILL_data)
+          else
+             select case (ops)
+                case (1) ! Windows
+                   ILL_data_directory ='\\Serdon\illdata'
+                case (2:)
+                   ILL_data_directory ='/net/serdon/illdata'
+             end select
           end if
        end if
 
        !---- Add separator if absent ----!
        len_d=len_trim(ILL_data_directory)
-       if (ILL_data_directory(len_d:len_d) /= ops_sep) ILL_data_directory(len_d+1:len_d+1)=ops_sep
+       if (ILL_data_directory(len_d:len_d) /= ops_sep) then
+         ILL_data_directory=trim(ILL_data_directory)//ops_sep
+       end if
 
        !---- Check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
        err_ILLData=.false.
 
-       inquire(file=trim(ILL_data_directory)//".",exist=existe)
+       ! For all compilers except Intel
+       !inquire(file=trim(ILL_data_directory)//".",exist=existe)
+       ! For intel
+       inquire(directory=trim(ILL_data_directory),exist=existe)
        if (.not. existe) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
+          got_ILL_data_directory=.false.
+       else
+          got_ILL_data_directory=.true.
        end if
 
        return
-    End Subroutine Set_ILL_data_directory
+    End Subroutine Set_ILL_Data_Directory
 
     !!----
     !!---- Subroutine Set_Instrm_directory(instrm)
@@ -1915,6 +2363,78 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Write_Current_Instrm_data
+
+    !!----
+    !!---- Subroutine Write_POWDER_Numor(Num,lun)
+    !!----    type(POWDER_Numor_type), intent(in) :: Num
+    !!----    integer,      optional, intent(in) :: lun
+    !!----
+    !!----    Writes the characteristics of the numor objet 'Num'
+    !!----    of type POWDER_Numor_type in the file of logical unit 'lun'.
+    !!----    If the subroutine is invoked without the 'lun' argument the subroutine
+    !!----    outputs the information on the standard output (screen)
+    !!----
+    !!---- Update: March - 2005
+    !!
+    Subroutine Write_POWDER_Numor(Num,inst,lun)
+       !---- Arguments ----!
+       type(POWDER_Numor_type), intent(in) :: Num
+       character(len=*),        intent(in) :: inst
+       integer,       optional, intent(in) :: lun
+
+       !--- Local variables ---!
+       integer       :: ipr, i, j, nlines, ctot,n
+       integer, dimension(10) :: cou
+       real(kind=cp) :: tim,mon,ang1,ang2
+
+       ipr=6
+       if (present(lun)) ipr=lun
+
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(inst)
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PHI: ", Num%angles(1)
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_CHI: ", Num%angles(2)
+       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_OMEGA: ", Num%angles(3)
+       write(unit=ipr,fmt="(a,f14.3)") "    ANGLE_GAMMA: ", Num%angles(4)
+       write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PSI: ", Num%angles(5)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", Num%scans(1)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", Num%scans(2)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_WIDTH: ", Num%scans(3)
+       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", Num%monitor
+       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(min): ", Num%time
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", Num%conditions(4)
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a,i6)")     "  Calc. angl. type: ",Num%icalc
+       write(unit=ipr,fmt="(a,i6)")     "  Principal  angle: ",Num%manip
+       write(unit=ipr,fmt="(a,i6)")     "  Number of frames: ",Num%nframes
+       write(unit=ipr,fmt="(a,i6)")     "  Number of angles: ",Num%nbang
+       write(unit=ipr,fmt="(a,i6)")     "  Number of pixels: ",Num%nbdata
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a)")        "  Profile with all counts in detector: "
+
+
+       do i=1, Num%nframes
+          nlines=Num%nbdata/10+1
+          n=1
+          do j=1,nlines
+             cou=nint(Num%counts(n:n+9,i))
+             write(unit=ipr,fmt="(10i8)") cou
+             n=n+10
+             if (n > Num%nbdata) exit
+          end do
+       end do
+
+       return
+    End Subroutine Write_POWDER_Numor
 
     !!----
     !!---- Subroutine Write_SXTAL_Numor(Num,lun)
