@@ -6,7 +6,7 @@
 !!----   INFO: Subroutines related to Instrument information from ILL
 !!----
 !!---- HISTORY
-!!----    Update: April - 2009
+!!----    Update: April - 2008
 !!----
 !!--..    The default instrument cartesian frame is that defined by
 !!--..       W.R.Busing & H.A.Levy (Acta Cryst. 22,457-464 (1967)
@@ -96,7 +96,11 @@
 !!----
 !!---- VARIABLES
 !!--..    Types
+!!----    BASIC_NUMORC_TYPE
+!!----    BASIC_NUMORI_TYPE
+!!----    BASIC_NUMORR_TYPE
 !!----    DIFFRACTOMETER_TYPE
+!!----    GENERIC_NUMOR_TYPE
 !!----    ILL_DATA_RECORD_TYPE
 !!----    POWDER_NUMOR_TYPE
 !!----    SXTAL_NUMOR_TYPE
@@ -114,7 +118,15 @@
 !!--++    ILL_TEMP_DIRECTORY                [Private]
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
+!!--++    IVALUES                           [Private]
 !!----    MACHINE_NAME
+!!--++    N_KEYTYPES                        [Private]
+!!--++    NL_KEYTYPES                       [Private]
+!!--++    NTEXT                             [Private]
+!!--++    NVAL_F                            [Private]
+!!--++    NVAL_I                            [Private]
+!!--++    RVALUES                           [Private]
+!!--++    TEXT_ILL                          [Private]
 !!--++    UNCOMPRESSCOMMAND                 [Private]
 !!----    YEAR_ILLDATA
 !!----
@@ -129,15 +141,27 @@
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
 !!----       INITIALIZE_DATA_DIRECTORY
+!!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
+!!--++       READ_A_KEYTYPE                  [Private]
 !!----       READ_CURRENT_INSTRM
+!!--++       READ_F_KEYTYPE                  [Private]
+!!--++       READ_I_KEYTYPE                  [Private]
+!!--++       READ_J_KEYTYPE                  [Private]
+!!----       READ_NUMOR_D1B
+!!----       READ_NUMOR_D20
 !!----       READ_POWDER_NUMOR
+!!--++       READ_R_KEYTYPE                  [Private]
+!!--++       READ_S_KEYTYPE                  [Private]
+!!--++       READ_V_KEYTYPE                  [Private]
 !!----       READ_SXTAL_NUMOR
 !!----       SET_CURRENT_ORIENT
 !!----       SET_DEFAULT_INSTRUMENT
 !!----       SET_ILL_DATA_DIRECTORY
 !!----       SET_INSTRM_DIRECTORY
+!!----       SET_KEYTYPES_ON_FILE            [Private]
 !!----       UPDATE_CURRENT_INSTRM_UB
 !!----       WRITE_CURRENT_INSTRM_DATA
+!!----       WRITE_GENERIC_NUMOR
 !!----       WRITE_POWDER_NUMOR
 !!----       WRITE_SXTAL_NUMOR
 !!----
@@ -145,8 +169,8 @@
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, ops, ops_sep
-   Use CFML_Math_General,     only: cosd,sind
-   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
+   Use CFML_Math_General,     only: cosd,sind, equal_vector
+   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                     invert => Invert_A
    !---- Variables ----!
@@ -159,9 +183,61 @@ Module CFML_ILL_Instrm_Data
              Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D, &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle, &
+             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20,                    &
              Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
 
    !---- Definitions ----!
+
+   !!----
+   !!---- TYPE :: BASIC_NUMC_TYPE
+   !!--..
+   !!---- Type, public :: Basic_NumC_Type
+   !!----    integer                                      :: N        ! Number of elements in this Type
+   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
+   !!----    character(len=80), dimension(:), allocatable :: CValues  ! Character Values
+   !!---- End Type Basic_NumC_Type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: Basic_NumC_Type
+      integer                                      :: N
+      character(len=40), dimension(:), allocatable :: NameVar
+      character(len=80), dimension(:), allocatable :: CValues
+   End Type Basic_NumC_Type
+
+   !!----
+   !!---- TYPE :: BASIC_NUMI_TYPE
+   !!--..
+   !!---- Type, public :: Basic_NumI_Type
+   !!----    integer                                      :: N        ! Number of elements in this Type
+   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
+   !!----    integer,           dimension(:), allocatable :: IValues  ! Integer values
+   !!---- End Type, private :: Basic_NumI_Type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: Basic_NumI_Type
+      integer                                      :: N
+      character(len=40), dimension(:), allocatable :: NameVar
+      integer,           dimension(:), allocatable :: IValues
+   End Type Basic_NumI_Type
+
+   !!----
+   !!---- TYPE :: BASIC_NUMR_TYPE
+   !!--..
+   !!---- Type, public :: Basic_NumR_Type
+   !!----    integer                                      :: N        ! Number of elements in this Type
+   !!----    character(len=40), dimension(:), allocatable :: NameVar  ! Name of the diferents fields
+   !!----    real(kind=cp),     dimension(:), allocatable :: RValues  ! Real Values
+   !!---- End Type Basic_NumR_Type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: Basic_NumR_Type
+      integer                                      :: N
+      character(len=40), dimension(:), allocatable :: NameVar
+      real(kind=cp),     dimension(:), allocatable :: RValues
+   End Type Basic_NumR_Type
 
    !!----
    !!---- TYPE :: DIFFRACTOMETER_TYPE
@@ -233,6 +309,49 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp),dimension(3 )               :: det_offsets          !Offsets X,Y,Z of the detector centre
       real(kind=cp),dimension(:,:), allocatable :: alphas               !Efficiency corrections for each pixel
    End Type diffractometer_type
+
+   !!----
+   !!---- TYPE :: GENERIC_NUMOR_TYPE
+   !!--..
+   !!---- Type, public :: Generic_Numor_type
+   !!----    integer                                    :: Numor       ! Numor
+   !!----    character(len=4)                           :: Instr       ! Instrument on ILL
+   !!----    character(len=10)                          :: ExpName     ! Experimental Name
+   !!----    character(len=20)                          :: Date        ! Date
+   !!----    character(len=80)                          :: Title       ! Title
+   !!----    type(basic_numc_type)                      :: SampleID    ! Sample Identification
+   !!----    type(basic_numr_type)                      :: DiffOpt     ! Diffractometer Optics and Reactor Parameters
+   !!----    type(basic_numr_type)                      :: MonMPar     ! Monochromator Motor Parameters
+   !!----    type(basic_numr_type)                      :: DiffMPar    ! Diffractometer Motor Parameters
+   !!----    type(basic_numr_type)                      :: DetPar      ! Detector Parameters
+   !!----    type(basic_numi_type)                      :: DACFlags    ! Data Acquisition Control
+   !!----    type(basic_numr_type)                      :: DACParam    ! Data Acquisition Parameters
+   !!----    type(basic_numr_type)                      :: SampleSt    ! Sample status
+   !!----    type(basic_numi_type)                      :: ICounts     ! Counts as Integers
+   !!----    type(basic_numr_type)                      :: RCounts     ! Counts as Reals
+   !!---- End Type Generic_Numor_Type
+   !!----
+   !!----    Definition for Generic Numor type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: Generic_Numor_type
+      integer                                    :: Numor       ! Numor
+      character(len=4)                           :: Instr       ! Instrument on ILL
+      character(len=10)                          :: ExpName     ! Experimental Name
+      character(len=20)                          :: Date        ! Date
+      character(len=80)                          :: Title       ! Title
+      type(basic_numc_type)                      :: SampleID    ! Sample Identification
+      type(basic_numr_type)                      :: DiffOpt     ! Diffractometer Optics and Reactor Parameters
+      type(basic_numr_type)                      :: MonMPar     ! Monochromator Motor Parameters
+      type(basic_numr_type)                      :: DiffMPar    ! Diffractometer Motor Parameters
+      type(basic_numr_type)                      :: DetPar      ! Detector Parameters
+      type(basic_numi_type)                      :: DACFlags    ! Data Acquisition Control
+      type(basic_numr_type)                      :: DACParam    ! Data Acquisition Parameters
+      type(basic_numr_type)                      :: SampleSt    ! Sample status
+      type(basic_numi_type)                      :: ICounts     ! Counts as Integers
+      type(basic_numr_type)                      :: RCounts     ! Counts as Reals
+   End Type Generic_Numor_Type
 
    !!----
    !!---- TYPE :: ILL_DATA_RECORD_TYPE
@@ -546,6 +665,17 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=512), private ::  ILL_temp_directory = "c:\diffraction_Windows\illdata\"
 
+   !!--++
+   !!--++ IVALUES
+   !!--++    integer, dimension(:), allocatable, private :: ivalues
+   !!--++
+   !!--++    (Private)
+   !!--++    Integer vector to read integer values on keytype blocks
+   !!--++
+   !!--++ Update: April - 2008
+   !!
+   integer, dimension(:), allocatable, private :: ivalues
+
    !!----
    !!---- INSTRM_DIRECTORY
    !!----    character(len=512), public :: Instrm_directory
@@ -602,8 +732,86 @@ Module CFML_ILL_Instrm_Data
    character(len=8),   public  ::  machine_name
 
    !!--++
+   !!--++ N_KEYTYPES
+   !!--++    Integer, dimension(7), private :: N_KEYTYPES
+   !!--++
+   !!--++    Integer containing the number of keytypes into the numor
+   !!--++    according to:
+   !!--++       Index   1    2    3    4    5    6    7
+   !!--++     KeyType   R    A    S    F    I    J    V
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   integer, dimension(7), private :: n_keytypes
+
+   !!--++
+   !!--++ NL_KEYTYPES
+   !!--++    Integer, dimension(:,:,:), allocatable, private :: NL_KEYTYPES
+   !!--++
+   !!--++    Integer array where write the initial and final lines for each
+   !!--++    keytype group.
+   !!--++    Index 1: [1-7]
+   !!--++    Index 2: Number of Blocks of this keytype
+   !!--++    Index 3: [1,2], The first the beginning and the second the end
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   integer, dimension(:,:,:), allocatable, private :: nl_keytypes
+
+   !!--++
+   !!--++ NTEXT
+   !!--++    Integer, private :: NTEXT
+   !!--++
+   !!--++    Integer containing the number of lines of Text for KeyType
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   integer, private :: ntext
+
+   !!--++
+   !!--++ NVAL_F
+   !!--++    Integer, private :: NVAL_F
+   !!--++
+   !!--++    Integer containing the number of real values readed on keytype blocks
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   integer, private :: nval_f
+
+   !!--++
+   !!--++ NVAL_I
+   !!--++    Integer, private :: NVAL_I
+   !!--++
+   !!--++    Integer containing the number of integer values readed on keytype blocks
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   integer, private :: nval_i
+
+   !!--++
+   !!--++ RVALUES
+   !!--++    real(kind=cp), dimension(:), allocatable, private :: rvalues
+   !!--++
+   !!--++    (Private)
+   !!--++    Vector to read real values on keytype blocks
+   !!--++
+   !!--++ Update: April - 2008
+   !!
+   real(kind=cp), dimension(:), allocatable, private :: rvalues
+
+   !!--++
+   !!--++ TEXT_ILL
+   !!--++    character(len=80), dimension(:), allocatable, private :: text_ill
+   !!--++
+   !!--++    String containing the info from Numors blocks
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   character(len=80), dimension(:), allocatable, private :: text_ill
+
+   !!--++
    !!--++ UNCOMPRESSCOMMAND
-   !!--++    character(len=512), public :: uncompresscommand
+   !!--++    character(len=512), private :: uncompresscommand
    !!--++
    !!--++    String containing the command for uncompressing compressed data files
    !!--++
@@ -612,7 +820,7 @@ Module CFML_ILL_Instrm_Data
    character(len=512), private  ::  uncompresscommand=' '
 
    !!----
-   !!---- YEAR
+   !!---- YEAR_ILLDATA
    !!----    Integer, public :: YEAR_ILLDATA
    !!----
    !!----    Integer containing the two last figures of the "year" needed to
@@ -1139,7 +1347,7 @@ Module CFML_ILL_Instrm_Data
              call getenv(ENVVAR1, ILL_Temp_Directory)
              if (len_trim(ILL_Temp_directory) == 0) then
                 call getenv('HOME', ILL_Temp_Directory)
-                ILL_Temp_directory =trim(ILL_Temp_directory)//OPS_SEP//'.tmp'
+                ILL_Temp_directory =trim(ILL_Temp_directory)//OPS_SEP//'tmp'
              end if
 
              ! ILL Data
@@ -1168,6 +1376,115 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Initialize_Data_Directory
+
+    !!--++
+    !!--++ Subroutine Number_KeyTypes_on_File(filevar, nlines)
+    !!--++    character(len=*),dimension(:), intent(in) :: filevar
+    !!--++    integer,                       intent(in) :: nlines
+    !!--++
+    !!--++    1:R, 2:A, 3:S, 4:F, 5:I, 6:J, 7:V
+    !!
+    Subroutine Number_KeyTypes_on_File(filevar, nlines)
+       !---- Arguments ----!
+       character(len=*),dimension(:), intent(in) :: filevar
+       integer,                       intent(in) :: nlines
+
+       !---- Local Variables ----!
+       integer :: i
+
+       ! Init output variables
+       n_keytypes=0
+
+       do i=1,nlines
+          select case (filevar(i)(1:10))
+             case ('RRRRRRRRRR')
+                n_keytypes(1)=n_keytypes(1)+1
+             case ('AAAAAAAAAA')
+                n_keytypes(2)=n_keytypes(2)+1
+             case ('SSSSSSSSSS')
+                n_keytypes(3)=n_keytypes(3)+1
+             case ('FFFFFFFFFF')
+                n_keytypes(4)=n_keytypes(4)+1
+             case ('IIIIIIIIII')
+                n_keytypes(5)=n_keytypes(5)+1
+             case ('JJJJJJJJJJ')
+                n_keytypes(6)=n_keytypes(6)+1
+             case ('VVVVVVVVVV')
+                n_keytypes(7)=n_keytypes(7)+1
+          end select
+       end do
+
+       return
+    End Subroutine Number_KeyTypes_on_File
+
+    !!--++
+    !!--++ Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++    integer,                        intent(out) :: nchars    ! Number of characters to be read from the next data
+    !!--++    character(len=*),               intent(out) :: charline  ! String to be read
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
+       !---- Arguments ----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+       integer,                        intent(out) :: nchars
+       character(len=*),               intent(out) :: charline
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j,n
+       integer, dimension(10) :: ivet
+
+       ! Init output values
+       err_illdata=.false.
+
+       nchars =0
+       charline=' '
+       ntext=0
+       if (allocated(text_ill)) deallocate(text_ill)
+
+       ! Check the correct KeyType A
+       line=filevar(n_ini)
+       if (line(1:10) /= 'AAAAAAAAAA') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       nchars =ivet(1)
+       ntext=ivet(2)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+2)+i
+             if (j > n_end) then
+                err_illdata=.true.
+                err_illdata_mess=' Impossible to read a line for this block!'
+                exit
+             end if
+             text_ill(i)=trim(filevar(j))
+          end do
+       end if
+
+       if (nchars > 0) then
+          charline=' '
+          n=nchars/80 + mod(nchars,80)
+          do i=1,n
+             charline=trim(charline)//filevar(n_ini+1+i)//char(9)
+          end do
+       end if
+
+       return
+    End Subroutine Read_A_KeyType
 
     !!----
     !!---- Subroutine Read_Current_Instrm(filenam)
@@ -1399,6 +1716,618 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_Current_Instrm
+
+    !!--++
+    !!--++ Subroutine Read_F_KeyType(filevar, n_ini, n_end)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_F_KeyType(filevar, n_ini, n_end)
+       !---- Arguments----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j,nl
+       integer, dimension(10) :: ivet
+       real, dimension(5)     :: vet
+
+       ! Init output values
+       err_illdata=.false.
+       nval_f=0
+       ntext=0
+
+       if (allocated(text_ill)) deallocate(text_ill)
+       if (allocated(rvalues)) deallocate(rvalues)
+
+       ! Check the correct KeyType F
+       line=filevar(n_ini)
+       if (line(1:10) /= 'FFFFFFFFFF') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       nval_f =ivet(1)
+       ntext=ivet(2)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+1)+i
+             text_ill(i)=filevar(j)
+          end do
+       end if
+
+       if (nval_f > 0) then
+          nl=5*(nval_f/5 + mod(nval_f,5))
+          allocate(rvalues(nl))
+          rvalues=0.0
+
+          j=1
+          do i=n_ini+ntext+2, n_end
+             read(unit=filevar(i),fmt='(5E16.8)') vet
+             rvalues(j:j+4)=vet
+             j=j+5
+          end do
+       end if
+
+       return
+    End Subroutine Read_F_KeyType
+
+    !!--++
+    !!--++ Subroutine Read_I_KeyType(filevar, n_ini, n_end)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_I_KeyType(filevar, n_ini, n_end)
+       !---- Arguments----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j, nl
+       integer, dimension(10) :: ivet
+
+       ! Init output values
+       err_illdata=.false.
+
+       nval_i=0
+       ntext=0
+       if (allocated(text_ill)) deallocate(text_ill)
+       if (allocated(ivalues)) deallocate(ivalues)
+
+       ! Check the correct KeyType I
+       line=filevar(n_ini)
+       if (line(1:10) /= 'IIIIIIIIII') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       nval_i =ivet(1)
+       ntext=ivet(2)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+1)+i
+             text_ill(i)=filevar(j)
+          end do
+       end if
+
+       if (nval_i > 0) then
+          nl=10*(nval_i/10 + mod(nval_i,10))
+          allocate(ivalues(nl))
+          ivalues=0
+
+          j=1
+          do i=n_ini+ntext+2, n_end
+             read(unit=filevar(i),fmt='(10i8)') ivet
+             ivalues(j:j+9)=ivet
+             j=j+10
+          end do
+       end if
+
+       return
+    End Subroutine Read_I_KeyType
+
+    !!--++
+    !!--++ Subroutine Read_J_KeyType(filevar, n_ini, n_end)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_J_KeyType(filevar, n_ini, n_end)
+       !---- Arguments----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j,nl
+       integer, dimension(10) :: ivet
+
+       ! Init output values
+       err_illdata=.false.
+
+       nval_i=0
+       ntext=0
+       if (allocated(text_ill)) deallocate(text_ill)
+       if (allocated(ivalues)) deallocate(ivalues)
+
+       ! Check the correct KeyType J
+       line=filevar(n_ini)
+       if (line(1:10) /= 'JJJJJJJJJJ') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       nval_i =ivet(1)
+       ntext=ivet(2)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+1)+i
+             text_ill(i)=filevar(j)
+          end do
+       end if
+
+       if (nval_i > 0) then
+          nl=8*(nval_i/8 + mod(nval_i,8))
+          allocate(ivalues(nl))
+          ivalues=0
+
+          j=1
+          do i=n_ini+ntext+2, n_end
+             read(unit=filevar(i),fmt='(8i10)') ivet(1:8)
+             ivalues(j:j+7)=ivet(1:8)
+             j=j+8
+          end do
+
+       end if
+
+       return
+    End Subroutine Read_J_KeyType
+
+    !!----
+    !!---- Subroutine Read_Numor_D1B(filevar,N)
+    !!----    character(len=*), intent(in)          :: fileinfo
+    !!----    type(generic_numor_type), intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D1B Instrument at ILL
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Read_Numor_D1B(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*), intent(in)          :: fileinfo
+       type(generic_numor_type), intent(out) :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       integer                                      :: nlines
+       integer                                      :: i,numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the numor for D1B Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Check format for D1B
+       call Number_KeyTypes_on_File(filevar,nlines)
+       if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D1B Format'
+          return
+       end if
+
+       ! Defining the different blocks
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instr=line(1:4)
+          n%expname=line(5:14)
+          n%date=line(15:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%SampleID%n=4
+          if (allocated(n%sampleid%namevar)) deallocate(n%sampleid%namevar)
+          if (allocated(n%sampleid%cvalues)) deallocate(n%sampleid%cvalues)
+          allocate(n%sampleid%namevar(4))
+          allocate(n%sampleid%cvalues(4))
+
+          ! Given names
+          n%sampleid%namevar=' '
+          n%sampleid%namevar(1)='Name'
+          n%sampleid%namevar(2)='Local Contact'
+          n%sampleid%namevar(3)='Experimentalist'
+          n%sampleid%namevar(4)='Proposal Number'
+
+          ! Load values
+          n%sampleid%cvalues=' '
+          n%title=trim(line)
+          n%sampleid%cvalues(1)=trim(line)
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          n%dacflags%n=nval_i
+          if (allocated(n%dacflags%namevar)) deallocate(n%dacflags%namevar)
+          if (allocated(n%dacflags%ivalues)) deallocate(n%dacflags%ivalues)
+          allocate(n%dacflags%namevar(nval_i))
+          allocate(n%dacflags%ivalues(nval_i))
+
+          ! Given names
+          n%dacflags%namevar=' '
+          n%dacflags%namevar( 5)='N. of additional parameters saved per data point'      ! Nbang (0-7)
+          n%dacflags%namevar( 7)='Number of data points saved'                           ! Npdone (Nframes)
+          n%dacflags%namevar( 8)='Count on Monitor or Time'                              ! Jcode (0/1)
+          n%dacflags%namevar(24)='N. of count data'                                      ! Nbdata
+
+          ! Load values
+          n%dacflags%ivalues=ivalues(1:nval_i)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%dacparam%n=nval_f
+          if (allocated(n%dacparam%namevar)) deallocate(n%dacparam%namevar)
+          if (allocated(n%dacparam%rvalues)) deallocate(n%dacparam%rvalues)
+          allocate(n%dacparam%namevar(nval_f))
+          allocate(n%dacparam%rvalues(nval_f))
+
+          ! Given names
+          n%dacparam%namevar=' '
+
+          n%dacparam%namevar(18)='Wavelength'
+
+          n%dacparam%namevar(36)='Scan Start'
+          n%dacparam%namevar(37)='Scan Step'
+          n%dacparam%namevar(38)='Scan Width'
+
+          n%dacparam%namevar(39)='Preset monitor or Time'
+
+          n%dacparam%namevar(46)='Temp-s.pt'
+          n%dacparam%namevar(47)='Temp-Regul'
+          n%dacparam%namevar(48)='Temp-Sample'
+
+          ! Load values
+          n%dacparam%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Counts
+       call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
+       if (nval_i > 0) then
+          n%icounts%n=nval_i
+          if (allocated(n%icounts%namevar)) deallocate(n%icounts%namevar)
+          if (allocated(n%icounts%ivalues)) deallocate(n%icounts%ivalues)
+          allocate(n%icounts%namevar(3))
+          allocate(n%icounts%ivalues(nval_i))
+
+          ! Given Names
+          n%icounts%namevar(1)='Monitor'
+          n%icounts%namevar(2)='Time'
+          n%icounts%namevar(3)='Initial Scan'
+
+          ! Load values
+          n%icounts%ivalues=ivalues(1:nval_i)
+       end if
+
+       return
+    End Subroutine Read_Numor_D1B
+
+    !!----
+    !!---- Subroutine Read_Numor_D20(filevar,N)
+    !!----    character(len=*), intent(in) :: fileinfo
+    !!----    type(generic_numor_type), intent(out) :: n
+    !!----
+    !!---- Read a Numor for D20 Instrument at ILL
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Read_Numor_D20(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*), intent(in) :: fileinfo
+       type(generic_numor_type), intent(out) :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=40), dimension(5)              :: dire
+       character(len=1024)                          :: line
+       character(len=80)                            :: linec
+       integer                                      :: nlines,ic
+       integer                                      :: i,j,numor,idum,nl
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the numor for D20 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Check format for D20
+       call Number_KeyTypes_on_File(filevar,nlines)
+       if (.not. equal_vector(n_keytypes,(/1,2,1,6,0,1,0/),7)) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D20 Format'
+          return
+       end if
+
+       ! Defining the different blocks
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instr=line(1:4)
+          n%expname=line(5:14)
+          n%date=line(15:32)
+       end if
+
+       ! Title/Sample
+       if (allocated(n%sampleid%namevar)) deallocate(n%sampleid%namevar)
+       if (allocated(n%sampleid%cvalues)) deallocate(n%sampleid%cvalues)
+
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       select case (idum)
+          case (1:80)
+             n%SampleID%n=4
+             allocate(n%sampleid%namevar(4))
+             allocate(n%sampleid%cvalues(4))
+
+             ! Given names
+             n%sampleid%namevar=' '
+             n%sampleid%namevar(1)='Name'
+             n%sampleid%namevar(2)='Local Contact'
+             n%sampleid%namevar(3)='Experimentalist'
+             n%sampleid%namevar(4)='Proposal Number'
+
+             ! Load values
+             n%sampleid%cvalues=' '
+             n%title=trim(line)
+             n%sampleid%cvalues(1)=trim(line)
+
+          case (81:)
+             nl=(idum/80)+mod(idum,80)
+             n%SampleID%n=nl
+             allocate(n%sampleid%namevar(nl))
+             allocate(n%sampleid%cvalues(nl))
+
+             ! Give names
+             do i=1,nl
+                j=index(line,char(9))
+                linec=line(1:j-1)
+                line=line(j+1:)
+
+                j=index(linec,':')
+                n%sampleid%namevar(i)=linec(1:j-1)
+                n%sampleid%cvalues(i)=trim(linec(j+1:))
+             end do
+       end select
+
+       ! Diffractometers Optics / Reactor parameters
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%diffopt%n=nval_f
+          if (allocated(n%diffopt%namevar)) deallocate(n%diffopt%namevar)
+          if (allocated(n%diffopt%rvalues)) deallocate(n%diffopt%rvalues)
+          allocate(n%diffopt%namevar(nval_f))
+          allocate(n%diffopt%rvalues(nval_f))
+
+          ! Given names
+          n%diffopt%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%diffopt%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%diffopt%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Monochromator Motor Parameters
+       call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
+       if (nval_f > 0) then
+          n%monmpar%n=nval_f
+          if (allocated(n%monmpar%namevar)) deallocate(n%monmpar%namevar)
+          if (allocated(n%monmpar%rvalues)) deallocate(n%monmpar%rvalues)
+          allocate(n%monmpar%namevar(nval_f))
+          allocate(n%monmpar%rvalues(nval_f))
+
+          ! Given names
+          n%monmpar%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%monmpar%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%monmpar%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Diffractometer Motor Parameters
+       call read_F_keyType(filevar,nl_keytypes(4,3,1),nl_keytypes(4,3,2))
+       if (nval_f > 0) then
+          n%diffmpar%n=nval_f
+          if (allocated(n%diffmpar%namevar)) deallocate(n%diffmpar%namevar)
+          if (allocated(n%diffmpar%rvalues)) deallocate(n%diffmpar%rvalues)
+          allocate(n%diffmpar%namevar(nval_f))
+          allocate(n%diffmpar%rvalues(nval_f))
+
+          ! Given names
+          n%diffmpar%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%diffmpar%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%diffmpar%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Detector and DAS Parameters
+       call read_F_keyType(filevar,nl_keytypes(4,4,1),nl_keytypes(4,4,2))
+       if (nval_f > 0) then
+          n%detpar%n=nval_f
+          if (allocated(n%detpar%namevar)) deallocate(n%detpar%namevar)
+          if (allocated(n%detpar%rvalues)) deallocate(n%detpar%rvalues)
+          allocate(n%detpar%namevar(nval_f))
+          allocate(n%detpar%rvalues(nval_f))
+
+          ! Given names
+          n%detpar%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%detpar%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%detpar%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Data Acquisition Control Parameters
+       call read_F_keyType(filevar,nl_keytypes(4,5,1),nl_keytypes(4,5,2))
+       if (nval_f > 0) then
+          n%dacparam%n=nval_f
+          if (allocated(n%dacparam%namevar)) deallocate(n%dacparam%namevar)
+          if (allocated(n%dacparam%rvalues)) deallocate(n%dacparam%rvalues)
+          allocate(n%dacparam%namevar(nval_f))
+          allocate(n%dacparam%rvalues(nval_f))
+
+          ! Given names
+          n%dacparam%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%dacparam%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%dacparam%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Sample Status
+       call read_F_keyType(filevar,nl_keytypes(4,6,1),nl_keytypes(4,6,2))
+       if (nval_f > 0) then
+          n%samplest%n=nval_f
+          if (allocated(n%samplest%namevar)) deallocate(n%samplest%namevar)
+          if (allocated(n%samplest%rvalues)) deallocate(n%samplest%rvalues)
+          allocate(n%samplest%namevar(nval_f))
+          allocate(n%samplest%rvalues(nval_f))
+
+          ! Given names
+          n%samplest%namevar=' '
+          j=0
+          do i=2,ntext
+             read(unit=text_ill(i),fmt='(5a16)') dire
+             do nl=1,5
+                j=j+1
+                n%samplest%namevar(j)=dire(nl)
+             end do
+          end do
+
+          ! Load values
+          n%samplest%rvalues=rvalues(1:nval_f)
+       end if
+
+       ! Counts Information
+       call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
+       print*, nval_i
+
+       if (nval_i > 0) then
+          n%icounts%n=nval_i
+          if (allocated(n%icounts%namevar)) deallocate(n%icounts%namevar)
+          if (allocated(n%icounts%ivalues)) deallocate(n%icounts%ivalues)
+          allocate(n%icounts%namevar(1))
+          allocate(n%icounts%ivalues(nval_i))
+
+          ! Given names
+          n%icounts%namevar(1)=' N. of Counts'
+
+          ! Load values
+          n%icounts%ivalues=ivalues(1:nval_i)
+       end if
+
+       return
+    End Subroutine Read_Numor_D20
 
     !!----
     !!---- Subroutine Read_POWDER_Numor(Numor,Instrm,Pathdir,Snum,Info)
@@ -1687,6 +2616,145 @@ Module CFML_ILL_Instrm_Data
        return
     End Subroutine Read_POWDER_Numor
 
+    !!--++
+    !!--++ Subroutine Read_R_KeyType(filevar, n_ini, n_end, nrun, nvers)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++    integer,                        intent(out) :: nrun      ! Run number of the data
+    !!--++    integer,                        intent(out) :: nvers     ! Version data
+    !!--++
+    !!--++ (Private)
+    !!--++ Read the Blocktype R on Numor at ILL
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_R_KeyType(filevar, n_ini, n_end, nrun, nvers)
+       !---- Arguments ----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+       integer,                        intent(out) :: nrun
+       integer,                        intent(out) :: nvers
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j
+       integer, dimension(10) :: ivet
+
+       ! Init output values
+       err_illdata=.false.
+
+       nrun =0
+       nvers=0
+       ntext=0
+       if (allocated(text_ill)) deallocate(text_ill)
+
+       ! Check the correct KeyType R
+       line=filevar(n_ini)
+       if (line(1:10) /= 'RRRRRRRRRR') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       nrun =ivet(1)
+       nvers=ivet(3)
+       ntext=ivet(2)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+1)+i
+             if (j > n_end) then
+                err_illdata=.true.
+                err_illdata_mess='  Impossible to read a line for this block!'
+                exit
+             end if
+             text_ill(i)=trim(filevar(j))
+          end do
+       end if
+
+       return
+    End Subroutine Read_R_KeyType
+
+    !!--++
+    !!--++ Subroutine Read_S_KeyType(filevar, n_ini, n_end, ispec, nrest, ntot, nrun, npars)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++    integer,                        intent(out) :: ispec     ! Sub-spectrum number
+    !!--++    integer,                        intent(out) :: nrest     ! Number of subspectra remaining after ispec
+    !!--++    integer,                        intent(out) :: ntot      ! Total number of subspectra in the run
+    !!--++    integer,                        intent(out) :: nrun      ! Current run number
+    !!--++    integer,                        intent(out) :: npars     ! Number of parameters sections
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_S_KeyType(filevar, n_ini, n_end, ispec, nrest, ntot, nrun, npars)
+       !---- Arguments ----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+       integer,                        intent(out) :: ispec
+       integer,                        intent(out) :: nrest
+       integer,                        intent(out) :: ntot
+       integer,                        intent(out) :: nrun
+       integer,                        intent(out) :: npars
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j
+       integer, dimension(10) :: ivet
+
+       ! Init output variables
+       err_illdata=.false.
+
+       ispec=0
+       nrest=0
+       ntot=0
+       nrun=0
+       ntext=0
+       npars=0
+       if (allocated(text_ill)) deallocate(text_ill)
+
+       ! Check the correct KeyType S
+       line=filevar(n_ini)
+       if (line(1:10) /= 'SSSSSSSSSS') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
+       ispec=ivet(1)
+       nrest=ivet(2)
+       ntot =ivet(3)
+       nrun =ivet(4)
+       ntext=ivet(5)
+       npars=ivet(6)
+
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          do i=1,ntext
+             j=(n_ini+1)+i
+             if (j > n_end) then
+                err_illdata=.true.
+                err_illdata_mess=' Impossible to read a line for this block!'
+                exit
+             end if
+             text_ill(i)=trim(filevar(j))
+          end do
+       end if
+
+       return
+    End Subroutine Read_S_KeyType
+
     !!----
     !!---- Subroutine Read_SXTAL_Numor(Numor,Instrm,Snum)
     !!----    integer,                intent(in)    :: numor
@@ -1888,6 +2956,52 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_SXTAL_Numor
+
+    !!--++
+    !!--++ Subroutine Read_V_KeyType(filevar, n_ini, n_end)
+    !!--++    character(len=*), dimension(:), intent(in)  :: filevar   ! Input information
+    !!--++    integer,                        intent(in)  :: n_ini     ! First line
+    !!--++    integer,                        intent(in)  :: n_end     ! Last line to be read
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Read_V_KeyType(filevar, n_ini, n_end)
+       !---- Arguments ----!
+       character(len=*), dimension(:), intent(in)  :: filevar
+       integer,                        intent(in)  :: n_ini
+       integer,                        intent(in)  :: n_end
+
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer                :: i,j
+
+       ! Init output values
+       err_illdata=.false.
+       ntext=0
+       if (allocated(text_ill)) deallocate(text_ill)
+
+       ! Check the correct KeyType V
+       line=filevar(n_ini)
+       if (line(1:10) /= 'VVVVVVVVVV') then
+          err_illdata=.true.
+          err_illdata_mess=' A bad Block Type has been found'
+          return
+       end if
+
+       ! Getting information
+       ntext=n_end-n_ini-1
+       if (ntext > 0) then
+          allocate(text_ill(ntext))
+          text_ill=' '
+          j=0
+          do i=n_ini+1,n_end
+             j=j+1
+             text_ill(j)=filevar(i)
+          end do
+       end if
+
+       return
+    End Subroutine Read_V_KeyType
 
     !!----
     !!---- Subroutine Set_Current_Orient(wave,ub,setting)
@@ -2110,6 +3224,197 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Set_Instrm_directory
+
+    !!--++
+    !!--++ Subroutine Set_KeyTypes_on_File(filevar, nlines)
+    !!--++    character(len=*),dimension(:), intent(in) :: filevar
+    !!--++    integer,                       intent(in) :: nlines
+    !!--++
+    !---++ Set the information on NL_KEYTYPES
+    !!--++
+    !!--++ Update: April-2009
+    !!
+    Subroutine Set_KeyTypes_on_File(filevar, nlines)
+       !---- Arguments ----!
+       character(len=*),dimension(:), intent(in) :: filevar
+       integer,                       intent(in) :: nlines
+
+       !---- Local Variables ----!
+       integer :: i,j,nl,ndim
+
+       if (allocated(nl_keytypes)) deallocate(nl_keytypes)
+       if (all(n_keytypes == 0)) return
+
+       ndim=maxval(n_keytypes)
+       allocate(nl_keytypes(7,ndim,2))
+       nl_keytypes=0
+
+       do i=1,7
+          if (n_keytypes(i) == 0) cycle
+          j=1
+          do nl=1,nlines
+             select case (i)
+                case (1)
+                   if (nl_keytypes(1,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'RRRRRRRRRR') cycle
+                      nl_keytypes(1,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(1,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR') then
+                         nl_keytypes(1,j,1)=nl
+                      end if
+                   end if
+
+                case (2)
+                   if (nl_keytypes(2,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'AAAAAAAAAA') cycle
+                      nl_keytypes(2,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(2,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'AAAAAAAAAA') then
+                         nl_keytypes(2,j,1)=nl
+                      end if
+                   end if
+
+                case (3)
+                   if (nl_keytypes(3,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'SSSSSSSSSS') cycle
+                      nl_keytypes(3,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(3,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'SSSSSSSSSS') then
+                         nl_keytypes(3,j,1)=nl
+                      end if
+                   end if
+
+                case (4)
+                   if (nl_keytypes(4,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'FFFFFFFFFF') cycle
+                      nl_keytypes(4,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(4,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'FFFFFFFFFF') then
+                         nl_keytypes(4,j,1)=nl
+                      end if
+                   end if
+
+                case (5)
+                   if (nl_keytypes(5,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'IIIIIIIIII') cycle
+                      nl_keytypes(5,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(5,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'IIIIIIIIII') then
+                         nl_keytypes(5,j,1)=nl
+                      end if
+                   end if
+
+                case (6)
+                   if (nl_keytypes(6,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'JJJJJJJJJJ') cycle
+                      nl_keytypes(6,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(6,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'JJJJJJJJJJ') then
+                         nl_keytypes(6,j,1)=nl
+                      end if
+                   end if
+
+                case (7)
+                   if (nl_keytypes(7,j,1) == 0) then
+                      if (filevar(nl)(1:10) /= 'VVVVVVVVVV') cycle
+                      nl_keytypes(7,j,1)=nl
+                   else
+                      if (filevar(nl)(1:10) == 'RRRRRRRRRR' .or. &
+                          filevar(nl)(1:10) == 'AAAAAAAAAA' .or. &
+                          filevar(nl)(1:10) == 'SSSSSSSSSS' .or. &
+                          filevar(nl)(1:10) == 'FFFFFFFFFF' .or. &
+                          filevar(nl)(1:10) == 'IIIIIIIIII' .or. &
+                          filevar(nl)(1:10) == 'JJJJJJJJJJ' .or. &
+                          filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(7,j,2)=nl-1
+                         j=j+1
+                         if (j > n_keytypes(i)) exit
+                      end if
+                      if (filevar(nl)(1:10) == 'VVVVVVVVVV') then
+                         nl_keytypes(7,j,1)=nl
+                      end if
+                   end if
+             end select
+          end do
+       end do
+
+       do i=1,7
+          do j=1,n_keytypes(i)
+             if (nl_keytypes(i,j,1) /= 0 .and. nl_keytypes(i,j,2)==0) then
+                nl_keytypes(i,j,2)=nlines
+                exit
+             end if
+          end do
+       end do
+
+       return
+    End Subroutine Set_KeyTypes_on_File
 
     !!----
     !!---- Subroutine Update_Current_Instrm_UB(filenam,UB,wave)
@@ -2363,6 +3668,113 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Write_Current_Instrm_data
+
+    !!----
+    !!---- Subroutine Write_Generic_Numor(N,lun)
+    !!----    type(generic_numor_type), intent(in) :: N
+    !!----    integer, optional,        intent(in) :: lun
+    !!----
+    !!---- Write the information of a Generic Numor
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Write_Generic_Numor(N,lun)
+       !---- Arguments ----!
+       type(generic_numor_type), intent(in) :: N
+       integer, optional,        intent(in) :: lun
+
+       !---- Local Variables ----!
+       integer :: ilun,i
+
+       ilun=6
+       if (present(lun)) ilun=lun
+
+       write(unit=ilun, fmt='(a)') '#### Numor Information ####'
+       write(unit=ilun, fmt='(a,i6.6)') 'Numor: ',n%numor
+
+       write(unit=ilun,fmt='(a,t50,a)') 'Instrument: '//trim(n%instr),'Date: '//trim(n%date)
+       write(unit=ilun,fmt='(a)') 'Experimental Name: '//trim(n%expname)
+       write(unit=ilun,fmt='(a)') ' '
+
+       write(unit=ilun,fmt='(a)') '#---- Sample Information ----#'
+       do i=1,n%sampleid%n
+          write(unit=ilun,fmt='(a)') trim(n%sampleid%namevar(i))//': '//trim(n%sampleid%cvalues(i))
+       end do
+       write(unit=ilun,fmt='(a)') ' '
+
+       select case (n%instr)
+           case ('D20')
+              write(unit=ilun,fmt='(a)') '#---- Diffractometer Optics and Reactor Parameters ----#'
+              do i=1,n%diffopt%n
+                 if (len_trim(n%diffopt%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%diffopt%namevar(i))//': ',n%diffopt%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Monochromator Motor Parameters ----#'
+              do i=1,n%monmpar%n
+                 if (len_trim(n%monmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%monmpar%namevar(i))//': ',n%monmpar%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Diffractometer Motor Parameters ----#'
+              do i=1,n%diffmpar%n
+                 if (len_trim(n%diffmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%diffmpar%namevar(i))//': ',n%diffmpar%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Detector and DAS Parameters ----#'
+              do i=1,n%detpar%n
+                 if (len_trim(n%detpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%detpar%namevar(i))//': ',n%detpar%rvalues(i)
+              end do
+             write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
+              do i=1,n%dacparam%n
+                 if (len_trim(n%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%dacparam%namevar(i))//': ',n%dacparam%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Sample Status ----#'
+              do i=1,n%samplest%n
+                 if (len_trim(n%samplest%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(n%samplest%namevar(i))//': ',n%samplest%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
+              write(unit=ilun,fmt='(a,i8)') trim(n%icounts%namevar(1))//': ',n%icounts%n
+              write(unit=ilun,fmt='(a)') ' '
+
+           case ('D1B')
+              write(unit=ilun,fmt='(a)') '#---- Data Acquisition Flags ----#'
+              do i=1,n%dacflags%n
+                 if (len_trim(n%dacflags%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,i6)') trim(n%dacflags%namevar(i))//': ',n%dacflags%ivalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
+              do i=1,n%dacparam%n
+                 if (len_trim(n%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.4)') trim(n%dacparam%namevar(i))//': ',n%dacparam%rvalues(i)
+              end do
+              write(unit=ilun,fmt='(a)') ' '
+
+              write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
+              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(1))//': ',real(n%icounts%ivalues(1))
+              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(2))//': ',real(n%icounts%ivalues(2))/60000.0
+              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(3))//': ',real(n%icounts%ivalues(3))*0.001
+              write(unit=ilun,fmt='(a)') ' '
+
+       end select
+
+       return
+    End Subroutine Write_Generic_Numor
 
     !!----
     !!---- Subroutine Write_POWDER_Numor(Num,lun)
