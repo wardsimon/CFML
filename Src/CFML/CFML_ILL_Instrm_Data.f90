@@ -145,7 +145,7 @@
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, ops, ops_sep
-  Use CFML_Math_General,     only: cosd,sind
+   Use CFML_Math_General,     only: cosd,sind
    use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                     invert => Invert_A
