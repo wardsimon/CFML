@@ -194,4 +194,37 @@
       RETURN
       END SUBROUTINE GET_COMMAND_ARGUMENT
 !
+! Add by JGP for Lahey
+!
+      Subroutine Get_Environment_Variable(Name, Value, Length, Status, Trim_Name)
+         character(len=*),           intent(in)  :: Name
+         character(len=*), optional, intent(out) :: Value
+         integer,          optional, intent(out) :: Length
+         integer,          optional, intent(out) :: Status
+         logical,          optional, intent(in)  :: Trim_Name
+
+         !---- Local Variables ----!
+         character(len=1024) :: line
+         integer             :: long,ierr
+
+         long=0
+         ierr=0
+
+         call getenv(name,line)
+         long=len_trim(line)
+         if (long ==0) ierr=1
+
+         if (present(value)) then
+            value=trim(line)
+         end if
+
+         if (present(length)) length=long
+
+         if (present(status)) status=ierr
+
+         return
+      End Subroutine Get_Environment_Variable
+!
+!
+!
       END MODULE F2KCLI
