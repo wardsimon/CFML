@@ -64,7 +64,7 @@
     !!---- Update: February - 2005
     !!
     logical, public    :: ERR_Spher
-    
+
     !!----
     !!---- ERR_Spher_Mess
     !!----    character(len=150), public :: ERR_Spher_Mess
@@ -478,7 +478,9 @@
     !!----    real(kind=cp)                          :: ylmp    ! Out -> Value of ylmn(u)
     !!--<<
     !!----    Real Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
-    !!----    Input U: unit vector in cartesian coordinates
+    !!----    Input U: unit vector in cartesian coordinates. If the provided vector is not
+    !!----    normalized to unit, this version calculates ylmp along the unit vector defined by
+    !!----    the given vector that is not modified on output
     !!-->>
     !!---- Update: February - 2005
     !!
@@ -492,17 +494,23 @@
        real(kind=dp)             :: norm
        real(kind=cp)             :: pphi,x,ss
        integer                   :: i
+       real(kind=cp),dimension(3):: v
 
-       ss=dot_product(u,u)
-       if (abs(ss-1.0) > 3.0*eps) then  !Test the provided unit vector
-          ylmp=0.0
-          return
+       v=u
+       ss=dot_product(v,v)
+       if (abs(ss-1.0) > 2.0*eps) then  !Test the provided unit vector
+          if(ss > eps) then
+            v=v/sqrt(ss)             !Normalize the input vector
+          else
+            ylmp=0.0_cp
+            return
+          end if
        end if
-       x=u(3)                    !costheta
+       x=v(3)                    !costheta
        if (abs(x-1.0) < eps .or. abs(x+1.0) < eps) then
           pphi=0.0
        else
-          pphi=atan2(u(2),u(1))  !This is the good function to obtain the true spherical angles
+          pphi=atan2(v(2),v(1))  !This is the good function to obtain the true spherical angles
        end if
        if (p > 0) then
           pphi = cos(m*pphi)     !cos(m*phi)
