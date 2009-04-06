@@ -1346,12 +1346,12 @@ Module CFML_ILL_Instrm_Data
              ! Temporal
              call getenv(ENVVAR1, ILL_Temp_Directory)
              if (len_trim(ILL_Temp_directory) == 0) then
-                call get_environmnet_variable('HOME', ILL_Temp_Directory)
+                call get_environment_variable('HOME', ILL_Temp_Directory)
                 ILL_Temp_directory =trim(ILL_Temp_directory)//OPS_SEP//'tmp'
              end if
 
              ! ILL Data
-             call get_environmnet_variable(ENVVAR2, ILL_Data_Directory)
+             call get_environment_variable(ENVVAR2, ILL_Data_Directory)
              if (len_trim(ILL_Data_Directory) == 0) then
                 ILL_Data_Directory = '/net/serdon/illdata'
              end if
@@ -3150,7 +3150,7 @@ Module CFML_ILL_Instrm_Data
           end if
 
        else
-          call get_environmnet_variable("ILLDATA", ILL_data)
+          call get_environment_variable("ILLDATA", ILL_data)
           if (len_trim(ILL_data) > 0) then
              ILL_data_directory = trim(ILL_data)
           else
