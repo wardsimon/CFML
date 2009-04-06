@@ -25,6 +25,7 @@
 !!--++       PLGNDR                    [Private]
 !!----       REAL_SPHER_HARM_ANG
 !!----       REAL_SPHER_HARM_UCVEC
+!!----       REAL_SPHER_HARMCHARGE_UCVEC
 !!--++       START1                    [Private]
 !!--++       START2                    [Private]
 !!----
@@ -45,7 +46,7 @@
 
     !---- List of public functions ----!
     public :: Cubic_Harm_Ang, Cubic_Harm_Ucvec, Int_Slater_Bessel, Real_Spher_Harm_Ang, &
-              Real_Spher_Harm_Ucvec
+              Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec
 
     !---- List of public subroutines ----!
     public :: Init_Err_Spher, Pikout_Lj_Cubic, Sphjn
@@ -532,6 +533,165 @@
 
        return
     End Function Real_Spher_Harm_Ucvec
+
+    !!----
+    !!---- Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
+    !!----    integer,                    intent(in) :: l       !  In -> Index l >= 0
+    !!----    integer,                    intent(in) :: m       !  In -> Index m <= l
+    !!----    integer,                    intent(in) :: p       !  In -> +1: cosinus, -1: sinus
+    !!----    real(kind=cp),dimension(3), intent(in) :: u       !  In -> unit vector in cartesian coordinates
+    !!----    real(kind=cp)                          :: dlmp    ! Out -> Value of dlmn(u)
+    !!--<<
+    !!----    This function difers from the previous one (real spherical harmonics) only in the
+    !!----    normalization constants, so that: Dlmp= Clmp Ylmp
+    !!----    The constants Clmp are selected so that Int[abs(Dlmp) dOmega] = 2 -d(l,0)
+    !!----    They have been calculated using Gaussian/Legendre quadrature.
+    !!-->>
+    !!---- Update: April - 2009
+    !!
+    Pure Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
+       !---- Arguments ----!
+       integer,                    intent (in) :: l,m,p
+       real(kind=cp),dimension(3), intent (in) :: u
+       real(kind=cp)                           :: Dlmp
+
+       !---- Local Variables ----!
+       integer                   :: i
+       real,dimension(0:10,0:10,2) :: Clmp
+       if(l > 10 .or. m > 10 .or. m > l) then
+          Dlmp=0.0
+          return
+       end if
+       !Assign values to the normalization constants
+       Clmp = 0.0
+       Clmp(  0,  0,  1)=     0.28209481
+       Clmp(  1,  1,  2)=     0.65147001
+       Clmp(  1,  0,  1)=     0.65147001
+       Clmp(  1,  1,  1)=     0.65146995
+       Clmp(  2,  2,  2)=     0.68646848
+       Clmp(  2,  1,  2)=     0.68646836
+       Clmp(  2,  0,  1)=     0.65552908
+       Clmp(  2,  1,  1)=     0.68646836
+       Clmp(  2,  2,  1)=     0.68646848
+       Clmp(  3,  3,  2)=     0.71929127
+       Clmp(  3,  2,  2)=     0.69189525
+       Clmp(  3,  1,  2)=     0.70087820
+       Clmp(  3,  0,  1)=     0.65613419
+       Clmp(  3,  1,  1)=     0.70087814
+       Clmp(  3,  2,  1)=     0.69189525
+       Clmp(  3,  3,  1)=     0.71929145
+       Clmp(  4,  4,  2)=     0.74899846
+       Clmp(  4,  3,  2)=     0.70616245
+       Clmp(  4,  2,  2)=     0.69879586
+       Clmp(  4,  1,  2)=     0.70847464
+       Clmp(  4,  0,  1)=     0.65620995
+       Clmp(  4,  1,  1)=     0.70847464
+       Clmp(  4,  2,  1)=     0.69879586
+       Clmp(  4,  3,  1)=     0.70616263
+       Clmp(  4,  4,  1)=     0.74899834
+       Clmp(  5,  5,  2)=     0.77591366
+       Clmp(  5,  4,  2)=     0.72266090
+       Clmp(  5,  3,  2)=     0.70547515
+       Clmp(  5,  2,  2)=     0.70407319
+       Clmp(  5,  1,  2)=     0.71306634
+       Clmp(  5,  0,  1)=     0.65617186
+       Clmp(  5,  1,  1)=     0.71306634
+       Clmp(  5,  2,  1)=     0.70407319
+       Clmp(  5,  3,  1)=     0.70547533
+       Clmp(  5,  4,  1)=     0.72266084
+       Clmp(  5,  5,  1)=     0.77591383
+       Clmp(  6,  6,  2)=     0.80047959
+       Clmp(  6,  5,  2)=     0.73945135
+       Clmp(  6,  4,  2)=     0.71554828
+       Clmp(  6,  3,  2)=     0.70703226
+       Clmp(  6,  2,  2)=     0.70801049
+       Clmp(  6,  1,  2)=     0.71609598
+       Clmp(  6,  0,  1)=     0.65610999
+       Clmp(  6,  1,  1)=     0.71609592
+       Clmp(  6,  2,  1)=     0.70801049
+       Clmp(  6,  3,  1)=     0.70703244
+       Clmp(  6,  4,  1)=     0.71554822
+       Clmp(  6,  5,  1)=     0.73945147
+       Clmp(  6,  6,  1)=     0.80047959
+       Clmp(  7,  7,  2)=     0.82308108
+       Clmp(  7,  6,  2)=     0.75586903
+       Clmp(  7,  5,  2)=     0.72696197
+       Clmp(  7,  4,  2)=     0.71344930
+       Clmp(  7,  3,  2)=     0.70896560
+       Clmp(  7,  2,  2)=     0.71099448
+       Clmp(  7,  1,  2)=     0.71822095
+       Clmp(  7,  0,  1)=     0.65604913
+       Clmp(  7,  1,  1)=     0.71822089
+       Clmp(  7,  2,  1)=     0.71099448
+       Clmp(  7,  3,  1)=     0.70896578
+       Clmp(  7,  4,  1)=     0.71344924
+       Clmp(  7,  5,  1)=     0.72696209
+       Clmp(  7,  6,  1)=     0.75586903
+       Clmp(  7,  7,  1)=     0.82308108
+       Clmp(  8,  8,  2)=     0.84402764
+       Clmp(  8,  7,  2)=     0.77168250
+       Clmp(  8,  6,  2)=     0.73882592
+       Clmp(  8,  5,  2)=     0.72154719
+       Clmp(  8,  4,  2)=     0.71311980
+       Clmp(  8,  3,  2)=     0.71081281
+       Clmp(  8,  2,  2)=     0.71331161
+       Clmp(  8,  1,  2)=     0.71977973
+       Clmp(  8,  0,  1)=     0.65599412
+       Clmp(  8,  1,  1)=     0.71977967
+       Clmp(  8,  2,  1)=     0.71331161
+       Clmp(  8,  3,  1)=     0.71081293
+       Clmp(  8,  4,  1)=     0.71311975
+       Clmp(  8,  5,  1)=     0.72154731
+       Clmp(  8,  6,  1)=     0.73882592
+       Clmp(  8,  7,  1)=     0.77168250
+       Clmp(  8,  8,  1)=     0.84402764
+       Clmp(  9,  9,  2)=     0.86356676
+       Clmp(  9,  8,  2)=     0.78682709
+       Clmp(  9,  7,  2)=     0.75072247
+       Clmp(  9,  6,  2)=     0.73046678
+       Clmp(  9,  5,  2)=     0.71902418
+       Clmp(  9,  4,  2)=     0.71349597
+       Clmp(  9,  3,  2)=     0.71247119
+       Clmp(  9,  2,  2)=     0.71514851
+       Clmp(  9,  1,  2)=     0.72096473
+       Clmp(  9,  0,  1)=     0.65595061
+       Clmp(  9,  1,  1)=     0.72096467
+       Clmp(  9,  2,  1)=     0.71514851
+       Clmp(  9,  3,  1)=     0.71247137
+       Clmp(  9,  4,  1)=     0.71349585
+       Clmp(  9,  5,  1)=     0.71902430
+       Clmp(  9,  6,  1)=     0.73046678
+       Clmp(  9,  7,  1)=     0.75072247
+       Clmp(  9,  8,  1)=     0.78682709
+       Clmp(  9,  9,  1)=     0.86356682
+       Clmp( 10, 10,  2)=     0.88188988
+       Clmp( 10,  9,  2)=     0.80130792
+       Clmp( 10,  8,  2)=     0.76244813
+       Clmp( 10,  7,  2)=     0.73974365
+       Clmp( 10,  6,  2)=     0.72590035
+       Clmp( 10,  5,  2)=     0.71787411
+       Clmp( 10,  4,  2)=     0.71415150
+       Clmp( 10,  3,  2)=     0.71390396
+       Clmp( 10,  2,  2)=     0.71663243
+       Clmp( 10,  1,  2)=     0.72189075
+       Clmp( 10,  0,  1)=     0.65590489
+       Clmp( 10,  1,  1)=     0.72189069
+       Clmp( 10,  2,  1)=     0.71663243
+       Clmp( 10,  3,  1)=     0.71390414
+       Clmp( 10,  4,  1)=     0.71415144
+       Clmp( 10,  5,  1)=     0.71787423
+       Clmp( 10,  6,  1)=     0.72590035
+       Clmp( 10,  7,  1)=     0.73974365
+       Clmp( 10,  8,  1)=     0.76244813
+       Clmp( 10,  9,  1)=     0.80130792
+       Clmp( 10, 10,  1)=     0.88188988
+       i=p
+       if( i < 1) i = 2
+
+       Dlmp=Clmp(l,m,i)*Real_Spher_Harm_Ucvec(L,M,P,U)
+
+       return
+    End Function Real_Spher_HarmCharge_Ucvec
 
     !!--++
     !!--++ Function Start1(X,Mp) Result (Start)

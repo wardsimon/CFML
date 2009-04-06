@@ -21,6 +21,6 @@ rem
    call make_crysfml %1 win
    call make_crysfgl %1
 :END
-   cd ..\..\..
+   cd ..\..
 rem
 :FINAL

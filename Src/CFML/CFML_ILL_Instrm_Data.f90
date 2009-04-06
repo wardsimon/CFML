@@ -1360,18 +1360,18 @@ Module CFML_ILL_Instrm_Data
        ILL_Temp_directory=trim(ILL_Temp_directory)//ops_sep
 
        ! For all compilers except for intel
-       !inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
+       inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
        ! For Intel
-       inquire(directory=trim(ILL_temp_directory), exist=exists)
+       !inquire(directory=trim(ILL_temp_directory), exist=exists)
        if (exists) got_ILL_temp_directory = .true.
 
        ! ILL DATA
        ILL_Data_Directory=trim(ILL_Data_Directory)//ops_sep
 
        ! For all compilers except for intel
-       !inquire(file=trim(ILL_data_directory)//'.',exist=exists)
+       inquire(file=trim(ILL_data_directory)//'.',exist=exists)
        ! For Intel
-       inquire(directory=trim(ILL_data_directory), exist=exists)
+       !inquire(directory=trim(ILL_data_directory), exist=exists)
        if (exists) got_ILL_data_directory = .true.
 
        return
@@ -3174,9 +3174,9 @@ Module CFML_ILL_Instrm_Data
        err_ILLData=.false.
 
        ! For all compilers except Intel
-       !inquire(file=trim(ILL_data_directory)//".",exist=existe)
+       inquire(file=trim(ILL_data_directory)//".",exist=existe)
        ! For intel
-       inquire(directory=trim(ILL_data_directory),exist=existe)
+       !inquire(directory=trim(ILL_data_directory),exist=existe)
        if (.not. existe) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
