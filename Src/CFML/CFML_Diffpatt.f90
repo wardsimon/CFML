@@ -22,6 +22,7 @@
 !!----
 !!---- PROCEDURES
 !!----    Functions:
+!!----       CALC_FWHM_PEAK
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_DIFFRACTION_PATTERN
@@ -63,6 +64,9 @@
     implicit none
 
     private
+
+    !---- List of public functions ----!
+    public ::  calc_fwhm_peak
 
     !---- List of public subroutines ----!
     public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern, &
@@ -184,6 +188,100 @@
     End Interface
 
  Contains
+    !-------------------!
+    !---- Functions ----!
+    !-------------------!
+
+    !!----
+    !!---- Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, Rlim) Result(v)
+    !!----    type(Diffraction_Pattern_Type), intent(in) :: Pat        ! Profile information
+    !!----    real,                           intent(in) :: Xi         ! X value on point i (Peak)
+    !!----    real,                           intent(in) :: Yi         ! Y Value on point i
+    !!----    real,                           intent(in) :: Ybi        ! Y value for Background on point i
+    !!----    real,optional                   intent(in) :: RLim       ! Limit range in X units to search the point
+    !!----    real                                       :: V
+    !!----
+    !!---- Function that calculate the FHWM of a peak situated on (xi,yi). Then
+    !!---- the routine search the Ym value in the range (xi-rlim, xi+rlim) to
+    !!---- obtain the FWHM. The function return a negative values if an error
+    !!---- is ocurred during calculation.
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
+       !---- Arguments ----!
+       type(Diffraction_Pattern_Type), intent(in) :: Pat
+       real,                           intent(in) :: Xi
+       real,                           intent(in) :: Yi
+       real,                           intent(in) :: Ybi
+       real,optional,                  intent(in) :: RLim
+       real                                       :: V
+
+       !---- Local variables ----!
+       integer :: i,j, i1, j1,n,nlim
+       real    :: xml, xmr, ym, x1, x2, y1, y2
+       real    :: difx
+
+       ! Init value
+       v=-1.0
+
+       ! Y value for FHWM
+       ym=0.5*(yi-ybi) + ybi
+
+       ! Limit to search
+       difx=pat%x(2)-pat%x(1)
+       if (present(rlim)) then
+          nlim=nint(rlim/difx)
+       else
+          nlim=nint(0.5/difx)     ! 0.5º
+       end if
+
+       ! Locating the index that X(i1) <= x < X(i1+1)
+       i1=0
+       i1=locate(Pat%x,Pat%npts,xi)
+       if (i1 <=0 .or. i1 > Pat%npts) then
+          ! Error
+          return
+       end if
+
+       ! Searching on Left side: Y(j1) <= ym < Y(j1+1)
+       n=max(1,i1-nlim)
+       j1=0
+       do j=i1,n,-1
+          if (pat%y(j) < ym) then
+             j1=j
+             exit
+          end if
+       end do
+       if (j1 <= 0) j1=i1
+
+       x1=Pat%x(j1)
+       y1=Pat%y(j1)
+       x2=Pat%x(j1+1)
+       y2=Pat%y(j1+1)
+       xml= x1 + ((ym-y1)/(y2-y1) )*(x2-x1)
+
+       ! Searching on Right side: Y(j1) <= yn < Y(j1+1)
+       n=min(i1+nlim,pat%npts)
+       j1=0
+       do j=i1,n
+          if (pat%y(j) < ym) then
+             j1=j
+             exit
+          end if
+       end do
+       if (j1 ==0) j1=i1
+
+       x1=Pat%x(j1-1)
+       y1=Pat%y(j1-1)
+       x2=Pat%x(j1)
+       y2=Pat%y(j1)
+       xmr= x1 + ((ym-y1)/(y2-y1) )*(x2-x1)
+
+       v=xmr-xml
+
+       return
+    End Function Calc_FWHM_Peak
 
     !---------------------!
     !---- Subroutines ----!
