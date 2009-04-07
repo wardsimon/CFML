@@ -222,7 +222,9 @@
        real(kind=cp)  :: xml, xmr, ym, x1, x2, y1, y2
        real(kind=cp)  :: difx
 
+
        ! Init value
+       call init_err_Diffpat()
        v=-1.0
 
        ! Y value for FHWM
@@ -240,7 +242,8 @@
        i1=0
        i1=locate(Pat%x,Pat%npts,xi)
        if (i1 <=0 .or. i1 > Pat%npts) then
-          ! Error
+          ERR_Diffpatt=.true.
+          ERR_Diffpatt_Mess='The index for X(i1) <= x < X(i1+1) was zero!'
           return
        end if
 
