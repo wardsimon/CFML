@@ -195,11 +195,11 @@
     !!----
     !!---- Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, Rlim) Result(v)
     !!----    type(Diffraction_Pattern_Type), intent(in) :: Pat        ! Profile information
-    !!----    real,                           intent(in) :: Xi         ! X value on point i (Peak)
-    !!----    real,                           intent(in) :: Yi         ! Y Value on point i
-    !!----    real,                           intent(in) :: Ybi        ! Y value for Background on point i
-    !!----    real,optional                   intent(in) :: RLim       ! Limit range in X units to search the point
-    !!----    real                                       :: V
+    !!----    real(kind=cp),                  intent(in) :: Xi         ! X value on point i (Peak)
+    !!----    real(kind=cp),                  intent(in) :: Yi         ! Y Value on point i
+    !!----    real(kind=cp),                  intent(in) :: Ybi        ! Y value for Background on point i
+    !!----    real(kind=cp),optional          intent(in) :: RLim       ! Limit range in X units to search the point
+    !!----    real(kind=cp)                              :: V
     !!----
     !!---- Function that calculate the FHWM of a peak situated on (xi,yi). Then
     !!---- the routine search the Ym value in the range (xi-rlim, xi+rlim) to
@@ -211,16 +211,16 @@
     Function Calc_FWHM_Peak(Pat, Xi, Yi, Ybi, RLim) Result(v)
        !---- Arguments ----!
        type(Diffraction_Pattern_Type), intent(in) :: Pat
-       real,                           intent(in) :: Xi
-       real,                           intent(in) :: Yi
-       real,                           intent(in) :: Ybi
-       real,optional,                  intent(in) :: RLim
-       real                                       :: V
+       real(kind=cp),                  intent(in) :: Xi
+       real(kind=cp),                  intent(in) :: Yi
+       real(kind=cp),                  intent(in) :: Ybi
+       real(kind=cp),optional,         intent(in) :: RLim
+       real(kind=cp)                              :: V
 
        !---- Local variables ----!
-       integer :: i,j, i1, j1,n,nlim
-       real    :: xml, xmr, ym, x1, x2, y1, y2
-       real    :: difx
+       integer        :: i,j, i1, j1,n,nlim
+       real(kind=cp)  :: xml, xmr, ym, x1, x2, y1, y2
+       real(kind=cp)  :: difx
 
        ! Init value
        v=-1.0
