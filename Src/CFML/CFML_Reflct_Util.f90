@@ -309,7 +309,7 @@
        real(kind=cp)        :: S     ! Sin(Theta)/lambda
        real(kind=cp)        :: W     ! Weight
        real(kind=cp)        :: Phase ! Phase in degrees
-       real(kind=cp)        :: A     ! real(kind=cp) part of the Structure Factor
+       real(kind=cp)        :: A     ! real part of the Structure Factor
        real(kind=cp)        :: B     ! Imaginary part of the Structure Factor
        real(kind=cp)        :: AA    ! Free
        real(kind=cp)        :: BB    ! Free
@@ -3683,7 +3683,7 @@
     !!--++    type (Space_Group_Type), intent(in) :: Spacegroup
     !!--++    integer,optional,        intent(in) :: iunit
     !!--++
-    !!--++    (PRIVATE)  
+    !!--++    (PRIVATE)
     !!--++    Integral Conditions according with I.T. Table 2.2.13.1
     !!--++    space.
     !!--++

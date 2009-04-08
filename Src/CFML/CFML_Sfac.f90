@@ -143,16 +143,16 @@
     !!--++ Update: December - 2003
     !!
     real(kind=cp), dimension(:,:), allocatable, private :: BJH
-    
-    !!----                       
-    !!---- ERR_SFAC              
-    !!----    logical, public :: 
-    !!----                       
+
+    !!----
+    !!---- ERR_SFAC
+    !!----    logical, public ::
+    !!----
     !!----    Logical Variable in
-    !!----                       
+    !!----
     !!---- Update: February - 200
-    !!                           
-    logical, public :: ERR_SFac  
+    !!
+    logical, public :: ERR_SFac
 
     !!----
     !!---- ERR_SFac_Mess
@@ -274,7 +274,7 @@
     Subroutine Calc_Table_AB(Nref,Atm,Grp)
        !---- Arguments ----!
        integer,                            intent(in) :: Nref
-       type(atom_list_type),              intent(in) :: Atm
+       type(atom_list_type),               intent(in) :: Atm
        type(space_group_type),             intent(in) :: Grp
 
        !---- Local Variables ----!
