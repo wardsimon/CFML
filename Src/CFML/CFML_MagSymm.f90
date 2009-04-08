@@ -12,7 +12,7 @@
 !!----            April - 2005. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,                 only: Sp, tpi
+!!--++    Use CFML_GlobalDeps,                 only: Sp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
@@ -48,7 +48,7 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_Constants,                 only: Sp, tpi
+    Use CFML_GlobalDeps,                 only: Sp, tpi
     Use CFML_Math_General,              only: Modulo_Lat
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &

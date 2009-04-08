@@ -9,7 +9,7 @@
 !!----    Update: January - 2004
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,                only: cp
+!!--++    Use CFML_GlobalDeps,                only: cp
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!--++    Use CFML_Geometry_Calc,             only: Distance
@@ -49,7 +49,7 @@
  Module CFML_Maps_Calculations
 
     !---- Use Modules ----!
-    use CFML_Constants,                only: cp, eps
+    use CFML_GlobalDeps,                only: cp, eps
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySO
     use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
     use CFML_Geometry_Calc,             only: Distance

@@ -15,7 +15,7 @@
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type
 !!--++     Use CFML_Reflections_Utilities,       only: Reflection_List_Type, HKL_R
 !!--++     Use CFML_Atom_TypeDef,                only: atom_list_type
-!!--++     Use CFML_Constants,                  only: sp, tpi
+!!--++     Use CFML_GlobalDeps,                  only: sp, tpi
 !!--++     Use CFML_Math_General,                only: atan2d
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case
 !!----
@@ -56,7 +56,7 @@
  Module CFML_Structure_Factors
 
     !---- Use Modules ----!
-    Use CFML_Constants,                   only: cp, tpi
+    Use CFML_GlobalDeps,                   only: cp, tpi
     Use CFML_Math_General,                only: atan2d
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables

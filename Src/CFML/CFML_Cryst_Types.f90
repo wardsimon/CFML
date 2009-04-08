@@ -96,7 +96,7 @@
 !!--..
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,    only: Cp, Eps, Pi
+!!--++    Use CFML_GlobalDeps,    only: Cp, Eps, Pi
 !!--++    Use CFML_Math_General, only: Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, &
 !!--++                                 Co_Linear
 !!--++    Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
@@ -146,7 +146,7 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_Constants,   only : Cp, Eps, Pi
+    Use CFML_GlobalDeps,   only : Cp, Eps, Pi
     Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear
     Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 

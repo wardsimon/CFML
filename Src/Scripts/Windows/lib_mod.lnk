@@ -1,4 +1,5 @@
 CrysFML
++CFML_globaldeps&
 +CFML_math_gen&
 +CFML_random&
 +CFML_ffts&

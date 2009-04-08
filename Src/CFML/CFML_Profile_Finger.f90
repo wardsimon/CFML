@@ -28,7 +28,7 @@
 !!
  Module CFML_PowderProfiles_Finger
     !---- Use Modules ----!
-    Use CFML_Constants, only: cp
+    Use CFML_GlobalDeps, only: cp
     
     !---- Variables ----!
     implicit none

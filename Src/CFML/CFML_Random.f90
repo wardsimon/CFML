@@ -79,7 +79,7 @@
 !!--..       e-mail: Alan.Miller @ vic.cmis.csiro.au
 !!----
 !!---- DEPENDENCIES
-!!--++    CFML_Constants, only: cp, dp
+!!--++    CFML_GlobalDeps, only: cp, dp
 !!----
 !!---- VARIABLES
 !!----    ERR_RANDOM_MESS
@@ -125,7 +125,7 @@
 !!
  Module CFML_Random_Generators
     !---- Use Modules ----!
-    Use CFML_Constants,   only: cp,dp
+    Use CFML_GlobalDeps,   only: cp,dp
     
     !---- Local Variables ----! 
     implicit none

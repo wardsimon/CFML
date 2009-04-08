@@ -7,7 +7,7 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   f95 -c -O3 -w CFML_Constant.f90           >  out
+   f95 -c -O3 -w CFML_GlobalDeps.f90           >  out
 rem
    f95 -c -O3 -w CFML_math_gen.f90           >> out
    f95 -c -O3 -w CFML_spher_harm.f90         >> out

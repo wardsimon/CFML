@@ -7,7 +7,7 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   ifort /c CFML_Constant.f90         /debug:full /check /traceback /nologo
+   ifort /c CFML_GlobalDeps.f90         /debug:full /check /traceback /nologo
 rem 
    ifort /c CFML_math_gen.f90         /debug:full /check /traceback /nologo
    ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo

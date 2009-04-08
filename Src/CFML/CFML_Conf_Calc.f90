@@ -47,7 +47,7 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_Constants,                  only: Sp,Cp
+    Use CFML_GlobalDeps,                  only: Sp,Cp
     Use CFML_Math_General,               only: Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius

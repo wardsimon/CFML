@@ -11,7 +11,7 @@
 !!----
 !!----    October - 1997 Created by JRC
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,    only : Cp, Dp
+!!--++    Use CFML_GlobalDeps,    only : Cp, Dp
 !!--++    Use CFML_Math_General,  only : Invert_Matrix
 !!----
 !!---- VARIABLES
@@ -40,7 +40,7 @@
 !!
  Module CFML_Optimization_LSQ
     !---- Use Files ----!
-    Use CFML_Constants,   only: Cp, Dp
+    Use CFML_GlobalDeps,   only: Cp, Dp
     Use CFML_Math_General, only: Invert_Matrix
 
     implicit none
@@ -309,7 +309,7 @@
     !!--++
     !!--++     Interface
     !!--++      Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!--++         use CFML_Constants, only: cp
+    !!--++         use CFML_GlobalDeps, only: cp
     !!--++         integer,                             intent(in) :: iv
     !!--++         real(kind=cp),                       intent(in) :: xv
     !!--++         real(kind=cp),dimension(:),          intent(in) :: aa
@@ -337,7 +337,7 @@
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-           use CFML_Constants, only: cp
+           use CFML_GlobalDeps, only: cp
            integer,                             intent(in) :: iv
            real(kind=cp),                       intent(in) :: xv
            real(kind=cp),dimension(:),          intent(in) :: aa
@@ -491,7 +491,7 @@
     !!----    Model_functn                                            !Name of the subroutine calculating yc(i) for point x(i)
     !!----    Interface                                               !Interface for the Model_Functn subroutine
     !!----       Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-    !!----            use CFML_Constants, only: cp
+    !!----            use CFML_GlobalDeps, only: cp
     !!----            integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
     !!----            real(kind=cp),                       intent(in) :: xv     !Value of x(i)
     !!----            real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
@@ -546,7 +546,7 @@
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-           use CFML_Constants, only: cp  
+           use CFML_GlobalDeps, only: cp  
            integer,                             intent(in) :: iv
            real(kind=cp),                       intent(in) :: xv
            real(kind=cp),dimension(:),          intent(in) :: aa

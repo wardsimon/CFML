@@ -314,7 +314,7 @@
  Module CFML_Molecular_Crystals
 
     !---- Use Modules ----!
-    use CFML_Constants,                only: cp, eps, to_rad
+    use CFML_GlobalDeps,                only: cp, eps, to_rad
     use CFML_Math_General,              only: acosd, asind, cosd, sind
     use CFML_Math_3D,                   only: cross_product, Get_Spheric_Coord
     use CFML_Crystallographic_Symmetry, only: Space_Group_type, Write_SpaceGroup

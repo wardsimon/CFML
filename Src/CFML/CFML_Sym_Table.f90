@@ -11,7 +11,7 @@
 !!----            June - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,       only: cp
+!!--++    Use CFML_GlobalDeps,       only: cp
 !!--++    Use CFML_String_Utilities, only: U_case
 !!----
 !!---- VARIABLES
@@ -67,7 +67,7 @@
 !!
  Module CFML_Symmetry_Tables
     !---- Use modules ----!
-    Use CFML_Constants,        only: cp
+    Use CFML_GlobalDeps,        only: cp
     Use CFML_String_Utilities, only: U_Case
 
     !---- Variables ----!

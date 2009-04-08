@@ -17,7 +17,7 @@
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!--++    Use CFML_String_Utilities,          only: l_case
 !!--++    Use CFML_Math_General,              only: sort,sp
-!!--++    Use CFML_Constants,                 only: sp
+!!--++    Use CFML_GlobalDeps,                 only: sp
 !!----
 !!---- VARIABLES
 !!----    ERR_REFL
@@ -92,7 +92,7 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    Use CFML_Constants,                 only: sp, cp, pi, eps  !Init Eps was 0.0001
+    Use CFML_GlobalDeps,                 only: sp, cp, pi, eps  !Init Eps was 0.0001
     Use CFML_Math_General,              only: sort
     Use CFML_String_Utilities,          only: l_case
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type

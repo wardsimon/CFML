@@ -10,7 +10,7 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++     Use CFML_Constants,                   only: sp, tpi
+!!--++     Use CFML_GlobalDeps,                   only: sp, tpi
 !!--++     Use CFML_Math_General,                only: atan2d, sort
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
 !!--++     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -62,7 +62,7 @@
 !!
  Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use CFML_Constants,                   only: cp, sp, tpi
+    Use CFML_GlobalDeps,                   only: cp, sp, tpi
     Use CFML_Math_General,                only: atan2d, sort
     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &

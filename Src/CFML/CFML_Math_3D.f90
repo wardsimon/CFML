@@ -11,7 +11,7 @@
 !!----            October  - 1996  Routines created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,   only: cp, sp, dp, pi, to_rad, to_deg
+!!--++    Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
 !!--++    Use CFML_Math_General, only: cosd, sind
 !!----
 !!---- VARIABLES
@@ -72,7 +72,7 @@
  Module CFML_Math_3D
 
     !---- Use Modules ----!
-    Use CFML_Constants,   only: cp, sp, dp, pi, to_rad, to_deg
+    Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
     Use CFML_Math_General, only: cosd, sind
 
     implicit none

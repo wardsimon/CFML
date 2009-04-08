@@ -20,7 +20,7 @@
 !!----
 !!---- DEPENDENCIES
 !!--++    use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-!!--++    Use CFML_Constants,       only: cp,tpi
+!!--++    Use CFML_GlobalDeps,       only: cp,tpi
 !!--++    USE CFML_Math_3D,         only: Cross_Product
 !!----
 !!---- VARIABLES
@@ -47,7 +47,7 @@
 !!
  Module CFML_Polarimetry
     !---- Used External Modules ----!
-    Use CFML_Constants,       only: cp, tpi
+    Use CFML_GlobalDeps,       only: cp, tpi
     Use CFML_Crystal_Metrics, only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
     Use CFML_Math_3D,         only: Cross_Product
 

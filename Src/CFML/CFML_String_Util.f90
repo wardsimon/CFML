@@ -11,7 +11,7 @@
 !!----                            All routines have general I/O parameters
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,    only: cp
+!!--++    Use CFML_GlobalDeps,    only: cp
 !!--++    Use CFML_Math_General, only: Negligible Zbelong
 !!----
 !!---- VARIABLES
@@ -84,7 +84,7 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_Constants,    only: cp
+    use CFML_GlobalDeps,    only: cp
     use CFML_Math_General, only: Negligible, Zbelong
 
     implicit none

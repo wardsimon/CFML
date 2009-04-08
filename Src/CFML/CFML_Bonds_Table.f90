@@ -17,7 +17,7 @@
 !!----            June - 2004 Created by JGP
 !!----
 !!---- DEPENDENCIES
-!!--++    CFML_Constants, only: cp
+!!--++    CFML_GlobalDeps, only: cp
 !!--++    CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 !!----
 !!----
@@ -41,7 +41,7 @@
 !!
  Module CFML_Bond_Tables
     !---- Use Modules ----!
-    Use CFML_Constants,                 only: Cp
+    Use CFML_GlobalDeps,                 only: Cp
     Use CFML_Scattering_Chemical_Tables, only: Get_ChemSymb
 
     !---- Variables ----!

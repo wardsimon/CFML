@@ -13,7 +13,7 @@
 !!----
 !!---- DEPENDENCIES
 !!--++    CFML_Math_3D:  Cross_Product
-!!--++    CFML_Constants: Eps, Pi, Cp, Sp, To_Rad, To_Deg
+!!--++    CFML_GlobalDeps: Eps, Pi, Cp, Sp, To_Rad, To_Deg
 !!--++    CFML_Math_General: Acosd, Cosd, Sind
 !!--++    CFML_Crystal_Metrics: Crystal_Cell_Type
 !!----
@@ -68,7 +68,7 @@
  Module CFML_Geometry_Calc
 
     !---- Use Modules ----!
-    use CFML_Constants,                 only: Sp, Cp, eps, pi, to_rad, to_deg
+    use CFML_GlobalDeps,                 only: Sp, Cp, eps, pi, to_rad, to_deg
     use CFML_Math_General,               only: acosd, cosd, sind, Modulo_Lat
     use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit

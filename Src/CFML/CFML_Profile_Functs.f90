@@ -9,7 +9,7 @@
 !!----    Update: October - 2005
 !!----
 !!---- DEPENDENCIES
-!!----    CFML_Constants, only: cp
+!!----    CFML_GlobalDeps, only: cp
 !!----
 !!---- VARIABLES
 !!----
@@ -38,7 +38,7 @@
 !!
  Module CFML_PowderProfiles_CW
     !---- Use Files ----!
-    Use CFML_Constants, only: cp
+    Use CFML_GlobalDeps, only: cp
     
     !---- Variables ----!
     implicit none

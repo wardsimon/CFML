@@ -70,7 +70,7 @@
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_Constants,                 only: cp,sp,pi,eps
+    Use CFML_GlobalDeps,                 only: cp,sp,pi,eps
     Use CFML_Math_General,              only: sind
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &

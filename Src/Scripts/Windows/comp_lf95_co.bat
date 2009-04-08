@@ -8,7 +8,7 @@ rem
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
    lf95 -c f2kcli.f90                -o1 -nchk   >  out
-   lf95 -c CFML_Constant.f90         -o1 -nchk   >> out
+   lf95 -c CFML_GlobalDeps.f90         -o1 -nchk   >> out
 rem 
    lf95 -c CFML_math_gen.f90         -o1 -nchk   >> out
    lf95 -c CFML_spher_harm.f90       -o1 -nchk   >> out

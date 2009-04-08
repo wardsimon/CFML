@@ -91,7 +91,7 @@
 !!
  Module CFML_Keywords_Code_Parser
     !---- Modules ----!
-    Use CFML_Constants,                only: Sp
+    Use CFML_GlobalDeps,                only: Sp
     Use CFML_Math_General,              only: Sort
     Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &

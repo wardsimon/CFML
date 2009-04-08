@@ -87,7 +87,7 @@
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
 !!---- DEPENDENCIES
-!!--++   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
+!!--++   Use CFML_GlobalDeps,        only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
 !!--++   Use CFML_Math_General,     only: cosd,sind
 !!--++   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
 !!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
@@ -168,7 +168,7 @@
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
-   Use CFML_Constants,        only: sp, dp, cp, pi, to_deg, to_rad, eps, ops, ops_sep
+   Use CFML_GlobalDeps
    Use CFML_Math_General,     only: cosd,sind, equal_vector
    use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
    use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
@@ -1300,8 +1300,8 @@ Module CFML_ILL_Instrm_Data
     !!....    Depending on the operating system as reported by winteracter routine
     !!....    InfoOpSystem, assigns values to the following global public variables:
     !!....    sep, the path separator. "sep" has been replaced by "ops_sep" from
-    !!....    CFML_Constants. InfoOpSystem is a function from Winteracter: replaced by
-    !!....    OPS integer from CFML_Constants
+    !!....    CFML_GlobalDeps. InfoOpSystem is a function from Winteracter: replaced by
+    !!....    OPS integer from CFML_GlobalDeps
     !!....
     !!----    Subroutine assigning values to the following global public variables:
     !!----    ILL_Data_Directory: Base directory for the ILL data. If found then
@@ -1358,20 +1358,11 @@ Module CFML_ILL_Instrm_Data
        end select
        ! Temporal
        ILL_Temp_directory=trim(ILL_Temp_directory)//ops_sep
-
-       ! For all compilers except for intel
-       inquire(file=trim(ILL_temp_directory)//'.',exist=exists)
-       ! For Intel
-       !inquire(directory=trim(ILL_temp_directory), exist=exists)
-       if (exists) got_ILL_temp_directory = .true.
+       exists=directory_exists(trim(ILL_temp_directory))
 
        ! ILL DATA
        ILL_Data_Directory=trim(ILL_Data_Directory)//ops_sep
-
-       ! For all compilers except for intel
-       inquire(file=trim(ILL_data_directory)//'.',exist=exists)
-       ! For Intel
-       !inquire(directory=trim(ILL_data_directory), exist=exists)
+       exists=directory_exists(trim(ILL_Data_Directory))
        if (exists) got_ILL_data_directory = .true.
 
        return
@@ -2756,9 +2747,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_S_KeyType
 
     !!----
-    !!---- Subroutine Read_SXTAL_Numor(Numor,Instrm,Snum)
+    !!---- Subroutine Read_SXTAL_Numor(Numor,Instr,Snum)
     !!----    integer,                intent(in)    :: numor
-    !!----    character(len=*),       intent(in)    :: instrm
+    !!----    character(len=*),       intent(in)    :: Instr
     !!----    type(SXTAL_Numor_type), intent(in out):: snum
     !!----
     !!----    Read the numor "numor" from the ILL database and construct
@@ -2769,96 +2760,34 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: December - 2005
     !!
-    Subroutine Read_SXTAL_Numor(numor,instrm,snum)
+    Subroutine Read_SXTAL_Numor(numor,Instrm,snum)
        !---- Arguments ----!
        integer,                intent(in)    :: numor
-       character(len=*),       intent(in)    :: instrm
+       character(len=*),       intent(in)    :: Instrm
        type(SXTAL_Numor_type), intent(in out):: snum
 
        !---- Local variables ----!
        character(len=280)              :: filenam
        character(len=6)                :: inst
        character(len=80)               :: line
-       integer                         :: i,j, lun, ier
+       integer                         :: i,j, lun, long,ier
        integer, dimension(31)          :: ival
        real(kind=cp),    dimension(50) :: rval
        logical                         :: existe
 
-       inst=adjustl(instrm)
-       call lcase(inst)
+
+       inst=instrm
+       call lcase (inst)
 
        !---- Construct the absolute path and filename to be read ----!
-       if (.not. Instrm_directory_set) then
-          call Set_Instrm_directory(inst)
-       end if
-       write(unit=line,fmt="(i6.6)") numor
-
-       Select Case (inst)
-
-          Case("d10","d3")
-              filenam=trim(Instrm_directory)//ops_sep//line(1:6)
-
-          Case("d9")
-            Select case(line(1:2))
-               Case("00")
-                 filenam=trim(Instrm_directory)//"d9_0"//ops_sep//line(1:6)
-               Case("01")
-                 filenam=trim(Instrm_directory)//"d9_1"//ops_sep//line(1:6)
-               Case("02")
-                 filenam=trim(Instrm_directory)//"d9_2"//ops_sep//line(1:6)
-               Case("03")
-                 filenam=trim(Instrm_directory)//"d9_3"//ops_sep//line(1:6)
-               Case("04")
-                 filenam=trim(Instrm_directory)//"d9_4"//ops_sep//line(1:6)
-               Case("05")
-                 filenam=trim(Instrm_directory)//"d9_5"//ops_sep//line(1:6)
-               Case("06")
-                 filenam=trim(Instrm_directory)//"d9_6"//ops_sep//line(1:6)
-               Case("07")
-                 filenam=trim(Instrm_directory)//"d9_7"//ops_sep//line(1:6)
-               Case("08")
-                 filenam=trim(Instrm_directory)//"d9_8"//ops_sep//line(1:6)
-               Case("09")
-                 filenam=trim(Instrm_directory)//"d9_9"//ops_sep//line(1:6)
-            End Select
-
-          Case("d19")
-            Select case(line(1:2))
-               Case("00")
-                 filenam=trim(Instrm_directory)//"d19_0"//ops_sep//line(1:6)
-               Case("01")
-                 filenam=trim(Instrm_directory)//"d19_1"//ops_sep//line(1:6)
-               Case("02")
-                 filenam=trim(Instrm_directory)//"d19_2"//ops_sep//line(1:6)
-               Case("03")
-                 filenam=trim(Instrm_directory)//"d19_3"//ops_sep//line(1:6)
-               Case("04")
-                 filenam=trim(Instrm_directory)//"d19_4"//ops_sep//line(1:6)
-               Case("05")
-                 filenam=trim(Instrm_directory)//"d19_5"//ops_sep//line(1:6)
-               Case("06")
-                 filenam=trim(Instrm_directory)//"d19_6"//ops_sep//line(1:6)
-               Case("07")
-                 filenam=trim(Instrm_directory)//"d19_7"//ops_sep//line(1:6)
-               Case("08")
-                 filenam=trim(Instrm_directory)//"d19_8"//ops_sep//line(1:6)
-               Case("09")
-                 filenam=trim(Instrm_directory)//"d19_9"//ops_sep//line(1:6)
-            End Select
-
-       End Select
+       call Get_Absolute_Data_Path(Numor, Instrm, filenam)
 
        !---- Check if the data exist uncompressed or compressed
        inquire(file=trim(filenam),exist=existe)
        if (.not. existe) then
-          inquire(file=trim(filenam)//".Z",exist=existe)
-          if (existe) then
-             call system("uncompress "//trim(filenam)//".Z >"//trim(ILL_temp_directory)//"." )
-          else
-             ERR_ILLData=.true.
-             ERR_ILLData_Mess="The file: "//trim(filenam)//", doesn't exist!"
-             return
-          end if
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess="The file: "//trim(filenam)//", doesn't exist!"
+          return
        end if
 
        call Get_LogUnit(lun)
@@ -3172,11 +3101,8 @@ Module CFML_ILL_Instrm_Data
        !---- Check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
        err_ILLData=.false.
+       existe=directory_exists(trim(ILL_data_directory))
 
-       ! For all compilers except Intel
-       inquire(file=trim(ILL_data_directory)//".",exist=existe)
-       ! For intel
-       !inquire(directory=trim(ILL_data_directory),exist=existe)
        if (.not. existe) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
@@ -3210,16 +3136,17 @@ Module CFML_ILL_Instrm_Data
        !---- Local Variables ----!
        logical :: existe
 
-       Instrm_directory=trim(ILL_data_directory)//trim(instrm)//ops_sep
+       Instrm_directory=trim(ILL_data_directory)//'data'//trim(instrm)//ops_sep
 
        !---- check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
        ERR_ILLData=.false.
-       inquire(file=trim(Instrm_directory)//".",exist=existe)
+       existe=directory_exists(trim(Instrm_directory))
        if (.not. existe) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The INSTRM directory: '"//trim(Instrm_directory)//"' doesn't exist"
        end if
+
        Instrm_directory_set=.true.
 
        return

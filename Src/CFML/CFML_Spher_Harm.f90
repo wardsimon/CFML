@@ -10,7 +10,7 @@
 !!----            January - 2000    Based in public codes. Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants, only: cp, dp, eps, pi, to_rad
+!!--++    Use CFML_GlobalDeps, only: cp, dp, eps, pi, to_rad
 !!----
 !!---- VARIABLES
 !!----    ERR_SPHER
@@ -38,7 +38,7 @@
  Module CFML_Spherical_Harmonics
 
     !---- Use Modules ----!
-    Use CFML_Constants, Only: Cp, Dp, Eps, Pi, To_Rad
+    Use CFML_GlobalDeps, Only: Cp, Dp, Eps, Pi, To_Rad
 
     implicit none
 

@@ -11,7 +11,7 @@
 !!----
 !!----    April - 2004 Created by JRC
 !!---- DEPENDENCIES
-!!--++    use CFML_Constants,       only: cp    
+!!--++    use CFML_GlobalDeps,       only: cp    
 !!--++    use CFML_String_Utilities, only: l_case  
 !!----
 !!---- VARIABLES
@@ -46,7 +46,7 @@
 !!
  Module CFML_Optimization_General
     !---- Use Files ----!
-    use CFML_Constants,       only: cp
+    use CFML_GlobalDeps,       only: cp
     use CFML_String_Utilities, only: l_case
 
     implicit none
@@ -202,7 +202,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Constants, only:cp
+    !!----          use CFML_GlobalDeps, only:cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -260,7 +260,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1211,7 +1211,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1660,7 +1660,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -1770,7 +1770,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2280,7 +2280,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2322,7 +2322,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Constants, only:cp
+    !!----          use CFML_GlobalDeps, only:cp
     !!----          integer,                             intent(in) :: N
     !!----          real(kind=cp),dimension(:),          intent(in) :: X
     !!----          real(kind=cp),                       intent(out):: F
@@ -2346,7 +2346,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2514,7 +2514,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Constants, only:cp
+    !!----          use CFML_GlobalDeps, only:cp
     !!----          integer,                    intent(in)     :: n
     !!----          real(kind=cp),dimension(:), intent(in)     :: x
     !!----          real(kind=cp),              intent(out)    :: f
@@ -2542,7 +2542,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2624,7 +2624,7 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_Constants, only:cp
+    !!----          use CFML_GlobalDeps, only:cp
     !!----          integer,                             intent(in) :: n
     !!----          real(kind=cp),dimension(:),          intent(in) :: x
     !!----          real(kind=cp),                       intent(out):: f
@@ -2692,7 +2692,7 @@
        real, dimension(:), intent(in)     :: maxi
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f
@@ -2870,7 +2870,7 @@
 
        Interface
           Subroutine Model_Functn(n,x,f,g)
-             use CFML_Constants,  only: cp
+             use CFML_GlobalDeps,  only: cp
              integer,                             intent(in) :: n
              real(kind=cp),dimension(:),          intent(in) :: x
              real(kind=cp),                       intent(out):: f

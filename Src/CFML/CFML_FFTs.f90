@@ -132,7 +132,7 @@
 !!--..             Alan.Miller @ mel.dms.csiro.au
 !!--..
 !!---- DEPENDENCIES
-!!----    CFML_Constants, only: cp
+!!----    CFML_GlobalDeps, only: cp
 !!----
 !!---- VARIABLES
 !!--++    FFTKIND                  [Private]
@@ -170,7 +170,7 @@
 !!
 Module CFML_FFT
    !---- Use Modules ----!
-   use CFML_Constants, only : cp
+   use CFML_GlobalDeps, only : cp
    
    !---- Local Variables ----!
    implicit none
@@ -342,7 +342,7 @@ Module CFML_FFT
        real(kind=cp), dimension(interval%np)           :: conv
        Interface F_Function
           Pure function f(x,parf)  result (vf)
-             use CFML_Constants, only: cp
+             use CFML_GlobalDeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parf
              real(kind=cp)                          :: vf
@@ -350,7 +350,7 @@ Module CFML_FFT
        End Interface F_Function
        Interface G_Function
           Pure Function G(X,Parg)  Result (Vg)
-             use CFML_Constants, only: cp
+             use CFML_GlobalDeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parg
              real(kind=cp)                          :: vg
@@ -453,7 +453,7 @@ Module CFML_FFT
        real(kind=cp), dimension(np)                    :: conv
        Interface F_Function
           Pure Function F(X,Parf)  Result (Vf)
-             use CFML_Constants, only: cp
+             use CFML_GlobalDeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parf
              real(kind=cp)                          :: vf
@@ -461,7 +461,7 @@ Module CFML_FFT
        End Interface F_Function
        Interface G_Function
           Pure Function G(X,Parg) Result (Vg)
-             use CFML_Constants, only: cp
+             use CFML_GlobalDeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parg
              real(kind=cp)                          :: vg

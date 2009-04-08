@@ -10,7 +10,7 @@
 !!----            January - 2004  Created by JRC
 !!----
 !!---- DEPENDENCIES
-!!----    Use CFML_Constants,       only : cp
+!!----    Use CFML_GlobalDeps,       only : cp
 !!----    Use CFML_Math_General,     only : spline, splint, locate
 !!----    Use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
 !!----                                      get_logunit, u_case, getword
@@ -56,7 +56,7 @@
 !!
  Module CFML_Diffraction_Patterns
     !---- Use Modules ----!
-    Use CFML_Constants,       only : cp
+    Use CFML_GlobalDeps,       only : cp
     Use CFML_Math_General,     only : spline, splint, locate
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
                                       get_logunit, u_case, getword

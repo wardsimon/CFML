@@ -12,7 +12,7 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!----    CFML_Constants
+!!----    CFML_GlobalDeps
 !!----
 !!---- VARIABLES
 !!--++    EPSS                         [Private]
@@ -164,7 +164,7 @@
 !!
  Module CFML_Math_General
     !---- Use Modules ----!
-    Use CFML_Constants
+    Use CFML_GlobalDeps
     
     !---- Variables ----!
     implicit none

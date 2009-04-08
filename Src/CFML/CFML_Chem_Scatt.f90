@@ -17,7 +17,7 @@
 !!----             November - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_Constants,       only: Cp
+!!--++    Use CFML_GlobalDeps,       only: Cp
 !!--++    Use CFML_String_Utilities, only: L_Case, U_Case
 !!----
 !!---- VARIABLES
@@ -63,7 +63,7 @@
 !!
  Module CFML_Scattering_Chemical_Tables
     !---- Use Modules ----!
-    Use CFML_Constants,       only: Cp
+    Use CFML_GlobalDeps,       only: Cp
     Use CFML_String_Utilities, only: U_Case, L_Case
 
     implicit none

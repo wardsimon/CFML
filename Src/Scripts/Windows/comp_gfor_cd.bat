@@ -7,7 +7,7 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   gfortran -c CFML_Constant.f90         -O0 -ftrace=full  -std=f2003    >  out
+   gfortran -c CFML_GlobalDeps.f90         -O0 -ftrace=full  -std=f2003    >  out
 rem
    gfortran -c CFML_math_gen.f90         -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_spher_harm.f90       -O0 -ftrace=full  -std=f2003    >> out

@@ -46,7 +46,7 @@
 !!
 Module CFML_PowderProfiles_TOF
     !---- Use Modules ----!
-    Use CFML_Constants, only: cp, dp, sp
+    Use CFML_GlobalDeps, only: cp, dp, sp
 
     !---- Variables ----!
     implicit none
