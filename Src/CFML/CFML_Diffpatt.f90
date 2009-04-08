@@ -224,7 +224,7 @@
 
 
        ! Init value
-       call init_err_Diffpat()
+       call init_err_Diffpatt()
        v=-1.0
 
        ! Y value for FHWM
