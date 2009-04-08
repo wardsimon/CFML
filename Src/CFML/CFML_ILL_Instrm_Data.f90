@@ -2776,11 +2776,12 @@ Module CFML_ILL_Instrm_Data
        logical                         :: existe
 
 
-       inst=instrm
-       call lcase (inst)
-
        !---- Construct the absolute path and filename to be read ----!
-       call Get_Absolute_Data_Path(Numor, Instrm, filenam)
+       write(unit=inst,fmt='(i6.6)') numor
+       line=trim(Instrm_directory)
+       long=len_trim(line)
+       if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
+       filenam=trim(line)//inst
 
        !---- Check if the data exist uncompressed or compressed
        inquire(file=trim(filenam),exist=existe)
@@ -2798,8 +2799,10 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
-       Select Case (inst)
+       inst=instrm
+       call lcase (inst)
 
+       Select Case (trim(inst))
           Case("d9","d10","d19")
               read(unit=lun,fmt="(a)",iostat=ier) line
               read(unit=lun,fmt=*,iostat=ier) snum%numor
@@ -3135,8 +3138,9 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        logical :: existe
+       integer :: nlong
 
-       Instrm_directory=trim(ILL_data_directory)//'data'//trim(instrm)//ops_sep
+       Instrm_directory=trim(ILL_data_directory)//'data'//ops_sep//trim(instrm)//ops_sep
 
        !---- check that the directory exist, ----!
        !---- otherwise rise an error condition ----!
@@ -3145,6 +3149,7 @@ Module CFML_ILL_Instrm_Data
        if (.not. existe) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The INSTRM directory: '"//trim(Instrm_directory)//"' doesn't exist"
+          Instrm_directory_set=.false.
        end if
 
        Instrm_directory_set=.true.
