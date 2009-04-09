@@ -1009,6 +1009,7 @@ Module CFML_ILL_Instrm_Data
     !!---- Update: March - 2009
     !!
     Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear,Icycle)
+
        !---- Arguments ----!
        integer,           intent(in)  :: numor
        character(len=*),  intent(in)  :: instrm
@@ -1108,6 +1109,9 @@ Module CFML_ILL_Instrm_Data
 
        ! Using Current_data
        path = trim(ILL_data_directory)//Current_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+
+       call IDebug('Este es el path: '//trim(path))
+
        inquire(file=trim(path),exist=exists)
        if (exists) return ! found numor so return
 
@@ -1359,6 +1363,7 @@ Module CFML_ILL_Instrm_Data
        ! Temporal
        ILL_Temp_directory=trim(ILL_Temp_directory)//ops_sep
        exists=directory_exists(trim(ILL_temp_directory))
+       if (exists) got_ILL_temp_directory = .true.
 
        ! ILL DATA
        ILL_Data_Directory=trim(ILL_Data_Directory)//ops_sep
