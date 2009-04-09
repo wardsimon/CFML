@@ -75,8 +75,9 @@
     !---- List of public functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_Structure_Factors,Init_hkl_Structure_Factors, Structure_Factors,  &
-              Modify_SF, Write_Structure_Factors,Calc_StrFactor, Calc_hkl_StrFactor
+    public :: Init_Structure_Factors,Init_Calc_hkl_StrFactors, Structure_Factors,  &
+              Modify_SF, Write_Structure_Factors,Calc_StrFactor, Calc_hkl_StrFactor, &
+              Init_Calc_StrFactors
 
     !---- List of private functions ----!
     private :: Fj
@@ -1337,7 +1338,7 @@
     End Subroutine Create_Table_HR_HT
 
     !!----
-    !!---- Subroutine Init_hkl_Structure_Factors(Atm,Mode,lambda,lun)
+    !!---- Subroutine Init_Calc_hkl_StrFactors(Atm,Mode,lambda,lun)
     !!----    type(atom_list_type),                intent(in) :: Atm
     !!----    character(len=*),          optional, intent(in) :: Mode
     !!----    real(kind=cp),             optional, intent(in) :: lambda
@@ -1347,9 +1348,9 @@
     !!----    No calculation of fixed tables is performed. Should be called before using
     !!----    the subroutine Calc_hkl_StrFactor
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: April - 2009
     !!
-    Subroutine Init_hkl_Structure_Factors(Atm,Mode,lambda,lun)
+    Subroutine Init_Calc_hkl_StrFactors(Atm,Mode,lambda,lun)
        !---Arguments ---!
        type(atom_list_type),                intent(in) :: Atm
        character(len=*),          optional, intent(in) :: Mode
@@ -1419,8 +1420,40 @@
        if (.not. err_sfac) SF_Initialized=.true.
 
        return
-    End Subroutine Init_hkl_Structure_Factors
+    End Subroutine Init_Calc_hkl_StrFactors
 
+    !!----
+    !!---- Subroutine Init_Calc_StrFactors(Reflex,Atm,Grp,Mode,lambda,lun)
+    !!----    type(reflection_list_type),          intent(in) :: Reflex
+    !!----    type(atom_list_type),                intent(in) :: Atm
+    !!----    type(space_group_type),              intent(in) :: Grp
+    !!----    character(len=*),          optional, intent(in) :: Mode
+    !!----    real(kind=cp),             optional, intent(in) :: lambda
+    !!----    integer,                   optional, intent(in) :: lun  !Logical unit for writing scatt-factors
+    !!----
+    !!----    Allocates and initializes arrays for Calc_StrFactors calculations.
+    !!----    Calculations of fixed tables are performed. Should be called before using
+    !!----    the subroutine Calc_StrFactor
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Init_Calc_StrFactors(Reflex,Atm,Grp,Mode,lambda,lun)
+       !---Arguments ---!
+       type(reflection_list_type),          intent(in) :: Reflex
+       type(atom_list_type),                intent(in) :: Atm
+       type(space_group_type),              intent(in) :: Grp
+       character(len=*),          optional, intent(in) :: Mode
+       real(kind=cp),             optional, intent(in) :: lambda
+       integer,                   optional, intent(in) :: lun
+
+       !--- Local variables ---!
+
+       Call Init_Structure_Factors(Reflex,Atm,Grp,Mode,lambda,lun)
+       !---- Table TH ----!
+       Call Calc_Table_TH(Reflex,Atm)
+
+       return
+    End Subroutine Init_Calc_StrFactors
 
     !!----
     !!---- Subroutine Init_Structure_Factors(Reflex,Atm,Grp,Mode,lambda,lun)
