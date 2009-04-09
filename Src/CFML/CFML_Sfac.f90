@@ -40,10 +40,13 @@
 !!----    Subroutines:
 !!--++       CALC_TABLE_AB             [Private]
 !!--++       CALC_TABLE_TH             [Private]
+!!----       CALC_HKL_STRFACTOR
 !!----       CALC_STRFACTOR
 !!--++       CREATE_TABLE_AF0_XRAY     [Private]
 !!--++       CREATE_TABLE_AFP_NEUTNUC  [Private]
+!!--++       CREATE_TABLE_FABC_XRAY    [Private]
 !!--++       CREATE_TABLE_HR_HT        [Private]
+!!----       INIT_HKL_STRUCTURE_FACTORS
 !!----       INIT_STRUCTURE_FACTORS
 !!----       MODIFY_SF
 !!--++       SET_FIXED_TABLES          [Private]
@@ -72,8 +75,8 @@
     !---- List of public functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_Structure_Factors, Structure_Factors, Modify_SF, &
-              Write_Structure_Factors,Calc_StrFactor
+    public :: Init_Structure_Factors,Init_hkl_Structure_Factors, Structure_Factors,  &
+              Modify_SF, Write_Structure_Factors,Calc_StrFactor, Calc_hkl_StrFactor
 
     !---- List of private functions ----!
     private :: Fj
@@ -81,7 +84,7 @@
     !---- List of private subroutines ----!
     private :: Calc_Table_AB, Create_Table_AF0_Xray, Create_Table_AFP_NeutNuc, &
                Create_Table_HR_HT, Set_Fixed_Tables, Calc_Table_TH, Sum_AB,    &
-               Sum_AB_NeutNuc
+               Sum_AB_NeutNuc, Create_Table_Fabc_Xray
 
     !---- Definitions ----!
 
@@ -164,6 +167,23 @@
     !!
     character(len=150), public :: ERR_SFac_Mess
 
+
+    !!--++
+    !!--++ FF_A, FF_B, FF_C
+    !!--++     real(kind=cp), dimension(:,:), allocatable, private :: FF_a,FF_b
+    !!--++     real(kind=cp), dimension(  :), allocatable, private :: FF_c
+    !!--++
+    !!--++     Arrays for coefficients of X-rays scattering form factors.
+    !!--++     The dimensions are: AFP(Nspecies)
+    !!--++      FF_A(4,Nspecies), FF_B(4,Nspecies), FF_C(Nspecies)
+    !!--++     Constructed in Create_Table_fabc_Xray(Atm,lambda,lun)
+    !!--++
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    real(kind=cp), dimension(:,:), allocatable, private :: FF_a, FF_b
+    real(kind=cp), dimension(  :), allocatable, private :: FF_c
+
     !!--++
     !!--++    Type :: HR_Type
     !!--++       integer,dimension(3) :: H
@@ -200,6 +220,28 @@
     !!
     real(kind=cp), dimension(:,:), allocatable, private :: HT
 
+    !!--++
+    !!--++ Nspecies
+    !!--++     integer, private :: Nspecies
+    !!--++
+    !!--++     Number of chemical species for X-rays scattering form factors.
+    !!--++  Constructed in Create_Table_fabc_Xray(Atm,lambda,lun)
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    integer, private :: Nspecies
+
+    !!--++
+    !!--++ P_A
+    !!--++     integer, dimension(:), allocatable, private :: P_A
+    !!--++
+    !!--++     Integer pointer from atoms to species: P_A(Natoms), contains the species
+    !!--++     of atom Natoms. Constructed in Create_Table_fabc_Xray(Atm,lambda,lun)
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    integer, dimension(:), allocatable, private :: P_A
+
     !!----
     !!---- SF_Initialized
     !!----    logical, private :: SF_Initialized
@@ -226,7 +268,7 @@
     !---- Functions ----!
 
     !!--++
-    !!--++ Function Fj(s,a,b,c)
+    !!--++ Pure Function Fj(s,a,b,c)
     !!--++    real(kind=cp),             intent(in) :: s
     !!--++    real(kind=cp),dimension(4),intent(in) :: a
     !!--++    real(kind=cp),dimension(4),intent(in) :: b
@@ -238,7 +280,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Fj(s,a,b,c) Result(res)
+    Pure Function Fj(s,a,b,c) Result(res)
        !---- Arguments ----!
        real(kind=cp),             intent(in) :: s
        real(kind=cp),dimension(4),intent(in) :: a
@@ -378,7 +420,7 @@
        av=0.0
        bv=0.0
        fr=1.0
-      ! fi=0.0
+       !fi=0.0
        frc=0.0
        frs=0.0
        otr=0.0
@@ -605,6 +647,310 @@
     End Subroutine Calc_StrFactor
 
     !!--++
+    !!----
+    !!---- Subroutine Calc_hkl_StrFactor(mode,rad,h,sn,Atm,Grp,sf2,deriv,fc)
+    !!----    character(len=*),                   intent(in) :: mode !S-XTAL (S) or Powder (P)
+    !!----    character(len=*),                   intent(in) :: rad  !Radiation: X-rays, Neutrons
+    !!----    integer,                            intent(in) :: nn
+    !!----    real(kind=cp)                       intent(in) :: sn !(sinTheta/Lambda)**2
+    !!----    type(atom_list_type),               intent(in) :: Atm
+    !!----    type(space_group_type),             intent(in) :: Grp
+    !!----    real(kind=cp)                       intent(out):: sf2
+    !!----    real(kind=cp),dimension(:),optional,intent(out):: deriv
+    !!----    complex, optional,                  intent(out):: fc
+    !!----
+    !!----    Calculate Structure Factor for reflection "h=(hkl)" not related with
+    !!----    previous lists and derivatives with respect to refined parameters.
+    !!----    This subroutine calculates the form-factors internally without using
+    !!----    global tables. The purpose of this procedure is to avoid the use of
+    !!----    too much memory in tables.
+    !!----
+    !!---- Update: April - 2009
+    !!
+    Subroutine Calc_hkl_StrFactor(mode,rad,hn,sn,Atm,Grp,sf2,deriv,fc)
+       !---- Arguments ----!
+       character(len=*),                   intent(in) :: mode
+       character(len=*),                   intent(in) :: rad
+       integer,dimension(3),               intent(in) :: hn
+       real(kind=cp),                      intent(in) :: sn !(sinTheta/Lambda)**2
+       type(atom_list_type),               intent(in) :: Atm
+       type(space_group_type),             intent(in) :: Grp
+       real(kind=cp),                      intent(out):: sf2
+       real(kind=cp),dimension(:),optional,intent(out):: deriv
+       complex, optional,                  intent(out):: fc
+
+       !---- Local Variables ----!
+       character(len=1)                      :: modi
+       integer                               :: i,j,k,m
+       real(kind=cp)                         :: arg,anis,cosr,sinr,scosr,ssinr,fr,fi,der, hnt, res
+       real(kind=cp)                         :: a1,a2,a3,a4,b1,b2,b3,b4,av,bv,f,occ,b, Tob
+       real(kind=cp),dimension(3)            :: h
+       real(kind=cp),dimension(6)            :: beta
+       real(kind=cp),dimension(Atm%natoms)   :: frc,frs,otr,oti,afpxn,ff
+       real(kind=cp),dimension(9,Atm%natoms) :: drs,drc
+
+
+       !--- Initialising local variables
+       a1=0.0
+       a2=0.0
+       a3=0.0
+       a4=0.0
+       b1=0.0
+       b2=0.0
+       b3=0.0
+       b4=0.0
+       av=0.0
+       bv=0.0
+       frc=0.0
+       frs=0.0
+       otr=0.0
+       oti=0.0
+       modi=u_case(mode(1:1))
+       !Setting up the scattering form factors and multiply by group specific
+       !coefficients for calculating structure factors per conventional cell
+       !---- Modify the scattering factors to include the
+       !---- multipliers factors concerning centre of symmetry and
+       !---- centred translations
+       fr=1.0; fi=1.0
+       if (Grp%Centred == 2) fr=2.0
+       if (Grp%NumLat  > 1)  fi=Grp%NumLat
+       if(rad(1:1) == "N") then
+         afpxn(:)=fr*fi*afp(:)
+       else
+         do i=1,Nspecies
+           ff(i)=FF_c(i)
+           do j=1,4
+            ff(i)=ff(i)+FF_a(j,i)*exp(-sn*FF_b(j,i))
+           end do
+         end do
+         do i=1,Atm%natoms
+           j=P_a(i)   !pointer has been set up in Initialization subroutine
+           afpxn(i)= fr*fi*ff(j)
+         end do
+       end if
+
+       fr=1.0
+       fi=0.0
+       if(Grp%Centred == 2) then
+            do i=1,Atm%natoms
+               arg=0.0
+               scosr=0.0
+               ssinr=0.0
+               drs(:,i)=0.0
+               drc(:,i)=0.0
+               do k=1,grp%NumOps
+                  h=Hkl_R(hn,grp%symop(k))                   !Calculations in-lining
+                  hnt=dot_product(real(hn),Grp%SymOp(k)%Tr)  !Calculations in-lining
+                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+hnt)
+                  anis=1.0
+                  if(Atm%atom(i)%thtype == "aniso") then
+                    beta=Atm%atom(i)%u(1:6)
+                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
+                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
+                    anis=exp(-anis)
+                  end if
+                  cosr=COS(arg)*anis*fr     !fr*cos{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+                  scosr=scosr+cosr          !FRC= SIG fr(j,s)cos{2pi(hT Rs rj+ts)}*Ta(s)
+
+                  if(present(deriv)) then
+                     sinr=SIN(arg)*anis*fr   !fr*sin{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+                     drc(1:3,i)=drc(1:3,i)+h(1:3)*sinr      ! -
+                     drc(4,i)=drc(4,i)+h(1)*h(1)*cosr
+                     drc(5,i)=drc(5,i)+h(2)*h(2)*cosr
+                     drc(6,i)=drc(6,i)+h(3)*h(3)*cosr
+                     drc(7,i)=drc(7,i)+h(1)*h(2)*cosr
+                     drc(8,i)=drc(8,i)+h(1)*h(3)*cosr
+                     drc(9,i)=drc(9,i)+h(2)*h(3)*cosr
+                  end if
+
+               end do ! symmetry
+               occ= atm%atom(i)%occ
+               b=atm%atom(i)%biso
+               Tob= occ * exp(-b*sn)
+               frc(i) = scosr
+               otr(i) = afpxn(i)* Tob
+               oti(i) =  afpp(i)* Tob
+               a1= a1 + otr(i)*frc(i)
+               b1= b1 + oti(i)*frc(i)
+
+            end do ! Atoms
+
+            av = a1-a2-a3-a4    !real part of the structure factor
+            bv = b1-b2+b3+b4    !imaginary part of the structure factor
+
+       else
+
+            do i=1,Atm%natoms
+               arg=0.0
+               scosr=0.0
+               ssinr=0.0
+               drs(:,i)=0.0
+               drc(:,i)=0.0
+               do k=1,grp%NumOps
+                  h=Hkl_R(hn,grp%symop(k))
+                  hnt=dot_product(real(hn),Grp%SymOp(k)%Tr)
+                  arg=tpi*(dot_product(h,Atm%atom(i)%x)+hnt)
+                  anis=1.0
+                  if(Atm%atom(i)%thtype == "aniso") then
+                    beta=Atm%atom(i)%u(1:6)
+                    anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
+                         +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
+                    anis=exp(-anis)
+                  end if
+                  cosr=COS(arg)*anis*fr     !fr*cos{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+                  sinr=SIN(arg)*anis*fr     !fr*sin{2pi(hT Rs rj+ts)}*exp(-{hTRsBetaj RsTh})
+                  scosr=scosr+cosr          !FRC= SIG fr(j,s)cos{2pi(hT Rs rj+ts)}*Ta(s)
+                  ssinr=ssinr+sinr          !FRS= SIG fr(j,s)sin{2pi(hT Rs rj+ts)}*Ta(s)
+
+                  if(present(deriv)) then
+                     drc(1:3,i)=drc(1:3,i)+h(1:3)*sinr      ! -
+                     drs(1:3,i)=drs(1:3,i)+h(1:3)*cosr      ! +
+
+                     drc(4,i)=drc(4,i)+h(1)*h(1)*cosr
+                     drc(5,i)=drc(5,i)+h(2)*h(2)*cosr
+                     drc(6,i)=drc(6,i)+h(3)*h(3)*cosr
+                     drc(7,i)=drc(7,i)+h(1)*h(2)*cosr
+                     drc(8,i)=drc(8,i)+h(1)*h(3)*cosr
+                     drc(9,i)=drc(9,i)+h(2)*h(3)*cosr
+
+                     drs(4,i)=drs(4,i)+h(1)*h(1)*sinr
+                     drs(5,i)=drs(5,i)+h(2)*h(2)*sinr
+                     drs(6,i)=drs(6,i)+h(3)*h(3)*sinr
+                     drs(7,i)=drs(7,i)+h(1)*h(2)*sinr
+                     drs(8,i)=drs(8,i)+h(1)*h(3)*sinr
+                     drs(9,i)=drs(9,i)+h(2)*h(3)*sinr
+                  end if
+
+               end do ! symmetry
+               occ= atm%atom(i)%occ
+               b=atm%atom(i)%biso
+               Tob= occ * exp(-b*sn)
+               frc(i) = scosr
+               frs(i) = ssinr
+               otr(i) = afpxn(i)* Tob
+               oti(i) =  afpp(i)* Tob
+               a1= a1 + otr(i)*frc(i)
+               b1= b1 + oti(i)*frc(i)
+               a3 = a3 + oti(i)*frs(i)
+               b3 = b3 + otr(i)*frs(i)
+
+            end do ! Atoms
+
+            av = a1-a2-a3-a4    !real part of the structure factor
+            bv = b1-b2+b3+b4    !imaginary part of the structure factor
+
+       end if
+
+       If(modi == "P") then
+          sf2 = a1*a1 + a2*a2 + a3*a3 + a4*a4 + b1*b1 + b2*b2 + b3*b3 + b4*b4
+          sf2 = sf2 + 2.0*(b1*b4 -  a1*a4 + a2*a3 - b2*b3)
+       else
+          sf2= av*av+bv*bv
+       End if
+
+       if(present(fc)) then
+         fc=cmplx(av,bv)
+       end if
+
+       if(present(deriv)) then
+
+         if(modi == "P") then
+
+             do i=1,Atm%natoms
+                !derivatives with respect to coordinates  POWDER
+                do m=1,3
+                   k= Atm%atom(i)%lx(m)
+                   if(k /= 0) then
+                     f=atm%atom(i)%mx(m)
+                     der= otr(i)*(-a1*drc(m,i)+b3*drs(m,i))+oti(i)*(-b1*drc(m,i)+a3*drs(m,i))
+                     der=2.0*der*tpi
+                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                   end if
+                 end do
+
+                 k=Atm%atom(i)%lbiso  !Derivatives w.r.t. Biso  POWDER
+                 if(k /= 0) then
+                   f=Atm%atom(i)%mbiso
+                   der= otr(i)*(a1*frc(i) +b3*frs(i))+oti(i)*(b1*frc(i) +a3*frs(i))
+                   der=-2.0*der*sn
+                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                 end if
+
+                 k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor   POWDER
+                 if(k /= 0) then
+                   f=Atm%atom(i)%mocc
+                   der= otr(i)*(a1*frc(i)+b3*frs(i))+oti(i)*(b1*frc(i)+a3*frs(i))
+                   der=2.0*der/atm%atom(i)%occ
+                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                 end if
+
+                 do m=4,9      !Derivatives w.r.t. anisotropic temperature factors   POWDER
+                    j=m-3
+                    k=Atm%atom(i)%lu(j)
+                    if(k /= 0) then
+                      f=Atm%atom(i)%mu(j)
+                      der=  otr(i)*(a1*drc(i,j)+b3*drs(m,i))+oti(i)*(b1*drc(m,i)+a3*drs(m,i))
+                      der=-2.0*der
+                      if(j > 3) der=2.0*der
+                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                    end if
+                 end do
+
+             end do
+
+         else
+
+             do i=1,Atm%natoms
+                !derivatives with respect to coordinates  S-XTAL
+                do m=1,3
+                   k= Atm%atom(i)%lx(m)
+                   if(k /= 0) then
+                     f=atm%atom(i)%mx(m)
+                     der=   -av*(otr(i)*drc(m,i) + oti(i)*drs(m,i))
+                     der=der-bv*(oti(i)*drc(m,i) - otr(i)*drs(m,i))
+                     der=2.0*der*tpi
+                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                   end if
+                 end do
+
+                 k=Atm%atom(i)%lbiso  !Derivatives w.r.t. Biso  S-XTAL
+                 if(k /= 0) then
+                   f=Atm%atom(i)%mbiso
+                   der=   -av*( otr(i)*frc(i) - oti(i)*frs(i) )
+                   der=der-bv*( oti(i)*frc(i) + otr(i)*frs(i) )
+                   der=2.0*der*sn
+                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                 end if
+
+                 k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor  S-XTAL
+                 if(k /= 0) then
+                   f=Atm%atom(i)%mocc
+                   der=    av*( otr(i)*frc(i) - oti(i)*frs(i) )
+                   der=der+bv*( oti(i)*frc(i) + otr(i)*frs(i) )
+                   der=2.0*der/atm%atom(i)%occ
+                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                 end if
+
+                 do m=4,9        !Derivatives w.r.t. anisotropic temperature factors S-XTAL
+                    j=m-3
+                    k=Atm%atom(i)%lu(j)
+                    if(k /= 0) then
+                      f=Atm%atom(i)%mu(j)
+                      der=   -av*(otr(i)*drc(m,i) - oti(i)*drs(m,i))
+                      der=der-bv*(oti(i)*drc(m,i) + otr(i)*drs(m,i))
+                      der=2.0*der
+                      if(j > 3) der=2.0*der
+                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                    end if
+                 end do
+
+             end do
+         end if !modi
+       end if  !derivatives
+
+       return
+    End Subroutine Calc_hkl_StrFactor
+
     !!--++ Subroutine Calc_Table_TH(Reflex,Atm)
     !!--++    type(reflection_List_type),   intent(in) :: Reflex
     !!--++    type(atom_list_type),        intent(in) :: Atm
@@ -635,6 +981,144 @@
 
        return
     End Subroutine Calc_Table_TH
+
+    !!--++
+    !!--++ Subroutine Create_Table_fabc_Xray(Atm,lambda,lun)
+    !!--++    type(atom_list_type),      intent(in) :: Atm
+    !!--++    real(kind=cp), optiona      intent(in) :: lambda
+    !!--++    integer, optional,          intent(in) :: lun
+    !!--++
+    !!--++    (Private)
+    !!--++    Calculate a Table of Coefficients for Atomic Form Factors for X-Ray
+    !!--++    ff_A(4,species),ff_B(4,Nspecies),ff_C(Nspecies), AFP(Nspecies), AFPP(Nspecies)
+    !!--++    p_a(Natoms) => pointer to the species of each atom
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Create_Table_fabc_Xray(Atm,lambda,lun)
+       !---- Arguments ----!
+       type(atom_list_type),       intent(in) :: Atm
+       real(kind=cp), optional,    intent(in) :: lambda
+       integer, optional,          intent(in) :: lun
+
+       !---- Local Variables ----!
+       character(len=4)               :: symbcar
+       integer                        :: i,j, k,n,L
+       integer, dimension(atm%natoms) :: ix,jx,ia
+       real(kind=cp)                  :: dmin,d
+
+       !---- Init ----!
+       err_sfac=.false.
+
+       !---- Load form factor values for XRay ----!
+       call Set_Xray_Form()
+
+       !---- Found Species on Xray_Form ----!
+       ix=0
+       jx=0
+       n=0
+       if(allocated(P_a)) deallocate(P_a)
+       allocate(P_a(atm%natoms))
+
+       do i=1,atm%natoms
+          symbcar=l_case(atm%atom(i)%SfacSymb)
+          do j=1,Num_Xray_Form
+             if (symbcar /= Xray_form(j)%Symb) cycle
+             ix(i)=j
+             if(any(jx == j) ) exit
+             n=n+1
+             jx(n)=j
+             ia(n)=i
+             exit
+          end do
+       end do
+
+       if (any(ix==0)) then
+          err_sfac=.true.
+          ERR_SFac_Mess="The Species "//symbcar//" was not found"
+          return
+       end if
+
+       do i=1,atm%natoms
+         j=ix(i)
+         do k=1,n
+           if(jx(k) == j) then
+             P_a(i)=k              !The atom i is of species k
+             exit
+           end if
+         end do
+       end do
+       Nspecies=n !Global private variable (Total number of chemical species)
+       if(allocated(FF_a)) deallocate (FF_a)
+       if(allocated(FF_b)) deallocate (FF_b)
+       if(allocated(FF_c)) deallocate (FF_c)
+       allocate(FF_a(4,n),FF_b(4,n),FF_c(n))
+       do k=1,n
+          j = jx(k)
+          i = ia(k)
+          FF_a(:,k)= xray_form(j)%a(:)
+          FF_b(:,k)= xray_form(j)%b(:)
+          FF_c(  k)= xray_form(j)%c
+       end do
+
+       if (present(lun)) then
+          write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
+          write(unit=lun,fmt="(a,/)") "  ==================================================="
+       End if
+       if (present(lambda)) then
+          !---- Load anomalous scattering form factor values for XRays ----!
+          call Set_Delta_Fp_Fpp()
+
+          !---- Select wavelength (by default is CuKalpha1: k=5 in the list) ----!
+          dmin=1000.0
+          do i=1,5
+             d=abs(lambda-Xray_Wavelengths(i)%Kalfa(1))
+             if (d < dmin) then
+                dmin=d
+                k=i        !Selection of the index for fp and fpp lists
+             end if
+          end do
+
+          !---- Found Species on Anomalous_ScFac ----!
+          do i=1,atm%natoms
+             symbcar=l_case(atm%atom(i)%chemsymb)
+             do j=1,Num_Delta_Fp
+                if (symbcar /= Anomalous_ScFac(j)%Symb) cycle
+                afp(i)=Anomalous_ScFac(j)%fp(k)
+                afpp(i)=Anomalous_ScFac(j)%fpp(k)
+                exit
+             end do
+          end do
+          call Remove_Delta_Fp_Fpp()
+       else
+           if (present(lun)) then
+             write(unit=lun,fmt="(a)")    "  Missed lambda, anomalous dipersion corrections not applied   "
+             write(unit=lun,fmt="(a)")    "  The default wavelength is that of Cu-Kalpha1 spectral line  "
+           end if
+       end if
+
+
+       !---- Printing Information ----!
+       if (present(lun)) then
+          write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  Dfp  Dfpp "
+          write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
+          write(unit=lun,fmt="(/,a)") &
+               "   Atom     a1       b1       a2       b2       a3       b3       a4       b4        c      Dfp     Dfpp"
+          do k=1,n
+             j = jx(k)
+             i = ia(k)
+             write(unit=lun,fmt="(a,11F9.5)")    &
+                           "     "//atm%atom(i)%chemsymb, &
+                           (xray_form(j)%a(L),xray_form(j)%b(L), L=1,4), xray_form(j)%c, &
+                           afp(i), afpp(i)
+          end do
+          write(unit=lun,fmt="(/,/)")
+       end if
+
+       call Remove_Xray_Form()
+
+       return
+    End Subroutine Create_Table_fabc_Xray
 
     !!--++
     !!--++ Subroutine Create_Table_AF0_Xray(Reflex,Atm,lambda,lun)
@@ -768,8 +1252,8 @@
     !!
     Subroutine Create_Table_AFP_NeutNuc(Atm,lun)
        !---- Arguments ----!
-       type(atom_list_type),              intent(in) :: Atm
-       integer, optional,                  intent(in) :: lun
+       type(atom_list_type),    intent(in) :: Atm
+       integer, optional,       intent(in) :: lun
 
        !---- Local Variables ----!
        character(len=4)                        :: symbcar
@@ -853,9 +1337,95 @@
     End Subroutine Create_Table_HR_HT
 
     !!----
+    !!---- Subroutine Init_hkl_Structure_Factors(Atm,Mode,lambda,lun)
+    !!----    type(atom_list_type),                intent(in) :: Atm
+    !!----    character(len=*),          optional, intent(in) :: Mode
+    !!----    real(kind=cp),             optional, intent(in) :: lambda
+    !!----    integer,                   optional, intent(in) :: lun  !Logical unit for writing scatt-factors
+    !!----
+    !!----    Allocates and initializes arrays for hkl - Structure Factors calculations.
+    !!----    No calculation of fixed tables is performed. Should be called before using
+    !!----    the subroutine Calc_hkl_StrFactor
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Init_hkl_Structure_Factors(Atm,Mode,lambda,lun)
+       !---Arguments ---!
+       type(atom_list_type),                intent(in) :: Atm
+       character(len=*),          optional, intent(in) :: Mode
+       real(kind=cp),             optional, intent(in) :: lambda
+       integer,                   optional, intent(in) :: lun
+
+       !--- Local variables ---!
+
+       integer :: Natm, Multr
+       integer :: ierr
+       character(len=3) :: tipo
+
+       tipo="XRA"
+       if (present(mode)) tipo=adjustl(mode)
+       tipo=U_Case(tipo)
+       err_sfac=.false.
+       Natm = Atm%natoms
+
+
+       !---- Anomalous Scattering factor tables ----!
+       if (allocated(AFP)) deallocate(AFP)
+       allocate(AFP(Natm),stat=ierr)
+       if (ierr /=0) then
+          err_sfac=.true.
+          ERR_SFac_Mess="Error on memory for AFP"
+          return
+       end if
+       AFP=0.0
+
+       if (allocated(AFPP)) deallocate(AFPP)
+       allocate(AFPP(Natm),stat=ierr)
+       if (ierr /=0) then
+          err_sfac=.true.
+          ERR_SFac_Mess="Error on memory for AFPP"
+          return
+       end if
+       AFPP=0.0
+
+
+       !---- Table Fabc ----!
+       select case (tipo)
+          case ("XRA")
+             if (present(lambda)) then
+                if (present(lun)) then
+                   call Create_Table_Fabc_Xray(Atm,lambda,lun)
+                else
+                   call Create_Table_Fabc_Xray(Atm,lambda)
+                end if
+             else
+                if (present(lun)) then
+                   call Create_Table_Fabc_Xray(Atm,lun=lun)
+                else
+                   call Create_Table_Fabc_Xray(Atm)
+                end if
+             end if
+
+
+          case ("NUC")
+             if (present(lun)) then
+                call Create_Table_AFP_NeutNuc(Atm,lun=lun)
+             else
+                call Create_Table_AFP_NeutNuc(Atm)
+             end if
+
+       end select
+
+       if (.not. err_sfac) SF_Initialized=.true.
+
+       return
+    End Subroutine Init_hkl_Structure_Factors
+
+
+    !!----
     !!---- Subroutine Init_Structure_Factors(Reflex,Atm,Grp,Mode,lambda,lun)
     !!----    type(reflection_list_type),          intent(in) :: Reflex
-    !!----    type(atom_list_type),               intent(in) :: Atm
+    !!----    type(atom_list_type),                intent(in) :: Atm
     !!----    type(space_group_type),              intent(in) :: Grp
     !!----    character(len=*),          optional, intent(in) :: Mode
     !!----    real(kind=cp),             optional, intent(in) :: lambda
@@ -1167,7 +1737,6 @@
              if (Grp%Centred == 2) afp=2.0*afp
              if (Grp%NumLat  > 1) afp=Grp%NumLat*afp
 
-          case ("MAG")
        end select
 
        return
