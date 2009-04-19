@@ -1110,8 +1110,6 @@ Module CFML_ILL_Instrm_Data
        ! Using Current_data
        path = trim(ILL_data_directory)//Current_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
 
-       call IDebug('Este es el path: '//trim(path))
-
        inquire(file=trim(path),exist=exists)
        if (exists) return ! found numor so return
 

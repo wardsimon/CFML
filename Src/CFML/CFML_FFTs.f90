@@ -171,7 +171,7 @@
 Module CFML_FFT
    !---- Use Modules ----!
    use CFML_GlobalDeps, only : cp
-   
+
    !---- Local Variables ----!
    implicit none
 
@@ -181,13 +181,13 @@ Module CFML_FFT
 
    !---- List of public functions ----!
    public :: Convol, Convol_Peaks, F_FFT
-    
+
    !---- List of public overloaded procedures: functions ----!
    public :: FFT
 
    !---- List of public subroutines ----!
    public :: SFFT, HFFT
-    
+
    !---- List of public overloaded procedures: subroutines ----!
 
    !---- List of private functions ----!
@@ -230,7 +230,7 @@ Module CFML_FFT
    !!--++ Update: February - 2005
    !!
    Real(Fftkind), Parameter:: Pi    = 3.14159265358979323_Fftkind
-   
+
    !!--++
    !!--++ SIN60
    !!--++    Real(Fftkind), Parameter:: Sin60
@@ -241,7 +241,7 @@ Module CFML_FFT
    !!--++ Update: February - 2005
    !!
    Real(Fftkind), Parameter:: Sin60 = 0.86602540378443865_Fftkind
-   
+
    !!--++
    !!--++ SIN72
    !!--++    Real(Fftkind), Parameter:: Sin72
@@ -262,7 +262,7 @@ Module CFML_FFT
    !!--++ Update: February - 2005
    !!
    integer, private, Save     :: StatusF    !--- Shifted To Here As Elf90 Does Not Allow
-                                            !    Arguments To Be Intent(Out) 
+                                            !    Arguments To Be Intent(Out)
    !!----
    !!---- TYPE, public :: Points_Interval_Type
    !!--..
@@ -279,7 +279,7 @@ Module CFML_FFT
      real(kind=cp) :: Low
      real(kind=cp) :: High
    End Type Points_Interval_Type
-   
+
    !---- Interfaces - Overlapp ----!
    Interface Fft
       Module Procedure Fft1D
@@ -294,7 +294,7 @@ Module CFML_FFT
  Contains
 
     !---- Functions ----!
-    
+
     !!----
     !!---- Pure Function Convol(F,Pf,G,Pg,Interval)  Result(Conv)
     !!----    real(kind=cp),dimension(:),          intent(in) :: Pf
@@ -323,7 +323,7 @@ Module CFML_FFT
     !!----   the number of points and the limits of the interval
     !!----         Number of points:  Interval%np
     !!----     Range of calculation: [ Interval%low, Interval%high ]
-    !!----                    step : (Interval%high-Interval%low)/Interval%np
+    !!----                    step : (Interval%high-Interval%low)/(Interval%np-1)
     !!----   The convolution function is normalized to unit area .
     !!----
     !!----   Example of use:
@@ -433,10 +433,10 @@ Module CFML_FFT
     !!----   of the FWHM of peaks. The definition interval [a,b] of the peaks
     !!----   is calculated as: a=-b, with b=wd*FWHM=wd*pf(1).
     !!----   The number of points to calculate the convolution is "np".
-    !!----   Internally, the actual number of points "n". Conrresponding to
-    !!----   and increased value of np ut to the nearest higher power of 2.
+    !!----   Internally, the actual number of points "n". Corresponding to
+    !!----   and increased value of np up to the nearest higher power of 2.
     !!----   The convolution function is normalized to unit area .
-    !!----   The internal step is:  step=(b-a)/n
+    !!----   The internal step is:  step=(b-a)/(n-1)
     !!----   Example of use:
     !!----      h = convol_peaks (Pseudo_Voigt,P_PV, hat, P_hat, 15.0, 150)
     !!----   generates 150 values  h(i), i=1,150 corresponding to the convolution
@@ -709,7 +709,7 @@ Module CFML_FFT
 
        return
     End Function F_FFT
-    
+
     !!----
     !!---- Function Fft(Array, Dim, Inv) Result(Ft)
     !!----    complex(fftkind), dimension(:), intent(in)            :: array  !  In -> Complex array
@@ -1675,7 +1675,7 @@ Module CFML_FFT
        END SUBROUTINE permute
 
     End Subroutine Fftradix
-    
+
     !!----
     !!---- Pure Subroutine Hfft(Aa,Ifset,Iferr)
     !!----    complex, dimension(:),    intent (in out) :: AA      In -> Contains the complex 3D array to be transformed
