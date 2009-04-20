@@ -1132,8 +1132,8 @@
     !!----    reflections up to SinTLMax for a volume VolCell of the
     !!----    primitive cell. If the optional argument SinTLMin is given,
     !!----    the result is the number of reflections in the interval (SinTLMin,SinTLMax).
-    !!----    If Mult is provided the result is divided by this multiplicity
-    !!----    so we obtain the expected mumber of unique reflections.
+    !!----    If Mult is provided the result is divided by half this multiplicity
+    !!----    so we obtain an estimation of the expected mumber of unique reflections.
     !!----
     !!---- Update: February - 2005
     !!
@@ -1153,7 +1153,9 @@
        if (present(SinTLMin)) r3= r3-8.0*SinTLMin*SinTLMin*SinTLMin
 
        numref=4.0*pi*r3*VolCell/3.0
-       if (present(Mult)) numref=numref/max(1,Mult)
+       !The factor 2 is given because, for high symmetry, sometimes the obtained number is
+       !not enough for allocating the real number of reflections
+       if (present(Mult)) numref=2*numref/max(1,Mult)
 
        return
     End Function Get_MaxNumRef
