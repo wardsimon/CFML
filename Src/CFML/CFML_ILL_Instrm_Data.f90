@@ -168,6 +168,7 @@
 !!
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
+   !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
    Use CFML_Math_General,     only: cosd,sind, equal_vector
    use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
