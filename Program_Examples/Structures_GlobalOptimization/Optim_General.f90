@@ -1,6 +1,6 @@
 Program Optimizing_structures
    !---- Use Modules ----!
-   use f2kcli  !comment for non-Lahey
+   !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List

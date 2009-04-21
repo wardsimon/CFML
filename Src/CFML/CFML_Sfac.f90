@@ -1116,10 +1116,10 @@
 
        !---- Printing Information ----!
        if (present(lun)) then
-         if(present(elect) then
+         if(present(elect)) then
           write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  and Atomic Number "
           write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
-          write(unit=lun,fmt="(/,a)") &
+         write(unit=lun,fmt="(/,a)") &
                "   Atom     a1       b1       a2       b2       a3       b3       a4       b4        c       Z"
           do k=1,n
              j = jx(k)
