@@ -1060,7 +1060,7 @@
        if(allocated(FF_b)) deallocate (FF_b)
        if(allocated(FF_c)) deallocate (FF_c)
        if(allocated(FF_z)) deallocate (FF_z)
-       allocate(FF_a(4,n),FF_b(4,n),FF_c(n))
+       allocate(FF_a(4,n),FF_b(4,n),FF_c(n),FF_z(n))
        do k=1,n
           j = jx(k)
           i = ia(k)
@@ -2172,7 +2172,7 @@
        end if
 
        write(unit=lun,fmt="(/,a,/)") &
-            "   H   K   L   Mult    SinTh/Lda       dspc          |Fc|         Phase          F-Real        F-Imag       |Fc|^2      Num"
+ "   H   K   L   Mult    SinTh/Lda       dspc          |Fc|         Phase          F-Real        F-Imag       |Fc|^2      Num"
        do i=1,reflex%Nref
              write(unit=lun,fmt="(3i4,i5,6f14.5,f14.3,i8)") reflex%ref(i)%h, reflex%ref(i)%mult, &
                                  reflex%ref(i)%S,0.5/reflex%ref(i)%S, reflex%ref(i)%Fc, reflex%ref(i)%Phase,   &
