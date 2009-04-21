@@ -20,46 +20,47 @@
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case
 !!----
 !!---- VARIABLES
-!!--++    AF0                          [Private]
-!!--++    AFP                          [Private]
-!!--++    AFPP                         [Private]
-!!--++    AJH                          [Private]
-!!--++    BJH                          [Private]
+!!--++    AF0                             [Private]
+!!--++    AFP                             [Private]
+!!--++    AFPP                            [Private]
+!!--++    AJH                             [Private]
+!!--++    BJH                             [Private]
 !!----    ERR_SFAC
 !!----    ERR_SFAC_MESS
-!!--++    HR_TYPE                      [Private]
-!!--++    HR                           [Private]
-!!--++    HT                           [Private]
-!!--++    SF_INITIALIZED               [Private]
-!!--++    TH                           [Private]
+!!--++    HR_TYPE                         [Private]
+!!--++    HR                              [Private]
+!!--++    HT                              [Private]
+!!--++    SF_INITIALIZED                  [Private]
+!!--++    TH                              [Private]
 !!----
 !!---- PUBLIC PROCEDURES
 !!----    Functions:
-!!--++       FJ                        [Private]
+!!--++       FJ                           [Private]
 !!----
 !!----    Subroutines:
-!!--++       CALC_TABLE_AB             [Private]
-!!--++       CALC_TABLE_TH             [Private]
+!!--++       CALC_TABLE_AB                [Private]
+!!--++       CALC_TABLE_TH                [Private]
 !!----       CALC_HKL_STRFACTOR
 !!----       CALC_STRFACTOR
-!!--++       CREATE_TABLE_AF0_XRAY     [Private]
-!!--++       CREATE_TABLE_AFP_NEUTNUC  [Private]
-!!--++       CREATE_TABLE_FABC_XRAY    [Private]
-!!--++       CREATE_TABLE_HR_HT        [Private]
+!!--++       CREATE_TABLE_AF0_ELECTRONS   [Private]
+!!--++       CREATE_TABLE_AF0_XRAY        [Private]
+!!--++       CREATE_TABLE_AFP_NEUTNUC     [Private]
+!!--++       CREATE_TABLE_FABC_XRAY       [Private]
+!!--++       CREATE_TABLE_HR_HT           [Private]
 !!----       INIT_HKL_STRUCTURE_FACTORS
 !!----       INIT_STRUCTURE_FACTORS
 !!----       MODIFY_SF
-!!--++       SET_FIXED_TABLES          [Private]
+!!--++       SET_FIXED_TABLES             [Private]
 !!----       STRUCTURE_FACTORS
-!!--++       SUM_AB                    [Private]
-!!--++       SUM_AB_NEUTNUC            [Private]
+!!--++       SUM_AB                       [Private]
+!!--++       SUM_AB_NEUTNUC               [Private]
 !!----       WRITE_STRUCTURE_FACTORS
 !!----
 !!
  Module CFML_Structure_Factors
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                   only: cp, tpi
+    Use CFML_GlobalDeps,                  only: cp, tpi
     Use CFML_Math_General,                only: atan2d
     Use CFML_String_Utilities,            only: L_Case,U_Case
     Use CFML_Scattering_Chemical_Tables
@@ -85,7 +86,7 @@
     !---- List of private subroutines ----!
     private :: Calc_Table_AB, Create_Table_AF0_Xray, Create_Table_AFP_NeutNuc, &
                Create_Table_HR_HT, Set_Fixed_Tables, Calc_Table_TH, Sum_AB,    &
-               Sum_AB_NeutNuc, Create_Table_Fabc_Xray
+               Sum_AB_NeutNuc, Create_Table_Fabc_Xray, Create_Table_AF0_Electrons
 
     !---- Definitions ----!
 
@@ -170,20 +171,21 @@
 
 
     !!--++
-    !!--++ FF_A, FF_B, FF_C
+    !!--++ FF_A, FF_B, FF_C, FF_Z
     !!--++     real(kind=cp), dimension(:,:), allocatable, private :: FF_a,FF_b
     !!--++     real(kind=cp), dimension(  :), allocatable, private :: FF_c
     !!--++
     !!--++     Arrays for coefficients of X-rays scattering form factors.
     !!--++     The dimensions are: AFP(Nspecies)
-    !!--++      FF_A(4,Nspecies), FF_B(4,Nspecies), FF_C(Nspecies)
+    !!--++      FF_A(4,Nspecies), FF_B(4,Nspecies), FF_C(Nspecies), FF_Z(Nspecies)
     !!--++     Constructed in Create_Table_fabc_Xray(Atm,lambda,lun)
-    !!--++
+    !!--++     FF_Z contains atomic number Z (useful for electron diffraction)
     !!--++
     !!--++ Update: April - 2009
     !!
     real(kind=cp), dimension(:,:), allocatable, private :: FF_a, FF_b
     real(kind=cp), dimension(  :), allocatable, private :: FF_c
+    real(kind=cp), dimension(  :), allocatable, private :: FF_Z
 
     !!--++
     !!--++    Type :: HR_Type
@@ -715,20 +717,22 @@
        fr=1.0; fi=1.0
        if (Grp%Centred == 2) fr=2.0
        if (Grp%NumLat  > 1)  fi=Grp%NumLat
-       if(rad(1:1) == "N") then
-         afpxn(:)=fr*fi*afp(:)
-       else
-         do i=1,Nspecies
-           ff(i)=FF_c(i)
-           do j=1,4
-            ff(i)=ff(i)+FF_a(j,i)*exp(-sn*FF_b(j,i))
-           end do
-         end do
-         do i=1,Atm%natoms
-           j=P_a(i)   !pointer has been set up in Initialization subroutine
-           afpxn(i)= fr*fi*ff(j)
-         end do
-       end if
+       Select Case (rad(1:1))
+          Case("N")
+              afpxn(:)=fr*fi*afp(:)
+          Case("X","E")
+              do i=1,Nspecies
+                ff(i)=FF_c(i)
+                do j=1,4
+                 ff(i)=ff(i)+FF_a(j,i)*exp(-sn*FF_b(j,i))
+                end do
+                 if (rad(1:1) == "E") ff(i)=0.023934*(FF_Z(i)-ff(i))/sn !Mott-Bethe formula fe=me^2/(8pi Eps0 h^2) (Z-fx(s))/s^2
+              end do
+              do i=1,Atm%natoms
+                j=P_a(i)   !pointer has been set up in Initialization subroutine
+                afpxn(i)= fr*fi*ff(j)
+              end do
+       End Select
 
        fr=1.0
        fi=0.0
@@ -992,14 +996,16 @@
     !!--++    (Private)
     !!--++    Calculate a Table of Coefficients for Atomic Form Factors for X-Ray
     !!--++    ff_A(4,species),ff_B(4,Nspecies),ff_C(Nspecies), AFP(Nspecies), AFPP(Nspecies)
+    !!--++    ff_z(Nspecies) contains the atomic number of the chemical species (useful for Electron diffraction)
     !!--++    p_a(Natoms) => pointer to the species of each atom
     !!--++
     !!--++ Update: April - 2009
     !!
-    Subroutine Create_Table_fabc_Xray(Atm,lambda,lun)
+    Subroutine Create_Table_fabc_Xray(Atm,lambda,elect,lun)
        !---- Arguments ----!
        type(atom_list_type),       intent(in) :: Atm
        real(kind=cp), optional,    intent(in) :: lambda
+       integer, optional,          intent(in) :: elect
        integer, optional,          intent(in) :: lun
 
        !---- Local Variables ----!
@@ -1053,6 +1059,7 @@
        if(allocated(FF_a)) deallocate (FF_a)
        if(allocated(FF_b)) deallocate (FF_b)
        if(allocated(FF_c)) deallocate (FF_c)
+       if(allocated(FF_z)) deallocate (FF_z)
        allocate(FF_a(4,n),FF_b(4,n),FF_c(n))
        do k=1,n
           j = jx(k)
@@ -1060,13 +1067,20 @@
           FF_a(:,k)= xray_form(j)%a(:)
           FF_b(:,k)= xray_form(j)%b(:)
           FF_c(  k)= xray_form(j)%c
+          FF_z(  k)= xray_form(j)%Z
        end do
 
        if (present(lun)) then
-          write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
-          write(unit=lun,fmt="(a,/)") "  ==================================================="
+          if(present(elect)) then
+            write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS (For Electron Diffraction)"
+            write(unit=lun,fmt="(a,/)") "  =============================================================================="
+          else
+            write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS"
+            write(unit=lun,fmt="(a,/)") "  ==================================================="
+          end if
        End if
-       if (present(lambda)) then
+       if(.not. present(elect)) then
+        if (present(lambda)) then
           !---- Load anomalous scattering form factor values for XRays ----!
           call Set_Delta_Fp_Fpp()
 
@@ -1091,16 +1105,31 @@
              end do
           end do
           call Remove_Delta_Fp_Fpp()
-       else
+        else
            if (present(lun)) then
              write(unit=lun,fmt="(a)")    "  Missed lambda, anomalous dipersion corrections not applied   "
              write(unit=lun,fmt="(a)")    "  The default wavelength is that of Cu-Kalpha1 spectral line  "
            end if
-       end if
+        end if
+       end if !present(elect)
 
 
        !---- Printing Information ----!
        if (present(lun)) then
+         if(present(elect) then
+          write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  and Atomic Number "
+          write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
+          write(unit=lun,fmt="(/,a)") &
+               "   Atom     a1       b1       a2       b2       a3       b3       a4       b4        c       Z"
+          do k=1,n
+             j = jx(k)
+             i = ia(k)
+             write(unit=lun,fmt="(a,9F9.5,i7)")    &
+                           "     "//atm%atom(i)%chemsymb, &
+                           (xray_form(j)%a(L),xray_form(j)%b(L), L=1,4), xray_form(j)%c, &
+                           xray_form(j)%z
+          end do
+        else
           write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  Dfp  Dfpp "
           write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
           write(unit=lun,fmt="(/,a)") &
@@ -1113,6 +1142,7 @@
                            (xray_form(j)%a(L),xray_form(j)%b(L), L=1,4), xray_form(j)%c, &
                            afp(i), afpp(i)
           end do
+         end if
           write(unit=lun,fmt="(/,/)")
        end if
 
@@ -1120,6 +1150,95 @@
 
        return
     End Subroutine Create_Table_fabc_Xray
+
+    !!--++
+    !!--++ Subroutine Create_Table_AF0_Electrons(Reflex,Atm,lun)
+    !!--++    type(reflection_List_type), intent(in) :: Reflex
+    !!--++    type(atom_list_type),       intent(in) :: Atm
+    !!--++    integer, optional,          intent(in) :: lun
+    !!--++
+    !!--++    (Private)
+    !!--++    Calculate a Table of Atomic Factors for Electrons
+    !!--++    applying the Mott-Bethe formula:
+    !!--++    fe=me^2/(8pi Eps0 h^2) (Z-fx(s))/s^2
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Create_Table_AF0_Electrons(Reflex,Atm,lun)
+       !---- Arguments ----!
+       type(reflection_list_type), intent(in) :: Reflex
+       type(atom_list_type),       intent(in) :: Atm
+       integer, optional,          intent(in) :: lun
+
+       !---- Local Variables ----!
+       character(len=4)               :: symbcar
+       integer                        :: i,j, k,n,L
+       integer, dimension(atm%natoms) :: ix,jx,ia
+       real(kind=cp)                  :: dmin,d,fx
+
+       !---- Init ----!
+       err_sfac=.false.
+
+       !---- Load form factor values for XRay ----!
+       call Set_Xray_Form()
+
+       !---- Found Species on Xray_Form ----!
+       ix=0
+       jx=0
+       n=0
+       do i=1,atm%natoms
+          symbcar=l_case(atm%atom(i)%SfacSymb)
+          do j=1,Num_Xray_Form
+             if (symbcar /= Xray_form(j)%Symb) cycle
+             ix(i)=j
+             if(any(jx == j) ) exit
+             n=n+1
+             jx(n)=j
+             ia(n)=i
+             exit
+          end do
+       end do
+
+       if (present(lun)) then
+         write(unit=lun,fmt="(/,a)") "  INFORMATION FROM TABULATED X-RAY SCATTERING FACTORS (For Electron Diffraction)"
+          write(unit=lun,fmt="(a,/)") "  =============================================================================="
+       End if
+
+       if (any(ix==0)) then
+          err_sfac=.true.
+          ERR_SFac_Mess="The Species "//symbcar//" was not found"
+       else
+          !---- Fill AF Table ----!
+          do j=1,reflex%nref
+             do i=1,atm%natoms
+                fx=fj(reflex%ref(j)%s,xray_form(ix(i))%a,xray_form(ix(i))%b,xray_form(ix(i))%c)+afp(i)
+                !Mott-Bethe formula fe=me^2/(8pi Eps0 h^2) (Z-fx(s))/s^2
+                af0(i,j)=0.023934*(xray_form(ix(i))%Z-fx)/(reflex%ref(j)%s*reflex%ref(j)%s)
+             end do
+          end do
+       end if
+
+       !---- Printing Information ----!
+       if (present(lun)) then
+          write(unit=lun,fmt="(/,a,/)")    "   ATOMIC SCATTERING FACTOR COEFFICIENTS: {A(i),B(i),I=1,4},C  and Atomic Number "
+          write(unit=lun,fmt="(a,i3)")     "   Number of chemically different species: ",n
+          write(unit=lun,fmt="(/,a)") &
+               "   Atom     a1       b1       a2       b2       a3       b3       a4       b4        c       Z"
+          do k=1,n
+             j = jx(k)
+             i = ia(k)
+             write(unit=lun,fmt="(a,9F9.5,i7)")    &
+                           "     "//atm%atom(i)%chemsymb, &
+                           (xray_form(j)%a(L),xray_form(j)%b(L), L=1,4), xray_form(j)%c, &
+                            xray_form(j)%Z
+          end do
+          write(unit=lun,fmt="(/,/)")
+       end if
+
+       call Remove_Xray_Form()
+
+       return
+    End Subroutine Create_Table_AF0_Electrons
 
     !!--++
     !!--++ Subroutine Create_Table_AF0_Xray(Reflex,Atm,lambda,lun)
@@ -1392,6 +1511,7 @@
 
        !---- Table Fabc ----!
        select case (tipo)
+
           case ("XRA")
              if (present(lambda)) then
                 if (present(lun)) then
@@ -1405,6 +1525,14 @@
                 else
                    call Create_Table_Fabc_Xray(Atm)
                 end if
+             end if
+
+          case ("ELE")
+
+             if (present(lun)) then
+                call Create_Table_Fabc_Xray(Atm,lun=lun)
+             else
+                call Create_Table_Fabc_Xray(Atm)
              end if
 
 
@@ -1683,11 +1811,10 @@
 
        !---- Recalculation of SF ----!
        if(present(mode)) then
-         if(mode == "XRA") then
+         if(mode == "XRA" .or. mode == "ELE") then
             call Sum_AB(Reflex,Atm%Natoms,Grp%Centred)
          else if(mode == "NUC") then
             call Sum_AB_NeutNuc(Reflex,Atm%Natoms,Grp%Centred)
-         else if(mode == "MAG") then
          end if
        else
          call Sum_AB(Reflex,Atm%Natoms,Grp%Centred)
@@ -1715,7 +1842,7 @@
     Subroutine Set_Fixed_Tables(Reflex,Atm,Grp,Mode,lambda,lun)
        !---- Arguments ----!
        type(reflection_list_type),         intent(in) :: Reflex
-       type(atom_list_type),              intent(in) :: Atm
+       type(atom_list_type),               intent(in) :: Atm
        type(space_group_type),             intent(in) :: Grp
        character(len=*), optional,         intent(in) :: Mode
        real(kind=cp), optional,            intent(in) :: lambda
@@ -1733,6 +1860,7 @@
 
        !---- Table AF0 ----!
        select case (tipo)
+
           case ("XRA")
              if (present(lambda)) then
                 if (present(lun)) then
@@ -1759,6 +1887,27 @@
              if (Grp%NumLat  > 1) then
                 af0=Grp%NumLat*af0
                 afpp=Grp%NumLat*afpp
+             end if
+
+          case ("ELE")
+
+             if (present(lun)) then
+                call Create_Table_AF0_Electrons(Reflex,Atm,lun=lun)
+             else
+                call Create_Table_AF0_Electrons(Reflex,Atm)
+             end if
+
+             !---- Modify the scattering factor tables to include the
+             !---- multipliers factors concerning centre of symmetry and
+             !---- centred translations
+             if (Grp%Centred == 2) then
+                af0=2.0*af0
+                afpp=0.0
+             end if
+
+             if (Grp%NumLat  > 1) then
+                af0=Grp%NumLat*af0
+                afpp=0.0
              end if
 
           case ("NUC")
@@ -1836,7 +1985,7 @@
 
        !---- Final Calculation ----!
        if(present(mode)) then
-         if(mode == "XRA") then
+         if(mode == "XRA" .or. mode == "ELE" ) then
             call Sum_AB(Reflex,Atm%Natoms,Grp%Centred)
          else if(mode == "NUC") then
             call Sum_AB_NeutNuc(Reflex,Atm%Natoms,Grp%Centred)
@@ -2010,6 +2159,9 @@
            Case("NUC","nuc")
              write(unit=lun,fmt="(/,/,a)") "    LIST OF REFLECTIONS AND STRUCTURE FACTORS(NEUTRONS)"
              write(unit=lun,fmt="(a)")     "    ==================================================="
+           Case("ELE","ele")
+             write(unit=lun,fmt="(/,/,a)") "    LIST OF REFLECTIONS AND STRUCTURE FACTORS(ELECTRONS)"
+             write(unit=lun,fmt="(a)")     "    ===================================================="
            Case default
              write(unit=lun,fmt="(/,/,a)") "    LIST OF REFLECTIONS AND STRUCTURE FACTORS(X-RAYS)"
              write(unit=lun,fmt="(a)")     "    ================================================="
@@ -2020,9 +2172,9 @@
        end if
 
        write(unit=lun,fmt="(/,a,/)") &
-            "   H   K   L   Mult  SinTh/Lda     dspc        |Fc|       Phase        F-Real      F-Imag       |Fc|^2    Num"
+            "   H   K   L   Mult    SinTh/Lda       dspc          |Fc|         Phase          F-Real        F-Imag       |Fc|^2      Num"
        do i=1,reflex%Nref
-             write(unit=lun,fmt="(3i4,i5,7f12.5,i8)") reflex%ref(i)%h, reflex%ref(i)%mult, &
+             write(unit=lun,fmt="(3i4,i5,6f14.5,f14.3,i8)") reflex%ref(i)%h, reflex%ref(i)%mult, &
                                  reflex%ref(i)%S,0.5/reflex%ref(i)%S, reflex%ref(i)%Fc, reflex%ref(i)%Phase,   &
                                  reflex%ref(i)%a, reflex%ref(i)%b, reflex%ref(i)%Fc*reflex%ref(i)%Fc,i
        end do

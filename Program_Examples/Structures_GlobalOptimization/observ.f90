@@ -1,5 +1,5 @@
   Module observed_reflections
-    Use CFML_Constants,                  only: sp
+    Use CFML_GlobalDeps,                 only: sp
     Use CFML_Math_General,               only: sort
     use CFML_Reflections_Utilities,      only: Reflection_List_Type, hkl_mult, hkl_equiv,hkl_s
     use CFML_String_Utilities,           only: number_lines, u_Case, get_logunit

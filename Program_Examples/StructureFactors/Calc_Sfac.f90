@@ -103,7 +103,7 @@ Program Calc_Structure_Factors
       call Structure_Factors(A,SpG,hkl,mode="NUC")
       call Write_Structure_Factors(lun,hkl,mode="NUC")
 
-      !> Test of the new structure factor subroutine
+      !> Test of another structure factor subroutine
       write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
       do i=1, hkl%nref
          sn=hkl%ref(i)%s * hkl%ref(i)%s
@@ -117,14 +117,11 @@ Program Calc_Structure_Factors
       call Structure_Factors(A,SpG,hkl)
       call Write_Structure_Factors(lun,hkl)
 
-      !> Test of the new structure factor subroutine
-      write(unit=lun,fmt="(/,a,/)") "   H   K   L   Mult  SinTh/Lda    |Fc|       Phase        F-Real      F-Imag      Num"
-      do i=1, hkl%nref
-         sn=hkl%ref(i)%s * hkl%ref(i)%s
-         call Calc_StrFactor("P","X",i,sn,A,Spg,sf2,fc=fc)
-         write(unit=lun,fmt="(3i4,i5,5f12.5,i8,f12.5)") hkl%ref(i)%h, hkl%ref(i)%mult, &
-              hkl%ref(i)%S, hkl%ref(i)%Fc, hkl%ref(i)%Phase, real(fc), aimag(fc), i, sqrt(sf2)
-      end do
+      !> Calculation for Electron Diffraction
+      call Init_Structure_Factors(hkl,A,Spg,Mode="ELE",lun=lun)
+      call Structure_Factors(A,SpG,hkl,Mode="ELE")
+      call Write_Structure_Factors(lun,hkl,Mode="ELE")
+
       write(unit=*,fmt="(a)") " Normal End of: PROGRAM STRUCTURE FACTORS "
       write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".sfa"
    end if

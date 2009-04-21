@@ -44,7 +44,7 @@
 
       integer,         public :: Max_Coor
       real,            public :: Dmax,wavel
-      character(len=3),public :: diff_mode="NUC"   ! XRA for x-rays
+      character(len=3),public :: diff_mode="NUC"   ! XRA for x-rays, ELE for electrons
 
     Contains
 
@@ -178,6 +178,9 @@
               case ("radi")    !Radiation
                  i=index(line,"xra")
                  if(i /= 0) diff_mode="XRA"
+
+                 i=index(line,"elect")
+                 if(i /= 0) diff_mode="ELE"
 
               case ("wave")    !Wavelength
                  read(unit=line(5:),fmt=*,iostat=ier) w
