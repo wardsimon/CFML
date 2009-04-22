@@ -17,7 +17,7 @@
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!--++    Use CFML_String_Utilities,          only: l_case
 !!--++    Use CFML_Math_General,              only: sort,sp
-!!--++    Use CFML_GlobalDeps,                 only: sp
+!!--++    Use CFML_GlobalDeps,                only: sp
 !!----
 !!---- VARIABLES
 !!----    ERR_REFL
@@ -1572,7 +1572,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function HS_I (H,Crystalcell) Result(S)
+    Function HS_I(H,Crystalcell) Result(S)
        !---- Arguments ----!
        integer, dimension(3),    intent(in)  :: h
        type (Crystal_Cell_Type), intent (in) :: CrystalCell
@@ -1595,7 +1595,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function HS_R (H,Crystalcell) Result(S)
+    Function HS_R(H,Crystalcell) Result(S)
        !---- Arguments ----!
        real(kind=cp), dimension(3),intent(in)  :: h
        type (Crystal_Cell_Type),   intent (in) :: CrystalCell
@@ -1676,7 +1676,6 @@
 
        return
     End Function Unit_Cart_HklR
-
 
     !---- Subroutines ----!
 

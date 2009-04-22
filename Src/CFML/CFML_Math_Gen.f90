@@ -84,9 +84,15 @@
 !!--++       LOCATE_I                  [Overloaded]
 !!--++       LOCATE_R                  [Overloaded]
 !!----       MODULO_LAT
+!!----       NORM
+!!--++       NORM_I                    [Overloaded]
+!!--++       NORM_R                    [Overloaded]
 !!----       OUTERPROD
 !!--++       OUTERPROD_dp              [Overloaded]
 !!--++       OUTERPROD_sp              [Overloaded]
+!!----       SCALAR
+!!--++       SCALAR_I                  [Overloaded]
+!!--++       SCALAR_R                  [Overloaded]
 !!----       TRAZA
 !!--++       TRAZA_C                   [Overloaded]
 !!--++       TRAZA_I                   [Overloaded]
@@ -165,19 +171,20 @@
  Module CFML_Math_General
     !---- Use Modules ----!
     Use CFML_GlobalDeps
-    
+
     !---- Variables ----!
     implicit none
-    
+
     private
 
     !---- List of public functions ----!
     public :: Bessj0, Bessj1, Bessj, Factorial, Pgcd, Ppcm, Modulo_Lat, Co_Prime
 
+
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Traza,    &
-              Zbelong, Imaxloc, Iminloc
+              Zbelong, Imaxloc, Iminloc, Norm, Scalar
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -186,7 +193,8 @@
                Co_linear_C, Co_linear_I, Co_linear_R, Equal_Matrix_I,              &
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
                Outerprod_dp, Outerprod_sp, Traza_C, Traza_I, Traza_R, ZbelongM,    &
-               ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I
+               ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
+               Norm_I, Norm_R, Scalar_I, Scalar_R
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,     &
@@ -326,10 +334,20 @@
        Module Procedure Locate_R
     End Interface
 
+    Interface Norm
+       Module Procedure Norm_I
+       Module Procedure Norm_R
+    End Interface Norm
+
     Interface  Outerprod
        Module Procedure Outerprod_dp
        Module Procedure Outerprod_sp
     End Interface
+
+    Interface Scalar
+       Module Procedure Scalar_I
+       Module Procedure Scalar_R
+    End Interface Scalar
 
     Interface  Traza
        Module Procedure Traza_C
@@ -1425,7 +1443,7 @@
          cop=.false.
          exit
       end do do_p
-      
+
       return
     End Function Co_Prime
 
@@ -1799,6 +1817,65 @@
     End Function  Modulo_Lat
 
     !!----
+    !!---- Function Norm(X,G) Result(R)
+    !!----    real(kind=cp)/integer, dimension(:),   intent(in) :: x
+    !!----    real(kind=cp),         dimension(:,:), intent(in) :: x
+    !!----
+    !!----    Calculate the Norm of a vector
+    !!----
+    !!---- Update: April - 2009
+    !!
+
+    !!--++
+    !!--++ Function Norm_I(X,G) Result(R)
+    !!--++    integer,      dimension(:),   intent(in) :: x
+    !!--++    real(kind=cp),dimension(:,:), intent(in) :: x
+    !!--++
+    !!--++    Calculate the Norm of a vector
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Norm_I(X,G) Result(R)
+       !---- Arguments ----!
+       integer,       dimension(:),   intent(in) :: x
+       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp)                             :: r
+
+       if (size(x)*size(x) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=sqrt(dot_product(real(x), matmul(g,real(x))))
+       end if
+
+       return
+    End Function Norm_I
+
+    !!--++
+    !!--++ Function Norm_R(X,G) Result(R)
+    !!--++    real(kind=cp),dimension(:),   intent(in) :: x
+    !!--++    real(kind=cp),dimension(:,:), intent(in) :: x
+    !!--++
+    !!--++    Calculate the Norm of a vector
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Norm_R(X,G) Result(R)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:),   intent(in) :: x
+       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp)                             :: r
+
+       if (size(x)*size(x) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=sqrt(dot_product(x, matmul(g,x)))
+       end if
+
+       return
+    End Function Norm_R
+
+
+    !!----
     !!---- Function Outerprod(a,b) Result(c)
     !!----    real(sp/dp),dimension(:),intent(in)    :: a,b
     !!----    real(sp/dp),dimension(size(a),size(b)) :: c
@@ -1863,6 +1940,69 @@
 
        return
     End Function Outerprod_sp
+
+    !!----
+    !!---- Function Scalar(X,Y,G) Result(R)
+    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: x
+    !!----    integer/real(kind=cp), dimension(:),   intent(in) :: y
+    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
+    !!----
+    !!----    Scalar Product including metrics
+    !!----
+    !!---- Update: April - 2009
+    !!
+
+    !!--++
+    !!--++ Function Scalar_R(X,Y,G) Result(R)
+    !!--++    integer, dimension(:),   intent(in) :: x
+    !!--++    integer, dimension(:),   intent(in) :: y
+    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++
+    !!--++    Scalar Product including metrics
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Scalar_I(X,Y,G) Result(R)
+       !---- Arguments ----!
+       integer, dimension(:),   intent(in) :: x
+       integer, dimension(:),   intent(in) :: y
+       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp)                             :: r
+
+       if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=dot_product(real(x), matmul(g,real(y)))
+       end if
+
+       return
+    End Function Scalar_I
+
+    !!--++
+    !!--++ Function Scalar_R(X,Y,G) Result(R)
+    !!--++    real(kind=cp), dimension(:),   intent(in) :: x
+    !!--++    real(kind=cp), dimension(:),   intent(in) :: y
+    !!--++    real(kind=cp), dimension(:,:), intent(in) :: g
+    !!--++
+    !!--++    Scalar Product including metrics
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Function Scalar_R(X,Y,G) Result(R)
+       !---- Arguments ----!
+       real(kind=cp), dimension(:),   intent(in) :: x
+       real(kind=cp), dimension(:),   intent(in) :: y
+       real(kind=cp), dimension(:,:), intent(in) :: g
+       real(kind=cp)                             :: r
+
+       if (size(x)/= size(y) .or. size(x)*size(x) /= size(g)) then
+          r=tiny(0.0)
+       else
+          r=dot_product(x, matmul(g,y))
+       end if
+
+       return
+    End Function Scalar_R
 
     !!----
     !!---- Function Traza(A)
@@ -2507,10 +2647,10 @@
 
     !!----
     !!---- Subroutine In_Sort(id,n,p,q)
-    !!----    integer, dimension(:), intent(in) :: id  !Integer array to be sorted                    
-    !!----    integer,               intent(in) :: n   !Number items in the array                     
-    !!----    integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call  
-    !!----    integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id            
+    !!----    integer, dimension(:), intent(in) :: id  !Integer array to be sorted
+    !!----    integer,               intent(in) :: n   !Number items in the array
+    !!----    integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
+    !!----    integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
     !!--<<
     !!----    Subroutine to order in ascending mode the integer array "id".
     !!----    The input value "n" is the number of items to be ordered in "id".
@@ -2526,7 +2666,7 @@
        integer,               intent(in) :: n   !Number items in the array
        integer, dimension(:), intent(in) :: p   !Initial pointer from a previous related call
        integer, dimension(:), intent(out):: q   !Final pointer doing the sort of id
-      
+
        !--- Local Variables ----!
        integer :: i,j,k,l,m
        integer, dimension(:),allocatable :: it
@@ -2553,10 +2693,10 @@
           j=it(j)
           q(j)=p(i)
        end do
-      
+
        return
     End Subroutine In_Sort
-    
+
     !!----
     !!---- Subroutine Invert_Matrix(a,b,singular,perm)
     !!----    real(kind=cp), dimension(:,:),  intent( in) :: a
