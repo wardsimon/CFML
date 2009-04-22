@@ -183,7 +183,7 @@
                  else
                    if(coordone) then
                      Icost(8)=1
-                     read(unit=line(i+11:),fmt=*,iostat=ier) w
+                     read(unit=line(i+12:),fmt=*,iostat=ier) w
                     if(ier /= 0) then
                         wcost(8)=1.0
                      else
@@ -334,7 +334,7 @@
        !---- Local variables ----!
        character(len=132)   :: line
        real                 :: w,tol
-       integer              :: i,ier
+       integer              :: i,ier,j
 
 
        Write(unit=lun,fmt="(/,a)")    "====================================="
@@ -389,9 +389,14 @@
 
               case (8)    !Optimization "Coordination"
 
-                 Write(unit=lun,fmt="(a,f8.4,a,f12.4)") &
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
                  "  => Cost(Coordination): Optimization of C8=Sum|Coord-Efcn|/Sum|Coord|, with weight: ",wcost(i),&
                  "  Final Cost: ",P_cost(8)
+                 do j=1,Ac%natoms
+                   if(Ac%Atom(j)%varF(4) < 0.001) cycle
+                   Write(unit=lun,fmt="(a,2f8.4)")  "  Obs-Calc Coordination for Atom "//trim(Ac%Atom(j)%lab), &
+                                                    Ac%Atom(j)%varF(4),Ac%Atom(j)%varF(3)
+                 end do
 
 
           end select
@@ -736,9 +741,9 @@
        real, dimension(3) :: x1,x2,tr
 
        cost=0.0
-       do i=1,A%natoms
-          if(A%Atom(i)%varF(4) < 0.001) cycle
-          delta=abs(A%Atom(i)%varF(4)-A%Atom(i)%varF(3))
+       do i=1,Ac%natoms
+          if(Ac%Atom(i)%varF(4) < 0.001) cycle
+          delta=abs(Ac%Atom(i)%varF(4)-Ac%Atom(i)%varF(3))
           cost= cost+delta
        end do
        cost=cost*coord_T
