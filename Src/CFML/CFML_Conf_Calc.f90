@@ -804,7 +804,7 @@
     !!----
     !!----    Subroutine to calculate the Global Instability Index.
     !!----    Before calling this subroutine it is the responsibility of the calling
-    !!----    program to make a previous call to "Calc_TDist_Coordination" in order
+    !!----    program to make a previous call to "Set_TDist_Coordination" in order
     !!----    to update the internal private variables related to distance/angle calculations.
     !!----    Needs as input the object A (of type atom_Conf_list_type, that
     !!----    should be allocated in the calling program).
@@ -821,7 +821,7 @@
 
        !---- Local variables ----!
        integer       :: i,j,k,icm,l,sig1,sig2
-       real(kind=cp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c
+       real(kind=cp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c,efcn
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -835,7 +835,8 @@
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
           sig1=SIGN(1.0,q1)
-         sums=0.0
+          sums=0.0
+          efcn=0.0
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
@@ -843,11 +844,12 @@
              if (sig1 == sig2) cycle
              dd=coord_info%dist(i,j)
              if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
+             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)             
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1) !Occupacy
              sums=sums+bv
           end do
-
+          A%Atom(i)%varF(3)=efcn
           del=sums-ABS(q1)
 
           fact=A%Atom(i)%VarF(1)*real(A%atom(i)%mult)
@@ -878,7 +880,7 @@
     !!----    Simulated Annealing", Nature 346, 343-345 (1990).
     !!---
     !!----    Before calling this subroutine it is the responsibility of the calling
-    !!----    program to make a previous call to "Calc_TDist_Coordination" in order
+    !!----    program to make a previous call to "Set_TDist_Coordination" in order
     !!----    to update the internal Coord_Info variables related to distance and
     !!----    angle calculations.
     !!----    Needs as input the object A (of type atom_Conf_list_type, that
@@ -896,7 +898,7 @@
 
        !---- Local variables ----!
        integer        :: i,j,k,icm,l,sig1,sig2
-       real(kind=cp)  :: tol,fact,q2,dd,sums,q1, del, bv
+       real(kind=cp)  :: tol,fact,q2,dd,sums,q1, del, bv,efcn
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -911,7 +913,8 @@
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
           sig1=SIGN(1.0,q1)
-         sums=0.0
+          sums=0.0
+          efcn=0.0
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
@@ -922,6 +925,7 @@
                 cycle
              end if
              if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
+             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)             
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              sums=sums+bv
@@ -930,10 +934,9 @@
           del=sums-ABS(q1)
           fact=A%Atom(i)%VarF(1)*real(A%atom(i)%mult)
           gii=gii+abs(del)*fact
-
+          A%Atom(i)%varF(3)=efcn
        end do
        gii=gii*100.0/A%totatoms
-
 
        return
     End Subroutine Cost_BVS_CoulombRep
@@ -2135,7 +2138,7 @@
          A%totatoms=0.0
          do i=1,a%natoms
             fact=real(MulG)/real(a%atom(i)%mult)
-            A%Atom(i)%VarF(1)=A%atom(i)%occ*fact*fac1  !Site Occupancy (=1, full occupation)
+            A%Atom(i)%VarF(1)=A%atom(i)%occ*fact*fac1      !Site Occupancy (=1, full occupation)
             A%Atom(i)%VarF(2)=A%atom(i)%occ_std*fact*fac1  !standard deviation of Site Occupancy
             A%totatoms=A%totatoms + A%Atom(i)%VarF(1)*real(a%atom(i)%mult) !total number of atoms/conventional unit cell
          end do

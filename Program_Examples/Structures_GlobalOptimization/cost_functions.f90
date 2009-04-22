@@ -37,13 +37,14 @@
       type (Reflection_List_Type),  public :: hkl
       type (Observation_List_Type), public :: Oh
 
-      Integer, parameter,           public :: N_costf=7
+      Integer, parameter,           public :: N_costf=8
       Integer,dimension(N_costf),   public :: Icost
       real,   dimension(N_costf),   public :: Wcost
       real,   dimension(N_costf),   public :: P_cost !Partial cost
 
       integer,         public :: Max_Coor
       real,            public :: Dmax,wavel
+      real                    :: coord_T
       character(len=3),public :: diff_mode="NUC"   ! XRA for x-rays, ELE for electrons
 
     Contains
@@ -165,6 +166,24 @@
                    end if
                  end if
 
+                 i=index(line,"coordination")
+                 if(i == 0) then
+                   Icost(8)=0; wcost(8)=0.0
+                 else
+                   Icost(8)=1
+                   read(unit=line(i+11:),fmt=*,iostat=ier) w
+                  if(ier /= 0) then
+                      wcost(8)=1.0
+                   else
+                      wcost(8)= w
+                   end if
+                   !Calculate the total coordination from the atom list
+                   coord_T=0.0
+                   do i=1,A%natoms
+                      coord_T= coord_T + A%Atom(i)%varF(4)
+                   end do
+                 end if
+
               case ("dmax")
 
                  read(unit=line(5:),fmt=*,iostat=ier) w
@@ -280,6 +299,10 @@
                  Write(unit=lun,fmt="(a,f8.4)") &
                  "  => Cost(FoFc-Powder): Optimization of C7=Sum|Gobs-Sum(Fcal)|/Sum|Gobs|, with weight: ",wcost(i)
 
+              case (8)    !Optimization "Coordination"
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(Coordination): Optimization of C8=Sum|Coord-Efcn|/Sum|Coord|, with weight: ",wcost(i)
+
 
           end select
 
@@ -347,6 +370,12 @@
                  Write(unit=lun,fmt="(a,f8.4,a,f12.4)") &
                  "  => Cost(FoFc-Powder): Optimization of C7=Sum|Gobs-Sum(Fcal)|/Sum|Gobs|, with weight: ",wcost(i),&
                  "  Final Cost: ",P_cost(7)
+
+              case (8)    !Optimization "Coordination"
+
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4)") &
+                 "  => Cost(Coordination): Optimization of C8=Sum|Coord-Efcn|/Sum|Coord|, with weight: ",wcost(i),&
+                 "  Final Cost: ",P_cost(8)
 
 
           end select
@@ -417,8 +446,12 @@
                      call Cost_FoFc_powder(P_cost(7))
                      cost=cost+ P_cost(7)* WCost(7)
 
-               case(8)      !Anti-Bumb functions
-               case(9)      !Potential
+               case(8)      !Coordination
+                     call Cost_Coordination(P_cost(8))
+                     cost=cost+ P_cost(8)* WCost(8)
+
+               case(9)      !Anti-Bumb functions
+               case(10)     !Potential
 
             End Select
          end do
@@ -466,8 +499,12 @@
                      call Cost_FoFc_powder(P_cost(7))
                      cost=cost+ P_cost(7)* WCost(7)
 
-               case(8)      !Anti-Bumb functions
-               case(9)      !Potential
+               case(8)      !Coordination
+                     call Cost_Coordination(P_cost(8))
+                     cost=cost+ P_cost(8)* WCost(8)
+
+               case(9)      !Anti-Bumb functions
+               case(10)      !Potential
 
             End Select
          end do
@@ -537,8 +574,12 @@
                      call Cost_FoFc_powder(P_cost(7))
                      cost=cost+ P_cost(7)* WCost(7)
 
-               case(8)      !Anti-Bumb functions
-               case(9)      !Potential
+               case(8)      !Coordination
+                     call Cost_Coordination(P_cost(8))
+                     cost=cost+ P_cost(8)* WCost(8)
+
+               case(9)      !Anti-Bumb functions
+               case(10)      !Potential
 
             End Select
          end do
@@ -586,8 +627,12 @@
                      call Cost_FoFc_powder(P_cost(7))
                      cost=cost+ P_cost(7)* WCost(7)
 
-               case(8)      !Anti-Bumb functions
-               case(9)      !Potential
+               case(8)      !Coordination
+                     call Cost_Coordination(P_cost(8))
+                     cost=cost+ P_cost(8)* WCost(8)
+
+               case(9)      !Anti-Bumb functions
+               case(10)      !Potential
 
 
             End Select
@@ -666,6 +711,23 @@
 
        return
     End Subroutine Cost_Dis_Rest_Partial
+
+    Subroutine Cost_Coordination(cost)
+       real,      intent(out):: cost
+       !---- Local variables ----!
+       integer :: i, nop, i1,i2
+       real    :: w, delta
+       real, dimension(3) :: x1,x2,tr
+
+       cost=0.0
+       do i=1,A%natoms
+          if(A%Atom(i)%varF(4) < 0.001) cycle
+          delta=abs(A%Atom(i)%varF(4)-A%Atom(i)%varF(3))
+          cost= cost+delta
+       end do
+       cost=cost/coord_T
+       return
+    End Subroutine Cost_Coordination
 
     Subroutine Cost_Dis_Rest(cost)
        real,      intent(out):: cost
