@@ -47,7 +47,7 @@
 !!
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
-    Use CFML_GlobalDeps,                  only: Sp,Cp
+    Use CFML_GlobalDeps,                 only: Sp,Cp
     Use CFML_Math_General,               only: Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
@@ -798,9 +798,9 @@
 
     !!----
     !!---- Subroutine Cost_BVS(A, GII, gic)
-    !!----    type (Atoms_Conf_List_type),  intent(in)   :: A    !  In  -> Object of Atoms_Conf_List_type
-    !!----    real(kind=cp),                intent(out)  :: GII  !  OUT -> Global instability index
-    !!----    character(len=*),   optional, intent(in)   :: gic  ! If present GII_c is put in GII
+    !!----    type (Atoms_Conf_List_type),  intent(in out) :: A    !  In  -> Object of Atoms_Conf_List_type
+    !!----    real(kind=cp),                intent(out)    :: GII  !  OUT -> Global instability index
+    !!----    character(len=*),   optional, intent(in)     :: gic  ! If present GII_c is put in GII
     !!----
     !!----    Subroutine to calculate the Global Instability Index.
     !!----    Before calling this subroutine it is the responsibility of the calling
@@ -815,9 +815,9 @@
     !!
     Subroutine Cost_BVS(A, GII,gic)
        !---- Arguments ----!
-       type (Atoms_Conf_List_type),  intent(in)  :: A    !  In -> Object of Atoms_Conf_List_type
-       real(kind=cp),                intent(out) :: GII  !  GII_a
-       character(len=*),   optional, intent(in)  :: gic  !  If present GII_c is put in GII
+       type (Atoms_Conf_List_type),  intent(in out)  :: A    !  In -> Object of Atoms_Conf_List_type
+       real(kind=cp),                intent(out)     :: GII  !  GII_a
+       character(len=*),   optional, intent(in)      :: gic  !  If present GII_c is put in GII
 
        !---- Local variables ----!
        integer       :: i,j,k,icm,l,sig1,sig2
@@ -844,7 +844,7 @@
              if (sig1 == sig2) cycle
              dd=coord_info%dist(i,j)
              if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
-             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)             
+             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1) !Occupacy
              sums=sums+bv
@@ -866,9 +866,9 @@
 
     !!----
     !!---- Subroutine Cost_BVS_CoulombRep(A, GII, ERep)
-    !!----    type (Atoms_Conf_List_type),  intent(in)   :: A     !  In  -> Object of Atoms_Conf_List_type
-    !!----    real(kind=cp),                intent(out)  :: GII   !  OUT -> Global instability index
-    !!----    real(kind=cp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
+    !!----    type (Atoms_Conf_List_type),  intent(in out):: A     !  In  -> Object of Atoms_Conf_List_type
+    !!----    real(kind=cp),                intent(out)   :: GII   !  OUT -> Global instability index
+    !!----    real(kind=cp),                intent(out)   :: ERep   !  Pseudo Repulsion Coulomb "energy"
     !!----
     !!----
     !!----    Subroutine to calculate the Global Instability Index Gii_a and
@@ -892,9 +892,9 @@
     !!
     Subroutine Cost_BVS_CoulombRep(A, GII, ERep)
        !---- Arguments ----!
-       type (Atoms_Conf_List_type),  intent(in)  :: A      !  In -> Object of Atoms_Conf_List_type
-       real(kind=cp),                intent(out) :: GII    !  GII_a
-       real(kind=cp),                intent(out) :: ERep   !  Pseudo Repulsion Coulomb "energy"
+       type (Atoms_Conf_List_type),  intent(in out):: A      !  In -> Object of Atoms_Conf_List_type
+       real(kind=cp),                intent(out)   :: GII    !  GII_a
+       real(kind=cp),                intent(out)   :: ERep   !  Pseudo Repulsion Coulomb "energy"
 
        !---- Local variables ----!
        integer        :: i,j,k,icm,l,sig1,sig2
@@ -925,7 +925,7 @@
                 cycle
              end if
              if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
-             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)             
+             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              sums=sums+bv
