@@ -12,7 +12,7 @@
 !!----
 !!---- DEPENDENCIES
 !!----
-!!--++    Use CFML_GlobalDeps,                 only: Cp, Pi
+!!--++    Use CFML_GlobalDeps,                only: Cp, Pi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
 !!--++    Use CFML_Math_3D,                   only: matrix_diageigen
 !!--++    Use CFML_String_Utilities,          only: setnum_std
@@ -37,7 +37,7 @@
 !!---- PROCEDURES
 !!----    Functions:
 !!----       EQUIV_ATM
-!!----       WRT_LAB        
+!!----       WRT_LAB
 !!----
 !!----    Subroutines:
 !!----       ALLOCATE_ATOMS_CELL
@@ -62,7 +62,7 @@
  Module CFML_Atom_TypeDef
 
     !---- Use Files ----!
-    Use CFML_GlobalDeps,                 only: Cp, Pi
+    Use CFML_GlobalDeps,                only: Cp, Pi
     Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
     Use CFML_String_Utilities,          only: setnum_std
     Use CFML_Math_3D,                   only: matrix_diageigen
