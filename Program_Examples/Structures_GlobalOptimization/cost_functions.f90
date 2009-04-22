@@ -57,11 +57,13 @@
        character(len=132)   :: line
        real                 :: w,tol
        integer              :: i,ier,j
+       logical              :: coordone
 
 
        Icost=0
        wcost=0.0
        dmax=3.2
+       coordone=.false.
 
        do j=1,file_dat%nlines
           line=adjustl(file_dat%line(j))
@@ -72,6 +74,15 @@
           if( i /= 0) line=trim(line(1:i-1))
 
           select case (line(1:4))
+
+              case ("coor")    !Expected coordinations (atoms are already known)
+                               !coordination
+                 read(unit=line(13:),fmt=*,iostat=ier) (A%Atom(i)%varF(4),i=1,A%natoms)
+                 if(ier == 0) then
+                   coordone=.true.
+                 else
+                   A%Atom(:)%varF(4)=0.0
+                 end if
 
               case ("opti")    !Optimization
 
@@ -170,18 +181,23 @@
                  if(i == 0) then
                    Icost(8)=0; wcost(8)=0.0
                  else
-                   Icost(8)=1
-                   read(unit=line(i+11:),fmt=*,iostat=ier) w
-                  if(ier /= 0) then
-                      wcost(8)=1.0
+                   if(coordone) then
+                     Icost(8)=1
+                     read(unit=line(i+11:),fmt=*,iostat=ier) w
+                    if(ier /= 0) then
+                        wcost(8)=1.0
+                     else
+                        wcost(8)= w
+                     end if
+                     !Calculate the total coordination from the atom list
+                     coord_T=0.0
+                     do i=1,A%natoms
+                        coord_T= coord_T + A%Atom(i)%varF(4)
+                     end do
+                     coord_T=100.0/coord_T
                    else
-                      wcost(8)= w
+                     Icost(8)=0; wcost(8)=0.0
                    end if
-                   !Calculate the total coordination from the atom list
-                   coord_T=0.0
-                   do i=1,A%natoms
-                      coord_T= coord_T + A%Atom(i)%varF(4)
-                   end do
                  end if
 
               case ("dmax")
@@ -725,7 +741,7 @@
           delta=abs(A%Atom(i)%varF(4)-A%Atom(i)%varF(3))
           cost= cost+delta
        end do
-       cost=cost/coord_T
+       cost=cost*coord_T
        return
     End Subroutine Cost_Coordination
 

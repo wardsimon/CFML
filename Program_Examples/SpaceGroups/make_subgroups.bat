@@ -38,6 +38,8 @@ rem ****---- Intel Compiler ----****
 rem
 rem **---- G95 Compiler ----**
 :G95
+   g95 -c subgroups.f90    -I../../G95/LibC
+   g95 *.o -o subgroups    -L../../G95/LibC   -lcrysfml
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
