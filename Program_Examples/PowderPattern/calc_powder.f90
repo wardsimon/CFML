@@ -31,6 +31,9 @@
   !!----   RANDOMB  box  (The atoms are randomly generating in a box around the ideal positions of "box"
   !!----                  angstroms side)
   !!----
+  !!----   ATOM  Label  ChemSymb   x    y    z    Biso   Occ
+  !!----
+  !!----  The number of ATOM directives is not limited. The items are 2 strings and five reals.
   !!----
   !!----  The program uses CrysFML and a module called Atoms_Generation where the subroutine for
   !!----  calculating the atoms and generate the powder diffraction pattern are stored
