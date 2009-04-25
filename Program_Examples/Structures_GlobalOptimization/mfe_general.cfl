@@ -17,6 +17,7 @@ Vary xyz 0  1  0  1
 !Equal y_Fe y_P 0.25
 HKL-OBS  mfe.hkl
 MIN-DSPACING   1.5
+RADIATION  electrons
 FST_CMD  conn P O 0.0 1.8  ; conn FE O 0.0 2.3
 
 OPTIMIZE  dis-restr 1.0   Fobs-Fcal 1.0

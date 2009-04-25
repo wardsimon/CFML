@@ -37,10 +37,10 @@
       type (Reflection_List_Type),  public :: hkl
       type (Observation_List_Type), public :: Oh
 
-      Integer, parameter,           public :: N_costf=8
-      Integer,dimension(N_costf),   public :: Icost
-      real,   dimension(N_costf),   public :: Wcost
-      real,   dimension(N_costf),   public :: P_cost !Partial cost
+      Integer, parameter,             public :: N_costf=8
+      Integer,dimension(0:N_costf),   public :: Icost
+      real,   dimension(0:N_costf),   public :: Wcost
+      real,   dimension(0:N_costf),   public :: P_cost !Partial cost
 
       integer,         public :: Max_Coor
       real,            public :: Dmax,wavel
@@ -86,8 +86,21 @@
 
               case ("opti")    !Optimization
 
-                 i=index(line,"fobs-fcal")
-                 if(i == 0) then
+              i=index(line,"f2obs-f2cal")
+              if(i == 0) then
+                   Icost(0)=0; wcost(0)=0.0
+                 else
+                   Icost(0)=1
+                   read(unit=line(i+9:),fmt=*,iostat=ier) w
+                   if(ier /= 0) then
+                      wcost(0)=1.0
+                   else
+                      wcost(0)= w
+                   end if
+                 end if
+
+              i=index(line,"fobs-fcal")
+              if(i == 0) then
                    Icost(1)=0; wcost(1)=0.0
                  else
                    Icost(1)=1
@@ -279,10 +292,15 @@
        Write(unit=lun,fmt="(a)")      "= Cost functions to be minimized ="
        Write(unit=lun,fmt="(a,/)")    "=================================="
 
-       do i=1,n_costf
+       do i=0,n_costf
 
           if(icost(i) == 0) cycle
           select case (i)
+
+              case (0)    !Optimization "F2obs-F2cal"
+
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(F2obs-F2cal): Optimization of C1=Sum|F2obs-F2cal|/Sum|F2obs|, with weight: ",wcost(i)
 
               case (1)    !Optimization "Fobs-Fcal"
 
@@ -341,10 +359,16 @@
        Write(unit=lun,fmt="(a)")      "= Final Cost of minimized functions ="
        Write(unit=lun,fmt="(a,/)")    "====================================="
 
-       do i=1,n_costf
+       do i=0,n_costf
 
           if(icost(i) == 0) cycle
           select case (i)
+
+              case (0)    !Optimization "F2obs-F2cal"
+
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4)") &
+                 "  => Cost(F2obs-F2cal): Optimization of C1=Sum|F2obs-F2cal|/Sum|F2obs|, with weight: ",wcost(i),&
+                 "  Final Cost: ",P_cost(0)
 
               case (1)    !Optimization "Fobs-Fcal"
 
@@ -429,11 +453,16 @@
 
          cost=0.0
 
-         do ic=1,N_costf
+         do ic=0,N_costf
 
             if(Icost(ic) == 0) cycle
 
             Select Case(ic)
+
+               case(0)      !Experimental Gobs-Gcalc diffraction pattern
+                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
+                     call Cost_F2obsF2cal(P_cost(0))
+                     cost=cost+ P_cost(0)* WCost(0)
 
                case(1)      !Experimental Gobs-Gcalc diffraction pattern
                      call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
@@ -482,11 +511,16 @@
          call VState_to_AtomsPar(A,mode="V")   !Update Atomic parameters with the proper constraints
          cost=0.0
 
-         do ic=1,N_costf
+         do ic=0,N_costf
 
             if(Icost(ic) == 0) cycle
 
             Select Case(ic)
+
+               case(0)      !Experimental F2obs-F2calc diffraction pattern
+                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
+                     call Cost_F2obsF2cal(P_cost(0))
+                     cost=cost+ P_cost(0)* WCost(0)
 
                case(1)      !Experimental Fobs-Fcalc diffraction pattern
                      call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
@@ -557,11 +591,16 @@
 
          cost=0.0
 
-         do ic=1,N_costf
+         do ic=0,N_costf
 
             if(Icost(ic) == 0) cycle
 
             Select Case(ic)
+
+               case(0)      !Experimental Gobs-Gcalc diffraction pattern
+                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
+                     call Cost_F2obsF2cal(P_cost(0))
+                     cost=cost+ P_cost(0)* WCost(0)
 
                case(1)      !Experimental Gobs-Gcalc diffraction pattern
                      call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
@@ -610,11 +649,16 @@
          call VState_to_AtomsPar(A,mode="V")   !Update Atomic parameters with the proper constraints
          cost=0.0
 
-         do ic=1,N_costf
+         do ic=0,N_costf
 
             if(Icost(ic) == 0) cycle
 
             Select Case(ic)
+
+               case(0)      !Experimental Gobs-Gcalc diffraction pattern
+                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
+                     call Cost_F2obsF2cal(P_cost(0))
+                     cost=cost+ P_cost(0)* WCost(0)
 
                case(1)      !Experimental Gobs-Gcalc diffraction pattern
                      call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
@@ -662,6 +706,25 @@
 
       return
     End Subroutine Cost_function2minimize
+
+    Subroutine Cost_F2obsF2cal(cost)
+       real,                 intent(out):: cost
+       !---- Local variables ----!
+       integer              :: i,n
+       real                 :: delta,sumcal
+
+       n=hkl%Nref
+       sumcal=sum(abs(hkl%ref(1:n)%Fc**2))
+       ScaleFact=1.0
+       if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
+       cost=0.0
+       do i=1,hkl%Nref
+         delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc**2
+         cost=cost+abs(delta)
+       end do
+       cost=100.0*cost/SumGobs
+       return
+    End Subroutine Cost_F2obsF2cal
 
     Subroutine Cost_FobsFcal(cost)
        real,                 intent(out):: cost
