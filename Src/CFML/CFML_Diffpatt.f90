@@ -1084,7 +1084,7 @@
              return
           else
              if(.not. title_given) then
-               Pat%title=aline(30:)
+               Pat%title=aline(2:)
                title_given=.true.
              end if
              if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle

@@ -11,8 +11,8 @@
 !!----
 !!----    April - 2004 Created by JRC
 !!---- DEPENDENCIES
-!!--++    use CFML_GlobalDeps,       only: cp    
-!!--++    use CFML_String_Utilities, only: l_case  
+!!--++    use CFML_GlobalDeps,       only: cp
+!!--++    use CFML_String_Utilities, only: l_case
 !!----
 !!---- VARIABLES
 !!----    ERR_OPTIM
@@ -81,7 +81,7 @@
     !!---- Update: February - 2005
     !!
     logical, public :: Err_Optim
-     
+
     !!----
     !!---- ERR_Optim_Mess
     !!----    character(len=150), public :: ERR_Optim_Mess
@@ -946,7 +946,7 @@
     !!--..
     !!--..   1. The local search procedure (Local_DFP) is an algorithm of Quasi-Newton type
     !!--..      which uses the so called DFP (Davidon-Fletcher-Powell) update formula.
-    !!--..      The comparisonof this local search method with others can be found in [2].
+    !!--..      The comparison of this local search method with others can be found in [2].
     !!--..      For smooth objective functions this seems to be a good choice, for problems
     !!--..      with discontinuous objective function or derivatives the robust random search
     !!--..      method UNIRANDI (called here Local_RAND) (more details in [5]) can be recommended.
@@ -3465,7 +3465,7 @@
                           write(unit=ERR_Optim_Mess,fmt="(a)") "ERROR reading optimization condition: "//keyword(k)
                           return
                        end if
-                    
+
                        Select Case (k)
                           Case(1)
                              Opt%nmeth=nint(rval)
