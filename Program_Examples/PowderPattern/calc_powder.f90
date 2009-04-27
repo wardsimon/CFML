@@ -272,6 +272,7 @@
      character(len=4),dimension(:),allocatable :: ch
      real, dimension(:,:),allocatable  :: xyz
      real, dimension(:),  allocatable  :: biso
+
      Type(Crystal_Cell_type)        :: cell
      Type(Space_Group_Type)         :: SpG
      Type(Atom_List_Type)           :: Atm,A
