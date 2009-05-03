@@ -898,7 +898,7 @@
 
        !---- Local variables ----!
        integer        :: i,j,k,icm,l,sig1,sig2
-       real(kind=cp)  :: tol,fact,q2,dd,sums,q1, del, bv,efcn
+       real(kind=cp)  :: tol,fact,q2,dd,sums,q1, del, bv,efcn,sig
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -920,11 +920,12 @@
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
              sig2= SIGN(1.0,q2)
              dd=coord_info%dist(i,j)
+             sig=A%radius(l)+A%radius(k) !sum of ionic radii of the current pair
              if (sig1 == sig2) then
-                Erep=Erep+ q1*q2/dd
+                Erep=Erep+ q1*q2/dd + (sig/dd)**18  !Coulomb potential + soft sphere repulsion (avoid short distances)
                 cycle
              end if
-             if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
+             if (dd > sig*(1.0+tol)) cycle
              efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
