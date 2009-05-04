@@ -878,7 +878,9 @@
     !!----    by J. Pannetier, J. Bassas-Alsina, J.Rodriguez-Carvajal and V. Caignaert,
     !!----    in "Prediction of Crystal Structures from Crystal Chemistry Rules by
     !!----    Simulated Annealing", Nature 346, 343-345 (1990).
-    !!---
+    !!----    An additional repulsive term (soft sphere) of the form Esph=(sig/d)**18,
+    !!----    with sig equal to the sum of ionic radii of the pair, has been introduced.
+    !!----
     !!----    Before calling this subroutine it is the responsibility of the calling
     !!----    program to make a previous call to "Set_TDist_Coordination" in order
     !!----    to update the internal Coord_Info variables related to distance and
