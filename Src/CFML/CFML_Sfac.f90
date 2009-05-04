@@ -685,7 +685,7 @@
        !---- Local Variables ----!
        character(len=1)                      :: modi
        integer                               :: i,j,k,m
-       real(kind=cp)                         :: arg,anis,cosr,sinr,scosr,ssinr,fr,fi,der, hnt, res
+       real(kind=cp)                         :: arg,anis,cosr,sinr,scosr,ssinr,fr,fi,der, hnt
        real(kind=cp)                         :: a1,a2,a3,a4,b1,b2,b3,b4,av,bv,f,occ,b, Tob
        real(kind=cp),dimension(3)            :: h
        real(kind=cp),dimension(6)            :: beta
