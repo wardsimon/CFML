@@ -1316,7 +1316,7 @@
 
        !---- Local variables ----!
        integer       :: i,ia,ib
-       real(kind=sp) :: c,d
+       real(kind=sp) :: c
 
        co_linear=.true.
        do i=1,n

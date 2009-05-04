@@ -1927,7 +1927,7 @@ Module CFML_ILL_Instrm_Data
        character(len=80), dimension(:), allocatable :: filevar
        character(len=80)                            :: line
        integer                                      :: nlines
-       integer                                      :: i,numor,idum
+       integer                                      :: numor,idum
 
        err_illdata=.false.
 
@@ -2077,7 +2077,7 @@ Module CFML_ILL_Instrm_Data
        character(len=40), dimension(5)              :: dire
        character(len=1024)                          :: line
        character(len=80)                            :: linec
-       integer                                      :: nlines,ic
+       integer                                      :: nlines
        integer                                      :: i,j,numor,idum,nl
 
        err_illdata=.false.
@@ -3142,7 +3142,6 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        logical :: existe
-       integer :: nlong
 
        Instrm_directory=trim(ILL_data_directory)//'data'//ops_sep//trim(instrm)//ops_sep
 
@@ -3731,9 +3730,8 @@ Module CFML_ILL_Instrm_Data
        integer,       optional, intent(in) :: lun
 
        !--- Local variables ---!
-       integer       :: ipr, i, j, nlines, ctot,n
+       integer       :: ipr, i, j, nlines,n
        integer, dimension(10) :: cou
-       real(kind=cp) :: tim,mon,ang1,ang2
 
        ipr=6
        if (present(lun)) ipr=lun

@@ -1174,7 +1174,7 @@
        character(len=4)               :: symbcar
        integer                        :: i,j, k,n,L
        integer, dimension(atm%natoms) :: ix,jx,ia
-       real(kind=cp)                  :: dmin,d,fx
+       real(kind=cp)                  :: fx
 
        !---- Init ----!
        err_sfac=.false.
@@ -1478,7 +1478,7 @@
 
        !--- Local variables ---!
 
-       integer :: Natm, Multr
+       integer :: Natm
        integer :: ierr
        character(len=3) :: tipo
 

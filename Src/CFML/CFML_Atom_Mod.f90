@@ -1166,23 +1166,21 @@
     End Subroutine Multi
 
     !!----
-    !!---- Subroutine Write_Atom_List(Ats,Level,Lun,Mult,Cell)
+    !!---- Subroutine Write_Atom_List(Ats,Level,Lun,Cell)
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: Level   !  In -> Level of printed information
     !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
-    !!----    integer, optional,                   intent(in) :: Mult    !  In -> Multiplicity of the general position
     !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
     !!----
     !!----    Write the atoms in the asymmetric unit
     !!----
     !!---- Update: February - 2003
     !!
-    Subroutine Write_Atom_List(Ats,Level,Lun,Mult,Cell)
+    Subroutine Write_Atom_List(Ats,Level,Lun,Cell)
        !---- Arguments ----!
        type (atom_list_type),            intent(in) :: Ats
        integer, optional,                intent(in) :: Level
        integer, optional,                intent(in) :: Lun
-       integer, optional,                intent(in) :: Mult
        Type(Crystal_Cell_Type), optional,intent(in) :: Cell
 
        !---- Local Variables ----!

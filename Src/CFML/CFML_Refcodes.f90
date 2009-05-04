@@ -7369,7 +7369,7 @@
        integer, optional,   intent(in) :: iunit
 
        !---- Local variables ----!
-       integer           :: i,j,k,n,na,np,lun
+       integer           :: i,lun
 
        lun=6
        if (present(iunit)) lun=iunit

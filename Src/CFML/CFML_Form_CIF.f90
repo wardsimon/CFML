@@ -1062,7 +1062,7 @@
 
        return
     End Subroutine Read_Cif_Cell
-    
+
     !!----
     !!---- Subroutine Read_Cif_ChemicalName(Filevar,Nline_Ini,Nline_End,ChemName)
     !!----    character(len=*),  dimension(:), intent(in) :: filevar      !  In -> String vector
@@ -1083,16 +1083,16 @@
        character(len=*),  intent(out)              :: ChemName
 
        !---- Local variables ----!
-       integer :: np, np1, np2
+       integer :: np1, np2
 
        ChemName=" "
        call Read_Key_StrVal(filevar,nline_ini,nline_end, &
                             "_chemical_name_common",ChemName)
-                            
+
        if (len_trim(chemname) == 0) then
           call Read_Key_StrVal(filevar,nline_ini,nline_end, &
-                            "_chemical_name_systematic",ChemName) 
-       end if                       
+                            "_chemical_name_systematic",ChemName)
+       end if
 
        if (len_trim(chemname) > 0) then
           if (trim(chemname) =="; ?" .or. trim(chemname)=="#") chemname=" "

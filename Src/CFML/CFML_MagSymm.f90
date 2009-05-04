@@ -356,7 +356,6 @@
        real                 :: ph
        real,dimension(3)    :: rsk,isk
        real,dimension(3,12) :: br,bi
-       complex, dimension(3):: Sk
        real,dimension(12)   :: coef
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
@@ -966,7 +965,7 @@
        type(MagSymm_k_Type),      intent (in out):: MGp
 
        !---- Local Variables ----!
-       character (len=132) :: line
+       !character (len=132) :: line
        character (len=20)  :: symb
        character (len=4)   :: gn
        character (len=4),dimension(10) :: gen
@@ -974,7 +973,7 @@
        integer :: i,j, ng, k,m,nbl,n
        integer,              dimension(3)   :: bl
        integer,              dimension(10)  :: syp, numop
-       integer, allocatable, dimension(:,:) :: tab
+       !integer, allocatable, dimension(:,:) :: tab
        character(len=*),parameter, dimension(26) :: oper = &
        (/"1 ","-1","m ","2 ","21","3 ","31","32","-3","4 ","41","42","43",&
          "-4","6 ","61","62","63","64","65","-6","a ","b ","c ","d ","n "/)

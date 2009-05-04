@@ -84,7 +84,7 @@
     !!---- Update: February - 2005
     !!
     Character(len=150), public  :: ERR_Lsq_Mess
-    
+
     !!----
     !!---- MAX_FREE_PAR
     !!----    integer, parameter, public  :: Max_Free_Par
@@ -293,13 +293,12 @@
     End Subroutine Box_Constraints
 
     !!--++
-    !!--++  Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c,vs, A, Sa, Fl, Yc, Chir, Ifail)
+    !!--++  Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c, A, Sa, Fl, Yc, Chir, Ifail)
     !!--++     real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
     !!--++     real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
     !!--++     real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
     !!--++     integer,                             intent(in)      :: nobs  !number of observations
     !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State vector
     !!--++     real(kind=sp),dimension(:),          intent(in out)  :: a     !vector of parameter
     !!--++     real(kind=sp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
     !!--++     real(kind=sp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
@@ -320,14 +319,13 @@
     !!--++
     !!--++ Update: February - 2003
     !!
-    Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c, vs, A, Sa, Fl, Yc, Chir, Ifail)
+    Subroutine Curfit(Model_Functn, X, Y, W, Nobs, c, A, Sa, Fl, Yc, Chir, Ifail)
        !---- Arguments ----!
        real(kind=cp),    dimension(:),      intent(in)      :: x     !vector with abcisae
        real(kind=cp),    dimension(:),      intent(in)      :: y     !Observed values
        real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
        integer,                             intent(in)      :: nobs  !number of observations
        Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-       Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State vector
        real(kind=cp),dimension(:),          intent(in out)  :: a     !vector of parameter
        real(kind=cp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
        real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
@@ -546,7 +544,7 @@
 
        Interface
         Subroutine Model_Functn(iv,Xv,ycalc,aa,der)
-           use CFML_GlobalDeps, only: cp  
+           use CFML_GlobalDeps, only: cp
            integer,                             intent(in) :: iv
            real(kind=cp),                       intent(in) :: xv
            real(kind=cp),dimension(:),          intent(in) :: aa
@@ -596,7 +594,7 @@
           end do
 
           c%npvar=ncount
-          call curfit(Model_Functn,x,y,w,nobs,c,vs,a,sa,fl,yc,chi2,ifail)
+          call curfit(Model_Functn,x,y,w,nobs,c,a,sa,fl,yc,chi2,ifail)
 
           if (ifail /= 0) then
              line= " "
@@ -687,7 +685,7 @@
           else
              fl=0.5e-20
           end if
-          call curfit(Model_Functn,x,y,w,nobs,c,vs,a,sa,fl,yc,chi2,ifail)
+          call curfit(Model_Functn,x,y,w,nobs,c,a,sa,fl,yc,chi2,ifail)
           ncount=0
           do i=1,vs%np
              if (vs%code(i) == 0) then
@@ -728,7 +726,7 @@
        integer,                    intent(in) :: lun !logical number of the output file
        real(kind=cp),              intent(in) :: chi2
        type(LSQ_State_Vector_type),intent(in) :: vs
-       
+
        !---- Local variables ----!
        integer       :: i,j
        real(kind=cp) :: rat
@@ -754,7 +752,7 @@
     End Subroutine Output_Cyc
 
     !!--++
-    !!--++  Subroutine Output_Final(Chi2,Nobs,X,Y,Yc,W,Lun,c,vs)
+    !!--++  Subroutine Output_Final(Chi2,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
     !!--++   real(kind=cp),              intent(in)     :: chi2
     !!--++   real(kind=cp),              intent(in)     :: FL
     !!--++   integer,                    intent(in)     :: nobs
@@ -765,13 +763,14 @@
     !!--++   integer,                    intent(in)     :: lun
     !!--++   type(LSQ_conditions_type),  intent(in)     :: c
     !!--++   type(LSQ_State_Vector_type),intent(in)     :: vs
+    !!--++   character(len=*), optional, intent(in)     :: out_obscal
     !!--++
     !!--++  (PRIVATE)
     !!--++  Subroutine for output information at the end of refinement
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Output_Final(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs)
+    Subroutine Output_Final(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
        !---- Arguments ----!
        real(kind=cp),              intent(in)     :: chi2
        real(kind=cp),              intent(in)     :: FL
@@ -783,6 +782,7 @@
        integer,                    intent(in)     :: lun
        type(LSQ_conditions_type),  intent(in)     :: c
        type(LSQ_State_Vector_type),intent(in)     :: vs
+       character(len=*), optional, intent(in)     :: out_obscal
 
        !---- Local variables ----!
        integer       :: i,j,inum
@@ -846,14 +846,15 @@
        end do
        write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
 
-     ! !---- Output of a file with the observed and calculated curves ----!
-     ! open(unit=22,file="marquart_fit.xy",status="replace", action="write")
-     ! write(unit=22,fmt="(a)") "!  X   Y-obs   Y-calc  Sigma"
-     ! do i=1,nobs
-     !    write(unit=22,fmt="(4f16.4)") x(i),y(i),yc(i),sqrt(1.0/w(i))
-     ! end do
-     ! close(unit=22)
-
+       if(present(out_obscal)) then
+         !---- Output of a file with the observed and calculated curves ----!
+         open(unit=22,file="marquart_fit.xy",status="replace", action="write")
+         write(unit=22,fmt="(a)") "!  X   Y-obs   Y-calc  Sigma"
+         do i=1,nobs
+            write(unit=22,fmt="(4f16.4)") x(i),y(i),yc(i),sqrt(1.0/w(i))
+         end do
+         close(unit=22)
+       end if
        return
     End Subroutine Output_Final
 

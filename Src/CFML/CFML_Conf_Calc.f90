@@ -356,15 +356,13 @@
        character(len=*),             optional, intent(in)  :: Filecod
 
        !---- Local variables ----!
-       integer                                :: i,j,ic,k,n1,n2,icm,l,icn,isoc,kk,is0, &
-                                                 isstr,isdav,isigt,ibvs,icat,ian,sig1,sig2
+       integer                                :: i,j,k,n1,n2,icm,l,icn,isoc,kk,is0, &
+                                                 isstr,isdav,isigt,ibvs,sig1,sig2
        real(kind=sp)                          :: tol,fact,del2,s0,q2,  &
                                                  dd,sigtot,efcn,sums,dav,sdav,q1,d2,  &
                                                  str2,sstr,ric,r_2,del,perc,spred,disp,  &
-                                                 str,rg1,dist,gii_a,gii_b,gii_c,&
-                                                 d0_n, b_n
+                                                 str,rg1,dist,gii_a,gii_b,gii_c
        character(len=4)                       :: rnatom
-       character(len=10), dimension(5)        :: dire
 
        call init_err_conf()
 
@@ -605,7 +603,7 @@
 
        !---- Local variables ----!
        character(len=4)                            :: car,atm
-       integer                                     :: i,im,j,k,n,n1,n2
+       integer                                     :: i,j,k,n,n1,n2
        integer                                     :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                     :: i1,j1,k1
        integer                                     :: jbvs
@@ -2015,7 +2013,7 @@
        integer,                      optional, intent(in)  :: N_bvsm
        character(len=*),dimension(:),optional, intent(in)  :: bvs_m
        !---- Local Variables ----!
-       integer :: i,j,k,ia,ic,icc,iaa
+       integer :: i,j,k,ia,ic
 
        if (A%N_Spec == 0) then
           err_conf=.true.

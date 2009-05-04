@@ -218,7 +218,7 @@
        real(kind=cp)                              :: V
 
        !---- Local variables ----!
-       integer        :: i,j, i1, j1,n,nlim
+       integer        :: j, i1, j1,n,nlim
        real(kind=cp)  :: xml, xmr, ym, x1, x2, y1, y2
        real(kind=cp)  :: difx
 
