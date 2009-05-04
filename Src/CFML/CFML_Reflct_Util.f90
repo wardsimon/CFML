@@ -84,6 +84,8 @@
 !!--++       INTEGRAL_CONDITIONS   [Private]
 !!--++       SCREW_AXIS_CONDITIONS [Private]
 !!----       SEARCH_EXTINCTIONS
+!!--++       SEARCH_EXTINCTIONS_IUNIT [Overloaded]
+!!--++       SEARCH_EXTINCTIONS_FILE [Overloaded]
 !!----       WRITE_ASU
 !!----       WRITE_REFLIST_INFO
 !!----
@@ -92,9 +94,9 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                 only: sp, cp, pi, eps  !Init Eps was 0.0001
+    Use CFML_GlobalDeps,                only: sp, cp, pi, eps  !Init Eps was 0.0001
     Use CFML_Math_General,              only: sort
-    Use CFML_String_Utilities,          only: l_case
+    Use CFML_String_Utilities,          only: l_case,Get_LogUnit
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 
@@ -126,7 +128,8 @@
     !---- List of private subroutines ----!
     private :: Hkl_Equiv_Listi, Hkl_Equiv_Listr, Hkl_RpI, Hkl_RpR, Hkl_Uni_reflect, &
                Hkl_Uni_reflection, Glide_Planes_Conditions, Integral_Conditions, Screw_Axis_Conditions,&
-               Init_Ref_Cond, Hkl_uni_refllist, Hkl_Gen_Sxtal_list,Hkl_Gen_Sxtal_reflection
+               Init_Ref_Cond, Hkl_uni_refllist, Hkl_Gen_Sxtal_list,Hkl_Gen_Sxtal_reflection, &
+               Search_Extinctions_Iunit, Search_Extinctions_File
 
     !---- Definitions ----!
 
@@ -382,6 +385,11 @@
        Module Procedure Hkl_Uni_reflection
        Module Procedure Hkl_Uni_ReflList
     End Interface Hkl_Uni
+
+    Interface Search_Extinctions
+       Module Procedure Search_Extinctions_Iunit
+       Module Procedure Search_Extinctions_File
+    End Interface Search_Extinctions
 
     Interface Unit_Cart_Hkl
        Module Procedure Unit_Cart_HklI
@@ -4198,13 +4206,28 @@
     !!----
     !!---- Subroutine Search_Extintions(Spacegroup, iunit)
     !!----    type (Space_Group_Type), intent(in) :: Spacegroup
-    !!----    integer,optional,        intent(in) :: iunit
+    !!----    integer,                 intent(in) :: iunit
+    !!----    or
+    !!----    type (Space_Group_Type),         intent(in) :: Spacegroup
+    !!----    integer,                         intent(out):: nlines
+    !!----    character(len=80), dimension(:), intent(out) :: filevar
     !!----
     !!----    Write information about the Reflections Extintion for SpaceGroup
     !!----
     !!---- Update: May - 2005
     !!
-    Subroutine Search_Extinctions(Spacegroup, Iunit)
+
+    !!--++
+    !!--++ Subroutine Search_Extintions_Iunit(Spacegroup, iunit)
+    !!--++    type (Space_Group_Type), intent(in) :: Spacegroup
+    !!--++    integer,                 intent(in) :: iunit
+    !!--++
+    !!--++    (Overloaded)
+    !!--++    Write information about the Reflections Extintion for SpaceGroup
+    !!--++
+    !!--++ Update: May - 2005
+    !!
+    Subroutine Search_Extinctions_Iunit(Spacegroup, Iunit)
        !---- Arguments ----!
        type (Space_Group_Type), intent(in)     :: spacegroup
        integer,                 intent(in)     :: Iunit
@@ -4218,7 +4241,58 @@
        call screw_axis_conditions(spacegroup,iunit)
 
        return
-    End Subroutine Search_Extinctions
+    End Subroutine Search_Extinctions_Iunit
+
+    !!--++
+    !!--++ Subroutine Search_Extinctions_File(Spacegroup, nlines, filevar)
+    !!--++    type (Space_Group_Type),        intent(in)  :: Spacegroup
+    !!--++    integer,                        intent(out) :: nlines
+    !!--++    character(len=80),dimension(:), intent(out) :: filevar
+    !!--++
+    !!--++    (Overloaded)
+    !!--++    Write information about the Reflections Extintion for SpaceGroup
+    !!--++    in filevar variable
+    !!--++
+    !!--++ Update: April - 2009
+    !!
+    Subroutine Search_Extinctions_File(Spacegroup, nlines, filevar)
+       !---- Arguments ----!
+       type (Space_Group_Type), intent(in)          :: Spacegroup
+       integer,                 intent(out)         :: nlines
+       character(len=*), dimension(:), intent(out)  :: filevar
+
+       !---- Local Variables ----!
+       integer           :: iunit,ierr
+       character(len=80) :: line
+
+       ! Init
+       nlines=0
+       filevar=' '
+
+       ! Load Information
+       if (.not. hkl_ref_cond_ini) then
+          call init_ref_cond()
+          hkl_ref_cond_ini=.true.
+       end if
+
+       call Get_LogUnit(iunit)
+       open(unit=iunit,file='search_extin_xyx.tmp')
+
+       call integral_conditions(spacegroup,iunit)
+       call glide_planes_conditions(spacegroup,iunit)
+       call screw_axis_conditions(spacegroup,iunit)
+
+       rewind(unit=iunit)
+       do
+          read(unit=iunit,fmt='(a)', iostat=ierr) line
+          if (ierr /=0) exit
+          nlines=nlines+1
+          filevar(nlines)=line
+       end do
+       close(unit=iunit, status='delete')
+
+       return
+    End Subroutine Search_Extinctions_File
 
     !!----
     !!---- Subroutine Write_Asu(Spacegroup, iunit)
