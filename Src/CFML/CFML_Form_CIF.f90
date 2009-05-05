@@ -549,6 +549,8 @@
        call init_err_form()
        call init_atom_type(Atomo)
        q=0
+       iv=index(line,"#")
+       if(iv /= 0) atomo%AtmInfo=line(iv+1:)
 
        call cutst(line,nlong1,dire)
        if (u_case(dire) /= "ATOM") then

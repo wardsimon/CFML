@@ -951,13 +951,13 @@
        strings=" "
        write(unit=strings,fmt="(a,f10.4,a,i2)")" -> Best Solution Cost = ",costop," :: from configuration: ",jopt
        call mess(strings)
-       write(unit=ipr,fmt="(/,a)") strings
+       write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
          write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i,jopt)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
 
@@ -1501,13 +1501,13 @@
        strings=" "
        write(unit=strings,fmt="(a,f10.4,a)")" -> Best Solution Cost =",cost2," :: "
        call mess(strings)
-       write(unit=ipr,fmt="(/,a)") strings
+       write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
          write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
 
@@ -1882,13 +1882,13 @@
        strings=" "
        write(unit=strings,fmt="(a,f10.4,a)")" -> Best Solution Cost = ",costop," :: "
        call mess(strings)
-       write(unit=ipr,fmt="(/,a)") strings
+       write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
          write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i,jopt)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
 

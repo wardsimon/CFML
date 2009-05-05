@@ -293,7 +293,7 @@ Program Optimizing_structures
           end if
          call Write_SimAnn_StateV(lun,vs,"INITIAL STATE")
          if(fst_out) then
-           call Simanneal_Gen(General_Cost_function,c,vs,lun,fst="simann.fst  "//trim(fst_cmd))
+           call Simanneal_Gen(General_Cost_function,c,vs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
          else
            call Simanneal_Gen(General_Cost_function,c,vs,lun)
          end if
@@ -311,13 +311,13 @@ Program Optimizing_structures
 
          if (Local_Opt) then
            if(fst_out) then
-              call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun,fst="simann.fst  "//trim(fst_cmd))
+              call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
            else
               call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun)
            end if
          else
            if(fst_out) then
-              call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun,fst="simann.fst  "//trim(fst_cmd))
+              call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
            else
               call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun)
            end if
@@ -392,7 +392,7 @@ Subroutine Write_FST(fst_file,v,cost)
       write(unit=lun,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
       write(unit=lun,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
       do i=1,A%natoms
-         write(unit=lun,fmt="(a,a,3f12.5)")"Atom "//A%atom(i)%lab, A%atom(i)%chemsymb, A%atom(i)%x
+         write(unit=lun,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%chemsymb, A%atom(i)%x, A%atom(i)%AtmInfo
       end do
       do i=1,nc
          write(unit=lun,fmt="(a)") trim(cmds(i))

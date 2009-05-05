@@ -102,7 +102,7 @@
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
     !!----    real(kind=cp),dimension(3)              :: x             ! Fractional coordinates
-    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standar deviations
+    !!----    real(kind=cp),dimension(3)              :: x_std         ! Standard deviations
     !!----    real(kind=cp),dimension(3)              :: mx            ! Multiplier parameters of coordinates
     !!----    integer,      dimension(3)              :: lx            ! Numbers of LSQ parameters for coordinates
     !!----    real(kind=cp)                           :: occ           ! occupation factor
@@ -125,9 +125,10 @@
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
     !!----    real(kind=cp),dimension(10)             :: VarF          ! Free variables used for different purposes
+    !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!---- End Type Atom_Type
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: May - 2009
     !!
     Type, public :: Atom_Type
        character(len=10)                        :: Lab
@@ -160,6 +161,7 @@
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
        real(kind=cp),dimension(10)              :: VarF
+       character(len=40)                        :: AtmInfo
     End Type Atom_Type
 
     !!----
@@ -252,6 +254,7 @@
     !!----    integer, dimension(5)                   :: Ind           ! Index for different purposes
     !!----    integer                                 :: Nvar          !
     !!----    real(kind=cp),dimension(10)             :: VarF          ! Free parameters to load
+    !!----    character(len=40)                       :: AtmInfo       ! Information string
     !!----                           ===================
     !!----                           Magnetic parameters
     !!----                           ===================
@@ -304,6 +307,7 @@
        integer, dimension(5)                    :: Ind
        integer                                  :: NVar
        real(kind=cp),dimension(10)              :: VarF
+       character(len=40)                        :: AtmInfo
 
        integer                                 :: nvk
        integer,      dimension(12)             :: imat
@@ -867,7 +871,7 @@
        A%Ind      =0
        A%NVar     =0
        A%VarF     =0.0
-
+       A%AtmInfo  =" "
        return
     End Subroutine Init_Atom_Type
 
@@ -913,6 +917,7 @@
        A%Ind      =0
        A%NVar     =0
        A%VarF     =0.0
+       A%AtmInfo  =" "
        A%nvk      =0
        A%imat     =0
        A%SkR      =0.0
