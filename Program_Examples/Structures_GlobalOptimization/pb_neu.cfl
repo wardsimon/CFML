@@ -4,11 +4,11 @@ Cell   8.485454   5.402319   6.964360  90.000  90.000  90.000
 !     Space Group
 Spgr  P n m a
 !                  x        y        z        B        occ    Spin Charge
-Atom  Pb   PB   0.18797  0.25000  0.16754  1.35290   0.50000   0.0   2.0
-Atom  S    S    0.06467  0.25000  0.68300  0.89361   0.50000   0.0   6.0
-Atom  O1   O    0.90712  0.25000  0.59675  0.57221   0.50000   0.0  -2.0
-Atom  O2   O    0.18635  0.25000  0.54278  0.99996   0.50000   0.0  -2.0
-Atom  O3   O    0.08021  0.02965  0.81211  1.07399   1.00000   0.0  -2.0
+Atom  Pb   PB   0.18797  0.25000  0.16754  1.35290   0.50000   0.0   2.0      #color 0 0 1 1
+Atom  S    S    0.06467  0.25000  0.68300  0.89361   0.50000   0.0   6.0      #color 1 1 0 1
+Atom  O1   O    0.90712  0.25000  0.59675  0.57221   0.50000   0.0  -2.0      #color 0 1 1 1
+Atom  O2   O    0.18635  0.25000  0.54278  0.99996   0.50000   0.0  -2.0      #color 1 0 1 1
+Atom  O3   O    0.08021  0.02965  0.81211  1.07399   1.00000   0.0  -2.0      #color 1 0 0 1
 
 ! Codes for refinement
 Vary xyz 0  1  0  1
@@ -17,7 +17,7 @@ HKL-OBS  pb_neu.int
 MIN-DSPACING   1.5
 WAVE  1.912
 RADIATION NEUTRONS
-FST_CMD  conn S O 0.0 1.8
+FST_CMD  conn S O 0.0 1.8 ; poly S
 
 OPTIMIZE    bond-valence 0.15  FoFc-Powder 0.85
 LOCAL_OPTIMIZATION
