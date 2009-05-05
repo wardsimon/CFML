@@ -152,9 +152,12 @@ Program Optimizing_structures
        line=adjustl(u_case(fich_cfl%line(i)))
        if(line(1:7) == "FST_CMD") then
          j=index(line,"!")
-         if(j /= 0) line=trim(line(1:j-1))
-         fst_cmd= adjustl(line(9:))
-         fst_out=.true.
+         if(j /= 0) then
+           fst_cmd= adjustl(fich_cfl%line(i)(9:j-1))
+         else
+           fst_cmd= adjustl(fich_cfl%line(i)(9:))
+         end if
+           fst_out=.true.
          exit
        end if
      end do
