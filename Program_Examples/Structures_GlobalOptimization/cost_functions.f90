@@ -35,7 +35,7 @@
       type (Reflection_List_Type),  public :: hkl
       type (Observation_List_Type), public :: Oh
 
-      Integer, parameter,             public :: N_costf=8
+      Integer, parameter,             public :: N_costf=9
       Integer,dimension(0:N_costf),   public :: Icost
       real,   dimension(0:N_costf),   public :: Wcost
       real,   dimension(0:N_costf),   public :: P_cost !Partial cost
@@ -90,7 +90,7 @@
           line=adjustl(l_case(file_dat%line(j)))
           if (line(1:6) =="damin ") then
               i=i+1
-              read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) anti_bump%sp1(i),anti_bump%sp2(i),anti_bump%damin(i)
+              read(unit=file_dat%line(j)(7:),fmt=*,iostat=ier) anti_bump%sp1(i),anti_bump%sp2(i),anti_bump%damin(i)
               if(ier /= 0) then
                 i=i-1
               end if
