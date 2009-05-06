@@ -795,9 +795,10 @@
     End Subroutine Complete_Table
 
     !!----
-    !!---- Subroutine Cost_BVS(A, GII, gic)
+    !!---- Subroutine Cost_BVS(A, GII, ERep, gic)
     !!----    type (Atoms_Conf_List_type),  intent(in out) :: A    !  In  -> Object of Atoms_Conf_List_type
     !!----    real(kind=cp),                intent(out)    :: GII  !  OUT -> Global instability index
+    !!----    real(kind=cp),      optional, intent(out)    :: ERep !  OUT -> Repulstion term from soft spheres
     !!----    character(len=*),   optional, intent(in)     :: gic  ! If present GII_c is put in GII
     !!----
     !!----    Subroutine to calculate the Global Instability Index.
@@ -811,15 +812,16 @@
     !!----
     !!---- Update: April - 2005
     !!
-    Subroutine Cost_BVS(A, GII,gic)
+    Subroutine Cost_BVS(A, GII, ERep,gic)
        !---- Arguments ----!
        type (Atoms_Conf_List_type),  intent(in out)  :: A    !  In -> Object of Atoms_Conf_List_type
        real(kind=cp),                intent(out)     :: GII  !  GII_a
+       real(kind=cp),      optional, intent(out)     :: ERep !  Repulsion term due to shoft spheres
        character(len=*),   optional, intent(in)      :: gic  !  If present GII_c is put in GII
 
        !---- Local variables ----!
        integer       :: i,j,k,icm,l,sig1,sig2
-       real(kind=cp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c,efcn
+       real(kind=cp) :: tol,fact,q2,dd,sums,q1, del, bv,gii_a,gii_c,efcn,sig,rep
 
        tol=A%tol*0.01
        if (tol <= 0.001) tol=0.20
@@ -828,6 +830,7 @@
        !----          to be called before using this routine
        gii_a=0.0
        gii_c=0.0
+       rep=0.0
        do i=1,A%natoms
           icm=coord_info%coord_num(i)
           l=A%Atom(i)%ind(1)
@@ -839,9 +842,13 @@
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
              sig2= SIGN(1.0,q2)
-             if (sig1 == sig2) cycle
+             sig=A%radius(l)+A%radius(k)
              dd=coord_info%dist(i,j)
-             if (dd > (A%radius(l)+A%radius(k))*(1.0+tol)) cycle
+             if (sig1 == sig2) then
+                rep=rep + (0.8*sig/dd)**18
+                cycle
+             end if
+             if (dd > sig*(1.0+tol)) cycle
              efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
              bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1) !Occupacy
@@ -858,6 +865,7 @@
        gii_a=gii_a*100.0/A%totatoms
        gii_c=sqrt(gii_c/A%totatoms)*100.0
        GII=gii_a
+       if(present(ERep)) ERep=rep
        if(present(gic)) GII=gii_c
        return
     End Subroutine Cost_BVS

@@ -1423,16 +1423,16 @@
           write(unit=strings,fmt="(a,i4,2(a,f8.3),a,f10.5,a,g14.7)")  &
                " => NT:",ntp," Temp:",temp," (%Acc):",paj,"  <Step>:",stepav,"  <"//trim(c%Cost_function_name)//">:",cost
           call mess(strings)
-          write(unit=ipr,fmt="(/,a)") strings
+          write(unit=ipr,fmt="(/,a)") trim(strings)
           strings=" "
           write(unit=strings,fmt="(a,g14.7,a,g14.7,a,i10 )")  &
                "    Cost-val:",energ, "     Cp:", cp, "     Num-Cost-Evaluations: ",neval
-          write(unit=ipr,fmt="(a)") strings
+          write(unit=ipr,fmt="(a)") trim(strings)
 
           write(unit=ipr,fmt="(a)") " => Average value of parameters, sigmas and steps:"
           do i=1,vs%npar
             write(unit=strings,fmt="(i6,a,3F16.5)")  i,vs%nampar(i), raver(i),sigp(i),vs%stp(i)
-            write(unit=ipr,fmt="(a)") strings
+            write(unit=ipr,fmt="(a)") trim(strings)
           end do
 
 
@@ -1447,11 +1447,11 @@
              write(unit=strings,fmt="(a,f8.2,a,f8.2)") &
              " => Local Optimization of the best configuration because <Cost> = ",cost," is less than threshold ", c%threshold
              call mess(strings)
-             write(unit=ipr,fmt="(a)") strings
+             write(unit=ipr,fmt="(a)") trim(strings)
              call Local_Optim(Model_Funct,vs%npar,vs%config,costop,vs%low,vs%high,vs%bound)
              write(unit=strings,fmt="(a,f8.2)") " => Final configuration locally optimized. Final cost: ",costop
              call mess(strings)
-             write(unit=ipr,fmt="(a)") strings
+             write(unit=ipr,fmt="(a)") trim(strings)
              vs%state(:)=vs%config(:)
              Cost1=costop
              cost2=costop

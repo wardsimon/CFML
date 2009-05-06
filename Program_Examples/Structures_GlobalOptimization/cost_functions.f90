@@ -1,7 +1,7 @@
   Module cost_functions
       Use CFML_crystallographic_symmetry, only: space_group_type, ApplySO, Read_SymTrans_Code
       Use CFML_Geometry_Calc,             only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
-                                                allocate_coordination_type
+                                                allocate_coordination_type, coord_info
       Use CFML_BVS_Energy_Calc,           only: Cost_BVS, Atoms_Conf_list_Type, species_on_list, &
                                                 Allocate_Atoms_Conf_list, err_conf, err_conf_mess, &
                                                 Cost_BVS_CoulombRep, set_Table_d0_B
@@ -24,9 +24,7 @@
       implicit none
       private
 
-      public::  Cost_function_FobsFcal, Cost_function_MFobsFcal, Cost_function_MulFobsFcal,Cost_function_Restraints, &
-                General_cost_function, Readn_Set_CostFunctPars, Write_CostFunctPars, Write_FinalCost, Function_FobsFcal, &
-                Cost_function2minimize,Cost_FoFc_powder
+      public::  General_cost_function, Readn_Set_CostFunctPars, Write_CostFunctPars, Write_FinalCost
 
       logical,                      public :: err_cost=.false.
       character(len=132),           public :: err_mess_cost=" "
@@ -47,8 +45,16 @@
       real                    :: coord_T
       character(len=3),public :: diff_mode="NUC"   ! XRA for x-rays, ELE for electrons
 
-    Contains
+      Type, public :: anti_bump_type
+        integer                                     :: nrel
+        character(len=2), dimension(:), allocatable :: sp1     !Chemical species 1
+        character(len=2), dimension(:), allocatable :: sp2     !Chemical species 2
+        real,             dimension(:), allocatable :: damin   !Minimal distances inter-species
+      End Type anti_bump_type
 
+      Type(anti_bump_type) ::  anti_bump
+
+    Contains
 
     Subroutine Readn_Set_CostFunctPars(file_dat)
        !---- Arguments ----!
@@ -56,7 +62,7 @@
        !---- Local variables ----!
        character(len=132)   :: line
        real                 :: w,tol
-       integer              :: i,ier,j
+       integer              :: i,ier,j,nrel
        logical              :: coordone
 
 
@@ -64,6 +70,36 @@
        wcost=0.0
        dmax=3.2
        coordone=.false.
+       !First look for antibump relations
+       nrel=0
+       do j=1,file_dat%nlines
+          line=adjustl(l_case(file_dat%line(j)))
+          if (line(1:6) =="damin ") nrel=nrel+1
+       End do
+
+       if(nrel > 0) then
+          anti_bump%nrel=nrel
+          allocate(anti_bump%sp1(nrel),anti_bump%sp2(nrel),anti_bump%damin(nrel))
+          anti_bump%sp1=" "
+          anti_bump%sp2=" "
+          anti_bump%damin=0.0
+       end if
+
+       i=0
+       Do j=1,file_dat%nlines
+          line=adjustl(l_case(file_dat%line(j)))
+          if (line(1:6) =="damin ") then
+              i=i+1
+              read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) anti_bump%sp1(i),anti_bump%sp2(i),anti_bump%damin(i)
+              if(ier /= 0) then
+                i=i-1
+              end if
+          end if
+       End do
+       if( i < nrel) then
+         write(*,*)  " => Warning: some anti-bump relations are badly written! "
+         anti_bump%nrel=i
+       end if
 
        do j=1,file_dat%nlines
           line=adjustl(file_dat%line(j))
@@ -213,6 +249,19 @@
                    end if
                  end if
 
+                 i=index(line,"anti_bump")
+                 if(i == 0) then
+                   Icost(9)=0; wcost(9)=0.0
+                 else
+                   Icost(9)=1
+                   read(unit=line(i+9:),fmt=*,iostat=ier) w
+                  if(ier /= 0) then
+                      wcost(9)=1.0
+                   else
+                      wcost(9)= w
+                   end if
+                 end if
+
               case ("dmax")
 
                  read(unit=line(5:),fmt=*,iostat=ier) w
@@ -243,7 +292,7 @@
         Wcost=Wcost/w
 
        !Allocate the necesary types and arrays
-        bond: if(Icost(5) == 1 .or. Icost(6) == 1) then !Bond-Valence parameters
+        bond: if(Icost(5) == 1 .or. Icost(6) == 1 .or. Icost(9) == 1) then !Bond-Valence parameters
 
           if(A%natoms == 0) then
 
@@ -262,15 +311,18 @@
                return
              end if
 
-             call set_Table_d0_B(Ac)
-             if(err_conf) then
-               err_cost=.true.
-               err_mess_cost=err_conf_mess
-               return
-             end if
              !Allocation of the global variable "Coord_Info" in Geom_Calculations
              !to be used in distance calculations and Bond-valence
              call Allocate_Coordination_type(A%natoms,Spg%Multip,dmax,Max_coor)
+
+             if(Icost(5) == 1 .or. Icost(6) == 1) then
+               call set_Table_d0_B(Ac)
+               if(err_conf) then
+                 err_cost=.true.
+                 err_mess_cost=err_conf_mess
+                 return
+               end   if
+             end if
 
           end if
 
@@ -336,6 +388,10 @@
               case (8)    !Optimization "Coordination"
                  Write(unit=lun,fmt="(a,f8.4)") &
                  "  => Cost(Coordination): Optimization of C8=Sum|Coord-Efcn|/Sum|Coord|, with weight: ",wcost(i)
+
+              case (9)    !Optimization "Anti_Bump"
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i)
 
 
           end select
@@ -422,6 +478,19 @@
                                                     Ac%Atom(j)%varF(4),Ac%Atom(j)%varF(3)
                  end do
 
+              case (9)    !Optimization "Anti Bump"
+                 Write(unit=lun,fmt="(a,f8.4)") &
+                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i)
+
+                 Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
+                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i),&
+                 "  Final Cost: ",P_cost(9)
+                 do j=1,Ac%natoms
+                   if(Ac%Atom(j)%varF(4) < 0.001) cycle
+                   Write(unit=lun,fmt="(a,2f8.4)")  "  Obs-Calc Coordination for Atom "//trim(Ac%Atom(j)%lab), &
+                                                    Ac%Atom(j)%varF(4),Ac%Atom(j)%varF(3)
+                 end do
+
 
           end select
 
@@ -437,7 +506,7 @@
       !---- Local variables ----!
       integer :: i,ic, nop, nlist=1, numv
       integer, dimension(1) :: List
-
+      logical :: tdist_called
 
 
 
@@ -446,6 +515,7 @@
 
       numv=count(abs(v_shift) > 0.00001, dim=1)
 
+      tdist_called=.false.
       if(numv == 1) then
          i=maxloc(abs(v_shift),dim=1)
          List(1)=v_list(i)
@@ -482,12 +552,18 @@
                      cost=cost+ P_cost(4)* WCost(4)
 
                case(5)      !Bond-Valence
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
                      call Cost_BVS(Ac, P_cost(5))
                      cost=cost+ P_cost(5)* WCost(5)
 
                case(6)      !Bond-Valence+ Coulomb repulsion
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
                      call Cost_BVS_CoulombRep(Ac, P_cost(5),P_cost(6))
                      cost=cost+ P_cost(5)* WCost(5)+P_cost(6)* WCost(6)
 
@@ -501,6 +577,13 @@
                      cost=cost+ P_cost(8)* WCost(8)
 
                case(9)      !Anti-Bumb functions
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
+                     call Cost_dist_min(P_cost(9))
+                     cost=cost+ P_cost(9)* WCost(9)
+
                case(10)     !Potential
 
             End Select
@@ -540,12 +623,18 @@
                      cost=cost+ P_cost(4)* WCost(4)
 
                case(5)      !Bond-Valence
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
                      call Cost_BVS(Ac, P_cost(5))
                      cost=cost+ P_cost(5)* WCost(5)
 
                case(6)      !Bond-Valence+ Coulomb repulsion
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
                      call Cost_BVS_CoulombRep(Ac, P_cost(5),P_cost(6))
                      cost=cost+ P_cost(5)* WCost(5)+P_cost(6)* WCost(6)
 
@@ -559,6 +648,13 @@
                      cost=cost+ P_cost(8)* WCost(8)
 
                case(9)      !Anti-Bumb functions
+                     if(.not. tdist_called) then
+                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       tdist_called=.true.
+                     end if
+                     call Cost_dist_min(P_cost(9))
+                     cost=cost+ P_cost(9)* WCost(9)
+
                case(10)      !Potential
 
             End Select
@@ -568,144 +664,7 @@
       return
     End Subroutine General_Cost_function
 
-    Subroutine Cost_function2minimize(n,v,cost)
-      integer,              intent( in):: n !should be equal to NP_Refi
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer :: i,ic, nop, nlist=1, numv
-      integer, dimension(1) :: List
 
-
-
-
-      v_shift(1:n)=v(1:n)-v_vec(1:n)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:n)=v(1:n)
-
-      numv=count(abs(v_shift) > 0.00001, dim=1)
-
-      if(numv == 1) then
-         i=maxloc(abs(v_shift),dim=1)
-         List(1)=v_list(i)
-         call VState_to_AtomsPar(A) !Update Atomic parameters with the proper constraints
-
-         cost=0.0
-
-         do ic=0,N_costf
-
-            if(Icost(ic) == 0) cycle
-
-            Select Case(ic)
-
-               case(0)      !Experimental Gobs-Gcalc diffraction pattern
-                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
-                     call Cost_F2obsF2cal(P_cost(0))
-                     cost=cost+ P_cost(0)* WCost(0)
-
-               case(1)      !Experimental Gobs-Gcalc diffraction pattern
-                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
-                     call Cost_FobsFcal(P_cost(1))
-                     cost=cost+ P_cost(1)* WCost(1)
-
-               case(2)      !Distance restraints
-                     call Cost_Dis_Rest_Partial(List(1),P_cost(2))
-                     cost=cost+ P_cost(2)* WCost(2)
-
-               case(3)      !Angle restraints
-                     call Cost_Ang_Rest_Partial(List(1),P_cost(3))
-                     cost=cost+ P_cost(3)* WCost(3)
-
-               case(4)      !Torsion angle restraints
-                     call Cost_Tor_Rest_Partial(List(1),P_cost(4))
-                     cost=cost+ P_cost(4)* WCost(4)
-
-               case(5)      !Bond-Valence
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
-                     call Cost_BVS(Ac, P_cost(5))
-                     cost=cost+ P_cost(5)* WCost(5)
-
-               case(6)      !Bond-Valence+ Coulomb repulsion
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
-                     call Cost_BVS_CoulombRep(Ac, P_cost(5),P_cost(6))
-                     cost=cost+ P_cost(5)* WCost(5)+P_cost(6)* WCost(6)
-
-               case(7)      !FoFc-Powder
-                     call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode=diff_mode)
-                     call Cost_FoFc_powder(P_cost(7))
-                     cost=cost+ P_cost(7)* WCost(7)
-
-               case(8)      !Coordination
-                     call Cost_Coordination(P_cost(8))
-                     cost=cost+ P_cost(8)* WCost(8)
-
-               case(9)      !Anti-Bumb functions
-               case(10)      !Potential
-
-            End Select
-         end do
-
-      else            !New configuration
-
-         call VState_to_AtomsPar(A,mode="V")   !Update Atomic parameters with the proper constraints
-         cost=0.0
-
-         do ic=0,N_costf
-
-            if(Icost(ic) == 0) cycle
-
-            Select Case(ic)
-
-               case(0)      !Experimental Gobs-Gcalc diffraction pattern
-                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-                     call Cost_F2obsF2cal(P_cost(0))
-                     cost=cost+ P_cost(0)* WCost(0)
-
-               case(1)      !Experimental Gobs-Gcalc diffraction pattern
-                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-                     call Cost_FobsFcal(P_cost(1))
-                     cost=cost+ P_cost(1)* WCost(1)
-
-               case(2)      !Distance restraints
-                     call Cost_Dis_Rest(P_cost(2))
-                     cost=cost+ P_cost(2)* WCost(2)
-
-               case(3)      !Angle restraints
-                     call Cost_Ang_Rest(P_cost(3))
-                     cost=cost+ P_cost(3)* WCost(3)
-
-               case(4)      !Torsion angle restraints
-                     call Cost_Tor_Rest(P_cost(4))
-                     cost=cost+ P_cost(4)* WCost(4)
-
-               case(5)      !Bond-Valence
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
-                     call Cost_BVS(Ac, P_cost(5))
-                     cost=cost+ P_cost(5)* WCost(5)
-
-               case(6)      !Bond-Valence+ Coulomb repulsion
-                     call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
-                     call Cost_BVS_CoulombRep(Ac, P_cost(5),P_cost(6))
-                     cost=cost+ P_cost(5)* WCost(5)+P_cost(6)* WCost(6)
-
-               case(7)      !FoFc-Powder
-                     call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel_int)
-                     call Cost_FoFc_powder(P_cost(7))
-                     cost=cost+ P_cost(7)* WCost(7)
-
-               case(8)      !Coordination
-                     call Cost_Coordination(P_cost(8))
-                     cost=cost+ P_cost(8)* WCost(8)
-
-               case(9)      !Anti-Bumb functions
-               case(10)      !Potential
-
-
-            End Select
-         end do
-      end if
-
-      return
-    End Subroutine Cost_function2minimize
 
     Subroutine Cost_F2obsF2cal(cost)
        real,                 intent(out):: cost
@@ -812,6 +771,31 @@
        cost=cost*coord_T
        return
     End Subroutine Cost_Coordination
+
+    Subroutine Cost_Dist_Min(cost)
+       real,      intent(out):: cost
+       !---- Local variables ----!
+       integer :: i,j,k, icm
+       real    :: d
+       character(len=2)   :: ch1,ch2
+
+       cost=0.0
+       do i=1,Ac%natoms
+          icm=coord_info%coord_num(i)
+          ch1=Ac%Atom(i)%ChemSymb
+          do j=1,icm
+             ch2=A%Atom(coord_info%n_cooatm(i,j))%ChemSymb
+             do k=1,anti_bump%nrel
+                if( ( ch1 == anti_bump%sp1(k) .or. ch1 == anti_bump%sp2(k)) .and. &
+                    ( ch2 == anti_bump%sp1(k) .or. ch2 == anti_bump%sp2(k)) ) then
+                     d = coord_info%dist(i,j)
+                  cost = cost + (anti_bump%damin(k)/d)**18
+                end if
+             end do
+          end do
+       end do
+       return
+    End Subroutine Cost_Dist_Min
 
     Subroutine Cost_Dis_Rest(cost)
        real,      intent(out):: cost
@@ -981,319 +965,5 @@
 
        return
     End Subroutine Cost_Tor_Rest
-
-!    ==========================================
-
-    Subroutine Cost_function_Restraints(v,cost)
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer :: i, nop, i1,i2,i3,i4, list, numv
-      real    :: w, delta
-      real, dimension(3) :: x1,x2,x3,x4,tr
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:NP_Refi)=v(1:NP_Refi)
-
-      numv=count(abs(v_shift) > 0.00001, dim=1)
-      if(numv == 1) then
-         i=maxloc(abs(v_shift),dim=1)
-         List=v_list(i)
-         call VState_to_AtomsPar(A)                        !Update Atomic parameters with the proper constraints
-      else
-         call VState_to_AtomsPar(A,mode="V")               !Update Atomic parameters with the proper constraints
-      end if
-
-      cost=0.0
-
-      if(numv == 1) then
-
-         do i=1,NP_Rest_Dis
-          i1=Dis_rest(i)%p(1)
-          i2=Dis_rest(i)%p(2)
-          if(list == i1 .or. list == i2) then
-              x1=A%Atom(i1)%x
-              x2=A%Atom(i2)%x
-              call Read_SymTrans_Code(dis_rest(i)%stcode,nop,tr)
-              x2=ApplySO(SpG%SymOP(nop),x2)+tr
-              Dis_rest(i)%dcalc=distance(x1,x2,cell)
-          end if
-          delta=Dis_rest(i)%dobs-Dis_rest(i)%dcalc
-          w= 1.0/(Dis_rest(i)%sigma*Dis_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-
-         do i=1,NP_Rest_Ang
-          i1=Ang_rest(i)%p(1)
-          i2=Ang_rest(i)%p(2)
-          i3=Ang_rest(i)%p(3)
-          if(list == i1 .or. list == i2 .or. list == i3 ) then
-              x1=A%Atom(i1)%x
-              x2=A%Atom(i2)%x
-              call Read_SymTrans_Code(ang_rest(i)%stcode(1),nop,tr)
-              x2=ApplySO(SpG%SymOP(nop),x2)+tr
-              x3=A%Atom(i3)%x
-              call Read_SymTrans_Code(ang_rest(i)%stcode(2),nop,tr)
-              x3=ApplySO(SpG%SymOP(nop),x3)+tr
-              Ang_rest(i)%Acalc=Angle_UV(x1-x2,x3-x2,cell%GD)
-          end if
-          delta=Ang_rest(i)%Aobs-Ang_rest(i)%Acalc
-          w= 1.0/(Ang_rest(i)%sigma*Ang_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-
-
-         do i=1,NP_Rest_tor
-          i1=Tor_rest(i)%p(1)
-          i2=Tor_rest(i)%p(2)
-          i3=Tor_rest(i)%p(3)
-          i4=Tor_rest(i)%p(4)
-          if(list == i1 .or. list == i2 .or. list == i3 .or. list == i4 ) then
-              x1=A%Atom(i1)%x
-              x2=A%Atom(i2)%x
-              call Read_SymTrans_Code(tor_rest(i)%stcode(1),nop,tr)
-              x2=ApplySO(SpG%SymOP(nop),x2)+tr
-
-              x3=A%Atom(i3)%x
-              call Read_SymTrans_Code(tor_rest(i)%stcode(2),nop,tr)
-              x3=ApplySO(SpG%SymOP(nop),x3)+tr
-
-              x4=A%Atom(i3)%x
-              call Read_SymTrans_Code(tor_rest(i)%stcode(3),nop,tr)
-              x4=ApplySO(SpG%SymOP(nop),x4)+tr
-
-              x1=matmul(Cell%Cr_Orth_cel,x1)
-              x2=matmul(Cell%Cr_Orth_cel,x2)
-              x3=matmul(Cell%Cr_Orth_cel,x3)
-              x4=matmul(Cell%Cr_Orth_cel,x4)
-
-              tor_rest(i)%Tcalc=Angle_Dihedral(x1,x2,x3,x4)
-          end if
-          delta=tor_rest(i)%Tobs-tor_rest(i)%Tcalc
-          w= 1.0/(Tor_rest(i)%sigma*Tor_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-      else
-
-         do i=1,NP_Rest_Dis
-          i1=Dis_rest(i)%p(1)
-          i2=Dis_rest(i)%p(2)
-          x1=A%Atom(i1)%x
-          x2=A%Atom(i2)%x
-          call Read_SymTrans_Code(dis_rest(i)%stcode,nop,tr)
-          x2=ApplySO(SpG%SymOP(nop),x2)+tr
-
-          Dis_rest(i)%dcalc=distance(x1,x2,cell)
-          delta=Dis_rest(i)%dobs-Dis_rest(i)%dcalc
-          w= 1.0/(Dis_rest(i)%sigma*Dis_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-
-         do i=1,NP_Rest_Ang
-          i1=Ang_rest(i)%p(1)
-          i2=Ang_rest(i)%p(2)
-          i3=Ang_rest(i)%p(3)
-          x1=A%Atom(i1)%x
-          x2=A%Atom(i2)%x
-          call Read_SymTrans_Code(ang_rest(i)%stcode(1),nop,tr)
-          x2=ApplySO(SpG%SymOP(nop),x2)+tr
-          x3=A%Atom(i3)%x
-          call Read_SymTrans_Code(ang_rest(i)%stcode(2),nop,tr)
-          x3=ApplySO(SpG%SymOP(nop),x3)+tr
-          Ang_rest(i)%Acalc=Angle_UV(x1-x2,x3-x2,cell%GD)
-          delta=Ang_rest(i)%Aobs-Ang_rest(i)%Acalc
-          w= 1.0/(Ang_rest(i)%sigma*Ang_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-
-
-         do i=1,NP_Rest_tor
-          i1=Tor_rest(i)%p(1)
-          i2=Tor_rest(i)%p(2)
-          i3=Tor_rest(i)%p(3)
-          i4=Tor_rest(i)%p(4)
-          x1=A%Atom(i1)%x
-
-          x2=A%Atom(i2)%x
-          call Read_SymTrans_Code(tor_rest(i)%stcode(1),nop,tr)
-          x2=ApplySO(SpG%SymOP(nop),x2)+tr
-
-          x3=A%Atom(i3)%x
-          call Read_SymTrans_Code(tor_rest(i)%stcode(2),nop,tr)
-          x3=ApplySO(SpG%SymOP(nop),x3)+tr
-
-          x4=A%Atom(i3)%x
-          call Read_SymTrans_Code(tor_rest(i)%stcode(3),nop,tr)
-          x4=ApplySO(SpG%SymOP(nop),x4)+tr
-
-          x1=matmul(Cell%Cr_Orth_cel,x1)
-          x2=matmul(Cell%Cr_Orth_cel,x2)
-          x3=matmul(Cell%Cr_Orth_cel,x3)
-          x4=matmul(Cell%Cr_Orth_cel,x4)
-
-          tor_rest(i)%Tcalc=Angle_Dihedral(x1,x2,x3,x4)
-          delta=tor_rest(i)%Tobs-tor_rest(i)%Tcalc
-          w= 1.0/(Tor_rest(i)%sigma*Tor_rest(i)%sigma)
-          cost= cost+delta*delta*w
-         end do
-      end if
-      return
-    End Subroutine Cost_function_Restraints
-
-    Subroutine Cost_function_FobsFcal(v,cost)
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer :: i, n
-      real    :: delta,sumcal
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:NP_Refi)=v(1:NP_Refi)
-
-      call VState_to_AtomsPar(A)                        !Update Atomic parameters with the proper constraints
-
-      call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-
-      cost=0.0
-      n=hkl%Nref
-      sumcal=sum(abs(hkl%ref(1:n)%Fc))
-      ScaleFact=1.0
-      if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
-      do i=1,hkl%Nref
-       delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc
-       cost=cost+abs(delta)
-      end do
-      cost=100.0*cost/SumGobs
-
-    End Subroutine Cost_function_FobsFcal
-
-    Subroutine Function_FobsFcal(nn,v,cost)
-      integer,              intent( in):: nn
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer :: i, n
-      real    :: delta,sumcal
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:NP_Refi)=v(1:NP_Refi)
-
-      call VState_to_AtomsPar(A,mode="v")                        !Update Atomic parameters with the proper constraints
-
-      call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-
-      cost=0.0
-      n=hkl%Nref
-      sumcal=sum(abs(hkl%ref(1:n)%Fc))
-      ScaleFact=1.0
-      if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
-      do i=1,hkl%Nref
-       delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc
-       cost=cost+abs(delta)
-      end do
-      cost=100.0*cost/SumGobs
-
-    End Subroutine Function_FobsFcal
-
-    Subroutine Cost_function_MFobsFcal(v,cost)
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer              :: i,nlist=1,n
-      real                 :: delta,sumcal
-      integer,dimension(1) :: List
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:NP_Refi)=v(1:NP_Refi)
-
-      i=maxloc(abs(v_shift),dim=1)
-      List(1)=v_list(i)
-
-      call VState_to_AtomsPar(A)                        !Update Atomic parameters with the proper constraints
-      call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode="NUC")
-
-      n=hkl%Nref
-      sumcal=sum(abs(hkl%ref(1:n)%Fc))
-      ScaleFact=1.0
-      if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
-      cost=0.0
-      do i=1,hkl%Nref
-       delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc
-       cost=cost+abs(delta)
-      end do
-      cost=100.0*cost/SumGobs
-
-    End Subroutine Cost_function_MFobsFcal
-
-
-    Subroutine Cost_function_MulFobsFcal(v,cost)
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer              :: i,nlist=1,n,numv
-      real                 :: delta,sumcal
-      integer,dimension(1) :: List
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-
-      v_vec(1:NP_Refi)=v(1:NP_Refi)       !Update the State vector
-
-      numv=count(abs(v_shift) > 0.00001, dim=1)
-      if(numv == 1) then
-         i=maxloc(abs(v_shift),dim=1)
-         List(1)=v_list(i)
-         call VState_to_AtomsPar(A)                        !Update Atomic parameters with the proper constraints
-         call Modify_SF(hkl,A,SpG,List,Nlist,partyp="CO",mode="NUC")
-      else
-         call VState_to_AtomsPar(A,mode="V")                !Update Atomic parameters with the proper constraints
-         call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-      end if
-
-      n=hkl%Nref
-      sumcal=sum(abs(hkl%ref(1:n)%Fc))
-      ScaleFact=1.0
-      if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
-      cost=0.0
-      do i=1,hkl%Nref
-       delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc
-       cost=cost+abs(delta)
-      end do
-      cost=100.0*cost/SumGobs
-
-    End Subroutine Cost_function_MulFobsFcal
-
-
-    Subroutine LSQ_FobsFcal(v,cost)
-      real,dimension(:),    intent( in):: v
-      real,                 intent(out):: cost
-      !---- Local variables ----!
-      integer :: i,n
-      real    :: delta,sumcal
-
-
-      v_shift(1:NP_Refi)=v(1:NP_Refi)-v_vec(1:NP_Refi)  !Calculate the shifts w.r.t. old configuration
-      v_vec(1:NP_Refi)=v(1:NP_Refi)
-
-      call VState_to_AtomsPar(A)                        !Update Atomic parameters with the proper constraints
-
-      call Structure_Factors(A,SpG,hkl,mode=diff_mode,lambda=wavel)
-
-      n=hkl%Nref
-      sumcal=sum(abs(hkl%ref(1:n)%Fc))
-      ScaleFact=1.0
-      if(sumcal > 0.0000001) ScaleFact=SumGobs/sumcal
-      cost=0.0
-      do i=1,hkl%Nref
-       delta=hkl%ref(i)%Fo-ScaleFact*hkl%ref(i)%Fc
-       cost=cost+abs(delta)
-      end do
-      cost=100.0*cost/SumGobs
-
-    End Subroutine LSQ_FobsFcal
 
   End Module cost_functions

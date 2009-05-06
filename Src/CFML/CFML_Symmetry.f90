@@ -8686,21 +8686,21 @@
        write(unit=lun,fmt="(/,/,a)")          "        Information on Space Group: "
        write(unit=lun,fmt="(a,/ )")           "        --------------------------- "
        write(unit=lun,fmt="(a,i3)")          " =>  Number of Space group: ", SpaceGroup%NumSpg
-       write(unit=lun,fmt="(a,a)")           " => Hermann-Mauguin Symbol: ", SpaceGroup%SPG_Symb
-       write(unit=lun,fmt="(a,a)")           " =>            Hall Symbol: ", SpaceGroup%Hall
-       write(unit=lun,fmt="(a,a)")           " =>   Table Setting Choice: ", SpaceGroup%info
-       write(unit=lun,fmt="(a,a)")           " =>           Setting Type: ", SpaceGroup%SG_setting
+       write(unit=lun,fmt="(a,a)")           " => Hermann-Mauguin Symbol: ", trim(SpaceGroup%SPG_Symb)
+       write(unit=lun,fmt="(a,a)")           " =>            Hall Symbol: ", trim(SpaceGroup%Hall)
+       write(unit=lun,fmt="(a,a)")           " =>   Table Setting Choice: ", trim(SpaceGroup%info)
+       write(unit=lun,fmt="(a,a)")           " =>           Setting Type: ", trim(SpaceGroup%SG_setting)
 
-       write(unit=lun,fmt="(a,a)")           " =>         Crystal System: ", SpaceGroup%CrystalSys
-       write(unit=lun,fmt="(a,a)")           " =>             Laue Class: ", SpaceGroup%Laue
-       write(unit=lun,fmt="(a,a)")           " =>            Point Group: ", SpaceGroup%Pg
+       write(unit=lun,fmt="(a,a)")           " =>         Crystal System: ", trim(SpaceGroup%CrystalSys)
+       write(unit=lun,fmt="(a,a)")           " =>             Laue Class: ", trim(SpaceGroup%Laue)
+       write(unit=lun,fmt="(a,a)")           " =>            Point Group: ", trim(SpaceGroup%Pg)
 
-       write(unit=lun,fmt="(a,a)")           " =>        Bravais Lattice: ", SpaceGroup%SPG_Lat
-       write(unit=lun,fmt="(a,a)")           " =>         Lattice Symbol: ", SpaceGroup%SPG_Latsy
+       write(unit=lun,fmt="(a,a)")           " =>        Bravais Lattice: ", trim(SpaceGroup%SPG_Lat)
+       write(unit=lun,fmt="(a,a)")           " =>         Lattice Symbol: ", trim(SpaceGroup%SPG_Latsy)
 
        write(unit=lun,fmt="(a,i3)")          " => Reduced Number of S.O.: ", SpaceGroup%NumOps
        write(unit=lun,fmt="(a,i3)")          " =>   General multiplicity: ", SpaceGroup%Multip
-       write(unit=lun,fmt="(a,a)")           " =>         Centrosymmetry: ", SpaceGroup%Centre
+       write(unit=lun,fmt="(a,a)")           " =>         Centrosymmetry: ", trim(SpaceGroup%Centre)
        write(unit=lun,fmt="(a,i3)")          " => Generators (exc. -1&L): ", SpaceGroup%num_gen
        write(unit=lun,fmt="(a,f6.3,a,f6.3)") " =>        Asymmetric unit: ", SpaceGroup%R_Asym_Unit(1,1), &
                                                                   " <= x <= ",SpaceGroup%R_Asym_Unit(1,2)
@@ -8768,7 +8768,7 @@
           end do
           if (nlines > 24) nlines=24
           do i=1,nlines
-             write(unit=lun,fmt="(a)") texto(i)
+             write(unit=lun,fmt="(a)") trim(texto(i))
           end do
        end if
 

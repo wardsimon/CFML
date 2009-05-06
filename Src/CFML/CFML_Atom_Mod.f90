@@ -1230,14 +1230,14 @@
           if(ats%atom(i)%thtype == "aniso") aniso=.true.
           select case (lv)
              case (0)
-                write(unit=iunit,fmt="(T5,a,T16,a,T21,5f10.4,i9)") &
+                write(unit=iunit,fmt="(T5,a,T16,a,T21,5f10.4,i9,a)") &
                      ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
-                     ats%atom(i)%biso,ats%atom(i)%occ,ats%atom(i)%mult
+                     ats%atom(i)%biso,ats%atom(i)%occ,ats%atom(i)%mult,trim("  "//ats%atom(i)%AtmInfo)
              case (1)
-                write(unit=iunit,fmt="(T5,a,T16,a,T21,7f10.4,T96,a,t97,i9)") &
+                write(unit=iunit,fmt="(T5,a,T16,a,T21,7f10.4,T96,a,t97,i9,a)") &
                      ats%atom(i)%lab, ats%atom(i)%chemsymb, ats%atom(i)%x, &
                      ats%atom(i)%biso,ats%atom(i)%occ,ats%atom(i)%moment,ats%atom(i)%charge,&
-                     car,ats%atom(i)%mult
+                     car,ats%atom(i)%mult,trim("  "//ats%atom(i)%AtmInfo)
           end select
        end do
 
@@ -1279,7 +1279,7 @@
                 end if
 
                 if (present(cell)) then
-                   beta=reshape((/bet(1),bet(4),bet(5), bet(4),bet(2),bet(6), bet(5),bet(6),bet(3) /),(/3,3/))
+                  beta=reshape((/bet(1),bet(4),bet(5), bet(4),bet(2),bet(6), bet(5),bet(6),bet(3) /),(/3,3/))
                    beta=beta*0.5/pi/pi
                    beta=matmul(matmul(Cell%Cr_Orth_cel,beta),transpose(Cell%Cr_Orth_cel))
                    call matrix_diageigen(beta,rms,eigen)
