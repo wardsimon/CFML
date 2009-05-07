@@ -669,17 +669,17 @@
          strings=" "
          write(unit=strings,fmt="(a,i2,a,g12.6)") " => Initial configuration cost(",j,"): ",cost1(j)
          call mess(strings)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
        end do
        strings=" "
        write(unit=strings,fmt="(a)") " => Initial Best configuration state vector: "
        call mess(strings)
-       write(unit=ipr,fmt="(a)") strings
+       write(unit=ipr,fmt="(a)") trim(strings)
 
        strings=" "
        do i=1,vs%npar
          write(unit=strings,fmt="(i6,a,f16.5)")  i,vs%nampar(i), vs%config(i)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
 
@@ -702,7 +702,7 @@
           write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
                "       Number of function evaluations:",neval
           call mess(strings)
-          write(unit=ipr,fmt="(/,a)") strings
+          write(unit=ipr,fmt="(/,a)") trim(strings)
 
           do j=1,vs%nconf   ! loop over different configuration state vectors
 
@@ -805,7 +805,7 @@
              "     Conf:",j,"  (%Acc):",paj(j),"  <Step(",j,")>:",stepav, &
              "  <"//trim(c%Cost_function_name)//">:",cost(j),"  -> Current Cost:", cost1(j)
              call mess(strings)
-             write(unit=ipr,fmt="(a)") strings
+             write(unit=ipr,fmt="(a)") trim(strings)
              write(unit=ipr,fmt="(a,i10 )")  "     Num-Cost-Evaluations: ",neval
 
             !Apply test of convergence and suppress bad configurations
@@ -814,7 +814,7 @@
                  dead(j)=.true. !Convergence criterium
                  write(unit=strings,fmt="(a,i3,a)") " => Configuration #",j," converged => dead in the algorithm!"
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
             end if
 
             if(abs(costav(j)-cost(j)) < 0.20 .and. modulo(ntp,4) == 0 .and. stepav < half_init_avstp ) then
@@ -826,11 +826,11 @@
                  write(unit=strings,fmt="(a,i3,a,f8.2)")" => Configuration #",j, &
                  " do not change anymore => dead in the algorithm after local optimization! Final cost: ", cost(j)
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
                  if (cost(j) < costop) then     !the best current configuration is found
                     write(unit=strings,fmt="(a,f8.2)") " => It becomes the best configuration for the moment!"
                     call mess(strings)
-                    write(unit=ipr,fmt="(a)") strings
+                    write(unit=ipr,fmt="(a)") trim(strings)
                     costop=cost(j)
                     vs%config(:)=raver(:,j)
                     jopt=j
@@ -849,7 +849,7 @@
                  dead(k) = .true.
                  write(unit=strings,fmt="(2(a,i3))") " => Configuration #",k," dead, because it is equal to Configuration #",j
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
               end if
             end do
 
@@ -858,7 +858,7 @@
             if(cost(j) < c%threshold .and. .not. dead(j)) then
                write(unit=strings,fmt="(a,i3,a,f8.2)") " => Local Optimization of Configuration #",j,"   Average Cost: ",cost(j)
                call mess(strings)
-               write(unit=ipr,fmt="(a)") strings
+               write(unit=ipr,fmt="(a)") trim(strings)
                if(cost1(j) < cost(j)) then
                   cost(j)=cost1(j)
                   raver(:,j) = stateo(:,j)
@@ -868,7 +868,7 @@
                write(unit=strings,fmt="(a,i3,a,f8.2)") " => Configuration #",j,&
                " dead, because it has been locally optimized (cost < Threshold). Final cost: ",cost(j)
                call mess(strings)
-               write(unit=ipr,fmt="(a)") strings
+               write(unit=ipr,fmt="(a)") trim(strings)
                vs%state(:,j)=raver(:,j)
                vs%cost(j)=cost(j)
                cost1(j)=cost(j)
@@ -902,7 +902,7 @@
           if(survive == 0) then
             strings = " => Convergence reached, look the list of configurations"
             call mess(strings)
-            write(unit=ipr,fmt="(a)") strings
+            write(unit=ipr,fmt="(a)") trim(strings)
             exit
           end if
 
@@ -1301,16 +1301,16 @@
        strings=" "
        write(unit=strings,fmt="(a,g16.6)") " => Initial configuration cost: ",cost1
        call mess(strings)
-       write(unit=ipr,fmt="(a)") strings
+       write(unit=ipr,fmt="(a)") trim(strings)
 
        strings=" "
        write(unit=strings,fmt="(a)") " => Initial configuration state vector: "
        call mess(strings)
-       write(unit=ipr,fmt="(a)") strings
+       write(unit=ipr,fmt="(a)") trim(strings)
 
        do i=1,vs%npar
           write(unit=strings,fmt="(i6,a,F16.5)")  i,vs%nampar(i), vs%state(i)
-          write(unit=ipr,fmt="(a)") strings
+          write(unit=ipr,fmt="(a)") trim(strings)
           call mess(strings)
        end do
 
@@ -1650,17 +1650,17 @@
          strings=" "
          write(unit=strings,fmt="(a,i2,a,g12.6)") " => Initial configuration cost(",j,"): ",cost1(j)
          call mess(strings)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
        end do
        strings=" "
        write(unit=strings,fmt="(a)") " => Initial Best configuration state vector: "
        call mess(strings)
-       write(unit=ipr,fmt="(a)") strings
+       write(unit=ipr,fmt="(a)") trim(strings)
 
        strings=" "
        do i=1,vs%npar
          write(unit=strings,fmt="(i6,a,f16.5)")  i,vs%nampar(i), vs%config(i)
-         write(unit=ipr,fmt="(a)") strings
+         write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
 
@@ -1683,7 +1683,7 @@
           write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
                "       Number of function evaluations:",neval
           call mess(strings)
-          write(unit=ipr,fmt="(/,a)") strings
+          write(unit=ipr,fmt="(/,a)") trim(strings)
 
           do j=1,vs%nconf   ! loop over different configuration state vectors
 
@@ -1786,7 +1786,7 @@
              "     Conf:",j,"  (%Acc):",paj(j),"  <Step(",j,")>:",stepav, &
              "  <"//trim(c%Cost_function_name)//">:",cost(j),"  -> Current Cost:", cost1(j)
              call mess(strings)
-             write(unit=ipr,fmt="(a)") strings
+             write(unit=ipr,fmt="(a)") trim(strings)
              write(unit=ipr,fmt="(a,i10 )")  "     Num-Cost-Evaluations: ",neval
 
             !Apply test of convergence and suppress bad configurations
@@ -1795,14 +1795,14 @@
                  dead(j)=.true. !Convergence criterium
                  write(unit=strings,fmt="(a,i3,a)") " => Configuration #",j," converged => dead in the algorithm!"
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
             end if
 
             if(abs(costav(j)-cost(j)) < 0.20 .and. modulo(ntp,4) == 0 .and. stepav < half_init_avstp ) then
                  dead(j)=.true. !Convergence criterium
                  write(unit=strings,fmt="(a,i3,a)") " => Configuration #",j," do not change anymore => dead in the algorithm!"
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
             end if
 
             do k=j+1,vs%nconf
@@ -1814,7 +1814,7 @@
                  dead(k) = .true.
                  write(unit=strings,fmt="(2(a,i3))") " => Configuration #",k," dead, because it is equal to Configuration #",j
                  call mess(strings)
-                 write(unit=ipr,fmt="(a)") strings
+                 write(unit=ipr,fmt="(a)") trim(strings)
               end if
             end do
 
@@ -1836,7 +1836,7 @@
           if(survive == 0) then
             strings = " => Convergence reached, look the list of configurations"
             call mess(strings)
-            write(unit=ipr,fmt="(a)") strings
+            write(unit=ipr,fmt="(a)") trim(strings)
             exit
           end if
 

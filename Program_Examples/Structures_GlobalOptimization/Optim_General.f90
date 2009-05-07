@@ -3,7 +3,7 @@ Program Optimizing_structures
    !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case, Get_LogUnit
-   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, Write_CFL, Copy_Atom_List 
+   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, Write_CFL, Copy_Atom_List
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,&
@@ -15,7 +15,7 @@ Program Optimizing_structures
                                              Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
                                              Write_Info_RefCodes, Err_RefCodes, err_refcodes_mess, &
                                              allocate_restparam, Write_restraints_ObsCalc,VState_to_AtomsPar
-                                                                                          
+
    use CFML_Simulated_Annealing,       only: SimAnn_Conditions_type, state_Vector_Type, Multistate_Vector_Type, &
                                              err_san_mess,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
                                              Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
@@ -145,17 +145,19 @@ Program Optimizing_structures
           write(unit=*,fmt="(a)") trim(err_refcodes_mess)
         end if
      end if
-     
-     if(anti_bump%nrel > 0)then      
-          write(unit=lun, fmt="(/,a,i5)") " => Anti-Bump relations: ",anti_bump%nrel
+
+     if(anti_bump%nrel > 0)then
+          write(unit=lun, fmt="(/,a,i5)") " =>   Anti-Bump relations: ",anti_bump%nrel
+          write(unit=lun, fmt="(a)")      " => Repulsion of the form: (dmin/d)**power "
           write(unit=lun, fmt="(a)") " "
-          write(unit=lun, fmt="(a)") "   N.A-Bump   Minimal-Distance    Species1     Species2 "
-          write(unit=lun, fmt="(a)") " ======================================================="
+          write(unit=lun, fmt="(a)") "   N.A-Bump   Minimal-Distance   Power    Species1  Species2"
+          write(unit=lun, fmt="(a)") " ==========================================================="
           do i=1,anti_bump%nrel
-          	write(unit=lun, fmt="(i7,tr3,f8.4,t34,a,t43,a)")  i, anti_bump%damin(i), anti_bump%sp1(i),anti_bump%sp2(i)
-          end do       
+            write(unit=lun, fmt="(i7,tr8,f8.4,i11,tr9,a,tr9,a)")  i, anti_bump%damin(i), anti_bump%power(i),&
+                                                                     anti_bump%sp1(i),anti_bump%sp2(i)
+          end do
      end if
-     
+
      call Write_Info_RefCodes(A,Spg,lun)
 
      !--- Look for FP_Studio commands
@@ -313,7 +315,7 @@ Program Optimizing_structures
            call Simanneal_Gen(General_Cost_function,c,vs,lun)
          end if
          call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
-         
+
          !Write a CFL file
          call Copy_Atom_List(A, A_clone)
          call Get_LogUnit(i_cfl)
@@ -321,7 +323,7 @@ Program Optimizing_structures
          open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
          call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
          close(unit=i_cfl)
-         
+
      else   ! Multi-configuration Simulated Annealing
 
          call Set_SimAnn_MStateV(NP_Refi,c%num_conf,V_BCon,V_Bounds,V_Name,V_Vec,mvs)
@@ -351,9 +353,9 @@ Program Optimizing_structures
          call Copy_Atom_List(A, A_clone)
          n=mvs%npar
          do i=1,c%num_conf
-           line=" " 
+           line=" "
            write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
-           V_vec(1:n)=mvs%state(1:n,i)                  
+           V_vec(1:n)=mvs%state(1:n,i)
            call VState_to_AtomsPar(A_clone,mode="V")
            call Get_LogUnit(i_cfl)
            open(unit=i_cfl,file=trim(line),status="replace",action="write")
@@ -362,7 +364,7 @@ Program Optimizing_structures
            close(unit=i_cfl)
          end do
      end if
-              
+
      call Write_FinalCost(lun)
      call Write_Atom_List(A,lun=lun)
 

@@ -50,6 +50,7 @@
         character(len=2), dimension(:), allocatable :: sp1     !Chemical species 1
         character(len=2), dimension(:), allocatable :: sp2     !Chemical species 2
         real,             dimension(:), allocatable :: damin   !Minimal distances inter-species
+        integer,          dimension(:), allocatable :: power   !power of the potential (damin/d)**power
       End Type anti_bump_type
 
       Type(anti_bump_type), public ::  anti_bump
@@ -79,7 +80,7 @@
 
        if(nrel > 0) then
           anti_bump%nrel=nrel
-          allocate(anti_bump%sp1(nrel),anti_bump%sp2(nrel),anti_bump%damin(nrel))
+          allocate(anti_bump%sp1(nrel),anti_bump%sp2(nrel),anti_bump%damin(nrel),anti_bump%power(nrel))
           anti_bump%sp1=" "
           anti_bump%sp2=" "
           anti_bump%damin=0.0
@@ -90,7 +91,8 @@
           line=adjustl(l_case(file_dat%line(j)))
           if (line(1:6) =="damin ") then
               i=i+1
-              read(unit=file_dat%line(j)(7:),fmt=*,iostat=ier) anti_bump%sp1(i),anti_bump%sp2(i),anti_bump%damin(i)
+              read(unit=file_dat%line(j)(7:),fmt=*,iostat=ier) anti_bump%sp1(i),anti_bump%sp2(i), &
+                                                               anti_bump%damin(i),anti_bump%power(i)
               if(ier /= 0) then
                 i=i-1
               end if
@@ -391,7 +393,7 @@
 
               case (9)    !Optimization "Anti_Bump"
                  Write(unit=lun,fmt="(a,f8.4)") &
-                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i)
+                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**power}, with weight: ",wcost(i)
 
 
           end select
@@ -418,7 +420,7 @@
        do i=0,n_costf
 
           if(icost(i) == 0) cycle
-          
+
           select case (i)
 
               case (0)    !Optimization "F2obs-F2cal"
@@ -481,7 +483,7 @@
 
               case (9)    !Optimization "Anti Bump"
                  Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
-                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i),&
+                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**power}, with weight: ",wcost(i),&
                  "  Final Cost: ",P_cost(9)
 
 
@@ -782,7 +784,7 @@
                 if( ( ch1 == anti_bump%sp1(k) .or. ch1 == anti_bump%sp2(k)) .and. &
                     ( ch2 == anti_bump%sp1(k) .or. ch2 == anti_bump%sp2(k)) ) then
                      d = coord_info%dist(i,j)
-                  cost = cost + (anti_bump%damin(k)/d)**18
+                  cost = cost + (anti_bump%damin(k)/d)**anti_bump%power(k)
                 end if
              end do
           end do
