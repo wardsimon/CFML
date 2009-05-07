@@ -1,7 +1,7 @@
   Module cost_functions
       Use CFML_crystallographic_symmetry, only: space_group_type, ApplySO, Read_SymTrans_Code
       Use CFML_Geometry_Calc,             only: distance,angle_uv,Angle_dihedral, Set_tdist_coordination,&
-                                                allocate_coordination_type, coord_info
+                                                allocate_coordination_type, coord_info, Set_TDist_Partial_Coordination
       Use CFML_BVS_Energy_Calc,           only: Cost_BVS, Atoms_Conf_list_Type, species_on_list, &
                                                 Allocate_Atoms_Conf_list, err_conf, err_conf_mess, &
                                                 Cost_BVS_CoulombRep, set_Table_d0_B
@@ -29,7 +29,7 @@
       logical,                      public :: err_cost=.false.
       character(len=132),           public :: err_mess_cost=" "
       type (space_group_type),      public :: SpG
-      type (Atom_list_Type),        public :: A
+      type (Atom_list_Type),        public :: A, A_Clone
       type (Atoms_Conf_list_Type),  public :: Ac
       type (Crystal_Cell_Type),     public :: Cell
       type (Reflection_List_Type),  public :: hkl
@@ -553,7 +553,7 @@
 
                case(5)      !Bond-Valence
                      if(.not. tdist_called) then
-                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       call Set_TDist_Partial_Coordination(List(1),max_coor, Dmax, Cell, SpG, A)
                        tdist_called=.true.
                      end if
                      call Cost_BVS(Ac, P_cost(5))
@@ -561,7 +561,7 @@
 
                case(6)      !Bond-Valence+ Coulomb repulsion
                      if(.not. tdist_called) then
-                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       call Set_TDist_Partial_Coordination(List(1),max_coor, Dmax, Cell, SpG, A)
                        tdist_called=.true.
                      end if
                      call Cost_BVS_CoulombRep(Ac, P_cost(5),P_cost(6))
@@ -578,7 +578,7 @@
 
                case(9)      !Anti-Bumb functions
                      if(.not. tdist_called) then
-                       call Set_TDist_Coordination(max_coor, Dmax, Cell, SpG, A)
+                       call Set_TDist_Partial_Coordination(List(1),max_coor, Dmax, Cell, SpG, A)
                        tdist_called=.true.
                      end if
                      call Cost_dist_min(P_cost(9))

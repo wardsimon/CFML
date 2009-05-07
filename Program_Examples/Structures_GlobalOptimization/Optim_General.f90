@@ -2,8 +2,8 @@ Program Optimizing_structures
    !---- Use Modules ----!
    !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
-   use CFML_string_utilities,          only: u_case
-   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
+   use CFML_string_utilities,          only: u_case, Get_LogUnit
+   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, Write_CFL, Copy_Atom_List 
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,&
@@ -14,7 +14,8 @@ Program Optimizing_structures
    use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,&
                                              Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
                                              Write_Info_RefCodes, Err_RefCodes, err_refcodes_mess, &
-                                             allocate_restparam, Write_restraints_ObsCalc
+                                             allocate_restparam, Write_restraints_ObsCalc,VState_to_AtomsPar
+                                                                                          
    use CFML_Simulated_Annealing,       only: SimAnn_Conditions_type, state_Vector_Type, Multistate_Vector_Type, &
                                              err_san_mess,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
                                              Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
@@ -23,7 +24,7 @@ Program Optimizing_structures
    use observed_reflections,           only: Read_observations,Observation_Type,Observation_List_Type, &
                                              Write_ObsCalc_SFactors,err_observ,err_mess_observ, SumGobs,&
                                              wavel_int, Write_FoFc_Powder
-   use cost_functions,                 only: Cell,A,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
+   use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
                                              Write_FinalCost,wavel,diff_mode
    !---- Local Variables ----!
@@ -39,7 +40,7 @@ Program Optimizing_structures
    character(len=256)                 :: filrest    !Name of restraints file
    character(len=256)                 :: line       !Text line
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
-   integer                            :: MaxNumRef, Num, lun=1, ier,i,j,k, i_hkl=2, n
+   integer                            :: MaxNumRef, Num, lun=1, ier,i,j,k, i_hkl=2, n, i_cfl
    real                               :: start,fin, mindspc, maxsintl
    integer                            :: narg,iargc
    Logical                            :: esta, arggiven=.false.,sthlgiven=.false., &
@@ -301,7 +302,15 @@ Program Optimizing_structures
            call Simanneal_Gen(General_Cost_function,c,vs,lun)
          end if
          call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
-
+         
+         !Write a CFL file
+         call Copy_Atom_List(A, A_clone)
+         call Get_LogUnit(i_cfl)
+         write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
+         open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
+         call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
+         close(unit=i_cfl)
+         
      else   ! Multi-configuration Simulated Annealing
 
          call Set_SimAnn_MStateV(NP_Refi,c%num_conf,V_BCon,V_Bounds,V_Name,V_Vec,mvs)
@@ -327,7 +336,22 @@ Program Optimizing_structures
          end if
 
          call Write_SimAnn_MStateV(lun,mvs,"FINAL STATE",1)
+         !Write CFL files
+         call Copy_Atom_List(A, A_clone)
+         n=mvs%npar
+         do i=1,c%num_conf
+           line=" " 
+           write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
+           V_vec(1:n)=mvs%state(1:n,i)                  
+           call VState_to_AtomsPar(A_clone,mode="V")
+           call Get_LogUnit(i_cfl)
+           open(unit=i_cfl,file=trim(line),status="replace",action="write")
+           write(unit=line,fmt="(a,i2,a,f12.2)") "  Configuration #",i," found by SimAnneal_MultiConf,  cost=",mvs%cost(i)
+           call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
+           close(unit=i_cfl)
+         end do
      end if
+              
      call Write_FinalCost(lun)
      call Write_Atom_List(A,lun=lun)
 

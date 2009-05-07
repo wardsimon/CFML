@@ -7174,6 +7174,7 @@
 
        !---- Wyckoff information ----!
        if (len_trim(SpaceGroup%Spg_Symb) /= 0) then
+       	  SpaceGroup%Spg_Symb(2:)=l_case(SpaceGroup%Spg_Symb(2:))  !Make lowercase the HM generators of the group
           do i=1,273
              if (SpaceGroup%Spg_Symb(1:12) /= wyckoff_info(i)%hm) cycle
              SpaceGroup%Wyckoff%num_orbit=wyckoff_info(i)%norbit

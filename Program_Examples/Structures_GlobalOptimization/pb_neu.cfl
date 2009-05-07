@@ -32,7 +32,7 @@ CostNam  FoFc_Pow+BVS
 TemParM     3.0       0.95       80
 
 !         Nalgor  Nconf nm_cycl   num_therm   accept%
-Algor_T     0       1   120        0        10.0
+Algor_T     0       6   120        0        10.0
 
 !         Value of Seed (if SeedVAL = 0, random seed)
 SeedVAL     0

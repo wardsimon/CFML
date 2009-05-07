@@ -63,6 +63,7 @@
 !!----       PRINT_DISTANCES
 !!----       SET_ORBITS_INLIST
 !!----       SET_TDIST_COORDINATION
+!!----       SET_TDIST_PARTIAL_COORDINATION
 !!----
 !!
  Module CFML_Geometry_Calc
@@ -91,7 +92,7 @@
     public :: Allocate_Coordination_Type, Allocate_Point_List, Calc_Dist_Angle, Calc_Dist_Angle_Sigma, &
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
-              Get_Transf_List
+              Get_Transf_List, Set_TDist_Partial_Coordination
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -2262,7 +2263,8 @@
       ! call init_err_geom()  !Control of error
 
        qd(:)=1.0/cell%rcell(:)
-       ic2(:)= nint(dmax/cell%cell(:)+1.5)
+       !ic2(:)= nint(dmax/cell%cell(:)+1.5)
+       ic2(:)= int(dmax/cell%cell(:))+1
        ic1(:)=-ic2(:)
        do i=1,a%natoms
           xo(:)=a%atom(i)%x(:)
@@ -2309,4 +2311,144 @@
        return
     End Subroutine Set_TDist_Coordination
 
+    !!----
+    !!---- Subroutine Set_TDist_Partial_Coordination(List,Max_coor,Dmax, Cell, Spg, A)
+    !!----    integer,                  intent(in)   :: List     !  Modified atom
+    !!----    integer,                  intent(in)   :: max_coor !  Maximum expected coordination
+    !!----    real(kind=cp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
+    !!----    type (Crystal_cell_type), intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
+    !!----    type (Space_Group_type),  intent(in)   :: SpG      !  In -> Object of Space_Group_Type
+    !!----    type (atom_list_type),   intent(in)    :: A        !  In -> Object of atom_list_type
+    !!----
+    !!----    Modify the coordination type: Coord_Info for the atoms affected by the change of atom "List"
+    !!----    Needs as input the objects Cell (of type Crystal_cell), SpG (of type Space_Group)
+    !!----    and A (or type atom_list, that should be allocated in the calling program).
+    !!----    This routine is a modification of Set_TDist_Coordination to avoid superfluous calculations
+    !!----    in global optimization methods. It assumes that Set_TDist_Coordination has previously been
+    !!----    called and the object "Coord_Info" has already been set. 
+    !!----
+    !!---- Update: May - 2009
+    !!
+    Subroutine Set_TDist_Partial_Coordination(List,max_coor,Dmax, Cell, Spg, A)
+       !---- Arguments ----!
+       integer,                  intent(in)   :: List      
+       integer,                  intent(in)   :: max_coor
+       real(kind=cp),            intent(in)   :: dmax
+       type (Crystal_cell_Type), intent(in)   :: Cell
+       type (Space_Group_Type),  intent(in)   :: SpG
+       type (atom_list_type),    intent(in)   :: A
+
+       !---- Local Variables ----!
+       integer                              :: i,j,k,lk,i1,i2,i3,nn,L,ic
+       integer,       dimension(3)          :: ic1,ic2
+       integer,       dimension(A%natoms)   :: po,pn
+       real(kind=cp), dimension(3)          :: xx,x1,xo,Tn,xr, QD
+       real(kind=cp)                        :: T,dd
+       real(kind=cp), dimension(3,max_coor) :: uu
+
+      ! call init_err_geom()  !Control of error
+
+       po=0; pn=0
+       po(List)=1 !This atom has a modified coordination sphere
+       ic=Coord_Info%Coord_Num(List)       	 
+       do i=1,ic
+         po(Coord_Info%N_Cooatm(List,i))=1  !This atom has a modified coordination sphere
+       end do
+
+       qd(:)=1.0/cell%rcell(:)
+       ic2(:)= int(dmax/cell%cell(:))+1
+       ic1(:)=-ic2(:)
+       !Determine the new coordination sphere of the changed atom
+       i=List
+       xo(:)=a%atom(i)%x(:)
+       Coord_Info%Coord_Num(i)=0
+       do k=1,a%natoms
+          lk=1
+          uu(:,lk)=xo(:)
+          do j=1,Spg%Multip
+             xx=ApplySO(Spg%SymOp(j),a%atom(k)%x)
+             do i1=ic1(1),ic2(1)
+                do i2=ic1(2),ic2(2)
+                   do_i3:do i3=ic1(3),ic2(3)
+                         Tn(1)=real(i1); Tn(2)=real(i2); Tn(3)=real(i3)
+                         x1(:)=xx(:)+tn(:)
+                         do l=1,3
+                            t=abs(x1(l)-xo(l))*qd(l)
+                            if (t > dmax) cycle  do_i3
+                         end do
+                         do nn=1,lk
+                            if (sum(abs(uu(:,nn)-x1(:)))  <= epsi) cycle  do_i3
+                         end do
+                         xr = matmul(cell%cr_orth_cel,x1-xo)
+                         dd=sqrt(dot_product(xr,xr))
+                         if (dd > dmax .or. dd < 0.001) cycle
+                         Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                         lk=lk+1
+                         uu(:,lk)=x1(:)
+                         Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
+                         Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
+                         Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                   end do do_i3 !i3
+                end do !i2
+             end do !i1
+          end do !j
+       end do !k
+     
+       pn(list)=0
+       po(list)=0
+       
+       ic=Coord_Info%Coord_Num(List)    !New coordination number of atom List   	 
+       do i=1,ic
+         pn(Coord_Info%N_Cooatm(List,i))=1  !This atom has now a newly modified coordination sphere
+       end do
+       !Look now the changed coordinaion spheres
+       do i=1,a%natoms
+         if(pn(i) == 0 .and. po(i) == 0) cycle
+         !if(po(i) == 1 .and. pn(i) == 1) then !the atom remains in the coordination sphere, only recalculation of distance is needed
+         !  ic=Coord_Info%Coord_Num(i)
+         !  do k=1,ic
+         !   if(List == Coord_Info%N_Cooatm(i,k)) then
+         !   end if
+         !  end do
+         !end if 
+         !DO ALL WAITING FOR A MORE EFFICIENT ALGORITHM
+         xo(:)=a%atom(i)%x(:)
+         Coord_Info%Coord_Num(i)=0
+         do k=1,a%natoms
+            lk=1
+            uu(:,lk)=xo(:)
+            do j=1,Spg%Multip
+               xx=ApplySO(Spg%SymOp(j),a%atom(k)%x)
+               do i1=ic1(1),ic2(1)
+                  do i2=ic1(2),ic2(2)
+                     do_i33:do i3=ic1(3),ic2(3)
+                           Tn(1)=real(i1); Tn(2)=real(i2); Tn(3)=real(i3)
+                           x1(:)=xx(:)+tn(:)
+                           do l=1,3
+                              t=abs(x1(l)-xo(l))*qd(l)
+                              if (t > dmax) cycle  do_i33
+                           end do
+                           do nn=1,lk
+                              if (sum(abs(uu(:,nn)-x1(:)))  <= epsi) cycle  do_i33
+                           end do
+                           xr = matmul(cell%cr_orth_cel,x1-xo)
+                           dd=sqrt(dot_product(xr,xr))
+                           if (dd > dmax .or. dd < 0.001) cycle
+                           Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                           lk=lk+1
+                           uu(:,lk)=x1(:)
+                           Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
+                           Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
+                           Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                     end do do_i33 !i3
+                  end do !i2
+               end do !i1
+            end do !j
+         end do !k
+       end do !i
+
+       return
+    End Subroutine Set_TDist_Partial_Coordination
+    
  End Module CFML_Geometry_Calc

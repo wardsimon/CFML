@@ -138,7 +138,7 @@
       real,             dimension(np_SAN)         :: low     !Low-limit value of parameters
       real,             dimension(np_SAN)         :: high    !High-limit value of parameters
       real,             dimension(np_SAN)         :: config  !Vector State characterizing the current best configuration
-      character(len=15),dimension(np_SAN)         :: nampar !name of parameters of the model
+      character(len=15),dimension(np_SAN)         :: nampar  !name of parameters of the model
     End Type MultiState_Vector_Type
 
     !!----
@@ -192,6 +192,7 @@
     !!----    real,    dimension(np_SAN) :: low            ! Low-limit value of parameters
     !!----    real,    dimension(np_SAN) :: high           ! High-limit value of parameters
     !!----    real,    dimension(np_SAN) :: config         ! Vector State with the best configuration
+    !!----    real                       :: cost           ! Cost of the best configuration
     !!----    character(len=15),dimension(np_SAN):: nampar ! name of parameters of the model
     !!----  End Type State_Vector_Type
     !!----
@@ -210,6 +211,7 @@
       real,             dimension(np_SAN) :: low     !Low-limit value of parameters
       real,             dimension(np_SAN) :: high    !High-limit value of parameters
       real,             dimension(np_SAN) :: config  !Vector State characterizing the current best configuration
+      real                                :: cost    !Cost of the best configuration
       character(len=15),dimension(np_SAN) :: nampar !name of parameters of the model
     End Type State_Vector_Type
 
@@ -1168,6 +1170,7 @@
        vs%high(:) = 0.0
        vs%stp(:) = 0.0
        vs%config(:) = 0.0
+       vs%cost = 0.0
        vs%Nampar(:) = " "
 
        ! Copying arguments in state vector
@@ -1374,6 +1377,7 @@
                 if (cost1 < costop) then  !the best current configuration is found
                    costop=cost1
                    vs%config(:)=stateo(:)
+                   vs%cost=costop
                    if(present(fst)) then
                       call Write_FST(fst,vs%config(:),costop)
                    end if
@@ -1453,6 +1457,7 @@
              call mess(strings)
              write(unit=ipr,fmt="(a)") trim(strings)
              vs%state(:)=vs%config(:)
+             vs%cost=costop
              Cost1=costop
              cost2=costop
              if(present(fst)) then

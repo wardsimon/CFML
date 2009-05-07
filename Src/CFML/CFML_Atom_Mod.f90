@@ -47,6 +47,7 @@
 !!----       ATOMS_CELL_TO_LIST
 !!----       ATOM_LIST_TO_CELL
 !!----       ATOM_UEQUI_LIST
+!!----       COPY_ATOM_LIST
 !!----       DEALLOCATE_ATOMS_CELL
 !!----       DEALLOCATE_ATOM_LIST
 !!----       DEALLOCATE_MATOM_LIST
@@ -83,7 +84,7 @@
 
     !---- List of public subroutines ----!
     public :: Allocate_Atoms_Cell, Allocate_Atom_List, Atlist1_Extencell_Atlist2,     &
-              Atoms_Cell_To_List, Atom_List_To_Cell, Atom_Uequi_List,                 &
+              Atoms_Cell_To_List, Atom_List_To_Cell, Atom_Uequi_List, Copy_Atom_list, &
               Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,            &
               Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,               &
               Write_Atoms_CFL, Write_CFL, Allocate_mAtom_list, Deallocate_mAtom_list, &
@@ -737,9 +738,9 @@
     End Subroutine atom_list_To_Cell
 
     !!----
-    !!---- Subroutine Atom_Uequi_List(Cell, A)
-    !!----    type(Crystal_Cell_Type), intent(in)    :: Cell   !  In -> Cell variable
-    !!----    type(atom_list_type),   intent(in out) :: A      !  In -> Atom list
+    !!---- Subroutine Atom_Uequi_List(Cell, Ac)
+    !!----    type(Crystal_Cell_Type), intent(in)    :: Cell    !  In -> Cell variable
+    !!----    type(atom_list_type),   intent(in out) :: Ac      !  In -> Atom list
     !!----                                                         Out ->
     !!----
     !!----    Subroutine to obtain the U equiv from U11 U22 U33 U12 U13 U23
@@ -762,6 +763,30 @@
 
        return
     End Subroutine Atom_Uequi_List
+    
+    !!----
+    !!---- Subroutine Copy_Atom_List(A, Ac)
+    !!----    type(atom_list_type),   intent(in)  :: A      !  In -> Atom list
+    !!----    type(atom_list_type),   intent(out) :: Ac     !   Out -> Atom list
+    !!----                                                        
+    !!----
+    !!----    Subroutine to copy an atom list to another one
+    !!----
+    !!---- Update: May - 2009
+    !!
+    Subroutine Copy_Atom_List(A, Ac)
+       !---- Arguments ----!
+       type (atom_list_type),    intent(in)   :: A 
+       type (atom_list_type),    intent(out)  :: Ac
+
+       !---- Local variables ----!
+       integer                    :: n
+       
+       n=A%natoms
+       call Allocate_Atom_List(n,Ac)
+       Ac%atom(1:n)=A%atom(1:n)
+       return
+    End Subroutine Copy_Atom_List
 
     !!----
     !!---- Subroutine Deallocate_Atoms_Cell(Ac)
@@ -1337,7 +1362,7 @@
        end if
 
        write (unit=iunit,fmt="(a)") &
-             "!     Atom   Type       x/a           y/b           z/c           Biso          Occ"
+             "!      Atom    Type         x/a           y/b           z/c           Biso          Occ          Spin    Charge    Info"
 
        do i=1,ats%natoms
 
@@ -1347,8 +1372,9 @@
           call SetNum_Std(ats%atom(i)%Biso, ats%atom(i)%Biso_std, text(4))
           call SetNum_Std(ats%atom(i)%Occ, ats%atom(i)%Occ_std, text(5))
 
-          write (unit=iunit,fmt="(a,a7,a,tr5,5a14)") &
-                "Atom   ",ats%atom(i)%lab,ats%atom(i)%chemsymb, (text(j),j=1,5)
+          write (unit=iunit,fmt="(3a,tr5,5a14,2f8.2,tr3,a)") &
+                "Atom   ",ats%atom(i)%lab,ats%atom(i)%chemsymb, (text(j),j=1,5), &
+                 ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
 
           if (ats%atom(i)%thtype == "aniso") then
 
@@ -1392,28 +1418,31 @@
     End Subroutine Write_Atoms_CFL
 
     !!----
-    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm)
+    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
     !!----    integer,                  intent(in)    :: lun
     !!----    type (Space_Group_Type),  intent(in)    :: SpG
     !!----    type (Crystal_Cell_Type), intent(in)    :: Cel
     !!----    type (atom_list_type),    intent(in)    :: Atm
+    !!----    character(len=*),optional,intent(in)    :: comment
     !!----
     !!----    Write a file CFL
     !!----
-    !!---- Update: January - 2005
+    !!---- Update: May - 2009
     !!
-    Subroutine Write_CFL(lun,Cel,SpG,Atm)
+    Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
        !---- Arguments ----!
        integer,                  intent(in)    :: lun
        type (Space_Group_Type),  intent(in)    :: SpG
        type (Crystal_Cell_Type), intent(in)    :: Cel
        type (atom_list_type),    intent(in)    :: Atm
+       character(len=*),optional,intent(in)    :: comment
 
        !----- Local variables -----!
        integer                         :: j !,loc
        real(kind=cp), dimension(6)     :: a,sa
        character(len=30), dimension(6) :: text
 
+       if(present(comment)) write(unit=lun,fmt="(a)") "TITLE "//trim(comment)
        write(unit=lun,fmt="(a)") "!  Automatically generated CFL file (Write_CFL)"
        write(unit=lun,fmt="(a)") "!  "
 
