@@ -951,7 +951,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(/,a,a,/)") "     ",trim(messag)
        strings=" "
-       write(unit=strings,fmt="(a,f10.4,a,i2)")" -> Best Solution Cost = ",costop," :: from configuration: ",jopt
+       write(unit=strings,fmt="(a,f16.4,a,i2)")" -> Best Solution Cost = ",costop," :: from configuration: ",jopt
        call mess(strings)
        write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"
@@ -1504,7 +1504,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(/,a,a,/)") "     ",trim(messag)
        strings=" "
-       write(unit=strings,fmt="(a,f10.4,a)")" -> Best Solution Cost =",cost2," :: "
+       write(unit=strings,fmt="(a,f16.4,a)")" -> Best Solution Cost =",cost2," :: "
        call mess(strings)
        write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"
@@ -1885,7 +1885,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(/,a,a,/)") "     ",trim(messag)
        strings=" "
-       write(unit=strings,fmt="(a,f10.4,a)")" -> Best Solution Cost = ",costop," :: "
+       write(unit=strings,fmt="(a,f16.4,a)")" -> Best Solution Cost = ",costop," :: "
        call mess(strings)
        write(unit=ipr,fmt="(/,a)") trim(strings)
        messag=" -> Configuration parameters :"

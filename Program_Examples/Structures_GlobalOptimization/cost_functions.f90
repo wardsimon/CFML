@@ -52,7 +52,7 @@
         real,             dimension(:), allocatable :: damin   !Minimal distances inter-species
       End Type anti_bump_type
 
-      Type(anti_bump_type) ::  anti_bump
+      Type(anti_bump_type), public ::  anti_bump
 
     Contains
 
@@ -233,7 +233,7 @@
                    if(coordone) then
                      Icost(8)=1
                      read(unit=line(i+12:),fmt=*,iostat=ier) w
-                    if(ier /= 0) then
+                     if(ier /= 0) then
                         wcost(8)=1.0
                      else
                         wcost(8)= w
@@ -418,6 +418,7 @@
        do i=0,n_costf
 
           if(icost(i) == 0) cycle
+          
           select case (i)
 
               case (0)    !Optimization "F2obs-F2cal"
@@ -474,22 +475,14 @@
                  "  Final Cost: ",P_cost(8)
                  do j=1,Ac%natoms
                    if(Ac%Atom(j)%varF(4) < 0.001) cycle
-                   Write(unit=lun,fmt="(a,2f8.4)")  "  Obs-Calc Coordination for Atom "//trim(Ac%Atom(j)%lab), &
+                   Write(unit=lun,fmt="(a,2f8.4)")  "  Obs-Calc Coordination for Atom "//Ac%Atom(j)%lab, &
                                                     Ac%Atom(j)%varF(4),Ac%Atom(j)%varF(3)
                  end do
 
               case (9)    !Optimization "Anti Bump"
-                 Write(unit=lun,fmt="(a,f8.4)") &
-                 "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i)
-
                  Write(unit=lun,fmt="(a,f8.4,a,f12.4,/)") &
                  "  => Cost(Anti_Bump): Optimization of C9=Sum{(dmin/d)**18}, with weight: ",wcost(i),&
                  "  Final Cost: ",P_cost(9)
-                 do j=1,Ac%natoms
-                   if(Ac%Atom(j)%varF(4) < 0.001) cycle
-                   Write(unit=lun,fmt="(a,2f8.4)")  "  Obs-Calc Coordination for Atom "//trim(Ac%Atom(j)%lab), &
-                                                    Ac%Atom(j)%varF(4),Ac%Atom(j)%varF(3)
-                 end do
 
 
           end select

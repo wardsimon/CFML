@@ -26,7 +26,7 @@ Program Optimizing_structures
                                              wavel_int, Write_FoFc_Powder
    use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
-                                             Write_FinalCost,wavel,diff_mode
+                                             Write_FinalCost,wavel,diff_mode,anti_bump
    !---- Local Variables ----!
    implicit none
    type (file_list_type)              :: fich_cfl,fich_rest
@@ -145,6 +145,17 @@ Program Optimizing_structures
           write(unit=*,fmt="(a)") trim(err_refcodes_mess)
         end if
      end if
+     
+     if(anti_bump%nrel > 0)then      
+          write(unit=lun, fmt="(/,a,i5)") " => Anti-Bump relations: ",anti_bump%nrel
+          write(unit=lun, fmt="(a)") " "
+          write(unit=lun, fmt="(a)") "   N.A-Bump   Minimal-Distance    Species1     Species2 "
+          write(unit=lun, fmt="(a)") " ======================================================="
+          do i=1,anti_bump%nrel
+          	write(unit=lun, fmt="(i7,tr3,f8.4,t34,a,t43,a)")  i, anti_bump%damin(i), anti_bump%sp1(i),anti_bump%sp2(i)
+          end do       
+     end if
+     
      call Write_Info_RefCodes(A,Spg,lun)
 
      !--- Look for FP_Studio commands
