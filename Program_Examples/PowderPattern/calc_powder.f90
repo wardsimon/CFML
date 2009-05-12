@@ -166,6 +166,8 @@
           th2=Bragg+chw*fwhm
           i1=Locate(Pat%x,npts,th1)   !icont(1,i)
           i2=Locate(Pat%x,npts,th2)   !icont(2,i)
+          i1=max(i1,1)
+          i2=min(i2,npts)
           Intens= LorentzF *hkl%ref(i)%mult * hkl%ref(i)%Fc**2 * PPC%Scalef
           do j=i1,i2
              ! Pat%ycalc(j)=Pat%ycalc(j)+ TCH_pVoigt( Pat%x(j)-Bragg, (/HG,HL /) ) * Intens
