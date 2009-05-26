@@ -1362,7 +1362,7 @@
        end if
 
        write (unit=iunit,fmt="(a)") &
-             "!      Atom    Type         x/a           y/b           z/c           Biso          Occ          Spin    Charge    Info"
+   "!      Atom    Type         x/a           y/b           z/c           Biso          Occ          Spin    Charge    Info"
 
        do i=1,ats%natoms
 
