@@ -1521,7 +1521,6 @@
        logical, save                                   :: ralf_type, title_given
 
        call init_err_diffpatt()
-
        fac_y=1000.0
        npp(:)=0
        n_pat=0
@@ -1553,9 +1552,11 @@
           ERR_DiffPatt_Mess=" Error in Intensity file, wrong number of patterns !"
           return
        end if
-
+       
+       npat=n_pat !Update the number of patterns
+       
        do n_pat=1,npat
-          call Allocate_Diffraction_Pattern(pat(n_pat))
+          call Allocate_Diffraction_Pattern(pat(n_pat),npp(n_pat))
        end do
 
        do
@@ -1588,14 +1589,13 @@
                 if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
                 if (aline(1:4) == "BANK") exit
                 if (len_trim(aline)==0)exit
-                i=i+1
+                i=i+1                
                 read(unit=aline,fmt=*,iostat=ier) pat(n_pat)%x(i),pat(n_pat)%y(i),pat(n_pat)%sigma(i)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
                    ERR_DiffPatt_Mess=" Error reading an ISIS profile DATA file"
                    return
                 end if
-
                 if (abs(pat(n_pat)%x(i)) < eps1 .and. pat(n_pat)%y(i) < eps1 .and. pat(n_pat)%sigma(i) < eps1) exit
                 pat(n_pat)%y(i)=pat(n_pat)%y(i)*fac_y
                 pat(n_pat)%sigma(i)=pat(n_pat)%sigma(i)*fac_y
@@ -1620,6 +1620,7 @@
              ntt=ntt-1
 
           else
+          	
              do j=1,npp(n_pat)
                 read(unit=i_dat,fmt="(a)",iostat=ier) aline
                 if (ier /= 0) exit
@@ -1633,11 +1634,10 @@
                    return
                 end if
                 if(abs(pat(n_pat)%x(i)) < eps1 .and. pat(n_pat)%y(i) < eps1 .and. pat(n_pat)%sigma(i) < eps1) exit
-                pat(n_pat)%x(i)=pat(n_pat)%x(i)
                 pat(n_pat)%y(i)=pat(n_pat)%y(i)*fac_y
                 pat(n_pat)%sigma(i)=pat(n_pat)%sigma(i)*fac_y
                 pat(n_pat)%sigma(i)=pat(n_pat)%sigma(i)*pat(n_pat)%sigma(i)
-               sumavar=sumavar+pat(n_pat)%sigma(i)
+                sumavar=sumavar+pat(n_pat)%sigma(i)
                 if (pat(n_pat)%sigma(i) < eps1) pat(n_pat)%sigma(i) =fac_y
                 if (pat(n_pat)%y(i) < eps1) then
                    pat(n_pat)%y(i)   = eps1
@@ -1663,11 +1663,10 @@
              cnorm=1.0
           end if
 
-       end do !n_pat
-       pat(n_pat)%ymin=minval(pat(n_pat)%y(1:pat(n_pat)%npts))
-       pat(n_pat)%ymax=maxval(pat(n_pat)%y(1:pat(n_pat)%npts))
-
-       return
+        pat(n_pat)%ymin=minval(pat(n_pat)%y(1:pat(n_pat)%npts))
+        pat(n_pat)%ymax=maxval(pat(n_pat)%y(1:pat(n_pat)%npts))
+      end do !n_pat
+      return
     End Subroutine Read_Pattern_Isis_M
 
     !!--++
