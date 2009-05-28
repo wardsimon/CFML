@@ -44,6 +44,8 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c -O3  -std=f2003  -funroll-loops  -msse2   calc_powder.f90   -IC:\CrysFML\GFortran\LibC
+   gfortran  *.o -o calc_powder_gf -O3  -funroll-loops  -msse2  -LC:\CrysFML\GFortran\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
 rem
 :END

@@ -9,7 +9,7 @@ rem
    if not x%1 == x goto CONT
    cls
    echo    MAKE_SUBGROUPS: Make SUBGROUPS Compilation
-   echo    Syntax: make_subgroups [f95/lf95/g95/gfrotran/ifort]
+   echo    Syntax: make_subgroups [f95/lf95/g95/gfortran/ifort]
    goto END
 rem
 :CONT
@@ -44,6 +44,8 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c subgroups.f90    -I../../GFortran/LibC
+   gfortran *.o -o subgroups    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END

@@ -44,6 +44,8 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c space_group_info.f90   -I../../GFortran/LibC
+   gfortran *.o -o space_group_info    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END

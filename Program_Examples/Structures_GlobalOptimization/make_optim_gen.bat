@@ -9,7 +9,7 @@ rem
    if not x%1 == x goto CONT
    cls
    echo    MAKE_OPTIM_GEN: Make OPTIM_GEN Compilation
-   echo    Syntax: make_optim_gen [f95/lf95/g95/gfrotran/ifort]
+   echo    Syntax: make_optim_gen [f95/lf95/g95/gfortran/ifort]
    goto END
 rem
 :CONT

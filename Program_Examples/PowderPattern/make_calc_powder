@@ -4,8 +4,8 @@
 if [ a$1 = a ]
 then
 cat << !
-make_calc_powder : Make the Calc_Powder Program for Absoft/G95/Intel/Lahey Compilers (Linux)
-Syntax           : make_hkl_gen af95:g95:ifort:lf95
+make_calc_powder : Make the Calc_Powder Program for Absoft/G95/Gfortran/Intel/Lahey Compilers (Linux)
+Syntax           : make_hkl_gen af95:g95:ifort:lf95:gfortran
 !
 exit
 fi
@@ -17,14 +17,17 @@ if [ $COMP != "lf95" ]
 then
    if [ $COMP != "g95" ]
    then
-      if [ $COMP != "ifort" ]
-      then
-         if [ $COMP != "af95" ]
-         then
-            echo "Compiler Name was wrong!!!"
-            exit
-         fi
-      fi
+     if [ $COMP != "gfortran" ]
+     then
+        if [ $COMP != "ifort" ]
+        then
+           if [ $COMP != "af95" ]
+           then
+              echo "Compiler Name was wrong!!!"
+              exit
+           fi
+        fi
+     fi
    fi
 fi
 DEBUG=nodeb
@@ -45,6 +48,9 @@ then
       'g95')
           OPT1="-c -g"
             ;;
+      'gfortran')
+          OPT1="-c -g"
+            ;;
       'ifort')
           OPT1="-c -g"
             ;;
@@ -59,6 +65,9 @@ else
           OPT1="-c -O2 -N11"
             ;;
       'g95')
+          OPT1="-c -O"
+            ;;
+      'gfortran')
           OPT1="-c -O"
             ;;
       'ifort')
@@ -86,6 +95,12 @@ in
       LIBSTATIC="-lcrysfml"
       LIBDYNAMIC="-lcrysfml"
      ;;
+   'gfortran')
+      INC="-I../../GFortran/LibC"
+      LIB="-L../../GFortran/LibC"
+      LIBSTATIC="-lcrysfml"
+      LIBDYNAMIC="-lcrysfml"
+     ;;
    'ifort')
       INC="-I../../Intel/LibC"
       LIB="-L../../Intel/LibC"
@@ -109,6 +124,9 @@ in
      $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
      ;;
   'g95')
+     $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
+     ;;
+  'gfortran')
      $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
      ;;
   'ifort')

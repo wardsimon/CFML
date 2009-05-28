@@ -38,10 +38,14 @@ rem ****---- Intel Compiler ----****
 rem
 rem **---- G95 Compiler ----**
 :G95
+   g95 -c -O3 -funroll-loops  -msse2   hkl_gen.f90     -IC:\CrysFML\G95\LibC
+   g95  *.o -o hkl_gen -O3  -funroll-loops  -msse2  -LC:\CrysFML\G95\LibC -lcrysfml
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c -O3 -funroll-loops  -msse2   hkl_gen.f90     -IC:\CrysFML\GFortran\LibC
+   gfortran  *.o -o hkl_gen -O3  -funroll-loops  -msse2  -LC:\CrysFML\GFortran\LibC -lcrysfml
    goto END
 rem
 :END
