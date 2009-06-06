@@ -61,7 +61,7 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c -O3 -funroll-loops  -msse2   menu_3.f90     -IC:\CrysFML\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_4.f90     -IC:\CrysFML\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   calsym.f90     -IC:\CrysFML\GFortran\LibC
-   gfortran *.o -o cryscalc -O3  -funroll-loops  -msse2  -LC:\CrysFML\GFortran5\LibC -lcrysfml
+   gfortran *.o -o cryscalc -O3  -funroll-loops  -msse2  -LC:\CrysFML\GFortran\LibC -lcrysfml
    goto END
 rem
 :END

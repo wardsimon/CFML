@@ -2326,13 +2326,13 @@
     !!----    and A (or type atom_list, that should be allocated in the calling program).
     !!----    This routine is a modification of Set_TDist_Coordination to avoid superfluous calculations
     !!----    in global optimization methods. It assumes that Set_TDist_Coordination has previously been
-    !!----    called and the object "Coord_Info" has already been set. 
+    !!----    called and the object "Coord_Info" has already been set.
     !!----
     !!---- Update: May - 2009
     !!
     Subroutine Set_TDist_Partial_Coordination(List,max_coor,Dmax, Cell, Spg, A)
        !---- Arguments ----!
-       integer,                  intent(in)   :: List      
+       integer,                  intent(in)   :: List
        integer,                  intent(in)   :: max_coor
        real(kind=cp),            intent(in)   :: dmax
        type (Crystal_cell_Type), intent(in)   :: Cell
@@ -2351,7 +2351,7 @@
 
        po=0; pn=0
        po(List)=1 !This atom has a modified coordination sphere
-       ic=Coord_Info%Coord_Num(List)       	 
+       ic=Coord_Info%Coord_Num(List)
        do i=1,ic
          po(Coord_Info%N_Cooatm(List,i))=1  !This atom has a modified coordination sphere
        end do
@@ -2394,11 +2394,11 @@
              end do !i1
           end do !j
        end do !k
-     
+
        pn(list)=0
        po(list)=0
-       
-       ic=Coord_Info%Coord_Num(List)    !New coordination number of atom List   	 
+
+       ic=Coord_Info%Coord_Num(List)    !New coordination number of atom List
        do i=1,ic
          pn(Coord_Info%N_Cooatm(List,i))=1  !This atom has now a newly modified coordination sphere
        end do
@@ -2411,7 +2411,7 @@
          !   if(List == Coord_Info%N_Cooatm(i,k)) then
          !   end if
          !  end do
-         !end if 
+         !end if
          !DO ALL WAITING FOR A MORE EFFICIENT ALGORITHM
          xo(:)=a%atom(i)%x(:)
          Coord_Info%Coord_Num(i)=0
@@ -2450,5 +2450,5 @@
 
        return
     End Subroutine Set_TDist_Partial_Coordination
-    
+
  End Module CFML_Geometry_Calc
