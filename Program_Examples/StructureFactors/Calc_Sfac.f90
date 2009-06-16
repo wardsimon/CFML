@@ -7,7 +7,7 @@
 !!
 Program Calc_Structure_Factors
    !---- Use Modules ----!
-   use f2kcli  !Comment for Fortran 2003 compliant (Environment module) compilers
+  !use f2kcli  !Comment for Fortran 2003 compliant (Environment module) compilers
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell

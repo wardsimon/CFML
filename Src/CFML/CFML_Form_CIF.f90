@@ -783,6 +783,11 @@
              cycle
           end if
 
+          if ("_oxford_atom_site_" == string(1:17)) then
+             j=j+1
+             cycle
+          end if
+
           nline=i
           exit
        end do
