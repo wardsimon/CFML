@@ -783,7 +783,7 @@
              cycle
           end if
 
-          if ("_oxford_atom_site_" == string(1:17)) then
+          if ("_oxford_atom_site_" == string(1:18)) then
              j=j+1
              cycle
           end if
