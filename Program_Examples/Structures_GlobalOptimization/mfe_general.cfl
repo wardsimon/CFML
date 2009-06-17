@@ -17,10 +17,10 @@ Vary xyz 0  1  0  1
 !Equal y_Fe y_P 0.25
 HKL-OBS  mfe.hkl
 MIN-DSPACING   1.5
-RADIATION  electrons
+RADIATION  neutrons
 FST_CMD  conn P O 0.0 1.8  ; conn FE O 0.0 2.3 ; poly P
 
-OPTIMIZE  dis-restr 1.0   Fobs-Fcal 1.0
+OPTIMIZE     Fobs-Fcal 1.0
 
 !Total number of independent distance restraints:    28
 
@@ -61,10 +61,10 @@ LOCAL_OPTIMIZATION
 CostNam  General_Cost
 
 !         T_ini     anneal     num_temps
-TemParM     4.0       0.95       80
+TemParM     8.0       0.95       80
 
 !         Nalgor  Nconf nm_cycl   num_therm   accept
-Algor_T     0       6    150         0         0.5
+Algor_T     0       5    150         0         0.5
 
 !         Value of Seed (if SeedVAL = 0, random seed)
 SeedVAL     0
