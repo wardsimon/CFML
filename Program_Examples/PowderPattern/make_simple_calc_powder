@@ -1,11 +1,11 @@
 #!/bin/sh
-# Script to compile the Program: Calculation_of_Powder_Patterns
+# Script to compile the Program: Simple_Calculation_of_Powder_Patterns
 #
 if [ a$1 = a ]
 then
 cat << !
-make_calc_powder : Make the Calculation_of_Powder_Patterns Program for Absoft/G95/Gfortran/Intel/Lahey Compilers (Linux)
-Syntax           : make_calc_powder af95:g95:ifort:lf95:gfortran
+make_calc_powder : Make the Simple_Calculation_of_Powder_Patterns Program for Absoft/G95/Gfortran/Intel/Lahey Compilers (Linux)
+Syntax           : make_simple_calc_powder af95:g95:ifort:lf95:gfortran
 !
 exit
 fi
@@ -117,23 +117,23 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 calc_powder.f90    $INC
+$COMP $OPT1 simple_calc_powder.f90    $INC
 case $COMP
 in
   'af95')
-     $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
+     $COMP *.o  -o simple_calc_powder -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
+     $COMP *.o  -o simple_calc_powder -static $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o calc_powder -static $LIB $LIBSTATIC
+     $COMP *.o  -o simple_calc_powder -static $LIB $LIBSTATIC
      ;;
   'ifort')
-     $COMP *.o -o calc_powder -static-intel $LIB $LIBSTATIC
+     $COMP *.o -o simple_calc_powder -static-intel $LIB $LIBSTATIC
      ;;
   'lf95')
-     $COMP *.o --out calc_powder --staticlink $LIB $LIBDYNAMIC
+     $COMP *.o --out simple_calc_powder --staticlink $LIB $LIBDYNAMIC
      ;;
 esac
 rm -rf *.o *.mod

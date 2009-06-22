@@ -1,5 +1,8 @@
  !!----
- !!---- Simple program for calculating powder patterns by reading a CIF or a CFL file
+ !!---- PROGRAM:  Calculation_of_Powder_Patterns
+ !!----
+ !!---- Program for calculating powder patterns by reading a CIF or a CFL file (extension of a simpler
+ !!---- program Simple_Calculation_of_Powder_Patterns
  !!---- The program can be used for generating a super-cell and perturb the atom positions
  !!---- to see the effect on the powder diffraction pattern.
  !!----
@@ -39,7 +42,7 @@
  !!---- The program uses CrysFML and a module called Atoms_Generation where the subroutine for
  !!---- calculating the atoms and generate the powder diffraction pattern are stored
  !!----
- Module Atoms_Generation
+ Module Gen_Powder_Pattern_and_Atoms
     !---- Use Modules ----!
     use CFML_GlobalDeps,           only: to_Deg
     use CFML_Math_General,         only: asind,locate
@@ -70,7 +73,6 @@
     !!---- Calculation of eta and FWHM of the pV-function for the
     !!---- T-C-H representation.
     !!----
-    !!---- Update:
     !!
     Pure Subroutine TCH(Hg,Hl,Fwhm,Eta)
        !---- Arguments ----!
@@ -98,8 +100,6 @@
     !!----
     !!---- Subroutine Gen_Powder_Pattern(Ppc,Hkl,Pat)
     !!----
-    !!----
-    !!---- Update:
     !!
     Subroutine Gen_Powder_Pattern(Ppc,Hkl,Pat)
        !---- Argument ----!
@@ -116,7 +116,7 @@
        Pat%Title=adjustl(Trim(PPC%title))
        i=len_trim(Pat%Title)
        write(unit=Pat%Title(i+2:),fmt="(a,f7.4,2f7.1)") " => lambda,Ls,Gs: ", &
-                  PPC%Lambda,PPC%Ls,PPC%Gs
+                                                        PPC%Lambda,PPC%Ls,PPC%Gs
 
        Pat%scat_var="2-Theta"
        Pat%instr="Calculated Pattern"
@@ -135,9 +135,6 @@
        chw=15.0
        do i=1,npts
           Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
-          Pat%y(i)=0.0
-          Pat%ycalc(i)=0.0
-          Pat%bgr(i)=0.0
        end do
 
        IG=to_deg*PPC%Lambda/PPC%Gs
@@ -164,13 +161,12 @@
 
           th1=Bragg-chw*fwhm
           th2=Bragg+chw*fwhm
-          i1=Locate(Pat%x,npts,th1)   !icont(1,i)
-          i2=Locate(Pat%x,npts,th2)   !icont(2,i)
+          i1=Locate(Pat%x,npts,th1)
+          i2=Locate(Pat%x,npts,th2)
           i1=max(i1,1)
           i2=min(i2,npts)
           Intens= LorentzF *hkl%ref(i)%mult * hkl%ref(i)%Fc**2 * PPC%Scalef
           do j=i1,i2
-             ! Pat%ycalc(j)=Pat%ycalc(j)+ TCH_pVoigt( Pat%x(j)-Bragg, (/HG,HL /) ) * Intens
              Pat%ycalc(j)=Pat%ycalc(j)+ PseudoVoigt( Pat%x(j)-Bragg, (/fwhm,eta /) ) * Intens
           end do
        end do
@@ -231,7 +227,7 @@
        return
     End Subroutine Gen_Atoms
 
-  End Module Atoms_Generation
+  End Module Gen_Powder_Pattern_and_Atoms
 
   !!----
   !!----  Program Gen_Powder
@@ -239,7 +235,7 @@
   !!----
   !!---- Update: April - 2009
   !!
-  Program Gen_Powder
+  Program Calculation_of_Powder_Patterns
      !---- Use Modules ----!
      !use f2kcli
      use CFML_Math_General,              only: asind,sind
@@ -255,7 +251,7 @@
                                                Allocate_Diffraction_Pattern
      use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
 
-     use Atoms_Generation
+     use Gen_Powder_Pattern_and_Atoms
 
      !---- Variables ----!
      implicit none
@@ -603,7 +599,7 @@
       open(unit=lp,file=trim(powfile),status="replace",action="write")
       write(unit=lp,fmt="(a)") "!"//trim(Pat%title)
       write(unit=lp,fmt="(3f10.4)") Pat%xmin,Pat%step,Pat%xmax
-      write(unit=lp,fmt="(8f16.4)") Pat%ycalc
+      write(unit=lp,fmt="(8f16.4)") Pat%ycalc+PPC%bkg
       close(unit=lun)
       stop
 
@@ -643,5 +639,5 @@
 
         return
      End Subroutine Factim
-  End Program Gen_Powder
+  End Program Calculation_of_Powder_Patterns
 
