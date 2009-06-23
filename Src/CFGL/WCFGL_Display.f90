@@ -89,19 +89,13 @@ module WCFGL_display
 
     call glmatrixmode(GL_PROJECTION)
     call glloadidentity()
-    !call glortho(-current_zoomfactor*current_maxsize,&
-    !              current_zoomfactor*current_maxsize,&
-    !             -current_zoomfactor*current_maxsize,&
-    !              current_zoomfactor*current_maxsize,&
-    !             -2*current_zoomfactor*current_maxsize,&
-    !              2*current_zoomfactor*current_maxsize)
     call glortho(-current_zoomfactor*current_maxsize,&
                   current_zoomfactor*current_maxsize,&
                  -current_zoomfactor*current_maxsize,&
                   current_zoomfactor*current_maxsize,&
-                 -10*current_zoomfactor*current_maxsize,&
-                  10*current_zoomfactor*current_maxsize)
-    call glmatrixmode(GL_MODELVIEW)
+                 -10*current_zoomfactor*current_maxsize,&     !Increased by a factor 5! it was originally "2"
+                  10*current_zoomfactor*current_maxsize)      !This allows to make zooms without disappearing atoms before
+    call glmatrixmode(GL_MODELVIEW)                           !part of the image is clipped on the rectangular window.
     call glloadidentity()
 
     call glclear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT)
