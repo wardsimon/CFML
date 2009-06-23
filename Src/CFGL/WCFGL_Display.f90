@@ -89,12 +89,18 @@ module WCFGL_display
 
     call glmatrixmode(GL_PROJECTION)
     call glloadidentity()
+    !call glortho(-current_zoomfactor*current_maxsize,&
+    !              current_zoomfactor*current_maxsize,&
+    !             -current_zoomfactor*current_maxsize,&
+    !              current_zoomfactor*current_maxsize,&
+    !             -2*current_zoomfactor*current_maxsize,&
+    !              2*current_zoomfactor*current_maxsize)
     call glortho(-current_zoomfactor*current_maxsize,&
                   current_zoomfactor*current_maxsize,&
                  -current_zoomfactor*current_maxsize,&
                   current_zoomfactor*current_maxsize,&
-                 -2*current_zoomfactor*current_maxsize,&
-                  2*current_zoomfactor*current_maxsize)
+                 -10*current_zoomfactor*current_maxsize,&
+                  10*current_zoomfactor*current_maxsize)
     call glmatrixmode(GL_MODELVIEW)
     call glloadidentity()
 
