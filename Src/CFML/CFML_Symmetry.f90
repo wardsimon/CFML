@@ -5766,6 +5766,7 @@
        integer, dimension (3)                       :: ino,lni
 
        do i=1,3
+          sigx=" "
           auxc="               "
           lenx=1
           do j=1,3
@@ -5838,7 +5839,7 @@
        !---- Local Variables ----!
        character(len= 12):: car
        integer           :: i,j,k, np,npp,npos
-       real(kind=cp)              :: suma
+       real(kind=cp)     :: suma
 
        !---- Main ----!
        symb=" "
