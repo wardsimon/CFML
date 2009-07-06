@@ -31,7 +31,7 @@ module WCFGL_IO
     integer                              :: ier, is_box, is_cell, is_space, is_atom, is_matom,&
                                             is_scale, is_k, is_lattice, is_view, is_spher, is_rotxyz,  &
                                             is_rotax, is_xsym, is_msym, is_color, is_radius, no_line,&
-                                            is_bond, is_multiple, is_nodisplay,is_poly,&
+                                            is_bond, is_multiple, is_nodisplay,is_poly,is_spg,&
                                             is_genr,is_conn, is_skp, is_bkg, num_g,is_group,is_edge_color,&
                                             num_k,num_xsym,num_msym,kchoice,msymchoice,num_skp,mstart, &
                                             is_edges, is_envelop, is_envelop_color,is_molecule, i
@@ -111,6 +111,7 @@ module WCFGL_IO
           is_box       = index(upline,"BOX")
           is_cell      = index(upline,"CELL")
           is_space     = index(upline,"SPACEG")
+          is_spg       = index(upline,"SPGR")
           is_atom      = index(upline,"ATOM")
           is_matom     = index(upline,"MATOM")
           is_scale     = index(upline,"SCALE")
@@ -232,8 +233,12 @@ module WCFGL_IO
 
           ! READ SPACE GROUP
           !-----If space group symbol is given
-          if (is_space /= 0) then
-           read(unit=line(is_space+6:),fmt="(a)") spacegr
+          if (is_space /= 0 .or. is_spg /= 0) then
+           if(is_space == 0) then
+             read(unit=line(is_spg+4:),fmt="(a)") spacegr
+           else
+             read(unit=line(is_space+6:),fmt="(a)") spacegr
+           end if
            call define_spacegroup(spacegr)
           end if
           !-----If generators are given
