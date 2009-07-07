@@ -1434,9 +1434,9 @@
 
        !write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " Correspond to operators: ",(numop(i),i=1,ng)
 
-        if(allocated(tab)) deallocate(tab)
-        allocate(tab(m,m))
-        call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
+        !if(allocated(tab)) deallocate(tab)
+        !allocate(tab(m,m))
+        !call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
 
        !Construct MGp from the Shubnikov group
        !Just a dummy construction of MGp for avoiding warning or missbehaviour of compilers (provisional)
