@@ -956,7 +956,8 @@
     !!----    type(Magnetic_Group_Type), intent (out)   :: SG
     !!----    type(MagSymm_k_Type),      intent (in out):: MGp
     !!----
-    !!---- Update: April 2008
+    !!----  This subroutined is not completed ... it is still in development
+    !!---- Update: April 2008  
     !!
     Subroutine Set_Shubnikov_Group(shubk,SG,MGp)
        !---- Arguments ----!
@@ -1433,11 +1434,13 @@
 
        !write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " Correspond to operators: ",(numop(i),i=1,ng)
 
-       ! if(allocated(tab)) deallocate(tab)
-       ! allocate(tab(m,m))
-       ! call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
+        if(allocated(tab)) deallocate(tab)
+        allocate(tab(m,m))
+        call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
 
        !Construct MGp from the Shubnikov group
+       !Just a dummy construction of MGp for avoiding warning or missbehaviour of compilers (provisional)
+       call Init_MagSymm_k_Type(MGp)
        return
     End Subroutine Set_Shubnikov_Group
 
