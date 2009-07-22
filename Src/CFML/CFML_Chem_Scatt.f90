@@ -238,7 +238,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_Form  = 116
+    integer, parameter, public :: Num_Mag_Form  = 117
 
     !!----
     !!---- NUM_MAG_J2
@@ -248,7 +248,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_j2  = 95
+    integer, parameter, public :: Num_Mag_j2  = 96
 
     !!----
     !!---- NUM_MAG_J4
@@ -258,7 +258,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Num_Mag_j4  = 95
+    integer, parameter, public :: Num_Mag_j4  = 96
 
     !!----
     !!---- NUM_MAG_J6
@@ -1317,6 +1317,8 @@
                                            (/  0.092380,  2.046342,  0.258408,  7.471918,  0.609716,  1.913869,  0.038824/) )
        Magnetic_Form(116) = Magnetic_Form_Type("JO1 ", &
                                               (/  0.115285, 85.197300,  0.556229, 25.252200,  0.332476,  6.362070,-0.00460676/) )
+       Magnetic_Form(117) = Magnetic_Form_Type("MMN5", &
+                                              (/  0.74050,  5.07409,  0.29237, 11.66547, -1.78834,  0.00593,  1.75568/) )
 
        !---- <j2> Coefficients ----!
        Magnetic_j2(  1) = Magnetic_Form_Type("SC0 ",(/10.8172,54.327, 4.7353,14.847, 0.6071, 4.218, 0.0011/))
@@ -1414,6 +1416,7 @@
        Magnetic_j2( 93) = Magnetic_Form_Type("AM5 ",(/ 2.0109,12.053, 2.4155, 4.836,-0.2264, 0.027, 0.2128/))
        Magnetic_j2( 94) = Magnetic_Form_Type("AM6 ",(/ 1.6778,11.337, 2.4531, 4.725,-0.2043, 0.034, 0.1892/))
        Magnetic_j2( 95) = Magnetic_Form_Type("AM7 ",(/ 1.8845, 9.161, 2.0746, 4.042,-0.1318, 1.723, 0.0020/))
+       Magnetic_j2( 96) = Magnetic_Form_Type("MN5 ",(/-0.11904,6.59893,-0.23941,10.73086, 0.35048,1.49116,0.00776/))
 
        !---- <j4> Coefficients ----!
        Magnetic_j4(  1) = Magnetic_Form_Type("SC0 ",(/ 1.3420,10.200, 0.3837, 3.079, 0.0468, 0.118,-0.0328/))
@@ -1511,6 +1514,7 @@
        Magnetic_j4( 93) = Magnetic_Form_Type("AM5 ",(/-0.6538,15.462,-0.0948, 5.997, 0.7295, 2.297, 0.0000/))
        Magnetic_j4( 94) = Magnetic_Form_Type("AM6 ",(/-0.5390,15.449,-0.2689, 6.017, 0.7711, 2.297, 0.0002/))
        Magnetic_j4( 95) = Magnetic_Form_Type("AM7 ",(/-0.4688,12.019,-0.2692, 7.042, 0.7297, 2.164,-0.0011/))
+       Magnetic_j4( 96) = Magnetic_Form_Type("MN5 ",(/0.19236,0.32487,1.67062,6.65663,-1.82036,6.19424,-0.04334/))
 
        !---- <j6> Coefficients ----!
        Magnetic_j6(  1) = Magnetic_Form_Type("CE2 ",(/-0.1212, 7.994,-0.0639, 4.024, 0.1519, 1.096, 0.0078/))
