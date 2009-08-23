@@ -1552,9 +1552,9 @@
           ERR_DiffPatt_Mess=" Error in Intensity file, wrong number of patterns !"
           return
        end if
-       
+
        npat=n_pat !Update the number of patterns
-       
+
        do n_pat=1,npat
           call Allocate_Diffraction_Pattern(pat(n_pat),npp(n_pat))
        end do
@@ -1589,7 +1589,7 @@
                 if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
                 if (aline(1:4) == "BANK") exit
                 if (len_trim(aline)==0)exit
-                i=i+1                
+                i=i+1
                 read(unit=aline,fmt=*,iostat=ier) pat(n_pat)%x(i),pat(n_pat)%y(i),pat(n_pat)%sigma(i)
                 if (ier /= 0) then
                    Err_diffpatt=.true.
@@ -1910,7 +1910,7 @@
              dif_pat%instr  = "  6  - "//mode
              dif_pat%ct_step = .true.
 
-          case ("D1AOLD", "D1BOLD","OLDD1A", "OLDD2B")
+          case ("D1AOLD", "D2BOLD","OLDD1A", "OLDD2B")
              call Read_Pattern_d1a_d2b_old(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
