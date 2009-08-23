@@ -878,7 +878,7 @@
                   costop=cost(j)
                   vs%config(:)=raver(:,j)
                   jopt=j
-                  if(present(fst)) then
+                  if (present(fst)) then
                     call Write_FST(fst,vs%config(:),costop)
                   end if
                end if
@@ -1460,7 +1460,7 @@
              vs%cost=costop
              Cost1=costop
              cost2=costop
-             if(present(fst)) then
+             if (present(fst)) then
                 call Write_FST(fst,vs%config(:),costop)
              end if
              exit do_temp
