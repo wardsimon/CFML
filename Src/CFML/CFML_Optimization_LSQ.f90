@@ -1279,15 +1279,16 @@
                      " Convergence reached: The relative error between x and the solution is at most ",c%tol
         Case(3)
            c%reached=.true.
-           write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2, &
-           " Convergence reached: The relative error in the sum of squares and the difference between x and the solution are both at most ",c%tol
+           write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error "// &
+         "in the sum of squares and the difference between x and the solution are both at most ",c%tol
         Case(4,8)
            c%reached=.true.
            write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
             " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
         Case(5)
            c%reached=.false.
-           write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+           write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",&
+           maxfev
         Case(6)
            c%reached=.false.
            write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
@@ -2099,15 +2100,16 @@
                      " Convergence reached: The relative error between x and the solution is at most ",c%tol
         Case(3)
            c%reached=.true.
-           write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2, &
-           " Convergence reached: The relative error in the sum of squares and the difference between x and the solution are both at most ",c%tol
+           write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error"// &
+           " in the sum of squares and the difference between x and the solution are both at most ",c%tol
         Case(4,8)
            c%reached=.true.
            write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
             " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
         Case(5)
            c%reached=.false.
-           write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+           write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",&
+           maxfev
         Case(6)
            c%reached=.false.
            write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
@@ -3168,7 +3170,8 @@
              end if
 
              line= " "
-             write(unit=line,fmt="(a,i5,2(a,f14.6),a,i3)")" => Cycle No.:",li,"  Chi2 =",chi2, "  Marquardt-Lambda: ",fl, "  Ntrials: ",nt
+             write(unit=line,fmt="(a,i5,2(a,f14.6),a,i3)")" => Cycle No.:",li,"  Chi2 =",chi2, "  Marquardt-Lambda: ",fl, &
+                                                          "  Ntrials: ",nt
              if(present(scroll_lines)) then
                  ntex=ntex+1
                  scroll_lines(ntex)=line
