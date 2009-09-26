@@ -100,7 +100,7 @@ module WCFGL_poly_tree
     type(poly_list), intent(inout) :: temp
     ! Local variables
     integer :: ii, jj, kk, l, m
-    real, dimension(3) :: pos, trans
+    real, dimension(3) :: trans  !pos, 
 
     if (.not.(associated(current_box))) call init_box()
 

@@ -55,8 +55,8 @@ module WCFGL_atom_tree
     logical      ,          intent(in)                 :: dead
     real         ,          intent(in), optional       :: color(4)
     ! Local variables
-    integer :: ier
-    real, dimension(4) :: my_color
+    !integer :: ier
+    !real, dimension(4) :: my_color
 
     if (.not.(associated(atom_list_head))) then
       allocate(atom_list_head)
@@ -212,7 +212,7 @@ subroutine search_atom_list_by_label(label,atomlist,success)
   type(gl_atom), dimension (:), allocatable, intent(out)  :: atomlist
   logical                                  , intent(out)  :: success
   type(gl_atom), dimension(400) :: templist
-  integer :: count, i
+  integer :: count  !, i
 
 
    count=0
@@ -280,7 +280,7 @@ subroutine search_atom_list_by_symbol(symbol,atomlist,success)
   type(gl_atom), dimension (:), allocatable, intent(out)  :: atomlist
   logical                                  , intent(out)  :: success
   type(gl_atom), dimension(400) :: templist
-  integer :: count, i
+  integer :: count !, i
 
 
    count=0
@@ -458,7 +458,8 @@ subroutine modify_atom(atom_id,label,symbol,xf,Biso,radius,dead,color,colorfromt
 
     if (associated(temp)) then
       if (present(label))  temp%atom%label=label
-      if (present(symbol)) temp%atom%symbol=symbol
+	  if (present(symbol)) temp%atom%symbol=symbol
+      if (present(Biso)) temp%atom%biso=Biso
 
       if (present(dead)) then
         temp%dead=dead

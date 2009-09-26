@@ -90,7 +90,7 @@ module WCFGL_chull3D
   subroutine doubletriangle()
     type(vertex), pointer :: v1, v2, v3, v4
     type(face), pointer   :: f1, f2
-    real :: vol 
+    !real :: vol 
     
     f2=>null()
     v1=>vertices
@@ -131,7 +131,7 @@ module WCFGL_chull3D
 !------------------------------------------------
   subroutine constructhull()
     type(vertex), pointer :: v, vnext
-    real :: vol
+    !real :: vol
 
       v => vertices
       do 
@@ -665,7 +665,7 @@ module WCFGL_chull3D
     real,                    intent(in)  :: fcolor(4), ecolor(3), eradius 
     type(face),  pointer :: temp 
     type(edge),  pointer :: te
-    real, dimension(3) :: p1, p2, normal, p11, p12, p21, p22, n1, n2, pv
+    real, dimension(3) :: p1, p2, normal, p11, p12, p21, p22, n1, n2 
     
     call clean_up_hull()        ! Make sure Hull is cleaned-up before starting
     call read_vertices(npoints) ! Read the vertices
@@ -723,7 +723,7 @@ subroutine clean_up_hull()
 type(vertex), pointer :: v
 type(edge), pointer   :: e 
 type(face), pointer   :: f
-integer :: c1
+!integer :: c1
 
     do while (associated(edges))  
        e => edges

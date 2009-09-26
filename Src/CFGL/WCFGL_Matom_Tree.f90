@@ -180,7 +180,7 @@ module WCFGL_matom_tree
     integer                :: numlat, nsym, i, j, l, eq_at
     integer :: sim(3,3)
     real    :: tt(3), p_mag, tphas(3), rtrans(3), va(3),vb(3), xm(3)
-    complex :: rephas1, rephas2
+    complex :: rephas1   !, rephas2
     real    :: skjrealpart(3),skjimpart(3)
     logical :: envelop_flag, edges_flag
 

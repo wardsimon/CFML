@@ -1981,7 +1981,7 @@
         End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
       End Interface
 
-      Integer                              :: i,j, maxfev, mode, nfev, njev, nprint, n, &
+      Integer                              :: i,j, maxfev, mode, nfev, nprint, n, &
                                               iflag,info
       Integer,        dimension(c%npvar)   :: ipvt
       Integer, dimension(c%npvar,c%npvar)  :: p,id
@@ -3027,8 +3027,8 @@
     !!--..       The values of all possible refinable parameters are stored in the array vs%pv(:).
     !!--..       The derivatives must be calculated within model_functn, by using the array vs%der(:)
     !!--..       The actual refined parameters a(:) are selected from the larger vs%pv(:) array by
-    !!--..       the integer array of flags: vs%code(:). A value vs%code(j)=1 means that the j-th
-    !!--..       parameter is to be varied. A value vs%code(k)=0 means that the k-th parameter is
+    !!--..       the integer array of flags: vs%code(:). A value vs%code(j) /= 0 means that the j-th
+    !!--..       parameter is to be varied. A value vs%code(k) = 0 means that the k-th parameter is
     !!--..       kept fixed through the refinement cycles.
     !!----
     !!---- Update: March - 2005
@@ -3059,7 +3059,7 @@
        logical                                :: fixed, write_cyc
        character(len=180)                     :: line
        integer                                :: ifail,nt
-       integer                                :: i,j,ncount,li,ntex
+       integer                                :: i,ncount,li,ntex
        real(kind=cp)                          :: fl,chi1
        real(kind=cp), dimension(Max_Free_Par) :: a,sa
 
@@ -3322,7 +3322,7 @@
        logical                                :: fixed, write_cyc
        character(len=180)                     :: line
        integer                                :: ifail
-       integer                                :: i,j,ncount,li,ntex,nt
+       integer                                :: i,ncount,li,ntex,nt
        real(kind=cp)                          :: fl,chi1
        real(kind=cp), dimension(Max_Free_Par) :: a,sa
 

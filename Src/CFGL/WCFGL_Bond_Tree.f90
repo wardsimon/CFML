@@ -59,12 +59,12 @@ module WCFGL_bond_tree
     logical          , intent(in)           :: dead
     real             , intent(in), optional :: color(4)
     ! Local variables.
-    real    :: rad
-    real    :: col(4)
+    !real    :: rad
+    !real    :: col(4)
     logical :: success1, success2
     type(gl_atom), dimension(:), allocatable :: list1, list2
     type(gl_bond), dimension(:), allocatable :: bondbuffer
-    integer :: i,j
+    !integer :: i,j
 
     success1=.false.
     success2=.false.
@@ -129,12 +129,12 @@ module WCFGL_bond_tree
     logical          , intent(in)           :: dead
     real             , intent(in), optional :: color(4)
     ! Local variables.
-    real    :: rad
-    real    :: col(4)
+    !real    :: rad
+    !real    :: col(4)
     logical :: success1, success2
     type(gl_atom), dimension(:), allocatable :: list1, list2
     type(gl_bond), dimension(:), allocatable :: bondbuffer
-    integer :: i,j
+    !integer :: i,j
 
     success1=.false.
     success2=.false.
@@ -351,7 +351,7 @@ subroutine search_bond_list_by_label(label,bondlist,success)
   type(gl_bond), dimension (:), allocatable, intent(out)  :: bondlist
   logical                                  , intent(out)  :: success
   type(gl_bond), dimension(1000) :: templist
-  integer :: count, i, taille
+  integer :: count, taille !, i
 
 
    count=0

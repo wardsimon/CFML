@@ -39,7 +39,7 @@ module WCFGL_glpoly
     type(gl_atom), dimension(:), allocatable :: atomlist
     type(gl_bond), dimension(:), allocatable :: bondlist1, bondlist2, bondlisttemp, bondlist
     real, dimension(:,:), allocatable :: polybuffer
-    integer :: i, j, k, l, nat, neq, nb, nbeq, count, countxf, newcon, aa
+    integer :: i, j, k, l, nat, neq, nb, nbeq, count, newcon, aa !, countxf
     logical :: success1, success2, successcon, success3
 
     success=  .false.
