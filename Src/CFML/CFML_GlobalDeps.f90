@@ -64,9 +64,9 @@ Module CFML_GlobalDeps
    !!----
    !!---- Update: March 2009
    !!
-   !integer, parameter :: OPS= 1    ! Windows
+   integer, parameter :: OPS= 1    ! Windows
    !integer, parameter :: OPS= 2    ! Linux
-   integer, parameter :: OPS= 3    ! MacOS
+   !integer, parameter :: OPS= 3    ! MacOS
    !integer, parameter :: OPS= 4    ! Solaris
 
    !!----
@@ -78,9 +78,9 @@ Module CFML_GlobalDeps
    !!----
    !!---- Update: March 2009
    !!
-   !character(len=*), parameter :: OPS_NAME="Windows"
+   character(len=*), parameter :: OPS_NAME="Windows"
    !character(len=*), parameter :: OPS_NAME="Linux"
-   character(len=*), parameter :: OPS_NAME="MacOS"
+   !character(len=*), parameter :: OPS_NAME="MacOS"
    !character(len=*), parameter :: OPS_NAME="Solaris"
 
    !!----
@@ -90,9 +90,9 @@ Module CFML_GlobalDeps
    !!----
    !!---- Update: March 2009
    !!
-   !character(len=*), parameter :: OPS_SEP="\"
+   character(len=*), parameter :: OPS_SEP="\"
    !character(len=*), parameter :: OPS_SEP="/"
-   character(len=*), parameter :: OPS_SEP="/"
+   !character(len=*), parameter :: OPS_SEP="/"
    !character(len=*), parameter :: OPS_SEP=":"  !Old MacOS
 
    !------------------------------!
