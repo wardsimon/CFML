@@ -2898,16 +2898,18 @@
          str(1)=1
        end if
        is=1
+
        ext: do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)
+          !if(Lattice_trans(xx-x,Spg%spg_lat) .and. present(str)) then    !stabilizer
+          if(sum(abs(xx-x)) < 2.0*eps_symm .and. present(str)) then    !stabilizer
+            is=is+1
+            str(is)=j
+          end if
           xx=modulo_lat(xx)
           do nt=1,mult
              v=orb(:,nt)-xx(:)
              if (Lattice_trans(v,Spg%spg_lat)) then
-               if(present(str)) then  !Stabilizer
-                 is=is+1
-                 str(is)=j
-               end if
                if (.not. Lattice_trans(v,laty)) cycle  !Count in orbit the centred related atoms
                cycle ext
              end if
@@ -5450,24 +5452,22 @@
     !!
     Subroutine Get_Stabilizer(X,Spg,Order,Ptr)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
+       real(kind=cp), dimension(3), intent (in)  :: x     ! real space position (fractional coordinates)
        type(Space_Group_type),      intent (in)  :: Spg   ! Space group
        integer,                     intent(out)  :: order ! Number of sym.op. keeping invariant the position x
        integer, dimension(:),       intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
-                                                         ! of the stabilizer of x
+                                                          ! of the stabilizer of x
        !---- Local variables ----!
        real(kind=cp), dimension(3):: xx
-       integer                    ::  j,n
+       integer                    :: j 
 
        order  = 1    !Identity belongs always to the stabilizer
        ptr(:) = 0
        ptr(1) = 1
 
-       n=Spg%NumOps
-       if (Spg%centred /= 1) n=2*n
-       do j=2,n
+       do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)-x
-          if (.not. Lattice_trans(xx,Spg%spg_lat)) cycle
+          if (sum(abs(xx)) > 2.0 * eps_symm) cycle
           order=order+1
           ptr(order)=j
        end do
