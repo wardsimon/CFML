@@ -1620,7 +1620,7 @@
              ntt=ntt-1
 
           else
-          	
+
              do j=1,npp(n_pat)
                 read(unit=i_dat,fmt="(a)",iostat=ier) aline
                 if (ier /= 0) exit
@@ -2374,6 +2374,40 @@
        allocate(XRDML_line(1))
        allocate(XRDML_intensities_line(1))
 
+       !---- Wavelengths (by JGP)
+       do
+          ! Kalpha1
+          read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+          if (ier /= 0) then
+             Err_diffpatt=.true.
+             ERR_DiffPatt_Mess=" Error reading a profile XRDML-DATA file: end of file"
+             return
+          end if
+          i1= index(XRDML_line(1), '<kAlpha1 unit="Angstrom">')
+          if (i1==0) cycle
+          i2= index(XRDML_line(1), "</kAlpha1>")
+          read(unit=XRDML_line(1)(i1+25:i2-1), fmt=*) pat%conv(1)
+
+          !Kalpha2
+          read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+          i1= index(XRDML_line(1), '<kAlpha2 unit="Angstrom">')
+          if (i1==0) cycle
+          i2= index(XRDML_line(1), "</kAlpha2>")
+          read(unit=XRDML_line(1)(i1+25:i2-1), fmt=*) pat%conv(2)
+
+          !Kbeta
+          read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+
+          !Kratio
+          read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+          i1= index(XRDML_line(1), '<ratioKAlpha2KAlpha1>')
+          if (i1==0) cycle
+          i2= index(XRDML_line(1), "</ratioKAlpha2KAlpha1>")
+          read(unit=XRDML_line(1)(i1+21:i2-1), fmt=*) pat%conv(3)
+
+          exit
+       end do
+
        !---- recherche de "<positions axis="2Theta" unit="deg">"
        do
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
@@ -2416,7 +2450,6 @@
           exit
        end do
 
-       !---- recherche des intensites
        do
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
           if (ier /= 0) then
