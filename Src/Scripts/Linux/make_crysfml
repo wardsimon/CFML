@@ -251,7 +251,7 @@ if [ $COMP = "lf95" ]
 then
    $COMP $OPT1  f2kcli.f90
 fi
-$COMP $OPT1  CFML_GlobalDeps.f90
+$COMP $OPT1  CFML_GlobalDeps_Linux.f90
 $COMP $OPT1  CFML_Math_Gen.f90
 $COMP $OPT1  CFML_Spher_Harm.f90
 $COMP $OPT1  CFML_Random.f90
