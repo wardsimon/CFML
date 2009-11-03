@@ -604,7 +604,7 @@
        g=Matmul(Transpose(ub),ub)
        sg=g
        !..inverse matrix g=b'b  to get direct cell parameters
-       !..On first run through loop calculation of reciprocal cell, second do real(kind=cp) cell
+       !..On first run through loop calculation of reciprocal cell, second do real cell
        Do k=1,2
            If(k==2) sg=invert(sg)
            g=sg
@@ -1022,7 +1022,7 @@
     !!----    corresponding angles OM, CH, PH) to put the vector Z1 into the
     !!----    flat-cone diffracting position. Calculate resulting GAMMA and NU.
     !!----
-    !!--<<    V = [UB].H = [UB].[G].D where D is a real(kind=cp)-space vector.
+    !!--<<    V = [UB].H = [UB].[G].D where D is a real-space vector.
     !!-->>        [G]-1 = [B]T.[B] = [UB]T.[UB] hence V = [[UB]T]-1.D
     !!----
     !!---- Update: April 2008
@@ -1266,7 +1266,7 @@
     !!----    real(kind=cp), Intent(Out)                :: ds,th
     !!----    Integer, Intent(Out)                      :: ierr
     !!----
-    !!----    Calculate D-spacing (real(kind=cp) space) and THETA from the length of Z1
+    !!----    Calculate D-spacing (real space) and THETA from the length of Z1
     !!----    The reciprocal vector Z1 is given in cartesian components with
     !!----    respect to the laboratory system. If ierr=1 the calculated d-spacing
     !!----    is is fixed to 0.0 as well as theta. This error condition appears when
