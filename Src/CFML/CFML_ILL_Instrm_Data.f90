@@ -252,6 +252,7 @@ Module CFML_ILL_Instrm_Data
    !!----    character(len=4)                          :: angl_units           !angle units: "rad","deg"
    !!----    character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
    !!----    real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
+   !!----    real(kind=cp)                             :: wave_min,wave_max    !Minimum and maximum wavelengths (Laue diffractometers)
    !!----    real(kind=cp)                             :: vert                 !Vertical dimension
    !!----    real(kind=cp)                             :: horiz                !Horizontal dimension
    !!----    real(kind=cp)                             :: agap                 !gap between anodes
@@ -288,6 +289,7 @@ Module CFML_ILL_Instrm_Data
       character(len=4)                          :: angl_units           !angle units: "rad","deg"
       character(len=30)                         :: detector_type        !"Point","Flat_rect","Cylin_ImPlate","Tube_PSD", Put ipsd=1,2,...
       real(kind=cp)                             :: dist_samp_detector   ! dist. to centre for: point, Flat_rect, Tube_PSD; radius for: Cylin_ImPlate
+      real(kind=cp)                             :: wave_min,wave_max    !Minimum and maximum wavelengths (Laue diffractometers)
       real(kind=cp)                             :: vert                 !Vertical dimension
       real(kind=cp)                             :: horiz                !Horizontal dimension
       real(kind=cp)                             :: agap                 !gap between anodes
@@ -561,7 +563,7 @@ Module CFML_ILL_Instrm_Data
    !!---- TYPE :: SXTAL_ORIENT_TYPE
    !!--..
    !!---- Type, public :: SXTAL_Orient_type
-   !!----    real(kind=cp)                :: wave       ! Wavelength
+   !!----    real(kind=cp)                :: wave       ! Wavelength (in Laue machines any value between Lambda_min and Lambda_max)
    !!----    real(kind=cp),dimension(3,3) :: UB         ! UB matrix in Busing-Levy setting
    !!----    real(kind=cp),dimension(3,3) :: UBINV      ! Inverse of UB-matrix
    !!----    real(kind=cp),dimension(3,3) :: CONV       ! Conversion matrix to the local setting
@@ -572,7 +574,7 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    Type, public :: SXTAL_Orient_type
-      real(kind=cp)                :: wave       !Wavelength
+      real(kind=cp)                :: wave       !Wavelength (in Laue machines any value between Lambda_min and Lambda_max)
       real(kind=cp),dimension(3,3) :: UB         !UB matrix in Busing-Levy setting
       real(kind=cp),dimension(3,3) :: UBINV      !Inverse of UB-matrix
       real(kind=cp),dimension(3,3) :: CONV       !Conversion matrix to the local setting
@@ -1523,6 +1525,8 @@ Module CFML_ILL_Instrm_Data
        Current_Instrm%det_offsets=0.0
        Current_Instrm%ang_Limits=0.0
        Current_Instrm%disp_Limits=0.0
+       Current_Instrm%wave_min=0.5
+       Current_Instrm%wave_max=0.5
        Current_Instrm%e1=(/1.0,0.0,0.0/)
        Current_Instrm%e2=(/0.0,1.0,0.0/)
        Current_Instrm%e3=(/0.0,0.0,1.0/)
@@ -1549,6 +1553,8 @@ Module CFML_ILL_Instrm_Data
             Case("GEOM")
                 Current_Instrm%geom= adjustl(line(i+1:))
                 read(unit=Current_Instrm%geom,fmt=*) Current_Instrm%igeom
+                j=index(Current_Instrm%geom," ")
+                Current_Instrm%geom=adjustl(Current_Instrm%geom(j+1:))
 
             Case("BLFR")
                 Current_Instrm%BL_frame = adjustl(line(i+1:))
@@ -1584,6 +1590,14 @@ Module CFML_ILL_Instrm_Data
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength"
+                  return
+                end if
+
+            Case("WAVE_LIMITS")
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%wave_min, Current_Instrm%wave_max
+                if(ier /= 0) then
+                  ERR_ILLData=.true.
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength limits"
                   return
                 end if
 
@@ -2995,7 +3009,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: May - 2007
     !!
-    Subroutine Set_Default_Instrument()
+    Subroutine Set_Default_Instrument(typ,wav)
+       Character(len=*),   optional, intent(in) :: typ
+       real, dimension(2), optional, intent(in) :: wav
        !---- Local Variables ----!
        real(kind=cp)                 :: wave
        integer                       :: npx, npz
@@ -3010,35 +3026,61 @@ Module CFML_ILL_Instrm_Data
        Current_Instrm%e1=(/1.0,0.0,0.0/)
        Current_Instrm%e2=(/0.0,1.0,0.0/)
        Current_Instrm%e3=(/0.0,0.0,1.0/)
-       Current_Instrm%info= "Default 4-cercles diffractrometer"
-       Current_Instrm%name_inst= "4C-Diff"
-       Current_Instrm%geom="4C-Diff High-Chi, Eulerian cradle"
-       Current_Instrm%igeom=2
+       if(present(typ)) then
+         Current_Instrm%info= "Default Laue diffractrometer"
+         Current_Instrm%name_inst= "LaueDiff"
+         Current_Instrm%geom="Laue"
+         if(present(wav)) then
+           Current_Instrm%wave_min=wav(1)
+           Current_Instrm%wave_max=wav(2)
+         else
+           Current_Instrm%wave_min=0.7
+           Current_Instrm%wave_max=5.5
+         end if
+         Current_Instrm%igeom=3
+         wave=2.0
+         Current_Instrm%dist_samp_detector=488.0
+         Current_Instrm%np_horiz= 2560
+         Current_Instrm%np_vert=  1980
+         Current_Instrm%horiz= 256.0
+         Current_Instrm%vert=  198.0
+         npx = 2560
+         npz = 1980
+         Current_Instrm%agap=0
+         Current_Instrm%cgap=0
+         Current_Instrm%ang_names(1) ="Gamma"
+         Current_Instrm%ang_Limits(1,1:2)=(/2.0,175.0/)
+       else
+         Current_Instrm%info= "Default 4-cercles diffractrometer"
+         Current_Instrm%name_inst= "4C-Diff"
+         Current_Instrm%geom="4C-Diff High-Chi, Eulerian cradle"
+         Current_Instrm%igeom=2
+         wave=0.71
+         Current_Instrm%dist_samp_detector=488.0
+         Current_Instrm%np_horiz= 32
+         Current_Instrm%np_vert= 32
+         Current_Instrm%horiz= 64.0
+         Current_Instrm%vert=  64.0
+         npx = 32
+         npz = 32
+         Current_Instrm%agap=2
+         Current_Instrm%cgap=2
+         Current_Instrm%ang_names(1) ="2Theta"
+         Current_Instrm%ang_Limits(1,1:2)=(/2.0,130.0/)
+       end if
        Current_Instrm%BL_frame="z-up"
        Current_Instrm%dist_units = "mm"
        Current_Instrm%angl_units = "deg"
        Current_Instrm%detector_type = "Flat_rect"
        Current_Instrm%ipsd=2          !Flat detector
-       Current_Instrm%dist_samp_detector=488.0
-       wave=0.71
-       Current_Instrm%np_horiz= 32
-       Current_Instrm%np_vert= 32
-       Current_Instrm%horiz= 64.0
-       Current_Instrm%vert=  64.0
-       npx = 32
-       npz = 32
-       Current_Instrm%agap=2
-       Current_Instrm%cgap=2
        ub=reshape((/-0.0989455,   0.0671905,  -0.1005396, &
                      0.0045075,  -0.1487497,  -0.0642365, &
                     -0.1588914,  -0.0460609,   0.0607861/),(/3,3/))
        Current_Instrm%num_ang=4
        Current_Instrm%num_disp=0
-       Current_Instrm%ang_names(1) ="2Theta"
        Current_Instrm%ang_names(2) ="Omega"
        Current_Instrm%ang_names(3) ="Chi"
        Current_Instrm%ang_names(4) ="Phi"
-       Current_Instrm%ang_Limits(1,1:2)=(/2.0,130.0/)
        Current_Instrm%ang_Limits(2,1:2)=(/1.0,49.0/)
        Current_Instrm%ang_Limits(3,1:2)=(/77.0,202.0/)
        Current_Instrm%ang_Limits(4,1:2)=(/-180.0,180.0/)
@@ -3514,6 +3556,10 @@ Module CFML_ILL_Instrm_Data
           write(unit=ipr,fmt="(a)")          "  ANGL_UNITS: "//Current_Instrm%angl_units
           write(unit=ipr,fmt="(a)")          "    DET_TYPE: "//Current_Instrm%detector_type
           write(unit=ipr,fmt="(a,f8.3,a)")   "  DIST_SDETR: ", Current_Instrm%dist_samp_detector," "//Current_Instrm%dist_units
+          if(index(Current_Instrm%geom,"Laue") /= 0) then
+            write(unit=ipr,fmt="(a,f8.3,a)") "  LAMBDA_MIN: ", Current_Instrm%wave_min," Angstroms"
+            write(unit=ipr,fmt="(a,f8.3,a)") "  LAMBDA_MAX: ", Current_Instrm%wave_max," Angstroms"
+          end if
           write(unit=ipr,fmt="(a,f8.3,a)")   "  HORIZ_SIZE: ", Current_Instrm%horiz," "//Current_Instrm%dist_units
           write(unit=ipr,fmt="(a,f8.3,a)")   "   VERT_SIZE: ", Current_Instrm%vert ," "//Current_Instrm%dist_units
           write(unit=ipr,fmt="(a,f8.3,a)")   "   ANODE_GAP: ", Current_Instrm%agap," "//Current_Instrm%dist_units

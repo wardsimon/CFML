@@ -188,7 +188,7 @@
 !!
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,         Only: Cp,To_Deg,To_Rad
+    Use CFML_GlobalDeps,        Only: Cp,To_Deg,To_Rad
     Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand
     Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
     Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type
