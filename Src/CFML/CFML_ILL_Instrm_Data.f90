@@ -1716,7 +1716,7 @@ Module CFML_ILL_Instrm_Data
           call Set_Current_Orient(wave,ub)
        end if
 
-       if (.not. read_alphas) then
+       if (.not. read_alphas .and. index(Current_Instrm%geom,"Laue") == 0) then
           if (allocated(Current_Instrm%alphas)) deallocate(Current_Instrm%alphas)
           allocate(Current_Instrm%alphas(npx,npz))
           Current_Instrm%alphas(:,:)=1.0
@@ -3537,7 +3537,7 @@ Module CFML_ILL_Instrm_Data
 
        !--- Local variables ---!
        integer           :: ipr,i
-       character(len=10) :: forma
+       character(len=16) :: forma
 
 
        ipr=6
@@ -3638,13 +3638,15 @@ Module CFML_ILL_Instrm_Data
              end do
           end if
           write(unit=ipr,fmt="(a,3f10.4)") "DET_OFF ", Current_Instrm%det_offsets
-
-          write(unit=ipr,fmt="(a)") "DET_ALPHAS"
-          forma="(   f8.4)"
-          write(unit=forma(2:4),fmt="(i3)") Current_Instrm%np_horiz
-          do i=1,Current_Instrm%np_vert
-             write(unit=ipr,fmt=forma) Current_Instrm%alphas(i,1:Current_Instrm%np_horiz)
-          end do
+          if(index(Current_Instrm%geom,"Laue") == 0 .and. Current_Instrm%np_vert < 513 .and. &
+                   Current_Instrm%np_horiz < 513) then
+            write(unit=ipr,fmt="(a)") "DET_ALPHAS"
+            forma="(     f8.4)"
+            write(unit=forma(2:6),fmt="(i5)") Current_Instrm%np_horiz
+            do i=1,Current_Instrm%np_vert
+               write(unit=ipr,fmt=forma) Current_Instrm%alphas(i,1:Current_Instrm%np_horiz)
+            end do
+          end if
        end if
 
        return

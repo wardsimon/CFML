@@ -1,5 +1,5 @@
 wCrysFML
-+CFML_globaldeps&
++CFML_globaldeps_Windows&
 +CFML_math_gen&
 +CFML_random&
 +CFML_ffts&

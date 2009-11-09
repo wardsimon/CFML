@@ -8,8 +8,8 @@ rem
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
    lf95 -c f2kcli.f90                -g  -chk   >  out
-   lf95 -c CFML_GlobalDeps.f90         -g  -chk   >> out
-rem 
+   lf95 -c CFML_GlobalDeps_Windows.f90  -g  -chk   >> out
+rem
    lf95 -c CFML_math_gen.f90         -g  -chk   >> out
    lf95 -c CFML_spher_harm.f90       -g  -chk   >> out
    lf95 -c CFML_random.f90           -g  -chk   >> out
@@ -67,7 +67,7 @@ rem
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
-rem   
+rem
    lf95 -c CFML_refcodes.f90         -g  -chk   >> out
    lf95 -c CFML_optimization_san.f90 -g  -chk   >> out
    lf95 -c CFML_magsymm.f90          -g -chk    >> out
@@ -91,5 +91,5 @@ rem
    copy *.mod ..\..\Lahey\LibC > nul
    move *.lib ..\..\Lahey\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
-rem         
+rem
    cd ..\Scripts\Windows

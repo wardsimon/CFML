@@ -1279,7 +1279,7 @@
        logical                           :: info
 
        info=.false.
-       if (h(1)==k(1) .and. h(2)==k(2).and. h(3)==k(3)) info=.true.
+       if (h(1)==k(1) .and. h(2)==k(2) .and. h(3)==k(3)) info=.true.
 
        return
     End Function Hkl_EqualI
