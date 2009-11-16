@@ -3000,9 +3000,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Current_Orient
 
     !!----
-    !!---- Subroutine Set_Default_Instrument()
+    !!---- Subroutine Set_Default_Instrument(typ,wav)
+    !!----    Character(len=*),   optional, intent(in) :: typ  !"Laue" for a Laue diffractometer
+    !!----    real, dimension(2), optional, intent(in) :: wav  ! Lambda min and Lambda max
     !!----
     !!----    Construct the Current_Instrument as a default 4C diffractometer
+    !!----    (or a Laue diffractometer if Typ and wav are provided)
     !!----    The UB matrix is set to a real matrix corresponding to a measurement
     !!----    done on D9. The characteristics of the diffractometer correspond to
     !!----    those of D9
@@ -3598,7 +3601,8 @@ Module CFML_ILL_Instrm_Data
           write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(2,:), Current_Orient%ubinv(2,:)
           write(unit=ipr,fmt="(tr2,3f11.6,tr8,3f11.5)")  Current_Orient%ub(3,:), Current_Orient%ubinv(3,:)
           write(unit=ipr,fmt="(a)") " "
-          write(unit=ipr,fmt="(a,f8.4,a)")   "  WAVELENGTH:",Current_Orient%wave," angstroms"
+          if(index(Current_Instrm%geom,"Laue") == 0) write(unit=ipr,fmt="(a,f8.4,a)")  &
+                                         "  WAVELENGTH:",Current_Orient%wave," angstroms"
 
        else  !Write a *.geom file
 
