@@ -61,6 +61,7 @@
 !!----       GET_FRACTION_1DIG
 !!----       GET_FRACTION_2DIG
 !!----       GET_LOGUNIT
+!!----       GET_SEPARATOR_POS
 !!----       GETNUM
 !!----       GETNUM_STD
 !!----       GETWORD
@@ -99,7 +100,7 @@
               Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal,      &
               Read_Key_Value, Read_Key_ValueST, Reading_Lines, Setnum_std, Ucase,       &
               FindFmt,  Init_FindFmt, Frac_Trans_1Dig, Frac_Trans_2Dig, get_logunit,    &
-              NumCol_from_NumFmt, Inc_LineNum
+              NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err
@@ -1528,6 +1529,54 @@
 
        return
     End Subroutine GetNum_Std
+
+    !!----
+    !!---- Subroutine Get_Separator_Pos(line,car,pos,ncar)
+    !!----   character(len=*),      intent(in)  :: line  ! In -> Input String
+    !!----   character(len=1),      intent(in)  :: car   ! In -> Separator character
+    !!----   integer, dimension(:), intent(out) :: pos   ! Out -> Vector with positions of "car" in "Line"
+    !!----   integer,               intent(out) :: ncar  ! Out -> Number of appearance of "car" in "Line"
+    !!----
+    !!----    Determines the positions of the separator character "car" in string "Line" and generates
+    !!----    the vector Pos containing the positions. The number of times the character "car" appears
+    !!----    In "Line" is stored in "ncar".
+    !!----    The separator "car" is not counted within substrings of "Line" that are written within
+    !!----    quotes. The following example illustrates the functionning of the subroutine
+    !!----
+    !!----       !       12345678901234567890123456789012345678901234567890
+    !!----        line =' 23, "List, of, authors", this book, year=1989'
+    !!----
+    !!----    A call like:  call Get_Separator_Pos(line,',',pos,ncar) provides
+    !!----    ncar= 3
+    !!----    pos= (/ 4, 25, 36, 0, ..../)
+    !!----
+    !!---- Update: December 2009
+    !!
+    Subroutine Get_Separator_Pos(line,car,pos,ncar)
+      character(len=*),      intent(in)  :: line
+      character(len=1),      intent(in)  :: car
+      integer, dimension(:), intent(out) :: pos
+      integer,               intent(out) :: ncar
+      integer :: i,j,k
+
+      ncar=0
+      j=0
+      do i=1,len_trim(line)
+        j=j+1
+        if(line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
+          do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
+            j=j+1
+            if(line(j:j) /= '"') cycle
+            exit
+          end do
+        end if
+        if(line(j:j) == car) then
+          ncar=ncar+1
+          pos(ncar)=j
+        end if
+      end do
+      return
+    End Subroutine Get_Separator_Pos
 
     !!----
     !!---- Subroutine Getword(Line, Dire, Ic)
