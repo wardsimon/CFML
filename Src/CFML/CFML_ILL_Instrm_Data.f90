@@ -1506,7 +1506,7 @@ Module CFML_ILL_Instrm_Data
        real(kind=cp), dimension(3,3)  :: set, ub
        real(kind=cp)                  :: wave
 
-       logical                        :: read_set, read_alphas
+       logical                        :: read_set, read_alphas, read_ub
 
        npx=32  !default values
        npz=32
@@ -1521,6 +1521,7 @@ Module CFML_ILL_Instrm_Data
 
        read_set    = .false.
        read_alphas = .false.
+       read_ub     = .false.
 
        Current_Instrm%det_offsets=0.0
        Current_Instrm%ang_Limits=0.0
@@ -1630,6 +1631,7 @@ Module CFML_ILL_Instrm_Data
                     return
                   end if
                 end do
+                read_ub=.true.
 
             Case("SETTING")
                 read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%e1, Current_Instrm%e2, Current_Instrm%e3
@@ -1710,10 +1712,12 @@ Module CFML_ILL_Instrm_Data
 
        close(unit=lun)
 
-       if (read_set) then
-          call Set_Current_Orient(wave,ub,set)
-       else
-          call Set_Current_Orient(wave,ub)
+       if(read_ub) then
+         if (read_set) then
+            call Set_Current_Orient(wave,ub,set)
+         else
+            call Set_Current_Orient(wave,ub)
+         end if
        end if
 
        if (.not. read_alphas .and. index(Current_Instrm%geom,"Laue") == 0) then
