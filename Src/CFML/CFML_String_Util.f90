@@ -93,7 +93,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case
+    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String
 
     !---- List of public subroutines ----!
     public :: Cutst, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std, Getword, &
@@ -499,7 +499,6 @@
        return
     End Function L_Case
 
-
     !!----
     !!---- Character Function Pack_String(String) Result (Strp)
     !!----    character (len=*), intent(in) :: String
@@ -557,6 +556,21 @@
        return
     End Function U_Case
 
+    Function Strip_String(string, to_strip) Result(striped_string)
+
+        character (len = *), intent(in)    :: string
+        character (len = *), intent(in)    :: to_strip
+        character (len = len_trim(string)) :: striped_string
+
+        character (len = len_trim(string)) :: trimed_string        
+        character (len = len(to_strip))    :: trailing_chars        
+        integer                            :: last, strip_length
+        striped_string=trim(string)
+        i=index(string,trim(to_strip),back=.true.)
+        if(i > 0)striped_string=string(1:i-1)
+                
+    End Function Strip_String
+    
     !---------------------!
     !---- Subroutines ----!
     !---------------------!

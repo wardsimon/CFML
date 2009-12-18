@@ -37,7 +37,7 @@ rem
    gfortran -c CFML_bonds_table.f90      -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_cryst_types.f90      -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_symmetry.f90         -O0 -ftrace=full  -std=f2003    >> out
-   gfortran -c CFML_ILL_Instrm_data.f90  -O0 -ftrace=full  -std=f2003    >> out
+   gfortran -c CFML_ILL_Instrm_data.f90  -O0 -ftrace=full  -std=gnu      >> out
 rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms, Polarimetry

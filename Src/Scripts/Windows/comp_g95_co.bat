@@ -35,7 +35,7 @@ rem
    g95 -c CFML_bonds_table.f90      -O0  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_cryst_types.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
    g95 -c CFML_symmetry.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   g95 -c CFML_ILL_Instrm_data.f90  -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   g95 -c CFML_ILL_Instrm_data.f90  -O3              -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms, Polarimetry
