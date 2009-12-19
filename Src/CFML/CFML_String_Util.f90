@@ -49,6 +49,7 @@
 !!----       EQUAL_SETS_TEXT
 !!----       L_CASE
 !!----       PACK_STRING
+!!----       STRIP_TRING
 !!----       U_CASE
 !!----
 !!----    Subroutines:
@@ -557,20 +558,23 @@
     End Function U_Case
 
     Function Strip_String(string, to_strip) Result(striped_string)
+       !---- Arguments----!
+       character (len = *), intent(in)    :: string
+       character (len = *), intent(in)    :: to_strip
+       character (len = len_trim(string)) :: striped_string
 
-        character (len = *), intent(in)    :: string
-        character (len = *), intent(in)    :: to_strip
-        character (len = len_trim(string)) :: striped_string
+       !---- Local variables ----!
+       character (len = len_trim(string)) :: trimed_string
+       character (len = len(to_strip))    :: trailing_chars
+       integer                            :: last, strip_length
 
-        character (len = len_trim(string)) :: trimed_string        
-        character (len = len(to_strip))    :: trailing_chars        
-        integer                            :: last, strip_length
-        striped_string=trim(string)
-        i=index(string,trim(to_strip),back=.true.)
-        if(i > 0)striped_string=string(1:i-1)
-                
+       striped_string=trim(string)
+       i=index(string,trim(to_strip),back=.true.)
+
+       if (i > 0) striped_string=string(1:i-1)
+
     End Function Strip_String
-    
+
     !---------------------!
     !---- Subroutines ----!
     !---------------------!
