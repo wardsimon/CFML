@@ -566,7 +566,7 @@
        !---- Local variables ----!
        character (len = len_trim(string)) :: trimed_string
        character (len = len(to_strip))    :: trailing_chars
-       integer                            :: last, strip_length
+       integer                            :: i, strip_length
 
        striped_string=trim(string)
        i=index(string,trim(to_strip),back=.true.)
