@@ -2191,7 +2191,7 @@
        iy=nint(y)
 
        aux=" "
-       write(unit=aux,fmt=*) value
+       write(unit=aux,fmt="(f19.7)") value
        line=trim(aux)
        n=len_trim(line)
        fmtcar="f"
@@ -2221,7 +2221,7 @@
        n=len_trim(line)
        np=len(line)-n-1             !number of available places for writing
        aux=" "
-       write(unit=aux,fmt=*) iy
+       write(unit=aux,fmt="(i14)") iy
        aux=pack_string(aux)
        long=len_trim(aux)
        if(long > np) then
