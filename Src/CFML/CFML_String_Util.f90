@@ -2172,7 +2172,7 @@
 
        if (abs(std) < 0.0000001) then
           if (abs(value) > 999999.0) then
-             write(unit=aux,fmt=*) value
+             write(unit=aux,fmt="(f19.5)") value
           else
              write(unit=aux,fmt="(f14.5)") value
           end if
@@ -2191,7 +2191,7 @@
        iy=nint(y)
 
        aux=" "
-       write(unit=aux,fmt="(f19.7)") value
+       write(unit=aux,fmt="(f19.5)") value
        line=trim(aux)
        n=len_trim(line)
        fmtcar="f"
