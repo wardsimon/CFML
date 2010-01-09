@@ -48,7 +48,7 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: Sp, tpi
+    Use CFML_GlobalDeps,                only: cp, tpi
     Use CFML_Math_General,              only: Modulo_Lat
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
@@ -82,7 +82,7 @@
     !!--..
     !!---- Type, public :: MSym_Oper_Type
     !!----    integer, dimension(3,3) :: Rot     !  Rotational Part of Symmetry Operator
-    !!----    real(kind=sp)           :: Phas    !  Phase in fraction of 2pi
+    !!----    real(kind=cp)           :: Phas    !  Phase in fraction of 2pi
     !!---- End Type  MSym_Oper_Type
     !!----
     !!----  Definition of Magnetic symmetry operator type
@@ -91,7 +91,7 @@
     !!
     Type, public :: MSym_Oper_Type
        integer, dimension(3,3) :: Rot
-       real(kind=sp)           :: Phas
+       real(kind=cp)           :: Phas
     End Type MSym_Oper_Type
 
     !!----
@@ -101,10 +101,10 @@
     !!----    integer                         :: nd=0          !Number of rotational domains (not counting chiral domains)
     !!----    logical                         :: Chir=.false.  !True if chirality domains exist
     !!----    integer,dimension(3,3,24)       :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
-    !!----    real(kind=sp), dimension (2,24) :: pop=0.0       !Populations of domains (sum=1,
+    !!----    real(kind=cp), dimension (2,24) :: pop=0.0       !Populations of domains (sum=1,
     !!----                                                     !the second value is /=0 for chir=.true.)
-    !!----    real(kind=sp), dimension (2,24) :: Lpop=0        !Number of the refined parameter
-    !!----    real(kind=sp), dimension (2,24) :: Mpop=0.0      !Refinement codes for populations
+    !!----    real(kind=cp), dimension (2,24) :: Lpop=0        !Number of the refined parameter
+    !!----    real(kind=cp), dimension (2,24) :: Mpop=0.0      !Refinement codes for populations
     !!---- End type Magnetic_Domain_type
     !!----
     !!----
@@ -124,10 +124,10 @@
        integer                                  :: nd=0          !Number of rotational domains (not counting chiral domains)
        logical                                  :: Chir=.false.  !True if chirality domains exist
        integer,dimension(3,3,24)                :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
-       real(kind=sp), dimension (2,24)          :: pop=0.0       !Populations of domains (sum=1,
+       real(kind=cp), dimension (2,24)          :: pop=0.0       !Populations of domains (sum=1,
                                                                  !the second value is /=0 for chir=.true.)
-       real(kind=sp), dimension (2,24)          :: Lpop=0        !Number of the refined parameter
-       real(kind=sp), dimension (2,24)          :: Mpop=0.0      !Refinement codes for populations
+       real(kind=cp), dimension (2,24)          :: Lpop=0        !Number of the refined parameter
+       real(kind=cp), dimension (2,24)          :: Mpop=0.0      !Refinement codes for populations
     End type Magnetic_Domain_type
 
     !!----
@@ -166,9 +166,9 @@
     !!----    integer                                  :: centred    ! =0 centric centre not at origin, =1 acentric, =2 centric (-1 at origin)
     !!----    integer                                  :: mcentred   ! =1 Anti/a-centric Magnetic symmetry, = 2 centric magnetic symmetry
     !!----    integer                                  :: nkv        ! Number of independent propagation vectors
-    !!----    real(kind=sp),dimension(3,12)            :: kvec       ! Propagation vectors
+    !!----    real(kind=cp),dimension(3,12)            :: kvec       ! Propagation vectors
     !!----    integer                                  :: NumLat     ! Number of centring lattice vectors
-    !!----    real(kind=sp), dimension(3,4)            :: Ltr        ! Centring translations
+    !!----    real(kind=cp), dimension(3,4)            :: Ltr        ! Centring translations
     !!----    integer                                  :: Numops     ! Reduced number of crystallographic Symm. Op.
     !!----    integer                                  :: Multip     ! General multiplicity of the space group
     !!----    integer,             dimension(4)        :: nbas       ! Number of basis functions per irrep (if nbas < 0, the corresponding basis is complex).
@@ -177,7 +177,7 @@
     !!----    type( Sym_Oper_Type),dimension(48)       :: SymOp      ! Crystallographic symmetry operators
     !!----    character(len=40),   dimension(48,8)     :: MSymopSymb ! Alphanumeric Symbols for MSYMM
     !!----    type(MSym_Oper_Type),dimension(48,8)     :: MSymOp     ! Magnetic symmetry operators
-    !!----    Complex(kind=sp),    dimension(3,12,48,4):: basf       ! Basis functions of the irreps of Gk
+    !!----    Complex(kind=cp),    dimension(3,12,48,4):: basf       ! Basis functions of the irreps of Gk
     !!---- End Type MagSymm_k_Type
     !!----
     !!----  Definition of the MagSymm_k_type derived type, encapsulating the information
@@ -194,9 +194,9 @@
        integer                                  :: centred
        integer                                  :: mcentred
        integer                                  :: nkv
-       real(kind=sp),dimension(3,12)            :: kvec
+       real(kind=cp),dimension(3,12)            :: kvec
        integer                                  :: NumLat
-       real(kind=sp), dimension(3,4)            :: Ltr
+       real(kind=cp), dimension(3,4)            :: Ltr
        integer                                  :: Numops
        integer                                  :: Multip
        integer,             dimension(4)        :: nbas
@@ -205,7 +205,7 @@
        type( Sym_Oper_Type),dimension(48)       :: SymOp
        character(len=40),   dimension(48,8)     :: MSymopSymb
        type(MSym_Oper_Type),dimension(48,8)     :: MSymOp
-       Complex(kind=sp),    dimension(3,12,48,4):: basf
+       Complex(kind=cp),    dimension(3,12,48,4):: basf
     End Type MagSymm_k_Type
 
     !!----
@@ -237,8 +237,8 @@
     !!----
     !!---- Function ApplyMso(Op,V) Result(Skp)
     !!----    Type(MSym_Oper_Type),         intent(in) :: Op        !  Magnetic Symmetry Operator Type
-    !!----    real(kind=sp), dimension(3) , intent(in) :: Sk        !  Complex vector
-    !!----    real(kind=sp), dimension(3)              :: Skp       !  Transformed complex vector
+    !!----    real(kind=cp), dimension(3) , intent(in) :: Sk        !  Complex vector
+    !!----    real(kind=cp), dimension(3)              :: Skp       !  Transformed complex vector
     !!----
     !!----    Apply a magnetic symmetry operator to a complex vector:  Skp = ApplyMSO(Op,Sk)
     !!----
@@ -353,10 +353,10 @@
        !---- Local Variables ----!
        integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, &
                   num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip
-       real                 :: ph
-       real,dimension(3)    :: rsk,isk
-       real,dimension(3,12) :: br,bi
-       real,dimension(12)   :: coef
+       real(kind=cp)                 :: ph
+       real(kind=cp),dimension(3)    :: rsk,isk
+       real(kind=cp),dimension(3,12) :: br,bi
+       real(kind=cp),dimension(12)   :: coef
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
        character(len=2)     :: lattice
@@ -957,7 +957,7 @@
     !!----    type(MagSymm_k_Type),      intent (in out):: MGp
     !!----
     !!----  This subroutined is not completed ... it is still in development
-    !!---- Update: April 2008  
+    !!---- Update: April 2008
     !!
     Subroutine Set_Shubnikov_Group(shubk,SG,MGp)
        !---- Arguments ----!
@@ -1467,10 +1467,10 @@
        character (len=100), dimension( 4):: texto
        character (len=40)                :: aux
        integer :: i,j,k,l, nlines,n,m
-       real                  :: x
-       complex               :: ci
-       real, dimension(3)    :: xp,xo
-       complex, dimension(3) :: Sk
+       real(kind=cp)                  :: x
+       complex                        :: ci
+       real(kind=cp), dimension(3)    :: xp,xo
+       complex, dimension(3)          :: Sk
 
 
        Write(unit=ipr,fmt="(/,a)")  "==================================="

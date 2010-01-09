@@ -538,8 +538,8 @@
 
        !---- Local variables -----!
        integer                           :: iv, nlong1,n,ier,q
-       real, dimension (10)              :: vet1
-       real, dimension (10)              :: vet2
+       real(kind=cp), dimension (10)     :: vet1
+       real(kind=cp), dimension (10)     :: vet2
        character(len=4)                  :: dire
        character(len=5)                  :: label
        character(len=132), dimension(1)  :: filevar
@@ -654,8 +654,8 @@
 
     !!----
     !!---- Subroutine Read_Cell(Line,Celda)
-    !!----    character(len=*),       intent(in out ) :: line   !  In -> Input String with CELL Directive
-    !!----    real,dimension(6),      intent(out)     :: Celda  !  In -> Parameters on Celda Variable
+    !!----    character(len=*),          intent(in out ) :: line   !  In -> Input String with CELL Directive
+    !!----    real(kind=cp),dimension(6),intent(out)     :: Celda  !  In -> Parameters on Celda Variable
     !!----
     !!----    Subroutine to read the cell parameters from a given "line"
     !!----    it construct the object Celda of type Crystal_Cell.
@@ -669,11 +669,11 @@
     Subroutine Read_Cell(line,Celda)
        !---- Arguments ----!
        character(len=*),          intent(in out ) :: line
-       real,dimension(6),         intent(out)     :: Celda
+       real(kind=cp),dimension(6),intent(out)     :: Celda
 
        !---- Local variables -----!
        integer, dimension (6)               :: ivet
-       real, dimension (6)                  :: vet
+       real(kind=cp), dimension (6)         :: vet
        integer                              :: nlong1,iv
        character(len=4)                     :: dire
 
@@ -730,7 +730,7 @@
                                                   ! 3-5 -> coordinates
                                                   !   6 -> occupancy
                                                   !   7 -> Uequi
-       real, dimension(1)              :: vet1,vet2
+       real(kind=cp), dimension(1)     :: vet1,vet2
        type(atom_list_type)            :: Atm
 
        !---- Estimacion Inicial ----!
@@ -994,12 +994,12 @@
 
     !!----
     !!---- Subroutine Read_Cif_Cell(Filevar,Nline_Ini,Nline_End,Celda,Stdcelda)
-    !!----    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String vector input
-    !!----    integer,           intent(in out)          :: nline_ini    !  In -> Line to start the search
-    !!----                                                                 Out -> Actual line on Filevar
-    !!----    integer,           intent(in)              :: nline_end    !  In -> Line to finish the search
-    !!----    real,dimension(6), intent (out)            :: Celda        ! Out -> Cell variable
-    !!----    real,dimension(6), intent (out)            :: StdCelda     ! Out -> Cell variable
+    !!----    character(len=*), dimension(:), intent(in)     :: filevar      !  In -> String vector input
+    !!----    integer,                        intent(in out) :: nline_ini    !  In -> Line to start the search
+    !!----                                                                      Out -> Current line on Filevar
+    !!----    integer,                        intent(in)     :: nline_end    !  In -> Line to finish the search
+    !!----    real(kind=cp),dimension(6),     intent (out)   :: Celda        ! Out -> Cell variable
+    !!----    real(kind=cp),dimension(6),     intent (out)   :: StdCelda     ! Out -> Cell variable
     !!----
     !!----    Read Cell Parameters from Cif file
     !!----
@@ -1007,16 +1007,16 @@
     !!
     Subroutine Read_Cif_Cell(Filevar,Nline_Ini,Nline_End,Celda,StdCelda)
        !---- Arguments ----!
-       character(len=*),  dimension(:), intent(in)     :: filevar
-       integer,                         intent(in out) :: nline_ini
-       integer,                         intent(in)     :: nline_end
-       real,dimension(6),               intent(out)    :: Celda
-       real,dimension(6),optional,      intent(out)    :: StdCelda
+       character(len=*),  dimension(:),     intent(in)     :: filevar
+       integer,                             intent(in out) :: nline_ini
+       integer,                             intent(in)     :: nline_end
+       real(kind=cp),dimension(6),          intent(out)    :: Celda
+       real(kind=cp),dimension(6),optional, intent(out)    :: StdCelda
 
        !---- Local Variables ----!
-       integer                :: iv,initl
-       real, dimension(1)     :: vet1,vet2
-       real, dimension(6)     :: a
+       integer                     :: iv,initl
+       real(kind=cp), dimension(1) :: vet1,vet2
+       real(kind=cp), dimension(6) :: a
 
        !---- Valores iniciales ----!
        celda=(/1.0,1.0,1.0,90.0,90.0,90.0/)
@@ -1115,13 +1115,13 @@
 
     !!----
     !!---- Subroutine Read_Cif_Cont(Filevar,Nline_Ini,Nline_End,N_Elem_Type,Elem_Type,N_Elem)
-    !!----    character(len=*),  dimension(:), intent(in)     :: filevar      !  In -> String vector input
-    !!----    integer,                         intent(in out) :: nline_ini    !  In -> Line to start the search
-    !!----                                                                       Out -> Actual line on Filevar
-    !!----    integer,                         intent(in)     :: nline_end    !  In -> Line to finish the search
-    !!----    integer,                         intent(out)    :: n_elem_type  ! Out -> N. of different elements
-    !!----    character(len=*), dimension(:),  intent(out)    :: elem_type    ! Out -> String for Element type
-    !!----    real, dimension(:), optional     intent(out)    :: n_elem       ! Out -> Number of elements
+    !!----    character(len=*), dimension(:),      intent(in)      :: filevar       !  In -> String vector input
+    !!----    integer,                             intent(in out)  :: nline_ini     !  In -> Line to start the search
+    !!----                                                                             Out -> Actual line on Filevar
+    !!----    integer,                             intent(in)      :: nline_end     !  In -> Line to finish the search
+    !!----    integer,                             intent(out)     :: n_elem_type   ! Out -> N. of different elements
+    !!----    character(len=*), dimension(:),      intent(out)     :: elem_type     ! Out -> String for Element type
+    !!----    real(kind=cp), dimension(:),optional,intent(out)     :: n_elem        ! Out -> Number of elements
     !!----
     !!----    Obtaining the chemical contents from Cif file
     !!----
@@ -1129,22 +1129,22 @@
     !!
     Subroutine Read_Cif_Cont(Filevar,Nline_Ini,Nline_End,N_Elem_Type,Elem_Type,N_Elem)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)      :: filevar
-       integer,                        intent(in out)  :: nline_ini
-       integer,                        intent(in)      :: nline_end
-       integer,                        intent(out)     :: n_elem_type
-       character(len=*), dimension(:), intent(out)     :: elem_type
-       real, dimension(:), optional,   intent(out)     :: n_elem
+       character(len=*), dimension(:),      intent(in)      :: filevar
+       integer,                             intent(in out)  :: nline_ini
+       integer,                             intent(in)      :: nline_end
+       integer,                             intent(out)     :: n_elem_type
+       character(len=*), dimension(:),      intent(out)     :: elem_type
+       real(kind=cp), dimension(:),optional,intent(out)     :: n_elem
 
        !---- Local  variables ----!
        character(len=len(filevar(1)))      :: string
        character(len=10),dimension(15)     :: label
 
-       integer                :: iv
-       integer                :: i,np1,np2,nlabel,nlong
-       integer, dimension(1)  :: ivet
+       integer                    :: iv
+       integer                    :: i,np1,np2,nlabel,nlong
+       integer, dimension(1)      :: ivet
 
-       real,dimension(1)      :: vet
+       real(kind=cp),dimension(1) :: vet
 
        n_elem_type = 0
        elem_type   = " "
@@ -1325,9 +1325,9 @@
     !!---- Subroutine Read_Cif_Lambda(Filevar,Nline_Ini,Nline_End,Lambda)
     !!----    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String vector
     !!----    integer,           intent(in out)          :: nline_ini    !  In -> Line to start of search
-    !!----                                                                 Out -> Actual line on Filevar
+    !!----                                                                  Out -> Actual line on Filevar
     !!----    integer,           intent(in)              :: nline_end    !  In -> Line to finish the search
-    !!----    real,              intent(out)             :: lambda       ! Out -> lamda value
+    !!----    real(kind=cp),     intent(out)             :: lambda       !  Out -> lamda value
     !!----
     !!----    Radiation length
     !!----
@@ -1338,12 +1338,12 @@
        character(len=*),  dimension(:), intent(in) :: filevar
        integer,           intent(in out)           :: nline_ini
        integer,           intent(in)               :: nline_end
-       real,              intent(out)              :: lambda
+       real(kind=cp),     intent(out)              :: lambda
 
        !---- Local Variables ----!
-       integer              :: iv
-       integer,dimension(1) :: ivet
-       real, dimension(1)   :: vet
+       integer                    :: iv
+       integer,dimension(1)       :: ivet
+       real(kind=cp), dimension(1):: vet
 
        lambda=0.71073    ! Mo
 
@@ -1477,9 +1477,9 @@
        integer,           intent(out)              :: z
 
        !---- Local Variables ----!
-       integer              :: iv
-       integer,dimension(1) :: ivet
-       real, dimension(1)   :: vet
+       integer                     :: iv
+       integer,dimension(1)        :: ivet
+       real(kind=cp), dimension(1) :: vet
 
        z=0
        call read_key_value(filevar,nline_ini,nline_end, &
@@ -1617,7 +1617,7 @@
     !!----                                                                 Out -> Atual line on Filevar
     !!----    integer,           intent(in)              :: nline_end    !  In -> line to finish the search
     !!----
-    !!----    real,dimension(6), intent (out)            :: Celda        ! Out -> Cell variable
+    !!----    real(kind=cp),dimension(6), intent (out)   :: Celda        ! Out -> Cell variable
     !!----                            or
     !!----    type (Crystal_Cell_Type), intent (out)     :: Celda        ! Out -> Cell variable
     !!----
@@ -1632,7 +1632,7 @@
     !!--++    integer,           intent(in out)          :: nline_ini    !  In -> Line to start the search
     !!--++                                                                 Out -> Atual line on Filevar
     !!--++    integer,           intent(in)              :: nline_end    !  In -> line to finish the search
-    !!--++    real,dimension(6), intent (out)            :: Celda        ! Out -> Cell variable
+    !!--++    real(kind=cp),dimension(6), intent (out)   :: Celda        ! Out -> Cell variable
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Read Cell Parameters from file. Control error is present
@@ -1644,12 +1644,12 @@
        character(len=*),  dimension(:), intent(in)     :: filevar
        integer,                         intent(in)     :: nline_ini
        integer,                         intent(in)     :: nline_end
-       real,dimension(6),               intent(out)    :: Celda
+       real(kind=cp),dimension(6),      intent(out)    :: Celda
 
        !---- Local Variables ----!
-       integer               :: iv, i,j
-       integer, dimension(6) :: ivet
-       real, dimension(6)    :: vet
+       integer                     :: iv, i,j
+       integer, dimension(6)       :: ivet
+       real(kind=cp), dimension(6) :: vet
 
        !---- Valores iniciales ----!
        call init_err_form()
@@ -1692,9 +1692,8 @@
        type (Crystal_Cell_Type),        intent(out)    :: Celda
 
        !---- Local Variables ----!
-       integer               :: iv, i,j
-       !integer, dimension(6) :: ivet
-       real, dimension(6)    :: vet1,vet2
+       integer                     :: iv, i,j
+       real(kind=cp), dimension(6) :: vet1,vet2
 
        !---- Valores iniciales ----!
        call init_err_form()
@@ -1738,12 +1737,12 @@
        character(len=*), dimension(:), intent(in)     :: filevar
        integer,                        intent(in out) :: nline_ini
        integer,                        intent(in)     :: nline_end
-       real,                           intent(   out) :: v1,v2,v3
+       real(kind=cp),                  intent(   out) :: v1,v2,v3
 
        !---- Local Variables ----!
-       integer               :: iv, i,j
-       integer, dimension(3) :: ivet
-       real, dimension(3)    :: vet
+       integer                    :: iv, i,j
+       integer, dimension(3)      :: ivet
+       real(kind=cp), dimension(3):: vet
 
        !---- Valores iniciales ----!
        call init_err_form()
@@ -1793,12 +1792,12 @@
        character(len=*), dimension(:), intent(in)     :: filevar
        integer,                        intent(in out) :: nline_ini
        integer,                        intent(in)     :: nline_end
-       real,                           intent(   out) :: v1,v2
+       real(kind=cp),                  intent(   out) :: v1,v2
 
        !---- Local Variables ----!
-       integer               :: iv, i,j
-       integer, dimension(2) :: ivet
-       real, dimension(2)    :: vet
+       integer                     :: iv, i,j
+       integer,       dimension(2) :: ivet
+       real(kind=cp), dimension(2) :: vet
 
        !---- Valores iniciales ----!
        call init_err_form()
@@ -1864,12 +1863,12 @@
 
     !!----
     !!---- Read_File_Transf(Filevar,Nline_Ini,Nline_End,Transf,Orig)
-    !!----    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String Vector
-    !!----    integer,           intent(in out)          :: nline_ini    !  In -> Line to start the search
-    !!----                                                                 Out -> Atual line on Filevar
-    !!----    integer,           intent(in)              :: nline_end    !  In -> line to finish the search
-    !!----    real,dimension(3,3),             intent(out)    :: transf  ! Out -> Cell variable
-    !!----    real,dimension(3  ),             intent(out)    :: orig
+    !!----    character(len=*), dimension(:), intent(in)     :: filevar      !  In -> String Vector
+    !!----    integer,                        intent(in out) :: nline_ini    !  In -> Line to start the search
+    !!----                                                                     Out -> Atual line on Filevar
+    !!----    integer,                        intent(in)     :: nline_end    !  In -> line to finish the search
+    !!----    real(kind=cp),dimension(3,3),   intent(out)    :: transf       ! Out -> Cell variable
+    !!----    real(kind=cp),dimension(3  ),   intent(out)    :: orig
     !!----
     !!----    Read transformation matrix for changing the space group or cell setting.
     !!----    First the matrix M is read row by row and then the origin in the old setting
@@ -1891,13 +1890,13 @@
        character(len=*),  dimension(:), intent(in)     :: filevar
        integer,                         intent(in)     :: nline_ini
        integer,                         intent(in)     :: nline_end
-       real,dimension(3,3),             intent(out)    :: trans
-       real,dimension(3  ),             intent(out)    :: orig
+       real(kind=cp),dimension(3,3),    intent(out)    :: trans
+       real(kind=cp),dimension(3  ),    intent(out)    :: orig
 
        !---- Local Variables ----!
-       integer               :: iv, i,j
-       integer, dimension(12) :: ivet
-       real, dimension(12)    :: vet
+       integer                      :: iv, i,j
+       integer,       dimension(12) :: ivet
+       real(kind=cp), dimension(12) :: vet
 
        !---- Initial values ----!
        call init_err_form()
@@ -1923,16 +1922,16 @@
 
     !!----
     !!---- Subroutine Read_Shx_Atom(Filevar,Nline_Ini,Nline_End,N_Fvar,Fvar,Elem_Type,N_Atom,Atm_List)
-    !!----    character(len=*),dimension(:), intent(in)        :: filevar        !  In -> String vector
-    !!----    integer,           intent(in out)                :: nline_ini      !  In -> Line to start the search
+    !!----    character(len=*), dimension(:), intent(in)      :: filevar        !  In -> String vector
+    !!----    integer,                        intent(in out)  :: nline_ini      !  In -> Line to start the search
     !!----                                                                         Out -> Actual line on Filevar
-    !!----    integer,           intent(in)                    :: nline_end      !  In -> Line to finish the search
-    !!----    integer,                             intent(in)  :: n_fvar         !  In -> Number of parameters on FVAR
-    !!----    real, dimension(:),                  intent(in)  :: fvar           !  In -> Values for FVAR
-    !!----    character(len=*), dimension(:),      intent(in)  :: elem_type      !  In -> type of elements
-    !!----    type (Crystal_Cell_Type),            intent(in)  :: Celda          !  In -> Cell type variable
-    !!----    integer,                             intent(out) :: n_atom         ! Out -> number of atoms
-    !!----    type (atom_list_type),              intent(out) :: Atm_List       ! Out -> Atom List
+    !!----    integer,                        intent(in)      :: nline_end      !  In -> Line to finish the search
+    !!----    integer,                        intent(in)      :: n_fvar         !  In -> Number of parameters on FVAR
+    !!----    real(kind=cp), dimension(:),    intent(in)      :: fvar           !  In -> Values for FVAR
+    !!----    character(len=*), dimension(:), intent(in)      :: elem_type      !  In -> type of elements
+    !!----    type (Crystal_Cell_Type),       intent(in)      :: Celda          !  In -> Cell type variable
+    !!----    type (Atom_list_type),          intent(out)     :: Atm_List       ! Out -> number of atoms
+    !!----         ! Out -> Atom List
     !!----
     !!----    Obtaining Atoms parameters from Shelx file (.ins or .res)
     !!----
@@ -1940,14 +1939,14 @@
     !!
     Subroutine Read_Shx_Atom(filevar,nline_ini,nline_end,n_fvar,fvar,elem_type,celda,Atm_List)
        !---- Arguments ----!
-       character(len=*), dimension(:),   intent(in)      :: filevar
-       integer,                          intent(in out)  :: nline_ini
-       integer,                          intent(in)      :: nline_end
-       integer,                          intent(in)      :: n_fvar
-       real, dimension(:),               intent(in)      :: fvar
-       character(len=*), dimension(:),   intent(in)      :: elem_type
-       type (Crystal_Cell_Type),         intent(in)      :: Celda
-       type (Atom_list_type),            intent(out)     :: Atm_List
+       character(len=*), dimension(:), intent(in)      :: filevar
+       integer,                        intent(in out)  :: nline_ini
+       integer,                        intent(in)      :: nline_end
+       integer,                        intent(in)      :: n_fvar
+       real(kind=cp), dimension(:),    intent(in)      :: fvar
+       character(len=*), dimension(:), intent(in)      :: elem_type
+       type (Crystal_Cell_Type),       intent(in)      :: Celda
+       type (Atom_list_type),          intent(out)     :: Atm_List
 
        !---- Local Variables ----!
        character(len=80)               :: string
@@ -1955,8 +1954,8 @@
        integer                         :: i, nc, iv
        integer                         :: j, n_atom
        integer, dimension(15)          :: ivet
-       real                            :: x, p, u
-       real, dimension(15)             :: vet
+       real(kind=cp)                   :: x, p, u
+       real(kind=cp), dimension(15)    :: vet
        type(atom_list_type)            :: Atm
 
        call allocate_atom_list(nline_end-nline_ini+1,Atm)
@@ -2155,9 +2154,9 @@
     !!----    integer,                        intent(in out) :: nline_ini     !  In -> Line to start the search
     !!----                                                                      Out -> Actual line on Filevar
     !!----    integer,                        intent(in)     :: nline_end     !  In -> Line to finish the search
-    !!----    real,dimension(6),              intent(out)    :: celda         ! Out -> Cell Parameters
-    !!----    real,dimension(6),              intent(out)    :: Stdcelda      ! Out -> Std Cell Parameters
-    !!----    real,                           intent(out)    :: lambda        ! Out -> Lambda
+    !!----    real(kind=cp),dimension(6),     intent(out)    :: celda         ! Out -> Cell Parameters
+    !!----    real(kind=cp),dimension(6),     intent(out)    :: Stdcelda      ! Out -> Std Cell Parameters
+    !!----    real(kind=cp),                  intent(out)    :: lambda        ! Out -> Lambda
     !!----    integer,                        intent(out)    :: Z             ! Out -> Z
     !!----
     !!----    Obtaining Cell Parameter from Shelx file
@@ -2169,17 +2168,17 @@
        character(len=*), dimension(:),     intent(in)     :: filevar
        integer,                            intent(in out) :: nline_ini
        integer,                            intent(in)     :: nline_end
-       real,dimension(6),                  intent(out)    :: Celda
-       real,dimension(6),optional,         intent(out)    :: StdCelda
-       real,             optional,         intent(out)    :: lambda
+       real(kind=cp),dimension(6),         intent(out)    :: Celda
+       real(kind=cp),dimension(6),optional,intent(out)    :: StdCelda
+       real(kind=cp),             optional,intent(out)    :: lambda
        integer,          optional,         intent(out)    :: z
 
        !---- Local Variables ----!
-       integer                :: iv,z_shx
-       integer, dimension(10) :: ivet
-       real, dimension(10)    :: vet
-       real                   :: lambda_shx
-       real,dimension(6)      :: std
+       integer                      :: iv,z_shx
+       integer, dimension(10)       :: ivet
+       real(kind=cp), dimension(10) :: vet
+       real(kind=cp)                :: lambda_shx
+       real(kind=cp),dimension(6)   :: std
 
        !---- Valores iniciales ----!
        celda=0.0
@@ -2210,13 +2209,13 @@
 
     !!----
     !!---- Subroutine Read_Shx_Cont(Filevar,Nline_Ini,Nline_End,N_Elem_Type,Elem_Type,N_Elem)
-    !!----    character(len=*),  dimension(:), intent(in)       :: filevar       !  In -> String Vector
-    !!----    integer,                         intent(in out)   :: nline_ini     !  In -> Line to start the search
+    !!----    character(len=*),  dimension(:),    intent(in)    :: filevar       !  In -> String Vector
+    !!----    integer,                            intent(in out):: nline_ini     !  In -> Line to start the search
     !!----                                                                         Out -> Actual Line on Filevar
-    !!----    integer,                         intent(in)       :: nline_end     !  In -> Line to finish the search
-    !!----    integer,                         intent(out)      :: n_elem_type   ! Out -> N. of different species
-    !!----    character(len=*), dimension(:),  intent(out)      :: elem_type     ! Out -> Character to identify the specie
-    !!----    real, dimension(:), optional,    intent(out)      :: n_elem        ! Out -> Number of elementos into the same species
+    !!----    integer,                            intent(in)    :: nline_end     !  In -> Line to finish the search
+    !!----    integer,                            intent(out)   :: n_elem_type   ! Out -> N. of different species
+    !!----    character(len=*), dimension(:),     intent(out)   :: elem_type     ! Out -> Character to identify the specie
+    !!----    real(kind=cp),dimension(:),optional,intent(out)   :: n_elem        ! Out -> Number of elementos into the same species
     !!----
     !!----    Obtaining Chemical contents from Shelx file (.ins or .res)
     !!----
@@ -2224,19 +2223,18 @@
     !!
     Subroutine Read_Shx_Cont(filevar,nline_ini,nline_end,n_elem_type,elem_type,n_elem)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in)      :: filevar
-       integer,                        intent(in out)  :: nline_ini
-       integer,                        intent(in)      :: nline_end
-       integer,                        intent(out)     :: n_elem_type
-       character(len=*), dimension(:), intent(out)     :: elem_type
-       real, dimension(:), optional,   intent(out)     :: n_elem
+       character(len=*), dimension(:),     intent(in)      :: filevar
+       integer,                            intent(in out)  :: nline_ini
+       integer,                            intent(in)      :: nline_end
+       integer,                            intent(out)     :: n_elem_type
+       character(len=*), dimension(:),     intent(out)     :: elem_type
+       real(kind=cp),dimension(:),optional,intent(out)     :: n_elem
 
        !---- Local  variables ----!
        character(len=len(filevar(1)))      :: string
-       integer                :: iv
-       integer, dimension(15) :: ivet
-
-       real,dimension(15)     :: vet
+       integer                     :: iv
+       integer,      dimension(15) :: ivet
+       real(kind=cp),dimension(15) :: vet
 
        n_elem_type = 0
        elem_type   = " "
@@ -2257,12 +2255,12 @@
 
     !!----
     !!---- Subroutine Read_Shx_Fvar(Filevar,Nline_Ini,Nline_End,N_Fvar,Fvar)
-    !!----    character(len=*), dimension(:), intent(in) :: filevar       !  In -> String vector
-    !!----    integer,           intent(in out)          :: nline_ini     !  In -> Line to start the search
-    !!----                                                                ! Out -> Actual line on Filevar
-    !!----    integer,           intent(in)              :: nline_end     !  In -> Line to finish the search
-    !!----    integer,intent(out)                        :: n_fvar        ! Out -> N. of parameters on FVAR
-    !!----    real, dimension(:), intent(out)            :: fvar          ! Out -> values of FVAR
+    !!----    character(len=*), dimension(:), intent(in)    :: filevar       !  In -> String vector
+    !!----    integer,                        intent(in out):: nline_ini     !  In -> Line to start the search
+    !!----                                                                   ! Out -> Actual line on Filevar
+    !!----    integer,                        intent(in)    :: nline_end     !  In -> Line to finish the search
+    !!----    integer,                        intent(out)   :: n_fvar        ! Out -> N. of parameters on FVAR
+    !!----    real(kind=cp), dimension(:),    intent(out)   :: fvar          ! Out -> values of FVAR
     !!----
     !!----    Obtaining Fvar parameters from Shelx file (.ins or .res)
     !!----
@@ -2270,16 +2268,16 @@
     !!
     Subroutine Read_Shx_Fvar(filevar,nline_ini,nline_end,n_fvar,fvar)
        !---- Arguments ----!
-       character(len=*), dimension(:), intent(in) :: filevar
-       integer,           intent(in out)          :: nline_ini
-       integer,           intent(in)              :: nline_end
-       integer,intent(out)                        :: n_fvar
-       real, dimension(:), intent(out)            :: fvar
+       character(len=*), dimension(:), intent(in)    :: filevar
+       integer,                        intent(in out):: nline_ini
+       integer,                        intent(in)    :: nline_end
+       integer,                        intent(out)   :: n_fvar
+       real(kind=cp), dimension(:),    intent(out)   :: fvar
 
        !---- Local  variables ----!
-       integer               :: iv
-       integer,dimension(15) :: ivet
-       real, dimension(15)   :: vet
+       integer                      :: iv
+       integer,       dimension(15) :: ivet
+       real(kind=cp), dimension(15) :: vet
 
        n_fvar = 1
        fvar   = 1.0
@@ -2313,9 +2311,9 @@
        integer,           intent(out)             :: latt
 
        !---- Local Variables ----!
-       integer                :: iv
-       integer, dimension(2) :: ivet
-       real, dimension(2)    :: vet
+       integer                     :: iv
+       integer,       dimension(2) :: ivet
+       real(kind=cp), dimension(2) :: vet
 
        latt=1
        call read_key_value(filevar,nline_ini,nline_end,"LATT",vet,ivet,iv)
@@ -2415,7 +2413,7 @@
 
        !---- Local variables -----!
        character(len=len(line)),dimension(1):: line2
-       real, dimension (6)                  :: vet1,vet2
+       real(kind=cp), dimension (6)         :: vet1,vet2
        integer                              :: iv,n
 
        call init_err_form()
@@ -2472,7 +2470,7 @@
        integer, parameter        :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph) :: ip
 
-       real,dimension(3)         :: vet
+       real(kind=cp),dimension(3):: vet
 
        !---- Standard CrysFML file *.CFL ----!
        nauas=0
@@ -2557,11 +2555,11 @@
        type (Molecular_Crystal_Type),  intent(in out) :: Molcrys
 
        !---- Local variables ----!
-       character(len=132)   :: line
-       integer              :: i,n,nmol,npos,n_ini,n_end,ierr
-       real                 :: theta,phi,chi
-       real,dimension(3)    :: x1f,x2f,x3f
-       real, dimension(3,3) :: EuM
+       character(len=132)            :: line
+       integer                       :: i,n,nmol,npos,n_ini,n_end,ierr
+       real(kind=cp)                 :: theta,phi,chi
+       real(kind=cp), dimension(3)   :: x1f,x2f,x3f
+       real(kind=cp), dimension(3,3) :: EuM
 
        !---- Detecting the Molecules defined in the file ----!
        nmol=0
@@ -2663,7 +2661,7 @@
        integer, parameter        :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph) :: ip
 
-       real,dimension(6)         :: vet,vet2
+       real(kind=cp),dimension(6):: vet,vet2
 
        ip=nlines
        ip(1)=1
@@ -2789,8 +2787,8 @@
        character(len=2),  dimension(15)  :: elem_atm
        integer                           :: i,n_ini, n_end, nl, noper
        integer                           :: n_elem_atm, n_fvar
-       real, dimension(6)                :: vet,vet2
-       real, dimension(10)               :: fvar
+       real(kind=cp), dimension(6)       :: vet,vet2
+       real(kind=cp), dimension(10)      :: fvar
 
        n_ini=1
        n_end=nlines
@@ -3842,16 +3840,16 @@
 
     !!----
     !!---- Subroutine Write_Shx_Template(Filename,Code,Title,Lambda,Z,Celda,Space,Atomos)
-    !!----    character(len=*),   intent(in)      :: filename      !  In -> Filename
-    !!----    integer,            intent(in)      :: code          !  In -> 0 Shelxs-Patterson
-    !!----                                                             1 Shelxs-Direct Methods
-    !!----                                                             2 Shelxl-Refinement
-    !!----    character(len=*),   intent(in)      :: title         !  In -> Title
-    !!----    real,               intent(in)      :: lambda        !  In -> Lambda
-    !!----    integer,            intent(in)      :: z             !  In -> Z
-    !!----    type(Crystal_cell_Type), intent(in) :: celda         !  In -> Cell variable
-    !!----    type(Space_Group_Type),  intent(in) :: Space         !  In -> SpaceGroup variable
-    !!----    type(atom_list_type),   intent(in) :: atomos        !  In -> Atom List
+    !!----    character(len=*),        intent(in) :: filename  !  In -> Filename
+    !!----    integer,                 intent(in) :: code      !  In -> 0 Shelxs-Patterson
+    !!----                                                              1 Shelxs-Direct Methods
+    !!----                                                              2 Shelxl-Refinement
+    !!----    character(len=*),        intent(in) :: title     !  In -> Title
+    !!----    real(kind=cp),           intent(in) :: lambda    !  In -> Lambda
+    !!----    integer,                 intent(in) :: z         !  In -> Z
+    !!----    type(Crystal_cell_Type), intent(in) :: celda     !  In -> Cell variable
+    !!----    type(Space_Group_Type),  intent(in) :: Space     !  In -> SpaceGroup variable
+    !!----    type(atom_list_type),    intent(in) :: atomos    !  In -> Atom List
     !!----
     !!----    Write a Shelx File
     !!----
@@ -3859,17 +3857,14 @@
     !!
     Subroutine Write_Shx_Template(filename,code,title,lambda,z,celda,space,atomos)
        !---- Arguments ----!
-       character(len=*),   intent(in) :: filename
-       character(len=*),   intent(in) :: title
-
-       integer,            intent(in) :: code
-       integer,            intent(in) :: z
-
-       real,               intent(in) :: lambda
-
-       type(crystal_cell_Type), intent(in) :: celda
+       character(len=*),        intent(in) :: filename
+       integer,                 intent(in) :: code
+       character(len=*),        intent(in) :: title
+       real(kind=cp),           intent(in) :: lambda
+       integer,                 intent(in) :: z
+       type(Crystal_cell_Type), intent(in) :: celda
        type(Space_Group_Type),  intent(in) :: Space
-       type(atom_list_type),   intent(in) :: atomos
+       type(atom_list_type),    intent(in) :: atomos
 
        !---- Local Variables ----!
        logical                :: info

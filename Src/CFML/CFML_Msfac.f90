@@ -116,16 +116,16 @@
     !!---- TYPE :: MAGH_TYPE
     !!--..
     !!----    Type, Public  :: MagH_Type
-    !!----       logical                    :: keqv_minus  !True if k equivalent to -k
-    !!----       integer                    :: mult        !Multiplicity of the reflection (useful for powder calculations)
-    !!----       integer                    :: num_k       !number of the propagation vector vk
-    !!----       real(kind=cp)              :: signp       !+1 for -vk   and -1 for +vk
-    !!----       real(kind=cp)              :: s           !sinTheta/Lambda
-    !!----       real(kind=cp)              :: sqMiV       !Square of the Magnetic Interaction vector
-    !!----       real(kind=cp), dimension(3):: H           ! H +/- k
-    !!----       complex,dimension(3)       :: MsF         !magnetic structure factor
-    !!----       complex,dimension(3)       :: MiV         !magnetic interaction vector
-    !!----    End Type MagH_Type
+    !!----       logical                        :: keqv_minus  !True if k equivalent to -k
+    !!----       integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
+    !!----       integer                        :: num_k       !number of the propagation vector vk
+    !!----       real(kind=cp)                  :: signp       !+1 for -vk   and -1 for +vk
+    !!----       real(kind=cp)                  :: s           !sinTheta/Lambda
+    !!----       real(kind=cp)                  :: sqMiV       !Square of the Magnetic Interaction vector
+    !!----       real(kind=cp), dimension(3)    :: H           ! H +/- k
+    !!----       complex(kind=cp), dimension(3) :: MsF         !magnetic structure factor
+    !!----       complex(kind=cp), dimension(3) :: MiV         !magnetic interaction vector
+    !!----    End Type  MagH_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
     !!----    Includes the magnetic interaction vector MiV = Mper = M
@@ -133,15 +133,15 @@
     !!---- Update: April - 2005
     !!
     Type, Public  :: MagH_Type
-       logical                     :: keqv_minus  !True if k equivalent to -k
-       integer                     :: mult        !Multiplicity of the reflection (useful for powder calculations)
-       integer                     :: num_k       !number of the propagation vector vk
-       real(kind=cp)               :: signp       !+1 for -vk   and -1 for +vk
-       real(kind=cp)               :: s           !sinTheta/Lambda
-       real(kind=cp)               :: sqMiV       !Square of the Magnetic Interaction vector
-       real(kind=cp), dimension(3) :: H           ! H +/- k
-       complex, dimension(3)       :: MsF         !Magnetic structure factor
-       complex, dimension(3)       :: MiV         !Magnetic interaction vector
+       logical                        :: keqv_minus  !True if k equivalent to -k
+       integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
+       integer                        :: num_k       !number of the propagation vector vk
+       real(kind=cp)                  :: signp       !+1 for -vk   and -1 for +vk
+       real(kind=cp)                  :: s           !sinTheta/Lambda
+       real(kind=cp)                  :: sqMiV       !Square of the Magnetic Interaction vector
+       real(kind=cp), dimension(3)    :: H           ! H +/- k
+       complex(kind=cp), dimension(3) :: MsF         !Magnetic structure factor
+       complex(kind=cp), dimension(3) :: MiV         !Magnetic interaction vector
     End Type  MagH_Type
 
     !!----
@@ -167,17 +167,17 @@
     !!----  TYPE :: MAGHD_TYPE
     !!--..
     !!----     Type, Public  :: MagHD_Type
-    !!----        logical                     :: keqv_minus  !True if k equivalent to -k
-    !!----        integer                     :: num_k       !number of the propagation vector vk
-    !!----        real(kind=cp)               :: signp       !+1 for -vk   and -1 for +vk
-    !!----        real(kind=cp)               :: s           !sinTheta/Lambda
-    !!----        real(kind=cp)               :: sqAMiV      !Square of the Average Magnetic Interaction vector
-    !!----        real(kind=cp)               :: sqMiV       !Average of the Square of Magnetic Interaction vectors
-    !!----        real(kind=cp), dimension(3) :: H           ! H +/- k
-    !!----        complex,dimension(3,2,24)   :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
-    !!----        complex,dimension(3,2,24)   :: MiV         !Magnetic interaction vector of each domain
-    !!----        complex,dimension(3)        :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
-    !!----     End Type MagHD_Type
+    !!----        logical                            :: keqv_minus  !True if k equivalent to -k
+    !!----        integer                            :: num_k       !number of the propagation vector vk
+    !!----        real(kind=cp)                      :: signp       !+1 for -vk   and -1 for +vk
+    !!----        real(kind=cp)                      :: s           !sinTheta/Lambda
+    !!----        real(kind=cp)                      :: sqAMiV      !Square of the Average Magnetic Interaction vector
+    !!----        real(kind=cp)                      :: sqMiV       !Average of the Square of Magnetic Interaction vectors
+    !!----        real(kind=cp), dimension(3)        :: H           ! H +/- k
+    !!----        complex(kind=cp),dimension(3,2,24) :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
+    !!----        complex(kind=cp),dimension(3,2,24) :: MiV         !Magnetic interaction vector of each domain
+    !!----        complex(kind=cp),dimension(3)      :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
+    !!----     End Type  MagHD_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
     !!----    Includes the average magnetic interaction vector AMiV(:) = 1/nd Sum[i]{ pop(i) Miv(:,i)}
@@ -186,16 +186,16 @@
     !!---- Update: November - 2006
     !!
     Type, Public  :: MagHD_Type
-       logical                     :: keqv_minus
-       integer                     :: num_k   !number of the propagation vector vk
-       real(kind=cp)               :: signp   !+1 for -vk   and -1 for +vk
-       real(kind=cp)               :: s       !sinTheta/Lambda
-       real(kind=cp)               :: sqAMiV  !Square of the Average Magnetic Interaction vector
-       real(kind=cp)               :: sqMiV   !Average of the Square of Magnetic Interaction vectors
-       real(kind=cp), dimension(3) :: H       ! H +/- k
-       complex,dimension(3,2,24)   :: MsF     !Magnetic structure factors of each domain (second dimension for chirality domains)
-       complex,dimension(3,2,24)   :: MiV     !Magnetic interaction vector of each domain
-       complex,dimension(3)        :: AMiV    !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
+       logical                            :: keqv_minus
+       integer                            :: num_k     !number of the propagation vector vk
+       real(kind=cp)                      :: signp     !+1 for -vk   and -1 for +vk
+       real(kind=cp)                      :: s         !sinTheta/Lambda
+       real(kind=cp)                      :: sqAMiV    !Square of the Average Magnetic Interaction vector
+       real(kind=cp)                      :: sqMiV     !Average of the Square of Magnetic Interaction vectors
+       real(kind=cp), dimension(3)        :: H         ! H +/- k
+       complex(kind=cp),dimension(3,2,24) :: MsF       !Magnetic structure factors of each domain (second dimension for chirality domains)
+       complex(kind=cp),dimension(3,2,24) :: MiV       !Magnetic interaction vector of each domain
+       complex(kind=cp),dimension(3)      :: AMiV      !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     End Type  MagHD_Type
 
     !!--++
@@ -378,7 +378,7 @@
        integer                       :: j
        real(kind=cp)                 :: s
        real(kind=cp),dimension(3)    :: ed,er
-       complex,      dimension(3)    :: M, MiV
+       complex(kind=cp),dimension(3) :: M, MiV
 
        !---- Calculation of the Magnetic Interaction vector ----!
        if (present(mode)) then    !MiV w.r.t. cartesian crystallographic frame
@@ -748,7 +748,7 @@
        complex(kind=cp)              :: ci
        real(kind=cp),dimension(6)    :: beta
        real(kind=cp),dimension(3,3)  :: Mcos,Msin
-       real, dimension(3)            :: ar,ai,br,bi
+       real(kind=cp), dimension(3)   :: ar,ai,br,bi
 
        Ajh=0.0
        Bjh=0.0
@@ -780,7 +780,7 @@
                    end if
                    Mcos(:,:)=Mcos(:,:)+cos(arg)*anis*MGp%MSymOp(k,m)%Rot(:,:)
                 end do ! symmetry
-                Ajh(:,i,j) = onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk))*REAL(MGp%mcentred)
+                Ajh(:,i,j) = onh*matmul(Mcos,Atm%atom(i)%SkR(:,nvk))*REAL(MGp%mcentred,kind=cp)
              end do ! Atoms
           end do ! Reflections
 
@@ -853,7 +853,7 @@
                       end if
                       Sk(:) = cmplx(0.0,0.0)
                       do n=1,abs(MGp%nbas(m)) !cannot be greater than 12 at present
-                         x=real(MGp%icomp(n,m))
+                         x=real(MGp%icomp(n,m),kind=cp)
                          ci=cmplx(1.0-x,-isig*x)
                          Sk(:)=Sk(:)+ Atm%atom(i)%cbas(n,nvk)*ci*cmplx(  Real(MGp%basf(:,n,k,m)), -isig*aimag(MGp%basf(:,n,k,m))  )
                       end do
@@ -926,7 +926,7 @@
        do j=1,reflex%nref
           do i=1,grp%NumOps
              hr(i,j)%h=Hkl_R(reflex%Mh(j)%h,Grp%symop(i))
-             ht(i,j)=dot_product(real(reflex%Mh(j)%h),Grp%SymOp(i)%Tr)
+             ht(i,j)=dot_product(real(reflex%Mh(j)%h,kind=cp),Grp%SymOp(i)%Tr)
           end do
        end do
 
@@ -1067,7 +1067,7 @@
        numref= Get_MaxNumRef(smgen, Cell%CellVol)
        if(allocated(reflex)) deallocate(reflex)
        allocate(reflex(numref))
-       call hkl_gen(Cell,G,.true.,0.0,smgen,num_ref,reflex)
+       call hkl_gen(Cell,G,.true.,0.0_cp,smgen,num_ref,reflex)
 
        !calculate the total number of satellites
        n=Grp%nkv
@@ -1107,7 +1107,7 @@
 
        !rest of reflections
        outer: do j=1,num_ref
-          hr=real(reflex(j)%h)
+          hr=real(reflex(j)%h,kind=cp)
           do i=1,n
              kv=Grp%kvec(:,i)
              ng=ng+1
@@ -1139,7 +1139,7 @@
              else if ( abs(hr(3)) < epv .and. abs(hr(1)) <= 1.0+epv) then   !complete with the reflections (-h,k,0)+kvec
                 ng=ng+1
                 if (ng > Hloc%nref) exit outer
-                ks=(/-hr(1),-hr(2),0.0/)+kv
+                ks=(/-hr(1),-hr(2),0.0_cp/)+kv
                 hloc%Mh(ng)%s = hkl_s(ks,Cell)
                 if( hloc%Mh(ng)%s > smax) then     !avoid reflection with s>smax
                   ng=ng-1
@@ -1492,8 +1492,8 @@
        integer                       :: i,j,k,ii,nvk,m, n
        real(kind=cp)                 :: arg,onh,anis,ph, isig, x
        real(kind=cp),dimension(3,3)  :: Mcos,Msin
-       complex(kind=sp),dimension(3) :: Sk,GMh
-       complex(kind=sp)              :: ci
+       complex(kind=cp),dimension(3) :: Sk,GMh
+       complex(kind=cp)              :: ci
        real(kind=cp),dimension(3)    :: ar,ai,br,bi,h
        real(kind=cp),dimension(6)    :: beta
 
@@ -1598,9 +1598,9 @@
                       end if
                       Sk(:) = cmplx(0.0,0.0)
                       do n=1,abs(Grp%nbas(m)) !cannot be greater than 12 at present
-                         x=real(Grp%icomp(n,m))
+                         x=real(Grp%icomp(n,m),kind=cp)
                          ci=cmplx(1.0-x,-isig*x)
-                         Sk(:)=Sk(:)+ Atm%atom(i)%cbas(n,nvk)*ci*cmplx(  Real(Grp%basf(:,n,k,m)), -isig*aimag(Grp%basf(:,n,k,m))  )
+                         Sk=Sk+Atm%atom(i)%cbas(n,nvk)*ci*cmplx(Real(Grp%basf(:,n,k,m),kind=cp),-isig*aimag(Grp%basf(:,n,k,m)))
                       end do
                       GMh(:)=GMh(:) + onh*anis*Sk(:)*CMPLX(COS(arg),SIN(arg))  !Atomic contribution to geometric Magnetic Structure Factor
                    end do ! symmetry

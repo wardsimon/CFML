@@ -91,7 +91,7 @@
 !!
  Module CFML_Keywords_Code_Parser
     !---- Modules ----!
-    Use CFML_GlobalDeps,                only: Sp
+    Use CFML_GlobalDeps,                only: cp
     Use CFML_Math_General,              only: Sort
     Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
@@ -137,9 +137,9 @@
     !!---- TYPE :: ANGLE_RESTRAINT_TYPE
     !!--..
     !!---- Type, public :: Angle_Restraint_Type
-    !!----    real(kind=sp)                 :: AObs
-    !!----    real(kind=sp)                 :: ACalc
-    !!----    real(kind=sp)                 :: Sigma
+    !!----    real(kind=cp)                 :: AObs
+    !!----    real(kind=cp)                 :: ACalc
+    !!----    real(kind=cp)                 :: Sigma
     !!----    integer,dimension(3)          :: P
     !!----    character(len=8),dimension(2) :: STCode
     !!---- End Type Angle_Restraint_Type
@@ -147,9 +147,9 @@
     !!---- Update: April - 2005
     !!
     Type, public :: Angle_Restraint_Type
-      real(kind=sp)                 :: AObs
-      real(kind=sp)                 :: ACalc
-      real(kind=sp)                 :: Sigma
+      real(kind=cp)                 :: AObs
+      real(kind=cp)                 :: ACalc
+      real(kind=cp)                 :: Sigma
       integer,dimension(3)          :: P
       character(len=8),dimension(2) :: STCode
     End Type Angle_Restraint_Type
@@ -158,9 +158,9 @@
     !!---- TYPE :: DISTANCE_RESTRAINT_TYPE
     !!--..
     !!---- Type, public :: Distance_Restraint_Type
-    !!----    real(kind=sp)        :: DObs
-    !!----    real(kind=sp)        :: DCalc
-    !!----    real(kind=sp)        :: Sigma
+    !!----    real(kind=cp)        :: DObs
+    !!----    real(kind=cp)        :: DCalc
+    !!----    real(kind=cp)        :: Sigma
     !!----    integer,dimension(2) :: P
     !!----    character(len=8)     :: STCode    ! _N.ABC
     !!---- End Type Distance_Restraint_Type
@@ -168,9 +168,9 @@
     !!---- Update: April - 2005
     !!
     Type, public :: Distance_Restraint_Type
-      real(kind=sp)        :: DObs
-      real(kind=sp)        :: DCalc
-      real(kind=sp)        :: Sigma
+      real(kind=cp)        :: DObs
+      real(kind=cp)        :: DCalc
+      real(kind=cp)        :: Sigma
       integer,dimension(2) :: P
       character(len=8)     :: STCode
     End Type Distance_Restraint_Type
@@ -179,9 +179,9 @@
     !!---- TYPE :: TORSION_RESTRAINT_TYPE
     !!--..
     !!---- Type, public :: Torsion_Restraint_Type
-    !!----    real(kind=sp)                 :: TObs
-    !!----    real(kind=sp)                 :: TCalc
-    !!----    real(kind=sp)                 :: Sigma
+    !!----    real(kind=cp)                 :: TObs
+    !!----    real(kind=cp)                 :: TCalc
+    !!----    real(kind=cp)                 :: Sigma
     !!----    integer,dimension(4)          :: P
     !!----    character(len=8),dimension(3) :: STCode
     !!---- End Type Torsion_Restraint_Type
@@ -189,9 +189,9 @@
     !!---- Update: April - 2005
     !!
     Type, public :: Torsion_Restraint_Type
-      real(kind=sp)                 :: TObs
-      real(kind=sp)                 :: TCalc
-      real(kind=sp)                 :: Sigma
+      real(kind=cp)                 :: TObs
+      real(kind=cp)                 :: TCalc
+      real(kind=cp)                 :: Sigma
       integer,dimension(4)          :: P
       character(len=8),dimension(3) :: STCode
     End Type Torsion_Restraint_Type
@@ -365,13 +365,13 @@
 
     !!----
     !!---- V_BOUNDS
-    !!----    real, public, dimension(:,:), allocatable :: V_Bounds
+    !!----    real(kind=cp), public, dimension(:,:), allocatable :: V_Bounds
     !!----
     !!----    Vector of Lower, Upper limits and Step for Parameters
     !!----
     !!---- Update: March - 2005
     !!
-    real, public, dimension(:,:),  allocatable :: V_Bounds
+    real(kind=cp), public, dimension(:,:),  allocatable :: V_Bounds
 
     !!----
     !!---- V_LIST
@@ -395,23 +395,23 @@
 
     !!----
     !!---- V_VECTOR
-    !!----    real, public, dimension(:), allocatable :: V_Vec
+    !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec
     !!----
     !!----    Vector of  Parameters
     !!----
     !!---- Update: March - 2005
     !!
-    real, public, dimension(:),    allocatable :: V_Vec
+    real(kind=cp), public, dimension(:),    allocatable :: V_Vec
 
     !!----
     !!---- V_SHIFT
-    !!----    real, public, dimension(:), allocatable :: V_Shift
+    !!----    real(kind=cp), public, dimension(:), allocatable :: V_Shift
     !!----
     !!----    Vector of holding the shift of parameters
     !!----
     !!---- Update: March - 2005
     !!
-    real, public, dimension(:),    allocatable :: V_Shift
+    real(kind=cp), public, dimension(:),    allocatable :: V_Shift
 
     !---- Interfaces - Overloaded ----!
     Interface Delete_RefCodes
@@ -1085,9 +1085,9 @@
     !!--++    character(len=*),              intent(in)     :: Dire
     !!--++    integer,                       intent(in)     :: Na
     !!--++    integer,                       intent(in)     :: Nb
-    !!--++    real,                          intent(in)     :: Xl
-    !!--++    real,                          intent(in)     :: Xu
-    !!--++    real,                          intent(in)     :: Xs
+    !!--++    real(kind=cp),                 intent(in)     :: Xl
+    !!--++    real(kind=cp),                 intent(in)     :: Xu
+    !!--++    real(kind=cp),                 intent(in)     :: Xs
     !!--++    integer,                       intent(in)     :: Ic
     !!--++    type(Atom_List_Type),          intent(in out) :: FAtom
     !!--++    or
@@ -1108,9 +1108,9 @@
     !!--++    character(len=*),              intent(in)     :: Dire
     !!--++    integer,                       intent(in)     :: Na
     !!--++    integer,                       intent(in)     :: Nb
-    !!--++    real,                          intent(in)     :: Xl
-    !!--++    real,                          intent(in)     :: Xu
-    !!--++    real,                          intent(in)     :: Xs
+    !!--++    real(kind=cp),                 intent(in)     :: Xl
+    !!--++    real(kind=cp),                 intent(in)     :: Xu
+    !!--++    real(kind=cp),                 intent(in)     :: Xs
     !!--++    integer,                       intent(in)     :: Ic
     !!--++    type(Atom_List_Type),          intent(in out) :: FAtom
     !!--++    type(space_group_type),        intent(in)     :: Spg
@@ -1126,9 +1126,9 @@
        character(len=*),              intent(in)     :: Dire
        integer,                       intent(in)     :: Na
        integer,                       intent(in)     :: Nb
-       real,                          intent(in)     :: Xl
-       real,                          intent(in)     :: Xu
-       real,                          intent(in)     :: Xs
+       real(kind=cp),                 intent(in)     :: Xl
+       real(kind=cp),                 intent(in)     :: Xu
+       real(kind=cp),                 intent(in)     :: Xs
        integer,                       intent(in)     :: Ic
        type(Atom_List_Type),          intent(in out) :: FAtom
        type(space_group_type),        intent(in)     :: Spg
@@ -1520,9 +1520,9 @@
     !!--++    character(len=*),             intent(in)     :: Dire
     !!--++    integer,                      intent(in)     :: Na
     !!--++    integer,                      intent(in)     :: Nb
-    !!--++    real,                         intent(in)     :: Xl
-    !!--++    real,                         intent(in)     :: Xu
-    !!--++    real,                         intent(in)     :: Xs
+    !!--++    real(kind=cp),                intent(in)     :: Xl
+    !!--++    real(kind=cp),                intent(in)     :: Xu
+    !!--++    real(kind=cp),                intent(in)     :: Xs
     !!--++    integer,                      intent(in)     :: Ic
     !!--++    type(molecular_Crystal_type), intent(in out) :: MolCrys
     !!--++    integer,                      intent(in)     :: NMol
@@ -1538,9 +1538,9 @@
        character(len=*),             intent(in)     :: Dire
        integer,                      intent(in)     :: Na
        integer,                      intent(in)     :: Nb
-       real,                         intent(in)     :: Xl
-       real,                         intent(in)     :: Xu
-       real,                         intent(in)     :: Xs
+       real(kind=cp),                intent(in)     :: Xl
+       real(kind=cp),                intent(in)     :: Xu
+       real(kind=cp),                intent(in)     :: Xs
        integer,                      intent(in)     :: Ic
        type(molecular_Crystal_type), intent(in out) :: MolCrys
        integer,                      intent(in)     :: NMol
@@ -2744,9 +2744,9 @@
     !!--++    character(len=*),             intent(in)     :: Dire
     !!--++    integer,                      intent(in)     :: Na
     !!--++    integer,                      intent(in)     :: Nb
-    !!--++    real,                         intent(in)     :: Xl
-    !!--++    real,                         intent(in)     :: Xu
-    !!--++    real,                         intent(in)     :: Xs
+    !!--++    real(kind=cp),                intent(in)     :: Xl
+    !!--++    real(kind=cp),                intent(in)     :: Xu
+    !!--++    real(kind=cp),                intent(in)     :: Xs
     !!--++    integer,                      intent(in)     :: Ic
     !!--++    type(molecule_type),          intent(in out) :: Molec
     !!--++    type(space_group_type),       intent(in)     :: Spg
@@ -2762,9 +2762,9 @@
        character(len=*),             intent(in)     :: Dire
        integer,                      intent(in)     :: Na
        integer,                      intent(in)     :: Nb
-       real,                         intent(in)     :: Xl
-       real,                         intent(in)     :: Xu
-       real,                         intent(in)     :: Xs
+       real(kind=cp),                intent(in)     :: Xl
+       real(kind=cp),                intent(in)     :: Xu
+       real(kind=cp),                intent(in)     :: Xs
        integer,                      intent(in)     :: Ic
        type(molecule_type),          intent(in out) :: Molec
        type(space_group_type),       intent(in)     :: Spg
@@ -3208,11 +3208,11 @@
 
     !!--++
     !!--++  Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,Codes,Ord,Ss,Debug)
-    !!--++     real(kind=sp), dimension(3),     intent(in    ) :: x      ! Atom position (fractional coordinates)
-    !!--++     real(kind=sp), dimension(6),     intent(in out) :: betas  !Anisotropic temperature factors
+    !!--++     real(kind=cp), dimension(3),     intent(in    ) :: x      ! Atom position (fractional coordinates)
+    !!--++     real(kind=cp), dimension(6),     intent(in out) :: betas  !Anisotropic temperature factors
     !!--++     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
     !!--++     Integer,                         intent(in out) :: codini !Last attributed parameter
-    !!--++     real(kind=sp), dimension(6),     intent(in out) :: codes  !codewords for positions
+    !!--++     real(kind=cp), dimension(6),     intent(in out) :: codes  !codewords for positions
     !!--++     integer,               optional, intent(in    ) :: ord    !Order of the stabilizer
     !!--++     integer, dimension(:), optional, intent(in    ) :: ss     !Pointer to SymmOp. of stabilizer
     !!--++     integer,               optional, intent(in    ) :: debug  !Debug variable
@@ -3227,12 +3227,12 @@
     !!
     Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),     intent(in    ) :: x
-       real(kind=sp), dimension(6),     intent(in out) :: betas
+       real(kind=cp), dimension(3),     intent(in    ) :: x
+       real(kind=cp), dimension(6),     intent(in out) :: betas
        type(Space_Group_type),          intent(in    ) :: Spgr
        integer,                         intent(in out) :: codini
        integer,       dimension(6),     intent(in out) :: Icodes
-       real(kind=sp), dimension(6),     intent(in out) :: Multip
+       real(kind=cp), dimension(6),     intent(in out) :: Multip
        integer,               optional, intent(in    ) :: Ord
        integer, dimension(:), optional, intent(in    ) :: Ss
        integer,               optional, intent(in    ) :: Ipr
@@ -3246,8 +3246,8 @@
        integer, dimension(48) :: ss_ptr
        integer, dimension(6)  :: codd
 
-       real(kind=sp), parameter     :: epss=0.01
-       real(kind=sp), dimension(6)  :: cod, mul
+       real(kind=cp), parameter     :: epss=0.01
+       real(kind=cp), dimension(6)  :: cod, mul
 
        cod=real(icodes)
 
@@ -3334,11 +3334,11 @@
 
     !!--++
     !!--++  Subroutine Get_Atompos_Ctr(X,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
-    !!--++     real(kind=sp), dimension(3),     intent(in    ) :: x      !Atom position (fractional coordinates)
+    !!--++     real(kind=cp), dimension(3),     intent(in    ) :: x      !Atom position (fractional coordinates)
     !!--++     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
     !!--++     Integer,                         intent(in out) :: codini !Last attributed parameter
     !!--++     integer,       dimension(3),     intent(in out) :: Icodes
-    !!--++     real(kind=sp), dimension(3),     intent(in out) :: Multip
+    !!--++     real(kind=cp), dimension(3),     intent(in out) :: Multip
     !!--++     integer,               optional, intent(in    ) :: Ord
     !!--++     integer, dimension(:), optional, intent(in    ) :: Ss
     !!--++     integer,               optional, intent(in    ) :: Ipr
@@ -3351,21 +3351,21 @@
     !!
     Subroutine Get_Atompos_Ctr(X,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
        !---- Arguments ----!
-       real(kind=sp), dimension(3),     intent(in    ) :: x
+       real(kind=cp), dimension(3),     intent(in    ) :: x
        type(Space_Group_type),          intent(in    ) :: Spgr
        integer,                         intent(in out) :: Codini
        integer,       dimension(3),     intent(in out) :: Icodes
-       real(kind=sp), dimension(3),     intent(in out) :: Multip
+       real(kind=cp), dimension(3),     intent(in out) :: Multip
        integer,               optional, intent(in    ) :: Ord
        integer, dimension(:), optional, intent(in    ) :: Ss
        integer,               optional, intent(in    ) :: Ipr
 
        !---- Local variables ----!
-       real, parameter        :: epss=0.001
-       integer                :: j=0, order=0, L=0, L1=0, L2=0, jx=0, ii=0, m=0, ipar=0
-       integer, dimension(48) :: ss_ptr
-       integer, dimension(3)  :: cdd
-       real(kind=sp),    dimension(3)   :: cod
+       real(kind=cp), parameter         :: epss=0.001_cp
+       integer                          :: j=0, order=0, L=0, L1=0, L2=0, jx=0, ii=0, m=0, ipar=0
+       integer, dimension(48)           :: ss_ptr
+       integer, dimension(3)            :: cdd
+       real(kind=cp),    dimension(3)   :: cod
        character (len=40)               :: symbol
        character (len=3),dimension(0:12):: car=(/"  0","  a","  b","  c", &  ! 0     1     2     3
                                                        " -a"," -b"," -c", &  !       4     5     6
@@ -3601,8 +3601,8 @@
        integer                          :: j,ic,n,na,nb,nc,nd,npos
        integer                          :: nl,nl2,iv
        integer, dimension(1)            :: ivet
-       real                             :: fac_0,fac_1
-       real,dimension(1)                :: vet
+       real(kind=cp)                    :: fac_0,fac_1
+       real(kind=cp),dimension(1)       :: vet
 
        call init_err_refcodes()
 
@@ -3795,8 +3795,8 @@
        integer                          :: npos, nposm, nmol1,nmol2
        integer                          :: nl,nl2,iv
        integer, dimension(1)            :: ivet
-       real                             :: fac_0,fac_1
-       real,dimension(1)                :: vet
+       real(kind=cp)                    :: fac_0,fac_1
+       real(kind=cp),dimension(1)       :: vet
 
        call init_err_refcodes()
 
@@ -4238,8 +4238,8 @@
        integer                          :: j,ic,na,nb,nc,nd,npos!,i,naa,ncc
        integer                          :: n,nl,nl2,iv
        integer, dimension(1)            :: ivet
-       real                             :: fac_0,fac_1
-       real,dimension(1)                :: vet
+       real(kind=cp)                    :: fac_0,fac_1
+       real(kind=cp),dimension(1)       :: vet
 
        call init_err_refcodes()
 
@@ -4469,8 +4469,8 @@
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
-       real                             :: x_low,x_up,x_step
-       real,dimension(5)                :: vet
+       real(kind=cp)                    :: x_low,x_up,x_step
+       real(kind=cp),dimension(5)       :: vet
 
 
        call init_err_refcodes()
@@ -4480,7 +4480,7 @@
        if (nlong ==0) then
           !---- Default Values ----!
           do i=1,FAtom%natoms
-             call Fill_RefCodes(Key,Dire,i,0,0.0,0.0,0.0,0,Fatom,Spg)
+             call Fill_RefCodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,Fatom,Spg)
           end do
 
        else
@@ -4641,8 +4641,8 @@
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
-       real                             :: x_low,x_up,x_step
-       real,dimension(5)                :: vet
+       real(kind=cp)                    :: x_low,x_up,x_step
+       real(kind=cp),dimension(5)       :: vet
 
 
        call init_err_refcodes()
@@ -4654,7 +4654,7 @@
              case (-1)
                 !---- No Molecule Information ----!
                 do i=1,molcrys%n_free
-                   call Fill_RefCodes(Key,Dire,i,0,0.0,0.0,0.0,0,Molcrys,NMol)
+                   call Fill_RefCodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,Molcrys,NMol)
                 end do
 
              case (0)
@@ -4665,7 +4665,7 @@
                       else
                          na=molcrys%n_free+i
                       end if
-                      call Fill_RefCodes(Key,Dire,na,0,0.0,0.0,0.0,0,Molcrys,NMol)
+                      call Fill_RefCodes(Key,Dire,na,0,0.0_cp,0.0_cp,0.0_cp,0,Molcrys,NMol)
                    end do
                 end do
 
@@ -4676,7 +4676,7 @@
                    else
                       na=molcrys%n_free+i
                    end if
-                   call Fill_RefCodes(Key,Dire,na,0,0.0,0.0,0.0,0,Molcrys,NMol)
+                   call Fill_RefCodes(Key,Dire,na,0,0.0_cp,0.0_cp,0.0_cp,0,Molcrys,NMol)
                 end do
           end select
 
@@ -4897,8 +4897,8 @@
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
-       real                             :: x_low,x_up,x_step
-       real,dimension(5)                :: vet
+       real(kind=cp)                    :: x_low,x_up,x_step
+       real(kind=cp),dimension(5)       :: vet
 
        call init_err_refcodes()
 
@@ -4907,7 +4907,7 @@
        if (nlong ==0) then
           !---- Default values ----!
           do i=1,molec%natoms
-             call Fill_RefCodes(key,dire,i,0,0.0,0.0,0.0,0,molec,spg)
+             call Fill_RefCodes(key,dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,molec,spg)
           end do
 
        else
@@ -5066,7 +5066,7 @@
        character(len=8), dimension(2)  :: car
        integer                         :: i,j,iv,nc,nr,n_ini,n_end,npos
        integer, dimension(3)           :: ivet
-       real, dimension(3)              :: vet
+       real(kind=cp), dimension(3)     :: vet
 
 
        if (len_trim(line) == 0 .or. .not. allocated(ang_rest)) return
@@ -5089,7 +5089,7 @@
           sig=0.2
           n_ini=2
        else
-          sig=max(vet(1),0.001)
+          sig=max(vet(1),0.001_cp)
           n_ini=3
        end if
 
@@ -5186,7 +5186,7 @@
        character(len=8)                :: car
        integer                         :: i,j,iv,nc,nr,n_ini,n_end,npos
        integer, dimension(2)           :: ivet
-       real, dimension(2)              :: vet
+       real(kind=cp), dimension(2)     :: vet
 
 
        if (len_trim(line) == 0 .or. .not. allocated(dis_rest) ) return
@@ -5209,7 +5209,7 @@
           sig=0.02
           n_ini=2
        else
-          sig=max(vet(1),0.0001)
+          sig=max(vet(1),0.0001_cp)
           n_ini=3
        end if
 
@@ -5295,7 +5295,7 @@
        character(len=8), dimension(3)  :: car
        integer                         :: i,j,iv,nc,nr,n_ini,n_end,npos
        integer, dimension(4)           :: ivet
-       real, dimension(4)              :: vet
+       real(kind=cp), dimension(4)     :: vet
 
 
        if (len_trim(line) == 0 .or. .not. allocated(tor_rest)) return
@@ -5318,7 +5318,7 @@
           sig=0.5
           n_ini=2
        else
-          sig=max(vet(1),0.02)
+          sig=max(vet(1),0.02_cp)
           n_ini=3
        end if
 
@@ -5771,7 +5771,7 @@
        integer                         :: i,k,npos,nlong,iv
        integer                         :: nop_in_line,key,nmol
        integer, dimension(1)           :: ivet
-       real, dimension(1)              :: vet
+       real(kind=cp), dimension(1)     :: vet
 
        call init_err_refcodes()
 
@@ -6641,9 +6641,9 @@
        character(len=20)              :: car
        character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
        Character(len=25),dimension(3) :: symcar
-       integer           :: i,j,k,n,na,np,lun,p1,p2,p3,p4
-       real              :: mu
-       real,dimension(3) :: tr
+       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4
+       real(kind=cp)                  :: mu
+       real(kind=cp),dimension(3)     :: tr
 
        !---- Format Zone ----!
        fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"

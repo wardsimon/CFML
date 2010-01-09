@@ -918,7 +918,7 @@
           y=z**2
           xx=ax-2.356194491
           bessj_1=sqrt(0.636619772/ax)*(cos(xx)*(p1+y*(p2+y*(p3+y*(p4+y*p5))))  &
-                       -z*sin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))*sign(1.0,x)
+                       -z*sin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))*sign(1.0_cp,x)
        end if
 
        return
@@ -944,8 +944,8 @@
        integer,    parameter       :: iacc=40
        integer                     :: j,jsum,m
        real (kind=cp), parameter   :: bigno=1.e10,bigni=1.e-10
-       real                        :: ax,bj,bjm,suma,tox
-       real, save                  :: bjp
+       real (kind=cp)              :: ax,bj,bjm,suma,tox
+       real (kind=cp), save        :: bjp
 
        if (n==0) then
           bessj_n=Bessj0(x)
@@ -957,7 +957,7 @@
 
        ax=abs(x)
        if (ax==0.0)then
-          bessj_n=0.
+          bessj_n=0.0
           return
 
        else if (ax > float(n))then ! Upwards recurrence from J0 and J1.
@@ -2497,7 +2497,7 @@
        else
           determ=0.0
           do i=1,nn
-             d=d*sign(1.0,ac(i,i))
+             d=d*sign(1.0_cp,ac(i,i))
              determ=determ+ log(abs(ac(i,i)))
           end do
           determ=d*exp(determ)
@@ -2537,7 +2537,7 @@
        else
           determ=0.0
           do i=1,n
-             d=d*sign(1.0,ac(i,i))
+             d=d*sign(1.0_cp,ac(i,i))
              determ=determ + log(abs(ac(i,i)))
           end do
           determ=d*exp(determ)
@@ -2739,7 +2739,7 @@
 
        !---- Local Variables ----!
        integer       :: i
-       real          :: step, x0, y0, y1, y2
+       real(kind=cp) :: step, x0, y0, y1, y2
 
        do i=1,n
          if (i /= n) then
@@ -2852,7 +2852,7 @@
        else
           det=0.0
           do i=1,n
-             d=d*sign(1.0,lu(i,i))
+             d=d*sign(1.0_cp,lu(i,i))
              det=det + log(abs(lu(i,i)))
           end do
           det=d*exp(det)

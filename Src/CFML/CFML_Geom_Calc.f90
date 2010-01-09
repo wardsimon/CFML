@@ -965,7 +965,7 @@
        allocate(bcoo(3,Max_coor))
 
        qd(:)=1.0/cell%rcell(:)
-       ic2(:)= nint(dmax/cell%cell(:)+1.0)
+       ic2(:)= nint(dmax/cell%cell(:)+1.0_cp)
        ic1(:)=-ic2(:)
        npeq=spg%numops
        if (dangl > epsi .and. iprin ) then
@@ -1261,7 +1261,7 @@
        end if
 
        qd(:)=1.0/cell%rcell(:)
-       ic2(:)= nint(dmax/cell%cell(:)+1.5)
+       ic2(:)= nint(dmax/cell%cell(:)+1.5_cp)
        ic1(:)=-ic2(:)
        if (dangl > epsi .and. iprin ) then
           form3=            "(""    ("",a,"")-("",a,"")-("",a,""):"",a12/"
@@ -1883,8 +1883,8 @@
        maxi(:)=-1000
        do j=1,3
           do i=1,7
-             if (vecpar(i,j) < mini(j)) mini(j)=nint(min(vecpar(i,j),0.0))
-             if (vecpar(i,j) > maxi(j)) maxi(j)=nint(max(vecpar(i,j),1.0))
+             if (vecpar(i,j) < mini(j)) mini(j)=nint(min(vecpar(i,j),0.0_cp))
+             if (vecpar(i,j) > maxi(j)) maxi(j)=nint(max(vecpar(i,j),1.0_cp))
           end do
        end do
 

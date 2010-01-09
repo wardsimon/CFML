@@ -674,7 +674,7 @@
 
        select case (u_case(bck_mode(1:3)))
           case ("POL") ! Polynomial
-             call set_background_poly (dif_pat,50.0, bck_p,bck_points )
+             call set_background_poly (dif_pat,50.0_cp, bck_p,bck_points )
 
           case ("INT") ! Interpolation
              call  set_background_inter (dif_pat, bck_v,bck_p, bck_points )
@@ -1428,7 +1428,7 @@
                do i=1,pat%npts
                   pat%x(i)=pat%xmin+(i-1)*pat%step
                   pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
-                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001)
+                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001_cp)
                end do
                cnorm=cnorm/real(pat%npts)
             else
@@ -1451,7 +1451,7 @@
                   pat%y(i)=1000.0*pat%y(i)/divi
                   pat%sigma(i)=1000.0*pat%sigma(i)/divi
                   pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
-                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001)
+                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001_cp)
                end do
                cnorm=cnorm/real(pat%npts)
                pat%npts=pat%npts-1
@@ -1469,7 +1469,7 @@
                cnorm=0.0
                do i=1,pat%npts
                   pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
-                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001)
+                  cnorm=cnorm+pat%sigma(i)/max(pat%y(i),0.001_cp)
                end do
                cnorm=cnorm/real(pat%npts)
                pat%xmin=bcoef(1)
@@ -1606,7 +1606,7 @@
                    pat(n_pat)%y(i)   = eps1
                    pat(n_pat)%sigma(i) = fac_y
                 end if
-                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001)
+                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001_cp)
                 if (i > 1) then
                    pat(n_pat)%step=pat(n_pat)%step+pat(n_pat)%x(i)-pat(n_pat)%x(i-1)
                    ntt=ntt+1
@@ -1643,7 +1643,7 @@
                    pat(n_pat)%y(i)   = eps1
                    pat(n_pat)%sigma(i) = fac_y
                 end if
-                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001)
+                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001_cp)
                 if (i > 1) then
                    pat(n_pat)%step=pat(n_pat)%step+pat(n_pat)%x(i)-pat(n_pat)%x(i-1)
                    ntt=ntt+1
@@ -2987,12 +2987,12 @@
           pat%sigma(i)=pat%sigma(i)*fac_y
           pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
           sumavar=sumavar+pat%sigma(i)
-          if(pat%sigma(i) < eps1) pat%sigma(i) =1.0
+          if(pat%sigma(i) < eps1) pat%sigma(i) =1.0_cp
           if(pat%y(i) < eps1) then
              pat%y(i)   = eps1
              pat%sigma(i) =1.0
           end if
-          cnorm=cnorm+pat%sigma(i)/MAX(pat%y(i),0.001)
+          cnorm=cnorm+pat%sigma(i)/MAX(pat%y(i),0.001_cp)
           if(i > 1) then
             pat%step=pat%step+pat%x(i)-pat%x(i-1)
           end if
@@ -3037,7 +3037,7 @@
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*pat%step
              call splint(pat%x(:),pat%y(:),bk(:),ntt,xt,ycor)
-             yc(i)=MAX(1.0,ycor)
+             yc(i)=max(1.0_cp,ycor)
           end do
           do i=1,pat%npts
              pat%y(i)=yc(i)
@@ -3050,7 +3050,7 @@
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*pat%step
              call splint(pat%x(:),pat%sigma(:),bk(:),ntt,xt,ycor)
-             yc(i)=max(1.0,ycor)
+             yc(i)=max(1.0_cp,ycor)
           end do
           do i=1,pat%npts
              pat%sigma(i)=yc(i)

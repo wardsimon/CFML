@@ -318,18 +318,18 @@
        Hg=par(1)
        Hl=par(2)
        !Calculate H and eta from Tomson-Cox-Hasting formula
-       H=hg**5.0+o1*hg**4.0*hl+o2*hg**3.0*hl**2.0+o3*hg**2.0*hl**3.0+o4*hg*hl**4.0+hl**5.0
-       H=abs(H)**0.2
+       H=hg**5+o1*hg**4*hl+o2*hg**3*hl**2+o3*hg**2*hl**3+o4*hg*hl**4+hl**5
+       H=abs(H)**0.2_cp
        r = hl/H                       !HL/FWHM
-       eta = max( 1.0e-06, r*(e1 -(e2 + e3*r)*r) )  !eta
+       eta = max( 1.0e-06_cp, r*(e1 -(e2 + e3*r)*r) )  !eta
        x2=x*x
-       ag= 0.93943727869965133377234032841018/H
-       bg= 2.7725887222397812376689284858327/(H*H)
-       al= 0.63661977236758134307553505349006/H
-       bl= 4.0/(H*H)
+       ag= 0.93943727869965133377234032841018_cp/H
+       bg= 2.7725887222397812376689284858327_cp/(H*H)
+       al= 0.63661977236758134307553505349006_cp/H
+       bl= 4.0_cp/(H*H)
        gauss = ag* exp(-bg*x2)
-       lor   = al/(1.0+bl*x2)
-       pv_val = eta*lor + (1.0 - eta)*gauss
+       lor   = al/(1.0_cp+bl*x2)
+       pv_val = eta*lor + (1.0_cp - eta)*gauss
 
        return
     End Function TCH_pVoigt
@@ -468,14 +468,14 @@
        hw=par(1)*0.5
 
        if (x < -hw .or. x > hw) then
-          h_val=0.0
+          h_val=0.0_cp
           if (present(dpar)) then
-             dpar(1:2) = (/0.0,0.0/)
+             dpar(1:2) = (/0.0_cp,0.0_cp/)
           end if
        else
           h_val =1.0/par(1)
           if (present(dpar)) then
-             dpar(1:2) = (/0.0,-1.0/(par(1)*par(1))/)
+             dpar(1:2) = (/0.0_cp,-1.0_cp/(par(1)*par(1))/)
           end if
        end if
 
@@ -556,13 +556,13 @@
        real(kind=cp) :: H,al,bl,lorp,dlorh,x2
 
        H=par(1)
-       al= 0.63661977236758134307553505349006/H
-       bl= 4.0/(H*H)
+       al= 0.63661977236758134307553505349006_cp/H
+       bl= 4.0_cp/(H*H)
        x2=x*x
-       lor_val = al/(1.0+bl*x2)
+       lor_val = al/(1.0_cp+bl*x2)
        if (present(dpar)) then
-          lorp  = -2.0 *lor_val*lor_val*bl*x/al
-          dlorH = (2.0*bl*lor_val*x2/al -1.0)*lor_val/H
+          lorp  = -2.0_cp *lor_val*lor_val*bl*x/al
+          dlorH = (2.0_cp*bl*lor_val*x2/al -1.0_cp)*lor_val/H
           dpar(1:2)=(/lorp,dlorH/)
        end if
 
@@ -595,34 +595,34 @@
        H=par(1)
        eta=par(2)
        x2=x*x
-       invH=1.0/H
+       invH=1.0_cp/H
        invH2=invH*invH
-       ag= 0.93943727869965133377234032841018*invH
-       bg= 2.7725887222397812376689284858327*invH2
-       al= 0.63661977236758134307553505349006*invH
-       bl= 4.0*invH2
+       ag= 0.93943727869965133377234032841018_cp*invH
+       bg= 2.7725887222397812376689284858327_cp*invH2
+       al= 0.63661977236758134307553505349006_cp*invH
+       bl= 4.0_cp*invH2
        gauss = ag* exp(-bg*x2)
-       lor   = al/(1.0+bl*x2)
-       pv_val = eta*lor + (1.0 - eta)*gauss
+       lor   = al/(1.0_cp+bl*x2)
+       pv_val = eta*lor + (1.0_cp - eta)*gauss
 
        if (present(dpar)) then
           derEta= lor-gauss  !Eta
 
-          lorp = -2.0 *lor*lor*bl*x/al  !x
-          gaussp = -2.0 * gauss * bg * x  !x
-          derx=eta*lorp+(1.0-eta)*gaussp  !x
+          lorp = -2.0_cp *lor*lor*bl*x/al  !x
+          gaussp = -2.0_cp * gauss * bg * x  !x
+          derx=eta*lorp+(1.0_cp-eta)*gaussp  !x
 
           !dalH= -al*invH
           !dblH= -2.0*bl*invH
           !dlorH= lor/al *dalH - lor*lor/al *x2 * dblH
-          dlorH= (2.0*bl*lor*x2/al -1.0)*invH*lor
+          dlorH= (2.0_cp*bl*lor*x2/al -1.0_cp)*invH*lor
 
           !dagH=-ag*invH
           !dbgH=-2.0*bg*invH
           !dgaussH= dagH*gauss/ag - gauss * x2*dbgH = -invH*gauss+2.0*bg*invH*gauss*x2
-          dgaussH= (2.0*bg*x2-1.0)*invH*gauss
+          dgaussH= (2.0_cp*bg*x2-1.0_cp)*invH*gauss
 
-          derH=eta*dlorH + (1.0-eta) * dgaussH
+          derH=eta*dlorH + (1.0_cp-eta) * dgaussH
           dpar(1:3)=(/derx,derH,derEta/)
        end if
 
@@ -654,46 +654,46 @@
        H2=par(2)
        eta1=par(3)
        eta2=par(4)
-       Norm= 0.25*H1*(eta1*1.0126586+2.128934)+ &
-             0.25*H2*(eta2*1.0126586+2.128934)
+       Norm= 0.25_cp*H1*(eta1*1.0126586_cp+2.128934_cp)+ &
+             0.25_cp*H2*(eta2*1.0126586_cp+2.128934_cp)
        if (x < 0.0) then
           eta=eta1
           hsq=h1*h1
-          invH=1.0/h1
+          invH=1.0_cp/h1
        else
           eta=eta2
           hsq=h2*h2
-          invH=1.0/h2
+          invH=1.0_cp/h2
        end if
        x2=x*x
-       bg= 2.7725887222397812376689284858327/hsq
-       bl= 4.0/hsq
+       bg= 2.7725887222397812376689284858327_cp/hsq
+       bl= 4.0_cp/hsq
        gauss =  exp(-bg*x2)
-       lor   = 1.0/(1.0+bl*x2)
-       pv_val = (eta*lor + (1.0 - eta)*gauss)/Norm
+       lor   = 1.0_cp/(1.0_cp+bl*x2)
+       pv_val = (eta*lor + (1.0_cp - eta)*gauss)/Norm
 
        if (present(dpar)) then
 
-            lorp = -2.0 *lor*lor*bl*x     !x
-          gaussp = -2.0 * gauss * bg * x  !x
-          derx=(eta*lorp+(1.0-eta)*gaussp)/Norm  !x
+            lorp = -2.0_cp *lor*lor*bl*x     !x
+          gaussp = -2.0_cp * gauss * bg * x  !x
+          derx=(eta*lorp+(1.0_cp-eta)*gaussp)/Norm  !x
           !
           !dblH= -2.0*bl*invH
           !dlorH=  - lor*lor *x2 * dblH = lor*lor *x2 * 2.0*bl*invH
-          dlorH= 2.0*bl*x2*invH*lor*lor
+          dlorH= 2.0_cp*bl*x2*invH*lor*lor
 
           !
           !dbgH=-2.0*bg*invH
           !dgaussH= - gauss * x2*dbgH = 2.0*bg*invH*gauss*x2
-          dgaussH= 2.0*bg*x2*invH*gauss
+          dgaussH= 2.0_cp*bg*x2*invH*gauss
 
-          Numer  = eta*dlorH + (1.0-eta) * dgaussH
+          Numer  = eta*dlorH + (1.0_cp-eta) * dgaussH
 
-          if (x < 0.0) then
+          if (x < 0.0_cp) then
 
              ! dNormEi= 0.25*Hi*1.0126586 = Hi*0.25316465
-             derEta1= (lor-gauss- pv_val*H1*0.25316465)/Norm   !Eta
-             derEta2= -pv_val*h2*0.25316465/Norm
+             derEta1= (lor-gauss- pv_val*H1*0.25316465_cp)/Norm   !Eta
+             derEta2= -pv_val*h2*0.25316465_cp/Norm
 
              ! pv_val = (eta*lor + (1.0 - eta)*gauss)/Norm
              ! derH1 =  (eta*dLorH1+(1-eta)*dgaussH1)*Norm - pv_val*Norm*dNormH1/Norm**2
@@ -701,14 +701,14 @@
              ! dNormH= 0.25*(eta*1.0126586+2.128934)
              ! derH2 = pv_val*Norm (-1/Norm**2)  * dNormH2 = - pv_val*0.25*(eta2*1.0126586+2.128934)/Norm
 
-             derH1  = (numer - pv_val* 0.25*(eta*1.0126586+2.128934))/Norm
-             derH2  = - pv_val*0.25*(eta2*1.0126586+2.128934)/Norm
+             derH1  = (numer - pv_val* 0.25_cp*(eta*1.0126586_cp+2.128934_cp))/Norm
+             derH2  = - pv_val*0.25_cp*(eta2*1.0126586_cp+2.128934_cp)/Norm
 
           else
 
              ! dNormEi= 0.25*Hi*1.0126586 = Hi*0.25316465
-             derEta2= (lor-gauss- pv_val*H2*0.25316465)/Norm   !Eta
-             derEta1= -pv_val*h1*0.25316465/Norm
+             derEta2= (lor-gauss- pv_val*H2*0.25316465_cp)/Norm   !Eta
+             derEta1= -pv_val*h1*0.25316465_cp/Norm
 
              ! pv_val = (eta*lor + (1.0 - eta)*gauss)/Norm
              ! derH2 =  (eta*dLorH2+(1-eta)*dgaussH2)*Norm - pv_val*Norm*dNormH2/Norm**2
@@ -716,8 +716,8 @@
              ! dNormH= 0.25*(eta*1.0126586+2.128934)
              ! derH1 = pv_val*Norm (-1/Norm**2)  * dNormH1 = - pv_val*0.25*(eta1*1.0126586+2.128934)/Norm
 
-             derH2  = (numer - pv_val* 0.25*(eta*1.0126586+2.128934))/Norm
-             derH1  = - pv_val*0.25*(eta1*1.0126586+2.128934)/Norm
+             derH2  = (numer - pv_val* 0.25_cp*(eta*1.0126586_cp+2.128934_cp))/Norm
+             derH1  = - pv_val*0.25_cp*(eta1*1.0126586_cp+2.128934_cp)/Norm
 
           end if
 
@@ -745,8 +745,8 @@
        real(kind=cp), optional,dimension(:),intent(out):: dpar
 
        !--- Local variables ---!
-       real(kind=cp), parameter :: o1= 2.69269, o2=2.42843, o3=4.47163, o4= 0.07842
-       real(kind=cp), parameter :: e1= 1.36603, e2=0.47719, e3=0.11116
+       real(kind=cp), parameter :: o1= 2.69269_cp, o2=2.42843_cp, o3=4.47163_cp, o4= 0.07842_cp
+       real(kind=cp), parameter :: e1= 1.36603_cp, e2=0.47719_cp, e3=0.11116_cp
        real(kind=cp) :: Hg,Hl,eta,H,x2,ag,bg,al,bl,lor,gauss, invH,invH2,r
        real(kind=cp) :: derH,derEta,derx,dlorH,dgaussH,lorp,gaussp, &
                         dhdhg,dhdhl,deta,detag,detal,derHg,derHl
@@ -754,38 +754,38 @@
        Hg=par(1)
        Hl=par(2)
        !Calculate H and eta from Tomson-Cox-Hasting formula
-       H=hg**5.0+o1*hg**4.0*hl+o2*hg**3.0*hl**2.0+o3*hg**2.0*hl**3.0+o4*hg*hl**4.0+hl**5.0
-       H=abs(H)**0.2
+       H=hg**5+o1*hg**4*hl+o2*hg**3*hl**2+o3*hg**2*hl**3+o4*hg*hl**4+hl**5
+       H=abs(H)**0.2_cp
        r = hl/H                       !HL/FWHM
-       eta = max( 1.0e-06, r*(e1 -(e2 + e3*r)*r) )  !eta
+       eta = max( 1.0e-06_cp, r*(e1 -(e2 + e3*r)*r) )  !eta
        x2=x*x
-       invH=1.0/H
+       invH=1.0_cp/H
        invH2=invH*invH
-       ag= 0.93943727869965133377234032841018*invH
-       bg= 2.7725887222397812376689284858327*invH2
-       al= 0.63661977236758134307553505349006*invH
-       bl= 4.0*invH2
+       ag= 0.93943727869965133377234032841018_cp*invH
+       bg= 2.7725887222397812376689284858327_cp*invH2
+       al= 0.63661977236758134307553505349006_cp*invH
+       bl= 4.0_cp*invH2
        gauss = ag* exp(-bg*x2)
-       lor   = al/(1.0+bl*x2)
-       pv_val = eta*lor + (1.0 - eta)*gauss
+       lor   = al/(1.0_cp+bl*x2)
+       pv_val = eta*lor + (1.0_cp - eta)*gauss
 
        if(present(dpar)) then
-          dhdhg = 0.2/H**4.0*(5.0*hg**4.0+ 4.0*o1* hg**3.0*hl+  &
-                  3.0*o2*hg*hg*hl*hl + 2.0*o3*hg*hl**3.0 + o4*hl**4.0)
-          dhdhl = 0.2/H**4.0*(o1*hg**4.0+ 2.0*o2*hg**3.0*hl+  &
-                  3.0*o3*hg*hg*hl*hl + 4.0*o4*hg*hl**3.0 + 5.0*hl**4.0)
-           deta = e1-(2.0*e2 - 3.0*e3*r)*r  !derivative of ETA w.r.t. r
+          dhdhg = 0.2_cp/H**4*(5.0_cp*hg**4+ 4.0_cp*o1* hg**3*hl+  &
+                  3.0_cp*o2*hg*hg*hl*hl + 2.0_cp*o3*hg*hl**3 + o4*hl**4)
+          dhdhl = 0.2_cp/H**4*(o1*hg**4+ 2.0_cp*o2*hg**3*hl+  &
+                  3.0_cp*o3*hg*hg*hl*hl + 4.0_cp*o4*hg*hl**3 + 5.0_cp*hl**4)
+           deta = e1-(2.0_cp*e2 - 3.0_cp*e3*r)*r  !derivative of ETA w.r.t. r
           detag = -r*deta*dhdhg*invH
-          detal = (1.0-r*dhdhl)*deta*invH
+          detal = (1.0_cp-r*dhdhl)*deta*invH
 
           derEta= lor-gauss  !Eta
-          lorp = -2.0 *lor*lor*bl*x/al  !x
-          gaussp = -2.0 * gauss * bg * x  !x
+          lorp = -2.0_cp *lor*lor*bl*x/al  !x
+          gaussp = -2.0_cp * gauss * bg * x  !x
           derx=eta*lorp+(1.0-eta)*gaussp  !x
 
-          dlorH= (2.0*bl*lor*x2/al -1.0)*invH*lor
-          dgaussH= (2.0*bg*x2-1.0)*invH*gauss
-          derH=eta*dlorH + (1.0-eta) * dgaussH
+          dlorH= (2.0_cp*bl*lor*x2/al -1.0_cp)*invH*lor
+          dgaussH= (2.0_cp*bg*x2-1.0_cp)*invH*gauss
+          derH=eta*dlorH + (1.0_cp-eta) * dgaussH
 
           derHG= derH * dhdhg + derEta * detag  !Chain rule
           derHL= derH * dhdhl + derEta * detal

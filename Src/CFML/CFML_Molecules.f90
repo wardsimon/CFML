@@ -362,7 +362,7 @@
     !!---- Update: February - 2005
     !!
     logical, public          :: Err_Molec
-    
+
     !!----
     !!---- ERR_MOLEC_MESS
     !!----    character(len=150), public :: ERR_Molec_Mess
@@ -2072,7 +2072,7 @@
        cb = cosd(ci(3))                  ! cos(bijkn)
        r(1) = ci(1) * ca                 ! Coordinates in the local system
        r(2) = ci(1)*cb*sa
-       r(3) = ci(1)*sqrt(abs(1.0_cp - ca*ca - sa*sa*cb*cb )) *sign(1.0,ci(3))
+       r(3) = ci(1)*sqrt(abs(1.0_cp - ca*ca - sa*sa*cb*cb )) *sign(1.0_cp,ci(3))
 
        e1  = rk - rj
        e1  = e1/sqrt(dot_product(e1,e1))
@@ -2579,12 +2579,12 @@
        integer,                       intent(out)  :: N      ! Free atoms read
 
        !---- Local Variables ----!
-       character(len=80)     :: line
-       character(len=6)      :: label
-       character(len=4)      :: var,symb
-       integer               :: i,ier,nlong,iv
-       integer, dimension(5) :: ivet
-       real, dimension(5)    :: vet
+       character(len=80)           :: line
+       character(len=6)            :: label
+       character(len=4)            :: var,symb
+       integer                     :: i,ier,nlong,iv
+       integer,       dimension(5) :: ivet
+       real(kind=cp), dimension(5) :: vet
 
        call Init_Err_Molec()
        N=0
@@ -2801,7 +2801,7 @@
        character(len=4)                :: var
        integer                         :: i,j,ic,npos,na,ier
        integer,dimension(10)           :: ivet
-       real, dimension(10)             :: vet
+       real(kind=cp), dimension(10)    :: vet
        real(kind=cp),dimension(3,3)    :: Eu
        logical                         :: in_xtal,mol_found
 
@@ -3334,7 +3334,7 @@
        character(len=4)                :: var
        integer                         :: i,j,ic,npos,na,ier
        integer,dimension(10)           :: ivet
-       real, dimension(10)             :: vet
+       real(kind=cp), dimension(10)    :: vet
        real(kind=cp),dimension(3,3)    :: Eu
        logical                         :: in_xtal
 

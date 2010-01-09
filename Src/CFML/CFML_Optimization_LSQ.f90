@@ -1193,7 +1193,7 @@
       Call Model_Functn(m, n, x, fvec, fjac, iflag)
       ichi2=enorm(m,fvec)
       if(ichi2 < 1.0e5) then
-        ichi2=ichi2*ichi2/max(1.0_cp,real(m-n))
+        ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
       end if
       If( c%icyc < 5*n) then
         maxfev = 100*(n + 1)
@@ -1212,7 +1212,7 @@
       !Calculate final Chi2 or norm
       chi2=enorm(m,fvec)
       if(chi2 < 1.0e5) then
-        chi2=chi2*chi2/max(1.0_cp,real(m-n))
+        chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
       end if
       sx=zero
       !Extract the curvature matrix side of equation below from fjac
@@ -2018,7 +2018,7 @@
       Call Model_Functn(m, n, x, fvec, iflag)
       ichi2=enorm(m,fvec)
       if(ichi2 < 1.0e5) then
-        ichi2=ichi2*ichi2/max(1.0_cp,real(m-n))
+        ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
       end if
       If( c%icyc < 5*n) then
         maxfev = 200*(n + 1)
@@ -2039,7 +2039,7 @@
       !Calculate final Chi2 or norm
       chi2=enorm(m,fvec)
       if(chi2 < 1.0e5) then
-        chi2=chi2*chi2/max(1.0_cp,real(m-n))
+        chi2=chi2*chi2/max(1.0_cp,real(m-n,kind=cp))
       end if
       sx=zero
       !Extract the curvature matrix side of equation below from fjac

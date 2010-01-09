@@ -72,7 +72,7 @@
     !---- List of private subroutines ----!
     private :: Peak_List, Vertice_point_cal, Vertice_point_fix
 
-    
+
     !---- Definitions ----!
 
     !!----
@@ -322,16 +322,16 @@
        y=y+deltay
        z=z+deltaz
 
-       x=mod(x+10.0,1.0)
-       y=mod(y+10.0,1.0)
-       z=mod(z+10.0,1.0)
+       x=mod(x+10.0_cp,1.0_cp)
+       y=mod(y+10.0_cp,1.0_cp)
+       z=mod(z+10.0_cp,1.0_cp)
 
-       if (abs(x) <= 0.001) x=0.0
-       if (abs(y) <= 0.001) y=0.0
-       if (abs(z) <= 0.001) z=0.0
-       if (abs(1.0-x) <= 0.001 ) x=0.0
-       if (abs(1.0-y) <= 0.001 ) y=0.0
-       if (abs(1.0-z) <= 0.001 ) z=0.0
+       if (abs(x) <= 0.001_cp) x=0.0_cp
+       if (abs(y) <= 0.001_cp) y=0.0_cp
+       if (abs(z) <= 0.001_cp) z=0.0_cp
+       if (abs(1.0-x) <= 0.001_cp ) x=0.0_cp
+       if (abs(1.0-y) <= 0.001_cp ) y=0.0_cp
+       if (abs(1.0-z) <= 0.001_cp ) z=0.0_cp
 
        pto(1)=x
        pto(2)=y
@@ -875,7 +875,7 @@
     !!--++    integer,                       intent(in) :: p1,p2
     !!--++    real(kind=cp), dimension(0:4), intent(in) :: h,xh
     !!--++    real(kind=cp)                             :: sect
-    !!--++   
+    !!--++
     !!--++    (Private)
     !!--++    Calculates the intersection of lines
     !!--++    Used internally by Calculate_Contour2D
@@ -1664,8 +1664,8 @@
           do j=1,ngrid2(2)
              vv=limits(2,1)+vinc*(j-1)
 
-             x1=mod(uu+10.0,1.0)
-             y1=mod(vv+10.0,1.0)
+             x1=mod(uu+10.0_cp,1.0_cp)
+             y1=mod(vv+10.0_cp,1.0_cp)
 
              !---- Entre que nodos X ----!
              do ii1=1,ndimx-1
@@ -1752,7 +1752,7 @@
        !---- Pto in asymmetric unit ----!
        do i=1,grp%multip
           pto1=ApplySO(grp%Symop(i),pto(1:3))
-          pto1=mod(pto1+10.0,1.0)
+          pto1=mod(pto1+10.0_cp,1.0_cp)
           if (pto1(1) < grp%R_Asym_Unit(1,1)     .or. &
               pto1(1) > grp%R_Asym_Unit(1,2)+eps .or. &
               pto1(2) < grp%R_Asym_Unit(2,1)     .or. &
@@ -1772,7 +1772,7 @@
           do j=1,npks
              do i=1,grp%multip
                 pto2=ApplySO(grp%Symop(i),pks(1:3,j))
-                pto2=mod(pto2+10.0,1.0)
+                pto2=mod(pto2+10.0_cp,1.0_cp)
                 if (distance(pto1,pto2,cell) <= 0.25) return
              end do
           end do

@@ -511,10 +511,10 @@
           om=90.0+atan2d(-z4(2),z4(1))
           If(r(3,3) > 0.0) ch=0.0
           If(r(3,3) < 0.0) ch=180.0
-          ph=Sign(1.0,r(3,3))*(atan2d(r(1,2),r(2,2))-om)
+          ph=Sign(1.0_cp,r(3,3))*(atan2d(r(1,2),r(2,2))-om)
 
           !---- Convert -180.0 <= PH <= +180.0
-          ph=ph-360.0*Int((Sign(180.0,ph)+ph)/360.0)
+          ph=ph-360.0_cp*Int((Sign(180.0_cp,ph)+ph)/360.0_cp)
        End If
 
        Return
@@ -977,14 +977,14 @@
              Else
                 ga=90.0
                 om=90.0
-                ch2=Sign(1.0,nu)*45.0
+                ch2=Sign(1.0_cp,nu)*45.0_cp
                 ch=ch1-ch2
                 !---- Convert to -180.0 <= CH <= +180.0
-                ch=ch-360.0*Int((Sign(180.0,ch)+ch)/360.0)
+                ch=ch-360.0_cp*Int((Sign(180.0_cp,ch)+ch)/360.0_cp)
              End If
           Else
              cosga=cosd(twoth)/cosd(nu)  !General expression coming from the definition of the angles
-             If (Abs(cosga) > 1.0) Then
+             If (Abs(cosga) > 1.0_cp) Then
                 ierr=-2
              Else
                 ga=acosd(cosga)
@@ -995,7 +995,7 @@
                 ch2=asind(z4(3)*wave/(2.0*sind(theta)))
                 ch=ch1-ch2
                 !---- Convert to -180.0<= CH <=+180.0
-                ch=ch-360.0*Int((Sign(180.0,ch)+ch)/360.0)
+                ch=ch-360.0_cp*Int((Sign(180.0_cp,ch)+ch)/360.0_cp)
              End if
           End If
        End If
@@ -1094,7 +1094,7 @@
                       Call z1frz2(z4,om,z3)
                       csi2=atan2d(z3(3),z3(2))
                       rho=psi1-csi1+csi2
-                      rho=rho-360.0*Int((Sign(180.0,rho)+rho)/360.0)
+                      rho=rho-360.0_cp*Int((Sign(180.0_cp,rho)+rho)/360.0_cp)
                       Call Calc_Om_Chi_Phi(vrho,v1,rho,ub,om,ch,ph,ierr)
                       If (ierr == 0) Return
                    End If
@@ -1247,9 +1247,9 @@
                 Call Phi_mat(om,dum)
                 znew=Matmul(dum,z1)
                 If (znew(1) <= 0.0) Then
-                   om=om-2.0*atan2d(-znew(1),-znew(2))
+                   om=om-2.0_cp*atan2d(-znew(1),-znew(2))
                 End If
-                om=om-360.0*Int((Sign(180.0,om)+om)/360.0)
+                om=om-360.0_cp*Int((Sign(180.0_cp,om)+om)/360.0_cp)
                 nu=asind(wave*z1(3))
                 ga=acosd(cosd(2.0*theta)/cosd(nu))
              End If

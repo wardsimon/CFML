@@ -763,12 +763,12 @@
 
        return
     End Subroutine Atom_Uequi_List
-    
+
     !!----
     !!---- Subroutine Copy_Atom_List(A, Ac)
     !!----    type(atom_list_type),   intent(in)  :: A      !  In -> Atom list
     !!----    type(atom_list_type),   intent(out) :: Ac     !   Out -> Atom list
-    !!----                                                        
+    !!----
     !!----
     !!----    Subroutine to copy an atom list to another one
     !!----
@@ -776,12 +776,12 @@
     !!
     Subroutine Copy_Atom_List(A, Ac)
        !---- Arguments ----!
-       type (atom_list_type),    intent(in)   :: A 
+       type (atom_list_type),    intent(in)   :: A
        type (atom_list_type),    intent(out)  :: Ac
 
        !---- Local variables ----!
        integer                    :: n
-       
+
        n=A%natoms
        call Allocate_Atom_List(n,Ac)
        Ac%atom(1:n)=A%atom(1:n)
@@ -1019,14 +1019,14 @@
 
        nc=0
        do i=1,atm%natoms
-          pto1=mod(atm%atom(i)%x+10.0,1.0)
+          pto1=mod(atm%atom(i)%x+10.0_cp,1.0_cp)
           do j=1,npks
              do k=1,grp%multip
                 pto2=ApplySO(grp%Symop(k),pks(1:3,j))
-                pto2=mod(pto2+10.0,1.0)
+                pto2=mod(pto2+10.0_cp,1.0_cp)
                 xr = matmul(cell%Cr_Orth_cel,pto2-pto1)
                 dis=sqrt(dot_product(xr,xr))
-                if (dis <= 0.25) then
+                if (dis <= 0.25_cp) then
                    nc=nc+1
                    np(i)=j
                    exit

@@ -198,7 +198,7 @@
 
     !!----
     !!---- TABLE_B
-    !!----    real(kind=sp),dimension(:,:), allocatable, private :: Table_b
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_b
     !!----
     !!----    Matrix N_Species x N_Species of B parameters for BVS
     !!----
@@ -208,7 +208,7 @@
 
     !!----
     !!---- TABLE_D0
-    !!----    real(kind=sp),dimension(:,:), allocatable, private :: Table_d0
+    !!----    real(kind=cp),dimension(:,:), allocatable, private :: Table_d0
     !!----
     !!----    Matrix N_Species x N_Species of D0 for BVS
     !!----
@@ -358,7 +358,7 @@
        !---- Local variables ----!
        integer                                :: i,j,k,n1,n2,icm,l,icn,isoc,kk,is0, &
                                                  isstr,isdav,isigt,ibvs,sig1,sig2
-       real(kind=sp)                          :: tol,fact,del2,s0,q2,  &
+       real(kind=cp)                          :: tol,fact,del2,s0,q2,  &
                                                  dd,sigtot,efcn,sums,dav,sdav,q1,d2,  &
                                                  str2,sstr,ric,r_2,del,perc,spred,disp,  &
                                                  str,rg1,dist,gii_a,gii_b,gii_c
@@ -431,7 +431,7 @@
           icm=coord_info%coord_num(i)
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
-          sig1=SIGN(1.0,q1)
+          sig1=SIGN(1.0_cp,q1)
           icn=0
           efcn=0.0
           sums=0.0
@@ -450,7 +450,7 @@
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
-             sig2= SIGN(1.0,q2)
+             sig2= SIGN(1.0_cp,q2)
              if (sig1 == sig2) cycle
              dd=coord_info%dist(i,j)
              if (dd > (A%Radius(l)+A%Radius(k))*(1.0+tol)) cycle
@@ -740,7 +740,7 @@
        Character(len=*),dimension(:), intent(in) :: bvs_m
        !---- Local variables ----!
        Integer       :: i,j,k,ic,icat,ian
-       real(kind=sp) :: d0_n, b_n
+       real(kind=cp) :: d0_n, b_n
        character(len=10), dimension(5)        :: dire
 
           do k=1,N_bvsm
@@ -835,13 +835,13 @@
           icm=coord_info%coord_num(i)
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
-          sig1=SIGN(1.0,q1)
+          sig1=SIGN(1.0_cp,q1)
           sums=0.0
           efcn=0.0
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
-             sig2= SIGN(1.0,q2)
+             sig2= SIGN(1.0_cp,q2)
              sig=A%radius(l)+A%radius(k)
              dd=coord_info%dist(i,j)
              if (sig1 == sig2) then
@@ -920,13 +920,13 @@
           icm=coord_info%coord_num(i)
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
-          sig1=SIGN(1.0,q1)
+          sig1=SIGN(1.0_cp,q1)
           sums=0.0
           efcn=0.0
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
              q2=A%Atom(coord_info%n_cooatm(i,j))%charge
-             sig2= SIGN(1.0,q2)
+             sig2= SIGN(1.0_cp,q2)
              dd=coord_info%dist(i,j)
              sig=A%radius(l)+A%radius(k) !sum of ionic radii of the current pair
              if (sig1 == sig2) then

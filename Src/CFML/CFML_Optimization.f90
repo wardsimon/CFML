@@ -2355,11 +2355,11 @@
        End Interface
 
        !---- Local variables ----!
-       integer                   :: i,itest, irndm, nfev
-       real                      :: h, deltf, eps, a, f1,relcon, maxfn
-       real, dimension(n)        :: x1
-       real, dimension(100,n)    :: r
-       real, parameter           :: zero=0.0, onen3=0.001, half=0.5, one=1.0, two=2.0
+       integer                            :: i,itest, irndm, nfev
+       real(kind=cp)                      :: h, deltf, eps, a, f1,relcon, maxfn
+       real(kind=cp), dimension(n)        :: x1
+       real(kind=cp), dimension(100,n)    :: r
+       real(kind=cp), parameter           :: zero=0.0_cp, onen3=0.001_cp, half=0.5_cp, one=1.0_cp, two=2.0_cp
 
        h = onen3                   !First executable statement
        deltf = one                 !initial step length
@@ -2682,14 +2682,14 @@
     !!
     Subroutine Local_Rand(N,Relcon,Maxfn,X,F,Nfev,Mini,Maxi,Model_Functn)
        !---- Arguments ----!
-       integer,            intent(in)     :: n
-       real,               intent(in)     :: relcon
-       integer,            intent(in)     :: maxfn
-       real, dimension(:), intent(in out) :: x
-       real,               intent(in out) :: f
-       integer,            intent(out)    :: nfev
-       real, dimension(:), intent(in)     :: mini
-       real, dimension(:), intent(in)     :: maxi
+       integer,                     intent(in)     :: n
+       real(kind=cp),               intent(in)     :: relcon
+       integer,                     intent(in)     :: maxfn
+       real(kind=cp), dimension(:), intent(in out) :: x
+       real(kind=cp),               intent(in out) :: f
+       integer,                     intent(out)    :: nfev
+       real(kind=cp), dimension(:), intent(in)     :: mini
+       real(kind=cp), dimension(:), intent(in)     :: maxi
        Interface
           Subroutine Model_Functn(n,x,f,g)
              use CFML_GlobalDeps,  only: cp
@@ -2701,11 +2701,11 @@
        End Interface
 
        !---- Local variables ----!
-       integer                   :: i,itest, irndm
-       real                      :: h, deltf, eps, a, f1
-       real, dimension(n)        :: x1
-       real, dimension(100,n)    :: r
-       real, parameter           :: zero=0.0, onen3=0.001, half=0.5, one=1.0, two=2.0
+       integer                            :: i,itest, irndm
+       real(kind=cp)                      :: h, deltf, eps, a, f1
+       real(kind=cp), dimension(n)        :: x1
+       real(kind=cp), dimension(100,n)    :: r
+       real(kind=cp), parameter           :: zero=0.0_cp, onen3=0.001_cp, half=0.5_cp, one=1.0_cp, two=2.0_cp
 
        h = onen3                   !First executable statement
        deltf = one                 !initial step length
@@ -2749,7 +2749,7 @@
                    itest = 0
                    IF (deltf < eps) exit do_out  !Relative convergence test for the
                                                  !objective function
-                   IF (ABS(h)-relcon < 0.0) THEN !Convergence test for the step length
+                   IF (ABS(h)-relcon < 0.0_cp) THEN !Convergence test for the step length
                      exit  do_out
                    ELSE
                      cycle do_int
@@ -3391,9 +3391,9 @@
     !!--++ Update: August - 2007
     !!
     Subroutine Put_In_box(n,mini,maxi,x)
-      integer,            intent(in)     :: n
-      real, dimension(:), intent(in)     :: mini,maxi
-      real, dimension(:), intent(in out) :: x
+      integer,                     intent(in)     :: n
+      real(kind=cp), dimension(:), intent(in)     :: mini,maxi
+      real(kind=cp), dimension(:), intent(in out) :: x
 
       integer                            :: i
       do i=1,n

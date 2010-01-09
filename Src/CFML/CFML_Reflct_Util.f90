@@ -3006,8 +3006,8 @@
        real(kind=cp),         intent (out):: phasen
 
        k = matmul(h,Op%Rot)
-       phasen= phase - 360.0*dot_product(Op%Tr,real(h))
-       phasen=mod(phasen+3600.0,360.0)
+       phasen= phase - 360.0_cp*dot_product(Op%Tr,real(h))
+       phasen=mod(phasen+3600.0_cp,360.0_cp)
 
        return
     End Subroutine Hkl_RpI
@@ -3034,8 +3034,8 @@
        real(kind=cp),              intent (out):: phasen
 
        k = matmul(h,Op%Rot)
-       phasen= phase - 360.0_sp*dot_product(Op%Tr,h)
-       phasen=mod(phasen+3600.0_sp,360.0_sp)
+       phasen= phase - 360.0_cp*dot_product(Op%Tr,h)
+       phasen=mod(phasen+3600.0_cp,360.0_cp)
 
        return
     End Subroutine Hkl_RpR

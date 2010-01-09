@@ -562,7 +562,7 @@
                      f=atm%atom(i)%mx(m)
                      der= otr(i)*(-a1*drc(m,i)+b3*drs(m,i))+oti(i)*(-b1*drc(m,i)+a3*drs(m,i))
                      der=2.0*der*tpi
-                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                     deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                    end if
                  end do
 
@@ -571,7 +571,7 @@
                    f=Atm%atom(i)%mbiso
                    der= otr(i)*(a1*frc(i) +b3*frs(i))+oti(i)*(b1*frc(i) +a3*frs(i))
                    der=-2.0*der*sn
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor   POWDER
@@ -579,7 +579,7 @@
                    f=Atm%atom(i)%mocc
                    der= otr(i)*(a1*frc(i)+b3*frs(i))+oti(i)*(b1*frc(i)+a3*frs(i))
                    der=2.0*der/atm%atom(i)%occ
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  do m=4,9      !Derivatives w.r.t. anisotropic temperature factors   POWDER
@@ -590,7 +590,7 @@
                       der=  otr(i)*(a1*drc(i,j)+b3*drs(m,i))+oti(i)*(b1*drc(m,i)+a3*drs(m,i))
                       der=-2.0*der
                       if(j > 3) der=2.0*der
-                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                      deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                     end if
                  end do
 
@@ -607,7 +607,7 @@
                      der=   -av*(otr(i)*drc(m,i) + oti(i)*drs(m,i))
                      der=der-bv*(oti(i)*drc(m,i) - otr(i)*drs(m,i))
                      der=2.0*der*tpi
-                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                     deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                    end if
                  end do
 
@@ -617,7 +617,7 @@
                    der=   -av*( otr(i)*frc(i) - oti(i)*frs(i) )
                    der=der-bv*( oti(i)*frc(i) + otr(i)*frs(i) )
                    der=2.0*der*sn
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor  S-XTAL
@@ -626,7 +626,7 @@
                    der=    av*( otr(i)*frc(i) - oti(i)*frs(i) )
                    der=der+bv*( oti(i)*frc(i) + otr(i)*frs(i) )
                    der=2.0*der/atm%atom(i)%occ
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  do m=4,9        !Derivatives w.r.t. anisotropic temperature factors S-XTAL
@@ -638,7 +638,7 @@
                       der=der-bv*(oti(i)*drc(m,i) + otr(i)*drs(m,i))
                       der=2.0*der
                       if(j > 3) der=2.0*der
-                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                      deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                     end if
                  end do
 
@@ -869,7 +869,7 @@
                      f=atm%atom(i)%mx(m)
                      der= otr(i)*(-a1*drc(m,i)+b3*drs(m,i))+oti(i)*(-b1*drc(m,i)+a3*drs(m,i))
                      der=2.0*der*tpi
-                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                     deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                    end if
                  end do
 
@@ -878,7 +878,7 @@
                    f=Atm%atom(i)%mbiso
                    der= otr(i)*(a1*frc(i) +b3*frs(i))+oti(i)*(b1*frc(i) +a3*frs(i))
                    der=-2.0*der*sn
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor   POWDER
@@ -886,7 +886,7 @@
                    f=Atm%atom(i)%mocc
                    der= otr(i)*(a1*frc(i)+b3*frs(i))+oti(i)*(b1*frc(i)+a3*frs(i))
                    der=2.0*der/atm%atom(i)%occ
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  do m=4,9      !Derivatives w.r.t. anisotropic temperature factors   POWDER
@@ -897,7 +897,7 @@
                       der=  otr(i)*(a1*drc(i,j)+b3*drs(m,i))+oti(i)*(b1*drc(m,i)+a3*drs(m,i))
                       der=-2.0*der
                       if(j > 3) der=2.0*der
-                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                      deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                     end if
                  end do
 
@@ -914,7 +914,7 @@
                      der=   -av*(otr(i)*drc(m,i) + oti(i)*drs(m,i))
                      der=der-bv*(oti(i)*drc(m,i) - otr(i)*drs(m,i))
                      der=2.0*der*tpi
-                     deriv(k) = sign(1.0,f)*der+deriv(k)
+                     deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                    end if
                  end do
 
@@ -924,7 +924,7 @@
                    der=   -av*( otr(i)*frc(i) - oti(i)*frs(i) )
                    der=der-bv*( oti(i)*frc(i) + otr(i)*frs(i) )
                    der=2.0*der*sn
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  k=Atm%atom(i)%locc    !Derivatives w.r.t. occupation factor  S-XTAL
@@ -933,7 +933,7 @@
                    der=    av*( otr(i)*frc(i) - oti(i)*frs(i) )
                    der=der+bv*( oti(i)*frc(i) + otr(i)*frs(i) )
                    der=2.0*der/atm%atom(i)%occ
-                   deriv(k) = sign(1.0,f)*der+deriv(k)
+                   deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                  end if
 
                  do m=4,9        !Derivatives w.r.t. anisotropic temperature factors S-XTAL
@@ -945,7 +945,7 @@
                       der=der-bv*(oti(i)*drc(m,i) + otr(i)*drs(m,i))
                       der=2.0*der
                       if(j > 3) der=2.0*der
-                      deriv(k) = sign(1.0,f)*der+deriv(k)
+                      deriv(k) = sign(1.0_cp,f)*der+deriv(k)
                     end if
                  end do
 
@@ -2106,7 +2106,7 @@
           do i=1,reflex%Nref
              a=sum(aa(:,i))
              reflex%ref(i)%Fc=abs(a)
-             reflex%ref(i)%Phase = 90.0 - 90.0 * sign(1.0,a)
+             reflex%ref(i)%Phase = 90.0_cp - 90.0_cp * sign(1.0_cp,a)
              reflex%ref(i)%A=a
              reflex%ref(i)%B=0.0
           end do
