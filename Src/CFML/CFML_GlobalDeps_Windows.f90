@@ -57,7 +57,7 @@ Module CFML_GlobalDeps
 
    !!----
    !!---- OPS
-   !!----   Integer variable 1: Windows, 2: Mac, 3: Linux, ....
+   !!----   Integer variable 1: Windows, 2: Linux, 3: MacOs, ....
    !!----   This is a variable set by the user of the library for the case
    !!----   that there is no external library with a procedure for getting
    !!----   the operating system.
