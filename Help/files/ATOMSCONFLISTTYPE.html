@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -131,24 +131,19 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ATOMSCONFLISTTYPE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts16>ATOMS_CONF_LIST_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=342>
-<p><span class=rvts10><br></span></p>
+<td width=342><p><span class=rvts10><br></span></p>
 </td>
-<td width=185>
-<p><span class=rvts11>Variable</span></p>
+<td width=185><p><span class=rvts11>Variable</span></p>
 </td>
-<td width=369>
-<p><span class=rvts11>Definition</span></p>
+<td width=369><p><span class=rvts11>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOMS_CONF_LIST_TYPE</span></p>
+<td width=342><p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOMS_CONF_LIST_TYPE</span></p>
 </td>
 <td width=185><br>
 </td>
@@ -156,107 +151,79 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=185>
-<p>NATOMS</p>
+<td width=185><p>NATOMS</p>
 </td>
-<td width=369>
-<p>Total number of atoms in the list</p>
+<td width=369><p>Total number of atoms in the list</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=185>
-<p>N_SPEC</p>
+<td width=185><p>N_SPEC</p>
 </td>
-<td width=369>
-<p>Number of different species in the list</p>
+<td width=369><p>Number of different species in the list</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=185>
-<p>N_ANIONS</p>
+<td width=185><p>N_ANIONS</p>
 </td>
-<td width=369>
-<p>Number of anions in the list</p>
+<td width=369><p>Number of anions in the list</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=185>
-<p>N_CATIONS</p>
+<td width=185><p>N_CATIONS</p>
 </td>
-<td width=369>
-<p>Number of cations in the list</p>
+<td width=369><p>Number of cations in the list</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP)</p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=185>
-<p>TOL</p>
+<td width=185><p>TOL</p>
 </td>
-<td width=369>
-<p>Tolerance(%) for sum of radii conditions</p>
+<td width=369><p>Tolerance(%) for sum of radii conditions</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP)</p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=185>
-<p>TOTATOMS</p>
+<td width=185><p>TOTATOMS</p>
 </td>
-<td width=369>
-<p>Total number of atoms in the unit cell</p>
+<td width=369><p>Total number of atoms in the unit cell</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>4</span>)<span class=rvts13>,DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; CHARACTER </span>(<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>4</span>)<span class=rvts13>,DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=185>
-<p>SPECIES</p>
+<td width=185><p>SPECIES</p>
 </td>
-<td width=369>
-<p>Symbol + valence</p>
+<td width=369><p>Symbol + valence</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=185>
-<p>RADIUS</p>
+<td width=185><p>RADIUS</p>
 </td>
-<td width=369>
-<p>ionic/atomic radius of species</p>
+<td width=369><p>ionic/atomic radius of species</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts13>&nbsp;&nbsp; TYPE </span>(ATOM_TYPE),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=342><p><span class=rvts13>&nbsp;&nbsp; TYPE </span>(ATOM_TYPE),<span class=rvts13> DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=185>
-<p>ATOM</p>
+<td width=185><p>ATOM</p>
 </td>
-<td width=369>
-<p>Atom information</p>
+<td width=369><p>Atom information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> ATOMS_CONF_LIST_TYPE</span></p>
+<td width=342><p><span class=rvts12>END TYPE</span><span class=rvts10> ATOMS_CONF_LIST_TYPE</span></p>
 </td>
 <td width=185><br>
 </td>
@@ -267,5 +234,4 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

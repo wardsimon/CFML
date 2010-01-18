@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -120,109 +120,80 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?RANDOMMVNORM.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts14>RANDOM_MVNORM</span></p>
 <p><span class=rvts12>SUBROUTINE RANDOM_MVNORM (N, H, D, F, FIRST, X, IER)</span></p>
 <p><span class=rvts10><br></span></p>
 <p><span class=rvts10><br></span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>INTEGER</span></p>
+<td width=274><p><span class=rvts13>INTEGER</span></p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=56>
-<p>N</p>
+<td width=56><p>N</p>
 </td>
-<td width=319>
-<p>Number of variates in vector (input,integer &gt;= 1)</p>
+<td width=319><p>Number of variates in vector (input,integer &gt;= 1)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N)</p>
+<td width=274><p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N)</p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=56>
-<p>H</p>
+<td width=56><p>H</p>
 </td>
-<td width=319>
-<p>Vector of means</p>
+<td width=319><p>Vector of means</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N*(N+1)/2)</p>
+<td width=274><p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N*(N+1)/2)</p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=56>
-<p>D</p>
+<td width=56><p>D</p>
 </td>
-<td width=319>
-<p>Variance matrix (j&gt; = i)</p>
+<td width=319><p>Variance matrix (j&gt; = i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N*(N+1)/2)</p>
+<td width=274><p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N*(N+1)/2)</p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=56>
-<p>F</p>
+<td width=56><p>F</p>
 </td>
-<td width=319>
-<p>Parameter of distribution (0 &lt; real)</p>
+<td width=319><p>Parameter of distribution (0 &lt; real)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>LOGICAL</span></p>
+<td width=274><p><span class=rvts13>LOGICAL</span></p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>IN</span>)</p>
 </td>
-<td width=56>
-<p>FIRST</p>
+<td width=56><p>FIRST</p>
 </td>
-<td width=319>
-<p><span class=rvts10>.TRUE.</span> if this is the first call of the routine or if the distribution has changed since the last call of the routine.</p>
+<td width=319><p><span class=rvts10>.TRUE.</span> if this is the first call of the routine or if the distribution has changed since the last call of the routine.</p>
 <p><span class=rvts10>.FALSE. </span> otherwise</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N)</p>
+<td width=274><p><span class=rvts13>REAL</span>(<span class=rvts13>KIND</span>=CP)<span class=rvts13>, DIMENSION</span>(N)</p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
 </td>
-<td width=56>
-<p>X</p>
+<td width=56><p>X</p>
 </td>
-<td width=319>
-<p>Delivered vector</p>
+<td width=319><p>Delivered vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts13>INTEGER</span></p>
+<td width=274><p><span class=rvts13>INTEGER</span></p>
 </td>
-<td width=101>
-<p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
+<td width=101><p><span class=rvts13>INTENT</span>(<span class=rvts13>OUT</span>)</p>
 </td>
-<td width=56>
-<p>IER</p>
+<td width=56><p>IER</p>
 </td>
-<td width=319>
-<p>= 1 if the input covariance matrix is not +ve definite</p>
+<td width=319><p>= 1 if the input covariance matrix is not +ve definite</p>
 <p>= 0 otherwise</p>
 </td>
 </tr>
@@ -235,5 +206,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

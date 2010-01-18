@@ -10,7 +10,10 @@
     <script type="text/javascript" src="searchdata.js"></script>
     <script type="text/javascript"><!--
       $(document).ready(function(){
-        $("#toc").treeview(); $("#keywords").treeview();
+        $("#toc").treeview(
+        {collapsed: true}
+        )
+        $("#keywords").treeview({collapsed: true});
         $(document.body).click(function(e){var $target = $(e.target); if($target.is("a")) return; hidePopup();});
         $(function(){var tabContainers = $("div.tabs > div");tabContainers.hide().filter(":first").show();$("div.tabs ul.tabNavigation a").click(function(){tabContainers.hide();
         tabContainers.filter(this.hash).show();$("div.tabs ul.tabNavigation a").removeClass("selected");$(this).addClass("selected");return false;}).filter(":first").click();});

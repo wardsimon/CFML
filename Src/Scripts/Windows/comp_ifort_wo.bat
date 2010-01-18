@@ -7,7 +7,7 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical,String_Utilities, Messages, Profile Functions
 rem
-   ifort /c CFML_GlobalDeps.f90         /O2 /nologo /Qvec-report0
+   ifort /c CFML_GlobalDeps_Windows_intel.f90         /O2 /nologo /Qvec-report0
 rem
    ifort /c CFML_math_gen.f90         /O2 /nologo /Qvec-report0
    ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
@@ -66,7 +66,7 @@ rem
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
-rem   
+rem
    ifort /c CFML_refcodes.f90         /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization_san.f90 /O2 /nologo /Qvec-report0 /Ic:\wint\lib.if8
    ifort /c CFML_magsymm.f90          /O2 /nologo /Qvec-report0
@@ -90,5 +90,5 @@ rem
    copy *.mod ..\..\Intel\LibW > nul
    move *.lib ..\..\Intel\LibW > nul
    del *.obj *.mod *.lst *.bak > nul
-rem  
-   cd ..\Scripts\Windows  
+rem
+   cd ..\Scripts\Windows

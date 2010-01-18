@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -120,61 +120,46 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?NIGGLICELL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts14>NIGGLI_CELL</span></p>
 <p><span class=rvts10>SUBROUTINE NIGGLI_CELL(AD, NIGGLI_POINT_CELLN, TRANS)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>6</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>6</span>)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>AD</p>
+<td width=89><p>AD</p>
 </td>
-<td width=319>
-<p>Cell parameters as a vector</p>
+<td width=319><p>Cell parameters as a vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>NIGGLI_POINT</p>
+<td width=89><p>NIGGLI_POINT</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELLN</p>
+<td width=89><p>CELLN</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>TRANS</p>
+<td width=89><p>TRANS</p>
 </td>
 <td width=319><br>
 </td>
@@ -188,55 +173,41 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>2</span>,<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>2</span>,<span class=rvts12>3</span>)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>N_MAT</p>
+<td width=89><p>N_MAT</p>
 </td>
-<td width=319>
-<p>Niggli Matrix</p>
+<td width=319><p>Niggli Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>NIGGLI_POINT</p>
+<td width=89><p>NIGGLI_POINT</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELLN</p>
+<td width=89><p>CELLN</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>TRANS</p>
+<td width=89><p>TRANS</p>
 </td>
 <td width=319><br>
 </td>
@@ -250,120 +221,91 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>A</p>
+<td width=89><p>A</p>
 </td>
-<td width=319>
-<p>Cell Parameters</p>
+<td width=319><p>Cell Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>B</p>
+<td width=89><p>B</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>C</p>
+<td width=89><p>C</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>AL</p>
+<td width=89><p>AL</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>BE</p>
+<td width=89><p>BE</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>GA</p>
+<td width=89><p>GA</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>NIGGLI_POINT</p>
+<td width=89><p>NIGGLI_POINT</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELLN</p>
+<td width=89><p>CELLN</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>TRANS</p>
+<td width=89><p>TRANS</p>
 </td>
 <td width=319><br>
 </td>
@@ -377,55 +319,41 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELL</p>
+<td width=89><p>CELL</p>
 </td>
-<td width=319>
-<p>Cell parameters </p>
+<td width=319><p>Cell parameters </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>NIGGLI_POINT</p>
+<td width=89><p>NIGGLI_POINT</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELLN</p>
+<td width=89><p>CELLN</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>TRANS</p>
+<td width=89><p>TRANS</p>
 </td>
 <td width=319><br>
 </td>
@@ -439,83 +367,61 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>A</p>
+<td width=89><p>A</p>
 </td>
-<td width=319>
-<p>Vector in Cartesian components</p>
+<td width=319><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>B</p>
+<td width=89><p>B</p>
 </td>
-<td width=319>
-<p>Vector in Cartesian components</p>
+<td width=319><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3</span>)</p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=89>
-<p>C</p>
+<td width=89><p>C</p>
 </td>
-<td width=319>
-<p>Vector in Cartesian components</p>
+<td width=319><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>5</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>NIGGLI_POINT</p>
+<td width=89><p>NIGGLI_POINT</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>CELLN</p>
+<td width=89><p>CELLN</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts12>3,3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=99>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=99><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=89>
-<p>TRANS</p>
+<td width=89><p>TRANS</p>
 </td>
 <td width=319><br>
 </td>
@@ -529,5 +435,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

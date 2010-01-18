@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -119,93 +119,68 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SETSPACEGROUP.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts14>SET_SPACEGROUP</span></p>
 <p><span class=rvts10>SUBROUTINE SET_SPACEGROUP (SPACEGEN, SPACEGROUP, GEN, NGEN, MODE, FORCE_HALL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>SPACEGEN</p>
+<td width=93><p>SPACEGEN</p>
 </td>
-<td width=410>
-<p>String with Number, Hall or Hermman-Mauguin</p>
+<td width=410><p>String with Number, Hall or Hermman-Mauguin</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=93>
-<p>SPACEGROUP</p>
+<td width=93><p>SPACEGROUP</p>
 </td>
-<td width=410>
-<p>Space Group</p>
+<td width=410><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>GEN</p>
+<td width=93><p>GEN</p>
 </td>
-<td width=410>
-<p>String Generators</p>
+<td width=410><p>String Generators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>NGEN</p>
+<td width=93><p>NGEN</p>
 </td>
-<td width=410>
-<p>Number of Generators</p>
+<td width=410><p>Number of Generators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>MODE</p>
+<td width=93><p>MODE</p>
 </td>
-<td width=410>
-<p>Value must be: HMS, ITC, HALL, GEN, FIX</p>
+<td width=410><p>Value must be: HMS, ITC, HALL, GEN, FIX</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>FORCE_HALL</p>
+<td width=93><p>FORCE_HALL</p>
 </td>
-<td width=410>
-<p>If present force generation from Hall</p>
+<td width=410><p>If present force generation from Hall</p>
 </td>
 </tr>
 </table>
@@ -224,5 +199,4 @@ p,ul,ol /* Paragraph Style */
 <p>The use of the different options give rise to different ordering of the symmetry operators or different origins and settings for the same space group.</p>
 <p> </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

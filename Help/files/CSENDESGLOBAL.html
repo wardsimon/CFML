@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -127,215 +127,154 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CSENDESGLOBAL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps5><span class=rvts13>CSENDES_GLOBAL</span></p>
 <p><span class=rvts10>SUBROUTINE CSENDES_GLOBAL( MODEL_FUNCT, MINI, MAXI, NPARM, NSAMPL, NSEL, NSIG, X0, NC, F0, IPR, MODE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242>
-<p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11><br></span></p>
+<td width=98><p><span class=rvts11><br></span></p>
 </td>
-<td width=104>
-<p>MODEL_FUNCT</p>
+<td width=104><p>MODEL_FUNCT</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p>Dummy name of the objective function to be optimized</p>
+<td width=410><p>Dummy name of the objective function to be optimized</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>MINI</p>
+<td width=104><p>MINI</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p>Vector of length NPARM containing the lower bounds</p>
+<td width=410><p>Vector of length NPARM containing the lower bounds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>MAXI</p>
+<td width=104><p>MAXI</p>
 </td>
-<td width=40>
-<p class=rvps3>IN:</p>
+<td width=40><p class=rvps3>IN:</p>
 <p class=rvps3>OUT:</p>
 </td>
-<td width=410>
-<p>Vector of length NPARM containing the upper bounds</p>
+<td width=410><p>Vector of length NPARM containing the upper bounds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>NPARM</p>
+<td width=104><p>NPARM</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p>Number of Parameters</p>
+<td width=410><p>Number of Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>NSAMPL</p>
+<td width=104><p>NSAMPL</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps4>Number of sample points to be drawn uniformly in one cycle. Suggested value is 100*NPARM</p>
+<td width=410><p class=rvps4>Number of sample points to be drawn uniformly in one cycle. Suggested value is 100*NPARM</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>NSEL</p>
+<td width=104><p>NSEL</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Number of best points selected from the actual sample. The suggested value is twice the expected number of local minima.</p>
+<td width=410><p class=rvps2>Number of best points selected from the actual sample. The suggested value is twice the expected number of local minima.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>NSIG</p>
+<td width=104><p>NSIG</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>The accuracy required in the parameter estimates. This convergence criterion is satisfied if on two successive iterations the parameter estimates agree, component by component, to nsig digits. The suggested value is 6.</p>
+<td width=410><p class=rvps2>The accuracy required in the parameter estimates. This convergence criterion is satisfied if on two successive iterations the parameter estimates agree, component by component, to nsig digits. The suggested value is 6.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:,:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:,:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>X0</p>
+<td width=104><p>X0</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Output matrix (NPARM x NC) containing NC local minimizers found</p>
+<td width=410><p class=rvps2>Output matrix (NPARM x NC) containing NC local minimizers found</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>NC</p>
+<td width=104><p>NC</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Number of different Local Minimizers Found</p>
+<td width=410><p class=rvps2>Number of different Local Minimizers Found</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>F0</p>
+<td width=104><p>F0</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Output vector of NC objective function values. </p>
+<td width=410><p class=rvps2>Output vector of NC objective function values. </p>
 <p class=rvps2>F0(I) Belongs to the parameters X0(1,I), X0(2,I), ..., X0(NPARM,I)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>IPR</p>
+<td width=104><p>IPR</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Printing Information</p>
+<td width=410><p class=rvps2>Printing Information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=242><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>MODE</p>
+<td width=104><p>MODE</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>If present the routine LOCAL_MIN_DFP is replaced by LOCAL_MIN_RAND</p>
+<td width=410><p class=rvps2>If present the routine LOCAL_MIN_DFP is replaced by LOCAL_MIN_RAND</p>
 </td>
 </tr>
 </table>
@@ -345,45 +284,33 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (NPARM, X, F)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>NPARM</p>
+<td width=98><p>NPARM</p>
 </td>
-<td width=369>
-<p>Number of free parameters</p>
+<td width=369><p>Number of free parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>X</p>
+<td width=98><p>X</p>
 </td>
-<td width=369>
-<p>Variables</p>
+<td width=369><p>Variables</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>F</p>
+<td width=98><p>F</p>
 </td>
-<td width=369>
-<p>Value of Model</p>
+<td width=369><p>Value of Model</p>
 </td>
 </tr>
 </table>
@@ -398,5 +325,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p class=rvps6><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

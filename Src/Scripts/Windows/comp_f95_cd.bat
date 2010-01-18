@@ -7,7 +7,7 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   f95 -c -g CFML_GlobalDeps.f90           >  out
+   f95 -c -g CFML_GlobalDeps_Windows.f90           >  out
 rem
    f95 -c -g CFML_math_gen.f90           >> out
    f95 -c -g CFML_spher_harm.f90         >> out
@@ -66,7 +66,7 @@ rem
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
-rem   
+rem
    f95 -c -g CFML_refcodes.f90           >> out
    f95 -c -g CFML_optimization_san.f90   >> out
    f95 -c -g CFML_magsymm.f90            >> out
@@ -91,4 +91,4 @@ rem
    move *.lib   ..\..\Absoft\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
 rem
-   cd ..\Scripts\Windows   
+   cd ..\Scripts\Windows

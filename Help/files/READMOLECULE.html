@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -130,37 +130,28 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?READMOLECULE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts16>READ_MOLECULE</span></p>
 <p><span class=rvts10>SUBROUTINE READ_MOLECULE (LUN, MOLECULE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=274><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=108>
-<p>LUN</p>
+<td width=108><p>LUN</p>
 </td>
-<td width=319>
-<p>Logical unit to be read</p>
+<td width=319><p>Logical unit to be read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=108>
-<p>MOLECULE</p>
+<td width=108><p>MOLECULE</p>
 </td>
-<td width=319>
-<p>Molecule Object</p>
+<td width=319><p>Molecule Object</p>
 </td>
 </tr>
 </table>
@@ -172,59 +163,43 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*),<span class=rvts11> DIMENSION</span>(:)</p>
+<td width=274><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*),<span class=rvts11> DIMENSION</span>(:)</p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=108>
-<p>FILE_DAT</p>
+<td width=108><p>FILE_DAT</p>
 </td>
-<td width=319>
-<p>Name of the File to read</p>
+<td width=319><p>Name of the File to read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=274><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=108>
-<p>N_INI</p>
+<td width=108><p>N_INI</p>
 </td>
-<td width=319>
-<p>Initial line to be read</p>
+<td width=319><p>Initial line to be read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=274><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=108>
-<p>N_END</p>
+<td width=108><p>N_END</p>
 </td>
-<td width=319>
-<p>Last line to be read</p>
+<td width=319><p>Last line to be read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=108>
-<p>MOLECULE</p>
+<td width=108><p>MOLECULE</p>
 </td>
-<td width=319>
-<p>Molecule Object</p>
+<td width=319><p>Molecule Object</p>
 </td>
 </tr>
 </table>
@@ -239,35 +214,27 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=221>
-<p><span class=rvts15>Variables</span></p>
+<td width=221><p><span class=rvts15>Variables</span></p>
 </td>
-<td width=302>
-<p><span class=rvts15>Definitions</span></p>
+<td width=302><p><span class=rvts15>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>N_ATOMS</p>
+<td width=221><p>N_ATOMS</p>
 </td>
-<td width=302>
-<p>Number of atoms in the molecule definition</p>
+<td width=302><p>Number of atoms in the molecule definition</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>MOLECULE_NAME</p>
+<td width=221><p>MOLECULE_NAME</p>
 </td>
-<td width=302>
-<p>Name for the molecule</p>
+<td width=302><p>Name for the molecule</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>COORDINATES_TYPE</p>
+<td width=221><p>COORDINATES_TYPE</p>
 </td>
-<td width=302>
-<p>Values are:</p>
+<td width=302><p>Values are:</p>
 <p>C : Cartesian coordinates</p>
 <p>F : Fractional coordinates</p>
 <p>S : Spherical coordinates</p>
@@ -284,45 +251,35 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=221>
-<p><span class=rvts15>Variables</span></p>
+<td width=221><p><span class=rvts15>Variables</span></p>
 </td>
-<td width=302>
-<p><span class=rvts15>Definitions</span></p>
+<td width=302><p><span class=rvts15>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>MOLECULE_CENTRE</p>
+<td width=221><p>MOLECULE_CENTRE</p>
 </td>
-<td width=302>
-<p>Coordinate of Center of Molecule</p>
+<td width=302><p>Coordinate of Center of Molecule</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>MOLECULE_ORIENT</p>
+<td width=221><p>MOLECULE_ORIENT</p>
 </td>
-<td width=302>
-<p>Angles orientation</p>
+<td width=302><p>Angles orientation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>ROTATIONAL_ANGLE_TYPE</p>
+<td width=221><p>ROTATIONAL_ANGLE_TYPE</p>
 </td>
-<td width=302>
-<p>Values are:</p>
+<td width=302><p>Values are:</p>
 <p>E : Conventional Euler angles (alpha, beta, gamma)</p>
 <p>P : Polar Euler angles (Phi, theta, Chi) (default)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=221>
-<p>THERMAL_FACTOR_TYPE</p>
+<td width=221><p>THERMAL_FACTOR_TYPE</p>
 </td>
-<td width=302>
-<p>Values are:</p>
+<td width=302><p>Values are:</p>
 <p>ISO : No collective motion</p>
 <p>TLS : Traslational + Librational + Correlation</p>
 <p>TL&nbsp;&nbsp; : Traslational + Librational</p>
@@ -336,38 +293,30 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=76>
-<p><span class=rvts15>Thermal Factors</span></p>
+<td width=76><p><span class=rvts15>Thermal Factors</span></p>
 </td>
-<td width=447>
-<p><span class=rvts15>Definitions</span></p>
+<td width=447><p><span class=rvts15>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=76>
-<p>T</p>
+<td width=76><p>T</p>
 </td>
-<td width=447>
-<p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
 <p><br></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=76>
-<p>TL</p>
+<td width=76><p>TL</p>
 </td>
-<td width=447>
-<p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
 <p>6 Thermal Factors (Line3) + 6 Codes Thermal Factors (Line4)</p>
 <p><br></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=76>
-<p>TLS</p>
+<td width=76><p>TLS</p>
 </td>
-<td width=447>
-<p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
 <p>6 Thermal Factors (Line3) + 6 Codes Thermal Factors (Line4)</p>
 <p>9 Thermal Factors (Line5) + 9 Codes Thermal Factors (Line6)</p>
 </td>
@@ -383,5 +332,4 @@ p,ul,ol /* Paragraph Style */
 <p>&nbsp;&nbsp;&nbsp;&nbsp; <span class=rvts14>CODES_COORDINATES(3)&nbsp;&nbsp; CODE_BISO(1)&nbsp; CODE_OCC(1)</span></p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

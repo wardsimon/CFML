@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -136,24 +136,19 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?ATOMSCELLTYPE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts17>ATOMS_CELL_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=341>
-<p><span class=rvts10><br></span></p>
+<td width=341><p><span class=rvts10><br></span></p>
 </td>
-<td width=188>
-<p><span class=rvts11>Variable</span></p>
+<td width=188><p><span class=rvts11>Variable</span></p>
 </td>
-<td width=367>
-<p><span class=rvts11>Definition</span></p>
+<td width=367><p><span class=rvts11>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOMS_CELL_TYPE</span></p>
+<td width=341><p><span class=rvts12>TYPE</span><span class=rvts10> :: ATOMS_CELL_TYPE</span></p>
 </td>
 <td width=188><br>
 </td>
@@ -161,151 +156,111 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=188>
-<p>NAT</p>
+<td width=188><p>NAT</p>
 </td>
-<td width=367>
-<p>Number of Atoms</p>
+<td width=367><p>Number of Atoms</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>10</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>10</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>NOMS</p>
+<td width=188><p>NOMS</p>
 </td>
-<td width=367>
-<p>Name of Atoms</p>
+<td width=367><p>Name of Atoms</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>XYZ</p>
+<td width=188><p>XYZ</p>
 </td>
-<td width=367>
-<p>Fractional coordinates (3, NAT)</p>
+<td width=367><p>Fractional coordinates (3, NAT)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>CHARGE</p>
+<td width=188><p>CHARGE</p>
 </td>
-<td width=367>
-<p>&nbsp;&nbsp;&nbsp; </p>
+<td width=367><p>&nbsp;&nbsp;&nbsp; </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>MOMENT</p>
+<td width=188><p>MOMENT</p>
 </td>
-<td width=367>
-<p>&nbsp;&nbsp;&nbsp; </p>
+<td width=367><p>&nbsp;&nbsp;&nbsp; </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341 height=14>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341 height=14><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188 height=14>
-<p>VARF</p>
+<td width=188 height=14><p>VARF</p>
 </td>
-<td width=367 height=14>
-<p>Free Parameters (10, NAT)</p>
+<td width=367 height=14><p>Free Parameters (10, NAT)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>NEIGHB</p>
+<td width=188><p>NEIGHB</p>
 </td>
-<td width=367>
-<p>Number of neighbours (NAT)</p>
+<td width=367><p>Number of neighbours (NAT)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>NEIGHB_ATM</p>
+<td width=188><p>NEIGHB_ATM</p>
 </td>
-<td width=367>
-<p>Ptr.-&gt;neighbour (# in list)(NAT,IDP)</p>
+<td width=367><p>Ptr.-&gt;neighbour (# in list)(NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>DISTANCE</p>
+<td width=188><p>DISTANCE</p>
 </td>
-<td width=367>
-<p>Distances (NAT,IDP)</p>
+<td width=367><p>Distances (NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>TRANS</p>
+<td width=188><p>TRANS</p>
 </td>
-<td width=367>
-<p>Lattice translations&nbsp;&nbsp; (3,NAT,IDP)</p>
+<td width=367><p>Lattice translations&nbsp;&nbsp; (3,NAT,IDP)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=188>
-<p>NDIST</p>
+<td width=188><p>NDIST</p>
 </td>
-<td width=367>
-<p>Number of distinct distances</p>
+<td width=367><p>Number of distinct distances</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>DDIST</p>
+<td width=188><p>DDIST</p>
 </td>
-<td width=367>
-<p>List of distinct distances(NAT*IDP)</p>
+<td width=367><p>List of distinct distances(NAT*IDP)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>8</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>8</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=188>
-<p>DDLAB</p>
+<td width=188><p>DDLAB</p>
 </td>
-<td width=367>
-<p>Labels of atoms at ddist (NAT*IDP)</p>
+<td width=367><p>Labels of atoms at ddist (NAT*IDP)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=341>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> ATOMS_CELL_TYPE</span></p>
+<td width=341><p><span class=rvts12>END TYPE</span><span class=rvts10> ATOMS_CELL_TYPE</span></p>
 </td>
 <td width=188><br>
 </td>
@@ -320,5 +275,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>nint( 0.74048*(DMAX/1.1)<span class=rvts16>3 </span>) where DMAX is the maximum distance used to calculate</p>
 <p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

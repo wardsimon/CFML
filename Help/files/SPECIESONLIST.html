@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -111,47 +111,36 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SPECIESONLIST.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts12>SPECIES_ON_LIST</span></p>
 <p><span class=rvts10>SUBROUTINE SPECIES_ON_LIST (A, MULG, TOL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>TYPE</span>(ATOMS_CONF_LIST_TYPE)</p>
+<td width=330><p><span class=rvts11>TYPE</span>(ATOMS_CONF_LIST_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>A</p>
+<td width=98><p>A</p>
 </td>
-<td width=369>
-<p>Atoms information</p>
+<td width=369><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>MULG</p>
+<td width=98><p>MULG</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>TOL</p>
+<td width=98><p>TOL</p>
 </td>
 <td width=369><br>
 </td>
@@ -162,5 +151,4 @@ p,ul,ol /* Paragraph Style */
 <p>Determines the different species in the List and, optionally, sets the tolerance factor for ionic radii conditions and provides "corrected" occupation factors (mult/MulG) when the user is using a multiplier. The general multiplicity of the space group MulG must be provided in such a case. This first free variable of the&nbsp; Atom-type A%ATOMVFREE(1) is set to the corrected occupation. The first atom in the list must completely occupy its site.</p>
 <p>&nbsp; </p>
 <p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

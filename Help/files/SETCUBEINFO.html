@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -118,7 +118,6 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SETCUBEINFO.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts13>SET_CUBE_INFO</span></p>
 <p><span class=rvts10>SUBROUTINE SET_CUBE_INFO ()</span></p>
 <p><br></p>
@@ -130,90 +129,69 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=49>
-<p class=rvps1><span class=rvts12>Code </span></p>
+<td width=49><p class=rvps1><span class=rvts12>Code </span></p>
 </td>
-<td width=116>
-<p class=rvps1><span class=rvts12>Figure</span></p>
+<td width=116><p class=rvps1><span class=rvts12>Figure</span></p>
 </td>
-<td width=319>
-<p class=rvps1><span class=rvts12>Process</span></p>
+<td width=319><p class=rvps1><span class=rvts12>Process</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=49>
-<p class=rvps1>1</p>
+<td width=49><p class=rvps1>1</p>
 </td>
-<td width=116>
-<p>Triangle</p>
+<td width=116><p>Triangle</p>
 </td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=49>
-<p class=rvps1>2</p>
+<td width=49><p class=rvps1>2</p>
 </td>
-<td width=116>
+<td width=116><p>Trapezoide</p>
+</td>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto4 -&gt; Pto1</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=49><p class=rvps1>3</p>
+</td>
+<td width=116><p>Triangle +</p>
 <p>Trapezoide</p>
 </td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto4 -&gt; Pto1</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=49>
-<p class=rvps1>3</p>
-</td>
-<td width=116>
-<p>Triangle +</p>
-<p>Trapezoide</p>
-</td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
 <p>Pto4 -&gt; Pto5 -&gt; Pto6 -&gt; Pto7 -&gt; Pto4</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=49>
-<p class=rvps1>4</p>
+<td width=49><p class=rvps1>4</p>
 </td>
-<td width=116>
-<p>Triangle +</p>
+<td width=116><p>Triangle +</p>
 <p>Triangle +</p>
 <p>Trapezoide</p>
 </td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
 <p>Pto4 -&gt; Pto5 -&gt; Pto6 -&gt; Pto4</p>
 <p>Pto7 -&gt; Pto8 -&gt; Pto9 -&gt; Pto10 -&gt; Pto7</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=49>
-<p class=rvps1>5</p>
+<td width=49><p class=rvps1>5</p>
 </td>
-<td width=116>
-<p>Triangle + </p>
+<td width=116><p>Triangle + </p>
 <p>Line</p>
 </td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
 <p>Pto1 -&gt; Pto4</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=49>
-<p class=rvps1>6</p>
+<td width=49><p class=rvps1>6</p>
 </td>
-<td width=116>
-<p>Triangle + </p>
+<td width=116><p>Triangle + </p>
 <p>Triangle + </p>
 <p>Line</p>
 </td>
-<td width=319>
-<p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
+<td width=319><p>Pto1 -&gt; Pto2 -&gt; Pto3 -&gt; Pto1</p>
 <p>Pto4 -&gt; Pto5 -&gt; Pto6 -&gt; Pto4</p>
 <p>Pto4 -&gt; Pto7</p>
 </td>
@@ -226,5 +204,4 @@ p,ul,ol /* Paragraph Style */
 </ul>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

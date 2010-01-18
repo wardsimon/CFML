@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -136,24 +136,19 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?DIFFRACTOMETERTYPE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts17>DIFFRACTOMETER_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=336>
-<p><span class=rvts10><br></span></p>
+<td width=336><p><span class=rvts10><br></span></p>
 </td>
-<td width=150>
-<p><span class=rvts11>Variable</span></p>
+<td width=150><p><span class=rvts11>Variable</span></p>
 </td>
-<td width=369>
-<p><span class=rvts11>Definition</span></p>
+<td width=369><p><span class=rvts11>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: DIFFRACTOMETER_TYPE</span></p>
+<td width=336><p><span class=rvts12>TYPE</span><span class=rvts10> :: DIFFRACTOMETER_TYPE</span></p>
 </td>
 <td width=150><br>
 </td>
@@ -161,332 +156,244 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
 </td>
-<td width=150>
-<p>INFO</p>
+<td width=150><p>INFO</p>
 </td>
-<td width=369>
-<p>Information about the instrument</p>
+<td width=369><p>Information about the instrument</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>10</span>)</p>
 </td>
-<td width=150>
-<p>NAME_INST</p>
+<td width=150><p>NAME_INST</p>
 </td>
-<td width=369>
-<p>Short name of the instrument</p>
+<td width=369><p>Short name of the instrument</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>15</span>)</p>
 </td>
-<td width=150>
-<p>GEOM</p>
+<td width=150><p>GEOM</p>
 </td>
-<td width=369>
-<p>Eulerian_4C, Kappa_4C, Lifting_arm, Powder, Laue,...</p>
+<td width=369><p>Eulerian_4C, Kappa_4C, Lifting_arm, Powder, Laue,...</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>)</p>
 </td>
-<td width=150>
-<p>BL_FRAME</p>
+<td width=150><p>BL_FRAME</p>
 </td>
-<td width=369>
-<p>Kind of BL-frame: <span class=rvts16>z-up</span> or <span class=rvts16>z-down</span></p>
+<td width=369><p>Kind of BL-frame: <span class=rvts16>z-up</span> or <span class=rvts16>z-down</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
 </td>
-<td width=150>
-<p>DIST_UNITS</p>
+<td width=150><p>DIST_UNITS</p>
 </td>
-<td width=369>
-<p>distance units: mm, cm, inch</p>
+<td width=369><p>distance units: mm, cm, inch</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
 </td>
-<td width=150>
-<p>ANGL_UNITS</p>
+<td width=150><p>ANGL_UNITS</p>
 </td>
-<td width=369>
-<p>angle units: rad, deg</p>
+<td width=369><p>angle units: rad, deg</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>30</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>30</span>)</p>
 </td>
-<td width=150>
-<p>DETECTOR_TYPE</p>
+<td width=150><p>DETECTOR_TYPE</p>
 </td>
-<td width=369>
-<p>Point, Flat_rect, Cylin_ImPlate, Tube_PSD, ...</p>
+<td width=369><p>Point, Flat_rect, Cylin_ImPlate, Tube_PSD, ...</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=150>
-<p>DIST_SAMP_DETECTOR</p>
+<td width=150><p>DIST_SAMP_DETECTOR</p>
 </td>
-<td width=369>
-<p>Dist. to centre for: Point, Flat_rect, Tube_PSD</p>
+<td width=369><p>Dist. to centre for: Point, Flat_rect, Tube_PSD</p>
 <p>Radius for: Cylin_ImPlate</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=150>
-<p>VERT</p>
+<td width=150><p>VERT</p>
 </td>
-<td width=369>
-<p>Vertical dimension</p>
+<td width=369><p>Vertical dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=150>
-<p>HORIZ</p>
+<td width=150><p>HORIZ</p>
 </td>
-<td width=369>
-<p>Horizontal dimension</p>
+<td width=369><p>Horizontal dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=150>
-<p>AGAP</p>
+<td width=150><p>AGAP</p>
 </td>
-<td width=369>
-<p>Gap between anodes</p>
+<td width=369><p>Gap between anodes</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=150>
-<p>CGAP</p>
+<td width=150><p>CGAP</p>
 </td>
-<td width=369>
-<p>Gap between cathodes</p>
+<td width=369><p>Gap between cathodes</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>NP_VERT</p>
+<td width=150><p>NP_VERT</p>
 </td>
-<td width=369>
-<p>Number of pixels in vertical direction</p>
+<td width=369><p>Number of pixels in vertical direction</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>NP_HORIZ</p>
+<td width=150><p>NP_HORIZ</p>
 </td>
-<td width=369>
-<p>Number of pixels in horizontal direction</p>
+<td width=369><p>Number of pixels in horizontal direction</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>IGEOM</p>
+<td width=150><p>IGEOM</p>
 </td>
-<td width=369>
-<p>1: Bissectrice (PSI=0)&nbsp;&nbsp; </p>
+<td width=369><p>1: Bissectrice (PSI=0)&nbsp;&nbsp; </p>
 <p>2: Bissecting - HiCHI</p>
 <p>3: Normal beam</p>
 <p>4: Parallel (PSI=90)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>IPSD</p>
+<td width=150><p>IPSD</p>
 </td>
-<td width=369>
-<p>1: Flat</p>
+<td width=369><p>1: Flat</p>
 <p>2: Vertically Curved detector (used in D19amd)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=150>
-<p>E1</p>
+<td width=150><p>E1</p>
 </td>
-<td width=369>
-<p>Components of e1 in {i,j,k}</p>
+<td width=369><p>Components of e1 in {i,j,k}</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=150>
-<p>E2</p>
+<td width=150><p>E2</p>
 </td>
-<td width=369>
-<p>Components of e2 in {i,j,k}</p>
+<td width=369><p>Components of e2 in {i,j,k}</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=150>
-<p>E3</p>
+<td width=150><p>E3</p>
 </td>
-<td width=369>
-<p>Components of e3 in {i,j,k}</p>
+<td width=369><p>Components of e3 in {i,j,k}</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>NUM_ANG</p>
+<td width=150><p>NUM_ANG</p>
 </td>
-<td width=369>
-<p>Number of angular motors</p>
+<td width=369><p>Number of angular motors</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
 </td>
-<td width=150>
-<p>ANG_NAMES</p>
+<td width=150><p>ANG_NAMES</p>
 </td>
-<td width=369>
-<p>Name of angular motors</p>
+<td width=369><p>Name of angular motors</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15,2</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15,2</span>)</p>
 </td>
-<td width=150>
-<p>ANG_LIMITS</p>
+<td width=150><p>ANG_LIMITS</p>
 </td>
-<td width=369>
-<p>Angular limits (up to 15 angular motors)</p>
+<td width=369><p>Angular limits (up to 15 angular motors)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
 </td>
-<td width=150>
-<p>ANG_OFFSETS</p>
+<td width=150><p>ANG_OFFSETS</p>
 </td>
-<td width=369>
-<p>Angular offsets</p>
+<td width=369><p>Angular offsets</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=150>
-<p>NUM_DISP</p>
+<td width=150><p>NUM_DISP</p>
 </td>
-<td width=369>
-<p>Number of displacement motors</p>
+<td width=369><p>Number of displacement motors</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
 </td>
-<td width=150>
-<p>DISP_NAMES</p>
+<td width=150><p>DISP_NAMES</p>
 </td>
-<td width=369>
-<p>Name of displacement motors</p>
+<td width=369><p>Name of displacement motors</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10,2</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10,2</span>)</p>
 </td>
-<td width=150>
-<p>DISP_LIMITS</p>
+<td width=150><p>DISP_LIMITS</p>
 </td>
-<td width=369>
-<p>Displacement limits (up to 15 displacement motors)</p>
+<td width=369><p>Displacement limits (up to 15 displacement motors)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
 </td>
-<td width=150>
-<p>DISP_OFFSETS</p>
+<td width=150><p>DISP_OFFSETS</p>
 </td>
-<td width=369>
-<p>Displacement offsets</p>
+<td width=369><p>Displacement offsets</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=150>
-<p>DET_OFFSETS</p>
+<td width=150><p>DET_OFFSETS</p>
 </td>
-<td width=369>
-<p>Offsets X,Y,Z of the detector centre</p>
+<td width=369><p>Offsets X,Y,Z of the detector centre</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>ALLOCATABLE</span>, <span class=rvts13>DIMENSION</span>(:,:)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>ALLOCATABLE</span>, <span class=rvts13>DIMENSION</span>(:,:)</p>
 </td>
-<td width=150>
-<p>ALPHAS</p>
+<td width=150><p>ALPHAS</p>
 </td>
-<td width=369>
-<p>Efficiency corrections for each pixel</p>
+<td width=369><p>Efficiency corrections for each pixel</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> DIFFRACTOMETER_TYPE</span></p>
+<td width=336><p><span class=rvts12>END TYPE</span><span class=rvts10> DIFFRACTOMETER_TYPE</span></p>
 </td>
 <td width=150><br>
 </td>
@@ -498,5 +405,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Definition for Diffractometer type</p>
 <p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

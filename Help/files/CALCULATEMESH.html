@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -119,137 +119,100 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CALCULATEMESH.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts14>CALCULATE_MESH</span></p>
 <p><span class=rvts10>SUBROUTINE CALCULATE_MESH (RHO, NGRID, NLEVEL, LEVELS, MC_METHOD, NPOINTS, XYZ, LIMITS, STEP)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:,:)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:,:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>RHO</p>
+<td width=98><p>RHO</p>
 </td>
-<td width=369>
-<p>Array</p>
+<td width=369><p>Array</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER, DIMENSION</span>(<span class=rvts12>3</span>)</p>
+<td width=330><p><span class=rvts11>INTEGER, DIMENSION</span>(<span class=rvts12>3</span>)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>NGRID</p>
+<td width=98><p>NGRID</p>
 </td>
-<td width=369>
-<p>Grid dimensions od RHO</p>
+<td width=369><p>Grid dimensions od RHO</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>NLEVEL</p>
+<td width=98><p>NLEVEL</p>
 </td>
-<td width=369>
-<p>Number of levels</p>
+<td width=369><p>Number of levels</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(NLEVEL)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(NLEVEL)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>LEVELS</p>
+<td width=98><p>LEVELS</p>
 </td>
-<td width=369>
-<p>Levels values</p>
+<td width=369><p>Levels values</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
+<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>MC_METHOD</p>
+<td width=98><p>MC_METHOD</p>
 </td>
-<td width=369>
-<p>Values:</p>
+<td width=369><p>Values:</p>
 <p>TR : Mesh using Triangles</p>
 <p>Other : Rectangle and triangles</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(NLEVEL)</p>
+<td width=330><p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(NLEVEL)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>NPOINTS</p>
+<td width=98><p>NPOINTS</p>
 </td>
-<td width=369>
-<p>Number of points</p>
+<td width=369><p>Number of points</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>XYZ</p>
+<td width=98><p>XYZ</p>
 </td>
-<td width=369>
-<p>Points</p>
+<td width=369><p>Points</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(<span class=rvts12>2</span>,<span class=rvts12>3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(<span class=rvts12>2</span>,<span class=rvts12>3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>LIMITS</p>
+<td width=98><p>LIMITS</p>
 </td>
-<td width=369>
-<p>Limits</p>
+<td width=369><p>Limits</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(<span class=rvts12>3</span>), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(<span class=rvts12>3</span>), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>STEP</p>
+<td width=98><p>STEP</p>
 </td>
-<td width=369>
-<p>Step to do calculations</p>
+<td width=369><p>Step to do calculations</p>
 </td>
 </tr>
 </table>
@@ -258,5 +221,4 @@ p,ul,ol /* Paragraph Style */
 <p>Calculate the 3D Contour</p>
 <p>&nbsp; </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

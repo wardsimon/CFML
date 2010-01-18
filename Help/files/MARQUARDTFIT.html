@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -137,163 +137,118 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?MARQUARDTFIT.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps5><span class=rvts15>MARQUARDT_FIT</span></p>
 <p><span class=rvts10>SUBROUTINE MARQUARDT_FIT(MODEL_FUNCT, X, Y, W, YC, NOBS, C, VS, IPR, CHI2, SCROLL_LINES )</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242>
-<p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11><br></span></p>
+<td width=98><p><span class=rvts11><br></span></p>
 </td>
-<td width=104>
-<p>MODEL_FUNCT</p>
+<td width=104><p>MODEL_FUNCT</p>
 </td>
-<td width=410>
-<p>Name of the subroutine calculating YC(i) for point X(i)</p>
+<td width=410><p>Name of the subroutine calculating YC(i) for point X(i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>X</p>
+<td width=104><p>X</p>
 </td>
-<td width=410>
-<p>Vector of x-values</p>
+<td width=410><p>Vector of x-values</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>Y</p>
+<td width=104><p>Y</p>
 </td>
-<td width=410>
-<p>Vector of observed y-values</p>
+<td width=410><p>Vector of observed y-values</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>W</p>
+<td width=104><p>W</p>
 </td>
-<td width=410>
-<p>Vector of weights-values (1/variance)</p>
+<td width=410><p>Vector of weights-values (1/variance)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>YC</p>
+<td width=104><p>YC</p>
 </td>
-<td width=410>
-<p class=rvps3>Vector of calculated y-values</p>
+<td width=410><p class=rvps3>Vector of calculated y-values</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>NOBS</p>
+<td width=104><p>NOBS</p>
 </td>
-<td width=410>
-<p class=rvps2>Number of effective components of X, Y, W, YC</p>
+<td width=410><p class=rvps2>Number of effective components of X, Y, W, YC</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>C</p>
+<td width=104><p>C</p>
 </td>
-<td width=410>
-<p class=rvps2>Conditions for the algorithm</p>
+<td width=410><p class=rvps2>Conditions for the algorithm</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>VS</p>
+<td width=104><p>VS</p>
 </td>
-<td width=410>
-<p class=rvps2>State vector for the model calculation</p>
+<td width=410><p class=rvps2>State vector for the model calculation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>IPR</p>
+<td width=104><p>IPR</p>
 </td>
-<td width=410>
-<p class=rvps2>Logical unit for writing</p>
+<td width=410><p class=rvps2>Logical unit for writing</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>CHI2</p>
+<td width=104><p>CHI2</p>
 </td>
-<td width=410>
-<p class=rvps2>Reduced Chi-2</p>
+<td width=410><p class=rvps2>Reduced Chi-2</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)<span class=rvts11>, DIMENSION</span>(:)<span class=rvts11>, OPTIONAL</span></p>
+<td width=242><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)<span class=rvts11>, DIMENSION</span>(:)<span class=rvts11>, OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>SCROLL_LINES</p>
+<td width=104><p>SCROLL_LINES</p>
 </td>
-<td width=410>
-<p class=rvps2>If present, part of the output is stored in this text for treatment in the calling program</p>
+<td width=410><p class=rvps2>If present, part of the output is stored in this text for treatment in the calling program</p>
 </td>
 </tr>
 </table>
@@ -303,73 +258,53 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (IV, XV, YCALC, AA, DER)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>IV</p>
+<td width=98><p>IV</p>
 </td>
-<td width=369>
-<p>Number of the component "i"</p>
+<td width=369><p>Number of the component "i"</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>XV</p>
+<td width=98><p>XV</p>
 </td>
-<td width=369>
-<p>Value of X(i)</p>
+<td width=369><p>Value of X(i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>YCALC</p>
+<td width=98><p>YCALC</p>
 </td>
-<td width=369>
-<p>Value of yc at point x(i)</p>
+<td width=369><p>Value of yc at point x(i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>AA</p>
+<td width=98><p>AA</p>
 </td>
-<td width=369>
-<p>Vector of parameters</p>
+<td width=369><p>Vector of parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>DER</p>
+<td width=98><p>DER</p>
 </td>
-<td width=369>
-<p>Derivatives of the function w.r.t. free parameters</p>
+<td width=369><p>Derivatives of the function w.r.t. free parameters</p>
 </td>
 </tr>
 </table>
@@ -386,43 +321,33 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=114>
-<p class=rvps1><span class=rvts14>Parameter</span></p>
+<td width=114><p class=rvps1><span class=rvts14>Parameter</span></p>
 </td>
-<td width=551>
-<p class=rvps1><span class=rvts14>Description</span></p>
+<td width=551><p class=rvps1><span class=rvts14>Description</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>C%ICYC</p>
+<td width=114><p>C%ICYC</p>
 </td>
-<td width=551>
-<p class=rvps4>Number of cycles</p>
+<td width=551><p class=rvps4>Number of cycles</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>C%IW</p>
+<td width=114><p>C%IW</p>
 </td>
-<td width=551>
-<p class=rvps4>type of weighting scheme</p>
+<td width=551><p class=rvps4>type of weighting scheme</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>C%CONSTR</p>
+<td width=114><p>C%CONSTR</p>
 </td>
-<td width=551>
-<p class=rvps4>constraint conditions</p>
+<td width=551><p class=rvps4>constraint conditions</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>C%PERCENT</p>
+<td width=114><p>C%PERCENT</p>
 </td>
-<td width=551>
-<p class=rvps4>constraint conditions</p>
+<td width=551><p class=rvps4>constraint conditions</p>
 </td>
 </tr>
 </table>
@@ -431,35 +356,27 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=114>
-<p class=rvps1><span class=rvts14>Parameter</span></p>
+<td width=114><p class=rvps1><span class=rvts14>Parameter</span></p>
 </td>
-<td width=551>
-<p class=rvps1><span class=rvts14>Description</span></p>
+<td width=551><p class=rvps1><span class=rvts14>Description</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>VS%NP</p>
+<td width=114><p>VS%NP</p>
 </td>
-<td width=551>
-<p class=rvps4>number of model parameters</p>
+<td width=551><p class=rvps4>number of model parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>VS%NAMPAR</p>
+<td width=114><p>VS%NAMPAR</p>
 </td>
-<td width=551>
-<p class=rvps4>name for all possible parameters of the model </p>
+<td width=551><p class=rvps4>name for all possible parameters of the model </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114>
-<p>VS%PV</p>
+<td width=114><p>VS%PV</p>
 </td>
-<td width=551>
-<p class=rvps4>A set of flags values to refine or fix the parameters</p>
+<td width=551><p class=rvps4>A set of flags values to refine or fix the parameters</p>
 </td>
 </tr>
 </table>
@@ -469,5 +386,4 @@ p,ul,ol /* Paragraph Style */
 <p>The values of all possible refinable parameters are stored in the array VS%PV. The derivatives must be calculated within MODEL_FUNCTN, by using the array VS%DER. The actual refined parameters AA are selected from the larger VS%PV array by the integer array of flags: VS%CODE. A value VS%CODE(j)=1 means that the j-th parameter is to be varied. A value VS%CODE(k)=0 means that the k-th parameter is kept fixed through the refinement cycles.</p>
 <p><br></p>
 <p class=rvps6><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

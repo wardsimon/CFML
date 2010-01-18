@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -133,107 +133,78 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SETPOLARINFO.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps4><span class=rvts15>SET_POLAR_INFO</span></p>
 <p><span class=rvts10>SUBROUTINE SET_POLAR_INFO (CELL, H, SPV, PIN, NSF, MIV, POLARI)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>CELL</p>
+<td width=104><p>CELL</p>
 </td>
-<td width=410>
-<p>Cell Parametrs</p>
+<td width=410><p>Cell Parametrs</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>H</p>
+<td width=104><p>H</p>
 </td>
-<td width=410>
-<p>Scattering vector in hkl</p>
+<td width=410><p>Scattering vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>SPV</p>
+<td width=104><p>SPV</p>
 </td>
-<td width=410>
-<p>Second Scattering plane vector in hkl</p>
+<td width=410><p>Second Scattering plane vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>PIN</p>
+<td width=104><p>PIN</p>
 </td>
-<td width=410>
-<p>Magnitude of initial polarisation</p>
+<td width=410><p>Magnitude of initial polarisation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>COMPLEX</span></p>
+<td width=242><p><span class=rvts11>COMPLEX</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>NSF</p>
+<td width=104><p>NSF</p>
 </td>
-<td width=410>
-<p class=rvps3>Nuclear Scattering Factor</p>
+<td width=410><p class=rvps3>Nuclear Scattering Factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>COMPLEX, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>COMPLEX, DIMENSION </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>MIV</p>
+<td width=104><p>MIV</p>
 </td>
-<td width=410>
-<p class=rvps2>Magnetic interaction vector</p>
+<td width=410><p class=rvps2>Magnetic interaction vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>TYPE</span>(POLAR_INFO_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(POLAR_INFO_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>POLARI</p>
+<td width=104><p>POLARI</p>
 </td>
-<td width=410>
-<p class=rvps2>All information about polarisation in one point hkl</p>
+<td width=410><p class=rvps2>All information about polarisation in one point hkl</p>
 </td>
 </tr>
 </table>
@@ -242,5 +213,4 @@ p,ul,ol /* Paragraph Style */
 <p>Initializes the variable <span class=rvts12>POLARI</span> using the type <a class=rvts14 href="POLARINFOTYPE.html">POLAR_INFO_TYPE</a></p>
 <p><br></p>
 <p class=rvps5><span class=rvts16>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -131,24 +131,19 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?MOLECULETYPE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts16>MOLECULE_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts10><br></span></p>
+<td width=330><p><span class=rvts10><br></span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>Variable</span></p>
+<td width=98><p><span class=rvts11>Variable</span></p>
 </td>
-<td width=369>
-<p><span class=rvts11>Definition</span></p>
+<td width=369><p><span class=rvts11>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: MOLECULE_TYPE</span></p>
+<td width=330><p><span class=rvts12>TYPE</span><span class=rvts10> :: MOLECULE_TYPE</span></p>
 </td>
 <td width=98><br>
 </td>
@@ -156,82 +151,61 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
 </td>
-<td width=98>
-<p>NAME_MOL</p>
+<td width=98><p>NAME_MOL</p>
 </td>
-<td width=369>
-<p>Global name for the molecule</p>
+<td width=369><p>Global name for the molecule</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>NATOMS</p>
+<td width=98><p>NATOMS</p>
 </td>
-<td width=369>
-<p>Number of atoms</p>
+<td width=369><p>Number of atoms</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
-<td width=98>
-<p>IN_XTAL</p>
+<td width=98><p>IN_XTAL</p>
 </td>
-<td width=369>
-<p>TRUE if global coordinates xcentre, orient are defined</p>
+<td width=369><p>TRUE if global coordinates xcentre, orient are defined</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
-<td width=98>
-<p>IS_EULERMAT</p>
+<td width=98><p>IS_EULERMAT</p>
 </td>
-<td width=369>
-<p>TRUE if the Euler Matrix has been set</p>
+<td width=369><p>TRUE if the Euler Matrix has been set</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
-<td width=98>
-<p>IS_CONNECT</p>
+<td width=98><p>IS_CONNECT</p>
 </td>
-<td width=369>
-<p>TRUE if the connectivity is correct</p>
+<td width=369><p>TRUE if the connectivity is correct</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
 </td>
-<td width=98>
-<p>ROT_TYPE</p>
+<td width=98><p>ROT_TYPE</p>
 </td>
-<td width=369>
-<p>Type of rotational angles</p>
+<td width=369><p>Type of rotational angles</p>
 <p>E : Conventional Euler angles (alpha,beta,gamma)</p>
 <p>P : Second variant of Euler angles (default) Polar:(theta,phi,chi)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
 </td>
-<td width=98>
-<p>COOR_TYPE</p>
+<td width=98><p>COOR_TYPE</p>
 </td>
-<td width=369>
-<p>Type of internal coordinates</p>
+<td width=369><p>Type of internal coordinates</p>
 <p>C : Cartesian</p>
 <p>F : Fractional (only if IN_XTAL=.TRUE.)</p>
 <p>S : Spherical</p>
@@ -239,14 +213,11 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>3</span>)</p>
 </td>
-<td width=98>
-<p>THERM_TYPE</p>
+<td width=98><p>THERM_TYPE</p>
 </td>
-<td width=369>
-<p>Type of thermal factor</p>
+<td width=369><p>Type of thermal factor</p>
 <p>ISO : No collective motion</p>
 <p>T&nbsp;&nbsp;&nbsp;&nbsp; : Translational</p>
 <p>TL&nbsp;&nbsp; : Translational + Librational</p>
@@ -255,371 +226,271 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=98>
-<p>XCENTRE</p>
+<td width=98><p>XCENTRE</p>
 </td>
-<td width=369>
-<p>Fractional coordinates of the centre</p>
+<td width=369><p>Fractional coordinates of the centre</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
 </td>
-<td width=98>
-<p>MXCENTRE</p>
+<td width=98><p>MXCENTRE</p>
 </td>
-<td width=369>
-<p>Refinement codes of Fractional coordinates of the centre</p>
+<td width=369><p>Refinement codes of Fractional coordinates of the centre</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>LXCENTRE</p>
+<td width=98><p>LXCENTRE</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Fractional coordinates of the centre</p>
+<td width=369><p>Numbers of LSQ parameters for Fractional coordinates of the centre</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>ORIENT</p>
+<td width=98><p>ORIENT</p>
 </td>
-<td width=369>
-<p>Orientation angles (Euler angles or variant ...)</p>
+<td width=369><p>Orientation angles (Euler angles or variant ...)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>MORIENT</p>
+<td width=98><p>MORIENT</p>
 </td>
-<td width=369>
-<p>Refinement codes of Orientation angles (Euler angles or variant ...)</p>
+<td width=369><p>Refinement codes of Orientation angles (Euler angles or variant ...)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>LORIENT</p>
+<td width=98><p>LORIENT</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)</p>
+<td width=369><p>Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>T_TLS</p>
+<td width=98><p>T_TLS</p>
 </td>
-<td width=369>
-<p>Translational Thermal factor tensor</p>
+<td width=369><p>Translational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>MT_TLS</p>
+<td width=98><p>MT_TLS</p>
 </td>
-<td width=369>
-<p>Refinement codes of Translational Thermal factor tensor</p>
+<td width=369><p>Refinement codes of Translational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>) </p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>) </p>
 </td>
-<td width=98>
-<p>IT_TLS</p>
+<td width=98><p>IT_TLS</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Translational Thermal factor tensor</p>
+<td width=369><p>Numbers of LSQ parameters for Translational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>L_TLS</p>
+<td width=98><p>L_TLS</p>
 </td>
-<td width=369>
-<p>Librational Thermal factor tensor</p>
+<td width=369><p>Librational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>ML_TLS</p>
+<td width=98><p>ML_TLS</p>
 </td>
-<td width=369>
-<p>Refinement codes of Librational Thermal factor tensor</p>
+<td width=369><p>Refinement codes of Librational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>IL_TLS</p>
+<td width=98><p>IL_TLS</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Librational Thermal factor tensor</p>
+<td width=369><p>Numbers of LSQ parameters for Librational Thermal factor tensor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>S_TLS</p>
+<td width=98><p>S_TLS</p>
 </td>
-<td width=369>
-<p>TL-correlation Thermal factor</p>
+<td width=369><p>TL-correlation Thermal factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp;&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp;&nbsp;&nbsp; </span></p>
 </td>
-<td width=98>
-<p>MS_TLS</p>
+<td width=98><p>MS_TLS</p>
 </td>
-<td width=369>
-<p>Refinement codes of TL-correlation Thermal factor</p>
+<td width=369><p>Refinement codes of TL-correlation Thermal factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>IS_TLS</p>
+<td width=98><p>IS_TLS</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for TL-correlation Thermal factor</p>
+<td width=369><p>Numbers of LSQ parameters for TL-correlation Thermal factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp;&nbsp; </span></p>
 </td>
-<td width=98>
-<p>EULER</p>
+<td width=98><p>EULER</p>
 </td>
-<td width=369>
-<p>Euler matrix</p>
+<td width=369><p>Euler matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span><span class=rvts13>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span><span class=rvts13>&nbsp;&nbsp; </span></p>
 </td>
-<td width=98>
-<p>ATNAME</p>
+<td width=98><p>ATNAME</p>
 </td>
-<td width=369>
-<p>Atom Name</p>
+<td width=369><p>Atom Name</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
 </td>
-<td width=98>
-<p>ATSYMB</p>
+<td width=98><p>ATSYMB</p>
 </td>
-<td width=369>
-<p>Atom species</p>
+<td width=369><p>Atom species</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp; </span></p>
 </td>
-<td width=98>
-<p>ATZ</p>
+<td width=98><p>ATZ</p>
 </td>
-<td width=369>
-<p>Atomic Number</p>
+<td width=369><p>Atomic Number</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
 </td>
-<td width=98>
-<p>PTR</p>
+<td width=98><p>PTR</p>
 </td>
-<td width=369>
-<p>Pointer to scat.factors (first index -&gt; pattern)</p>
+<td width=369><p>Pointer to scat.factors (first index -&gt; pattern)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>I_COOR</p>
+<td width=98><p>I_COOR</p>
 </td>
-<td width=369>
-<p>Internal coordinates (d,ang,dang)</p>
+<td width=369><p>Internal coordinates (d,ang,dang)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>MI_COOR</p>
+<td width=98><p>MI_COOR</p>
 </td>
-<td width=369>
-<p>Refinement codes of internal coordinates</p>
+<td width=369><p>Refinement codes of internal coordinates</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
-<td width=98>
-<p>LI_COOR</p>
+<td width=98><p>LI_COOR</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for internal coordinates</p>
+<td width=369><p>Numbers of LSQ parameters for internal coordinates</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>BISO</p>
+<td width=98><p>BISO</p>
 </td>
-<td width=369>
-<p>Isotropic temperature factor</p>
+<td width=369><p>Isotropic temperature factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>MBISO</p>
+<td width=98><p>MBISO</p>
 </td>
-<td width=369>
-<p>Refinement codes of Isotropic temperature factor</p>
+<td width=369><p>Refinement codes of Isotropic temperature factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>LBISO</p>
+<td width=98><p>LBISO</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Isotropic temperature factor</p>
+<td width=369><p>Numbers of LSQ parameters for Isotropic temperature factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>OCC</p>
+<td width=98><p>OCC</p>
 </td>
-<td width=369>
-<p>Occupation factor</p>
+<td width=369><p>Occupation factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>MOCC</p>
+<td width=98><p>MOCC</p>
 </td>
-<td width=369>
-<p>Refinement codes of Occupation factor</p>
+<td width=369><p>Refinement codes of Occupation factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>LOCC</p>
+<td width=98><p>LOCC</p>
 </td>
-<td width=369>
-<p>Numbers of LSQ parameters for Occupation factor</p>
+<td width=369><p>Numbers of LSQ parameters for Occupation factor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>NB</p>
+<td width=98><p>NB</p>
 </td>
-<td width=369>
-<p>Number of neighbours</p>
+<td width=369><p>Number of neighbours</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>INB</p>
+<td width=98><p>INB</p>
 </td>
-<td width=369>
-<p>Index of neighbous</p>
+<td width=369><p>Index of neighbous</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>TB</p>
+<td width=98><p>TB</p>
 </td>
-<td width=369>
-<p>Type of bonds</p>
+<td width=369><p>Type of bonds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98>
-<p>CONN</p>
+<td width=98><p>CONN</p>
 </td>
-<td width=369>
-<p>Conectivity (N1,N2,N3)</p>
+<td width=369><p>Conectivity (N1,N2,N3)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>END TYPE</span><span class=rvts10>&nbsp; MOLECULE_TYPE</span></p>
+<td width=330><p><span class=rvts12>END TYPE</span><span class=rvts10>&nbsp; MOLECULE_TYPE</span></p>
 </td>
 <td width=98><br>
 </td>
@@ -631,5 +502,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p> </p>
 <p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

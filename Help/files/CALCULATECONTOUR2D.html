@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -111,163 +111,118 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CALCULATECONTOUR2D.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts12>CALCULATE_CONTOUR2D</span></p>
 <p><span class=rvts10>SUBROUTINE CALCULATE_CONTOUR2D(D, ILB, IUB, JLB, JUB, X, Y, Z, NLV, NTP, XYZ)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(ILB:IUB, JLB:JUB)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(ILB:IUB, JLB:JUB)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>D</p>
+<td width=98><p>D</p>
 </td>
-<td width=369>
-<p>Section 2D</p>
+<td width=369><p>Section 2D</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>ILB</p>
+<td width=98><p>ILB</p>
 </td>
-<td width=369>
-<p>Lower limit on the first dimension</p>
+<td width=369><p>Lower limit on the first dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>IUB</p>
+<td width=98><p>IUB</p>
 </td>
-<td width=369>
-<p>Upper limit on the first dimension</p>
+<td width=369><p>Upper limit on the first dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>JLB</p>
+<td width=98><p>JLB</p>
 </td>
-<td width=369>
-<p>Lower limit on the second dimension</p>
+<td width=369><p>Lower limit on the second dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>JUB</p>
+<td width=98><p>JUB</p>
 </td>
-<td width=369>
-<p>Upper limit on the second dimension</p>
+<td width=369><p>Upper limit on the second dimension</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(ILB:IUB)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(ILB:IUB)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>X</p>
+<td width=98><p>X</p>
 </td>
-<td width=369>
-<p>Limits values on X</p>
+<td width=369><p>Limits values on X</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(JLB:JUB)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(JLB:JUB)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>Y</p>
+<td width=98><p>Y</p>
 </td>
-<td width=369>
-<p>Limits values on Y</p>
+<td width=369><p>Limits values on Y</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>Z</p>
+<td width=98><p>Z</p>
 </td>
-<td width=369>
-<p>Levels values</p>
+<td width=369><p>Levels values</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>NLV</p>
+<td width=98><p>NLV</p>
 </td>
-<td width=369>
-<p>Number of levels</p>
+<td width=369><p>Number of levels</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=98>
-<p>NTP</p>
+<td width=98><p>NTP</p>
 </td>
-<td width=369>
-<p>Number of points</p>
+<td width=369><p>Number of points</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>XYZ</p>
+<td width=98><p>XYZ</p>
 </td>
-<td width=369>
-<p>XY Points</p>
+<td width=369><p>XY Points</p>
 </td>
 </tr>
 </table>
@@ -275,5 +230,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Calculate the Contour 2D of a section</p>
 <p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

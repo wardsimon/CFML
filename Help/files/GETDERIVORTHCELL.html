@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -119,50 +119,38 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?GETDERIVORTHCELL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts14>GET_DERIV_ORTH_CELL</span></p>
 <p><span class=rvts10>SUBROUTINE GET_DERIV_ORTH_CELL(CELLP, DE_ORTHCELL, CARTYPE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=95>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>CELLP</p>
+<td width=93><p>CELLP</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND=</span>CP),<span class=rvts11> DIMENSION </span>(<span class=rvts12>3</span>,<span class=rvts12>3,6</span>)</p>
+<td width=274><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND=</span>CP),<span class=rvts11> DIMENSION </span>(<span class=rvts12>3</span>,<span class=rvts12>3,6</span>)</p>
 </td>
-<td width=95>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=93>
-<p>DE_ORTHCELL</p>
+<td width=93><p>DE_ORTHCELL</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=95>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>CARTYPE</p>
+<td width=93><p>CARTYPE</p>
 </td>
-<td width=319>
-<p>A:</p>
+<td width=319><p>A:</p>
 <p><br></p>
 </td>
 </tr>
@@ -174,5 +162,4 @@ p,ul,ol /* Paragraph Style */
 <p>The output matrices DE_ORTHCELL are the derivatives of, with respect to a(1),b(2),c(3),alpha(4),beta(5) and gamma(6) of the matrix CELLP%CR_ORTH_CEL.</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

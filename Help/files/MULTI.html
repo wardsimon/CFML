@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -111,93 +111,68 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?MULTI.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts12>MULTI</span></p>
 <p><span class=rvts10>SUBROUTINE MULTI(LUN,IPRIN, CONVEN, SPG, A, AC)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>LUN</p>
+<td width=98><p>LUN</p>
 </td>
-<td width=369>
-<p>Logical Unit for writing</p>
+<td width=369><p>Logical Unit for writing</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>LOGICAL</span></p>
+<td width=330><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>IPRIN</p>
+<td width=98><p>IPRIN</p>
 </td>
-<td width=369>
-<p>.true. for writing in Lun</p>
+<td width=369><p>.true. for writing in Lun</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>LOGICAL</span></p>
+<td width=330><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>CONVEN</p>
+<td width=98><p>CONVEN</p>
 </td>
-<td width=369>
-<p>.true. for using the whole conventional unit cell</p>
+<td width=369><p>.true. for using the whole conventional unit cell</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=330><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>SPG</p>
+<td width=98><p>SPG</p>
 </td>
-<td width=369>
-<p>Space Group Information</p>
+<td width=369><p>Space Group Information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
+<td width=330><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>A</p>
+<td width=98><p>A</p>
 </td>
-<td width=369>
-<p>Atom List</p>
+<td width=369><p>Atom List</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>TYPE</span>(ATOMS_CELL_TYPE)</p>
+<td width=330><p><span class=rvts11>TYPE</span>(ATOMS_CELL_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>AC</p>
+<td width=98><p>AC</p>
 </td>
-<td width=369>
-<p>Atoms in unit cell</p>
+<td width=369><p>Atoms in unit cell</p>
 </td>
 </tr>
 </table>
@@ -208,5 +183,4 @@ p,ul,ol /* Paragraph Style */
 <p>Calculates&nbsp; A%AT(k)%MULT and constructs, partially, the object AC of type ATOMS_CELL_TYPE. The generated atoms constitute the content of the primitive (CPNVEN=.false.) or the conventional unit cell (CONVEN=.true.).</p>
 <p>&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

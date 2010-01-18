@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -116,92 +116,68 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?TOFJORGENSEN.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts13>TOF_JORGENSEN</span></p>
 <p><span class=rvts10>SUBROUTINE TOF_JORGENSEN(DT, ALFA, BETA, SIGMA, TOF_PEAK, DERIV)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=78>
-<p>DT</p>
+<td width=78><p>DT</p>
 </td>
-<td width=373>
-<p>TOF(channel i) -TOF(Bragg position)</p>
+<td width=373><p>TOF(channel i) -TOF(Bragg position)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=78>
-<p>ALFA</p>
+<td width=78><p>ALFA</p>
 </td>
-<td width=373>
-<p>units microsecs<span class=rvts12>-1</span></p>
+<td width=373><p>units microsecs<span class=rvts12>-1</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=78>
-<p>BETA</p>
+<td width=78><p>BETA</p>
 </td>
-<td width=373>
-<p>units microsecs<span class=rvts12>-1</span></p>
+<td width=373><p>units microsecs<span class=rvts12>-1</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=78>
-<p>SIGMA</p>
+<td width=78><p>SIGMA</p>
 </td>
-<td width=373>
-<p>units microsecs<span class=rvts12>2</span></p>
+<td width=373><p>units microsecs<span class=rvts12>2</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=78>
-<p>TOF_PEAK</p>
+<td width=78><p>TOF_PEAK</p>
 </td>
 <td width=373><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(DERIV_TOF_TYPE),<span class=rvts11> OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(DERIV_TOF_TYPE),<span class=rvts11> OPTIONAL</span></p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=78>
-<p>DERIV</p>
+<td width=78><p>DERIV</p>
 </td>
-<td width=373>
-<p>present if derivatives are to be calculated</p>
+<td width=373><p>present if derivatives are to be calculated</p>
 </td>
 </tr>
 </table>
@@ -211,5 +187,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

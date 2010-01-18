@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -129,73 +129,56 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?GETCONVENTIONALCELL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts16>GET_CONVENTIONAL_CELL</span></p>
 <p><span class=rvts10>SUBROUTINE GET_CONVENTIONAL_CELL(TWOFOLD, CELL, TR, MESSAGE, OK)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(TWOFOLD_AXES_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(TWOFOLD_AXES_TYPE)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=56>
-<p>TWOFOLD</p>
+<td width=56><p>TWOFOLD</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56>
-<p>CELL</p>
+<td width=56><p>CELL</p>
 </td>
-<td width=319>
-<p>Cell components</p>
+<td width=319><p>Cell components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>INTEGER, DIMENSION </span>(<span class=rvts12>3</span>,<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>INTEGER, DIMENSION </span>(<span class=rvts12>3</span>,<span class=rvts12>3</span>)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56>
-<p>TR</p>
+<td width=56><p>TR</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=*)</p>
+<td width=274><p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=*)</p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56>
-<p>MESSAGE</p>
+<td width=56><p>MESSAGE</p>
 </td>
 <td width=319><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>LOGICAL</span></p>
+<td width=274><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=101>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=56>
-<p>OK</p>
+<td width=56><p>OK</p>
 </td>
 <td width=319><br>
 </td>
@@ -205,5 +188,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>This subroutine provides the "conventional" (or quasi! being still tested ) from the supplied object <span class=rvts14>TWOFOLD</span> that has been obtained from a previous call to <a class=rvts15 href="GETTWOFOLDAXES.html">GET_TWO_FOLD_AXES</a>. The conventional unit cell can be deduced from the distribution of two-fold axes in the lattice. The cell produced in this procedure applies some rules for obtaining the conventional cell, for instance in monoclinic lattices (a single two-fold axis) the two-fold axis is along b and the final cell is right handed with a &lt;= c and beta &gt;= 90. It may be A,C or I centred. The convertion to the C-centred setting in the A and I centring, is not attempted. The angular tolerance for accepting a two-fold axis, or higher order axes, as such has been previously set into <span class=rvts14>TWOFOLD%TOL</span> component.</p>
 <p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

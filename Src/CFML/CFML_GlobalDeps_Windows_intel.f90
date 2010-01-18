@@ -2,7 +2,7 @@
 !!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- MODULE: CFML_GlobalDeps
+!!---- MODULE: CFML_GlobalDeps (Windows version)
 !!----   INFO: Precision for for CrysFML library and Operating System information
 !!----         All the global variables defined in this module are implicitly public.
 !!----
@@ -57,7 +57,7 @@ Module CFML_GlobalDeps
 
    !!----
    !!---- OPS
-   !!----   Integer variable 1: Windows, 2: Mac, 3: Linux, ....
+   !!----   Integer variable 1: Windows, 2: Linux, 3: MacOs, ....
    !!----   This is a variable set by the user of the library for the case
    !!----   that there is no external library with a procedure for getting
    !!----   the operating system.
@@ -65,9 +65,6 @@ Module CFML_GlobalDeps
    !!---- Update: March 2009
    !!
    integer, parameter :: OPS= 1    ! Windows
-   !integer, parameter :: OPS= 2    ! Linux
-   !integer, parameter :: OPS= 3    ! MacOS
-   !integer, parameter :: OPS= 4    ! Solaris
 
    !!----
    !!---- OPS_NAME
@@ -79,9 +76,6 @@ Module CFML_GlobalDeps
    !!---- Update: March 2009
    !!
    character(len=*), parameter :: OPS_NAME="Windows"
-   !character(len=*), parameter :: OPS_NAME="Linux"
-   !character(len=*), parameter :: OPS_NAME="MacOS"
-   !character(len=*), parameter :: OPS_NAME="Solaris"
 
    !!----
    !!---- OPS_SEP
@@ -91,9 +85,6 @@ Module CFML_GlobalDeps
    !!---- Update: March 2009
    !!
    character(len=*), parameter :: OPS_SEP="\"
-   !character(len=*), parameter :: OPS_SEP="/"
-   !character(len=*), parameter :: OPS_SEP="/"
-   !character(len=*), parameter :: OPS_SEP=":"  !Old MacOS
 
    !------------------------------!
    !---- Precision Parameters ----!

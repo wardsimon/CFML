@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -135,77 +135,58 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CONVOL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts17>CONVOL</span></p>
 <p><span class=rvts10>REAL FUNCTION CONVOL (F, PF, G, PG, INTERVAL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>Defined Function F</span></p>
+<td width=330><p><span class=rvts13>Defined Function F</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11><br></span></p>
+<td width=98><p><span class=rvts11><br></span></p>
 </td>
-<td width=98>
-<p>F</p>
+<td width=98><p>F</p>
 </td>
-<td width=369>
-<p><span class=rvts11><br></span></p>
+<td width=369><p><span class=rvts11><br></span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>PF</p>
+<td width=98><p>PF</p>
 </td>
-<td width=369>
-<p>Parameters of the function F</p>
+<td width=369><p>Parameters of the function F</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>Defined Function G</span></p>
+<td width=330><p><span class=rvts13>Defined Function G</span></p>
 </td>
 <td width=98><br>
 </td>
-<td width=98>
-<p>G</p>
+<td width=98><p>G</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>PG</p>
+<td width=98><p>PG</p>
 </td>
-<td width=369>
-<p>Parameters of the function G</p>
+<td width=369><p>Parameters of the function G</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>TYPE (</span>POINTS_INTERVAL_TYPE<span class=rvts12>)</span></p>
+<td width=330><p><span class=rvts12>TYPE (</span>POINTS_INTERVAL_TYPE<span class=rvts12>)</span></p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>INTERVAL</p>
+<td width=98><p>INTERVAL</p>
 </td>
-<td width=369>
-<p>Give the number of points and the limits of the interval for calculation.</p>
+<td width=369><p>Give the number of points and the limits of the interval for calculation.</p>
 </td>
 </tr>
 </table>
@@ -215,27 +196,21 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>FUNCTION F (X, PARF)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>X</p>
+<td width=98><p>X</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>PARF</p>
+<td width=98><p>PARF</p>
 </td>
 <td width=369><br>
 </td>
@@ -248,27 +223,21 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts13>FUNCTION G (X, PARG)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>X</p>
+<td width=98><p>X</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND=</span>CP)<span class=rvts12>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
 </td>
-<td width=98>
-<p>PARG</p>
+<td width=98><p>PARG</p>
 </td>
 <td width=369><br>
 </td>
@@ -287,5 +256,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>generates my_interval%np values&nbsp; h(i), i=1,my_interval%np corresponding to the convolution of a pseudo-Voigt function with a hat function</p>
 <p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

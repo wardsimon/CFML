@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -140,24 +140,19 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?OPTCONDITIONSTYPE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts18>OPT_CONDITIONS_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts10><br></span></p>
+<td width=330><p><span class=rvts10><br></span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>Variable</span></p>
+<td width=98><p><span class=rvts11>Variable</span></p>
 </td>
-<td width=369>
-<p><span class=rvts11>Definition</span></p>
+<td width=369><p><span class=rvts11>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>TYPE</span><span class=rvts10> :: OPT_CONDITIONS_TYPE</span></p>
+<td width=330><p><span class=rvts12>TYPE</span><span class=rvts10> :: OPT_CONDITIONS_TYPE</span></p>
 </td>
 <td width=98><br>
 </td>
@@ -165,140 +160,103 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts14>LEN</span>=<span class=rvts15>20</span>)</p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts14>LEN</span>=<span class=rvts15>20</span>)</p>
 </td>
-<td width=98>
-<p>METHOD</p>
+<td width=98><p>METHOD</p>
 </td>
-<td width=369>
-<p>String describing the Method</p>
+<td width=369><p>String describing the Method</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>NMETH</p>
+<td width=98><p>NMETH</p>
 </td>
-<td width=369>
-<p>Type of method used</p>
+<td width=369><p>Type of method used</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>NPAR</p>
+<td width=98><p>NPAR</p>
 </td>
-<td width=369>
-<p>Number of free parameters</p>
+<td width=369><p>Number of free parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>MXFUN</p>
+<td width=98><p>MXFUN</p>
 </td>
-<td width=369>
-<p>Maximum number function calls</p>
+<td width=369><p>Maximum number function calls</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>IOUT</p>
+<td width=98><p>IOUT</p>
 </td>
-<td width=369>
-<p>Printing parameter</p>
+<td width=369><p>Printing parameter</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>LOOPS</p>
+<td width=98><p>LOOPS</p>
 </td>
-<td width=369>
-<p>Useful for SIMPLEX method</p>
+<td width=369><p>Useful for SIMPLEX method</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>IQUAD</p>
+<td width=98><p>IQUAD</p>
 </td>
-<td width=369>
-<p>Useful for SIMPLEX method. If iquad/= 0 fitting to a quadratic</p>
+<td width=369><p>Useful for SIMPLEX method. If iquad/= 0 fitting to a quadratic</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>NFLAG</p>
+<td width=98><p>NFLAG</p>
 </td>
-<td width=369>
-<p>Flag value states which condition caused the exit of the optimization subroutine</p>
+<td width=369><p>Flag value states which condition caused the exit of the optimization subroutine</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>IFUN</p>
+<td width=98><p>IFUN</p>
 </td>
-<td width=369>
-<p>Total number of function and gradient evaluations</p>
+<td width=369><p>Total number of function and gradient evaluations</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p>ITER</p>
+<td width=98><p>ITER</p>
 </td>
-<td width=369>
-<p>Total number of search directions used in the algorithm</p>
+<td width=369><p>Total number of search directions used in the algorithm</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p>EPS</p>
+<td width=98><p>EPS</p>
 </td>
-<td width=369>
-<p>Convergence parameter</p>
+<td width=369><p>Convergence parameter</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p>ACC</p>
+<td width=98><p>ACC</p>
 </td>
-<td width=369>
-<p>User supplied estimate of machine accuracy</p>
+<td width=369><p>User supplied estimate of machine accuracy</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts12>END TYPE</span><span class=rvts10> OPT_CONDITIONS_TYPE</span></p>
+<td width=330><p><span class=rvts12>END TYPE</span><span class=rvts10> OPT_CONDITIONS_TYPE</span></p>
 </td>
 <td width=98><br>
 </td>
@@ -313,58 +271,49 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=174>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=174><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=409>
-<p class=rvps1><span class=rvts11>Description</span></p>
+<td width=409><p class=rvps1><span class=rvts11>Description</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>CONJUGATE_GRADIENT</p>
+<td width=174><p>CONJUGATE_GRADIENT</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>BFGS_QUASI_NEWTON</p>
+<td width=174><p>BFGS_QUASI_NEWTON</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>SIMPLEX</p>
+<td width=174><p>SIMPLEX</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>DFP_NO_DERIVATIVES</p>
+<td width=174><p>DFP_NO_DERIVATIVES</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>GLOBAL_CSENDES</p>
+<td width=174><p>GLOBAL_CSENDES</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>LOCAL_RANDOM</p>
+<td width=174><p>LOCAL_RANDOM</p>
 </td>
 <td width=409><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=174>
-<p>UNIRANDI</p>
+<td width=174><p>UNIRANDI</p>
 </td>
 <td width=409><br>
 </td>
@@ -376,27 +325,21 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=67>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=67><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=516>
-<p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+<td width=516><p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>0</p>
+<td width=67><p class=rvps1>0</p>
 </td>
-<td width=516>
-<p>Conjugate Gradient</p>
+<td width=516><p>Conjugate Gradient</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>1</p>
+<td width=67><p class=rvps1>1</p>
 </td>
-<td width=516>
-<p>BFGS method</p>
+<td width=516><p>BFGS method</p>
 </td>
 </tr>
 </table>
@@ -406,28 +349,22 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=67>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=67><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=516>
-<p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+<td width=516><p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>0</p>
+<td width=67><p class=rvps1>0</p>
 </td>
-<td width=516>
-<p>No printing for Quasi_Newton &amp; Conjugate Gradient</p>
+<td width=516><p>No printing for Quasi_Newton &amp; Conjugate Gradient</p>
 <p>Partial printing for Simplex (&lt;0 no printing)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>&gt;0</p>
+<td width=67><p class=rvps1>&gt;0</p>
 </td>
-<td width=516>
-<p>Printing each iout iterations/evaluations</p>
+<td width=516><p>Printing each iout iterations/evaluations</p>
 </td>
 </tr>
 </table>
@@ -438,43 +375,33 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=67>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=67><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=516>
-<p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+<td width=516><p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>0</p>
+<td width=67><p class=rvps1>0</p>
 </td>
-<td width=516>
-<p>The algorithm has converged</p>
+<td width=516><p>The algorithm has converged</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>1</p>
+<td width=67><p class=rvps1>1</p>
 </td>
-<td width=516>
-<p>The maximum number of function evaluations have been used</p>
+<td width=516><p>The maximum number of function evaluations have been used</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>2</p>
+<td width=67><p class=rvps1>2</p>
 </td>
-<td width=516>
-<p>The linear search has failed to improve the function value. This is the usual exit if either the function or the gradient is incorrectly coded.</p>
+<td width=516><p>The linear search has failed to improve the function value. This is the usual exit if either the function or the gradient is incorrectly coded.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>3</p>
+<td width=67><p class=rvps1>3</p>
 </td>
-<td width=516>
-<p>The search vector was not a descent direction. This can only be caused by round off, and may suggest that the convergence criterion is too strict.</p>
+<td width=516><p>The search vector was not a descent direction. This can only be caused by round off, and may suggest that the convergence criterion is too strict.</p>
 </td>
 </tr>
 </table>
@@ -484,19 +411,15 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=67>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=67><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=516>
-<p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+<td width=516><p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>10<span class=rvts17>-6</span></p>
+<td width=67><p class=rvps1>10<span class=rvts17>-6</span></p>
 </td>
-<td width=516>
-<p>Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum of one and the norm of the vector X. </p>
+<td width=516><p>Convergence occurs when the norm of the gradient is less than or equal to EPS times the maximum of one and the norm of the vector X. </p>
 </td>
 </tr>
 </table>
@@ -507,27 +430,21 @@ p,ul,ol /* Paragraph Style */
 <p> </p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=67>
-<p class=rvps1><span class=rvts11>Value</span></p>
+<td width=67><p class=rvps1><span class=rvts11>Value</span></p>
 </td>
-<td width=516>
-<p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+<td width=516><p class=rvps1><span class=rvts11>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>10<span class=rvts17>-20</span></p>
+<td width=67><p class=rvps1>10<span class=rvts17>-20</span></p>
 </td>
-<td width=516>
-<p>is a user supplied estimate of machine accuracy. A linear search is unsuccessfully terminated when the norm of the step size becomes smaller than ACC. In practice, ACC=10<span class=rvts17>-20</span> has proved satisfactory. This is the default value.</p>
+<td width=516><p>is a user supplied estimate of machine accuracy. A linear search is unsuccessfully terminated when the norm of the step size becomes smaller than ACC. In practice, ACC=10<span class=rvts17>-20</span> has proved satisfactory. This is the default value.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=67>
-<p class=rvps1>10<span class=rvts17>-6</span></p>
+<td width=67><p class=rvps1>10<span class=rvts17>-6</span></p>
 </td>
-<td width=516>
-<p>For Simplex method the meaning is different (see EPS parameter) and this should be changed to 10<span class=rvts17>-6</span></p>
+<td width=516><p>For Simplex method the meaning is different (see EPS parameter) and this should be changed to 10<span class=rvts17>-6</span></p>
 </td>
 </tr>
 </table>
@@ -538,5 +455,4 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>A variable of this type should be defined by the user and all their&nbsp; input parameters (in) must be provided before calling the procedures. On output from the procedure the (out) items are provided for checking.</p>
 <p class=rvps3><span class=rvts19>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

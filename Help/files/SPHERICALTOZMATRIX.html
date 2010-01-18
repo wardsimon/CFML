@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -111,51 +111,38 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SPHERICALTOZMATRIX.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts12>SPHERICAL_TO_ZMATRIX</span></p>
 <p><span class=rvts10>SUBROUTINE SPHERICAL_TO_ZMATRIX (MOLECULE, NEWMOLECULE, CELL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=108>
-<p>MOLECULE</p>
+<td width=108><p>MOLECULE</p>
 </td>
-<td width=319>
-<p>Molecule Object</p>
+<td width=319><p>Molecule Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(MOLECULE_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=108>
-<p>NEWMOLECULE</p>
+<td width=108><p>NEWMOLECULE</p>
 </td>
-<td width=319>
-<p>Molecule Object</p>
+<td width=319><p>Molecule Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=109>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=108>
-<p>CELL</p>
+<td width=108><p>CELL</p>
 </td>
-<td width=319>
-<p>Cell parameters</p>
+<td width=319><p>Cell parameters</p>
 </td>
 </tr>
 </table>
@@ -166,5 +153,4 @@ p,ul,ol /* Paragraph Style */
 <p>If a second argument is present the subroutine creates a new molecule (copy of the old one) with Zmatrix coordinates, preserving the input molecule in Spherical Coordinates. Otherwise the input molecule is changed on output.</p>
 <p>&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts13>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

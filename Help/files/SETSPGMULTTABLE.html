@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -115,48 +115,36 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SETSPGMULTTABLE.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts13>SET_SPG_MULT_TABLE</span></p>
 <p><span class=rvts10>SUBROUTINE SET_SPG_MULT_TABLE (SPG, TAB, COMPLETE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>SPG</p>
+<td width=93><p>SPG</p>
 </td>
-<td width=410>
-<p>String with Number, Hall or Hermman-Mauguin</p>
+<td width=410><p>String with Number, Hall or Hermman-Mauguin</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>INTEGER, DIMENSION</span>(:,:) </p>
+<td width=285><p><span class=rvts11>INTEGER, DIMENSION</span>(:,:) </p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=93>
-<p>TAB</p>
+<td width=93><p>TAB</p>
 </td>
-<td width=410>
-<p>Table </p>
+<td width=410><p>Table </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285>
-<p><span class=rvts11>LOGICAL</span>, <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>LOGICAL</span>, <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=88>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=93>
-<p>COMPLETE</p>
+<td width=93><p>COMPLETE</p>
 </td>
 <td width=410><br>
 </td>
@@ -169,5 +157,4 @@ p,ul,ol /* Paragraph Style */
 <p>If <span class=rvts12>COMPLETE</span> is not present, or if <span class=rvts12>COMPLETE</span>=<span class=rvts12>.FALSE.</span>, we consider only the symmetry operators corresponding to the "primitive" content of the unit cell, so a maximun 48x48 matrix is needed to hold the table in this case. If <span class=rvts12>COMPLETE</span> is present and <span class=rvts12>.TRUE.</span>, the full table is constructed.</p>
 <p><br></p>
 <p class=rvps3><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

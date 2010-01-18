@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -133,95 +133,70 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?HKLGENSXTAL.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts17>HKL_GEN_SXTAL</span></p>
 <p><span class=rvts10>SUBROUTINE HKL_GEN_SXTAL (CRYSTALCELL, SPACEGROUP, STLMAX, NUM_REF, REFLEX, ORD)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=260><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>CRYSTALCELL</p>
+<td width=105><p>CRYSTALCELL</p>
 </td>
-<td width=379>
-<p>Cell Parameters</p>
+<td width=379><p>Cell Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=260><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>SPACEGROUP</p>
+<td width=105><p>SPACEGROUP</p>
 </td>
-<td width=379>
-<p>Space group</p>
+<td width=379><p>Space group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=260><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>STLMAX</p>
+<td width=105><p>STLMAX</p>
 </td>
-<td width=379>
-<p>Maximum Sin<span class=rvts13>&theta;</span><span class=rvts12>/</span><span class=rvts13>&lambda;</span></p>
+<td width=379><p>Maximum Sin<span class=rvts13>&theta;</span><span class=rvts12>/</span><span class=rvts13>&lambda;</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=260><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>NUM_REF</p>
+<td width=105><p>NUM_REF</p>
 </td>
-<td width=379>
-<p>Number of generated reflections</p>
+<td width=379><p>Number of generated reflections</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>TYPE</span>(REFLECT_TYPE)</p>
+<td width=260><p><span class=rvts11>TYPE</span>(REFLECT_TYPE)</p>
 <p><span class=rvts16>or</span></p>
 <p><span class=rvts11>TYPE</span>(REFLECTION_LIST_TYPE)</p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>REFLEX</p>
+<td width=105><p>REFLEX</p>
 </td>
-<td width=379>
-<p>List of generated hkl,mult, s</p>
+<td width=379><p>List of generated hkl,mult, s</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260>
-<p><span class=rvts11>INTEGER, DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts11>, OPTIONAL</span></p>
+<td width=260><p><span class=rvts11>INTEGER, DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts11>, OPTIONAL</span></p>
 </td>
-<td width=75>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>ORD</p>
+<td width=105><p>ORD</p>
 </td>
-<td width=379>
-<p>Order for loop of hkl-indices</p>
+<td width=379><p>Order for loop of hkl-indices</p>
 </td>
 </tr>
 </table>
@@ -233,5 +208,4 @@ p,ul,ol /* Paragraph Style */
 <p>By default the loop generating the hkl-indices uses the vector <span class=rvts15>ORD</span>=(/3,2,1/), this means that the inner loop (more rapidly changing index) is the l-index, then the k-index and finally the h-index.</p>
 <p> </p>
 <p class=rvps3><span class=rvts18>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

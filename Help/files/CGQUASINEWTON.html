@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -123,129 +123,94 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CGQUASINEWTON.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps4><span class=rvts13>CG_QUASI_NEWTON</span></p>
 <p><span class=rvts10>SUBROUTINE CG_QUASI_NEWTON(MODEL_ FUNCT, N, X, F, G, C, IPR )</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242>
-<p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11><br></span></p>
+<td width=98><p><span class=rvts11><br></span></p>
 </td>
-<td width=104>
-<p>MODEL_FUNCT</p>
+<td width=104><p>MODEL_FUNCT</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
 <td width=410><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>N</p>
+<td width=104><p>N</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p>The number of variables in the function to be minimized.</p>
+<td width=410><p>The number of variables in the function to be minimized.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>X</p>
+<td width=104><p>X</p>
 </td>
-<td width=40>
-<p class=rvps3>IN:</p>
+<td width=40><p class=rvps3>IN:</p>
 <p class=rvps3>OUT:</p>
 </td>
-<td width=410>
-<p>Must contain an initial estimate supplied by the user</p>
+<td width=410><p>Must contain an initial estimate supplied by the user</p>
 <p>X will hold the best estimate to the minimizer obtained</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>F</p>
+<td width=104><p>F</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p>Contain the lowest value of the object function obtained</p>
+<td width=410><p>Contain the lowest value of the object function obtained</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
+<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=104>
-<p>G</p>
+<td width=104><p>G</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>G =(g(1),...g(n)) will contain the elements of the gradient of F evaluated at the point contained in X=(x(1),...x(N))</p>
+<td width=410><p class=rvps2>G =(g(1),...g(n)) will contain the elements of the gradient of F evaluated at the point contained in X=(x(1),...x(N))</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td width=104>
-<p>C</p>
+<td width=104><p>C</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Conditions for the algorithm</p>
+<td width=410><p class=rvps2>Conditions for the algorithm</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242>
-<p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=242><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=104>
-<p>IPR</p>
+<td width=104><p>IPR</p>
 </td>
-<td width=40>
-<p class=rvps3><br></p>
+<td width=40><p class=rvps3><br></p>
 </td>
-<td width=410>
-<p class=rvps2>Logical unit for printing if the parameter C%IOUT /= 0.</p>
+<td width=410><p class=rvps2>Logical unit for printing if the parameter C%IOUT /= 0.</p>
 </td>
 </tr>
 </table>
@@ -255,59 +220,43 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (N, X, F, G)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>N</p>
+<td width=98><p>N</p>
 </td>
-<td width=369>
-<p>Number of free parameters</p>
+<td width=369><p>Number of free parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=98>
-<p>X</p>
+<td width=98><p>X</p>
 </td>
-<td width=369>
-<p>Variables</p>
+<td width=369><p>Variables</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>F</p>
+<td width=98><p>F</p>
 </td>
-<td width=369>
-<p>Value of Model</p>
+<td width=369><p>Value of Model</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330>
-<p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:)</p>
 </td>
-<td width=98>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=98>
-<p>G</p>
+<td width=98><p>G</p>
 </td>
-<td width=369>
-<p>Gradiente of F</p>
+<td width=369><p>Gradiente of F</p>
 </td>
 </tr>
 </table>
@@ -318,5 +267,4 @@ p,ul,ol /* Paragraph Style */
 <p>Minimization of Unconstrained Multivariate Functions Subroutine CG_QUASI_NEWTON minimizes an unconstrained nonlinear scalar valued function of a vector variable X either by the BFGS variable metric algorithm or by a beale restarted conjugate gradient algorithm.(BFGS: Broyden, Fletcher, Goldfarb and Shanno. ACM TRANSACTIONS ON MATHEMATICAL SOFTWARE 6 (DECEMBER 1980), 618-622).</p>
 <p><br></p>
 <p class=rvps5><span class=rvts14>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>

@@ -7,8 +7,8 @@ rem
    echo **---- Level 0 ----**
    echo .... Mathematical(I), String_Utilities, Messages, Powder Profiles
 rem
-   ifort /c CFML_GlobalDeps.f90         /debug:full /check /traceback /nologo
-rem 
+   ifort /c CFML_GlobalDeps_Windows_intel.f90         /debug:full /check /traceback /nologo
+rem
    ifort /c CFML_math_gen.f90         /debug:full /check /traceback /nologo
    ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo
    ifort /c CFML_random.f90           /debug:full /check /traceback /nologo
@@ -66,7 +66,7 @@ rem
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
-rem   
+rem
    ifort /c CFML_refcodes.f90         /debug:full /check /traceback /nologo
    ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /nologo
    ifort /c CFML_magsymm.f90          /debug:full /check /traceback /nologo
@@ -75,9 +75,9 @@ rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors
 rem
-   ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo 
+   ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo
 rem
-rem   
+rem
    echo **---- Crysfml Library: Console (DEBUG) version ----**
 rem
    lib /out:crysfml.lib *.obj
@@ -92,5 +92,5 @@ rem
    copy *.mod ..\..\Intel\LibC > nul
    move *.lib ..\..\Intel\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
-rem        
+rem
    cd ..\Scripts\Windows

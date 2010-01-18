@@ -8,7 +8,7 @@ body {
 }
 /* ========== Text Styles ========== */
 hr { color: #000000}
-body, table /* Font Style */
+body, table, span.rvts0 /* Font Style */
 {
  font-size: 10pt;
  font-family: 'Arial', 'Helvetica', sans-serif;
@@ -129,131 +129,98 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?CALCSTRFACTOR.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-
 <p class=rvps2><span class=rvts16>CALC_STRFACTOR</span></p>
 <p><span class=rvts10>SUBROUTINE CALC_STRFACTOR (MODE, RAD, NN, SN, ATM, GRP, SF2, DERIV, FC)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=276><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>MODE</p>
+<td width=105><p>MODE</p>
 </td>
-<td width=379>
-<p>Values:</p>
+<td width=379><p>Values:</p>
 <p>S : SXTAL</p>
 <p>P : Powder</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=276><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>RAD</p>
+<td width=105><p>RAD</p>
 </td>
-<td width=379>
-<p>Radiation: X-rays, Neutrons</p>
+<td width=379><p>Radiation: X-rays, Neutrons</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>INTEGER</span></p>
+<td width=276><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>NN</p>
+<td width=105><p>NN</p>
 </td>
 <td width=379><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=276><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>SN</p>
+<td width=105><p>SN</p>
 </td>
-<td width=379>
-<p>(sin<span class=rvts14>&theta;</span><span class=rvts13>/</span><span class=rvts14>&lambda;</span>)<span class=rvts15>2</span></p>
+<td width=379><p>(sin<span class=rvts14>&theta;</span><span class=rvts13>/</span><span class=rvts14>&lambda;</span>)<span class=rvts15>2</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>TYPE</span>(ATOM_LIST_LIST_TYPE)</p>
+<td width=276><p><span class=rvts11>TYPE</span>(ATOM_LIST_LIST_TYPE)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>ATM</p>
+<td width=105><p>ATM</p>
 </td>
-<td width=379>
-<p>Atoms information</p>
+<td width=379><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=276><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=105>
-<p>GRP</p>
+<td width=105><p>GRP</p>
 </td>
-<td width=379>
-<p>Space group information</p>
+<td width=379><p>Space group information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=276><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>SF2</p>
+<td width=105><p>SF2</p>
 </td>
 <td width=379><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=276><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>DERIV</p>
+<td width=105><p>DERIV</p>
 </td>
 <td width=379><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=276>
-<p><span class=rvts11>COMPLEX, OPTIONAL</span></p>
+<td width=276><p><span class=rvts11>COMPLEX, OPTIONAL</span></p>
 </td>
-<td width=93>
-<p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
 </td>
-<td width=105>
-<p>FC</p>
+<td width=105><p>FC</p>
 </td>
 <td width=379><br>
 </td>
@@ -264,5 +231,4 @@ p,ul,ol /* Paragraph Style */
 <p>Calculate Structure Factor for reflection NN in the list and derivatives with respect to refined parameters</p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts17>Copyleft © 2009, FullProf Suite Team</span></p>
-
 </body></html>
