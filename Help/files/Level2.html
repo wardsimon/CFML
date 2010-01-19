@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>INT_SLATER_BESSEL</title>
+<html><head><title>Level 2</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,11 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-style: italic;
+ font-weight: bold;
 }
 span.rvts12
 {
- font-style: italic;
  font-weight: bold;
 }
 span.rvts13
@@ -117,61 +117,102 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?INTSLATERBESSEL.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?Level2.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>INT_SLATER_BESSEL</span></p>
-<p><span class=rvts10>REAL FUNCTION INT_SLATER_BESSEL(N, L, Z, S)</span></p>
-<p><br></p>
+<p class=rvps2><span class=rvts14>Level 2</span></p>
+<p><span class=rvts10><br></span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=260><p><span class=rvts11>INTEGER</span></p>
+<td width=152><p><span class=rvts11>Concept</span></p>
 </td>
-<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=329><p><span class=rvts11>Module Name</span></p>
 </td>
-<td width=73><p>N</p>
-</td>
-<td width=315><br>
+<td><p><span class=rvts11>Purpose</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>INTEGER</span></p>
+<td width=152><p><span class=rvts13>Chemical Tables...</span></p>
 </td>
-<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=329><p><span class=rvts12>CFML_Scattering_Chemical_Tables</span></p>
 </td>
-<td width=73><p>L</p>
-</td>
-<td width=315><br>
+<td><p>Tabulated information about atomic chemical and scattering data</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=152><p><span class=rvts13><br></span></p>
 </td>
-<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=329><p><span class=rvts12><br></span></p>
 </td>
-<td width=73><p>Z</p>
-</td>
-<td width=315><br>
+<td><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=152><p><span class=rvts13>Mathematics...</span></p>
 </td>
-<td width=75><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=329><p><span class=rvts12>CFML_Math_3D</span></p>
 </td>
-<td width=73><p>S</p>
+<td><p>Simple mathematics general utilities for 3D Systems</p>
 </td>
-<td width=315><br>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><p><span class=rvts13>Optimization...</span></p>
+</td>
+<td width=329><p><span class=rvts12>CFML_Optimization_General</span></p>
+</td>
+<td><p>Module implementing several algorithms for global and local optimization</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><p><span class=rvts12>CFML_Optimization_LSQ</span></p>
+</td>
+<td><p>Module implementing Marquard algorithm for non-linear least-squares</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><br>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><p><span class=rvts13>Patterns...</span></p>
+</td>
+<td width=329><p><span class=rvts12>CFML_Diffraction_Patterns</span></p>
+</td>
+<td><p>Diffraction Patterns data structures and procedures for reading different powder diffraction formats.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><br>
+</td>
+<td width=329><p><span class=rvts12><br></span></p>
+</td>
+<td><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=152><p><span class=rvts13>Symmetry Tables...</span></p>
+</td>
+<td width=329><p><span class=rvts12>CFML_Symmetry_Tables</span></p>
+</td>
+<td><p>Tabulated information on Crystallographic Symmetry</p>
 </td>
 </tr>
 </table>
 </div>
-<p><br></p>
-<p>Returns the integral:</p>
-<p><br></p>
-<p><img border=0 alt="" hspace=1 vspace=1 src="img_13.gif"></p>
-<p><br></p>
-<p> where<span class=rvts12> jl</span> is the spherical Bessel function of order<span class=rvts13> l. O</span>nly -1 &lt;= n&nbsp; and 0 &lt;= l &lt;= n+1</p>
-<p><br></p>
+<p><span class=rvts10><br></span></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>
