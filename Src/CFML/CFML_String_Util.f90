@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -17,7 +17,7 @@
 !!---- VARIABLES
 !!--++    CTAB                    [Private]
 !!--++    DIGIT                   [Private]
-!!----    ERR_String_Mess
+!!----    ERR_STRING_MESS
 !!----    ERR_STRING
 !!----    ERR_TEXT_TYPE
 !!--++    IENDFMT                 [Private]
@@ -1567,29 +1567,32 @@
     !!---- Update: December 2009
     !!
     Subroutine Get_Separator_Pos(line,car,pos,ncar)
-      character(len=*),      intent(in)  :: line
-      character(len=1),      intent(in)  :: car
-      integer, dimension(:), intent(out) :: pos
-      integer,               intent(out) :: ncar
-      integer :: i,j,k
+       !---- Arguments ----!
+       character(len=*),      intent(in)  :: line
+       character(len=1),      intent(in)  :: car
+       integer, dimension(:), intent(out) :: pos
+       integer,               intent(out) :: ncar
 
-      ncar=0
-      j=0
-      do i=1,len_trim(line)
-        j=j+1
-        if(line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
-          do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
-            j=j+1
-            if(line(j:j) /= '"') cycle
-            exit
-          end do
-        end if
-        if(line(j:j) == car) then
-          ncar=ncar+1
-          pos(ncar)=j
-        end if
-      end do
-      return
+       !---- Local Variables ----!
+       integer :: i,j,k
+
+       ncar=0
+       j=0
+       do i=1,len_trim(line)
+          j=j+1
+          if (line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
+             do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
+                j=j+1
+                if (line(j:j) /= '"') cycle
+                exit
+             end do
+          end if
+          if (line(j:j) == car) then
+             ncar=ncar+1
+             pos(ncar)=j
+          end if
+       end do
+       return
     End Subroutine Get_Separator_Pos
 
     !!----

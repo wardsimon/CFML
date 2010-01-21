@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Random_Generators
@@ -126,8 +126,8 @@
  Module CFML_Random_Generators
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp,dp
-    
-    !---- Local Variables ----! 
+
+    !---- Local Variables ----!
     implicit none
 
     !---- List of public subroutines ----!
@@ -151,7 +151,7 @@
     !!---- Update: February - 2005
     !!
     logical, public :: err_random
-    
+
     !!----
     !!---- ERR_RANDOM_MESS
     !!----    character(len=150), public :: ERR_Random_Mess
