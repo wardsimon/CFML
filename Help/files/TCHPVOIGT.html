@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Subroutines</title>
+<html><head><title>TCH_PVOIGT</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,19 +63,27 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-a.rvts10, span.rvts10
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
 {
  color: #0000ff;
- text-decoration: underline;
 }
-a.rvts10:hover { color: #0000ff; }
-span.rvts11 /* Font Style */
+span.rvts12
+{
+ font-size: 12pt;
+ font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial', 'Helvetica', sans-serif;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts12 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -105,14 +113,37 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SubProfFinger.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?TCHPVOIGT.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts11>Subroutines</span></p>
-<p><a class=rvts10 href="INITPROFVAL.html"><br></a></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li><a class=rvts10 href="INITPROFVAL.html">INIT_PROF_VAL</a></li>
-<li><a class=rvts10 href="PROFVAL.html">PROF_VAL</a></li>
-</ul>
-<p class=rvps3><span class=rvts12>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps2><span class=rvts13>TCH_PVOIGT</span></p>
+<p><span class=rvts10>REAL FUNCTION TCH_PVOIGT(X, PAR )</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>X</p>
+</td>
+<td width=369><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION</span>(:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>PAR</p>
+</td>
+<td width=369><p>PAR(1)=H1; PAR(2)=H2</p>
+<p>PAR(3)=<span class=rvts12>&eta;</span>1; PAR(4)=<span class=rvts12>&eta;</span>2</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>The TCH_PVoigt is defined as</p>
+<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Level 0</title>
+<html><head><title>TCH_PVOIGT_DER</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -65,29 +65,20 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-style: italic;
+ font-size: 12pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 12pt;
- font-weight: bold;
+ color: #0000ff;
 }
-span.rvts12
-{
- font-weight: bold;
-}
-span.rvts13
-{
- font-style: italic;
-}
-span.rvts14 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -117,32 +108,56 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?Level0.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?TCHPVOIGTDER.html"; }</script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>Level 0</span></p>
-<p><span class=rvts11><br></span></p>
+<p class=rvps2><span class=rvts12>TCH_PVOIGT_DER</span></p>
+<p><span class=rvts10>SUBROUTINE TCH_PVOIGT_DER(X, PAR, PV_VAL, DPAR )</span></p>
+<p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=152 style="background-color: #ccffcc;"><p><span class=rvts10>Concept</span></p>
-<p><span class=rvts10><br></span></p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=329 style="background-color: #ccffcc;"><p><span class=rvts10>Module Name</span></p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ccffcc;"><p><span class=rvts10>Purpose</span></p>
+<td width=98><p>X</p>
+</td>
+<td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13>Constants...</span></p>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION</span>(:)</p>
 </td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12>CFML_GlobalDeps</span></p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ffff99;"><p>Global parameters on the <span class=rvts10>CrysFML</span> library</p>
+<td width=98><p>PAR</p>
+</td>
+<td width=369><p>PAR(1)=HG; PAR(2)=HL</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>PV_VAL</p>
+</td>
+<td width=369><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>DPAR</p>
+</td>
+<td width=369><p>1=DerX, 2=DerHG, 3=DerHL</p>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts11><br></span></p>
-<p><span class=rvts11><br></span></p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p><br></p>
+<p>Routine for calculation of the value of the function on x and the partial derivate of the function according to the parameters</p>
+<p class=rvps3><span class=rvts13>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE:  CFML_PowderProfiles_CW
@@ -317,6 +317,7 @@
 
        Hg=par(1)
        Hl=par(2)
+
        !Calculate H and eta from Tomson-Cox-Hasting formula
        H=hg**5+o1*hg**4*hl+o2*hg**3*hl**2+o3*hg**2*hl**3+o4*hg*hl**4+hl**5
        H=abs(H)**0.2_cp

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_PowderProfiles_Finger
@@ -29,7 +29,7 @@
  Module CFML_PowderProfiles_Finger
     !---- Use Modules ----!
     Use CFML_GlobalDeps, only: cp
-    
+
     !---- Variables ----!
     implicit none
 

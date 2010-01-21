@@ -3,7 +3,7 @@
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_GlobalDeps  (Mac OS version)
-!!----   INFO: Precision for for CrysFML library and Operating System information
+!!----   INFO: Precision for CrysFML library and Operating System information
 !!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
