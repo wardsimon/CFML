@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- GENERAL INFORMATION CONCERNING THE LEAST-SQUARES PROCEDURES IN THIS FILE
@@ -302,7 +302,7 @@
     !!
     Type, public :: LSQ_Conditions_type
        logical          :: constr=.false.  ! if true box constraint of percent% are applied to parameters
-       logical          :: reached=.false.         ! if true convergence was reached in the algorithm
+       logical          :: reached=.false. ! if true convergence was reached in the algorithm
        integer          :: corrmax=50.0    ! value of correlation in % to output
        integer          :: nfev=0          ! number of function evaluations (output component, useful for assessing LM algorithm)
        integer          :: njev=0          ! number of Jacobian evaluations                 "
@@ -514,7 +514,8 @@
     !!
     Function Fchisq(Nfr,Nobs,Y,W,Yc) Result(Chisq)
        !---- Arguments ----!
-       integer,                    intent(in) :: nfr,nobs
+       integer,                    intent(in) :: nfr
+       integer,                    intent(in) :: nobs
        real(kind=cp),dimension(:), intent(in) :: y
        real(kind=cp),dimension(:), intent(in) :: w
        real(kind=cp),dimension(:), intent(in) :: yc

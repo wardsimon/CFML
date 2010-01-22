@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Math_3D
@@ -101,16 +101,16 @@
                Get_Spheric_Coord_sp
 
     !---- Definitions ----!
-    !!--++                                                
-    !!--++  EPS                                           
-    !!--++     real(kind=cp), private ::  eps=0.00001_cp   
-    !!--++                                                
-    !!--++  (PRIVATE)                                              
-    !!--++     Epsilon value                              
-    !!--++                                                
-    !!--++  Update: February - 2005                       
-    !!                                                    
-    real(kind=cp),  private  ::  eps=0.00001_cp 
+    !!--++
+    !!--++  EPS
+    !!--++     real(kind=cp), private ::  eps=0.00001_cp
+    !!--++
+    !!--++  (PRIVATE)
+    !!--++     Epsilon value
+    !!--++
+    !!--++  Update: February - 2005
+    !!
+    real(kind=cp),  private  ::  eps=0.00001_cp
 
     !!----
     !!---- ERR_Math3D
@@ -236,7 +236,7 @@
 
        return
     End Function Cross_Product_in
-    
+
     !!--++
     !!--++ Function  Cross_Product_sp(U,V) Result(W)
     !!--++    real(kind=sp), dimension(3), intent( in) :: u   !  In -> Vector 1
@@ -260,7 +260,7 @@
 
        return
     End Function Cross_Product_sp
-    
+
     !!----
     !!---- Function Determ_A(A)
     !!----    integer/real(kind=cp), dimension(3,3), intent(in)  :: a
