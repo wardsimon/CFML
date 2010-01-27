@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -17,7 +17,7 @@
 !!---- VARIABLES
 !!--++    CTAB                    [Private]
 !!--++    DIGIT                   [Private]
-!!----    ERR_STRING_MESS
+!!----    ERR_String_Mess
 !!----    ERR_STRING
 !!----    ERR_TEXT_TYPE
 !!--++    IENDFMT                 [Private]
@@ -49,6 +49,7 @@
 !!----       EQUAL_SETS_TEXT
 !!----       L_CASE
 !!----       PACK_STRING
+!!----       STRIP_TRING
 !!----       U_CASE
 !!----
 !!----    Subroutines:
@@ -557,17 +558,18 @@
     End Function U_Case
 
     Function Strip_String(string, to_strip) Result(striped_string)
+       !---- Arguments----!
+       character (len = *), intent(in)    :: string
+       character (len = *), intent(in)    :: to_strip
+       character (len = len_trim(string)) :: striped_string
 
-        character (len = *), intent(in)    :: string
-        character (len = *), intent(in)    :: to_strip
-        character (len = len_trim(string)) :: striped_string
+       !---- Local variables ----!
+       integer                            :: i
 
-        character (len = len_trim(string)) :: trimed_string
-        character (len = len(to_strip))    :: trailing_chars
-        integer                            :: i,last, strip_length
-        striped_string=trim(string)
-        i=index(string,trim(to_strip),back=.true.)
-        if(i > 0)striped_string=string(1:i-1)
+       striped_string=trim(string)
+       i=index(string,trim(to_strip),back=.true.)
+
+       if (i > 0) striped_string=string(1:i-1)
 
     End Function Strip_String
 
@@ -1567,32 +1569,29 @@
     !!---- Update: December 2009
     !!
     Subroutine Get_Separator_Pos(line,car,pos,ncar)
-       !---- Arguments ----!
-       character(len=*),      intent(in)  :: line
-       character(len=1),      intent(in)  :: car
-       integer, dimension(:), intent(out) :: pos
-       integer,               intent(out) :: ncar
+      character(len=*),      intent(in)  :: line
+      character(len=1),      intent(in)  :: car
+      integer, dimension(:), intent(out) :: pos
+      integer,               intent(out) :: ncar
+      integer :: i,j,k
 
-       !---- Local Variables ----!
-       integer :: i,j,k
-
-       ncar=0
-       j=0
-       do i=1,len_trim(line)
-          j=j+1
-          if (line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
-             do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
-                j=j+1
-                if (line(j:j) /= '"') cycle
-                exit
-             end do
-          end if
-          if (line(j:j) == car) then
-             ncar=ncar+1
-             pos(ncar)=j
-          end if
-       end do
-       return
+      ncar=0
+      j=0
+      do i=1,len_trim(line)
+        j=j+1
+        if(line(j:j) == '"') then  !A chains of characters is found, advance up the the next "
+          do k=1,len_trim(line)    !the character "car" is ignored if it is within " "
+            j=j+1
+            if(line(j:j) /= '"') cycle
+            exit
+          end do
+        end if
+        if(line(j:j) == car) then
+          ncar=ncar+1
+          pos(ncar)=j
+        end if
+      end do
+      return
     End Subroutine Get_Separator_Pos
 
     !!----
@@ -2175,7 +2174,7 @@
 
        if (abs(std) < 0.0000001) then
           if (abs(value) > 999999.0) then
-             write(unit=aux,fmt="(f19.5)") value
+             write(unit=aux,fmt=*) value
           else
              write(unit=aux,fmt="(f14.5)") value
           end if
@@ -2194,7 +2193,7 @@
        iy=nint(y)
 
        aux=" "
-       write(unit=aux,fmt="(f19.5)") value
+       write(unit=aux,fmt=*) value
        line=trim(aux)
        n=len_trim(line)
        fmtcar="f"
@@ -2224,7 +2223,7 @@
        n=len_trim(line)
        np=len(line)-n-1             !number of available places for writing
        aux=" "
-       write(unit=aux,fmt="(i14)") iy
+       write(unit=aux,fmt=*) iy
        aux=pack_string(aux)
        long=len_trim(aux)
        if(long > np) then
