@@ -106,8 +106,8 @@
        do j=1,file_dat%nlines
           line=adjustl(file_dat%line(j))
           line=l_case(line)
-          if (line(1:1) ==" ") cycle
-          if (line(1:1) =="!") cycle
+          if (len_trim(line) == 0) cycle
+          if (line(1:1) =="!" .or. line(1:1) =="#") cycle
           i=index(line,"!")
           if( i /= 0) line=trim(line(1:i-1))
 
