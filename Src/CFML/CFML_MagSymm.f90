@@ -38,7 +38,7 @@
 !!----
 !!----    Subroutines:
 !!----       INIT_ERR_MAGSYM
-!!--++       INIT_MAGSYMM_K_TYPE             [Private]
+!!----       INIT_MAGSYMM_K_TYPE             !OZ made it public to use in Read_Refcodes_Magnetic_Structure
 !!----       READN_SET_MAGNETIC_STRUCTURE
 !!----       SET_SHUBNIKOV_GROUP
 !!----       WRITE_MAGNETIC_STRUCTURE
@@ -71,9 +71,8 @@
 
     !---- List of public subroutines ----!
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
-              Write_Shubnikov_Group
+              Write_Shubnikov_Group, Init_MagSymm_k_Type
 
-    private:: Init_MagSymm_k_Type
 
     !---- Definitions ----!
 
@@ -1434,9 +1433,9 @@
 
        !write(*,*) "  Primed Generators: ", (gen(i),i=1,ng), " Correspond to operators: ",(numop(i),i=1,ng)
 
-        !if(allocated(tab)) deallocate(tab)
-        !allocate(tab(m,m))
-        !call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
+       !if(allocated(tab)) deallocate(tab)
+       !allocate(tab(m,m))
+       !call  Set_SpG_Mult_Table(SG%SpG,tab,.true.)
 
        !Construct MGp from the Shubnikov group
        !Just a dummy construction of MGp for avoiding warning or missbehaviour of compilers (provisional)

@@ -28,6 +28,7 @@
 !!----    MAGH_TYPE
 !!----    MAGH_LIST_TYPE
 !!----    MAGHD_TYPE
+!!----    MAGHD_LIST_TYPE
 !!--++    AJH                          [Private]
 !!--++    BJH                          [Private]
 !!----    ERR_MSFAC
@@ -197,6 +198,24 @@
        complex(kind=cp),dimension(3,2,24) :: MiV       !Magnetic interaction vector of each domain
        complex(kind=cp),dimension(3)      :: AMiV      !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     End Type  MagHD_Type
+
+    !!----
+    !!----  MAGHD_LIST_TYPE
+    !!----    Type, Public  :: MagHD_List_Type
+    !!----       integer                                    :: Nref
+    !!----       Type(MagHD_Type),allocatable, dimension(:) :: Mh
+    !!----    End Type MagHD_List_Type
+    !!----
+    !!----    Define a list of magnetic reflections containing the
+    !!----    scatering vector, the magnetic structure factor and
+    !!----    the magnetic interaction vector for each of the domains.
+    !!----
+    !!---- Update: February - 2009 OZ
+    !!
+    Type, Public  :: MagHD_List_Type
+       integer                                    :: Nref
+       Type(MagHD_Type),allocatable, dimension(:) :: Mh
+    End Type MagHD_List_Type
 
     !!--++
     !!--++ AJH
