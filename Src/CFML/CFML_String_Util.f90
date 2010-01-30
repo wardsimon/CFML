@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010             Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -530,6 +530,32 @@
     End Function Pack_String
 
     !!----
+    !!---- Character Strip_String(string, to_strip) Result(striped_string)
+    !!----    character (len=*), intent(in) :: string          !  In ->
+    !!----    character (len=*), intent(in) :: to_string       !  In ->
+    !!----    character (len=len(text))     :: striped_string  ! Out ->
+    !!----
+    !!----
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Function Strip_String(string, to_strip) Result(striped_string)
+       !---- Arguments----!
+       character (len = *), intent(in)    :: string
+       character (len = *), intent(in)    :: to_strip
+       character (len = len_trim(string)) :: striped_string
+
+       !---- Local variables ----!
+       integer                            :: i
+
+       striped_string=trim(string)
+       i=index(string,trim(to_strip),back=.true.)
+
+       if (i > 0) striped_string=string(1:i-1)
+
+    End Function Strip_String
+
+    !!----
     !!---- Character Function U_Case(Text) Result (Mtext)
     !!----    character (len=*), intent(in) :: text   !  In -> String:"Input Line"
     !!----    character (len=len(text))     :: mtext  ! Out -> String:"INPUT LINE"
@@ -557,21 +583,7 @@
        return
     End Function U_Case
 
-    Function Strip_String(string, to_strip) Result(striped_string)
-       !---- Arguments----!
-       character (len = *), intent(in)    :: string
-       character (len = *), intent(in)    :: to_strip
-       character (len = len_trim(string)) :: striped_string
 
-       !---- Local variables ----!
-       integer                            :: i
-
-       striped_string=trim(string)
-       i=index(string,trim(to_strip),back=.true.)
-
-       if (i > 0) striped_string=string(1:i-1)
-
-    End Function Strip_String
 
     !---------------------!
     !---- Subroutines ----!
