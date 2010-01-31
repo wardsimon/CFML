@@ -10,6 +10,7 @@ rem
    f95 -c -g CFML_GlobalDeps_Windows.f90           >  out
 rem
    f95 -c -g CFML_math_gen.f90           >> out
+   f95 -c -g CFML_LSQ_TypeDef.f90        >> out
    f95 -c -g CFML_spher_harm.f90         >> out
    f95 -c -g CFML_random.f90             >> out
    f95 -c -g CFML_ffts.f90               >> out

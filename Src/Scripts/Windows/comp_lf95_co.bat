@@ -11,6 +11,7 @@ rem
    lf95 -c CFML_GlobalDeps_Windows.f90         -o1 -nchk   >> out
 rem
    lf95 -c CFML_math_gen.f90         -o1 -nchk   >> out
+   lf95 -c CFML_LSQ_TypeDef.f90      -o1 -nchk   >> out
    lf95 -c CFML_spher_harm.f90       -o1 -nchk   >> out
    lf95 -c CFML_random.f90           -o1 -nchk   >> out
    lf95 -c CFML_ffts.f90             -o1 -nchk   >> out

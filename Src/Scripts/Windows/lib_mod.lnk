@@ -1,5 +1,6 @@
 CrysFML
 +CFML_globaldeps_Windows&
++CFML_LSQ_TypeDef&
 +CFML_math_gen&
 +CFML_random&
 +CFML_ffts&

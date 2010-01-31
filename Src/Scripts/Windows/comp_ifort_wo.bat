@@ -10,6 +10,7 @@ rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /O2 /nologo /Qvec-report0
 rem
    ifort /c CFML_math_gen.f90         /O2 /nologo /Qvec-report0
+   ifort /c CFML_LSQ_TypeDef.f90      /O2 /nologo /Qvec-report0
    ifort /c CFML_spher_harm.f90       /O2 /nologo /Qvec-report0
    ifort /c CFML_random.f90           /O2 /nologo /Qvec-report0
    ifort /c CFML_ffts.f90             /O2 /nologo /Qvec-report0

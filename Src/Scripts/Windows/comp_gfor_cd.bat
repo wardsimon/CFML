@@ -10,6 +10,7 @@ rem
    gfortran -c CFML_GlobalDeps_Windows.f90         -O0 -ftrace=full  -std=f2003    >  out
 rem
    gfortran -c CFML_math_gen.f90         -O0 -ftrace=full  -std=f2003    >> out
+   gfortran -c CFML_LSQ_TypeDef.f90      -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_spher_harm.f90       -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_random.f90           -O0 -ftrace=full  -std=f2003    >> out
    gfortran -c CFML_ffts.f90             -O0 -ftrace=full  -std=f2003    >> out

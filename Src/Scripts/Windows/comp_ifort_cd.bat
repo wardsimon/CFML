@@ -10,6 +10,7 @@ rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /debug:full /check /traceback /nologo
 rem
    ifort /c CFML_math_gen.f90         /debug:full /check /traceback /nologo
+   ifort /c CFML_LSQ_TypeDef.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_spher_harm.f90       /debug:full /check /traceback /nologo
    ifort /c CFML_random.f90           /debug:full /check /traceback /nologo
    ifort /c CFML_ffts.f90             /debug:full /check /traceback /nologo
