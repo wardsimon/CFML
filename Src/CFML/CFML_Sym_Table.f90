@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Symmetry_Tables
@@ -157,7 +157,7 @@
     !!---- Update: January - 2005
     !!
     logical, public :: ERR_Symtab=.false.
-    
+
     !!----
     !!---- ERR_SYMTAB_MESS
     !!----    character(len=150), public :: ERR_SymTab_Mess

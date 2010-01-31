@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Crystallographic_Symmetry
@@ -5459,7 +5459,7 @@
                                                           ! of the stabilizer of x
        !---- Local variables ----!
        real(kind=cp), dimension(3):: xx
-       integer                    :: j 
+       integer                    :: j
 
        order  = 1    !Identity belongs always to the stabilizer
        ptr(:) = 0
