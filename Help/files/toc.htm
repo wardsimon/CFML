@@ -7,6 +7,7 @@
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.cookie.js"></script>
     <script type="text/javascript" src="jquery.treeview.min.js"></script>
+    <script type="text/javascript" src="jquery.rich-array-hnd.js"></script>
     <script type="text/javascript" src="searchdata.js"></script>
     <script type="text/javascript"><!--
       $(document).ready(function(){
@@ -24,7 +25,8 @@
       oParentDiv.appendChild(oLink);if (nCnt<aLinks.length-1){oBr=document.createElement("BR");oParentDiv.appendChild(oBr);}}document.body.appendChild(oParentDiv);var pos=$(oSender).offset(); 
       var height=$(oSender).height();$(oParentDiv).css({"backgroundColor": "#EEEEEE","border": "1px solid #999999","position": "absolute","left": (pos.left+20)+"px","top": (pos.top+height+5)+"px",
       "padding": 5+"px"});$(oParentDiv).show();return false;}
-      function performSearch(){sValue = $("#search_value").val().toLowerCase();if (oSearchData[sValue]){$("#search_results").html("Found " + oSearchData[sValue].length + " results");for (var nCnt = 0; nCnt < oSearchData[sValue].length; nCnt++){var oElmt = document.createElement("DIV");oElmt.innerHTML = "<a href='" + oSearchData[sValue][nCnt][0] + "' target='FrameMain'>" + oSearchData[sValue][nCnt][1] + "</a> (" + oSearchData[sValue][nCnt][2] + ")<br/>";$(oElmt).appendTo($("#search_results"));}}else{$("#search_results").html("No result found");}}
+      function performSearch(){sValue = $("#search_value").val().toLowerCase();var aValues = sValue.split(" ");var aFinalResults = [];for (var nValue = 0; nValue < aValues.length; nValue++){if (aValues[nValue] == "") continue;var aResults = oSearchData[aValues[nValue]];if (aResults && aResults.length > 0){if (nValue == 0) aFinalResults = aResults
+else aFinalResults = jQuery.richArray.intersect(aFinalResults, aResults);}else{aFinalResults = [];break;}}if (aFinalResults.length > 0){$("#search_results").html("Found " + aFinalResults.length + " results");for (var nCnt = 0; nCnt < aFinalResults.length; nCnt++){var oElmt = document.createElement("DIV");oElmt.innerHTML = "<a href='" + aFinalResults[nCnt][0] + "?search=" + sValue + "' target='FrameMain'>" + aFinalResults[nCnt][1] + "</a> (" + aFinalResults[nCnt][2] + ")<br/>";$(oElmt).appendTo($("#search_results"));}}else{$("#search_results").html("No result found");}}
     //--></script>
     <style type="text/css">
       ul.tabNavigation{list-style: none;margin: 0;padding: 10px;}ul.tabNavigation li{display: inline;}ul.tabNavigation li A{padding: 3px 5px;background-color: #ccc;color: #000;
@@ -293,6 +295,40 @@
                           
                           <li>
                             <a href="WRITESCROLLTEXT.html" class="file" target="FrameMain">WRITE_SCROLL_TEXT</a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  
+                  <li>
+                    <a href="CFML_LSQ_TypeDef.html" class="folder" target="FrameMain">CFML_LSQ_TypeDef</a>
+                    <ul>
+                      
+                      <li>
+                        <a href="LSQParam.html" class="folder" target="FrameMain">Parameters</a>
+                        <ul>
+                          
+                          <li>
+                            <a href="MAXFREEPAR.html" class="file" target="FrameMain">MAX_FREE_PAR</a>
+                          </li>
+                        </ul>
+                      </li>
+                      
+                      <li>
+                        <a href="LSQVariables.html" class="folder" target="FrameMain">Variables</a>
+                        <ul>
+                          
+                          <li>
+                            <a href="LSQCONDITIONSTYPE.html" class="file" target="FrameMain">LSQ_CONDITIONS_TYPE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LSQDATATYPE.html" class="file" target="FrameMain">LSQ_DATA_TYPE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LSQSTATEVECTORTYPE.html" class="file" target="FrameMain">LSQ_STATE_VECTOR_TYPE</a>
                           </li>
                         </ul>
                       </li>
@@ -928,6 +964,10 @@
                           </li>
                           
                           <li>
+                            <a href="STRIPSTRING.html" class="file" target="FrameMain">STRIP_STRING</a>
+                          </li>
+                          
+                          <li>
                             <a href="UCASE_StringUtil.html" class="file" target="FrameMain">U_CASE</a>
                           </li>
                         </ul>
@@ -1052,27 +1092,25 @@
                         <ul>
                           
                           <li>
-                            <a href="TypeDefDiffPatt.html" class="folder" target="FrameMain">Type Definitions</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="DIFFRACTIONPATTERNTYPE.html" class="file" target="FrameMain">DIFFRACTION_PATTERN_TYPE</a>
-                              </li>
-                            </ul>
+                            <a href="DIFFRACTIONPATTERNTYPE.html" class="file" target="FrameMain">DIFFRACTION_PATTERN_TYPE</a>
                           </li>
                           
                           <li>
-                            <a href="ErrVarDiffPatt.html" class="folder" target="FrameMain">Error Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ERRDIFFPATT.html" class="file" target="FrameMain">ERR_DIFFPATT</a>
-                              </li>
-                              
-                              <li>
-                                <a href="ERRMESSDIFFPATT.html" class="file" target="FrameMain">ERR_DIFFPATT_MESS</a>
-                              </li>
-                            </ul>
+                            <a href="ERRDIFFPATT.html" class="file" target="FrameMain">ERR_DIFFPATT</a>
+                          </li>
+                          
+                          <li>
+                            <a href="ERRMESSDIFFPATT.html" class="file" target="FrameMain">ERR_DIFFPATT_MESS</a>
+                          </li>
+                        </ul>
+                      </li>
+                      
+                      <li>
+                        <a href="FunDiffPat.html" class="folder" target="FrameMain">Functions</a>
+                        <ul>
+                          
+                          <li>
+                            <a href="CALCFWHMPEAK.html" class="file" target="FrameMain">CALC_FWHM_PEAK</a>
                           </li>
                         </ul>
                       </li>
@@ -1082,43 +1120,31 @@
                         <ul>
                           
                           <li>
-                            <a href="GenRouDiffPatt.html" class="folder" target="FrameMain">General Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ALLOCATEDIFFRACTIONPATTERN.html" class="file" target="FrameMain">ALLOCATE_DIFFRACTION_PATTERN</a>
-                              </li>
-                              
-                              <li>
-                                <a href="CALCBACKGROUND.html" class="file" target="FrameMain">CALC_BACKGROUND</a>
-                              </li>
-                              
-                              <li>
-                                <a href="PURGEDIFFRACTIONPATTERN.html" class="file" target="FrameMain">PURGE_DIFFRACTION_PATTERN</a>
-                              </li>
-                              
-                              <li>
-                                <a href="READBACKGROUNDFILE.html" class="file" target="FrameMain">READ_BACKGROUND_FILE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="READPATTERN.html" class="file" target="FrameMain">READ_PATTERN</a>
-                              </li>
-                              
-                              <li>
-                                <a href="WRITEPATTERNXYSIG.html" class="file" target="FrameMain">WRITE_PATTERN_XYSIG</a>
-                              </li>
-                            </ul>
+                            <a href="ALLOCATEDIFFRACTIONPATTERN.html" class="file" target="FrameMain">ALLOCATE_DIFFRACTION_PATTERN</a>
                           </li>
                           
                           <li>
-                            <a href="InitRouDiffPat.html" class="folder" target="FrameMain">Initializing Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="INITERRDIFFPATT.html" class="file" target="FrameMain">INIT_ERR_DIFFPATT  </a>
-                              </li>
-                            </ul>
+                            <a href="CALCBACKGROUND.html" class="file" target="FrameMain">CALC_BACKGROUND</a>
+                          </li>
+                          
+                          <li>
+                            <a href="INITERRDIFFPATT.html" class="file" target="FrameMain">INIT_ERR_DIFFPATT  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="PURGEDIFFRACTIONPATTERN.html" class="file" target="FrameMain">PURGE_DIFFRACTION_PATTERN</a>
+                          </li>
+                          
+                          <li>
+                            <a href="READBACKGROUNDFILE.html" class="file" target="FrameMain">READ_BACKGROUND_FILE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="READPATTERN.html" class="file" target="FrameMain">READ_PATTERN</a>
+                          </li>
+                          
+                          <li>
+                            <a href="WRITEPATTERNXYSIG.html" class="file" target="FrameMain">WRITE_PATTERN_XYSIG</a>
                           </li>
                         </ul>
                       </li>
@@ -1134,17 +1160,11 @@
                         <ul>
                           
                           <li>
-                            <a href="ErrVarMath3D.html" class="folder" target="FrameMain">Error Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ERRMATH3D.html" class="file" target="FrameMain">ERR_MATH3D</a>
-                              </li>
-                              
-                              <li>
-                                <a href="ERRMATH3DMESS.html" class="file" target="FrameMain">ERR_MATH3D_MESS</a>
-                              </li>
-                            </ul>
+                            <a href="ERRMATH3D.html" class="file" target="FrameMain">ERR_MATH3D</a>
+                          </li>
+                          
+                          <li>
+                            <a href="ERRMATH3DMESS.html" class="file" target="FrameMain">ERR_MATH3D_MESS</a>
                           </li>
                         </ul>
                       </li>
@@ -1192,75 +1212,63 @@
                         <ul>
                           
                           <li>
-                            <a href="ArrRoutMath3D.html" class="folder" target="FrameMain">Array Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="GETCARTFROMCYLIN.html" class="file" target="FrameMain">GET_CART_FROM_CYLIN</a>
-                              </li>
-                              
-                              <li>
-                                <a href="GETCYLINDRCOORD.html" class="file" target="FrameMain">GET_CYLINDR_COORD</a>
-                              </li>
-                              
-                              <li>
-                                <a href="GETCARTFROMSPHER.html" class="file" target="FrameMain">GET_CART_FROM_SPHER</a>
-                              </li>
-                              
-                              <li>
-                                <a href="GETPLANEFROMPOINTS.html" class="file" target="FrameMain">GET_PLANE_FROM_POINTS</a>
-                              </li>
-                              
-                              <li>
-                                <a href="GETSPHERICCOORD.html" class="file" target="FrameMain">GET_SPHERIC_COORD</a>
-                              </li>
-                              
-                              <li>
-                                <a href="MATRIXDIAGEIGEN.html" class="file" target="FrameMain">MATRIX_DIAGEIGEN </a>
-                              </li>
-                              
-                              <li>
-                                <a href="MATRIXINVERSE.html" class="file" target="FrameMain">MATRIX_INVERSE </a>
-                              </li>
-                              
-                              <li>
-                                <a href="RESOLVSIST1X2.html" class="file" target="FrameMain">RESOLV_SIST_1X2</a>
-                              </li>
-                              
-                              <li>
-                                <a href="RESOLVSIST1X3.html" class="file" target="FrameMain">RESOLV_SIST_1X3</a>
-                              </li>
-                              
-                              <li>
-                                <a href="RESOLVSIST2X2.html" class="file" target="FrameMain">RESOLV_SIST_2X2</a>
-                              </li>
-                              
-                              <li>
-                                <a href="RESOLVSIST2X3.html" class="file" target="FrameMain">RESOLV_SIST_2X3</a>
-                              </li>
-                              
-                              <li>
-                                <a href="RESOLVSIST3X3.html" class="file" target="FrameMain">RESOLV_SIST_3X3</a>
-                              </li>
-                            </ul>
+                            <a href="GETCARTFROMCYLIN.html" class="file" target="FrameMain">GET_CART_FROM_CYLIN</a>
                           </li>
                           
                           <li>
-                            <a href="InitRoutMath3D.html" class="folder" target="FrameMain">Initializing Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="INITERRMATH3D.html" class="file" target="FrameMain">INIT_ERR_MATH3D</a>
-                              </li>
-                              
-                              <li>
-                                <a href="SETEPS.html" class="file" target="FrameMain">SET_EPS</a>
-                              </li>
-                              
-                              <li>
-                                <a href="SETEPSDEFAULT.html" class="file" target="FrameMain">SET_EPS_DEFAULT</a>
-                              </li>
-                            </ul>
+                            <a href="GETCYLINDRCOORD.html" class="file" target="FrameMain">GET_CYLINDR_COORD</a>
+                          </li>
+                          
+                          <li>
+                            <a href="GETCARTFROMSPHER.html" class="file" target="FrameMain">GET_CART_FROM_SPHER</a>
+                          </li>
+                          
+                          <li>
+                            <a href="GETPLANEFROMPOINTS.html" class="file" target="FrameMain">GET_PLANE_FROM_POINTS</a>
+                          </li>
+                          
+                          <li>
+                            <a href="GETSPHERICCOORD.html" class="file" target="FrameMain">GET_SPHERIC_COORD</a>
+                          </li>
+                          
+                          <li>
+                            <a href="INITERRMATH3D.html" class="file" target="FrameMain">INIT_ERR_MATH3D</a>
+                          </li>
+                          
+                          <li>
+                            <a href="MATRIXDIAGEIGEN.html" class="file" target="FrameMain">MATRIX_DIAGEIGEN </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MATRIXINVERSE.html" class="file" target="FrameMain">MATRIX_INVERSE </a>
+                          </li>
+                          
+                          <li>
+                            <a href="RESOLVSIST1X2.html" class="file" target="FrameMain">RESOLV_SIST_1X2</a>
+                          </li>
+                          
+                          <li>
+                            <a href="RESOLVSIST1X3.html" class="file" target="FrameMain">RESOLV_SIST_1X3</a>
+                          </li>
+                          
+                          <li>
+                            <a href="RESOLVSIST2X2.html" class="file" target="FrameMain">RESOLV_SIST_2X2</a>
+                          </li>
+                          
+                          <li>
+                            <a href="RESOLVSIST2X3.html" class="file" target="FrameMain">RESOLV_SIST_2X3</a>
+                          </li>
+                          
+                          <li>
+                            <a href="RESOLVSIST3X3.html" class="file" target="FrameMain">RESOLV_SIST_3X3</a>
+                          </li>
+                          
+                          <li>
+                            <a href="SETEPS.html" class="file" target="FrameMain">SET_EPS</a>
+                          </li>
+                          
+                          <li>
+                            <a href="SETEPSDEFAULT.html" class="file" target="FrameMain">SET_EPS_DEFAULT</a>
                           </li>
                         </ul>
                       </li>
@@ -1276,27 +1284,15 @@
                         <ul>
                           
                           <li>
-                            <a href="TypeDefOptimGen.html" class="folder" target="FrameMain">Type Definitions</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="OPTCONDITIONSTYPE.html" class="file" target="FrameMain">OPT_CONDITIONS_TYPE</a>
-                              </li>
-                            </ul>
+                            <a href="OPTCONDITIONSTYPE.html" class="file" target="FrameMain">OPT_CONDITIONS_TYPE</a>
                           </li>
                           
                           <li>
-                            <a href="ErrVarOptimGen.html" class="folder" target="FrameMain">Error Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ERROPTIM.html" class="file" target="FrameMain">ERR_OPTIM</a>
-                              </li>
-                              
-                              <li>
-                                <a href="ERROPTIMMESS.html" class="file" target="FrameMain">ERR_OPTIM_MESS</a>
-                              </li>
-                            </ul>
+                            <a href="ERROPTIM.html" class="file" target="FrameMain">ERR_OPTIM</a>
+                          </li>
+                          
+                          <li>
+                            <a href="ERROPTIMMESS.html" class="file" target="FrameMain">ERR_OPTIM_MESS</a>
                           </li>
                         </ul>
                       </li>
@@ -1306,61 +1302,43 @@
                         <ul>
                           
                           <li>
-                            <a href="GenRoutinesOptimGen.html" class="folder" target="FrameMain">Generic Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="SETOPTCONDITIONS.html" class="file" target="FrameMain">SET_OPT_CONDITIONS</a>
-                              </li>
-                              
-                              <li>
-                                <a href="WRITEOPTIMIZATIONCONDITIONS.html" class="file" target="FrameMain">WRITE_OPTIMIZATION_CONDITIONS</a>
-                              </li>
-                            </ul>
+                            <a href="CGQUASINEWTON.html" class="file" target="FrameMain">CG_QUASI_NEWTON</a>
                           </li>
                           
                           <li>
-                            <a href="InitRouOptimGen.html" class="folder" target="FrameMain">Initializing Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="INITERROPTIM.html" class="file" target="FrameMain">INIT_ERR_OPTIM</a>
-                              </li>
-                              
-                              <li>
-                                <a href="INITOPTCONDITIONS.html" class="file" target="FrameMain">INIT_OPT_CONDITIONS</a>
-                              </li>
-                            </ul>
+                            <a href="CSENDESGLOBAL.html" class="file" target="FrameMain">CSENDES_GLOBAL</a>
                           </li>
                           
                           <li>
-                            <a href="OptimRoutines.html" class="folder" target="FrameMain">Optimization Routines</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="CGQUASINEWTON.html" class="file" target="FrameMain">CG_QUASI_NEWTON</a>
-                              </li>
-                              
-                              <li>
-                                <a href="CSENDESGLOBAL.html" class="file" target="FrameMain">CSENDES_GLOBAL</a>
-                              </li>
-                              
-                              <li>
-                                <a href="LOCALMINDFP.html" class="file" target="FrameMain">LOCAL_MIN_DFP</a>
-                              </li>
-                              
-                              <li>
-                                <a href="LOCALMINRAND.html" class="file" target="FrameMain">LOCAL_MIN_RAND</a>
-                              </li>
-                              
-                              <li>
-                                <a href="LOCALOPTIMIZE.html" class="file" target="FrameMain">LOCAL_OPTIMIZE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="NELDERMEADSIMPLEX.html" class="file" target="FrameMain">NELDER_MEAD_SIMPLEX</a>
-                              </li>
-                            </ul>
+                            <a href="INITERROPTIM.html" class="file" target="FrameMain">INIT_ERR_OPTIM</a>
+                          </li>
+                          
+                          <li>
+                            <a href="INITOPTCONDITIONS.html" class="file" target="FrameMain">INIT_OPT_CONDITIONS</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LOCALMINDFP.html" class="file" target="FrameMain">LOCAL_MIN_DFP</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LOCALMINRAND.html" class="file" target="FrameMain">LOCAL_MIN_RAND</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LOCALOPTIMIZE.html" class="file" target="FrameMain">LOCAL_OPTIMIZE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="NELDERMEADSIMPLEX.html" class="file" target="FrameMain">NELDER_MEAD_SIMPLEX</a>
+                          </li>
+                          
+                          <li>
+                            <a href="SETOPTCONDITIONS.html" class="file" target="FrameMain">SET_OPT_CONDITIONS</a>
+                          </li>
+                          
+                          <li>
+                            <a href="WRITEOPTIMIZATIONCONDITIONS.html" class="file" target="FrameMain">WRITE_OPTIMIZATION_CONDITIONS</a>
                           </li>
                         </ul>
                       </li>
@@ -1376,41 +1354,25 @@
                         <ul>
                           
                           <li>
-                            <a href="TypeDefOptimLSQ.html" class="folder" target="FrameMain">Type Definitions</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="LSQCONDITIONSTYPE.html" class="file" target="FrameMain">LSQ_CONDITIONS_TYPE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="LSQSTATEVECTORTYPE.html" class="file" target="FrameMain">LSQ_STATE_VECTOR_TYPE</a>
-                              </li>
-                            </ul>
+                            <a href="ERRLSQ.html" class="file" target="FrameMain">ERR_LSQ</a>
                           </li>
                           
                           <li>
-                            <a href="ErrVarOptimLSQ.html" class="folder" target="FrameMain">Error Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ERRLSQ.html" class="file" target="FrameMain">ERR_LSQ</a>
-                              </li>
-                              
-                              <li>
-                                <a href="ERRLSQMESS.html" class="file" target="FrameMain">ERR_LSQ_MESS</a>
-                              </li>
-                            </ul>
+                            <a href="ERRLSQMESS.html" class="file" target="FrameMain">ERR_LSQ_MESS</a>
                           </li>
                           
                           <li>
-                            <a href="GenVarOptimLSQ.html" class="folder" target="FrameMain">Global Parameters</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="MAXFREEPAR.html" class="file" target="FrameMain">MAX_FREE_PAR</a>
-                              </li>
-                            </ul>
+                            <a href="INFOLSQMESS.html" class="file" target="FrameMain">INFO_LSQ_MESS</a>
+                          </li>
+                        </ul>
+                      </li>
+                      
+                      <li>
+                        <a href="FunOptimLSQ.html" class="folder" target="FrameMain">Functions</a>
+                        <ul>
+                          
+                          <li>
+                            <a href="FCHISQ.html" class="file" target="FrameMain">FCHISQ</a>
                           </li>
                         </ul>
                       </li>
@@ -1421,6 +1383,14 @@
                           
                           <li>
                             <a href="MARQUARDTFIT.html" class="file" target="FrameMain">MARQUARDT_FIT</a>
+                          </li>
+                          
+                          <li>
+                            <a href="LEVENBERGMARQUARDTFIT.html" class="file" target="FrameMain">LEVENBERG_MARQUARDT_FIT</a>
+                          </li>
+                          
+                          <li>
+                            <a href="FINALOUTPUT.html" class="file" target="FrameMain">FINAL_OUTPUT</a>
                           </li>
                         </ul>
                       </li>
@@ -1436,49 +1406,31 @@
                         <ul>
                           
                           <li>
-                            <a href="ChemParChemScatTab.html" class="folder" target="FrameMain">Chemical Parameters</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="NUMCHEMINFO.html" class="file" target="FrameMain">NUM_CHEM_INFO</a>
-                              </li>
-                              
-                              <li>
-                                <a href="NUMDELTAFP.html" class="file" target="FrameMain">NUM_DELTA_FP </a>
-                              </li>
-                            </ul>
+                            <a href="NUMCHEMINFO.html" class="file" target="FrameMain">NUM_CHEM_INFO</a>
                           </li>
                           
                           <li>
-                            <a href="MagParChemScatTab.html" class="folder" target="FrameMain">Magnetic Parameters</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="NUMMAGFORM.html" class="file" target="FrameMain">NUM_MAG_FORM </a>
-                              </li>
-                              
-                              <li>
-                                <a href="NUMMAGJ2.html" class="file" target="FrameMain">NUM_MAG_J2</a>
-                              </li>
-                              
-                              <li>
-                                <a href="NUMMAGJ4.html" class="file" target="FrameMain">NUM_MAG_J4</a>
-                              </li>
-                              
-                              <li>
-                                <a href="NUMMAGJ6.html" class="file" target="FrameMain">NUM_MAG_J6</a>
-                              </li>
-                            </ul>
+                            <a href="NUMDELTAFP.html" class="file" target="FrameMain">NUM_DELTA_FP </a>
                           </li>
                           
                           <li>
-                            <a href="XrayParChemScatTab.html" class="folder" target="FrameMain">Xray Parameters</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="NUMXRAYFORM.html" class="file" target="FrameMain">NUM_XRAY_FORM</a>
-                              </li>
-                            </ul>
+                            <a href="NUMMAGFORM.html" class="file" target="FrameMain">NUM_MAG_FORM </a>
+                          </li>
+                          
+                          <li>
+                            <a href="NUMMAGJ2.html" class="file" target="FrameMain">NUM_MAG_J2</a>
+                          </li>
+                          
+                          <li>
+                            <a href="NUMMAGJ4.html" class="file" target="FrameMain">NUM_MAG_J4</a>
+                          </li>
+                          
+                          <li>
+                            <a href="NUMMAGJ6.html" class="file" target="FrameMain">NUM_MAG_J6</a>
+                          </li>
+                          
+                          <li>
+                            <a href="NUMXRAYFORM.html" class="file" target="FrameMain">NUM_XRAY_FORM</a>
                           </li>
                         </ul>
                       </li>
@@ -1488,85 +1440,55 @@
                         <ul>
                           
                           <li>
-                            <a href="TypeDefChemScatTab.html" class="folder" target="FrameMain">Type Definitions</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ANOMALOUSSCTYPE.html" class="file" target="FrameMain">ANOMALOUS_SC_TYPE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="CHEMINFOTYPE.html" class="file" target="FrameMain">CHEM_INFO_TYPE  </a>
-                              </li>
-                              
-                              <li>
-                                <a href="MAGNETICFORMTYPE.html" class="file" target="FrameMain">MAGNETIC_FORM_TYPE </a>
-                              </li>
-                              
-                              <li>
-                                <a href="XRAYFORMTYPE.html" class="file" target="FrameMain">XRAY_FORM_TYPE </a>
-                              </li>
-                              
-                              <li>
-                                <a href="XRAYWAVELENGTHTYPE.html" class="file" target="FrameMain">XRAY_WAVELENGTH_TYPE</a>
-                              </li>
-                            </ul>
+                            <a href="ANOMALOUSSCTYPE.html" class="file" target="FrameMain">ANOMALOUS_SC_TYPE</a>
                           </li>
                           
                           <li>
-                            <a href="GenVarChemScatTab.html" class="folder" target="FrameMain">Global Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ChemicalVariables.html" class="folder" target="FrameMain">Chemical Variables</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="ANOMALOUSSCFAC.html" class="file" target="FrameMain">ANOMALOUS_SCFAC</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="CHEMINFO.html" class="file" target="FrameMain">CHEM_INFO</a>
-                                  </li>
-                                </ul>
-                              </li>
-                              
-                              <li>
-                                <a href="MagneticVariables.html" class="folder" target="FrameMain">Magnetic Variables</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="MAGNETICFORM.html" class="file" target="FrameMain">MAGNETIC_FORM</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MAGNETICJ2.html" class="file" target="FrameMain">MAGNETIC_J2</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MAGNETICJ4.html" class="file" target="FrameMain">MAGNETIC_J4</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MAGNETICJ6.html" class="file" target="FrameMain">MAGNETIC_J6</a>
-                                  </li>
-                                </ul>
-                              </li>
-                              
-                              <li>
-                                <a href="XrayVariables.html" class="folder" target="FrameMain">Xray Variables</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="XRAYFORM.html" class="file" target="FrameMain">XRAY_FORM</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="XRAYWAVELENGTHS.html" class="file" target="FrameMain">XRAY_WAVELENGTHS </a>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
+                            <a href="ANOMALOUSSCFAC.html" class="file" target="FrameMain">ANOMALOUS_SCFAC</a>
+                          </li>
+                          
+                          <li>
+                            <a href="CHEMINFO.html" class="file" target="FrameMain">CHEM_INFO</a>
+                          </li>
+                          
+                          <li>
+                            <a href="CHEMINFOTYPE.html" class="file" target="FrameMain">CHEM_INFO_TYPE  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGNETICFORM.html" class="file" target="FrameMain">MAGNETIC_FORM</a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGNETICFORMTYPE.html" class="file" target="FrameMain">MAGNETIC_FORM_TYPE </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGNETICJ2.html" class="file" target="FrameMain">MAGNETIC_J2</a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGNETICJ4.html" class="file" target="FrameMain">MAGNETIC_J4</a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGNETICJ6.html" class="file" target="FrameMain">MAGNETIC_J6</a>
+                          </li>
+                          
+                          <li>
+                            <a href="XRAYFORM.html" class="file" target="FrameMain">XRAY_FORM</a>
+                          </li>
+                          
+                          <li>
+                            <a href="XRAYFORMTYPE.html" class="file" target="FrameMain">XRAY_FORM_TYPE </a>
+                          </li>
+                          
+                          <li>
+                            <a href="XRAYWAVELENGTHS.html" class="file" target="FrameMain">XRAY_WAVELENGTHS </a>
+                          </li>
+                          
+                          <li>
+                            <a href="XRAYWAVELENGTHTYPE.html" class="file" target="FrameMain">XRAY_WAVELENGTH_TYPE</a>
                           </li>
                         </ul>
                       </li>
@@ -1636,187 +1558,145 @@
                     <ul>
                       
                       <li>
+                        <a href="ParSymTab.html" class="folder" target="FrameMain">Parameters</a>
+                        <ul>
+                          
+                          <li>
+                            <a href="BCD6H.html" class="file" target="FrameMain">BC_D6H </a>
+                          </li>
+                          
+                          <li>
+                            <a href="BCOH.html" class="file" target="FrameMain">BC_OH  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="DEPMAT.html" class="file" target="FrameMain">DEPMAT </a>
+                          </li>
+                          
+                          <li>
+                            <a href="INTSYMD6H.html" class="file" target="FrameMain">INTSYMD6H</a>
+                          </li>
+                          
+                          <li>
+                            <a href="INTSYMOH.html" class="file" target="FrameMain">INTSYMOH  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="KOVD6H.html" class="file" target="FrameMain">KOV_D6H </a>
+                          </li>
+                          
+                          <li>
+                            <a href="KOVOH.html" class="file" target="FrameMain">KOV_OH </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LATT.html" class="file" target="FrameMain">LATT </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LAUECLASS.html" class="file" target="FrameMain">LAUE_CLASS  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRA.html" class="file" target="FrameMain">LTR_A    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRB.html" class="file" target="FrameMain">LTR_B    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRC.html" class="file" target="FrameMain">LTR_C    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRF.html" class="file" target="FrameMain">LTR_F    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRI.html" class="file" target="FrameMain">LTR_I    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="LTRR.html" class="file" target="FrameMain">LTR_R    </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MAGMAT.html" class="file" target="FrameMain">MAGMAT   </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MLD6H.html" class="file" target="FrameMain">ML_D6H </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MLOH.html" class="file" target="FrameMain">ML_OH </a>
+                          </li>
+                          
+                          <li>
+                            <a href="MOD6.html" class="file" target="FrameMain">MOD6 </a>
+                          </li>
+                          
+                          <li>
+                            <a href="POINTGROUP.html" class="file" target="FrameMain">POINT_GROUP</a>
+                          </li>
+                          
+                          <li>
+                            <a href="SYSCRY.html" class="file" target="FrameMain">SYS_CRY  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="XD6H.html" class="file" target="FrameMain">X_D6H </a>
+                          </li>
+                          
+                          <li>
+                            <a href="XOH.html" class="file" target="FrameMain">X_OH  </a>
+                          </li>
+                          
+                          <li>
+                            <a href="ZAKD6H.html" class="file" target="FrameMain">ZAK_D6H</a>
+                          </li>
+                          
+                          <li>
+                            <a href="ZAKOH.html" class="file" target="FrameMain">ZAK_OH </a>
+                          </li>
+                        </ul>
+                      </li>
+                      
+                      <li>
                         <a href="VarSymmTab.html" class="folder" target="FrameMain">Variables</a>
                         <ul>
                           
                           <li>
-                            <a href="ParSymTab.html" class="folder" target="FrameMain">Parameters</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="LattParSymTab.html" class="folder" target="FrameMain">Lattice Parameters</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="LATT.html" class="file" target="FrameMain">LATT </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRA.html" class="file" target="FrameMain">LTR_A    </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRB.html" class="file" target="FrameMain">LTR_B    </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRC.html" class="file" target="FrameMain">LTR_C    </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRF.html" class="file" target="FrameMain">LTR_F    </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRI.html" class="file" target="FrameMain">LTR_I    </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="LTRR.html" class="file" target="FrameMain">LTR_R    </a>
-                                  </li>
-                                </ul>
-                              </li>
-                              
-                              <li>
-                                <a href="MagParSymTab.html" class="folder" target="FrameMain">Magnetic Parameters</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="DEPMAT.html" class="file" target="FrameMain">DEPMAT </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MAGMAT.html" class="file" target="FrameMain">MAGMAT   </a>
-                                  </li>
-                                </ul>
-                              </li>
-                              
-                              <li>
-                                <a href="PointParSymTab.html" class="folder" target="FrameMain">Point Group Parameters</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="BCD6H.html" class="file" target="FrameMain">BC_D6H </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="BCOH.html" class="file" target="FrameMain">BC_OH  </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="INTSYMD6H.html" class="file" target="FrameMain">INTSYMD6H</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="INTSYMOH.html" class="file" target="FrameMain">INTSYMOH  </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="KOVD6H.html" class="file" target="FrameMain">KOV_D6H </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="KOVOH.html" class="file" target="FrameMain">KOV_OH </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MLD6H.html" class="file" target="FrameMain">ML_D6H </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MLOH.html" class="file" target="FrameMain">ML_OH </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="MOD6.html" class="file" target="FrameMain">MOD6 </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="POINTGROUP.html" class="file" target="FrameMain">POINT_GROUP</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="XD6H.html" class="file" target="FrameMain">X_D6H </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="XOH.html" class="file" target="FrameMain">X_OH  </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="ZAKD6H.html" class="file" target="FrameMain">ZAK_D6H</a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="ZAKOH.html" class="file" target="FrameMain">ZAK_OH </a>
-                                  </li>
-                                </ul>
-                              </li>
-                              
-                              <li>
-                                <a href="SymParSymTab.html" class="folder" target="FrameMain">Symmetry Parameters</a>
-                                <ul>
-                                  
-                                  <li>
-                                    <a href="LAUECLASS.html" class="file" target="FrameMain">LAUE_CLASS  </a>
-                                  </li>
-                                  
-                                  <li>
-                                    <a href="SYSCRY.html" class="file" target="FrameMain">SYS_CRY  </a>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
+                            <a href="ERRSYMTAB.html" class="file" target="FrameMain">ERR_SYMTAB</a>
                           </li>
                           
                           <li>
-                            <a href="TypeDefSymTab.html" class="folder" target="FrameMain">Type Definitions</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="SPGRINFOTYPE.html" class="file" target="FrameMain">SPGR_INFO_TYPE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="TABLEEQUIVTYPE.html" class="file" target="FrameMain">TABLE_EQUIV_TYPE</a>
-                              </li>
-                              
-                              <li>
-                                <a href="WYCKINFOTYPE.html" class="file" target="FrameMain">WYCK_INFO_TYPE</a>
-                              </li>
-                            </ul>
+                            <a href="ERRSYMTABMESS.html" class="file" target="FrameMain">ERR_SYMTAB_MESS</a>
                           </li>
                           
                           <li>
-                            <a href="ErrVarSymmTab.html" class="folder" target="FrameMain">Error Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="ERRSYMTAB.html" class="file" target="FrameMain">ERR_SYMTAB</a>
-                              </li>
-                              
-                              <li>
-                                <a href="ERRSYMTABMESS.html" class="file" target="FrameMain">ERR_SYMTAB_MESS</a>
-                              </li>
-                            </ul>
+                            <a href="SPGRINFO.html" class="file" target="FrameMain">SPGR_INFO</a>
                           </li>
                           
                           <li>
-                            <a href="GenVarSymTab.html" class="folder" target="FrameMain">Global Variables</a>
-                            <ul>
-                              
-                              <li>
-                                <a href="SPGRINFO.html" class="file" target="FrameMain">SPGR_INFO</a>
-                              </li>
-                              
-                              <li>
-                                <a href="SYSTEMEQUIV.html" class="file" target="FrameMain">SYSTEM_EQUIV </a>
-                              </li>
-                              
-                              <li>
-                                <a href="WYCKOFFINFO.html" class="file" target="FrameMain">WYCKOFF_INFO</a>
-                              </li>
-                            </ul>
+                            <a href="SPGRINFOTYPE.html" class="file" target="FrameMain">SPGR_INFO_TYPE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="SYSTEMEQUIV.html" class="file" target="FrameMain">SYSTEM_EQUIV </a>
+                          </li>
+                          
+                          <li>
+                            <a href="TABLEEQUIVTYPE.html" class="file" target="FrameMain">TABLE_EQUIV_TYPE</a>
+                          </li>
+                          
+                          <li>
+                            <a href="WYCKOFFINFO.html" class="file" target="FrameMain">WYCKOFF_INFO</a>
+                          </li>
+                          
+                          <li>
+                            <a href="WYCKINFOTYPE.html" class="file" target="FrameMain">WYCK_INFO_TYPE</a>
                           </li>
                         </ul>
                       </li>

@@ -78,13 +78,19 @@ span.rvts12
 {
  color: #0000ff;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -114,12 +120,25 @@ p,ul,ol /* Paragraph Style */
  margin: 20px 0px 0px 0px;
 }
 --></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
 <script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?LSQCONDITIONSTYPE.html"; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts13>LSQ_CONDITIONS_TYPE</span></p>
+<p class=rvps2><span class=rvts14>LSQ_CONDITIONS_TYPE</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=311><p><span class=rvts11><br></span></p>
+</td>
+<td width=134><p><span class=rvts13>Variable</span></p>
+<p><span class=rvts13><br></span></p>
+</td>
+<td width=276><p><span class=rvts13>Definition</span></p>
+</td>
+</tr>
 <tr valign=top>
 <td width=311><p><span class=rvts11>TYPE</span><span class=rvts10> :: LSQ_CONDITIONS_TYPE</span></p>
 </td>
@@ -155,6 +174,23 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=311><p><span class=rvts12>&nbsp;&nbsp; INTEGER</span></p>
 </td>
+<td width=134><p>NFEV</p>
+</td>
+<td width=276><p>Number of function evaluations </p>
+<p>(output component, useful for assessing LM algorithm)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311><p><span class=rvts12>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=134><p>NJEV</p>
+</td>
+<td width=276><p>Number of Jacobian evaluations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311><p><span class=rvts12>&nbsp;&nbsp; INTEGER</span></p>
+</td>
 <td width=134><p>ICYC</p>
 </td>
 <td width=276><p>Number of cycles of refinement</p>
@@ -180,6 +216,14 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=311><p><span class=rvts12>&nbsp;&nbsp; REAL</span>(<span class=rvts12>KIND</span>=CP)</p>
 </td>
+<td width=134><p>TOL</p>
+</td>
+<td width=276><p>Tolerance value for applying stopping criterion in LM algorithm</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311><p><span class=rvts12>&nbsp;&nbsp; REAL</span>(<span class=rvts12>KIND</span>=CP)</p>
+</td>
 <td width=134><p>PERCENT</p>
 </td>
 <td width=276><p>%value of maximum variation of a parameter w.r.t. the intial value before fixing it</p>
@@ -198,5 +242,5 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Derived type encapsulating all necessary conditions for running the LSQ algorithm</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>
