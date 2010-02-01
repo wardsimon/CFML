@@ -39,11 +39,10 @@ rem
    rem f95 -c -g CFML_ILL_Instrm_data.f90    >> out
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, Polarimetry
+   echo .... Reflections, Atoms, SXTAL geometry
 rem
    f95 -c -g CFML_reflct_util.f90        >> out
    f95 -c -g CFML_atom_mod.f90           >> out
-   f95 -c -g CFML_polar.f90              >> out
    rem f95 -c -g CFML_SXTAL_geom.f90         >> out
 rem
    echo **---- Level 4 ----**
@@ -73,9 +72,10 @@ rem
    f95 -c -g CFML_magsymm.f90            >> out
 rem
    echo **---- Level 8 ----**
-   echo .... Magnetic Structure Factors
+   echo .... Magnetic Structure Factors, Polarimetry
 rem
    f95 -c -g CFML_msfac.f90              >> out
+   f95 -c -g CFML_polar.f90              >> out
 rem
 rem
    echo **---- Crysfml Library: Console version ----**

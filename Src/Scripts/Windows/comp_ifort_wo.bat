@@ -39,11 +39,10 @@ rem
    ifort /c CFML_ILL_Instrm_data.f90  /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, Polarimetry
+   echo .... Reflections, Atoms, SXTAL geometry
 rem
    ifort /c CFML_reflct_util.f90      /O2 /nologo /Qvec-report0
    ifort /c CFML_atom_mod.f90         /O2 /nologo /Qvec-report0
-   ifort /c CFML_polar.f90            /O2 /nologo /Qvec-report0
    ifort /c CFML_SXTAL_Geom.f90       /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 4 ----**
@@ -73,9 +72,10 @@ rem
    ifort /c CFML_magsymm.f90          /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 8 ----**
-   echo .... Magnetic Structure Factors
+   echo .... Magnetic Structure Factors, Polarimetry
 rem
    ifort /c CFML_msfac.f90            /O2 /nologo /Qvec-report0
+   ifort /c CFML_polar.f90            /O2 /nologo /Qvec-report0
 rem
 rem
    echo **---- Crysfml Library: Winteracter version ----**

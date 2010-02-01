@@ -30,7 +30,7 @@ rem
    if x%1 == xg95      goto G95_ZONE
    if x%1 == xgfortran goto GFOR_ZONE
    goto FIN
-rem   
+rem
 rem -------------------------
 rem ---- ABSOFT COMPILER ----
 rem -------------------------
@@ -63,7 +63,7 @@ rem
    call comp_f95_wd
    goto FIN
 rem
-rem ------------------------ 
+rem ------------------------
 rem ---- LAHEY COMPILER ----
 rem ------------------------
 :LF95_ZONE

@@ -39,11 +39,10 @@ rem
    ifort /c CFML_ILL_Instrm_data.f90  /debug:full /check /traceback /nologo
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, Polarimetry
+   echo .... Reflections, Atoms, SXTAL geometry
 rem
    ifort /c CFML_reflct_util.f90      /debug:full /check /traceback /nologo
    ifort /c CFML_atom_mod.f90         /debug:full /check /traceback /nologo
-   ifort /c CFML_polar.f90            /debug:full /check /traceback /nologo
    ifort /c CFML_SXTAL_Geom.f90       /debug:full /check /traceback /nologo
 rem
    echo **---- Level 4 ----**
@@ -74,9 +73,10 @@ rem
    ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo
 rem
    echo **---- Level 8 ----**
-   echo .... Magnetic Structure Factors
+   echo .... Magnetic Structure Factors, Polarimetry
 rem
    ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo
+   ifort /c CFML_polar.f90            /debug:full /check /traceback /nologo
 rem
 rem
    echo **---- Crysfml Library: Console (DEBUG) version ----**
