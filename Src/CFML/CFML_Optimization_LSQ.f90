@@ -2,203 +2,203 @@
 !!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
-!!---- GENERAL INFORMATION CONCERNING THE LEAST-SQUARES PROCEDURES IN THIS FILE
-!!----
-!!---- This file contains two modules: CFML_LSQ_TypeDef and CFML_Optimization_LSQ.
-!!----                                 --------------     ---------------------
-!!---- There are two high level procedures contained in CFML_Optimization_LSQ based
-!!---- in the Levenberg-Marquardt method. The first procedure, called "Marquardt_Fit",
-!!---- is a simple implementation of the method and the second one is a Fortran 90 version
-!!---- of the MINPACK Fortran 77 LMxxx subroutines, accessible through the general name
-!!---- "Levenberg_Marquardt_Fit". The second one is, in principle, more robust for general
-!!---- LSQ problems.
-!!----   MARQUARDT_FIT             [Overloaded]  {drivers: MARQUARDT_FIT_v1, MARQUARDT_FIT_v2}
-!!----   LEVENBERG_MARQUARDT_FIT   [Overloaded]  {drivers: LM_DER, LM_DIF, LMDER1, LMDIF1, calling "lmder" or "lmdif"}
-!!----
-!!----
-!!----  Marquardt_Fit (overloaded subroutine)
-!!----  =====================================
-!!----
-!!----  This procedure needs analytical derivatives to be provided by the user. This procedure
-!!----  minimizes the following cost function:
-!!----
-!!----        C =  Sum(i) { w(i) ( y(x(i)) - yc(x(i),a))^2 }  =   Sum(i) {  [( y(x(i)) - yc(x(i),a))/sig(i)]^2 }
-!!----
-!!----  Where x(i),y(i),w(i) are observational values (normally w(i)=1/variance(y(i))) and yc is a model
-!!----  to the data depending on the vector a containing the parameters of the model. The user should provide
-!!----  a subroutine for calculating yc(x(i),a) and invoke the procedure passing as the first argument the
-!!----  name of the subroutine.
-!!----
-!!----  Two interfaces are available for calling this procedure:
-!!----
-!!----
-!!----  First interface:
-!!----  ----------------
-!!----  Subroutine Marquardt_Fit(Model_Functn, X, Y, W, Yc, Nobs, c, vs, Ipr, Chi2, scroll_lines)
-!!----     real(kind=cp), dimension(:),intent(in)     :: x      !Vector of x-values
-!!----     real(kind=cp), dimension(:),intent(in)     :: y      !Vector of observed y-values
-!!----     real(kind=cp), dimension(:),intent(in out) :: w      !Vector of weights-values (1/variance)
-!!----     real(kind=cp), dimension(:),intent(   out) :: yc     !Vector of calculated y-values
-!!----     integer                    ,intent(in)     :: nobs   !Number of effective components of x,y,w,yc
-!!----     type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
-!!----     type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
-!!----     integer                    ,intent(in)     :: Ipr    !Logical unit for writing
-!!----     real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
-!!----     character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
-!!----                                                                            !in this text for treatment in the calling program
-!!----
-!!----     Model_functn                                   !Name of the subroutine calculating yc(i) for point x(i)
-!!----     Interface                                      !Interface for the Model_Functn subroutine
-!!----        Subroutine Model_Functn(iv,Xv,ycalc,a,der)
-!!----             use CFML_GlobalDeps, only: cp
-!!----             integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
-!!----             real(kind=cp),                       intent(in) :: xv     !Value of x(i)
-!!----             real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-!!----             real(kind=cp),dimension(:),          intent(in) :: a      !Vector of free parameters
-!!----             real(kind=cp),dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
-!!----        End Subroutine Model_Functn                                    !at the given point
-!!----     End Interface
-!!----
-!!----
-!!----    The model function subroutine calculates the value of the function "ycalc" at the provided single point "Xv"
-!!----    (component i of vector X).It contains as an argument the vector "a" of "free parameters", whereas the total number
-!!----    of parameters in the model is stored in the structure "Vs" of type LSQ_State_Vector_type (see the definition
-!!----    of the type for details). It is responsibility of the user to write the Model_Functn subroutine with access to
-!!----    Vs (via a module variable) and do the necessary connection between the "a" and "Vs%pv" vectors, as well as the
-!!----    calculation of the derivatives of "ycalc" w.r.t "a" stored in the optional array "der"
-!!----
-!!----    Second interface:
-!!----    -----------------
-!!----
-!!----     Subroutine Marquardt_Fit(Model_Functn, d, c, vs, Ipr, Chi2, scroll_lines)
-!!----        Type(LSQ_Data_Type),        intent(in out) :: d      !Data type for LSQ
-!!----        type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
-!!----        type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
-!!----        integer                    ,intent(in)     :: Ipr    !Logical unit for writing
-!!----        real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
-!!----        character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
-!!----                                                                               !in this text for treatment in the calling program
-!!----
-!!----        Model_functn                                            !Name of the subroutine calculating yc(i) for point x(i)
-!!----        Interface                                               !Interface for the Model_Functn subroutine
-!!----           Subroutine Model_Functn(iv,Xv,ycalc,Vsa,calder)
-!!----                use CFML_GlobalDeps, only: cp
-!!----                integer,                    intent(in)     :: iv     !Number of the component: "i" in x(i)
-!!----                real(kind=cp),              intent(in)     :: xv     !Value of x(i)
-!!----                real(kind=cp),              intent(out)    :: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
-!!----                Type(LSQ_State_Vector_type),intent(in out) :: Vsa    !Parameters, codes, and derivatives
-!!----                logical,optional,           intent(in)     :: calder !If present, derivatives, stored in Vsa%dpv, are calculated
-!!----           End Subroutine Model_Functn
-!!----        End Interface
-!!----
-!!----     This second interface is simpler than the first one, it encapsulates the handling of the connection between free
-!!----     and total number of parameters. The structure "d", of type LSQ_Data_Type, contains the information that was
-!!----     explicitly used in the first interface (X, Y, W, Yc, Nobs) in five arguments.
-!!----     The model function uses directly as an argument the object "Vsa", of type LSQ_State_Vector_type in terms of which
-!!----     can be explicitly written the calculation of the model function "ycalc" at the given point "iv,Xv". The calculation
-!!----     of the derivatives (stored in Vsa%dpv vector) are needed only if the argument "calder" is present (irrespective of
-!!----     its value .true. or .false.).
-!!----
-!!----
-!!----  Levenberg_Marquardt_Fit (overloaded subroutine), Based on MINPACK
-!!----  =================================================================
-!!----
-!!----  This procedure needs either analytical (provided by the user) or numerical derivatives (automatically calculated by
-!!----  the procedure from the provided model function subroutine).The procedure minimizes a cost function of the form:
-!!----
-!!----       C =  Sum(i) { fvec(i)^2 }  =   Sum(i) {  [( y(i) - yc(i,a))/sig(i)]^2 }
-!!----
-!!----  The user-provided subroutine should have as arguments the vector of free parameters x(1:n) and the vector
-!!----  or residuals fvec(m).
-!!----
-!!----     Interface No_Fderivatives
-!!----       Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
-!!----         Use CFML_GlobalDeps, Only: cp
-!!----         Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
-!!----         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-!!----         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-!!----         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-!!----       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-!!----     End Interface No_Fderivatives
-!!----
-!!----
-!!---- If analytical derivatives can be calculated the subroutine should have also as an additional argument the Jacobian
-!!---- rectangular matrix fjac(m,n)
-!!----
-!!----    Interface  FDerivatives
-!!----      Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
-!!----        Use CFML_GlobalDeps, Only: cp
-!!----        Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
-!!----        Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
-!!----        Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
-!!----        Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
-!!----        Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
-!!----      End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
-!!----    End Interface FDerivatives
-!!----
-!!----
-!!----  The four available interfaces are related to these two options:
-!!----
-!!----
-!!----  First/second Interface(s) (no derivatives required)
-!!----  ---------------------------------------------------
-!!----
-!!----   Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)
-!!----     Integer,                     Intent(In)      :: m        !Number of observations
-!!----     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-!!----     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-!!----     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-!!----     character(len=*),            Intent(out)     :: infout   !Information about the refinement
-!!----     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-!!----
-!!----
-!!----    The second interface corresponds to the original version in MINPACK (called lmdif1)
-!!----
-!!----    Subroutine Levenberg_Marquard_Fit(Model_Functn, m, n, x, fvec, tol, info, iwa)
-!!----      Integer,                     Intent(In)      :: m
-!!----      Integer,                     Intent(In)      :: n
-!!----      Real (Kind=cp),Dimension(:), Intent(In Out)  :: x
-!!----      Real (Kind=cp),Dimension(:), Intent(Out)     :: fvec
-!!----      Real (Kind=cp),              Intent(In)      :: tol
-!!----      Integer,                     Intent(Out)     :: info
-!!----      Integer,Dimension(:),        Intent(Out)     :: iwa
-!!----
-!!----      The interface for Model_Functn is identical to the interface No_Fderivatives
-!!----
-!!----
-!!----  Third/fourth Interface(s) (analytical derivatives required)
-!!----  -----------------------------------------------------------
-!!----
-!!----  Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
-!!----    Integer,                     Intent(In)      :: m        !Number of observations
-!!----    type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
-!!----    type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
-!!----    Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-!!----    logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
-!!----                                                             !of making unambiguous the generic procedure
-!!----    character(len=*),            Intent(out)     :: infout   !Information about the refinement
-!!----    Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-!!----
-!!----    The fourth interface corresponds to the original version in MINPACK (called lmder1)
-!!----
-!!----    Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, info, ipvt)
-!!----      Integer,                        Intent(In)      :: m
-!!----      Integer,                        Intent(In)      :: n
-!!----      Real (Kind=cp),Dimension(:),    Intent(In Out)  :: x
-!!----      Real (Kind=cp),Dimension(:),    Intent(Out)     :: fvec
-!!----      Real (Kind=cp),Dimension(:,:),  Intent(In Out)  :: fjac
-!!----      Real (Kind=cp),                 Intent(In)      :: tol
-!!----      Integer,                        Intent(Out)     :: info
-!!----      Integer,Dimension(:),           Intent(In Out)  :: ipvt
-!!----
-!!----    The interface for Model_Functn is identical to the previous interface Fderivatives
-!!----
-!!----=======================================================================================================
 !!----
 !!---- MODULE: CFML_Optimization_LSQ
 !!----   INFO: Module implementing several algorithms for non-linear least-squares.
 !!----         At present only two versions of the Levenberg-Marquardt method are implemented.
-!!----
+!!--..
+!!--.. GENERAL INFORMATION CONCERNING THE LEAST-SQUARES PROCEDURES IN THIS FILE
+!!--..
+!!--.. This file contains two modules: CFML_LSQ_TypeDef and CFML_Optimization_LSQ.
+!!--..                                 --------------     ---------------------
+!!--.. There are two high level procedures contained in CFML_Optimization_LSQ based
+!!--.. in the Levenberg-Marquardt method. The first procedure, called "Marquardt_Fit",
+!!--.. is a simple implementation of the method and the second one is a Fortran 90 version
+!!--.. of the MINPACK Fortran 77 LMxxx subroutines, accessible through the general name
+!!--.. "Levenberg_Marquardt_Fit". The second one is, in principle, more robust for general
+!!--.. LSQ problems.
+!!--..   MARQUARDT_FIT             [Overloaded]  {drivers: MARQUARDT_FIT_v1, MARQUARDT_FIT_v2}
+!!--..   LEVENBERG_MARQUARDT_FIT   [Overloaded]  {drivers: LM_DER, LM_DIF, LMDER1, LMDIF1, calling "lmder" or "lmdif"}
+!!--..
+!!--..
+!!--..  Marquardt_Fit (overloaded subroutine)
+!!--..  =====================================
+!!--..
+!!--..  This procedure needs analytical derivatives to be provided by the user. This procedure
+!!--..  minimizes the following cost function:
+!!--..
+!!--..        C =  Sum(i) { w(i) ( y(x(i)) - yc(x(i),a))^2 }  =   Sum(i) {  [( y(x(i)) - yc(x(i),a))/sig(i)]^2 }
+!!--..
+!!--..  Where x(i),y(i),w(i) are observational values (normally w(i)=1/variance(y(i))) and yc is a model
+!!--..  to the data depending on the vector a containing the parameters of the model. The user should provide
+!!--..  a subroutine for calculating yc(x(i),a) and invoke the procedure passing as the first argument the
+!!--..  name of the subroutine.
+!!--..
+!!--..  Two interfaces are available for calling this procedure:
+!!--..
+!!--..
+!!--..  First interface:
+!!--..  ----------------
+!!--..  Subroutine Marquardt_Fit(Model_Functn, X, Y, W, Yc, Nobs, c, vs, Ipr, Chi2, scroll_lines)
+!!--..     real(kind=cp), dimension(:),intent(in)     :: x      !Vector of x-values
+!!--..     real(kind=cp), dimension(:),intent(in)     :: y      !Vector of observed y-values
+!!--..     real(kind=cp), dimension(:),intent(in out) :: w      !Vector of weights-values (1/variance)
+!!--..     real(kind=cp), dimension(:),intent(   out) :: yc     !Vector of calculated y-values
+!!--..     integer                    ,intent(in)     :: nobs   !Number of effective components of x,y,w,yc
+!!--..     type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
+!!--..     type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
+!!--..     integer                    ,intent(in)     :: Ipr    !Logical unit for writing
+!!--..     real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
+!!--..     character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
+!!--..                                                                            !in this text for treatment in the calling program
+!!--..
+!!--..     Model_functn                                   !Name of the subroutine calculating yc(i) for point x(i)
+!!--..     Interface                                      !Interface for the Model_Functn subroutine
+!!--..        Subroutine Model_Functn(iv,Xv,ycalc,a,der)
+!!--..             use CFML_GlobalDeps, only: cp
+!!--..             integer,                             intent(in) :: iv     !Number of the component: "i" in x(i)
+!!--..             real(kind=cp),                       intent(in) :: xv     !Value of x(i)
+!!--..             real(kind=cp),                       intent(out):: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
+!!--..             real(kind=cp),dimension(:),          intent(in) :: a      !Vector of free parameters
+!!--..             real(kind=cp),dimension(:),optional, intent(out):: der    !Derivatives of the function w.r.t. free parameters
+!!--..        End Subroutine Model_Functn                                    !at the given point
+!!--..     End Interface
+!!--..
+!!--..
+!!--..    The model function subroutine calculates the value of the function "ycalc" at the provided single point "Xv"
+!!--..    (component i of vector X).It contains as an argument the vector "a" of "free parameters", whereas the total number
+!!--..    of parameters in the model is stored in the structure "Vs" of type LSQ_State_Vector_type (see the definition
+!!--..    of the type for details). It is responsibility of the user to write the Model_Functn subroutine with access to
+!!--..    Vs (via a module variable) and do the necessary connection between the "a" and "Vs%pv" vectors, as well as the
+!!--..    calculation of the derivatives of "ycalc" w.r.t "a" stored in the optional array "der"
+!!--..
+!!--..    Second interface:
+!!--..    -----------------
+!!--..
+!!--..     Subroutine Marquardt_Fit(Model_Functn, d, c, vs, Ipr, Chi2, scroll_lines)
+!!--..        Type(LSQ_Data_Type),        intent(in out) :: d      !Data type for LSQ
+!!--..        type(LSQ_conditions_type),  intent(in out) :: c      !Conditions for the algorithm
+!!--..        type(LSQ_State_Vector_type),intent(in out) :: vs     !State vector for the model calculation
+!!--..        integer                    ,intent(in)     :: Ipr    !Logical unit for writing
+!!--..        real(kind=cp),              intent(out)    :: chi2   !Reduced Chi-2
+!!--..        character(len=*),dimension(:), intent(out), optional  :: scroll_lines  !If present, part of the output is stored
+!!--..                                                                               !in this text for treatment in the calling program
+!!--..
+!!--..        Model_functn                                            !Name of the subroutine calculating yc(i) for point x(i)
+!!--..        Interface                                               !Interface for the Model_Functn subroutine
+!!--..           Subroutine Model_Functn(iv,Xv,ycalc,Vsa,calder)
+!!--..                use CFML_GlobalDeps, only: cp
+!!--..                integer,                    intent(in)     :: iv     !Number of the component: "i" in x(i)
+!!--..                real(kind=cp),              intent(in)     :: xv     !Value of x(i)
+!!--..                real(kind=cp),              intent(out)    :: ycalc  !Value of yc at point x(i) => ycalc=yc(i)
+!!--..                Type(LSQ_State_Vector_type),intent(in out) :: Vsa    !Parameters, codes, and derivatives
+!!--..                logical,optional,           intent(in)     :: calder !If present, derivatives, stored in Vsa%dpv, are calculated
+!!--..           End Subroutine Model_Functn
+!!--..        End Interface
+!!--..
+!!--..     This second interface is simpler than the first one, it encapsulates the handling of the connection between free
+!!--..     and total number of parameters. The structure "d", of type LSQ_Data_Type, contains the information that was
+!!--..     explicitly used in the first interface (X, Y, W, Yc, Nobs) in five arguments.
+!!--..     The model function uses directly as an argument the object "Vsa", of type LSQ_State_Vector_type in terms of which
+!!--..     can be explicitly written the calculation of the model function "ycalc" at the given point "iv,Xv". The calculation
+!!--..     of the derivatives (stored in Vsa%dpv vector) are needed only if the argument "calder" is present (irrespective of
+!!--..     its value .true. or .false.).
+!!--..
+!!--..
+!!--..  Levenberg_Marquardt_Fit (overloaded subroutine), Based on MINPACK
+!!--..  =================================================================
+!!--..
+!!--..  This procedure needs either analytical (provided by the user) or numerical derivatives (automatically calculated by
+!!--..  the procedure from the provided model function subroutine).The procedure minimizes a cost function of the form:
+!!--..
+!!--..       C =  Sum(i) { fvec(i)^2 }  =   Sum(i) {  [( y(i) - yc(i,a))/sig(i)]^2 }
+!!--..
+!!--..  The user-provided subroutine should have as arguments the vector of free parameters x(1:n) and the vector
+!!--..  or residuals fvec(m).
+!!--..
+!!--..     Interface No_Fderivatives
+!!--..       Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
+!!--..         Use CFML_GlobalDeps, Only: cp
+!!--..         Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
+!!--..         Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+!!--..         Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+!!--..         Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+!!--..       End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+!!--..     End Interface No_Fderivatives
+!!--..
+!!--..
+!!--.. If analytical derivatives can be calculated the subroutine should have also as an additional argument the Jacobian
+!!--.. rectangular matrix fjac(m,n)
+!!--..
+!!--..    Interface  FDerivatives
+!!--..      Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
+!!--..        Use CFML_GlobalDeps, Only: cp
+!!--..        Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
+!!--..        Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+!!--..        Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+!!--..        Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
+!!--..        Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+!!--..      End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+!!--..    End Interface FDerivatives
+!!--..
+!!--..
+!!--..  The four available interfaces are related to these two options:
+!!--..
+!!--..
+!!--..  First/second Interface(s) (no derivatives required)
+!!--..  ---------------------------------------------------
+!!--..
+!!--..   Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)
+!!--..     Integer,                     Intent(In)      :: m        !Number of observations
+!!--..     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
+!!--..     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
+!!--..     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
+!!--..     character(len=*),            Intent(out)     :: infout   !Information about the refinement
+!!--..     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+!!--..
+!!--..
+!!--..    The second interface corresponds to the original version in MINPACK (called lmdif1)
+!!--..
+!!--..    Subroutine Levenberg_Marquard_Fit(Model_Functn, m, n, x, fvec, tol, info, iwa)
+!!--..      Integer,                     Intent(In)      :: m
+!!--..      Integer,                     Intent(In)      :: n
+!!--..      Real (Kind=cp),Dimension(:), Intent(In Out)  :: x
+!!--..      Real (Kind=cp),Dimension(:), Intent(Out)     :: fvec
+!!--..      Real (Kind=cp),              Intent(In)      :: tol
+!!--..      Integer,                     Intent(Out)     :: info
+!!--..      Integer,Dimension(:),        Intent(Out)     :: iwa
+!!--..
+!!--..      The interface for Model_Functn is identical to the interface No_Fderivatives
+!!--..
+!!--..
+!!--..  Third/fourth Interface(s) (analytical derivatives required)
+!!--..  -----------------------------------------------------------
+!!--..
+!!--..  Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
+!!--..    Integer,                     Intent(In)      :: m        !Number of observations
+!!--..    type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
+!!--..    type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
+!!--..    Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
+!!--..    logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
+!!--..                                                             !of making unambiguous the generic procedure
+!!--..    character(len=*),            Intent(out)     :: infout   !Information about the refinement
+!!--..    Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+!!--..
+!!--..    The fourth interface corresponds to the original version in MINPACK (called lmder1)
+!!--..
+!!--..    Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, info, ipvt)
+!!--..      Integer,                        Intent(In)      :: m
+!!--..      Integer,                        Intent(In)      :: n
+!!--..      Real (Kind=cp),Dimension(:),    Intent(In Out)  :: x
+!!--..      Real (Kind=cp),Dimension(:),    Intent(Out)     :: fvec
+!!--..      Real (Kind=cp),Dimension(:,:),  Intent(In Out)  :: fjac
+!!--..      Real (Kind=cp),                 Intent(In)      :: tol
+!!--..      Integer,                        Intent(Out)     :: info
+!!--..      Integer,Dimension(:),           Intent(In Out)  :: ipvt
+!!--..
+!!--..    The interface for Model_Functn is identical to the previous interface Fderivatives
+!!--..
+!!--..
 !!---- HISTORY
 !!----    Update: August - 2009
 !!----
@@ -209,11 +209,12 @@
 !!--++    Use CFML_LSQ_TypeDef
 !!----
 !!---- VARIABLES
-!!----    ERR_LSQ
-!!----    ERR_LSQ_MESS
 !!--++    CH                      [Private]
 !!--++    CORREL                  [Private]
 !!--++    CURV_MAT                [Private]
+!!----    ERR_LSQ
+!!----    ERR_LSQ_MESS
+!!----    INFO_LSQ_MESS
 !!--++    NAMFREE                 [Private]
 !!--++    PN                      [Private]
 !!----
@@ -240,7 +241,7 @@
 !!--++       QRFAC                     [Private]
 !!--++       QRSOLV                    [Private]
 !!----
-!!----========================================================================================================
+!!----
 !!
  Module CFML_Optimization_LSQ
     !---- Use Files ----!
@@ -248,6 +249,7 @@
     Use CFML_LSQ_TypeDef
     Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm
 
+    !---- Variables ----!
     implicit none
 
     private
@@ -267,7 +269,39 @@
     private :: marquardt_fit_v1,marquardt_fit_v2,curfit_v1,curfit_v2,box_constraints,output_cyc,&
                LM_Dif, lmdif, LM_Der, lmder, fdjac2, lmpar, qrfac, qrsolv, lmder1, lmdif1
 
-    !---- Variable Definitions ----!
+    !---- Definitions ----!
+
+    !!--++
+    !!--++ CH
+    !!--++    real(kind=cp),     dimension(Max_Free_Par), private   :: ch
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Vector holding the change in the values of parameters (ch = pn - pv)
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    real(kind=cp), dimension(Max_Free_Par), private   :: ch         ! ch = pn - pv
+
+    !!--++
+    !!--++ CORREL
+    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: correl
+    !!--++
+    !!--++    Variance/covariance/correlation matrix
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: correl     !Variance/covariance/correlation matrix
+
+
+    !!--++
+    !!--++ CURV_MAT
+    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: curv_mat
+    !!--++
+    !!--++    Curvature matrix
+    !!--++
+    !!--++ Update: February - 2005
+    !!
+    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: curv_mat   !Curvature matrix
 
     !!----
     !!---- ERR_LSQ
@@ -303,38 +337,6 @@
 
 
     !!--++
-    !!--++ CH
-    !!--++    real(kind=cp),     dimension(Max_Free_Par), private   :: ch
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Vector holding the change in the values of parameters (ch = pn - pv)
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par), private   :: ch         ! ch = pn - pv
-
-    !!--++
-    !!--++ CORREL
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: correl
-    !!--++
-    !!--++    Variance/covariance/correlation matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: correl     !Variance/covariance/correlation matrix
-
-
-    !!--++
-    !!--++ CURV_MAT
-    !!--++    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), public  :: curv_mat
-    !!--++
-    !!--++    Curvature matrix
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), dimension(Max_Free_Par,Max_Free_Par), private  :: curv_mat   !Curvature matrix
-
-    !!--++
     !!--++ NAMFREE
     !!--++    character(len=15), dimension(Max_Free_Par), private   :: namfree
     !!--++
@@ -354,6 +356,8 @@
     !!--++ Update: February - 2005
     !!
     real(kind=cp), dimension(Max_Free_Par), private   :: pn   !Vector with new values of parameters
+
+    !---- Interfaces ----!
 
     Interface Marquardt_fit
       Module Procedure Marquardt_Fit_v1
