@@ -253,6 +253,7 @@ then
 fi
 $COMP $OPT1  CFML_GlobalDeps_MacOS.f90
 $COMP $OPT1  CFML_Math_Gen.f90
+$COMP $OPT1  CFML_LSQ_TypeDef.f90
 $COMP $OPT1  CFML_Spher_Harm.f90
 $COMP $OPT1  CFML_Random.f90
 $COMP $OPT1  CFML_FFTs.f90
