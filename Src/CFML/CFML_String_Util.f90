@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010             Version: 4.1
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -49,7 +49,7 @@
 !!----       EQUAL_SETS_TEXT
 !!----       L_CASE
 !!----       PACK_STRING
-!!----       STRIP_TRING
+!!----       STRIP_STRING
 !!----       U_CASE
 !!----
 !!----    Subroutines:
@@ -59,6 +59,8 @@
 !!--++       FINDFMT_ERR          [Private]
 !!----       FRAC_TRANS_1DIG
 !!----       FRAC_TRANS_2DIG
+!!----       GET_BASENAME
+!!----       GET_DIRNAME
 !!----       GET_FRACTION_1DIG
 !!----       GET_FRACTION_2DIG
 !!----       GET_LOGUNIT
@@ -86,7 +88,7 @@
 !!
  Module CFML_String_Utilities
     !---- Use Modules ----!
-    use CFML_GlobalDeps,    only: cp
+    use CFML_GlobalDeps,   only: cp, ops_sep
     use CFML_Math_General, only: Negligible, Zbelong
 
     implicit none
@@ -97,11 +99,10 @@
     public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String
 
     !---- List of public subroutines ----!
-    public :: Cutst, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std, Getword, &
-              Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal,      &
-              Read_Key_Value, Read_Key_ValueST, Reading_Lines, Setnum_std, Ucase,       &
-              FindFmt,  Init_FindFmt, Frac_Trans_1Dig, Frac_Trans_2Dig, get_logunit,    &
-              NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos
+    public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
+              Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
+              Read_Key_ValueST, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,   &
+              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err
@@ -582,8 +583,6 @@
 
        return
     End Function U_Case
-
-
 
     !---------------------!
     !---- Subroutines ----!
@@ -1162,6 +1161,64 @@
 
        return
     End Subroutine Frac_Trans_2Dig
+
+    !!----
+    !!---- Subroutine Get_Basename(Filename, Basename)
+    !!----    character (len=*), intent( in) :: Filename !  In -> The input pathname.
+    !!----    character (len=*), intent(out) :: Basename ! Out -> The final component of the input pathname
+    !!----
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Subroutine Get_Basename(Filename,Basename)
+       !---- Argument ----!
+       Character (Len=*), Intent (In)  :: Filename
+       Character (Len=*), Intent (Out) :: Basename
+
+       !---- Local Variables ----!
+       Integer :: I
+
+       I = Index(Filename, '.', Back = .True.)
+
+       If (I > 0) Then
+           Basename = Filename(1:I-1)
+
+       Else
+           Basename = Filename
+
+       End If
+
+       Return
+    End Subroutine Get_Basename
+
+    !!----
+    !!---- Subroutine Get_Dirname(Filename, Directory)
+    !!----    character(len=*), intent( in) :: Filename   !  In -> The input filename
+    !!----    character(len=*), intent(out) :: Directory  ! Out -> The directory corresponding to the filename
+    !!----
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Subroutine Get_Dirname(Filename,Directory)
+       !---- Argument ----!
+       Character (Len=*), Intent (In)  :: Filename
+       Character (Len=*), Intent (Out) :: Directory
+
+       !---- Local Variables ----!
+       Integer :: I
+
+       I = Index(Filename, Ops_Sep, Back = .True.)
+
+       If (I > 0) Then
+           Directory = Filename(1:I-1)
+
+       Else
+           Directory = Filename
+
+       End If
+
+       Return
+    End Subroutine Get_Dirname
 
     !!----
     !!---- Subroutine Get_Fraction_1Dig(V,Fracc)

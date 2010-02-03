@@ -109,7 +109,6 @@
 !!----    CURRENT_INSTRM
 !!--++    CURRENT_INSTRM_SET                [Private]
 !!----    CURRENT_ORIENT
-!!----    CYCLE_NUMBER
 !!----    ERR_ILLDATA
 !!----    ERR_ILLDATA_MESS
 !!--++    GOT_ILL_DATA_DIRECTORY            [Private]
@@ -141,6 +140,8 @@
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
 !!----       INITIALIZE_DATA_DIRECTORY
+!!----       INITIALIZE_TEMP_DIRECTORY
+!!----       INITIALIZE_WORKING_DIRECTORIES
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
 !!--++       READ_A_KEYTYPE                  [Private]
 !!----       READ_CURRENT_INSTRM
@@ -169,11 +170,11 @@
 Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    !use f2kcli !Comment for compliant F2003 compilers
-   Use CFML_GlobalDeps
-   Use CFML_Math_General,     only: cosd,sind, equal_vector
-   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
-   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
-                                    invert => Invert_A
+   Use CFML_Globaldeps
+   Use CFML_Io_Messages,       Only: Error_Message
+   Use CFML_Math_General,      Only: Cosd,Sind, Equal_Vector
+   Use CFML_String_Utilities,  Only: U_Case, Lcase, Get_Dirname, Get_Logunit, Number_Lines, Reading_Lines
+   Use CFML_Math_3D,           Only: Cross_Product, Determ_A, Determ_V, Invert => Invert_A
    !---- Variables ----!
    Implicit none
 
@@ -183,8 +184,8 @@ Module CFML_ILL_Instrm_Data
    public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,   &
              Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D, &
-             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle, &
-             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20,                    &
+             Initialize_Data_Directory, Initialize_Temp_Directory, Initialize_Working_directories, &
+             Get_Absolute_Data_Path, Get_Next_YearCycle, Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20, &
              Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
 
    !---- Definitions ----!
@@ -613,16 +614,6 @@ Module CFML_ILL_Instrm_Data
    type(SXTAL_Orient_type), public :: Current_Orient
 
    !!----
-   !!---- CYCLE_NUMBER
-   !!----    integer, public :: cycle_number
-   !!----
-   !!----    Value to give the cycle number of Reactor at ILL
-   !!----
-   !!---- Update: April - 2008
-   !!
-   integer, public  ::  cycle_number
-
-   !!----
    !!---- ERR_ILLDATA
    !!----    logical, public:: ERR_ILLData
    !!----
@@ -822,17 +813,6 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=512), private  ::  uncompresscommand=' '
 
-   !!----
-   !!---- YEAR_ILLDATA
-   !!----    Integer, public :: YEAR_ILLDATA
-   !!----
-   !!----    Integer containing the two last figures of the "year" needed to
-   !!----    find datafiles
-   !!----
-   !!---- Update: March - 2009
-   !!
-   integer,            public  ::  year_illdata
-
  Contains
 
     !!----
@@ -979,18 +959,17 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Define_Uncompress_Program
 
     !!----
-    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyear,Icycle)
+    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyearcycle)
     !!----    integer,           intent(in)  :: numor
     !!----    character(len=*),  intent(in)  :: instrm
     !!----    character(len=*),  intent(out) :: path
-    !!----    integer, optional, intent(in)  :: iyear
-    !!----    integer, optional, intent(in)  :: icycle
+    !!----    integer, optional, intent(in)  :: iyearcycle
     !!----
     !!----    Finds the absolute path to any numor. The base directory
     !!----    is set by a call to 'initialize_data_directory'. The subroutine
     !!----    then searches for the numor in the following order:
     !!----    1. In the subdirectory defined by the year and cycle if passed
-    !!----       as arguments to the subroutine (i.e args iyear, icycle).
+    !!----       as arguments to the subroutine (i.e args iyearcycle).
     !!----    2. In the subdirectory defined by the year and cycle of the
     !!----       previous call to get_absolute_data_path (since numors are
     !!----       likely to be adjacent).
@@ -1011,27 +990,25 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2009
     !!
-    Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear,Icycle)
-
+    Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyearcycle)
        !---- Arguments ----!
-       integer,           intent(in)  :: numor
-       character(len=*),  intent(in)  :: instrm
-       character(len=*),  intent(out) :: path
-       integer, optional, intent(in)  :: iyear
-       integer, optional, intent(in)  :: icycle
+       integer,            intent(in)  :: numor
+       character (len=*),  intent(in)  :: instrm
+       character (len=*),  intent(out) :: path
+       integer, optional,  intent(in)  :: iyearcycle
+
+       !---- Parameters ----!
+       character (len=*), parameter :: Current_Data = 'data'
+       character (len=*), parameter :: Previous_Data = 'data-1'
+       character (len=*), parameter :: Extension = '.Z'
 
        !---- Local Variables ----!
-       character(len=*),parameter :: Current_Data = 'data'
-       character(len=*),parameter :: Previous_Data = 'data-1'
-       character(len=*),parameter :: Extension = '.Z'
-
-       character(len=6) :: numstr
-       character(len=4) :: inst
-       character(len=3) :: yearcycle
-       character(len=7) :: subdir
-       logical          :: exists
-
-       integer          :: i
+       character (len=6) :: numstr
+       character (len=4) :: inst
+       character (len=6) :: yearcycle = ""
+       character (len=7) :: subdir
+       logical           :: exists
+       integer           :: i
 
        ! Init value
        path=" "
@@ -1041,12 +1018,12 @@ Module CFML_ILL_Instrm_Data
        ! in initialize_data_directory(), so let us continue and set got_ILL_data_directory=.true.
        ! if the associated numor file exist anywhere
        if (.not. got_ILL_data_directory) then
-          call initialize_data_directory()
+           call initialize_working_directories()
        else
-          i=len_trim(ILL_data_directory)
-          if (ILL_data_directory(i:i) /= ops_sep) then
-             ILL_data_directory=trim(ILL_data_directory)//ops_sep
-          end if
+           i=len_trim(ILL_data_directory)
+           if (ILL_data_directory(i:i) /= ops_sep) then
+               ILL_data_directory=trim(ILL_data_directory)//ops_sep
+           end if
        end if
 
        ! At this point the ILL Data and Temporal directories must be defined
@@ -1054,14 +1031,7 @@ Module CFML_ILL_Instrm_Data
        if (.not. got_ILL_Temp_Directory) return
 
        ! Uncompress program must be defined
-       if (len_trim(uncompresscommand) == 0) then
-          select case (ops)
-             case (1) ! Windows
-                call define_uncompress_program('7z e -y -so')
-             case (2:) ! Linux...
-                call define_uncompress_program('gunzip -c')
-          end select
-       end if
+       if (len_trim(uncompresscommand) == 0) call define_uncompress_program('gzip -q -d -c')
 
        ! Numor character
        write(unit=numstr,fmt='(i6.6)') numor
@@ -1071,79 +1041,123 @@ Module CFML_ILL_Instrm_Data
        call lcase(inst)
 
        ! Using Instrument Information
-       select case(inst)
-          case("d1b","d20","d9","d15","d19")
-             subdir = trim(inst)//"_"//numstr(2:2)//ops_sep
-          case default ! d10, d3 etc don't divide numors up into sub directories
-             subdir = ""
-       end select
+       Select Case(Inst)
 
-       if (present(iyear) .and. present(icycle)) then
-          ! Using Year+Cycle
-          write(unit=yearcycle,fmt="(i2.2,i1.1)") iyear,icycle
-          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-          inquire(file=trim(path),exist=exists)
-          if (exists) return ! found numor so return
+           Case("d1b","d20","d9","d15","d19")
+               Subdir = Trim(Inst)//"_"//Numstr(2:2)//Ops_Sep
 
-          ! Using previous + compressed data
-          path = trim(path)//Extension
-          inquire(file=trim(path),exist=exists)
-          if (exists) then ! uncompress into temp directory
-             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-             path = trim(ILL_temp_directory)//numstr
-             return ! found numor so return
-          end if
+           ! d10, d3 etc don't divide numors up into sub directories
+           Case Default
+               Subdir = ""
 
-          ! Using Year + Cycle of a previous call to routine
-          write(unit=yearcycle,fmt="(i2.2,i1.1)") year_illdata,cycle_number
-          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-          inquire(file=trim(path),exist=exists)
-          if (exists) return ! found numor so return
+       End Select
 
-          ! Using previous + compressed data
-          path = trim(path)//Extension
-          inquire(file=trim(path),exist=exists)
-          if (exists) then ! uncompress into temp directory
-             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-             path = trim(ILL_temp_directory)//numstr
-             return ! found numor so return
-          end if
-       end if
+       If (Yearcycle /= "") Then
 
-       ! Using Current_data
-       path = trim(ILL_data_directory)//Current_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+           Path = Trim(Ill_Data_Directory)//Trim(Yearcycle)//Ops_Sep//Trim(Inst)//Ops_Sep//Trim(Subdir)//Numstr
+           Inquire(File=Trim(Path),Exist=Exists)
+           ! Found Numor So Return.
+           If (Exists) Return
 
-       inquire(file=trim(path),exist=exists)
-       if (exists) return ! found numor so return
+           ! Using Previous + Compressed Data.
+           Path = Trim(Path)//Extension
+           Inquire(File=Trim(Path),Exist=Exists)
 
-       ! Using Previous data
-       path = trim(ILL_data_directory)//Previous_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-       inquire(file=trim(path),exist=exists)
-       if (exists) return ! found numor so return
+           ! Uncompress Into Temp Directory.
+           If (Exists) Then
 
-       ! start from the most recent yearcycle and work search backwards
-       call get_next_yearcycle(yearcycle,.true.)
-       do
-          if (yearcycle == "") exit
+               Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+               Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+               ! Found Numor So Return.
+               Return
 
-          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-          inquire(file=trim(path),exist=exists)
-          if (exists) return
+           End If
 
-          path = trim(path)//Extension
-          inquire(file=trim(path),exist=exists)
-          if (exists) then ! uncompress into temp directory
-             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-             path = trim(ILL_temp_directory)//numstr
-             return ! found numor so return
-          end if
-          call get_next_yearcycle(yearcycle)
-       end do
+       Else
+           If (Present(Iyearcycle)) Then
 
-       ! the numor was found compressed or uncompressed anywhere
-       path = " "
+               Write(Yearcycle, "(I6.3)") Iyearcycle
 
-       return
+               Path = Trim(Ill_Data_Directory)//Trim(Yearcycle)//Ops_Sep//Trim(Inst)//Ops_Sep//Trim(Subdir)//Numstr
+               Inquire(File = Trim(Path), Exist = Exists)
+               ! Found Numor So Return.
+               If (Exists) Return
+
+               ! Using Previous + Compressed Data.
+               Path = Trim(Path)//Extension
+               Inquire(File=Trim(Path),Exist=Exists)
+               ! Uncompress Into Temp Directory.
+               If (Exists) Then
+                   Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+                   Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+                   ! Found Numor So Return.
+                   Return
+               End If
+
+           End If
+
+           ! Is It Uncompressed In Current Data Directory ?
+           Yearcycle = Current_Data
+           Path = Trim(Ill_Data_Directory)//Trim(Yearcycle)//Ops_Sep//Trim(Inst)//Ops_Sep//Trim(Subdir)//Numstr
+           Inquire(File=Trim(Path),Exist=Exists)
+           ! Found numor so return.
+           If (Exists) Return
+
+           ! Is It Compressed In Current Data Directory ?
+           Path = Trim(Path)//Extension
+           Inquire(File = Trim(Path),Exist=Exists)
+           ! Uncompress Into Temp Directory.
+           If (Exists) Then
+               Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+               Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+               ! Found Numor So Return.
+               Return
+           End If
+
+           ! Is It Uncompressed In Previous Data Directory ?
+           Yearcycle = Previous_Data
+           Path = Trim(Ill_Data_Directory)//Trim(Yearcycle)//Ops_Sep//Trim(Inst)//Ops_Sep//Trim(Subdir)//Numstr
+           Inquire(File=Trim(Path),Exist=Exists)
+           ! Found Numor So Return.
+           If (Exists) Return
+
+           ! Is It Compressed In Previous Data Directory ?
+           Path = Trim(Path)//Extension
+           Inquire(File = Trim(Path),Exist=Exists)
+           ! Uncompress Into Temp Directory.
+           If (Exists) Then
+               Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+               Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+               ! Found Numor So Return.
+               Return
+           End If
+
+           ! Search Recursively if it can be Found in a Previous Cycle.
+           Call Get_Next_Yearcycle(Yearcycle, .True.)
+           Do
+               If (Yearcycle == "") Exit
+
+               Path = Trim(Ill_Data_Directory)//Trim(Yearcycle)//Ops_Sep//Trim(Inst)//Ops_Sep//Trim(Subdir)//Numstr
+               Inquire(File=Trim(Path),Exist=Exists)
+               If (Exists) Return
+
+               Path = Trim(Path)//Extension
+               Inquire(File=Trim(Path),Exist=Exists)
+               If (Exists) Then ! Uncompress Into Temp Directory
+                   Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+                   Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+                   Return ! Found Numor So Return
+               End If
+               Call Get_Next_Yearcycle(Yearcycle)
+           End Do
+
+       End If
+
+       ! The Numor Was Not Found Compressed Or Uncompressed Anywhere.
+       Yearcycle = ""
+       Path = " "
+       Return
+
     End Subroutine Get_Absolute_Data_Path
 
     !!----
@@ -1164,15 +1178,18 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2009
     !!
-    Subroutine Get_Next_YearCycle(Yearcycle, reset_to_most_recent)
+    Subroutine Get_Next_YearCycle(yearcycle, reset_to_most_recent)
        !---- Argument ----!
-       character(len=*), intent(out) :: yearcycle
-       logical, optional, intent(in) :: reset_to_most_recent
+       character (len=6), intent(out)   :: yearcycle
+       logical, optional, intent(in)    :: reset_to_most_recent
 
        !---- Local Variables ----!
        integer, parameter    :: Maxcycle = 7
+       integer, save         :: year_illdata = 0, cycle_number = Maxcycle
        integer, dimension(8) :: dt
        character(len=10)     :: date,time,zone
+
+       yearcycle = ""
 
        if (present(reset_to_most_recent)) then
           if (reset_to_most_recent) then
@@ -1299,6 +1316,73 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Single_Frame_2D
 
     !!----
+    !!---- Subroutine Get_User_Defined_Data_Path(Numor, Directory, Path)
+    !!----    integer,           intent(in)  :: numor
+    !!----    character(len=*),  intent(in)  :: Directory
+    !!----    character(len=*),  intent(out) :: path
+    !!----
+    !!--..    Tries to find an uncompress numor first and then tries to find
+    !!--..    a compressed numor (.Z extension). If found the numor is uncomp-
+    !!--..    ressed in the a temporary directory if defined (see subroutine
+    !!--..    'initialize_data_directory') or else into the current directory.
+    !!--..
+    !!--..    Nb At present no attempt is made to tidy up these uncompressed
+    !!--..    numors, which could potentially litter the current directory.
+    !!----
+    !!---- Update: March - 2009
+    !!
+    Subroutine Get_User_Defined_Data_Path(Numor, Directory, Path)
+
+       !---- Arguments ----!
+       Integer,           Intent(In)  :: Numor
+       Character (Len=*), Intent(In)  :: Directory
+       Character (Len=*), Intent(Out) :: Path
+
+       !---- Local Variables ----!
+       Character (Len=*), Parameter :: Extension = '.Z'
+       Character (Len=6)            :: Numstr
+       Logical                      :: Exists
+
+       ! Init Value
+       Path=""
+
+       ! Numor Character
+       Write(Unit=Numstr,Fmt='(I6.6)') Numor
+
+       Path = Trim(Directory)//Ops_Sep//Numstr
+
+       Inquire(File=Trim(Path),Exist=Exists)
+       ! Found Numor So Return
+       If (Exists) Return
+
+       ! Some compilers are unable to test the existence of file: data_directory//ops_sep//"." !!!!!
+       ! So, got_ill_data_directory may still be .false., ill_data_directory has been set anyway
+       ! in initialize_data_directory(), so let us continue and set got_ill_data_directory=.true.
+       ! if the associated numor file exist anywhere
+       If (.Not. Got_Ill_Temp_Directory) Call Initialize_Temp_Directory()
+
+       ! Uncompress program must be defined
+       If (Len_Trim(Uncompresscommand) == 0) Call Define_Uncompress_Program('gzip -Q -D -C')
+
+       ! Using previous + compressed data
+       Path = Trim(Path)//Extension
+       Inquire(File=Trim(Path),Exist=Exists)
+       ! Uncompress into temp directory
+       If (Exists) Then
+          Call System(Trim(Uncompresscommand)//' '//Trim(Path)//' > '//Trim(Ill_Temp_Directory)//Ops_Sep//Numstr)
+          Path = Trim(Ill_Temp_Directory)//Ops_Sep//Numstr
+          ! Found numor so return
+          Return
+       End If
+
+       ! The numor was found compressed or uncompressed anywhere
+       Path = ""
+
+       Return
+
+    End Subroutine Get_User_Defined_Data_Path
+
+    !!----
     !!---- Subroutine Initialize_Data_Directory()
     !!----
     !!....    Original code from Mike Turner (as well as the following comments)
@@ -1311,6 +1395,64 @@ Module CFML_ILL_Instrm_Data
     !!----    Subroutine assigning values to the following global public variables:
     !!----    ILL_Data_Directory: Base directory for the ILL data. If found then
     !!----                        the flag got_ILL_data_directory is set to true.
+    !!----
+    !!--..    Original code from Mike Turner, changed to make the subroutine independent
+    !!--..    of the Winteracter library.
+    !!--..
+    !!--..    The subroutine ask for enviroment variables TEMP and ILLDATA in first place and
+    !!--..    and if it return a blank then the default is set as following:
+    !!--..    ILL_Data_Directory -> \\Serdon\illdata
+    !!--..    ILL_Data_Directory -> /net/serdon/illdata
+    !!----
+    !!--..    NB: You need change this routine according to the compiler used !!!!!!
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Subroutine Initialize_Data_Directory()
+       !---- Local Variables ----!
+       Integer                     :: I
+       Character(Len=*), Parameter :: Envvar = 'illdata'
+       Logical                     :: Exists
+
+       Exists = .False.
+
+       Call Get_Environment_Variable(Envvar, Ill_Data_Directory)
+
+       If (Len_Trim(Ill_Data_Directory) == 0) Then
+          If (Ops == 1) Then
+             Ill_Data_Directory = '\\serdon\illdata'
+
+          Else
+             Ill_Data_Directory = '/net/serdon/illdata'
+
+          End If
+       End If
+
+       I = Len_Trim(Ill_Data_Directory)
+       If (Ill_Data_Directory(I:I) /= Ops_Sep) Ill_Data_Directory = Trim(Ill_Data_Directory)//Ops_Sep
+
+       ! Instead of checking for the existence of a directory, checks for the existence of a file
+       ! withing the direcotry. Indeed, some compiler (e.g. gfortran) on some platforms (e.g. windows)
+       ! can not check for directories. The Directory_exists function is not used anymore because of unresolvable
+       ! conflicts between compiler.
+       Inquire(File = Trim(Ill_Data_Directory)//'file', Exist = Exists)
+       If (Exists) Got_Ill_Data_Directory = .True.
+
+       Return
+
+    End Subroutine Initialize_Data_Directory
+
+    !!----
+    !!---- Subroutine Initialize_Temp_Directory()
+    !!----
+    !!....    Original code from Mike Turner (as well as the following comments)
+    !!....    Depending on the operating system as reported by winteracter routine
+    !!....    InfoOpSystem, assigns values to the following global public variables:
+    !!....    sep, the path separator. "sep" has been replaced by "ops_sep" from
+    !!....    CFML_GlobalDeps. InfoOpSystem is a function from Winteracter: replaced by
+    !!....    OPS integer from CFML_GlobalDeps
+    !!....
+    !!----    Subroutine assigning values to the following global public variables:
     !!----    ILL_Temp_Directory: A temporary directory (used for uncompressing). If
     !!----                        found the flag got_ILL_temp_directory is set to true.
     !!----
@@ -1319,60 +1461,68 @@ Module CFML_ILL_Instrm_Data
     !!--..
     !!--..    The subroutine ask for enviroment variables TEMP and ILLDATA in first place and
     !!--..    and if it return a blank then the default is set as following:
-    !!--..    Windows: ILL_Temp_Directory -> C:\Temp     ILL_Data_Directory -> \\Serdon\illdata
-    !!--..    Linux:   ILL_Temp_Directory -> $HOME/.tmp  ILL_Data_Directory -> /net/serdon/illdata
+    !!--..    Windows: ILL_Temp_Directory -> C:\Temp
+    !!--..    Linux:   ILL_Temp_Directory -> $HOME/tmp
     !!----
     !!--..    NB: You need change this routine according to the compiler used !!!!!!
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: January - 2010
     !!
-    Subroutine Initialize_Data_Directory()
+    Subroutine Initialize_Temp_Directory()
        !---- Local Variables ----!
-       character(len=*), parameter :: Envvar1 = 'TEMP'
-       character(len=*), parameter :: Envvar2 = 'ILLDATA'
-       logical                     :: exists
+       Integer                      :: I
+       Character (Len=*), Parameter :: Envvar1 = 'temp', Envvar2 = 'tmp'
+       Logical                      :: Exists
 
+       Call Get_Environment_Variable(Envvar1, Ill_Temp_Directory)
 
-       select case (OPS)
-          case (1)  ! Windows
-             ! Temporal
-             call getenv(ENVVAR1, ILL_Temp_Directory)
-             if (len_trim(ILL_Temp_directory) == 0) then
-                ILL_Temp_directory='C:\Temp'
-             end if
+       If (Len_Trim(Ill_Temp_Directory) == 0) Then
+          Call Get_Environment_Variable(Envvar2, Ill_Temp_Directory)
 
-             ! ILL Data
-             call getenv(ENVVAR2, ILL_Data_Directory)
-             if (len_trim(ILL_Data_Directory) == 0) then
-                ILL_Data_Directory = '\\Serdon\illdata'
-             end if
+          If (Len_Trim(Ill_Temp_Directory) == 0) Then
 
-          case (2:)  !Different variants of UNIX (Linux, MacOS, ...)
-             ! Temporal
-             call getenv(ENVVAR1, ILL_Temp_Directory)
-             if (len_trim(ILL_Temp_directory) == 0) then
-                call get_environment_variable('HOME', ILL_Temp_Directory)
-                ILL_Temp_directory =trim(ILL_Temp_directory)//OPS_SEP//'tmp'
-             end if
+             If (Ops == 1) Then
+                Call Get_Environment_Variable('USERPROFILE', Ill_Temp_Directory)
 
-             ! ILL Data
-             call get_environment_variable(ENVVAR2, ILL_Data_Directory)
-             if (len_trim(ILL_Data_Directory) == 0) then
-                ILL_Data_Directory = '/net/serdon/illdata'
-             end if
-       end select
+             Else
+                Call Get_Environment_Variable('HOME', Ill_Temp_Directory)
+
+             End If
+
+             I = Len_Trim(Ill_Temp_Directory)
+             If (Ill_Temp_Directory(I:I) /= Ops_Sep) Ill_Temp_Directory = Trim(Ill_Temp_Directory)//Ops_Sep
+
+             Ill_Temp_Directory = Trim(Ill_Temp_Directory)//'tmp'
+
+          End If
+
+       End If
+
        ! Temporal
-       ILL_Temp_directory=trim(ILL_Temp_directory)//ops_sep
-       exists=directory_exists(trim(ILL_temp_directory))
-       if (exists) got_ILL_temp_directory = .true.
+       Exists = Directory_Exists(Trim(Ill_Temp_Directory))
+       If (Exists) Got_Ill_Temp_Directory = .True.
 
-       ! ILL DATA
-       ILL_Data_Directory=trim(ILL_Data_Directory)//ops_sep
-       exists=directory_exists(trim(ILL_Data_Directory))
-       if (exists) got_ILL_data_directory = .true.
+       Return
+    End Subroutine Initialize_Temp_Directory
 
-       return
-    End Subroutine Initialize_Data_Directory
+    !!----
+    !!---- Subroutine Initialize_Working_Directories()
+    !!----
+    !!....    Call two subroutines. A first one to set the ILL data directory and
+    !!....    a second one to set the temporary directory.
+    !!....    Both subroutines were originally coded by Mike Turner.
+    !!....
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Subroutine Initialize_Working_Directories()
+
+       Call Initialize_Data_Directory()
+       Call Initialize_Temp_Directory()
+
+       Return
+
+    End Subroutine Initialize_Working_Directories
 
     !!--++
     !!--++ Subroutine Number_KeyTypes_on_File(filevar, nlines)
@@ -2396,8 +2546,8 @@ Module CFML_ILL_Instrm_Data
        ! Check if the data exist uncompressed or compressed
        inquire(file=trim(filenam),exist=existe)
        if (.not. existe) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess=" Error: the file: "//trim(filenam)//", doesn't exist!"
+          ERR_ILLData = .TRUE.
+          ERR_ILLData_Mess = " Error: the file: "//trim(filenam)//", doesn't exist!"
           return
        end if
 
@@ -2405,7 +2555,7 @@ Module CFML_ILL_Instrm_Data
        open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
        if (ier /= 0) then
           ERR_ILLData=.true.
-          ERR_ILLData_Mess=" Error opening the file: "//trim(filenam)//", for reading numors"
+          ERR_ILLData_Mess=" Error opening the file: "//trim(filenam)//", for reading numors."
           return
        end if
 
@@ -2416,7 +2566,7 @@ Module CFML_ILL_Instrm_Data
              do i=1,3
                 read(unit=lun,fmt="(a)",iostat=ier) line
              end do
-             snum%header=line
+             snum%header=line(1:32)
              do i=1,3
                 read(unit=lun,fmt="(a)",iostat=ier) line
              end do
@@ -2520,7 +2670,7 @@ Module CFML_ILL_Instrm_Data
              do i=1,4
                 read(unit=lun,fmt="(a)",iostat=ier) line
              end do
-             snum%header=line
+             snum%header=line(1:32)
              do i=1,3
                 read(unit=lun,fmt="(a)",iostat=ier) line
              end do
@@ -2778,51 +2928,64 @@ Module CFML_ILL_Instrm_Data
     !!----    the object 'snum' of type SXTAL_Numor_type.
     !!----    (not completely checked yet)
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
-    !!----    and fils the error message variable ERR_ILLData_Mess.
+    !!----    and fills the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: December - 2005
+    !!---- Update: January - 2010
     !!
-    Subroutine Read_SXTAL_Numor(numor,Instrm,snum)
+    Subroutine Read_SXTAL_Numor(numor, instrument, snum, working_dir, cycle_number)
        !---- Arguments ----!
-       integer,                intent(in)    :: numor
-       character(len=*),       intent(in)    :: Instrm
-       type(SXTAL_Numor_type), intent(in out):: snum
+       integer,                 intent(in)           :: numor
+       character (len=*),       intent(in)           :: instrument
+       type(SXTAL_Numor_type),  intent(inout)        :: snum
+       character (len=*),       intent(in), optional :: working_dir
+       integer,                 intent(in), optional :: cycle_number
 
        !---- Local variables ----!
-       character(len=280)              :: filenam
-       character(len=6)                :: inst
-       character(len=80)               :: line
-       integer                         :: i,j, lun, long,ier
-       integer, dimension(31)          :: ival
-       real(kind=cp),    dimension(50) :: rval
-       logical                         :: existe
+       Character (Len=280)              :: Filename
+       Character (Len=6)                :: Inst
+       Character (Len=80)               :: Line
+       Integer                          :: I,J, Lun, Ier
+       Integer, Dimension(31)           :: Ival
+       Real(Kind=Cp),    Dimension(50)  :: Rval
+       Logical                          :: Existe
 
+       Err_Illdata = .False.
+       Err_Illdata_Mess = ""
 
-       !---- Construct the absolute path and filename to be read ----!
-       write(unit=inst,fmt='(i6.6)') numor
-       line=trim(Instrm_directory)
-       long=len_trim(line)
-       if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
-       filenam=trim(line)//inst
+       ! Instrument
+       Inst = Adjustl(Instrument)
+       Call Lcase(Inst)
+
+       If (Present(Working_Dir)) Then
+           Call Get_User_Defined_Data_Path(Numor, Working_Dir, Filename)
+
+       Else
+
+           If (Present(Cycle_Number)) Then
+              Call Get_Absolute_Data_Path(Numor, Inst, Filename, Cycle_Number)
+
+           Else
+              Call Get_Absolute_Data_Path(Numor, Inst, Filename)
+
+           End If
+
+       End If
 
        !---- Check if the data exist uncompressed or compressed
-       inquire(file=trim(filenam),exist=existe)
-       if (.not. existe) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="The file: "//trim(filenam)//", doesn't exist!"
+       Inquire(File = Trim(Filename), Exist = Existe)
+       If (.Not. Existe) Then
+          Err_Illdata = .True.
+          ERR_ILLData_Mess = "The file: "//trim(filename)//", doesn't exist!"
+          return
+       End If
+
+       Call Get_Logunit(Lun)
+       Open(Unit=Lun,File=Trim(Filename),Status="Old", Action="Read", Position="Rewind",Iostat=Ier)
+       If (Ier /= 0) Then
+          Err_Illdata=.True.
+          ERR_ILLData_Mess="Error opening the file: "//trim(filename)//", for reading numors."
           return
        end if
-
-       call Get_LogUnit(lun)
-       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
-       if (ier /= 0) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="Error opening the file: "//trim(filenam)//", for reading numors"
-          return
-       end if
-
-       inst=instrm
-       call lcase (inst)
 
        Select Case (trim(inst))
           Case("d9","d10","d19")
@@ -2831,7 +2994,7 @@ Module CFML_ILL_Instrm_Data
               do i=1,4
                 read(unit=lun,fmt="(a)",iostat=ier) line
               end do
-              snum%header=line
+              snum%header=line(1:32)
               do i=1,4
                 read(unit=lun,fmt="(a)",iostat=ier) line
               end do
@@ -2843,7 +3006,7 @@ Module CFML_ILL_Instrm_Data
               read(unit=lun,fmt=*,iostat=ier) ival
               if(ier /= 0) then
                 ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading integer control values"
+                ERR_ILLData_Mess="Error in file: "//trim(filename)//", reading integer control values"
                 return
               end if
               do i=1,12
@@ -2852,7 +3015,7 @@ Module CFML_ILL_Instrm_Data
               read(unit=lun,fmt=*,iostat=ier) rval
               if(ier /= 0) then
                 ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading real control values"
+                ERR_ILLData_Mess="Error in file: "//trim(filename)//", reading real control values"
                 return
               end if
               !valco      rval( 1:35)
@@ -2897,7 +3060,7 @@ Module CFML_ILL_Instrm_Data
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                     "Error in file: "//trim(filenam)//", reading counts at frame #",i
+                     "Error in file: "//trim(filename)//", reading counts at frame #",i
                   return
                 end if
               end do
@@ -2905,7 +3068,7 @@ Module CFML_ILL_Instrm_Data
 
           Case default
               ERR_ILLData=.true.
-              ERR_ILLData_Mess= "Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
+              ERR_ILLData_Mess= "Error in file: "//trim(filename)//", Incorrect Instrument name: "//inst
        End Select
 
        return
@@ -3060,7 +3223,7 @@ Module CFML_ILL_Instrm_Data
        else
          Current_Instrm%info= "Default 4-cercles diffractrometer"
          Current_Instrm%name_inst= "4C-Diff"
-         Current_Instrm%geom="4C-Diff High-Chi, Eulerian cradle"
+         Current_Instrm%geom="Eulerian_4C"
          Current_Instrm%igeom=2
          wave=0.71
          Current_Instrm%dist_samp_detector=488.0

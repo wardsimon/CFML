@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2009,              Version: 4.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_MESSAGES
@@ -44,31 +44,54 @@
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(Line, Iunit)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Error information
-    !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
+    !!---- Subroutine Error_Message(message, Iunit, routine, fatal)
+    !!----    character(len=*), intent(in)           :: message       !  In -> Error information
+    !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
+    !!----    character(len=*), intent(in), optional :: routine       !  In -> The subroutine where the error occured
+    !!----    logical,          intent(in), optional :: unrecoverable !  In -> Should the program stop here ?
     !!----
     !!----    Print an error message on the screen or in "Iunit" if present
+    !!----    If "routine" is present the subroutine where the occured will be also displayed.
+    !!----    If "fatal" is present and .True. the program will stop after the printing.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: January - 2010
     !!
-    Subroutine Error_Message(line,iunit)
+    Subroutine Error_Message(Message, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*), intent(in)           :: line
-       integer,          intent(in), optional :: iunit
+       Character ( Len = * ), Intent(In)           :: Message
+       Integer,               Intent(In), Optional :: Iunit
+       Character ( Len = * ), Intent(In), Optional :: Routine
+       Logical,               Intent(In), Optional :: Fatal
 
        !---- Local Variables ----!
-       integer :: lun
+       Integer :: Lun, Lenm, Lenr
 
-       lun=6
-       if (present(iunit)) lun=iunit
+       Lun = 6
+       If (Present(Iunit)) Lun = Iunit
 
-       write(unit=lun,fmt="(a)") " ****"
-       write(unit=lun,fmt="(a)") " **** ERROR: "//line
-       write(unit=lun,fmt="(a)") " ****"
-       write(unit=lun,fmt="(a)") "  "
+       Write(Unit = Lun, Fmt = "(A)") " ****"
+       Write(Unit = Lun, Fmt = "(A/)") " **** Error"
 
-       return
+       If (Present(Routine)) Then
+           Lenr = Len_Trim(Routine)
+           Write(Unit = Lun, Fmt = "(A)") " **** Subroutine: "//Routine(1:Lenr)
+       End If
+
+       Lenm = Len_Trim(Message)
+       Write(Unit = Lun, Fmt = "(A)") " **** Message: "//Message(1:Lenm)
+
+       If (Present(Fatal)) Then
+           If (Fatal) Then
+               Write(Unit = Lun, Fmt = "(/A)") " **** The Program Will Stop Here."
+               Stop
+           End If
+       End If
+
+       Write(Unit = Lun, Fmt = "(A)") " ****"
+       Write(Unit = Lun, Fmt = "(A)") "  "
+
+       Return
+
     End Subroutine Error_Message
 
     !!----
