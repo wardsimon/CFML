@@ -2944,7 +2944,7 @@ Module CFML_ILL_Instrm_Data
        Character (Len=280)              :: Filename
        Character (Len=6)                :: Inst
        Character (Len=80)               :: Line
-       Integer                          :: I,J, Lun, Ier
+       Integer                          :: I,J, Lun, Ier, Long
        Integer, Dimension(31)           :: Ival
        Real(Kind=Cp),    Dimension(50)  :: Rval
        Logical                          :: Existe
@@ -2958,17 +2958,19 @@ Module CFML_ILL_Instrm_Data
 
        If (Present(Working_Dir)) Then
            Call Get_User_Defined_Data_Path(Numor, Working_Dir, Filename)
-
        Else
-
            If (Present(Cycle_Number)) Then
               Call Get_Absolute_Data_Path(Numor, Inst, Filename, Cycle_Number)
-
            Else
-              Call Get_Absolute_Data_Path(Numor, Inst, Filename)
-
+              !Call Get_Absolute_Data_Path(Numor, Inst, Filename) !too long ...
+              
+              !Modification to make it compatible with previous version using Instrm_Directory
+              long=len_trim(Instrm_directory)
+              if (Instrm_directory(long:long) /= ops_sep) Instrm_directory=trim(Instrm_directory)//ops_sep
+              filename=trim(Instrm_directory)
+              long=len_trim(filename) 
+              write(unit=filename(long+1:),fmt='(i6.6)') numor
            End If
-
        End If
 
        !---- Check if the data exist uncompressed or compressed
