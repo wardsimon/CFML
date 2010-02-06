@@ -534,7 +534,7 @@
     !!----    on the same side of VHKL as VZ.
     !!----    The reference vectors H0 and VZ are defined in subroutine REFVEC.
     !!----    there, the vector VZ is the z-axis of the fixed laboratory system
-    !!----    (Busing and LEVY Convention, Y along beam, X in positive 2-THETA
+    !!----    (Busing and Levy Convention, Y along beam, X in positive 2-THETA
     !!----    direction). H0 is (0,0,1) for all VHKL except when VHKL is parallel
     !!----    to (0,0,1), in which case (0,1,0) is chosen.
     !!----    Construct two orthonormal-vector-triplets, TS in the PHI-axis
@@ -1148,8 +1148,8 @@
     End Subroutine genb
 
     !!----
-    !!---- Subroutine genub(b,h1,h2,h1o,h2o,ub, ierr)
-    !!----    real(kind=cp), Dimension(3,3), Intent(In)  :: b
+    !!---- Subroutine GenUB(b,h1,h2,h1o,h2o,ub, ierr)
+    !!----    real(kind=cp), Dimension(3,3), Intent(In)  :: B        !Busing-Levy B-matrix
     !!----    real(kind=cp), Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
     !!----    real(kind=cp), Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
     !!----    real(kind=cp), Dimension(3,3), Intent(Out) :: ub
@@ -1157,7 +1157,9 @@
     !!----    Original from   A.Filhol  25/05/84
     !!----    Given the [B] matrix, the Miller indices of two reflections, h1 & h2,
     !!----    and the components of these two reflections, h1o & h2o, in the laboratory
-    !!----    system, this subroutine provides the matrix UB
+    !!----    system, this subroutine provides the matrix UB. Only the direction in the
+    !!----    laboratory system of reflections are needed, e.g. h1o and h2o may be unitary
+    !!----    vectors or whatever other vector along these directions.
     !!----
     !!----    [hc] : Reflection H,K,L in the reciprocal lattice orthonormal system
     !!----    [hc] = [B] [h]
@@ -1166,12 +1168,12 @@
     !!----
     !!---- Update: April 2008
     !!
-    Subroutine genub(b,h1,h2,h1o,h2o,ub, ierr)
+    Subroutine GenUB(B,h1,h2,h1o,h2o,UB, ierr)
        !---- Arguments ----!
-       real(kind=cp), Dimension(3,3), Intent(In)  :: b
+       real(kind=cp), Dimension(3,3), Intent(In)  :: B        !Busing-Levy B-matrix
        real(kind=cp), Dimension(3),   Intent(In)  :: h1,h2    !Miller indices
        real(kind=cp), Dimension(3),   Intent(In)  :: h1o,h2o  !Components in Lab system
-       real(kind=cp), Dimension(3,3), Intent(Out) :: ub
+       real(kind=cp), Dimension(3,3), Intent(Out) :: UB       !Busing-Levy UB-matrix
 
        !--- Local Variables ---!
        real(kind=cp), Dimension(3)  :: h1c,h2c,v1,v2
@@ -1179,8 +1181,8 @@
        Integer                      :: ierr
 
        !Calculation of the reciprocal components in the cartesian reciprocal axes
-       h1c=Matmul(b,h1)
-       h2c=Matmul(b,h2)
+       h1c=Matmul(B,h1)
+       h2c=Matmul(B,h2)
        v1=h1o
        v2=h2o
        Call triple(h1c,h2c,trpc,ierr) !Orthonormal frame attached to h1c,h2c
@@ -1193,14 +1195,14 @@
           ub=0.0
           Return
        End If
-       !..... MATRIX [U]  *** EQUATION 27 (B-L)
-       u=Matmul(trpo,Transpose(trpc))
+       !..... MATRIX [U]  *** Equation 27 (B-L)
+       U=Matmul(trpo,Transpose(trpc))
 
        !..... MATRIX [UB]
-       ub=Matmul(u,b)
+       UB=Matmul(U,B)
 
        Return
-    End Subroutine genub
+    End Subroutine GenUB
 
     !!----
     !!---- Subroutine Get_Angs_NB(wave,z1,ga,om,nu,ierr)
@@ -1440,8 +1442,8 @@
        real(kind=cp), dimension(3),  intent(out) :: z1
 
        !---- Local Variables ----!
-       integer :: ier, mpsd
-       real(kind=cp)    :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
+       integer        :: ier, mpsd
+       real(kind=cp)  :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
        mpsd  = 1  !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in d19amd
        phim  = snum%angles(1)
@@ -1465,7 +1467,7 @@
     !!----
     !!---- Subroutine normal(v,ierr)
     !!----    real(kind=cp), Intent(In Out), Dimension(3)   :: v
-    !!----    Integer, Intent(Out)                 :: ierr
+    !!----    Integer, Intent(Out)                          :: ierr
     !!----
     !!----    Normalise vector V (in Cartesian components)
     !!----
@@ -1651,10 +1653,10 @@
 
     !!----
     !!---- Subroutine refvec(vhkl,ub,vs,vz,ierr)
-    !!----    real(kind=cp), Intent(In),  Dimension(3)       :: vhkl
-    !!----    real(kind=cp), Intent(In),  Dimension(3,3)     :: ub
-    !!----    real(kind=cp), Intent(Out), Dimension(3)       :: vs,vz
-    !!----    Integer, Intent(Out)                  :: ierr
+    !!----    real(kind=cp), Intent(In),  Dimension(3)    :: vhkl
+    !!----    real(kind=cp), Intent(In),  Dimension(3,3)  :: ub
+    !!----    real(kind=cp), Intent(Out), Dimension(3)    :: vs,vz
+    !!----    Integer,       Intent(Out)                  :: ierr
     !!----
     !!----    Calculate vs,vz as reference vectors for defining Psi=0
     !!----    The B-L convention is that Psi=0 when the reflection hkl is
@@ -1669,10 +1671,10 @@
     !!
     Subroutine refvec(vhkl,ub,vs,vz,ierr)
        !---- Arguments ----!
-       real(kind=cp), Intent(In),  Dimension(3)       :: vhkl
-       real(kind=cp), Intent(In),  Dimension(3,3)     :: ub
-       real(kind=cp), Intent(Out), Dimension(3)       :: vs,vz
-       Integer, Intent(Out)                           :: ierr
+       real(kind=cp), Intent(In),  Dimension(3)    :: vhkl
+       real(kind=cp), Intent(In),  Dimension(3,3)  :: ub
+       real(kind=cp), Intent(Out), Dimension(3)    :: vs,vz
+       Integer,       Intent(Out)                  :: ierr
 
        !--- Local Variables ---!
        real(kind=cp),Dimension(3) :: hn,h0
@@ -2038,7 +2040,7 @@
     !!----    real(kind=cp), Intent(In)                 :: wave,ch,ph,ga,om,nu
     !!----    real(kind=cp), Intent(Out), Dimension(3)  :: z1
     !!----
-    !!----    Z1 from Four Circle + PSD detector diffractometer angles
+    !!----    Z1 from Four Circle + PSD multi-detector diffractometer angles
     !!----    Calculate diffraction vector Z1 from CH, PH, GA, OM, NU
     !!----    for a multi-detector. The angles Chi,Phi,Gamma,Omega and Nu for
     !!----    the equatorial plane are Chi,Phi,2Theta and Omega (Nu=0)
