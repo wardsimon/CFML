@@ -623,15 +623,18 @@
     !!----    real(kind=cp), dimension(3,3)            :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the composition
-    !!----    of a rotation around z of angle Chi, followed by a rotation of angle Theta
-    !!----    around the y-axis and a subsequent rotation of angle Phi around z.
+    !!----    of a positive rotation around z of angle Chi, followed by a positive rotation 
+    !!----    of angle Theta around the y-axis and a subsequent positive rotation of angle Phi 
+    !!----    around z. "Positive" means counter-clockwise. 
     !!----    The matrix is M = Rz(Phi) . Ry(Theta) . Rz(Chi)
     !!----    The colums represent the components of the unitary vectors {u,v,w} that
     !!----    may be considered as an alternative orthonormal frame to the canonical {i,j,k}.
     !!----    Applying the matrix M to a point in {i,j,k} gives another point in {i,j,k} obtained
     !!----    by the successive application of the three rotations given above. The transpose
     !!----    (inverse) of the M-matrix, when applied to a point in {i,j,k}, gives the coordinates
-    !!----    of the same point referred to the frame {u,v,w}.
+    !!----    of the same point referred to the frame {u,v,w}. This transpose matrix corresponds
+    !!----    to a passive (change or Cartesian frame) rotation leaving the points in the same
+    !!----    position with respect to the  {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angles are given in radians.
     !!----    If Code =="D" then the input angles are given in degrees (Phi, Theta, Chi).
     !!----
@@ -685,7 +688,9 @@
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
-    !!----    of an angle Phi around the x-axis.
+    !!----    of an angle Phi around the x-axis. The transpose matrix corresponds to a
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
     !!----
@@ -711,10 +716,10 @@
           !---- radians ----!
           p=Phi
        end if
-       Mt(1,1)= 1.0        !
-       Mt(2,1)= 0.0        !  u
-       Mt(3,1)= 0.0        !
-       Mt(1,2)= 0.0        !
+       Mt(1,1)= 1.0        !              1  0  0
+       Mt(2,1)= 0.0        !  u           0  c -s     Rx
+       Mt(3,1)= 0.0        !              0  s  c
+       Mt(1,2)= 0.0        !                  
        Mt(2,2)= cos(p)     !  v
        Mt(3,2)= sin(p)     !
        Mt(1,3)= 0.0        !
@@ -731,7 +736,9 @@
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
-    !!----    of an angle Phi around the y-axis.
+    !!----    of an angle Phi around the y-axis. The transpose matrix corresponds to a
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
     !!----
@@ -757,9 +764,9 @@
           !---- radians ----!
           p=Phi
        end if
-       Mt(1,1)= cos(p)  !
-       Mt(2,1)= 0.0     !  u
-       Mt(3,1)=-sin(p)  !
+       Mt(1,1)= cos(p)  !             c  0  s
+       Mt(2,1)= 0.0     !  u          0  1  0      Ry
+       Mt(3,1)=-sin(p)  !            -s  0  c
        Mt(1,2)= 0.0     !
        Mt(2,2)= 1.0     !  v
        Mt(3,2)= 0.0     !
@@ -777,7 +784,9 @@
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
-    !!----    of an angle Phi around the z-axis.
+    !!----    of an angle Phi around the z-axis. The transpose matrix corresponds to a
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
     !!----
@@ -803,11 +812,11 @@
           !---- radians ----!
           p=Phi
        end if
-       Mt(1,1)= cos(p)  !
-       Mt(2,1)= sin(p)  !  u
-       Mt(3,1)= 0.0     !
+       Mt(1,1)= cos(p)  !                 c  -s  0
+       Mt(2,1)= sin(p)  !  u              s   c  0    Rz
+       Mt(3,1)= 0.0     !                 0   0  1
        Mt(1,2)=-sin(p)  !
-      Mt(2,2)= cos(p)  !  v
+       Mt(2,2)= cos(p)  !  v
        Mt(3,2)= 0.0     !
        Mt(1,3)= 0.0     !
        Mt(2,3)= 0.0     !  w
@@ -932,7 +941,7 @@
        real(kind=cp),            intent(in)   :: Dmax, Dangl
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
-       type (atom_list_type),   intent(in)   :: A
+       type (atom_list_type),    intent(in)   :: A
        integer, optional,        intent(in)   :: lun
 
        !---- Local Variables ----!
