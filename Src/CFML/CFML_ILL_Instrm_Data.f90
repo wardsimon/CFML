@@ -1307,8 +1307,28 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Get_Single_Frame_2D
+    
     !!----
     !!---- Subroutine Initialize_Data_Directory()
+    !!----
+    !!----    Call two subroutines: Initialize_Numors_Directory and Initialize_Temp_Directory . 
+    !!----    The first one is to set the ILL data directory and
+    !!----    the second one to set the temporary directory.
+    !!----    Both subroutines were originally coded by Mike Turner.
+    !!----
+    !!----
+    !!---- Update: January - 2010
+    !!
+    Subroutine Initialize_Data_Directory()
+        
+       Call Initialize_Numors_Directory()
+       Call Initialize_Temp_Directory()
+
+       Return       
+    End Subroutine Initialize_Data_Directory
+    
+    !!----
+    !!---- Subroutine Initialize_Numors_Directory()
     !!----
     !!....    Original code from Mike Turner (as well as the following comments)
     !!....    Depending on the operating system as reported by winteracter routine
@@ -1329,7 +1349,6 @@ Module CFML_ILL_Instrm_Data
     !!--..    ILL_Data_Directory -> \\Serdon\illdata
     !!--..    ILL_Data_Directory -> /net/serdon/illdata
     !!----
-    !!--..    NB: You need change this routine according to the compiler used !!!!!!
     !!----
     !!---- Update: January - 2010
     !!
@@ -1355,13 +1374,8 @@ Module CFML_ILL_Instrm_Data
        
        I = Len_Trim(Ill_Data_Directory)
        If (Ill_Data_Directory(I:I) /= Ops_Sep) Ill_Data_Directory = Trim(Ill_Data_Directory)//Ops_Sep
-              
-       ! Instead of checking for the existence of a directory, checks for the existence of a file
-       ! within the directory. indeed, some compiler (e.g. gfortran) on some platforms (e.g. windows)
-       ! can not check for directories. the directory_exists function is not used anymore because of yet unresolvable 
-       ! conflicts between compilers.
-       Inquire(File = Trim(Ill_Data_Directory)//'File', Exist = Exists)
-       If (Exists) Got_Ill_Data_Directory = .True.
+       
+       Got_Ill_Data_Directory = Directory_Exists(Trim(Ill_Data_Directory))              
        
        Return
        
@@ -1389,7 +1403,6 @@ Module CFML_ILL_Instrm_Data
     !!--..    Windows: ILL_Temp_Directory -> C:\Temp
     !!--..    Linux:   ILL_Temp_Directory -> $HOME/tmp
     !!----
-    !!--..    NB: You need change this routine according to the compiler used !!!!!!
     !!----
     !!---- Update: January - 2010
     !!
@@ -1434,24 +1447,6 @@ Module CFML_ILL_Instrm_Data
        Return       
     End Subroutine Initialize_Temp_Directory
     
-    !!----
-    !!---- Subroutine Initialize_Data_Directory()
-    !!----
-    !!....    Call two subroutines. A first one to set the ILL data directory and
-    !!....    a second one to set the temporary directory.
-    !!....    Both subroutines were originally coded by Mike Turner.
-    !!....
-    !!----
-    !!---- Update: January - 2010
-    !!
-    Subroutine Initialize_Data_Directory()
-        
-       Call Initialize_Numors_Directory()
-       Call Initialize_Temp_Directory()
-
-       Return
-       
-    End Subroutine Initialize_Data_Directory
 
     !!--++
     !!--++ Subroutine Number_KeyTypes_on_File(filevar, nlines)
