@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Level 3</title>
+<html><head><title>READ_POWDER_NUMOR</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,16 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- font-style: italic;
- font-weight: bold;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-weight: bold;
+ color: #ff6600;
 }
 span.rvts13
 {
- font-style: italic;
+ font-weight: bold;
 }
 span.rvts14 /* Font Style */
 {
@@ -118,82 +117,70 @@ p,ul,ol /* Paragraph Style */
 }
 --></style>
 <link rel="StyleSheet" href="hnd.css" type="text/css"/>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?Level3.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?READ_POWDER_NUMOR.html"; }</script>
 <script type="text/javascript" src="jquery.min.js"></script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>Level 3</span></p>
-<p><span class=rvts10><br></span></p>
+<p class=rvps2><span class=rvts14>READ_POWDER_NUMOR</span></p>
+<p><span class=rvts10>SUBROUTINE READ_POWDER_NUMOR(NUMOR, INSTRM, PATHDIR, SNUM, INFO)</span></p>
+<p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=152 style="background-color: #ccffcc;"><p><span class=rvts11>Concept</span></p>
+<td width=330><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=329 style="background-color: #ccffcc;"><p><span class=rvts11>Module Name</span></p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ccffcc;"><p><span class=rvts11>Purpose</span></p>
-<p><span class=rvts11><br></span></p>
+<td width=98><p>NUMOR</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13>Bonds Tables...</span></p>
-</td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12>CFML_Bond_Tables</span></p>
-</td>
-<td style="background-color: #ffff99;"><p>Contain a simple subroutine providing the list of the usual bonds between atoms</p>
+<td width=369><p>Numor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13><br></span></p>
+<td width=330><p><span class=rvts11>CHARACTER </span>(<span class=rvts12>LEN</span><span class=rvts11>=</span>*)</p>
 </td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12><br></span></p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ffff99;"><br>
+<td width=98><p>INSTRM</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13>Crystal Metrics...</span></p>
-</td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12>CFML_Crystal_Metrics</span></p>
-</td>
-<td style="background-color: #ffff99;"><p>Define crystallographic types and to provide automatic crystallographic metrics operations</p>
+<td width=369><p>Instrument Name</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=152 style="background-color: #ffff99;"><br>
+<td width=330><p><span class=rvts11>CHARACTER </span>(<span class=rvts12>LEN</span><span class=rvts11>=</span>*)</p>
 </td>
-<td width=329 style="background-color: #ffff99;"><br>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ffff99;"><br>
+<td width=98><p>PATHDIR</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13>Instrumentation on ILL...</span></p>
-</td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12>CFML_ILL_Instrm_Data</span></p>
-</td>
-<td style="background-color: #ffff99;"><p>Procedures to access the (single crystals) instrument output data base at ILL</p>
+<td width=369><p>Path directory</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=152 style="background-color: #ffff99;"><br>
+<td width=330><p><span class=rvts11>TYPE</span>(POWDER_NUMOR_TYPE)</p>
 </td>
-<td width=329 style="background-color: #ffff99;"><br>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
 </td>
-<td style="background-color: #ffff99;"><br>
+<td width=98><p>SNUM</p>
+</td>
+<td width=369><p>Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=152 style="background-color: #ffff99;"><p><span class=rvts13>Symmetry Information...</span></p>
+<td width=330><p><span class=rvts11>LOGICAL, OPTIONAL</span></p>
 </td>
-<td width=329 style="background-color: #ffff99;"><p><span class=rvts12>CFML_Crystallographic_Symmetry</span></p>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td style="background-color: #ffff99;"><p>Contain nearly everything needed for handling symmetry in Crystallography.</p>
+<td width=98><p>INFO</p>
+</td>
+<td width=369><br>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts10><br></span></p>
+<p><br></p>
+<p>Read the numor <span class=rvts13>NUMOR</span> from the ILL database and construct&nbsp; the object <span class=rvts13>SNUM</span> of type <span class=rvts13>Powder_Numor_type</span>.</p>
+<p>&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>
