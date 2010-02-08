@@ -294,7 +294,7 @@
        real(Kind=dp), intent(in) :: x
        real(Kind=dp)             :: y
 
-       y=0.5_dp*log10(6.28_dp*n)-n*log10(1.36_dp*x/n)
+       y=0.5_dp*log10(6.28_dp*real(n,kind=dp))-n*log10(1.36_dp*x/real(n,kind=dp))
 
        return
     End Function Envj
@@ -336,26 +336,26 @@
              end do
           end if
           if (l == n+1) then
-             Int_Slater_Besselv = (2*s/(s*s+z*z))**l*fact/(s*s+z*z)
+             Int_Slater_Besselv = (2.0_cp*s/(s*s+z*z))**l*fact/(s*s+z*z)
              return
           end if
           if (l == n) then
-             Int_Slater_Besselv = (2*l+2)*z* (2*s/(s*s+z*z))**l*fact/(s*s+z*z)/(s*s+z*z)
+             Int_Slater_Besselv = real(2*l+2,kind=cp)*z* (2.0_cp*s/(s*s+z*z))**l*fact/(s*s+z*z)/(s*s+z*z)
              return
           end if
 
           !---- We arrive here iif l>=n+1
           !---- We calculate the case n=l-1
-          isb0 = (2*s/(s*s+z*z))**l*fact/(s*s+z*z)
+          isb0 = (2.0_cp*s/(s*s+z*z))**l*fact/(s*s+z*z)
 
           !---- We calculate the case n=l
-          Int_Slater_Besselv = (2*l+2)*z* (2*s/(s*s+z*z))**l*fact/(s*s+z*z)/(s*s+z*z)
+          Int_Slater_Besselv = real(2*l+2,kind=cp)*z* (2.0_cp*s/(s*s+z*z))**l*fact/(s*s+z*z)/(s*s+z*z)
 
           !---- And apply the recursivity up to n
           do i=l+1,n
              tmp= Int_Slater_Besselv
-             Int_Slater_Besselv = (2.0*(i+1)*z*Int_Slater_Besselv-&
-                                  (i+l+1.0)*(i-l)*ISB0)/(s*s+z*z)
+             Int_Slater_Besselv = (2.0_cp*(i+1)*z*Int_Slater_Besselv - &
+                                  real(i+l+1,kind=cp)*real(i-l,kind=cp)*ISB0)/(s*s+z*z)
              isb0= tmp
           end do
 
@@ -396,23 +396,23 @@
 
        pmm=1.0
        if (m > 0) then                  !Compute P(m,m)
-          somx2=sqrt((1.0-x)*(1.0+x))
-          fact=1.0
+          somx2=sqrt((1.0_cp-x)*(1.0_cp+x))
+          fact=1.0_cp
           do i=1,m
              pmm=-pmm*fact*somx2
-             fact=fact+2.0
+             fact=fact+2.0_cp
           end do
        end if
 
        if (l == m) then
           plmx=pmm
        else
-          pmmp1=x*(2*m+1)*pmm           !Compute P(m,m+1)
+          pmmp1=x*real(2*m+1,kind=cp)*pmm           !Compute P(m,m+1)
           if (l == m+1) then
              plmx=pmmp1                 !Compute P(m,L), L > m+1
           else
              do ll=m+2,l
-                pll=(x*real(2*ll-1)*pmmp1-real(ll+m-1)*pmm)/real(ll-m)
+                pll=(x*real(2*ll-1,kind=cp)*pmmp1-real(ll+m-1,kind=cp)*pmm)/real(ll-m,kind=cp)
                 pmm=pmmp1
                 pmmp1=pll
              end do
@@ -455,15 +455,15 @@
           pphi = sin(m*phi*to_rad)
        end if
        ylmp=plgndr(l,m,x)*pphi
-       norm=real(2*l+1)
+       norm=real(2*l+1,kind=dp)
 
        do i=l-m+1,l+m
-          norm=norm/real(i)
+          norm=norm/real(i,kind=dp)
        end do
        if (m == 0) then
-          norm=sqrt(norm/(4.0*pi))
+          norm=sqrt(norm/(4.0_dp*pi))
        else
-          norm=sqrt(norm/(2.0*pi))
+          norm=sqrt(norm/(2.0_dp*pi))
        end if
        ylmp=norm*ylmp
 
@@ -499,7 +499,7 @@
 
        v=u
        ss=dot_product(v,v)
-       if (abs(ss-1.0) > 2.0*eps) then  !Test the provided unit vector
+       if (abs(ss-1.0_cp) > 2.0_cp*eps) then  !Test the provided unit vector
           if(ss > eps) then
             v=v/sqrt(ss)             !Normalize the input vector
           else
@@ -508,7 +508,7 @@
           end if
        end if
        x=v(3)                    !costheta
-       if (abs(x-1.0) < eps .or. abs(x+1.0) < eps) then
+       if (abs(x-1.0_cp) < eps .or. abs(x+1.0_cp) < eps) then
           pphi=0.0
        else
           pphi=atan2(v(2),v(1))  !This is the good function to obtain the true spherical angles
@@ -519,15 +519,15 @@
           pphi = sin(m*pphi)     !sin(m*phi)
        end if
        ylmp=plgndr(l,m,x)*pphi
-       norm=real(2*l+1)
+       norm=real(2*l+1,kind=dp)
 
        do i=l-m+1,l+m
-          norm=norm/real(i)
+          norm=norm/real(i,kind=dp)
        end do
        if (m == 0) then
-          norm=sqrt(norm/(4.0*pi))
+          norm=sqrt(norm/(4.0_dp*pi))
        else
-          norm=sqrt(norm/(2.0*pi))
+          norm=sqrt(norm/(2.0_dp*pi))
        end if
        ylmp=norm*ylmp
 
@@ -557,134 +557,134 @@
 
        !---- Local Variables ----!
        integer                   :: i
-       real,dimension(0:10,0:10,2) :: Clmp
+       real(kind=dp),dimension(0:10,0:10,2) :: Clmp
        if(l > 10 .or. m > 10 .or. m > l) then
-          Dlmp=0.0
+          Dlmp=0.0_cp
           return
        end if
        !Assign values to the normalization constants
        Clmp = 0.0
-       Clmp(  0,  0,  1)=     0.28209481
-       Clmp(  1,  1,  2)=     0.65147001
-       Clmp(  1,  0,  1)=     0.65147001
-       Clmp(  1,  1,  1)=     0.65146995
-       Clmp(  2,  2,  2)=     0.68646848
-       Clmp(  2,  1,  2)=     0.68646836
-       Clmp(  2,  0,  1)=     0.65552908
-       Clmp(  2,  1,  1)=     0.68646836
-       Clmp(  2,  2,  1)=     0.68646848
-       Clmp(  3,  3,  2)=     0.71929127
-       Clmp(  3,  2,  2)=     0.69189525
-       Clmp(  3,  1,  2)=     0.70087820
-       Clmp(  3,  0,  1)=     0.65613419
-       Clmp(  3,  1,  1)=     0.70087814
-       Clmp(  3,  2,  1)=     0.69189525
-       Clmp(  3,  3,  1)=     0.71929145
-       Clmp(  4,  4,  2)=     0.74899846
-       Clmp(  4,  3,  2)=     0.70616245
-       Clmp(  4,  2,  2)=     0.69879586
-       Clmp(  4,  1,  2)=     0.70847464
-       Clmp(  4,  0,  1)=     0.65620995
-       Clmp(  4,  1,  1)=     0.70847464
-       Clmp(  4,  2,  1)=     0.69879586
-       Clmp(  4,  3,  1)=     0.70616263
-       Clmp(  4,  4,  1)=     0.74899834
-       Clmp(  5,  5,  2)=     0.77591366
-       Clmp(  5,  4,  2)=     0.72266090
-       Clmp(  5,  3,  2)=     0.70547515
-       Clmp(  5,  2,  2)=     0.70407319
-       Clmp(  5,  1,  2)=     0.71306634
-       Clmp(  5,  0,  1)=     0.65617186
-       Clmp(  5,  1,  1)=     0.71306634
-       Clmp(  5,  2,  1)=     0.70407319
-       Clmp(  5,  3,  1)=     0.70547533
-       Clmp(  5,  4,  1)=     0.72266084
-       Clmp(  5,  5,  1)=     0.77591383
-       Clmp(  6,  6,  2)=     0.80047959
-       Clmp(  6,  5,  2)=     0.73945135
-       Clmp(  6,  4,  2)=     0.71554828
-       Clmp(  6,  3,  2)=     0.70703226
-       Clmp(  6,  2,  2)=     0.70801049
-       Clmp(  6,  1,  2)=     0.71609598
-       Clmp(  6,  0,  1)=     0.65610999
-       Clmp(  6,  1,  1)=     0.71609592
-       Clmp(  6,  2,  1)=     0.70801049
-       Clmp(  6,  3,  1)=     0.70703244
-       Clmp(  6,  4,  1)=     0.71554822
-       Clmp(  6,  5,  1)=     0.73945147
-       Clmp(  6,  6,  1)=     0.80047959
-       Clmp(  7,  7,  2)=     0.82308108
-       Clmp(  7,  6,  2)=     0.75586903
-       Clmp(  7,  5,  2)=     0.72696197
-       Clmp(  7,  4,  2)=     0.71344930
-       Clmp(  7,  3,  2)=     0.70896560
-       Clmp(  7,  2,  2)=     0.71099448
-       Clmp(  7,  1,  2)=     0.71822095
-       Clmp(  7,  0,  1)=     0.65604913
-       Clmp(  7,  1,  1)=     0.71822089
-       Clmp(  7,  2,  1)=     0.71099448
-       Clmp(  7,  3,  1)=     0.70896578
-       Clmp(  7,  4,  1)=     0.71344924
-       Clmp(  7,  5,  1)=     0.72696209
-       Clmp(  7,  6,  1)=     0.75586903
-       Clmp(  7,  7,  1)=     0.82308108
-       Clmp(  8,  8,  2)=     0.84402764
-       Clmp(  8,  7,  2)=     0.77168250
-       Clmp(  8,  6,  2)=     0.73882592
-       Clmp(  8,  5,  2)=     0.72154719
-       Clmp(  8,  4,  2)=     0.71311980
-       Clmp(  8,  3,  2)=     0.71081281
-       Clmp(  8,  2,  2)=     0.71331161
-       Clmp(  8,  1,  2)=     0.71977973
-       Clmp(  8,  0,  1)=     0.65599412
-       Clmp(  8,  1,  1)=     0.71977967
-       Clmp(  8,  2,  1)=     0.71331161
-       Clmp(  8,  3,  1)=     0.71081293
-       Clmp(  8,  4,  1)=     0.71311975
-       Clmp(  8,  5,  1)=     0.72154731
-       Clmp(  8,  6,  1)=     0.73882592
-       Clmp(  8,  7,  1)=     0.77168250
-       Clmp(  8,  8,  1)=     0.84402764
-       Clmp(  9,  9,  2)=     0.86356676
-       Clmp(  9,  8,  2)=     0.78682709
-       Clmp(  9,  7,  2)=     0.75072247
-       Clmp(  9,  6,  2)=     0.73046678
-       Clmp(  9,  5,  2)=     0.71902418
-       Clmp(  9,  4,  2)=     0.71349597
-       Clmp(  9,  3,  2)=     0.71247119
-       Clmp(  9,  2,  2)=     0.71514851
-       Clmp(  9,  1,  2)=     0.72096473
-       Clmp(  9,  0,  1)=     0.65595061
-       Clmp(  9,  1,  1)=     0.72096467
-       Clmp(  9,  2,  1)=     0.71514851
-       Clmp(  9,  3,  1)=     0.71247137
-       Clmp(  9,  4,  1)=     0.71349585
-       Clmp(  9,  5,  1)=     0.71902430
-       Clmp(  9,  6,  1)=     0.73046678
-       Clmp(  9,  7,  1)=     0.75072247
-       Clmp(  9,  8,  1)=     0.78682709
-       Clmp(  9,  9,  1)=     0.86356682
-       Clmp( 10, 10,  2)=     0.88188988
-       Clmp( 10,  9,  2)=     0.80130792
-       Clmp( 10,  8,  2)=     0.76244813
-       Clmp( 10,  7,  2)=     0.73974365
-       Clmp( 10,  6,  2)=     0.72590035
-       Clmp( 10,  5,  2)=     0.71787411
-       Clmp( 10,  4,  2)=     0.71415150
-       Clmp( 10,  3,  2)=     0.71390396
-       Clmp( 10,  2,  2)=     0.71663243
-       Clmp( 10,  1,  2)=     0.72189075
-       Clmp( 10,  0,  1)=     0.65590489
-       Clmp( 10,  1,  1)=     0.72189069
-       Clmp( 10,  2,  1)=     0.71663243
-       Clmp( 10,  3,  1)=     0.71390414
-       Clmp( 10,  4,  1)=     0.71415144
-       Clmp( 10,  5,  1)=     0.71787423
-       Clmp( 10,  6,  1)=     0.72590035
-       Clmp( 10,  7,  1)=     0.73974365
-       Clmp( 10,  8,  1)=     0.76244813
-       Clmp( 10,  9,  1)=     0.80130792
-       Clmp( 10, 10,  1)=     0.88188988
+       Clmp(  0,  0,  1)=     0.28209481_dp
+       Clmp(  1,  1,  2)=     0.65147001_dp
+       Clmp(  1,  0,  1)=     0.65147001_dp
+       Clmp(  1,  1,  1)=     0.65146995_dp
+       Clmp(  2,  2,  2)=     0.68646848_dp
+       Clmp(  2,  1,  2)=     0.68646836_dp
+       Clmp(  2,  0,  1)=     0.65552908_dp
+       Clmp(  2,  1,  1)=     0.68646836_dp
+       Clmp(  2,  2,  1)=     0.68646848_dp
+       Clmp(  3,  3,  2)=     0.71929127_dp
+       Clmp(  3,  2,  2)=     0.69189525_dp
+       Clmp(  3,  1,  2)=     0.70087820_dp
+       Clmp(  3,  0,  1)=     0.65613419_dp
+       Clmp(  3,  1,  1)=     0.70087814_dp
+       Clmp(  3,  2,  1)=     0.69189525_dp
+       Clmp(  3,  3,  1)=     0.71929145_dp
+       Clmp(  4,  4,  2)=     0.74899846_dp
+       Clmp(  4,  3,  2)=     0.70616245_dp
+       Clmp(  4,  2,  2)=     0.69879586_dp
+       Clmp(  4,  1,  2)=     0.70847464_dp
+       Clmp(  4,  0,  1)=     0.65620995_dp
+       Clmp(  4,  1,  1)=     0.70847464_dp
+       Clmp(  4,  2,  1)=     0.69879586_dp
+       Clmp(  4,  3,  1)=     0.70616263_dp
+       Clmp(  4,  4,  1)=     0.74899834_dp
+       Clmp(  5,  5,  2)=     0.77591366_dp
+       Clmp(  5,  4,  2)=     0.72266090_dp
+       Clmp(  5,  3,  2)=     0.70547515_dp
+       Clmp(  5,  2,  2)=     0.70407319_dp
+       Clmp(  5,  1,  2)=     0.71306634_dp
+       Clmp(  5,  0,  1)=     0.65617186_dp
+       Clmp(  5,  1,  1)=     0.71306634_dp
+       Clmp(  5,  2,  1)=     0.70407319_dp
+       Clmp(  5,  3,  1)=     0.70547533_dp
+       Clmp(  5,  4,  1)=     0.72266084_dp
+       Clmp(  5,  5,  1)=     0.77591383_dp
+       Clmp(  6,  6,  2)=     0.80047959_dp
+       Clmp(  6,  5,  2)=     0.73945135_dp
+       Clmp(  6,  4,  2)=     0.71554828_dp
+       Clmp(  6,  3,  2)=     0.70703226_dp
+       Clmp(  6,  2,  2)=     0.70801049_dp
+       Clmp(  6,  1,  2)=     0.71609598_dp
+       Clmp(  6,  0,  1)=     0.65610999_dp
+       Clmp(  6,  1,  1)=     0.71609592_dp
+       Clmp(  6,  2,  1)=     0.70801049_dp
+       Clmp(  6,  3,  1)=     0.70703244_dp
+       Clmp(  6,  4,  1)=     0.71554822_dp
+       Clmp(  6,  5,  1)=     0.73945147_dp
+       Clmp(  6,  6,  1)=     0.80047959_dp
+       Clmp(  7,  7,  2)=     0.82308108_dp
+       Clmp(  7,  6,  2)=     0.75586903_dp
+       Clmp(  7,  5,  2)=     0.72696197_dp
+       Clmp(  7,  4,  2)=     0.71344930_dp
+       Clmp(  7,  3,  2)=     0.70896560_dp
+       Clmp(  7,  2,  2)=     0.71099448_dp
+       Clmp(  7,  1,  2)=     0.71822095_dp
+       Clmp(  7,  0,  1)=     0.65604913_dp
+       Clmp(  7,  1,  1)=     0.71822089_dp
+       Clmp(  7,  2,  1)=     0.71099448_dp
+       Clmp(  7,  3,  1)=     0.70896578_dp
+       Clmp(  7,  4,  1)=     0.71344924_dp
+       Clmp(  7,  5,  1)=     0.72696209_dp
+       Clmp(  7,  6,  1)=     0.75586903_dp
+       Clmp(  7,  7,  1)=     0.82308108_dp
+       Clmp(  8,  8,  2)=     0.84402764_dp
+       Clmp(  8,  7,  2)=     0.77168250_dp
+       Clmp(  8,  6,  2)=     0.73882592_dp
+       Clmp(  8,  5,  2)=     0.72154719_dp
+       Clmp(  8,  4,  2)=     0.71311980_dp
+       Clmp(  8,  3,  2)=     0.71081281_dp
+       Clmp(  8,  2,  2)=     0.71331161_dp
+       Clmp(  8,  1,  2)=     0.71977973_dp
+       Clmp(  8,  0,  1)=     0.65599412_dp
+       Clmp(  8,  1,  1)=     0.71977967_dp
+       Clmp(  8,  2,  1)=     0.71331161_dp
+       Clmp(  8,  3,  1)=     0.71081293_dp
+       Clmp(  8,  4,  1)=     0.71311975_dp
+       Clmp(  8,  5,  1)=     0.72154731_dp
+       Clmp(  8,  6,  1)=     0.73882592_dp
+       Clmp(  8,  7,  1)=     0.77168250_dp
+       Clmp(  8,  8,  1)=     0.84402764_dp
+       Clmp(  9,  9,  2)=     0.86356676_dp
+       Clmp(  9,  8,  2)=     0.78682709_dp
+       Clmp(  9,  7,  2)=     0.75072247_dp
+       Clmp(  9,  6,  2)=     0.73046678_dp
+       Clmp(  9,  5,  2)=     0.71902418_dp
+       Clmp(  9,  4,  2)=     0.71349597_dp
+       Clmp(  9,  3,  2)=     0.71247119_dp
+       Clmp(  9,  2,  2)=     0.71514851_dp
+       Clmp(  9,  1,  2)=     0.72096473_dp
+       Clmp(  9,  0,  1)=     0.65595061_dp
+       Clmp(  9,  1,  1)=     0.72096467_dp
+       Clmp(  9,  2,  1)=     0.71514851_dp
+       Clmp(  9,  3,  1)=     0.71247137_dp
+       Clmp(  9,  4,  1)=     0.71349585_dp
+       Clmp(  9,  5,  1)=     0.71902430_dp
+       Clmp(  9,  6,  1)=     0.73046678_dp
+       Clmp(  9,  7,  1)=     0.75072247_dp
+       Clmp(  9,  8,  1)=     0.78682709_dp
+       Clmp(  9,  9,  1)=     0.86356682_dp
+       Clmp( 10, 10,  2)=     0.88188988_dp
+       Clmp( 10,  9,  2)=     0.80130792_dp
+       Clmp( 10,  8,  2)=     0.76244813_dp
+       Clmp( 10,  7,  2)=     0.73974365_dp
+       Clmp( 10,  6,  2)=     0.72590035_dp
+       Clmp( 10,  5,  2)=     0.71787411_dp
+       Clmp( 10,  4,  2)=     0.71415150_dp
+       Clmp( 10,  3,  2)=     0.71390396_dp
+       Clmp( 10,  2,  2)=     0.71663243_dp
+       Clmp( 10,  1,  2)=     0.72189075_dp
+       Clmp( 10,  0,  1)=     0.65590489_dp
+       Clmp( 10,  1,  1)=     0.72189069_dp
+       Clmp( 10,  2,  1)=     0.71663243_dp
+       Clmp( 10,  3,  1)=     0.71390414_dp
+       Clmp( 10,  4,  1)=     0.71415144_dp
+       Clmp( 10,  5,  1)=     0.71787423_dp
+       Clmp( 10,  6,  1)=     0.72590035_dp
+       Clmp( 10,  7,  1)=     0.73974365_dp
+       Clmp( 10,  8,  1)=     0.76244813_dp
+       Clmp( 10,  9,  1)=     0.80130792_dp
+       Clmp( 10, 10,  1)=     0.88188988_dp
        i=p
        if( i < 1) i = 2
 
@@ -717,7 +717,7 @@
        real(kind=dp):: f,f0,f1,a0
 
        a0=abs(x)
-       n0=int(1.1*a0)+1
+       n0=int(1.1_dp*a0)+1
        f0=envj(n0,a0)-mp
        n1=n0+5
        f1=envj(n1,a0)-mp
@@ -764,8 +764,8 @@
        ejn=envj(n,a0)
        if (ejn <= hmp) then
           obj=mp
-          n0=int(1.1*a0)
-       else
+          n0=int(1.1_dp*a0)+1  ! +1 was absent in the original version ... this solves the problem of
+       else                    ! Intel, gfortran and g95 compilers ... Lahey was calculating well event if n0=0!
           obj=hmp+ejn
           n0=n
        end if
@@ -978,13 +978,13 @@
        real(kind=dp) :: sa,sb, f,f1,f0, cs
 
        nm=n
-       if (abs(x) <= 1.0e-100_dp) then
+       if (abs(x) <= 1.0e-30_dp) then
           do k=0,n
-             jn(k)=0.0_dp
-             djn(k)=0.0_dp
+             jn(k) = 0.0_dp
+             djn(k)= 0.0_dp
           end do
           jn(0)=1.0_dp
-          djn(1)=0.3333333333333333_dp
+          djn(1)=1.0_dp/3.0_dp
           return
        end if
 
