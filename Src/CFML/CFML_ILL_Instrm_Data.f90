@@ -3773,7 +3773,7 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_Current_Instrm_data
 
     !!----
-    !!---- Subroutine Write_Generic_Numor(N,lun)
+    !!---- Subroutine Write_Generic_Numor(Num,lun)
     !!----    type(generic_numor_type), intent(in) :: N
     !!----    integer, optional,        intent(in) :: lun
     !!----
@@ -3781,9 +3781,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: April - 2009
     !!
-    Subroutine Write_Generic_Numor(N,lun)
+    Subroutine Write_Generic_Numor(Num,lun)
        !---- Arguments ----!
-       type(generic_numor_type), intent(in) :: N
+       type(generic_numor_type), intent(in) :: Num
        integer, optional,        intent(in) :: lun
 
        !---- Local Variables ----!
@@ -3793,85 +3793,85 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ilun=lun
 
        write(unit=ilun, fmt='(a)') '#### Numor Information ####'
-       write(unit=ilun, fmt='(a,i6.6)') 'Numor: ',n%numor
+       write(unit=ilun, fmt='(a,i6.6)') 'Numor: ',num%numor
 
-       write(unit=ilun,fmt='(a,t50,a)') 'Instrument: '//trim(n%instr),'Date: '//trim(n%date)
-       write(unit=ilun,fmt='(a)') 'Experimental Name: '//trim(n%expname)
+       write(unit=ilun,fmt='(a,t50,a)') 'Instrument: '//trim(num%instr),'Date: '//trim(num%date)
+       write(unit=ilun,fmt='(a)') 'Experimental Name: '//trim(num%expname)
        write(unit=ilun,fmt='(a)') ' '
 
        write(unit=ilun,fmt='(a)') '#---- Sample Information ----#'
-       do i=1,n%sampleid%n
-          write(unit=ilun,fmt='(a)') trim(n%sampleid%namevar(i))//': '//trim(n%sampleid%cvalues(i))
+       do i=1,num%sampleid%n
+          write(unit=ilun,fmt='(a)') trim(num%sampleid%namevar(i))//': '//trim(num%sampleid%cvalues(i))
        end do
        write(unit=ilun,fmt='(a)') ' '
 
        select case (n%instr)
            case ('D20')
               write(unit=ilun,fmt='(a)') '#---- Diffractometer Optics and Reactor Parameters ----#'
-              do i=1,n%diffopt%n
-                 if (len_trim(n%diffopt%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%diffopt%namevar(i))//': ',n%diffopt%rvalues(i)
+              do i=1,num%diffopt%n
+                 if (len_trim(num%diffopt%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%diffopt%namevar(i))//': ',num%diffopt%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Monochromator Motor Parameters ----#'
-              do i=1,n%monmpar%n
-                 if (len_trim(n%monmpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%monmpar%namevar(i))//': ',n%monmpar%rvalues(i)
+              do i=1,num%monmpar%n
+                 if (len_trim(num%monmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%monmpar%namevar(i))//': ',num%monmpar%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Diffractometer Motor Parameters ----#'
-              do i=1,n%diffmpar%n
-                 if (len_trim(n%diffmpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%diffmpar%namevar(i))//': ',n%diffmpar%rvalues(i)
+              do i=1,num%diffmpar%n
+                 if (len_trim(num%diffmpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%diffmpar%namevar(i))//': ',num%diffmpar%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Detector and DAS Parameters ----#'
-              do i=1,n%detpar%n
-                 if (len_trim(n%detpar%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%detpar%namevar(i))//': ',n%detpar%rvalues(i)
+              do i=1,num%detpar%n
+                 if (len_trim(num%detpar%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%detpar%namevar(i))//': ',num%detpar%rvalues(i)
               end do
              write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
-              do i=1,n%dacparam%n
-                 if (len_trim(n%dacparam%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%dacparam%namevar(i))//': ',n%dacparam%rvalues(i)
+              do i=1,num%dacparam%n
+                 if (len_trim(num%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%dacparam%namevar(i))//': ',num%dacparam%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Sample Status ----#'
-              do i=1,n%samplest%n
-                 if (len_trim(n%samplest%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.8)') trim(n%samplest%namevar(i))//': ',n%samplest%rvalues(i)
+              do i=1,num%samplest%n
+                 if (len_trim(num%samplest%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.8)') trim(num%samplest%namevar(i))//': ',num%samplest%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
-              write(unit=ilun,fmt='(a,i8)') trim(n%icounts%namevar(1))//': ',n%icounts%n
+              write(unit=ilun,fmt='(a,i8)') trim(num%icounts%namevar(1))//': ',num%icounts%n
               write(unit=ilun,fmt='(a)') ' '
 
            case ('D1B')
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Flags ----#'
-              do i=1,n%dacflags%n
-                 if (len_trim(n%dacflags%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,i6)') trim(n%dacflags%namevar(i))//': ',n%dacflags%ivalues(i)
+              do i=1,num%dacflags%n
+                 if (len_trim(num%dacflags%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,i6)') trim(num%dacflags%namevar(i))//': ',num%dacflags%ivalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Data Acquisition Parameters ----#'
-              do i=1,n%dacparam%n
-                 if (len_trim(n%dacparam%namevar(i)) <= 0) cycle
-                 write(unit=ilun,fmt='(a,g15.4)') trim(n%dacparam%namevar(i))//': ',n%dacparam%rvalues(i)
+              do i=1,num%dacparam%n
+                 if (len_trim(num%dacparam%namevar(i)) <= 0) cycle
+                 write(unit=ilun,fmt='(a,g15.4)') trim(num%dacparam%namevar(i))//': ',num%dacparam%rvalues(i)
               end do
               write(unit=ilun,fmt='(a)') ' '
 
               write(unit=ilun,fmt='(a)') '#---- Counts Information ----#'
-              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(1))//': ',real(n%icounts%ivalues(1))
-              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(2))//': ',real(n%icounts%ivalues(2))/60000.0
-              write(unit=ilun,fmt='(a,g15.4)') trim(n%icounts%namevar(3))//': ',real(n%icounts%ivalues(3))*0.001
+              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(1))//': ',real(num%icounts%ivalues(1))
+              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(2))//': ',real(num%icounts%ivalues(2))/60000.0
+              write(unit=ilun,fmt='(a,g15.4)') trim(num%icounts%namevar(3))//': ',real(num%icounts%ivalues(3))*0.001
               write(unit=ilun,fmt='(a)') ' '
 
        end select
