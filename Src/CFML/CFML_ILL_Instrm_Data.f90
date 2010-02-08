@@ -1040,7 +1040,7 @@ Module CFML_ILL_Instrm_Data
        logical          :: exists
 
        integer          :: i
-       
+              
        ! Init value
        path=" "
        
@@ -1096,7 +1096,6 @@ Module CFML_ILL_Instrm_Data
           if (exists) then ! uncompress into temp directory
              call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
              path = trim(ILL_temp_directory)//numstr
-             stop
              return ! found numor so return
           end if
 
