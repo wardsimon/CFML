@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_ILL_Instrm_Data
@@ -190,11 +190,11 @@ Module CFML_ILL_Instrm_Data
              Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
 
    !---- Private Subroutines ----!
-   private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &    
-             Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,    &                 
-             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File                 
-   
-             
+   private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
+             Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,    &
+             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File
+
+
    !---- Definitions ----!
 
    !!----
@@ -1040,10 +1040,10 @@ Module CFML_ILL_Instrm_Data
        logical          :: exists
 
        integer          :: i
-              
+
        ! Init value
        path=" "
-       
+
        ! Some compilers are unable to test the existence of file: data_diretory//ops_sep//"." !!!!!
        ! so, got_ILL_data_directory may still be .false., ILL_data_directory has been set anyway
        ! in initialize_data_directory(), so let us continue and set got_ILL_data_directory=.true.
@@ -1084,9 +1084,9 @@ Module CFML_ILL_Instrm_Data
           ! Using Year+Cycle
           write(unit=yearcycle,fmt="(i4.4,i1.1)") iyear,icycle
           yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
-                    
+
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-                              
+
           inquire(file=trim(path),exist=exists)
           if (exists) return ! found numor so return
 
@@ -1102,7 +1102,7 @@ Module CFML_ILL_Instrm_Data
           ! Using Year + Cycle of a previous call to routine
           write(unit=yearcycle,fmt="(i4.4,i1.1)") year_illdata, cycle_number
           yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
-          
+
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
           inquire(file=trim(path),exist=exists)
           if (exists) return ! found numor so return
@@ -1306,11 +1306,11 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Get_Single_Frame_2D
-    
+
     !!----
     !!---- Subroutine Initialize_Data_Directory()
     !!----
-    !!----    Call two subroutines: Initialize_Numors_Directory and Initialize_Temp_Directory . 
+    !!----    Call two subroutines: Initialize_Numors_Directory and Initialize_Temp_Directory .
     !!----    The first one is to set the ILL data directory and
     !!----    the second one to set the temporary directory.
     !!----    Both subroutines were originally coded by Mike Turner.
@@ -1319,13 +1319,13 @@ Module CFML_ILL_Instrm_Data
     !!---- Update: January - 2010
     !!
     Subroutine Initialize_Data_Directory()
-        
+
        Call Initialize_Numors_Directory()
        Call Initialize_Temp_Directory()
 
-       Return       
+       Return
     End Subroutine Initialize_Data_Directory
-    
+
     !!----
     !!---- Subroutine Initialize_Numors_Directory()
     !!----
@@ -1356,30 +1356,30 @@ Module CFML_ILL_Instrm_Data
        Integer                     :: I
        Character(Len=*), Parameter :: Envvar = 'ILLDATA'
        Logical                     :: Exists
-       
+
        Exists = .False.
-       
+
        Call Get_Environment_Variable(Envvar, Ill_Data_Directory)
-       
+
        If (Len_Trim(Ill_Data_Directory) == 0) Then
           If (Ops == 1) Then
              Ill_Data_Directory = '\\Serdon\illdata'
-          
+
           Else
              Ill_Data_Directory = '/net/serdon/Illdata'
-          
+
           End If
        End If
-       
+
        I = Len_Trim(Ill_Data_Directory)
        If (Ill_Data_Directory(I:I) /= Ops_Sep) Ill_Data_Directory = Trim(Ill_Data_Directory)//Ops_Sep
-       
-       Got_Ill_Data_Directory = Directory_Exists(Trim(Ill_Data_Directory))              
-       
+
+       Got_Ill_Data_Directory = Directory_Exists(Trim(Ill_Data_Directory))
+
        Return
-       
+
     End Subroutine Initialize_Numors_Directory
-    
+
     !!----
     !!---- Subroutine Initialize_Temp_Directory()
     !!----
@@ -1406,46 +1406,46 @@ Module CFML_ILL_Instrm_Data
     !!---- Update: January - 2010
     !!
     Subroutine Initialize_Temp_Directory()
-    
+
        !---- Parameters ----!
        Character (Len=*), Parameter :: Envvar1 = 'TEMP', Envvar2 = 'TMP'
-       
+
        !---- Local Variables ----!
        Integer                      :: I
-       
+
        Call Get_Environment_Variable(Envvar1, Ill_Temp_Directory)
-       
+
        If (Len_Trim(Ill_Temp_Directory) == 0) Then
           Call Get_Environment_Variable(Envvar2, Ill_Temp_Directory)
-          
+
           If (Len_Trim(Ill_Temp_Directory) == 0) Then
-          
+
              If (Ops == 1) Then
                 Call Get_Environment_Variable('USERPROFILE', Ill_Temp_Directory)
-          
+
              Else
                 Call Get_Environment_Variable('HOME', Ill_Temp_Directory)
-          
+
              End If
-             
+
              I = Len_Trim(Ill_Temp_Directory)
              If (Ill_Temp_Directory(I:I) /= Ops_Sep) Ill_Temp_Directory = Trim(Ill_Temp_Directory)//Ops_Sep
-             
+
              Ill_Temp_Directory = Trim(Ill_Temp_Directory)//'tmp'
-       
+
           End If
-          
+
        End If
-       
+
        I = Len_Trim(Ill_Temp_Directory)
        If (Ill_Temp_Directory(I:I) /= Ops_Sep) Ill_Temp_Directory = Trim(Ill_Temp_Directory)//Ops_Sep
-                            
+
        ! Temporal
        Got_Ill_Temp_Directory = Directory_Exists(Trim(Ill_Temp_Directory))
 
-       Return       
+       Return
     End Subroutine Initialize_Temp_Directory
-    
+
 
     !!--++
     !!--++ Subroutine Number_KeyTypes_on_File(filevar, nlines)
@@ -2876,7 +2876,7 @@ Module CFML_ILL_Instrm_Data
        long=len_trim(line)
        if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
        filenam=trim(line)//inst
-              
+
        !---- Check if the data exist uncompressed or compressed
        inquire(file=trim(filenam),exist=existe)
        if (.not. existe) then
@@ -3275,37 +3275,37 @@ Module CFML_ILL_Instrm_Data
        !---- Local Variables ----!
        integer          :: i
        character(len=5) :: yearcycle
-       
+
        ! If a working directory is given as an argument, then use it directly as the instrument
        ! directory.
        if ( Present(working_dir) ) then
            Instrm_directory = trim(working_dir)
            i=len_trim(Instrm_directory)
            if (Instrm_directory(i:i) /= ops_sep) Instrm_directory=trim(Instrm_directory)//ops_sep
-       
-       ! If an instrument name is given as argument, then build the instrument directory 
+
+       ! If an instrument name is given as argument, then build the instrument directory
        ! using the path of the ILL internal database.
        else if ( Present(instrm) ) then
-       
+
            ! If the year and the cycle are given as arguments, then construct the yearcycle directory.
            if ( Present(iyear) .and. Present(icycle) ) then
-           
+
                Write(Unit=Yearcycle, fmt='(i4.4,i1.1)') iyear, icycle
                yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
-               
+
                Instrm_directory = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(instrm)//ops_sep
 
            ! Otherwise, use the current data directory as the base location for the instrument directory.
            else
                Instrm_directory = trim(ILL_data_directory)//'data'//ops_sep//trim(instrm)//ops_sep
-           
+
            end if
-       
+
        else
            ERR_ILLData=.true.
            ERR_ILLData_Mess="A working directory or an instrument name must be at least provided."
            return
-                 
+
        end if
 
        !---- check that the directory exist, ----!
@@ -3315,7 +3315,7 @@ Module CFML_ILL_Instrm_Data
        if (.not. Instrm_directory_set) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess="The INSTRM directory: '"//trim(Instrm_directory)//"' doesn't exist"
-          Instrm_directory = " "          
+          Instrm_directory = " "
        end if
 
        return

@@ -2184,16 +2184,15 @@
     !!--..              at most ftol.  Therefore, ftol measures the relative error desired
     !!--..              in the sum of squares.
     !!--..
-    !!--..    xtol      is a nonnegative input variable.  Termination occurs when the
-    !!--..              relative error between two consecutive iterates is at most xtol.
-    !!--..              Therefore, xtol measures the relative error desired in the
-    !!--..              approximate solution.
+    !!--..    xtol      is a nonnegative input variable.  Termination occurs when both the
+    !!--..              actual and predicted relative reductions in the sum of squares are
+    !!--..              at most ftol.  Therefore, ftol measures the relative error desired
+    !!--..              in the sum of squares.
     !!--..
-    !!--..    gtol      is a nonnegative input variable.  Termination occurs when the
-    !!--..              cosine of the angle between fvec and any column of the jacobian
-    !!--..              is at most gtol in absolute value.  Therefore, gtol measures the
-    !!--..              orthogonality desired between the function vector and the columns
-    !!--..              of the jacobian.
+    !!--..    gtol      is a nonnegative input variable.  Termination occurs when both the
+    !!--..              actual and predicted relative reductions in the sum of squares are
+    !!--..              at most ftol.  Therefore, ftol measures the relative error desired
+    !!--..              in the sum of squares.
     !!--..
     !!--..    maxfev    is a positive integer input variable.  Termination occurs when the
     !!--..              number of calls to fcn is at least maxfev by the end of an iteration.
