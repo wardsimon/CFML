@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>PSD_VAL</title>
+<html><head><title>SET_TDIST_PARTIAL_COORDINATION</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,27 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- font-size: 12pt;
- font-style: italic;
- font-weight: bold;
-}
-span.rvts12
-{
- font-size: 12pt;
- font-weight: bold;
  color: #0000ff;
 }
-span.rvts13
-{
- color: #0000ff;
-}
-span.rvts14 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -121,115 +109,83 @@ p,ul,ol /* Paragraph Style */
 }
 --></style>
 <link rel="StyleSheet" href="hnd.css" type="text/css"/>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?PSDVAL.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SET_TDIST_PARTIAL_COORDINATION.html"; }</script>
 <script type="text/javascript" src="jquery.min.js"></script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>PSD_VAL</span></p>
+<p class=rvps2><span class=rvts12>SET_TDIST_PARTIAL_COORDINATION</span></p>
+<p><span class=rvts10>SUBROUTINE SET_TDIST_PARTIAL_COORDINATION (LIST, MAX_COOR, DMAX, CELL, SPG, A)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=342><p><span class=rvts10><br></span></p>
+<td width=316><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=185><p><span class=rvts11>Variable</span></p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><p><span class=rvts11>Definition</span></p>
+<td width=73><p>LIST</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts12>TYPE</span><span class=rvts10> :: PSD_VAL</span></p>
-</td>
-<td width=185><br>
-</td>
-<td width=369><br>
+<td width=315><p>Modified atom</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=316><p><span class=rvts11>INTEGER</span></p>
 </td>
-<td width=185><p>XOff</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=73><p>MAX_COOR</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>ZOff</p>
-</td>
-<td width=369><br>
+<td width=315><p>Maximum expected coordination </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=316><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
 </td>
-<td width=185><p>Radius</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=73><p>DMAX</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>YOff</p>
-</td>
-<td width=369><br>
+<td width=315><p>Max. Distance to calculate</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=316><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=185><p>CGap</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=73><p>CELL</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>AGap</p>
-</td>
-<td width=369><br>
+<td width=315><p>Cell parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=316><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=185><p>NCat</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=73><p>SPG</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
-</td>
-<td width=185><p>Nano</p>
-</td>
-<td width=369><br>
+<td width=315><p>Space group information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=316><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
 </td>
-<td width=185><p>IPsd</p>
+<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=73><p>A</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts12>END TYPE</span><span class=rvts10> PSD_VAL</span></p>
-</td>
-<td width=185><br>
-</td>
-<td width=369><br>
+<td width=315><p>Atoms information</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
+<p>Modify the coordination type: COORD_INFO for the atoms affected by the change of atom "List"</p>
 <p><br></p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p>This routine is a modification of SET_TDIST_COORDINATION to avoid superfluous calculations in global optimization methods. It assumes that SET_TDIST_COORDINATION has previously been&nbsp; called and the object COORD_INFO has already been set.</p>
+<p><br></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>

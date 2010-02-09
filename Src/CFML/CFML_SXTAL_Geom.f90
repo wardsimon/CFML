@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal et al.
 !!----
 !!---- MODULE: CFML_Geometry_SXTAL
@@ -135,8 +135,8 @@
 !!----
 !!---- VARIABLES
 !!--..    Types
-!!----    PSD_VAL
-!!----    SXD_VAL
+!!----    PSD_VAL_TYPE
+!!----    SXD_VAL_TYPE
 !!--++    PSD_SET            [Private]
 !!----    SXD
 !!----
@@ -211,9 +211,29 @@
     !---- Definitions ----!
 
     !!----
-    !!---- TYPE :: PSD_VAL
+    !!---- ERR_SXTGEOM
+    !!----    logical, public :: err_sxtgeom
+    !!----
+    !!----    Logical Variable indicating an error in CFML_Geometry_SXTAL module
+    !!----
+    !!---- Update: February - 2010
+    !!
+    logical, public :: ERR_SXTGeom
+
+    !!----
+    !!---- ERR_SXTGEOM_MESS
+    !!----    character(len=150), public :: ERR_SXTGeom_Mess
+    !!----
+    !!----    String containing information about the last error
+    !!----
+    !!---- Update: February - 2010
+    !!
+    character(len=150), public :: ERR_SXTGeom_Mess
+
+    !!----
+    !!---- TYPE :: PSD_VAL_TYPE
     !!--..
-    !!---- Type, public :: Psd_Val       !Set of caracteristic parameters of the PSD
+    !!---- Type, public :: Psd_Val_Type       !Set of caracteristic parameters of the PSD
     !!----    real(kind=cp)  :: xoff          !
     !!----    real(kind=cp)  :: zoff          !
     !!----    real(kind=cp)  :: radius        !
@@ -223,11 +243,11 @@
     !!----    Integer        :: ncat          !
     !!----    Integer        :: nano          !
     !!----    Integer        :: ipsd          !
-    !!---- End Type Psd_Val
+    !!---- End Type Psd_Val_Type
     !!----
     !!---- Update: April - 2008
     !!
-    Type, Public :: Psd_Val
+    Type, Public :: Psd_Val_Type
        real(kind=cp)  :: xoff
        real(kind=cp)  :: zoff
        real(kind=cp)  :: radius
@@ -237,21 +257,21 @@
        Integer        :: ncat
        Integer        :: nano
        Integer        :: ipsd
-    End Type Psd_Val
+    End Type Psd_Val_Type
 
     !!----
     !!---- PSD
-    !!----    Type(Psd_Val), Public :: psd
+    !!----    Type(Psd_Val_Type), Public :: psd
     !!----
     !!----
     !!---- Update: January - 2009
     !!
-    Type(Psd_Val), Public :: psd
+    Type(Psd_Val_Type), Public :: psd
 
     !!----
-    !!---- TYPE :: SXD_VAL
+    !!---- TYPE :: Sxd_Val_Type
     !!--..
-    !!---- Type, public :: Sxd_Val        !Set of caracteristic parameters of the diffractometr SXD (old?) at ISIS
+    !!---- Type, public :: Sxd_Val_Type        !Set of caracteristic parameters of the diffractometr SXD (old?) at ISIS
     !!----    real(kind=cp)      :: distms         !Not tested! (used only in the subroutine sxdpsd)
     !!----    real(kind=cp)      :: distsd         !
     !!----    real(kind=cp)      :: dimx           !
@@ -263,11 +283,11 @@
     !!----    real(kind=cp)      :: velcon         !
     !!----    Integer            :: nxcel          !
     !!----    Integer            :: nzcel          !
-    !!---- End Type Sxd_Val
+    !!---- End Type Sxd_Val_Type
     !!----
     !!---- Update: April - 2008
     !!
-    Type, Public :: Sxd_Val
+    Type, Public :: Sxd_Val_Type
        real(kind=cp)      :: distms
        real(kind=cp)      :: distsd
        real(kind=cp)      :: dimx
@@ -279,7 +299,7 @@
        real(kind=cp)      :: velcon
        Integer            :: nxcel
        Integer            :: nzcel
-    End Type Sxd_Val
+    End Type Sxd_Val_Type
 
     !!--++
     !!--++ PSD_SET
@@ -293,13 +313,13 @@
 
     !!----
     !!---- SXD
-    !!----    Type(Sxd_Val), Public :: sxd
+    !!----    Type(Sxd_Val_Type), Public :: sxd
     !!----
     !!----    ...No coments!!!
     !!----
     !!---- Update: April - 2008
     !!
-    Type(Sxd_Val), Public :: sxd
+    Type(Sxd_Val_Type), Public :: sxd
 
  Contains
 
@@ -706,7 +726,7 @@
     !!----    MPSD -VE - Find Cath, Anod given GamM, GamP and NuP
     !!----
     !!----    Some of the variables making reference to the characteristics of the
-    !!-->>    detector are provisionally stored in a public type(PSD_Val):: PSD
+    !!-->>    detector are provisionally stored in a public type(Psd_Val_Type):: PSD
     !!----
     !!---- Update: April 2008
     !!
@@ -797,7 +817,7 @@
     !!----    MPSD -VE - Calculate the anode co-ordinate from NU
     !!----
     !!----    Some of the variables making reference to the characteristics of the
-    !!-->>    detector are provisionally stored in a public type(PSD_Val):: PSD
+    !!-->>    detector are provisionally stored in a public type(Psd_Val_Type):: PSD
     !!----
     !!---- Update: April 2008
     !!

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Structure_Factors
@@ -651,10 +651,10 @@
 
     !!--++
     !!----
-    !!---- Subroutine Calc_hkl_StrFactor(mode,rad,h,sn,Atm,Grp,sf2,deriv,fc)
+    !!---- Subroutine Calc_hkl_StrFactor(mode,rad,hn,sn,Atm,Grp,sf2,deriv,fc)
     !!----    character(len=*),                   intent(in) :: mode !S-XTAL (S) or Powder (P)
     !!----    character(len=*),                   intent(in) :: rad  !Radiation: X-rays, Neutrons
-    !!----    integer,                            intent(in) :: nn
+    !!----    integer, dimension(3)               intent(in) :: hn
     !!----    real(kind=cp)                       intent(in) :: sn !(sinTheta/Lambda)**2
     !!----    type(atom_list_type),               intent(in) :: Atm
     !!----    type(space_group_type),             intent(in) :: Grp

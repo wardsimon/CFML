@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Reflections_Utilities
@@ -1687,15 +1687,15 @@
 
     !---- Subroutines ----!
 
-    !!----
-    !!---- Subroutine Glide_Planes_Conditions(Spacegroup, iunit)
-    !!----    type (Space_Group_Type), intent(in) :: Spacegroup
-    !!----    integer,optional,        intent(in) :: iunit
-    !!----
-    !!----    Reflections Conditions according with I.T. Table 2.2.13.2
-    !!----    space.
-    !!----
-    !!---- Update: May - 2005
+    !!--++
+    !!--++ Subroutine Glide_Planes_Conditions(Spacegroup, iunit)
+    !!--++    type (Space_Group_Type), intent(in) :: Spacegroup
+    !!--++    integer,optional,        intent(in) :: iunit
+    !!--++
+    !!--++    Reflections Conditions according with I.T. Table 2.2.13.2
+    !!--++    space.
+    !!--++
+    !!--++ Update: May - 2005
     !!
     Subroutine Glide_Planes_Conditions(Spacegroup,Iunit)
        !---- Arguments ----!

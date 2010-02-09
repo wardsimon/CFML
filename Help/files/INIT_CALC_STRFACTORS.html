@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SXD_VAL</title>
+<html><head><title>INIT_CALC_STRFACTORS</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -65,25 +65,23 @@ span.rvts9 /* Font Hint Italic */
 }
 span.rvts10
 {
- font-size: 12pt;
+ font-size: 11pt;
  font-weight: bold;
 }
 span.rvts11
 {
- font-size: 12pt;
- font-style: italic;
- font-weight: bold;
+ color: #0000ff;
 }
 span.rvts12
 {
- font-size: 12pt;
- font-weight: bold;
- color: #0000ff;
+ color: #ff6600;
 }
-span.rvts13
+a.rvts13, span.rvts13
 {
  color: #0000ff;
+ text-decoration: underline;
 }
+a.rvts13:hover { color: #0000ff; }
 span.rvts14 /* Font Style */
 {
  font-size: 16pt;
@@ -121,130 +119,85 @@ p,ul,ol /* Paragraph Style */
 }
 --></style>
 <link rel="StyleSheet" href="hnd.css" type="text/css"/>
-<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?SXDVAL.html"; }</script>
+<script type="text/javascript">if(top.frames.length == 0) { top.location.href="../crysfml.htm?INIT_CALC_STRFACTORS.html"; }</script>
 <script type="text/javascript" src="jquery.min.js"></script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>SXD_VAL</span></p>
+<p class=rvps2><span class=rvts14>INIT_CALC_STRFACTORS</span></p>
+<p><span class=rvts10>SUBROUTINE INIT_CALC_STRFACTORS (REFLEX, ATM, GRP, MODE, LAMBDA, LUN)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=342><p><span class=rvts10><br></span></p>
+<td width=276><p><span class=rvts11>TYPE</span>(REFLECTION_LIST_TYPE)</p>
 </td>
-<td width=185><p><span class=rvts11>Variable</span></p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><p><span class=rvts11>Definition</span></p>
+<td width=105><p>REFLEX</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts12>TYPE</span><span class=rvts10> :: SXD_VAL</span></p>
-</td>
-<td width=185><br>
-</td>
-<td width=369><br>
+<td width=379><p>Reflection information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=276><p><span class=rvts11>TYPE</span>(ATOM_LIST_LIST_TYPE)</p>
 </td>
-<td width=185><p>DistMs</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=105><p>ATM</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>DistSd</p>
-</td>
-<td width=369><br>
+<td width=379><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=276><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=185><p>DimX</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=105><p>GRP</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>DimZ</p>
-</td>
-<td width=369><br>
+<td width=379><p>Space group information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
+<td width=276><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=185><p>Xoff</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=105><p>MODE</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span> </p>
-</td>
-<td width=185><p>YOff</p>
-</td>
-<td width=369><br>
+<td width=379><p>Value:</p>
+<p>NUC : For Nuclear reflections</p>
+<p>Rest: X-Ray reflections</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span></p>
+<td width=276><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>OPTIONAL</span></p>
 </td>
-<td width=185><p>ZOff</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=105><p>LAMBDA</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span></p>
-</td>
-<td width=185><p>TOff</p>
-</td>
-<td width=369><br>
+<td width=379><p>Wavelength</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; REAL</span></p>
+<td width=276><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
 </td>
-<td width=185><p>Velcon</p>
+<td width=93><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
 </td>
-<td width=369><br>
+<td width=105><p>LUN</p>
 </td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
-</td>
-<td width=185><p>NXCel</p>
-</td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
-</td>
-<td width=185><p>NZCel</p>
-</td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=342><p><span class=rvts12>END TYPE</span><span class=rvts10> SXD_VAL</span></p>
-</td>
-<td width=185><br>
-</td>
-<td width=369><br>
+<td width=379><p>Logical unit for writing scatt-factors</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
+<p>Allocates and initializes arrays for CALC_STRFACTOR calculations.</p>
+<p><br></p>
+<p>Calculations of fixed tables are performed. Should be called before using the subroutine <a class=rvts13 href="CALCSTRFACTOR.html">CALC_STRFACTOR</a></p>
+<p>&nbsp;&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>

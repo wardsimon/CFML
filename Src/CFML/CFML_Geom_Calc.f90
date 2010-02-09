@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Geometry_Calc
@@ -623,9 +623,9 @@
     !!----    real(kind=cp), dimension(3,3)            :: M    ! Put -> Active Rotation Matrix
     !!----
     !!----    Calculate the active rotation matrix corresponding to the composition
-    !!----    of a positive rotation around z of angle Chi, followed by a positive rotation 
-    !!----    of angle Theta around the y-axis and a subsequent positive rotation of angle Phi 
-    !!----    around z. "Positive" means counter-clockwise. 
+    !!----    of a positive rotation around z of angle Chi, followed by a positive rotation
+    !!----    of angle Theta around the y-axis and a subsequent positive rotation of angle Phi
+    !!----    around z. "Positive" means counter-clockwise.
     !!----    The matrix is M = Rz(Phi) . Ry(Theta) . Rz(Chi)
     !!----    The colums represent the components of the unitary vectors {u,v,w} that
     !!----    may be considered as an alternative orthonormal frame to the canonical {i,j,k}.
@@ -689,7 +689,7 @@
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the x-axis. The transpose matrix corresponds to a
-    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point
     !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
@@ -719,7 +719,7 @@
        Mt(1,1)= 1.0        !              1  0  0
        Mt(2,1)= 0.0        !  u           0  c -s     Rx
        Mt(3,1)= 0.0        !              0  s  c
-       Mt(1,2)= 0.0        !                  
+       Mt(1,2)= 0.0        !
        Mt(2,2)= cos(p)     !  v
        Mt(3,2)= sin(p)     !
        Mt(1,3)= 0.0        !
@@ -737,7 +737,7 @@
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the y-axis. The transpose matrix corresponds to a
-    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point
     !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
@@ -785,7 +785,7 @@
     !!----
     !!----    Calculate the active rotation matrix corresponding to the positive rotation
     !!----    of an angle Phi around the z-axis. The transpose matrix corresponds to a
-    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point 
+    !!----    passive rotation that changes the orthogonal system to {u,v,w} leaving the point
     !!----    at the same position w.r.t. the canonical {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angle is given in radians.
     !!----    If Code =="D" then the input angle is given in degrees.
