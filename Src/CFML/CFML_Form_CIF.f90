@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_Formats
@@ -70,7 +70,7 @@
  Module CFML_IO_Formats
 
     !---- Use modules ----!
-    Use CFML_GlobalDeps,                 only: cp,sp,pi,eps
+    Use CFML_GlobalDeps,                only: cp,sp,pi,eps
     Use CFML_Math_General,              only: sind
     Use CFML_String_Utilities
     Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell, Convert_U_Betas, &
@@ -1722,7 +1722,7 @@
     !!----    integer,                        intent(in out) :: nline_ini !  In -> Line to start the search
     !!----                                                                  Out -> Atual line on Filevar
     !!----    integer,                        intent(in)     :: nline_end !  In -> line to finish the search
-    !!----    real(kind=sp),                  intent(   out) :: v1,v2,v3  ! Out -> Lambda1,lambda2,ratio
+    !!----    real(kind=cp),                  intent(   out) :: v1,v2,v3  ! Out -> Lambda1,lambda2,ratio
     !!----
     !!----    Read wavelengths and ratio.
     !!----    If no value is read, Lambda1=Lambda2=1.54056 Angstroms, ratio=0.0
@@ -1834,7 +1834,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_File_Spg (filevar,nline_ini,nline_end,Spg,sub)
+    Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub)
        !---- Arguments ----!
        character(len=*),  dimension(:), intent(in) :: filevar   ! Variable
        integer,           intent(in)               :: nline_ini

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_BVS_Energy_Calc
