@@ -3805,7 +3805,7 @@ Module CFML_ILL_Instrm_Data
        end do
        write(unit=ilun,fmt='(a)') ' '
 
-       select case (n%instr)
+       select case (num%instr)
            case ('D20')
               write(unit=ilun,fmt='(a)') '#---- Diffractometer Optics and Reactor Parameters ----#'
               do i=1,num%diffopt%n
