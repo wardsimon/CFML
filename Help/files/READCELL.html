@@ -63,13 +63,26 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ color: #ff6600;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -106,7 +119,37 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts10>READ_CELL</span></p>
+<p class=rvps2><span class=rvts13>READ_CELL</span></p>
+<p><span class=rvts10>SUBROUTINE READ_CELL (LINE, CELDA)</span></p>
 <p><br></p>
-<p class=rvps3><span class=rvts11>Copyleft © 2010, FullProf Suite Team</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>LINE</p>
+</td>
+<td width=369><p>Input string with CELL directive</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>REAL</span> (<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION</span>(6)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>CELDA</p>
+</td>
+<td width=369><p>Parameters on variable</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Subroutine to read the cell parameters from a given LINE it construct the object CELDA of type CRYSTAL_CELL.</p>
+<p><br></p>
+<p>Assumes the string LINE has been read from a file and starts with the word CELL, that is removed before reading the values of the parameters.</p>
+<p>Control of error is present</p>
+<p><br></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>

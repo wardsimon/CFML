@@ -1921,7 +1921,7 @@
     End Subroutine Read_File_transf
 
     !!----
-    !!---- Subroutine Read_Shx_Atom(Filevar,Nline_Ini,Nline_End,N_Fvar,Fvar,Elem_Type,N_Atom,Atm_List)
+    !!---- Subroutine Read_Shx_Atom(Filevar,Nline_Ini,Nline_End,N_Fvar,Fvar,Elem_Type,Celda,Atm_List)
     !!----    character(len=*), dimension(:), intent(in)      :: filevar        !  In -> String vector
     !!----    integer,                        intent(in out)  :: nline_ini      !  In -> Line to start the search
     !!----                                                                         Out -> Actual line on Filevar
@@ -2215,7 +2215,7 @@
     !!----    integer,                            intent(in)    :: nline_end     !  In -> Line to finish the search
     !!----    integer,                            intent(out)   :: n_elem_type   ! Out -> N. of different species
     !!----    character(len=*), dimension(:),     intent(out)   :: elem_type     ! Out -> Character to identify the specie
-    !!----    real(kind=cp),dimension(:),optional,intent(out)   :: n_elem        ! Out -> Number of elementos into the same species
+    !!----    real(kind=cp),dimension(:),optional,intent(out)   :: n_elem        ! Out -> Number of elements into the same species
     !!----
     !!----    Obtaining Chemical contents from Shelx file (.ins or .res)
     !!----
