@@ -157,7 +157,7 @@
 !!----       FIXDNU
 !!----       FLAT_CONE_VERTDET
 !!----       GENB
-!!----       GENBU
+!!----       GENUB
 !!----       GET_ANGS_NB
 !!----       GET_DSPACING_THETA
 !!----       GET_GAOMNU_FRCHIPHI
