@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Keywords_Code_Parser
@@ -206,16 +206,26 @@
     !!
     type(Angle_Restraint_Type), public, dimension(:), allocatable :: Ang_Rest
 
+    !!--++
+    !!--++ NCODE
+    !!--++    integer, private :: NCode
+    !!--++
+    !!--++    Number of Code variables
+    !!--++
+    !!--++ Update: March - 2005
+    !!
+    integer, private, parameter :: NCode=21
+
     !!----
     !!---- CODE_NAM
-    !!----    character(len=6), dimension(NCode), public, parameter :: Code_Nam
+    !!----    character(len=*), dimension(NCode), public, parameter :: Code_Nam
     !!----
     !!----    Variable for treatement Codes
     !!--..    21 debe ser igual a NCode
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=*), dimension(21), public, parameter :: Code_Nam=(/ "X_    ","Y_    ","Z_    ",       &
+    character(len=*), dimension(NCode), public, parameter :: Code_Nam=(/ "X_    ","Y_    ","Z_    ",       &
                                                                          "B_    ","Occ_  ","B11_  ",       &
                                                                          "B22_  ","B33_  ","B12_  ",       &
                                                                          "B13_  ","B23_  ","Bns_  ",       &
@@ -254,16 +264,6 @@
     character(len=150), public :: ERR_RefCodes_Mess = " "
 
     !!--++
-    !!--++ NCODE
-    !!--++    integer, private :: NCode
-    !!--++
-    !!--++    Number of Code variables
-    !!--++
-    !!--++ Update: March - 2005
-    !!
-    integer, private, parameter :: NCode=21
-
-    !!--++
     !!--++ NKEY
     !!--++    integer, public :: NKey
     !!--++
@@ -275,7 +275,7 @@
 
     !!----
     !!---- KEY_CODE
-    !!----    character(len=3), dimension(NKey), public, parameter :: key_Code
+    !!----    character(len=*), dimension(NKey), public, parameter :: key_Code
     !!----
     !!----     Key codes defined in the module
     !!----
@@ -394,7 +394,7 @@
     character(len=20), public, dimension(:), allocatable :: V_Name
 
     !!----
-    !!---- V_VECTOR
+    !!---- V_VEC
     !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec
     !!----
     !!----    Vector of  Parameters
@@ -5399,7 +5399,7 @@
     End Subroutine Get_RestTor_Line
 
     !!----
-    !!---- Subroutine Init_Err_RefCode()
+    !!---- Subroutine Init_Err_RefCodes()
     !!----
     !!----    Initialize the errors flags in RefCodes
     !!----
