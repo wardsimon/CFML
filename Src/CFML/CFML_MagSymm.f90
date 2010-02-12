@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Magnetic_Symmetry
@@ -274,15 +274,14 @@
        return
     End Subroutine Init_Err_MagSym
 
-    !!--++
-    !!--++ subroutine Init_MagSymm_k_Type(MGp)
-    !!--++   type(MagSymm_k_Type),  intent (in out) :: MGp
-    !!--++
-    !!--++   (Private)
-    !!--++   Subroutine to initialize the MagSymm_k_Type variable MGp.
-    !!--++   It is called inside Readn_set_Magnetic_Structure
-    !!--++
-    !!--++  Update: April 2005
+    !!----
+    !!---- subroutine Init_MagSymm_k_Type(MGp)
+    !!----   type(MagSymm_k_Type),  intent (in out) :: MGp
+    !!----
+    !!----   Subroutine to initialize the MagSymm_k_Type variable MGp.
+    !!----   It is called inside Readn_set_Magnetic_Structure
+    !!----
+    !!----  Update: April 2005
     !!
     Subroutine Init_MagSymm_k_Type(MGp)
        !---- Arguments ----!
