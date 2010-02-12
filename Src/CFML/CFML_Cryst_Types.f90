@@ -597,20 +597,18 @@
 
        if (present(celda)) then
           uu= matmul(celda%cr_orth_cel,u)
-          umod=sqrt(uu(1)**2+uu(2)**2+uu(3)**2)
-          if (umod < tiny(1.0)) then
-             uu=(/0.0,0.0,1.0/)
-          else
-             uu= uu/umod
-          end if
        else
-          if (umod < tiny(1.0)) then
-             uu=(/0.0,0.0,1.0/)
-          else
-             umod=sqrt(u(1)**2+u(2)**2+u(3)**2)
-             uu= u/umod
-          end if
+          uu=u
        end if
+       
+       umod=sqrt(dot_product(uu,uu))
+       
+       if (umod < tiny(1.0)) then
+          uu=(/0.0,0.0,1.0/)
+       else                      
+          uu= uu/umod
+       end if
+                  
        c= cosd(phi)
        s= sind(phi)
        umc = 1.0-c
