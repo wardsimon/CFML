@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Simulated_Annealing
@@ -33,7 +33,7 @@
 !!----    SIMANN_CONDITIONS_TYPE
 !!----    STATE_VECTOR_TYPE
 !!--..
-!!----    ERR_San_Mess
+!!----    ERR_SAN_MESS
 !!----    ERR_SAN
 !!----
 !!---- PROCEDURES
@@ -58,7 +58,8 @@
 !!
  Module CFML_Simulated_Annealing
     !---- Use Files ----!
-    use CFML_IO_Messages, mess => write_scroll_text
+    Use CFML_GlobalDeps,       only: Cp
+    use CFML_IO_Messages,      mess => write_scroll_text
     use CFML_String_Utilities, only: u_case
     use CFML_IO_Formats,       only: File_List_Type
 
@@ -112,12 +113,12 @@
     !!----    integer                            :: nconf   ! Number of configurations.
     !!----    integer, dimension(np_SAN,np_CONF) :: code    ! =0 fixed parameter, =1 variable parameter
     !!----    integer, dimension(np_SAN)         :: bound   ! =0 fixed boundaries,=1 periodic boundaries
-    !!----    real,    dimension(np_SAN,np_CONF) :: state   ! Vector State with the current configuration
-    !!----    real,    dimension(np_SAN,np_CONF) :: stp     ! Step vector (one value for each parameter)
-    !!----    real,    dimension(np_SAN)         :: low     ! Low-limit value of parameters
-    !!----    real,    dimension(np_SAN)         :: high    ! High-limit value of parameters
-    !!----    real,    dimension(np_SAN)         :: cost    ! Vector with cost of the different configurations
-    !!----    real,    dimension(np_SAN)         :: config  ! Vector State with the best configuration
+    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: state   ! Vector State with the current configuration
+    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: stp     ! Step vector (one value for each parameter)
+    !!----    real(kind=cp),    dimension(np_SAN)         :: low     ! Low-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN)         :: high    ! High-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN)         :: cost    ! Vector with cost of the different configurations
+    !!----    real(kind=cp),    dimension(np_SAN)         :: config  ! Vector State with the best configuration
     !!----    character(len=15),dimension(np_SAN):: nampar  ! name of parameters of the model
     !!----  End Type MultiState_Vector_Type
     !!----
@@ -132,12 +133,12 @@
       integer                                     :: nconf   ! Number of configurations.
       integer,          dimension(np_SAN)         :: code    !=0 fixed parameter, =1 variable parameter
       integer,          dimension(np_SAN)         :: bound   !=0 fixed boundaries, =1 periodic boundaries
-      real,             dimension(np_SAN,np_CONF) :: state   !Vector State characterizing the current configuration
-      real,             dimension(np_SAN,np_CONF) :: stp     !Step vector (one value for each parameter)
-      real,             dimension(np_CONF)        :: cost    !Vector with cost of the different configurations
-      real,             dimension(np_SAN)         :: low     !Low-limit value of parameters
-      real,             dimension(np_SAN)         :: high    !High-limit value of parameters
-      real,             dimension(np_SAN)         :: config  !Vector State characterizing the current best configuration
+      real(kind=cp),    dimension(np_SAN,np_CONF) :: state   !Vector State characterizing the current configuration
+      real(kind=cp),    dimension(np_SAN,np_CONF) :: stp     !Step vector (one value for each parameter)
+      real(kind=cp),    dimension(np_CONF)        :: cost    !Vector with cost of the different configurations
+      real(kind=cp),    dimension(np_SAN)         :: low     !Low-limit value of parameters
+      real(kind=cp),    dimension(np_SAN)         :: high    !High-limit value of parameters
+      real(kind=cp),    dimension(np_SAN)         :: config  !Vector State characterizing the current best configuration
       character(len=15),dimension(np_SAN)         :: nampar  !name of parameters of the model
     End Type MultiState_Vector_Type
 
@@ -145,10 +146,10 @@
     !!----  TYPE :: SIMANN_CONDITIONS_TYPE
     !!--..
     !!---- Type, public       :: SimAnn_Conditions_type
-    !!----  real              :: t_ini                 ! Initial temperature
-    !!----  real              :: anneal                ! Kirpactrick factor for Annealing
-    !!----  real              :: accept                ! Minimum percentage of accepted configurations
-    !!----  real              :: threshold             ! Good solutions have cost values below this (used in Sann_Opt_MultiConf)
+    !!----  real(kind=cp)     :: t_ini                 ! Initial temperature
+    !!----  real(kind=cp)     :: anneal                ! Kirpactrick factor for Annealing
+    !!----  real(kind=cp)     :: accept                ! Minimum percentage of accepted configurations
+    !!----  real(kind=cp)     :: threshold             ! Good solutions have cost values below this (used in Sann_Opt_MultiConf)
     !!----  integer           :: initconfig            ! Flag determining if the first configuration is random or read
     !!----  integer           :: nalgor                ! Flag determining if the Corana algorithm is selected (0) or not (/=0)
     !!----  integer           :: nm_cycl               ! Number of Cycles per temp  in SA searchs
@@ -166,10 +167,10 @@
     !!---- Update: March - 2005
     !!
     Type, public        :: SimAnn_Conditions_type
-      real              :: t_ini       ! Initial temperature
-      real              :: anneal      ! Kirpactrick factor for Annealing
-      real              :: accept      ! Minimum percentage of accepted configurations
-      real              :: threshold   ! Good solutions have cost values below this (used in Sann_Opt_MultiConf)
+      real(kind=cp)     :: t_ini       ! Initial temperature
+      real(kind=cp)     :: anneal      ! Kirpactrick factor for Annealing
+      real(kind=cp)     :: accept      ! Minimum percentage of accepted configurations
+      real(kind=cp)     :: threshold   ! Good solutions have cost values below this (used in Sann_Opt_MultiConf)
       integer           :: initconfig  ! Flag determining if the first configuration is random or read
       integer           :: nalgor      ! Flag determining if the Corana algorithm is selected (0) or not (/=0)
       integer           :: nm_cycl     ! Number of Cycles per temp  in SA searchs
@@ -187,12 +188,12 @@
     !!----    integer                    :: npar           ! Number of parameters of the model.
     !!----    integer, dimension(np_SAN) :: code           ! =0 fixed parameter, =1 variable parameter
     !!----    integer, dimension(np_SAN) :: bound          ! =0 fixed boundaries,=1 periodic boundaries
-    !!----    real,    dimension(np_SAN) :: state          ! Vector State with the current configuration
-    !!----    real,    dimension(np_SAN) :: stp            ! Step vector (one value for each parameter)
-    !!----    real,    dimension(np_SAN) :: low            ! Low-limit value of parameters
-    !!----    real,    dimension(np_SAN) :: high           ! High-limit value of parameters
-    !!----    real,    dimension(np_SAN) :: config         ! Vector State with the best configuration
-    !!----    real                       :: cost           ! Cost of the best configuration
+    !!----    real(kind=cp),    dimension(np_SAN) :: state          ! Vector State with the current configuration
+    !!----    real(kind=cp),    dimension(np_SAN) :: stp            ! Step vector (one value for each parameter)
+    !!----    real(kind=cp),    dimension(np_SAN) :: low            ! Low-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN) :: high           ! High-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN) :: config         ! Vector State with the best configuration
+    !!----    real(kind=cp)                       :: cost           ! Cost of the best configuration
     !!----    character(len=15),dimension(np_SAN):: nampar ! name of parameters of the model
     !!----  End Type State_Vector_Type
     !!----
@@ -206,12 +207,12 @@
       integer                             :: npar    ! Number of parameters of the model. To be supplied in the calling program
       integer,          dimension(np_SAN) :: code    !=0 fixed parameter, =1 variable parameter
       integer,          dimension(np_SAN) :: bound   !=0 fixed boundaries, =1 periodic boundaries
-      real,             dimension(np_SAN) :: state   !Vector State characterizing the current configuration
-      real,             dimension(np_SAN) :: stp     !Step vector (one value for each parameter)
-      real,             dimension(np_SAN) :: low     !Low-limit value of parameters
-      real,             dimension(np_SAN) :: high    !High-limit value of parameters
-      real,             dimension(np_SAN) :: config  !Vector State characterizing the current best configuration
-      real                                :: cost    !Cost of the best configuration
+      real(kind=cp),    dimension(np_SAN) :: state   !Vector State characterizing the current configuration
+      real(kind=cp),    dimension(np_SAN) :: stp     !Step vector (one value for each parameter)
+      real(kind=cp),    dimension(np_SAN) :: low     !Low-limit value of parameters
+      real(kind=cp),    dimension(np_SAN) :: high    !High-limit value of parameters
+      real(kind=cp),    dimension(np_SAN) :: config  !Vector State characterizing the current best configuration
+      real(kind=cp)                       :: cost    !Cost of the best configuration
       character(len=15),dimension(np_SAN) :: nampar !name of parameters of the model
     End Type State_Vector_Type
 
@@ -248,8 +249,8 @@
     !!--++
     !!--++ Subroutine Boundary_Cond(n,x,low,high,bound)
     !!--++    integer,                     intent(in)     :: n
-    !!--++    real, dimension(:),          intent(in out) :: x
-    !!--++    real, dimension(:),          intent(in)     :: low,high
+    !!--++    real(kind=cp), dimension(:), intent(in out) :: x
+    !!--++    real(kind=cp), dimension(:), intent(in)     :: low,high
     !!--++    integer, dimension(:),       intent(in)     :: bound
     !!--++
     !!--++    (PRIVATE)
@@ -261,8 +262,8 @@
     Subroutine Boundary_Cond(n,x,low,high,bound)
        !---- Arguments ----!
        integer,                     intent(in)     :: n
-       real, dimension(:),          intent(in out) :: x
-       real, dimension(:),          intent(in)     :: low,high
+       real(kind=cp), dimension(:), intent(in out) :: x
+       real(kind=cp), dimension(:), intent(in)     :: low,high
        integer, dimension(:),       intent(in)     :: bound
 
        !---- Local variables -----!
@@ -425,9 +426,9 @@
     !!--++
     !!--++ Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)
     !!--++    integer,                      intent(in)      :: n
-    !!--++    real, dimension(:),           intent(in out)  :: x
-    !!--++    real,                         intent(out)     :: f
-    !!--++    real, dimension(:),           intent(in)      :: low,high
+    !!--++    real(kind=cp), dimension(:),  intent(in out)  :: x
+    !!--++    real(kind=cp),                intent(out)     :: f
+    !!--++    real(kind=cp), dimension(:),  intent(in)      :: low,high
     !!--++    integer, dimension(:),        intent(in)      :: bound
     !!--++    Interface
     !!--++       Subroutine Model_Functn(v,cost)
@@ -446,24 +447,25 @@
     Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)
        !---- Arguments ----!
        integer,                      intent(in)      :: n
-       real, dimension(:),           intent(in out)  :: x
-       real,                         intent(out)     :: f
-       real, dimension(:),           intent(in)      :: low,high
+       real(kind=cp), dimension(:),  intent(in out)  :: x
+       real(kind=cp),                intent(out)     :: f
+       real(kind=cp), dimension(:),  intent(in)      :: low,high
        integer, dimension(:),        intent(in)      :: bound
 
        Interface
           Subroutine Model_Functn(v,cost)
-             real,dimension(:),    intent( in):: v
-             real,                 intent(out):: cost
+             Use CFML_GlobalDeps, only: Cp
+             real(kind=cp),dimension(:),    intent( in):: v
+             real(kind=cp),                 intent(out):: cost
           End Subroutine Model_Functn
        End Interface
 
        !---- Local variables ----!
-       integer                      :: i,itest, irndm, nfev
-       real                         :: h, deltf, eps, a, f1,relcon, maxfn
-       real, dimension(n)           :: x1
-       real, dimension(100,n)       :: r
-       real, parameter              :: zero=0.0, onen3=0.001, half=0.5, one=1.0, two=2.0
+       integer                               :: i,itest, irndm, nfev
+       real(kind=cp)                         :: h, deltf, eps, a, f1,relcon, maxfn
+       real(kind=cp), dimension(n)           :: x1
+       real(kind=cp), dimension(100,n)       :: r
+       real(kind=cp), parameter              :: zero=0.0, onen3=0.001, half=0.5, one=1.0, two=2.0
 
        h = onen3
        deltf = one                 !initial step length
@@ -569,32 +571,34 @@
 
        Interface
           Subroutine Model_Funct(v,cost)
-             real,dimension(:),    intent( in):: v
-             real,                 intent(out):: cost
+             Use CFML_GlobalDeps, only: Cp
+             real(kind=cp),dimension(:),    intent( in):: v
+             real(kind=cp),                 intent(out):: cost
           End Subroutine Model_Funct
 
           Subroutine Write_FST(fst_file,v,cost)
+             Use CFML_GlobalDeps, only: Cp
              character(len=*),     intent(in):: fst_file
-             real,dimension(:),    intent(in):: v
-             real,                 intent(in):: cost
+             real(kind=cp),dimension(:),    intent(in):: v
+             real(kind=cp),                 intent(in):: cost
           End Subroutine Write_FST
        End Interface
 
        !--- Local Variables ---!
-       character (len=256) :: messag, strings
-       integer             :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
-       real                :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                              prob, rav, rati, plage, stepav, random !, shift
-       integer, parameter                 :: i_conf=99
-       integer, dimension(1)              :: seed
-       logical, dimension(np_CONF)        :: dead
-       integer, dimension(np_CONF)        :: naj
-       real,    dimension(np_CONF)        :: cost, cost1, cost2, paj, costav
-       real,    dimension(np_SAN,np_CONF) :: stateo     !Vector State characterizing the old configuration
-       real,    dimension(np_SAN)         :: cv         !constant vector used in the Corana algorithm
-       integer, dimension(np_SAN,np_CONF) :: nacp       !number of accepted moves for parameter i
-       real,    dimension(np_SAN,np_CONF) :: raver      !Vector State characterizing the average configuration
-       real,    dimension(np_SAN,np_CONF) :: sigp       !Standard deviations of the average configuration
+       character (len=256)                         :: messag, strings
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
+                                                      prob, rav, rati, plage, stepav, random !, shift
+       integer, parameter                          :: i_conf=99
+       integer, dimension(1)                       :: seed
+       logical, dimension(np_CONF)                 :: dead
+       integer, dimension(np_CONF)                 :: naj
+       real(kind=cp),    dimension(np_CONF)        :: cost, cost1, cost2, paj, costav
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: stateo     !Vector State characterizing the old configuration
+       real(kind=cp),    dimension(np_SAN)         :: cv         !constant vector used in the Corana algorithm
+       integer,          dimension(np_SAN,np_CONF) :: nacp       !number of accepted moves for parameter i
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: raver      !Vector State characterizing the average configuration
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: sigp       !Standard deviations of the average configuration
 
        call checkm(c,vs)
        if (err_san) then
@@ -982,8 +986,8 @@
        type(SimAnn_Conditions_type),intent(out)  :: c
 
        !--- Local Variables ---!
-       integer :: i,j,k,ier
-       logical :: notset,tempar,algor,noinst
+       integer           :: i,j,k,ier
+       logical           :: notset,tempar,algor,noinst
        character(len=80) :: line
 
        notset=.true.
@@ -1067,9 +1071,9 @@
     !!---- Subroutine Set_SimAnn_MStateV(n,nsol,Con,Bounds,VNam,Vec,vs,cod)
     !!----    integer,                      intent(in) :: n,nsol !number of parameters & configurations
     !!----    integer,         dimension(:),intent(in) :: con    !Boundary conditions
-    !!----    real,          dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
+    !!----    real(kind=cp),          dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
     !!----    character(len=*),dimension(:),intent(in) :: VNam   !Names of parameters
-    !!----    real,            dimension(:),intent(in) :: Vec    !Initial value of parameters
+    !!----    real(kind=cp),            dimension(:),intent(in) :: Vec    !Initial value of parameters
     !!----    type(MultiState_Vector_Type), intent(out):: vs     !Initial State vector
     !!----    integer,optional,dimension(:),intent(in) :: cod    !If present, cod(i)=0 fix the "i" parameter
     !!----
@@ -1081,16 +1085,17 @@
     !!
     Subroutine Set_SimAnn_MStateV(n,nsol,Con,Bounds,VNam,Vec,vs,cod)
        !---- Arguments ----!
-       integer,                      intent(in) :: n,nsol
-       integer,         dimension(:),intent(in) :: con
-       real,          dimension(:,:),intent(in) :: Bounds
-       character(len=*),dimension(:),intent(in) :: VNam
-       real,            dimension(:),intent(in) :: Vec
-       type(MultiState_Vector_Type), intent(out):: vs
-       integer,optional,dimension(:),intent(in) :: cod
+       integer,                                     intent(in) :: n,nsol
+       integer,                      dimension(:),  intent(in) :: con
+       real(kind=cp),                dimension(:,:),intent(in) :: Bounds
+       character(len=*),             dimension(:),  intent(in) :: VNam
+       real(kind=cp),                dimension(:),  intent(in) :: Vec
+       type(MultiState_Vector_Type),                intent(out):: vs
+       integer, optional,            dimension(:),  intent(in) :: cod
 
        !---- Local Variables ----!
        integer :: j
+
        if (n > np_SAN) then
           err_SAN =.true.
           write(unit=ERR_San_Mess,fmt="(a,i4,a)") " => Too many parameters! Simulated Anneling module limited to ",&
@@ -1134,9 +1139,9 @@
     !!---- Subroutine Set_SimAnn_StateV(n,Con,Bounds,VNam,Vec,vs,cod)
     !!----    integer,                      intent(in) :: n      !number of parameters
     !!----    integer,         dimension(:),intent(in) :: con    !Boundary conditions
-    !!----    real,          dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
+    !!----    real(kind=cp),          dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
     !!----    character(len=*),dimension(:),intent(in) :: VNam   !Names of parameters
-    !!----    real,            dimension(:),intent(in) :: Vec    !Initial value of parameters
+    !!----    real(kind=cp),            dimension(:),intent(in) :: Vec    !Initial value of parameters
     !!----    type(State_Vector_Type),      intent(out):: vs     !Initial State vector
     !!----    integer,optional,dimension(:),intent(in) :: cod    !If present, cod(i)=0 fix the "i" parameter
     !!----
@@ -1147,13 +1152,13 @@
     !!
     Subroutine Set_SimAnn_StateV(n,Con,Bounds,VNam,Vec,vs,cod)
        !---- Arguments ----!
-       integer,                      intent(in) :: n
-       integer,         dimension(:),intent(in) :: con
-       real,          dimension(:,:),intent(in) :: Bounds
-       character(len=*),dimension(:),intent(in) :: VNam
-       real,            dimension(:),intent(in) :: Vec
-       type(State_Vector_Type),      intent(out):: vs
-       integer,optional,dimension(:),intent(in) :: cod
+       integer,                                intent(in) :: n
+       integer,                 dimension(:),  intent(in) :: con
+       real(kind=cp),           dimension(:,:),intent(in) :: Bounds
+       character(len=*),        dimension(:),  intent(in) :: VNam
+       real(kind=cp),           dimension(:),  intent(in) :: Vec
+       type(State_Vector_Type),                intent(out):: vs
+       integer, optional,       dimension(:),  intent(in) :: cod
 
        if (n > np_SAN) then
           err_SAN =.true.
@@ -1222,29 +1227,31 @@
 
        Interface
           Subroutine Model_Funct(v,cost)
-             real,dimension(:),    intent( in):: v
-             real,                 intent(out):: cost
+             Use CFML_GlobalDeps, only: Cp
+             real(kind=cp),dimension(:),    intent( in):: v
+             real(kind=cp),                 intent(out):: cost
           End Subroutine Model_Funct
 
           Subroutine Write_FST(fst_file,v,cost)
-             character(len=*),     intent(in):: fst_file
-             real,dimension(:),    intent(in):: v
-             real,                 intent(in):: cost
+             Use CFML_GlobalDeps, only: Cp
+             character(len=*),            intent(in):: fst_file
+             real(kind=cp),dimension(:),  intent(in):: v
+             real(kind=cp),               intent(in):: cost
           End Subroutine Write_FST
        End Interface
 
        !--- Local Variables ---!
-       character (len=132) :: messag, strings
-       integer             :: i, j, neval, ncf, jk, naj, ntp, naver, jj !, last
-       real                :: temp, cost, cost1, cost2, costop, ep, ener, cp, dsen, dsen2, &
-                              energ, paj, prob, rav, rati, plage, stepav,random !, shift
-       integer, parameter      :: i_conf=99
-       integer, dimension(1)   :: seed
-       real,    dimension(np_SAN) :: stateo     !Vector State characterizing the old configuration
-       real,    dimension(np_SAN) :: cv         !constant vector used in the Corana algorithm
-       integer, dimension(np_SAN) :: nacp       !number of accepted moves for parameter i
-       real,    dimension(np_SAN) :: raver      !Vector State characterizing the average configuration
-       real,    dimension(np_SAN) :: sigp       !Standard deviations of the average configuration
+       character(len=132)                 :: messag, strings
+       integer, parameter                 :: i_conf=99
+       integer, dimension(1)              :: seed
+       integer                            :: i, j, neval, ncf, jk, naj, ntp, naver, jj !, last
+       real (kind=cp)                     :: temp, cost, cost1, cost2, costop, ep, ener, cpp, dsen, dsen2, &
+                                             energ, paj, prob, rav, rati, plage, stepav,random !, shift
+       integer,          dimension(np_SAN) :: nacp       !number of accepted moves for parameter i
+       real (kind=cp),   dimension(np_SAN) :: stateo     !Vector State characterizing the old configuration
+       real (kind=cp),   dimension(np_SAN) :: cv         !constant vector used in the Corana algorithm
+       real (kind=cp),   dimension(np_SAN) :: raver      !Vector State characterizing the average configuration
+       real (kind=cp),   dimension(np_SAN) :: sigp       !Standard deviations of the average configuration
 
        call check(c,vs)
        if (err_san) then
@@ -1414,7 +1421,7 @@
           cost=cost/naj
           dsen=dsen/naj
           dsen2=dsen2/naj
-          cp=(dsen2-dsen*dsen)/(temp*temp)
+          cpp=(dsen2-dsen*dsen)/(temp*temp)
           do j=1,vs%npar
              raver(j)=raver(j)/naver
              sigp(j)=sqrt(abs(sigp(j)/naver-raver(j)*raver(j)))
@@ -1430,7 +1437,7 @@
           write(unit=ipr,fmt="(/,a)") trim(strings)
           strings=" "
           write(unit=strings,fmt="(a,g14.7,a,g14.7,a,i10 )")  &
-               "    Cost-val:",energ, "     Cp:", cp, "     Num-Cost-Evaluations: ",neval
+               "    Cost-val:",energ, "     Cp:", cpp, "     Num-Cost-Evaluations: ",neval
           write(unit=ipr,fmt="(a)") trim(strings)
 
           write(unit=ipr,fmt="(a)") " => Average value of parameters, sigmas and steps:"
@@ -1443,7 +1450,7 @@
           jk= min(vs%npar,26)
           if (present(filesav)) then
              open(unit=i_conf,file=trim(filesav)//".anl",status="old",action="write", position="append")
-             write(unit=i_conf,fmt="(i4,31f10.4)")  ntp,temp,cost,paj,stepav,cp,(raver(jj),jj=1,jk)
+             write(unit=i_conf,fmt="(i4,31f10.4)")  ntp,temp,cost,paj,stepav,cpp,(raver(jj),jj=1,jk)
              call flush(i_conf)
              close(unit=i_conf)
           end if
@@ -1550,32 +1557,34 @@
 
        Interface
           Subroutine Model_Funct(v,cost)
-             real,dimension(:),    intent( in):: v
-             real,                 intent(out):: cost
+             Use CFML_GlobalDeps, only: Cp
+             real(kind=cp),dimension(:), intent( in):: v
+             real(kind=cp),              intent(out):: cost
           End Subroutine Model_Funct
 
           Subroutine Write_FST(fst_file,v,cost)
-             character(len=*),     intent(in):: fst_file
-             real,dimension(:),    intent(in):: v
-             real,                 intent(in):: cost
+             Use CFML_GlobalDeps,       only: Cp
+             character(len=*),           intent(in):: fst_file
+             real(kind=cp),dimension(:), intent(in):: v
+             real(kind=cp),              intent(in):: cost
           End Subroutine Write_FST
        End Interface
 
        !--- Local Variables ---!
-       character (len=256) :: messag, strings
-       integer             :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
-       real                :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                              prob, rav, rati, plage, stepav, random !, shift
-       integer, parameter                 :: i_conf=99
-       integer, dimension(1)              :: seed
-       logical, dimension(np_CONF)        :: dead
-       integer, dimension(np_CONF)        :: naj
-       real,    dimension(np_CONF)        :: cost, cost1, cost2, paj, costav
-       real,    dimension(np_SAN,np_CONF) :: stateo     !Vector State characterizing the old configuration
-       real,    dimension(np_SAN)         :: cv         !constant vector used in the Corana algorithm
-       integer, dimension(np_SAN,np_CONF) :: nacp       !number of accepted moves for parameter i
-       real,    dimension(np_SAN,np_CONF) :: raver      !Vector State characterizing the average configuration
-       real,    dimension(np_SAN,np_CONF) :: sigp       !Standard deviations of the average configuration
+       character (len=256)                         :: messag, strings
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
+                                                      prob, rav, rati, plage, stepav, random !, shift
+       integer, parameter                          :: i_conf=99
+       integer,          dimension(1)              :: seed
+       logical,          dimension(np_CONF)        :: dead
+       integer,          dimension(np_CONF)        :: naj
+       real(kind=cp),    dimension(np_CONF)        :: cost, cost1, cost2, paj, costav
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: stateo     !Vector State characterizing the old configuration
+       real(kind=cp),    dimension(np_SAN)         :: cv         !constant vector used in the Corana algorithm
+       integer,          dimension(np_SAN,np_CONF) :: nacp       !number of accepted moves for parameter i
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: raver      !Vector State characterizing the average configuration
+       real(kind=cp),    dimension(np_SAN,np_CONF) :: sigp       !Standard deviations of the average configuration
 
        call checkm(c,vs)
        if (err_san) then
@@ -2011,8 +2020,8 @@
     !!----    type(State_Vector_Type),intent(in)  :: vs    !State vector
     !!----    character(len=*),       intent(in)  :: text
     !!----
-    !!----    Subroutine for Writing in unit=ipr the SimAnn_Conditions_type
-    !!----    variable "c"
+    !!----    Subroutine for Writing in unit=ipr the State_Vector_Type
+    !!----    variable "vs"
     !!----
     !!---- Update: April - 2005
     !!
@@ -2023,9 +2032,10 @@
        character(len=*),       intent(in)  :: text
 
        !--- Local Variables ---!
-       integer :: i
+       integer           :: i
        character(len=30) :: forma
-       character(len=15)  :: namep
+       character(len=15) :: namep
+
        forma="(i6,a8,3f12.5,2(i7,f12.5))"
 
        write(unit=ipr,fmt="(/,a)") "     ================================================="

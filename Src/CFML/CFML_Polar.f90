@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999 - 2009,              Version: 4.0
+!!---- Copyleft(C) 1999 - 2010,              Version: 4.1
 !!---- Juan Rodriguez-Carvajal & Marc Janoschek & some modificantions OZ
 !!----
 !!---- MODULE: CFML_Polarimetry
@@ -27,7 +27,6 @@
 !!--++    use CFML_Magnetic_Symmetry,          only: Magnetic_domain_type
 !!----
 !!---- VARIABLES
-!!----    POLAR_INFO_TYPE
 !!----    POLAR_INFO_TYPE
 !!----    POLAR_MATRIX_TYPE
 !!----    POLAR_CALC_TYPE
@@ -136,8 +135,8 @@
     !!----
     !!---- TYPE :: Polar_Calc_List_type
     !!--..
-    !!----     real(kind=cp), dimension (3,3)  :: Pij   ! the observed polarisation tensor
-    !!----     real(kind=cp), dimension (3,3)  :: sPij  ! the Sigma of polarisation tensor
+    !!----     integer                                         :: NRef  ! Number of Reflections
+    !!----     type(Polar_calc_type),allocatable, dimension(:) :: Polari ! Observed Polarisation tensor for the Reflection List
     !!---- End Type Polar_Calc_List_type
     !!----
     !!---- Update: Februar 2009 OZ
@@ -195,6 +194,7 @@
     !!----
     !!---- TYPE :: Polar_obs_type
     !!--..
+    !!----     REAL(kind=cp), DIMENSION (3)    :: H
     !!----     real(kind=cp), dimension (3,3)  :: oPij   ! the observed polarisation tensor
     !!----     real(kind=cp), dimension (3,3)  :: soPij  ! the Sigma of polarisation tensor
     !!---- End Type Polar_obs_type
@@ -210,8 +210,8 @@
     !!----
     !!---- TYPE :: Polar_Obs_List_type
     !!--..
-    !!----     real(kind=cp), dimension (3,3)  :: oPij   ! the observed polarisation tensor
-    !!----     real(kind=cp), dimension (3,3)  :: soPij  ! the Sigma of polarisation tensor
+    !!----     integer                         :: NRef  ! Number of Reflections
+    !!----     type(Polar_obs_type),allocatable, dimension(:)  :: Polaro ! Observed Polarisation tensor for the Reflection List
     !!---- End Type Polar_Obs_List_type
     !!----
     !!---- Update: Februar 2009 OZ

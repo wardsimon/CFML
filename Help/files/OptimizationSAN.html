@@ -63,13 +63,30 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-size: 12pt;
+ font-style: italic;
+}
+a.rvts12, span.rvts12
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts12:hover { color: #0000ff; }
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -86,13 +103,17 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ margin: 0px 0px 0px 24px;
+}
+.rvps3 /* Paragraph Style */
 {
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
 }
-.rvps3 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -106,7 +127,50 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts10>Optimization_SAN</span></p>
+<p class=rvps3><span class=rvts13>Optimization_SAN</span></p>
+<p>Module for Global Optimization using Simulated Annealing.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts11>Copyleft © 2010, FullProf Suite Team</span></p>
+<p>Currently there is available only a generic Simulated Annealing subroutine. That must be called with the name of a user-supplied subroutine to calculate the cost function as an argument. The calling program must define at least two variables of derived types SIMANN_CONDITIONS_TYPE and STATE_VECTOR_TYPE respectively.</p>
+<p><br></p>
+<p>The generic simulated annealing procedure can use the constant step algorithm or the Corana algorithm depending on the values of the corresponding component of the SIMANN_CONDITIONS_TYPE user-defined variable.</p>
+<p><br></p>
+<p><span class=rvts10>Parameters</span></p>
+<p><span class=rvts10><br></span></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li><a class=rvts12 href="NP_CONF.html">NP_CONF</a></li>
+<li><a class=rvts12 href="NP_SAN.html">NP_SAN</a></li>
+</ul>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10>Variables</span></p>
+<p><span class=rvts10><br></span></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li><a class=rvts12 href="ERR_SAN.html">ERR_SAN</a></li>
+<li><a class=rvts12 href="ERR_SAN_MESS.html">ERR_SAN_MESS</a></li>
+<li><a class=rvts12 href="MULTISTATE_VECTOR_TYPE.html">MULTISTATE_VECTOR_TYPE</a> </li>
+<li><a class=rvts12 href="SIMANN_CONDITIONS_TYPE.html">SIMANN_CONDITIONS_TYPE</a> </li>
+<li><a class=rvts12 href="STATE_VECTOR_TYPE.html">STATE_VECTOR_TYPE</a> </li>
+</ul>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10>Subroutines</span></p>
+<p><span class=rvts10><br></span></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li><a class=rvts12 href="SANN_OPT_MULTICONF.html">SANN_OPT_MULTICONF</a>&nbsp; </li>
+<li><a class=rvts12 href="SET_SIMANN_COND.html">SET_SIMANN_COND</a>&nbsp;&nbsp;&nbsp;&nbsp; </li>
+<li><a class=rvts12 href="SET_SIMANN_MSTATEV.html">SET_SIMANN_MSTATEV</a>&nbsp; </li>
+<li><a class=rvts12 href="SET_SIMANN_STATEV.html">SET_SIMANN_STATEV</a>&nbsp;&nbsp; </li>
+<li><a class=rvts12 href="SIMANNEAL_GEN.html">SIMANNEAL_GEN</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
+<li><a class=rvts12 href="SIMANNEAL_MULTICONF.html">SIMANNEAL_MULTICONF</a> </li>
+<li><a class=rvts12 href="WRITE_SIMANN_COND.html">WRITE_SIMANN_COND</a>&nbsp;&nbsp; </li>
+<li><a class=rvts12 href="WRITE_SIMANN_MSTATEV.html">WRITE_SIMANN_MSTATEV</a></li>
+<li><a class=rvts12 href="WRITE_SIMANN_STATEV.html">WRITE_SIMANN_STATEV</a></li>
+</ul>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts11>Fortran Filename</span></p>
+<p><br></p>
+<p class=rvps2>CFML_Optimization_SAn.f90</p>
+<p class=rvps4><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
 </body></html>
