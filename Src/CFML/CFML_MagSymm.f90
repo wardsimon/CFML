@@ -234,10 +234,10 @@
     !-------------------!
 
     !!----
-    !!---- Function ApplyMso(Op,V) Result(Skp)
-    !!----    Type(MSym_Oper_Type),         intent(in) :: Op        !  Magnetic Symmetry Operator Type
-    !!----    real(kind=cp), dimension(3) , intent(in) :: Sk        !  Complex vector
-    !!----    real(kind=cp), dimension(3)              :: Skp       !  Transformed complex vector
+    !!---- Function ApplyMso(Op,Sk) Result(Skp)
+    !!----    Type(MSym_Oper_Type),   intent(in) :: Op        !  Magnetic Symmetry Operator Type
+    !!----    complex, dimension(3) , intent(in) :: Sk        !  Complex vector
+    !!----    complex, dimension(3)              :: Skp       !  Transformed complex vector
     !!----
     !!----    Apply a magnetic symmetry operator to a complex vector:  Skp = ApplyMSO(Op,Sk)
     !!----
