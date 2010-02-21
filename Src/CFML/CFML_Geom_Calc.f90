@@ -2310,6 +2310,9 @@
                             Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
                             Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
                             Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+
+                            ! Added by JGP
+                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
                       end do do_i3 !i3
                    end do !i2
                 end do !i1
