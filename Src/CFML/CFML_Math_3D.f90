@@ -34,6 +34,7 @@
 !!----       INVERT_A
 !!--++       INVERT_DP                 [Overloaded]
 !!--++       INVERT_SP                 [Overloaded]
+!!----       POLYHEDRA_VOLUME
 !!----       ROTATE_OX
 !!----       ROTATE_OY
 !!----       ROTATE_OZ
@@ -50,6 +51,7 @@
 !!----       GET_CART_FROM_CYLIN
 !!--++       GET_CART_FROM_CYLIN_DP    [Overloaded]
 !!--++       GET_CART_FROM_CYLIN_SP    [Overloaded]
+!!----       GET_CENTROID_COORD
 !!----       GET_CYLINDR_COORD
 !!--++       GET_CYLINDR_COORD_DP      [Overloaded]
 !!--++       GET_CYLINDR_COORD_SP      [Overloaded]
@@ -70,17 +72,16 @@
 !!----
 !!
  Module CFML_Math_3D
-
     !---- Use Modules ----!
     Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg
-    Use CFML_Math_General, only: cosd, sind
+    Use CFML_Math_General, only: cosd, sind, euclidean_norm
 
     implicit none
 
     private
 
     !---- List of public functions ----!
-    public :: Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
+    public :: Polyhedra_Volume, Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
 
     !---- List of public overloaded procedures: functions ----!
     public :: Cross_Product, Determ_A, Determ_V, Invert_A
@@ -88,7 +89,7 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Math3D, Set_Eps, Set_Eps_Default, Matrix_DiagEigen, Matrix_Inverse, &
               Resolv_Sist_1X2, Resolv_Sist_1X3, Resolv_Sist_2X2, Resolv_Sist_2X3,          &
-              Resolv_Sist_3X3, Get_Plane_from_Points
+              Resolv_Sist_3X3, Get_Plane_from_Points, Get_Centroid_Coord
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Get_Cart_From_Cylin, Get_Cylindr_Coord, Get_Cart_From_Spher, Get_Spheric_Coord
@@ -463,6 +464,95 @@
     End Function Invert_Sp
 
     !!----
+    !!---- Function Polyhedra_Volume(Nv,Vert,Cent) Result(vol)
+    !!----    integer,                       intent(in) :: Nv       ! Vertices Number
+    !!----    real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of vertices
+    !!----    real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates a central point
+    !!----
+    !!---- This procedure calculate the volume of polyhedral with Nv vertices.
+    !!---- It is based on volcal program of L. W. FINGER.
+    !!---- Adapated by Javier Gonzalez Platas
+    !!----
+    !!
+    Function Polyhedra_Volume(NV,Vert,Cent) Result(vol)
+       !---- Arguments ----!
+       integer,                       intent(in) :: Nv       ! Vertices Number
+       real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of atoms
+       real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates of Central atoms
+       real(kind=cp)                             :: vol
+       !---- Local Variables ----!
+       integer                       :: i,j,k,l,m,i1,j1,l1,nm,np1,np2
+       integer, dimension(3)         :: ih
+       real(kind=cp)                 :: z,z0,area,factor
+       real(kind=cp),dimension(6)    :: vxyz
+       real(kind=cp),dimension(3)    :: d
+       real(kind=cp),dimension(Nv,3) :: Atm_cart
+
+       vol=0.0
+       call init_err_Math3d()
+
+       if (nv <= 3) then
+          ERR_Math3D=.true.
+          ERR_Math3D_Mess='Vertives numbers for volume polyhedral is less of 4'
+          return
+       end if
+
+       do i=1,nv
+          Atm_cart(i,:)=Vert(i,:)- Cent
+       end do
+
+       np1=nv-1
+       np2=nv-2
+       do i=1,np2
+          ih(1)=i
+          i1=i+1
+          do j=i1,np1
+             j1=j+1
+             ih(2)=j
+             vxyz(1:3)=Atm_cart(j,:)-Atm_cart(i,:)
+        loop:do k=j1,nv
+                ih(3)=k
+                vxyz(4:6)=Atm_cart(k,:)-Atm_cart(i,:)
+                d(1)=vxyz(2)*vxyz(6)-vxyz(5)*vxyz(3)
+                d(2)=vxyz(4)*vxyz(3)-vxyz(1)*vxyz(6)
+                d(3)=vxyz(1)*vxyz(5)-vxyz(4)*vxyz(2)
+                area=0.5*sqrt(d(1)**2+d(2)**2+d(3)**2)
+                z0=0.5*(Atm_cart(i,1)*d(1)+Atm_cart(i,2)*d(2)+Atm_cart(i,3)*d(3))/area
+
+                ! check for and avoid plane through origin
+                if (abs(z0) < 1.0e-5) cycle
+                factor = 3.0
+                do l=1,nv
+                   if(l==i .or. l==j .or. l==k) cycle
+
+                   ! calculate distance of point l from plane of ijk
+                   z=0.5*((Atm_cart(i,1)-Atm_cart(l,1))*d(1)+ &
+                          (Atm_cart(i,2)-Atm_cart(l,2))*d(2)+ &
+                          (Atm_cart(i,3)-Atm_cart(l,3))*d(3))/area
+
+                   ! z and z0 must have the same sign
+                   if (z * z0 < -0.001) cycle loop
+                   if (abs(z * z0) < 0.001)then
+                      ! if more than 3 corners on this face, the area will be counted twice.
+                      ! change factor to handle this case.
+       	             factor = 6.0
+	               end if
+                end do
+
+                ! all points on same side,  thus ijk are face
+                ! Direction Cosines Of Plane Normal
+                d=d/(2.0*area)
+
+                vol=vol+area*abs(z0)/factor
+
+             end do loop
+          end do
+       end do
+
+       return
+    End Function Polyhedra_Volume
+
+    !!----
     !!---- Function Rotate_OX(X,Angle) Result (Vec)
     !!----    real(kind=cp), dimension(3), intent(in) :: x       !  In -> Vector
     !!----    real(kind=cp),               intent(in) :: angle   !  In -> Angle (Degrees)
@@ -735,6 +825,204 @@
 
        return
     End Subroutine Get_Cart_from_Cylin_sp
+
+    !!----
+    !!---- Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
+    !!----    integer,                       intent(in) :: Cn          ! Coordination Number
+    !!----    real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms
+    !!----    real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
+    !!----    real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
+    !!----    real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
+    !!----
+    !!---- Procedure to calculate Centroid and BariCenter of Polyhedral according to
+    !!---- Tonci Balic-Zunic (Acta Cryst. B52, 1996, 78-81; Acta Cryst. B54, 1998, 766-773)
+    !!----
+    !!---- Update: February - 2010
+    !!
+    Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
+       !---- Arguments ----!
+       integer,                       intent(in) :: Cn          ! Coordination Number
+       real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms
+       real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
+       real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
+       real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
+
+       !---- Local variables ----!
+       real(kind=cp), dimension(4)   :: plane1,plane2,plane3
+       real(kind=cp), dimension(3)   :: p0,p1,p2,p3,u,v,r,t
+       real(kind=cp), dimension(3,3) :: w, w1
+       real(kind=cp)                 :: a,b,c,d,umod,vmod,rmod,d1
+       real(kind=cp)                 :: sx, sy, sz, sx2, sy2, sz2, sx3, sy3, sz3
+       real(kind=cp)                 :: sxy, sxz, syz, sxy2, sxz2
+       real(kind=cp)                 :: sx2y, sx2z, syz2, sy2z
+       integer                       :: i
+
+       call init_err_math3d()
+       centroid=0.0
+       baricenter=0.0
+
+       select case (cn)
+          case (:2)
+             err_Math3D=.true.
+             err_Math3D_Mess='Centroid calculation needs 3 vertives as minimum'
+             return
+
+          case (3)
+             !---- Plane 1: Defined with those 3 Points ----!
+             call Get_Plane_From_Points(Atm_Cart(1,1:3), Atm_Cart(2,1:3), Atm_Cart(3,1:3), &
+                                        plane1(1), plane1(2), plane1(3), plane1(4))
+             r=plane1(1:3)
+             rmod=euclidean_norm(3,r)
+             if (abs(rmod) <= 0.0001) then
+                err_Math3D=.true.
+                err_Math3D_Mess='Impossible define a Plane with the three points given'
+                return
+             end if
+             r=r/rmod
+
+             !---- Vectors ----!
+             u=p2-p1
+             umod=euclidean_norm(3,u)
+             if (abs(umod) <= 0.0001) then
+                err_Math3D=.true.
+                err_Math3D_Mess='Check your points! Seems that two of them are equals'
+                return
+             end if
+
+             v=p3-p1
+             vmod=euclidean_norm(3,v)
+             if (abs(vmod) <= 0.0001) then
+                err_Math3D=.true.
+                err_Math3D_Mess='Check your points! Seems that two of them are equals'
+                return
+             end if
+
+             !---- Plane 2 ----!
+             p0=p1+0.5*u
+             u=u/umod
+             plane2(1:3)=u
+             plane2(4)=-( plane2(1)*p0(1)+plane2(2)*p0(2)+plane2(3)*p0(3) )
+
+             !---- Plane 3 ----!
+             p0=p1+0.5*v
+             v=v/vmod
+             plane3(1:3)=v
+             plane3(4)=-( plane3(1)*p0(1)+plane3(2)*p0(2)+plane3(3)*p0(3) )
+
+             !---- Centroid ----!
+             w(1,1:3)=plane1(1:3)
+             w(2,1:3)=plane2(1:3)
+             w(3,1:3)=plane3(1:3)
+             d=determ_a(w)
+
+             if (abs(d) <= 0.0001) then
+                err_Math3D=.true.
+                err_Math3D_Mess='Determinant is singular to calculate Centroid point'
+                return
+             end if
+
+             w(1:3,1)=(/-plane1(4),-plane2(4), -plane3(4)/)
+             d1=determ_a(w)
+             centroid(1)=d1/d
+
+             w(1,1:3)=plane1(1:3)
+             w(2,1:3)=plane2(1:3)
+             w(3,1:3)=plane3(1:3)
+             w(1:3,2)=(/-plane1(4),-plane2(4), -plane3(4)/)
+             d1=determ_a(w)
+             centroid(2)=d1/d
+
+             w(1,1:3)=plane1(1:3)
+             w(2,1:3)=plane2(1:3)
+             w(3,1:3)=plane3(1:3)
+             w(1:3,3)=(/-plane1(4),-plane2(4), -plane3(4)/)
+             d1=determ_a(w)
+             centroid(3)=d1/d
+
+             sx =0.0; sy =0.0; sz =0.0
+             do i=1,3
+                sx=sx+Atm_Cart(i,1)
+                sy=sy+Atm_Cart(i,2)
+                sz=sz+Atm_Cart(i,3)
+             end do
+
+          case (4:)
+             sx =0.0; sy =0.0; sz =0.0
+             sx2=0.0; sy2=0.0; sz2=0.0
+             sx3=0.0; sy3=0.0; sz3=0.0
+             sxy=0.0; sxz=0.0; syz=0.0
+             sxy2=0.0; sxz2=0.0
+             sx2y=0.0; sx2z=0.0
+             syz2=0.0; sy2z=0.0
+             do i=1,cn
+                sx=sx+Atm_Cart(i,1)
+                sy=sy+Atm_Cart(i,2)
+                sz=sz+Atm_Cart(i,3)
+
+                sx2=sx2+Atm_Cart(i,1)*Atm_Cart(i,1)
+                sy2=sy2+Atm_Cart(i,2)*Atm_Cart(i,2)
+                sz2=sz2+Atm_Cart(i,3)*Atm_Cart(i,3)
+
+                sx3=sx3+Atm_Cart(i,1)*Atm_Cart(i,1)*Atm_Cart(i,1)
+                sy3=sy3+Atm_Cart(i,2)*Atm_Cart(i,2)*Atm_Cart(i,2)
+                sz3=sz3+Atm_Cart(i,3)*Atm_Cart(i,3)*Atm_Cart(i,3)
+
+                sxy=sxy+Atm_Cart(i,1)*Atm_Cart(i,2)
+                sxz=sxz+Atm_Cart(i,1)*Atm_Cart(i,3)
+                syz=syz+Atm_Cart(i,2)*Atm_Cart(i,3)
+
+                sxy2=sxy2+Atm_Cart(i,1)*Atm_Cart(i,2)*Atm_Cart(i,2)
+                sxz2=sxz2+Atm_Cart(i,1)*Atm_Cart(i,3)*Atm_Cart(i,3)
+
+                sx2y=sx2y+Atm_Cart(i,2)*Atm_Cart(i,1)*Atm_Cart(i,1)
+                sx2z=sx2z+Atm_Cart(i,3)*Atm_Cart(i,1)*Atm_Cart(i,1)
+
+                syz2=syz2+Atm_Cart(i,2)*Atm_Cart(i,3)*Atm_Cart(i,3)
+                sy2z=sy2z+Atm_Cart(i,3)*Atm_Cart(i,2)*Atm_Cart(i,2)
+             end do
+
+             w(1,1)=sx2 - (sx**2)/real(cn)
+             w(1,2)=sxy - (sx*sy)/real(cn)
+             w(1,3)=sxz - (sx*sz)/real(cn)
+             t(1)=0.5*(sx3 + sxy2 + sxz2 - ((sx2*sx + sy2*sx + sz2*sx)/real(cn)))
+
+             w(2,1)=sxy - (sx*sy)/real(cn)
+             w(2,2)=sy2 - (sy**2)/real(cn)
+             w(2,3)=syz - (sy*sz)/real(cn)
+             t(2)=0.5*(sx2y + sy3 + syz2 - ((sx2*sy + sy2*sy + sz2*sy)/real(cn)))
+
+             w(3,1)=sxz - (sx*sz)/real(cn)
+             w(3,2)=syz - (sy*sz)/real(cn)
+             w(3,3)=sz2 - (sz**2)/real(cn)
+             t(3)=0.5*(sx2z + sy2z + sz3 - ((sx2*sz + sy2*sz + sz2*sz)/real(cn)))
+
+             d=determ_a(w)
+             if (abs(d) <= 0.0001) then
+                err_Math3D=.true.
+                err_Math3D_Mess='Determinant is singular to calculate Centroid point'
+                return
+             end if
+
+             w1=w
+             w1(:,1)=t
+             d1=determ_a(w1)
+             centroid(1)=d1/d
+
+             w1=w
+             w1(:,2)=t
+             d1=determ_a(w1)
+             centroid(2)=d1/d
+
+             w1=w
+             w1(:,3)=t
+             d1=determ_a(w1)
+             centroid(3)=d1/d
+       end select
+
+       baricenter=(/sx/real(cn), sy/real(cn), sz/real(cn)/)
+
+       return
+    End Subroutine Get_Centroid_Coord
 
     !!----
     !!---- Subroutine Get_Cylindr_Coord(Xo,rho,Phi,zeta,Mode)
