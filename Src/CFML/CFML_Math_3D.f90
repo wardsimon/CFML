@@ -536,8 +536,8 @@
                    if (abs(z * z0) < 0.001)then
                       ! if more than 3 corners on this face, the area will be counted twice.
                       ! change factor to handle this case.
-       	             factor = 6.0
-	               end if
+                     factor = 6.0
+                   end if
                 end do
 
                 ! all points on same side,  thus ijk are face

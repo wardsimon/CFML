@@ -1280,8 +1280,9 @@
               " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
           Case(5)
              c%reached=.false.
-             write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",&
-             maxfev
+             write(unit=infout,fmt="(a,i6)") &
+             "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+
           Case(6)
              c%reached=.false.
              write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
@@ -1476,8 +1477,9 @@
               " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
           Case(5)
              c%reached=.false.
-             write(unit=infout,fmt="(a,i6)") "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",&
-             maxfev
+             write(unit=infout,fmt="(a,i6)") &
+             "Convergence NOT reached: Number of calls to model function with iflag=1 has reached ",maxfev
+
           Case(6)
              c%reached=.false.
              write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
