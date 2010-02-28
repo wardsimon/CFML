@@ -1054,6 +1054,7 @@
                             Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
                             Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
                             bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
+                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,transla,x1(:)
@@ -1340,6 +1341,7 @@
                             Coord_Info%S_Dist(i,Coord_Info%Coord_Num(i))=sdd
                             Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
                             Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
 
                             bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
                             sbcoo(:,Coord_Info%Coord_Num(i))=ss(:)
@@ -2106,7 +2108,7 @@
        real(kind=cp),            intent(in)   :: dmax
        type (Crystal_cell_Type), intent(in)   :: Cell
        type (Space_Group_Type),  intent(in)   :: SpG
-       type (atom_list_type),   intent(in)   :: A
+       type (atom_list_type),    intent(in)   :: A
 
        !---- Local Variables ----!
        integer                           :: i,j,k,lk,i1,i2,i3,jl,npeq,nn,L,nlines

@@ -34,7 +34,7 @@
 !!----       INVERT_A
 !!--++       INVERT_DP                 [Overloaded]
 !!--++       INVERT_SP                 [Overloaded]
-!!----       POLYHEDRA_VOLUME
+!!----       POLYHEDRON_VOLUME
 !!----       ROTATE_OX
 !!----       ROTATE_OY
 !!----       ROTATE_OZ
@@ -81,7 +81,7 @@
     private
 
     !---- List of public functions ----!
-    public :: Polyhedra_Volume, Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
+    public :: Polyhedron_Volume, Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
 
     !---- List of public overloaded procedures: functions ----!
     public :: Cross_Product, Determ_A, Determ_V, Invert_A
@@ -464,7 +464,7 @@
     End Function Invert_Sp
 
     !!----
-    !!---- Function Polyhedra_Volume(Nv,Vert,Cent) Result(vol)
+    !!---- Function Polyhedron_Volume(Nv,Vert,Cent) Result(vol)
     !!----    integer,                       intent(in) :: Nv       ! Vertices Number
     !!----    real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of vertices
     !!----    real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates a central point
@@ -475,19 +475,19 @@
     !!----
     !!---- Update: February - 2010
     !!
-    Function Polyhedra_Volume(NV,Vert,Cent) Result(vol)
+    Function Polyhedron_Volume(NV,Vert,Cent) Result(vol)
        !---- Arguments ----!
-       integer,                       intent(in) :: Nv       ! Vertices Number
+       integer,                       intent(in) :: Nv       ! Number of Vertices
        real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of atoms
-       real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates of Central atoms
+       real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates of Central atom
        real(kind=cp)                             :: vol
        !---- Local Variables ----!
-       integer                       :: i,j,k,l,m,i1,j1,l1,nm,np1,np2
+       integer                       :: i,j,k,l,m,i1,j1,l1,nm
        integer, dimension(3)         :: ih
        real(kind=cp)                 :: z,z0,area,factor
        real(kind=cp),dimension(6)    :: vxyz
        real(kind=cp),dimension(3)    :: d
-       real(kind=cp),dimension(Nv,3) :: Atm_cart
+       real(kind=cp),dimension(3,Nv) :: Atm_cart
 
        vol=0.0
        call init_err_Math3d()
@@ -499,26 +499,24 @@
        end if
 
        do i=1,nv
-          Atm_cart(i,:)=Vert(i,:)- Cent
+          Atm_cart(:,i)=Vert(:,i)- Cent
        end do
 
-       np1=nv-1
-       np2=nv-2
-       do i=1,np2
+       do i=1,nv-2
           ih(1)=i
           i1=i+1
-          do j=i1,np1
+          do j=i1,nv-1
              j1=j+1
              ih(2)=j
-             vxyz(1:3)=Atm_cart(j,:)-Atm_cart(i,:)
+             vxyz(1:3)=Atm_cart(:,j)-Atm_cart(:,i)
         loop:do k=j1,nv
                 ih(3)=k
-                vxyz(4:6)=Atm_cart(k,:)-Atm_cart(i,:)
+                vxyz(4:6)=Atm_cart(:,k)-Atm_cart(:,i)
                 d(1)=vxyz(2)*vxyz(6)-vxyz(5)*vxyz(3)
                 d(2)=vxyz(4)*vxyz(3)-vxyz(1)*vxyz(6)
                 d(3)=vxyz(1)*vxyz(5)-vxyz(4)*vxyz(2)
-                area=0.5*sqrt(d(1)**2+d(2)**2+d(3)**2)
-                z0=0.5*(Atm_cart(i,1)*d(1)+Atm_cart(i,2)*d(2)+Atm_cart(i,3)*d(3))/area
+                area=0.5*sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
+                z0=0.5*(Atm_cart(1,i)*d(1)+Atm_cart(2,i)*d(2)+Atm_cart(3,i)*d(3))/area
 
                 ! check for and avoid plane through origin
                 if (abs(z0) < 1.0e-5) cycle
@@ -527,9 +525,9 @@
                    if(l==i .or. l==j .or. l==k) cycle
 
                    ! calculate distance of point l from plane of ijk
-                   z=0.5*((Atm_cart(i,1)-Atm_cart(l,1))*d(1)+ &
-                          (Atm_cart(i,2)-Atm_cart(l,2))*d(2)+ &
-                          (Atm_cart(i,3)-Atm_cart(l,3))*d(3))/area
+                   z=0.5*((Atm_cart(1,i)-Atm_cart(1,l))*d(1)+ &
+                          (Atm_cart(2,i)-Atm_cart(2,l))*d(2)+ &
+                          (Atm_cart(3,i)-Atm_cart(3,l))*d(3))/area
 
                    ! z and z0 must have the same sign
                    if (z * z0 < -0.001) cycle loop
@@ -551,7 +549,7 @@
        end do
 
        return
-    End Function Polyhedra_Volume
+    End Function Polyhedron_Volume
 
     !!----
     !!---- Function Rotate_OX(X,Angle) Result (Vec)
@@ -835,15 +833,16 @@
     !!----    real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
     !!----    real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
     !!----
-    !!---- Procedure to calculate Centroid and BariCenter of Polyhedral according to
+    !!---- Procedure to calculate Centroid and BariCenter of a pPolyhedron according to
     !!---- Tonci Balic-Zunic (Acta Cryst. B52, 1996, 78-81; Acta Cryst. B54, 1998, 766-773)
+    !!---- Centroid is here different from Baricentre and it is defined in the above reference.
     !!----
     !!---- Update: February - 2010
     !!
     Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
        !---- Arguments ----!
        integer,                       intent(in) :: Cn          ! Coordination Number
-       real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms
+       real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms, gathered as: (1:3,1:Cn) 
        real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
        real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
        real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
@@ -870,13 +869,13 @@
 
           case (3)
              !---- Plane 1: Defined with those 3 Points ----!
-             call Get_Plane_From_Points(Atm_Cart(1,1:3), Atm_Cart(2,1:3), Atm_Cart(3,1:3), &
+             call Get_Plane_From_Points(Atm_Cart(1:3,1), Atm_Cart(1:3,2), Atm_Cart(1:3,3), &
                                         plane1(1), plane1(2), plane1(3), plane1(4))
              r=plane1(1:3)
              rmod=euclidean_norm(3,r)
              if (abs(rmod) <= 0.0001) then
                 err_Math3D=.true.
-                err_Math3D_Mess='Impossible define a Plane with the three points given'
+                err_Math3D_Mess='Imposible to define a Plane with the three given points '
                 return
              end if
              r=r/rmod
@@ -886,7 +885,7 @@
              umod=euclidean_norm(3,u)
              if (abs(umod) <= 0.0001) then
                 err_Math3D=.true.
-                err_Math3D_Mess='Check your points! Seems that two of them are equals'
+                err_Math3D_Mess='Check your points! Seems that two of them are equal'
                 return
              end if
 
@@ -894,7 +893,7 @@
              vmod=euclidean_norm(3,v)
              if (abs(vmod) <= 0.0001) then
                 err_Math3D=.true.
-                err_Math3D_Mess='Check your points! Seems that two of them are equals'
+                err_Math3D_Mess='Check your points! Seems that two of them are equal'
                 return
              end if
 
@@ -942,9 +941,9 @@
 
              sx =0.0; sy =0.0; sz =0.0
              do i=1,3
-                sx=sx+Atm_Cart(i,1)
-                sy=sy+Atm_Cart(i,2)
-                sz=sz+Atm_Cart(i,3)
+                sx=sx+Atm_Cart(1,i)
+                sy=sy+Atm_Cart(2,i)
+                sz=sz+Atm_Cart(3,i)
              end do
 
           case (4:)
@@ -956,30 +955,30 @@
              sx2y=0.0; sx2z=0.0
              syz2=0.0; sy2z=0.0
              do i=1,cn
-                sx=sx+Atm_Cart(i,1)
-                sy=sy+Atm_Cart(i,2)
-                sz=sz+Atm_Cart(i,3)
+                sx=sx+Atm_Cart(1,i)
+                sy=sy+Atm_Cart(2,i)
+                sz=sz+Atm_Cart(3,i)
 
-                sx2=sx2+Atm_Cart(i,1)*Atm_Cart(i,1)
-                sy2=sy2+Atm_Cart(i,2)*Atm_Cart(i,2)
-                sz2=sz2+Atm_Cart(i,3)*Atm_Cart(i,3)
+                sx2=sx2+Atm_Cart(1,i)*Atm_Cart(1,i)
+                sy2=sy2+Atm_Cart(2,i)*Atm_Cart(2,i)
+                sz2=sz2+Atm_Cart(3,i)*Atm_Cart(3,i)
 
-                sx3=sx3+Atm_Cart(i,1)*Atm_Cart(i,1)*Atm_Cart(i,1)
-                sy3=sy3+Atm_Cart(i,2)*Atm_Cart(i,2)*Atm_Cart(i,2)
-                sz3=sz3+Atm_Cart(i,3)*Atm_Cart(i,3)*Atm_Cart(i,3)
+                sx3=sx3+Atm_Cart(1,i)*Atm_Cart(1,i)*Atm_Cart(1,i)
+                sy3=sy3+Atm_Cart(2,i)*Atm_Cart(2,i)*Atm_Cart(2,i)
+                sz3=sz3+Atm_Cart(3,i)*Atm_Cart(3,i)*Atm_Cart(3,i)
 
-                sxy=sxy+Atm_Cart(i,1)*Atm_Cart(i,2)
-                sxz=sxz+Atm_Cart(i,1)*Atm_Cart(i,3)
-                syz=syz+Atm_Cart(i,2)*Atm_Cart(i,3)
+                sxy=sxy+Atm_Cart(1,i)*Atm_Cart(2,i)
+                sxz=sxz+Atm_Cart(1,i)*Atm_Cart(3,i)
+                syz=syz+Atm_Cart(2,i)*Atm_Cart(3,i)
 
-                sxy2=sxy2+Atm_Cart(i,1)*Atm_Cart(i,2)*Atm_Cart(i,2)
-                sxz2=sxz2+Atm_Cart(i,1)*Atm_Cart(i,3)*Atm_Cart(i,3)
+                sxy2=sxy2+Atm_Cart(1,i)*Atm_Cart(2,i)*Atm_Cart(2,i)
+                sxz2=sxz2+Atm_Cart(1,i)*Atm_Cart(3,i)*Atm_Cart(3,i)
 
-                sx2y=sx2y+Atm_Cart(i,2)*Atm_Cart(i,1)*Atm_Cart(i,1)
-                sx2z=sx2z+Atm_Cart(i,3)*Atm_Cart(i,1)*Atm_Cart(i,1)
+                sx2y=sx2y+Atm_Cart(2,i)*Atm_Cart(1,i)*Atm_Cart(1,i)
+                sx2z=sx2z+Atm_Cart(3,i)*Atm_Cart(1,i)*Atm_Cart(1,i)
 
-                syz2=syz2+Atm_Cart(i,2)*Atm_Cart(i,3)*Atm_Cart(i,3)
-                sy2z=sy2z+Atm_Cart(i,3)*Atm_Cart(i,2)*Atm_Cart(i,2)
+                syz2=syz2+Atm_Cart(2,i)*Atm_Cart(3,i)*Atm_Cart(3,i)
+                sy2z=sy2z+Atm_Cart(3,i)*Atm_Cart(2,i)*Atm_Cart(2,i)
              end do
 
              w(1,1)=sx2 - (sx**2)/real(cn)
@@ -1020,7 +1019,7 @@
              centroid(3)=d1/d
        end select
 
-       baricenter=(/sx/real(cn), sy/real(cn), sz/real(cn)/)
+       baricenter=(/ sx/real(cn), sy/real(cn), sz/real(cn) /)
 
        return
     End Subroutine Get_Centroid_Coord
@@ -1528,7 +1527,7 @@
        if (abs(dmat) < epso) then
           ifail=1
           ERR_Math3D =.true.
-          ERR_Math3D_Mess="Singular Matrix: inversion impossible"
+          ERR_Math3D_Mess="Singular Matrix: inversion imposible"
           return
        end if
 
