@@ -494,7 +494,7 @@
 
        if (nv <= 3) then
           ERR_Math3D=.true.
-          ERR_Math3D_Mess='Vertives numbers for volume polyhedral is less of 4'
+          ERR_Math3D_Mess='Vertives numbers for polyhedron volume is less of 4'
           return
        end if
 
@@ -842,7 +842,7 @@
     Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
        !---- Arguments ----!
        integer,                       intent(in) :: Cn          ! Coordination Number
-       real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms, gathered as: (1:3,1:Cn) 
+       real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms, gathered as: (1:3,1:Cn)
        real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
        real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
        real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
