@@ -482,7 +482,7 @@
        real(kind=cp), dimension(3),   intent(in) :: Cent     ! Cartesian coordinates of Central atom
        real(kind=cp)                             :: vol
        !---- Local Variables ----!
-       integer                       :: i,j,k,l,m,i1,j1,l1,nm
+       integer                       :: i,j,k,l,i1,j1
        integer, dimension(3)         :: ih
        real(kind=cp)                 :: z,z0,area,factor
        real(kind=cp),dimension(6)    :: vxyz
@@ -826,10 +826,9 @@
     End Subroutine Get_Cart_from_Cylin_sp
 
     !!----
-    !!---- Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
+    !!---- Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Centroid,Baricenter)
     !!----    integer,                       intent(in) :: Cn          ! Coordination Number
     !!----    real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms
-    !!----    real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
     !!----    real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
     !!----    real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
     !!----
@@ -839,11 +838,10 @@
     !!----
     !!---- Update: February - 2010
     !!
-    Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Atm_Cen,Centroid,Baricenter)
+    Subroutine Get_Centroid_Coord(Cn,Atm_Cart,Centroid,Baricenter)
        !---- Arguments ----!
        integer,                       intent(in) :: Cn          ! Coordination Number
        real(kind=cp), dimension(:,:), intent(in) :: Atm_Cart    ! Cartesian coordinates of atoms, gathered as: (1:3,1:Cn)
-       real(kind=cp), dimension(3),   intent(in) :: Atm_Cen     ! Cartesian coordinates of Central atoms
        real(kind=cp), dimension(3),   intent(out):: Centroid    ! Centroid
        real(kind=cp), dimension(3),   intent(out):: Baricenter  ! Baricenter
 
@@ -851,7 +849,7 @@
        real(kind=cp), dimension(4)   :: plane1,plane2,plane3
        real(kind=cp), dimension(3)   :: p0,p1,p2,p3,u,v,r,t
        real(kind=cp), dimension(3,3) :: w, w1
-       real(kind=cp)                 :: a,b,c,d,umod,vmod,rmod,d1
+       real(kind=cp)                 :: d,umod,vmod,rmod,d1
        real(kind=cp)                 :: sx, sy, sz, sx2, sy2, sz2, sx3, sy3, sz3
        real(kind=cp)                 :: sxy, sxz, syz, sxy2, sxz2
        real(kind=cp)                 :: sx2y, sx2z, syz2, sy2z
