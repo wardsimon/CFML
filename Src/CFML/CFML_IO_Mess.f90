@@ -44,11 +44,11 @@
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(message, Iunit, routine, fatal)
-    !!----    character(len=*), intent(in)           :: message       !  In -> Error information
+    !!---- Subroutine Error_Message(line, Iunit, routine, fatal)
+    !!----    character(len=*), intent(in)           :: line          !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
     !!----    character(len=*), intent(in), optional :: routine       !  In -> The subroutine where the error occured
-    !!----    logical,          intent(in), optional :: unrecoverable !  In -> Should the program stop here ?
+    !!----    logical,          intent(in), optional :: fatal         !  In -> Should the program stop here ?
     !!----
     !!----    Print an error message on the screen or in "Iunit" if present
     !!----    If "routine" is present the subroutine where the occured will be also displayed.
@@ -56,9 +56,9 @@
     !!----
     !!---- Update: January - 2010
     !!
-    Subroutine Error_Message(Message, Iunit, Routine, Fatal)
+    Subroutine Error_Message(Line, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       Character ( Len = * ), Intent(In)           :: Message
+       Character ( Len = * ), Intent(In)           :: Line
        Integer,               Intent(In), Optional :: Iunit
        Character ( Len = * ), Intent(In), Optional :: Routine
        Logical,               Intent(In), Optional :: Fatal
@@ -69,26 +69,25 @@
        Lun = 6
        If (Present(Iunit)) Lun = Iunit
 
-       Write(Unit = Lun, Fmt = "(A)") " ****"
-       Write(Unit = Lun, Fmt = "(A/)") " **** Error"
+       Write(Unit = Lun, Fmt = "(1X,A)") "****"
+       Write(Unit = Lun, Fmt = "(1X,A/)") "**** Error"
 
        If (Present(Routine)) Then
            Lenr = Len_Trim(Routine)
-           Write(Unit = Lun, Fmt = "(A)") " **** Subroutine: "//Routine(1:Lenr)
+           Write(Unit = Lun, Fmt = "(1X,A)") "**** Subroutine: "//Routine(1:Lenr)
        End If
 
-       Lenm = Len_Trim(Message)
-       Write(Unit = Lun, Fmt = "(A)") " **** Message: "//Message(1:Lenm)
+       Lenm = Len_Trim(Line)
+       Write(Unit = Lun, Fmt = "(1X,A)") "**** Message: "//Line(1:Lenm)
 
        If (Present(Fatal)) Then
            If (Fatal) Then
-               Write(Unit = Lun, Fmt = "(/A)") " **** The Program Will Stop Here."
+               Write(Unit = Lun, Fmt = "(/1X,A)") "**** The Program Will Stop Here."
                Stop
            End If
        End If
 
-       Write(Unit = Lun, Fmt = "(A)") " ****"
-       Write(Unit = Lun, Fmt = "(A)") "  "
+       Write(Unit = Lun, Fmt = "(A/)") "****"
 
        Return
 

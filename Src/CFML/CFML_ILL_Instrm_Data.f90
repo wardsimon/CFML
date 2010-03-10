@@ -987,12 +987,13 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Define_Uncompress_Program
 
     !!----
-    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyear,Icycle)
-    !!----    integer,           intent(in)  :: numor
-    !!----    character(len=*),  intent(in)  :: instrm
-    !!----    character(len=*),  intent(out) :: path
-    !!----    integer, optional, intent(in)  :: iyear
-    !!----    integer, optional, intent(in)  :: icycle
+    !!---- Subroutine Get_Absolute_Data_Path(Numor,Instrm,Path,Iyear,Icycle, Actual_Path)
+    !!----    integer,           intent(in)            :: numor
+    !!----    character(len=*),  intent(in)            :: instrm
+    !!----    character(len=*),  intent(out)           :: path
+    !!----    integer, optional, intent(in)            :: iyear
+    !!----    integer, optional, intent(in)            :: icycle
+    !!----    character(len=*),  intent(out), optional :: Actual_Path
     !!----
     !!----    Finds the absolute path to any numor. The base directory
     !!----    is set by a call to 'initialize_data_directory'. The subroutine
@@ -1019,14 +1020,15 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2009
     !!
-    Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear,Icycle)
+    Subroutine Get_Absolute_Data_Path(Numor, Instrm, Path, Iyear, Icycle, Actual_Path)
 
        !---- Arguments ----!
-       integer,           intent(in)  :: numor
-       character(len=*),  intent(in)  :: instrm
-       character(len=*),  intent(out) :: path
-       integer, optional, intent(in)  :: iyear
-       integer, optional, intent(in)  :: icycle
+       integer,           intent(in)            :: numor
+       character(len=*),  intent(in)            :: instrm
+       character(len=*),  intent(out)           :: path
+       integer, optional, intent(in)            :: iyear
+       integer, optional, intent(in)            :: icycle
+       character(len=*),  intent(out), optional :: Actual_Path
 
        !---- Local Variables ----!
        character(len=*),parameter :: Current_Data = 'data'
@@ -1043,6 +1045,7 @@ Module CFML_ILL_Instrm_Data
 
        ! Init value
        path=" "
+       if (present(actual_path)) actual_path = path
 
        ! Some compilers are unable to test the existence of file: data_diretory//ops_sep//"." !!!!!
        ! so, got_ILL_data_directory may still be .false., ILL_data_directory has been set anyway
@@ -1061,7 +1064,7 @@ Module CFML_ILL_Instrm_Data
        if (.not. got_ILL_Data_directory) return
 
        if (.not. got_ILL_Temp_Directory) return
-
+       
        ! Uncompress program must be defined
        if (len_trim(uncompresscommand) == 0) call define_uncompress_program('gzip -q -d -c')
 
@@ -1086,6 +1089,7 @@ Module CFML_ILL_Instrm_Data
           yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
 
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          if (present(actual_path)) actual_path = path
 
           inquire(file=trim(path),exist=exists)
           if (exists) return ! found numor so return
@@ -1095,6 +1099,7 @@ Module CFML_ILL_Instrm_Data
           inquire(file=trim(path),exist=exists)
           if (exists) then ! uncompress into temp directory
              call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             if (present(actual_path)) actual_path = path
              path = trim(ILL_temp_directory)//numstr
              return ! found numor so return
           end if
@@ -1104,14 +1109,17 @@ Module CFML_ILL_Instrm_Data
           yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
 
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          if (present(actual_path)) actual_path = path
           inquire(file=trim(path),exist=exists)
           if (exists) return ! found numor so return
 
           ! Using previous + compressed data
           path = trim(path)//Extension
+          if (present(actual_path)) actual_path = path
           inquire(file=trim(path),exist=exists)
           if (exists) then ! uncompress into temp directory
              call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             if (present(actual_path)) actual_path = path
              path = trim(ILL_temp_directory)//numstr
              return ! found numor so return
           end if
@@ -1119,28 +1127,32 @@ Module CFML_ILL_Instrm_Data
 
        ! Using Current_data
        path = trim(ILL_data_directory)//Current_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-
+       if (present(actual_path)) actual_path = path
        inquire(file=trim(path),exist=exists)
        if (exists) return ! found numor so return
 
        ! Using Previous data
        path = trim(ILL_data_directory)//Previous_Data//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+       if (present(actual_path)) actual_path = path
        inquire(file=trim(path),exist=exists)
        if (exists) return ! found numor so return
-
+       
        ! start from the most recent yearcycle and work search backwards
        call get_next_yearcycle(yearcycle,.true.)
        do
           if (yearcycle == "") exit
 
-          path = trim(ILL_data_directory)//yearcycle//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          if (present(actual_path)) actual_path = path
           inquire(file=trim(path),exist=exists)
+
           if (exists) return
 
           path = trim(path)//Extension
           inquire(file=trim(path),exist=exists)
           if (exists) then ! uncompress into temp directory
              call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+             if (present(actual_path)) actual_path = path
              path = trim(ILL_temp_directory)//numstr
              return ! found numor so return
           end if
@@ -1149,6 +1161,7 @@ Module CFML_ILL_Instrm_Data
 
        ! the numor was found compressed or uncompressed anywhere
        path = " "
+       if (present(actual_path)) actual_path = path
 
        return
     End Subroutine Get_Absolute_Data_Path
@@ -3311,6 +3324,7 @@ Module CFML_ILL_Instrm_Data
        !---- check that the directory exist, ----!
        !---- otherwise raise an error condition ----!
        ERR_ILLData=.false.
+       ERR_ILLData_Mess=""
        Instrm_directory_set=directory_exists(trim(Instrm_directory))
        if (.not. Instrm_directory_set) then
           ERR_ILLData=.true.

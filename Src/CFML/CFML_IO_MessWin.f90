@@ -94,18 +94,22 @@
     End Subroutine Close_Scroll_Window
 
     !!----
-    !!---- Subroutine Error_Message(Line, Iunit)
+    !!---- Subroutine Error_Message(Line, Iunit, Routine, Fatal)
     !!----    character(len=*), intent(in)           :: Line    !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
+    !!----    character(len=*), intent(in), optional :: routine !  Added for consistency with the CFML_IO_Mess.f90 version.
+    !!----    logical,          intent(in), optional :: fatal   !  Added for consistency with the CFML_IO_Mess.f90 version.
     !!----
     !!----    Print an error message on the screen and in "Iunit" if present
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Error_Message(line,iunit)
+    Subroutine Error_Message(line, iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*), intent(in) :: line
-       integer, optional,intent(in) :: iunit
+       character(len=*), intent(in)                :: line
+       integer, optional,intent(in)                :: iunit
+       Character ( Len = * ), Intent(In), Optional :: Routine
+       Logical,               Intent(In), Optional :: Fatal
 
        call WMessageBox(OKOnly, ExclamationIcon, CommonOK, line,"Error Message")
 
