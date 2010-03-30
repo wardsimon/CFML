@@ -31,7 +31,7 @@ jQuery.richArray = {
 	@return {boolean} true if the array contains the value, otherwise false
     */
     
-    in: function(array, value) {
+    isin: function(array, value) {
         array = jQuery.richArray.getArray(array);
 	value = value || 0;
 	
@@ -56,7 +56,7 @@ jQuery.richArray = {
         var result = [];
 	
 	for (var i = 0, len = array.length; i < len; ++i) {
-	    if (!jQuery.richArray.in(result, array[i])) {
+	    if (!jQuery.richArray.isin(result, array[i])) {
 	        result.push(array[i]);
 	    }
 	}
@@ -79,7 +79,7 @@ jQuery.richArray = {
 	var result = [];
 	
 	for (var i = 0, len = array1.length; i < len; ++i) {
-	    if (!jQuery.richArray.in(array2, array1[i])) {
+	    if (!jQuery.richArray.isin(array2, array1[i])) {
 	        result.push(array1[i]);
 	    }
 	}
@@ -101,7 +101,7 @@ jQuery.richArray = {
 	var result = [];
 	
 	for (var i = 0, len = array1.length; i < len; ++i) {
-	    if (jQuery.richArray.in(array2, array1[i])) {
+	    if (jQuery.richArray.isin(array2, array1[i])) {
 	        result.push(array1[i]);
 	    }
 	}  
