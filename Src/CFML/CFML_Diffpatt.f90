@@ -59,7 +59,7 @@
     Use CFML_GlobalDeps,       only : cp
     Use CFML_Math_General,     only : spline, splint, locate
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
-                                      get_logunit, u_case, getword
+                                      get_logunit, u_case, getword, getnum
 
     implicit none
 
@@ -1061,8 +1061,11 @@
        type (diffraction_pattern_type), intent(in out) :: Pat
 
        !---- Local Variables ----!
-       integer                                      :: i,no,ier,inum
+       integer                                      :: i,no,ier,inum,nc,iv
+       integer, dimension(3)                        :: ivet
        character(len=180)                           :: aline
+       character(len=20), dimension(10)             :: dire
+       real, dimension(3)                           :: vet
        logical                                      :: title_given
 
        call init_err_diffpatt()
@@ -1082,65 +1085,99 @@
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" End of file *.dat"
              return
-          else
-             if(.not. title_given) then
-               Pat%title=aline(2:)
-               title_given=.true.
-             end if
-             if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
-             if (aline(1:4) == "BANK") then
-                read(unit=aline(5:41),fmt=*) inum,pat%npts
-                read(unit=aline(47:90),fmt=*) pat%xmin,pat%step
-                pat%xmax=pat%xmin+(pat%npts-1)*pat%step
-             else
-                read(unit=aline,fmt=*,iostat=ier)pat%xmin,pat%step,pat%xmax
-                if (ier /= 0) then
-                   no=no+1
-                   if (no > 7)then
-                      Err_diffpatt=.true.
-                      ERR_DiffPatt_Mess=" Error on Intensity file, check your instr parameter "
-                      return
-                   else
-                      cycle
-                   end if
-                end if
+          end if
+          aline=adjustl(aline)
+
+          ! Comment lines using ! or #
+          if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
+
+          ! BANK Information
+          if (aline(1:4) == "BANK") then
+             read(unit=aline(5:41),fmt=*) inum,pat%npts
+             read(unit=aline(47:90),fmt=*) pat%xmin,pat%step
+             pat%xmax=pat%xmin+(pat%npts-1)*pat%step
+             exit
+          end if
+
+          ! Reading Xmin, Step, Xmax, Title (optional)
+          call getword(aline,dire,nc)
+          if (nc > 2) then
+             call getnum(trim(dire(1))//' '//trim(dire(2))//' '//trim(dire(3)),vet,ivet,iv)
+             if (iv == 3) then
+                pat%xmin=vet(1)
+                pat%step=vet(2)
+                pat%xmax=vet(3)
+
                 if (pat%step <= 1.0e-6 ) then
-                    Err_diffpatt=.true.
-                    ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
-                    return
+                   Err_diffpatt=.true.
+                   ERR_DiffPatt_Mess=" Error in Intensity file, Step value was zero!"
+                   return
                 end if
-                i=index(aline,"TSAMP")
-                if( i /= 0) then
-                   read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
-                   if(ier /= 0) pat%tsamp = 0.0
+
+                !pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
+                pat%npts = nint((pat%xmax-pat%xmin)/pat%step)
+
+                ! Title?
+                i=index(aline,trim(dire(3)))
+                nc=len_trim(dire(3))
+
+                if (len_trim(aline(i+nc+1:)) > 0) then
+                   Pat%title=trim(aline(i+nc+1:))
+                   title_given=.true.
                 end if
-                pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
+
+                exit  ! Salida del Bucle
+             end if
+
+             ! TSAMP
+             i=index(aline,"TSAMP")
+             if (i /= 0) then
+                read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
+                if (ier /= 0) pat%tsamp = 0.0
              end if
           end if
-          exit
+
+          ! Probably Coment line or Title
+          if(.not. title_given) then
+            Pat%title=trim(aline)
+            title_given=.true.
+          end if
+
+          no=no+1
+          if (no > 7)then
+             Err_diffpatt=.true.
+             ERR_DiffPatt_Mess=" Error on Intensity file, Number of Comment lines was exceeded ( > 7) !"
+             return
+          else
+             cycle
+          end if
        end do
 
+       ! Aditional checks
        if (pat%npts <= 10 .or. pat%xmax <  pat%xmin  .or. pat%step > pat%xmax) then
           Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Problems reading 2Theta_ini, Step, 2Theta_end !"
           return
        end if
 
-
+       ! Allocating memory
        call Allocate_Diffraction_Pattern(pat)
 
+       ! Reading intensities values
        read(unit=i_dat,fmt=*,iostat=ier)(pat%y(i),i=1,pat%npts)
        if (ier /= 0) then
           Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter"
+          ERR_DiffPatt_Mess=" Error in Intensity file, Number of intensities values is wrong!!"
           return
        end if
+
        do i=1,pat%npts
           pat%sigma(i) = pat%y(i)
           pat%x(i)= pat%xmin+(i-1)*pat%step
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
+
        return
     End Subroutine Read_Pattern_Free
 
