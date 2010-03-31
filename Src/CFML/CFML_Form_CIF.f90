@@ -1105,8 +1105,14 @@
           if (trim(chemname) =="; ?" .or. trim(chemname)=="#") chemname=" "
           np1=index(chemname,"'")
           np2=index(chemname,"'",back=.true.)
-          if (np1 /= 0 .and. np2 /= 0) then
+          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
              chemname=chemname(np1+1:np2-1)
+          else
+             np1=index(chemname,'"')
+             np2=index(chemname,'"',back=.true.)
+             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                chemname=chemname(np1+1:np2-1)
+             end if
           end if
        end if
 
@@ -1236,10 +1242,16 @@
        else
           np1=index(spgr_ha,"'")
           np2=index(spgr_ha,"'",back=.true.)
-          if (np1 == 0 .or. np2 == 0 .or. np2 <= np1 ) then
-             spgr_ha=" "
-          else
+          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
              spgr_ha=spgr_ha(np1+1:np2-1)
+          else
+             np1=index(spgr_ha,'"')
+             np2=index(spgr_ha,'"',back=.true.)
+             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                spgr_ha=spgr_ha(np1+1:np2-1)
+             else
+                spgr_ha=" "
+             end if
           end if
        end if
 
@@ -1256,7 +1268,7 @@
     !!----
     !!----    Obtaining the Herman-Mauguin symbol of Space Group
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: March - 2010
     !!
     Subroutine Read_Cif_Hm(Filevar,Nline_Ini,Nline_End,Spgr_Hm)
        !---- Arguments ----!
@@ -1279,10 +1291,16 @@
        else
           np1=index(spgr_hm,"'")
           np2=index(spgr_hm,"'",back=.true.)
-          if (np1 == 0 .or. np2 == 0 .or. np2 <= np1 ) then
-             spgr_hm=" "
-          else
+          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
              spgr_hm=spgr_hm(np1+1:np2-1)
+          else
+             np1=index(spgr_hm,'"')
+             np2=index(spgr_hm,'"',back=.true.)
+             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                spgr_hm=spgr_hm(np1+1:np2-1)
+             else
+                spgr_hm=" "
+             end if
           end if
        end if
 
@@ -1392,8 +1410,17 @@
           if (string(1:1) /="#" .and. string(1:1) /= "?") then      ! Comentario
              np1=index(string,"'")
              np2=index(string,"'",back=.true.)
-             n_oper=n_oper+1
-             oper_symm(n_oper)=string(np1+1:np2-1)
+             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                n_oper=n_oper+1
+                oper_symm(n_oper)=string(np1+1:np2-1)
+             else
+                np1=index(string,'"')
+                np2=index(string,'"',back=.true.)
+                if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                   n_oper=n_oper+1
+                   oper_symm(n_oper)=string(np1+1:np2-1)
+                end if
+             end if
           end if
        end if
 
@@ -1403,8 +1430,17 @@
              if (string(1:1) /="#" .and. string(1:1) /= "?") then      ! Comentario o Vacio
                 np1=index(string,"'")
                 np2=index(string,"'",back=.true.)
-                n_oper=n_oper+1
-                oper_symm(n_oper)=string(np1+1:np2-1)
+                if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                   n_oper=n_oper+1
+                   oper_symm(n_oper)=string(np1+1:np2-1)
+                else
+                   np1=index(string,'"')
+                   np2=index(string,'"',back=.true.)
+                   if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                      n_oper=n_oper+1
+                      oper_symm(n_oper)=string(np1+1:np2-1)
+                   end if
+                end if
              end if
           else
              nline_ini=i+1
@@ -1449,8 +1485,14 @@
           if (np <= 3) title=adjustl(filevar(nline_ini+2))
           np1=index(title,"'")
           np2=index(title,"'",back=.true.)
-          if (np1 /= 0 .and. np2 /= 0) then
+          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
              title=title(np1+1:np2-1)
+          else
+             np1=index(title,'"')
+             np2=index(title,'"',back=.true.)
+             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+                title=title(np1+1:np2-1)
+             end if
           end if
        end if
 
