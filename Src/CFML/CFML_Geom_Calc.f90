@@ -1506,6 +1506,8 @@
 
                   write(unit=lun_cons,fmt="(3(a4,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &
                   A%atom(i)%lab ,nam1 ,nam2 ,itnum1,itnum2,tr1(:),tr2(:),ang2,sang2
+                  write(unit=lun_cons,fmt="(3(a4,tr1),i3,i4,tr1,3f8.4,tr1,3f8.4,2f7.2)") &  !Another angle of the same triangle
+                  A%atom(i)%lab ,nam2 ,nam1 ,itnum2,itnum1,tr2(:),tr1(:),ang1,sang1
 
                   if(num_angc == 0) then
                     num_angc=1
@@ -1517,6 +1519,17 @@
                     call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
                     angl_text(1)=line(1:132)
+                    
+                    !Repeating with another angle of the same triangle
+                    num_angc=num_angc+1
+                    line=" "
+                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
+                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    line=trim(line)//trim(codesym)//" "//trim(nam1)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    line=trim(line)//trim(codesym)
+                    angl_text(num_angc)=line(1:132)
 
                   else
 
@@ -1527,6 +1540,7 @@
                     line=trim(line)//trim(codesym)//" "//trim(nam2)
                     call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
+                    
                     esta=.false.
                     jl=index(line,"_")
                     if(jl == 0) jl=len_trim(line)
@@ -1541,6 +1555,32 @@
                       if(num_angc > NCONST) num_angc=NCONST
                       angl_text(num_angc)=line(1:132)
                     end if
+                    
+                    !Repeating with another angle of the same triangle
+                    line=" "
+                    write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
+                                                       "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    line=trim(line)//trim(codesym)//" "//trim(nam1)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    line=trim(line)//trim(codesym)
+                    
+                    esta=.false.
+                    jl=index(line,"_")
+                    if(jl == 0) jl=len_trim(line)
+                    do l=num_angc,1,-1
+                     if( line(1:jl) == angl_text(l)(1:jl)) then
+                         esta=.true.
+                         exit
+                     end if
+                    end do
+                    if(.not. esta) then
+                      num_angc=num_angc+1
+                      if(num_angc > NCONST) num_angc=NCONST
+                      angl_text(num_angc)=line(1:132)
+                    end if
+                    
+                    
                   end if
 
                 end if !present
