@@ -58,6 +58,7 @@
 !!--++       READN_SET_XTAL_CFL             [Private]
 !!--++       READN_SET_XTAL_CFL_MOLEC       [Private]
 !!--++       READN_SET_XTAL_CIF             [Private]
+!!--++       READN_SET_XTAL_PCR             [Private]
 !!--++       READN_SET_XTAL_SHX             [Private]
 !!----       READN_SET_XTAL_STRUCTURE
 !!--++       READN_SET_XTAL_STRUCTURE_MOLCR [Overloaded]
@@ -105,8 +106,9 @@
 
     !---- List of private subroutines ----!
     private:: Read_File_Cellc, Read_File_Cellt, Read_File_Atomlist,Read_File_Pointlist,             &
-              Readn_Set_Xtal_CFL, Readn_Set_Xtal_CIF, Readn_Set_Xtal_SHX, Readn_Set_Xtal_CFL_Molec, &
-              Readn_Set_Xtal_Structure_Split, Readn_Set_Xtal_Structure_Molcr
+              Readn_Set_Xtal_CFL, Readn_Set_Xtal_CIF, Readn_Set_Xtal_PCR,Readn_Set_Xtal_SHX,        &
+              Readn_Set_Xtal_CFL_Molec, Readn_Set_Xtal_Structure_Split,                             &
+              Readn_Set_Xtal_Structure_Molcr
 
     !---- Definitions ----!
 
@@ -2804,6 +2806,184 @@
     End Subroutine Readn_Set_XTal_CIF
 
     !!--++
+    !!--++ Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, NPhase)
+    !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
+    !!--++    integer,                      intent(in)   :: nlines
+    !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
+    !!--++    Type (Space_Group_Type),      intent(out)  :: SpG
+    !!--++    Type (atom_list_type),        intent(out)  :: A
+    !!--++    Integer,             optional,intent( in)  :: Nphase
+    !!--++
+    !!--++ (Private)
+    !!--++ Read and Set Crystal Information in a PCR File
+    !!--++
+    !!--++ Update: 17/05/2010
+    !!
+    Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, NPhase)
+       !---- Arguments ----!
+       character(len=*),dimension(:),intent(in)   :: file_dat
+       integer,                      intent(in)   :: nlines
+       Type (Crystal_Cell_Type),     intent(out)  :: Cell
+       Type (Space_Group_Type),      intent(out)  :: SpG
+       Type (atom_list_type),        intent(out)  :: A
+       Integer,             optional,intent( in)  :: Nphase
+
+       !---- Local Variables ----!
+       logical                           :: is_codewords
+       character(len=132)                :: line
+       character(len= 20)                :: Spp, label
+       integer                           :: i,j, iv, nauas, ndata, iph, n_ini,n_end, nlong1
+       integer, parameter                :: maxph=21  !Maximum number of phases "maxph-1"
+       integer, dimension(maxph)         :: ip
+       integer, dimension(10)            :: ivet
+
+       real(kind=cp),dimension(10)       :: vet,vet2
+
+       ip=nlines
+       ip(1)=1
+
+       !---- First determine if there is more than one structure ----!
+       iph=0
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (index(line,'PHASE number:') /= 0) then
+             iph=iph+1
+             if (iph > maxph-1) then
+                err_form=.true.
+                ERR_Form_Mess=" => Too many phases in this file "
+                return
+             end if
+             ip(iph)=i !Pointer to the number of the line starting a single phase
+          end if
+       end do
+       if (iph == 0) then
+          err_form=.true.
+          ERR_Form_Mess=" => No Phase information was found! "
+          return
+       end if
+
+       ! Select the Phase
+       iph=1
+       if (present(nphase)) iph=nphase
+       n_ini=ip(iph)
+       n_end=ip(iph+1)
+
+       !---- Read Cell Parameters ----!
+       do i=n_ini,n_end
+          if (index(file_dat(i),'alpha') /=0 .and. index(file_dat(i),'gamma') /=0) then
+             do j=i+1,n_end
+                line=adjustl(file_dat(j))
+                if (line(1:1) == '!' .or. line(1:1) == ' ') cycle
+                iv=index(line,'#')
+                if (iv > 1) line=line(1:iv-1)
+
+                call getnum(line, vet, ivet,iv)
+                if (iv /= 6) then
+                   err_form=.true.
+                   ERR_Form_Mess=" => Problems reading Cell Parameters on PCR file "
+                   return
+                end if
+                call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell)
+                exit
+             end do
+             exit
+          end if
+       end do
+
+       !---- SpaceGroup Information ----!
+       Spp=' '
+       do i=n_ini,n_end
+          line=adjustl(file_dat(i))
+          if (line(1:1) == '!' .or. line(1:1)==' ') cycle
+          if (index(file_dat(i),'<--Space') /=0) then
+             j=index(file_dat(i),'<--Space')
+             Spp=adjustl(file_dat(i)(1:j-1))
+             if (len_trim(Spp) <= 0) then
+                err_form=.true.
+                ERR_Form_Mess=" => Problems reading Space group on PCR file "
+                return
+             end if
+             call Set_SpaceGroup(Spp,SpG) !Construct the space group
+             exit
+          end if
+       end do
+
+       !---- Read Atoms Information ----!
+       do i=n_ini,n_end
+          line=adjustl(file_dat(i))
+          if (line(1:4) /= '!Nat') cycle
+          do j=i+1,n_end
+             line=adjustl(file_dat(j))
+             if (line(1:1) == '!' .or. line(1:1)==' ') cycle
+             call getnum(line(1:5),vet,ivet,iv)
+             ndata=ivet(1)
+             exit
+          end do
+          exit
+       end do
+
+       if (ndata > 0) then
+          call allocate_atom_list(ndata,A)
+
+          is_codewords=.false.
+          nauas=0
+
+          do i=n_ini,n_end
+             line=adjustl(file_dat(i))
+             if (index(line,'!Atom') == 0 .or. index(line,'Typ') == 0) cycle
+
+             do j=i+1,n_end
+                line=adjustl(file_dat(j))
+                if (line(1:1) == '!' .or. line(1:1)==' ') cycle
+                if (is_codewords) then
+                   is_codewords=.false.
+                   cycle
+                end if
+
+                iv=index(line,'#')
+                if (iv > 1) line=line(1:iv-1)
+
+                call Idebug(line)
+
+                nauas=nauas+1
+                ! Atom Label
+                call cutst(line,nlong1,label)
+                A%atom(nauas)%lab=trim(label)
+
+                ! Atom Type
+                call cutst(line,nlong1,label)
+                A%Atom(nauas)%chemsymb=trim(label)
+
+                ! Atom Coordinates,Biso and Occ
+                call getnum(line,vet,ivet,iv)
+                if (iv < 5) then
+                   err_form=.true.
+                   ERR_Form_Mess=" => Problems reading Atoms on PCR file "
+                   return
+                end if
+
+                A%atom(nauas)%x=vet(1:3)
+                A%atom(nauas)%Mult=Get_Multip_Pos(vet(1:3),SpG)
+                A%atom(nauas)%biso=vet(4)
+                A%atom(nauas)%occ=vet(5)
+                A%atom(nauas)%thtype='isotr'
+                A%atom(nauas)%Utype="beta"
+                if (ivet(8) == 2) then    ! Anisotropico
+                   A%atom(nauas)%thtype='aniso'
+                   call getnum(file_dat(j+2),vet,ivet,iv)
+                   A%atom(nauas)%u(1:6)=vet(1:6)
+                end if
+                is_codewords=.true.
+                if (nauas == ndata) exit
+             end do
+             exit
+          end do
+       end if
+
+       return
+    End Subroutine Readn_Set_XTal_PCR
+
+    !!--++
     !!--++ Subroutine Readn_Set_XTal_SHX(file_dat,nlines,Cell,SpG,A)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
     !!--++    integer,                      intent(in)   :: nlines
@@ -3099,6 +3279,13 @@
                  call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,IPhase)
               else
                  call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
+              end if
+
+           case ("pcr")
+              if (present(iphase)) then
+                 call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,IPhase)
+              else
+                 call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
               end if
 
            case("shx")
