@@ -50,7 +50,7 @@
     Use CFML_GlobalDeps,                 only: Sp,Cp
     Use CFML_Math_General,               only: Sort_Strings
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
-    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius
+    Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type
     use CFML_Atom_TypeDef,               only: Atom_type, Init_Atom_type, Write_Atom_List, Atom_list_Type, Allocate_Atom_List, &
@@ -589,7 +589,7 @@
     !!----
     !!---- Update: December - 2007
     !!
-    Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
+      Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
        !---- Arguments ----!
        type (Atoms_Conf_List_type), intent(in) :: A
        type (Space_Group_Type),     intent(in) :: SpG
@@ -602,7 +602,7 @@
        real(kind=cp),               intent(in) :: drmax
 
        !---- Local variables ----!
-       character(len=4)                            :: car,atm
+       character(len=4)                            :: car,atm,chem
        integer                                     :: i,j,k,n,n1,n2
        integer                                     :: nx1,nx2,ny1,ny2,nz1,nz2
        integer                                     :: i1,j1,k1
@@ -612,7 +612,7 @@
        real(kind=cp), dimension(3)                 :: pto,pta
        real(kind=cp),dimension(:,:,:), allocatable :: map_bvs
 
-       type (Atom_list_Type)              :: At1,At2
+       type (Atom_list_Type)                       :: At1, At2
 
        !---- Initial conditions ----!
        if (A%natoms <= 0) return
@@ -621,6 +621,12 @@
        !---- Preparing the Variables and calculations ----!
        call Allocate_Atom_List(A%natoms,At1)
        At1%atom=A%atom
+
+       atm=u_case(atname)
+       do i=1,At1%natoms
+          if (trim(u_case(At1%atom(i)%lab)) == trim(atm) /= 0) At1%atom(i)%active=.false.
+       end do
+
        call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
        call Deallocate_atom_list(At1)
 
@@ -628,10 +634,11 @@
        map_bvs=0.0
 
        n1=0
-       atm=u_case(atname)
+       call Get_Chemsymb(atm,chem)
+       chem=u_case(chem)
        do i=1,A%n_spec
           car=A%Species(i)
-          if (index(car,atm) /= 0) then
+          if (index(car,trim(chem)) /= 0) then
              n1=i
              exit
           end if
@@ -641,6 +648,7 @@
           ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
           return
        end if
+
 
        !---- Map Calculation ----!
        do k=1,ndimz
