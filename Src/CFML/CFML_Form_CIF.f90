@@ -2943,8 +2943,6 @@
                 iv=index(line,'#')
                 if (iv > 1) line=line(1:iv-1)
 
-                call Idebug(line)
-
                 nauas=nauas+1
                 ! Atom Label
                 call cutst(line,nlong1,label)
