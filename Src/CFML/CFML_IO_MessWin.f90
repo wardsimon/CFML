@@ -106,18 +106,27 @@
     !!
     Subroutine Error_Message(line, iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*), intent(in)                :: line
-       integer, optional,intent(in)                :: iunit
-       Character ( Len = * ), Intent(In), Optional :: Routine
-       Logical,               Intent(In), Optional :: Fatal
+       character(len=*),            intent(in) :: line
+       integer, optional,           intent(in) :: iunit
+       Character(Len =*), Optional, Intent(In) :: Routine
+       Logical, Optional,           Intent(In) :: Fatal
 
        call WMessageBox(OKOnly, ExclamationIcon, CommonOK, line,"Error Message")
 
        if (present(iunit)) then
-          write(unit=iunit,fmt="(1x,a)") "****"
-          write(unit=iunit,fmt="(1x,a)") "**** ERROR: "//line
-          write(unit=iunit,fmt="(1x,a)") "****"
-          write(unit=iunit,fmt="(1x,a)") " "
+          write(unit=iunit,fmt="(tr1,a)") "****"
+          write(unit=iunit,fmt="(tr1,a)") "**** ERROR: "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") "****"
+          write(unit=iunit,fmt="(tr1,a)") " "
+          If (Present(Routine)) Then             
+            Write(Unit = iunit, Fmt = "(tr1,a)") "**** Subroutine: "//trim(Routine)
+          End If
+          If (Present(Fatal)) Then
+           If (Fatal) Then
+               Write(Unit = iunit, Fmt = "(/tr1,a)") "**** The Program Will Stop Here."
+               Stop
+           End If
+          End If
        end if
 
        return
@@ -140,9 +149,9 @@
        call WMessageBox(OKOnly, InformationIcon, CommonOK, line,"Information Message")
 
        if (present(iunit) ) then
-          write(unit=iunit,fmt="(1x,a)") " "
-          write(unit=iunit,fmt="(1x,a)") " "//line
-          write(unit=iunit,fmt="(1x,a)") " "
+          write(unit=iunit,fmt="(tr1,a)") " "
+          write(unit=iunit,fmt="(tr1,a)") " "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") " "
        end if
 
        return
@@ -211,9 +220,9 @@
        call WMessageBox(OKOnly,ExclamationIcon,CommonOK, line,"Warning Message")
 
        if (present(iunit) ) then
-          write(unit=iunit,fmt="(1x,a)") "****"
-          write(unit=iunit,fmt="(1x,a)") "**** WARNING: "//line
-          write(unit=iunit,fmt="(1x,a)") "****"
+          write(unit=iunit,fmt="(tr1,a)") "****"
+          write(unit=iunit,fmt="(tr1,a)") "**** WARNING: "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") "****"
        end if
 
        return
