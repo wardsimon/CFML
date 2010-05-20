@@ -2837,7 +2837,7 @@
        integer, dimension(maxph)         :: ip
        integer, dimension(10)            :: ivet
 
-       real(kind=cp),dimension(10)       :: vet,vet2
+       real(kind=cp),dimension(10)       :: vet 
 
        ip=nlines
        ip(1)=1
