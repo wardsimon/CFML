@@ -2837,7 +2837,7 @@
        integer, dimension(maxph)         :: ip
        integer, dimension(10)            :: ivet
 
-       real(kind=cp),dimension(10)       :: vet 
+       real(kind=cp),dimension(10)       :: vet
 
        ip=nlines
        ip(1)=1
@@ -3159,6 +3159,13 @@
                  call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,IPhase)
               else
                  call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+              end if
+
+           case("pcr")
+              if (present(iphase)) then
+                 call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,IPhase)
+              else
+                 call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
               end if
 
            case("shx")
