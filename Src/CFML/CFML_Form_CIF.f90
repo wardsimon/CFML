@@ -2659,6 +2659,7 @@
                    call Set_euler_matrix(molcrys%mol(n)%rot_type, phi,theta,chi,EuM)
                    molcrys%mol(n)%Euler=EuM
                    molcrys%mol(n)%is_EulerMat=.true.
+                   molcrys%mol(n)%in_Xtal=.true.
                 end if
                 n_ini=n_ini+1
                 exit
