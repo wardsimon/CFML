@@ -4262,8 +4262,8 @@
        character(len=*), dimension(:), intent(out)  :: filevar
 
        !---- Local Variables ----!
-       integer           :: iunit,ierr
-       character(len=80) :: line
+       integer            :: iunit,ierr
+       character(len=132) :: line
 
        ! Init
        nlines=0
@@ -4287,7 +4287,7 @@
           read(unit=iunit,fmt='(a)', iostat=ierr) line
           if (ierr /=0) exit
           nlines=nlines+1
-          filevar(nlines)=line
+          filevar(nlines)=trim(line)
        end do
        close(unit=iunit, status='delete')
 
