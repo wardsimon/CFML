@@ -870,7 +870,7 @@
                    ok=.false.
              End Select
 
-          Case (3)    !Orthorhombic/Rhombohedral
+          Case (3)    !Orthorhombic/Trigonal
              u(1:3)=twofold%maxes(1:3)
              ix=minloc(u)
              namina=ix(1)
@@ -897,7 +897,7 @@
              mv(3)=twofold%maxes(naminc)
 
              !Check the system by verifying that the two-fold axes form 90 (orthorhombic)
-             !or 120 degrees (Rhombohedral)
+             !or 120 degrees (Trigonal)
              domina=dot_product(v2/mv(2),v3/mv(3))
              dominb=dot_product(v1/mv(1),v3/mv(3))
              dominc=dot_product(v1/mv(1),v2/mv(2))
@@ -938,7 +938,7 @@
 
              else !Rhombohedral/Trigonal
 
-                !In the Rhombohedral system the two-fold axes are in the plane perpendicular to
+                !In the Trigonal system the two-fold axes are in the plane perpendicular to
                 !the three-fold axis, and valid a,b, vectors can be chosen among any two two-fold
                 !axes forming an angle of 120 degrees
                 !verify that 1 and 2 form 120

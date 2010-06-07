@@ -1048,7 +1048,7 @@
        end do
 
        !         "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
-       !  "Rhombohedral","Hexagonal   ","Cubic       " /)
+       !  "Trigonal","Hexagonal   ","Cubic       " /)
        n=1
        gn=SG%SpG%CrystalSys(1:4)
        do i=2,m  !over all symmetry operators of Space Group

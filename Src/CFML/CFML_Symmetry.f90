@@ -7763,7 +7763,7 @@
           Case("Tetragonal")
              rmin=0.25
              rmax=0.75
-          Case("Rhombohedral","Hexagonal")
+          Case("Rhombohedral","Hexagonal","Trigonal")
              rmin=1.0/6.0
              rmax=5.0/6.0
           Case("Cubic")
@@ -7845,7 +7845,7 @@
                 if (index(string(1:j),"y") /= 0 .or. index(string(1:j),"z") /= 0) pt(i)=0
                 if (index(string(j:k),"x") /= 0 .or. index(string(1:j),"z") /= 0) pt(i)=0
                 if (index(string(k: ),"x") /= 0 .or. index(string(1:j),"y") /= 0) pt(i)=0
-             Case(4,5,6)  ! "Tetragonal","Rhombohedral","Hexagonal"
+             Case(4,5,6)  ! "Tetragonal","Rhombohedral","Hexagonal","Trigonal"
                 if (index(string(1:k),"z") /= 0 ) pt(i)=0
                 if (index(string(k: ),"x") /= 0 .or. index(string(k: ),"y") /= 0) pt(i)=0
           end select

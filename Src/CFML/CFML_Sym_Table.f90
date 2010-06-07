@@ -500,7 +500,7 @@
     !!
     character(len=* ), dimension(7) , parameter, public:: sys_cry =(/  &
        "Triclinic   ","Monoclinic  ","Orthorhombic","Tetragonal  ",    &
-       "Rhombohedral","Hexagonal   ","Cubic       " /)
+       "Trigonal    ","Hexagonal   ","Cubic       " /)
 
     !!----
     !!---- TYPE :: TABLE_EQUIV_TYPE
@@ -1552,7 +1552,7 @@
             spgr_info_type(142,"I 41/A C D:1","I 4bw 2aw -1bw  ", 5,18, (/ 0, 0, 0, 12, 12,  3/),"1    ") , &
             spgr_info_type(142,"I 41/A C D  ","-I 4bd 2c       ", 5,18, (/ 0,-6, 0, 12,  6,  3/),"2    ") /)
 
-       !---- Rhombohedral ----!
+       !---- Trigonal/Rhombohedral ----!
        spgr_info(495:526)= (/                                           &
             spgr_info_type(143,"P 3         ","P 3             ", 8,19, (/ 0, 0, 0, 16, 16, 24/),"     ") , &
             spgr_info_type(144,"P 31        ","P 31            ", 8,19, (/ 0, 0, 0, 24, 24,  8/),"     ") , &
@@ -1699,20 +1699,20 @@
     !!--..   (Kov,1986) Bradley anb Cracknell (BC, 1972) and Zak (Zak, 1969) settings.
     !!--..
     !!--..   In the international setting the basis vectors are always those of the
-    !!--..   conventional unit cell. In rhombohedral system the primitive basis
+    !!--..   conventional unit cell. In the Trigonal system the primitive basis
     !!--..   vectors are in an obverse relationship given by (2/3 1/3 1/3),
     !!--..   (-1/3 1/3 1/3) and (-1/3, -2/3 1/3).
-    !!--..   In ML the same basis vectors are chosen except that for rhombohedral
+    !!--..   In ML the same basis vectors are chosen except that for trigonal/rhombohedral
     !!--..   system the reverse setting is adopted, so the primitive basis vectors
     !!--..   are: t1=(1/3 -1/3 1/3), t2=(1/3, 2/3 1/3) and t3=(2/3 1/3 1/3)
     !!--..   In Kovalev the a,b,c axes of the coordinate system are along the
-    !!--..   conventional basis vectors of the lattice, however in the rhombohedral
+    !!--..   conventional basis vectors of the lattice, however in the trigonal
     !!--..   system an hexagonal system is chosen so that the primitive basis vectors
     !!--..   are a1=(-1 -1 1/3), a2=(1 0 1/3) and a3=(0 1 1/3).
     !!--..   In the setting of BC the axes a,b,c of the coordinate system are chosen
     !!--..   to be the primitive basis vectors t1,t2,t3 as defined in their book.
     !!--..   The setting of Zak the basis vectors are as in the international setting,
-    !!--..   but for rhombohedral system the primitive basis vectors w.r.t. the selected
+    !!--..   but for trigonal/rhombohedral system the primitive basis vectors w.r.t. the selected
     !!--..   hexagonal coordinate system are given by: (1/3 2/3 1) (1/3 -1/3 1)
     !!--..   (-2/3 -1/3 1)
     !!--..
