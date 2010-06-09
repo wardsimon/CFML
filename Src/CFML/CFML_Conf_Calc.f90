@@ -624,7 +624,7 @@
 
        atm=u_case(atname)
        do i=1,At1%natoms
-          if (trim(u_case(At1%atom(i)%lab)) == trim(atm) /= 0) At1%atom(i)%active=.false.
+          if (trim(u_case(At1%atom(i)%lab)) == trim(atm)) At1%atom(i)%active=.false.
        end do
 
        call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
