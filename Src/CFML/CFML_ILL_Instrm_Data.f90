@@ -3745,14 +3745,20 @@ Module CFML_ILL_Instrm_Data
           write(unit=ipr,fmt="(a,i3)") "DET_TYPE "//trim(Current_Instrm%detector_type)//" ipsd ", &
                                         Current_Instrm%ipsd
           write(unit=ipr,fmt="(a,f8.3)") "DIST_DET ",Current_Instrm%dist_samp_detector
+          if(index(Current_Instrm%geom,"Laue") /= 0) then
+            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MIN: ", Current_Instrm%wave_min 
+            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MAX: ", Current_Instrm%wave_max 
+          end if
           write(unit=ipr,fmt="(a,2f8.3,2i5)") "DIM_XY ", Current_Instrm%horiz,    Current_Instrm%vert, &
                                                     Current_Instrm%np_horiz, Current_Instrm%np_vert
           write(unit=ipr,fmt="(a,2f8.4)") "GAPS_DET ",Current_Instrm%agap, Current_Instrm%cgap
           write(unit=ipr,fmt="(a,f8.5)") "WAVE ",Current_Orient%wave
-          write(unit=ipr,fmt="(a)") "UBMAT"
-          do i=1,3
-             write(unit=ipr,fmt="(3f12.7)") Current_Orient%ub(i,:)
-          end do
+          if(index(Current_Instrm%geom,"Laue") == 0) then
+            write(unit=ipr,fmt="(a)") "UBMAT"
+            do i=1,3
+               write(unit=ipr,fmt="(3f12.7)") Current_Orient%ub(i,:)
+            end do
+          End If
           write(unit=ipr,fmt="(a,9f6.1)") "SETTING ",Current_Instrm%e1, Current_Instrm%e2, Current_Instrm%e3
 
           write(unit=ipr,fmt="(a,i4)") "NUM_ANG  ",Current_Instrm%num_ang
@@ -3767,8 +3773,8 @@ Module CFML_ILL_Instrm_Data
              write(unit=ipr,fmt="(a)")    "DISP_LIMITS"
              do i=1,Current_Instrm%num_disp
                 write(unit=ipr,fmt="(a,2f8.2,f10.4)") "      "//Current_Instrm%disp_names(i), &
-                                                               Current_Instrm%disp_Limits(i,1:2), &
-                                                               Current_Instrm%disp_offsets(i)
+                                                                Current_Instrm%disp_Limits(i,1:2), &
+                                                                Current_Instrm%disp_offsets(i)
              end do
           end if
           write(unit=ipr,fmt="(a,3f10.4)") "DET_OFF ", Current_Instrm%det_offsets
