@@ -634,7 +634,10 @@
     !!----    (inverse) of the M-matrix, when applied to a point in {i,j,k}, gives the coordinates
     !!----    of the same point referred to the frame {u,v,w}. This transpose matrix corresponds
     !!----    to a passive (change or Cartesian frame) rotation leaving the points in the same
-    !!----    position with respect to the  {i,j,k} frame.
+    !!----    position with respect to the  {i,j,k} frame. 
+    !!----    The matrix M when applied to a column vector containing the coordinates of a point
+    !!----    with respect to the {u,v,w} frame provides the coordinates of the same point with
+    !!----    respect to the {i,j,k} frame.
     !!----    If Code =="R" or Blank or not present then the input angles are given in radians.
     !!----    If Code =="D" then the input angles are given in degrees (Phi, Theta, Chi).
     !!----
