@@ -1693,7 +1693,7 @@ Module CFML_ILL_Instrm_Data
                                                        Current_Instrm%np_horiz, Current_Instrm%np_vert
                 if(ier /= 0) then
                   ERR_ILLData=.true.
-                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the distance sample-detector"
+                  ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the dimensions of the detector"
                   return
                 end if
                 npx = Current_Instrm%np_horiz
