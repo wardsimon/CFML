@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>LSQ_STATE_VECTOR_TYPE</title>
+<html><head><title>LSQ_State_Vector_Type</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -76,21 +76,23 @@ span.rvts11
 }
 span.rvts12
 {
- color: #0000ff;
-}
-span.rvts13
-{
- color: #ff0000;
-}
-span.rvts14
-{
- color: #ff6600;
-}
-span.rvts15
-{
  font-size: 12pt;
  font-style: italic;
  font-weight: bold;
+}
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts15
+{
+ font-weight: bold;
+ color: #ff6600;
 }
 span.rvts16 /* Font Style */
 {
@@ -135,80 +137,80 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts16>LSQ_STATE_VECTOR_TYPE</span></p>
+<p class=rvps2><span class=rvts16>CFML_LSQ TypeDef: Variables</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=311><p><span class=rvts11><br></span></p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=134><p><span class=rvts15>Variable</span></p>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts12>Variable</span></p>
 </td>
-<td width=276><p><span class=rvts15>Definition</span></p>
-<p><span class=rvts15><br></span></p>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts12>Definition</span></p>
+<p><span class=rvts12><br></span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts11>TYPE</span><span class=rvts10> :: LSQ_STATE_VECTOR_TYPE</span></p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts11>Type</span><span class=rvts10> :: LSQ_State_Vector_Type</span></p>
 </td>
-<td width=134><br>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><br>
 </td>
-<td width=276><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; INTEGER</span></p>
-</td>
-<td width=134><p>NP</p>
-</td>
-<td width=276><p>Total number of model parameters &lt;= Max_Free_Par</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; REAL</span>(<span class=rvts12>KIND</span>=CP), <span class=rvts12>DIMENSION</span>(MAX_FREE_PAR)</p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=134><p>PV</p>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>NP</p>
 </td>
-<td width=276><p>Vector of parameters</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; REAL</span>(<span class=rvts12>KIND</span>=CP), <span class=rvts12>DIMENSION</span>(MAX_FREE_PAR)</p>
-</td>
-<td width=134><p>SPV</p>
-</td>
-<td width=276><p>Vector of standard deviations</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Total number of model parameters &lt;= Max_Free_Par</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; REAL</span>(<span class=rvts12>KIND</span>=CP), <span class=rvts12>DIMENSION</span>(MAX_FREE_PAR)</p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP), </span><span class=rvts1>Dimension</span><span class=rvts13>(Max_Free_Par)</span></p>
 </td>
-<td width=134><p>DPV</p>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>PV</p>
 </td>
-<td width=276><p>Vector of derivatives at a particular point</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; INTEGER, DIMENSION</span>(MAX_FREE_PAR)</p>
-</td>
-<td width=134><p>CODE</p>
-</td>
-<td width=276><p>Pointer for selecting variable parameters</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Vector of parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span>=<span class=rvts13>15</span>), <span class=rvts12>DIMENSION</span>(MAX_FREE_PAR)</p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP), </span><span class=rvts1>Dimension</span><span class=rvts13>(Max_Free_Par)</span></p>
 </td>
-<td width=134><p>NAMPAR</p>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>SPV</p>
 </td>
-<td width=276><p>Names of parameters</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Vector of standard deviations</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts11>END TYPE</span><span class=rvts10> LSQ_STATE_VECTOR_TYPE</span></p>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP), </span><span class=rvts1>Dimension</span><span class=rvts13>(Max_Free_Par)</span></p>
 </td>
-<td width=134><br>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>DPV</p>
 </td>
-<td width=276><br>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Vector of derivatives at a particular point</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer</span><span class=rvts13>, </span><span class=rvts1>Dimension</span><span class=rvts13>(Max_Free_Par)</span></p>
+</td>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Code</p>
+</td>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Pointer for selecting variable parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Character</span><span class=rvts13> (</span><span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>15</span><span class=rvts13>), </span><span class=rvts1>Dimension</span><span class=rvts13>(Max_Free_Par)</span></p>
+</td>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>NamPar</p>
+</td>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Names of parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=326 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p><span class=rvts11>End Type</span><span class=rvts10> LSQ_State_Vector_Type</span></p>
+</td>
+<td width=77 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><br>
+</td>
+<td width=294 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
