@@ -94,8 +94,8 @@
     End Subroutine Close_Scroll_Window
 
     !!----
-    !!---- Subroutine Error_Message(Line, Iunit, Routine, Fatal)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Error information
+    !!---- Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
+    !!----    character(len=*), intent(in)           :: Mess    !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
     !!----    character(len=*), intent(in), optional :: routine !  Added for consistency with the CFML_IO_Mess.f90 version.
     !!----    logical,          intent(in), optional :: fatal   !  Added for consistency with the CFML_IO_Mess.f90 version.
@@ -104,21 +104,21 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Error_Message(line, iunit, Routine, Fatal)
+    Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*),            intent(in) :: line
+       character(len=*),            intent(in) :: Mess
        integer, optional,           intent(in) :: iunit
        Character(Len =*), Optional, Intent(In) :: Routine
        Logical, Optional,           Intent(In) :: Fatal
 
-       call WMessageBox(OKOnly, ExclamationIcon, CommonOK, line,"Error Message")
+       call WMessageBox(OKOnly, ExclamationIcon, CommonOK, Mess,"Error Message")
 
        if (present(iunit)) then
           write(unit=iunit,fmt="(tr1,a)") "****"
-          write(unit=iunit,fmt="(tr1,a)") "**** ERROR: "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") "**** ERROR: "//trim(Mess)
           write(unit=iunit,fmt="(tr1,a)") "****"
           write(unit=iunit,fmt="(tr1,a)") " "
-          If (Present(Routine)) Then             
+          If (Present(Routine)) Then
             Write(Unit = iunit, Fmt = "(tr1,a)") "**** Subroutine: "//trim(Routine)
           End If
           If (Present(Fatal)) Then
@@ -133,24 +133,24 @@
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(Line, Iunit)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Info information
+    !!---- Subroutine Info_Message(Mess, Iunit)
+    !!----    character(len=*), intent(in)           :: Mess    !  In -> Info information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Info_Message(line, iunit)
+    Subroutine Info_Message(Mess, iunit)
        !---- Arguments ----!
-       character(len=*), intent(in)           :: line
+       character(len=*), intent(in)           :: Mess
        integer,          intent(in), optional :: iunit
 
-       call WMessageBox(OKOnly, InformationIcon, CommonOK, line,"Information Message")
+       call WMessageBox(OKOnly, InformationIcon, CommonOK, Mess,"Information Message")
 
        if (present(iunit) ) then
           write(unit=iunit,fmt="(tr1,a)") " "
-          write(unit=iunit,fmt="(tr1,a)") " "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") " "//trim(Mess)
           write(unit=iunit,fmt="(tr1,a)") " "
        end if
 
@@ -158,70 +158,70 @@
     End Subroutine Info_Message
 
     !!----
-    !!---- SUBROUTINE Question_Message(line,titl)
-    !!----    character(len=*)  :: line
+    !!---- Subroutine Question_Message(Mess,Title
+    !!----    character(len=*)  :: Mess
     !!----
     !!----    Print an question on the screen
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Question_Message(line,titl)
+    Subroutine Question_Message(Mess,Title)
        !---- Argument ----!
-       character (len=*),           intent(in) :: line
-       character (len=*), optional, intent(in) :: Titl
+       character (len=*),           intent(in) :: Mess
+       character (len=*), optional, intent(in) :: Title
 
        !---- Variable ----!
        character(len=80) :: ch_title
 
        ch_title=' '
-       if (present(titl)) ch_title=titl
-       call WMessageBox(YesNo,QuestionIcon,CommonYes,line,ch_title)
+       if (present(title)) ch_title=title
+       call WMessageBox(YesNo,QuestionIcon,CommonYes,Mess,ch_title)
 
        return
     End Subroutine Question_Message
 
     !!----
-    !!---- SUBROUTINE Stop_Message(line,Titl)
-    !!----    character(len=*)  :: line
+    !!---- Subroutine Stop_Message(Mess,Title)
+    !!----    character(len=*)  :: Mess
     !!----
     !!----    Print an Stop on the screen
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Stop_Message(line,Titl)
+    Subroutine Stop_Message(Mess,Title)
        !---- Argument ----!
-       character (len=*),           intent(in) :: line
-       character (len=*), optional, intent(in) :: Titl
+       character (len=*),           intent(in) :: Mess
+       character (len=*), optional, intent(in) :: Title
 
        !---- Variable ----!
        character(len=80) :: ch_title
 
        ch_title=' '
-       if (present(titl)) ch_title=titl
-       call WMessageBox(YesNo,StopIcon,CommonYes,line,ch_title)
+       if (present(title)) ch_title=title
+       call WMessageBox(YesNo,StopIcon,CommonYes,Mess,ch_title)
 
        return
     End Subroutine Stop_Message
 
     !!----
-    !!---- SUBROUTINE WARNING_MESSAGE(Line, Iunit)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Info information
+    !!---- SUBROUTINE WARNING_MESSAGE(Mess, Iunit)
+    !!----    character(len=*), intent(in)           :: Mess    !  In -> Info information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Warning_Message(line, iunit)
+    Subroutine Warning_Message(Mess, Iunit)
        !---- Arguments ----!
-       character(len=*), intent(in) :: line
+       character(len=*), intent(in) :: Mess
        integer, optional,intent(in) :: iunit
 
-       call WMessageBox(OKOnly,ExclamationIcon,CommonOK, line,"Warning Message")
+       call WMessageBox(OKOnly,ExclamationIcon,CommonOK, Mess,"Warning Message")
 
        if (present(iunit) ) then
           write(unit=iunit,fmt="(tr1,a)") "****"
-          write(unit=iunit,fmt="(tr1,a)") "**** WARNING: "//trim(line)
+          write(unit=iunit,fmt="(tr1,a)") "**** WARNING: "//trim(Mess)
           write(unit=iunit,fmt="(tr1,a)") "****"
        end if
 
@@ -229,24 +229,25 @@
     End Subroutine Warning_Message
 
     !!----
-    !!---- Subroutine Write_Scroll_Text(Line)
-    !!----    character(len=*), intent(in)           :: Line
+    !!---- Subroutine Write_Scroll_Text(Mess, ICmd)
+    !!----    character(len=*), intent(in)  :: Mess    ! Message to write
+    !!----    integer, optional,intent(in)  :: ICmd    ! Define the type of the Editor opened
     !!----
-    !!----    Print the string in a the scroll window
+    !!----    Print the string in a the window
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_Scroll_Text(Line,icode)
+    Subroutine Write_Scroll_Text(Mess,ICmd)
        !---- Argument ----!
-       character(len=*), intent(in) :: line
-       integer, optional,intent(in) :: icode
+       character(len=*), intent(in) :: Mess
+       integer, optional,intent(in) :: ICmd
 
        !---- Local variables ----!
        character(len=2), parameter :: newline = char(13)//char(10)
        integer                     :: iendbuf, ic
 
        ic=0
-       if (present(icode)) ic=icode
+       if (present(ICmd)) ic=ICmd
        !---- Open the Scroll Window if necessary ----!
        if (.not. wscroll) then
           call WindowOpenChild(win_console,height=nint(WInfoScreen(ScreenHeight)*0.5), &
@@ -264,7 +265,7 @@
 
        call WindowSelect(win_console)
        iendbuf=WInfoEditor(win_console,EditTextLength)+1
-       call WEditPutTextPart(trim(line)//newline,iendbuf)
+       call WEditPutTextPart(trim(Mess)//newline,iendbuf)
        call WindowSelect(0)
 
        return

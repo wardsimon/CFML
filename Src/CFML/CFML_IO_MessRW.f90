@@ -33,7 +33,7 @@
 !!
  Module CFML_IO_Messages
     !---- Use Modules ----!
-    use Realwin, only: message_box, write_scroll_line,SCROLL_TEXT, create_window,select_font
+    use Realwin, only: message_box, Write_Scroll_Line,Scroll_Text, Create_Window,Select_Font
 
     !---- Definitions ----!
     implicit none
@@ -69,24 +69,24 @@
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(Line, Iunit)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Error information
+    !!---- Subroutine Error_Message(Mess, Iunit)
+    !!----    character(len=*), intent(in)           :: Mess    !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
     !!----
     !!----    Print an error message on the screen and in 'Iunit' if present
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Error_Message(line, iunit)
+    Subroutine Error_Message(Mess, Iunit)
        !---- Arguments ----!
-       character(len=*), intent(in)  :: line
+       character(len=*), intent(in)  :: Mess
        integer, optional, intent(in) :: iunit
 
-       messval=message_box(text="Error: "//trim(line),title="Stop/Warning Box")  !rw
+       messval=message_box(text="Error: "//trim(mess),title="Stop/Warning Box")  !rw
 
        if (present(iunit)) then
           write(unit=iunit,fmt="(1x,a)") "***"
-          write(unit=iunit,fmt="(1x,a)") "*** ERROR: "//line
+          write(unit=iunit,fmt="(1x,a)") "*** ERROR: "//mess
           write(unit=iunit,fmt="(1x,a)") "***"
           write(unit=iunit,fmt="(1x,a)") " "
        end if
@@ -95,8 +95,8 @@
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(line, iunit, scroll_window)
-    !!----    character(len=*),  intent(in) :: line           !  In -> Info information
+    !!---- Subroutine Info_Message(Mess, iunit, scroll_window)
+    !!----    character(len=*),  intent(in) :: Mess           !  In -> Info information
     !!----    integer, optional, intent(in) :: iunit          !  In -> Write information on Iunit unit
     !!----    integer, optional, intent(in) :: scroll_window  !  In -> Write information on scroll windows
     !!----
@@ -105,35 +105,35 @@
     !!---- Update: February - 2005
     !!
 
-    Subroutine Info_Message(line, iunit, scroll_window)
-       character(len=*), intent(in)           :: line
+    Subroutine Info_Message(Mess, iunit, scroll_window)
+       character(len=*), intent(in)           :: Mess
        integer,          intent(in), optional :: iunit
        integer,          intent(in), optional :: scroll_window
 
        if(present(scroll_window)) then
-         call write_scroll_line(scroll_window,text=trim(line))
+         call write_scroll_line(scroll_window,text=trim(Mess))
        else
-         messval=message_box(text=trim(line),title="Info Message")  !rw
+         messval=message_box(text=trim(Mess),title="Info Message")  !rw
        end if
        if (present(iunit) ) then
           write(unit=iunit,fmt="(1x,a)") " "
-          write(unit=iunit,fmt="(1x,a)") " "//trim(line)
+          write(unit=iunit,fmt="(1x,a)") " "//trim(Mess)
           write(unit=iunit,fmt="(1x,a)") " "
        end if
        return
     End Subroutine Info_Message
 
     !!----
-    !!---- SUBROUTINE WRITE_SCROLL_TEXT(Line)
-    !!----    character(len=*), intent(in)           :: Line
+    !!---- Subroutine Write_Scroll_Text(Mess)
+    !!----    character(len=*), intent(in)           :: Mess
     !!----
     !!----    Print the string in a the scroll window
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_Scroll_Text(Line)
+    Subroutine Write_Scroll_Text(Mess)
        !---- Argument ----!
-       character(len=*), intent(in) :: line
+       character(len=*), intent(in) :: Mess
 
 
        !---- Open the Scroll Window if necessary ----!
@@ -144,7 +144,7 @@
                             text_font=select_font(typeface='courier',point=8))
          wscroll=.true.
        end if
-       call write_scroll_line(icwindow,text=trim(line))
+       call write_scroll_line(icwindow,text=trim(mess))
 
        return
     End Subroutine Write_Scroll_Text

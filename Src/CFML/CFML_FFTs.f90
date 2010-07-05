@@ -563,10 +563,10 @@ Module CFML_FFT
     End Function Convol_Peaks
 
     !!----
-    !!---- Pure Function F_FFT(Xx,typ) result(fft)
-    !!----    complex, dimension(:),     intent (in) :: XX  !  In -> real array containing real parts of transform
-    !!----    character(len=*),optional, intent (in) :: typ !  In -> type="INV"    : backward transform
-    !!----                                                      Absent or whatever : forward transform
+    !!---- Pure Function F_FFT(Array,Mode) result(fft)
+    !!----    complex, dimension(:),     intent (in) :: Array  !  In -> real array containing real parts of transform
+    !!----    character(len=*),optional, intent (in) :: Mode   !  In -> type="INV"    : backward transform
+    !!----                                                              Absent or whatever : forward transform
     !!----
     !!----    This Function is a slight modification of a complex split
     !!----    radix FFT routine presented by C.S. Burrus. There is no control
@@ -582,21 +582,21 @@ Module CFML_FFT
     !!----
     !!---- Update: February - 2005
     !!
-    Pure Function F_FFT(Xx,typ ) result (fft)
+    Pure Function F_FFT(Array,Mode ) result (fft)
        !---- Arguments ----!
-       complex, dimension(:),      intent(in) :: XX
-       character(len=*), optional, intent(in) :: typ
-       complex, dimension(size(XX))           :: fft
+       complex, dimension(:),      intent(in) :: Array
+       character(len=*), optional, intent(in) :: Mode
+       complex, dimension(size(Array))           :: fft
 
        !---- Local variables ----!
-       integer                            :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
-       real(kind=cp)                      :: r1, r2, s1, s2, s3, xt
-       real(kind=cp)                      :: e, a, a3, cc1, ss1, cc3, ss3
-       real(kind=cp), parameter           :: twopi=6.2831853071795864769
-       real(kind=cp), dimension(size(XX)) :: x
-       real(kind=cp), dimension(size(XX)) :: y
+       integer                               :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
+       real(kind=cp)                         :: r1, r2, s1, s2, s3, xt
+       real(kind=cp)                         :: e, a, a3, cc1, ss1, cc3, ss3
+       real(kind=cp), parameter              :: twopi=6.2831853071795864769
+       real(kind=cp), dimension(size(Array)) :: x
+       real(kind=cp), dimension(size(Array)) :: y
 
-       n=size(xx)
+       n=size(Array)
        m=0
        do i=1,20
           if (2**i /= n) cycle
@@ -605,11 +605,11 @@ Module CFML_FFT
        end do
 
        do i=1,n
-          x(i)=real(xx(i))
-          y(i)=aimag(xx(i))
+          x(i)=real(Array(i))
+          y(i)=aimag(Array(i))
        end do
-       if(present(typ)) then
-        if (typ == "INV") y=-y
+       if(present(Mode)) then
+        if (Mode == "INV") y=-y
        end if
 
        n2 = 2 * n
@@ -696,8 +696,8 @@ Module CFML_FFT
           j = j + k
        end do
 
-       if(present(typ)) then
-        if (typ == "INV") then
+       if(present(Mode)) then
+        if (Mode == "INV") then
           x=x/n
           y=-y/n
         end if
@@ -1726,9 +1726,9 @@ Module CFML_FFT
     !!--..
     !!---- Update: February - 2005
     !!
-    Pure Subroutine Hfft(Aa,Ifset,Iferr)
+    Pure Subroutine Hfft(Array,Ifset,Iferr)
        !---- Arguments ----!
-       complex, dimension(0:,0:,0:), intent(in out) :: aa
+       complex, dimension(0:,0:,0:), intent(in out) :: Array
        integer,                      intent(in    ) :: IfSet
        integer,                      intent(   out) :: IFerr
 
@@ -1746,15 +1746,15 @@ Module CFML_FFT
 
        real(kind=cp)                               :: t,r,theta,root2,awr,awi
        real(kind=cp)                               :: ak0_0,ak0_1,ak1_0,ak1_1,ak2_0,ak2_1,ak3_0,ak3_1
-       real(kind=cp), dimension(2*size(aa))        :: a
+       real(kind=cp), dimension(2*size(Array))     :: a
        real(kind=cp), dimension(2)                 :: w, w2, w3
        real(kind=cp), dimension(:), allocatable    :: s
 
        !---- Init ----!
        iferr = 0
-       ngr(1)=size(aa,1)
-       ngr(2)=size(aa,2)
-       ngr(3)=size(aa,3)
+       ngr(1)=size(Array,1)
+       ngr(2)=size(Array,2)
+       ngr(3)=size(Array,3)
 
        m=0
        do i=3,20
@@ -1777,8 +1777,8 @@ Module CFML_FFT
           do j=0,ngr(2)-1
              do k=0,ngr(3)-1
                 ii=2*(k*ngr(1)*ngr(2) + j*ngr(1) + i) + 1
-                a(ii)=real(aa(i,j,k))
-                a(ii+1)=aimag(aa(i,j,k))
+                a(ii)=real(Array(i,j,k))
+                a(ii+1)=aimag(Array(i,j,k))
              end do
           end do
        end do
@@ -2221,7 +2221,7 @@ Module CFML_FFT
           do j=0,ngr(2)-1
              do k=0,ngr(3)-1
                 ii=2*(k*ngr(1)*ngr(2) + j*ngr(1) + i) + 1
-                aa(i,j,k)=cmplx(a(ii),a(ii+1))
+                Array(i,j,k)=cmplx(a(ii),a(ii+1))
              end do
           end do
        end do
@@ -2230,10 +2230,10 @@ Module CFML_FFT
     End Subroutine HFFT
 
     !!----
-    !!---- Pure Subroutine Sfft(Xx,typ, Iferr)
-    !!----    complex, dimension(:),     intent (in out) :: XX  !  In -> real array containing real parts of transform
-    !!----    character(len=*),optional, intent (in)     :: typ !  In -> type="INV"    : backward transform
-    !!----                                                          Absent or whatever : forward transform
+    !!---- Pure Subroutine Sfft(Array,Mode, Iferr)
+    !!----    complex, dimension(:),     intent (in out) :: Array  !  In -> real array containing real parts of transform
+    !!----    character(len=*),optional, intent (in)     :: Mode   !  In -> type="INV"    : backward transform
+    !!----                                                                  Absent or whatever : forward transform
     !!----    integer, optional,         intent (   out) :: IFERR  ! Out -> Flags to error. 0 No error
     !!----
     !!----    This routine is a slight modification of a complex split
@@ -2258,21 +2258,21 @@ Module CFML_FFT
     !!----
     !!---- Update: February - 2005
     !!
-    Pure Subroutine Sfft( Xx, typ,Iferr )
+    Pure Subroutine Sfft( Array, Mode,Iferr )
        !---- Arguments ----!
-       complex, dimension(:),     intent(in out) :: XX
-       character(len=*),optional, intent(in)     :: typ
-       integer, optional,         intent(   out) :: Iferr
+       complex, dimension(:),      intent(in out) :: Array
+       character(len=*), optional, intent(in)     :: Mode
+       integer,          optional, intent(   out) :: Iferr
 
        !---- Local variables ----!
        integer                            :: i, j, k, n, m, n1, n2, n4, is, id, i0, i1, i2, i3
        real(kind=cp)                      :: r1, r2, s1, s2, s3, xt
        real(kind=cp)                      :: e, a, a3, cc1, ss1, cc3, ss3
        real(kind=cp), parameter           :: twopi=6.2831853071795864769
-       real(kind=cp), dimension(size(XX)) :: x
-       real(kind=cp), dimension(size(XX)) :: y
+       real(kind=cp), dimension(size(Array)) :: x
+       real(kind=cp), dimension(size(Array)) :: y
 
-       n=size(xx)
+       n=size(Array)
        m=0
        do i=1,20
           if (2**i /= n) cycle
@@ -2289,12 +2289,12 @@ Module CFML_FFT
        end if
 
        do i=1,n
-          x(i)=real(xx(i))
-          y(i)=aimag(xx(i))
+          x(i)=real(Array(i))
+          y(i)=aimag(Array(i))
        end do
 
-       if(present(typ)) then
-         if (typ == "INV") y=-y
+       if(present(Mode)) then
+         if (Mode == "INV") y=-y
        end if
 
        n2 = 2 * n
@@ -2381,15 +2381,15 @@ Module CFML_FFT
           j = j + k
        end do
 
-       if(present(typ)) then
-         if (typ == "INV") then
+       if(present(Mode)) then
+         if (Mode == "INV") then
           x=x/n
           y=-y/n
          end if
        end if
 
        do i=1,n
-          xx(i)=cmplx(x(i),y(i))
+          Array(i)=cmplx(x(i),y(i))
        end do
 
        return

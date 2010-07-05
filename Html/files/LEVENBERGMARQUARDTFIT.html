@@ -1,0 +1,726 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>LEVENBERG_MARQUARDT_FIT</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ font-weight: bold;
+}
+span.rvts13
+{
+ color: #ff6600;
+}
+span.rvts14
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts15 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts16 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2
+{
+ margin: 0px 0px 0px 3px;
+}
+.rvps3
+{
+ text-align: right;
+ margin: 0px 0px 0px 3px;
+}
+.rvps4 /* Paragraph Style */
+{
+ background: #0000ff;
+ padding: 5px 5px 2px 5px;
+ margin: -5px -5px 18px -5px;
+}
+.rvps5 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
+<script type="text/javascript">if(top.frames.length == 0) { sTopic = top.location.href.substring(top.location.href.lastIndexOf("/") + 1, top.location.href.length); top.location.href="../crysfml.htm?" + sTopic; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
+<meta name="generator" content="HelpNDoc Professional Edition"></head>
+<body>
+<p class=rvps4><span class=rvts15>LEVENBERG_MARQUARDT_FIT</span></p>
+<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, TOL, INFO, IWA)</span></p>
+<p><br></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+</td>
+<td width=100><p><span class=rvts11><br></span></p>
+</td>
+<td width=121><p>MODEL_FUNCT</p>
+</td>
+<td width=52><br>
+</td>
+<td width=370><p>Name of the subroutine</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>M</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Positive number of functions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>N</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=121><p>X</p>
+</td>
+<td width=52><p class=rvps3><br></p>
+<p class=rvps3>IN:</p>
+<p class=rvps3>OUT:</p>
+</td>
+<td width=370><p class=rvps2>Vector of length N</p>
+<p class=rvps2>Initial estimate of the solution vector</p>
+<p class=rvps2>Final estimate of the solution vector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>FVEC</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>TOL</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>INFO</p>
+</td>
+<td width=52><p class=rvps2>&lt; 0</p>
+<p class=rvps2>= 0</p>
+<p class=rvps2>= 1</p>
+<p class=rvps2>= 2</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 3</p>
+<p class=rvps2>= 4</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 5</p>
+<p class=rvps2>= 6</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 7</p>
+<p class=rvps2><br></p>
+<p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>If the user has terminated execution</p>
+<p class=rvps2>Improper input parameters.</p>
+<p>Relative error in the sum of squares is at most TOL</p>
+<p>Algorithm estimates that the relative error between x and the solution is at most tol.</p>
+<p>Conditions for info = 1 and info = 2 both hold.</p>
+<p>FVEC is orthogonal to the columns of the jacobian to machine precision.</p>
+<p> Number of calls to fcn has reached or exceeded maxfev.</p>
+<p> Tol is too small. no further reduction in the sum of squares is possible.</p>
+<p> Tol is too small. no further improvement in the approximate solution x is possible.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER, DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>IWA</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>is an integer work array of length n</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts14>or</span></p>
+<p><span class=rvts14><br></span></p>
+<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, INFOUT, RESIDUALS)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+</td>
+<td width=100><p><span class=rvts11><br></span></p>
+</td>
+<td width=98><p>MODEL_FUNCT</p>
+</td>
+<td width=410><p>Name of the subroutine calculating YC(i) for point X(i)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>M</p>
+</td>
+<td width=410><p class=rvps2>Number of observations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>C</p>
+</td>
+<td width=410><p class=rvps2>Conditions of refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>VS</p>
+</td>
+<td width=410><p class=rvps2>State vector for the model calculation</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>CHI2</p>
+</td>
+<td width=410><p class=rvps2>Final reduced Chi-2</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>INFOUT</p>
+</td>
+<td width=410><p class=rvps2>Information about the refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>RESIDUALS</p>
+</td>
+<td width=410><p class=rvps2>Residuals vector</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts14>and</span></p>
+<p><span class=rvts14><br></span></p>
+<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (M, N, X, FVEC, IFLAG)</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>M</p>
+</td>
+<td width=369><p class=rvps2>Number of observations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>N</p>
+</td>
+<td width=369><p class=rvps2>Number of Free parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>X</p>
+</td>
+<td width=369><p>Array with the values of free parameters: X(1:N)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>FVEC</p>
+</td>
+<td width=369><p>Array of residuals FVEC=(y-yc)/sig : FVEC(1:M)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>IFLAG</p>
+</td>
+<td width=369><p>=1 calculate only FVEC without changing FJAC</p>
+<p>=2 calculate only FJAC keeping FVEC fixed</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts10> </span></p>
+<p><span class=rvts14>or</span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10><br></span></p>
+<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, FJAC, TOL, INFO, IWA)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+</td>
+<td width=100><p><span class=rvts11><br></span></p>
+</td>
+<td width=121><p>MODEL_FUNCT</p>
+</td>
+<td width=52><br>
+</td>
+<td width=370><p>Name of the subroutine</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>M</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Positive number of functions</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>N</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=121><p>X</p>
+</td>
+<td width=52><p class=rvps3><br></p>
+<p class=rvps3>IN:</p>
+<p class=rvps3>OUT:</p>
+</td>
+<td width=370><p class=rvps2>Vector of length N</p>
+<p class=rvps2>Initial estimate of the solution vector</p>
+<p class=rvps2>Final estimate of the solution vector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>FVEC</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=121><p>FJAC</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Is an output m by n array. the upper n by n submatrix of fjac&nbsp;&nbsp;&nbsp; contains an upper triangular matrix r with diagonal elements </p>
+<p class=rvps2>of non increasing magnitude such that</p>
+<p class=rvps2>&nbsp; </p>
+<p class=rvps2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t&nbsp;&nbsp;&nbsp;&nbsp; t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t</p>
+<p class=rvps2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p *(jac *jac)*p = r *r,</p>
+<p class=rvps2>&nbsp;&nbsp; </p>
+<p class=rvps2>where p is a permutation matrix and jac is the final calculated</p>
+<p class=rvps2>Jacobian.&nbsp; Column j of p is column ipvt(j) (see below) of the identity matrix.&nbsp; The lower trapezoidal part of fjac contains</p>
+<p class=rvps2>information generated during the computation of r.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=121><p>TOL</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>INFO</p>
+</td>
+<td width=52><p class=rvps2>&lt; 0</p>
+<p class=rvps2>= 0</p>
+<p class=rvps2>= 1</p>
+<p class=rvps2>= 2</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 3</p>
+<p class=rvps2>= 4</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 5</p>
+<p class=rvps2>= 6</p>
+<p class=rvps2><br></p>
+<p class=rvps2>= 7</p>
+<p class=rvps2><br></p>
+<p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>If the user has terminated execution</p>
+<p class=rvps2>Improper input parameters.</p>
+<p>Relative error in the sum of squares is at most TOL</p>
+<p>Algorithm estimates that the relative error between x and the solution is at most tol.</p>
+<p>Conditions for info = 1 and info = 2 both hold.</p>
+<p>FVEC is orthogonal to the columns of the jacobian to machine precision.</p>
+<p> Number of calls to fcn has reached or exceeded maxfev.</p>
+<p> Tol is too small. no further reduction in the sum of squares is possible.</p>
+<p> Tol is too small. no further improvement in the approximate solution x is possible.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER, DIMENSION</span>(:)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=121><p>IWA</p>
+</td>
+<td width=52><p class=rvps2><br></p>
+</td>
+<td width=370><p class=rvps2>is an integer work array of length n</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts14>or</span></p>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, CALDER, INFOUT, RESIDUALS)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+</td>
+<td width=100><p><span class=rvts11><br></span></p>
+</td>
+<td width=98><p>MODEL_FUNCT</p>
+</td>
+<td width=410><p>Name of the subroutine calculating YC(i) for point X(i)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>M</p>
+</td>
+<td width=410><p class=rvps2>Number of observations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>C</p>
+</td>
+<td width=410><p class=rvps2>Conditions of refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>VS</p>
+</td>
+<td width=410><p class=rvps2>State vector for the model calculation</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>CHI2</p>
+</td>
+<td width=410><p class=rvps2>Final reduced Chi-2</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>LOGICAL</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>CALDER</p>
+</td>
+<td width=410><p class=rvps2>logical (should be .true.) used only for purposes of making unambiguous the generic procedure</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>INFOUT</p>
+</td>
+<td width=410><p class=rvps2>Information about the refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+</td>
+<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>RESIDUALS</p>
+</td>
+<td width=410><p class=rvps2>Residuals vector</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts14>and</span></p>
+<p><span class=rvts14><br></span></p>
+<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (M, N, X, FVEC, FJAC, IFLAG)</span></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>M</p>
+</td>
+<td width=369><p class=rvps2>Number of observations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>N</p>
+</td>
+<td width=369><p class=rvps2>Number of Free parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=98><p>X</p>
+</td>
+<td width=369><p>Array with the values of free parameters: X(1:N)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>FVEC</p>
+</td>
+<td width=369><p>Array of residuals FVEC=(y-yc)/sig : FVEC(1:M)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:,:)</p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=98><p>FJAC</p>
+</td>
+<td width=369><p>Jacobian DFVEC/DX(i,j)=DFVEC(i)/DX(j): FJAC(1:m,1:n)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+</td>
+<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+</td>
+<td width=98><p>IFLAG</p>
+</td>
+<td width=369><p>=1 calculate only FVEC without changing FJAC</p>
+<p>=2 calculate only FJAC keeping FVEC fixed</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><br></p>
+<p><span class=rvts10>&nbsp;&nbsp; </span> </p>
+<p><br></p>
+<p>The purpose of this routine is to minimize the sum of the squares of M nonlinear functions in N variables by a modification of the Levenberg-Marquardt algorithm.&nbsp; The user must provide a subroutine which calculates the functions. The jacobian is then calculated by a forward-difference approximation.</p>
+<p>&nbsp; </p>
+<p class=rvps5><span class=rvts16>Copyleft © 2010, FullProf Suite Team</span></p>
+</body></html>

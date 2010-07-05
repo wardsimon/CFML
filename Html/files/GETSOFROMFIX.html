@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>GET_SO_FROM_FIX</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ color: #ff0000;
+}
+span.rvts13
+{
+ color: #ff6600;
+}
+a.rvts14, span.rvts14
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts14:hover { color: #0000ff; }
+span.rvts15 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts16 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2 /* Paragraph Style */
+{
+ background: #0000ff;
+ padding: 5px 5px 2px 5px;
+ margin: -5px -5px 18px -5px;
+}
+.rvps3 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
+<script type="text/javascript">if(top.frames.length == 0) { sTopic = top.location.href.substring(top.location.href.lastIndexOf("/") + 1, top.location.href.length); top.location.href="../crysfml.htm?" + sTopic; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
+<meta name="generator" content="HelpNDoc Professional Edition"></head>
+<body>
+<p class=rvps2><span class=rvts15>GET_SO_FROM_FIX</span></p>
+<p><span class=rvts10>SUBROUTINE GET_SO_FROM_FIX (ISYSTM, ISYMCE, IBRAVL, NG, SS, TS, LATSY, CO, SPACEGEN)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=285><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>ISYSTM</p>
+</td>
+<td width=410><p>Number of the crystalline system</p>
+<p>1:T, 2:M, 3:O, 4:T, 5:R-Trg, 6:H, 7:C)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>ISYMCE</p>
+</td>
+<td width=410><p>0: Centric (-1 not at origin)</p>
+<p>1: Acentric</p>
+<p>2: Centric (-1 at origin)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>IBRAVL</p>
+</td>
+<td width=410><p>1:P, 2:A, 3:B, 4:C, 5:I, 6:R, 7:F, 8:Z</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=79><p>NG</p>
+</td>
+<td width=410><p>Number of symmetry operators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(:,:,:)</p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=79><p>SS</p>
+</td>
+<td width=410><p>Rotation parts of the symmetry operators (3,3,48)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=79><p>TS</p>
+</td>
+<td width=410><p>Translation parts of the symmetry operators(3,48)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=<span class=rvts12>2</span>)</p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>LATSY</p>
+</td>
+<td width=410><p>Bravais Lattice symbol</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(<span class=rvts12>3</span>)</p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>CO</p>
+</td>
+<td width=410><p>Coordinates of origin</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=<span class=rvts12>1</span>)</p>
+</td>
+<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=79><p>SPACEGEN</p>
+</td>
+<td width=410><p>Type of Cell</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Determines some of items of the object <a class=rvts14 href="SPACEGROUPTYPE.html">SPACE_GROUP_TYPE</a> from FIXed symmetry operators given by user.</p>
+<p>&nbsp; </p>
+<p class=rvps3><span class=rvts16>Copyleft © 2010, FullProf Suite Team</span></p>
+</body></html>

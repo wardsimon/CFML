@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>SET_SYSTEM_EQUIV</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts12 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2 /* Paragraph Style */
+{
+ background: #0000ff;
+ padding: 5px 5px 2px 5px;
+ margin: -5px -5px 18px -5px;
+}
+.rvps3 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
+<script type="text/javascript">if(top.frames.length == 0) { sTopic = top.location.href.substring(top.location.href.lastIndexOf("/") + 1, top.location.href.length); top.location.href="../crysfml.htm?" + sTopic; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
+<meta name="generator" content="HelpNDoc Professional Edition"></head>
+<body>
+<p class=rvps2><span class=rvts11>SET_SYSTEM_EQUIV</span></p>
+<p><span class=rvts10>SUBROUTINE SET_SYSTEM_EQUIV( )</span></p>
+<p><br></p>
+<p>Define the conversion table between IT - ML - KOV - BC - ZAK</p>
+<p><br></p>
+<p>The information given in this file corresponds to that of TABLE 6 of "Isotropy Subgroups of the 230 Crystallographic Space Groups", by Harold T Stokes and Dorian M Hatch, World Scientific, Singapore (1988).</p>
+<p><br></p>
+<p>The transformation operators that take space group elements in the International setting (International Tables of Crystallography, Hahn 1983) to space-groups elements in the Miller and Love ( ML, 1967), Kovalev (Kov,1986) Bradley and Cracknell (BC, 1972) and Zak (Zak, 1969) settings.</p>
+<p><br></p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
+<li>In the international setting the basis vectors are always those of the conventional unit cell. In rhombohedral system the primitive basis vectors are in an obverse relationship given by (2/3 1/3 1/3), (-1/3 1/3 1/3) and (-1/3, -2/3 1/3). </li>
+<li>In ML the same basis vectors are chosen except that for rhombohedral system the reverse setting is adopted, so the primitive basis vectors are: t1=(1/3 -1/3 1/3), t2=(1/3, 2/3 1/3) and t3=(2/3 1/3 1/3).&nbsp; </li>
+<li>In Kovalev the a,b,c axes of the coordinate system are along the conventional basis vectors of the lattice, however in the rhombohedral system an hexagonal system is chosen so that the primitive basis vectors are a1=(-1 -1 1/3), a2=(1 0 1/3) and a3=(0 1 1/3).&nbsp; </li>
+<li>In the setting of BC the axes a,b,c of the coordinate system are chosen to be the primitive basis vectors t1,t2,t3 as defined in their book. </li>
+<li>The setting of Zak the basis vectors are as in the international setting, but for rhombohedral system the primitive basis vectors w.r.t. the selected hexagonal coordinate system are given by: (1/3 2/3 1) (1/3 -1/3 1) (-2/3 -1/3 1)</li>
+</ul>
+<p><br></p>
+<p>Symmetry and transformation operators of Space Groups can be given as 4 x 4 Seitz matrices or as a character string called Jones Faithful representation. This last representation is that used in this file.</p>
+<p><br></p>
+<p>To transform a symmetry operator "gI" in the international setting into a symmetry element "g" in one of the other settings, we simply perform the following operation:&nbsp; g = gT gI gT(-1), where gT is the transformation given tabulated below.</p>
+<p><br></p>
+<p class=rvps3><span class=rvts12>Copyleft © 2010, FullProf Suite Team</span></p>
+</body></html>

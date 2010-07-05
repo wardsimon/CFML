@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>READ_MOLECULE</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10
+{
+ font-size: 12pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ color: #0000ff;
+}
+span.rvts12
+{
+ font-size: 11pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts13
+{
+ color: #ff6600;
+}
+span.rvts14
+{
+ font-weight: bold;
+}
+span.rvts15
+{
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts16 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts17 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2 /* Paragraph Style */
+{
+ background: #0000ff;
+ padding: 5px 5px 2px 5px;
+ margin: -5px -5px 18px -5px;
+}
+.rvps3 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
+<script type="text/javascript">if(top.frames.length == 0) { sTopic = top.location.href.substring(top.location.href.lastIndexOf("/") + 1, top.location.href.length); top.location.href="../crysfml.htm?" + sTopic; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
+<meta name="generator" content="HelpNDoc Professional Edition"></head>
+<body>
+<p class=rvps2><span class=rvts16>READ_MOLECULE</span></p>
+<p><span class=rvts10>SUBROUTINE READ_MOLECULE (LUN, MOLECULE)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=274><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=108><p>LUN</p>
+</td>
+<td width=319><p>Logical unit to be read</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=108><p>MOLECULE</p>
+</td>
+<td width=319><p>Molecule Object</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p><span class=rvts12>or</span></p>
+<p><br></p>
+<p><span class=rvts10>SUBROUTINE READ_MOLECULE (FILE_DAT, N_INI, N_END, MOLECULE)</span></p>
+<p><br></p>
+<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=274><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*),<span class=rvts11> DIMENSION</span>(:)</p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=108><p>FILE_DAT</p>
+</td>
+<td width=319><p>Name of the File to read</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=108><p>N_INI</p>
+</td>
+<td width=319><p>Initial line to be read</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274><p><span class=rvts11>INTEGER</span></p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+</td>
+<td width=108><p>N_END</p>
+</td>
+<td width=319><p>Last line to be read</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+</td>
+<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+</td>
+<td width=108><p>MOLECULE</p>
+</td>
+<td width=319><p>Molecule Object</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Subroutine to read a molecule from a file.</p>
+<p><br></p>
+<p>The format of the file is:</p>
+<p>&nbsp;&nbsp;&nbsp; <span class=rvts14>MOLE[X] N_ATOMS MOLECULE_NAME COORDINATES_TYPE</span></p>
+<p><br></p>
+<p>where</p>
+<p><br></p>
+<div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=221><p><span class=rvts15>Variables</span></p>
+</td>
+<td width=302><p><span class=rvts15>Definitions</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>N_ATOMS</p>
+</td>
+<td width=302><p>Number of atoms in the molecule definition</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>MOLECULE_NAME</p>
+</td>
+<td width=302><p>Name for the molecule</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>COORDINATES_TYPE</p>
+</td>
+<td width=302><p>Values are:</p>
+<p>C : Cartesian coordinates</p>
+<p>F : Fractional coordinates</p>
+<p>S : Spherical coordinates</p>
+<p>Z : Z-Matrix coordinates</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>If keyword <span class=rvts14>MOLEX</span> is present, then the next line will be read (6 reals, 2 characters):</p>
+<p>&nbsp;&nbsp; <span class=rvts14>MOLECULE_CENTRE(3)&nbsp; MOLECULE_ORIENT(3)&nbsp; ROTATIONAL_ANGLE(1)_TYPE THERMAL_FACTOR_TYPE(3)</span></p>
+<p><br></p>
+<p>where</p>
+<p><br></p>
+<div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=221><p><span class=rvts15>Variables</span></p>
+</td>
+<td width=302><p><span class=rvts15>Definitions</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>MOLECULE_CENTRE</p>
+</td>
+<td width=302><p>Coordinate of Center of Molecule</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>MOLECULE_ORIENT</p>
+</td>
+<td width=302><p>Angles orientation</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>ROTATIONAL_ANGLE_TYPE</p>
+</td>
+<td width=302><p>Values are:</p>
+<p>E : Conventional Euler angles (alpha, beta, gamma)</p>
+<p>P : Polar Euler angles (Phi, theta, Chi) (default)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=221><p>THERMAL_FACTOR_TYPE</p>
+</td>
+<td width=302><p>Values are:</p>
+<p>ISO : No collective motion</p>
+<p>TLS : Traslational + Librational + Correlation</p>
+<p>TL&nbsp;&nbsp; : Traslational + Librational</p>
+<p>T&nbsp;&nbsp;&nbsp;&nbsp; : Traslational</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>According to Thermal Factors, next lines will be read</p>
+<p><br></p>
+<div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=76><p><span class=rvts15>Thermal Factors</span></p>
+</td>
+<td width=447><p><span class=rvts15>Definitions</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=76><p>T</p>
+</td>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<p><br></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=76><p>TL</p>
+</td>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<p>6 Thermal Factors (Line3) + 6 Codes Thermal Factors (Line4)</p>
+<p><br></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=76><p>TLS</p>
+</td>
+<td width=447><p>6 Thermal Factors (Line1) + 6 Codes Thermal Factors (Line2)</p>
+<p>6 Thermal Factors (Line3) + 6 Codes Thermal Factors (Line4)</p>
+<p>9 Thermal Factors (Line5) + 9 Codes Thermal Factors (Line6)</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>&nbsp;&nbsp;&nbsp; </p>
+<p>Internal Coordinates for Atoms (N_Atoms Lines):</p>
+<p>&nbsp;&nbsp;&nbsp; <span class=rvts14> ATOM_NAME(6)&nbsp; ATOM_SPECIES(4)&nbsp; COORDINATES(3)&nbsp; N1&nbsp; N2&nbsp; N3&nbsp; BISO&nbsp; OCC [VARY]</span></p>
+<p>&nbsp;&nbsp;&nbsp; </p>
+<p>If VARY is present as last option on the Internal Coordinates line,&nbsp; then an extra line is read:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <span class=rvts14>CODES_COORDINATES(3)&nbsp;&nbsp; CODE_BISO(1)&nbsp; CODE_OCC(1)</span></p>
+<p>&nbsp;&nbsp;&nbsp; </p>
+<p class=rvps3><span class=rvts17>Copyleft © 2010, FullProf Suite Team</span></p>
+</body></html>

@@ -26,8 +26,8 @@
 !!----    Subroutines:
 !!----       ERROR_MESSAGE
 !!----       INFO_MESSAGE
-!!----       PRINT_MESS
-!!----       WAIT_MESS
+!!----       PRINT_MESSAGE
+!!----       WAIT_MESSAGE
 !!----       WRITE_SCROLL_TEXT
 !!----
 !!
@@ -38,14 +38,14 @@
     implicit none
 
     !---- List of public subroutines ----!
-    public :: Info_Message, Error_Message, Print_Mess, Wait_Mess, write_scroll_text
+    public :: Info_Message, Error_Message, Print_Message, Wait_Message, Write_Scroll_Text
 
 
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(line, Iunit, routine, fatal)
-    !!----    character(len=*), intent(in)           :: line          !  In -> Error information
+    !!---- Subroutine Error_Message(Mess, Iunit, routine, fatal)
+    !!----    character(len=*), intent(in)           :: Mess          !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
     !!----    character(len=*), intent(in), optional :: routine       !  In -> The subroutine where the error occured
     !!----    logical,          intent(in), optional :: fatal         !  In -> Should the program stop here ?
@@ -56,9 +56,9 @@
     !!----
     !!---- Update: January - 2010
     !!
-    Subroutine Error_Message(Line, Iunit, Routine, Fatal)
+    Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       Character ( Len = * ), Intent(In)           :: Line
+       Character ( Len = * ), Intent(In)           :: Mess
        Integer,               Intent(In), Optional :: Iunit
        Character ( Len = * ), Intent(In), Optional :: Routine
        Logical,               Intent(In), Optional :: Fatal
@@ -77,8 +77,8 @@
            Write(Unit = Lun, Fmt = "(1X,A)") "**** Subroutine: "//Routine(1:Lenr)
        End If
 
-       Lenm = Len_Trim(Line)
-       Write(Unit = Lun, Fmt = "(1X,A)") "**** Message: "//Line(1:Lenm)
+       Lenm = Len_Trim(Mess)
+       Write(Unit = Lun, Fmt = "(1X,A)") "**** Message: "//Mess(1:Lenm)
 
        If (Present(Fatal)) Then
            If (Fatal) Then
@@ -94,96 +94,94 @@
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(Line, Iunit)
-    !!----    character(len=*), intent(in)           :: Line    !  In -> Info information
-    !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
+    !!---- Subroutine Info_Message(Mess, Iunit)
+    !!----    character(len=*), intent(in)           :: Mess          !  In -> Info information
+    !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
     !!----
     !!----    Print an message on the screen or in "Iunit" if present
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Info_Message(line, iunit, scroll_window)
+    Subroutine Info_Message(Mess, iunit)
        !---- Arguments ----!
-       character(len=*), intent(in)           :: line
+       character(len=*), intent(in)           :: Mess
        integer,          intent(in), optional :: iunit
-       integer,          intent(in), optional :: scroll_window
 
        !---- Local Variables ----!
        integer :: lun
 
        lun=6
        if (present(iunit)) lun=iunit
-       if (present(scroll_window)) lun=6
-       write(unit=lun,fmt="(a)") "  "//line
+       write(unit=lun,fmt="(a)") "  "//Mess
 
        return
     End Subroutine Info_Message
 
     !!----
-    !!---- Subroutine Print_Mess(Warning)
-    !!----    character(len=*), intent(in)  :: Warning    !  In -> Print information
+    !!---- Subroutine Print_Message(Mess)
+    !!----    character(len=*), intent(in)  :: Mess    !  In -> Print information
     !!----
     !!----    Print an message on the screen
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Print_Mess(Warning)
+    Subroutine Print_Message(Mess)
        !---- Arguments ----!
-       character(len=*),intent(in) ::  Warning
+       character(len=*),intent(in) ::  Mess
 
        !---- Local Variables ----!
        integer :: lon
 
-       lon=len_trim(Warning)
+       lon=len_trim(mess)
        if (lon == 0) then
           write(unit=*,fmt="(a)") "  "
        else
-          if (warning(1:1) == "=" .or. warning(2:2) == "=") then
-             write(unit=*,fmt="(a)") warning(1:lon)
+          if (mess(1:1) == "=" .or. mess(2:2) == "=") then
+             write(unit=*,fmt="(a)") mess(1:lon)
           else
-             write(unit=*,fmt="(a,a)")" =>", warning(1:lon)
+             write(unit=*,fmt="(a,a)")" =>", mess(1:lon)
           end if
        end if
 
        return
-    End Subroutine Print_Mess
+    End Subroutine Print_Message
 
     !!----
-    !!---- Subroutine Wait_Mess(Message)
-    !!----    character(len=*), optional, intent(in) :: Message
+    !!---- Subroutine Wait_Message(Mess)
+    !!----    character(len=*), optional, intent(in) :: Mess
     !!----
     !!----    Similar to Pause for Console version
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Wait_Mess(Message)
+    Subroutine Wait_Message(Mess)
        !---- Argument ----!
-       character(len=*), optional, intent(in) :: Message
+       character(len=*), optional, intent(in) :: Mess
 
        !---- Local variable ----!
        character(len=1) :: car
 
        write(unit=*,fmt="(a)") " "
-       if (present(message)) write(unit=*,fmt="(a)", advance="no") message
+       if (present(mess)) write(unit=*,fmt="(a)", advance="no") mess
        read(unit=*,fmt="(a)") car
        if( car == " ") return
 
        return
-    End Subroutine Wait_Mess
+    End Subroutine Wait_Message
 
     !!----
-    !!---- SUBROUTINE WRITE_SCROLL_TEXT(Line)
-    !!----    character(len=*), intent(in)           :: Line
+    !!---- Subroutine Write_Scroll_Text(Mess)
+    !!----    character(len=*), intent(in) :: Mess
     !!----
-    !!----    Print the string in a the scroll window
+    !!----    Print the string in a default output unit
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_Scroll_Text(Line)
+    Subroutine Write_Scroll_Text(Mess)
        !---- Argument ----!
-       character(len=*), intent(in) :: line
+       character(len=*), intent(in) :: Mess
 
-       write(unit=*, fmt="(a)") trim(line)
+       write(unit=*, fmt="(a)") trim(mess)
 
        return
     End Subroutine Write_Scroll_Text
