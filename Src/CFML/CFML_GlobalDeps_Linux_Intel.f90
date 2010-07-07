@@ -217,10 +217,10 @@ Module CFML_GlobalDeps
       if (linea(nlong:nlong) /= ops_sep) linea=trim(linea)//ops_sep
 
       ! All compilers except Intel
-      inquire(file=trim(linea)//'.' , exist=info)
+      !inquire(file=trim(linea)//'.' , exist=info)
 
       ! Intel
-      !inquire(directory=trim(linea), exist=info)
+      inquire(directory=trim(linea), exist=info)
 
       return
    End Function Directory_Exists

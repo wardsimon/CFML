@@ -251,7 +251,12 @@ if [ $COMP = "lf95" ]
 then
    $COMP $OPT1  f2kcli.f90
 fi
-$COMP $OPT1  CFML_GlobalDeps_Linux.f90
+if [ $COMP = "ifort" ]
+then
+   $COMP $OPT1  CFML_GlobalDeps_Linux_Intel.f90
+else
+   $COMP $OPT1  CFML_GlobalDeps_Linux.f90
+fi
 $COMP $OPT1  CFML_Math_Gen.f90
 $COMP $OPT1  CFML_LSQ_TypeDef.f90
 $COMP $OPT1  CFML_Spher_Harm.f90
