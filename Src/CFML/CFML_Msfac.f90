@@ -706,7 +706,7 @@
                       do n=1,abs(MGp%nbas(m)) !cannot be greater than 12 at present
                          x=real(MGp%icomp(n,m))
                          ci=cmplx(1.0-x,-isig*x)
-                         Sk(:)=Sk(:)+ Atm%atom(i)%cbas(n,nvk)*ci* cmplx(  Real(MGp%basf(:,n,k,m)), -isig*aimag(MGp%basf(:,n,k,m))  )
+                         Sk(:)=Sk(:)+ Atm%atom(i)%cbas(n,nvk)*ci* cmplx(Real(MGp%basf(:,n,k,m)), -isig*aimag(MGp%basf(:,n,k,m)))
                       end do
                       Sk(:) = cmplx (real(Sk),ch(ich)*aimag(Sk))
                       Sk(:)=matmul(Mag_Dom%Dmat(:,:,nd),Sk(:))
