@@ -1647,7 +1647,7 @@
        ! Writing information about domains (like in FullProf)
        if (present(Mag_Dom)) then
           write(unit=ipr,fmt="(a)") " => Magnetic S-Domains are present"
-          if (Mag_Dom%chir) write(unit=ipr,fmt="(a)")"    Chirality domains are also present                     Chir-1      Chir-2"
+          if (Mag_Dom%chir)write(unit=ipr,fmt="(a)")"    Chirality domains are also present                     Chir-1      Chir-2"
           do i=1,Mag_Dom%nd
              if (Mag_Dom%chir) then
                 write(unit=ipr,fmt="(a,i2,1(a,2f12.4))")"      Matrix of Magnetic Domain #:",i, &
