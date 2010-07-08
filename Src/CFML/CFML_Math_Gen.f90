@@ -94,10 +94,10 @@
 !!----       SCALAR
 !!--++       SCALAR_I                  [Overloaded]
 !!--++       SCALAR_R                  [Overloaded]
-!!----       TRAZA
-!!--++       TRAZA_C                   [Overloaded]
-!!--++       TRAZA_I                   [Overloaded]
-!!--++       TRAZA_R                   [Overloaded]
+!!----       TRACE
+!!--++       TRACE_C                   [Overloaded]
+!!--++       TRACE_I                   [Overloaded]
+!!--++       TRACE_R                   [Overloaded]
 !!----       ZBELONG
 !!--++       ZBELONGM                  [Overloaded]
 !!--++       ZBELONGN                  [Overloaded]
@@ -184,7 +184,7 @@
 
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
-              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Traza,    &
+              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,    &
               Zbelong, Imaxloc, Iminloc, Norm, Scalar
 
     !---- List of private functions ----!
@@ -193,7 +193,7 @@
                Tand_sp, Negligiblec, Negligibler, Pythag_dp, Pythag_sp,            &
                Co_linear_C, Co_linear_I, Co_linear_R, Equal_Matrix_I,              &
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
-               Outerprod_dp, Outerprod_sp, Traza_C, Traza_I, Traza_R, ZbelongM,    &
+               Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
                ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
                Norm_I, Norm_R, Scalar_I, Scalar_R
 
@@ -350,10 +350,10 @@
        Module Procedure Scalar_R
     End Interface Scalar
 
-    Interface  Traza
-       Module Procedure Traza_C
-       Module Procedure Traza_I
-       Module Procedure Traza_R
+    Interface  Trace
+       Module Procedure Trace_C
+       Module Procedure Trace_I
+       Module Procedure Trace_R
     End Interface
 
     Interface  Zbelong
@@ -2118,7 +2118,7 @@
     End Function Scalar_R
 
     !!----
-    !!---- Function Traza(A)
+    !!---- Function Trace(A)
     !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: a
     !!----
     !!----    Provides the trace of a complex/real or integer matrix
@@ -2127,7 +2127,7 @@
     !!
 
     !!--++
-    !!--++ Function Traza_C(A)
+    !!--++ Function Trace_C(A)
     !!--++    complex, dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -2135,7 +2135,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Traza_C(a) Result(b)
+    Function Trace_C(a) Result(b)
        !---- Argument ----!
        complex, dimension(:,:), intent(in) :: a
        complex                             :: b
@@ -2150,10 +2150,10 @@
        end do
 
        return
-    End Function Traza_C
+    End Function Trace_C
 
     !!--++
-    !!--++ Function Traza_I(A)
+    !!--++ Function Trace_I(A)
     !!--++    integer, dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -2161,7 +2161,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Traza_I(a) Result(b)
+    Function Trace_I(a) Result(b)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: a
        integer                             :: b
@@ -2176,10 +2176,10 @@
        end do
 
        return
-    End Function Traza_I
+    End Function Trace_I
 
     !!--++
-    !!--++ Function Traza_R(A)
+    !!--++ Function Trace_R(A)
     !!--++    real(kind=sp), dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
@@ -2187,7 +2187,7 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Function Traza_R(a) Result(b)
+    Function Trace_R(a) Result(b)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: a
        real(kind=cp)                             :: b
@@ -2202,7 +2202,7 @@
        end do
 
        return
-    End Function Traza_R
+    End Function Trace_R
 
     !!----
     !!---- Logical Function Zbelong(V)

@@ -22,7 +22,7 @@
 !!---- DEPENDENCIES
 !!----
 !!--++    Use CFML_GlobalDeps,       only: Cp
-!!--++    Use CFML_Math_General,     only: Traza, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
+!!--++    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix, Equal_Vector
 !!--++    Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig, &
 !!--++                                     Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,     &
 !!--++                                     U_case, Ucase, Getnum, Frac_Trans_2Dig
@@ -138,7 +138,7 @@
 
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,        only: cp
-    Use CFML_Math_General,     only: Traza, Zbelong, Modulo_Lat, equal_matrix,             &
+    Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
                                      Equal_Vector,Sort
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
@@ -566,7 +566,7 @@
        n=0
 
        det=determ_A(r)
-       itr=traza(r)
+       itr=trace(r)
        select case (itr)
           case (-3)
              if (det == -1) n=-1
