@@ -206,7 +206,7 @@
               s4cnb, snb4c,Flat_Cone_vertDet,Get_WaveGaNu_frZ4,normal,refvec,sxdpsd,    &
               triple,z3frz1,z2frz1,z1frfc,z1frnb, z1frmd,z1frz4,z1frz3,z1frz2,z4frgn,   &
               z4frz1,calang,genb,genub, cell_fr_UB, set_psd, get_z1_from_pixel,         &
-              Get_z1_D9angls
+              Get_z1_D9angls, psd_conv, db21psd 
 
     !---- Definitions ----!
 
@@ -234,29 +234,31 @@
     !!---- TYPE :: PSD_VAL_TYPE
     !!--..
     !!---- Type, public :: Psd_Val_Type       !Set of caracteristic parameters of the PSD
-    !!----    real(kind=cp)  :: xoff          !
-    !!----    real(kind=cp)  :: zoff          !
-    !!----    real(kind=cp)  :: radius        !
-    !!----    real(kind=cp)  :: yoff          !
-    !!----    real(kind=cp)  :: cgap          !
-    !!----    real(kind=cp)  :: agap          !
-    !!----    Integer        :: ncat          !
-    !!----    Integer        :: nano          !
-    !!----    Integer        :: ipsd          !
+    !!----    Character(len=10) :: name_inst  ! Short name of the instrument
+    !!----    real(kind=cp)     :: xoff       !
+    !!----    real(kind=cp)     :: zoff       !
+    !!----    real(kind=cp)     :: radius     !
+    !!----    real(kind=cp)     :: yoff       !
+    !!----    real(kind=cp)     :: cgap       !
+    !!----    real(kind=cp)     :: agap       !
+    !!----    Integer           :: ncat       !
+    !!----    Integer           :: nano       !
+    !!----    Integer           :: ipsd       !
     !!---- End Type Psd_Val_Type
     !!----
-    !!---- Update: April - 2008
+    !!---- Update: July - 2010
     !!
     Type, Public :: Psd_Val_Type
-       real(kind=cp)  :: xoff
-       real(kind=cp)  :: zoff
-       real(kind=cp)  :: radius
-       real(kind=cp)  :: yoff
-       real(kind=cp)  :: cgap
-       real(kind=cp)  :: agap
-       Integer        :: ncat
-       Integer        :: nano
-       Integer        :: ipsd
+       Character(len=10) :: name_inst ! Short name of the instrument
+       real(kind=cp)     :: xoff
+       real(kind=cp)     :: zoff
+       real(kind=cp)     :: radius
+       real(kind=cp)     :: yoff
+       real(kind=cp)     :: cgap
+       real(kind=cp)     :: agap
+       Integer           :: ncat
+       Integer           :: nano
+       Integer           :: ipsd
     End Type Psd_Val_Type
 
     !!----
@@ -287,7 +289,7 @@
     !!----
     !!---- Update: April - 2008
     !!
-    Type, Public :: Sxd_Val_Type
+    Type, Public  :: Sxd_Val_Type
        real(kind=cp)      :: distms
        real(kind=cp)      :: distsd
        real(kind=cp)      :: dimx
@@ -305,7 +307,7 @@
     !!--++ PSD_SET
     !!--++    logical, private :: psd_set
     !!--++
-    !!--++    ...No coments!!!
+    !!--++    ...No comments!!!
     !!--++
     !!--++ Update: April - 2008
     !!
@@ -315,7 +317,7 @@
     !!---- SXD
     !!----    Type(Sxd_Val_Type), Public :: sxd
     !!----
-    !!----    ...No coments!!!
+    !!----    ...No comments!!!
     !!----
     !!---- Update: April - 2008
     !!
@@ -705,6 +707,85 @@
     End Subroutine Chi_mat
 
     !!----
+    !!---- Subroutine psd_conv(inst,mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
+    !!----    character(len=*), intent(in) :: inst     
+    !!----    Integer, Intent(In)          :: mpsd     
+    !!----    Real, Intent(In)             :: gamm     
+    !!----    Real, Intent(In Out)         :: gamp     
+    !!----    Real, Intent(In Out)         :: nup      
+    !!----    Real, Intent(In Out)         :: xobs     
+    !!----    Real, Intent(In Out)         :: zobs     
+    !!----    Real, Intent(In Out)         :: cath     
+    !!----    Real, Intent(In Out)         :: anod     
+    !!----    Integer, Intent(In Out)      :: ierr     
+    !!----    
+    !!----
+    !!----    Subroutine for selecting between different kind of PSD detectors
+    !!----    (Temporary subroutine ... used in peak find) 
+    !!----
+    !!---- Update: July 2010
+    !!
+    Subroutine psd_conv(inst,mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr) 
+      character(len=*), intent(in) :: inst
+      Integer, Intent(In)          :: mpsd
+      Real, Intent(In)             :: gamm
+      Real, Intent(In Out)         :: gamp
+      Real, Intent(In Out)         :: nup
+      Real, Intent(In Out)         :: xobs
+      Real, Intent(In Out)         :: zobs
+      Real, Intent(In Out)         :: cath
+      Real, Intent(In Out)         :: anod
+      Integer, Intent(In Out)      :: ierr
+      
+      select case (inst)
+        case("d19")
+          call d19amd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
+        case("db21")
+          call db21psd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
+        case DEFAULT
+          write(*,*) 'Error in PSD conversion: Unknown instrument : ',trim(inst)
+      end select
+      
+      Return
+    End Subroutine psd_conv
+
+!-----------------------------------------------------------------------    
+    Subroutine db21psd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
+!-----------------------------------------------------------------------
+      Integer, Intent(In)                      :: mpsd
+      Real, Intent(In)                         :: gamm
+      Real, Intent(In Out)                     :: gamp
+      Real, Intent(In Out)                     :: nup
+      Real, Intent(In Out)                     :: xobs
+      Real, Intent(In Out)                     :: zobs
+      Real, Intent(In Out)                     :: cath
+      Real, Intent(In Out)                     :: anod
+      Integer, Intent(In Out)                  :: ierr
+      real(kind=cp) :: cmid, amid, a, b, z, d
+      
+         cmid=real(psd%ncat-1)/2.0
+         amid=real(psd%nano-1)/2.0
+         ierr = 0
+      
+      ! MPSD +VE - Find GamP, NuP given GamM, Cath and Anod
+      If(mpsd > 0) Then
+          xobs=  (cmid-cath)*psd%cgap           ! DB21 Flat detector
+          zobs= -(amid-anod)*psd%agap           ! (Based on D9 code)
+          a=    xobs   + psd%xoff
+          b=psd%radius + psd%yoff
+          z=    zobs   + psd%zoff
+          d=Sqrt(a*a + b*b)
+          gamp=gamm + Atan2d(a,b) 
+          nup=Atan2d(z,d) 
+      Else ! MPSD -VE - Find Cath, Anod given GamM, GamP and NuP
+        write(*,*) 'DB21 geometry conversion in this direction not implemented!'
+      End If
+      
+      Return
+    End Subroutine db21psd
+
+
+    !!----
     !!---- Subroutine d19amd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
     !!----    Integer, Intent(In)            :: mpsd
     !!----    real(kind=cp), Intent(In)      :: gamm
@@ -720,7 +801,7 @@
     !!----    Specifically for D19A bannana detector, 4 x 64 degrees - 16 x 512
     !!----    cells and vertically curved.             R.F.D. STANSFIELD SEP-83
     !!----
-    !!----    Modified for general case GamM.NE.GamP                     Feb-84
+    !!----    Modified for general case GamM /= GamP                     Feb-84
     !!----
     !!----    MPSD +VE - Find GamP, NuP given GamM, Cath and Anod
     !!----    MPSD -VE - Find Cath, Anod given GamM, GamP and NuP
@@ -728,7 +809,9 @@
     !!----    Some of the variables making reference to the characteristics of the
     !!-->>    detector are provisionally stored in a public type(Psd_Val_Type):: PSD
     !!----
-    !!---- Update: April 2008
+    !!----    Extended for D19 cylindrical banana (from MJ Turner, peak find ...)
+    !!----
+    !!---- Update: July 2010
     !!
     Subroutine d19amd (mpsd,gamm,gamp,nup,xobs,zobs,cath,anod,ierr)
        !---- Arguments ----!
@@ -769,12 +852,19 @@
              zobs=(psd%radius+psd%yoff)*tn/cd - psd%zoff
              anod=amid + zobs/psd%agap                           ! D9
              cath=cmid - xobs/psd%cgap                           ! D9
+             
+          Else If(psd%ipsd == 3) Then       ! Still to be checked!
+             xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19 Horizontal banana
+             zobs=tn*(psd%radius + psd%yoff) - psd%zoff
+             anod=amid - zobs/psd%agap
+             cath=cmid - xobs/psd%cgap
+             
           End If
 
           If (anod > 0.0 .AND. anod < real(psd%nano-1) .AND.  &
              cath > 0.0 .AND. cath < real(psd%ncat-1)) Return
              ierr=-1
-          Else
+       Else
              If (psd%ipsd == 1)Then                 ! Vertically curved detector
                 xobs=(cmid-cath)*psd%cgap                           ! D19A
                 zobs=(amid-anod)*psd%agap                           ! D19A
@@ -782,22 +872,32 @@
                 b=psd%radius*Cos(zobs/psd%radius) + psd%yoff
                 z=psd%radius*Sin(zobs/psd%radius) + psd%zoff
 
-             Else If(psd%ipsd == 2) Then                           ! Flat detector
+             Else If(psd%ipsd == 2) Then                            ! Flat detector
                 xobs=  (cmid-cath)*psd%cgap                         ! D9
                 zobs= -(amid-anod)*psd%agap                         ! D9
                 a=xobs       + psd%xoff
                 b=psd%radius + psd%yoff
                 z=zobs       + psd%zoff
+             
+             Else If(psd%ipsd == 3) Then
+                 xobs=(cmid-cath)*psd%cgap             ! D19 Horizontal banana
+                 zobs=(amid-anod)*psd%agap    ! Need to check yoff at large xobs
+                 a=    xobs   + psd%xoff
+                 b=psd%radius + psd%yoff
+                 z=    zobs   + psd%zoff
+                 gamp=gamm + (a/b)*to_deg
+                 nup=Atan2d(z,b)       
+                 
              End If
 
              d=Sqrt(a*a + b*b)
              gamp=gamm + atan2d(a,b)
              nup=atan2d(z,d)
 
-          End If
+       End If
 
-          Return
-       End Subroutine d19amd
+       Return
+    End Subroutine d19amd
 
     !!----
     !!---- Subroutine d19psd(mpsd,ga,nu,cath,anod,ierr)

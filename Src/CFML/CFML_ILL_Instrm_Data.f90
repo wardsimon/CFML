@@ -186,7 +186,7 @@ Module CFML_ILL_Instrm_Data
              Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,                   &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,                  &
-             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20,                                    &
+             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20, Set_Instrm_Geometry_Directory,     &
              Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
 
    !---- Private Subroutines ----!
@@ -696,7 +696,7 @@ Module CFML_ILL_Instrm_Data
    !!----
    !!---- Update: April - 2008
    !!
-   character(len=512), public  :: Instrm_directory = " "
+   character(len=512), public  :: Instrm_Directory = " "
 
    !!--++
    !!--++ INSTRM_DIRECTORY_SET
@@ -707,7 +707,28 @@ Module CFML_ILL_Instrm_Data
    !!--++
    !!--++ Update: April - 2008
    !!
-   logical, private :: Instrm_directory_set=.false.
+   logical, private :: Instrm_Directory_Set=.false.
+   !!----
+   !!---- INSTRM_GEOMETRY_DIRECTORY
+   !!----    character(len=512), public :: Instrm_Geometry_directory
+   !!----
+   !!----    String containing information about the directory containing .geom files
+   !!----    for specific instrument
+   !!----
+   !!---- Update: July - 2010
+   !!
+   character(len=512), public  :: Instrm_Geometry_Directory = " "
+
+   !!--++
+   !!--++ INSTRM_GEOMETRY_DIRECTORY_SET
+   !!--++    logical, private:: Instrm_Geometry_Directory_Set
+   !!--++
+   !!--++    logical variable taking the value .true. if set the instrument geometry directory
+   !!--++    in correct form
+   !!--++
+   !!--++ Update: April - 2010
+   !!
+   logical, private :: Instrm_Geometry_Directory_Set=.false.
 
    !!--++
    !!--++ GOT_ILL_DATA_DIRECTORY
@@ -1055,8 +1076,10 @@ Module CFML_ILL_Instrm_Data
           call initialize_data_directory()
        else
           i=len_trim(ILL_data_directory)
-          if (ILL_data_directory(i:i) /= ops_sep) then
-             ILL_data_directory=trim(ILL_data_directory)//ops_sep
+          if( i /= 0) then
+            if (ILL_data_directory(i:i) /= ops_sep) then
+               ILL_data_directory=trim(ILL_data_directory)//ops_sep
+            end if
           end if
        end if
 
@@ -1377,16 +1400,15 @@ Module CFML_ILL_Instrm_Data
        If (Len_Trim(Ill_Data_Directory) == 0) Then
           If (Ops == 1) Then
              Ill_Data_Directory = '\\Serdon\illdata'
-
           Else
              Ill_Data_Directory = '/net/serdon/Illdata'
-
           End If
        End If
 
        I = Len_Trim(Ill_Data_Directory)
-       If (Ill_Data_Directory(I:I) /= Ops_Sep) Ill_Data_Directory = Trim(Ill_Data_Directory)//Ops_Sep
-
+       if (i /= 0 ) then
+         If (Ill_Data_Directory(I:I) /= Ops_Sep) Ill_Data_Directory = Trim(Ill_Data_Directory)//Ops_Sep
+       end if
        Got_Ill_Data_Directory = Directory_Exists(Trim(Ill_Data_Directory))
 
        Return
@@ -1442,8 +1464,9 @@ Module CFML_ILL_Instrm_Data
              End If
 
              I = Len_Trim(Ill_Temp_Directory)
-             If (Ill_Temp_Directory(I:I) /= Ops_Sep) Ill_Temp_Directory = Trim(Ill_Temp_Directory)//Ops_Sep
-
+             if( i /= 0) then
+               If (Ill_Temp_Directory(I:I) /= Ops_Sep) Ill_Temp_Directory = Trim(Ill_Temp_Directory)//Ops_Sep
+             end if
              Ill_Temp_Directory = Trim(Ill_Temp_Directory)//'tmp'
 
           End If
@@ -2470,12 +2493,11 @@ Module CFML_ILL_Instrm_Data
           call Get_Absolute_Data_Path(numor,instrm,filenam)
        else
           write(unit=line,fmt="(i6.6)") numor
-          i=len_trim(pathdir)
-          if (pathdir(i:i) /= ops_sep) then
-             filenam=trim(pathdir)//ops_sep//trim(line)
-          else
-             filenam=trim(pathdir)//trim(line)
-          end if
+          i=len_trim(pathdir) 
+          if(i /= 0) then
+             if (pathdir(i:i) /= ops_sep) filenam=trim(pathdir)//ops_sep//trim(line)
+          end if         
+          filenam=trim(pathdir)//trim(line)          
        end if
 
        ! Check if the data exist uncompressed or compressed
@@ -2865,7 +2887,7 @@ Module CFML_ILL_Instrm_Data
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: December - 2005
+    !!---- Update: July - 2010
     !!
     Subroutine Read_SXTAL_Numor(numor,Instrm,snum)
        !---- Arguments ----!
@@ -2879,15 +2901,22 @@ Module CFML_ILL_Instrm_Data
        character(len=80)               :: line
        integer                         :: i,j, lun, long,ier
        integer, dimension(31)          :: ival
+       integer, dimension(35)          :: db21ival
+       integer, parameter :: db21_nframes = 1 ! npdone seems to *represent* a cumul. no of frames
+                                              ! and not actual number of frames in a numor
        real(kind=cp),    dimension(50) :: rval
        logical                         :: existe
 
 
        !---- Construct the absolute path and filename to be read ----!
        write(unit=inst,fmt='(i6.6)') numor
-       line=trim(Instrm_directory)
+       line=trim(Instrm_directory) 
        long=len_trim(line)
-       if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
+       if(long > 1) then
+         if (line(long:long) /= ops_sep) line=trim(line)//ops_sep 
+       else
+       	 line=" "
+       end if
        filenam=trim(line)//inst
 
        !---- Check if the data exist uncompressed or compressed
@@ -2910,6 +2939,7 @@ Module CFML_ILL_Instrm_Data
        call lcase (inst)
 
        Select Case (trim(inst))
+       
           Case("d9","d10","d19")
               read(unit=lun,fmt="(a)",iostat=ier) line
               read(unit=lun,fmt=*,iostat=ier) snum%numor
@@ -2966,6 +2996,85 @@ Module CFML_ILL_Instrm_Data
               snum%counts=0.0
               if(allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
               allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
+              snum%tmc_ang=0.0
+
+              do i=1,snum%nframes
+                do j=1,3
+                   read(unit=lun,fmt="(a)",iostat=ier) line
+                end do
+                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%tmc_ang
+                read(unit=lun,fmt="(a)",iostat=ier) line
+                read(unit=lun,fmt=*,    iostat=ier) snum%tmc_ang(1:j,i)
+                snum%tmc_ang(4:j,i)= snum%tmc_ang(4:j,i)*0.001 !angles are stored here as milidegrees
+                read(unit=lun,fmt="(a)",iostat=ier) line
+                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
+                read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
+                if(ier /= 0) then
+                  ERR_ILLData=.true.
+                  write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
+                     "Error in file: "//trim(filenam)//", reading counts at frame #",i
+                  return
+                end if
+              end do
+              close(unit=lun)
+
+          case ("db21")
+              read(unit=lun,fmt="(a)",iostat=ier) line
+              read(unit=lun,fmt=*,iostat=ier) snum%numor
+              do i=1,5 ! *extra* line in first block of DB21 numor
+                read(unit=lun,fmt="(a)",iostat=ier) line
+              end do
+              snum%header=line
+              do i=1,4
+                read(unit=lun,fmt="(a)",iostat=ier) line
+              end do
+              snum%title=line(1:32)
+              snum%Scantype=adjustl(line(71:80))
+              do i=1,6 ! should work (for general case need to known nbang)
+                read(unit=lun,fmt="(a)",iostat=ier) line
+              end do
+              read(unit=lun,fmt=*,iostat=ier) db21ival ! assumes 35 integers
+              if(ier /= 0) then
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading integer control values"
+                return
+              end if
+              do i=1,12
+                read(unit=lun,fmt="(a)",iostat=ier) line
+              end do
+              read(unit=lun,fmt=*,iostat=ier) rval
+              if(ier /= 0) then
+                ERR_ILLData=.true.
+                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading real control values"
+                return
+              end if
+              !valco      rval( 1:35)
+              !valdef     rval(36:45)
+              !valenv     rval(46:50)
+              snum%hmin=rval(1:3)          !h,k,l          [valco( 1: 3)]
+              snum%hmax=rval(22:24)        !h,k,l (max)    [valco(22:24)]
+              snum%dh=rval(25:27)          !dh,dk,dl       [valco(25:27)]
+              snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
+              snum%ub(1,:)=rval(9:11)      !
+              snum%ub(2,:)=rval(12:14)     ! UB matrix              [valco(9:17)]
+              snum%ub(3,:)=rval(15:17)     ! *NEED* to check ordering of *ELEMENTS*
+              snum%wave=rval(18)           ! wavelength             [valco(18)]
+              snum%cpl_fact=rval(43)       ! Coupling Factor        [valdef(8)]
+              snum%scans=rval(36:38)       ! start, step, width     [valdef(1:3)]
+              snum%preset=rval(39)         ! preset                 [valdef(4)]
+              snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
+              snum%nbdata=db21ival(24)     ! nbdata
+              snum%manip=db21ival(4)       ! manip
+              snum%nbang=db21ival(5)       ! nbang
+              !snum%nframes=db21ival(7)    ! npdone
+              snum%nframes = db21_nframes             
+              snum%icalc=db21ival(9)             ! icalc
+              snum%icdesc(1:11)= db21ival(25:35) ! icdesc
+              if(allocated(snum%counts)) deallocate(snum%counts)
+              allocate(snum%counts(db21ival(24),db21_nframes)) 
+              snum%counts=0.0
+              if(allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
+              allocate(snum%tmc_ang(db21ival(5)+3+1,db21_nframes)) !+1 for a spare var
               snum%tmc_ang=0.0
 
               do i=1,snum%nframes
@@ -3186,8 +3295,9 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Set_Default_Instrument
 
     !!----
-    !!---- Subroutine Set_ILL_Data_Directory(ILL_data_try)
+    !!---- Subroutine Set_ILL_Data_Directory(ILL_data_try,local)
     !!----    character(len=*), optional, intent(in) :: ILL_data_try  !proposed location of ILL data
+    !!----    character(len=*), optional, intent(in) :: local  !if provided the data directory is the current directory
     !!----
     !!----    Assign the global public variable: ILL_data_directory
     !!----    If ILL_data_try=' ' data are in the current directory
@@ -3201,9 +3311,10 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: December - 2006
     !!
-    Subroutine Set_ILL_Data_Directory(ILL_data_try)
+    Subroutine Set_ILL_Data_Directory(ILL_data_try,local)
        !---- Arguments ----!
        character(len=*), optional, intent(in) :: ILL_data_try
+       character(len=*), optional, intent(in) :: local
 
        !---- Local Variables ----!
        character(len=512) :: ILL_data
@@ -3223,33 +3334,39 @@ Module CFML_ILL_Instrm_Data
           call get_environment_variable("ILLDATA", ILL_data)
           if (len_trim(ILL_data) > 0) then
              ILL_data_directory = trim(ILL_data)
-          else
-             select case (ops)
-                case (1) ! Windows
-                   ILL_data_directory ='\\Serdon\illdata'
-                case (2:)
-                   ILL_data_directory ='/net/serdon/illdata'
-             end select
+          else 
+          	 if(present(local)) then
+          	 	  ILL_data_directory = " "
+          	 else
+                select case (ops)
+                   case (1) ! Windows
+                      ILL_data_directory ='\\Serdon\illdata'
+                   case (2:)
+                      ILL_data_directory ='/net/serdon/illdata'
+                end select
+             end if
           end if
        end if
 
-       !---- Add separator if absent ----!
+       !---- Add separator if absent and ILL_data_directory is not the current directory ----!
        len_d=len_trim(ILL_data_directory)
-       if (ILL_data_directory(len_d:len_d) /= ops_sep) then
-         ILL_data_directory=trim(ILL_data_directory)//ops_sep
-       end if
+       if (len_d /= 0) then
+          if (ILL_data_directory(len_d:len_d) /= ops_sep) then
+            ILL_data_directory=trim(ILL_data_directory)//ops_sep
+          end if
 
-       !---- Check that the directory exist, ----!
-       !---- otherwise rise an error condition ----!
-       err_ILLData=.false.
-       existe=directory_exists(trim(ILL_data_directory))
-
-       if (.not. existe) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
-          got_ILL_data_directory=.false.
-       else
-          got_ILL_data_directory=.true.
+         !---- Check that the directory exist, ----!
+         !---- otherwise rise an error condition ----!
+         err_ILLData=.false.
+         existe=directory_exists(trim(ILL_data_directory))
+         
+         if (.not. existe) then
+            ERR_ILLData=.true.
+            ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
+            got_ILL_data_directory=.false.
+         else
+            got_ILL_data_directory=.true.
+         end if 
        end if
 
        return
@@ -3334,6 +3451,51 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Set_Instrm_directory
+    !!----
+    !!---- Subroutine Set_Instrm_Geometry_Directory(env_var)
+    !!----    character(len=*),  intent(in), optional :: env_var
+    !!----
+    !!----    Assign the global public variable: Instrm_Geometry_Directory
+    !!----    The optional intent 'in' variable env_var is the name of any
+    !!----    directory set as the instrument geometry directory.
+    !!----    If the directory doesn't exist the subroutine rises an error condition
+    !!----    by putting ERR_ILLData=.true. and filling the error message
+    !!----    variable ERR_ILLData_Mess. If the subroutine is invoked without argument
+    !!----    the Instrm_Geometry_Directory="" corresponds to the current directory.
+    !!----
+    !!---- Update: July - 2010
+    !!
+    Subroutine Set_Instrm_Geometry_Directory(env_var)
+       !---- Argument ----!
+       character(len=*),  intent(in), optional :: env_var
+
+       !---- Local Variables ----!
+       integer:: i
+
+       ! If an environment variable is given as an argument, then use it directly as the instrument
+       ! geometry directory, otherwise take the current directory as the place where geometry instrument
+       ! files are stored.
+       if ( Present(env_var) ) then
+           Instrm_Geometry_directory = trim(env_var)
+           i=len_trim(Instrm_Geometry_Directory)
+           if (Instrm_Geometry_Directory(i:i) /= ops_sep) Instrm_Geometry_Directory=trim(Instrm_Geometry_Directory)//ops_sep
+           !---- check that the directory exist, ----!
+           !---- otherwise raise an error condition ----!
+           ERR_ILLData=.false.
+           ERR_ILLData_Mess=" "
+           Instrm_Geometry_directory_set=directory_exists(trim(Instrm_Geometry_Directory))
+           if (.not. Instrm_Geometry_directory_set) then
+              ERR_ILLData=.true.
+              ERR_ILLData_Mess="The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist"
+              Instrm_Geometry_Directory = " "
+           end if
+       else 
+           Instrm_Geometry_Directory = " "       !Current directory for searching .geom files
+           Instrm_Geometry_directory_set=.true.
+       end if
+
+       return
+    End Subroutine Set_Instrm_Geometry_Directory
 
     !!--++
     !!--++ Subroutine Set_KeyTypes_on_File(filevar, nlines)
