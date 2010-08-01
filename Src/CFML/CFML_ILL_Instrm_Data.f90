@@ -1696,11 +1696,13 @@ Module CFML_ILL_Instrm_Data
                 end if
 
             Case("WAVE")
-                read(unit=line(i+1:),fmt=*,iostat=ier) wave
+                read(unit=line(i+1:),fmt=*,iostat=ier) Current_Instrm%wave_min
                 if(ier /= 0) then
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength"
                   return
+                else 
+                	Current_Instrm%wave_max=Current_Instrm%wave_min
                 end if
 
             Case("WAVE_LIMITS")
@@ -3486,7 +3488,7 @@ Module CFML_ILL_Instrm_Data
            Instrm_Geometry_directory_set=directory_exists(trim(Instrm_Geometry_Directory))
            if (.not. Instrm_Geometry_directory_set) then
               ERR_ILLData=.true.
-              ERR_ILLData_Mess="The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist"
+              ERR_ILLData_Mess="The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist, currect directory assumed"
               Instrm_Geometry_Directory = " "
            end if
        else 
