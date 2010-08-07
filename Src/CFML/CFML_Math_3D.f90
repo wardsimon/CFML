@@ -471,7 +471,7 @@
     !!----
     !!---- This procedure calculate the volume of polyhedral with Nv vertices.
     !!---- It is based on volcal program of L. W. FINGER.
-    !!---- Adapated by Javier Gonzalez Platas
+    !!---- Adapted by Javier Gonzalez Platas
     !!----
     !!---- Update: February - 2010
     !!
@@ -494,7 +494,7 @@
 
        if (nv <= 3) then
           ERR_Math3D=.true.
-          ERR_Math3D_Mess='Vertives numbers for polyhedron volume is less of 4'
+          ERR_Math3D_Mess='The number of vertices for polyhedron volume is less than 4'
           return
        end if
 
@@ -600,7 +600,7 @@
     Function Rotate_OY(Y,Angle) Result(vec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: y
-       real(kind=cp),               intent(in) :: angle     ! Angulo en grados
+       real(kind=cp),               intent(in) :: angle     ! Angle in degrees
        real(kind=cp), dimension(3)             :: vec
 
        !---- Variables locales ----!

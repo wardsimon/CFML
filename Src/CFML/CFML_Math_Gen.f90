@@ -1876,7 +1876,7 @@
     !!--++    real(kind=cp),              intent(in)  :: x
     !!--++    integer ,                   intent(out) :: j
     !!--++
-    !!--++    Subroutine for locating the index J of an array XX(N)
+    !!--++    Function for locating the index J of an array XX(N)
     !!--++    satisfying:
     !!--++
     !!--++               XX(J) <= X < XX(J+1)
