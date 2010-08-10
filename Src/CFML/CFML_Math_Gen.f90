@@ -4069,7 +4069,7 @@
     !!--++    A = U ·W ·VT . The matrix U replaces A on output. The diagonal matrix of
     !!--++    singular values W is output as the N-dimensional vector w. The N×N matrix V
     !!--++    (not the transpose VT )is output as v .
-    !!--++    Adapted from Numerical Recipes. Valid for arbitrary real(kind=sp) matrices
+    !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -4261,7 +4261,7 @@
     !!--++    A = U ·W ·VT . The matrix U replaces A on output. The diagonal matrix of
     !!--++    singular values W is output as the N-dimensional vector w. The N×N matrix V
     !!--++    (not the transpose VT )is output as v .
-    !!--++    Adapted from Numerical Recipes. Valid for arbitrary real(kind=sp) matrices
+    !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -4356,9 +4356,9 @@
           end if
           a(i,i)=a(i,i)+1.0_sp
        end do
-       do k=n,1,-1         !Diagonalization of the idiagonal form:Loop over
-          do its=1,num_its   !singular values,and over allowed iterations.
-             do l=k,1,-1     !Test for splitting.
+       do k=n,1,-1           !Diagonalization of the idiagonal form:Loop over
+          do its=1,num_its    !singular values,and over allowed iterations.
+             do l=k,1,-1      !Test for splitting.
                 nm=l-1        !Note that rv1(1)is always zero,so can never fall through bottom of loop.
                 if ((abs(rv1(l))+anorm)==anorm) exit
                 if ((abs(w(nm))+anorm)==anorm) then

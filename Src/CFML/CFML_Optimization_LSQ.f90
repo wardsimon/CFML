@@ -978,7 +978,7 @@
     End Subroutine Fdjac2
 
     !!----
-    !!----  Subroutine Info_LSQ_Output(Chi2,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
+    !!----  Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
     !!----   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
     !!----   real(kind=cp),              intent(in)     :: FL         !Final Marquardt lambda
     !!----   integer,                    intent(in)     :: nobs       !Number of data points
