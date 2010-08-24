@@ -402,7 +402,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                     :: nbsqs      !ival(22), d10 sqs slice number
    !!----    integer                     :: nb_cells   !ival(24), multi/powder data - number of detectors
    !!----    integer                     :: nfree1     !          data control (free).
-   !!----    integer,dimension(7)        :: icdesc     !
+   !!----    integer,dimension(11)       :: icdesc     !
    !!----    real(kind=cp), dimension(35):: valco      !rval( 1:35)
    !!----    real(kind=cp), dimension(10):: valdef     !rval(36:45)
    !!----    real(kind=cp), dimension(5) :: valenv     !rval(46:50)
@@ -447,7 +447,7 @@ Module CFML_ILL_Instrm_Data
       integer                     :: nbsqs      !ival(22), d10 sqs slice number
       integer                     :: nb_cells   !ival(24), multi/powder data - number of detectors
       integer                     :: nfree1     !          data control (free).
-      integer,dimension(7)        :: icdesc     !
+      integer,dimension(11)       :: icdesc     !
       real(kind=cp), dimension(35):: valco      !rval( 1:35)
       real(kind=cp), dimension(10):: valdef     !rval(36:45)
       real(kind=cp), dimension(5) :: valenv     !rval(46:50)
@@ -472,7 +472,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
    !!----    integer                                    :: nframes     ! Total number of frames
    !!----    integer                                    :: nbang       ! Total number of angles moved during scan
-   !!----    integer, dimension(7)                      :: icdesc      ! Integer values
+   !!----    integer, dimension(11)                     :: icdesc      ! Integer values
    !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
    !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
    !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
@@ -499,7 +499,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
       integer                                    :: nframes     ! Total number of frames
       integer                                    :: nbang       ! Total number of angles moved during scan
-      integer, dimension(7)                      :: icdesc      ! Integer values
+      integer, dimension(11)                     :: icdesc      ! Integer values
       real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
                                                                 ! To be allocated as tmc_ang(nbang,nframes)
       real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
@@ -529,7 +529,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
    !!----    integer                                    :: nframes     ! Total number of frames
    !!----    integer                                    :: nbang       ! Total number of angles moved during scan
-   !!----    integer, dimension(7)                      :: icdesc      ! Integer values
+   !!----    integer, dimension(11)                     :: icdesc      ! Integer values
    !!----    real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
    !!----                                                              ! To be allocated as tmc_ang(nbang,nframes)
    !!----    real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
@@ -560,7 +560,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
       integer                                    :: nframes     ! Total number of frames
       integer                                    :: nbang       ! Total number of angles moved during scan
-      integer, dimension(7)                      :: icdesc      ! Integer values
+      integer, dimension(11)                     :: icdesc      ! Integer values
       real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
                                                                 ! To be allocated as tmc_ang(nbang,nframes)
       real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
@@ -1087,7 +1087,7 @@ Module CFML_ILL_Instrm_Data
        if (.not. got_ILL_Data_directory) return
 
        if (.not. got_ILL_Temp_Directory) return
-       
+
        ! Uncompress program must be defined
        if (len_trim(uncompresscommand) == 0) call define_uncompress_program('gzip -q -d -c')
 
@@ -1159,7 +1159,7 @@ Module CFML_ILL_Instrm_Data
        if (present(actual_path)) actual_path = path
        inquire(file=trim(path),exist=exists)
        if (exists) return ! found numor so return
-       
+
        ! start from the most recent yearcycle and work search backwards
        call get_next_yearcycle(yearcycle,.true.)
        do
@@ -1701,7 +1701,7 @@ Module CFML_ILL_Instrm_Data
                   ERR_ILLData=.true.
                   ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading the wavelength"
                   return
-                else 
+                else
                 	Current_Instrm%wave_max=Current_Instrm%wave_min
                 end if
 
@@ -2495,11 +2495,11 @@ Module CFML_ILL_Instrm_Data
           call Get_Absolute_Data_Path(numor,instrm,filenam)
        else
           write(unit=line,fmt="(i6.6)") numor
-          i=len_trim(pathdir) 
+          i=len_trim(pathdir)
           if(i /= 0) then
              if (pathdir(i:i) /= ops_sep) filenam=trim(pathdir)//ops_sep//trim(line)
-          end if         
-          filenam=trim(pathdir)//trim(line)          
+          end if
+          filenam=trim(pathdir)//trim(line)
        end if
 
        ! Check if the data exist uncompressed or compressed
@@ -2912,10 +2912,10 @@ Module CFML_ILL_Instrm_Data
 
        !---- Construct the absolute path and filename to be read ----!
        write(unit=inst,fmt='(i6.6)') numor
-       line=trim(Instrm_directory) 
+       line=trim(Instrm_directory)
        long=len_trim(line)
        if(long > 1) then
-         if (line(long:long) /= ops_sep) line=trim(line)//ops_sep 
+         if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
        else
        	 line=" "
        end if
@@ -2941,7 +2941,7 @@ Module CFML_ILL_Instrm_Data
        call lcase (inst)
 
        Select Case (trim(inst))
-       
+
           Case("d9","d10","d19")
               read(unit=lun,fmt="(a)",iostat=ier) line
               read(unit=lun,fmt=*,iostat=ier) snum%numor
@@ -3069,11 +3069,11 @@ Module CFML_ILL_Instrm_Data
               snum%manip=db21ival(4)       ! manip
               snum%nbang=db21ival(5)       ! nbang
               !snum%nframes=db21ival(7)    ! npdone
-              snum%nframes = db21_nframes             
+              snum%nframes = db21_nframes
               snum%icalc=db21ival(9)             ! icalc
               snum%icdesc(1:11)= db21ival(25:35) ! icdesc
               if(allocated(snum%counts)) deallocate(snum%counts)
-              allocate(snum%counts(db21ival(24),db21_nframes)) 
+              allocate(snum%counts(db21ival(24),db21_nframes))
               snum%counts=0.0
               if(allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
               allocate(snum%tmc_ang(db21ival(5)+3+1,db21_nframes)) !+1 for a spare var
@@ -3336,7 +3336,7 @@ Module CFML_ILL_Instrm_Data
           call get_environment_variable("ILLDATA", ILL_data)
           if (len_trim(ILL_data) > 0) then
              ILL_data_directory = trim(ILL_data)
-          else 
+          else
           	 if(present(local)) then
           	 	  ILL_data_directory = " "
           	 else
@@ -3361,14 +3361,14 @@ Module CFML_ILL_Instrm_Data
          !---- otherwise rise an error condition ----!
          err_ILLData=.false.
          existe=directory_exists(trim(ILL_data_directory))
-         
+
          if (.not. existe) then
             ERR_ILLData=.true.
             ERR_ILLData_Mess="The ILL directory: '"//trim(ILL_data_directory)//"' doesn't exist"
             got_ILL_data_directory=.false.
          else
             got_ILL_data_directory=.true.
-         end if 
+         end if
        end if
 
        return
@@ -3488,10 +3488,11 @@ Module CFML_ILL_Instrm_Data
            Instrm_Geometry_directory_set=directory_exists(trim(Instrm_Geometry_Directory))
            if (.not. Instrm_Geometry_directory_set) then
               ERR_ILLData=.true.
-              ERR_ILLData_Mess="The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist, currect directory assumed"
+              ERR_ILLData_Mess=&
+              "The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist, currect directory assumed"
               Instrm_Geometry_Directory = " "
            end if
-       else 
+       else
            Instrm_Geometry_Directory = " "       !Current directory for searching .geom files
            Instrm_Geometry_directory_set=.true.
        end if
@@ -3910,8 +3911,8 @@ Module CFML_ILL_Instrm_Data
                                         Current_Instrm%ipsd
           write(unit=ipr,fmt="(a,f8.3)") "DIST_DET ",Current_Instrm%dist_samp_detector
           if(index(Current_Instrm%geom,"Laue") /= 0) then
-            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MIN: ", Current_Instrm%wave_min 
-            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MAX: ", Current_Instrm%wave_max 
+            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MIN: ", Current_Instrm%wave_min
+            write(unit=ipr,fmt="(a,f8.3,a)") "LAMBDA_MAX: ", Current_Instrm%wave_max
           end if
           write(unit=ipr,fmt="(a,2f8.3,2i5)") "DIM_XY ", Current_Instrm%horiz,    Current_Instrm%vert, &
                                                     Current_Instrm%np_horiz, Current_Instrm%np_vert
