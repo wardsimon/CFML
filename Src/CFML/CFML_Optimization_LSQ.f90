@@ -155,7 +155,7 @@
 !!--..            type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
 !!--..            type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
 !!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement
+!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
 !!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
 !!--..         End Subroutine
 !!--..
@@ -186,8 +186,7 @@
 !!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
 !!--..            logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
 !!--..                                                                     !of making unambiguous the generic procedure
-!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement
-!!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
 !!--..
 !!--..         The fourth interface corresponds to the original version in MINPACK
 !!--..         (called lmder1)
@@ -1093,7 +1092,7 @@
     !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
     !!--++     logical,                     Intent(in)      :: calder   !logical (should be .true.) used only for purposes
     !!--++                                                              !of making unambiguous the generic procedure
-    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement
+    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
     !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
     !!--++
     !!--++     !--- Local Variables ---!
@@ -1303,7 +1302,7 @@
     !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
     !!--++     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
     !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement
+    !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
     !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
     !!--++     !--- Local Variables ---!
     !!--++     Interface
@@ -1333,7 +1332,7 @@
        type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
        type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
        Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
-       character(len=*),            Intent(out)     :: infout   !Information about the refinement
+       character(len=*),            Intent(out)     :: infout   !Information about the refinement  (min length 256)
        Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
 
        Interface
@@ -2288,7 +2287,7 @@
     !!--..  Argonne National Laboratory. minpack project. march 1980.
     !!--..  Burton S. Garbow, Kenneth E. Hillstrom, Jorge J. More
     !!--++
-    !!--++ Update: February - 2009
+    !!--++ Updated: February - 2009
     !!
     Subroutine lmdif(fcn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn,  &
                      mode, factor, nprint, info, nfev, fjac, ipvt)

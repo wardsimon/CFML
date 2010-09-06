@@ -2232,7 +2232,7 @@
     End Subroutine Local_DFP
 
     !!----
-    !!---- Local_Min_DFP(Model_Functn, N, X, F, C, mini, maxi, Ipr)
+    !!---- Subroutine Local_Min_DFP(Model_Functn, N, X, F, C, mini, maxi, Ipr)
     !!----  integer,              intent(in)      :: N       ! The Number Of Parameters
     !!----  real, dimension(:),   intent(in out)  :: X       ! Vector Of Length N Containing Parameter Values
     !!----                                                   ! In -> Must Contain The Initial Parameter Estimates
