@@ -962,7 +962,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
-         write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i,jopt)
+         write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),sigp(i,jopt)
          write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
@@ -1241,7 +1241,7 @@
        End Interface
 
        !--- Local Variables ---!
-       character(len=132)                 :: messag, strings
+       character(len=256)                 :: messag, strings
        integer, parameter                 :: i_conf=99
        integer, dimension(1)              :: seed
        integer                            :: i, j, neval, ncf, jk, naj, ntp, naver, jj !, last
@@ -1518,7 +1518,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
-         write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i)
+         write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),sigp(i)
          write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
@@ -1901,7 +1901,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
-         write(unit=strings,fmt="(i6,a,2F16.5)")  i,vs%nampar(i), vs%config(i),sigp(i,jopt)
+         write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),sigp(i,jopt)
          write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)
        end do
