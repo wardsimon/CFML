@@ -114,7 +114,7 @@ Module CFML_LSQ_TypeDef
    !!----     real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
    !!----     real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
    !!----     integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
-   !!----     character(len=15), dimension(Max_Free_Par) :: nampar     !Names of parameters
+   !!----     character(len=25), dimension(Max_Free_Par) :: nampar     !Names of parameters
    !!----  End Type LSQ_State_Vector_Type
    !!----
    !!----  Derived type encapsulating the vector state defining a set of parameter
@@ -128,7 +128,7 @@ Module CFML_LSQ_TypeDef
       real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
       real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
       integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
-      character(len=15), dimension(Max_Free_Par) :: nampar     !Names of parameters
+      character(len=25), dimension(Max_Free_Par) :: nampar     !Names of parameters
    End Type LSQ_State_Vector_type
 
 End Module CFML_LSQ_TypeDef
