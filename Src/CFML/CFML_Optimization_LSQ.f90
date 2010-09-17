@@ -243,6 +243,7 @@
 !!--++       MARQUARDT_FIT_v1          [Private]
 !!--++       MARQUARDT_FIT_v2          [Private]
 !!--++       OUTPUT_CYC                [Private]
+!!----       INFO_LSQ_LM
 !!----       INFO_LSQ_OUTPUT
 !!--++       QRFAC                     [Private]
 !!--++       QRSOLV                    [Private]
@@ -265,7 +266,7 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output
+    public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -344,14 +345,14 @@
 
     !!--++
     !!--++ NAMFREE
-    !!--++    character(len=15), dimension(Max_Free_Par), private   :: namfree
+    !!--++    character(len=25), dimension(Max_Free_Par), private   :: namfree
     !!--++
     !!--++  (PRIVATE)
     !!--++  Names of refined parameters
     !!--++
     !!--++ Update: February - 2005
     !!
-    character(len=15), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
+    character(len=25), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
 
     !!--++
     !!--++ PN
@@ -977,6 +978,78 @@
     End Subroutine Fdjac2
 
     !!----
+    !!----  Subroutine Info_LSQ_LM(Chi2,Lun,c,vs)
+    !!----   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
+    !!----   integer,                    intent(in)     :: lun        !Logical unit for output
+    !!----   type(LSQ_conditions_type),  intent(in)     :: c          !Conditions of the refinement
+    !!----   type(LSQ_State_Vector_type),intent(in)     :: vs         !State vector (parameters of the model)
+    !!----
+    !!----  Subroutine for output information at the end of refinement of a Levenberg-Marquard fit
+    !!----
+    !!---- Update: September - 2010
+    !!
+    Subroutine Info_LSQ_LM(Chi2,Lun,c,vs)
+       !---- Arguments ----!
+       real(kind=cp),              intent(in)     :: chi2
+       integer,                    intent(in)     :: lun
+       type(LSQ_conditions_type),  intent(in)     :: c
+       type(LSQ_State_Vector_type),intent(in)     :: vs
+
+       !---- Local variables ----!
+       integer       :: i,j,inum
+       real(kind=cp) :: del,g2
+
+
+       !---- Correlation matrix ----!
+       write(unit=lun,fmt="(/,a,/)")   " => Correlation Matrix: "
+
+       do i=1,c%npvar
+          do j=i,c%npvar
+             correl(i,j)=correl(i,j)/sqrt(curv_mat(i,i)*curv_mat(j,j))
+             correl(j,i)=correl(i,j)
+          end do
+       end do
+       do i=1,c%npvar
+          g2=sqrt(correl(i,i))
+          do j=i,c%npvar
+             correl(i,j)=correl(i,j)/g2/sqrt(correl(j,j))*100.0
+             correl(j,i)=correl(i,j)
+          end do
+       end do
+
+       inum=0
+       do i=1,c%npvar-1
+          do j=i+1,c%npvar
+             if (correl(i,j) > real(c%corrmax) ) then
+                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(correl(i,j)),  &
+                     " > ",c%corrmax,"% for parameters:   ", adjustr(namfree(i))," & ", namfree(j)
+                inum=inum+1
+             end if
+          end do
+       end do
+       if (inum == 0) then
+          write(unit=lun,fmt="(/,a,i2,a)") " => There is no correlations greater than ",c%corrmax,"% "
+       else
+          write(unit=lun,fmt="(/,a,i3,a,i2,a)") " => There are ",inum," values of Correlation > ",c%corrmax,"%"
+       end if
+
+       write(unit=lun,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
+                                           "      --------------------------------------------------------"
+       write(unit=lun,fmt="(/,a,/)")       "    #   Parameter name         No.(Model)        Final-Value     Standard Deviation"
+       inum=0
+       do i=1,vs%np
+          if (vs%code(i)/=0) then
+            inum=inum+1
+            write(unit=lun,fmt="(i5,a,i6,a,2f20.5)") inum,"    "//vs%nampar(i),i," ",vs%pv(i),vs%spv(i)
+          end if
+       end do
+       write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
+
+
+       return
+    End Subroutine Info_LSQ_LM
+
+    !!----
     !!----  Subroutine Info_LSQ_Output(Chi2,FL,Nobs,X,Y,Yc,W,Lun,c,vs,out_obscal)
     !!----   real(kind=cp),              intent(in)     :: chi2       !Final Chi2
     !!----   real(kind=cp),              intent(in)     :: FL         !Final Marquardt lambda
@@ -1051,7 +1124,7 @@
        do i=1,c%npvar-1
           do j=i+1,c%npvar
              if (correl(i,j) > real(c%corrmax) ) then
-                write(unit=lun,fmt="(a,i4,a,i2,a,a15,a,a15)") "    Correlation:",nint(correl(i,j)),  &
+                write(unit=lun,fmt="(a,i4,a,i2,4a)") "    Correlation:",nint(correl(i,j)),  &
                      " > ",c%corrmax,"% for parameters:   ", adjustr(namfree(i))," & ", namfree(j)
                 inum=inum+1
              end if
@@ -1063,13 +1136,17 @@
           write(unit=lun,fmt="(/,a,i3,a,i2,a)") " => There are ",inum," values of Correlation > ",c%corrmax,"%"
        end if
 
-       write(unit=lun,fmt="(/,/,a,/,a,/)") "    FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
-                                           "    --------------------------------------------------------"
-       write(unit=lun,fmt="(/,a,/)")       "       Name-Par      No.          Final-Value    Standard Deviation "
+       write(unit=lun,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
+                                           "      --------------------------------------------------------"
+       write(unit=lun,fmt="(/,a,/)")       "    #   Parameter name         No.(Model)        Final-Value     Standard Deviation"
+       inum=0
        do i=1,vs%np
-          if (vs%code(i)/=0) write(unit=lun,fmt="(a,i6,a,2f20.6)") "   "//vs%nampar(i),i," ",vs%pv(i),vs%spv(i)
+          if (vs%code(i)/=0) then
+            inum=inum+1
+            write(unit=lun,fmt="(i5,a,i6,a,2f20.5)") inum,"    "//vs%nampar(i),i," ",vs%pv(i),vs%spv(i)
+          end if
        end do
-       write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
+       write(unit=lun,fmt="(/,a,f12.5)") " => Final value of Chi2: ",chi2
 
        if (present(out_obscal)) then
           !---- Output of a file with the observed and calculated curves ----!
@@ -1083,6 +1160,7 @@
 
        return
     End Subroutine Info_LSQ_Output
+
 
     !!--++
     !!--++   Subroutine LM_Der(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
@@ -1148,7 +1226,7 @@
        Real (Kind=cp), dimension(c%npvar)   :: x, sx
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
-       Real (Kind=cp)                       :: ftol, gtol, xtol,iChi2
+       Real (Kind=cp)                       :: ftol, gtol, xtol,iChi2,deni,denj
        Real (Kind=cp), Parameter            :: factor = 100.0_CP, zero = 0.0_CP
        Logical                              :: singular
 
@@ -1224,15 +1302,21 @@
        !Call Model_Functn(m, n, x, fvec, fjac, iflag)
        !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac)
        do j=1,n
+          denj=curv_mat(j,j)
+          if( denj <= zero) denj=1.0
           do i=1,n
-             correl(j,i)=curv_mat(j,i)/sqrt(curv_mat(j,j)*curv_mat(i,i))
+             deni=curv_mat(i,i)
+             if( deni <= zero) deni=1.0
+             correl(j,i)=curv_mat(j,i)/sqrt(denj*deni)
           end do
           correl(j,j)=1.00001
        end do
        Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
        If (.not. singular) then
           Do i=1,n
-             sx(i) = sqrt(abs(correl(i,i)/curv_mat(i,i)))   !sqrt(abs(correl(i,i)*Chi2))
+             deni = curv_mat(i,i)
+             if( deni <= zero) deni=1.0
+             sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
           End Do
        Else
           Do i=1,n
@@ -1353,7 +1437,7 @@
        Real (Kind=cp), dimension(c%npvar)   :: x, sx
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
-       Real (Kind=cp)                       :: epsfcn,ftol, gtol, xtol,iChi2
+       Real (Kind=cp)                       :: epsfcn,ftol, gtol, xtol,iChi2,deni,denj
        Real (Kind=cp), Parameter            :: factor = 100.0_CP, zero = 0.0_CP
        Logical                              :: singular
 
@@ -1421,15 +1505,21 @@
        curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
 
        do j=1,n
+          denj=curv_mat(j,j)
+          if( denj <= zero) denj=1.0
           do i=1,n
-             correl(j,i)=curv_mat(j,i)/sqrt(curv_mat(j,j)*curv_mat(i,i))
+             deni=curv_mat(i,i)
+             if( deni <= zero) deni=1.0
+             correl(j,i)=curv_mat(j,i)/sqrt(denj*deni)
           end do
           correl(j,j)=1.00001
        end do
        Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
        If (.not. singular) then
           Do i=1,n
-             sx(i) = sqrt(abs(correl(i,i)/curv_mat(i,i)))         !sqrt(abs(correl(i,i)*Chi2))
+             deni = curv_mat(i,i)
+             if( deni <= zero) deni=1.0
+             sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
           End Do
        Else
           Do i=1,n
