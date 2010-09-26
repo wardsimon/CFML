@@ -10,7 +10,7 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++     Use CFML_GlobalDeps,                   only: sp, tpi
+!!--++     Use CFML_GlobalDeps,                  only: sp, tpi
 !!--++     Use CFML_Math_General,                only: atan2d, sort
 !!--++     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
 !!--++     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -582,9 +582,10 @@
     !!----    The components are given with respect to the crystallographic
     !!----    unitary direct cell system: {e1,e2,e3}. If Mode is given the
     !!----    components are with respect to the cartesian frame defined in
-    !!----    Cell.
+    !!----    Cell. In this subroutine the presence of magnetic domains is
+    !!----    taken into account
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: September - 2010
     !!
     Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh,Mode)
        !---- Arguments ----!
@@ -628,9 +629,9 @@
 
                 do i=1,Atm%natoms
                    m= Atm%Atom(i)%imat(nvk)
+                   if (m == 0) cycle  !Calculate only with contributing atoms
                    Skr= matmul(Mag_Dom%Dmat(:,:,nd),Atm%atom(i)%SkR(:,nvk))
                    Ski= matmul(Mag_Dom%Dmat(:,:,nd),ch(ich)*Atm%atom(i)%SkI(:,nvk))
-                   if (m == 0) cycle  !Calculate only with contributing atoms
 
                    !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
                    b=atm%atom(i)%biso
