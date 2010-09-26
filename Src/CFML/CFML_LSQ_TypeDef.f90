@@ -61,7 +61,7 @@ Module CFML_LSQ_TypeDef
    Type, public :: LSQ_Conditions_Type
       logical          :: constr=.false.  ! if true box constraint of percent% are applied to parameters
       logical          :: reached=.false. ! if true convergence was reached in the algorithm
-      integer          :: corrmax=50.0    ! value of correlation in % to output
+      integer          :: corrmax=50      ! value of correlation in % to output
       integer          :: nfev=0          ! number of function evaluations (output component, useful for assessing LM algorithm)
       integer          :: njev=0          ! number of Jacobian evaluations                 "
       integer          :: icyc=0          ! number of cycles of refinement or maximum number of function evaluations in LM
