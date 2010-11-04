@@ -2058,7 +2058,7 @@
                 atm%atom(n_atom)%occ=vet(1)
                 atm%atom(n_atom)%utype="u_ij"
 
-             case (7) ! Atomname Sfac X Y Z Occ Uiso
+             case (7,8) ! Atomname Sfac X Y Z Occ Uiso   (TR: item 8 can be electronic density created by SHELXS)
                 call getnum(label(2),vet,ivet,iv)   ! Is Sfac integer?
                 if (iv /= 1) cycle
                 call getnum(label(3),vet,ivet,iv)   ! Is X real?
