@@ -1477,7 +1477,7 @@
          else if(datyp == "ALT") then
             if (bintyp == "RALF") then
                pat%ct_step  = .false.
-               read(unit=i_dat,fmt="(4(f8.0,f7.4,f5.4))",iostat=ier)(pat%x(i),pat%y(i),pat%sigma(i),i=1,pat%npts)
+               read(unit=i_dat,fmt="(4(f8.0,f7.0,f5.0))",iostat=ier)(pat%x(i),pat%y(i),pat%sigma(i),i=1,pat%npts)
                if (ier /= 0) then
                   backspace (unit=i_dat)
                end if
@@ -1498,7 +1498,7 @@
 
             else if(bintyp == "CONST") then
                pat%ct_step  = .true.
-               read(unit=i_dat,fmt="(4(f8.0,f7.4,f5.4))", iostat=ier)(pat%x(i),pat%y(i),pat%sigma(i),i=1,pat%npts)
+               read(unit=i_dat,fmt="(4(f8.0,f7.0,f5.0))", iostat=ier)(pat%x(i),pat%y(i),pat%sigma(i),i=1,pat%npts)
                if (ier /= 0) then
                   backspace (unit=i_dat)
                end if

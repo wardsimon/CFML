@@ -671,7 +671,7 @@
 
        do j=1,vs%nconf
          strings=" "
-         write(unit=strings,fmt="(a,i2,a,g12.6)") " => Initial configuration cost(",j,"): ",cost1(j)
+         write(unit=strings,fmt="(a,i2,a,g12.5)") " => Initial configuration cost(",j,"): ",cost1(j)
          call mess(strings)
          write(unit=ipr,fmt="(a)") trim(strings)
        end do
@@ -1657,7 +1657,7 @@
 
        do j=1,vs%nconf
          strings=" "
-         write(unit=strings,fmt="(a,i2,a,g12.6)") " => Initial configuration cost(",j,"): ",cost1(j)
+         write(unit=strings,fmt="(a,i2,a,g12.5)") " => Initial configuration cost(",j,"): ",cost1(j)
          call mess(strings)
          write(unit=ipr,fmt="(a)") trim(strings)
        end do

@@ -396,10 +396,10 @@
           do j=1,A%N_Anions
              n2=A%N_Cations+j
              if (present(ipr)) then
-                write(unit=ipr,fmt="(2(a,i3,a,a4),2(a,f5.3),a)") &
+                write(unit=ipr,fmt="(2(a,i3,a,a4),2(a,f6.3),a)") &
                       "   Type",n1,": ",A%Species(n1)," with type",n2,": ",A%Species(n2),&
                       " d0=",Table_d0(n1,n2),"    B0=",Table_b(n1,n2), "   => Reference: "//trim(references(Table_ref(n1,n2)))
-                write(unit=ipr,fmt="(2(a,a,a,f5.3,a),/)") &
+                write(unit=ipr,fmt="(2(a,a,a,f6.3,a),/)") &
                       "   Cation (Eff. radius): ",A%Species(n1),"(",A%Radius(n1),")   ", &
                       "   Anion  (Eff. radius): ",A%Species(n2),"(",A%Radius(n2),")"
              end if
@@ -442,10 +442,10 @@
           d2=0.0
           isoc=INT(A%atom(i)%VarF(2)*1000.0+0.5)
           if (present(ipr)) then
-             write(unit=ipr,fmt="(/,/,a,/,a,a4,a,f5.3,a,i3,a,/,a,/)") &
-                  "    ------------------------------------------------------------------",  &
+             write(unit=ipr,fmt="(/,/,a,/,a,a4,a,f6.3,a,i3,a,/,a,/)") &
+                  "    -------------------------------------------------------------------",  &
                   " => Bond-valence and coordination of atom: ",A%atom(i)%lab ," occupancy: ",A%atom(i)%VarF(1),"(",isoc,")",  &
-                  "    ------------------------------------------------------------------"
+                  "    -------------------------------------------------------------------"
           end if
           do j=1,icm
              k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
@@ -720,7 +720,7 @@
        write (unit=jbvs, fmt='(3f12.4,3x,3f8.3)') cell%cell,cell%ang
        write (unit=jbvs, fmt='(9i6)') ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
        do k=1,ndimz
-          write(unit=jbvs,fmt='(8g10.4)') ((map_bvs(k,i,j),i=1,ndimx),j=1,ndimy)
+          write(unit=jbvs,fmt='(8g11.4)') ((map_bvs(k,i,j),i=1,ndimx),j=1,ndimy)
        end do
        close(unit=jbvs)
 

@@ -1347,15 +1347,15 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
                        " Convergence reached: The relative error in the sum of squares is at most ",c%tol
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
                        " Convergence reached: The relative error between x and the solution is at most ",c%tol
           Case(3)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error "// &
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error "// &
            "in the sum of squares and the difference between x and the solution are both at most ",c%tol
           Case(4,8)
              c%reached=.true.
@@ -1368,11 +1368,11 @@
 
           Case(6)
              c%reached=.false.
-             write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
                                             " is too small! No further reduction in the sum of squares is possible"
           Case(7)
              c%reached=.false.
-             write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
                                             " is too small! No further improvement in the approximate solution x is possible"
        End Select
        if (present(residuals)) residuals(1:m)=fvec(1:m)
@@ -1550,15 +1550,15 @@
              c%reached=.false.
           Case(1)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2, &
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
                        " Convergence reached: The relative error in the sum of squares is at most ",c%tol
           Case(2)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2,&
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
                        " Convergence reached: The relative error between x and the solution is at most ",c%tol
           Case(3)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e10.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error"// &
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error"// &
              " in the sum of squares and the difference between x and the solution are both at most ",c%tol
           Case(4,8)
              c%reached=.true.
@@ -1571,11 +1571,11 @@
 
           Case(6)
              c%reached=.false.
-             write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
                                             " is too small! No further reduction in the sum of squares is possible"
           Case(7)
              c%reached=.false.
-             write(unit=infout,fmt="(a,e10.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
+             write(unit=infout,fmt="(a,e12.5,a)") "Convergence NOT reached: Provided tolerance ",c%tol,&
                                             " is too small! No further improvement in the approximate solution x is possible"
        End Select
        if (present(residuals)) residuals(1:m)=fvec(1:m)
