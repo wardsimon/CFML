@@ -141,7 +141,7 @@
     !!--++    real(kind=cp), parameter, private :: eps_ref
     !!--++
     !!--++    (PRIVATE)
-    !!--++    Epsilon for comparisons within this module
+    !!--++    Epsilon for comparisons within this module. Increased w.r.t. previous versions.
     !!--++
     !!--++ Update: December - 2010
     !!
