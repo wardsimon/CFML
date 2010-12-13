@@ -7,19 +7,20 @@
 !!----         Bragg reflections
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
+!!----    Update: December - 2010
 !!----
 !!----            July -  1999. Reorganized by JGP and JRC
 !!----
 !!---- DEPENDENCIES
 !!----
+!!--++    Use CFML_GlobalDeps,                only: sp, cp, pi
+!!--++    Use CFML_Math_General,              only: sort
+!!--++    Use CFML_String_Utilities,          only: l_case,Get_LogUnit
 !!--++    Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
-!!--++    Use CFML_String_Utilities,          only: l_case
-!!--++    Use CFML_Math_General,              only: sort,sp
-!!--++    Use CFML_GlobalDeps,                only: sp
 !!----
 !!---- VARIABLES
+!!--++    EPS_REF                  [Private]
 !!----    ERR_REFL
 !!----    ERR_REFL_MESS
 !!--++    HKL_REF_COND_INI         [Private]
@@ -94,7 +95,7 @@
  Module CFML_Reflections_Utilities
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: sp, cp, pi, eps  !Init Eps was 0.0001
+    Use CFML_GlobalDeps,                only: sp, cp, pi
     Use CFML_Math_General,              only: sort
     Use CFML_String_Utilities,          only: l_case,Get_LogUnit
     Use CFML_Crystallographic_Symmetry, only: Sym_Oper_Type, Space_Group_Type
@@ -134,6 +135,17 @@
     !---- Definitions ----!
 
     !---- Local Variables ----!
+
+    !!--++
+    !!--++ eps_ref
+    !!--++    real(kind=cp), parameter, private :: eps_ref
+    !!--++
+    !!--++    (PRIVATE)
+    !!--++    Epsilon for comparisons within this module
+    !!--++
+    !!--++ Update: December - 2010
+    !!
+    real(kind=cp), parameter, private :: eps_ref  = 0.0002_cp
 
     !!----
     !!---- ERR_REFL
@@ -1206,7 +1218,7 @@
           if (hkl_equal(h,k)) then
              r1=dot_product(SpaceGroup%SymOp(i)%Tr,real(h))
              r2=nint(r1)
-             if (abs(r1-r2) > eps) then
+             if (abs(r1-r2) > eps_ref) then
                 info=.true.
                 exit
              end if
@@ -1243,7 +1255,7 @@
           if (hkl_equal(h,k)) then
              r1=dot_product(SpaceGroup%SymOp(i)%Tr,h)
              r2=nint(r1)
-             if (abs(r1-r2) > eps) then
+             if (abs(r1-r2) > eps_ref) then
                 info=.true.
                 exit
              end if
@@ -1300,8 +1312,8 @@
        logical                                 :: info
 
        info=.false.
-       if (abs(h(1)-k(1)) <= eps .and. abs(h(2)-k(2)) <= eps .and. &
-           abs(h(3)-k(3)) <= eps) info=.true.
+       if (abs(h(1)-k(1)) <= eps_ref .and. abs(h(2)-k(2)) <= eps_ref .and. &
+           abs(h(3)-k(3)) <= eps_ref) info=.true.
 
        return
     End Function Hkl_EqualR
