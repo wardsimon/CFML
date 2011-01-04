@@ -195,13 +195,16 @@
     !!----                                                        ! (or crystallographic components to
     !!----                                                        !  cartesian components)
     !!----     real(kind=cp),dimension(3,3) :: Orth_Cr_cel        ! Inv(Cr_Orth_cel) -> Cartesian to cryst. components
+    !!----     real(kind=cp),dimension(3,3) :: BL_M               ! Busing-Levy B-matrix (transforms hkl to  a
+    !!----                                                          Cartesian system with x//a*, y in (a*,b*) and z//c
+    !!----     real(kind=cp),dimension(3,3) :: BL_Minv            ! Inverse of the Busing-Levy B-matrix
     !!----     real(kind=cp)                :: CellVol            ! Direct and Reciprocal
     !!----     real(kind=cp)                :: RCellVol           ! Cell volumes
     !!----     Character (len=1)            :: CartType           ! Cartesian Frame type: if CartType='A'
     !!----                                                        ! the Cartesian Frame has x // a.
     !!----  End Type Crystal_Cell_Type
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: January - 2011
     !!
     Type, public :: Crystal_Cell_Type
        real(kind=cp),dimension(3)   :: cell, ang
@@ -210,6 +213,8 @@
        real(kind=cp),dimension(3,3) :: GD,GR
        real(kind=cp),dimension(3,3) :: Cr_Orth_cel
        real(kind=cp),dimension(3,3) :: Orth_Cr_cel
+       real(kind=cp),dimension(3,3) :: BL_M
+       real(kind=cp),dimension(3,3) :: BL_Minv
        real(kind=cp)                :: CellVol
        real(kind=cp)                :: RCellVol
        character (len=1)            :: CartType
@@ -600,15 +605,15 @@
        else
           uu=u
        end if
-       
+
        umod=sqrt(dot_product(uu,uu))
-       
+
        if (umod < tiny(1.0)) then
           uu=(/0.0,0.0,1.0/)
-       else                      
+       else
           uu= uu/umod
        end if
-                  
+
        c= cosd(phi)
        s= sind(phi)
        umc = 1.0-c
@@ -2436,6 +2441,24 @@
        Celda%GD=Metrics(cellv,angl)
        Celda%GR=Metrics(Celda%rcell,Celda%rang)
 
+       ! Busing-Levy matrix component
+       Celda%bl_m(1,1)=celda%rcell(1)
+       Celda%bl_m(1,2)=celda%rcell(2)*cosd(celda%rang(3))
+       Celda%bl_m(1,3)=celda%rcell(3)*cosd(celda%rang(2))
+       Celda%bl_m(2,2)=celda%rcell(2)*sind(celda%rang(3))
+       Celda%bl_m(2,3)=-(celda%rcell(3)*sind(celda%rang(2))*cosd(celda%ang(1)))
+       Celda%bl_m(3,3)=1.0/celda%cell(3)
+       Celda%bl_m(2,1)=0.0
+       Celda%bl_m(3,1)=0.0
+       Celda%bl_m(3,2)=0.0
+       call matrix_inverse(Celda%bl_m,Celda%bl_minv,ifail)
+
+       if (ifail /= 0) then
+          err_crys=.true.
+          ERR_Crys_Mess=" Bad cell parameters "
+          return
+       end if
+
        return
     End Subroutine Set_Crystal_Cell
 
@@ -2447,7 +2470,7 @@
     !!----    Writes the cell characteristics in a file associated to the
     !!----    logical unit lun
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: January - 2011
     !!
     Subroutine Write_Crystal_Cell(Celda,Lun)
        !---- Arguments ----!
@@ -2488,6 +2511,12 @@
        Write(unit=iunit,fmt="(a)")       "              Cr_Orth_cel                               Orth_Cr_cel  "
        do i=1,3
           Write(unit=iunit,fmt="(3f12.4,a,3f12.6)") (Celda%Cr_Orth_cel(i,j),j=1,3),"      ", (Celda%Orth_Cr_cel(i,j),j=1,3)
+       end do
+
+       Write(unit=iunit,fmt="(/,a)")     "     Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix"
+       Write(unit=iunit,fmt="(a)")       "                BL_M                                      BL_Minv  "
+       do i=1,3
+          Write(unit=iunit,fmt="(3f12.6,a,3f12.4)") (Celda%BL_M(i,j),j=1,3),"      ", (Celda%BL_Minv(i,j),j=1,3)
        end do
 
        return
