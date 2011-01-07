@@ -46,7 +46,7 @@
                                        !in a primitive basis
     real, dimension(3,3,Max_Sol):: Bsol !Independent solutions
     real, dimension(3,3)        :: base,Rot,Wi,W,GD,DELTA,Bm,Bmi,Dt,Lm,Lmi
-    character(len=1)            :: lat_type
+    character(len=1)            :: lat_type, key
     type (Crystal_Cell_Type)    :: cell, pcell
     type (space_group_type)     :: SpG
     logical                     :: arggiven,centred, cell_given=.false., spg_given=.false.
@@ -282,5 +282,8 @@
     end do  dox       !i1
     call cpu_time(fin)
     write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
+    write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
+    read(unit=*,fmt="(a)") key
+
     stop
   End Program Search_TwinLaws
