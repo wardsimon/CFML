@@ -1,0 +1,5 @@
+Title  Test of the program Search_TwinLaws
+cell   5.486  5.486  11.000 90.0 90.0 90.0
+Spgr  I 4/m m m
+tol  0.03                     !tolerance for eq (18)     eps=tol*Sum(Abs(GD))/9
+indices    -3 3  0 3  -4 4    ! maximum -5 5
