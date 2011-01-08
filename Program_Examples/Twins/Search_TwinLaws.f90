@@ -35,8 +35,9 @@
     use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
                                               Write_SpaceGroup
 
-    use CFML_Math_3D,      only: Invert_A
-    use CFML_Math_General, only: acosd, Equal_Matrix, Trace, Co_prime_Vector
+    use CFML_Math_3D,       only: Invert_A
+    use CFML_Geometry_Calc, only: Get_Anglen_Axis_From_RotMat
+    use CFML_Math_General,  only: acosd, Equal_Matrix, Trace, Co_prime_Vector
     implicit none
     integer, parameter          :: Max_Sol=2000
     real,    dimension(3)       :: cel1,ang1,cel,ang,axc
@@ -55,7 +56,7 @@
     integer                     :: i,j,lun=1,lout=2,i_cfl=3,i1,i2,i3,i4,i5,i6,i7,i8,i9,n1,n2,n3
     integer                     :: ia1,ia2,ib1,ib2,ic1,ic2, in1,in2, iargc,narg,isol,nop,n,ier
     integer(kind=8)             :: iratio,im,nn
-    real                        :: tol,tolf,sm,start,fin,remain,angle,va
+    real                        :: tol,tolf,sm,start,fin,remain,angle
 
 
     narg=command_argument_count()
@@ -181,7 +182,7 @@
     iratio= (ia2-ia1+1)*(ia2-ia1+1)*(ia2-ia1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ic2-ic1+1)*(ic2-ic1+1)*(ic2-ic1+1)
     iratio=iratio*(in2-in1+1)*(in2-in1+1)*(in2-in1+1)
     write(unit=*,fmt="(a,i10)") " => The maximum number of test calculations is ",iratio
-    im=iratio/2000
+    im=iratio/400
     n=0
     call cpu_time(start)
  dox: do i1=ia1,ia2                      !         |i1  i4  i7|
@@ -212,7 +213,7 @@
                   write(unit=*,fmt="(a,i12,a,f12.3)") "  Status: ",iratio-nn," tests remaining  ->  SM: ",sm
                   call cpu_time(fin)
                   remain=real(iratio-nn)*(fin-start)/real(nn)
-                  write(*,"(a,f10.2,a)")"  Remaining CPU-Time: ",remain," seconds"
+                  write(*,"(a,i6,a)")"  Approximate remaining CPU-Time: ",nint(remain)," seconds"
                 end if
 
                 !Fundamental equation for Twinning condition: delta approx. zero
@@ -242,19 +243,7 @@
                 Bmi=invert_A(Bm)
                 Dt=Matmul(W,matmul(Bmi,Wi))
                 Rot=transpose( Matmul( Lm,matmul(Dt,Lmi) )  )
-                va=(Trace(Rot)-1.0)*0.5
-                if(va < -1.0) va=-1.0
-                if(va >  1.0) va= 1.0
-                angle= acosd(va)
-                if(abs(abs(angle)-180.0) < 0.1) then
-                    axc= (/                  sqrt(Rot(1,1)+1.0), &
-                          sign(1.0,Rot(1,2))*sqrt(Rot(2,2)+1.0), &
-                          sign(1.0,Rot(1,3))*sqrt(Rot(3,3)+1.0) /)
-                else
-                    axc= (/  Rot(2,3)-Rot(3,2), &
-                             Rot(3,1)-Rot(1,3), &
-                             Rot(1,2)-Rot(2,1) /)
-                end if
+                Call Get_Anglen_Axis_From_RotMat(Rot,axc,angle)
 
                 write(unit=i_cfl,fmt="(a,3f8.4,f14.4)") "TWIN_rot ",axc,angle
                 write(unit=lout,fmt="(a,3f10.4,a)")  &

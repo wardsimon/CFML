@@ -55,6 +55,7 @@
 !!----       DEALLOCATE_COORDINATION_TYPE
 !!----       DEALLOCATE_POINT_LIST
 !!----       DISTANCE_AND_SIGMA
+!!----       GET_ANGLEN_AXIS_FROM_ROTMAT
 !!----       GET_EULER_FROM_FRACT
 !!----       GET_PHITHECHI
 !!----       GET_TRANSF_LIST
@@ -92,7 +93,7 @@
     public :: Allocate_Coordination_Type, Allocate_Point_List, Calc_Dist_Angle, Calc_Dist_Angle_Sigma, &
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
-              Get_Transf_List, Set_TDist_Partial_Coordination
+              Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -634,7 +635,7 @@
     !!----    (inverse) of the M-matrix, when applied to a point in {i,j,k}, gives the coordinates
     !!----    of the same point referred to the frame {u,v,w}. This transpose matrix corresponds
     !!----    to a passive (change or Cartesian frame) rotation leaving the points in the same
-    !!----    position with respect to the  {i,j,k} frame. 
+    !!----    position with respect to the  {i,j,k} frame.
     !!----    The matrix M when applied to a column vector containing the coordinates of a point
     !!----    with respect to the {u,v,w} frame provides the coordinates of the same point with
     !!----    respect to the {i,j,k} frame.
@@ -1522,7 +1523,7 @@
                     call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
                     angl_text(1)=line(1:132)
-                    
+
                     !Repeating with another angle of the same triangle
                     num_angc=num_angc+1
                     line=" "
@@ -1543,7 +1544,7 @@
                     line=trim(line)//trim(codesym)//" "//trim(nam2)
                     call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
-                    
+
                     esta=.false.
                     jl=index(line,"_")
                     if(jl == 0) jl=len_trim(line)
@@ -1558,7 +1559,7 @@
                       if(num_angc > NCONST) num_angc=NCONST
                       angl_text(num_angc)=line(1:132)
                     end if
-                    
+
                     !Repeating with another angle of the same triangle
                     line=" "
                     write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
@@ -1567,7 +1568,7 @@
                     line=trim(line)//trim(codesym)//" "//trim(nam1)
                     call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
                     line=trim(line)//trim(codesym)
-                    
+
                     esta=.false.
                     jl=index(line,"_")
                     if(jl == 0) jl=len_trim(line)
@@ -1582,8 +1583,8 @@
                       if(num_angc > NCONST) num_angc=NCONST
                       angl_text(num_angc)=line(1:132)
                     end if
-                    
-                    
+
+
                   end if
 
                 end if !present
@@ -1760,6 +1761,40 @@
 
        return
     End Subroutine Distance_and_Sigma
+
+    !!----
+    !!----  Subroutine Get_Anglen_Axis_From_RotMat(R,axis,angle)
+    !!----    Real, dimension(3,3), intent(in) :: R             !Input orthogonal matrix
+    !!----    Real, dimension(3),   intent(out):: axis          !Non normalized rotation axis
+    !!----    Real,                 intent(out):: angle         !Angle of rotation
+    !!----
+    !!----  Subroutine to obtain the axis and angle of rotation corresponding to
+    !!----  an input orthogonal matrix. A Cartesian frame is assumed
+    !!----
+    !!---- Update: January - 2011
+    !!----
+    Subroutine Get_Anglen_Axis_From_RotMat(R,axis,angle)
+      Real(kind=cp), dimension(3,3), intent(in) :: R
+      Real(kind=cp), dimension(3),   intent(out):: axis
+      Real(kind=cp),                 intent(out):: angle
+      !--- Local variables ---!
+      Real(kind=cp) :: va
+
+      va=(R(1,1)+R(2,2)+R(3,3)-1.0_cp)*0.5_cp
+      if(va < -1.0_cp) va=-1.0_cp
+      if(va >  1.0_cp) va= 1.0_cp
+      angle= acosd(va)
+      if(abs(abs(angle)-180.0_cp) < epsi) then
+         axis= (/                sqrt(R(1,1)+1.0_cp), &
+                sign(1.0_cp,R(1,2))*sqrt(R(2,2)+1.0_cp), &
+                sign(1.0_cp,R(1,3))*sqrt(R(3,3)+1.0_cp) /)
+      else
+         axis= (/  R(2,3)-R(3,2), &
+                   R(3,1)-R(1,3), &
+                   R(1,2)-R(2,1) /)
+      end if
+      return
+    End Subroutine Get_Anglen_Axis_From_RotMat
 
     !!----
     !!----  Subroutine Get_Euler_From_Fract(X1,X2,X3,Mt,Phi,Theta,Chi,Eum,Code)
