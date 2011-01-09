@@ -1,0 +1,64 @@
+  INFORMATION on the content of the directory
+  Juan Rodriguez-Carvajal (ILL, January 2011)
+  -------------------------------------------
+
+  The programs in this directory are provided without any kind of support.
+  Scripts for compiling with different compilers (CrysFML should be installed) and
+  an example of input file for SIMBO are provided. The *.bat files are supposed
+  to be run in Windows. Creating the corresponding files for Linux or Mac is
+  straightforward.
+
+  There is no manual for the use of these programs but the user can deduce easily
+  how to work with them. The slides of a presentation are provided as documentation
+  for the programs. Some references are provided inside.
+
+
+  The use of ENERMAG is straightforward once SIMBO has been run and PHASE_DIAGRAM
+  is easy also once ENERMAG has been run.
+  In the case of ENERMAG, the input file should be eventually edited and modified
+  in order to select the proper exchange interaction that will be used in the calculations.
+
+
+   Input file for SIMBO:  mfepo5.cfl
+  Output file of  SIMBO:  mfepo5.exc (For EnerMag)
+
+  Input file for  ENERMAG:  mfepo5.exc
+  Output files of ENERMAG:  mfepo5.res, mfepo5.enm, ...
+
+
+  These programs run in a console (CMD terminal in Windows) and the executables should
+  be put in a directory of the PATH system environment variable. Except Phase_Diagram,
+  they should be invoked with the name and an argument corresponding to the code (name)
+  of the input file.
+
+  Example of a run of SIMBO in default mode (<cr> is the ENTER key):
+---------------------------------------------------------------------------------------
+  My_Prompt> Simbo mfepo5  <cr>
+    ********************************************************
+    * Generates neighboring files for magnetic simulations *
+    ********************************************************
+                      (JRC- October 2003 )
+
+
+ => Maximum bond-distance (Dmax)                       :     6.000
+ => Maximum distance for direct exchange (Direct)      :     0.000
+ => Maximum distance for angle calculation(Dangl)      :     0.000
+ => Maximum distance for anion-anion bond (Dbond)
+              (also for cation-anion bonds)            :     3.000
+ => Maximum angle M-M'^M(M')-A(A') for S-E paths (Angm):    89.500
+ => Minimum angle M-A-A'/M'-A'-A   for S-E paths (Angn):    89.500
+                  (if Dangl=0 no angles are calculated)
+
+    any change ? (Y/N=<cr>):
+ => List all distances & angles (y/n)? (def=n):
+ => List detailed exchange paths (y/n)? (def=n):
+
+                  Total CPU-Time
+
+             CPU-seconds:           0.55
+             CPU-minutes:           0.01
+             CPU-hours  :           0.00
+
+ => Results in files:
+                     mfepo5.nei
+                     mfepo5.exc -> input for ENERMAG
