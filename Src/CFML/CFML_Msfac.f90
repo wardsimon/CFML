@@ -210,7 +210,7 @@
     !!----    scatering vector, the magnetic structure factor and
     !!----    the magnetic interaction vector for each of the domains.
     !!----
-    !!---- Update: February - 2009 OZ
+    !!---- Update: February - 2009 Oksana Zaharko
     !!
     Type, Public  :: MagHD_List_Type
        integer                                    :: Nref
