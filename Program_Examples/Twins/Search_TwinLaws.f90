@@ -1,10 +1,11 @@
 !!----
-!!----       PROGRAM:  Search_TwinLaws
+!!----   PROGRAM:  Search_TwinLaws
+!!----   Author: J. Rodriguez-Carvajal (ILL) January 2011
 !!----
 !!----   This program uses the method of A. Santoro (Acta Cryst A30, 224 (1974)) for
 !!----   getting possible twin laws from special metrics. The input data are simply
-!!----   the unit cell parameters and the symbol of the space group, followed by the
-!!----   keyword TOL (for tolerance) followed by the value. If the value is greater than 1
+!!----   the unit cell parameters and the symbol of the space group, and the
+!!----   keyword TOL (for tolerance) followed by its value. If the value is greater than 1
 !!----   it is suposed to be given in percentage and a division by 100 is performed.
 !!----   The input file should have the extension ".cfl" and an example of its content
 !!----   is given below:
@@ -23,8 +24,8 @@
 !!----   The CPU time depends strongly on the extend of the range for integers for generating
 !!----   the rational Bm matrices. The number of solutions depends also on the tolerance
 !!----   and the special metric relations between the cell parameters.
+!!----   The highest admissible integer is 5.
 !!----
-!!----   Created by J. Rodriguez-Carvajal (ILL) in January 2011
 !!----   Updated: January 2011
 !!----
   Program Search_TwinLaws
@@ -114,6 +115,9 @@
       i=index(line,"indices")
       if( i /= 0) then
         read(unit=line(8:),fmt=*) ia1,ia2,ib1,ib2,ic1,ic2
+        if(ia1 < -5) ia1 = -5;  if(ia2 > 5) ia2 = 5
+        if(ib1 < -5) ib1 = -5;  if(ib2 > 5) ib2 = 5
+        if(ic1 < -5) ic1 = -5;  if(ic2 > 5) ic2 = 5
       end if
     end do
     !End reading CFL file
