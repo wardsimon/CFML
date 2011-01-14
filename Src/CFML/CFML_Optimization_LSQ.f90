@@ -997,7 +997,7 @@
 
        !---- Local variables ----!
        integer       :: i,j,inum
-       real(kind=cp) :: del,g2
+       real(kind=cp) :: g2
 
 
        !---- Correlation matrix ----!

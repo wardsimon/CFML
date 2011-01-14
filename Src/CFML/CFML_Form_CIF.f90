@@ -1715,12 +1715,13 @@
     End Subroutine Read_File_Cellc
 
     !!--++
-    !!--++ Subroutine Read_File_Cellt(Filevar,Nline_Ini,Nline_End,Celda)
-    !!--++    character(len=*), dimension(:), intent(in) :: filevar      !  In -> String Vector
-    !!--++    integer,           intent(in out)          :: nline_ini    !  In -> Line to start the search
-    !!--++                                                                 Out -> Atual line on Filevar
-    !!--++    integer,           intent(in)              :: nline_end    !  In -> line to finish the search
-    !!--++    type (Crystal_Cell_Type), intent (out)     :: Celda        ! Out -> Cell variable
+    !!--++ Subroutine Read_File_Cellt(Filevar,Nline_Ini,Nline_End,Celda,CFrame)
+    !!--++    character(len=*),  dimension(:), intent(in)     :: filevar     !  In -> String Vector
+    !!--++    integer,                         intent(in)     :: nline_ini   !  In -> Line to start the search
+    !!--++    integer,                         intent(in)     :: nline_end   !  In -> line to finish the search
+    !!--++    type (Crystal_Cell_Type),        intent(out)    :: Celda       ! Out -> Cell structure
+    !!--++    character(len=*),  optional,     intent(in)     :: CFrame      !  Cartesian Frame "A" or "C" (if absent -> "A")
+    !!--++          ! Out -> Cell variable
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Read Cell Parameters from file. Control error is present
@@ -1728,12 +1729,13 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Read_File_Cellt(filevar,nline_ini,nline_end,Celda)
+    Subroutine Read_File_Cellt(filevar,nline_ini,nline_end,Celda,CFrame)
        !---- Arguments ----!
        character(len=*),  dimension(:), intent(in)     :: filevar
        integer,                         intent(in)     :: nline_ini
        integer,                         intent(in)     :: nline_end
        type (Crystal_Cell_Type),        intent(out)    :: Celda
+       character(len=*),  optional,     intent(in)     :: CFrame
 
        !---- Local Variables ----!
        integer                     :: iv, i,j
@@ -1753,7 +1755,11 @@
           ERR_Form_Mess=" Bad Cell Parameters..."
           return
        end if
-       call Set_Crystal_Cell(vet1(1:3),vet1(4:6),celda,"A")
+       if(present(CFrame)) then
+         call Set_Crystal_Cell(vet1(1:3),vet1(4:6),Celda,CFrame)
+       else
+         call Set_Crystal_Cell(vet1(1:3),vet1(4:6),Celda,"A")
+       end if
        celda%cell_std=vet2(1:3)
        celda%ang_std=vet2(4:6)
 
@@ -2482,12 +2488,13 @@
     End Subroutine Read_Uvals
 
     !!--++
-    !!--++ Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,NPhase,Job_Info)
+    !!--++ Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
     !!--++    integer,                      intent(in)   :: nlines
     !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
     !!--++    Type (Space_Group_Type),      intent(out)  :: SpG
     !!--++    Type (atom_list_type),        intent(out)  :: A
+    !!--++    character(len=*),    optional,intent(in)   :: CFrame
     !!--++    Integer,             optional,intent( in)  :: Nphase
     !!--++    Type(Job_Info_type), optional,intent(out)  :: Job_Info
     !!--++
@@ -2496,13 +2503,14 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,NPhase,Job_Info)
+    Subroutine Readn_Set_XTal_CFL(file_dat,nlines,Cell,SpG,A,CFrame,NPhase,Job_Info)
        !---- Arguments ----!
        character(len=*),dimension(:),intent(in)   :: file_dat
        integer,                      intent(in)   :: nlines
        Type (Crystal_Cell_Type),     intent(out)  :: Cell
        Type (Space_Group_Type),      intent(out)  :: SpG
        Type (atom_list_type),        intent(out)  :: A
+       character(len=*),    optional,intent(in)   :: CFrame
        Integer,             optional,intent( in)  :: Nphase
        Type(Job_Info_type), optional,intent(out)  :: Job_Info
 
@@ -2546,7 +2554,11 @@
        !---- Reading Cell Parameters ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
-       call read_File_Cell(file_dat,n_ini,n_end,Cell) !Read and construct Cell
+       if(present(CFrame)) then
+         call read_File_Cell(file_dat,n_ini,n_end,Cell,CFrame) !Read and construct Cell
+       else
+         call read_File_Cell(file_dat,n_ini,n_end,Cell) !Read and construct Cell
+       end if
        if (err_form) return
 
        !---- Reading Space Group Information ----!
@@ -2675,12 +2687,13 @@
     End Subroutine Readn_Set_XTal_CFL_Molec
 
     !!--++
-    !!--++ Subroutine Readn_Set_XTal_CIF(file_dat, nlines, Cell, Spg, A, NPhase)
+    !!--++ Subroutine Readn_Set_XTal_CIF(file_dat, nlines, Cell, Spg, A, CFrame, NPhase)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
     !!--++    integer,                      intent(in)   :: nlines
     !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
     !!--++    Type (Space_Group_Type),      intent(out)  :: SpG
     !!--++    Type (atom_list_type),        intent(out)  :: A
+    !!--++    Character(len=*),    optional,intent( in)  :: CFrame
     !!--++    Integer,             optional,intent( in)  :: Nphase
     !!--++
     !!--++ (Private)
@@ -2688,13 +2701,14 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_XTal_CIF(file_dat, nlines, Cell, Spg, A, NPhase)
+    Subroutine Readn_Set_XTal_CIF(file_dat, nlines, Cell, Spg, A, CFrame, NPhase)
        !---- Arguments ----!
        character(len=*),dimension(:),intent(in)   :: file_dat
        integer,                      intent(in)   :: nlines
        Type (Crystal_Cell_Type),     intent(out)  :: Cell
        Type (Space_Group_Type),      intent(out)  :: SpG
        Type (atom_list_type),        intent(out)  :: A
+       Character(len=*),    optional,intent( in)  :: CFrame
        Integer,             optional,intent( in)  :: Nphase
 
        !---- Local Variables ----!
@@ -2743,8 +2757,11 @@
        n_end=ip(iph+1)
        call Read_Cif_Cell(file_dat,n_ini,n_end,vet,vet2)
        if (err_form) return
-       call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,"A",vet2(1:3),vet2(4:6))
-
+       if(present(CFrame)) then
+         call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,CFrame,vet2(1:3),vet2(4:6))
+       else
+         call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,"A",vet2(1:3),vet2(4:6))
+       end if
        !---- Read Atoms Information ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
@@ -2807,12 +2824,13 @@
     End Subroutine Readn_Set_XTal_CIF
 
     !!--++
-    !!--++ Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, NPhase)
+    !!--++ Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, CFrame, NPhase)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
     !!--++    integer,                      intent(in)   :: nlines
     !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
     !!--++    Type (Space_Group_Type),      intent(out)  :: SpG
     !!--++    Type (atom_list_type),        intent(out)  :: A
+    !!--++    character(len=*),    optional,intent(in)   :: CFrame
     !!--++    Integer,             optional,intent( in)  :: Nphase
     !!--++
     !!--++ (Private)
@@ -2820,14 +2838,15 @@
     !!--++
     !!--++ Update: 17/05/2010
     !!
-    Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, NPhase)
+    Subroutine Readn_Set_XTal_PCR(file_dat, nlines, Cell, Spg, A, CFrame, NPhase)
        !---- Arguments ----!
        character(len=*),dimension(:),intent(in)   :: file_dat
        integer,                      intent(in)   :: nlines
        Type (Crystal_Cell_Type),     intent(out)  :: Cell
        Type (Space_Group_Type),      intent(out)  :: SpG
        Type (atom_list_type),        intent(out)  :: A
-       Integer,             optional,intent( in)  :: Nphase
+       character(len=*),    optional,intent(in)   :: CFrame
+       Integer,             optional,intent(in)   :: Nphase
 
        !---- Local Variables ----!
        logical                           :: is_codewords
@@ -2884,7 +2903,11 @@
                    ERR_Form_Mess=" => Problems reading Cell Parameters on PCR file "
                    return
                 end if
-                call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell)
+                if(present(CFrame)) then
+                  call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,CFrame)
+                else
+                  call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell)
+                end if
                 exit
              end do
              exit
@@ -2983,25 +3006,27 @@
     End Subroutine Readn_Set_XTal_PCR
 
     !!--++
-    !!--++ Subroutine Readn_Set_XTal_SHX(file_dat,nlines,Cell,SpG,A)
+    !!--++ Subroutine Readn_Set_XTal_SHX(file_dat,nlines,Cell,SpG,A,CFrame)
     !!--++    character(len=*),dimension(:),intent(in)   :: file_dat
     !!--++    integer,                      intent(in)   :: nlines
     !!--++    Type (Crystal_Cell_Type),     intent(out)  :: Cell
     !!--++    Type (Space_Group_Type),      intent(out)  :: SpG
     !!--++    Type (Atom_list_type),        intent(out)  :: A
+    !!--++    Character(len=*), optional,   intent(in)   :: CFrame
     !!--++
     !!--++ (Private)
     !!--++ Read and Set Crystal Information in a Shelx File
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_XTal_SHX(file_dat,nlines,Cell,SpG,A)
+    Subroutine Readn_Set_XTal_SHX(file_dat,nlines,Cell,SpG,A,CFrame)
        !---- Arguments ----!
        character(len=*),dimension(:),intent(in)   :: file_dat
        integer,                      intent(in)   :: nlines
        Type (Crystal_Cell_Type),     intent(out)  :: Cell
        Type (Space_Group_Type),      intent(out)  :: SpG
        Type (Atom_list_type),        intent(out)  :: A
+       Character(len=*), optional,   intent(in)   :: CFrame
 
        !---- Local Variables ----!
        character(len=60), dimension(192) :: symm_car
@@ -3016,7 +3041,11 @@
 
        !---- CELL / ZERR ----!
        call Read_Shx_Cell(file_dat,n_ini,n_end,vet,vet2)
-       call set_crystal_Cell(vet(1:3),vet(4:6),cell,"A",vet2(1:3),vet2(4:6))
+       if(present(CFrame)) then
+         call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,CFrame,vet2(1:3),vet2(4:6))
+       else
+         call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,"A",vet2(1:3),vet2(4:6))
+       end if
 
        !---- OBTAIN SPACE GROUP (LATT / SYMM) ----!
        call Read_Shx_Latt(file_dat,n_ini,n_end,nl)
@@ -3093,7 +3122,7 @@
     End Subroutine Readn_Set_XTal_SHX
 
     !!--++
-    !!--++ Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase, Job_Info, file_list)
+    !!--++ Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase, Job_Info, file_list,CFrame)
     !!--++    character(len=*),              intent( in)  :: filenam  ! In -> Name of the file
     !!--++    Type (Crystal_Cell_Type),      intent(out)  :: Cell     ! Out -> Cell object
     !!--++    Type (atom_list_type),         intent(out)  :: A        ! Out -> Atom_List object
@@ -3104,7 +3133,7 @@
     !!--++    Type(Job_Info_type), optional, intent(out)  :: Job_Info ! Diffaction conditions
     !!--++    Type(file_list_type),optional, intent(out)  :: file_list! Complete file to be used by
     !!--++                                                              the calling program or other procedures
-    !!--++
+    !!--++    Character(len=*),    optional, intent(in)   :: CFrame
     !!--++    Overloaded
     !!--++    Subroutine to read and input file and construct the crystal structure
     !!--++    in terms of the ofjects Cell, SpG and A. The optional argument Iphase is an integer
@@ -3113,7 +3142,7 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase,Job_Info,file_list)
+    Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase,Job_Info,file_list,CFrame)
        !---- Arguments ----!
        character(len=*),              intent( in)  :: filenam
        Type (Molecular_Crystal_Type), intent(out)  :: Molcrys
@@ -3121,7 +3150,7 @@
        Integer,              optional,intent( in)  :: Iphase
        Type(Job_Info_type),  optional,intent(out)  :: Job_Info
        Type(file_list_type), optional,intent(out)  :: file_list
-
+       Character(len=*),     optional,intent(in)   :: CFrame
        !---- Local variables -----!
        Type (Atom_list_type)                         :: A
        character(len=132), allocatable, dimension(:) :: file_dat
@@ -3157,34 +3186,69 @@
        select case(modec)
            case("cif")
               if (present(iphase)) then
-                 call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,IPhase)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,CFrame,NPhase=IPhase)
+                 else
+                   call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,NPhase=IPhase)
+                 end if
               else
-                 call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame)
+                 else
+                   call readn_set_xtal_cif(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                 end if
               end if
 
            case("pcr")
               if (present(iphase)) then
-                 call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,IPhase)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,CFrame,NPhase=IPhase)
+                 else
+                   call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg, A,NPhase=IPhase)
+                 end if
               else
-                 call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame)
+                 else
+                   call readn_set_xtal_pcr(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                 end if
               end if
 
            case("shx")
-              call readn_set_xtal_shx(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
-
+              if(present(CFrame)) then
+                call readn_set_xtal_shx(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame)
+              else
+                call readn_set_xtal_shx(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+              end if
            case default
               !---- CFL Format ----!
               if (present(Job_Info)) then
                  if (present(iphase)) then
-                    call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,IPhase,Job_Info)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame,NPhase=IPhase,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,NPhase=IPhase,Job_Info=Job_Info)
+                    end if
                  else
-                    call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,Job_Info=Job_Info)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,Job_Info=Job_Info)
+                    end if
                  end if
               else
                  if (present(iphase)) then
-                    call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,IPhase)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame,NPhase=IPhase)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,NPhase=IPhase)
+                    end if
                  else
-                    call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A,CFrame)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,molcrys%Cell,molcrys%Spg,A)
+                    end if
                  end if
               end if
 
@@ -3217,17 +3281,18 @@
     End Subroutine Readn_Set_Xtal_Structure_Molcr
 
     !!--++
-    !!--++ Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Type,File_List)
+    !!--++ Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Type,File_List,CFrame)
     !!--++    character(len=*),              intent( in)  :: filenam  ! In -> Name of the file
     !!--++    Type (Crystal_Cell_Type),      intent(out)  :: Cell     ! Out -> Cell object
-    !!--++    Type (atom_list_type),         intent(out)  :: A        ! Out -> Atom_List object
     !!--++    Type (Space_Group_Type),       intent(out)  :: SpG      ! Out -> Space Group object
+    !!--++    Type (atom_list_type),         intent(out)  :: A        ! Out -> Atom_List object
     !!--++    Character(len=*),    optional, intent( in)  :: Mode     ! In -> if Mode="CIF" filenam
     !!--++                                                                    is of CIF type format
     !!--++    Integer,             optional, intent( in)  :: Iphase   ! Number of the phase.
     !!--++    Type(Job_Info_type), optional, intent(out)  :: Job_Info ! Diffaction conditions
     !!--++    Type(file_list_type),optional, intent(out)  :: file_list! Complete file to be used by
     !!--++                                                              the calling program or other procedures
+    !!--++    Character(len=*),    optional, intent( in)  :: CFrame   !Cartesian Frame
     !!--++
     !!--++    Overloaded
     !!--++    Subroutine to read and input file and construct the crystal structure
@@ -3237,7 +3302,7 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Info,file_list)
+    Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Info,file_list,CFrame)
        !---- Arguments ----!
        character(len=*),             intent( in)  :: filenam
        Type (Crystal_Cell_Type),     intent(out)  :: Cell
@@ -3247,6 +3312,7 @@
        Integer,             optional,intent( in)  :: Iphase
        Type(Job_Info_type), optional,intent(out)  :: Job_Info
        Type(file_list_type),optional,intent(out)  :: file_list
+       Character(len=*),    optional,intent( in)  :: CFrame
 
        !---- Local variables -----!
        character(len=132), allocatable, dimension(:) :: file_dat
@@ -3282,34 +3348,69 @@
        select case(modec)
            case("cif")
               if (present(iphase)) then
-                 call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,IPhase)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
+                 else
+                   call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
+                 end if
               else
-                 call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,CFrame)
+                 else
+                   call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
+                 end if
               end if
 
-           case ("pcr")
+           case("pcr")
               if (present(iphase)) then
-                 call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,IPhase)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
+                 else
+                   call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
+                 end if
               else
-                 call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
+                 if(present(CFrame)) then
+                   call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,CFrame)
+                 else
+                   call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
+                 end if
               end if
 
            case("shx")
-              call readn_set_xtal_shx(file_dat,nlines,Cell,Spg,A)
-
+              if(present(CFrame)) then
+                call readn_set_xtal_shx(file_dat,nlines,Cell,Spg,A,CFrame)
+              else
+                call readn_set_xtal_shx(file_dat,nlines,Cell,Spg,A)
+              end if
            case default
               !---- CFL Format ----!
               if (present(Job_Info)) then
                  if (present(iphase)) then
-                    call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,IPhase,Job_Info)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,CFrame,NPhase=IPhase,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,NPhase=IPhase,Job_Info=Job_Info)
+                    end if
                  else
-                    call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Job_Info=Job_Info)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,CFrame,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Job_Info=Job_Info)
+                    end if
                  end if
               else
                  if (present(iphase)) then
-                    call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,IPhase)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,CFrame,NPhase=IPhase)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,NPhase=IPhase)
+                    end if
                  else
-                    call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A)
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,CFrame)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A)
+                    end if
                  end if
               end if
 
