@@ -45,8 +45,8 @@
     character(len=80)       :: message
     character(len=11)       :: metr
     logical                 :: ok,cell_trans
-    integer                 :: i,j,p,n,ier
-    real                    :: rmi,rma, tol, told, det
+    integer                 :: i,j,p,n,ier, det
+    real                    :: rmi,rma, tol, told
     Type(Twofold_Axes_Type) :: twofold,twf
     type(Crystal_Cell_Type) :: cellc, cellp, celln, cell,cellt
 
@@ -131,7 +131,7 @@
         det=determ_A(tr)
         if(ok) then
           if(rma < 0.1)  metr="Metrically "
-          if(abs(det) > 0.1) then
+          if(abs(det) > 0) then
             call Write_New_Cell()
             call Write_New_Monoc_Cell()
           end if
