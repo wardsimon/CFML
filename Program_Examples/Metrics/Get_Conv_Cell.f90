@@ -19,7 +19,7 @@
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, ERR_Crys_Mess, &
                                      Set_Crystal_Cell,Get_Cryst_Family, Niggli_Cell,     &
                                      Write_Crystal_Cell, Get_Primitive_Cell,Get_two_fold_axes,  &
-                                     Twofold_Axes_Type, Get_Conventional_Cell
+                                     Twofold_Axes_Type, Get_Conventional_Cell, Change_Setting_Cell
     use CFML_Math_3D,          only: determ_A, determ_V, invert_A
     use CFML_Math_General,     only: sort
 
@@ -36,7 +36,7 @@
     !  5.211 5.212  5.209   59.90  60.12  59.85                            F       !Pseudo-Rhombohedral
     !  5.234 9.065  11.91   89.91  90.01  90.03                            C       !Pseudo-Hexagonal
 
-    real, dimension(3,3)    :: transfm,trans,prod,finalm
+    real, dimension(3,3)    :: transfm,trans,prod,finalm,mat
     integer, dimension(3,3) :: tr
     real, dimension(6)      :: ad
     real, dimension(12)     :: del
@@ -44,11 +44,11 @@
     character(len=1)        :: ls
     character(len=80)       :: message
     character(len=11)       :: metr
-    logical                 :: ok
+    logical                 :: ok,cell_trans
     integer                 :: i,j,p,n,ier
-    real                    :: rmi,rma, tol
+    real                    :: rmi,rma, tol, told, det
     Type(Twofold_Axes_Type) :: twofold,twf
-    type(Crystal_Cell_Type) :: cellc, cellp, celln, cell
+    type(Crystal_Cell_Type) :: cellc, cellp, celln, cell,cellt
 
       del=0.0
       write(unit=*,fmt="(/,a)") " --------------------------------------------"
@@ -82,11 +82,19 @@
       end if
 
       tol=3.0
-      write(unit=*,fmt="(a)",advance="no") " => Enter the tolerance in degrees (<cr> = 3 deg.): "
+      write(unit=*,fmt="(a)",advance="no") " => Enter angular tolerance in degrees (<cr> = 3 deg.): "
       read(unit=*,fmt="(a)") message
       if(len_trim(message) /= 0) then
         read(unit=message,fmt=*,iostat=ier) tol
         if(ier /= 0) tol=3.0
+        message=" "
+      end if
+      told=0.2
+      write(unit=*,fmt="(a)",advance="no") " => Enter distance tolerance in angstroms (<cr> = 0.2 A.): "
+      read(unit=*,fmt="(a)") message
+      if(len_trim(message) /= 0) then
+        read(unit=message,fmt=*,iostat=ier) told
+        if(ier /= 0) told=0.2
         message=" "
       end if
       call Get_two_fold_axes(celln,tol,twofold)
@@ -118,23 +126,15 @@
           j=ind(i)
           del(twofold%ntwo-i+1)=twofold%cross(j)  !reorder by decreasing errors
         end do
-        call Get_Conventional_Cell(twofold,Cell,tr,message,ok)
 
+        call Get_Conventional_Cell(twofold,Cell,tr,message,ok,told)
+        det=determ_A(tr)
         if(ok) then
-
           if(rma < 0.1)  metr="Metrically "
-          write(unit=*, fmt="(/,130a)") " ",("-",i=1,120)
-          write(unit=*,fmt="(  a)")   &
-          " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
-          finalm=matmul(real(tr),prod)
-          write(unit=*, fmt="(130a,/)") " ",("-",i=1,120)
-          write(unit=*,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
-          write(unit=*,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",determ_A(tr)
-          write(unit=*,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
-          write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
-          write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
-          write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
-          write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+          if(abs(det) > 0.1) then
+            call Write_New_Cell()
+            call Write_New_Monoc_Cell()
+          end if
           !call Write_Crystal_Cell(Cell)
 
           if( rma >= 0.1) then
@@ -174,20 +174,10 @@
                 twf%b=twofold%b
                 twf%c=twofold%c
                 call Get_Conventional_Cell(twf,Cell,tr,message,ok)
+                det=determ_A(tr)
                 if(ok) then
-                  write(unit=*, fmt="(/,130a)") " ",("-",i=1,120)
-                  write(unit=*, fmt="(  a)")    &
-                  " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
-                  write(unit=*, fmt="(130a,/)") " ",("-",i=1,120)
-                  write(unit=*,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
-                  write(unit=*,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",determ_A(tr)
-                  write(unit=*,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
-                  !call Write_Crystal_Cell(Cell)
-                  finalm=matmul(real(tr),prod)
-                  write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
-                  write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
-                  write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
-                  write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+                  call Write_New_Cell()
+                  call Write_New_Monoc_Cell()
                 else
                   write(unit=*, fmt="(  a)")   " => No lattice results: "//trim(message)
                 end if
@@ -197,7 +187,8 @@
             end do
           end if !rma >0.1
         else
-          write(unit=*,fmt="(a)") " => An unexpected error has occurred "//trim(message)
+          write(unit=*,fmt="(a)") " => An unexpected error has occurred: "//trim(message)
+          write(unit=*,fmt="(a)") " => Change the angular/distance tolerance to obtain proper two-fold axes."
         end if !ok
       else
         !The Niggli cell is accepted as triclinic cell
@@ -207,4 +198,44 @@
         write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",prod(3,:),"/"
       end if
      stop
+
+  Contains
+
+    Subroutine Write_New_Cell()
+      write(unit=*, fmt="(/,130a)") " ",("-",i=1,120)
+      write(unit=*,fmt="(  a)")   &
+      " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
+      finalm=matmul(real(tr),prod)
+      write(unit=*, fmt="(130a,/)") " ",("-",i=1,120)
+      write(unit=*,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
+      write(unit=*,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
+      write(unit=*,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
+      write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
+      write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
+      write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
+      write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+      return
+    End Subroutine Write_New_Cell
+
+    Subroutine Write_New_Monoc_Cell()
+      cell_trans=.false.
+      if(trim(message) == "Monoclinic, A-centred cell") then
+         mat=reshape( (/0.0,0.0,1.0, 0.0,-1.0,0.0, 1.0,0.0,0.0/),(/3,3/))
+         call Change_Setting_Cell(Cell,Mat,Cellt)
+         cell_trans=.true.
+      else if(trim(message) == "Monoclinic, I-centred cell") then
+         mat=reshape( (/1.0,0.0,1.0, 0.0,-1.0,0.0, 0.0,0.0,-1.0/),(/3,3/))
+         call Change_Setting_Cell(Cell,Mat,Cellt)
+         cell_trans=.true.
+      end if
+      if(cell_trans) then
+        finalm=matmul(Mat,finalm)
+        write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Equivalent C-centred Cell: ",Cellt%cell,Cellt%ang
+        write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
+        write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
+        write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+      end if
+      return
+    End Subroutine Write_New_Monoc_Cell
+
   End Program Get_Conventional_Unit_Cell

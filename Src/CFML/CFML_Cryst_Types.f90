@@ -688,7 +688,10 @@
     !!----    type (Crystal_Cell_Type),      intent(out)    :: Celln
     !!----    character (len=*), optional,   intent (in)    :: matkind
     !!----
-    !!----    Calculates a new cell
+    !!---- Calculates a new cell giving the transformation matrix.
+    !!---- The input matrix can be given as the S-matrix in International
+    !!---- Tables or its transposed (default) that corresponds to the matrix
+    !!---- relating formal column matrices containing the basis vectors.
     !!----
     !!---- Update: February - 2005
     !!
@@ -736,12 +739,13 @@
     End Subroutine Change_Setting_Cell
 
     !!----
-    !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok)
+    !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)
     !!----   Type(Twofold_Axes_Type), intent(in)  :: twofold
     !!----   Type(Crystal_Cell_Type), intent(out) :: Cell
     !!----   integer, dimension(3,3), intent(out) :: tr
     !!----   character(len=*),        intent(out) :: message
     !!----   logical,                 intent(out) :: ok
+    !!----   real(kind=cp), optional, intent(in)  :: told
     !!----
     !!----  This subroutine provides the "conventional" (or quasi! being still tested )
     !!----  from the supplied object "twofold" that has been obtained from a previous
@@ -753,17 +757,22 @@
     !!----  A,C or I centred. The convertion to the C-centred setting in the A and I
     !!----  centring, is not attempted. The angular tolerance for accepting a two-fold
     !!----  axis, or higher order axes, as such has been previously set into twofold%tol
-    !!----  component.
+    !!----  component. The output Tr-matrix is the transpose of the IT convention.
+    !!----  It corresponds to the transformation between formal column matrices containing
+    !!----  the basis vectors.
+    !!----  The tolerance for comparing distances in angstroms told is optional.
+    !!----- By default the used tolerance is 0.2 angstroms.
     !!----
     !!---- Update: November - 2008
     !!----
-    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok)
+    Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)
        !---- Arguments ----!
        Type(Twofold_Axes_Type), intent(in)  :: Twofold
        Type(Crystal_Cell_Type), intent(out) :: Cell
        integer, dimension(3,3), intent(out) :: tr
        character(len=*),        intent(out) :: message
        logical,                 intent(out) :: ok
+       real(kind=cp), optional, intent(in)  :: told
 
        !---- Local variables ----!
        integer, dimension(1)          :: ix
@@ -776,7 +785,7 @@
        real(kind=cp), dimension(66)   :: ang
        integer                        :: iu,iv,iw,nax,i,j,k,m,namina,naminb,naminc,ia
        real(kind=cp)                  :: dot,ep,domina,dominb,dominc,aij,aik,ajk
-       real(kind=cp)                  :: delt
+       real(kind=cp)                  :: delt,tola
        logical                        :: hexap, hexac
 
        a=twofold%a; b=twofold%b; c=twofold%c
@@ -786,6 +795,8 @@
        tr=reshape((/1,0,0,0,1,0,0,0,1/),(/3,3/))
        ab=0; mv=0.0; ang=0.0; row=0; inp=0
        ok=.true.
+       tola=0.2
+       if(present(told)) tola=told
 
        Select Case(twofold%ntwo)
           Case (1)    !Monoclinic
@@ -1133,7 +1144,7 @@
                    vj=twofold%caxes(:,j)/twofold%maxes(j)
                    aij=acosd(dot_product(vi,vj))
                    if (abs(aij-120.0) < delt) then
-                      if (abs(mv(i)-mv(j)) < 0.2 .and. .not. hexap ) then
+                      if (abs(mv(i)-mv(j)) < tola .and. .not. hexap ) then
                          rw(1)=i; rw(2)=j
                          u(1)=mv(i); u(2)=mv(j)
                          hexap=.true.
@@ -1205,7 +1216,7 @@
                       aik=acosd(dot_product(vi,vk))
                       ajk=acosd(dot_product(vj,vk))
                       if (abs(aij-90.0) < delt .and. abs(aik-90.0) < delt .and. abs(ajk-90.0) < delt ) then
-                         if (abs(mv(i)-mv(j)) < 0.2 .and. abs(mv(i)-mv(k)) < 0.2 .and. abs(mv(j)-mv(k)) < 0.2 ) then
+                         if (abs(mv(i)-mv(j)) < tola .and. abs(mv(i)-mv(k)) < tola .and. abs(mv(j)-mv(k)) < tola ) then
                             rw(1)=i; rw(2)=j; rw(3)=k
                             u(1)=mv(i); u(2)=mv(j); u(3)=mv(k)
                             exit do_i
@@ -1230,6 +1241,10 @@
              end if
 
              Select Case (namina)
+                Case(0)
+                  write(unit=message,fmt="(a)") "Pseudo-cubic but tolerance too small ... "
+                  ok=.false.
+                  return
                 Case(1)
                    message="Cubic, Primitive cell"
                 Case(2)
