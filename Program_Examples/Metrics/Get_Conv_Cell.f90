@@ -179,14 +179,14 @@
                   write(unit=*, fmt="(  a)")    &
                   " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
                   write(unit=*, fmt="(130a,/)") " ",("-",i=1,120)
-                  write(unit=*,fmt="(a,i3,2i4,a)")     "      (",tr(1,:), " )"
-                  write(unit=*,fmt="(a,i3,2i4,a,i10)") " Tr:  (",tr(2,:), " )   Determinant: ",determ_A(tr)
-                  write(unit=*,fmt="(a,i3,2i4,a)")     "      (",tr(3,:), " )"
+                  write(unit=*,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
+                  write(unit=*,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",determ_A(tr)
+                  write(unit=*,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
                   !call Write_Crystal_Cell(Cell)
                   finalm=matmul(real(tr),prod)
-                  write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Cell: ",Cell%cell,Cell%ang
+                  write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
                   write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
-                  write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |"
+                  write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
                   write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
                 else
                   write(unit=*, fmt="(  a)")   " => No lattice results: "//trim(message)
