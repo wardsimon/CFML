@@ -41,13 +41,15 @@
     real, dimension(6)      :: ad
     real, dimension(12)     :: del
     integer, dimension(12)  :: ind
-    character(len=1)        :: ls
+    character(len=1)        :: ls,ans,mon
     character(len=80)       :: message
     character(len=11)       :: metr
     logical                 :: ok,cell_trans
-    integer                 :: i,j,p,n,ier, det
+    integer                 :: i,j,p,n,ier, det, ntwot, nold , io=6 !Standard output
     real                    :: rmi,rma, tol, told
     Type(Twofold_Axes_Type) :: twofold,twf
+    Type(Twofold_Axes_Type), dimension(12) :: otwf   !Individual two-fold axes for searching
+                                                     !monoclinic cells
     type(Crystal_Cell_Type) :: cellc, cellp, celln, cell,cellt
 
       del=0.0
@@ -55,6 +57,16 @@
       write(unit=*,fmt="(a)")   "     Program: Get_Conventional_Unit_Cell     "
       write(unit=*,fmt="(a)")   "  Author: J. Rodriguez-Carvajal, ILL(2008)   "
       write(unit=*,fmt="(a,/)") " --------------------------------------------"
+      write(unit=*,fmt="(a)",advance="no") " => Output on the screen (<cr>) or in file (f) : "
+      read(unit=*,fmt="(a)") ans
+      if(ans == "f") then
+        io=1
+        open(unit=io,file="conventional_cell.out",status="replace",action="write")
+        write(unit=io,fmt="(/,a)") " --------------------------------------------"
+        write(unit=io,fmt="(a)")   "     Program: Get_Conventional_Unit_Cell     "
+        write(unit=io,fmt="(a)")   "  Author: J. Rodriguez-Carvajal, ILL(2008)   "
+        write(unit=io,fmt="(a,/)") " --------------------------------------------"
+      end if
       do
         write(unit=*,fmt="(a)",advance="no") " => Enter the cell parameters: "
         read(unit=*,fmt=*,iostat=ier) ad
@@ -98,35 +110,49 @@
         message=" "
       end if
       call Get_two_fold_axes(celln,tol,twofold)
-      write(unit=*,fmt="(/,a,6f10.4,a)")"             Input Cell (Aic): ",ad,"  Centring: "//ls
-      write(unit=*,fmt="(a,6f10.4)")    "   Primitive input Cell (Api): ",Cellp%cell,Cellp%ang
-      write(unit=*,fmt="(a,6f10.4)")    "            Niggli Cell  (AN): ",celln%cell,celln%ang
-      write(unit=*,fmt="(/,a)")  "             (Aic) formal column matrix containing the input cell vectors: "
-      write(unit=*,fmt="(a)")    "             (Api) formal column matrix containing the primitive cell vectors: "
-      write(unit=*,fmt="(a)")    "              (AN) formal column matrix containing the Niggli cell vectors: "
-      write(unit=*,fmt="(a,/)")  "             (Acc) formal column matrix containing the conventional cell vectors: "
-      write(unit=*,fmt="(a)")   "                            (Api) = M (Aic)                          (AN) = N (Api)"
+      write(unit=io,fmt="(/,a,6f10.4,a)")"             Input Cell (Aic): ",ad,"  Centring: "//ls
+      write(unit=io,fmt="(a,6f10.4)")    "   Primitive input Cell (Api): ",Cellp%cell,Cellp%ang
+      write(unit=io,fmt="(a,6f10.4)")    "            Niggli Cell  (AN): ",celln%cell,celln%ang
+      write(unit=io,fmt="(/,a)")  "             (Aic) formal column matrix containing the input cell vectors: "
+      write(unit=io,fmt="(a)")    "             (Api) formal column matrix containing the primitive cell vectors: "
+      write(unit=io,fmt="(a)")    "              (AN) formal column matrix containing the Niggli cell vectors: "
+      write(unit=io,fmt="(a,/)")  "             (Acc) formal column matrix containing the conventional cell vectors: "
+      write(unit=io,fmt="(a)")   "                            (Api) = M (Aic)                          (AN) = N (Api)"
       do i=1,3
-        write(unit=*,fmt="(a,3f12.6,tr5,3f12.6)") "     TransF:    ",transfm(i,:),trans(i,:)
+        write(unit=io,fmt="(a,3f12.6,tr5,3f12.6)") "     TransF:    ",transfm(i,:),trans(i,:)
       end do
       prod=matmul(trans,transfm)
       metr= "    Pseudo-"
       if( twofold%ntwo > 0) then
-        write(unit=*,fmt="(a)")        " => Two-fold axes"
-        write(unit=*,fmt="(a)")        " =>       Direct       Reciprocal    Dot    Cross      Length "
+        write(unit=io,fmt="(a)")        " => Two-fold axes"
+        write(unit=io,fmt="(a)")        " =>       Direct       Reciprocal    Dot    Cross      Length "
         rma=-100.0
         do i=1,twofold%ntwo
-         write(unit=*,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ", &
+         write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ", &
             twofold%dtwofold(:,i),twofold%rtwofold(:,i),twofold%dot(i),twofold%cross(i),twofold%maxes(i)
          if( twofold%cross(i) > rma) rma= twofold%cross(i)
          del(i)=twofold%cross(i)
         end do
         call sort(del,twofold%ntwo,ind)
+
+        ntwot = twofold%ntwo
         do i=1,twofold%ntwo
           j=ind(i)
           del(twofold%ntwo-i+1)=twofold%cross(j)  !reorder by decreasing errors
+          otwf(twofold%ntwo-i+1)%ntwo=1
+          otwf(twofold%ntwo-i+1)%tol=tol
+          otwf(twofold%ntwo-i+1)%caxes(:,1)=twofold%caxes(:,j)
+          otwf(twofold%ntwo-i+1)%dtwofold(:,1)=twofold%dtwofold(:,j)
+          otwf(twofold%ntwo-i+1)%rtwofold(:,1)=twofold%rtwofold(:,j)
+          otwf(twofold%ntwo-i+1)%dot(1)=twofold%dot(j)
+          otwf(twofold%ntwo-i+1)%cross(1)=twofold%cross(j)
+          otwf(twofold%ntwo-i+1)%maxes(1)=twofold%maxes(j)
+          otwf(twofold%ntwo-i+1)%a(:)=twofold%a(:)
+          otwf(twofold%ntwo-i+1)%b(:)=twofold%b(:)
+          otwf(twofold%ntwo-i+1)%c(:)=twofold%c(:)
         end do
 
+        !!!------ FIRST: test with all twofold axes found
         call Get_Conventional_Cell(twofold,Cell,tr,message,ok,told)
         det=determ_A(tr)
         if(ok) then
@@ -140,7 +166,7 @@
           if( rma >= 0.1) then
             p=twofold%ntwo+1
             del(1)=del(1)-0.06
-
+            nold=0
             do j=1,p-1       !Loop decreasing the tolerance for selecting better 2-fold axes
               rmi=del(j)+0.05
               if(rmi < 0.1) then
@@ -161,12 +187,16 @@
                 twf%maxes(n)      = twofold%maxes(i)
               end do
 
-              !if( n >= 1 .and. n < twofold%ntwo ) then
+              if( n == nold ) then
+                 cycle
+              else
+                 nold=n
+              end if
               if( n >= 1 ) then
                 twf%ntwo=n
-                write(unit=*, fmt="(/,a,i3,a,2f10.4)")  " ====> Remaining two-fold axes (search for other possible lattices):  ",n, "  ", rmi
+                write(unit=io, fmt="(/,a,i3,a,2f10.4)")  " ====> Remaining two-fold axes (search for other possible lattices):  ",n, "  ", rmi
                 do i=1,n
-                 write(unit=*,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
+                 write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
                        twf%dtwofold(:,i),twf%rtwofold(:,i), twf%dot(i),twf%cross(i),twf%maxes(i)
                 end do
                 twf%tol=twofold%tol
@@ -179,7 +209,7 @@
                   call Write_New_Cell()
                   call Write_New_Monoc_Cell()
                 else
-                  write(unit=*, fmt="(  a)")   " => No lattice results: "//trim(message)
+                  write(unit=io, fmt="(  a)")   " => No lattice results: "//trim(message)
                 end if
               end if
               if(n <= 1) exit
@@ -187,33 +217,55 @@
             end do
           end if !rma >0.1
         else
-          write(unit=*,fmt="(a)") " => An unexpected error has occurred: "//trim(message)
-          write(unit=*,fmt="(a)") " => Change the angular/distance tolerance to obtain proper two-fold axes."
+          write(unit=io,fmt="(a)") " => An unexpected error has occurred: "//trim(message)
+          write(unit=io,fmt="(a)") " => Change the angular/distance tolerance to obtain proper two-fold axes."
         end if !ok
       else
         !The Niggli cell is accepted as triclinic cell
-        write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Cell (Triclinic, Niggli Cell): ",Celln%cell,Celln%ang
-        write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",prod(1,:),"\"
-        write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",prod(2,:)," |"
-        write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",prod(3,:),"/"
+        write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Cell (Triclinic, Niggli Cell): ",Celln%cell,Celln%ang
+        write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",prod(1,:),"\"
+        write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",prod(2,:)," |"
+        write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",prod(3,:),"/"
       end if
+
+     write(unit=*,fmt="(/,a,i3,a)")       " => There are ",ntwot," two-fold axes"
+     write(unit=*,fmt="(a)",advance="no") " => Do you want to display the monoclinic cells? (<cr>=no): "
+     read(unit=*,fmt="(a)") mon
+     if(mon == "y" .or. mon == "Y") then
+       do j=1,ntwot
+         call Get_Conventional_Cell(otwf(j),Cell,tr,message,ok)
+         det=determ_A(tr)
+         rma=otwf(j)%dot(1)
+         if(rma < 0.1) then
+           metr="Metrically "
+         else
+           metr="    Pseudo-"
+         end if
+          if(abs(det) > 0) then
+           call Write_New_Cell()
+           call Write_New_Monoc_Cell()
+          end if
+
+       end do
+     end if
+     if(ans == "f") write(unit=*,fmt="(a)") " => Normal End of the program, results in file: conventional_cell.out"
      stop
 
   Contains
 
     Subroutine Write_New_Cell()
-      write(unit=*, fmt="(/,130a)") " ",("-",i=1,120)
-      write(unit=*,fmt="(  a)")   &
+      write(unit=io, fmt="(/,130a)") " ",("-",i=1,120)
+      write(unit=io,fmt="(  a)")   &
       " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
       finalm=matmul(real(tr),prod)
-      write(unit=*, fmt="(130a,/)") " ",("-",i=1,120)
-      write(unit=*,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
-      write(unit=*,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
-      write(unit=*,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
-      write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
-      write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
-      write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
-      write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+      write(unit=io, fmt="(130a,/)") " ",("-",i=1,120)
+      write(unit=io,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
+      write(unit=io,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
+      write(unit=io,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
+      write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
+      write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
+      write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
+      write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
       return
     End Subroutine Write_New_Cell
 
@@ -224,16 +276,20 @@
          call Change_Setting_Cell(Cell,Mat,Cellt)
          cell_trans=.true.
       else if(trim(message) == "Monoclinic, I-centred cell") then
-         mat=reshape( (/1.0,0.0,1.0, 0.0,-1.0,0.0, 0.0,0.0,-1.0/),(/3,3/))
+         mat=reshape( (/1.0,0.0,1.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
          call Change_Setting_Cell(Cell,Mat,Cellt)
+         if(Cellt%ang(2) < 80.0) then
+           mat=reshape( (/1.0,0.0,-1.0, 0.0, 1.0,0.0, 0.0,0.0, 1.0/),(/3,3/))
+           call Change_Setting_Cell(Cell,Mat,Cellt)
+         end if
          cell_trans=.true.
       end if
       if(cell_trans) then
         finalm=matmul(Mat,finalm)
-        write(unit=*,fmt="(a,3f10.5,3f8.2)") "  Equivalent C-centred Cell: ",Cellt%cell,Cellt%ang
-        write(unit=*,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
-        write(unit=*,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
-        write(unit=*,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+        write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Equivalent C-centred Cell: ",Cellt%cell,Cellt%ang
+        write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
+        write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
+        write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
       end if
       return
     End Subroutine Write_New_Monoc_Cell
