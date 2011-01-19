@@ -12,7 +12,10 @@
   !!---- of the Niggli cell is based on the algorithm developed by
   !!---- I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976).
   !!----
-  !!----
+  !!----           (Api) = transfm (Aic)      (AN)  = trans (Api)
+  !!----           (AN)  = trans . transfm   (Aic)  = Prod (Aic)
+  !!----                    prod=matmul(trans,transfm)
+  !!----           (Acc) = Tr (AN) = Tr Prod (Aic) = Tr . trans . transfm (Aic)
 
   Program Get_Conventional_Unit_Cells
     use CFML_String_Utilities, only: Ucase
@@ -126,7 +129,7 @@
       prod=matmul(trans,transfm)
       metr= "    Pseudo-"
       if( twofold%ntwo > 0) then
-        write(unit=io,fmt="(a)")        " => Two-fold axes"
+        write(unit=io,fmt="(a)")        " => Two-fold axes (indices in the Niggli cell)"
         write(unit=io,fmt="(a)")        " =>       Direct       Reciprocal    Dot    Cross      Length "
         rma=-100.0
         do i=1,twofold%ntwo
@@ -157,6 +160,7 @@
         !!!------ FIRST: test with all twofold axes found
         call Get_Conventional_Cell(twofold,Cell,tr,message,ok,told)
         det=determ_A(tr)
+        !Here Tr is the matrix transforming the Niggli cell to the conventional cell
         if(ok) then
           if(rma < 0.1)  metr="Metrically "
           if(abs(det) > 0) then
@@ -225,7 +229,7 @@
         end if !ok
       else
         !The Niggli cell is accepted as triclinic cell
-        write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Cell (Triclinic, Niggli Cell): ",Celln%cell,Celln%ang
+        write(unit=io,fmt="(a,3f10.5,3f9.3)") "  Cell (Triclinic, Niggli Cell): ",Celln%cell,Celln%ang
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",prod(1,:),"\"
         write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",prod(2,:)," |"
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",prod(3,:),"/"
@@ -270,7 +274,7 @@
       write(unit=io,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
       write(unit=io,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
       write(unit=io,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
-      write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Conventional Cell: ",Cell%cell,Cell%ang
+      write(unit=io,fmt="(a,3f10.5,3f9.3)") "  Conventional Cell: ",Cell%cell,Cell%ang
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
       write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"

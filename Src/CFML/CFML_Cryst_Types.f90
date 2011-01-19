@@ -130,6 +130,7 @@
 !!--++       GET_CRYST_ORTHOG_MATRIX     [Private]
 !!----       GET_DERIV_ORTH_CELL
 !!----       GET_PRIMITIVE_CELL
+!!----       GET_TRANSFM_MATRIX
 !!----       GET_TWO_FOLD_AXES
 !!----       INIT_ERR_CRYS
 !!----       NIGGLI_CELL                 [Overloaded]
@@ -164,9 +165,10 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,       &
-              Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell, &
-              Get_Primitive_Cell, Get_Two_Fold_Axes, Get_Conventional_Cell
+    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,          &
+              Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,    &
+              Get_Primitive_Cell, Get_Two_Fold_Axes, Get_Conventional_Cell, &
+              Get_Transfm_Matrix
 
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -1784,6 +1786,63 @@
     End Subroutine Get_Primitive_Cell
 
     !!----
+    !!---- Subroutine Get_Transfm_Matrix(cella,cellb,trm,ok,tol)
+    !!----    type(Crystal_Cell_Type),     intent(in) :: cella,cellb
+    !!----    real(kind=cp),dimension(3,3),intent(out):: trm
+    !!----    Logical,                     intent(out):: ok
+    !!----    real(kind=cp),optional,      intent(in) :: tol
+    !!----
+    !!----    Subroutine for getting the transformation matrix between two
+    !!----    primitive unit cells (the range of indices is fixed to -2 to 2)
+    !!----
+    !!---- Update: January - 2011
+    !!
+    Subroutine Get_Transfm_Matrix(cella,cellb,trm,ok,tol)
+       type(Crystal_Cell_Type),     intent(in) :: cella,cellb
+       real(kind=cp),dimension(3,3),intent(out):: trm
+       Logical,                     intent(out):: ok
+       real(kind=cp),optional,      intent(in) :: tol
+
+       !---- Local variables ----!
+       type(Crystal_Cell_Type) :: Cellt
+       integer,dimension(3,3)  :: Nu
+       integer                 :: i,j,i1,i2,i3,i4,i5,i6,i7,i8,i9
+       real(kind=cp)           :: tolt
+
+       tolt=1.0
+       if(present(tol)) tolt=tol
+       ok=.false.
+       dox: do i1=-2,2                   !         |i1  i4  i7|
+        do i2=-2,2                       !    Nu = |i2  i5  i8|
+         do i3=-2,2                      !         |i3  i6  i9|
+          do i4=-2,2
+           do i5=-2,2
+            do i6=-2,2
+             do i7=-2,2
+              do i8=-2,2
+               do i9=-2,2
+                j=i1*i5*i9+i4*i8*i3+i2*i6*i7-i3*i5*i7-i8*i6*i1-i2*i4*i9     !determinant (much faster than calling determ_A)
+                if ( j /= 1) cycle
+                Nu=reshape((/i1,i2,i3,i4,i5,i6,i7,i8,i9/),(/3,3/))
+                Trm=real(Nu)
+                call Change_Setting_Cell(Cella,Trm,Cellt)
+                if(Sum(abs(Cellt%cell(:)-Cellb%cell(:)))+Sum(abs(Cellt%ang(:)-Cellb%ang(:))) < 0.3  ) then
+                  ok=.true.
+                  exit dox
+                end if
+               end do    !i9
+              end do     !i8
+             end do      !i7
+            end do       !i6
+           end do        !i5
+          end do         !i4
+         end do          !i3
+        end do           !i2
+       end do  dox       !i1
+       return
+    End Subroutine Get_Transfm_Matrix
+
+    !!----
     !!---- Subroutine Get_Two_Fold_Axes(Celln,Tol,Twofold)
     !!----    type(Crystal_Cell_Type), intent (in) :: Celln
     !!----    real(kind=cp),           intent (in) :: tol !angular tolerance in degrees
@@ -1987,9 +2046,11 @@
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculates the Niggli cell when the input is the Niggli Matrix (part of the metrics)
-    !!--++    Applies the scalar algorithm of I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
+    !!--++    of a primitive cell. Applies the scalar algorithm of
+    !!--++    I. Krivy and B. Gruber, Acta Cryst A32, 297 (1976)
+    !!--++    If Trans is present, Celln should also be present.
     !!--++
-    !!--++ Update: October - 2008
+    !!--++ Update: January - 2011
     !!
     Subroutine Niggli_Cell_Nigglimat(N_Mat,Niggli_Point,Celln,Trans)    !Scalar algorithm
        !---- Arguments ----!
@@ -1999,8 +2060,9 @@
        real(kind=cp), dimension(3,3),   optional, intent(out)    :: trans
 
        !--- Local variables ---!
+       type(Crystal_Cell_Type)       :: Cellp
        real(kind=cp)                 :: A,B,C,u,v,w,eps
-       real(kind=cp), dimension(3,3) :: trm,aux
+       real(kind=cp), dimension(3,3) :: trm
        real(kind=cp), dimension(3)   :: cel,ang
        integer                       :: iu,iv,iw, ncount ! ncount is the counter no more that Numiter=100
                                                          ! iterations are permitted. In case of exhausting
@@ -2031,9 +2093,18 @@
        v=2.0*n_mat(2,2)
        w=2.0*n_mat(2,3)
        eps=epr*(A*B*C)**(1.0/6.0)
-       trm=identity
        ncount=0
        ok=.true.
+       if (present(trans)) then
+          !Construct the input cell Cellp from its Niggli parameters
+          cel(1) = sqrt(A)
+          cel(2) = sqrt(B)
+          cel(3) = sqrt(C)
+          ang(1) = acosd(u/(cel(2)*cel(3)*2.0))
+          ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
+          ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
+          call Set_Crystal_Cell(cel,ang, Cellp)
+       end if
 
        do
           ncount=ncount+1
@@ -2046,16 +2117,12 @@
           if (B < A-eps .or. ( .not.( A < B-eps .or. B < A-eps)  .and. abs(v) < abs(u)-eps ) ) then  ! A1
              call swap(A,B)
              call swap(u,v)
-             aux=reshape ((/  0.0,1.0,0.0, 1.0,0.0,0.0, 0.0,0.0,1.0/),(/3,3/))
-             trm=matmul(aux,trm)
           end if
 
           !---- if(B > C .or. ( B == C .and. abs(v) > abs(w)) ) then  ! A2
           if (C < B-eps .or. ( .not.( C < B-eps .or. B < C-eps) .and. abs(w) < abs(v)-eps) ) then  ! A2
              call swap(B,C)
              call swap(v,w)
-             aux=reshape ((/1.0,0.0,0.0, 0.0,0.0,1.0,  0.0,1.0,0.0/),(/3,3/))
-             trm=matmul(aux,trm)
              cycle
           end if
 
@@ -2064,12 +2131,6 @@
           if ( u < -eps) iu=-1
           if ( v < -eps) iv=-1
           if ( w < -eps) iw=-1
-          !aux=reshape ((/real(iu),0.0,0.0,  0.0,real(iv),0.0, 0.0,0.0,real(iw)/),(/3,3/))
-          !for intel 11.0
-          aux=0.0
-          aux(1,1)=real(iu)
-          aux(2,2)=real(iv)
-          aux(3,3)=real(iw)
           if (abs(u) < eps) iu=0
           if (abs(v) < eps) iv=0
           if (abs(w) < eps) iw=0
@@ -2077,13 +2138,10 @@
              u=abs(u)
              v=abs(v)
              w=abs(w)
-             trm=matmul(aux,trm)
           else                                                        ! A4
              u=-abs(u)
              v=-abs(v)
              w=-abs(w)
-             aux=-aux
-             trm=matmul(aux,trm)
           end if
 
           !---- if( abs(u) > B .or. ( u == B .and. 2.0*v < w) .or. ( u == -B .and. w < 0.0)) then  ! A5
@@ -2093,13 +2151,6 @@
              C = B+C - u * iu
              v =  v  - w * iu
              u = u - 2.0*B*iu
-             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 0.0,-real(iu),1.0/),(/3,3/))
-             aux=0.0
-             aux(1,1)=1.0
-             aux(2,2)=1.0
-             aux(2,3)=-real(iu)
-             aux(3,3)=1.0
-             trm=matmul(aux,trm)
              cycle
           end if
 
@@ -2110,14 +2161,6 @@
              C = A+C - v * iv
              u =  u  - w * iv
              v = v - 2.0*A*iv
-             !aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, -real(iv),0.0,1.0/),(/3,3/))
-             !for intel 11.0
-             aux=0.0
-             aux(1,1)=1.0
-             aux(2,2)=1.0
-             aux(1,3)=-real(iv)
-             aux(3,3)=1.0
-             trm=matmul(aux,trm)
              cycle
           end if
 
@@ -2128,14 +2171,6 @@
              B = A+B - w * iw
              u =  u  - v * iw
              w = w - 2.0*A*iw
-             !aux=reshape ((/1.0,0.0,0.0,  -real(iw),1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
-             !for intel
-             aux=0.0
-             aux(1,1)=1.0
-             aux(1,2)=-real(iw)
-             aux(2,2)=1.0
-             aux(3,3)=1.0
-             trm=matmul(aux,trm)
              cycle
           end if
 
@@ -2144,8 +2179,6 @@
              C=A+B+C+u+v+w
              u=2.0*B+u+w
              v=2.0*A+v+w
-             aux=reshape ((/1.0,0.0,0.0,  0.0,1.0,0.0, 1.0,1.0,1.0/),(/3,3/))
-             trm=matmul(aux,trm)
              cycle
           end if
           exit
@@ -2154,7 +2187,6 @@
        !---- Reconstruct the new Niggli matrix
        n_mat(1,1)=A; n_mat(1,2)=B; n_mat(1,3)=C
        n_mat(2,1)=0.5*u; n_mat(2,2)=0.5*v; n_mat(2,3)=0.5*w
-       if (present(trans)) trans=trm
 
        if (.not. ok) Then
           Err_Crys=.true.
@@ -2179,6 +2211,14 @@
           ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
           ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
           call Set_Crystal_Cell(cel,ang, Celln)
+          if (present(trans)) then
+            Call Get_Transfm_Matrix(cellp,celln,trm,ok)
+            if(ok) then
+              trans=trm
+            else
+              trans=identity
+            end if
+          end if
        end if
 
        return
