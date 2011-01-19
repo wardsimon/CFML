@@ -1,10 +1,10 @@
-  !!---- Program Get_Conventional_Unit_Cell
+  !!---- Program Get_Conventional_Unit_Cells
   !!----
   !!----  Author: Juan Rodriguez-Carvajal, ILL (2008)
   !!----
   !!---- This program needs as input unit cell parameters and provides the conventional
   !!---- unit cell parameters and the trasformation matrix between the input cell and
-  !!---- the conventional cell. The program is similar to REDUC from Yvon Le Page but
+  !!---- the conventional cell(s). The program is similar to REDUC from Yvon Le Page but
   !!---- it has been developed from the scratch using new procedures that are in CrysFML.
   !!---- These procedures are based on well known articles of the literature about
   !!---- reduced and conventional cells. In particular the search of two-fold axes is
@@ -14,7 +14,7 @@
   !!----
   !!----
 
-  Program Get_Conventional_Unit_Cell
+  Program Get_Conventional_Unit_Cells
     use CFML_String_Utilities, only: Ucase
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, ERR_Crys_Mess, &
                                      Set_Crystal_Cell,Get_Cryst_Family, Niggli_Cell,     &
@@ -54,17 +54,19 @@
 
       del=0.0
       write(unit=*,fmt="(/,a)") " --------------------------------------------"
-      write(unit=*,fmt="(a)")   "     Program: Get_Conventional_Unit_Cell     "
+      write(unit=*,fmt="(a)")   "     Program: Get_Conventional_Unit_Cells    "
       write(unit=*,fmt="(a)")   "  Author: J. Rodriguez-Carvajal, ILL(2008)   "
+      write(unit=*,fmt="(a)")   "            Updated January 2011             "
       write(unit=*,fmt="(a,/)") " --------------------------------------------"
       write(unit=*,fmt="(a)",advance="no") " => Output on the screen (<cr>) or in file (f) : "
       read(unit=*,fmt="(a)") ans
       if(ans == "f") then
         io=1
-        open(unit=io,file="conventional_cell.out",status="replace",action="write")
+        open(unit=io,file="conventional_cells.out",status="replace",action="write")
         write(unit=io,fmt="(/,a)") " --------------------------------------------"
-        write(unit=io,fmt="(a)")   "     Program: Get_Conventional_Unit_Cell     "
+        write(unit=io,fmt="(a)")   "     Program: Get_Conventional_Unit_Cells    "
         write(unit=io,fmt="(a)")   "  Author: J. Rodriguez-Carvajal, ILL(2008)   "
+        write(unit=io,fmt="(a)")   "            Updated January 2011             "
         write(unit=io,fmt="(a,/)") " --------------------------------------------"
       end if
       do
@@ -163,6 +165,7 @@
           end if
           !call Write_Crystal_Cell(Cell)
 
+         !!!------ SECOND: select smaller blocks of twofold axes
           if( rma >= 0.1) then
             p=twofold%ntwo+1
             del(1)=del(1)-0.06
@@ -194,7 +197,7 @@
               end if
               if( n >= 1 ) then
                 twf%ntwo=n
-                write(unit=io, fmt="(/,a,i3,a,2f10.4)")  " ====> Remaining two-fold axes (search for other possible lattices):  ",n, "  ", rmi
+                write(unit=io, fmt="(/,a,i3,a,f10.4)")  " ====> Remaining two-fold axes (search for other possible lattices):  ",n, "  Angular Tolerance (deg)", rmi
                 do i=1,n
                  write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
                        twf%dtwofold(:,i),twf%rtwofold(:,i), twf%dot(i),twf%cross(i),twf%maxes(i)
@@ -228,14 +231,20 @@
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",prod(3,:),"/"
       end if
 
+     !!!------ THIRD: Determine all monoclinic cells considering one-by-one all the two-fold axes
      write(unit=*,fmt="(/,a,i3,a)")       " => There are ",ntwot," two-fold axes"
      write(unit=*,fmt="(a)",advance="no") " => Do you want to display the monoclinic cells? (<cr>=no): "
      read(unit=*,fmt="(a)") mon
      if(mon == "y" .or. mon == "Y") then
+       write(unit=io, fmt="(/,/,/,130a)") " ",("*",i=1,120)
+       write(unit=io,fmt="(  a,/,a)")   &
+       " => MONOCLINIC CELLS: In this section each two-fold axis is considered as a unique b-axis of M-cells",&
+       "    The metrics of the monoclinic cells may be of higher symmetry, e.g. beta=90.0"
+       write(unit=io, fmt="(130a,/)") " ",("*",i=1,120)
        do j=1,ntwot
          call Get_Conventional_Cell(otwf(j),Cell,tr,message,ok)
          det=determ_A(tr)
-         rma=otwf(j)%dot(1)
+         rma=otwf(j)%cross(1)
          if(rma < 0.1) then
            metr="Metrically "
          else
@@ -245,10 +254,9 @@
            call Write_New_Cell()
            call Write_New_Monoc_Cell()
           end if
-
        end do
      end if
-     if(ans == "f") write(unit=*,fmt="(a)") " => Normal End of the program, results in file: conventional_cell.out"
+     if(ans == "f") write(unit=*,fmt="(a)") " => Normal End of the program, results in file: conventional_cells.out"
      stop
 
   Contains
@@ -286,7 +294,7 @@
       end if
       if(cell_trans) then
         finalm=matmul(Mat,finalm)
-        write(unit=io,fmt="(a,3f10.5,3f8.2)") "  Equivalent C-centred Cell: ",Cellt%cell,Cellt%ang
+        write(unit=io,fmt="(/,a,3f10.5,3f9.3)") "  Equivalent C-centred Cell: ",Cellt%cell,Cellt%ang
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
         write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
@@ -294,4 +302,4 @@
       return
     End Subroutine Write_New_Monoc_Cell
 
-  End Program Get_Conventional_Unit_Cell
+  End Program Get_Conventional_Unit_Cells
