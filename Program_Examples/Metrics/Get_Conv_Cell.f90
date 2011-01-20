@@ -201,11 +201,6 @@
               end if
               if( n >= 1 ) then
                 twf%ntwo=n
-                write(unit=io, fmt="(/,a,i3,a,f10.4)")  " ====> Remaining two-fold axes (search for other possible lattices):  ",n, "  Angular Tolerance (deg)", rmi
-                do i=1,n
-                 write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
-                       twf%dtwofold(:,i),twf%rtwofold(:,i), twf%dot(i),twf%cross(i),twf%maxes(i)
-                end do
                 twf%tol=twofold%tol
                 twf%a=twofold%a
                 twf%b=twofold%b
@@ -215,8 +210,14 @@
                 if(ok) then
                   call Write_New_Cell()
                   call Write_New_Monoc_Cell()
-                else
-                  write(unit=io, fmt="(  a)")   " => No lattice results: "//trim(message)
+                  write(unit=io, fmt="(/,a,i3,a,f10.4)")  " => Two-fold axes:  ",n, "  Angular Discrepancy (deg)", rmi
+                  write(unit=io,fmt="(a)")           " =>       Direct       Reciprocal    Dot    Cross      Length "
+                  do i=1,n
+                    write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
+                       twf%dtwofold(:,i),twf%rtwofold(:,i), twf%dot(i),twf%cross(i),twf%maxes(i)
+                  end do
+                !else
+                !  write(unit=io, fmt="(  a)")   " => No lattice results: "//trim(message)
                 end if
               end if
               if(n <= 1) exit
@@ -254,10 +255,14 @@
          else
            metr="    Pseudo-"
          end if
-          if(abs(det) > 0) then
-           call Write_New_Cell()
-           call Write_New_Monoc_Cell()
-          end if
+         if(abs(det) > 0) then
+          call Write_New_Cell()
+          call Write_New_Monoc_Cell()
+         end if
+         write(unit=io, fmt="(/,a,f10.4)")  " => Two-fold axis along monoclinic b-axis,  Angular Discrepancy (deg)", rma
+         write(unit=io,fmt="(a)")           " =>       Direct       Reciprocal    Dot    Cross      Length "
+         write(unit=io,fmt="(a,3i4,tr4,3i4,i6,f10.3,f12.5)")  "     ",&
+         otwf(j)%dtwofold(:,1),otwf(j)%rtwofold(:,1), otwf(j)%dot(1),otwf(j)%cross(1),otwf(j)%maxes(1)
        end do
      end if
      if(ans == "f") write(unit=*,fmt="(a)") " => Normal End of the program, results in file: conventional_cells.out"
@@ -272,7 +277,7 @@
       finalm=matmul(real(tr),prod)
       write(unit=io, fmt="(130a,/)") " ",("-",i=1,120)
       write(unit=io,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
-      write(unit=io,fmt="(a,i3,2i4,a,i10)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
+      write(unit=io,fmt="(a,i3,2i4,a,i4)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
       write(unit=io,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
       write(unit=io,fmt="(a,3f10.5,3f9.3)") "  Conventional Cell: ",Cell%cell,Cell%ang
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
