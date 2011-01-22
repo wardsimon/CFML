@@ -33,7 +33,8 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c space_group_info.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:space_group_info *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   rem ifort /exe:space_group_info *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /out:space_group_info.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

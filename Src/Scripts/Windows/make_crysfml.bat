@@ -17,9 +17,9 @@ rem
 :CONT
    echo **-------------------------------------------------------**
    echo **----                                               ----**
-   echo **---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 4.10 ----**
+   echo **---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 5.00 ----**
    echo **----                                               ----**
-   echo **---- Authors: JRC-JGP                   (1999-2010)----**
+   echo **---- Authors: JRC-JGP                   (1999-2011)----**
    echo **-------------------------------------------------------**
 rem
 rem Compiler Version

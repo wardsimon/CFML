@@ -16,9 +16,9 @@ rem
 :CONT
    echo **--------------------------------------------------------**
    echo **----                                                ----**
-   echo **---- CRYSTALLOGRAPHIC FORTRAN GRAPHICS LIBRARY 4.10 ----**
+   echo **---- CRYSTALLOGRAPHIC FORTRAN GRAPHICS LIBRARY 5.00 ----**
    echo **----                                                ----**
-   echo **---- Authors: JRC-LC                     (1999-2010)----**
+   echo **---- Authors: JRC-LC                     (1999-2011)----**
    echo **----                                                ----**
    echo **--------------------------------------------------------**
 rem

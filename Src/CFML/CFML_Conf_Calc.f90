@@ -589,7 +589,7 @@
     !!----
     !!---- Update: December - 2007
     !!
-      Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
+    Subroutine Calc_Map_BVS(A,Spg,Cell,Filecod,ndimx,ndimy,ndimz,atname,drmax)
        !---- Arguments ----!
        type (Atoms_Conf_List_type), intent(in) :: A
        type (Space_Group_Type),     intent(in) :: SpG
