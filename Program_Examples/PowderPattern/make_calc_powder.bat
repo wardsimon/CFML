@@ -33,7 +33,8 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Calc_Powder.f90 /Ox /nologo /I. /IC:\CrysFML\Intel\LibC
-   ifort /exe:Calc_Powder *.obj C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:102400000
+   rem ifort /exe:Calc_Powder *.obj C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:102400000
+   link /subsystem:console /stack:102400000 /out:Calc_Powder.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

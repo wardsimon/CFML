@@ -35,7 +35,8 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c Phase_Diagram.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:Phase_Diagram *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /out:Phase_Diagram.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

@@ -41,7 +41,8 @@ rem ****---- Intel Compiler ----****
    ifort /c menu_3.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c menu_4.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c calsym.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:CrysCalc *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   rem ifort /exe:CrysCalc *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /out:CrysCalc.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

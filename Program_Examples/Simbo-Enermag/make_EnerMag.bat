@@ -35,7 +35,8 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c EnerMag.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:EnerMag *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   rem ifort /exe:EnerMag *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /out:EnerMag.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

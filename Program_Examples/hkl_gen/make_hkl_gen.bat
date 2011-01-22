@@ -33,7 +33,8 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c hkl_gen.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:hkl_gen *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   rem ifort /exe:hkl_gen *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /out:hkl_gen.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

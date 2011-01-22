@@ -37,7 +37,8 @@ rem ****---- Intel Compiler ----****
    ifort /c observ.f90             /O3 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c cost_functions.f90     /O3 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c Optim_General.f90      /O3 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:Optim_General_if *.obj  C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:64000000
+   rem ifort /exe:Optim_General_if *.obj  C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:64000000
+   link /subsystem:console /stack:64000000 /out:Optim_General_if.exe *.obj  C:\CrysFML\Intel\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
