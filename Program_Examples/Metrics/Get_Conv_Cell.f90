@@ -39,7 +39,7 @@
     !  5.211 5.212  5.209   59.90  60.12  59.85                            F       !Pseudo-Rhombohedral
     !  5.234 9.065  11.91   89.91  90.01  90.03                            C       !Pseudo-Hexagonal
 
-    real, dimension(3,3)    :: transfm,trans,prod,finalm,mat
+    real, dimension(3,3)    :: transfm,trans,prod,finalm,mat, invm
     integer, dimension(3,3) :: tr
     real, dimension(6)      :: ad
     real, dimension(12)     :: del
@@ -283,6 +283,10 @@
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
       write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+      invm=Invert_A(finalm)
+      write(unit=io,fmt="(/,a,3f12.6,a)")   "                                   /",invm(1,:),  "\"
+      write(unit=io,fmt="(a,3f12.6,a)")     "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
+      write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",invm(3,:),  "/"
       return
     End Subroutine Write_New_Cell
 
@@ -307,6 +311,10 @@
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
         write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+        invm=Invert_A(finalm)
+        write(unit=io,fmt="(/,a,3f12.6,a)")   "                                   /",invm(1,:),  "\"
+        write(unit=io,fmt="(a,3f12.6,a)")     "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
+        write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",invm(3,:),  "/"
       end if
       return
     End Subroutine Write_New_Monoc_Cell
