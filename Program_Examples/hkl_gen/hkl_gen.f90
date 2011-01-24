@@ -123,7 +123,7 @@ Program Test_HKL_GEN
         allocate (reflections(MaxNumRef))
       end if
 
-      !> Procedure to calculation the all reflections
+      !> Procedure to calculation all reflections
       !call HKL_GEN(cell,grp_espacial,.true.,val1,val2,num,reflections) !Not ordered
       call HKL_UNI(cell,grp_espacial,.true.,val1,val2,car,num,reflections) !Ordered
 

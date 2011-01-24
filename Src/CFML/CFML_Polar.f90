@@ -527,7 +527,7 @@
     !!----    COMPLEX, intent( in)                     :: NSF   !  In -> Nuclear Scattering Factor
     !!----    type(MagHD_Type),        intent(in out)  :: Mh
     !!----    type(Magnetic_Domain_type),intent(in)    :: Mag_Dom
-    !!----    Type (Polar_Info_type), intent( out)     :: Polari !  Out ->type with all information about polarisation in
+    !!----    Type (Polar_calc_type), intent( out)     :: Polari !  Out ->type with all information about polarisation in
     !!----                                                                 one point hkl
     !!----
     !!----    Calculates Polarization matrix for domain case
@@ -541,9 +541,9 @@
        Real(kind=cp), dimension(3), intent(in)       :: SPV
        Real(kind=cp), intent( in)                    :: Pin
        COMPLEX, intent( in)                          :: NSF
-       type(MagHD_Type),            intent(in out)   :: Mh
        type(Magnetic_Domain_type),  intent(in)       :: Mag_Dom
-       type(Polar_calc_type),     intent(out)      :: Polari
+       type(MagHD_Type),            intent(in out)   :: Mh
+       type(Polar_calc_type),       intent(out)      :: Polari
 
        !---- Local variables ----!
        REAL(kind=cp), DIMENSION (3)   :: sigma        ! elastic cross for different incident polarisation directions
@@ -560,7 +560,7 @@
        Polari%P = Pin
        Polari%NSF = NSF
 
-       Polari%Pij(:,:) = 0.d0
+       Polari%Pij(:,:) = 0.0_cp
 
        nch=1
        if(Mag_Dom%chir) nch=2
@@ -804,7 +804,7 @@
        if(Mag_Dom%chir) nch=2
        do nd=1,Mag_Dom%nd
          do ich=1,nch
-           Write(unit=iunit,fmt="(2(a,i2),2(a,3f7.3),a)") "nd =",nd," ch =",ich," MiV = (",&
+           Write(unit=iunit,fmt="(2(a,i2),2(a,3f7.3),a)") "   Domain # =",nd," Chiral Dom. =",ich," MiV = (",&
                          real(Polari%MIV(:,ich,nd)), ") + i(",AIMAG(Polari%MIV(:,ich,nd)),")"
          end do
        end do
@@ -983,16 +983,16 @@
        Write(unit=iunit,fmt="(a,/)")           " "
        Write(unit=iunit,fmt="(a,/)")           " => Polarisation tensor as it will be measured:"
        Write(unit=iunit,fmt="(a,/)")           " "
-       Write(unit=iunit,fmt="(3(a,f12.4), a)") "        /", Polari%Pij(1,1),"  ", Polari%Pij(1,2) , "  ", Polari%Pij(1,3), "  \"
-       Write(unit=iunit,fmt="(3(a,f12.4), a)") "  PT  = |", Polari%Pij(2,1),"  ", Polari%Pij(2,2) , "  ", Polari%Pij(2,3), "  |"
-       Write(unit=iunit,fmt="(3(a,f12.4), a)") "        \", Polari%Pij(3,1),"  ", Polari%Pij(3,2) , "  ", Polari%Pij(3,3), "  /"
+       Write(unit=iunit,fmt="(3(a,f12.4), a)") "         /", Polari%Pij(1,1),"  ", Polari%Pij(1,2) , "  ", Polari%Pij(1,3), "  \"
+       Write(unit=iunit,fmt="(3(a,f12.4), a)") "  PT  = | ", Polari%Pij(2,1),"  ", Polari%Pij(2,2) , "  ", Polari%Pij(2,3), "   |"
+       Write(unit=iunit,fmt="(3(a,f12.4), a)") "         \", Polari%Pij(3,1),"  ", Polari%Pij(3,2) , "  ", Polari%Pij(3,3), "  /"
 
        return
     End Subroutine Write_Polar_Info
 
     !!----
     !!---- Subroutine Write_Polar_Line(Polari, Lun)
-    !!----    Type (Polar_Info_type), intent( in)     :: Polrari !  in ->type with all information about polarization in one point hkl
+    !!----    Type (Polar_calc_type), intent( in)     :: Polrari !  in ->type with all information about polarization in one point hkl
     !!----    integer, optional,      intent(in)      :: lun     !  In -> Unit to write
     !!----
     !!----    Outputs the polarization info type in line form, so you can write it to a file
@@ -1001,7 +1001,7 @@
     !!
     Subroutine Write_Polar_Line(Polari, Lun)
        !---- Arguments ----!
-       Type (Polar_Info_type), intent( in)     :: Polari !
+       Type (Polar_calc_type), intent( in)     :: Polari !
        integer, optional,      intent(in)      :: Lun
 
        !---- Local variables ----!

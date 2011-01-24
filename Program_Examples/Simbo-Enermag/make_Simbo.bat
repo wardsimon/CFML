@@ -35,7 +35,7 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c Simbo.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:Simbo *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /stack:102400000 /out:Simbo.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

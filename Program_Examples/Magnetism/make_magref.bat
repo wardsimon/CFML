@@ -28,8 +28,8 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c magref.f90 /Ox /nologo /I. /IC:\CrysFML\Intel\LibC
-   rem ifort /exe:magref_if *.obj C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:1024000000
-   link /subsystem:console /stack:1024000000 /out:magref_if.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
+   rem ifort /exe:magref_if *.obj C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:102400000
+   link /subsystem:console /stack:102400000 /out:magref_if.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

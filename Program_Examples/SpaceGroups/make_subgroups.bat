@@ -34,7 +34,7 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c subgroups.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    rem ifort /exe:subgroups *.obj C:\CrysFML\Intel\LibC\crysfml.lib
-   link /subsystem:console /out:subgroups *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   link /subsystem:console /out:subgroups.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

@@ -122,7 +122,7 @@
                 end if
 
                 print*," "
-                write(*,'(a,f6.4)') " Multiplicity: ",mlt
+                write(*,'(a,f7.4)') " Multiplicity: ",mlt
                 call system('pause')
              end if
           end do

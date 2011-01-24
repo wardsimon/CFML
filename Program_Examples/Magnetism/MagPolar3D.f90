@@ -19,7 +19,7 @@ Program MagPolar3D
  type (Crystal_Cell_Type)    :: Cell
  type (MagHD_Type)           :: Mh
  type (Magnetic_domain_type) :: Mag_Dom
- Type (Polar_Info_type)      :: polari
+ Type (Polar_calc_type)      :: polari
 
  character(len=256)          :: filcod     !Name of the input file
  character(len=1)            :: sig
@@ -32,7 +32,6 @@ Program MagPolar3D
  integer                     :: narg,iargc
  Logical                     :: esta, arggiven=.false.
 
-      !---- Arguments on the command line ----!
       !---- Arguments on the command line ----!
       narg=COMMAND_ARGUMENT_COUNT()
 
@@ -175,8 +174,8 @@ Program MagPolar3D
           end if
           exit
          end do
-         call Set_Polar_Info(Cell, Mh%h, vpl, 1.0, cmplx(0.0,0.0), Mh%AMiV, Polari)
-         call Write_Polar_Info(Polari, info="p")
+         call Calc_Polar_Dom(Cell, Mh%h, vpl, 1.0, cmplx(0.0,0.0), Mag_dom, Mh, Polari)
+         call Write_Polar_Info(Polari, Mag_Dom, info="p")
          call Write_Polar_line(Polari)
        end do
 
