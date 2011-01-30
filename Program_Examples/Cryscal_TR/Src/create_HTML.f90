@@ -238,16 +238,7 @@ CLOSE(UNIT=HTML_unit)
 
 
   IF(browse_cryscal_HTML .and. my_browser%exist) then
-   call launch_browser('\cryscal.html', 'internal')
-!  ! repertoire de travail ?
-!  ! utilisation de la fonction 'get_current_directory' de RealWin
-!  call get_current_directory(directory=current_directory)
-!
-!   !WRITE(DOS_command, '(4a)') TRIM(my_browser%name),' " file:///',TRIM(current_directory),'\cryscal.html"'
-!   WRITE(DOS_command, '(4a)') TRIM(my_browser%name),' ', TRIM(current_directory),'\cryscal.html'
-!
-!   call spawn(file_name=TRIM(DOS_command))
-!   !call system(trim(DOS_command))
+   call launch_browser('cryscal.html')
   ENDIF
 
 
@@ -1404,7 +1395,7 @@ CLOSE(UNIT=HTML_unit)
 
 ! call launch_browser('\structural_report.HTML', 'internal')
  IF(my_browser%exist) then
-  call launch_browser('\'//TRIM(structural_report_file), 'internal')
+  call launch_browser(TRIM(structural_report_file))
   call write_info('')
   call write_info('  Please wait. Your browser will be launched to display the HTML report.')
   call write_info('')

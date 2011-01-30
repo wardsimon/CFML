@@ -427,7 +427,7 @@ END subroutine interactive_mode
         call write_data('radius')
 
       case ('WEB', 'INTERNET')
-        if (keyword_WEB) call launch_browser(TRIM(URL_address), 'external')
+        if (keyword_WEB) call launch_browser(TRIM(URL_address))
 
 
       case ('WRITE_CELL', 'OUTPUT_CELL')

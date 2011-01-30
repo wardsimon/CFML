@@ -286,7 +286,7 @@ module cryscal_module
   
 
   integer                                      :: nb_help                 ! nombre d'arguments de HELP
-  LOGICAL,            DIMENSION(100)           :: write_keys
+  LOGICAL,            DIMENSION(nb_help_max)   :: write_keys
   LOGICAL                                      :: keyword_HEADER          ! entete de CRYSCAL
   LOGICAL                                      :: keyword_SYST            ! mot cle = SYST
   LOGICAL                                      :: keyword_RESET           ! mot cle = RESET/RAZ/INIT

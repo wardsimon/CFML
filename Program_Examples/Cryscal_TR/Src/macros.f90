@@ -23,6 +23,7 @@ MODULE MACROS_module
               replace_car,               &
               write_message,             &
               check_character,           &
+			  Get_current_folder_name,   &
               Get_Wingx_job
 
 
@@ -472,7 +473,29 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
  
  return
 end subroutine check_character
+!------------------------------------------------------------------------------------
 
+subroutine Get_current_folder_name(folder_name)
+
+ character(len=256), intent(out) :: folder_name
+ integer                         :: i, i1, i_error
+ character(len=256)              :: read_line
+ 
+ folder_name = '?'
+ call system("dir folder_name > temp_file")
+  open (unit=22, file="temp_file")
+   do i=1, 4
+    read(unit=22, '(a)', iostat=i_error) read_line
+	if(i_error /=0) exit
+	if(i==4 .and. index(read_line,':') /=0) then
+	 folder_name = trim(read_line(index(read_line,':')-1:))  
+	endif
+   end do
+   
+  close(unit=22)
+  call system("del temp_file")
+ 
+end subroutine Get_current_folder_name
 !------------------------------------------------------------------------------------
 subroutine Get_WinGX_job(job)
  use IO_module

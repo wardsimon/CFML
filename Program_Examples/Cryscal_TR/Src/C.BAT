@@ -1,6 +1,10 @@
-rem  Compilation of the CrysCal system using the Lahey-Fujitsu compiler
-rem
-rem
+
+del *.obj
+del *.mod
+del *.map
+
+
+
       lf95 -c cryscal_mod       -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c IO_console        -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c text_mod          -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
@@ -8,7 +12,7 @@ rem
       lf95 -c matrix_mod        -o1 -info                                            -nchk  -nstchk
       lf95 -c macros            -o1 -info                                            -nchk  -nstchk
 
-      lf95 -c cryscal_ext       -o1 -info  -mod  .;c:\rw_lf95;c:\crysfml\Lahey\libC  -nchk  -nstchk
+      lf95 -c cryscal_ext       -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c obv_rev           -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c neutrons_mod      -o1 -info                                            -nchk  -nstchk
       lf95 -c xrays_mod         -o1 -info                                            -nchk  -nstchk
@@ -52,8 +56,6 @@ rem
       lf95 -c read_nreport      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal_news      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
 
- lf95 -out cryscal *.obj   -mod c:\crysfml\lahey\libC -lib c:\crysfml\lahey\libC\crysfml;c:\rw_lf95\realwin.lib
- upx cryscal.exe
- rem
-
-rem del *.obj  *.mod *.map *.lib
+ lf95 -out cryscal *.obj   -mod c:\crysfml\lahey\libC -lib c:\crysfml\lahey\libC\crysfml
+ rem upx cryscal.exe
+ rem copy cryscal.exe f:\progs

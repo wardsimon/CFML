@@ -24,14 +24,7 @@ subroutine read_nreport_html()
 
 
  if (my_browser%exist) then
-  call launch_browser('\nreport.html', 'internal')
-!  ! repertoire de travail ?
-!  ! utilisation de la fonction 'get_current_directory' de RealWin
-!  call get_current_directory(directory=current_directory)
-!
-!   WRITE(DOS_command, '(4a)') TRIM(my_browser%name),' ', TRIM(current_directory),'\nreport.html'
-!   call spawn(file_name=TRIM(DOS_command))
-!   !call system(trim(DOS_command))
+  call launch_browser('nreport.html')
  else
   OPEN(UNIT=51, FILE='nreport.html')
   do

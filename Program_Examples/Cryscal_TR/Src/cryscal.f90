@@ -357,7 +357,8 @@ subroutine KEYS_on_line()
  implicit none
   INTEGER                       :: i , nb_keys_to_write
 
-  nb_keys_to_write = 0
+  
+   nb_keys_to_write = 0
   do i=1, nb_help_max
    IF(write_keys(i)) then
     nb_keys_to_write = nb_keys_to_write + 1

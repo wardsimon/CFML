@@ -36,14 +36,6 @@ end subroutine Write_HELP
   call write_info(' ')
   
   
-  !IF(my_browser%exist) then
-  ! call write_info('   CRYSCAL manual (HTML format) stored in cryscal.html file. Your browser will be launched.')
-  ! call launch_browser('\cryscal.html', 'internal')
-  !else
-  ! call write_info('   CRYSCAL manual (HTML format) stored in cryscal.html file. Please launch your browser manually.')
-  !ENDIF
-  
-  !call write_info(' ')
  
 
   stop
