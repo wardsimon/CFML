@@ -48,8 +48,8 @@
     character(len=80)       :: message
     character(len=11)       :: metr
     logical                 :: ok,cell_trans
-    integer                 :: i,j,p,n,ier, det, ntwot, nold , io=6 !Standard output
-    real                    :: rmi,rma, tol, told
+    integer                 :: i,j,p,n,ier, ntwot, nold , io=6 !Standard output
+    real                    :: rmi,rma, tol, told, det
     Type(Twofold_Axes_Type) :: twofold,twf
     Type(Twofold_Axes_Type), dimension(12) :: otwf   !Individual two-fold axes for searching
                                                      !monoclinic cells
@@ -277,13 +277,15 @@
       finalm=matmul(real(tr),prod)
       write(unit=io, fmt="(130a,/)") " ",("-",i=1,120)
       write(unit=io,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
-      write(unit=io,fmt="(a,i3,2i4,a,i4)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",det
+      write(unit=io,fmt="(a,i3,2i4,a,i4)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",nint(det)
       write(unit=io,fmt="(a,i3,2i4,a,/)")   "                         \",tr(3,:), " /"
       write(unit=io,fmt="(a,3f10.5,3f9.3)") "  Conventional Cell: ",Cell%cell,Cell%ang
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
       write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
       invm=Invert_A(finalm)
+      det=determ_A(finalm)
+      write(unit=io,fmt="(/,a,f12.6)")      "     Determinant: ",det
       write(unit=io,fmt="(/,a,3f12.6,a)")   "                                   /",invm(1,:),  "\"
       write(unit=io,fmt="(a,3f12.6,a)")     "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
       write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",invm(3,:),  "/"
@@ -311,7 +313,9 @@
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   /",finalm(1,:),"\"
         write(unit=io,fmt="(a,3f12.6,a)")     "     Final Tranformation Matrix:  | ",finalm(2,:)," |       (Acc) = Ftr (Aic)"
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
+        det=determ_A(finalm)
         invm=Invert_A(finalm)
+        write(unit=io,fmt="(/,a,f12.6)")      "     Determinant: ",det
         write(unit=io,fmt="(/,a,3f12.6,a)")   "                                   /",invm(1,:),  "\"
         write(unit=io,fmt="(a,3f12.6,a)")     "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",invm(3,:),  "/"
