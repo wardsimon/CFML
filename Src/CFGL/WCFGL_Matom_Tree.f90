@@ -510,13 +510,13 @@ module WCFGL_matom_tree
 
   end subroutine construct_matom_dlist
 !------------------------------------------------------------------------------
-subroutine construct_matom_envelop(matom_pointer)
-type(matom_list), intent(in) :: matom_pointer
+ subroutine construct_matom_envelop(matom_pointer)
+ type(matom_list), intent(in) :: matom_pointer
 
-if (.not.(associated(current_box))) call init_box()
+  if (.not.(associated(current_box))) call init_box()
+  if(matom_pointer%envelop) return !Just for eliminating warnings
 
-
-end subroutine construct_matom_envelop
+ end subroutine construct_matom_envelop
 !------------------------------------------------------------------------------
   subroutine change_matoms_plotting_status(status)
     logical, intent(in) :: status

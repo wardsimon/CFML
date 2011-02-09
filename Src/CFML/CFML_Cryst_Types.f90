@@ -1806,7 +1806,7 @@
        !---- Local variables ----!
        type(Crystal_Cell_Type) :: Cellt
        integer,dimension(3,3)  :: Nu
-       integer                 :: i,j,i1,i2,i3,i4,i5,i6,i7,i8,i9
+       integer                 :: j,i1,i2,i3,i4,i5,i6,i7,i8,i9
        real(kind=cp)           :: tolt
 
        tolt=1.0
