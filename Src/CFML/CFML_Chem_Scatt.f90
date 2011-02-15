@@ -337,7 +337,7 @@
     Type(Xray_Wavelength_Type), dimension(7), public :: Xray_Wavelengths =(/                    &
                                                 Xray_Wavelength_type("CR",(/2.28988,2.29428/)), &
                                                 Xray_Wavelength_type("FE",(/1.93631,1.94043/)), &
-                                                Xray_Wavelength_type("CU",(/1.54053,1.54431/)), &
+                                                Xray_Wavelength_type("CU",(/1.54059,1.54431/)), &
                                                 Xray_Wavelength_type("MO",(/0.70932,0.71360/)), &
                                                 Xray_Wavelength_type("AG",(/0.55942,0.56380/)), &
                                                 Xray_Wavelength_type("CO",(/1.78919,1.79321/)), &
