@@ -128,10 +128,10 @@ in
      $COMP *.o  -o cryscalc -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o cryscalc -static $LIB $LIBSTATIC
+     $COMP *.o  -o cryscalc  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o cryscalc -static $LIB $LIBSTATIC
+     $COMP *.o  -o cryscalc  $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o cryscalc -static-intel $LIB $LIBSTATIC

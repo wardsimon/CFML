@@ -7,7 +7,8 @@
    !---- Use File ----!
    use CFML_Crystallographic_Symmetry
    use CFML_Reflections_Utilities
-   use CFML_Crystal_Metrics, only: Crystal_Cell_Type, Write_Crystal_Cell
+   use CFML_Crystal_Metrics, only: Crystal_Cell_Type, Write_Crystal_Cell, &
+                                   Set_Crystal_Cell
 
    !---- Variables ----!
    implicit none
@@ -346,9 +347,9 @@
        real                                        :: fase,fase1,fase2,val1,val2
        real, dimension(1)                          :: vet
        real, dimension(3)                          :: celda, angulo
-       type (Space_Group_type)                          :: grp_espacial
+       type (Space_Group_type)                     :: grp_espacial
        type (Reflect_type),allocatable, dimension(:) :: reflexiones
-       type (Crystal_Cell_type)                         :: celdilla
+       type (Crystal_Cell_type)                      :: celdilla
 
        nulo=0
        info=.true.
@@ -371,6 +372,9 @@
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
+             print*," Unit Cell Parameters ( a b c alpha beta gamma): "
+             read(*,*) celda, angulo
+             call Set_Crystal_Cell(celda, angulo, celdilla)
              info=.false.
           end if
           print*," "
