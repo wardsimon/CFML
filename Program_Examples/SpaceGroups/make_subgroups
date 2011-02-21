@@ -17,7 +17,7 @@ if [ $COMP != "lf95" ]
 then
    if [ $COMP != "g95" ]
    then
-     if [ $COMP != "g95" ]
+     if [ $COMP != "gfortran" ]
      then
         if [ $COMP != "ifort" ]
         then
