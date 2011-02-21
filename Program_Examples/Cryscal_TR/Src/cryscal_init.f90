@@ -36,7 +36,9 @@ subroutine cryscal_init()
   
   
   Structure_solution%name         = 'SIR97'
-  Structure_solution%reference    = 'A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
+  Structure_solution%reference    = 'A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, '// &
+                                    'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, '//   &
+									'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   Structure_solution%CIF_ref      = 'SIR97 (Altomare et al., 1999)'
   Structure_refinement%name       = 'SHELXL-97'
   Structure_refinement%reference  = 'Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
@@ -47,11 +49,11 @@ subroutine cryscal_init()
 
 !-------------------------------------------------------------------------------
 
-  LOG_file%unit  =  10
-  LOG_file%write = .false.
-  ON_SCREEN      = .true.
-  CIFdep         = .false.
-  ACTA           = .false.
+  DEBUG_file%unit  =  10
+  DEBUG_file%write = .false.
+  ON_SCREEN        = .true.
+  CIFdep           = .false.
+  ACTA             = .false.
 
   ACE_file_name  = ''
   CEL_file_name  = ''
@@ -89,14 +91,21 @@ subroutine cryscal_init()
   Create_INS_temperature = -999.
   Create_INS_u_threshold = -999.
 
-  X_target(1:tabulated_target_nb)%log    = .false.
+  X_target(1:tabulated_target_nb)%logic  = .false.
   X_target(1:tabulated_target_nb)%write  = .true.
   X_target(1:tabulated_target_nb)%label   = (/'Ag',      'Mo',    'Cu',   'Ni', 'Co',    'Fe',    'Cr'/)
-  X_target(1:tabulated_target_nb)%wave(1) = (/ 0.55942,  0.70932, 1.5406, 1.65794, 1.78900, 1.93608, 2.28975 /)     ! Kalpha_1
-  X_target(1:tabulated_target_nb)%wave(2) = (/ 0.5638,   0.71361, 1.5444, 1.66178, 1.79289, 1.94002, 2.29365 /)     ! Kalpha_1
-  X_target(1:tabulated_target_nb)%wave(3) = (/ 0.4971,   0.63230, 1.3922, 1.50016, 1.62082, 1.75664, 2.08491 /)     ! Kbeta_1
-  X_target(1:tabulated_target_nb)%tics_FILE = (/ 'xrays_tics_ag.pgf', 'xrays_tics_mo.pgf', 'xrays_tics_cu.pgf', 'xrays_tics_ni.pgf', 'xrays_tics_co.pgf', 'xrays_tics_fe.pgf', 'xrays_tics_cr.pgf' /)
-  X_target(1:tabulated_target_nb)%cam_FILE  = (/ 'xrays_mac_ag.pgf',  'xrays_mac_mo.pgf',  'xrays_mac_cu.pgf',  'xrays_mac_cu.pgf',  'xrays_mac_co.pgf',  'xrays_mac_fe.pgf',  'xrays_mac_cr.pgf'  /)
+  ! Kalpha_1
+  X_target(1:tabulated_target_nb)%wave(1) = (/ 0.55942,  0.70932, 1.5406, 1.65794, 1.78900, 1.93608, 2.28975 /)
+  ! Kalpha_2
+  X_target(1:tabulated_target_nb)%wave(2) = (/ 0.5638,   0.71361, 1.5444, 1.66178, 1.79289, 1.94002, 2.29365 /)    
+  ! Kbeta
+  X_target(1:tabulated_target_nb)%wave(3) = (/ 0.4971,   0.63230, 1.3922, 1.50016, 1.62082, 1.75664, 2.08491 /)    
+  X_target(1:tabulated_target_nb)%tics_FILE = (/ 'xrays_tics_ag.pgf', 'xrays_tics_mo.pgf', 'xrays_tics_cu.pgf', &
+                                                 'xrays_tics_ni.pgf', 'xrays_tics_co.pgf', 'xrays_tics_fe.pgf', &
+												 'xrays_tics_cr.pgf' /)
+  X_target(1:tabulated_target_nb)%cam_FILE  = (/ 'xrays_mac_ag.pgf',  'xrays_mac_mo.pgf',  'xrays_mac_cu.pgf',  &
+                                                 'xrays_mac_cu.pgf',  'xrays_mac_co.pgf',  'xrays_mac_fe.pgf',  &
+												 'xrays_mac_cr.pgf'  /)
 
   space_group_symbol  = 'ZZZ'
 
@@ -215,7 +224,8 @@ subroutine cryscal_init()
   keyword_OBV_REV      = .FALSE.      ! analyse maclage obverse/reverse
   OBV_REV_twin_matrix  = 1            ! matrice de maclage:  (-1 0 0  0-1 0  0 0 1): twofold axis parallel to threefold '
  !OBV_REV_twin_matrix  = 2            ! matrice de maclage:  ( 0-1 0 -1 0 0  0 0-1): twofold axis parallel to (a-b)'
-  write_HKl            = .false.      ! sortie des HKL
+  write_HKL            = .false.      ! sortie des HKL
+  create_PAT           = .false.      ! creation d'un diagramme
 
   keyword_SH_2th       = .false.
   SHIFT_2theta         = 0.
@@ -311,8 +321,8 @@ subroutine cryscal_init()
   CIF_parameter%Bravais                          = '?'
   
   
-  write(CIF_parameter%computing_structure_solution,   '(3a)') "'",trim(structure_solution%CIF_ref), ")'"                                                               
-  write(CIF_parameter%computing_structure_refinement, '(3a)') "'",trim(structure_refinement%CIF_ref), ")'"
+  write(CIF_parameter%computing_structure_solution,   '(3a)') "'", trim(structure_solution%CIF_ref),   ")'"  
+  write(CIF_parameter%computing_structure_refinement, '(3a)') "'", trim(structure_refinement%CIF_ref), ")'"
                                                            
   CIF_parameter%computing_molecular_graphics         = "'Ortep-3 for Windows (Farrugia, 1997)'"
   CIF_parameter%computing_publication_material_1     = " WinGX publication routines (Farrugia, 1999),"
@@ -447,6 +457,7 @@ subroutine cryscal_init()
   beam_type               = 'x_rays'
   X_rays                  = .true.
   neutrons                = .false.
+  electrons               = .false.
 
   Mat_integer             = .false.
   sort_plot               = .false.
@@ -579,30 +590,32 @@ subroutine cryscal_init()
   nb_help = nb_help_max
   write_keys = .true.
                                    !1                      2                      3                      4                    5               
-  HELP_string( 1: nb_help_max) = (/'ABSENT_HKL         ', 'ACTA               ', 'ANG                ', 'APPLY_OP           ', 'ATOM               ',    &
-                                   'ATOM_LIST          ', 'BARY               ', 'BEAM               ', 'CELL               ', 'CHEM               ',    &
-                                   'CONN               ', 'CONT               ', 'CREATE_ACE         ', 'CREATE_CEL         ', 'CREATE_CFL         ',    &
-                                   'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'D_HKL              ', 'D_STAR             ', &
-                                   'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', 'DATA_ATOMIC_WEIGHT ', 'DATA_NEUTRONS      ', 'DATA_XRAYS         ', &
-                                   'DIR_ANG            ', 'DIST               ', 'EDIT               ', 'EQUIV_HKL          ', 'EXIT               ', &
-                                   'FILE               ', 'FIND_HKL           ', 'FIND_HKL_LIST      ', 'GEN_HKL            ', 'HEADER             ', &
-                                   'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', 'HKL_POS            ', 'INSIDE             ', &
-                                   'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', 'LIST_MATR          ', 'LIST_SG            ', &
-                                   'MAG                ', 'MAN                ', 'MAN_HTML           ', 'MATMUL             ', 'MATR               ', &
-                                   'OBV_REV            ', 'MENDEL             ', 'MERGE              ', 'MONOCLINIC         ', 'NEWS               ', &
-                                   'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', 'Q_HKL              ', &
-                                   'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_INS           ', 'READ_PCR           ', &
-                                   'READ_NREPORT       ', 'REC_ANG            ', 'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', &
-                                   'REF_KCCD           ', 'REF_SADABS         ', 'RESET              ', 'RINT               ', 'RHOMB_HEX          ', &
-                                   'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', 'SETTING            ', 'SFAC               ', &
-                                   'SF_HKL             ', 'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', 'SG_INFO            ', &
-                                   'SG_SUB             ', 'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', 'SITE_INFO          ', &
-                                   'SIZE               ', 'SORT               ', 'STL                ', 'SYMM               ', 'SYST               ', &
-                                   'THERM              ', 'THETA              ', 'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', &
-                                   'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', &
-                                   'WEB                ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', &
-                                   'WRITE_SG           ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', &
-                                   'WAVE               ', 'WRITE_QVEC         '/)
+  HELP_string( 1: nb_help_max) = &
+  (/'ABSENT_HKL         ', 'ACTA               ', 'ANG                ', 'APPLY_OP           ', 'ATOM               ', &
+    'ATOM_LIST          ', 'BARY               ', 'BEAM               ', 'CELL               ', 'CHEM               ', &
+    'CONN               ', 'CONT               ', 'CREATE_ACE         ', 'CREATE_CEL         ', 'CREATE_CFL         ', &
+    'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'D_HKL              ', 'D_STAR             ', &
+    'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', 'DATA_ATOMIC_WEIGHT ', 'DATA_NEUTRONS      ', 'DATA_XRAYS         ', &
+    'DIR_ANG            ', 'DIST               ', 'EDIT               ', 'EQUIV_HKL          ', 'EXIT               ', &
+    'FILE               ', 'FIND_HKL           ', 'FIND_HKL_LIST      ', 'GEN_HKL            ', 'HEADER             ', &
+    'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', 'HKL_POS            ', 'INSIDE             ', &
+    'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', 'LIST_MATR          ', 'LIST_SG            ', &
+    'MAG                ', 'MAN                ', 'MAN_HTML           ', 'MATMUL             ', 'MATR               ', &
+    'OBV_REV            ', 'MENDEL             ', 'MERGE              ', 'MONOCLINIC         ', 'NEWS               ', &
+    'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', 'Q_HKL              ', &
+    'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_INS           ', 'READ_PCR           ', &
+    'READ_NREPORT       ', 'REC_ANG            ', 'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', &
+    'REF_KCCD           ', 'REF_SADABS         ', 'RESET              ', 'RINT               ', 'RHOMB_HEX          ', &
+    'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', 'SETTING            ', 'SFAC               ', &
+    'SF_HKL             ', 'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', 'SG_INFO            ', &
+    'SG_SUB             ', 'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', 'SITE_INFO          ', &
+    'SIZE               ', 'SORT               ', 'STL                ', 'SYMM               ', 'SYST               ', &
+    'THERM              ', 'THETA              ', 'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', &
+    'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', &
+    'WEB                ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', &
+    'WRITE_SG           ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', &
+    'WAVE               ', 'WRITE_QVEC         '/)
+						
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
   numor = 1;            HELP_ABSENT_HKL_numor          =  numor  !  1
@@ -729,7 +742,7 @@ subroutine cryscal_init()
  !------------------------------------------------------
 
  subroutine read_cryscal_ini()
-  USE cryscal_module, ONLY : LOG_file, INI_unit, cryscal_ini, winplotr_exe, my_editor, my_browser, my_word, &
+  USE cryscal_module, ONLY : DEBUG_file, INI_unit, cryscal_ini, winplotr_exe, my_editor, my_browser, my_word, &
                              WEB, AUTHOR, DEVICE,                                                           &
                              CIF_parameter, CIF_parameter_APEX, CIF_parameter_KCCD, CIF_parameter_XCALIBUR, &
                              wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                      &
@@ -774,10 +787,10 @@ subroutine cryscal_init()
    endif
    
    if(len_trim(cryscal_ini) == 0 .and. len_trim(winplotr_exe) == 0) then
-    if(LOG_file%write) then
-     call write_LOG_file('', '')
-     call write_LOG_file('No environment variable defined for CRYSCAL.', '')
-     call write_LOG_file('', '')
+    if(DEBUG_file%write) then
+     call write_DEBUG_file('', '')
+     call write_DEBUG_file('No environment variable defined for CRYSCAL.', '')
+     call write_DEBUG_file('', '')
     endif
     return
    endif
@@ -811,28 +824,28 @@ subroutine cryscal_init()
    !  winplotr_exe = trim(winplotr_path_name)//'\winplotr.exe'
    !  if(len_trim(cryscal_ini) == 0) cryscal_ini  = trim(winplotr_path_name)//'\cryscal.ini'
    ! else
-   !  if(LOG_file%write) then
-   !   call write_LOG_file('')
-   !   call write_LOG_file('No environment variable defined for CRYSCAL.')
-   !   call write_LOG_file('')
+   !  if(DEBUG_file%write) then
+   !   call write_DEBUG_file('')
+   !   call write_DEBUG_file('No environment variable defined for CRYSCAL.')
+   !   call write_DEBUG_file('')
    !  endif
    !  return
    ! endif
    !endif
 
-   if(LOG_file%write) then
-    call write_LOG_file('', '')
-    call write_LOG_file('CRYSCAL_ini', trim(cryscal_ini))
-    call write_LOG_file('', '')
+   if(DEBUG_file%write) then
+    call write_DEBUG_file('', '')
+    call write_DEBUG_file('CRYSCAL_ini', trim(cryscal_ini))
+    call write_DEBUG_file('', '')
    endif
 
 
    INQUIRE(FILE=TRIM(cryscal_ini), EXIST=file_exist)
    IF(.NOT. file_exist) then
-    if(LOG_file%write) then
-     call write_LOG_file('', '')
-     call write_LOG_file('!! CRYSCAL.ini does not exist.')
-     call write_LOG_file('', '')
+    if(DEBUG_file%write) then
+     call write_DEBUG_file('', '')
+     call write_DEBUG_file('!! CRYSCAL.ini does not exist.', '')
+     call write_DEBUG_file('', '')
 
      call CIF_default_values     
     endif
@@ -844,7 +857,7 @@ subroutine cryscal_init()
 
 !---------------- EDITOR, BROWSER, WORD ---------------------------------------
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(LEN_TRIM(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -868,15 +881,15 @@ subroutine cryscal_init()
      inquire(file=trim(my_browser%name), exist = my_browser%exist)
     end if
    endif
-   if(LOG_file%write) then
-    call write_LOG_file('BROWSER', trim(my_browser%name))
+   if(DEBUG_file%write) then
+    call write_DEBUG_file('BROWSER', trim(my_browser%name))
    endif
 
 
 
    REWIND(UNIT=INI_unit)
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(LEN_TRIM(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -900,15 +913,15 @@ subroutine cryscal_init()
      inquire(file=trim(my_editor%name), exist = my_editor%exist)
     end if
    endif
-   if(LOG_file%write) then
-    call write_LOG_file('EDITOR', trim(my_editor%name))
+   if(DEBUG_file%write) then
+    call write_DEBUG_file('EDITOR', trim(my_editor%name))
    endif
 
 
 
    REWIND(UNIT=INI_unit)
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(LEN_TRIM(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -932,8 +945,8 @@ subroutine cryscal_init()
      inquire(file=trim(my_word%name), exist = my_word%exist)
     end if
    endif
-   if(LOG_file%write) then
-    call write_LOG_file('WORD', trim(my_word%name))
+   if(DEBUG_file%write) then
+    call write_DEBUG_file('WORD', trim(my_word%name))
    endif
 
 
@@ -943,7 +956,7 @@ subroutine cryscal_init()
    REWIND(UNIT=INI_unit)
    WEB%num_site = 0
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(len_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -954,7 +967,7 @@ subroutine cryscal_init()
     read_line = ADJUSTL(read_line)
     IF(u_case(read_line(1:4)) == '[WEB') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)          exit
       IF(LEN_TRIM(read_line) ==0) exit
       IF(read_line(1:1) == '[')   exit  ! ??
@@ -980,9 +993,9 @@ subroutine cryscal_init()
 
       WEB%NAME(WEB%num_site)    = u_case(WEB%NAME(WEB%num_site))
       WEB%ADDRESS(WEB%num_site) = ADJUSTL(WEB%ADDRESS(WEB%num_site))
-      if(LOG_file%write) then
-       call write_LOG_file ('WEB_name',    trim(WEB%NAME(WEB%num_site)))
-       call write_LOG_file ('WEB_address', trim(WEB%ADDRESS(WEB%num_site)))
+      if(DEBUG_file%write) then
+       call write_DEBUG_file ('WEB_name',    trim(WEB%NAME(WEB%num_site)))
+       call write_DEBUG_file ('WEB_address', trim(WEB%ADDRESS(WEB%num_site)))
       endif
 
      end do
@@ -996,7 +1009,7 @@ subroutine cryscal_init()
 
 
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     if(len_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -1007,7 +1020,7 @@ subroutine cryscal_init()
     read_line = ADJUSTL(read_line)
     IF(read_line(1:7) == '[AUTHOR') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       i1 = index(read_line, '!') 
@@ -1039,11 +1052,11 @@ subroutine cryscal_init()
     endif
    END do
 
-   if(LOG_file%write) then
-    call write_LOG_file ('AUTHOR_name',          trim(AUTHOR%name))
-    call write_LOG_file ('AUTHOR_first_name',    trim(AUTHOR%first_name))
-    call write_LOG_file ('AUTHOR_address',       trim(AUTHOR%address))
-    call write_LOG_file ('AUTHOR_web',           trim(AUTHOR%web))
+   if(DEBUG_file%write) then
+    call write_DEBUG_file ('AUTHOR_name',          trim(AUTHOR%name))
+    call write_DEBUG_file ('AUTHOR_first_name',    trim(AUTHOR%first_name))
+    call write_DEBUG_file ('AUTHOR_address',       trim(AUTHOR%address))
+    call write_DEBUG_file ('AUTHOR_web',           trim(AUTHOR%web))
    endif
 
 
@@ -1051,7 +1064,7 @@ subroutine cryscal_init()
    REWIND(UNIT=INI_unit)
 
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(len_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -1063,7 +1076,7 @@ subroutine cryscal_init()
     read_line = u_case(ADJUSTL(read_line))
     IF(read_line(1:7) == '[DEVICE') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       i1 = index(read_line, '!') 
@@ -1181,43 +1194,43 @@ subroutine cryscal_init()
    endif
 
 
-   if(LOG_file%write) then
-    call write_LOG_file ('DEVICE_diffractometer', trim(DEVICE%diffracto))
-    call write_LOG_file ('DEVICE_lab',            trim(DEVICE%lab))
-    call write_LOG_file ('DEVICE_radiation',      trim(DEVICE%radiation))
-    call write_LOG_file ('DEVICE_wave',           trim(DEVICE%wave))
+   if(DEBUG_file%write) then
+    call write_DEBUG_file ('DEVICE_diffractometer', trim(DEVICE%diffracto))
+    call write_DEBUG_file ('DEVICE_lab',            trim(DEVICE%lab))
+    call write_DEBUG_file ('DEVICE_radiation',      trim(DEVICE%radiation))
+    call write_DEBUG_file ('DEVICE_wave',           trim(DEVICE%wave))
     if(u_case(DEVICE%diffracto(1:4)) == 'APEX') then
-     call WRITE_LOG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
-     call WRITE_LOG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
-     call WRITE_LOG_file('MEASUREMENT_detector',      trim(CIF_parameter%diffrn_detector))
-     call WRITE_LOG_file('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
-     call WRITE_LOG_file('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_LOG_file('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_source))
-     call WRITE_LOG_file('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
-     call WRITE_LOG_file('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
+     call WRITE_DEBUG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
+     call WRITE_DEBUG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
+     call WRITE_DEBUG_file('MEASUREMENT_detector',      trim(CIF_parameter%diffrn_detector))
+     call WRITE_DEBUG_file('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
+     call WRITE_DEBUG_file('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_DEBUG_file('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_source))
+     call WRITE_DEBUG_file('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
+     call WRITE_DEBUG_file('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
 
     elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
-     call WRITE_LOG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
-     call WRITE_LOG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
-     call WRITE_LOG_file('MEASUREMENT_device',        trim(CIF_parameter%diffrn_measurement_device))
-     call WRITE_LOG_file('DIFFRACTION_source',        trim(CIF_parameter%diffrn_source))
-     call WRITE_LOG_file('DIFFRACTION_detector',      trim(CIF_parameter%diffrn_detector))
-     call WRITE_LOG_file('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
-     call WRITE_LOG_file('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
-     call WRITE_LOG_file('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_LOG_file('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_LOG_file('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
-     call WRITE_LOG_file('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
+     call WRITE_DEBUG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
+     call WRITE_DEBUG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
+     call WRITE_DEBUG_file('MEASUREMENT_device',        trim(CIF_parameter%diffrn_measurement_device))
+     call WRITE_DEBUG_file('DIFFRACTION_source',        trim(CIF_parameter%diffrn_source))
+     call WRITE_DEBUG_file('DIFFRACTION_detector',      trim(CIF_parameter%diffrn_detector))
+     call WRITE_DEBUG_file('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
+     call WRITE_DEBUG_file('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
+     call WRITE_DEBUG_file('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_DEBUG_file('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_DEBUG_file('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
+     call WRITE_DEBUG_file('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
 
     elseif(u_case(DEVICE%diffracto(1:7)) == 'SAPHIRE' .or. u_case(DEVICE%diffracto(1:9)) == 'EXCALIBUR') then
-     call WRITE_LOG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
-     call WRITE_LOG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
-     call WRITE_LOG_file('DIFFRACTION_detector',      trim(CIF_parameter%diffrn_detector))
-     call WRITE_LOG_file('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
+     call WRITE_DEBUG_file('MEASUREMENT_device_type',   trim(CIF_parameter%diffrn_measurement_device_type))
+     call WRITE_DEBUG_file('MEASUREMENT_method',        trim(CIF_parameter%diffrn_measurement_method))
+     call WRITE_DEBUG_file('DIFFRACTION_detector',      trim(CIF_parameter%diffrn_detector))
+     call WRITE_DEBUG_file('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
     endif   
-    call WRITE_LOG_file('COMPUTING_data_collection',  trim(CIF_parameter%computing_data_collection))
-    call WRITE_LOG_file('COMPUTING_cell_refinement',  trim(CIF_parameter%computing_cell_refinement))
-    call WRITE_LOG_file('COMPUTING_data_reduction',   trim(CIF_parameter%computing_data_reduction))
+    call WRITE_DEBUG_file('COMPUTING_data_collection',  trim(CIF_parameter%computing_data_collection))
+    call WRITE_DEBUG_file('COMPUTING_cell_refinement',  trim(CIF_parameter%computing_cell_refinement))
+    call WRITE_DEBUG_file('COMPUTING_data_reduction',   trim(CIF_parameter%computing_data_reduction))
 
    endif
 
@@ -1226,7 +1239,7 @@ subroutine cryscal_init()
  !------------ PARAMETERS -------------------------------------------
    rewind(unit=INI_unit)
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(LEN_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -1237,7 +1250,7 @@ subroutine cryscal_init()
     read_line = ADJUSTL(read_line)
     IF(read_line(1:12) == '[PARAMETERS]') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       i1 = index(read_line, '!') 
@@ -1269,26 +1282,26 @@ subroutine cryscal_init()
      end do
     endif 	
    end do
-   if(LOG_file%write) then
+   if(DEBUG_file%write) then
     write(read_line, '(F5.2,a)') n_sig,          '    ! sigma_I (used in the SEARCH_GROUP routine)'
-    call write_LOG_file ('SEARCH_I_sig',      trim(read_line))
+    call write_DEBUG_file ('SEARCH_I_sig',      trim(read_line))
     write(read_line, '(F6.3,a)') threshold,      '   ! I > threshold * I_max (used in the SEARCH_GROUP routine)'
-    call write_LOG_file ('SEARCH_threshold',  trim(read_line))
+    call write_DEBUG_file ('SEARCH_threshold',  trim(read_line))
     write(read_line, '(F6.2,a)') CONN_dmax_ini,  '    ! for connectivity calculations '
-    call write_LOG_file ('CONNECTIVITY_dmax', trim(read_line))
+    call write_DEBUG_file ('CONNECTIVITY_dmax', trim(read_line))
    endif
 
 
 !-------- CREATE INS parameters     ---------------------------------------------------------------------
   rewind(unit = INI_unit)  
    do
-    READ(UNIT = INI_unit, '(a)', IOSTAT = iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT = iostat_err) read_line
     if(iostat_err /=0)           exit
     if(len_trim(read_line) == 0) cycle
 
     if(read_line(1:12) == '[CREATE INS]') then
      do
-      read(unit=INI_unit, '(a)', iostat = iostat_err) read_line
+      read(INI_unit, '(a)', iostat = iostat_err) read_line
       if(iostat_err /=0)          exit
       if(len_trim(read_line)==0)  exit
       i1 = index(read_line, '!') 
@@ -1325,17 +1338,17 @@ subroutine cryscal_init()
     endif
    end do
  
-   if(LOG_file%write) then
+   if(DEBUG_file%write) then
     write(read_line, '(F8.2,a)') Create_INS_temperature,      '  ! experimental temperature'
-    call write_LOG_file ('temperature',      trim(read_line))
+    call write_DEBUG_file ('temperature',      trim(read_line))
     write(read_line, '(F6.3,a)') Create_INS_U_threshold,      '    ! atoms with Uiso > u_threshold are excluded'
-    call write_LOG_file ('U_threshold',  trim(read_line))
+    call write_DEBUG_file ('U_threshold',  trim(read_line))
    endif
 
 !-------- CIF COMMAND LINE ARGUMENTS --------------------------------------------------------------------
    rewind(unit=INI_unit)
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     if(len_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -1346,7 +1359,7 @@ subroutine cryscal_init()
     read_line = ADJUSTL(read_line)
     IF(read_line(1:24) == '[COMMAND LINE ARGUMENTS]') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       i1 = index(read_line, '!') 
@@ -1385,31 +1398,31 @@ subroutine cryscal_init()
     endif 	
    end do
    
-   if(LOG_file%write) then
+   if(DEBUG_file%write) then
     if (keyword_create_ACE) then
-     call write_LOG_file ('create_ACE',      '1     ! .ACE file for Carine')
+     call write_DEBUG_file ('create_ACE',      '1     ! .ACE file for Carine')
     else
-     call write_LOG_file ('create_ACE',      '0     ! .ACE file for Carine')
+     call write_DEBUG_file ('create_ACE',      '0     ! .ACE file for Carine')
     endif 
     if (keyword_create_CEL) then
-     call write_LOG_file ('create_CEL',      '1     ! .CEL file for PowderCELL')
+     call write_DEBUG_file ('create_CEL',      '1     ! .CEL file for PowderCELL')
     else
-     call write_LOG_file ('create_CEL',      '0     ! .CEL file for PowderCELL')
+     call write_DEBUG_file ('create_CEL',      '0     ! .CEL file for PowderCELL')
     endif 
     if (keyword_create_CFL) then
-     call write_LOG_file ('create_CFL',      '1     ! .CFL file for CRYSCAL')
+     call write_DEBUG_file ('create_CFL',      '1     ! .CFL file for CRYSCAL')
     else
-     call write_LOG_file ('create_CFL',      '0     ! .CFL file for CRYSCAL')
+     call write_DEBUG_file ('create_CFL',      '0     ! .CFL file for CRYSCAL')
     endif 
     if (keyword_create_FST) then
-     call write_LOG_file ('create_FST',      '1     ! .FST file for FP Studio')
+     call write_DEBUG_file ('create_FST',      '1     ! .FST file for FP Studio')
     else
-     call write_LOG_file ('create_FST',      '0     ! .FST file for FP Studio')
+     call write_DEBUG_file ('create_FST',      '0     ! .FST file for FP Studio')
     endif
     if (keyword_create_INS) then
-     call write_LOG_file ('create_INS',      '1     ! .INS file for SHELXL')
+     call write_DEBUG_file ('create_INS',      '1     ! .INS file for SHELXL')
     else
-     call write_LOG_file ('create_INS',      '0     ! .INS file for SHELXL')
+     call write_DEBUG_file ('create_INS',      '0     ! .INS file for SHELXL')
     endif 
     
    endif
@@ -1418,7 +1431,7 @@ subroutine cryscal_init()
 !-------- STRUCTURE PROGRAMS --------------------------------------------------------------------
    rewind(unit=INI_unit)
    do
-    READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
     IF(iostat_err /=0)           exit
     IF(len_trim(read_line) == 0) cycle
     i1 = index(read_line, '!') 
@@ -1429,7 +1442,7 @@ subroutine cryscal_init()
     read_line = ADJUSTL(read_line)
     IF(read_line(1:20) == '[STRUCTURE PROGRAMS]') then
      do
-      READ(UNIT=INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       i1 = index(read_line, '!') 
@@ -1475,16 +1488,16 @@ subroutine cryscal_init()
     endif 	
    end do
    
-   if(LOG_file%write) then
-    call write_LOG_file ('Structure_solution_name',         trim(structure_solution%name))
-    call write_LOG_file ('Structure_solution_reference',    trim(structure_solution%reference))
-    call write_LOG_file ('Structure_solution_cif_ref',      trim(structure_solution%cif_ref))
-    call write_LOG_file ('Structure_refinement_name',       trim(structure_refinement%name))
-    call write_LOG_file ('Structure_refinement_reference',  trim(structure_refinement%reference))   
-    call write_LOG_file ('Structure_refinement_cif_ref',    trim(structure_refinement%cif_ref))   
-    call write_LOG_file ('Absorption_correction_name',      trim(Absorption_correction%name))
-    call write_LOG_file ('Absorption_correction_reference', trim(Absorption_correction%reference))   
-    call write_LOG_file ('Absorption_correction_cif_ref',   trim(Absorption_correction%cif_ref))   
+   if(DEBUG_file%write) then
+    call write_DEBUG_file ('Structure_solution_name',         trim(structure_solution%name))
+    call write_DEBUG_file ('Structure_solution_reference',    trim(structure_solution%reference))
+    call write_DEBUG_file ('Structure_solution_cif_ref',      trim(structure_solution%cif_ref))
+    call write_DEBUG_file ('Structure_refinement_name',       trim(structure_refinement%name))
+    call write_DEBUG_file ('Structure_refinement_reference',  trim(structure_refinement%reference))   
+    call write_DEBUG_file ('Structure_refinement_cif_ref',    trim(structure_refinement%cif_ref))   
+    call write_DEBUG_file ('Absorption_correction_name',      trim(Absorption_correction%name))
+    call write_DEBUG_file ('Absorption_correction_reference', trim(Absorption_correction%reference))   
+    call write_DEBUG_file ('Absorption_correction_cif_ref',   trim(Absorption_correction%cif_ref))   
    endif
 
 
@@ -1649,47 +1662,47 @@ subroutine get_X_radiation(input_string)
 
      IF(input_string(1:4) == 'X_AG' .or. input_string(1:3) == 'XAG') then
       wavelength =  X_target(1)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(1)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(1)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_MO' .or. input_string(1:3) == 'XMO') then
       wavelength =  X_target(2)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(2)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(2)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_CU' .or. input_string(1:3) == 'XCU') then
       wavelength =  X_target(3)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(3)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(3)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_NI' .OR. input_string(1:3) == 'XNI') then
       wavelength = X_target(4)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(4)%LOG   = .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(4)%logic   = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_CO' .or. input_string(1:3) == 'XCO') then
       wavelength =  X_target(5)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(5)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(5)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_FE' .or. input_string(1:3) == 'XFE') then
       wavelength =  X_target(6)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(6)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(6)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      ELSEIF(input_string(1:4) == 'X_CR' .or. input_string(1:3) == 'XCR') then
       wavelength =  X_target(7)%wave(1)
-      X_target(1:tabulated_target_nb)%LOG = .false.
-      X_target(7)%LOG   = .true.
-      keyword_WAVE= .true.
+      X_target(1:tabulated_target_nb)%logic = .false.
+      X_target(7)%logic   = .true.
+      keyword_WAVE = .true.
       anti_cathode = .true.
      else
-      X_target(1:tabulated_target_nb)%log    = .false.  
+      X_target(1:tabulated_target_nb)%logic    = .false.  
       keyword_WAVE = .false.
       anti_cathode = .false.
      endif
@@ -1699,8 +1712,8 @@ subroutine get_X_radiation(input_string)
 
 
  !-------------------------------------------------------------------
-subroutine write_LOG_file(field, value)
- use cryscal_module, only : LOG_file
+subroutine write_DEBUG_file(field, value)
+ use cryscal_module, only : DEBUG_file
  implicit none
   character (len=*), intent(in)           :: field
   character (len=*), intent(in), optional :: value
@@ -1710,24 +1723,24 @@ subroutine write_LOG_file(field, value)
   long = len_trim(field)
 
   if(.not. present(value)) then
-   write(unit=LOG_file%unit, '(a)') trim(field)
+   write(DEBUG_file%unit, '(a)') trim(field)
 
   else
    !if(value(1:1) == '?' .or. len_trim(value)==0) then
-   ! write(unit=LOG_file%unit, '(a)') ''
+   ! write(DEBUG_file%unit, '(a)') ''
    !else
     write(fmt_, '(a,i2,a)') '(1x,a,', 32-long, 'x, 2a)'
-    write(unit=LOG_file%unit, trim(fmt_))  field,  ': ', adjustl(value)
+    write(DEBUG_file%unit, trim(fmt_))  field,  ': ', adjustl(value)
    !endif
   endif
 
-end subroutine write_LOG_file
+end subroutine write_DEBUG_file
 
 
 !-------------------------------------------------------------------------------
 subroutine CIF_default_values
  use cryscal_module, only : CIF_parameter, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_XCALIBUR, &
-                            LOG_file, my_browser, my_editor, my_word, AUTHOR, DEVICE
+                            DEBUG_file, my_browser, my_editor, my_word, AUTHOR, DEVICE
  implicit none
 
  !CIF_parameter = CIF_parameter_APEX
@@ -1749,37 +1762,37 @@ subroutine CIF_default_values
  CIF_parameter%computing_publication_material_1     = CIF_parameter_APEX%computing_publication_material_1
  CIF_parameter%computing_publication_material_2     = CIF_parameter_APEX%computing_publication_material_2
 
- if(LOG_file%write) then
-   call write_LOG_file ('BROWSER',                        trim(my_browser%name))
-   call write_LOG_file ('EDITOR',                         trim(my_editor%name))
-   call write_LOG_file ('WORD',                           trim(my_word%name))
+ if(DEBUG_file%write) then
+   call write_DEBUG_file ('BROWSER',                        trim(my_browser%name))
+   call write_DEBUG_file ('EDITOR',                         trim(my_editor%name))
+   call write_DEBUG_file ('WORD',                           trim(my_word%name))
 
-   call write_LOG_file ('AUTHOR_name',                    trim(AUTHOR%name))
-   call write_LOG_file ('AUTHOR_first_name',              trim(AUTHOR%first_name))
-   call write_LOG_file ('AUTHOR_first_address',           trim(AUTHOR%address))
-   call write_LOG_file ('AUTHOR_first_web',               trim(AUTHOR%web))
+   call write_DEBUG_file ('AUTHOR_name',                    trim(AUTHOR%name))
+   call write_DEBUG_file ('AUTHOR_first_name',              trim(AUTHOR%first_name))
+   call write_DEBUG_file ('AUTHOR_first_address',           trim(AUTHOR%address))
+   call write_DEBUG_file ('AUTHOR_first_web',               trim(AUTHOR%web))
 
-   call write_LOG_file ('DEVICE_diffractometer',          trim(DEVICE%diffracto))
-   call write_LOG_file ('DEVICE_lab',                     trim(DEVICE%lab))
-   call write_LOG_file ('DEVICE_radiation',               trim(DEVICE%radiation))
-   call write_LOG_file ('DEVICE_wave',                    trim(DEVICE%wave))
-   call WRITE_LOG_file ('MEASUREMENT_device_type',        trim(CIF_parameter%diffrn_measurement_device_type))
-   call WRITE_LOG_file ('MEASUREMENT_method',             trim(CIF_parameter%diffrn_measurement_method))
-   call WRITE_LOG_file ('MEASUREMENT_detector',           trim(CIF_parameter%diffrn_detector))
-   call WRITE_LOG_file ('RADIATION_wavelength',           trim(CIF_parameter%diffrn_radiation_wavelength))
-   call WRITE_LOG_file ('RADIATION_type',                 trim(CIF_parameter%diffrn_radiation_type))
-   call WRITE_LOG_file ('RADIATION_source',               trim(CIF_parameter%diffrn_radiation_source))
-   call WRITE_LOG_file ('RADIATION_monochromator',        trim(CIF_parameter%diffrn_radiation_monochromator))
-   call WRITE_LOG_file ('RADIATION_probe',                trim(CIF_parameter%diffrn_radiation_probe))
-   call WRITE_LOG_file ('COMPUTING_data_collection',      trim(CIF_parameter%computing_data_collection))
-   call WRITE_LOG_file ('COMPUTING_cell_refinement',      trim(CIF_parameter%computing_cell_refinement))
-   call WRITE_LOG_file ('COMPUTING_data_reduction',       trim(CIF_parameter%computing_data_reduction))
-   call WRITE_LOG_file ('COMPUTING_structure_solution',   trim(CIF_parameter%computing_structure_solution))
-   call WRITE_LOG_file ('COMPUTING_structure_refinement', trim(CIF_parameter%computing_structure_refinement))
-   call WRITE_LOG_file ('COMPUTING_molecular_graphics',   trim(CIF_parameter%computing_molecular_graphics))
-   !call WRITE_LOG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material))
-   call WRITE_LOG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material_1))
-   call WRITE_LOG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material_2))
+   call write_DEBUG_file ('DEVICE_diffractometer',          trim(DEVICE%diffracto))
+   call write_DEBUG_file ('DEVICE_lab',                     trim(DEVICE%lab))
+   call write_DEBUG_file ('DEVICE_radiation',               trim(DEVICE%radiation))
+   call write_DEBUG_file ('DEVICE_wave',                    trim(DEVICE%wave))
+   call WRITE_DEBUG_file ('MEASUREMENT_device_type',        trim(CIF_parameter%diffrn_measurement_device_type))
+   call WRITE_DEBUG_file ('MEASUREMENT_method',             trim(CIF_parameter%diffrn_measurement_method))
+   call WRITE_DEBUG_file ('MEASUREMENT_detector',           trim(CIF_parameter%diffrn_detector))
+   call WRITE_DEBUG_file ('RADIATION_wavelength',           trim(CIF_parameter%diffrn_radiation_wavelength))
+   call WRITE_DEBUG_file ('RADIATION_type',                 trim(CIF_parameter%diffrn_radiation_type))
+   call WRITE_DEBUG_file ('RADIATION_source',               trim(CIF_parameter%diffrn_radiation_source))
+   call WRITE_DEBUG_file ('RADIATION_monochromator',        trim(CIF_parameter%diffrn_radiation_monochromator))
+   call WRITE_DEBUG_file ('RADIATION_probe',                trim(CIF_parameter%diffrn_radiation_probe))
+   call WRITE_DEBUG_file ('COMPUTING_data_collection',      trim(CIF_parameter%computing_data_collection))
+   call WRITE_DEBUG_file ('COMPUTING_cell_refinement',      trim(CIF_parameter%computing_cell_refinement))
+   call WRITE_DEBUG_file ('COMPUTING_data_reduction',       trim(CIF_parameter%computing_data_reduction))
+   call WRITE_DEBUG_file ('COMPUTING_structure_solution',   trim(CIF_parameter%computing_structure_solution))
+   call WRITE_DEBUG_file ('COMPUTING_structure_refinement', trim(CIF_parameter%computing_structure_refinement))
+   call WRITE_DEBUG_file ('COMPUTING_molecular_graphics',   trim(CIF_parameter%computing_molecular_graphics))
+   !call WRITE_DEBUG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material))
+   call WRITE_DEBUG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material_1))
+   call WRITE_DEBUG_file ('COMPUTING_publication_material', trim(CIF_parameter%computing_publication_material_2))
 
 
  endif

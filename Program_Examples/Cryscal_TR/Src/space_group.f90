@@ -59,20 +59,20 @@ subroutine space_group_info
 !  call system('echo off')
 !  call system('type sg.out')
 !  close(unit=2)
-!  call system('copy cryscal.out + sg.out')
+!  call system('copy cryscal.log + sg.out')
 !  call system('echo on')
 
   if(ON_SCREEN) then
    OPEN(UNIT=3, FILE="sg.out")
    do
-    READ(UNIT=3, '(a)', IOSTAT=i_error) read_line
+    READ(3, '(a)', IOSTAT=i_error) read_line
     IF(i_error < 0) exit
     call write_info(TRIM(read_line))
    END do
    CLOSE(UNIT=3)
   endif 
   CLOSE(UNIT=2)
-  open (UNIT=2, FILE='cryscal.out', ACTION="write",position = "append")
+  open (UNIT=2, FILE='cryscal.log', ACTION="write",position = "append")
  else
   IF(.NOT. input_PCR .and. .not. keyword_read_INS) then    
    call write_info('')   
@@ -109,20 +109,20 @@ subroutine space_group_info
 !  call system('echo off')
 !  call system('type sg.out')
 !  close(unit=2)
-!  call system('copy cryscal.out + sg.out')
+!  call system('copy cryscal.log + sg.out')
 !  call system('echo on')
 
   if(ON_SCREEN) then
    OPEN(UNIT=3, FILE="sg.out")
    do
-    READ(UNIT=3, '(a)', IOSTAT=i_error) read_line
+    READ(3, '(a)', IOSTAT=i_error) read_line
     IF(i_error < 0) exit
     call write_info(TRIM(read_line))
    enddo
   endif
   CLOSE(UNIT=3) 
   CLOSE(UNIT=2)
-  open (UNIT=2, FILE='CRYSCAL.out', ACTION="write",position = "append")
+  open (UNIT=2, FILE='CRYSCAL.log', ACTION="write",position = "append")
  endif
 
 
@@ -402,7 +402,8 @@ subroutine write_symm_op_reduced_set()
     j = ABS(indx_op(i))
     if (j<0) j=j+24
     if(ON_SCREEN) then
-     WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymoh(j),' --> ',x_oh(j),' + {', SPG%Symop(i)%tr(1:3),'}'
+     WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymoh(j),' --> ',x_oh(j),   &
+	                                                       ' + {', SPG%Symop(i)%tr(1:3),'}'
      call write_info(TRIM(message_text))
     endif 
    end do
@@ -415,7 +416,8 @@ subroutine write_symm_op_reduced_set()
     j=ABS(indx_op(i))-24
     IF(j < 0) j=j+12
     if(ON_SCREEN) then
-     WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymd6h(j),' --> ',x_d6h(j),' + {',SPG%Symop(i)%tr(1:3),'}'
+     WRITE(message_text,'(i4,a,i2,a,a14,a,a14,a,3f8.4,a)') i,': (',j,') ', intsymd6h(j),' --> ',x_d6h(j),  &
+	                                                       ' + {',SPG%Symop(i)%tr(1:3),'}'
      call write_info(TRIM(message_text))
     endif 
    end do

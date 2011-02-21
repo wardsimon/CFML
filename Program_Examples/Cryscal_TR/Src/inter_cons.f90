@@ -10,8 +10,8 @@ subroutine interactive_mode(input_string)
   INTEGER                       :: i_error
   CHARACTER (LEN=32)            :: current_keyword
 
-
- open (UNIT=CFL_unit, file = 'cryscal.cfl')
+ close(unit=CFL_unit) 
+ open(UNIT=CFL_unit, file = 'cryscal.cfl')
  !open (UNIT=11, FILE="cryscal.CFL")
 
  do
@@ -25,8 +25,8 @@ subroutine interactive_mode(input_string)
    IF(i_error /=0) cycle
 
   ELSEIF(input_string(1:4) == 'file') then
-   !READ(UNIT=CFL_unit, '(a)', IOSTAT=i_error) read_line
-   READ(UNIT=input_unit, '(a)', IOSTAT=i_error) read_line
+   READ(UNIT=CFL_read_unit, fmt='(a)', IOSTAT=i_error) read_line
+   !READ(UNIT=input_unit, fmt='(a)', IOSTAT=i_error) read_line
    IF(i_error < 0) EXIT   ! fin du fichier
   endif
 
@@ -140,13 +140,14 @@ END subroutine interactive_mode
       case ('LST_LAUE', 'LIST_LAUE', 'LST_LAUE_CLASS', 'LIST_LAUE_CLASS')
         call list_Laue_class()
 
+
       CASE ('LST_MAT', 'LST_MATR', 'LST_MATRIX',  'LIST_MAT',  'LIST_MATR',  'LIST_MATRIX', 'LIST_TRANSFORMATION_MATRIX')
        call write_list_matrice()
 
       case ('LST_SG', 'LIST_SG', 'LSPGR', 'LIST_SPACE_GROUPS' )
         call list_space_groups()
 
-      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYMMETRY_OPERATORS')
+      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYMMETRY_OPERATORS')
         IF(WRITE_symm_op) call write_symm_op_mat()
 
 
@@ -288,7 +289,7 @@ END subroutine interactive_mode
        if(nb_hkl /=0 .and. keyword_CELL)    call calcul_dhkl
 
       CASE ('SF_HKL', 'SFAC_HKL')
-       if(nb_hkl_SFAC_calc /=0 .and. keyword_CELL .and. keyword_SPGR .and. nb_atom/=0) call Calcul_SFAC_HKL
+       if(nb_hkl_SFAC_calc /=0 .and. keyword_CELL .and. keyword_SPGR ) call Calcul_SFAC_HKL
 
       case ('D_STAR', 'D_STAR_HKL', 'DSTAR', 'DSTARHKL', 'DSTAR_HKL')
        if (nb_dstar_value /=0) call X_space_calculation('DSTAR')

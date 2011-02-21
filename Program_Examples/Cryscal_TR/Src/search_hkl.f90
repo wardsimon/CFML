@@ -28,7 +28,7 @@ subroutine search_exti()
  call write_info('')
 
  do i=1, HKL_rule_nb
-  call search_HKL_exti(i, HKL_rule(i))
+  call search_HKL_exti(i)
   call write_hkl_exti(i, HKL_rule(i))
   if(i==3 .or. i==6  .or. i==9  .or. i==12 .or. i==15  .or. i==20 .or. i==23   &
           .or. i==26 .or. i==27 .or. i==30) call write_info('')
@@ -820,9 +820,11 @@ subroutine write_hkl_exti(exti_num, exti_string)
  endif
 
  IF(I_ratio < ratio_criteria) then
-  WRITE(message_text, '(1x,I2,a,2I6,2F12.2,8x,F10.3,a)') exti_num, exti_string, n_pair + n_impair, n_impair, mean_F2_impair, mean_F2_pair, I_ratio, '   <<<'
+  WRITE(message_text, '(1x,I2,a,2I6,2F12.2,8x,F10.3,a)') exti_num, exti_string, n_pair + n_impair, n_impair, &
+                                                         mean_F2_impair, mean_F2_pair, I_ratio, '   <<<'
  else
-  WRITE(message_text, '(1x,I2,a,2I6,2F12.2,8x,F10.3,a)') exti_num, exti_string, n_pair + n_impair, n_impair, mean_F2_impair, mean_F2_pair, I_ratio, ''
+  WRITE(message_text, '(1x,I2,a,2I6,2F12.2,8x,F10.3,a)') exti_num, exti_string, n_pair + n_impair, n_impair, &
+                                                         mean_F2_impair, mean_F2_pair, I_ratio, ''
  endif
  call write_info(TRIM(message_text))
 
@@ -1322,7 +1324,7 @@ subroutine search_HKL_list()
     else
      WRITE(message_text, '(3I4, 2F8.2,I4)')       h(i), k(i), l(i), F2(i), sig_F2(i), code(i)
     endif
-    write(unit = HKL_list_out2_unit,'(a)') TRIM(message_text)
+    write(HKL_list_out2_unit,'(a)') TRIM(message_text)
    endif
    cycle
   endif
@@ -1330,7 +1332,8 @@ subroutine search_HKL_list()
   n_impair     = n_impair + 1
 
   IF(HKL_list%OUT) then
-   WRITE(message_text, '(I6,x,I6,2x, 3I4, 2F8.2)') n_impair, i, h(i), k(i), l(i), F2(i), sig_F2(i)
+   !WRITE(message_text, '(I6,x,I6,2x, 3I4, 2F8.2)') n_impair, i, h(i), k(i), l(i), F2(i), sig_F2(i)
+   WRITE(message_text, '(I6, 1x, I6,2x, 3I4, 2F8.2)') n_impair, i, h(i), k(i), l(i), F2(i), sig_F2(i)
    call write_info(TRIM(message_text))
   endif
 
@@ -1340,7 +1343,7 @@ subroutine search_HKL_list()
    else
     WRITE(message_text, '(3I4, 2F8.2,I4)')       h(i), k(i), l(i), F2(i), sig_F2(i), code(i)
    endif
-   write(unit = HKL_list_out1_unit,'(a)') TRIM(message_text)
+   write(HKL_list_out1_unit,'(a)') TRIM(message_text)
   endif
   
 

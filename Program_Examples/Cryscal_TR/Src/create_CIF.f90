@@ -32,450 +32,450 @@ subroutine write_CIF_file(input_string)
   select case (input_string)
 
       case ('ABSORPTION')
-  WRITE(UNIT = CIF_unit, '(a)')      ""
-  WRITE(UNIT = CIF_unit, '(a)')      "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')      "#                   ABSORPTION CORRECTION                                    #"
-  WRITE(UNIT = CIF_unit, '(a)')      "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')      ""
+  WRITE(CIF_unit, '(a)')      ""
+  WRITE(CIF_unit, '(a)')      "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')      "#                   ABSORPTION CORRECTION                                    #"
+  WRITE(CIF_unit, '(a)')      "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')      ""
   IF(absorption%mu >  0.) then
-  WRITE(UNIT = CIF_unit, '(a,F7.3)') "_exptl_absorpt_coefficient_mu  ", absorption%mu * 0.1
+  WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_coefficient_mu  ", absorption%mu * 0.1
   else
-  WRITE(UNIT = CIF_unit, '(a)')      "_exptl_absorpt_coefficient_mu                        ?"
+  WRITE(CIF_unit, '(a)')      "_exptl_absorpt_coefficient_mu                        ?"
   endif
 
       case ('TMIN')
   IF(absorption%Tmin > 0.) then
    if(keyword_modif_archive) then
     if(absorption%Tmax > 0. .and. SADABS_ratio > 0.) then
-     WRITE(unit = CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmax*sadabs_ratio
+     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmax*sadabs_ratio
     else
-     WRITE(unit = CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin*0.99
+     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin*0.99
     endif
    else
-    WRITE(unit = CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin
+    WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin
    endif
   else
-   WRITE(unit = CIF_unit, '(a)')      "_exptl_absorpt_correction_T_min                      ?"
+   WRITE(CIF_unit, '(a)')      "_exptl_absorpt_correction_T_min                      ?"
   endif
 
       case ('TMAX')
   IF(absorption%Tmax > 0.) then
-  WRITE(unit = CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_max", absorption%Tmax
+  WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_max", absorption%Tmax
   else
-  WRITE(unit = CIF_unit, '(a)')      "_exptl_absorpt_correction_T_max                      ?"
+  WRITE(CIF_unit, '(a)')      "_exptl_absorpt_correction_T_max                      ?"
   endif
   IF(LEN_TRIM(SADABS_line) /=0) then
-   WRITE(UNIT=CIF_unit, '(a)')  ""
-   WRITE(UNIT=CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------#"
-   WRITE(UNIT=CIF_unit, '(a)')  "# Tmax and Tmin values correspond to EXPECTED values calculated     #"
-   WRITE(UNIT=CIF_unit, '(a)')  "# from crystal size. In the case of absorption correction performed #"
-   WRITE(UNIT=CIF_unit, '(a)')  "# with SADABS program, Tmax should be given as Tmax_expected and    #"
-   WRITE(UNIT=CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                   #"
-   WRITE(UNIT=CIF_unit, '(a)')  "# SADABS output:                                                    #"
-   WRITE(UNIT=CIF_unit, '(2a)') "# ", TRIM(SADABS_line)
-   WRITE(UNIT=CIF_unit, '(a)')  "#-------------------------------------------------------------------#"
+   WRITE(CIF_unit, '(a)')  ""
+   WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------#"
+   WRITE(CIF_unit, '(a)')  "# Tmax and Tmin values correspond to EXPECTED values calculated     #"
+   WRITE(CIF_unit, '(a)')  "# from crystal size. In the case of absorption correction performed #"
+   WRITE(CIF_unit, '(a)')  "# with SADABS program, Tmax should be given as Tmax_expected and    #"
+   WRITE(CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                   #"
+   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                    #"
+   WRITE(CIF_unit, '(2a)') "# ", TRIM(SADABS_line)
+   WRITE(CIF_unit, '(a)')  "#-------------------------------------------------------------------#"
   endif
 
       case ('SADABS')
-  WRITE(UNIT=CIF_unit, '(a)') trim(SADABS%type)
-  WRITE(UNIT=CIF_unit, '(a)') trim(SADABS%details(1))
-  WRITE(UNIT=CIF_unit, '(a)') trim(SADABS%details(2))
-  WRITE(UNIT=CIF_unit, '(a)') trim(SADABS%details(3))
-  WRITE(UNIT=CIF_unit, '(a)') trim(SADABS%details(4))
+  WRITE(CIF_unit, '(a)') trim(SADABS%type)
+  WRITE(CIF_unit, '(a)') trim(SADABS%details(1))
+  WRITE(CIF_unit, '(a)') trim(SADABS%details(2))
+  WRITE(CIF_unit, '(a)') trim(SADABS%details(3))
+  WRITE(CIF_unit, '(a)') trim(SADABS%details(4))
   
       case ('SQUEEZE')
-  write(unit=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(unit=CIF_unit, '(a)') "#                   SQUEEZE RESULTS                                          #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  write(unit=CIF_unit, '(a)') ""
+  write(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   SQUEEZE RESULTS                                          #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  write(CIF_unit, '(a)') ""
   do i=2, SQUEEZE%nb_lines
-  write(unit=CIF_unit, '(a)') trim(SQUEEZE%read_line(i))
+  write(CIF_unit, '(a)') trim(SQUEEZE%read_line(i))
   end do
 
       case ('APEX')
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_measurement_device_type    ", trim(CIF_parameter%diffrn_measurement_device_type)
-  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_measurement_method         ", trim(CIF_parameter%diffrn_measurement_method)
-  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_detector                   ", trim(CIF_parameter%diffrn_detector)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_detector_area_resol_mean   ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_radiation_wavelength       ", trim(CIF_parameter%diffrn_radiation_wavelength)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_radiation_type             ", trim(CIF_parameter%diffrn_radiation_type)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_radiation_source           ", trim(CIF_parameter%diffrn_radiation_source)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_radiation_monochromator    ", trim(CIF_parameter%diffrn_radiation_monochromator)
-!  WRITE(UNIT=CIF_unit, '(2a)') "_diffrn_radiation_probe            ", trim(CIF_parameter%diffrn_radiation_probe)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(2a)') "_diffrn_measurement_device_type    ", trim(CIF_parameter%diffrn_measurement_device_type)
+  WRITE(CIF_unit, '(2a)') "_diffrn_measurement_method         ", trim(CIF_parameter%diffrn_measurement_method)
+  WRITE(CIF_unit, '(2a)') "_diffrn_detector                   ", trim(CIF_parameter%diffrn_detector)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_detector_area_resol_mean   ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_radiation_wavelength       ", trim(CIF_parameter%diffrn_radiation_wavelength)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_radiation_type             ", trim(CIF_parameter%diffrn_radiation_type)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_radiation_source           ", trim(CIF_parameter%diffrn_radiation_source)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_radiation_monochromator    ", trim(CIF_parameter%diffrn_radiation_monochromator)
+!  WRITE(CIF_unit, '(2a)') "_diffrn_radiation_probe            ", trim(CIF_parameter%diffrn_radiation_probe)
 
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_data_collection       ", trim(CIF_parameter%computing_data_reduction)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_cell_refinement       ", trim(CIF_parameter%computing_cell_refinement)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_data_reduction        ", trim(CIF_parameter%computing_data_reduction)
-  !WRITE(UNIT=CIF_unit, '(2a)') "_computing_structure_solution    ", trim(CIF_parameter%computing_structure_solution)
-  !WRITE(UNIT=CIF_unit, '(2a)') "_computing_structure_refinement  ", trim(CIF_parameter%computing_structure_refinement)
-  !WRITE(UNIT=CIF_unit, '(2a)') "_computing_molecular_graphics    ", trim(CIF_parameter%computing_molecular_graphics)
-  !WRITE(UNIT=CIF_unit, '(2a)') "_computing_publication_material  ", trim(CIF_parameter%computing_publication_material)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(2a)') "_computing_data_collection       ", trim(CIF_parameter%computing_data_reduction)
+  WRITE(CIF_unit, '(2a)') "_computing_cell_refinement       ", trim(CIF_parameter%computing_cell_refinement)
+  WRITE(CIF_unit, '(2a)') "_computing_data_reduction        ", trim(CIF_parameter%computing_data_reduction)
+  !WRITE(CIF_unit, '(2a)') "_computing_structure_solution    ", trim(CIF_parameter%computing_structure_solution)
+  !WRITE(CIF_unit, '(2a)') "_computing_structure_refinement  ", trim(CIF_parameter%computing_structure_refinement)
+  !WRITE(CIF_unit, '(2a)') "_computing_molecular_graphics    ", trim(CIF_parameter%computing_molecular_graphics)
+  !WRITE(CIF_unit, '(2a)') "_computing_publication_material  ", trim(CIF_parameter%computing_publication_material)
 
       case ('KCCD')
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)')"#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')"#                   DATA COLLECTION                                          #"
-  WRITE(UNIT=CIF_unit, '(a)')"#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')""
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_source                         ", trim(CIF_parameter%diffrn_source)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_radiation_wavelength           ", trim(CIF_parameter%diffrn_radiation_wavelength)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_radiation_type                 ", trim(CIF_parameter%diffrn_radiation_type)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_radiation_source               ", trim(CIF_parameter%diffrn_radiation_source)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_radiation_monochromator        ", trim(CIF_parameter%diffrn_radiation_monochromator)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_radiation_probe                ", trim(CIF_parameter%diffrn_radiation_probe)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_detector                       ", trim(CIF_parameter%diffrn_detector)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_detector_area_resol_mean       ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_measurement_device             ", trim(CIF_parameter%diffrn_measurement_device)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_measurement_device_type        ", trim(CIF_parameter%diffrn_measurement_device_type)
-  WRITE(UNIT=CIF_unit, '(2a)')"_diffrn_measurement_method             ", trim(CIF_parameter%diffrn_measurement_method)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)')"#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')"#                   DATA COLLECTION                                          #"
+  WRITE(CIF_unit, '(a)')"#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')""
+  WRITE(CIF_unit, '(2a)')"_diffrn_source                         ", trim(CIF_parameter%diffrn_source)
+  WRITE(CIF_unit, '(2a)')"_diffrn_radiation_wavelength           ", trim(CIF_parameter%diffrn_radiation_wavelength)
+  WRITE(CIF_unit, '(2a)')"_diffrn_radiation_type                 ", trim(CIF_parameter%diffrn_radiation_type)
+  WRITE(CIF_unit, '(2a)')"_diffrn_radiation_source               ", trim(CIF_parameter%diffrn_radiation_source)
+  WRITE(CIF_unit, '(2a)')"_diffrn_radiation_monochromator        ", trim(CIF_parameter%diffrn_radiation_monochromator)
+  WRITE(CIF_unit, '(2a)')"_diffrn_radiation_probe                ", trim(CIF_parameter%diffrn_radiation_probe)
+  WRITE(CIF_unit, '(2a)')"_diffrn_detector                       ", trim(CIF_parameter%diffrn_detector)
+  WRITE(CIF_unit, '(2a)')"_diffrn_detector_area_resol_mean       ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
+  WRITE(CIF_unit, '(2a)')"_diffrn_measurement_device             ", trim(CIF_parameter%diffrn_measurement_device)
+  WRITE(CIF_unit, '(2a)')"_diffrn_measurement_device_type        ", trim(CIF_parameter%diffrn_measurement_device_type)
+  WRITE(CIF_unit, '(2a)')"_diffrn_measurement_method             ", trim(CIF_parameter%diffrn_measurement_method)
 
         case ('SAPHIRE')
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "_diffrn_measurement_device_type    ", trim(CIF_parameter%diffrn_measurement_device_type)
-  WRITE(UNIT=CIF_unit, '(a)') "_diffrn_measurement_method         ", trim(CIF_parameter%diffrn_measurement_method)
-  WRITE(UNIT=CIF_unit, '(a)') "_diffrn_detector                   ", trim(CIF_parameter%diffrn_detector)
-  WRITE(UNIT=CIF_unit, '(a)') "_diffrn_detector_area_resol_mean   ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "_diffrn_measurement_device_type    ", trim(CIF_parameter%diffrn_measurement_device_type)
+  WRITE(CIF_unit, '(a)') "_diffrn_measurement_method         ", trim(CIF_parameter%diffrn_measurement_method)
+  WRITE(CIF_unit, '(a)') "_diffrn_detector                   ", trim(CIF_parameter%diffrn_detector)
+  WRITE(CIF_unit, '(a)') "_diffrn_detector_area_resol_mean   ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
 
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "_computing_data_collection      "
-  WRITE(UNIT=CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_data_collection)
-  WRITE(UNIT=CIF_unit, '(a)') "_computing_cell_refinement      "
-  WRITE(UNIT=CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_cell_refinement)
-  WRITE(UNIT=CIF_unit, '(a)') "_computing_data_reduction       "
-  WRITE(UNIT=CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_data_reduction)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "_computing_data_collection      "
+  WRITE(CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_data_collection)
+  WRITE(CIF_unit, '(a)') "_computing_cell_refinement      "
+  WRITE(CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_cell_refinement)
+  WRITE(CIF_unit, '(a)') "_computing_data_reduction       "
+  WRITE(CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_data_reduction)
 
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
- ! WRITE(UNIT=CIF_unit, '(2a)') "_computing_publication_material ", trim(CIF_parameter%computing_publication_material)
+  WRITE(CIF_unit, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
+  WRITE(CIF_unit, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
+  WRITE(CIF_unit, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
+ ! WRITE(CIF_unit, '(2a)') "_computing_publication_material ", trim(CIF_parameter%computing_publication_material)
   
-  WRITE(UNIT=CIF_unit, '(a)')  "_computing_publication_material "
-  WRITE(UNIT=CIF_unit, '(a)')  ";"
-  WRITE(UNIT=CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_1)
-  WRITE(UNIT=CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_2)
-  WRITE(UNIT=CIF_unit, '(a)')  ";"
+  WRITE(CIF_unit, '(a)')  "_computing_publication_material "
+  WRITE(CIF_unit, '(a)')  ";"
+  WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_1)
+  WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_2)
+  WRITE(CIF_unit, '(a)')  ";"
   
 
 
 
     case ('DATA_LIMITS')
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_number                   ", n_ref
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_h_min              ", MINVAL(h(1:n_ref))
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_h_max              ", MAXVAL(h(1:n_ref))
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_k_min              ", MINVAL(k(1:n_ref))
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_k_max              ", MAXVAL(k(1:n_ref))
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_l_min              ", MINVAL(l(1:n_ref))
-  WRITE(UNIT=CIF_unit, '(a,I6)') "_diffrn_reflns_limit_l_max              ", MAXVAL(l(1:n_ref))
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_number                   ", n_ref
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_h_min              ", MINVAL(h(1:n_ref))
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_h_max              ", MAXVAL(h(1:n_ref))
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_k_min              ", MINVAL(k(1:n_ref))
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_k_max              ", MAXVAL(k(1:n_ref))
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_l_min              ", MINVAL(l(1:n_ref))
+  WRITE(CIF_unit, '(a,I6)') "_diffrn_reflns_limit_l_max              ", MAXVAL(l(1:n_ref))
   IF(keyword_CELL .AND. keyword_WAVE) then
-   WRITE(UNIT=CIF_unit, '(a,F6.2)') "_diffrn_reflns_theta_min                ", MINVAL(theta_hkl(1:n_ref))
-   WRITE(UNIT=CIF_unit, '(a,F6.2)') "_diffrn_reflns_theta_max                ", MAXVAL(theta_hkl(1:n_ref))
+   WRITE(CIF_unit, '(a,F6.2)') "_diffrn_reflns_theta_min                ", MINVAL(theta_hkl(1:n_ref))
+   WRITE(CIF_unit, '(a,F6.2)') "_diffrn_reflns_theta_max                ", MAXVAL(theta_hkl(1:n_ref))
   endif
 
     case ('HKL_DATA')
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')  "#                   HKL DATA                                                 #"
-  WRITE(UNIT=CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a)')  "loop_"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_index_h"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_index_k"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_index_l"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_F_squared_meas"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_F_squared_sigma"
-  WRITE(UNIT=CIF_unit, '(a)')  "_refln_scale_group_code"
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')  "#                   HKL DATA                                                 #"
+  WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  "loop_"
+  WRITE(CIF_unit, '(a)')  "_refln_index_h"
+  WRITE(CIF_unit, '(a)')  "_refln_index_k"
+  WRITE(CIF_unit, '(a)')  "_refln_index_l"
+  WRITE(CIF_unit, '(a)')  "_refln_F_squared_meas"
+  WRITE(CIF_unit, '(a)')  "_refln_F_squared_sigma"
+  WRITE(CIF_unit, '(a)')  "_refln_scale_group_code"
   do i= 1, n_ref
-   WRITE(unit=CIF_unit, '(i4,2i5,2F9.2,I5)')      h(i), k(i), l(i), F2(i), sig_F2(i), code(i)   ! sans les cos. dir.
+   WRITE(CIF_unit, '(i4,2i5,2F9.2,I5)')      h(i), k(i), l(i), F2(i), sig_F2(i), code(i)   ! sans les cos. dir.
   end do
 
 
       case ('EVAL_PROGRAMS', 'DENZO_PROGRAMS', 'CRYSALIS_PROGRAMS')
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
-  WRITE(UNIT=CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_data_collection     ", trim(CIF_parameter%computing_data_collection)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_cell_refinement     ", trim(CIF_parameter%computing_cell_refinement)
-  WRITE(UNIT=CIF_unit, '(2a)') "_computing_data_reduction      ", trim(CIF_parameter%computing_data_reduction)
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
+  WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(2a)') "_computing_data_collection     ", trim(CIF_parameter%computing_data_collection)
+  WRITE(CIF_unit, '(2a)') "_computing_cell_refinement     ", trim(CIF_parameter%computing_cell_refinement)
+  WRITE(CIF_unit, '(2a)') "_computing_data_reduction      ", trim(CIF_parameter%computing_data_reduction)
 
 
 
 
 
       case ('CRYSTAL_INFORMATION')
-  WRITE(UNIT = CIF_unit, '(a)')        ""
-  WRITE(UNIT = CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')        "#                   CRYSTAL INFORMATION                                      #"
-  WRITE(UNIT = CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')        ""
-  WRITE(UNIT = CIF_unit, '(2a)')       "_exptl_crystal_description             ", TRIM(crystal%morph)
-  WRITE(UNIT = CIF_unit, '(2a)')       "_exptl_crystal_colour                  ", TRIM(crystal%color)
+  WRITE(CIF_unit, '(a)')        ""
+  WRITE(CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')        "#                   CRYSTAL INFORMATION                                      #"
+  WRITE(CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')        ""
+  WRITE(CIF_unit, '(2a)')       "_exptl_crystal_description             ", TRIM(crystal%morph)
+  WRITE(CIF_unit, '(2a)')       "_exptl_crystal_colour                  ", TRIM(crystal%color)
   IF(keyword_SIZE) then
-   WRITE(UNIT = CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_max                ", crystal%size_max
-   WRITE(UNIT = CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_mid                ", crystal%size_mid
-   WRITE(UNIT = CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_min                ", crystal%size_min
+   WRITE(CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_max                ", crystal%size_max
+   WRITE(CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_mid                ", crystal%size_mid
+   WRITE(CIF_unit, '(a,F6.3)')  "_exptl_crystal_size_min                ", crystal%size_min
   else
-   WRITE(UNIT = CIF_unit, '(a)')       "_exptl_crystal_size_max                ?"
-   WRITE(UNIT = CIF_unit, '(a)')       "_exptl_crystal_size_mid                ?"
-   WRITE(UNIT = CIF_unit, '(a)')       "_exptl_crystal_size_min                ?"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_size_max                ?"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_size_mid                ?"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_size_min                ?"
   endif
   if(crystal%faces_nb /=0) then
-   WRITE(UNIT = CIF_unit, '(a)')       ""
-   WRITE(UNIT = CIF_unit, '(a)')       "loop_"
-   WRITE(UNIT = CIF_unit, '(a)')       "_expt_crystal_face_index_h"
-   WRITE(UNIT = CIF_unit, '(a)')       "_expt_crystal_face_index_k"
-   WRITE(UNIT = CIF_unit, '(a)')       "_expt_crystal_face_index_l"
-   WRITE(UNIT = CIF_unit, '(a)')       "_expt_crystal_face_perp_dist"
+   WRITE(CIF_unit, '(a)')       ""
+   WRITE(CIF_unit, '(a)')       "loop_"
+   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_h"
+   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_k"
+   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_l"
+   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_perp_dist"
    do i=1, crystal%faces_nb
-    WRITE(UNIT = CIF_unit, '(a)') trim(crystal%face_line(i))
+    WRITE(CIF_unit, '(a)') trim(crystal%face_line(i))
    end do
   endif
-  WRITE(UNIT = CIF_unit, '(a)')        ""
+  WRITE(CIF_unit, '(a)')        ""
 
       case ('F000')
-  WRITE(UNIT = CIF_unit, '(a, F8.1)')  "_exptl_crystal_F_000                    ", F000
+  WRITE(CIF_unit, '(a, F8.1)')  "_exptl_crystal_F_000                    ", F000
 
       case ('CHEMICAL_INFORMATION')
-  WRITE(unit = CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
-  WRITE(unit = CIF_unit, '(a)')        "#                   CHEMICAL INFORMATION                                     #"
-  WRITE(unit = CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
-  WRITE(unit = CIF_unit, '(a)')        " "
+  WRITE(CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')        "#                   CHEMICAL INFORMATION                                     #"
+  WRITE(CIF_unit, '(a)')        "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')        " "
   IF(molecule%common_name(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(a)')       ""
-   WRITE(UNIT = CIF_unit, '(3a)')      "_chemical_name_common                   '", TRIM(molecule%common_name),"'"
-   WRITE(UNIT = CIF_unit, '(a)')       ""
+   WRITE(CIF_unit, '(a)')       ""
+   WRITE(CIF_unit, '(3a)')      "_chemical_name_common                   '", TRIM(molecule%common_name),"'"
+   WRITE(CIF_unit, '(a)')       ""
   endif
   IF(molecule%formula(1:1) /= '?') then
-   WRITE(unit = CIF_unit, '(3a)')      "_chemical_formula_sum                  '",  TRIM(molecule%formula),"'"
-   WRITE(unit = CIF_unit, '(a, F8.2)') "_chemical_formula_weight                ",  Molecule%weight
-   WRITE(unit = CIF_unit, '(a)')       " "
+   WRITE(CIF_unit, '(3a)')      "_chemical_formula_sum                  '",  TRIM(molecule%formula),"'"
+   WRITE(CIF_unit, '(a, F8.2)') "_chemical_formula_weight                ",  Molecule%weight
+   WRITE(CIF_unit, '(a)')       " "
   endif
 
       case ('CRYSTAL_DENSITY')
-  WRITE(UNIT = CIF_unit, '(a, F9.3)') "_exptl_crystal_density_diffrn           ",  molecule%density
+  WRITE(CIF_unit, '(a, F9.3)') "_exptl_crystal_density_diffrn           ",  molecule%density
 
       case ('WAVE')
-  WRITE(unit = CIF_unit, '(a, F10.5)') "_diffrn_radiation_wavelength            ", wavelength
+  WRITE(CIF_unit, '(a, F10.5)') "_diffrn_radiation_wavelength            ", wavelength
 
       case ('ZUNIT')
-  WRITE(unit = CIF_unit, '(a, F4.1)') "_cell_formula_units_Z                    ", Z_unit
+  WRITE(CIF_unit, '(a, F4.1)') "_cell_formula_units_Z                    ", Z_unit
 
 
       case ('UNIT_CELL_INFO')
-  WRITE(UNIT = CIF_unit, '(a)')     ""
-  WRITE(UNIT = CIF_unit, '(a)')     "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')     "#                   UNIT CELL INFORMATION                                    #"
-  WRITE(UNIT = CIF_unit, '(a)')     "#----------------------------------------------------------------------------#"
-  WRITE(UNIT = CIF_unit, '(a)')     ""
+  WRITE(CIF_unit, '(a)')     ""
+  WRITE(CIF_unit, '(a)')     "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')     "#                   UNIT CELL INFORMATION                                    #"
+  WRITE(CIF_unit, '(a)')     "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')     ""
 
       case ('SPACE_GROUP')
-  WRITE(UNIT = CIF_unit, '(a)')     ""
-  WRITE(UNIT = CIF_unit, '(2a)')    "_symmetry_cell_setting                   ", TRIM(SPG%CrystalSys)
-  WRITE(UNIT = CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(SPG%SPG_Symb),  "'"
-  WRITE(UNIT = CIF_unit, '(3a)')    "_symmetry_space_group_name_Hall         '", TRIM(SPG%Hall),      "'"
-  WRITE(UNIT = CIF_unit, '(a,I3)')  "_symmetry_Int_Tables_number              ", SPG%NumSpg
-  WRITE(UNIT = CIF_unit, '(a)')     "loop_"
-  WRITE(UNIT = CIF_unit, '(a)')     "  _symmetry_equiv_pos_as_xyz"
+  WRITE(CIF_unit, '(a)')     ""
+  WRITE(CIF_unit, '(2a)')    "_symmetry_cell_setting                   ", TRIM(SPG%CrystalSys)
+  WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(SPG%SPG_Symb),  "'"
+  WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_Hall         '", TRIM(SPG%Hall),      "'"
+  WRITE(CIF_unit, '(a,I3)')  "_symmetry_Int_Tables_number              ", SPG%NumSpg
+  WRITE(CIF_unit, '(a)')     "loop_"
+  WRITE(CIF_unit, '(a)')     "  _symmetry_equiv_pos_as_xyz"
   do i=1, nb_symm_op
-   WRITE(UNIT = CIF_unit, '(7a)')  "'", TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i)), "'"
+   WRITE(CIF_unit, '(7a)')  "'", TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i)), "'"
   end do
 
   !    case ('SYM_OP')
-  !WRITE(UNIT = CIF_unit, '(a)')     TRIM(input_value(1))
+  !WRITE(CIF_unit, '(a)')     TRIM(input_value(1))
 
       case ('CRYSTAL_SYSTEM')
   IF(unit_cell%crystal_system(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(a)')     ""
-   WRITE(UNIT = CIF_unit, '(3a)')    "_symmetry_cell_setting                  '", TRIM(unit_cell%crystal_system),"'"
-   WRITE(UNIT = CIF_unit, '(a)')     ""
+   WRITE(CIF_unit, '(a)')     ""
+   WRITE(CIF_unit, '(3a)')    "_symmetry_cell_setting                  '", TRIM(unit_cell%crystal_system),"'"
+   WRITE(CIF_unit, '(a)')     ""
   END if
 
       case ('CELL_PARAM')
-  WRITE(UNIT = CIF_unit, '(a)')     ""
+  WRITE(CIF_unit, '(a)')     ""
   do i=1, 6
-   WRITE(UNIT = CIF_unit, '(a,F10.5)') CELL_param_CIF_string(i), unit_cell%param(i)
+   WRITE(CIF_unit, '(a,F10.5)') CELL_param_CIF_string(i), unit_cell%param(i)
   end do
-  WRITE(UNIT = CIF_unit, '(a,F14.5)')  CELL_param_CIF_string(7), unit_cell%volume
-  WRITE(UNIT = CIF_unit ,'(2a)')     "_cell_measurement_temperature           ", TRIM(CIF_cell_measurement%temperature)
+  WRITE(CIF_unit, '(a,F14.5)')  CELL_param_CIF_string(7), unit_cell%volume
+  WRITE(CIF_unit ,'(2a)')     "_cell_measurement_temperature           ", TRIM(CIF_cell_measurement%temperature)
 
 
       case ('CELL_PARAM_ESD')
   IF(CIF_parameter%cell_length_a(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_length_a                         ", TRIM(CIF_parameter%cell_length_a)
+   WRITE(CIF_unit, '(2a)')   "_cell_length_a                         ", TRIM(CIF_parameter%cell_length_a)
   else
    call write_CIF_cell_parameter(1)
   endif
 
   IF(CIF_parameter%cell_length_b(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_length_b                         ", TRIM(CIF_parameter%cell_length_b)
+   WRITE(CIF_unit, '(2a)')   "_cell_length_b                         ", TRIM(CIF_parameter%cell_length_b)
   else
    call write_CIF_cell_parameter(2)
   endif
 
   IF(CIF_parameter%cell_length_c(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_length_c                         ", TRIM(CIF_parameter%cell_length_c)
+   WRITE(CIF_unit, '(2a)')   "_cell_length_c                         ", TRIM(CIF_parameter%cell_length_c)
   else
    call write_CIF_cell_parameter(3)
   endif
 
   IF(CIF_parameter%cell_angle_alpha(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_angle_alpha                      ", TRIM(CIF_parameter%cell_angle_alpha)
+   WRITE(CIF_unit, '(2a)')   "_cell_angle_alpha                      ", TRIM(CIF_parameter%cell_angle_alpha)
   else
    call write_CIF_cell_parameter(4)
   endif
 
   IF(CIF_parameter%cell_angle_beta(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_angle_beta                       ", TRIM(CIF_parameter%cell_angle_beta)
+   WRITE(CIF_unit, '(2a)')   "_cell_angle_beta                       ", TRIM(CIF_parameter%cell_angle_beta)
   else
    call write_CIF_cell_parameter(5)
   endif
 
   IF(CIF_parameter%cell_angle_gamma(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_angle_gamma                      ", TRIM(CIF_parameter%cell_angle_gamma)
+   WRITE(CIF_unit, '(2a)')   "_cell_angle_gamma                      ", TRIM(CIF_parameter%cell_angle_gamma)
   else
    call write_CIF_cell_parameter(6)
   endif
 
 
   IF(CIF_parameter%cell_volume(1:1) /= '?') then
-   WRITE(UNIT = CIF_unit, '(2a)')   "_cell_volume                           ", TRIM(CIF_parameter%cell_volume)
+   WRITE(CIF_unit, '(2a)')   "_cell_volume                           ", TRIM(CIF_parameter%cell_volume)
   else
    call write_CIF_cell_parameter(7)
   endif
 
-  WRITE(UNIT = CIF_unit ,'(2a)')      "_cell_measurement_temperature         ", TRIM(CIF_cell_measurement%temperature)
+  WRITE(CIF_unit ,'(2a)')      "_cell_measurement_temperature         ", TRIM(CIF_cell_measurement%temperature)
 
 
       case ('CIF_THMIN,THMAX')
 
-  WRITE(UNIT = CIF_unit, '(a,I6)')    "_cell_measurement_reflns_used          ", CIF_cell_measurement%reflns_used
-  WRITE(UNIT = CIF_unit, '(a,F6.2)')  "_cell_measurement_theta_min            ", CIF_cell_measurement%theta_min
-  WRITE(UNIT = CIF_unit, '(a,F6.2)')  "_cell_measurement_theta_max            ", CIF_cell_measurement%theta_max
+  WRITE( CIF_unit, '(a,I6)')    "_cell_measurement_reflns_used          ", CIF_cell_measurement%reflns_used
+  WRITE( CIF_unit, '(a,F6.2)')  "_cell_measurement_theta_min            ", CIF_cell_measurement%theta_min
+  WRITE( CIF_unit, '(a,F6.2)')  "_cell_measurement_theta_max            ", CIF_cell_measurement%theta_max
 
       case ('AUTHOR')
-  write(UNIT = CIF_unit, '(a)')  ""
-  write(UNIT = CIF_unit, '(a)')  "#-------------------------------------------------------------------------#"
-  write(UNIT = CIF_unit, '(a)')  "#                       AUTHORS DETAILS                                   #"
-  write(UNIT = CIF_unit, '(a)')  "#"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author               'ROISNEL, Thierry'                     #"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_email          thierry.roisnel@univ-rennes1.fr       #"
-  write(UNIT = CIF_unit, '(a)')  "#                                                                         #"
-  write(UNIT = CIF_unit, '(a)')  "#------------------ SUBMISSION DETAILS -----------------------------------#"
-  write(UNIT = CIF_unit, '(a)')  ""
-  write(UNIT = CIF_unit, '(a)')  "# Name and address of author for correspondence"
-  write(UNIT = CIF_unit, '(a)')  ""
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_name      'Roisnel, Thierry"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_address"
-  write(UNIT = CIF_unit, '(a)')  ";"
-  write(UNIT = CIF_unit, '(a)')  "Centre de Diffractom\'etrie X"
-  write(UNIT = CIF_unit, '(a)')  "UMR6226 CNRS - Universit\'e de Rennes 1"
-  write(UNIT = CIF_unit, '(a)')  "B\^at. 10B, Campus de Beaulieu "
-  write(UNIT = CIF_unit, '(a)')  "Avenue du G\'en\'eral Leclerc"
-  write(UNIT = CIF_unit, '(a)')  "35042 Rennes, France "
-  write(UNIT = CIF_unit, '(a)')  ";"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_email       thierry.roisnel@univ-rennes1.fr"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_phone         '33(2)23235902'"
-  write(UNIT = CIF_unit, '(a)')  "_publ_contact_author_fax           '33(2)99383487'"
-  write(UNIT = CIF_unit, '(a)')  ""
+  write( CIF_unit, '(a)')  ""
+  write( CIF_unit, '(a)')  "#-------------------------------------------------------------------------#"
+  write( CIF_unit, '(a)')  "#                       AUTHORS DETAILS                                   #"
+  write( CIF_unit, '(a)')  "#"
+  write( CIF_unit, '(a)')  "_publ_contact_author               'ROISNEL, Thierry'                     #"
+  write( CIF_unit, '(a)')  "_publ_contact_author_email          thierry.roisnel@univ-rennes1.fr       #"
+  write( CIF_unit, '(a)')  "#                                                                         #"
+  write( CIF_unit, '(a)')  "#------------------ SUBMISSION DETAILS -----------------------------------#"
+  write( CIF_unit, '(a)')  ""
+  write( CIF_unit, '(a)')  "# Name and address of author for correspondence"
+  write( CIF_unit, '(a)')  ""
+  write( CIF_unit, '(a)')  "_publ_contact_author_name      'Roisnel, Thierry"
+  write( CIF_unit, '(a)')  "_publ_contact_author_address"
+  write( CIF_unit, '(a)')  ";"
+  write( CIF_unit, '(a)')  "Centre de Diffractom\'etrie X"
+  write( CIF_unit, '(a)')  "UMR6226 CNRS - Universit\'e de Rennes 1"
+  write( CIF_unit, '(a)')  "B\^at. 10B, Campus de Beaulieu "
+  write( CIF_unit, '(a)')  "Avenue du G\'en\'eral Leclerc"
+  write( CIF_unit, '(a)')  "35042 Rennes, France "
+  write( CIF_unit, '(a)')  ";"
+  write( CIF_unit, '(a)')  "_publ_contact_author_email       thierry.roisnel@univ-rennes1.fr"
+  write( CIF_unit, '(a)')  "_publ_contact_author_phone         '33(2)23235902'"
+  write( CIF_unit, '(a)')  "_publ_contact_author_fax           '33(2)99383487'"
+  write( CIF_unit, '(a)')  ""
 
       case ('ATOMS_HEADER')
-  write(UNIT = CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  write(UNIT = CIF_unit, '(a)') "#                   ATOMIC TYPES, COORDINATES AND THERMAL PARAMETERS         #"
-  write(UNIT = CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  write(UNIT = CIF_unit, '(a)') ""
-  write(UNIT = CIF_unit, '(a)') "loop_"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_label"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_type_symbol"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_fract_x"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_fract_y"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_fract_z"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_U_iso_or_equiv"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_adp_type"
-  write(UNIT = CIF_unit, '(a)') "   _atom_site_occupancy"
+  write( CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  write( CIF_unit, '(a)') "#                   ATOMIC TYPES, COORDINATES AND THERMAL PARAMETERS         #"
+  write( CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
+  write( CIF_unit, '(a)') ""
+  write( CIF_unit, '(a)') "loop_"
+  write( CIF_unit, '(a)') "   _atom_site_label"
+  write( CIF_unit, '(a)') "   _atom_site_type_symbol"
+  write( CIF_unit, '(a)') "   _atom_site_fract_x"
+  write( CIF_unit, '(a)') "   _atom_site_fract_y"
+  write( CIF_unit, '(a)') "   _atom_site_fract_z"
+  write( CIF_unit, '(a)') "   _atom_site_U_iso_or_equiv"
+  write( CIF_unit, '(a)') "   _atom_site_adp_type"
+  write( CIF_unit, '(a)') "   _atom_site_occupancy"
 
       case ('ATOM')
   do i=1, nb_atom  
-   WRITE(UNIT = CIF_unit, '(4a,4F9.5,a,F4.2)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
+   WRITE( CIF_unit, '(4a,4F9.5,a,F4.2)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
                                                 atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
                                                 ' Uani ', atom_occ_perc(i)
    
   END do
 
       case ('P4P')
-  open (UNIT=CIF_unit, FILE='P4P.cif')
+  open (CIF_unit, FILE='P4P.cif')
   do i=1, CIF_lines_nb
-   WRITE(UNIT=CIF_unit, '(a)') trim(CIF_title_line(i))
+   WRITE(CIF_unit, '(a)') trim(CIF_title_line(i))
   end do
-  WRITE(UNIT=CIF_unit, '(a)') ""
-  WRITE(UNIT=CIF_unit, '(a)') "data_P4P"
-  WRITE(UNIT=CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') "data_P4P"
+  WRITE(CIF_unit, '(a)') ""
 
       case ('IMPORT')
-  open (UNIT=CIF_unit, FILE='import.cif')
-  WRITE(UNIT=CIF_unit, '(a)')  ""
+  open (CIF_unit, FILE='import.cif')
+  WRITE(CIF_unit, '(a)')  ""
   call date_and_time(date, time)
-  WRITE(UNIT=CIF_unit, '(a)')  "# CIF file created by CRYSCAL from APEXII files (CDIFX RENNES)"
-  WRITE(UNIT=CIF_unit, '(12a)')"# Date: " , date(7:8),'-',date(5:6),'-',date(1:4), '  at ', time(1:2),':',time(3:4),':',time(5:6)
-  WRITE(UNIT=CIF_unit, '(2a)') "# P4P input file (SAINT):  ", TRIM(P4P_file_name)
+  WRITE(CIF_unit, '(a)')  "# CIF file created by CRYSCAL from APEXII files (CDIFX RENNES)"
+  WRITE(CIF_unit, '(12a)')"# Date: " , date(7:8),'-',date(5:6),'-',date(1:4), '  at ', time(1:2),':',time(3:4),':',time(5:6)
+  WRITE(CIF_unit, '(2a)') "# P4P input file (SAINT):  ", TRIM(P4P_file_name)
   i1 = INDEX(P4P_file_name, '.')
   SHELX_HKL_file = P4P_file_name(1:i1) //'HKL'
-  WRITE(UNIT=CIF_unit, '(2a)')  "# HKL input file (SADABS): ", TRIM(SHELX_HKL_file)
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a)')  "data_collect"
-  WRITE(UNIT=CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(2a)')  "# HKL input file (SADABS): ", TRIM(SHELX_HKL_file)
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  "data_collect"
+  WRITE(CIF_unit, '(a)')  ""
 
       case ('MATRIX_SAINT')
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')  "#                   ORIENTATION MATRIX                                       #"
-  WRITE(UNIT=CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
-  WRITE(UNIT=CIF_unit, '(a)')  ""
-  WRITE(UNIT=CIF_unit, '(a)')  "_diffrn_orient_matrix_type   'by SAINT Bruker-AXS'"
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_11  ", UB_matrix(1,1)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_21  ", UB_matrix(2,1)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_31  ", UB_matrix(3,1)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_12  ", UB_matrix(1,2)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_22  ", UB_matrix(2,2)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_32  ", UB_matrix(3,2)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_13  ", UB_matrix(1,3)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_23  ", UB_matrix(2,3)
-  WRITE(UNIT=CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_33  ", UB_matrix(3,3)
-  WRITE(UNIT=CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')  "#                   ORIENTATION MATRIX                                       #"
+  WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
+  WRITE(CIF_unit, '(a)')  ""
+  WRITE(CIF_unit, '(a)')  "_diffrn_orient_matrix_type   'by SAINT Bruker-AXS'"
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_11  ", UB_matrix(1,1)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_21  ", UB_matrix(2,1)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_31  ", UB_matrix(3,1)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_12  ", UB_matrix(1,2)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_22  ", UB_matrix(2,2)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_32  ", UB_matrix(3,2)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_13  ", UB_matrix(1,3)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_23  ", UB_matrix(2,3)
+  WRITE(CIF_unit, '(a,F10.7)') "_diffrn_orient_matrix_UB_33  ", UB_matrix(3,3)
+  WRITE(CIF_unit, '(a)')  ""
 
 
       case ('DIST')
-  write(unit = CIF_unit, '(a)') ''
-  write(unit = CIF_unit, '(a)') 'loop_'
-  write(unit = CIF_unit, '(a)') '_geom_bond_atom_site_label_1'
-  write(unit = CIF_unit, '(a)') '_geom_bond_atom_site_label_2'
-  write(unit = CIF_unit, '(a)') '_geom_bond_distance'
-  write(unit = CIF_unit, '(a)') '_geom_bond_site_symmetry_2'
-  write(unit = CIF_unit, '(a)') '_geom_bond_publ_flag'
+  write( CIF_unit, '(a)') ''
+  write( CIF_unit, '(a)') 'loop_'
+  write( CIF_unit, '(a)') '_geom_bond_atom_site_label_1'
+  write( CIF_unit, '(a)') '_geom_bond_atom_site_label_2'
+  write( CIF_unit, '(a)') '_geom_bond_distance'
+  write( CIF_unit, '(a)') '_geom_bond_site_symmetry_2'
+  write( CIF_unit, '(a)') '_geom_bond_publ_flag'
 
       case('DIST_values')
   do i=1, CIF_dist%n_text
-   write(unit = CIF_unit, '(a)') trim(CIF_dist%text(i))
+   write( CIF_unit, '(a)') trim(CIF_dist%text(i))
   end do
 
       case default
@@ -536,7 +536,7 @@ subroutine create_CIF_P4P_import(input_string)
   call write_CIF_file('TMAX')
 
   call write_CIF_file('APEX')
- close (UNIT=CIF_unit)
+ close (CIF_unit)
 
 end subroutine create_CIF_P4P_import
 
@@ -639,10 +639,10 @@ subroutine write_CIF_cell_parameter(i)
    write(ESD_string, fmt_3) uc_param_ESD
   endif
   ESD_string = adjustl(ESD_string)
-  write(unit = CIF_unit, fmt_1) CELL_param_CIf_string(i), uc_param, '(', trim(ESD_string), ')'
+  write( CIF_unit, fmt_1) CELL_param_CIf_string(i), uc_param, '(', trim(ESD_string), ')'
 
  else
-  WRITE(UNIT = CIF_unit, fmt_2) CELL_param_CIF_string(i), uc_param
+  WRITE( CIF_unit, fmt_2) CELL_param_CIF_string(i), uc_param
  endif
 
 end subroutine write_CIF_cell_parameter
@@ -657,7 +657,7 @@ subroutine write_CIF(input_unit, input_string)
   integer,           intent(in)        :: input_unit
   character (len=*), intent(in)        :: input_string
 
-    WRITE(UNIT=input_unit,         '(a)') trim(input_string)
+    WRITE(input_unit,         '(a)') trim(input_string)
 
 end subroutine write_CIF
 !--------------------------------------------------------------------
@@ -809,10 +809,10 @@ subroutine write_CIF_address(input_unit, address)
        call write_CIF(input_unit, trim(CIF_string))
      endif
     end do
-    WRITE(UNIT=CIF_string, '(a)') ";"
+    WRITE(CIF_string, '(a)') ";"
      call write_CIF(input_unit, trim(CIF_string))
    else
-    WRITE(UNIT=CIF_string, '(2a)') "      ",TRIM(address)
+    WRITE(CIF_string, '(2a)') "      ",TRIM(address)
      call write_CIF(input_unit, trim(CIF_string))
    endif
 

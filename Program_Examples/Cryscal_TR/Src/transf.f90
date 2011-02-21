@@ -50,39 +50,45 @@ subroutine  transf_cell_parameters
 
 
 ! parametres a, b, c
-  unit_cell%new_param(1) =   M(1,1)**2. * unit_cell%param(1)**2. +  M(1,2) ** 2. * unit_cell%param(2) **2. + M(1,3)**2. * unit_cell%param(3)**2.  +   &
-                2*M(1,1) * M(1,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                                      &
-                2*M(1,1) * M(1,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                                      &
+  unit_cell%new_param(1) =   M(1,1)**2. * unit_cell%param(1)**2. +  M(1,2) ** 2. * unit_cell%param(2) **2. &
+                     + M(1,3)**2. * unit_cell%param(3)**2.  +                                              &
+                2*M(1,1) * M(1,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
+                2*M(1,1) * M(1,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(1,2) * M(1,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
 
 
-  unit_cell%new_param(2) =   M(2,1)**2. * unit_cell%param(1)**2. +  M(2,2) ** 2. * unit_cell%param(2) **2. + M(2,3)**2. * unit_cell%param(3)**2.  +   &
-                2*M(2,1) * M(2,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                                      &
-                2*M(2,1) * M(2,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                                      &
+  unit_cell%new_param(2) =   M(2,1)**2. * unit_cell%param(1)**2. +  M(2,2) ** 2. * unit_cell%param(2) **2. &
+                     + M(2,3)**2. * unit_cell%param(3)**2.  +                                              &
+                2*M(2,1) * M(2,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
+                2*M(2,1) * M(2,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(2,2) * M(2,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
-
-  unit_cell%new_param(3) =   M(3,1)**2. * unit_cell%param(1)**2. +  M(3,2) ** 2. * unit_cell%param(2) **2. + M(3,3)**2. * unit_cell%param(3)**2.  +   &
-                2*M(3,1) * M(3,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                                      &
-                2*M(3,1) * M(3,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                                      &
+				
+  unit_cell%new_param(3) =   M(3,1)**2. * unit_cell%param(1)**2. +  M(3,2) ** 2. * unit_cell%param(2) **2. &
+                     + M(3,3)**2. * unit_cell%param(3)**2.  +                                              &
+                2*M(3,1) * M(3,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
+                2*M(3,1) * M(3,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(3,2) * M(3,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
 
   unit_cell%new_param(1:3) = sqrt(unit_cell%new_param(1:3))
 
  ! esd des parametres
-  unit_cell%new_param_ESD(1) =   M(1,1)**2. * unit_cell%param_ESD(1)**2. +  M(1,2) ** 2. * unit_cell%param_ESD(2) **2. + M(1,3)**2. * unit_cell%param_ESD(3)**2.  +   &
-                2*M(1,1) * M(1,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                                      &
-                2*M(1,1) * M(1,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                                      &
+  unit_cell%new_param_ESD(1) =   M(1,1)**2. * unit_cell%param_ESD(1)**2. +  M(1,2) ** 2. * unit_cell%param_ESD(2) **2. &
+                     + M(1,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                2*M(1,1) * M(1,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
+                2*M(1,1) * M(1,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(1,2) * M(1,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
-
-
-  unit_cell%new_param_ESD(2) =   M(2,1)**2. * unit_cell%param_ESD(1)**2. +  M(2,2) ** 2. * unit_cell%param_ESD(2) **2. + M(2,3)**2. * unit_cell%param_ESD(3)**2.  +   &
-                2*M(2,1) * M(2,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                                      &
-                2*M(2,1) * M(2,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                                      &
+				
+				
+  unit_cell%new_param_ESD(2) =   M(2,1)**2. * unit_cell%param_ESD(1)**2. +  M(2,2) ** 2. * unit_cell%param_ESD(2) **2. &
+                     + M(2,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                2*M(2,1) * M(2,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
+                2*M(2,1) * M(2,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(2,2) * M(2,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
 
-  unit_cell%new_param_ESD(3) =   M(3,1)**2. * unit_cell%param_ESD(1)**2. +  M(3,2) ** 2. * unit_cell%param_ESD(2) **2. + M(3,3)**2. * unit_cell%param_ESD(3)**2.  +   &
-                2*M(3,1) * M(3,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                                      &
-                2*M(3,1) * M(3,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                                      &
+  unit_cell%new_param_ESD(3) =   M(3,1)**2. * unit_cell%param_ESD(1)**2. +  M(3,2) ** 2. * unit_cell%param_ESD(2) **2. &
+                     + M(3,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                2*M(3,1) * M(3,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
+                2*M(3,1) * M(3,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(3,2) * M(3,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
 
   unit_cell%new_param_ESD(1:3) = sqrt(ABS(unit_cell%new_param_ESD(1:3)))
@@ -90,21 +96,24 @@ subroutine  transf_cell_parameters
 
 ! angles
 
-  a2b2  =    M(1,1) * M(2,1) * unit_cell%param(1) ** 2. +  M(1,2) * M(2,2) * unit_cell%param(2) ** 2.  + M(1,3) * M(2,3) * unit_cell%param(3) ** 2.  +  &
-             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(1,1) * M(2,2) + M(1,2) * M(2,1))  +                                    &
-             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(1,1) * M(2,3) + M(1,3) * M(2,1))  +                                    &
+  a2b2  =    M(1,1) * M(2,1) * unit_cell%param(1) ** 2. +  M(1,2) * M(2,2) * unit_cell%param(2) ** 2.  +   &
+             M(1,3) * M(2,3) * unit_cell%param(3) ** 2.  +                                                 &
+             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(1,1) * M(2,2) + M(1,2) * M(2,1))  +  &
+             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(1,1) * M(2,3) + M(1,3) * M(2,1))  +  &
              unit_cell%param(2) * unit_cell%param(3) * cosAlfa1  * (M(1,2) * M(2,3) + M(1,3) * M(2,2))
 
 
-  a2c2  =    M(1,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(1,2) * M(3,2) * unit_cell%param(2) ** 2.  + M(1,3) * M(3,3) * unit_cell%param(3) ** 2.  +  &
-             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(1,1) * M(3,2) + M(1,2) * M(3,1))  +                                    &
-             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(1,1) * M(3,3) + M(1,3) * M(3,1))  +                                    &
+  a2c2  =    M(1,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(1,2) * M(3,2) * unit_cell%param(2) ** 2.  +   &
+                M(1,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                              &
+             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(1,1) * M(3,2) + M(1,2) * M(3,1))  +  &
+             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(1,1) * M(3,3) + M(1,3) * M(3,1))  +  &
              unit_cell%param(2) * unit_cell%param(3) * cosAlfa1  * (M(1,2) * M(3,3) + M(1,3) * M(3,2))
 
 
-  b2c2  =    M(2,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(2,2) * M(3,2) * unit_cell%param(2) ** 2.  + M(2,3) * M(3,3) * unit_cell%param(3) ** 2.  +  &
-             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(2,1) * M(3,2) + M(2,2) * M(3,1))  +                                    &
-             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(2,1) * M(3,3) + M(2,3) * M(3,1))  +                                    &
+  b2c2  =    M(2,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(2,2) * M(3,2) * unit_cell%param(2) ** 2.  +   &
+                M(2,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                              &
+             unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(2,1) * M(3,2) + M(2,2) * M(3,1))  +  &
+             unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(2,1) * M(3,3) + M(2,3) * M(3,1))  +  &
              unit_cell%param(2) * unit_cell%param(3) * cosAlfa1  * (M(2,2) * M(3,3) + M(2,3) * M(3,2))
 
   cosGamma2 = a2b2 / (unit_cell%new_param(1)*unit_cell%new_param(2))
@@ -121,21 +130,24 @@ subroutine  transf_cell_parameters
  ! end do
 
 ! esd des angles
-!  a2b2  =    M(1,1) * M(2,1) * ESD_cell(1) ** 2. +  M(1,2) * M(2,2) * ESD_cell(2) ** 2.  + M(1,3) * M(2,3) * ESD_cell(3) ** 2.  +  &
-!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(1,1) * M(2,2) + M(1,2) * M(2,1))  +                                        &
-!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(1,1) * M(2,3) + M(1,3) * M(2,1))  +                                        &
+!  a2b2  =    M(1,1) * M(2,1) * ESD_cell(1) ** 2. +  M(1,2) * M(2,2) * ESD_cell(2) ** 2.  +   &
+!             M(1,3) * M(2,3) * ESD_cell(3) ** 2.  +                                          &
+!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(1,1) * M(2,2) + M(1,2) * M(2,1))  +  &
+!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(1,1) * M(2,3) + M(1,3) * M(2,1))  +  &
 !             ESD_cell(2) * ESD_cell(3) * cosAlfa1  * (M(1,3) * M(2,3) + M(1,3) * M(2,2))
 !
 !
-!  a2c2  =    M(1,1) * M(3,1) * ESD_cell(1) ** 2. +  M(1,2) * M(3,2) * ESD_cell(2) ** 2.  + M(1,3) * M(3,3) * ESD_cell(3) ** 2.  +  &
-!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(1,1) * M(3,2) + M(1,2) * M(3,1))  +                                        &
-!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(1,1) * M(3,3) + M(1,3) * M(3,1))  +                                        &
+!  a2c2  =    M(1,1) * M(3,1) * ESD_cell(1) ** 2. +  M(1,2) * M(3,2) * ESD_cell(2) ** 2.  +   &
+!             M(1,3) * M(3,3) * ESD_cell(3) ** 2.  +                                          &
+!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(1,1) * M(3,2) + M(1,2) * M(3,1))  +  &
+!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(1,1) * M(3,3) + M(1,3) * M(3,1))  +  &
 !             ESD_cell(2) * ESD_cell(3) * cosAlfa1  * (M(1,3) * M(3,2) + M(1,3) * M(3,2))
 !
 !
-!  b2c2  =    M(2,1) * M(3,1) * ESD_cell(1) ** 2. +  M(2,2) * M(3,2) * ESD_cell(2) ** 2.  + M(2,3) * M(3,3) * ESD_cell(3) ** 2.  +  &
-!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(2,1) * M(3,2) + M(2,2) * M(3,1))  +                                        &
-!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(2,1) * M(3,3) + M(2,3) * M(3,1))  +                                        &
+!  b2c2  =    M(2,1) * M(3,1) * ESD_cell(1) ** 2. +  M(2,2) * M(3,2) * ESD_cell(2) ** 2.  +   &
+!             M(2,3) * M(3,3) * ESD_cell(3) ** 2.  +                                          &
+!             ESD_cell(1) * ESD_cell(2) * cosGamma1 * (M(2,1) * M(3,2) + M(2,2) * M(3,1))  +  &
+!             ESD_cell(1) * ESD_cell(3) * cosbeta1  * (M(2,1) * M(3,3) + M(2,3) * M(3,1))  +  &
 !             ESD_cell(2) * ESD_cell(3) * cosAlfa1  * (M(2,3) * M(3,2) + M(2,3) * M(3,2))
 !
 !  cosGamma2 = a2b2 / (ESD_new_cell(1)*ESD_new_cell(2))
@@ -194,8 +206,8 @@ subroutine transf_HKL()
 
   new_H = MV_product(real(H(:,i)),  M)
 
-  WRITE(message_text,'(a,3F6.2,,10x,a,3F6.2)') '  h1 k1 l1 : ', H(1,i),H(2,i),H(3,i) , &
-                                              '  h2 k2 l2 : ', new_H(1), new_H(2), new_H(3)
+  WRITE(message_text,'(a,3F6.2,10x,a,3F6.2)') '  h1 k1 l1 : ', H(1,i), H(2,i), H(3,i) , &
+                                               '  h2 k2 l2 : ', new_H(1), new_H(2), new_H(3)
   call write_info(TRIM(message_text))
 
  END do
@@ -451,7 +463,8 @@ subroutine  transf_HKL_file()
 
 
    do
-    READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=i_error) h_(1), h_(2), h_(3), F2_, sig_F2_,code_,cos1,  cos2, cos3, cos4, cos5, cos6
+    READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=i_error) h_(1), h_(2), h_(3), F2_, sig_F2_, code_,  &
+	                                                      cos1,  cos2, cos3, cos4, cos5, cos6
     if (i_error < 0) exit ! fin du fichier atteinte
     
     new_H = MV_product(REAL(h_), Mat)
@@ -912,9 +925,10 @@ subroutine find_new_group()
 
 
   ! deduction du nouveau symbol du groupe
- WRITE(SPG_num_string, '(a)')SPG%NumSpg
- call set_spacegroup(TRIM(SPG_num_string), SPG, car_symop, nb_symm_op, 'gen')
-
+ WRITE(SPG_num_string, '(i3)')SPG%NumSpg
+ call set_spacegroup(TRIM(SPG_num_string), SPG, car_symop, nb_symm_op, 'GEN') 
+ call set_spacegroup(TRIM(SPG_num_string), SPG)
+   
   call get_hallsymb_from_gener(SPG)
 
   WRITE(message_text, '(2a)') '  > New Space group: ', TRIM(SPG%SPG_Symb)

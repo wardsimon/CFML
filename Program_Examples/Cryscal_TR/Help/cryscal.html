@@ -1,6 +1,6 @@
 <!-- CRYSCAL user's guide (HTML file) created by CRYSCAL.exe
      Web site : http://www.cdifx.univ-rennes/cryscal.htm
-     Version : Jan. 2011
+     Version : Feb. 2011
      Author  : T. Roisnel (CDIFX - Rennes)
 !-->
 <HTML>
@@ -12,8 +12,8 @@
   .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; background-color:#f5f5f5; }
   .title_3    { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
   .title_4    { font-family:'Trebuchet MS',Arial; font-size:18px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
-  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;  margin-right:50px; text-align:justify; line-height:18.0pt;  }
-  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;  margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
+  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt;  }
+  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
   .retrait_3  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:100px; margin-right:50px; text-align:justify; line-height:18.0pt;  }
   .item       { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
   .item_2     { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
@@ -47,7 +47,7 @@
   *                                                           *
   *                                                           *
   *                (T.R. / CDIFX - UMR6226 Rennes)            *
-  *                           Jan. 2011                       *
+  *                           Feb. 2011                       *
   *                                                           *
   *            with courtesy of JRC and JGP for CFML          *
   *                                                           *
@@ -68,6 +68,7 @@
 <li class="item_2"><A HREF="#cla_section">&nbsp;&nbsp;List of CRYSCAL command line arguments</A>
 <li class='item_2'><A HREF='#cryscal_news'>&nbsp;&nbsp;What's new ?</A>
 <li class="item_2"><A HREF="#cryscal_ini">&nbsp;&nbsp;CRYSCAL.ini setting file</A>
+<li class="item_2"><A HREF="#cryscal_cfl">&nbsp;&nbsp;Examples of .CFL input files</A>
 <li class="item_2"><A HREF="#cryscal_links">&nbsp;&nbsp;CRYSCAL download and links</a>
 </ul>
 
@@ -90,7 +91,8 @@
      . calculation of d_hkl, Q_hkl, 2theta_hkl (including a propagation wave
        vector)
      . hkl generation for a given space group
-     . structure factor calculation
+     . structure factor calculation (Xrays, neutrons, electrons)
+     . simulation of pouwder diffraction pattern (X, neutrons)
      . geometric calculations: interatomic distances, angles, connectivity,
        centroid coordinates, angles between 2 vectors in direct and reciprocal
        space, ...
@@ -367,7 +369,8 @@
     . type:                INPUT keyword
     . arguments:           character string
     . meaning:             type of the incident beam:
-                             - BEAM NEUT  for neutron
+                             - BEAM NEUT  for neutrons
+                             - BEAM ELECTRONS  for neutrons
                              - X_Ag for X Rays (Silver K_alpha)
                              - X_Mo for X Rays (Molybdenum K_alpha)
                              - X_Cu for X Rays (Copper K_alpha)
@@ -826,16 +829,28 @@
     . arguments:           character strings
     . meaning:             generate a hkl reflections list in a particular
                            scattering range:
-                            . STL_min=xx    STL_max=xx      for SinTheta/lambda
+                            . STL_min=xx  STL_max=xx for SinTheta/lambda
                               range, in A-1
-                            . d_min=xx      d_max=xx        for d range, in A
-                            . Q_min=xx      Q_max=xx        for Q=4pi*SinTheta/l
+                            . d_min=xx    d_max=xx   for d range, in A
+                            . Q_min=xx    Q_max=xx   for Q=4pi*SinTheta/lambda
                               range, in A
                             . Theta_min=xx  Theta_max=xx    for Theta range,
                               in deg.(dependent keyword = WAVE)
                             . 2Theta_min=xx 2Theta_max=xx   for 2Theta range,
                               in deg. (dependent keyword = WAVE)
-    . optional argument    "OUT": a list of generated reflections will be ouput
+                           If atoms are input, a structure factor calculation is
+                           done.
+                           In the case where scattering variable is 2theta, a
+                            list of I/Imax is output.
+    . optional arguments    "OUT": a list of generated reflections will be ouput
+                            "PAT": In the case where scattering variable is
+                            2theta, atoms are input and space group is know,
+                            a diffraction pattern is then created. Two different
+                            files are ouput :
+                                - cryscal_pat.xy (2 columns)
+                                - cryscal_pat.prf (FullProf format)
+                            If WinPLOTR is installed on the workstation, it is
+                            automatically launched with the PRF file
     . output:              - calculation of interplanar distance d_hkl, in A
                              (dependent keyword = CELL)
                            - calculation of Bragg angle 2theta_hkl, in deg.
@@ -843,8 +858,9 @@
                            - structure factor calculation
                              (dependent keywors = ATOM)
     . mandatory keywords:  CELL, SPGR
-    . example:             GEN_HKL theta_min=0. THETA_max=25. OUT
+    . examples             GEN_HKL theta_min=0. THETA_max=25. OUT
                            GEN_HKL d_min=0.5.   d_max=5.
+                           GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT
     . identical keywords:  GEN_HKL, GENERATE_HKL, GENERATE_HKL_LIST
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1852,7 +1868,7 @@
     . type:                OUTPUT keyword
     . arguments :          no argument
     . outputs:             . list the transformation matrices for pseudo-hexagon
-                             in a monoclinic unit cell
+                              setting in a monoclinic unit cell
                            . if CELL exists: apply the transformation matrices
                              to give new cell parameters
     . mandatory keyword:   no
@@ -2093,9 +2109,9 @@
        . create job.INS file for SHELXL with correct esd's and different
          useful SHELXL keywords (ACTA, BOND$H ...)
 </pre>
-<p class='title_3'>   > LOG :</p><pre style='font-size:14'>
+<p class='title_3'>   > DEBUG:</p><pre style='font-size:14'>
        Combined with all previous arguments, this optional argument
-       will create a 'cryscal.log' file containing informations
+       will create a 'cryscal_debug.txt' file containing informations
        about the values of some variables during the CRYSCAL run.
        This argument can be useful to detect the origin of the bug
        in a CRYSCAL crash.
@@ -2103,7 +2119,7 @@
 <p class='title_3'>   > NO_OUT :</p><pre style='font-size:14'>
        Combined with all previous arguments, this optional argument
        avoids to write CRYSCAL results lines in the screen and
-       in the 'cryscal.out' file.
+       in the 'cryscal.log' file.
 </pre>
 <A HREF="#cryscal_main">[return]</a>
 </pre>
@@ -2116,6 +2132,32 @@
 
   T. Roisnel / CDIFX Rennes
 
+
+   . Feb. 11 :
+     # Stucture factors calculation can be performed for electrons
+       diffraction in the GEN_HKL routine. This has to be specified
+       by the BEAM keyword and its ELECTRONS argument
+     # Some examples of CFL input files can be downloaded from the
+       CRYSCAL web site (www.cdifx.univ-rennes1.fr/cryscal)
+     # Some changes in output files :
+        . cryscal.log is renamed cryscal_debug.txt
+        . cryscal.out is renamed cryscal.log
+       LOG argument has been replaced by DEBUG argument
+     # New PAT argument for GEN_HKL keyword allows to generate a
+       diffraction pattern. PRF file is automatically plotted
+       with the WinPLOTR program if installed.
+     # I/Imax is now calculated in the GEN_HKL routine when working
+       in the 2theta space and neutron or Cu_K_alpha1 X-ray radiation.
+       Intensity is calculated as follows:
+                        I=mult * Lp * F^2
+       where : mult is the multicicity of the reflexion
+               Lp the Lorentz-polarization factor, calculated by:
+               Lp=(1-K+K*CTHM*cos2(2theta)/(2sin2(theta)cos(theta)
+                CTHM=cos2(2theta_monok) [CTHM=0.79]
+                K=0.  for neutrons
+                K=0.5 for unpolarized X-ray radiation
+     # Cosmetic changes in the Fortran codes to allow the compilation
+       with the free G95 Fortran compiler.
 
    . Jan. 11 :
      # CREATE_FST keyword allows to create a .FST file for
@@ -2374,7 +2416,7 @@ environment variable.</p>
     <font color="darkred">[AUTHOR]</font>
     name        = ROISNEL
     first_name  = Thierry
-    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1, Sciences Chimiques de Rennes, 35042 RENNES Cedex France
+    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1,Sciences Chimiques de Rennes, 35042 RENNES Cedex France
     email       = thierry.roisnel@univ-rennes1.fr
     web         = www.cdifx.univ-rennes1.fr
 
@@ -2402,11 +2444,21 @@ environment variable.</p>
     structure_refinement_reference  = Sheldrick G.M., Acta Cryst. A64 (2008), 112-122
     structure_refinement_cif_ref    = SHELXL-97 (Sheldrick, 2008)
     absorption_correction_name      = SADABS
-    absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXC Inc., Madison, Wisconsin, USA
-    absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXC Inc., Madison, Wisconsin, USA
+    absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
+    absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
 
 <A HREF="#cryscal_main">[return]</a>
 </pre>
+<br>
+<A NAME="cryscal_cfl"></A><p class="title_1"> Examples of .CFL input files :<br></p>
+<ul>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_pnma.cfl">  Pnma space group information</a><p>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_pbnm_pnma.cfl">  Transformation from Pbnm to Pnma space group</a><p>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_si_x.cfl">  Simulation of a X-ray diffraction pattern for Si</a><p>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_si_n.cfl">  Simulation of a neutron diffraction pattern for Si</a><p>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_y2o3.cfl">  Atom connectivity in Y2O3</a>
+<p>
+</ul>
 <br>
 <A NAME="cryscal_links"></A><p class="title_1"> CRYSCAL links :<br></p>
 <ul>
@@ -2419,6 +2471,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>CDIFX - Jan. 2011</i></P>
+<p class='retrait_2'>last updated: <i>CDIFX - Feb. 2011</i></P>
 </BODY>
 </HTML>

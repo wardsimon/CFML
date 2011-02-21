@@ -28,7 +28,7 @@ subroutine read_nreport_html()
  else
   OPEN(UNIT=51, FILE='nreport.html')
   do
-   READ(UNIT=51, '(a)', IOSTAT=i_error) read_line
+   READ(UNIT=51, fmt='(a)', IOSTAT=i_error) read_line
    IF(i_error < 0) EXIT   ! fin du fichier
    call HTML_to_text(read_line)
    call write_info('  '//TRIM(read_line))

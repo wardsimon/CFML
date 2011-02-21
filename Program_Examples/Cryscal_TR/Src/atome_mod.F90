@@ -33,17 +33,28 @@ module atomic_data
 
  ! nom des atomes           1234567890123     1234567890123    1234567890123     1234567890123    1234567890123     1234567890123    1234567890123    1234567890123    1234567890123    1234567890123
  atom(  1:201)%name    = ""
- atom(  1: 10)%name    = (/"Hydrogene    ",  "Helium       ", "Lithium      ",  "Beryllium    ", "Bore         ",  "Carbone      ", "Azote        ", "Oxygene      ", "Fluor        ", "Neon         "/)
- atom( 11: 20)%name    = (/"Sodium       ",  "Magnesium    ", "Aluminium    ",  "Silicium     ", "Phosphore    ",  "Soufre       ", "Chlore       ", "Argon        ", "Potassium    ", "Calcium      "/)
- atom( 21: 30)%name    = (/"Scandium     ",  "Titane       ", "Vanadium     ",  "Chrome       ", "Manganese    ",  "Fer          ", "Cobalt       ", "Nickel       ", "Cuivre       ", "Zinc         "/)
- atom( 31: 40)%name    = (/"Gallium      ",  "Germanium    ", "Arsenic      ",  "Selenium     ", "Brome        ",  "Krypton      ", "Rubidium     ", "Strontium    ", "Yttrium      ", "Zirconium    "/)
- atom( 41: 50)%name    = (/"Niobium      ",  "Molybdene    ", "Technetium   ",  "Ruthenium    ", "Rhodium      ",  "Palladium    ", "Argent       ", "Cadmium      ", "Indium       ", "Etain        "/)
- atom( 51: 60)%name    = (/"Antimoine    ",  "Tellure      ", "Iode         ",  "Xenon        ", "Cesium       ",  "Barium       ", "Lanthane     ", "Cerium       ", "Praseodyme   ", "Neodyme      "/)
- atom( 61: 70)%name    = (/"Promethium   ",  "Samarium     ", "Europium     ",  "Gadolinium   ", "Terbium      ",  "Dysprosium   ", "Holmium      ", "Erbium       ", "Thullium     ", "Ytterbium    "/)
- atom( 71: 80)%name    = (/"Lutetium     ",  "Hafnium      ", "Tantale      ",  "Tungtene     ", "Rhenium      ",  "Osmium       ", "Iridium      ", "Platine      ", "Or           ", "Mercure      "/)
- atom( 81: 90)%name    = (/"Thallium     ",  "Plomb        ", "Bismuth      ",  "Polonium     ", "Astate       ",  "Radon        ", "Francium     ", "Radium       ", "Actinum      ", "Thorium      "/)
- atom( 91:100)%name    = (/"Protactinium ",  "Uranium      ", "Neptunium    ",  "Plutonium    ", "Americium    ",  "Curium       ", "Berkelium    ", "Californium  ", "Einsteinium  ", "Fermium      "/)
- atom(101:110)%name    = (/"Mendelevium  " , "Nobelium     ", "Lawrencium   ",  "Rutherfordium", "Dubnium      ",  "Seaborgium   ", "Bohrium      ", "Hassium      ", "Meitneriume  ", "Ununnilium   "/)
+ atom(  1: 10)%name    = (/"Hydrogene    ",  "Helium       ", "Lithium      ",  "Beryllium    ", "Bore         ", &
+                           "Carbone      ",  "Azote        ", "Oxygene      ",  "Fluor        ", "Neon         "/)
+ atom( 11: 20)%name    = (/"Sodium       ",  "Magnesium    ", "Aluminium    ",  "Silicium     ", "Phosphore    ", &
+                           "Soufre       ",  "Chlore       ", "Argon        ",  "Potassium    ", "Calcium      "/)
+ atom( 21: 30)%name    = (/"Scandium     ",  "Titane       ", "Vanadium     ",  "Chrome       ", "Manganese    ", &
+                           "Fer          ",  "Cobalt       ", "Nickel       ",  "Cuivre       ", "Zinc         "/)
+ atom( 31: 40)%name    = (/"Gallium      ",  "Germanium    ", "Arsenic      ",  "Selenium     ", "Brome        ", &
+                           "Krypton      ",  "Rubidium     ", "Strontium    ",  "Yttrium      ", "Zirconium    "/)
+ atom( 41: 50)%name    = (/"Niobium      ",  "Molybdene    ", "Technetium   ",  "Ruthenium    ", "Rhodium      ", &
+                           "Palladium    ",  "Argent       ", "Cadmium      ",  "Indium       ", "Etain        "/)
+ atom( 51: 60)%name    = (/"Antimoine    ",  "Tellure      ", "Iode         ",  "Xenon        ", "Cesium       ", &
+                           "Barium       ",  "Lanthane     ", "Cerium       ",  "Praseodyme   ", "Neodyme      "/)
+ atom( 61: 70)%name    = (/"Promethium   ",  "Samarium     ", "Europium     ",  "Gadolinium   ", "Terbium      ", &
+                           "Dysprosium   ",  "Holmium      ", "Erbium       ",  "Thullium     ", "Ytterbium    "/)
+ atom( 71: 80)%name    = (/"Lutetium     ",  "Hafnium      ", "Tantale      ",  "Tungtene     ", "Rhenium      ", &
+                           "Osmium       ",  "Iridium      ", "Platine      ",  "Or           ", "Mercure      "/)
+ atom( 81: 90)%name    = (/"Thallium     ",  "Plomb        ", "Bismuth      ",  "Polonium     ", "Astate       ", &
+                           "Radon        ",  "Francium     ", "Radium       ",  "Actinum      ", "Thorium      "/)
+ atom( 91:100)%name    = (/"Protactinium ",  "Uranium      ", "Neptunium    ",  "Plutonium    ", "Americium    ", &
+                           "Curium       ",  "Berkelium    ", "Californium  ",  "Einsteinium  ", "Fermium      "/)
+ atom(101:110)%name    = (/"Mendelevium  ",  "Nobelium     ", "Lawrencium   ",  "Rutherfordium", "Dubnium      ", &
+                           "Seaborgium   ",  "Bohrium      ", "Hassium      ",  "Meitneriume  ", "Ununnilium   "/)
  atom(201)%NAME        = "Deuterium"
 
  end subroutine definition_atomic_label
@@ -73,28 +84,50 @@ module atomic_data
  ! configuration electronique
  atom(1:201)%config_electr   = ""
 !                               1234567890123456789012    1234567890123456789012     1234567890123456789012     1234567890123456789012    1234567890123456789012
- atom(1:10)%config_electr    = (/"1s1                   ", "1s2                   ",  "1s2 2s1               ",  "1s2 2s2               ", "1s2 2s2 2p1           ",  &
-                                 "1s2 2s2 2p2           ", "1s2 2s2 2p3           ",  "1s2 2s2 2p4           ",  "1s2 2s2 2p5           ", "1s2 2s2 2p6           "/)
- atom(11:20)%config_electr   = (/"[Ne] 3s1              ", "[Ne] 3s2              ",  "[Ne] 3s2 3p1          ",  "[Ne] 3s2 3p2          ", "[Ne] 3s2 3p3          ",  &
-                                 "[Ne] 3s2 3p4          ", "[Ne] 3s2 3p5          ",  "[Ne] 3s2 3p6          ",  "[Ar] 4s1              ", "[Ar] 4s2              "/)
- atom(21:30)%config_electr   = (/"[Ar] 3d1 4s2          ", "[Ar] 3d2 4s2          ",  "[Ar] 3d3 4s2          ",  "[Ar] 3d5 4s1          ", "[Ar] 3d5 4s2          ",  &
-                                 "[Ar] 3d6 4s2          ", "[Ar] 3d7 4s2          ",  "[Ar] 3d8 4s2          ",  "[Ar] 3d10 4s1         ", "[Ar] 3d10 4s2         "/)
- atom(31:40)%config_electr   = (/"[Ar] 3d10 4s2 4p1     ", "[Ar] 3d10 4s2 4p2     ",  "[Ar] 3d10 4s2 4p3     ",  "[Ar] 3d10 4s2 4p4     ", "[Ar] 3d10 4s2 4p5     ",  &
-                                 "[Ar] 3d10 4s2 4p6     ", "[Kr] 5s1              ",  "[Kr] 5s2              " , "[Kr] 4d1 5s2          " ,"[Kr] 4d2 5s2          "/)
- atom(41:50)%config_electr   = (/"[Kr] 4d4 5s1          ", "[Kr] 4d5 5s1          ",  "[Kr] 4d5 5s2          ",  "[Kr] 4d7 5s1          ", "[Kr] 4d8 5s1          ",  &
-                                 "[Kr] 4d10             ", "[Kr] 4d10 5s1         ",  "[Kr] 4d10 5s2         ",  "[Kr] 4d10 5s2 5p1     ", "[Kr] 4d10 5s2 5p2     "/)
- atom(51:60)%config_electr   = (/"[Kr] 4d10 5s2 5p3     ", "[Kr] 4d10 5s2 5p4     ",  "[Kr] 4d10 5s2 5p5     ",  "[Kr] 4d10 5s2 5p6     ", "[Xe] 6s1              ",  &
-                                 "[Xe] 6s2              ", "[Xe] 5d1 6s2          ",  "[Xe] 4f1 5d1 6s2      ",  "[Xe] 4f3 5d0 6s2      ", "[Xe] 4f4 5d0 6s2      "/)
- atom(61:70)%config_electr   = (/"[Xe] 4f5 5d0 6s2      ", "[Xe] 4f6 5d0 6s2      ",  "[Xe] 4f7 5d0 6s2      ",  "[Xe] 4f7 5d1 6s2      ", "[Xe] 4f9 5d0 6s2      ",  &
-                                 "[Xe] 4f10 5d0 6s2     ", "[Xe] 4f11 5d0 6s2     ",  "[Xe] 4f12 5d0 6s2     ",  "[Xe] 4f13 5d0 6s2     ", "[Xe] 4f14 5d0 6s2     "/)
- atom(71:80)%config_electr   = (/"[Xe] 4f14 5d1 6s2     ", "[Xe] 4f14 5d2 6s2     ",  "[Xe] 4f14 5d3 6s2     ",  "[Xe] 4f14 5d4 6s2     ", "[Xe] 4f14 5d5 6s2     ",  &
-                                 "[Xe] 4f14 5d6 6s2     ", "[Xe] 4f14 5d7 6s2     ",  "[Xe] 4f14 5d9 6s1     ",  "[Xe] 4f14 5d10 6s1    ", "[Xe] 4f14 5d10 6s2    "/)
- atom(81:90)%config_electr   = (/"[Xe] 4f14 5d10 6s2 6p1", "[Xe] 4f14 5d10 6s2 6p2",  "[Xe] 4f14 5d10 6s2 6p3",  "[Xe] 4f14 5d10 6s2 6p4", "[Xe] 4f14 5d10 6s2 6p5",  &
-                                 "[Xe] 4f14 5d10 6s2 6p6", "[Rn] 7s1              ",  "[Rn] 7s2              ",  "[Rn] 6d2 7s1          ", "[Rn] 5f0 6d2 7s2      "/)
- atom(91:100)%config_electr  = (/"[Rn] 5f2 6d1 7s2      ", "[Rn] 5f3 6d1 7s2      ",  "[Rn] 5f4 6d1 7s2      ",  "[Rn] 5f6 6d0 7s2      ", "[Rn] 5f7 6d0 7s2      ",  &
-                                 "[Rn] 5f7 6d1 7s2      ", "[Rn] 5f8 6d1 7s2      ",  "[Rn] 5f10 6d0 7s2     ",  "[Rn] 5f11 6d0 7s2     ", "[Rn] 5f12 6d0 7s2     "/)
- atom(101:110)%config_electr = (/"[Rn] 5f13 + 6d0 7s2   ", "[Rn] 5f14 + 6d0 7s2   ",  "[Rn] 5f14 + 6d1 7s2   ",  "[Rn] 5f14 + 6d2 7s2   ", "[Rn] 5f14 + 6d3 7s2 ? ",  &
-                                 "[Rn] 5f14 + 6d4 7s2 ? ", "[Rn] 5f14 + 6d5 7s2 ? ",  "[Rn] 5f14 + 6d6 7s2 ? " , "[Rn] 5f14 + 6d7 7s2 ? ", "[Rn] 5f14 + 6d8 7s2 ? "/)
+ atom(1:10)%config_electr    = (/"1s1                   ", "1s2                   ",  "1s2 2s1               ", &
+                                 "1s2 2s2               ", "1s2 2s2 2p1           ",  "1s2 2s2 2p2           ", &
+                                 "1s2 2s2 2p3           ", "1s2 2s2 2p4           ",  "1s2 2s2 2p5           ", &
+                                 "1s2 2s2 2p6           "/)
+ atom(11:20)%config_electr   = (/"[Ne] 3s1              ", "[Ne] 3s2              ",  "[Ne] 3s2 3p1          ", &
+                                 "[Ne] 3s2 3p2          ", "[Ne] 3s2 3p3          ",  "[Ne] 3s2 3p4          ", &
+                                 "[Ne] 3s2 3p5          ", "[Ne] 3s2 3p6          ",  "[Ar] 4s1              ", &
+                                 "[Ar] 4s2              "/)
+ atom(21:30)%config_electr   = (/"[Ar] 3d1 4s2          ", "[Ar] 3d2 4s2          ",  "[Ar] 3d3 4s2          ", &
+                                 "[Ar] 3d5 4s1          ", "[Ar] 3d5 4s2          ",  "[Ar] 3d6 4s2          ", &
+                                 "[Ar] 3d7 4s2          ", "[Ar] 3d8 4s2          ",  "[Ar] 3d10 4s1         ", &
+                                 "[Ar] 3d10 4s2         "/)
+ atom(31:40)%config_electr   = (/"[Ar] 3d10 4s2 4p1     ", "[Ar] 3d10 4s2 4p2     ",  "[Ar] 3d10 4s2 4p3     ", &
+                                 "[Ar] 3d10 4s2 4p4     ", "[Ar] 3d10 4s2 4p5     ",  "[Ar] 3d10 4s2 4p6     ", &
+                                 "[Kr] 5s1              ", "[Kr] 5s2              " , "[Kr] 4d1 5s2          ", &
+                                 "[Kr] 4d2 5s2          "/)
+ atom(41:50)%config_electr   = (/"[Kr] 4d4 5s1          ", "[Kr] 4d5 5s1          ",  "[Kr] 4d5 5s2          ", &
+                                 "[Kr] 4d7 5s1          ", "[Kr] 4d8 5s1          ",  "[Kr] 4d10             ", &
+                                 "[Kr] 4d10 5s1         ", "[Kr] 4d10 5s2         ",  "[Kr] 4d10 5s2 5p1     ", &
+                                 "[Kr] 4d10 5s2 5p2     "/)
+ atom(51:60)%config_electr   = (/"[Kr] 4d10 5s2 5p3     ", "[Kr] 4d10 5s2 5p4     ",  "[Kr] 4d10 5s2 5p5     ", &
+                                 "[Kr] 4d10 5s2 5p6     ", "[Xe] 6s1              ",  "[Xe] 6s2              ", &
+                                 "[Xe] 5d1 6s2          ", "[Xe] 4f1 5d1 6s2      ",  "[Xe] 4f3 5d0 6s2      ", &
+                                 "[Xe] 4f4 5d0 6s2      "/)
+ atom(61:70)%config_electr   = (/"[Xe] 4f5 5d0 6s2      ", "[Xe] 4f6 5d0 6s2      ",  "[Xe] 4f7 5d0 6s2      ", &
+                                 "[Xe] 4f7 5d1 6s2      ", "[Xe] 4f9 5d0 6s2      ",  "[Xe] 4f10 5d0 6s2     ", &
+                                 "[Xe] 4f11 5d0 6s2     ", "[Xe] 4f12 5d0 6s2     ",  "[Xe] 4f13 5d0 6s2     ", &
+                                 "[Xe] 4f14 5d0 6s2     "/)
+ atom(71:80)%config_electr   = (/"[Xe] 4f14 5d1 6s2     ", "[Xe] 4f14 5d2 6s2     ",  "[Xe] 4f14 5d3 6s2     ", &
+                                 "[Xe] 4f14 5d4 6s2     ", "[Xe] 4f14 5d5 6s2     ",  "[Xe] 4f14 5d6 6s2     ", &
+                                 "[Xe] 4f14 5d7 6s2     ", "[Xe] 4f14 5d9 6s1     ",  "[Xe] 4f14 5d10 6s1    ", &
+                                 "[Xe] 4f14 5d10 6s2    "/)
+ atom(81:90)%config_electr   = (/"[Xe] 4f14 5d10 6s2 6p1", "[Xe] 4f14 5d10 6s2 6p2",  "[Xe] 4f14 5d10 6s2 6p3", &
+                                 "[Xe] 4f14 5d10 6s2 6p4", "[Xe] 4f14 5d10 6s2 6p5",  "[Xe] 4f14 5d10 6s2 6p6", &
+                                 "[Rn] 7s1              ", "[Rn] 7s2              ",  "[Rn] 6d2 7s1          " ,&
+                                 "[Rn] 5f0 6d2 7s2      "/)
+ atom(91:100)%config_electr  = (/"[Rn] 5f2 6d1 7s2      ", "[Rn] 5f3 6d1 7s2      ",  "[Rn] 5f4 6d1 7s2      ", &
+                                 "[Rn] 5f6 6d0 7s2      ", "[Rn] 5f7 6d0 7s2      ",  "[Rn] 5f7 6d1 7s2      ", &
+                                 "[Rn] 5f8 6d1 7s2      ", "[Rn] 5f10 6d0 7s2     ",  "[Rn] 5f11 6d0 7s2     ", &
+                                 "[Rn] 5f12 6d0 7s2     "/)
+ atom(101:110)%config_electr = (/"[Rn] 5f13 + 6d0 7s2   ", "[Rn] 5f14 + 6d0 7s2   ",  "[Rn] 5f14 + 6d1 7s2   ", &
+                                 "[Rn] 5f14 + 6d2 7s2   ", "[Rn] 5f14 + 6d3 7s2 ? ",  "[Rn] 5f14 + 6d4 7s2 ? ", &
+                                 "[Rn] 5f14 + 6d5 7s2 ? ", "[Rn] 5f14 + 6d6 7s2 ? " , "[Rn] 5f14 + 6d7 7s2 ? ", &
+                                  "[Rn] 5f14 + 6d8 7s2 ? "/)
  atom(201)%config_electr     = "1s1"
 
 

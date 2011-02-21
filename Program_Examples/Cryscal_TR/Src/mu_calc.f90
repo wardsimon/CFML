@@ -48,20 +48,21 @@ subroutine absorption_calculation
    endif
    
    IF(.not. anti_cathode) then
-    write(message_text, '(8x, a,F10.5,a)') '!! Xrays cross section are not tabulated for the current wavelength (', wavelength,  ' A)'
+    write(message_text, '(8x, a,F10.5,a)') '!! Xrays cross section are not tabulated for the current wavelength (', &
+	                                       wavelength,  ' A)'
     call write_info(trim(message_text))
     write(message_text, '(8x,a)')          '   Molybdenum wavelength values will be used !!'
     call write_info(trim(message_text))
     call write_info('')
     !if(.not. anti_cathode) then
-     X_target(2)%log = .true.  ! Mo
+     X_target(2)%logic = .true.  ! Mo
      anti_cathode = .true.
     !endif
    endif
    
    do k=1, tabulated_target_nb
     if(anti_cathode) then
-     if(X_target(k)%log) then
+     if(X_target(k)%logic) then
       call Calcul_X_mu(X_target(k)%label)
       exit
      endif     
@@ -82,7 +83,7 @@ subroutine absorption_calculation
       
    do k=1, tabulated_target_nb
     if(anti_cathode) then
-     if(X_target(k)%log) then
+     if(X_target(k)%logic) then
       call Calcul_X_mu(X_target(k)%label)
       exit
      endif     
@@ -267,8 +268,9 @@ subroutine neutron_cross_section()
    atom(num_atom(i))%N_SE_absorption = atom(num_atom(i))%SEA*2200./neutron_velocity
 
    if(ON_SCREEN) then   
-    WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC_type(i), num_atom(i), sfac_number(i),  &
-                                                     atom(num_atom(i))%N_SED_coh,  atom(num_atom(i))%N_SED_inc, atom(num_atom(i))%SEA, &
+    WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC_type(i), num_atom(i), sfac_number(i),                 &
+                                                     atom(num_atom(i))%N_SED_coh,  atom(num_atom(i))%N_SED_inc, &
+													 atom(num_atom(i))%SEA,                                     &
                                                      atom(num_atom(i))%N_SE_absorption
     call write_info(TRIM(message_text))
    endif 
@@ -313,31 +315,31 @@ subroutine X_attenuation_calculation()
   INTEGER                    :: i, k
 
 
- IF(X_target(1)%log) THEN   ! Ag
+ IF(X_target(1)%logic) THEN   ! Ag
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(1)
    end do
- ELSEIF(X_target(2)%log) then          ! Mo
+ ELSEIF(X_target(2)%logic) then          ! Mo
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(2)
    end do
- elseif (X_target(3)%log) then         ! Cu
+ elseif (X_target(3)%logic) then         ! Cu
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(3)
    end do
- elseif (X_target(4)%log) then         ! Ni
+ elseif (X_target(4)%logic) then         ! Ni
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(4)
    end do
- elseif (X_target(5)%log) then         ! Co
+ elseif (X_target(5)%logic) then         ! Co
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(5)
    end do
- elseif (X_target(6)%log) then         ! Fe
+ elseif (X_target(6)%logic) then         ! Fe
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(6)
    end do
- elseif (X_target(7)%log) then         ! Cr
+ elseif (X_target(7)%logic) then         ! Cr
    do i=1, nb_atoms_type
     atom(num_atom(i))%X_attenuation =  atom(num_atom(i))%tics(7)
    end do

@@ -5,6 +5,7 @@ del *.obj
 del *.mod
 del *.map
 
+
       lf95 -c cryscal_mod       -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c IO_console        -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c text_mod          -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
@@ -12,7 +13,7 @@ del *.map
       lf95 -c matrix_mod        -o1 -info                                            -nchk  -nstchk
       lf95 -c macros            -o1 -info                                            -nchk  -nstchk
 
-      lf95 -c cryscal_ext       -o1 -info  -mod  .;c:\crysfml\Lahey\libC;c:\rw_lf95  -nchk  -nstchk
+      lf95 -c cryscal_ext       -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c obv_rev           -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c neutrons_mod      -o1 -info                                            -nchk  -nstchk
       lf95 -c xrays_mod         -o1 -info                                            -nchk  -nstchk
@@ -28,7 +29,7 @@ del *.map
       lf95 -c cryscal_symm      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c space_group       -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c transf            -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
-      lf95 -c cryscal_main      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
+      lf95 -c cryscal_main_lf95 -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal           -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal_init      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c inter_cons        -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
@@ -56,11 +57,11 @@ del *.map
       lf95 -c read_nreport      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal_news      -o1 -info  -mod  .;c:\crysfml\Lahey\libC             -nchk  -nstchk
 
- lf95 -out cryscal *.obj   -mod c:\crysfml\lahey\libC -lib c:\crysfml\lahey\libC\crysfml;c:\rw_lf95\realwin.lib
+ lf95 -out cryscal *.obj   -mod c:\crysfml\lahey\libC -lib c:\crysfml\lahey\libC\crysfml
  upx cryscal.exe
 
-del *.obj
-del *.mod
+rem del *.obj
+rem del *.mod
 del *.map
 
 cd ..\scripts

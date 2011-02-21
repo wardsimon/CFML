@@ -68,9 +68,15 @@ subroutine get_label_atom_coord(input_string, i,n, ok)
   endif
 
  ! apply symm. op
-   new_coord(1) = R(1,1, num_sym_op) * atom_coord(1, atom_index)  +  R(1,2, num_sym_op) * atom_coord(2, atom_index) +  R(1,3, num_sym_op) * atom_coord(3,atom_index)  + T(1, num_sym_op)
-   new_coord(2) = R(2,1, num_sym_op) * atom_coord(1, atom_index)  +  R(2,2, num_sym_op) * atom_coord(2, atom_index) +  R(2,3, num_sym_op) * atom_coord(3,atom_index)  + T(2, num_sym_op)
-   new_coord(3) = R(3,1, num_sym_op) * atom_coord(1, atom_index)  +  R(3,2, num_sym_op) * atom_coord(2, atom_index) +  R(3,3, num_sym_op) * atom_coord(3,atom_index)  + T(3, num_sym_op)
+   new_coord(1) = R(1,1, num_sym_op) * atom_coord(1, atom_index)  + &
+                  R(1,2, num_sym_op) * atom_coord(2, atom_index)  + &
+                  R(1,3, num_sym_op) * atom_coord(3, atom_index)  + T(1, num_sym_op)
+   new_coord(2) = R(2,1, num_sym_op) * atom_coord(1, atom_index)  + &
+                  R(2,2, num_sym_op) * atom_coord(2, atom_index)  + &
+                  R(2,3, num_sym_op) * atom_coord(3, atom_index)  + T(2, num_sym_op)
+   new_coord(3) = R(3,1, num_sym_op) * atom_coord(1, atom_index)  + &
+                  R(3,2, num_sym_op) * atom_coord(2, atom_index)  + &
+                  R(3,3, num_sym_op) * atom_coord(3, atom_index)  + T(3, num_sym_op)
  else
   atom_index = 0
   do j= 1, nb_atom
@@ -276,9 +282,12 @@ subroutine volume_calculation(input_string)
   unit_cell%rec_param(3) = unit_cell%param(1)*unit_cell%param(2)*sind(unit_cell%param(6))/unit_cell%volume
 
 
-  unit_cell%rec_param(4) = (cosd(unit_cell%param(5))*cosd(unit_cell%param(6)) - cosd(unit_cell%param(4))) / (sind(unit_cell%param(5))*sind(unit_cell%param(6)))
-  unit_cell%rec_param(5) = (cosd(unit_cell%param(4))*cosd(unit_cell%param(6)) - cosd(unit_cell%param(5))) / (sind(unit_cell%param(4))*sind(unit_cell%param(6)))
-  unit_cell%rec_param(6) = (cosd(unit_cell%param(5))*cosd(unit_cell%param(4)) - cosd(unit_cell%param(6))) / (sind(unit_cell%param(5))*sind(unit_cell%param(4)))
+  unit_cell%rec_param(4) = (cosd(unit_cell%param(5))*cosd(unit_cell%param(6)) - cosd(unit_cell%param(4))) &
+                         / (sind(unit_cell%param(5))*sind(unit_cell%param(6)))
+  unit_cell%rec_param(5) = (cosd(unit_cell%param(4))*cosd(unit_cell%param(6)) - cosd(unit_cell%param(5))) &
+                         / (sind(unit_cell%param(4))*sind(unit_cell%param(6)))
+  unit_cell%rec_param(6) = (cosd(unit_cell%param(5))*cosd(unit_cell%param(4)) - cosd(unit_cell%param(6))) &
+                         / (sind(unit_cell%param(5))*sind(unit_cell%param(4)))
 
   do i=4,6
    unit_cell%rec_param(i) = acosd(unit_cell%rec_param(i))
@@ -400,7 +409,8 @@ subroutine crystal_volume_calculation()
    write(message_text,'(10x,a,3(1x,F6.3))')'  > Crystal size (mm)   : ',  crystal%size(1:3)
    call write_info(TRIM(message_text))
    call write_info('')
-   write(message_text,'(a,F8.5)')      '      . Crystal volume (mm3)             : ',  crystal%size(1)* crystal%size(2)* crystal%size(3)
+   write(message_text,'(a,F8.5)')      '      . Crystal volume (mm3)             : ',  &
+                                       crystal%size(1)* crystal%size(2)* crystal%size(3)
    call write_info(TRIM(message_text))
    crystal%radius = ((3.*crystal%volume) / (4.*pi) )  ** (1./3.)
    write(message_text,'(a,F8.5)')      '      . Crystal equiv. radius <Req> (mm) : ', crystal%radius
@@ -427,7 +437,7 @@ subroutine calcul_dhkl
  USE CFML_Math_General,              ONLY : sind
  USE CFML_Reflections_Utilities,     ONLY : HKL_Absent
  USE CFML_crystallographic_symmetry, ONLY : Space_Group_Type, set_spacegroup
- 
+
  USE IO_module
  implicit none
 
@@ -493,7 +503,7 @@ subroutine calcul_dhkl
     call write_info(trim(message_text))
     cycle
    endif
-  end if 
+  end if
 
   IF(keyword_QVEC) then
    IF(i == 1+3*(n-1)) then
@@ -531,9 +541,9 @@ subroutine calcul_dhkl
    angle_2theta = angle_2theta + shift_2theta
 
    if(keyword_QVEC) then
-    write(message_text, '(4x,a1,3(1x,F6.2),5x,5(5x,F10.4))') ind_H(:), HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta        
+    write(message_text, '(4x,a1,3(1x,F6.2),5x,5(5x,F10.4))') ind_H(:), HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta
    else
-    write(message_text, '(5x,   3(1x,F6.2),5x,5(5x,F10.4))')           HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta    
+    write(message_text, '(5x,   3(1x,F6.2),5x,5(5x,F10.4))')           HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta
    end if
    call write_info(TRIM(message_text))
   else
@@ -737,7 +747,8 @@ subroutine molecular_weight()
  write(message_text,'(a)')      ' '
   call write_info(TRIM(message_text))
  do i=1, nb_atoms_type
-  write(message_text, '(a8,10x,F8.4,8x,F6.2, 2(10x,F6.2))') TRIM(SFAC_type(i)),  atom(Num_atom(i))%weight, sto(i), Atomic_percent(i), Weight_percent(i)
+  write(message_text, '(a8,10x,F8.4,8x,F6.2, 2(10x,F6.2))') TRIM(SFAC_type(i)),  atom(Num_atom(i))%weight, &
+                                                            sto(i), Atomic_percent(i), Weight_percent(i)
   call write_info(TRIM(message_text))
  end do
  endif
@@ -804,7 +815,9 @@ subroutine calcul_barycentre
    call write_info(TRIM(message_text))
   call write_info('')
   do j=1, nb_atom_bary(i)
-   write(message_text,'(5x,2a,3F10.5)')       atom_label(j)(1:4), ': '  ,  atom_coord(1,bary_atom(j)) , atom_coord(2,bary_atom(j)), atom_coord(3,bary_atom(j))
+   write(message_text,'(5x,2a,3F10.5)')       atom_label(j)(1:4), ': '  ,  atom_coord(1,bary_atom(j)) , &
+                                                                           atom_coord(2,bary_atom(j)) , &
+                                                                           atom_coord(3,bary_atom(j))
    call write_info(TRIM(message_text))
   end do
   call write_info('')
@@ -880,7 +893,8 @@ end subroutine calc_therm_iso
 
 subroutine calc_THERM_ANISO()
  USE cryscal_module,        ONLY : THERM_uij, THERM_bij, THERM_beta, therm_values,  unit_cell, pi, message_text, crystal_cell
- USE CFML_Crystal_Metrics,  only : U_equiv, Convert_U_B, convert_U_betas, convert_B_U, convert_B_Betas, convert_Betas_U, convert_Betas_B
+ USE CFML_Crystal_Metrics,  only : U_equiv, Convert_U_B, convert_U_betas, convert_B_U, convert_B_Betas, &
+                                   convert_Betas_U, convert_Betas_B
  !USE CFML_Math_General,    ONLY : sp
  !USE  CFML_Constants,       ONLY : sp
  USE CFML_math_3D,          ONLY : matrix_diageigen
@@ -905,7 +919,7 @@ subroutine calc_THERM_ANISO()
 
  Xij(1:6) = therm_values(1:6)
 
- M_U = reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6),(3) /),(/3,3/))
+ M_U = reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6),Xij(3) /),(/3,3/))
  call matrix_diageigen(M_U, rms,eigen)
  do i=1, 3
   if(rms(i) < 0.0) then
@@ -1185,7 +1199,9 @@ subroutine verif_linearity(str, linear)
   IF(.NOT. ok) return
   atom_3_coord(1:3) = new_coord(1:3)
 
-  call angle_calculation(atom_1_coord, atom_2_coord, atom_3_coord, angle)
+  atom_4_coord(1:3) = -99.
+
+  call angle_calculation(atom_1_coord, atom_2_coord, atom_3_coord, atom_4_coord, angle)
   if(angle > 179.) then
    linear = .true.
    return
@@ -1211,7 +1227,7 @@ subroutine verif_linearity(str, linear)
   IF(.NOT. ok) return
   atom_3_coord(1:3) = new_coord(1:3)
 
-  call angle_calculation(atom_1_coord, atom_2_coord, atom_3_coord, angle)
+  call angle_calculation(atom_1_coord, atom_2_coord, atom_3_coord, atom_4_coord, angle)
   if(angle > 179.) then
    linear = .true.
    return

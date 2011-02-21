@@ -212,14 +212,14 @@ end subroutine scalar_product
    call write_info('')
    open(unit=55, file="bond_str.out")
    do
-    read(unit=55, '(a)',iostat=i_error) read_line
+    read(55, '(a)',iostat=i_error) read_line
     if(i_error /= 0) exit
     adjusted_line = adjustl(read_line)
     if(adjusted_line(1:10) == '----------') then
      call write_info(trim(read_line))
      if(CONN_all) then
       do
-       read(unit=55, '(a)',iostat=i_error) read_line
+       read(55, '(a)',iostat=i_error) read_line
        if(i_error /= 0) exit      
        call write_info(trim(read_line))
       end do
@@ -228,7 +228,7 @@ end subroutine scalar_product
      else  ! 
       ! DISTANCES
       do
-       read(unit=55, '(a)', iostat=i_error) read_line
+       read(55, '(a)', iostat=i_error) read_line
        if(i_error /=0) exit
        i = index(read_line, 'to atom:')
        
@@ -236,13 +236,13 @@ end subroutine scalar_product
         read(read_line(index(read_line, ':')+1:), *) current_atom
         if(u_case(ATOM_CONN%label) == u_case(current_atom)) then
          call write_info(trim(read_line))
-         read(unit=55, '(a)', iostat=i_error) read_line
+         read(55, '(a)', iostat=i_error) read_line
          if(i_error /=0) exit
          call write_info(trim(read_line))         
          
          nd = 0
          do
-          read(unit=55, '(a)', iostat=i_error) read_line
+          read(55, '(a)', iostat=i_error) read_line
           if(i_error /=0) exit
           adjusted_line = adjustl(read_line)
           if(adjusted_line(1:10) == '----------') exit
@@ -255,7 +255,7 @@ end subroutine scalar_product
      ! BONDS DISTRIBUTIONS                
       rewind(unit=55)
       do
-       read(unit=55, '(a)', iostat=i_error) read_line
+       read(55, '(a)', iostat=i_error) read_line
        if(i_error /=0) exit
        i1 = index(read_line, '{--- BONDS DISTRIBUTIONS')
        if(i1 /=0) then
@@ -263,7 +263,7 @@ end subroutine scalar_product
         backspace(unit=55)
         if(.not. CONN_all) then
          do
-          read(unit=55, '(a)', iostat=i_error) read_line
+          read(55, '(a)', iostat=i_error) read_line
           if(i_error /=0) exit
           i1 = index(read_line, 'Bond type:')
           if(i1 /=0) then
@@ -271,7 +271,7 @@ end subroutine scalar_product
            if(u_case(ATOM_CONN%type) == u_case(current_atom)) then
             call write_info(read_line)
             do 
-             read(unit=55, '(a)', iostat=i_error) read_line
+             read(55, '(a)', iostat=i_error) read_line
              if(i_error /=0)              exit
              if(len_trim(read_line) == 0) then
               call write_info('')
@@ -284,7 +284,7 @@ end subroutine scalar_product
          end do 
         else ! calcul de la connectivite pour tous les atomes
          do 
-          read(unit=55, '(a)', iostat = i_error) read_line
+          read(55, '(a)', iostat = i_error) read_line
           if(i_error /=0) exit
           call write_info(trim(read_line))
          end do 

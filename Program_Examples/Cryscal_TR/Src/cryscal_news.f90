@@ -15,6 +15,35 @@ subroutine write_cryscal_NEWS(input_string)
  
  
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '11' .or. news_year(1:4) == '2011') then
+  
+  call write_cryscal_news_line(input_string,  '')  
+  call write_cryscal_news_line(input_string,  '   . Feb. 11 :')
+  call write_cryscal_news_line(input_string,  '     # Stucture factors calculation can be performed for electrons')
+  call write_cryscal_news_line(input_string,  '       diffraction (GEN_HKL and SF_HKL routines). This has to be')
+  call write_cryscal_news_line(input_string,  '       specified by the BEAM keyword and "ELECTRONS" argument')  
+  call write_cryscal_news_line(input_string,  '     # Some examples of CFL input files can be downloaded from the')
+  call write_cryscal_news_line(input_string,  '       CRYSCAL web site (www.cdifx.univ-rennes1.fr/cryscal)')
+  call write_cryscal_news_line(input_string,  '     # Some changes in output files :')
+  call write_cryscal_news_line(input_string,  '        . cryscal.log is renamed cryscal_debug.txt')
+  call write_cryscal_news_line(input_string,  '        . cryscal.out is renamed cryscal.log')
+  call write_cryscal_news_line(input_string,  '       LOG argument has been replaced by DEBUG argument')
+  call write_cryscal_news_line(input_string,  '     # New PAT argument for GEN_HKL keyword allows to generate a')
+  call write_cryscal_news_line(input_string,  '       diffraction pattern. PRF file is automatically plotted')
+  call write_cryscal_news_line(input_string,  '       with the WinPLOTR program if installed.')  
+  call write_cryscal_news_line(input_string,  '     # I/Imax is now calculated in the GEN_HKL routine when working')
+  call write_cryscal_news_line(input_string,  '       in the 2theta space and neutron or Cu_K_alpha1 X-ray radiation.')
+  call write_cryscal_news_line(input_string,  '       Intensity is calculated as follows:')
+  call write_cryscal_news_line(input_string,  '                        I=mult * Lp * F^2')
+  call write_cryscal_news_line(input_string,  '       where : mult is the multicicity of the reflexion')
+  call write_cryscal_news_line(input_string,  '               Lp the Lorentz-polarization factor, calculated by:')
+  call write_cryscal_news_line(input_string,  '               Lp=(1-K+K*CTHM*cos2(2theta)/(2sin2(theta)cos(theta)')
+  call write_cryscal_news_line(input_string,  '                CTHM=cos2(2theta_monok) [CTHM=0.79]')
+  call write_cryscal_news_line(input_string,  '                K=0.  for neutrons')  
+  call write_cryscal_news_line(input_string,  '                K=0.5 for unpolarized X-ray radiation')  
+  
+  call write_cryscal_news_line(input_string,  '     # Cosmetic changes in the Fortran codes to allow the compilation')
+  call write_cryscal_news_line(input_string,  '       with the free G95 Fortran compiler.') 
+  
   call write_cryscal_news_line(input_string,  '')  
   call write_cryscal_news_line(input_string,  '   . Jan. 11 :')
   call write_cryscal_news_line(input_string,  '     # CREATE_FST keyword allows to create a .FST file for')
@@ -66,7 +95,8 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '     # Bugs in the FIND_HKL_LIST routine has been corrected')  
   call write_cryscal_news_line(input_string,  '')  
   call write_cryscal_news_line(input_string,  '   . April 10 :')
-  call write_cryscal_news_line(input_string,  '     # Some items of the experimental part in the HTML structure report are now in italic,')
+  call write_cryscal_news_line(input_string,  '     # Some items of the experimental part in the HTML structure report are now' &
+                                              //' in italic,')
   call write_cryscal_news_line(input_string,  '       in agreement with published articles.')  
   call write_cryscal_news_line(input_string,  '')  
   call write_cryscal_news_line(input_string,  '   . March 10 :')
@@ -234,7 +264,8 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '  . jan. 07:')
-  call write_cryscal_news_line(input_string,  '    # THERM keyword can performed conversion of anisotropic displacement parameters:')
+  call write_cryscal_news_line(input_string,  '    # THERM keyword can performed conversion of anisotropic displacement '  &
+                                            //'parameters:')
   call write_cryscal_news_line(input_string,  '      new available arguments: U_ij, B_ij, Beta_ij')
   call write_cryscal_news_line(input_string,  '    # DIR keyword has been added and corresponds to the DIR DOS command.')
   call write_cryscal_news_line(input_string,  '      Arguments may follow this keyword.')
@@ -251,7 +282,8 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '  . oct. 06:')
   call write_cryscal_news_line(input_string,  '    # MAG keyword:     output magnetic features for a 3d or 4f ion')
-  call write_cryscal_news_line(input_string,  '    # SHANNON keyword: get effective ionic radii from Shannon article (Acta Cryst. 1976, A32, 751)')
+  call write_cryscal_news_line(input_string,  '    # SHANNON keyword: get effective ionic radii from Shannon article ' &
+                                            //'(Acta Cryst. 1976, A32, 751)')
   call write_cryscal_news_line(input_string,  '    # P4P keyword:     read P4P file created by SAINT (Bruker-AXS)')
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '  . sept. 06:')
@@ -275,9 +307,9 @@ end subroutine write_cryscal_NEWS
   if(input_string(1:6) == 'screen') then
    call write_info(trim(input_line))
   elseif(input_string(1:4) == 'html') then
-   write(unit = HTML_unit, '(a)') trim(input_line) 
+   write(HTML_unit, '(a)') trim(input_line) 
   elseif(input_string(1:4) == 'text') then
-   write(unit = 2, '(a)') trim(input_line)
+   write(2, '(a)') trim(input_line)
   end if
    
   return 

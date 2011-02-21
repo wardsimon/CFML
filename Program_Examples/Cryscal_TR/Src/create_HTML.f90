@@ -26,9 +26,9 @@ implicit none
 
   WRITE(HTML_unit, '(a)') "<HTML>"
   WRITE(HTML_unit, '(a)') "<HEAD>"
-  
+
   call write_HTML_css(HTML_unit)
-  
+
   WRITE(HTML_unit, '(a)') '<A NAME="cryscal_main"></A>'
   WRITE(HTML_unit, '(a)') "<TITLE>CRYSCAL user's guide</TITLE>"
   WRITE(HTML_unit, '(a)') "</HEAD>"
@@ -46,7 +46,7 @@ implicit none
   end do
   WRITE(HTML_unit, '(a)') "</center>"
   WRITE(HTML_unit, '(a)') ""
-  
+
 
   !WRITE(HTML_unit, '(a)') '<p class="title_4">'
   WRITE(HTML_unit, '(a)') '<ul>'
@@ -55,7 +55,9 @@ implicit none
   WRITE(HTML_unit, '(a)') '<li class="item_2"><A HREF="#kw_details">&nbsp;&nbsp;Details of CRYSCAL keywords</A>'
   WRITE(HTML_unit, '(a)') '<li class="item_2"><A HREF="#cla_section">&nbsp;&nbsp;List of CRYSCAL command line arguments</A>'
   WRITE(HTML_unit, '(a)') "<li class='item_2'><A HREF='#cryscal_news'>&nbsp;&nbsp;What's new ?</A>"
-  WRITE(HTMl_unit, '(a)') '<li class="item_2"><A HREF="#cryscal_ini">&nbsp;&nbsp;CRYSCAL.ini setting file</A>'
+  WRITE(HTML_unit, '(a)') '<li class="item_2"><A HREF="#cryscal_ini">&nbsp;&nbsp;CRYSCAL.ini setting file</A>'
+  WRITE(HTML_unit, '(a)') '<li class="item_2"><A HREF="#cryscal_cfl">&nbsp;&nbsp;Examples of .CFL input files</A>'
+
   WRITE(HTML_unit, '(a)') '<li class="item_2"><A HREF="#cryscal_links">&nbsp;&nbsp;CRYSCAL download and links</a>'
   WRITE(HTML_unit, '(a)') '</ul>'
   WRITE(HTML_unit, '(a)') ''
@@ -96,7 +98,7 @@ implicit none
    WRITE(HTML_unit, '(a)')'<A HREF="#kw_list">[return to keywords list]</a>'
    WRITE(HTML_unit, '(a)')'<hr></pre>'
   end do
-  
+
 
 
   call Def_command_line_arguments
@@ -108,7 +110,7 @@ implicit none
   !end do
   !WRITE(HTML_unit, '(a)') ""
   !WRITE(HTML_unit, '(a)') "</pre>"
-  
+
   !WRITE(HTML_unit, '(a)') '<ul>'
   do i=1, CLA_nb
    WRITE(HTML_unit, '(3a)') "<p class='title_3'>", trim(CLA_line(i,1)), "</p><pre style='font-size:14'>"
@@ -134,7 +136,7 @@ implicit none
   WRITE(HTML_unit, '(a)')'<A HREF="#cryscal_main">[return]</a>'
   WRITE(HTML_unit, '(a)') '</pre>'
 
-  
+
 ! --------------- setting file -----------------------------------
   WRITE(HTML_unit, '(a)') '<br>'
   WRITE(HTML_unit, '(a)') '<A NAME="cryscal_ini"></A><p class="title_1"> CRYSCAL.ini setting file :<br></p>'
@@ -147,11 +149,11 @@ implicit none
   WRITE(HTML_unit, '(a)') 'environment variable.</p>'
   WRITE(HTML_unit, '(a)') '<p class="retrait_1">Example of setting file:</p>'
   WRITE(HTML_unit, '(a)') '<pre>'
-  WRITE(HTML_unit, '(a)') '    <font color="darkred">[EXTERNAL APPLICATIONS]</font>' 
+  WRITE(HTML_unit, '(a)') '    <font color="darkred">[EXTERNAL APPLICATIONS]</font>'
   WRITE(HTML_unit, '(a)') '    browser = "C:\Program Files\Mozilla Firefox\firefox.exe"'
   WRITE(HTML_unit, '(a)') '    editor  = "C:\Program Files\Keditw\KEDITW32.EXE"'
   WRITE(HTML_unit, '(a)') ''
-  WRITE(HTML_unit, '(a)') '    <font color="darkred">[WEB ADDRESS]</font>' 
+  WRITE(HTML_unit, '(a)') '    <font color="darkred">[WEB ADDRESS]</font>'
   WRITE(HTML_unit, '(a)') '    fps        = www.ill.fr/dif/Soft/fp/'
   WRITE(HTML_unit, '(a)') '    cri        = www.cri.univ-rennes1.fr/'
   WRITE(HTML_unit, '(a)') '    cdifx      = www.cdifx.univ-rennes1.fr/'
@@ -168,14 +170,15 @@ implicit none
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[AUTHOR]</font>'
   WRITE(HTML_unit, '(a)') '    name        = ROISNEL'
   WRITE(HTML_unit, '(a)') '    first_name  = Thierry'
-  WRITE(HTML_unit, '(a)') '    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1, Sciences Chimiques de Rennes, 35042 RENNES Cedex France'
+  WRITE(HTML_unit, '(2a)')'    address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1,', &
+                                            'Sciences Chimiques de Rennes, 35042 RENNES Cedex France'
   WRITE(HTML_unit, '(a)') '    email       = thierry.roisnel@univ-rennes1.fr'
   WRITE(HTML_unit, '(a)') '    web         = www.cdifx.univ-rennes1.fr'
-  
+
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[CREATE INS]</font>'
   WRITE(HTML_unit, '(a)') '    temperature = 100K       ! experimental temperature value'
-  WRITE(HTML_unit, '(a)') '    u_threshold = 0.1        ! atoms with U_iso > U_threshold will be excluded'  
+  WRITE(HTML_unit, '(a)') '    u_threshold = 0.1        ! atoms with U_iso > U_threshold will be excluded'
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[PARAMETERS]</font>'
   WRITE(HTML_unit, '(a)') '    i_sig       = 3.         ! used in the SEARCH_GROUP procedure'
@@ -188,36 +191,61 @@ implicit none
   WRITE(HTML_unit, '(a)') '    create_CFL  = 1          ! .CFL file for CRYSCAL'
   WRITE(HTML_unit, '(a)') '    create_INS  = 1          ! .INS file for SHELXL'
   WRITE(HTML_unit, '(a)') '    create_FST  = 1          ! .FST file for FP Studio'
-  WRITE(HTML_unit, '(a)') ''  
+  WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[PROGRAMS]</font>'
   WRITE(HTML_unit, '(a)') '    structure_solution_name         = SIR97'
-  WRITE(HTML_unit, '(a)') '    structure_solution_reference    = A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
+  WRITE(HTML_unit, '(3a)')'    structure_solution_reference    = A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, ', &
+                                                                'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, ',   &
+																'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   WRITE(HTML_unit, '(a)') '    structure_solution_cif_ref      = SIR97 (Altomare et al., 1999)'
   WRITE(HTML_unit, '(a)') '    structure_refinement_name       = SHELXL-97'
   WRITE(HTML_unit, '(a)') '    structure_refinement_reference  = Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
   WRITE(HTML_unit, '(a)') '    structure_refinement_cif_ref    = SHELXL-97 (Sheldrick, 2008)'
 
   WRITE(HTML_unit, '(a)') '    absorption_correction_name      = SADABS'
-  WRITE(HTML_unit, '(a)') '    absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA'
-  WRITE(HTML_unit, '(a)') '    absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA'
+  WRITE(HTML_unit, '(2a)')'    absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, ', &
+                                                                'Wisconsin, USA'
+  WRITE(HTML_unit, '(2a)')'    absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, ', &
+                                                                'Wisconsin, USA'
 
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '<A HREF="#cryscal_main">[return]</a>'
   WRITE(HTML_unit, '(a)') '</pre>'
 
-   
+  
+! ----------------------------------------------------------------
+  WRITE(HTML_unit, '(a)') '<br>'
+  WRITE(HTML_unit, '(a)') '<A NAME="cryscal_cfl"></A><p class="title_1"> Examples of .CFL input files :<br></p>'
+  WRITE(HTML_unit, '(a)') '<ul>'
+  WRITE(HTML_unit, '(2a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_pnma.cfl">', &
+                           '  Pnma space group information</a><p>'
+  WRITE(HTML_unit, '(2a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_pbnm_pnma.cfl">', &
+                           '  Transformation from Pbnm to Pnma space group</a><p>'
+  WRITE(HTML_unit, '(2a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_si_x.cfl">', &
+                           '  Simulation of a X-ray diffraction pattern for Si</a><p>'
+  WRITE(HTML_unit, '(2a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_si_n.cfl">', &
+                           '  Simulation of a neutron diffraction pattern for Si</a><p>'
+  WRITE(HTML_unit, '(2a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal_y2o3.cfl">', &
+                           '  Atom connectivity in Y2O3</a>'
+  WRITE(HTML_unit, '(a)') '<p>'
+  WRITE(HTML_unit, '(a)') '</ul>'
+ 
+  
 ! ----------------------------------------------------------------
   WRITE(HTML_unit, '(a)') '<br>'
   WRITE(HTML_unit, '(a)') '<A NAME="cryscal_links"></A><p class="title_1"> CRYSCAL links :<br></p>'
   WRITE(HTML_unit, '(a)') '<ul>'
   WRITE(HTML_unit, '(a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal.exe">CRYSCAL.exe</a>'
   WRITE(HTML_unit, '(a)') '<p>'
-  
-  WRITE(HTML_unit, '(a)') ' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal.ini">Example of CRYSCAL setting file</a>'
+
+  WRITE(HTML_unit, '(2a)')' <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscal/cryscal.ini">', &
+                          'Example of CRYSCAL setting file</a>'
   WRITE(HTML_unit, '(a)') '<p>'
 
-  WRITE(HTML_unit, '(a)') ' <li class="item"><a href="http://www.iucr.org/resources/commissions/crystallographic-computing/newsletters/1/crysfml" target="_blank">CrysFML:</A>'
-  WRITE(HTML_unit, '(a)') ' <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. González-Platas</font>'  
+  WRITE(HTML_unit, '(2a)')' <li class="item"><a href="http://www.iucr.org/resources/commissions/crystallographic-computing/', &
+                          'newsletters/1/crysfml" target="_blank">CrysFML:</A>'
+  WRITE(HTML_unit, '(2a)')' <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. ',   &
+                          'González-Platas</font>'
   WRITE(HTML_unit, '(a)') '</ul>'
   WRITE(HTML_unit, '(a)') ''
 
@@ -247,23 +275,31 @@ end subroutine create_CRYSCAL_HTML
 !--------------------------------------------------------------------------------
 
 subroutine write_HTML_css(HTML_unit)
- 
+
  implicit none
   integer, intent(in)   :: HTML_unit
   WRITE(HTML_unit, '(a)') "<style TYPE='text/css'>"
   WRITE(HTML_unit, '(a)') "  h2          { font-family:'Trebuchet MS',Arial; color:blue;margin-left:50px; }"
-  WRITE(HTML_unit, '(a)') "  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; text-align:center; font-weight:bold; }"
-  WRITE(HTML_unit, '(a)') "  .title_1    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }"  
-  WRITE(HTML_unit, '(a)') "  .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; background-color:#f5f5f5; }"
-  WRITE(HTML_unit, '(a)') "  .title_3    { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}"
-  WRITE(HTML_unit, '(a)') "  .title_4    { font-family:'Trebuchet MS',Arial; font-size:18px; color:#880000; margin-left:20px; background-color:#f5f5f5; }"
-  WRITE(HTML_unit, '(a)') "  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;  margin-right:50px; text-align:justify; line-height:18.0pt;  }"
-  WRITE(HTML_unit, '(a)') "  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;  margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }"
-  WRITE(HTML_unit, '(a)') "  .retrait_3  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:100px; margin-right:50px; text-align:justify; line-height:18.0pt;  }"
+  WRITE(HTML_unit, '(2a)') "  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000;", &
+                           " text-align:center; font-weight:bold; }"
+  WRITE(HTML_unit, '(2a)') "  .title_1    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000;",  &
+                           " margin-left:20px; background-color:#f5f5f5; }"
+  WRITE(HTML_unit, '(2a)') "  .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000;",  &
+                           " margin-left:50px; background-color:#f5f5f5; }"
+  WRITE(HTML_unit, '(2a)') "  .title_3    { font-family:'Courier new';        font-size:14px; color:#660000;", &
+                           " font-weight:bold; margin-left:30px;}"
+  WRITE(HTML_unit, '(2a)') "  .title_4    { font-family:'Trebuchet MS',Arial; font-size:18px; color:#880000;",  &
+                           " margin-left:20px; background-color:#f5f5f5; }"
+  WRITE(HTML_unit, '(2a)') "  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;", &
+                           " margin-right:50px; text-align:justify; line-height:18.0pt;  }"
+  WRITE(HTML_unit, '(2a)') "  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px;",  &
+                           " margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }"
+  WRITE(HTML_unit, '(2a)') "  .retrait_3  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:100px;", &
+                           " margin-right:50px; text-align:justify; line-height:18.0pt;  }"
   WRITE(HTML_unit, '(a)') "  .item       { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}"
   WRITE(HTML_unit, '(a)') "  .item_2     { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}"
   WRITE(HTML_unit, '(a)') ""
-  WRITE(HTML_unit, '(a)') " a:link,"  
+  WRITE(HTML_unit, '(a)') " a:link,"
   WRITE(HTML_unit, '(a)') "  a:active"
   WRITE(HTML_unit, '(a)') "    { color:#666666;"
   WRITE(HTML_unit, '(a)') "      text-decoration:none;"
@@ -286,9 +322,10 @@ end subroutine write_HTML_css
 
 
 subroutine create_structural_report()
- USE MACROS_module,                ONLY : test_file_exist, remove_car, replace_car, nombre_de_colonnes, l_case, u_case, check_character
+ USE MACROS_module,                ONLY : test_file_exist, remove_car, replace_car, nombre_de_colonnes, l_case, u_case, &
+                                          check_character
  USE cryscal_module,               ONLY : CIF_unit, HTML_unit, CIF_parameter, archive_CIF, long_report, SQUEEZE, &
-                                          my_browser, cryscal_ini, message_text, LOG_file, cryscal_version, cryscal_author, &
+                                          my_browser, cryscal_ini, message_text, DEBUG_file, cryscal_version, cryscal_author, &
                                           structure_solution, structure_refinement
  USE external_applications_module, ONLY : launch_browser, launch_word
  USE IO_module
@@ -304,7 +341,7 @@ subroutine create_structural_report()
  INTEGER                             :: i_error, long_field, long, i, i1
  integer                             :: n, n_op, op_numor
  character (len=256), dimension(192) :: op_string
- integer,   dimension(500)           :: op_n       ! numero de l'op. de sym.  
+ integer,   dimension(500)           :: op_n       ! numero de l'op. de sym.
  integer,   dimension(500,3)         :: op_t       ! partie translation
  integer,   dimension(3)             :: t
  integer                             :: n_sym_htab, n_sym_dist, n_sym_ang, n_sym_tor
@@ -314,7 +351,7 @@ subroutine create_structural_report()
  CHARACTER (LEN=12), dimension(1000) :: site_sym
  CHARACTER (len=12), dimension(1000) :: dico
  INTEGER           , dimension(1000) :: num_site_sym
- 
+
  CHARACTER (LEN=12), dimension(2)    :: dist_atom
  CHARACTER (LEN=12)                  :: dist_value
  CHARACTER (LEN=12)                  :: dist_sym
@@ -326,17 +363,16 @@ subroutine create_structural_report()
  CHARACTER (LEN=12), dimension(4)    :: torsion_ang_atom
  CHARACTER (LEN=12)                  :: torsion_ang_value
  CHARACTER (LEN=12), dimension(4)    :: torsion_sym
- 
- 
+
+
  CHARACTER (LEN=12)                  :: atom_label, atom_symbol, atom_x, atom_y, atom_z, atom_Ueq
  CHARACTER (LEN=12)                  :: atom_U11, atom_U22, atom_U33, atom_U23, atom_U13, atom_U12
  CHARACTER (len=12)                  :: site_label_D, site_label_H, site_label_A
  CHARACTER (len=12)                  :: dist_DH, dist_HA, dist_DA, angle_DHA, site_sym_A
 
  LOGICAL                             :: alpha_car, num_car
- INTEGER                             :: long
 
- 
+
 
  file_exist = .false.
  call test_file_exist(TRIM(archive_CIF), file_exist)
@@ -344,11 +380,11 @@ subroutine create_structural_report()
   !call write_info('')
   !call write_info('   archive.cif file is missing !!')
   !call write_info('')
-  if(LOG_file%write) then
-   call write_LOG_file(' '//trim(archive_cif)//' file is missing !', '')
-   call write_LOG_file(' ', '')
-   call write_LOG_file(' CRYSCAL will be stopped.', '')
-   call write_LOG_file('', '')
+  if(DEBUG_file%write) then
+   call write_DEBUG_file(' '//trim(archive_cif)//' file is missing !', '')
+   call write_DEBUG_file(' ', '')
+   call write_DEBUG_file(' CRYSCAL will be stopped.', '')
+   call write_DEBUG_file('', '')
   end if
   stop
  endif
@@ -357,7 +393,7 @@ subroutine create_structural_report()
 
  open (unit = CIF_unit, file = TRIM(archive_CIF))
   do
-   READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+   READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
    IF(i_error < 0) exit
    IF(i_error /=0) then
     call write_info('')
@@ -370,10 +406,10 @@ subroutine create_structural_report()
    IF(i_error /=0) then
     call write_info('')
     call write_info(' !! Error reading archive.CIF file !!')
-    call write_info('')    
+    call write_info('')
     return
    endif
-   
+
 
    CIF_field = l_case(CIF_field)
    long_field = LEN_TRIM(CIF_field)
@@ -384,7 +420,7 @@ subroutine create_structural_report()
 
    IF(CIF_field_value(1:1)== "'" .AND. CIF_field_value(long:long) == "'") CIF_field_value = CIF_field_value(2:long-1)
 
- 
+
    select case (CIF_field(1:long_field))
        case ('_chemical_formula_moiety')
         READ(CIF_field_value, '(a)') CIF_parameter%formula_moiety
@@ -413,7 +449,7 @@ subroutine create_structural_report()
        case ('_symmetry_equiv_pos_as_xyz')
         n_op = 0
         do
-         READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          if(i_error /=0) exit
          if(len_trim(CIF_input_line)==0) exit
          if(CIF_input_line(1:1) == '#' .or. CIF_input_line(1:1) == '!' ) exit
@@ -587,7 +623,7 @@ subroutine create_structural_report()
        case ('_diffrn_measured_fraction_theta_max')
         READ(CIF_field_value, '(a)') CIF_parameter%completeness
         IF(LEN_TRIM(CIF_parameter%completeness) == 0) then
-         READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          IF(i_error < 0) exit
          IF(i_error /=0) then
           call write_info('')
@@ -629,7 +665,7 @@ subroutine create_structural_report()
  !OPEN(UNIT=HTML_unit, FILE='structural_report.HTML')
   WRITE(HTML_unit, '(a)') "<!-- Structural report (HTML file) created by CRYSCAL.exe from 'archive.cif' file."
   WRITE(HTML_unit, '(a)')  "     Web site : http://www.cdifx.univ-rennes/cryscal.htm"
-  WRITE(HTML_unit, '(5a)') "     Version : ", trim(cryscal_version), "(", trim(cryscal_author), ")"  
+  WRITE(HTML_unit, '(5a)') "     Version : ", trim(cryscal_version), "(", trim(cryscal_author), ")"
   WRITE(HTML_unit, '(a)') "!-->"
 
   WRITE(HTML_unit, '(a)') "<HTML>"
@@ -653,14 +689,16 @@ subroutine create_structural_report()
 
   WRITE(HTMl_unit, '(a)') "<p class='retrait_1'>"
   WRITE(HTML_unit, '(a)')  ""
-  if(CIF_parameter%formula_moiety == '?' .or. len_trim(CIF_parameter%formula_moiety) ==0)  CIF_parameter%formula_moiety = CIF_parameter%formula_sum
+  if(CIF_parameter%formula_moiety == '?' .or. len_trim(CIF_parameter%formula_moiety) ==0)  &
+     CIF_parameter%formula_moiety = CIF_parameter%formula_sum
 
   CALL transf_moiety_string("HTML", CIF_parameter%formula_moiety , HTML_string)
 
   !WRITE(HTML_unit, '(5a)', advance='NO') "(",TRIM(CIF_parameter%formula_moiety),"); M = ",TRIM(CIF_parameter%formula_weight),"."
   WRITE(HTML_unit, '(5a)', advance='NO') "(",TRIM(HTML_string),"); <i>M</i> = ",TRIM(CIF_parameter%formula_weight),". "
   long = len_trim(CIF_parameter%diffrn_measurement_device_type)
-  if(CIF_parameter%diffrn_measurement_device_type(1:1)== "'"  .and. CIF_parameter%diffrn_measurement_device_type(long:long)== "'") then
+  if(CIF_parameter%diffrn_measurement_device_type(1:1)== "'"           .and. &
+     CIF_parameter%diffrn_measurement_device_type(long:long)== "'") then
    WRITE(HTML_unit, '(4a)') CIF_parameter%diffrn_measurement_device_type(2:long-1), " diffractometer,"
   else
    WRITE(HTML_unit, '(4a)') TRIM(CIF_parameter%diffrn_measurement_device_type), " diffractometer,"
@@ -681,24 +719,24 @@ subroutine create_structural_report()
   long = len_trim(HTML_string)
   do i = 1, len_trim(CIF_parameter%symmetry_space_group)
     call check_character (CIF_parameter%symmetry_space_group(i:i), alpha_car, num_car)
-    !if(alpha_car) then     
+    !if(alpha_car) then
     ! write(HTML_string, '(4a)') trim(HTML_string), '<i>', CIF_parameter%symmetry_space_group(i:i), '</i>'
     !else
     ! write(HTML_string, '(2a)') trim(HTML_string),  CIF_parameter%symmetry_space_group(i:i)
-    !endif    
-    
+    !endif
+
     if(len_trim(CIF_parameter%symmetry_space_group(i:i)) == 0) then
      long = len_trim(HTML_string)
      HTML_string =  HTML_string(1:long) // ' '
     else
      long = len_trim(HTML_string)
-     if(alpha_car) then           
+     if(alpha_car) then
       HTML_string = HTML_string(1:long) // '<i>' // CIF_parameter%symmetry_space_group(i:i) // '</i>'
-     else      
-      HTML_string = HTML_string(1:long) // CIF_parameter%symmetry_space_group(i:i)      
-     endif    
-    endif 
-  end do 
+     else
+      HTML_string = HTML_string(1:long) // CIF_parameter%symmetry_space_group(i:i)
+     endif
+    endif
+  end do
   !write(new_HTML_string, '(3a)') HTML_string(1:8) , ' ' , trim(HTML_string(9:))
   !HTML_string = replace_car(HTML_string, "_", " ")
   if(index(HTML_string, "21") /= 0)   HTML_string = replace_car(HTML_string, "21", "2<sub>1</sub>")
@@ -712,8 +750,9 @@ subroutine create_structural_report()
   if(index(HTML_string, "63") /= 0)   HTML_string = replace_car(HTML_string, "63", "6<sub>3</sub>")
   if(index(HTML_string, "64") /= 0)   HTML_string = replace_car(HTML_string, "64", "6<sub>4</sub>")
   if(index(HTML_string, "65") /= 0)   HTML_string = replace_car(HTML_string, "65", "6<sub>5</sub>")
-  
-  WRITE(HTML_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " ", trim(HTML_string),  " (I.T.#", TRIM(CIF_parameter%symmetry_IT_number), "), "
+
+  WRITE(HTML_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " ", trim(HTML_string),  &
+                           " (I.T.#", TRIM(CIF_parameter%symmetry_IT_number), "), "
 
   IF(CIF_parameter%symmetry_cell_setting(1:9) == 'triclinic') then
    WRITE(HTML_unit, '(3a)') "a = ",TRIM(CIF_parameter%cell_length_a), ", "
@@ -752,8 +791,10 @@ subroutine create_structural_report()
 
 
   !WRITE(HTML_unit, '(a)') "The structure was solved by direct methods using the SIR97 program [1], "
-  WRITE(HTML_unit, '(3a)') "The structure was solved by direct methods using the <i>", u_case(trim(structure_solution%name)), "</i> program [1], "
-  WRITE(HTML_unit, '(3a)') "and then refined with full-matrix least-square methods based on <i>F</i><sup>2</sup> (<i>", u_case(trim(structure_refinement%name)), "</i>) [2] "
+  WRITE(HTML_unit, '(3a)') "The structure was solved by direct methods using the <i>",  &
+                            u_case(trim(structure_solution%name)), "</i> program [1], "
+  WRITE(HTML_unit, '(3a)') "and then refined with full-matrix least-square methods based on <i>F</i><sup>2</sup> (<i>", &
+                            u_case(trim(structure_refinement%name)), "</i>) [2] "
   WRITE(HTML_unit, '(a)')  "with the aid of the <i>WINGX</i> [3] program."
 
 
@@ -762,18 +803,21 @@ subroutine create_structural_report()
   if(file_exist) SQUEEZE%procedure = .true.
   if(SQUEEZE%procedure) then
    WRITE(HTML_unit, '(a)') "The contribution of the disordered solvents to the calculated structure factors was "
-   WRITE(HTML_unit, '(a)') "estimated following the <i>BYPASS</i> algorithm [4], implemented as the <i>SQUEEZE</i> option in "
-   WRITE(HTML_unit, '(a)') "<i>PLATON</i> [5]. A new data set, free of solvent contribution, was then used in the final "
-   WRITE(HTML_unit, '(a)') "refinement."
+   WRITE(HTML_unit, '(3a)') "estimated following the <i>BYPASS</i> algorithm [4], implemented as the <i>SQUEEZE</i> ", &
+                           "option in <i>PLATON</i> [5]. A new data set, free of solvent contribution, was then ",    &
+                           "used in the final refinement."
   endif
 
   WRITE(HTML_unit, '(a)') "All non-hydrogen atoms were refined with anisotropic atomic displacement parameters. "
   IF(CIF_parameter%H_treatment(1:5) == 'mixed') then
-   WRITE(HTML_unit, '(a)') "Except <span style='color:red'><b>XXX</b></span> linked hydrogen atoms that were introduced in the structural model through Fourier difference maps analysis,"
+   WRITE(HTML_unit, '(2a)') "Except <span style='color:red'><b>XXX</b></span> linked hydrogen atoms that were introduced ", &
+                           "in the structural model through Fourier difference maps analysis,"
   endif
-  WRITE(HTMl_unit, '(a)') "H atoms were finally included in their calculated positions. A final refinement on <i>F</i><sup>2</sup> with "
+  WRITE(HTML_unit, '(2a)') "H atoms were finally included in their calculated positions. A final refinement on ", &
+                           "<i>F</i><sup>2</sup> with "
   WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%reflns_number_total), " unique intensities and "
-  WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%refine_ls_number_parameters), " parameters converged at &omega;<i>R</i>(<i>F</i><sup>2</sup>) = "
+  WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%refine_ls_number_parameters), &
+                           " parameters converged at &omega;<i>R</i>(<i>F</i><sup>2</sup>) = "
   WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%refine_ls_wR_factor_gt), " (<i>R</i>(<i>F</i>) = "
   WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%refine_ls_R_factor_gt), ") for "
   WRITE(HTML_unit, '(2a)') TRIM(CIF_parameter%reflns_number_gt), " observed reflections with <i>I</i> > 2&sigma;(<i>I</i>)."
@@ -785,12 +829,12 @@ subroutine create_structural_report()
   !WRITE(HTML_unit, '(a)') "A. G. G. Moliterni, G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119. <br>"
   !WRITE(HTML_unit, '(a)') "[2] &nbsp; SHELX97 - Programs for Crystal Structure Analysis (Release 97-2). G. M. Sheldrick, "
   !WRITE(HTMl_unit, '(a)') "Institüt für Anorganische Chemie der Universität, Tammanstrasse 4, D-3400 Göttingen, Germany, 1998<br>"
-  !WRITE(HTML_unit, '(a)') "[2] &nbsp; Sheldrick, G. M. (2008) Acta Cryst. A64 112-122<br>" 
-  
-  
+  !WRITE(HTML_unit, '(a)') "[2] &nbsp; Sheldrick, G. M. (2008) Acta Cryst. A64 112-122<br>"
+
+
   WRITE(HTML_unit, '(3a)') "[1] &nbsp; ", trim(structure_solution%reference),   "<br>"
   WRITE(HTML_unit, '(3a)') "[2] &nbsp; ", trim(structure_refinement%reference), "<br>"
-    
+
   WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 1999, 32, 837-838<br>"
   if(SQUEEZE%procedure) then
   WRITE(HTML_unit, '(a)') "[4] &nbsp; P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201<br>"
@@ -824,49 +868,77 @@ subroutine create_structural_report()
   if(index(HTML_string, "63") /= 0)   HTML_string = replace_car(HTML_string, "63", "6<sub>3</sub>")
   if(index(HTML_string, "64") /= 0)   HTML_string = replace_car(HTML_string, "64", "6<sub>4</sub>")
   if(index(HTML_string, "65") /= 0)   HTML_string = replace_car(HTML_string, "65", "6<sub>5</sub>")
-  WRITE(HTML_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", "<i>",TRIM(HTML_string),"</i>"
-  !WRITE(HTML_unit, '(10x,4a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", TRIM(CIF_parameter%symmetry_space_group)
-  WRITE(HTML_unit, '(10x,6a)') "Unit cell dimensions                   ", "a = ", TRIM(CIF_parameter%cell_length_a),    " Å, alpha = ", TRIM(CIF_parameter%cell_angle_alpha), " °"
-  WRITE(HTML_unit, '(10x,6a)') "                                       ", "b = ", TRIM(CIF_parameter%cell_length_b),    " Å, beta = ", TRIM(CIF_parameter%cell_angle_beta),  " °"
-  WRITE(HTML_unit, '(10x,6a)') "                                       ", "c = ", TRIM(CIF_parameter%cell_length_c),    " Å, gamma = ", TRIM(CIF_parameter%cell_angle_gamma), " °"
+  WRITE(HTML_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
+                               "<i>",TRIM(HTML_string),"</i>"
+  !WRITE(HTML_unit, '(10x,4a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
+  !                              TRIM(CIF_parameter%symmetry_space_group)
+  WRITE(HTML_unit, '(10x,6a)') "Unit cell dimensions                   ", "a = ", TRIM(CIF_parameter%cell_length_a), &
+                               " Å, alpha = ", TRIM(CIF_parameter%cell_angle_alpha), " °"
+  WRITE(HTML_unit, '(10x,6a)') "                                       ", "b = ", TRIM(CIF_parameter%cell_length_b), &
+                               " Å, beta = ", TRIM(CIF_parameter%cell_angle_beta),  " °"
+  WRITE(HTML_unit, '(10x,6a)') "                                       ", "c = ", TRIM(CIF_parameter%cell_length_c), &
+                               " Å, gamma = ", TRIM(CIF_parameter%cell_angle_gamma), " °"
   WRITE(HTML_unit, '(10x,3a)') "Volume                                 ", TRIM(CIF_parameter%cell_volume), " Å<sup>3</sup>"
-  WRITE(HTML_unit, '(10x,5a)') "<i>Z</i>, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ' , ', TRIM(CIF_parameter%exptl_density), " (g.cm<sup>-3</sup>)"
+  WRITE(HTML_unit, '(10x,5a)') "<i>Z</i>, Calculated density                  ", TRIM(CIF_parameter%formula_units_Z), ' , ', &
+                               TRIM(CIF_parameter%exptl_density), " (g.cm<sup>-3</sup>)"
   WRITE(HTML_unit, '(10x,3a)') "Absorption coefficient                 ", TRIM(CIF_parameter%exptl_mu), " mm<sup>-1</sup>"
   IF(long_report) then
   WRITE(HTML_unit, '(10x,2a)') "<i>F</i>(000)                                 ", TRIM(CIF_parameter%F000)
-  WRITE(HTML_unit, '(10x,7a)') "Crystal size                           ", TRIM(CIF_parameter%crystal_size_max), " x ", TRIM(CIF_parameter%crystal_size_mid), " x ", TRIM(CIF_parameter%crystal_size_min), " mm"
+  WRITE(HTML_unit, '(10x,7a)') "Crystal size                           ", TRIM(CIF_parameter%crystal_size_max), " x ", &
+                               TRIM(CIF_parameter%crystal_size_mid), " x ", TRIM(CIF_parameter%crystal_size_min), " mm"
   WRITE(HTML_unit, '(10x,2a)') "Crystal color                          ", TRIM(CIF_parameter%crystal_colour)
-  WRITE(HTML_unit, '(10x,5a)') "Theta range for data collection        ", TRIM(CIF_parameter%theta_min), " to ", TRIM(CIF_parameter%theta_max), " °"
-  WRITE(HTML_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), " , ", TRIM(CIF_parameter%h_max)
-  WRITE(HTML_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), " , ", TRIM(CIF_parameter%k_max)
-  WRITE(HTML_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), " , ", TRIM(CIF_parameter%l_max)
-  WRITE(HTMl_unit, '(10x,7a)') "Reflections collected / unique         ", TRIM(CIF_parameter%diffrn_reflns_number), " / ", TRIM(CIF_parameter%reflns_number_total), " [R(int) = ", TRIM(CIF_parameter%diffrn_reflns_av_R_equivalents), "]"
+  WRITE(HTML_unit, '(10x,5a)') "Theta range for data collection        ", TRIM(CIF_parameter%theta_min), " to ", &
+                                TRIM(CIF_parameter%theta_max), " °"
+  WRITE(HTML_unit, '(10x,4a)') "h_min, h_max                           ", TRIM(CIF_parameter%h_min), " , ", &
+                                TRIM(CIF_parameter%h_max)
+  WRITE(HTML_unit, '(10x,4a)') "k_min, k_max                           ", TRIM(CIF_parameter%k_min), " , ", &
+                                TRIM(CIF_parameter%k_max)
+  WRITE(HTML_unit, '(10x,4a)') "l_min, l_max                           ", TRIM(CIF_parameter%l_min), " , ", &
+                                TRIM(CIF_parameter%l_max)
+  WRITE(HTMl_unit, '(10x,7a)') "Reflections collected / unique         ", TRIM(CIF_parameter%diffrn_reflns_number), &
+                               " / ", TRIM(CIF_parameter%reflns_number_total), " [R(int) = ",                       &
+                               TRIM(CIF_parameter%diffrn_reflns_av_R_equivalents), "]"
   WRITE(HTML_unit, '(10x,2a)') "Completeness to theta_max              ", TRIM(CIF_parameter%completeness)
   WRITE(HTML_unit, '(10x,2a)') "Absorption correction type             ", TRIM(CIF_parameter%absorption_correction_type)
   if(CIF_parameter%absorption_correction_type(1:4) /= 'none') then
-  WRITE(HTML_unit, '(10x,4a)') "Max. and min. transmission             ", TRIM(CIF_parameter%T_max), " , ", TRIM(CIF_parameter%T_min)
+  WRITE(HTML_unit, '(10x,4a)') "Max. and min. transmission             ", TRIM(CIF_parameter%T_max), " , ", &
+                               TRIM(CIF_parameter%T_min)
   endif
   WRITE(HTML_unit, '(10x,3a)') "Refinement method                      ", "Full-matrix least-squares on <i>F</i><sup>2</sup>"
   endif
   IF(long_report) then
-  WRITE(HTML_unit, '(10x,6a)') "Data / restraints / parameters         ", TRIM(CIF_parameter%reflns_number_total), " / ", TRIM(CIF_parameter%restraints_number), " / ", TRIM(CIF_parameter%refine_ls_number_parameters)
+  WRITE(HTML_unit, '(10x,6a)') "Data / restraints / parameters         ", TRIM(CIF_parameter%reflns_number_total), " / ", &
+                               TRIM(CIF_parameter%restraints_number), " / ", TRIM(CIF_parameter%refine_ls_number_parameters)
   WRITE(HTML_unit, '(10x,2a)') "Goodness-of-fit                        ", TRIM(CIF_parameter%Chi2)
   else
   WRITE(HTML_unit, '(10x,2a)') "Unique reflections                     ", TRIM(CIF_parameter%reflns_number_total)
   WRITE(HTML_unit, '(10x,2a)') "Refined parameters                     ", TRIM(CIF_parameter%refine_ls_number_parameters)
   endif
-  !WRITE(HTML_unit, '(10x,5a)') "Final R indices [I>2sigma(I)]          ", "<i>R</i>1<sup><i>a</i></sup> = ",  TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", <i>wR</i>2<sup><i>b</i></sup> = ", TRIM(CIF_parameter%refine_ls_wR_factor_gt)
-  WRITE(HTML_unit, '(10x,5a)') "Final <i>R</i> indices [I>2&sigma;]                 ", "<i>R</i>1<sup><i>a</i></sup> = ",  TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", <i>wR</i>2<sup><i>b</i></sup> = ", TRIM(CIF_parameter%refine_ls_wR_factor_gt)
-  WRITE(HTML_unit, '(10x,5a)') "<i>R</i> indices (all data)                   ", "<i>R</i>1<sup><i>a</i></sup> = ",  TRIM(CIF_parameter%refine_ls_R_factor_all), ", <i>wR</i>2<sup><i>b</i></sup> = ", TRIM(CIF_parameter%refine_ls_wR_factor_ref)
-  WRITE(HTML_unit, '(10x,5a)') "Largest diff. peak and hole            ", TRIM(CIF_parameter%refine_diff_density_max), " and ", TRIM(CIF_parameter%refine_diff_density_min), "  e.Å<sup>-3</sup>"
+  !WRITE(HTML_unit, '(10x,5a)') "Final R indices [I>2sigma(I)]          ", "<i>R</i>1<sup><i>a</i></sup> = ",     &
+  !                              TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", <i>wR</i>2<sup><i>b</i></sup> = ", &
+  !                              TRIM(CIF_parameter%refine_ls_wR_factor_gt)
+  WRITE(HTML_unit, '(10x,5a)') "Final <i>R</i> indices [I>2&sigma;]                 ", "<i>R</i>1<sup><i>a</i></sup> = ",  &
+                                TRIM(CIF_parameter%refine_ls_R_factor_gt),  ", <i>wR</i>2<sup><i>b</i></sup> = ",          &
+                                TRIM(CIF_parameter%refine_ls_wR_factor_gt)
+  WRITE(HTML_unit, '(10x,5a)') "<i>R</i> indices (all data)                   ", "<i>R</i>1<sup><i>a</i></sup> = ",        &
+                               TRIM(CIF_parameter%refine_ls_R_factor_all), ", <i>wR</i>2<sup><i>b</i></sup> = ",           &
+                               TRIM(CIF_parameter%refine_ls_wR_factor_ref)
+  WRITE(HTML_unit, '(10x,5a)') "Largest diff. peak and hole            ", TRIM(CIF_parameter%refine_diff_density_max),     &
+                               " and ", TRIM(CIF_parameter%refine_diff_density_min), "  e.Å<sup>-3</sup>"
   WRITE(HTML_unit, '(a)')      ""
-  WRITE(HTML_unit, '(12x,a)')      "<sup><i>a</i></sup><i>R</i>1 = &#8721; &#124; &#124;<i>F<sub>o</sub></i>&#124; - &#124;<i>F<sub>c</sub></i>&#124; &#124; / &#8721; &#124;<i>F<sub>o</sub></i>&#124;<br>"
-  WRITE(HTML_unit, '(12x,a)')      "<sup><i>b</i></sup><i>wR</i>2 = {&#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup> -  <i>F<sub>c</sub></i><sup>2</sup>)<sup>2</sup>] / &#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup>)<sup>2</sup>]}<sup>1/2</sup>"  
+  WRITE(HTML_unit, '(12x,2a)')      "<sup><i>a</i></sup><i>R</i>1 = &#8721; &#124; &#124;<i>F<sub>o</sub></i>&#124; - &#124;", &
+                                    "<i>F<sub>c</sub></i>&#124; &#124; / &#8721; &#124;<i>F<sub>o</sub></i>&#124;<br>"
+  WRITE(HTML_unit, '(12x,3a)')      "<sup><i>b</i></sup><i>wR</i>2 = {&#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup> - ",  &
+                                    " <i>F<sub>c</sub></i><sup>2</sup>)<sup>2</sup>] / &#8721; ",                              &
+                                    "[<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup>)<sup>2</sup>]}<sup>1/2</sup>"
   WRITE(HTML_unit, '(a)')  "</pre>"
   !WRITE(HTML_unit, '(a)') "<p class='retrait_3'>"
-  !WRITE(HTML_unit, '(12x,a)')      "<sup><i>a</i></sup><i>R</i>1 = &#8721; &#124; &#124;<i>F<sub>o</sub></i>&#124; - &#124;<i>F<sub>c</sub></i>&#124; &#124; / &#8721; &#124;<i>F<sub>o</sub></i>&#124;<br>"
-  !WRITE(HTML_unit, '(12x,a)')      "<sup><i>b</i></sup><i>wR</i>2 = {&#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup> -  <i>F<sub>c</sub></i><sup>2</sup>)<sup>2</sup>] / &#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup>)<sup>2</sup>]}<sup>1/2</sup>"
-  !write(HTML_unit, '(a)')  "</p>"    
+  !WRITE(HTML_unit, '(12x,2a)')     "<sup><i>a</i></sup><i>R</i>1 = &#8721; &#124; &#124;<i>F<sub>o</sub></i>&#124; - &#124;", &
+  !                                 "<i>F<sub>c</sub></i>&#124; &#124; / &#8721; &#124;<i>F<sub>o</sub></i>&#124;<br>"
+  !WRITE(HTML_unit, '(12x,3a)')     "<sup><i>b</i></sup><i>wR</i>2 = {&#8721; [<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup> -  ", &
+  !                                 "<i>F<sub>c</sub></i><sup>2</sup>)<sup>2</sup>] / &#8721; ",                               &
+  !                                 "[<i>w</i>(<i>F<sub>o</sub></i><sup>2</sup>)<sup>2</sup>]}<sup>1/2</sup>"
+  !write(HTML_unit, '(a)')  "</p>"
 
 
 !--------------------------------------------------------
@@ -877,10 +949,11 @@ subroutine create_structural_report()
 
   IF(long_report) then
    ! positions atomiques
-   WRITE(HTML_unit, '(a)') "<p class='title_2'>"
-   WRITE(HTML_unit, '(a)') "&nbsp;&nbsp;Atomic coordinates and equivalent isotropic displacement parameters (Å<sup>2</sup> x 10<sup>3</sup>). "
-   WRITE(HTML_unit, '(a)') "U(eq) is defined as one third of the trace of the orthogonalized U<sub>ij</sub> tensor."
-   WRITE(HTML_unit, '(a)') "</p>"
+   WRITE(HTML_unit, '(a)')  "<p class='title_2'>"
+   WRITE(HTML_unit, '(2a)') "&nbsp;&nbsp;Atomic coordinates and equivalent isotropic displacement parameters ", &
+                            "(Å<sup>2</sup> x 10<sup>3</sup>). "
+   WRITE(HTML_unit, '(a)')  "U(eq) is defined as one third of the trace of the orthogonalized U<sub>ij</sub> tensor."
+   WRITE(HTML_unit, '(a)')  "</p>"
 
 
 !---------------------------------------------------------------------
@@ -889,7 +962,7 @@ subroutine create_structural_report()
 
    OPEN(UNIT = CIF_unit, FILE=TRIM(archive_cif))
     do
-     READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0)            exit
      IF(LEN_TRIM(CIF_input_line)==0) cycle
      READ(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -907,7 +980,7 @@ subroutine create_structural_report()
           WRITE(HTML_unit, '(10x,2a)') "Atom           x              y              z              U(eq)"
           WRITE(HTMl_unit, '(10x,a)')  ""
           do
-           READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+           READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
            IF(i_error < 0) exit
            CIF_input_line = ADJUSTL(CIF_input_line)
            IF(CIF_input_line(1:1) == '_')     cycle
@@ -951,7 +1024,8 @@ subroutine create_structural_report()
   ! Anisotropic displacement parameters
   ! WRITE(HTML_unit, '(a)') "<p class='title_2'>Anisotropic displacement parameters (Å<sup>2</sup>)</p>"
   ! WRITE(HTML_unit, '(a)') "<p class='retrait_1'>The anisotropic displacement factor exponent takes the form:"
-  ! WRITE(HTML_unit, '(a)') "-2&pi;<sup>2</sup> [ h<sup>2</sup> a*<sup>2</sup> U<sub>11</sub> + ... + 2 h k a* b* U<sub>12</sub> ]."
+  ! WRITE(HTML_unit, '(2a)') "-2&pi;<sup>2</sup> [ h<sup>2</sup> a*<sup>2</sup> U<sub>11</sub> + ... + ", &
+  !                          "2 h k a* b* U<sub>12</sub> ]."
   ! WRITE(HTML_unit, '(a)') "</p>"
 
 
@@ -960,7 +1034,7 @@ subroutine create_structural_report()
    OPEN(UNIT = CIF_unit, FILE=TRIM(archive_cif))
     n = 0
     do
-     READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0)            exit
      IF(LEN_TRIM(CIF_input_line)==0) cycle
      READ(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -980,7 +1054,7 @@ subroutine create_structural_report()
 
 
           do
-           READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+           READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
            IF(i_error < 0) exit
            CIF_input_line = ADJUSTL(CIF_input_line)
            IF(CIF_input_line(1:1) == '_')     cycle
@@ -990,16 +1064,19 @@ subroutine create_structural_report()
            IF(CIF_input_line(1:1) == '#')     exit
            n = n + 1
            if (n == 1) then
-            WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Anisotropic displacement parameters (Å<sup>2</sup>)</p>"
-            WRITE(HTML_unit, '(a)') "<p class='retrait_1'>The anisotropic displacement factor exponent takes the form:"
-            WRITE(HTML_unit, '(a)') "-2&pi;<sup>2</sup> [ h<sup>2</sup> a*<sup>2</sup> U<sub>11</sub> + ... + 2 h k a* b* U<sub>12</sub> ]."
-            WRITE(HTML_unit, '(a)') "</p>"
-            WRITE(HTML_unit, '(10x,3a)') "Atom           U11            U22            U33            U23            U13            U12"
+            WRITE(HTML_unit, '(a)')  "<p class='title_2'>&nbsp;&nbsp;Anisotropic displacement parameters (Å<sup>2</sup>)</p>"
+            WRITE(HTML_unit, '(a)')  "<p class='retrait_1'>The anisotropic displacement factor exponent takes the form:"
+            WRITE(HTML_unit, '(2a)') "-2&pi;<sup>2</sup> [ h<sup>2</sup> a*<sup>2</sup> U<sub>11</sub> + ... ", &
+                                     "+ 2 h k a* b* U<sub>12</sub> ]."
+            WRITE(HTML_unit, '(a)')  "</p>"
+            WRITE(HTML_unit, '(10x,2a)') "Atom           U11            U22            U33            ",   &
+                                         "U23            U13            U12"
             WRITE(HTML_unit, '(a)')  ""
            endif
            CIF_parameter%atom = CIF_input_line
            READ(CIF_parameter%atom, *) atom_label, atom_U11, Atom_U22, atom_U33, atom_U23, atom_U13, atom_U12
-           WRITE(HTML_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
+           WRITE(HTML_unit, '(10x,7(a,3x))')  atom_label(1:12), atom_U11(1:12), atom_U22(1:12), atom_U33(1:12), &
+                                              atom_U23(1:12), atom_U13(1:12), atom_U12(1:12)
 
 
           END do
@@ -1028,7 +1105,7 @@ subroutine create_structural_report()
 
 
     do
-     READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0) exit
      IF(LEN_TRIM(CIF_input_line) == 0) cycle
      read(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -1046,7 +1123,7 @@ subroutine create_structural_report()
         dico = ''
         n_sym_dist = 0
         do
-         READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          IF(i_error < 0) exit
          CIF_input_line = ADJUSTL(CIF_input_line)
          IF(CIF_input_line(1:1) == '_') cycle
@@ -1063,20 +1140,20 @@ subroutine create_structural_report()
          READ(CIF_parameter%distance, *) dist_atom(1), dist_atom(2), dist_value, dist_sym
          dist_sym = adjustl(dist_sym)
          !WRITE(HTML_unit, '(6a)') dist_atom(1)(1:4), ' - ' , dist_atom(2)(1:4), ' = ', TRIM(dist_value), '<br>'
-         
+
          HTML_str(1) = ''
          if(dist_sym(1:1) /= '.') then
           n_sym_dist = n_sym_dist + 1
           site_sym(n_sym_dist) = dist_sym
           call Get_num_site_sym(n_sym_dist, site_sym, dist_sym, num_site_sym)
           !call Get_num_site_sym_new(n_sym_dist, site_sym, dist_sym, num_site_sym, dico)
-          
-                 
-          call get_sym_op(dist_sym, op_numor, t)       
+
+
+          call get_sym_op(dist_sym, op_numor, t)
           op_n(num_site_sym(n_sym_dist))   = op_numor
           op_t(num_site_sym(n_sym_dist),:) = t(:)
-                    
-          call build_HTML_string(num_site_sym(n_sym_dist), HTML_str(1))          
+
+          call build_HTML_string(num_site_sym(n_sym_dist), HTML_str(1))
          endif
          write(HTML_unit, '(10x,6a)') dist_atom(1)(1:4), ' - ' , dist_atom(2)(1:4), trim(HTML_str(1)), ' = ', TRIM(dist_value)
         end do
@@ -1095,7 +1172,7 @@ subroutine create_structural_report()
     write(HTML_unit, '(a)')  ""
     write(HTML_unit, '(a)')  "<p class='retrait_1'>Symmetry transformations used to generate equivalent atoms:</p>"
     WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"
-    call write_HTML_sym(maxval(num_site_sym),op_string, op_n, op_t)   
+    call write_HTML_sym(maxval(num_site_sym),op_string, op_n, op_t)
    endif
    WRITE(HTML_unit, '(a)')  "</pre></ul>"
 
@@ -1113,7 +1190,7 @@ subroutine create_structural_report()
    open (unit = CIF_unit, file = TRIM(archive_CIF))
    n = 0
     do
-     READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0) exit
      IF(LEN_TRIM(CIF_input_line) == 0) cycle
      read(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -1128,10 +1205,10 @@ subroutine create_structural_report()
      long_field = LEN_TRIM(CIF_field)
      select case (CIF_field(1:long_field))
        case ('_geom_angle_atom_site_label_1')
-        n_sym_ang    = 0   
-        num_site_sym = 0     
+        n_sym_ang    = 0
+        num_site_sym = 0
         do
-         READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          IF(i_error < 0) exit
          CIF_input_line = ADJUSTL(CIF_input_line)
          IF(CIF_input_line(1:1) == '_')     cycle
@@ -1142,31 +1219,31 @@ subroutine create_structural_report()
          n = n + 1
          CIF_parameter%angle = CIF_input_line
          READ(CIF_parameter%angle, *) ang_atom(1), ang_atom(2), ang_atom(3), ang_value, ang_sym(1), ang_sym(2)
-         ang_sym(1:2) = adjustl(ang_sym(1:2))         
+         ang_sym(1:2) = adjustl(ang_sym(1:2))
          if(n==1) then
           WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Angles [°]</p>"
           !WRITE(HTML_unit, '(a)') "<font face='courier new'>"
           WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"
          end if
-         
+
          do i=1, 2
-          HTML_str(i) = ''         
+          HTML_str(i) = ''
           if(ang_sym(i)(1:1) /= '.') then
            n_sym_ang = n_sym_ang + 1
            site_sym(n_sym_ang) = ang_sym(i)
-           call Get_num_site_sym(n_sym_ang, site_sym, ang_sym(i), num_site_sym)          
-           call get_sym_op(ang_sym(i), op_numor, t)          
+           call Get_num_site_sym(n_sym_ang, site_sym, ang_sym(i), num_site_sym)
+           call get_sym_op(ang_sym(i), op_numor, t)
            op_n(num_site_sym(n_sym_ang))   = op_numor
            op_t(num_site_sym(n_sym_ang),:) = t(:)
-          
+
            call build_HTML_string(num_site_sym(n_sym_ang), HTML_str(i))
           endif
          end do
-                  
-         write(HTML_unit, '(10x,9a)') ang_atom(1)(1:4), trim(HTML_str(1)), ' - ', ang_atom(2)(1:4), ' - ', ang_atom(3)(1:4), trim(HTML_str(2)), &
-                                   ' = ', trim(ang_value) 
-        
-        end do   
+
+         write(HTML_unit, '(10x,9a)') ang_atom(1)(1:4), trim(HTML_str(1)), ' - ', ang_atom(2)(1:4), ' - ', &
+                                      ang_atom(3)(1:4), trim(HTML_str(2)), ' = ', trim(ang_value)
+
+        end do
        case default
      end select
     END do
@@ -1180,9 +1257,9 @@ subroutine create_structural_report()
     write(HTML_unit, '(a)')  ""
     write(HTML_unit, '(a)')  "<p class='retrait_1'>Symmetry transformations used to generate equivalent atoms:</p>"
     WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"
-    
+
     call write_HTML_sym(maxval(num_site_sym), op_string, op_n, op_t)
-    
+
    endif
    WRITE(HTML_unit, '(a)')  "</pre></ul>"
 
@@ -1198,7 +1275,7 @@ subroutine create_structural_report()
    open (unit = CIF_unit, file = TRIM(archive_CIF))
    n = 0
     do
-     READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0) exit
      IF(LEN_TRIM(CIF_input_line) == 0) cycle
      read(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -1214,9 +1291,9 @@ subroutine create_structural_report()
      select case (CIF_field(1:long_field))
        case ('_geom_torsion_atom_site_label_1')
         n_sym_tor = 0
-        num_site_sym = 0     
+        num_site_sym = 0
         do
-         READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          IF(i_error < 0) exit
          CIF_input_line = ADJUSTL(CIF_input_line)
          IF(CIF_input_line(1:1) == '_') cycle
@@ -1224,7 +1301,7 @@ subroutine create_structural_report()
          IF(CIF_input_line(1:5) == 'loop_') exit
          IF(CIF_input_line(1:1) == ';')     exit
          IF(CIF_input_line(1:1) == '#')     exit
-         
+
          n = n + 1
          if(n==1) then
           WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Torsion angles [°]</p>"
@@ -1234,20 +1311,20 @@ subroutine create_structural_report()
          CIF_parameter%torsion_angle = CIF_input_line
          READ(CIF_parameter%torsion_angle, *) (torsion_ang_atom(i), i=1,4), torsion_ang_value, (torsion_sym(i), i=1,4)
          torsion_sym(1:4) = adjustl(torsion_sym(1:4))
-         
+
          do i=1, 4
           HTML_str(i) = ''
           if(torsion_sym(i) /= '.') then
            n_sym_tor = n_sym_tor + 1
            site_sym(n_sym_tor) = torsion_sym(i)
-           call Get_num_site_sym(n_sym_tor, site_sym, torsion_sym(i), num_site_sym)          
-           call get_sym_op(torsion_sym(i), op_numor, t)          
+           call Get_num_site_sym(n_sym_tor, site_sym, torsion_sym(i), num_site_sym)
+           call get_sym_op(torsion_sym(i), op_numor, t)
            op_n(num_site_sym(n_sym_tor))   = op_numor
            op_t(num_site_sym(n_sym_tor),:) = t(:)
            call build_HTML_string(num_site_sym(n_sym_tor), HTML_str(i))
           endif
          end do
-    
+
          WRITE(HTML_unit, '(10x,13a)') torsion_ang_atom(1)(1:4), trim(HTML_str(1)), ' - ',  &
                                        torsion_ang_atom(2)(1:4), trim(HTML_str(2)), ' - ',  &
                                        torsion_ang_atom(3)(1:4), trim(HTML_str(3)), ' - ',  &
@@ -1266,8 +1343,8 @@ subroutine create_structural_report()
     WRITE(HTML_unit, '(a)')  "</pre>"
     write(HTML_unit, '(a)')  ""
     write(HTML_unit, '(a)')  "<p class='retrait_1'>Symmetry transformations used to generate equivalent atoms:</p>"
-    WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"    
-    call write_HTML_sym(maxval(num_site_sym), op_string, op_n, op_t)    
+    WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"
+    call write_HTML_sym(maxval(num_site_sym), op_string, op_n, op_t)
    endif
    WRITE(HTML_unit, '(a)')  "</pre></ul>"
 
@@ -1279,7 +1356,7 @@ subroutine create_structural_report()
 
    open (unit = CIF_unit, file = TRIM(archive_CIF))
     do
-     READ(UNIT = CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+     READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
      IF(i_error < 0) exit
      IF(LEN_TRIM(CIF_input_line) == 0) cycle
      read(CIF_input_line, *, IOSTAT=i_error) CIF_field
@@ -1296,7 +1373,7 @@ subroutine create_structural_report()
        case ('_geom_hbond_atom_site_label_D')
         n_sym_htab = 0
         do
-         READ(UNIT=CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
+         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
          IF(i_error < 0) exit
          CIF_input_line = ADJUSTL(CIF_input_line)
          IF(CIF_input_line(1:1) == '_') cycle
@@ -1305,7 +1382,8 @@ subroutine create_structural_report()
          IF(CIF_input_line(1:1) == ';')     exit
          IF(CIF_input_line(1:1) == '#')     exit
          CIF_parameter%Hbond = CIF_input_line
-         READ(CIF_parameter%Hbond, *) site_label_D, site_label_H, site_label_A, dist_DH, dist_HA, dist_DA, angle_DHA, site_sym_A
+         READ(CIF_parameter%Hbond, *) site_label_D, site_label_H, site_label_A, dist_DH, dist_HA, dist_DA, angle_DHA, &
+                                      site_sym_A
          call get_sym_op(site_sym_A, op_numor, t)
          n_sym_htab = n_sym_htab + 1
          op_n(n_sym_htab) = op_numor
@@ -1318,14 +1396,14 @@ subroutine create_structural_report()
           WRITE(HTML_unit, '(a)') "<pre style='font-size:14'>"
          endif
          if(op_numor < 10) then
-         WRITE(HTML_unit, '(10x,6a,i1,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", n_sym_htab, '   ', &
-                                         dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
+         WRITE(HTML_unit, '(10x,6a,i1,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", &
+                                             n_sym_htab, '   ', dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
          elseif(op_numor < 100) then
-         WRITE(HTML_unit, '(10x,6a,i2,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", n_sym_htab, '   ', &
-                                         dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
+         WRITE(HTML_unit, '(10x,6a,i2,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", &
+                                             n_sym_htab, '   ', dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
          else
-         WRITE(HTML_unit, '(10x,6a,i3,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", n_sym_htab, '   ', &
-                                         dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
+         WRITE(HTML_unit, '(10x,6a,i3,5a)')  site_label_D(1:4), ' - ', site_label_H(1:4), '.... ', site_label_A(1:4), "#", &
+                                             n_sym_htab, '   ', dist_DH(1:12), dist_HA(1:12), dist_DA(1:12), angle_DHA(1:12)
          endif
 
 
@@ -1356,8 +1434,8 @@ subroutine create_structural_report()
   !WRITE(HTML_unit, '(a)') '<h2><blockquote><br>Structure visualisation</h2>'
   !WRITE(HTML_unit, '(a)') '<blockquote><img src="job.png">'
   !WRITE(HTML_unit, '(a)') "</blockquote></blockquote>"
-  
-  
+
+
   file_exist = .false.
   GIF_file = "platon_ortep.gif"
   call test_file_exist(trim(GIF_file), file_exist)
@@ -1369,21 +1447,24 @@ subroutine create_structural_report()
     call test_file_exist(trim(GIF_file), file_exist)
    endif
   endif
-    
+
   if(file_exist) then
     WRITE(HTML_unit, '(a)') ""
     WRITE(HTML_unit, '(a)') "<br>"
     WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Structure visualisation</p>"
     WRITE(HTML_unit, '(3a)') '<center><img width=600 src="', trim(GIF_file),'"></center>'
   endif
- 
+
 
 
 
   WRITE(HTML_unit, '(a)')  "<HR>"
   WRITE(HTML_unit, '(a)')  "<p class='retrait_1'>"
-  WRITE(HTML_unit, '(3a)') "<i>This HTML report has been created through <A HREF='http://www.cdifx.univ-rennes1.fr/cryscal.htm'>CRYSCAL</A> (", trim(cryscal_version), ")."
-  WRITE(HTML_unit, '(a)')  "Please report bugs and problems to <A HREF='mailto:cdifx@univ-rennes1.fr'>cdifx.univ-rennes1.fr</A></p>"
+  WRITE(HTML_unit, '(4a)') "<i>This HTML report has been created through ",                        &
+                           "<A HREF='http://www.cdifx.univ-rennes1.fr/cryscal.htm'>CRYSCAL</A> (", &
+                           trim(cryscal_version), ")."
+  WRITE(HTML_unit, '(2a)') "Please report bugs and problems to <A HREF='mailto:cdifx@univ-rennes1.fr'>", &
+                           "cdifx.univ-rennes1.fr</A></p>"
   WRITE(HTML_unit, '(a)')  "</BODY>"
   WRITE(HTML_unit, '(a)')  "</HTML>"
 CLOSE(UNIT=HTML_unit)
@@ -1557,17 +1638,17 @@ subroutine  Get_num_site_sym(n_sym, site_sym, current_sym, num_site_sym)
   CHARACTER (LEN=12), dimension(1000), intent(in)    :: site_sym
   CHARACTER (LEN=12),                  intent(in)    :: current_sym
   INTEGER           , dimension(1000), intent(inout) :: num_site_sym
-  INTEGER                                            :: i 
-  
-  
-  do i = 1, n_sym -1 
-   if(current_sym == site_sym(i)) then   
+  INTEGER                                            :: i
+
+
+  do i = 1, n_sym -1
+   if(current_sym == site_sym(i)) then
     num_site_sym(n_sym) = num_site_sym(i)
     return
     !exit
    endif
   end do
-  
+
   !do i=1, n_sym -1
   ! if(current_sym /= site_sym(i)) then
   !  exit
@@ -1576,8 +1657,8 @@ subroutine  Get_num_site_sym(n_sym, site_sym, current_sym, num_site_sym)
 
   num_site_sym(n_sym) = MAXVAL(num_site_sym) +1
 
-          
- return          
+
+ return
 end subroutine Get_num_site_sym
 
 !---------------------------------------------------------------------
@@ -1590,11 +1671,11 @@ subroutine  Get_num_site_sym_new(n_sym, site_sym, current_sym, num_site_sym, dic
   INTEGER           , dimension(1000), intent(inout) :: num_site_sym
   character (len=12), dimension(1000), intent(inout) :: dico
 
-  INTEGER                                            :: i 
-  
+  INTEGER                                            :: i
+
   num_site_sym(1) = 0
   do i = 1, n_sym
-  
+
    if(dico(i) == '') then
     dico(i) = current_sym
     num_site_sym(n_sym) = num_site_sym(i)+1
@@ -1602,16 +1683,16 @@ subroutine  Get_num_site_sym_new(n_sym, site_sym, current_sym, num_site_sym, dic
    else
     if(dico(i) == current_sym) then
      num_site_sym(n_sym) = i
-     return    
+     return
     end if
    end if
-    
+
   end do
-  
 
 
-          
- return          
+
+
+ return
 end subroutine Get_num_site_sym_new
 
 !---------------------------------------------------------------------
@@ -1620,7 +1701,7 @@ subroutine build_HTML_string(n, HTML_string)
  implicit none
   integer,            intent(in)          :: n
   character(len=256), intent(inout)       :: HTML_string
-         
+
   if(n < 10) then
    write(HTML_string, '(a,i1)') '#', n
   elseif(n < 100) then
@@ -1628,29 +1709,32 @@ subroutine build_HTML_string(n, HTML_string)
   else
    write(HTML_string, '(a,i3)') '#', n
   endif
- 
+
  return
-end subroutine build_HTML_string         
+end subroutine build_HTML_string
 
 !---------------------------------------------------------------------
 subroutine write_HTML_sym(n_sym, op_string, op_n, op_t)
  use cryscal_module, only : HTML_unit
  implicit none
- 
+
   integer,                             intent(in) :: n_sym
   character (len=256), dimension(192), intent(in) :: op_string
-  integer, dimension(500),             intent(in) :: op_n       ! numero de l'op. de sym. associe 
+  integer, dimension(500),             intent(in) :: op_n       ! numero de l'op. de sym. associe
   integer, dimension(500,3),           intent(in) :: op_t       ! partie translation
   integer                                         :: i
- 
+
 
     do i=1, n_sym
      if(op_n(i) < 10) then
-      write(HTML_unit, '(10x,a,i1,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
+      write(HTML_unit, '(10x,a,i1,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), &
+                                                "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
      elseif(op_n(i) < 100) then
-      write(HTML_unit, '(10x,a,i2,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
+      write(HTML_unit, '(10x,a,i2,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), &
+                                                "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
      else
-      write(HTML_unit, '(10x,a,i3,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
+      write(HTML_unit, '(10x,a,i3,3a,3(i2,a))') " #",i, "  ", op_string(op_n(i))(1:24), &
+                                                "  T = [", op_t(i,1), ", ", op_t(i,2), ", ", op_t(i,3), "]"
      endif
     end do
 

@@ -37,7 +37,7 @@ module IO_module
  !-----------------------------------------------------------
  subroutine write_info(string_info)
   !use cryscal_RW_module, only : main_window
-  ! ecrit un message dans la fenetre main_window et dans le fichier CRYSCAL.OUT
+  ! ecrit un message dans la fenetre main_window et dans le fichier CRYSCAL.log
    character (len=*) , intent(in) :: string_info
 
 !  if(len_trim(string_info) == 0) then
@@ -52,7 +52,7 @@ module IO_module
 
   !---- Creation de la fenetre cryscal_window si necessaire ----!
   if (.not. wscroll) then
-     cryscal_window = create_window(window_name="CRYSCAL (TR/CDIFX/2009)",x=0.1,y=0.01,    &
+     cryscal_window = create_window(window_name="CRYSCAL (TR/CDIFX/2011)",x=0.1,y=0.01,    &
                                     width= 0.8, height=0.45,                               &
                                     paint_code=SCROLL_TEXT,                                &
                                     text_font=select_font(typeface='courier',point=8))

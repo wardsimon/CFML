@@ -1,4 +1,115 @@
 ! Last change:  TR   11 Dec 2007   12:19 pm
+!--------------------------------------------------------------------
+module hkl_module
+ implicit none
+
+ integer                           :: n_ref          ! nombre de reflections dans le fichier
+ integer                           :: n_ref_2        ! nombre de reflections avec I > 2sig
+ integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
+ INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
+ INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
+ 
+
+ !type, public :: reflexion_type
+ ! integer,             dimension(:),   allocatable   :: h,k,l, code
+ ! real,                dimension(:),   allocatable   :: F2, sig_F2, E, E2, E3, E4, E5, E6
+ ! real,                dimension(:),   allocatable   :: stl, d, theta
+ ! real,                dimension(:,:), allocatable   :: cos_dir
+ ! real,                dimension(:),   allocatable   :: I_sig, I_
+ ! logical,             dimension(:),   allocatable   :: impair, search_OK
+ ! character (len=16),  dimension(:),   allocatable   :: string
+ ! character (len=256), dimension(:),   allocatable   :: line
+ ! integer,             dimension(:,:), allocatable   :: flag
+ ! integer,             dimension(:),   allocatable   :: good
+ !end type reflexion_type
+ !type (reflexion_type) :: HKL
+
+ integer, parameter                        :: max_ref = 500000
+ INTEGER,             DIMENSION(max_ref)   :: h, k, l, code
+ REAL,                DIMENSION(max_ref)   :: F2, sig_F2, E, E2, E3, E4, E5, E6
+ REAL,                DIMENSION(max_ref)   :: sinTheta_lambda, d_hkl, theta_hkl
+ LOGICAL,             DIMENSION(max_ref)   :: HKL_impair
+ CHARACTER (LEN=20),  DIMENSION(max_ref)   :: HKL_string
+ CHARACTER (LEN=256), DIMENSION(max_ref)   :: HKL_line
+ INTEGER,             DIMENSION(max_ref,3) :: HKL_flag
+ INTEGER,             DIMENSION(max_ref)   :: HKL_good
+ REAL,                DIMENSION(max_ref,6) :: cos_dir
+ REAL,                DIMENSION(max_ref)   :: I_sigma,I_
+ LOGICAL,             DIMENSION(max_ref)   :: HKL_search_ok
+
+ CHARACTER (LEN=256), DIMENSION(10)       :: M95_comment_line
+ INTEGER                                  :: M95_comment_line_nb
+
+
+ logical                                  :: cos_exist    ! fichier contenant les cos. dir.
+ logical                                  :: cif_file     ! fichier *.CIF (ex: import.cif)
+ real                                     :: sig_coef     ! coef. pour les sigmas
+
+ LOGICAL                                  :: HKL_data_known
+
+
+ INTEGER                           :: n_pair, n_impair
+ REAL                              :: F2_pair, F2_impair, mean_F2_pair, mean_F2_impair
+ REAL                              :: F2_mean, sig_F2_mean, ratio_mean
+ REAL                              :: wF2_mean
+ REAL                              :: E_mean, E2_mean, E2m1_mean
+ REAL                              :: E3_mean, E4_mean, E5_mean, E6_mean
+ real                              :: Rint
+ REAL                              :: I_ratio, ratio_criteria
+ REAL                              :: n_sig, threshold
+ LOGICAL                           :: ordered_HKL
+
+ character (len=4), dimension(3)           :: requested_H_string
+ INTEGER,           DIMENSION(3)           :: requested_H
+ integer                                   :: requested_HKL_list
+ integer, parameter                        :: HKL_rule_nb =33
+ CHARACTER(LEN=32), DIMENSION(2*HKL_rule_nb) :: HKL_rule
+ LOGICAL                                   :: search_H_string
+ LOGICAL                                   :: search_equiv
+ LOGICAL                                   :: search_friedel
+ 
+
+
+ type, public :: HKL_file_features
+  CHARACTER (LEN=256)                          :: name           ! nom du fichier.HKL
+  CHARACTER (LEN=256)                          :: output         ! fichier de sortie .HKL
+  CHARACTER (LEN=256)                          :: output2        ! fichier de sortie .HKL #2
+  CHARACTER (LEN=256)                          :: HKL            ! fichier .HKL
+  CHARACTER (LEN=256)                          :: d
+  CHARACTER (LEN=256)                          :: stl
+  CHARACTER (LEN=256)                          :: theta
+  CHARACTER (LEN=256)                          :: I
+  CHARACTER (LEN=256)                          :: Isig
+  CHARACTER (LEN=256)                          :: merge
+  CHARACTER (LEN=256)                          :: transf
+  LOGICAL                                      :: CIF            ! fichier *.cif (ex: import.cif)
+  LOGICAL                                      :: SHELX          ! fichier *.HKL (SHELX format)
+  LOGICAL                                      :: final_y        ! fichier final.y cree par EVALCCD
+  LOGICAL                                      :: RAW            ! fichier .RAW cree par SAINT
+  LOGICAL                                      :: M91            ! fichier .M91 cree par JANA
+  LOGICAL                                      :: M95            ! fichier .M95 cree par JANA
+  LOGICAL                                      :: plot           ! trace de F2=f(sinTheta/lambda)
+  LOGICAL                                      :: read_NEG       ! lecture intensites negatives
+ end type HKL_file_features
+ type(HKL_file_features)  :: HKL_file
+
+ TYPE, PUBLIC :: HKL_list_features
+  INTEGER             :: EXTI_number        ! numero d'extinction systematique
+  LOGICAL             :: ALL                ! aucun critere sur la selection
+  LOGICAL             :: OUT                ! liste a l'ecran les reflexions compatibles avec EXTI_number
+  LOGICAL             :: WRITE              ! ecrit dans un fichier les reflexions compatibles avec EXTI_number
+  LOGICAL             :: SUPPRESS           ! supprime du fichier initial les reflexions compatibles avec EXTI_number
+ END TYPE HKL_list_features
+ TYPE (HKL_list_features) :: HKL_list
+ TYPE (HKL_list_features) :: HKL_list_POS
+ TYPE (HKL_list_features) :: HKL_list_NEG
+ TYPE (HKL_list_features) :: HKL_list_ABSENT
+
+
+END module hkl_module
+
+
+
 module cryscal_module
  use CFML_crystallographic_symmetry, ONLY  : space_group_type
  use CFML_Atom_TypeDef,              only  : Atom_list_Type
@@ -13,7 +124,7 @@ module cryscal_module
 
   implicit none
   
-  character (len=256), parameter               :: cryscal_version = 'Jan. 2011'
+  character (len=256), parameter               :: cryscal_version = 'Feb. 2011'
   character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX - Rennes)'
   character (LEN=256)                          :: cryscal_ini
   character (LEN=256)                          :: winplotr_exe
@@ -63,7 +174,7 @@ module cryscal_module
   REAL,               DIMENSION(6,nb_atom_max)         :: atom_adp_aniso          ! parametres de deplacements atomiques
   REAL,               DIMENSION(nb_atom_max)           :: atom_adp_equiv          ! parametre de deplacements atomiques equivalent
   character (len=10), dimension(nb_atom_max)           :: atom_label              ! label des atomes (ATOM)
-  character (len=2),  dimension(nb_atom_max)           :: atom_type               ! symbole des atomes (ATOM)
+  character (len=4),  dimension(nb_atom_max)           :: atom_type               ! symbole des atomes (ATOM)
   real,               dimension(nb_atom_max)           :: atom_occ_perc           ! % occupation du site
   real,               dimension(nb_atom_max)           :: atom_occ               ! occupation du site = mult. site / mult. generale
   real,               dimension(nb_atom_max)           :: atom_Ueq                ! U
@@ -137,6 +248,7 @@ module cryscal_module
   !LOGICAL                                      :: X_Ag                    ! beam = X_rays Ag
 
   LOGICAL                                      :: neutrons                ! beam = neutrons
+  LOGICAL                                      :: electrons               ! bema = electrons
   logical                                      :: keyword_SFAC_UNIT       ! connaissance du contenu de la maille
   LOGICAL                                      :: keyword_CONT            ! connaissance du contenu de la maille
   LOGICAL                                      :: keyword_CHEM            ! connaissance du contenu de la maille
@@ -247,6 +359,7 @@ module cryscal_module
   REAL                                         :: shift_2theta            ! valeur du decalage en 2theta
 
   LOGICAL                                      :: write_HKL               ! sortie des HKL
+  LOGICAL                                      :: create_PAT              ! creation d'un diagramme 
   LOGICAL                                      :: HKL_2THETA
   LOGICAL                                      :: HKL_THETA
   LOGICAL                                      :: HKL_STL
@@ -411,6 +524,10 @@ module cryscal_module
   INTEGER, parameter                           :: X_read_unit     = 57      ! unite logique attribuee au fichier.x (DENZO)
   INTEGER, parameter                           :: RMAT_read_unit  = 58      ! unite logique attribuee au fichier.RMAT (DIRAX)
   INTEGER, parameter                           :: ABS_read_unit   = 59      ! unite logique attribuee au fichier.ABS (SADABS)
+  
+  INTEGER, parameter                           :: PAT_unit        = 60      ! unite logique attribuee au fichier CRYSCAL_pat.xy
+  INTEGER, parameter                           :: PRF_unit        = 61      ! unite logique attribuee au fichier CRYSCAL_pat.PRF
+  
   
 
   INTEGER, parameter                           :: tmp_unit        = 22
@@ -592,11 +709,11 @@ module cryscal_module
 
   !---------------- type ---------------------------------------------------------------------------------
 
-  TYPE, PUBLIC :: LOG_file_type
+  TYPE, PUBLIC :: DEBUG_file_type
    INTEGER           :: unit
    LOGICAL           :: write
-  end type LOG_file_type
-  type (LOG_file_type) :: LOG_file
+  end type DEBUG_file_type
+  type (DEBUG_file_type) :: DEBUG_file
 
 
   TYPE, PUBLIC :: my_appli_type
@@ -900,7 +1017,7 @@ module wavelength_module
   INTEGER, parameter                 :: tabulated_target_nb = 7
 
   TYPE, PUBLIC :: X_target_type
-   LOGICAL             :: log
+   LOGICAL             :: logic
    LOGICAL             :: write
    REAL, DIMENSION(3)  :: wave    ! longueur d'onde associée (Ka1, Ka2, Kb1)
    CHARACTER (LEN=2)   :: label   ! nature anticathode
@@ -936,114 +1053,6 @@ module SHELX_module
 
 end module SHELX_module
 
-!--------------------------------------------------------------------
-module hkl_module
- implicit none
-
- integer                           :: n_ref          ! nombre de reflections dans le fichier
- integer                           :: n_ref_2        ! nombre de reflections avec I > 2sig
- integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
- INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
- INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
- 
-
- !type, public :: reflexion_type
- ! integer,             dimension(:),   allocatable   :: h,k,l, code
- ! real,                dimension(:),   allocatable   :: F2, sig_F2, E, E2, E3, E4, E5, E6
- ! real,                dimension(:),   allocatable   :: stl, d, theta
- ! real,                dimension(:,:), allocatable   :: cos_dir
- ! real,                dimension(:),   allocatable   :: I_sig, I_
- ! logical,             dimension(:),   allocatable   :: impair, search_OK
- ! character (len=16),  dimension(:),   allocatable   :: string
- ! character (len=256), dimension(:),   allocatable   :: line
- ! integer,             dimension(:,:), allocatable   :: flag
- ! integer,             dimension(:),   allocatable   :: good
- !end type reflexion_type
- !type (reflexion_type) :: HKL
-
- integer, parameter                        :: max_ref = 500000
- INTEGER,             DIMENSION(max_ref)   :: h, k, l, code
- REAL,                DIMENSION(max_ref)   :: F2, sig_F2, E, E2, E3, E4, E5, E6
- REAL,                DIMENSION(max_ref)   :: sinTheta_lambda, d_hkl, theta_hkl
- LOGICAL,             DIMENSION(max_ref)   :: HKL_impair
- CHARACTER (LEN=20),  DIMENSION(max_ref)   :: HKL_string
- CHARACTER (LEN=256), DIMENSION(max_ref)   :: HKL_line
- INTEGER,             DIMENSION(max_ref,3) :: HKL_flag
- INTEGER,             DIMENSION(max_ref)   :: HKL_good
- REAL,                DIMENSION(max_ref,6) :: cos_dir
- REAL,                DIMENSION(max_ref)   :: I_sigma,I_
- LOGICAL,             DIMENSION(max_ref)   :: HKL_search_ok
-
- CHARACTER (LEN=256), DIMENSION(10)       :: M95_comment_line
- INTEGER                                  :: M95_comment_line_nb
-
-
- logical                                  :: cos_exist    ! fichier contenant les cos. dir.
- logical                                  :: cif_file     ! fichier *.CIF (ex: import.cif)
- real                                     :: sig_coef     ! coef. pour les sigmas
-
- LOGICAL                                  :: HKL_data_known
-
-
- INTEGER                           :: n_pair, n_impair
- REAL                              :: F2_pair, F2_impair, mean_F2_pair, mean_F2_impair
- REAL                              :: F2_mean, sig_F2_mean, ratio_mean
- REAL                              :: wF2_mean
- REAL                              :: E_mean, E2_mean, E2m1_mean
- REAL                              :: E3_mean, E4_mean, E5_mean, E6_mean
- real                              :: Rint
- REAL                              :: I_ratio, ratio_criteria
- REAL                              :: n_sig, threshold
- LOGICAL                           :: ordered_HKL
-
- character (len=4), dimension(3)           :: requested_H_string
- INTEGER,           DIMENSION(3)           :: requested_H
- integer                                   :: requested_HKL_list
- integer, parameter                        :: HKL_rule_nb =33
- CHARACTER(LEN=32), DIMENSION(2*HKL_rule_nb) :: HKL_rule
- LOGICAL                                   :: search_H_string
- LOGICAL                                   :: search_equiv
- LOGICAL                                   :: search_friedel
- 
-
-
- type, public :: HKL_file_features
-  CHARACTER (LEN=256)                          :: name           ! nom du fichier.HKL
-  CHARACTER (LEN=256)                          :: output         ! fichier de sortie .HKL
-  CHARACTER (LEN=256)                          :: output2        ! fichier de sortie .HKL #2
-  CHARACTER (LEN=256)                          :: HKL            ! fichier .HKL
-  CHARACTER (LEN=256)                          :: d
-  CHARACTER (LEN=256)                          :: stl
-  CHARACTER (LEN=256)                          :: theta
-  CHARACTER (LEN=256)                          :: I
-  CHARACTER (LEN=256)                          :: Isig
-  CHARACTER (LEN=256)                          :: merge
-  CHARACTER (LEN=256)                          :: transf
-  LOGICAL                                      :: CIF            ! fichier *.cif (ex: import.cif)
-  LOGICAL                                      :: SHELX          ! fichier *.HKL (SHELX format)
-  LOGICAL                                      :: final_y        ! fichier final.y cree par EVALCCD
-  LOGICAL                                      :: RAW            ! fichier .RAW cree par SAINT
-  LOGICAL                                      :: M91            ! fichier .M91 cree par JANA
-  LOGICAL                                      :: M95            ! fichier .M95 cree par JANA
-  LOGICAL                                      :: plot           ! trace de F2=f(sinTheta/lambda)
-  LOGICAL                                      :: read_NEG       ! lecture intensites negatives
- end type HKL_file_features
- type(HKL_file_features)  :: HKL_file
-
- TYPE, PUBLIC :: HKL_list_features
-  INTEGER             :: EXTI_number        ! numero d'extinction systematique
-  LOGICAL             :: ALL                ! aucun critere sur la selection
-  LOGICAL             :: OUT                ! liste a l'ecran les reflexions compatibles avec EXTI_number
-  LOGICAL             :: WRITE              ! ecrit dans un fichier les reflexions compatibles avec EXTI_number
-  LOGICAL             :: SUPPRESS           ! supprime du fichier initial les reflexions compatibles avec EXTI_number
- END TYPE HKL_list_features
- TYPE (HKL_list_features) :: HKL_list
- TYPE (HKL_list_features) :: HKL_list_POS
- TYPE (HKL_list_features) :: HKL_list_NEG
- TYPE (HKL_list_features) :: HKL_list_ABSENT
-
-
-END module hkl_module
 
 !-------------------------------------------------------------------
 subroutine def_laue_class()
@@ -1397,23 +1406,23 @@ module Definition_fractions
   contains 
   subroutine def_fractions
   
-  ratio_string_pos(1:nb_fraction) = (/'1/2',                                           &
-                                      '1/3', '2/3', '4/3', '5/3',                      &
-                                      '1/4', '3/4', '5/4',                             &
-                                      '1/5', '2/5', '3/5', '4/5', '6/5',               &
-                                      '1/6', '5/6', '7/6',                             &
-                                      '1/7', '2/7', '3/7', '4/7', '5/7', '6/7', '8/7', &
-                                      '1/8', '3/8', '5/8', '7/8', '9/8',               &
-                                      '1/9', '2/9', '4/9', '5/9', '7/9', '8/9', '10/9' /)
+  ratio_string_pos(1:nb_fraction) = (/'1/2 ',                                                 &
+                                      '1/3 ', '2/3 ', '4/3 ', '5/3 ',                         &
+                                      '1/4 ', '3/4 ', '5/4 ',                                 &
+                                      '1/5 ', '2/5 ', '3/5 ', '4/5 ', '6/5 ',                 &
+                                      '1/6 ', '5/6 ', '7/6 ',                                 &
+                                      '1/7 ', '2/7 ', '3/7 ', '4/7 ', '5/7 ', '6/7 ', '8/7 ', &
+                                      '1/8 ', '3/8 ', '5/8 ', '7/8 ', '9/8 ',                 &
+                                      '1/9 ', '2/9 ', '4/9 ', '5/9 ', '7/9 ', '8/9 ', '10/9' /)
 
-  ratio_string_neg(1:nb_fraction) = (/'-1/2',                                                  &
-                                      '-1/3', '-2/3', '-4/3', '-5/3',                          &
-                                      '-1/4', '-3/4', '-5/4',                                  &
-                                      '-1/5', '-2/5', '-3/5', '-4/5', '-6/5',                  &
-                                      '-1/6', '-5/6', '-7/6',                                  &
-                                      '-1/7', '-2/7', '-3/7', '-4/7', '-5/7', '-6/7', '-8/7',  &
-                                      '-1/8', '-3/8', '-5/8', '-7/8', '9/8',                   &
-                                      '-1/9', '-2/9', '-4/9', '-5/9', '-7/9', '-8/9', '-10.9'  /)
+  ratio_string_neg(1:nb_fraction) = (/'-1/2 ',                                                        &
+                                      '-1/3 ', '-2/3 ', '-4/3 ', '-5/3 ',                             &
+                                      '-1/4 ', '-3/4 ', '-5/4 ',                                      &
+                                      '-1/5 ', '-2/5 ', '-3/5 ', '-4/5 ', '-6/5 ',                    &
+                                      '-1/6 ', '-5/6 ', '-7/6 ',                                      &
+                                      '-1/7 ', '-2/7 ', '-3/7 ', '-4/7 ', '-5/7 ', '-6/7 ', '-8/7 ',  &
+                                      '-1/8 ', '-3/8 ', '-5/8 ', '-7/8 ', '-9/8 ',                    &
+                                      '-1/9 ', '-2/9 ', '-4/9 ', '-5/9 ', '-7/9 ', '-8/9 ', '-10.9'  /)
 
   ratio_real_pos(1:nb_fraction) = (/  1./2.,                                           &
                                       1./3., 2./3., 4./3., 5./3.,                      &
@@ -1423,9 +1432,7 @@ module Definition_fractions
                                       1./7., 2./7., 3./7., 4./7., 5./7., 6./7., 8./7., &
                                       1./8., 3./8., 5./8., 7./8., 9./8.,               &
                                       1./9., 2./9., 4./9., 5./9., 7./9., 8./9., 10./9. /)
-
-
-  ratio_real_neg(1:nb_fraction) = -ratio_real_pos(1:nb_fraction)
+ratio_real_neg(1:nb_fraction) = -ratio_real_pos(1:nb_fraction)
 
   return
   end subroutine def_fractions

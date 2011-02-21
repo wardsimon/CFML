@@ -30,7 +30,7 @@ subroutine read_keywords_from_file(arg_file)
    do
     input_file = ''
     call write_info(' ')
-    call write_info(' >> Enter input file: ')
+    call write_info(' >> Enter input file (.CFL): ')
     call read_input_line(input_line)
     READ(input_line,'(a)') input_file
     input_file = u_case(input_file)
@@ -83,9 +83,10 @@ subroutine read_keywords_from_file(arg_file)
  call write_info('  Input CRYSCAL file: '//trim(input_file))
  call write_info(' ')
  
- OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
+ !OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
 
 
+  
  select case (extension(1:3))
 
      case ("ins", "res")
@@ -127,14 +128,22 @@ subroutine read_keywords_from_file(arg_file)
      case ("cfl")
       input_CFL = .true.
       IF(step_by_step) then             ! a partir de la ligne de commande
+	   close(unit=CFL_read_unit)
+	   OPEN(UNIT=CFL_read_unit, FILE=TRIM(input_file), ACTION="read")
+
        call interactive_mode('file')
-      else                              ! option #1 du menu principal
+      else                              ! option #2 du menu principal
         !call read_CFL_input_file(TRIM(input_file))              ! read_CFL.F90
-       call read_CFL_input_file()              ! read_CFL.F90
+       !call read_CFL_input_file(input_unit)                    ! read_CFL.F90
+
+       close(unit=CFL_read_unit)
+       OPEN(UNIT=CFL_read_unit, FILE=TRIM(input_file), ACTION="read")
+       call read_CFL_input_file(CFL_read_unit)                 ! read_CFL.F90
        call read_input_file_KEYWORDS(TRIM(input_file))         ! read_KEYW.F90
       endif
 
      case ("cif")
+      OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
       input_CIF = .true.
       call check_CIF_input_file(TRIM(input_file))
       IF(input_file(:) /= 'archive.cif') then
@@ -142,9 +151,10 @@ subroutine read_keywords_from_file(arg_file)
        IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
       endif
 
-
       call read_CIF_input_file(TRIM(input_file), '?')          ! read_CIF_file.F90
+      !call read_CIF_input_file_TR(input_file)                  ! read_CIF_file.F90
       call read_CIF_input_file_TR(input_unit)                  ! read_CIF_file.F90
+ 
       !call read_SQUEEZE_file
       !call read_input_file_KEYWORDS(TRIM(input_file))
       
@@ -171,7 +181,8 @@ subroutine read_keywords_from_file(arg_file)
 
      case default
       !call read_CFL_input_file(TRIM(input_file))
-      call read_CFL_input_file(input_unit)
+      !call read_CFL_input_file(input_unit)
+	  call read_CFL_input_file(CFL_read_unit)
       call read_input_file_KEYWORDS(TRIM(input_file))
 
  end select
@@ -461,17 +472,17 @@ END subroutine check_CIF_input_file
 
 !--------------------------------------------------------------------
 
-subroutine get_P4P_file_name()
- USE cryscal_module, ONLY : P4P_file_name
+subroutine get_P4P_file_name(P4P_file_name)
  implicit none
-  INTEGER              :: i, ier, n_P4P
-  CHARACTER (LEN=256)  :: read_line
+  CHARACTER(LEN=*), INTENT(INOUT) :: P4P_file_name 
+  INTEGER                         :: i, ier, n_P4P
+  CHARACTER (LEN=256)             :: read_line
 
   call system('dir *.p4p /B > p4p.lst')      !! message 'fichier introuvable' si pas de fichier.P4P !
   open (UNIT=9, FILE='p4p.lst')
   n_P4P = 0
   do
-   READ(UNIT=9, '(a)', IOSTAT=ier) read_line
+   READ(9, '(a)', IOSTAT=ier) read_line
    IF(ier <0) EXIT ! fin du fichier
    n_p4p = n_p4p + 1
   END do

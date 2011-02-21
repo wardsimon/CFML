@@ -54,24 +54,24 @@ subroutine read_SHELX_HKL()
 
   OPEN(UNIT=66, FILE=TRIM(SHELX_HKL_file))
   OPEN(UNIT=67, FILE='import.cif', POSITION = 'append')
-   WRITE(UNIT=67, '(a)') ''
-   WRITE(UNIT=67, '(a)') '#----------------------------------------------------------------------------#'
-   WRITE(UNIT=67, '(a)') '#                   HKL DATA from SADABS                                     #'
-   WRITE(UNIT=67, '(a)') '#----------------------------------------------------------------------------#'
-   WRITE(UNIT=67, '(a)') ''
-   WRITE(UNIT=67, '(a)') 'loop_'
-   WRITE(UNIT=67, '(a)') '_refln_index_h'
-   WRITE(UNIT=67, '(a)') '_refln_index_k'
-   WRITE(UNIT=67, '(a)') '_refln_index_l'
-   WRITE(UNIT=67, '(a)') '_refln_F_squared_meas'
-   WRITE(UNIT=67, '(a)') '_refln_F_squared_sigma'
-   WRITE(UNIT=67, '(a)') '_refln_scale_group_code'
+   WRITE(67, '(a)') ''
+   WRITE(67, '(a)') '#----------------------------------------------------------------------------#'
+   WRITE(67, '(a)') '#                   HKL DATA from SADABS                                     #'
+   WRITE(67, '(a)') '#----------------------------------------------------------------------------#'
+   WRITE(67, '(a)') ''
+   WRITE(67, '(a)') 'loop_'
+   WRITE(67, '(a)') '_refln_index_h'
+   WRITE(67, '(a)') '_refln_index_k'
+   WRITE(67, '(a)') '_refln_index_l'
+   WRITE(67, '(a)') '_refln_F_squared_meas'
+   WRITE(67, '(a)') '_refln_F_squared_sigma'
+   WRITE(67, '(a)') '_refln_scale_group_code'
 
    do
-    READ(UNIT=66, '(a)', IOSTAT=i_iostat) read_line
+    READ(66, '(a)', IOSTAT=i_iostat) read_line
     IF(i_iostat <0) exit
     READ(read_line, '(3I4,2F8.2,I4)')   h, k, l, F2, sig, code
-    WRITE(UNIT=67, '(I4,2I5,2F9.2,I5)') h, k, l, F2, sig, code
+    WRITE(67, '(I4,2I5,2F9.2,I5)') h, k, l, F2, sig, code
    END do
   CLOSE(UNIT=67)
   close(UNIT=66)
@@ -108,14 +108,14 @@ subroutine read_RAW_file
   OPEN(UNIT=67, FILE=trim(SHELX_HKL_file))
    n_ref = 0
    do
-    READ(UNIT=66, '(a)', IOSTAT=i_iostat) read_line
+    READ(66, '(a)', IOSTAT=i_iostat) read_line
     IF(i_iostat <0) exit
     
     READ(read_line,      '(3I4)')       h_, k_, l_
     READ(read_line(13:), *)             F2_, sig_
     READ(read_line(29:), '(I4,6F8.5)')  code_, cosdir(1:6)
 
-    write(unit=67, '(3I4, 2F8.2,I4, 6F8.5)') h_,k_,l_, F2_, sig_, code_, cosdir(1:6)
+    write(67, '(3I4, 2F8.2,I4, 6F8.5)') h_,k_,l_, F2_, sig_, code_, cosdir(1:6)
     
     n_ref = n_ref+1
     h(n_ref)               = h_

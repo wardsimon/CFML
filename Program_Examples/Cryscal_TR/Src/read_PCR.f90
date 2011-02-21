@@ -18,7 +18,7 @@ subroutine read_PCR_input_file
 
 
 ! TITL: keyword COMM
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) return   ! fin du fichier
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
@@ -34,15 +34,15 @@ subroutine read_PCR_input_file
 
  !"! lambda1"
  do
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
 
   i = INDEX(read_line,'! lambda1')
   if (i/=0) then
-   READ(UNIT=PCR_read_unit, *, IOSTAT=i_error) wavelength
+   READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) wavelength
    keyword_WAVE = .true.
 
-   write(message_text,'(a,F10.5)')  '  > WAVE: ', wavelength
+   write(message_text,fmt='(a,F10.5)')  '  > WAVE: ', wavelength
    call write_info(TRIM(message_text))
    exit
   end if
@@ -52,12 +52,12 @@ subroutine read_PCR_input_file
 
  !"!Nat"
  do
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
 
   i = INDEX(read_line,'!Nat')
   if (i/=0) then
-   READ(UNIT=PCR_read_unit, *, IOSTAT=i_error) nb_atom
+   READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) nb_atom
    exit
   end if
  END do
@@ -65,14 +65,14 @@ subroutine read_PCR_input_file
 
  !"!Atom Typ"
  do
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
 
   i = INDEX(read_line,'!Atom')
 
   if (i/=0) then
    do
-    READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+    READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
     IF(i_error /=0) cycle
     read_line=ADJUSTL(read_line)
     IF(read_line(1:1) == '!') cycle
@@ -81,7 +81,7 @@ subroutine read_PCR_input_file
    end do
 
    do n_atom=1, nb_atom
-    READ(UNIT=PCR_read_unit, *, IOSTAT=i_error) atom_label(n_atom),atom_type(n_atom), (atom_coord(i, n_atom) ,i=1,3),    &
+    READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) atom_label(n_atom),atom_type(n_atom), (atom_coord(i, n_atom) ,i=1,3), &
                                              atom_Biso(n_atom), atom_Occ(n_atom), so_1, so_2, N_t
     IF(N_t == 2) then
      n_lines = 3
@@ -90,11 +90,11 @@ subroutine read_PCR_input_file
     endif
 
     do i=1, n_lines
-     READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+     READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
      IF(i_error < 0) EXIT   ! fin du fichier
     end do
-    WRITE(message_text,'(a,2a6,5(1x,F8.5))') '  > ATOM: ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  (atom_coord(i,n_atom),i=1,3),   &
-                                                           atom_Biso(n_atom), atom_occ(n_atom)
+    WRITE(message_text,fmt='(a,2a6,5(1x,F8.5))') '  > ATOM: ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  &
+	                                             (atom_coord(i,n_atom),i=1,3), atom_Biso(n_atom), atom_occ(n_atom)
     call write_info(TRIM(message_text))
 
    end do
@@ -106,15 +106,15 @@ subroutine read_PCR_input_file
  REWIND (UNIT=PCR_read_unit)
  ! "<--Space group symbol"
  do
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
 
   i = INDEX(read_line,'<--Space group symbol')
   if (i/=0) then
-   READ(read_line(1:i-1), '(a)', IOSTAT=i_error) space_group_symbol
+   READ(read_line(1:i-1), fmt='(a)', IOSTAT=i_error) space_group_symbol
    IF(i_error /= 0) EXIT
    space_group_symbol = ADJUSTL(space_group_symbol)
-   WRITE(message_text, '(2a)') '  > Space group : ', space_group_symbol
+   WRITE(message_text, fmt='(2a)') '  > Space group : ', space_group_symbol
    call write_info(TRIM(message_text))
    keyword_SPGR = .true.
    call space_group_info()
@@ -136,14 +136,14 @@ subroutine read_PCR_input_file
 
  !"!     a          b         c        alpha      beta       gamma"
  do
-  READ(UNIT=PCR_read_unit, '(a)', IOSTAT=i_error) read_line
+  READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
   i = INDEX(read_line,'!     a          b         c        alpha      beta       gamma')
 
   if (i/=0) then
-   READ(UNIT=PCR_read_unit, *, IOSTAT=i_error) (unit_cell%param(i),i=1,6)
+   READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) (unit_cell%param(i),i=1,6)
    !IF(i_error /= 0) EXIT
-   WRITE(message_text,'( a,6F10.4)') '  > CELL PARAMETERS: ', (unit_cell%param(i),i=1,6)
+   WRITE(message_text,fmt='( a,6F10.4)') '  > CELL PARAMETERS: ', (unit_cell%param(i),i=1,6)
    call write_info(TRIM(message_text))
    keyword_CELL = .true.
    exit
@@ -212,7 +212,7 @@ subroutine read_CEL_input_file(input_file)
  ! end do
  
   ! line 1 : CELL
-  read(unit = CEL_read_unit, '(a)', iostat=i_error) read_line
+  read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
   if(i_error /=0) then! 
    call write_info('')
    call write_info(' Error reading '//trim(input_file)// ' at line 1 (CELL).')
@@ -222,7 +222,7 @@ subroutine read_CEL_input_file(input_file)
   end if
   adjusted_line = adjustl(read_line)
   if(u_case(adjusted_line(1:4)) == 'CELL') then
-   read(adjusted_line(6:), *) (unit_cell%param(i),i=1,6) 
+   read(adjusted_line(6:), fmt=*) (unit_cell%param(i),i=1,6) 
   else
    call write_info('')
    call write_info(' Error reading ' //trim(input_file)// ' at line 1 (CELL).')
@@ -232,7 +232,7 @@ subroutine read_CEL_input_file(input_file)
   endif 
   
   ! line 2 : natoms
-   read(unit = CEL_read_unit, '(a)', iostat=i_error) read_line
+   read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
   if(i_error /=0) then! 
    call write_info('')
    call write_info(' Error reading ' //trim(input_file) // ' at line 2 (natom).')
@@ -242,13 +242,13 @@ subroutine read_CEL_input_file(input_file)
   end if
   adjusted_line = adjustl(read_line)
   if(u_case(adjusted_line(1:5)) == 'NATOM') then
-   read(adjusted_line(7:), *) nb_atom   
+   read(adjusted_line(7:), fmt=*) nb_atom   
   else
    nb_atom = 1
    backspace(unit = CEL_read_unit)
   endif 
   do n_atom = 1, nb_atom
-   read(unit = CEL_read_unit, '(a)', iostat = i_error) read_line
+   read(unit = CEL_read_unit, fmt='(a)', iostat = i_error) read_line
    if(i_error /=0) exit
    adjusted_line = adjustl(read_line)
    call nombre_de_colonnes(adjusted_line, nb_col)
@@ -259,11 +259,13 @@ subroutine read_CEL_input_file(input_file)
     close(unit = CEL_read_unit)
     return 
    elseif(nb_col == 7) then
-    read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), atom_occ_perc(n_atom), atom_Biso(n_atom)      
+    read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), &
+	                           atom_occ_perc(n_atom), atom_Biso(n_atom)      
    elseif(nb_col == 6) then
-    read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), atom_occ_perc(n_atom)      
+    read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3), &
+	                           atom_occ_perc(n_atom)      
    else
-    read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)  
+    read(adjusted_line, fmt=*) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)  
     atom_occ_perc(n_atom) = 1.   
    endif
       
@@ -273,7 +275,7 @@ subroutine read_CEL_input_file(input_file)
 
   
   ! ligne suivante : groupe d'espace
-  read(unit = CEL_read_unit, '(a)', iostat=i_error) read_line
+  read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line
   if(i_error /=0) then! 
    call write_info('')
    call write_info(' Error reading ' //trim(input_file) // ' (rgnr).')

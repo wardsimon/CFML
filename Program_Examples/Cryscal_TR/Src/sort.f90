@@ -294,14 +294,15 @@ subroutine read_data_file(ok)
 
   IF(HKL_file%SHELX) THEN     ! lecture d'un fichier.HKl format SHELX
    do
-    READ(UNIT=HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_,cosdir(1:6)
+    READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_,cosdir(1:6)
     if (ier < 0) exit ! fin du fichier atteinte
     IF(h_==0 .AND. k_==0 .AND. l_==0) exit
 
     call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
 
     if (n_ref ==1) then
-     if (cosdir(1) < eps .and.  cosdir(2) < eps .and. cosdir(3) < eps .and. cosdir(4) < eps .and. cosdir(5) < eps .and. cosdir(6) < eps) then
+     if (cosdir(1) < eps .and.  cosdir(2) < eps .and. cosdir(3) < eps .and. cosdir(4) < eps .and. &
+	     cosdir(5) < eps .and. cosdir(6) < eps) then
       cos_exist = .false.
      else
       cos_exist = .true.
@@ -331,17 +332,17 @@ subroutine read_data_file(ok)
 
    do
     if (.not. cos_exist) then
-     READ(UNIT=HKL_unit, '(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_             ! sans les cos. dir.
+     READ(HKL_unit, '(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_  ! sans les cos. dir.
       if (ier < 0 ) exit
       IF(h_==0 .AND. k_==0 .AND. l_==0) exit
-     WRITE(UNIT=31, '(3i4,2F8.2,I4)')h_,k_,l_,F2_, sig_F2_, code_
+     WRITE(31, '(3i4,2F8.2,I4)')h_,k_,l_,F2_, sig_F2_, code_
     else
-     READ(UNIT=HKL_unit,'(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_
+     READ(HKL_unit,'(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_
       if (ier /=0 ) exit                                                         ! avec les cos. dir.
       IF(h_==0 .AND. k_==0 .AND. l_==0) exit
-     READ(UNIT=HKL_unit,'(F8.5,5F9.5)',IOSTAT=ier) cosdir(1:6)
+     READ(HKL_unit,'(F8.5,5F9.5)',IOSTAT=ier) cosdir(1:6)
       if (ier /=0 ) exit
-     write(UNIT=31,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_, cosdir(1:6)
+     write(31,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_, cosdir(1:6)
     endif
 
     call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
@@ -374,7 +375,7 @@ subroutine read_data_file(ok)
      IF(h_==0 .AND. k_==0 .AND. l_==0) exit
 
      call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
-     WRITE(UNIT=31, '(3i4,2F8.2)') h_,k_,l_,F2_, sig_F2_
+     WRITE(31, '(3i4,2F8.2)') h_,k_,l_,F2_, sig_F2_
     END do
    else
     do 
@@ -383,7 +384,7 @@ subroutine read_data_file(ok)
      IF(h_==0 .AND. k_==0 .AND. l_==0) exit
 
      call check_HKLM(h_, k_, l_, m_, F2_, sig_F2_, code_, cosdir)
-     WRITE(UNIT=31, '(4i4,2F8.2)') h_,k_,l_,m_, F2_, sig_F2_
+     WRITE(31, '(4i4,2F8.2)') h_,k_,l_,m_, F2_, sig_F2_
     END do
 
    endif 
@@ -402,7 +403,7 @@ subroutine read_data_file(ok)
    OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
    do
-    READ(UNIT=HKL_unit, '(a)', IOSTAT=ier) read_line
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
     READ(read_line,      '(3I4)')       h_, k_, l_
     READ(read_line(13:), *)             F2_, sig_F2_
@@ -427,7 +428,7 @@ subroutine read_data_file(ok)
    END do
 
    do i=1, n_ref
-    write(unit=31, '(3I4, 2F8.2,I4, 6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i), code(i), cos_dir(i, 1:6)
+    write(31, '(3I4, 2F8.2,I4, 6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i), code(i), cos_dir(i, 1:6)
    END do
    CLOSE(UNIT=31)
 
@@ -441,7 +442,7 @@ subroutine read_data_file(ok)
    OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
    do
-    READ(unit = HKL_unit, '(a)', IOSTAT=ier) read_line
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
     READ(read_line,      '(3I4,2F9.1,a)') h_, k_, l_, F2_, sig_F2_, M91_string
     IF(h_ == 999) exit
@@ -452,7 +453,7 @@ subroutine read_data_file(ok)
    HKL_data_known = .true.
 
    do i=1, n_ref
-    write(unit=31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
+    write( 1, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
    end do
 
   ELSEIF(HKL_file%M95) then
@@ -465,12 +466,12 @@ subroutine read_data_file(ok)
    OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
 
-   READ(UNIT=HKL_unit, '(a)', IOSTAT=ier) read_line
+   READ(HKL_unit, '(a)', IOSTAT=ier) read_line
    IF(ier/=0) return
    M95_comment_line_nb = 0
    IF(read_line(1:19) == 'import_report_begin') then
     do i=1, 8
-     READ(UNIT=HKL_unit, '(a)', IOSTAT=ier) read_line
+     READ(HKL_unit, '(a)', IOSTAT=ier) read_line
      IF(ier/=0) return
      M95_comment_line(i) = read_line
     end do
@@ -481,10 +482,11 @@ subroutine read_data_file(ok)
 
 
    do
-    READ(unit = HKL_unit, '(a)', IOSTAT=ier) read_line
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
-    READ(read_line,      '(I6, 3I4, 4F7.2, 2E15.6, F10.3, 2I2)') M95_i(1), h_, k_, l_, M95_r(1:4), F2_, sig_F2_, M95_r(5), M95_i(2:3)
-    READ(unit = HKL_unit, '(a)', IOSTAT=ier) read_line
+    READ(read_line,      '(I6, 3I4, 4F7.2, 2E15.6, F10.3, 2I2)') M95_i(1), h_, k_, l_, M95_r(1:4), &
+	                                                             F2_, sig_F2_, M95_r(5), M95_i(2:3)
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
 
     call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
@@ -497,7 +499,7 @@ subroutine read_data_file(ok)
    HKL_data_known = .true.
 
    do i=1, n_ref
-    write(unit=31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
+    write(31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
    end do
 
   else
@@ -529,11 +531,14 @@ subroutine read_data_file(ok)
 
    call write_info('')
 
-   WRITE(message_text,'(a,I4,2x,I4)')       '                           . h_min, h_max: ', MINVAL(h(1:n_ref)), MAXVAL(h(1:n_ref))
+   WRITE(message_text,'(a,I4,2x,I4)')       '                           . h_min, h_max: ', MINVAL(h(1:n_ref)), &
+                                                                          MAXVAL(h(1:n_ref))
    call write_info(TRIM(message_text))
-   WRITE(message_text,'(a,I4,2x,I4)')       '                           . k_min, k_max: ', MINVAL(k(1:n_ref)), MAXVAL(k(1:n_ref))
+   WRITE(message_text,'(a,I4,2x,I4)')       '                           . k_min, k_max: ', MINVAL(k(1:n_ref)), & 
+                                                                          MAXVAL(k(1:n_ref))
    call write_info(TRIM(message_text))
-   WRITE(message_text,'(a,I4,2x,I4)')       '                           . l_min, l_max: ', MINVAL(l(1:n_ref)), MAXVAL(l(1:n_ref))
+   WRITE(message_text,'(a,I4,2x,I4)')       '                           . l_min, l_max: ', MINVAL(l(1:n_ref)), & 
+                                                                          MAXVAL(l(1:n_ref))
    call write_info(TRIM(message_text))
    call write_info('')
 
@@ -544,12 +549,18 @@ subroutine read_data_file(ok)
    endif
 
    IF(keyword_CELL) then
-    WRITE(message_text,'(a,F6.3,2x,F6.3)')  '                           . STL_min, STL_max (A-1)     :  ', MINVAL(sintheta_lambda(1:n_ref)), MAXVAL(sintheta_lambda(1:n_ref))
+    WRITE(message_text,'(a,F6.3,2x,F6.3)')  '                           . STL_min, STL_max (A-1)     :  ',  & 
+	                                                                      MINVAL(sintheta_lambda(1:n_ref)), &
+																		  MAXVAL(sintheta_lambda(1:n_ref))
     call write_info(TRIM(message_text))
-    WRITE(message_text,'(a,F6.3,2x,F6.3)')  '                           . d_min, d_max (A)           :  ', MINVAL(d_hkl(1:n_ref)), MAXVAL(d_hkl(1:n_ref))
+    WRITE(message_text,'(a,F6.3,2x,F6.3)')  '                           . d_min, d_max (A)           :  ', & 
+	                                                                      MINVAL(d_hkl(1:n_ref)),          &
+																		  MAXVAL(d_hkl(1:n_ref))
     call write_info(TRIM(message_text))
     IF(keyword_WAVE) then
-     WRITE(message_text,'(a,F6.2,2x,F6.2)') '                           . theta_min, theta_max (deg.):  ', MINVAL(theta_hkl(1:n_ref)), MAXVAL(theta_hkl(1:n_ref))
+     WRITE(message_text,'(a,F6.2,2x,F6.2)') '                           . theta_min, theta_max (deg.):  ', & 
+	                                                                      MINVAL(theta_hkl(1:n_ref)),      &
+																		  MAXVAL(theta_hkl(1:n_ref))
      call write_info(TRIM(message_text))
      call write_info('')
     endif
@@ -774,7 +785,8 @@ subroutine classement(n, input_string)
        call write_info(' Warning: WinPLOTR is not installed ')
        call write_info('')
       else
-       call system('winplotr '//trim(pgf_file%name), .true. )
+       !call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
+	   call system('winplotr '//trim(pgf_file%name))              ! g95
       endif
      END if
 
@@ -992,7 +1004,8 @@ subroutine classement(n, input_string)
      else
       expected_min_intensity = shell_min(nb_shell)
       expected_max_intensity = shell_max(nb_shell)
-      WRITE(message_text, '(a,2F10.5)') '  >>  Expected Intensity cut-off min. and max. values: ', expected_min_intensity, expected_max_intensity
+      WRITE(message_text, '(a,2F10.5)') '  >>  Expected Intensity cut-off min. and max. values: ', &
+	                                    expected_min_intensity, expected_max_intensity
       call write_info(trim(message_text))
      endif
     endif
@@ -1023,7 +1036,8 @@ subroutine classement(n, input_string)
      else
       expected_min_cut_off = shell_min(nb_shell)
       expected_max_cut_off = shell_max(nb_shell)
-      WRITE(message_text, '(a,2F10.5)') '  >> Expected I/sig cut-off min. and max. values: ', expected_min_cut_off, expected_max_cut_off
+      WRITE(message_text, '(a,2F10.5)') '  >> Expected I/sig cut-off min. and max. values: ', &
+	                                    expected_min_cut_off, expected_max_cut_off
       call write_info(trim(message_text))
      endif
     endif
@@ -1084,7 +1098,8 @@ subroutine classement(n, input_string)
       call write_info('  >>> '//TRIM(HKL_file%d)// ' file has been created.')
       WRITE(message_text, '(a,I8)')          '     . number of reflections          : ', n_ref_eff
       call write_info(TRIM(message_text))
-      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
+      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, &
+	                                         ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
       call write_info(trim(message_text))
       call write_info(' ')
       IF(sort_plot(n) .or. shell_plot(n)) then
@@ -1096,7 +1111,8 @@ subroutine classement(n, input_string)
         call write_info(' Warning: WinPLOTR is not installed ')
         call write_info('')
        else
-        call system('winplotr '//trim(pgf_file%name), .true. )
+        !call system('winplotr '//trim(pgf_file%name), .true. )  ! lf95
+		call system('winplotr '//trim(pgf_file%name))            ! g95
        endif
       END if
 
@@ -1131,7 +1147,8 @@ subroutine classement(n, input_string)
       call write_info('  >>> '//TRIM(HKL_file%stl)// ' file has been created.')
       WRITE(message_text, '(a,I8)')          '     . number of reflections          : ', n_ref_eff
       call write_info(TRIM(message_text))
-      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
+      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, &
+	                                         ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
       call write_info(trim(message_text))
 
       call write_info(' ')
@@ -1144,7 +1161,8 @@ subroutine classement(n, input_string)
         call write_info(' Warning: WinPLOTR is not installed ')
         call write_info('')
        else
-        call system('winplotr '//trim(pgf_file%name), .true. )
+        !call system('winplotr '//trim(pgf_file%name), .true. )   ! lf95
+		call system('winplotr '//trim(pgf_file%name))             ! g95
        endif
       END if
 
@@ -1179,7 +1197,8 @@ subroutine classement(n, input_string)
       call write_info('  >>> '//TRIM(HKL_file%theta)// ' file has been created.')
       WRITE(message_text, '(a,I8)')          '     . number of reflections          : ', n_ref_eff
       call write_info(TRIM(message_text))
-      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
+      write(message_text, '(a,I8,a,F7.3,a)') '     . number of excluded reflections : ', n_ref - n_ref_eff, &
+	                                         ' (', 100.*(n_ref - n_ref_eff)/n_ref, '%)'
       call write_info(trim(message_text))
       call write_info(' ')
       IF(sort_plot(n) .or. shell_plot(n)) then
@@ -1191,7 +1210,8 @@ subroutine classement(n, input_string)
         call write_info(' Warning: WinPLOTR is not installed ')
         call write_info('')
        else
-        call system('winplotr '//trim(pgf_file%name),  .true. )
+        !call system('winplotr '//trim(pgf_file%name),  .true. )   ! lf95
+		call system('winplotr '//trim(pgf_file%name))              ! g95
        endif
       END if
       	
@@ -1204,7 +1224,8 @@ subroutine classement(n, input_string)
 
      case ('sort_isig', 'shell_isig')
        do i=1, n_ref
-       if(F2(i)/sig_F2(i) >= expected_min_cut_off .and. F2(i)/sig_F2(i)  <= expected_max_cut_off) call write_sorted_file(i)       	
+       if(F2(i)/sig_F2(i) >= expected_min_cut_off .and. F2(i)/sig_F2(i)  <= expected_max_cut_off) &
+	      call write_sorted_file(i)       	
       end do
       call write_info(' ')
       call write_info('  >>> '//TRIM(HKL_file%Isig)// ' file has been created.')
@@ -1285,7 +1306,8 @@ end subroutine calcul_Q
 
 !-----------------------------------------------------------------------------------------------------------------------
 
- subroutine classement_par_ordre_croissant(sort_type, N, Z, indice_h, indice_k, indice_l, col4, col5, i_code,cos1, cos2, cos3, cos4, cos5, cos6)
+ subroutine classement_par_ordre_croissant(sort_type, N, Z, indice_h, indice_k, indice_l, col4, col5, i_code,  &
+                                           cos1, cos2, cos3, cos4, cos5, cos6)
 
 
  ! classement d'un tableau X,Y... par ordre croissant des X
@@ -1730,7 +1752,8 @@ subroutine write_sorted_file(i)
          IF(HKL_file%M91) then
           write(12, '(3I4,2F9.1,I4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, TRIM(HKL_line(i))
          ELSEIF(HKL_file%M95) then
-          WRITE(12, '(I6,3I4,4F7.2,2E15.6, F10.3, 2i2)') HKL_flag(i,1), h(i), k(i), l(i), cos_dir(i,1:4), F2(i), sig_F2(i)/sig_coef, cos_dir(i,5),  HKL_flag(i,2:3)
+          WRITE(12, '(I6,3I4,4F7.2,2E15.6, F10.3, 2i2)') HKL_flag(i,1), h(i), k(i), l(i), cos_dir(i,1:4), &
+		                                                 F2(i), sig_F2(i)/sig_coef, cos_dir(i,5), HKL_flag(i,2:3)
           WRITE(12, '(a)')                               TRIM(HKL_line(i))
          else
           write(12, '(3I4,2F8.2,i4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, code(i)

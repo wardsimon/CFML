@@ -15,7 +15,7 @@ subroutine get_cell_parameters_from_FINAL_Y_file(file_unit, cell_param)
 
 
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
     call write_info(' ... No cell parameters in the final.y file !!')
@@ -68,7 +68,7 @@ subroutine get_modulation_vect(file_unit, qvec_type, QVEC)
 
 
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     QVEC_type = .false.
    ELSEIF(ier >0) then
@@ -158,7 +158,7 @@ subroutine read_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_F2, H_sig, H_
   integer                              :: long_string
 
  do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    IF(ier <0) then
     H_ok = .false.
     return
@@ -206,7 +206,7 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
   integer                              :: long_string
 
  do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    IF(ier <0) then
     H_ok = .false.
     return
@@ -258,7 +258,7 @@ subroutine get_wavelength_from_FINAL_Y_file(file_unit, wave)
 
 
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
     call write_info(' ... No wavelength  in the final.y file !!')

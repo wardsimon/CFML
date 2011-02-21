@@ -185,7 +185,7 @@ MODULE MACROS_module
   ! call write_info('')
   ! return
   !endif
-  if(.not. file_exist) then   
+  if(.not. file_exist) then
    call write_info('')
    write(text_info, '(3a)') ' >>> ', trim(file_name), ' does not exist !'
    call write_info(trim(text_info))
@@ -242,7 +242,7 @@ end subroutine error_message
 
 !-------------------------------------------------------------------
 !subroutine remove_car(chaine, caractere)
-! ! enleve un caractere (ou chaine de caractere) d'une chaine 
+! ! enleve un caractere (ou chaine de caractere) d'une chaine
 !
 ! implicit none
 !  CHARACTER (LEN=*) ,   INTENT(IN OUT):: chaine
@@ -371,7 +371,7 @@ end subroutine error_message
   implicit none
    CHARACTER (LEN=*),    INTENT(IN)    :: chaine
    CHARACTER (LEN=*),    INTENT(IN)    :: car1, car2
-   CHARACTER (LEN=len(chaine))         :: new_chaine   
+   CHARACTER (LEN=len(chaine))         :: new_chaine
    INTEGER                             :: i
    integer                             :: len_car1
 
@@ -394,7 +394,7 @@ end subroutine error_message
 !-------------------------------------------------------------------
 
  subroutine WRITE_message(string_text )
-  ! ecrit un message à l'écran et dans le fichier CRYSCAL.OUT
+  ! ecrit un message à l'écran et dans le fichier CRYSCAL.log
 
   implicit none
    CHARACTER (LEN=*) ,   INTENT(IN)    :: string_text
@@ -408,7 +408,7 @@ end subroutine error_message
 
   return
  end subroutine write_message
- 
+
 
 !---------------------------------------------------------------------
 
@@ -428,8 +428,8 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
 
   alphabet_maj(1:26) = (/'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',  &
                          'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' /)
-                         
-  alpha(1:10)        = (/',', '!', '?', '#', ';', '_', '(', ')', '/', '\'/)                         
+
+  alpha(1:10)        = (/',', '!', '?', '#', ';', '_', '(', ')', '/', '\'/)
 
   numeric(1:12)      = (/'.', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'/)
 
@@ -452,7 +452,7 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
     return
    end if
   end do
-  
+
  ! test des caracteres particuliers (;!?...)
  do i=1, 10
   if(input_character(1:1) == alpha(i)(1:1)) then
@@ -460,8 +460,8 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
    return
   endif
  end do
-    
- ! test chiffres 
+
+ ! test chiffres
   do i=1, 12
    if (input_character(1:1) == numeric(i)(1:1)) then
     numeric_char = .true.
@@ -470,7 +470,7 @@ subroutine  check_character(input_character, alpha_char, numeric_char)
   end do
 
 
- 
+
  return
 end subroutine check_character
 !------------------------------------------------------------------------------------
@@ -480,39 +480,39 @@ subroutine Get_current_folder_name(folder_name)
  character(len=256), intent(out) :: folder_name
  integer                         :: i, i1, i_error
  character(len=256)              :: read_line
- 
+
  folder_name = '?'
  call system("dir folder_name > temp_file")
   open (unit=22, file="temp_file")
    do i=1, 4
-    read(unit=22, '(a)', iostat=i_error) read_line
+    read(22,'(a)', iostat=i_error) read_line
 	if(i_error /=0) exit
 	if(i==4 .and. index(read_line,':') /=0) then
-	 folder_name = trim(read_line(index(read_line,':')-1:))  
+	 folder_name = trim(read_line(index(read_line,':')-1:))
 	endif
    end do
-   
+
   close(unit=22)
   call system("del temp_file")
- 
+
 end subroutine Get_current_folder_name
 !------------------------------------------------------------------------------------
 subroutine Get_WinGX_job(job)
  use IO_module
- 
 
- implicit none 
+
+ implicit none
   character (len=12), intent(out) :: job
   character (len=256)             :: wingx_path_name
   character (len=256)             :: wingx_ini
   character (len=256)             :: read_line
   integer                         :: i_error, long, i1
-  
+
   job = '?'
-  
+
   ! recherche de la variable d'environnement wingxdir
   call getenv('WINGXDIR', wingx_path_name)
-  
+
   long = len_trim(wingx_path_name)
   if(long /=0) then
    if(wingx_path_name(long:long) == '\') then
@@ -523,7 +523,7 @@ subroutine Get_WinGX_job(job)
    call write_info('')
    call write_info('WinGX not installed !!')
    call write_info('')
-   return   
+   return
   endif
 
   open(unit=22, file = trim(wingx_ini), iostat=i_error)
@@ -531,11 +531,11 @@ subroutine Get_WinGX_job(job)
     call write_info('')
     call write_info('Error opening the '//trim(wingx_ini)//' WinGX setting file !!')
     call write_info('')
-    return       
+    return
    end if
-   
-   do 
-    read(unit=22, '(a)', iostat=i_error) read_line
+
+   do
+    read(22, '(a)', iostat=i_error) read_line
     if(i_error /=0) exit
     read_line = adjustl(read_line)
     if(index(read_line, 'StructureName=') /=0) then
@@ -545,9 +545,9 @@ subroutine Get_WinGX_job(job)
     endif
    end do
   close(unit=22)
-  
-   
-  
+
+
+
  return
 end subroutine Get_WinGX_job
 

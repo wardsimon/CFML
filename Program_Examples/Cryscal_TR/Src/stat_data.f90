@@ -120,66 +120,77 @@
 
    write(message_text,'(a)')         '   ---- Statistics on F2/F2_max: '
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 1.0 >=  F2/F2_max > 0.9: ',nb_ratio(11) , ' (', 100*real(nb_ratio(11))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 1.0 >=  F2/F2_max > 0.9: ',nb_ratio(11) , ' (', &
+                                                              100*real(nb_ratio(11))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.9 >=  F2/F2_max > 0.8: ',nb_ratio(10) , ' (', 100*real(nb_ratio(10))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.9 >=  F2/F2_max > 0.8: ',nb_ratio(10) , ' (', &
+                                                              100*real(nb_ratio(10))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.8 >=  F2/F2_max > 0.7: ',nb_ratio(9)  , ' (', 100*real(nb_ratio(9))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.8 >=  F2/F2_max > 0.7: ',nb_ratio(9)  , ' (', &
+                                                              100*real(nb_ratio(9))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.7 >=  F2/F2_max > 0.6: ',nb_ratio(8)  , ' (', 100*real(nb_ratio(8))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.7 >=  F2/F2_max > 0.6: ',nb_ratio(8)  , ' (', &
+                                                              100*real(nb_ratio(8))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.6 >=  F2/F2_max > 0.5: ',nb_ratio(7)  , ' (', 100*real(nb_ratio(7))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.6 >=  F2/F2_max > 0.5: ',nb_ratio(7)  , ' (', &
+                                                              100*real(nb_ratio(7))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.5 >=  F2/F2_max > 0.4: ',nb_ratio(6)  , ' (', 100*real(nb_ratio(6))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.5 >=  F2/F2_max > 0.4: ',nb_ratio(6)  , ' (', &
+                                                              100*real(nb_ratio(6))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.4 >=  F2/F2_max > 0.3: ',nb_ratio(5)  , ' (', 100*real(nb_ratio(5))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.4 >=  F2/F2_max > 0.3: ',nb_ratio(5)  , ' (', &
+                                                              100*real(nb_ratio(5))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.3 >=  F2/F2_max > 0.2: ',nb_ratio(4)  , ' (', 100*real(nb_ratio(4))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.3 >=  F2/F2_max > 0.2: ',nb_ratio(4)  , ' (', &
+                                                              100*real(nb_ratio(4))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.2 >=  F2/F2_max > 0.1: ',nb_ratio(3)  , ' (', 100*real(nb_ratio(3))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.2 >=  F2/F2_max > 0.1: ',nb_ratio(3)  , ' (', &
+                                                              100*real(nb_ratio(3))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.1 >=  F2/F2_max > 0.0: ',nb_ratio(2)  , ' (', 100*real(nb_ratio(2))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.1 >=  F2/F2_max > 0.0: ',nb_ratio(2)  , ' (', &
+                                                              100*real(nb_ratio(2))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
-   write(message_text,'(a,I8,a,F7.3,a)')      '         . 0.0 <=  F2/F2_max      : ',nb_ratio(1)  , ' (', 100*real(nb_ratio(1))/real(n_ref), ' %)'
+   write(message_text,fmt='(a,I8,a,F7.3,a)')      '         . 0.0 <=  F2/F2_max      : ',nb_ratio(1)  , ' (', &
+                                                              100*real(nb_ratio(1))/real(n_ref), ' %)'
     call write_info(TRIM(message_text))
    write(message_text,*)             ' '
     call write_info(TRIM(message_text))
 
 
    n = nb_ratio(11)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.9: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.9: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(10)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.8: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.8: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(9)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.7: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.7: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(8)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.6: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.6: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(7)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.5: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.5: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(6)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.4: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.4: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(5)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.3: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.3: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(4)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.2: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.2: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(3)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.1: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.1: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = n + nb_ratio(2)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max > 0.0: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max > 0.0: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
    n = nb_ratio(1)
-   write(message_text,'(a,F7.3,a)')  '         . F2/F2_max < 0.0: ',100*real(n)/real(n_ref)  ,' %'
+   write(message_text,fmt='(a,F7.3,a)')  '         . F2/F2_max < 0.0: ',100*real(n)/real(n_ref)  ,' %'
     call write_info(TRIM(message_text))
-   write(message_text,'(a)')         ' '
+   write(message_text,fmt='(a)')         ' '
     call write_info(TRIM(message_text))
 
 

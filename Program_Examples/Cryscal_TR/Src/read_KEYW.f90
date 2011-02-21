@@ -11,7 +11,7 @@ subroutine read_input_file_KEYWORDS()
   REWIND(UNIT=input_unit)
 
  do        ! lecture du fichier d'entree
-  READ(UNIT=input_unit, '(a)', IOSTAT=i_error) read_line
+  READ(input_unit, '(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
@@ -119,11 +119,11 @@ subroutine identification_keywords(read_line)
     keyword_create_CIF = .true.
     OPEN(UNIT=CIF_unit, FILE='cryscal.cif')
     do i=1, CIF_lines_nb
-     WRITE(UNIT=CIF_unit, '(a)') trim(CIF_title_line(i))
+     WRITE(CIF_unit, '(a)') trim(CIF_title_line(i))
     end do
-    WRITE(UNIT=CIF_unit, '(a)') ''
-    WRITE(UNIT=CIF_unit, '(a)') 'data_cryscal'
-    WRITE(UNIT=CIF_unit, '(a)') ''
+    WRITE(CIF_unit, '(a)') ''
+    WRITE(CIF_unit, '(a)') 'data_cryscal'
+    WRITE(CIF_unit, '(a)') ''
     
    case ('CREATE_ACE')
     keyword_create_ACE = .true.  
@@ -342,7 +342,7 @@ subroutine identification_keywords(read_line)
     
     search_equiv   = .false.
     search_friedel = .false.
-    keyword_FIND_HKL = . true.
+    keyword_FIND_HKL = .true.
     IF(nb_arg == 3) return
     do i=1,nb_arg-3
      IF(arg_string(i+3)(1:5) == 'EQUIV'   ) search_equiv   = .true.
@@ -358,7 +358,7 @@ subroutine identification_keywords(read_line)
     READ(arg_string(2), * ) requested_H(2)
     READ(arg_string(3), * ) requested_H(3)
     search_friedel = .false.
-    keyword_FIND_HKL_EQUIV = . true.
+    keyword_FIND_HKL_EQUIV = .true.
     IF(nb_arg == 3) return
     do i=1,nb_arg-3
      IF(arg_string(i+3)(1:7) == 'FRIEDEL' ) search_friedel = .true.
@@ -845,24 +845,36 @@ subroutine identification_keywords(read_line)
     IF(i2==0) return
     new_line = read_line(i2+1:)
     call nombre_de_colonnes(new_line, nb_arg)
-    if(nb_arg == 1) then
-     read(new_line, *) X_max
-     arg_line = ''
-    else
-     read(new_line, *) X_max, arg_line
-    endif
-
-
+    !if(nb_arg == 1) then
+    ! read(new_line, *) X_max
+    ! arg_line = ''
+    !else
+    ! read(new_line, *) X_max, arg_line
+	!endif
+	
+    !!  - fev. 2011 !!
+	read(new_line, *) arg_string(1:nb_arg)
+	read(arg_string(1), *) X_max
+	if(nb_arg /=1) then
+	 do i=2, nb_arg
+	  if(arg_string(i)(1:3) == 'OUT') write_HKL  = .true.
+	  if(arg_string(i)(1:3) == 'PAT' .or. arg_string(i)(1:7) == 'PATTERN') create_PAT = .true.
+	 end do
+	end if
+    !!-----------------!!
+	
+		
     !READ(read_line(i2+1:), *) X_max, arg_line
-    if(len_trim(arg_line) /=0 ) then
-     write_HKL = .false.
-     arg_line = adjustl(arg_line)
-     arg_line = u_case(arg_line)
-     if(arg_line(1:3) =='OUT') write_HKL = .true.
-    else
-     WRITE_HKL = .false.
-    endif
-    keyword_GENHKL = .true.
+    !if(len_trim(arg_line) /=0 ) then
+    ! write_HKL = .false.
+    ! arg_line = adjustl(arg_line)
+    ! arg_line = u_case(arg_line)
+    ! if(arg_line(1:3) =='OUT') write_HKL = .true.	 
+    !else
+    ! WRITE_HKL  = .false.	
+    !endif
+    
+	keyword_GENHKL = .true.
 
     call write_info('')
     call write_info('  > GEN_HKL ')
@@ -1191,7 +1203,7 @@ subroutine identification_keywords(read_line)
 
 
    !CASE ('SYM_OP', 'SYMM_OP', 'SYM_OPERATOR', 'SYMM_OPERATOR')
-   CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYMMETRY_OPERATORS')
+   CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP',  'WRITE_SYMMETRY_OPERATORS')
     WRITE_symm_op  = .true.
 
 
@@ -1339,7 +1351,7 @@ subroutine identification_keywords(read_line)
        case ('mono', 'monoc', 'monocl', 'monocli', 'monoclini', 'monoclinic')
          list_sg(2) = .true.
 
-       case ('ortho', 'orthor', 'orthorh', 'orthorho', 'orthorhom', 'orthorhomb', 'orthorhombic', 'orthorhombic')
+       case ('ortho', 'orthor', 'orthorh', 'orthorho', 'orthorhom', 'orthorhomb', 'orthorhombi', 'orthorhombic')
          list_sg(3) = .true.
 
        case ('tetra',  'tetrag',  'tetrago',  'tetragon',  'tetragona',  'tetragonal', &

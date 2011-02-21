@@ -55,7 +55,7 @@ subroutine create_INS_from_SOLVE
   open(unit = tmp_unit, file = 'res_files.lst')
   nb_res = 0
   do
-   read(unit = tmp_unit, '(a)', iostat = i_error) read_line
+   read(unit = tmp_unit, fmt='(a)', iostat = i_error) read_line
    if(i_error /=0) exit
    nb_res = nb_res + 1
    read(read_line, '(a)') res_file(nb_res)
@@ -163,39 +163,39 @@ subroutine create_INS_from_SOLVE
  job_INS = 'job.ins'
  open(unit = tmp_unit+2, file=trim(job_INS))
   do 
-   read(unit = tmp_unit+1, '(a)', iostat = i_error) read_line
+   read(unit = tmp_unit+1, fmt='(a)', iostat = i_error) read_line
    read_line = adjustl(read_line)
    if(len_trim(read_line) == 0) shelxs_file = .true.
    
    select case (read_line(1:4))
      case ('CELL')
-       write(unit=tmp_unit+2, '(a,6F10.4)') 'CELL    0.71073', (unit_cell%param(i), i=1,6)
+       write(unit=tmp_unit+2, fmt='(a,6F10.4)') 'CELL    0.71073', (unit_cell%param(i), i=1,6)
        
      case ('ZERR')
-       write(unit=tmp_unit+2, '(a6,I8,6F10.4)') 'ZERR  ',Z_unit_INS, (unit_cell%param_ESD(i),i=1,6) 
+       write(unit=tmp_unit+2, fmt='(a6,I8,6F10.4)') 'ZERR  ',Z_unit_INS, (unit_cell%param_ESD(i),i=1,6) 
        
      case ('OMIT')   ! l'instruction OMIT n'existe pas dans le fichier cree par SIR2004
      
      case ('LIST')
-       write(unit=tmp_unit+2, '(a)') 'LIST 4'
+       write(unit=tmp_unit+2, fmt='(a)') 'LIST 4'
        
      case ('PLAN')
-       WRITE(unit=tmp_unit+2, '(a)')         'PLAN -20    ! Fourier peak list'  
-       WRITE(unit=tmp_unit+2, '(a)')         'ACTA        ! create .CIF file'
-       WRITE(unit=tmp_unit+2, '(a)')         'BOND $H     ! include H in bond lengths / angles table'
-       WRITE(unit=tmp_unit+2, '(a)')         'HTAB        ! analyse all hydrogen bonds'
-       WRITE(unit=tmp_unit+2, '(a)')         'CONF        ! all torsion angles except involving hydrogen'
-       WRITE(unit=tmp_unit+2, '(a)')         'WPDB -2     !'
-       WRITE(unit=tmp_unit+2, '(a6,F8.0,a)') 'TEMP  ', temperature, '    ! temperature in celcius'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'PLAN -20    ! Fourier peak list'  
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'ACTA        ! create .CIF file'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'BOND $H     ! include H in bond lengths / angles table'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'HTAB        ! analyse all hydrogen bonds'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'CONF        ! all torsion angles except involving hydrogen'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'WPDB -2     !'
+       WRITE(unit=tmp_unit+2, fmt='(a6,F8.0,a)') 'TEMP  ', temperature, '    ! temperature in celcius'
        if(shelxs_file) then
-        write(tmp_unit+2, '(a)')             'FVAR 1.0'  ! le fichier a ete cree par SHELXS et ne contient pas la ligne FVAR
+        write(tmp_unit+2, fmt='(a)')             'FVAR 1.0'  ! le fichier a ete cree par SHELXS et ne contient pas la ligne FVAR
        endif
         
      case ('FVAR', 'MOLE')
        !if(read_line(1:4) == 'MOLE') then
        ! write(tmp_unit+2, '(a)')             'FVAR 1.0'  ! le fichier a ete cree par SHELXS et ne contient pas la ligne FVAR
        !endif
-       WRITE(unit=tmp_unit+2, '(a)') trim(read_line)
+       WRITE(unit=tmp_unit+2, fmt='(a)') trim(read_line)
        
        skip_at_nb = 0
        do i=1, Atm_list%natoms
@@ -206,22 +206,22 @@ subroutine create_INS_from_SOLVE
          endif 
         endif
         call get_atom_order(Atm_list%atom(i)%ChemSymb, atom_order)
-        write(tmp_unit+2,'(a4,1x,I4,5F10.5)') Atm_list%atom(i)%lab,   atom_order , Atm_list%atom(i)%x, &
+        write(tmp_unit+2,fmt='(a4,1x,I4,5F10.5)') Atm_list%atom(i)%lab,   atom_order , Atm_list%atom(i)%x, &
                                               10.+Atm_list%atom(i)%occ ,  Atm_list%atom(i)%Ueq
                                               
                                              
        end do
-       WRITE(tmp_unit+2, '(a)') ' '
-       WRITE(tmp_unit+2, '(a)') 'HKLF    4'
-       WRITE(tmp_unit+2, '(a)') 'END'
+       WRITE(tmp_unit+2, fmt='(a)') ' '
+       WRITE(tmp_unit+2, fmt='(a)') 'HKLF    4'
+       WRITE(tmp_unit+2, fmt='(a)') 'END'
        exit
  
      case('END') 
-       WRITE(unit=tmp_unit+2, '(a)') trim(read_line)       
+       WRITE(unit=tmp_unit+2, fmt='(a)') trim(read_line)       
        exit
          
      case default
-       WRITE(unit=tmp_unit+2, '(a)') trim(read_line)
+       WRITE(unit=tmp_unit+2, fmt='(a)') trim(read_line)
        
       end select
      end do
@@ -229,11 +229,11 @@ subroutine create_INS_from_SOLVE
      
     
     call write_info('')
-    write(message_text, '(3a)') '   ', trim(job_INS), ' has been created.'
+    write(message_text, fmt='(3a)') '   ', trim(job_INS), ' has been created.'
     call write_info(trim(message_text))
     call write_info('')
     if(skip_at_nb /=0) then
-     write(message_text, '(a,i3,a)') '   ', skip_at_nb, ' atoms have been skipped (too large Uiso).'
+     write(message_text, fmt='(a,i3,a)') '   ', skip_at_nb, ' atoms have been skipped (too large Uiso).'
      call write_info(trim(message_text))     
     else
      call write_info('  >> No skipped atoms due to large Uiso.')

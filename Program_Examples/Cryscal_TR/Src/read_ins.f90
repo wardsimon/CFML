@@ -246,7 +246,8 @@ subroutine read_INS_input_file(input_file, input_string)
      if (atom_Biso(i) < 0.0) atom_Biso(i)=1.0
 
      if(input_string(1:6) /= 'NO_OUT') then
-      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4)') i,  atom_label(i), atom_type (i) , atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), atom_mult(i)
+      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4)') i,  atom_label(i), atom_type (i) , &
+	                                                    atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), atom_mult(i)
       call write_info(TRIM(message_text))
      endif 
    end do
@@ -288,7 +289,7 @@ subroutine read_INS_input_file(input_file, input_string)
 ! ------------------------------
 
  do        ! lecture du fichier d'entree
-  READ(UNIT=1, '(a)', IOSTAT=i_error) read_line
+  READ(1, '(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
@@ -327,7 +328,7 @@ subroutine read_INS_SHELX_lines()
   
   rewind(unit = INS_read_unit)
   do
-   read(unit = INS_read_unit , '(a)', iostat=i_error) read_line
+   read(INS_read_unit , '(a)', iostat=i_error) read_line
    if(i_error /=0) exit
    read_line = adjustl(read_line)
    read_line = u_case(read_line)
@@ -362,16 +363,16 @@ subroutine create_TRANSF_ins
  
  open (unit = INS_unit, file = 'CRYSCAL_transf.ins')
   !WRITE(UNIT = INS_unit, '(3(a, 3(1x,F7.4)))')  'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
-  WRITE(UNIT = INS_unit, '(2a)')            'TITL new space group: ', TRIM(SPG%SPG_Symb)
-  WRITE(UNIT = INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
-  WRITE(UNIT = INS_unit, '(a,F8.2,6F9.4)')  'ZERR ', Z_unit,     unit_cell%new_param_ESD(1:6)
+  WRITE(INS_unit, '(2a)')            'TITL new space group: ', TRIM(SPG%SPG_Symb)
+  WRITE(INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
+  WRITE(INS_unit, '(a,F8.2,6F9.4)')  'ZERR ', Z_unit,     unit_cell%new_param_ESD(1:6)
   
   call get_SHELX_nlatt
-  WRITE(UNIT = INS_unit, '(a,I4)')          'LATT ', n_latt
+  WRITE(INS_unit, '(a,I4)')          'LATT ', n_latt
   
  !---- Symm ----!
   do i=2,SPG%numops
-   write(UNIT = INS_unit, fmt="(a)") "SYMM "//u_case(SPG%symopsymb(i))
+   write(INS_unit, fmt="(a)") "SYMM "//u_case(SPG%symopsymb(i))
   end do
 
  !---- SFAC, UNIT
@@ -383,26 +384,26 @@ subroutine create_TRANSF_ins
    write(fmt_unit, '(a,i2,a)') '(a,',n_elem_atm,'F6.1)'
   endif
   WRITE(fmt_fvar, '(a,i1,a)') '(a,',n_fvar,'F8.4)'
-  write(unit = INS_unit, fmt_sfac) 'SFAC ', elem_atm(1:n_elem_atm)
-  write(unit = INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
+  write(INS_unit, fmt_sfac) 'SFAC ', elem_atm(1:n_elem_atm)
+  write(INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
   !--- non interpreted lines -----------
   if(SHELX_line_nb /=0) then
    do i=1, SHELX_line_nb
-    write(unit = INS_unit, '(a)') trim(SHELX_line(i))
+    write(INS_unit, '(a)') trim(SHELX_line(i))
    end do
   endif 
 
-  write(unit = INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
+  write(INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
 
 
  !--- Atoms -----!
   do i=1,nb_atom
     call get_atom_order(atom_type(i), atom_order)
-    write(UNIT=ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
+    write(ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
   end do
 
-  WRITE(UNIT = ins_unit, '(a)') 'HKLF  4'
-  WRITE(UNIT = ins_unit, '(a)') 'END'
+  WRITE(ins_unit, '(a)') 'HKLF  4'
+  WRITE(ins_unit, '(a)') 'END'
 
   call write_info('')
   call write_info('   >> The CRYSCAL_transf.ins file has been created.')
@@ -432,10 +433,10 @@ subroutine create_NEW_ins
 
 
  OPEN(UNIT = INS_unit, FILE='CRYSCAL_new.ins')
-  WRITE(UNIT = INS_unit, '(3(a, 3(1x,F7.4)))')   'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
-  WRITE(UNIT = INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
-  WRITE(UNIT = INS_unit, '(a,F8.2,6F9.4)')  'ZERR ', Z_unit,     unit_cell%new_param_ESD(1:6)
-  WRITE(UNIT = INS_unit, '(a,I4)')          'LATT ', n_latt
+  WRITE(INS_unit, '(3(a, 3(1x,F7.4)))')   'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
+  WRITE(INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
+  WRITE(INS_unit, '(a,F8.2,6F9.4)')  'ZERR ', Z_unit,     unit_cell%new_param_ESD(1:6)
+  WRITE(INS_unit, '(a,I4)')          'LATT ', n_latt
 
  do op_num = 1, symm_nb
    input_line = TRIM(car_symop(op_num))
@@ -487,9 +488,10 @@ subroutine create_NEW_ins
    !call remove_car(car_symop(op_num), ' ')
    car_symop(op_num) = remove_car(car_symop(op_num), ' ')
 
-   WRITE(message_text, '(a,i2,1x,6a)') '  SYMM# ', op_num, ': ', TRIM(op_string(1)),  ',  ',  TRIM(op_string(2)), ',  ', TRIM(op_string(3))
+   WRITE(message_text, '(a,i2,1x,6a)') '  SYMM# ', op_num, ': ', TRIM(op_string(1)),  ',  ',  &
+                                       TRIM(op_string(2)), ',  ', TRIM(op_string(3))
    call write_info(TRIM(message_text))
-   WRITE(UNIT = INS_UNIT, '(2a)') 'SYMM ',TRIM(car_symop(op_num))
+   WRITE(INS_UNIT, '(2a)') 'SYMM ',TRIM(car_symop(op_num))
 
  END do
   ! deduction du nouveau symbol du groupe
@@ -515,18 +517,18 @@ end do
    write(fmt_unit, '(a,i2,a)') '(a,',n_elem_atm,'F6.1)'
   endif
   WRITE(fmt_fvar, '(a,i1,a)') '(a,',n_fvar,'F8.4)'
-  write(unit = INS_unit, fmt_sfac) 'SFAC ', elem_atm(1:n_elem_atm)
-  write(unit = INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
-  write(unit = INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
+  write(INS_unit, fmt_sfac) 'SFAC ', elem_atm(1:n_elem_atm)
+  write(INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
+  write(INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
 
   do i=1,nb_atom
     !write(UNIT=ins_unit,'(a,1x,a4,5F10.5)')  atom_label(i), atom_type (i) , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
     call get_atom_order(atom_type(i), atom_order)
-    write(UNIT=ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
+    write(ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
   end do
 
-  WRITE(UNIT = ins_unit, '(a)') 'HKLF  4'
-  WRITE(UNIT = ins_unit, '(a)') 'END'
+  WRITE(ins_unit, '(a)') 'HKLF  4'
+  WRITE(ins_unit, '(a)') 'END'
 
 
  close (unit = INS_unit)

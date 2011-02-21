@@ -98,14 +98,14 @@ subroutine twin_obverse_reverse
     if (code /=0) then
      if (code ==-2) then   ! contributions des 2 domaines
       if (twin_matrix ==1) then
-       WRITE(unit=HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') -h(i),-k(i), l(i), F2(i), sig_F2(i), -2,(cos_dir(i,j),j=1,6)
+       WRITE(HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') -h(i),-k(i), l(i), F2(i), sig_F2(i), -2,(cos_dir(i,j),j=1,6)
       else
-       WRITE(unit=HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') -k(i),-h(i),-l(i), F2(i), sig_F2(i), -2,(cos_dir(i,j),j=j,6)
+       WRITE(HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') -k(i),-h(i),-l(i), F2(i), sig_F2(i), -2,(cos_dir(i,j),j=j,6)
       endif
-      WRITE(unit=HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i),1,(cos_dir(i,j),j=1,6)
+      WRITE(HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i),1,(cos_dir(i,j),j=1,6)
 
      else
-      WRITE(unit=HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i),code,(cos_dir(i,j),j=1,6)
+      WRITE(HKLF5_unit,'(3I4,2F8.2,I4,6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i),code,(cos_dir(i,j),j=1,6)
      end if
     end if
   end do

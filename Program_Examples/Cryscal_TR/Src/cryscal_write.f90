@@ -26,11 +26,11 @@ end subroutine Write_HELP
 
 !------------------------------------------------------------------------
  subroutine Write_cryscal_HTML
-  use cryscal_module,               ONLY : my_browser
+  use cryscal_module,               ONLY : my_browser, browse_cryscal_HTML
   use IO_module,                    ONLY : write_info
   USE external_applications_module, ONLY : launch_browser
 
-  browse_cryscal_HTML = .true. 
+  !browse_cryscal_HTML = .false. 
   call create_CRYSCAL_HTML
   call write_info(' ')
   call write_info(' ')
@@ -39,6 +39,7 @@ end subroutine Write_HELP
  
 
   stop
+  return
   
  end subroutine Write_cryscal_html
 !------------------------------------------------------------------------
@@ -245,7 +246,8 @@ subroutine write_space_group(i1, i2)
    IF(.NOT. ok) cycle
 
    IF(list_sg_multip) then
-    WRITE(message_text, '(10x,a,I3,a,5x,a,10x,3a,I3)') 'IT# ', i,'.', SPG%SPG_symb(1:10) , '(',TRIM(SPG%laue),')    mult.=', SPG%multip
+    WRITE(message_text, '(10x,a,I3,a,5x,a,10x,3a,I3)') 'IT# ', i,'.', SPG%SPG_symb(1:10) , '(',TRIM(SPG%laue),')    mult.=', &
+	                                                    SPG%multip
    else
     WRITE(message_text, '(10x,a,I3,a,5x,a,10x,3a)')    'IT# ', i,'.', SPG%SPG_symb(1:10) , '(',TRIM(SPG%laue),')'
    endif

@@ -21,7 +21,7 @@ subroutine read_P4P(P4P_input_file)
    OPEN(UNIT=66, FILE='P4P.lst')
     nb_P4P = 0
     do
-     READ(UNIT=66, '(a)', IOSTAT=ier) P4P_line
+     READ(66, '(a)', IOSTAT=ier) P4P_line
      IF(ier <0) EXIT ! fin du fichier
      nb_P4P = nb_P4P + 1
      IF(nb_P4P > 100) exit
@@ -111,7 +111,7 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
 
   OPEN(UNIT= P4P_read_unit, FILE=TRIM(P4P_file))
    do
-    READ(UNIT=P4P_read_unit, '(a)', IOSTAT=ier) P4P_line
+    READ(P4P_read_unit, '(a)', IOSTAT=ier) P4P_line
     IF(ier <0) EXIT ! fin du fichier
     READ(P4P_line, *) arg_string(1), arg_string(2)
     arg_string(1) = ADJUSTL(arg_string(1))
@@ -228,7 +228,7 @@ subroutine read_M50_file(M50_file, lecture_ok)
 
   OPEN(UNIT= M50_read_unit, FILE=TRIM(M50_file))
    do
-    READ(UNIT=M50_read_unit, '(a)', IOSTAT=ier) M50_line
+    READ(M50_read_unit, '(a)', IOSTAT=ier) M50_line
     IF(ier <0) EXIT ! fin du fichier
     READ(M50_line, *) arg_string(1)
     arg_string(1) = ADJUSTL(arg_string(1))
@@ -280,7 +280,7 @@ subroutine read_X_input_file(X_file, lecture_ok)
 
   OPEN(UNIT= X_read_unit, FILE=TRIM(X_file))
    do
-    READ(UNIT=X_read_unit, '(a)', IOSTAT=ier) X_line
+    READ(X_read_unit, '(a)', IOSTAT=ier) X_line
     IF(ier <0) EXIT ! fin du fichier
     READ(X_line, *) arg_string(1)
     arg_string(1) = ADJUSTL(arg_string(1))
@@ -327,7 +327,7 @@ subroutine read_RMAT_input_file(RMAT_file, lecture_ok)
 
   OPEN(UNIT= RMAT_read_unit, FILE=TRIM(RMAT_file))
    do
-    READ(UNIT=RMAT_read_unit, '(a)', IOSTAT=ier) RMAT_line
+    READ(RMAT_read_unit, '(a)', IOSTAT=ier) RMAT_line
     IF(ier <0) EXIT ! fin du fichier
     READ(RMAT_line, *) arg_string(1)
     arg_string(1) = ADJUSTL(arg_string(1))
@@ -366,7 +366,7 @@ subroutine read_SADABS_file()
 
   OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
   do
-   READ(UNIT=ABS_read_unit, '(a)', IOSTAT=i_error) read_line
+   READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
    IF(i_error /=0) exit
    read_line = ADJUSTL(read_line)
    long = LEN_TRIM('Ratio of minimum to maximum apparent transmission:')

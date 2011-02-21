@@ -162,9 +162,11 @@ subroutine read_CIF_input_file(input_file, input_string)
 !     atom_Biso(i)      = Atm_list%atom(i)%u(7)*8.0*pi*pi
 
      if(ON_SCREEN) then
-      !write(message_text,'(2x,2(1x,a),4F10.5,I4)')  atom_label(i)(1:6), atom_type (i)(1:6) , atom_coord(1:3,i), atom_occ_perc(i), atom_mult(i)
+      !write(message_text,'(2x,2(1x,a),4F10.5,I4)')  atom_label(i)(1:6), atom_type (i)(1:6) , &
+	  !                                              atom_coord(1:3,i), atom_occ_perc(i), atom_mult(i)
       !call write_info(TRIM(message_text))
-      write(message_text,'(2x,2(1x,a6),2x,4F10.5,I4)')  atom_label(i), atom_type (i) , atom_coord(1:3,i), atom_occ_perc(i), atom_mult(i)
+      write(message_text,'(2x,2(1x,a6),2x,4F10.5,I4)')  atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+	                                                    atom_occ_perc(i), atom_mult(i)
       call write_info(TRIM(message_text))
      endif 
 
@@ -321,7 +323,7 @@ subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_e
   logical_cell(1:6) = .false.
   REWIND(UNIT=file_unit)
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
     call write_info(' ... No cell parameters in the import.cif file !!')
@@ -422,7 +424,7 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
   logical_wave = .false.
 
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
     call write_info(' ... No wavelength in the import.cif file !!')
@@ -460,7 +462,7 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
     !endif
     IF(ier/=0) then
      ! cas d'un fichier import.cif cree par Nonius
-     READ(UNIT=file_unit, '(a)', IOSTAT=ier) line
+     READ(file_unit, '(a)', IOSTAT=ier) line
      IF(ier/=0) then
       call write_info('')
       call write_info(' ... Problem reading wavelength !!')
@@ -468,7 +470,7 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
       stop
      endif
      if(trim(line(1:31))=='_diffrn_radiation_wavelength_id') then
-      READ(UNIT=file_unit, '(a)', IOSTAT=ier)line
+      READ(file_unit, '(a)', IOSTAT=ier)line
       if(ier/=0) then
        call write_info('')
        call write_info(' ... Problem reading import.cif file !!')
@@ -506,7 +508,7 @@ subroutine get_crystal_system_from_CIF_file(file_unit, crystal_system)
 
   rewind(file_unit)
   do
-   read(unit=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier<0) then
     call write_info('')
     call write_info(' ... No crystal system in the import.cif file !!')
@@ -571,7 +573,7 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
 
  ok = .false.
  do
-  READ(UNIT=CIF_unit, '(a)', IOSTAT=ier) read_line
+  READ(CIF_unit, '(a)', IOSTAT=ier) read_line
   if(ier/=0) return
 
   read_line = ADJUSTL(read_line)
@@ -622,12 +624,12 @@ subroutine read_lines_before_hkl(file_unit, cos_exist)
 
   cos_exist = .false.
 loop_1:  do
-   read(UNIT=file_unit, '(a)', iostat=ier) line
+   read(file_unit, '(a)', iostat=ier) line
    if(ier /=0) exit
    num_ligne = num_ligne +1
    if (line(1:22) =='_refln_F_squared_sigma' ) then
     do
-     READ(UNIT=file_unit, '(a)', IOSTAT=ier) line
+     READ(file_unit, '(a)', IOSTAT=ier) line
      IF(line(1:1)/='_') exit loop_1
      num_ligne = num_ligne + 1
      if (line == '_refln_nonius_diffracted_cos_cstar' .or. line == '_nonius_refln_diffracted_cos_cstar') cos_exist = .true.
@@ -661,7 +663,7 @@ subroutine read_SQUEEZE_file
  
  open(unit=SQUEEZE%unit, file=trim(SQUEEZE%file))
   do
-   read(unit=SQUEEZE%unit, '(a)', iostat= i_error) read_line
+   read(SQUEEZE%unit, '(a)', iostat= i_error) read_line
    if(i_error /=0) exit
    SQUEEZE%nb_lines = SQUEEZE%nb_lines + 1
    SQUEEZE%read_line(SQUEEZE%nb_lines) = read_line
@@ -694,7 +696,7 @@ end subroutine read_SQUEEZE_file
    character (len=256)               :: CIF_string, tmp_string
    character (len=16), dimension(16) :: CIF_str
    character (len=16), dimension(8)  :: CIF_str_fmt
-   character (len=64)               :: fmt_
+   character (len=64)                :: fmt_, fmt_final
    
    ! caracteristiques de la boucle _atom_site
    integer                           :: CIF_atom_site_item_nb                ! nombre de champs dans la boucle _atom_site_ 
@@ -727,17 +729,20 @@ end subroutine read_SQUEEZE_file
   
   
 
-
-
+   fmt_      = ''
+   fmt_final = ''
   
   rewind(unit=input_unit)
   close(unit = CIF_unit)
   open(unit = CIF_unit, file = 'cryscal.cif')
   
+  close(unit=CIF_archive_unit)
+  open(unit=CIF_archive_unit, file="archive_cryscal.cif")
+  
   ! premiere lecture du fichier archive.cif
   n_line = 0
   do 
-   read(unit = input_unit, '(a)', iostat= i_error) read_line
+   read(input_unit, '(a)', iostat= i_error) read_line
    if(i_error < 0) then
     n_line = 0
     exit
@@ -822,7 +827,7 @@ end subroutine read_SQUEEZE_file
   ! molecular moiety
   rewind(unit = input_unit) 
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    long = len_trim('_chemical_formula_moiety') 
    if(index(read_line, '_chemical_formula_moiety') /=0) then
@@ -870,13 +875,13 @@ end subroutine read_SQUEEZE_file
   rewind (unit=input_unit)
   ! lecture des lignes avant la liste des atomes
   do i = 1, CIF_atom_site_loop_numor + CIF_atom_site_item_nb
-   read(unit = input_unit, '(a)', iostat = i_error) read_line
+   read(input_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit   
   end do
   
   contain_H = .false.
   do 
-   read(unit = input_unit, '(a)', iostat = i_error) read_line
+   read(input_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit 
    if(len_trim(read_line) == 0) exit
    read(read_line, *) CIF_str(1:CIF_atom_site_item_nb)
@@ -903,7 +908,7 @@ end subroutine read_SQUEEZE_file
   diffracto = .false.
   rewind(unit=input_unit)
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    if(index(read_line, '_diffrn_measurement_device_type')/=0) then
     diffracto = .true.
@@ -915,7 +920,7 @@ end subroutine read_SQUEEZE_file
   correction_absorption = .false.
   rewind(unit=input_unit)
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    if(index(read_line, '_exptl_absorpt_process_details')/=0) then
     correction_absorption = .true.
@@ -928,7 +933,7 @@ end subroutine read_SQUEEZE_file
   squeeze_results = .false.
   rewind(unit=input_unit)
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    if(index(read_line, 'SQUEEZE RESULTS')/=0) then
     squeeze_results = .true.
@@ -940,7 +945,7 @@ end subroutine read_SQUEEZE_file
   author_data = .false.
   rewind(unit=input_unit)
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error < 0) exit
    if(index(read_line, 'AUTHORS DETAILS')/=0) then
     author_data = .true.
@@ -953,14 +958,14 @@ end subroutine read_SQUEEZE_file
   rewind(unit=input_unit)
   if(n_line /=0) then
    do i=1, n_line
-    read(unit=input_unit, '(a)', iostat = i_error) read_line    
+    read(input_unit, '(a)', iostat = i_error) read_line    
    end do
   endif 
  
  
  
   do
-   read(unit=input_unit, '(a)', iostat = i_error) read_line
+   read(input_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit
    if(.not. author_data) then
     if(index(read_line, '#  CIF files read  :' ) /=0) then
@@ -979,14 +984,14 @@ end subroutine read_SQUEEZE_file
       .not. correction_absorption) then
       ! les info. sur les corrections d'absorption sont recuperees dans le fichier CRYSCAL.cif
     do
-     read(unit = CIF_unit, '(a)', iostat=i_error) read_line
+     read(CIF_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
     
      if(index(read_line, '_exptl_absorpt_coefficient_mu') /=0) then
       write(CIF_archive_unit, '(a)') trim(read_line)
       !do i = 1,7
       do
-       read(unit = cif_unit, '(a)', iostat=i_error) read_line
+       read(cif_unit, '(a)', iostat=i_error) read_line
        if(i_error /=0) exit
         if(read_line(1:11) == '#----------') exit
        write(CIF_archive_unit, '(a)') trim(read_line)
@@ -999,13 +1004,13 @@ end subroutine read_SQUEEZE_file
 
    if(index(read_line, '_exptl_absorpt_correction_type') /=0) then
     if(.not. SQUEEZE_results .and. SQUEEZE%procedure) then
-     write(unit=CIF_archive_unit, '(a)') ""
-     WRITE(UNIT=CIF_archive_unit, '(a)') "#----------------------------------------------------------------------------#"
-     WRITE(unit=CIF_archive_unit, '(a)') "#                   SQUEEZE RESULTS                                          #"
-     WRITE(UNIT=CIF_archive_unit, '(a)') "#----------------------------------------------------------------------------#"
-     write(unit=CIF_archive_unit, '(a)') ""
+     write(CIF_archive_unit, '(a)') ""
+     WRITE(CIF_archive_unit, '(a)') "#----------------------------------------------------------------------------#"
+     WRITE(CIF_archive_unit, '(a)') "#                   SQUEEZE RESULTS                                          #"
+     WRITE(CIF_archive_unit, '(a)') "#----------------------------------------------------------------------------#"
+     write(CIF_archive_unit, '(a)') ""
      do i=2, SQUEEZE%nb_lines
-      write(unit=CIF_archive_unit, '(a)') trim(SQUEEZE%read_line(i))
+      write(CIF_archive_unit, '(a)') trim(SQUEEZE%read_line(i))
      end do
      cycle
     else
@@ -1037,7 +1042,7 @@ end subroutine read_SQUEEZE_file
    
    if(index(read_line, '_refine_ls_hydrogen_treatment') /=0) then
     if(contain_H) then
-     write(unit=CIF_archive_unit, '(2a)') "_refine_ls_hydrogen_treatment           ",trim(CIF_parameter%H_treatment)
+     write(CIF_archive_unit, '(2a)') "_refine_ls_hydrogen_treatment           ",trim(CIF_parameter%H_treatment)
     endif
     cycle
    end if 
@@ -1049,18 +1054,18 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_diffrn_ambient_temperature')   /= 0    .and.  &
       .not. diffracto) then
     if(u_case(DEVICE%diffracto(1:4)) == 'APEX') then
-     write(UNIT=CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
-     write(UNIT=CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
-     write(UNIT=CIF_archive_unit, '(2a)') "_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
-     write(UNIT=CIF_archive_unit, '(a)') trim(read_line)
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
+     write(CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
+     write(CIF_archive_unit, '(2a)') "_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
+     write(CIF_archive_unit, '(a)') trim(read_line)
     elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_source                          ", trim(CIF_parameter%diffrn_source)
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_detector_area_resol_mean        ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_measurement_device              ", trim(CIF_parameter%diffrn_measurement_device)
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
-     WRITE(UNIT=CIF_archive_unit, '(2a)')"_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
-     WRITE(UNIT=CIF_archive_unit, '(a)') trim(read_line)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_source                          ", trim(CIF_parameter%diffrn_source)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_detector_area_resol_mean        ", trim(CIF_parameter%diffrn_detector_area_resol_mean)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device              ", trim(CIF_parameter%diffrn_measurement_device)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
+     WRITE(CIF_archive_unit, '(2a)')"_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
+     WRITE(CIF_archive_unit, '(a)') trim(read_line)
     endif 
     cycle
    endif
@@ -1077,7 +1082,7 @@ end subroutine read_SQUEEZE_file
     WRITE(CIF_archive_unit, '(10x,a)') trim(CIF_parameter%computing_publication_material_2)
     WRITE(CIF_archive_unit, '(a)')     ";" 
     if(len_trim(adjustl(read_line)) == len_trim('_computing_publication_material')) then   
-     read(unit=input_unit, '(a)', iostat = i_error) read_line
+     read(input_unit, '(a)', iostat = i_error) read_line
      if(i_error /=0) exit
     endif
    
@@ -1088,7 +1093,7 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_atom_type_scat_source') /=0)  then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:4)
@@ -1159,13 +1164,13 @@ end subroutine read_SQUEEZE_file
      len_trim(adjustl(read_line)) ==len_trim("_atom_site_label")) then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do i=1, CIF_atom_site_item_nb - 1
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      write(CIF_archive_unit, '(a)') trim(read_line)
     end do
   
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit     
      read(read_line, *) CIF_str(1:CIF_atom_site_item_nb)
@@ -1180,39 +1185,41 @@ end subroutine read_SQUEEZE_file
       call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
        if(CIF_atom_site_item_nb == 12) then
-        write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a10,a5,a4,2a2)' 
+        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a5,a4,2a2)' 
        else
-        write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)' 
+        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)' 
        endif
       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
        if(CIF_atom_site_item_nb == 12) then
-        write(fmt_, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a5,a4,2a2,a3)'  
+        write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a5,a4,2a2,a3)'  
        else
-        write(fmt_, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)' 
+        write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)' 
        endif
       endif
       write(CIF_archive_unit, fmt_) CIF_str(1:CIF_atom_site_item_nb)
    
      else
-      !call get_fmt(4, CIF_str(3:6), fmt_, 0)
+      !call get_fmt(4, CIF_str(3:6), fmt_, 0)      
+      
       call get_fmt(4, CIF_str(CIF_atom_site_fract_x_numor : CIF_atom_site_fract_x_numor +3), fmt_, 0)
       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
        if(CIF_atom_site_item_nb==12) then
-        write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a2,a5,a3,2a2)'        
+        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a5,a3,2a2)'        
        else
-        write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,2a2,a5,a3,2a2)'            
+        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,2a2,a5,a3,2a2)'            
        endif
       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
-       if(CIF_atom_site_item_nb==12) then
-        write(fmt_, '(3a)') '(a5,', trim(fmt_), ',a5,a2,a5,a3,2a2,a3)'        
-       else
-        write(fmt_, '(3a)') '(a5,', trim(fmt_), ',a5,2a2,a5,a3,2a2,a3)'            
-       endif
       
+       if(CIF_atom_site_item_nb==12) then
+        write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a2,a5,a3,2a2,a3)'        
+       else
+        write(fmt_final, '(3a)')  '(a5,', trim(fmt_), 'a5,2a2,a5,a3,2a2,a3)'            
+       endif      
       endif
-      !write(tmp_string, fmt_) CIF_str(1:CIF_atom_site_item_nb)
+      
+      !write(tmp_string, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
       !if(len_trim(tmp_string) <=80) then
-       write(CIF_archive_unit, fmt_) CIF_str(1:CIF_atom_site_item_nb)
+       write(CIF_archive_unit, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
       !else
       ! write(CIF_archive_unit, '(a)') trim(read_line)
       !endif          
@@ -1260,22 +1267,23 @@ end subroutine read_SQUEEZE_file
     if(index(read_line, "_atom_site_aniso_label") /=0) then
      write(CIF_archive_unit, '(a)') trim(read_line)
      do i=1, CIF_atom_site_aniso_item_nb - 1
-      read(unit = input_unit, '(a)', iostat=i_error) read_line
+      read(input_unit, '(a)', iostat=i_error) read_line
       if(i_error /=0) exit
       write(CIF_archive_unit, '(a)') trim(read_line)
      end do
 
      do
-      read(unit = input_unit, '(a)', iostat=i_error) read_line
+      read(input_unit, '(a)', iostat=i_error) read_line
       if(i_error /=0) exit
       if(len_trim(read_line) == 0) exit
+      read_line = adjustl(read_line)
       read(read_line, *) CIF_str(1:7)
       call get_fmt(6, CIF_str(2:7), fmt_, 0)
-      write(fmt_, '(3a)') '(a4', trim(fmt_), ')'
-      !write(CIF_archive_unit, '(a5, 6a15)') CIF_str(1:7)
-      write(tmp_string, fmt_) CIF_str(1:7)
+            
+      write(fmt_final, '(3a)') '(a4,', trim(fmt_),')'    
+      !write(tmp_string, fmt_final) CIF_str(1:7)
       !if(len_trim(tmp_string) <=80) then
-       write(CIF_archive_unit, fmt_) CIF_str(1:7)
+       write(CIF_archive_unit, fmt_final) CIF_str(1:7)
       !else
       ! write(CIF_archive_unit, '(a)') trim(read_line)
       !endif
@@ -1289,7 +1297,7 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_geom_bond_publ_flag') /=0) then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:5)
@@ -1301,14 +1309,13 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_geom_angle_publ_flag') /=0) then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:7)
      call get_fmt(1, CIF_str(4:4), fmt_, 100)
-     write(fmt_, '(3a)') '(3a5', trim(fmt_), ',3a8)'
-     !write(CIF_archive_unit, '(3a5, a12,3a12)') CIF_str(1:7)
-     write(CIF_archive_unit, fmt_) CIF_str(1:7)
+     write(fmt_final, '(3a)') '(3a5,', trim(fmt_), ',3a8)'
+     write(CIF_archive_unit, fmt_final) CIF_str(1:7)
     end do
     write(CIF_archive_unit, '(a)') ''
    endif
@@ -1317,7 +1324,7 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_geom_torsion_publ_flag') /=0) then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:10)
@@ -1326,9 +1333,8 @@ end subroutine read_SQUEEZE_file
      !if(linear) cycle
      
      call get_fmt(1, CIF_str(5:5), fmt_, -100)
-     write(fmt_, '(3a)') '(4a5', trim(fmt_), ',x,5a8)'
-     write(CIF_archive_unit, fmt_) CIF_str(1:10)
-     !write(CIF_archive_unit, '(4a5, a12,5a8)') CIF_str(1:10)
+     write(fmt_final, '(3a)') '(4a5', trim(fmt_), ',x,5a8)'
+     write(CIF_archive_unit, fmt_final) CIF_str(1:10)     
     end do
     write(CIF_archive_unit, '(a)') ''
    endif
@@ -1336,12 +1342,12 @@ end subroutine read_SQUEEZE_file
    if(index(read_line, '_geom_hbond_site_symmetry_A') /=0) then
     write(CIF_archive_unit, '(a)') trim(read_line)
     do
-     read(unit = input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
      read(read_line, *) CIF_str(1:8)
      !call get_fmt(1, CIF_str(5:5), fmt_, -100)
-     !write(fmt_, '(3a)') '(4a5', trim(fmt_), ',5a6)'
+     !write(fmt_final, '(3a)') '(4a5', trim(fmt_), ',5a6)'
      !write(CIF_archive_unit, fmt_) CIF_str(1:8)
      write(CIF_archive_unit, '(3a5, 4a12,a6)') CIF_str(1:8)
     end do
@@ -1381,7 +1387,11 @@ end subroutine read_SQUEEZE_file
     if(string(i)(1:1) == "-") then
      write(fmt_, '(2a)') trim(fmt_), ',a13'
     else
-     write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     if(i==1) then
+      write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+     else
+      write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     endif
     endif
     !if(value > 0.) then
     ! write(fmt_, '(2a)') trim(fmt_), ',1x,a13'
@@ -1393,7 +1403,11 @@ end subroutine read_SQUEEZE_file
     if(value > 99.99) then
      write(fmt_, '(2a)') trim(fmt_), ',a13'
     else
-     write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     if(i==1) then
+      write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+     else
+      write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     endif
     endif 
     
    elseif(level == -100) then
@@ -1430,7 +1444,7 @@ end subroutine read_SQUEEZE_file
   open(unit = IMPORT_CIF_unit, file = 'import.cif', iostat=i_error)
   call test_file_exist("import.cif", file_exist)
   do
-   read(unit = IMPORT_CIF_unit, '(a)', iostat = i_error) read_line
+   read(IMPORT_CIF_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit
    read_line = adjustl(read_line)
    i1 = index(read_line, '# Ratio of minimum to maximum apparent transmission:')
@@ -1460,21 +1474,21 @@ subroutine  Get_CIF_champ_numor(input_string, output_numor)
   output_numor = 1
   rewind(unit=input_unit)
   do
-   read(unit=input_unit, '(a)', iostat=i_error) read_line
+   read(input_unit, '(a)', iostat=i_error) read_line
    if(i_error /=0) return
    if(index(read_line, trim(input_string)) /=0) then
 
     do 
      backspace(unit=input_unit)
      backspace(unit=input_unit)
-     read(unit=input_unit, '(a)', iostat=i_error) read_line
+     read(input_unit, '(a)', iostat=i_error) read_line
      
      if(i_error /=0) return
      read_line = adjustl(read_line)
      if(read_line(1:5) == 'loop_') exit
     end do
     do 
-      read(unit=input_unit, '(a)', iostat=i_error) read_line
+      read(input_unit, '(a)', iostat=i_error) read_line
       if(i_error /=0) return
       read_line = adjustl(read_line)
       if(index(read_line, trim(input_string)) /=0) exit
@@ -1500,7 +1514,7 @@ subroutine Get_CIF_champ_nb(input_string, output_nb, output_nb2)
    output_nb2 = 0
    rewind(unit = input_unit)
    do
-    read(unit=input_unit, '(a)', iostat=i_error) read_line
+    read(input_unit, '(a)', iostat=i_error) read_line
     if(i_error /=0) return
     output_nb2 = output_nb2 + 1
     read_line = adjustl(read_line)
@@ -1510,14 +1524,14 @@ subroutine Get_CIF_champ_nb(input_string, output_nb, output_nb2)
      backspace(unit=input_unit)
      backspace(unit=input_unit)
      output_nb2 = output_nb2 - 1
-     read(unit=input_unit, '(a)', iostat=i_error) read_line    
+     read(input_unit, '(a)', iostat=i_error) read_line    
      if(i_error /=0) return
      read_line = adjustl(read_line)
      if(read_line(1:5) == 'loop_') exit
     end do
     
     do 
-     read(unit=input_unit, '(a)', iostat=i_error) read_line    
+     read(input_unit, '(a)', iostat=i_error) read_line    
      if(i_error /=0) return
      read_line = adjustl(read_line)
      if(read_line(1:11) /= "_atom_site_") return
@@ -1587,18 +1601,18 @@ subroutine Create_CEL_from_CIF
   CALL set_chem_info
 
   open(unit = CEL_unit, file = trim(CEL_file_name))
-    write(unit = message_text, '(a,6F10.4)')   'CELL ', (unit_cell%param(i), i=1,6)
-    write(unit = CEL_unit, '(a)') adjustl(trim(message_text))
-    if(nb_atom > 1) write(unit = CEL_unit, '(a,i4)')     'natom ', nb_atom    
+    write(message_text, '(a,6F10.4)')   'CELL ', (unit_cell%param(i), i=1,6)
+    write(CEL_unit, '(a)') adjustl(trim(message_text))
+    if(nb_atom > 1) write(CEL_unit, '(a,i4)')     'natom ', nb_atom    
     do i=1, nb_atom 
      do j=1, Num_Chem_Info
        if (u_case(atom_type(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
      end do
      write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_type(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
-     write(unit = CEL_unit, '(a)') adjustl(trim(message_text))         
+     write(CEL_unit, '(a)') adjustl(trim(message_text))         
     end do 
-    write(unit = message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg
-    write(unit = CEL_unit, '(a)') adjustl(trim(message_text))
+    write(message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg
+    write(CEL_unit, '(a)') adjustl(trim(message_text))
    
      
 
@@ -1681,57 +1695,57 @@ subroutine Create_ACE_from_CIF
   
 
   open(unit = ACE_unit, file = trim(ACE_file_name))
-   write(unit = ACE_unit, '(a)')  'CaRIne Crystallography 3.0'
-   write(unit = ACE_unit, '(2a)') 'Cell Standard ASCII File=', trim(ACE_file_name) 
-   write(unit = ACE_unit, '(a)')  'File Version Number=1'
-   write(unit = ACE_unit, '(a)')  ''
-   write(unit = ACE_unit, '(a)')  'Colors Refered to: Mendeleïev Table'
-   write(unit = ACE_unit, '(a)')  ''
-   write(unit = ACE_unit, '(a)')  '----------------------'
-   write(unit = ACE_unit, '(a)')  'Cell Definition'
-   write(unit = ACE_unit, '(a)')  '----------------------'
-   write(unit = ACE_unit, '(a)')  ''
-   write(unit = ACE_unit, '(a)')  'Cell Parameters(Å and °)'
+   write(ACE_unit, '(a)')  'CaRIne Crystallography 3.0'
+   write(ACE_unit, '(2a)') 'Cell Standard ASCII File=', trim(ACE_file_name) 
+   write(ACE_unit, '(a)')  'File Version Number=1'
+   write(ACE_unit, '(a)')  ''
+   write(ACE_unit, '(a)')  'Colors Refered to: Mendeleïev Table'
+   write(ACE_unit, '(a)')  ''
+   write(ACE_unit, '(a)')  '----------------------'
+   write(ACE_unit, '(a)')  'Cell Definition'
+   write(ACE_unit, '(a)')  '----------------------'
+   write(ACE_unit, '(a)')  ''
+   write(ACE_unit, '(a)')  'Cell Parameters(Å and °)'
    do i=1, 6
     write(cell_string(i), '(F15.5)') unit_cell%param(i)
    end do
-   write(unit = ACE_unit, '(2a,a1,2a,a1,2a)')  'a=',trim(adjustl(cell_string(1))), tab,   &
-                                               'b=',trim(adjustl(cell_string(2))), tab,   &
-                                               'c=',trim(adjustl(cell_string(3)))
+   write(ACE_unit, '(2a,a1,2a,a1,2a)')  'a=',trim(adjustl(cell_string(1))), tab,   &
+                                        'b=',trim(adjustl(cell_string(2))), tab,   &
+                                        'c=',trim(adjustl(cell_string(3)))
 
-   write(unit = ACE_unit, '(2a,a1,2a,a1,2a)')  'alpha=',trim(adjustl(cell_string(4))), tab,   &
-                                               'beta=', trim(adjustl(cell_string(5))), tab,   &
-                                               'gamma=',trim(adjustl(cell_string(6)))
+   write(ACE_unit, '(2a,a1,2a,a1,2a)')  'alpha=',trim(adjustl(cell_string(4))), tab,   &
+                                        'beta=', trim(adjustl(cell_string(5))), tab,   &
+                                        'gamma=',trim(adjustl(cell_string(6)))
 
-   write(unit = ACE_unit, '(a)')          '' 
-   write(unit = ACE_unit, '(a)')          'System=CEL'
+   write(ACE_unit, '(a)')          '' 
+   write( ACE_unit, '(a)')          'System=CEL'
    write(ACE_string, *) SPG%NumSpg
-   write(unit = ACE_unit, '(2a)')         'Space Group Number=',trim(adjustl(ACE_string))
+   write(ACE_unit, '(2a)')         'Space Group Number=',trim(adjustl(ACE_string))
    if(SPG%NumSpg == 146 .or. SPG%NumSpg == 148 .or. SPG%NumSpg == 155 .or. SPG%NumSpg == 160 .or. &
       SPG%NumSpg == 161 .or. SPG%NumSpg == 166 .or. SPG%NumSpg == 167) then   ! groupes trigonaux R
       if((abs(unit_cell%param(4) -  90.) < eps) .and. (abs(unit_cell%param(4) - 90.) < eps) .and.   &
          (abs(unit_cell%param(6) - 120.) < eps)) then
-         write(unit = ACE_unit, '(a)')          'Hexagonal description'
+         write(ACE_unit, '(a)')          'Hexagonal description'
       else
-         write(unit = ACE_unit, '(a)')          'Trigonal description'
+         write( ACE_unit, '(a)')          'Trigonal description'
       endif   
       
    endif
-   write(unit = ACE_unit, '(a)')          'Only Non Equivalent Positions are listed'
+   write(ACE_unit, '(a)')          'Only Non Equivalent Positions are listed'
    write(ACE_string, *) nb_atom
-   write(unit = ACE_unit, '(2a)')         'Number of positions in Cell=',trim(adjustl(ACE_string))
-   write(unit = ACE_unit, '(a)')          '' 
-   write(unit = ACE_unit, '(6(a,a1),a)')  'Atom',tab,'Oxi.',tab,'X',tab,'Y',tab,'Z',tab,'R(Å)',tab,'Occ.'
+   write(ACE_unit, '(2a)')         'Number of positions in Cell=',trim(adjustl(ACE_string))
+   write(ACE_unit, '(a)')          '' 
+   write(ACE_unit, '(6(a,a1),a)')  'Atom',tab,'Oxi.',tab,'X',tab,'Y',tab,'Z',tab,'R(Å)',tab,'Occ.'
    do i=1,nb_atom
     write(ACE_string, '(F5.2)') atom_occ_perc(i)
     write(coord_string(1), '(F8.5)')  atom_coord(1:1,i)
     write(coord_string(2), '(F8.5)')  atom_coord(2:2,i)
     write(coord_string(3), '(F8.5)')  atom_coord(3:3,i)
-    write(unit = ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_type(i))), tab, '0+', tab,         &
-                                           trim(adjustl(coord_string(1))), tab,                 &
-                                           trim(adjustl(coord_string(2))), tab,                 &
-                                           trim(adjustl(coord_string(3))), tab,                 &
-                                           '1',tab, trim(adjustl(ACE_string))
+    write(ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_type(i))), tab, '0+', tab,         &
+                                    trim(adjustl(coord_string(1))), tab,                 &
+                                    trim(adjustl(coord_string(2))), tab,                 &
+                                    trim(adjustl(coord_string(3))), tab,                 &
+                                    '1',tab, trim(adjustl(ACE_string))
    end do
 
   close(unit = ACE_unit)

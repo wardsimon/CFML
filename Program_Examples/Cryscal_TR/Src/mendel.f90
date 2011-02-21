@@ -399,7 +399,8 @@ subroutine write_X_rays_scatt_factors(symb_car)
      call write_info(' Warning: WinPLOTR is not installed ')
      call write_info('')
     else
-     call system('winplotr '//trim(pgf_file%name), .true. )
+     !call system('winplotr '//trim(pgf_file%name), .true. )   ! lf95
+	 call system('winplotr '//trim(pgf_file%name))             ! g95
     endif
    endif
 
@@ -508,7 +509,9 @@ subroutine WRITE_data(input_string)
 
   select case (input_string)
       case ('neutrons')
-       call write_info('     Element        coherent scattering length (in 10-12 cm)')
+       call write_info('     Element        coherent scattering length (10-12 cm)')
+       call write_info('                    incoherent scattering cross section (in barns)')
+       call write_info('                    absorption cross section (in barns) for v=2200m/s')
        call write_info('')
        do i=1, 96
         WRITE(message_text, '(2x,i3,5X,a,10x,3F15.5)') i,  atom(i)%symbol, atom(i)%bcoh, atom(i)%sedinc, atom(i)%sea
@@ -527,7 +530,8 @@ subroutine WRITE_data(input_string)
          call write_info(' Warning: WinPLOTR is not installed ')
          call write_info('')
         else
-         call system('winplotr '//trim(pgf_file%name), .true. )
+         !call system('winplotr '//trim(pgf_file%name), .true. )
+		 call system('winplotr '//trim(pgf_file%name))
         endif
 
         pgf_file%name = 'neutrons_sedinc.pgf'
@@ -535,24 +539,28 @@ subroutine WRITE_data(input_string)
          WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sedinc
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sedinc, pgf_data%string, 96, "sedinc")
-        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
+        !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
+		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))              ! g95
 
         pgf_file%name = 'neutrons_sea.pgf'
         do i=1,96
          WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sea
         END do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sea, pgf_data%string, 96, "sea")
-        IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
+        !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
+		IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name))
        END if
 
       case ('xrays')
        call write_info('                    total interaction cross section (in barns)')
-       call write_info('     Element               Ag             Mo             Cu             Ni             Co             Fe             Cr')
+	   write(message_text, '(2a)')  '     Element               Ag             Mo             Cu             Ni', &
+                                    '	   Co             Fe             Cr'
+       call write_info(trim(message_text))
        call write_info('')
 
        do i=1, 96
-        WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol, atom(i)%tics(1), atom(i)%tics(2), atom(i)%tics(3), atom(i)%tics(4), &
-                                                                       atom(i)%tics(5), atom(i)%tics(6), atom(i)%tics(7)
+        WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol,  atom(i)%tics(1), atom(i)%tics(2), atom(i)%tics(3), &
+		                                               atom(i)%tics(4), atom(i)%tics(5), atom(i)%tics(6), atom(i)%tics(7)
         call write_info(TRIM(message_text))
        end do
        !IF(data_xrays_PLOT) then
@@ -576,52 +584,55 @@ subroutine WRITE_data(input_string)
        IF(data_Xrays_plot) then
         pgf_file%NAME = "X_rays_tics.pgf"
         open(unit=11, file=trim(pgf_file%name))
-         WRITE(UNIT=11,'(a)')      '# MAIN LEGEND TEXT: Total X-rays interaction cross section'
-         WRITE(UNIT=11,'(a)')      '# X LEGEND TEXT   : Atomic number'
-         WRITE(UNIT=11,'(a)')      '# Y LEGEND TEXT   : barns'
+         WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total X-rays interaction cross section'
+         WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
+         WRITE(11,'(a)')      '# Y LEGEND TEXT   : barns'
          Xmin = 1.
          Xmax = 96.
          Ymin = minval(atom%tics(tabulated_target_nb))
          Ymax = maxval(atom%tics(tabulated_target_nb))
-         write(unit=11, '(a,2(x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10
-         write(unit=11, '(a,2(x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
-         WRITE(UNIT=11,'(a,i6)')     '# NUMBER OF PATTERNS: ',  tabulated_target_nb
+         write(11, '(a,2(1x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10
+         write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
+         WRITE(11,'(a,i6)')     '# NUMBER OF PATTERNS: ',  tabulated_target_nb
          do k = 1, tabulated_target_nb
-          WRITE(UNIT=11,'(a1,70a1)')  '#',('-',i=1,70)
-          WRITE(unit=11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', k
-          write(unit=11,'(2a)')       '#             TITLE : ', X_target(k)%label
-          write(unit=11,'(a,i8)')     '#  NUMBER OF POINTS : ', 96
-          write(unit=11,'(a)')        '#            MARKER : 4'
-          write(unit=11,'(a)')        '#              SIZE : 1.5'
-          write(unit=11,'(a)')        '#             STYLE : 1'
-          write(unit=11,'(a)')        '#   DATA: X Y COMM'
+          WRITE(11,'(a1,70a1)')  '#',('-',i=1,70)
+          WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', k
+          write(11,'(2a)')       '#             TITLE : ', X_target(k)%label
+          write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', 96
+          write(11,'(a)')        '#            MARKER : 4'
+          write(11,'(a)')        '#              SIZE : 1.5'
+          write(11,'(a)')        '#             STYLE : 1'
+          write(11,'(a)')        '#   DATA: X Y COMM'
           do i = 1, 96
            pgf_data(i)%X = REAL(i)
            WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%tics(k)
           end do
           call create_PGF_file_multi(11,pgf_data%X, atom%tics(k), pgf_data%string, 96)
          END do
-         WRITE(UNIT=11,'(a)') '# END OF FILE'
-         CLOSE(UNIT=11)
+         WRITE(11,'(a)') '# END OF FILE'
+         CLOSE(11)
 
          IF(LEN_TRIM(winplotr_exe) == 0) then
           call write_info('')
           call write_info(' Warning: WinPLOTR is not installed ')
           call write_info('')
          else
-          call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.)
+          !call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.) ! lf95
+		  call system('winplotr '//TRIM(PGF_file%NAME))          ! g95
          endif
        endif
 
 
        call write_info('')
        call write_info('                    Mass attenuation coefficient (cm2/g)')
-       call write_info('     Element               Ag             Mo             Cu             Ni             Co             Fe             Cr')
+	   write(message_text, '(2a)') '     Element               Ag             Mo             Cu             ', &
+	                               'Ni             Co             Fe             Cr'
+       call write_info(trim(message_text))
        call write_info('')
 
        do i=1, 96
-        WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol, atom(i)%cam(1), atom(i)%cam(2), atom(i)%cam(3), atom(i)%cam(4), &
-                                                                       atom(i)%cam(5), atom(i)%cam(6), atom(i)%cam(7)
+        WRITE(message_text, '(2x,i3,5X,a,7F15.5)') i,  atom(i)%symbol, atom(i)%cam(1), atom(i)%cam(2), atom(i)%cam(3), &
+		                                               atom(i)%cam(4), atom(i)%cam(5), atom(i)%cam(6), atom(i)%cam(7)
         call write_info(TRIM(message_text))
        end do
        !IF(data_xrays_PLOT) then
@@ -644,32 +655,32 @@ subroutine WRITE_data(input_string)
        IF(data_Xrays_plot) then
         pgf_file%NAME = "X_rays_mac.pgf"
         open(unit=11, file=trim(pgf_file%name))
-         WRITE(UNIT=11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient'
-         WRITE(UNIT=11,'(a)')      '# X LEGEND TEXT   : Atomic number'
-         WRITE(UNIT=11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
+         WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Mass attenuation coefficient'
+         WRITE(11,'(a)')      '# X LEGEND TEXT   : Atomic number'
+         WRITE(11,'(a)')      '# Y LEGEND TEXT   : cm2/g'
          Xmin = 1.
          Xmax = 96.
          Ymin = minval(atom%cam(tabulated_target_nb))
          Ymax = maxval(atom%cam(tabulated_target_nb))
-         write(unit=11, '(a,2(x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10
-         write(unit=11, '(a,2(x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
-         WRITE(UNIT=11,'(a,i6)')     '# NUMBER OF PATTERNS: ',  tabulated_target_nb
+         write(11, '(a,2(1x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10
+         write(11, '(a,2(1x,F15.5))')  '#   YMIN YMAX     : ', Ymin, Ymax
+         WRITE(11,'(a,i6)')     '# NUMBER OF PATTERNS: ',  tabulated_target_nb
          do k = 1, tabulated_target_nb
-          WRITE(UNIT=11,'(a1,70a1)')  '#',('-',i=1,70)
-          WRITE(unit=11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', k
-          write(unit=11,'(2a)')       '#             TITLE : ', X_target(k)%label
-          write(unit=11,'(a,i8)')     '#  NUMBER OF POINTS : ', 96
-          write(unit=11,'(a)')        '#            MARKER : 4'
-          write(unit=11,'(a)')        '#              SIZE : 1.5'
-          write(unit=11,'(a)')        '#             STYLE : 1'
-          write(unit=11,'(a)')        '#   DATA: X Y COMM'
+          WRITE(11,'(a1,70a1)')  '#',('-',i=1,70)
+          WRITE(11,'(a,i6)')     '# >>>>>>>> PATTERN #: ', k
+          write(11,'(2a)')       '#             TITLE : ', X_target(k)%label
+          write(11,'(a,i8)')     '#  NUMBER OF POINTS : ', 96
+          write(11,'(a)')        '#            MARKER : 4'
+          write(11,'(a)')        '#              SIZE : 1.5'
+          write(11,'(a)')        '#             STYLE : 1'
+          write(11,'(a)')        '#   DATA: X Y COMM'
           do i = 1, 96
            pgf_data(i)%X = REAL(i)
            WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%cam(k)
           end do
           call create_PGF_file_multi(11,pgf_data%X, atom%cam(k), pgf_data%string, 96)
          END do
-         WRITE(UNIT=11,'(a)') '# END OF FILE'
+         WRITE(11,'(a)') '# END OF FILE'
          CLOSE(UNIT=11)
 
          IF(LEN_TRIM(winplotr_exe) == 0) then
@@ -677,7 +688,8 @@ subroutine WRITE_data(input_string)
           call write_info(' Warning: WinPLOTR is not installed ')
           call write_info('')
          else
-          call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.)
+          !call system('winplotr '//TRIM(PGF_file%NAME), .TRUE.)  ! lf95
+		  call system('winplotr '//TRIM(PGF_file%NAME))           ! g95
          endif
        endif
 
@@ -703,7 +715,8 @@ subroutine WRITE_data(input_string)
          call write_info(' Warning: WinPLOTR is not installed ')
          call write_info('')
         else
-         call system('winplotr '//trim(pgf_file%name), .true. )
+         !call system('winplotr '//trim(pgf_file%name), .true. )  ! lf95
+		 call system('winplotr '//trim(pgf_file%name))            ! g95
         endif
        ENDIF
        
@@ -728,7 +741,8 @@ subroutine WRITE_data(input_string)
          call write_info(' Warning: WinPLOTR is not installed ')
          call write_info('')
         else
-         call system('winplotr '//trim(pgf_file%name), .true. )
+         !call system('winplotr '//trim(pgf_file%name), .true. )  ! lf95
+		 call system('winplotr '//trim(pgf_file%name))            ! g95
         endif
        ENDIF
   
@@ -753,7 +767,8 @@ subroutine WRITE_data(input_string)
          call write_info(' Warning: WinPLOTR is not installed ')
          call write_info('')
         else
-         call system('winplotr '//trim(pgf_file%name), .true. )
+         !call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
+		 call system('winplotr '//trim(pgf_file%name))              ! g95
         endif
        end if
 

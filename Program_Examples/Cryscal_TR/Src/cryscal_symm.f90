@@ -131,8 +131,8 @@ subroutine get_op_STRING(op_ROT, op_TRANS, op_STRING)
   ! local variables
   INTEGER                            :: i, k
   REAL, parameter                    :: eps = 0.001
-  CHARACTER(LEN=2), DIMENSION(3)     :: string_1
-  CHARACTER(LEN=3), DIMENSION(3)     :: string_2
+  CHARACTER(LEN=2), DIMENSION(6)     :: string_1
+  CHARACTER(LEN=3), DIMENSION(6)     :: string_2
   CHARACTER(LEN=32)                  :: trans_string
 
   character(len=6), dimension(7)    :: ratio_string_pos, ratio_string_neg
@@ -678,16 +678,16 @@ subroutine apply_symm()
  !call write_info('')
 
  IF(keyword_create_CIF) then
-  WRITE(UNIT=CIF_unit, '(a)') 'loop_'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_label'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_type_symbol'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_fract_x'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_fract_y'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_fract_z'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_U_iso_or_equiv'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_adp_type'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_occupancy'
-  WRITE(UNIT=CIF_unit, '(a)') '_atom_site_symmetry_multiplicity'
+  WRITE(CIF_unit, '(a)') 'loop_'
+  WRITE(CIF_unit, '(a)') '_atom_site_label'
+  WRITE(CIF_unit, '(a)') '_atom_site_type_symbol'
+  WRITE(CIF_unit, '(a)') '_atom_site_fract_x'
+  WRITE(CIF_unit, '(a)') '_atom_site_fract_y'
+  WRITE(CIF_unit, '(a)') '_atom_site_fract_z'
+  WRITE(CIF_unit, '(a)') '_atom_site_U_iso_or_equiv'
+  WRITE(CIF_unit, '(a)') '_atom_site_adp_type'
+  WRITE(CIF_unit, '(a)') '_atom_site_occupancy'
+  WRITE(CIF_unit, '(a)') '_atom_site_symmetry_multiplicity'
  endif
 
 
@@ -695,7 +695,8 @@ subroutine apply_symm()
  do i=1, nb_atom
 
   call write_info('')
-  write(message_text,'(a,I3,a,a6,a,3(2x,F8.5))') ' * ATOM #',i, ': ', atom_label(i),': ',atom_coord(1,i), atom_coord(2,i), atom_coord(3,i)
+  write(message_text,'(a,I3,a,a6,a,3(2x,F8.5))') ' * ATOM #',i, ': ', atom_label(i),': ', atom_coord(1,i), &
+                                                 atom_coord(2,i), atom_coord(3,i)
   call write_info(trim(message_text))
 
   call write_info('')
@@ -705,18 +706,24 @@ subroutine apply_symm()
   do num = 1, nb_symm_op
    call Get_new_coord(i, num, new_coord)
    
-   !new_coord(1) = R(1,1, num) * atom_coord(1, i)  +  R(1,2, num) * atom_coord(2, i) +  R(1,3, num) * atom_coord(3,i)  + T(1, num)
-   !new_coord(2) = R(2,1, num) * atom_coord(1, i)  +  R(2,2, num) * atom_coord(2, i) +  R(2,3, num) * atom_coord(3,i)  + T(2, num)
-   !new_coord(3) = R(3,1, num) * atom_coord(1, i)  +  R(3,2, num) * atom_coord(2, i) +  R(3,3, num) * atom_coord(3,i)  + T(3, num)
+   !new_coord(1) = R(1,1, num) * atom_coord(1, i)  +  R(1,2, num) * atom_coord(2, i) +  R(1,3, num) * atom_coord(3,i) &
+   !             + T(1, num)
+   !new_coord(2) = R(2,1, num) * atom_coord(1, i)  +  R(2,2, num) * atom_coord(2, i) +  R(2,3, num) * atom_coord(3,i) &
+   !             + T(2, num)
+   !new_coord(3) = R(3,1, num) * atom_coord(1, i)  +  R(3,2, num) * atom_coord(2, i) +  R(3,3, num) * atom_coord(3,i) &
+   !             + T(3, num)
 
    if(num<10) then
-    write(message_text,'(a,I3,a,a6,a,i1,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', trim(atom_label(i)),'_',num,    &
+    write(message_text,'(a,I3,a,a6,a,i1,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_type(i)),  new_coord(1:3)
    elseif(num < 100) then
-    write(message_text,'(a,I3,a,a6,a,i2,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', trim(atom_label(i)),'_',num,    &
+    write(message_text,'(a,I3,a,a6,a,i2,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_type(i)),  new_coord(1:3)
    else
-    write(message_text,'(a,I3,a,a6,a,i3,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', trim(atom_label(i)),'_',num,    &
+    write(message_text,'(a,I3,a,a6,a,i3,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_type(i)),  new_coord(1:3)
    endif
 
@@ -724,11 +731,14 @@ subroutine apply_symm()
     call write_info('')
    IF(keyword_create_CIF) then
     IF(num<10) then
-     WRITE(UNIT=CIF_unit, '(a,a,i1,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  new_coord(1:3), '  0.05   Uiso  1  1'
+     WRITE(CIF_unit, '(a,a,i1,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     ELSEif(num<100) then
-     WRITE(UNIT=CIF_unit, '(a,a,i2,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  new_coord(1:3), '  0.05   Uiso  1  1'
+     WRITE(CIF_unit, '(a,a,i2,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     else
-     WRITE(UNIT=CIF_unit, '(a,a,i3,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  new_coord(1:3), '  0.05   Uiso  1  1'
+     WRITE(CIF_unit, '(a,a,i3,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     endif
    endif
   END do

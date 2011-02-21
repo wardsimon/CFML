@@ -422,7 +422,8 @@ subroutine HELP_on_line
      keyword_ok = .true.
 
 
-    case ("SG_EXTI", "SP_EXTI", "SG_EXTINCTIONS", "SPACE_GROUP_EXTI", "SPACE_GROUP_EXTINCTIONS", "LIST_EXTINCTIONS, LIST_SPACE_GROUP_EXINCTIONS")
+    case ("SG_EXTI", "SP_EXTI", "SG_EXTINCTIONS", "SPACE_GROUP_EXTI", "SPACE_GROUP_EXTINCTIONS", &
+	      "LIST_EXTINCTIONS, LIST_SPACE_GROUP_EXINCTIONS")
      call write_help_lines(HELP_SG_EXTI_numor)
      keyword_ok = .true.
 
@@ -536,7 +537,7 @@ subroutine HELP_on_line
      call write_help_lines(HELP_WRITE_SG_numor)
      keyword_ok = .true.
 
-    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYMMETRY_OPERATORS")
+    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYMMETRY_OPERATORS")
      call write_help_lines(HELP_WRITE_SYM_OP_numor)
      keyword_ok = .true.
 

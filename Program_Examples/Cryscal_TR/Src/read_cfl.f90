@@ -2,19 +2,22 @@
 
 
 
-subroutine read_CFL_input_file()
+subroutine read_CFL_input_file(inp_unit)
  USE macros_module
  use cryscal_module
 
  implicit none
+  integer, intent(in)                      :: inp_unit
   CHARACTER (LEN=256)                      :: read_line
   integer                                  :: i_error
 
 
 ! ------------------------------
-
+ !open(unit = inp_unit, file = input_file)
  do        ! lecture du fichier d'entree
-  READ(UNIT=input_unit, '(a)', IOSTAT=i_error) read_line
+  !READ(unit=input_unit, fmt='(a)', IOSTAT=i_error) read_line
+  !READ(unit=CFL_read_unit, fmt='(a)', IOSTAT=i_error) read_line
+  READ(unit=inp_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
@@ -23,10 +26,12 @@ subroutine read_CFL_input_file()
   IF (read_line(1:1) == '! ' .or. read_line(1:1) == '#') cycle
 
   call identification_CFL_keywords(read_line)
-
+  call identification_keywords(read_line)
+  
  ! call run_keyword_interactive(current_keyword)
 
  END do
+ close(unit=inp_unit)
 
 ! !IF(.NOT. keyword_BEAM .AND. keyword_WAVE .and. keyword_SFAC_UNIT ) then
 ! IF(.NOT. keyword_BEAM .AND. ( keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)) then
@@ -58,19 +63,19 @@ subroutine incident_beam()
   X_rays   = .true.
   neutrons = .false.
   
-  X_target(1:tabulated_target_nb)%log = .false.
+  X_target(1:tabulated_target_nb)%logic = .false.
   
   do i=1, tabulated_target_nb
    if(ABS(wavelength - X_target(i)%wave(1)) < 0.02) then
     wavelength = X_target(i)%wave(1)
-    X_target(i)%log = .true.
+    X_target(i)%logic = .true.
     anti_cathode    = .true.
     exit
    end if
   end do
   
   !if(.not. anti_cathode) then
-  ! X_target(2)%log = .true.  ! Mo
+  ! X_target(2)%logic = .true.  ! Mo
   ! anti_cathode = .true.
   !endif
 
@@ -132,11 +137,11 @@ end subroutine incident_beam
     keyword_create_CIF = .true.
     OPEN(UNIT=CIF_unit, FILE='cryscal.cif')
     do i=1, CIF_lines_nb
-     WRITE(UNIT=CIF_unit, '(a)') trim(CIF_title_line(i))
+     WRITE(CIF_unit, '(a)') trim(CIF_title_line(i))
     end do
-    WRITE(UNIT=CIF_unit, '(a)') ''
-    WRITE(UNIT=CIF_unit, '(a)') 'data_cryscal'
-    WRITE(UNIT=CIF_unit, '(a)') ''
+    WRITE(CIF_unit, '(a)') ''
+    WRITE(CIF_unit, '(a)') 'data_cryscal'
+    WRITE(CIF_unit, '(a)') ''
     
    case ('CREATE_ACE')
     keyword_create_ACE = .true.
@@ -349,7 +354,7 @@ end subroutine incident_beam
 
     !anti_cathode = .false.
     !do i=1, tabulated_target_nb 
-    ! IF(X_target(i)%LOG) anti_cathode = .true.
+    ! IF(X_target(i)%logic) anti_cathode = .true.
     !ENDDO
     
     IF(.not. anti_cathode) call incident_beam       !
@@ -371,13 +376,27 @@ end subroutine incident_beam
     IF(input_arg(1:1) == 'X') then
      X_rays    = .true.
      neutrons  = .false.
+     electrons = .false.
      beam_type = 'x_rays'
      call get_X_radiation(beam_type)
      keyword_wave = .true.
     ELSEIF(input_arg(1:4) == 'NEUT') then
      neutrons  = .true.
      X_rays    = .false.
+     electrons = .false.
      beam_type = 'neutrons'
+     if(nb_arg==2) then
+      read(arg_string(2), *, iostat=i_error) var(2)
+      if(i_error==0) then
+       read(arg_string(2),*) wavelength
+       keyword_wave = .true.
+      endif
+     endif
+    ELSEIF(input_arg(1:4) == 'ELEC') then
+     electrons = .true.
+     neutrons  = .false.
+     X_rays    = .false.     
+     beam_type = 'electrons'
      if(nb_arg==2) then
       read(arg_string(2), *, iostat=i_error) var(2)
       if(i_error==0) then
@@ -448,7 +467,7 @@ end subroutine incident_beam
      READ(input_line,*) (SFAC_number(i),i=1,nb_atoms_type)
 
     else
-     READ(UNIT=1, '(a)') new_line
+     READ(1, '(a)') new_line
      if (new_line(1:4)=='UNIT') then
       READ(new_line(5:), *) (SFAC_number(i),i=1,nb_atoms_type)
 
@@ -525,6 +544,7 @@ end subroutine incident_beam
     READ(arg_string(1),*) atom_label(nb_atom)
     READ(arg_string(2),*) atom_type(nb_atom)
 
+	
     do i=3, nb_arg
      i1 = INDEX(arg_string(i), '(')
      i2 = INDEX(arg_string(i), ')')
@@ -564,14 +584,18 @@ end subroutine incident_beam
 
     call write_info(' ')
     if(i /=0)  then
-      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
+      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
     else
      IF(nb_arg == 3) then
-      WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  (atom_coord(i,nb_atom),i=1,3)
+      WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+	                                           (atom_coord(i,nb_atom),i=1,3)
      ELSEIF(nb_arg == 4) then
-      WRITE(message_text,'(a,2a6,4(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom)
+      WRITE(message_text,'(a,2a6,4(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom)
      ELSEIF(nb_arg == 5) then
-      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
+      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
      endif
     endif
     call write_info(TRIM(message_text))
@@ -636,7 +660,8 @@ end subroutine incident_beam
     H(1,nb_hkl_SFAC_calc) = var(1)
     H(2,nb_hkl_SFAC_calc) = var(2)
     H(3,nb_hkl_SFAC_calc) = var(3)
-    WRITE(message_text,'(a,3F6.2)') '  > Structure factor calculation for : ', H(1,nb_hkl_SFAC_calc), H(2,nb_hkl_SFAC_calc), H(3,nb_hkl_SFAC_calc)
+    WRITE(message_text,'(a,3F6.2)') '  > Structure factor calculation for : ', &
+	                                H(1,nb_hkl_SFAC_calc), H(2,nb_hkl_SFAC_calc), H(3,nb_hkl_SFAC_calc)
     call write_info(TRIM(message_text))
 
     IF(.NOT. keyword_CELL) then
