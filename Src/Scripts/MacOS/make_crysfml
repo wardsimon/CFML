@@ -152,12 +152,12 @@ then
           OPT2="-c -g -O0"
           ;;
       'g95')
-          OPT1="-c -g -Wall -flat_namespace"
-          OPT2="-c -g -Wall -flat_namespace"
+          OPT1="-c -g -Wall"
+          OPT2="-c -g -Wall"
           ;;
       'gfortran')
-          OPT1="-c -g -Wall -flat_namespace"
-          OPT2="-c -g -Wall -flat_namespace"
+          OPT1="-c -g -Wall"
+          OPT2="-c -g -Wall"
           ;;
       'ifort')
           OPT1="-c -g -warn"
@@ -180,8 +180,8 @@ else
           OPT2="-c -O0"
           ;;
       'gfortran')
-          OPT1="-c -O -flat_namespace"
-          OPT2="-c -O0 -flat_namespace"
+          OPT1="-c -O"
+          OPT2="-c -O0"
           ;;
       'ifort')
           OPT1="-c -O -warn -vec-report0"
