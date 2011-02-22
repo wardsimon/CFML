@@ -127,7 +127,7 @@ in
      $COMP *.o  -o Get_Conv_Cell -static $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o Get_Conv_Cell -static $LIB $LIBSTATIC
+     $COMP *.o  -o Get_Conv_Cell  $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o Get_Conv_Cell -static-intel $LIB $LIBSTATIC
