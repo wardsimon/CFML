@@ -124,10 +124,10 @@ in
      $COMP *.o  -o space_group_info -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o space_group_info -static $LIB $LIBSTATIC
+     $COMP *.o  -o space_group_info  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o space_group_info -static $LIB $LIBSTATIC
+     $COMP *.o  -o space_group_info  $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o space_group_info -static-intel $LIB $LIBSTATIC

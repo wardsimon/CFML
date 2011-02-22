@@ -124,10 +124,10 @@ in
      $COMP *.o  -o subgroups -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o subgroups -static $LIB $LIBSTATIC
+     $COMP *.o  -o subgroups  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o subgroups -static $LIB $LIBSTATIC
+     $COMP *.o  -o subgroups  $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o subgroups -static-intel $LIB $LIBSTATIC

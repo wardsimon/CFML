@@ -14,14 +14,14 @@ Program Test_Subgroups
 
     !---- Variables ----!
     implicit none
-    
+
     character(len=20)      :: spg_symb
     real, dimension (3,3)  :: trans
     real, dimension (3  )  :: orig
     integer                :: nsg, i, j, ng, l
     real                   :: det
     type(space_group_type) :: SpG,SpGn
-    
+
     type(space_group_type), dimension(48) :: Subgroup
 
     !---- Procedure ----!
@@ -31,18 +31,18 @@ Program Test_Subgroups
        if(len_trim(spg_symb) == 0) exit
 
        !> Constructing the space group SPG
-       call set_spacegroup(spg_symb,SPG)       
+       call set_spacegroup(spg_symb,SPG)
 
        write(unit=*,fmt="(a)",advance="no")  " => Please enter a transformation matrix: "
        read(unit=*,fmt=*) (trans(i,:),i=1,3)
        det=determ_a(trans)
        det=abs(det)
-    
+
        write(unit=*,fmt="(a)",advance="no")  " => Please enter the new origin: "
        read(unit=*,fmt=*) orig
 
        !> Construct the subgroup of SPG that is compatible
-       call similar_transf_SG(trans,orig,SpG,SpGn)  
+       call similar_transf_SG(trans,orig,SpG,SpGn)
 
        !> with the transformation matrix and change of origin give above
        call write_spacegroup(SPGn,full=.true.)
@@ -50,7 +50,7 @@ Program Test_Subgroups
        !> Determine all subgroups of the new space group
        call get_T_SubGroups(SPGn,SubGroup,nsg)
 
-       write(unit=*,fmt="(/,a,/)") " => LIST of Translationengleische Subgroups: "
+       write(unit=*,fmt="(/,a,/)") " => LIST of Translationengleiche Subgroups: "
        do i=1,nsg
           j=SPGn%Multip/SubGroup(i)%multip
           ng=SubGroup(i)%numops

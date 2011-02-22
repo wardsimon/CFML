@@ -124,10 +124,10 @@ in
      $COMP *.o  -o hkl_gen -static $LIB $LIBSTATIC
      ;;
   'g95')
-     $COMP *.o  -o hkl_gen -static $LIB $LIBSTATIC
+     $COMP *.o  -o hkl_gen  $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o hkl_gen -static $LIB $LIBSTATIC
+     $COMP *.o  -o hkl_gen  $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o hkl_gen -static-intel $LIB $LIBSTATIC
