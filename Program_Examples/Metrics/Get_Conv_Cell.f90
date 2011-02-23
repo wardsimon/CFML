@@ -315,10 +315,10 @@
         write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",finalm(3,:),"/"
         det=determ_A(finalm)
         invm=Invert_A(finalm)
-        write(unit=io,fmt="(/,a,f12.6)")      "     Determinant: ",det
-        write(unit=io,fmt="(/,a,3f12.6,a)")   "                                   /",invm(1,:),  "\"
-        write(unit=io,fmt="(a,3f12.6,a)")     "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
-        write(unit=io,fmt="(a,3f12.6,a)")     "                                   \",invm(3,:),  "/"
+        write(unit=io,fmt="(/,a,f12.6)")    "     Determinant: ",det
+        write(unit=io,fmt="(/,a,3f12.6,a)") "                                   /",invm(1,:),  "\"
+        write(unit=io,fmt="(a,3f12.6,a)")   "   Inverse Tranformation Matrix:  | ",invm(2,:),  " |       (Aic) = (Ftr)^(-1) (Acc)"
+        write(unit=io,fmt="(a,3f12.6,a)")   "                                   \",invm(3,:),  "/"
       end if
       return
     End Subroutine Write_New_Monoc_Cell

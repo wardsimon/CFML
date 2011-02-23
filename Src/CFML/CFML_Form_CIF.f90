@@ -131,7 +131,17 @@
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Form_Mess
+    character(len=150),       public  :: ERR_Form_Mess
+
+    !!----
+    !!---- EPSS
+    !!----    real(kind=cp), parameter, private :: epss=1.0e-5_cp
+    !!----
+    !!----    Private small real number for floating point comparisons
+    !!----
+    !!---- Update: February - 2011
+    !!
+    real(kind=cp), parameter, private :: epss=1.0e-5_cp
 
     !!----
     !!---- TYPE :: INTERVAL_TYPE
@@ -2578,6 +2588,7 @@
           do i=1,A%natoms
              vet=A%atom(i)%x
              A%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+             if(A%atom(i)%occ < epss) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
              if (A%atom(i)%thtype == "aniso") then
                 select case (A%atom(i)%Utype)
                    case ("u_ij")
@@ -2800,6 +2811,7 @@
           vet(1:3)=A%atom(i)%x
           A%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
           A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/real(SpG%Multip)
+          if(A%atom(i)%occ < epss) A%atom(i)%occ=real(A%atom(i)%Mult)/real(SpG%Multip)
 
           select case (A%atom(i)%thtype)
              case ("isotr")
@@ -3088,13 +3100,10 @@
        call Read_Shx_Atom(file_dat,n_ini,n_end,n_fvar,fvar,elem_atm,cell,A)
        if (err_form) return
 
-       !---- Modify occupation factors and set multiplicity of atoms
-       !---- in order to be in agreement with the definitions of Sfac in CrysFML
        !---- Convert Us to Betas and Uiso to Biso
        do i=1,A%natoms
           vet(1:3)=A%atom(i)%x
           A%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
-          A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/real(SpG%Multip)
 
           select case (A%atom(i)%thtype)
              case ("isotr")
