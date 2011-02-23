@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>documents</key>
+	<array>
+		<dict>
+			<key>filename</key>
+			<string>BindCFML.f95</string>
+			<key>lastUsed</key>
+			<date>2011-02-23T16:11:45Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>make_xtl</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>xtl.c</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>xtl.h</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>xtl2cfml.f95</string>
+		</dict>
+	</array>
+	<key>fileHierarchyDrawerWidth</key>
+	<integer>116</integer>
+	<key>metaData</key>
+	<dict/>
+	<key>showFileHierarchyDrawer</key>
+	<true/>
+	<key>windowFrame</key>
+	<string>{{740, -785}, {586, 741}}</string>
+</dict>
+</plist>

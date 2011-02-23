@@ -1,0 +1,6 @@
+Titel Test 
+Cell 5 5 5 90 90 90
+Spgr I a -3 d   
+!            x     y      z   B   occ
+Atom Fe1 Fe 0.321 0.444 0.5  0.5 1.0
+Atom Fe2 Fe 0.222 0     0.25 0.5 0.5

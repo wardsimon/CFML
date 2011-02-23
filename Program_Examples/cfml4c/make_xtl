@@ -1,0 +1,12 @@
+#!/bin/sh  
+# Tutorial for CrysFML     
+# ./make_xtl; ./xtl test   
+
+gfortran -c xtl2cfml.f95 BindCFML.f95 -I../GFortran/LibC
+gcc -c xtl.c
+gfortran -o xtl xtl.o xtl2cfml.o -L../GFortran/LibC -lcrysfml    
+rm *.o
+./xtl test
+
+
+            
