@@ -879,7 +879,7 @@
           iErr_fmt = iErrFields           ! empty FMT format descriptor
           Call FindFMT_Err(aLine,nC_L)
           Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-          Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+          Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                " => Please check your input file at line: ",Line_Nb," !"
                return
        end if
@@ -900,7 +900,7 @@
                 iErr_fmt = -ioS-100           ! FORTRAN read error
                 Call FindFMT_Err(aLine,nC_L)
                 Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
@@ -930,7 +930,7 @@
           if (iErr_fmt /= iErrNone) then ! Error in field definition
              Call FindFMT_Err(aLine,nC_L)
              Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
@@ -939,7 +939,7 @@
                 iErr_fmt = iErrInvalField   ! invalid field in FMTfields
                 Call FindFMT_Err(aLine,nC_L)
                 Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              else
@@ -958,7 +958,7 @@
           if (iErr_fmt /= iErrNone) then
              Call FindFMT_Err(aLine,nC_L)
              Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
@@ -972,7 +972,7 @@
           if (iErr_fmt /= iErrNone) then   ! format string length exceeded
              Call FindFMT_Err(aLine,nC_L)
              Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+             Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                   " => Please check your input file at line: ",Line_Nb," !"
              return
           end if
@@ -994,7 +994,7 @@
              if (iErr_fmt /= iErrNone) then   ! Error in field definition
                 Call FindFMT_Err(aLine,nC_L)
                 Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+                Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                      " => Please check your input file at line: ",Line_Nb," !"
                 return
              end if
@@ -1004,7 +1004,7 @@
                 if (iErr_fmt /= iErrNone) then ! format string length exceeded
                    Call FindFMT_Err(aLine,nC_L)
                    Mess_FindFMT%nlines=Mess_FindFMT%nlines+1
-                   Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i4,a)")    &
+                   Write(unit=Mess_FindFMT%txt(Mess_FindFMT%nlines),fmt="(a,i6,a)")    &
                         " => Please check your input file at line: ",Line_Nb," !"
                    return
                 end if
