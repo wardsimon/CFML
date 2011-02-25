@@ -95,7 +95,7 @@ Program Calc_Structure_Factors
       call Write_Crystal_Cell(Cell,lun)
       call Write_SpaceGroup(SpG,lun)
       call Write_Atom_List(A,lun=lun)
-      MaxNumRef = get_maxnumref(stlmax,Cell%CellVol,mult=SpG%Multip)
+      MaxNumRef = get_maxnumref(stlmax,Cell%CellVol,mult=SpG%NumOps)
 
       call Hkl_Uni(Cell,Spg,.true.,0.0,stlmax,"s",MaxNumRef,hkl)
 

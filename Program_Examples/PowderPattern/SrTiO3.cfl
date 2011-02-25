@@ -2,7 +2,7 @@ TITLE   SrTiO3
 CELL   3.9  3.9  3.9  90 90 90
 SPGR   P m -3 m
 JOBTYPE  neutrons
-SUPCEL  10 10 10   n
+SUPCEL  5 5 5   n
 RANDOMB  0.3
 !REFLIST
 POWFILE  SrTiO3.dat
