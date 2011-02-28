@@ -1890,9 +1890,9 @@
     !!----    character(len=*),  intent(out)              :: spg           ! Out -> Space Group symbol
     !!----    character(len=*),  intent(in ),optional     :: sub           ! in  -> The space sroup symbol is a subgroup
     !!----                                                                 !        of an already given space group
-    !!----    Reads the card "SPGR" in filvar. Control of error is present
+    !!----    Reads the cards "SPGR", "SPACEG" or "SUBG" in filvar. Control of error is present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2011
     !!
     Subroutine Read_File_Spg(filevar,nline_ini,nline_end,Spg,sub)
        !---- Arguments ----!
@@ -1913,9 +1913,12 @@
          call Read_Key_StrVal(filevar,i,nline_end, "spgr",spg)
        end if
        if (len_trim(spg) == 0 ) then
-          err_form=.true.
-          ERR_Form_Mess=" Problems reading the Space Group symbol/number"
-          return
+         call Read_Key_StrVal(filevar,i,nline_end, "spaceg",spg)
+         if (len_trim(spg) == 0 ) then
+           err_form=.true.
+           ERR_Form_Mess=" Problems reading the Space Group symbol/number"
+           return
+         end if
        end if
 
        return
