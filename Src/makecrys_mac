@@ -39,7 +39,7 @@ fi
 #
 # Winteracter version
 #
-if [ $2 = "all" ]
+if [ a$2 = "aall" ]
 then
    ./Scripts/MacOS/make_crysfml $1 win
    ./Scripts/MacOS/make_crysfgl $1
