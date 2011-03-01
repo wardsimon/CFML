@@ -127,7 +127,7 @@ in
      $COMP *.o  -o simple_calc_powder -static $LIB $LIBSTATIC
      ;;
   'gfortran')
-     $COMP *.o  -o simple_calc_powder -static $LIB $LIBSTATIC
+     $COMP *.o  -o simple_calc_powder $LIB $LIBSTATIC
      ;;
   'ifort')
      $COMP *.o -o simple_calc_powder -static-intel $LIB $LIBSTATIC
