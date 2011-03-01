@@ -600,6 +600,11 @@
       write(unit=lp,fmt="(a)") "!"//trim(Pat%title)
       write(unit=lp,fmt="(3f10.4)") Pat%xmin,Pat%step,Pat%xmax
       write(unit=lp,fmt="(8f16.4)") Pat%ycalc+PPC%bkg
+      ! Alternative two-column output (comment two previous lines and uncomment the following ones)
+      !write(unit=lp,fmt="(a)") "! twotheta  countrate "
+      !do i=1,Pat%npts 
+      !    write(unit=lp,fmt="(2f16.4)") Pat%xmin+i*Pat%step,Pat%ycalc(i)+PPC%bkg
+      !end do 
       close(unit=lun)
       stop
 
