@@ -27,7 +27,7 @@ subroutine xtl2cfml(length,line,abc,ang)
   write(filnam,fmt) line,".cfl"   
   call Readn_Set_Xtal_Structure(filnam,cell,spgr,atoms,mode="CFL")
   abc=cell%cell
-  ang=cell%ang
-  !print *,abc,ang
+  ang=cell%ang   
+  print *,abc,ang
   !call Write_Crystal_cell(cell)
 end subroutine xtl2cfml

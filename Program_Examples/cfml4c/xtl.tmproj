@@ -2,38 +2,167 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>test.cfl</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
-			<string>BindCFML.f95</string>
+			<string>test.cfl</string>
 			<key>lastUsed</key>
-			<date>2011-02-23T16:11:45Z</date>
+			<date>2011-02-28T23:06:35Z</date>
+			<key>selected</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>CFML4C.f95</string>
+			<key>lastUsed</key>
+			<date>2011-02-28T23:06:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>make_xtl</string>
+			<key>lastUsed</key>
+			<date>2011-02-28T17:18:47Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>xtl.c</string>
+			<key>lastUsed</key>
+			<date>2011-02-25T13:04:41Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>xtl.h</string>
+			<key>lastUsed</key>
+			<date>2011-02-25T13:03:37Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>xtl2cfml.f95</string>
+			<key>lastUsed</key>
+			<date>2011-02-25T11:30:02Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
-	<integer>116</integer>
+	<integer>119</integer>
 	<key>metaData</key>
-	<dict/>
+	<dict>
+		<key>make_xtl</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+		</dict>
+		<key>test.cfl</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>36</integer>
+				<key>line</key>
+				<integer>5</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>xtl.c</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>8</integer>
+				<key>line</key>
+				<integer>11</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>xtl.h</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>113</integer>
+				<key>line</key>
+				<integer>102</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>xtl2cfml.f95</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>26</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>25</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>26</integer>
+			</dict>
+		</dict>
+	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>test.cfl</string>
+		<string>xtl.h</string>
+		<string>xtl.c</string>
+		<string>make_xtl</string>
+		<string>xtl2cfml.f95</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
-	<true/>
+	<false/>
 	<key>windowFrame</key>
-	<string>{{740, -785}, {586, 741}}</string>
+	<string>{{302, 4}, {585, 874}}</string>
 </dict>
 </plist>
