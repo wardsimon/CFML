@@ -1,14 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_FFT
 !!----   INFO: FFT Calculations Routines
 !!----
 !!---- HISTORY
-!!--..    Update: January - 2005
-!!--..
-!!--..    23 - November - 2000  Updated by JGP
+!!--..    Update: 02/03/2011
 !!--..
 !!--..    Multivariate Fast Fourier Transform
 !!--..    Fortran 90 (ELF90) Implementation of Singleton's mixed-radix
@@ -267,9 +265,9 @@ Module CFML_FFT
    !!---- TYPE, public :: Points_Interval_Type
    !!--..
    !!---- Type, public :: Points_Interval_Type
-   !!----   integer       :: Np
-   !!----   real(kind=cp) :: Low
-   !!----   real(kind=cp) :: High
+   !!----   integer       :: Np                 ! Number of Points
+   !!----   real(kind=cp) :: Low                ! Lower range value
+   !!----   real(kind=cp) :: High               ! Upper range value
    !!---- End Type Points_Interval_Type
    !!----
    !!---- Update: April 2005

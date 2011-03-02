@@ -1,15 +1,16 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_LSQ_TypeDef
 !!----   INFO: Type definitions for LSQ Routines
 !!----
 !!---- HISTORY
-!!--..    Update: January - 2010
+!!--..    Update: 02/03/2011
 !!--..
 !!---- VARIABLES
 !!----    MAX_FREE_PAR
+!!--..
 !!----    LSQ_CONDITIONS_TYPE
 !!----    LSQ_DATA_TYPE
 !!----    LSQ_STATE_VECTOR_TYPE
@@ -128,7 +129,7 @@ Module CFML_LSQ_TypeDef
       real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
       real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
       integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
-      character(len=25), dimension(Max_Free_Par) :: nampar     !Names of parameters
+      character(len=40), dimension(Max_Free_Par) :: nampar     !Names of parameters
    End Type LSQ_State_Vector_type
 
 End Module CFML_LSQ_TypeDef

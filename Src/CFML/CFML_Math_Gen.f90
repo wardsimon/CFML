@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Math_General
@@ -7,8 +7,7 @@
 !!----         Solid State Physics and Chemistry.
 !!----
 !!---- HISTORY
-!!----    Updated: January  - 2011  JRC
-!!----             August   - 1990  Based in public codes. Created by JRC
+!!----    Updated: 02/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----
@@ -765,6 +764,8 @@
        return
     End Function Atand_sp
 
+
+
     !!----
     !!---- Elemental Function Cosd(x) Result(cosine)
     !!----    real(kind=sp/dp), intent(in) :: x
@@ -916,7 +917,7 @@
     End Function Tand_sp
 
     !!----
-    !!---- Elemental Function Bessj0(x) Result(bessj_0)
+    !!---- Elemental Function BessJ0(x) Result(bessj_0)
     !!----    real(kind=sp), intent(in) :: x
     !!----    real(kind=sp)             :: bessj_0
     !!----
@@ -924,7 +925,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Elemental Function Bessj0(x) Result(bessj_0)
+    Elemental Function BessJ0(x) Result(bessj_0)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: x
        real(kind=cp)             :: bessj_0
@@ -974,10 +975,10 @@
        end if
 
        return
-    End Function Bessj0
+    End Function BessJ0
 
     !!----
-    !!---- Elemental Function Bessj1(x) Result(bessj_1)
+    !!---- Elemental Function BessJ1(x) Result(bessj_1)
     !!----    real(kind=sp), intent(in) : x
     !!----    real(kind=sp)             : bessj_1
     !!----
@@ -985,7 +986,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Elemental Function Bessj1(x) Result(bessj_1)
+    Elemental Function BessJ1(x) Result(bessj_1)
        !---- Arguments ----!
        real(kind=cp), intent(in) :: x
        real(kind=cp)             :: bessj_1
@@ -1035,10 +1036,10 @@
        end if
 
        return
-    End Function Bessj1
+    End Function BessJ1
 
     !!----
-    !!---- Function Bessj(n,x) Result (bessj)
+    !!---- Function BessJ(n,x) Result (bessj)
     !!----    real(kind=sp), intent(in) : x
     !!----    real(kind=sp)             : bessj
     !!----
@@ -1047,7 +1048,7 @@
     !!----
     !!----  Update:  June - 2004
     !!
-    Function Bessj(n,x) Result(bessj_n)
+    Function BessJ(n,x) Result(bessj_n)
        !---- Arguments ----!
        integer,        intent(in)  :: n
        real (kind=cp), intent(in)  :: x
@@ -1114,7 +1115,7 @@
        end if
        if ((x<0.0).and.(mod(n,2)==1)) bessj_n=-bessj_n
        return
-    End Function Bessj
+    End Function BessJ
 
     !!----
     !!---- Elemental Function Factorial(n) Result(fact)
@@ -1520,7 +1521,7 @@
     !!---- Provides the value .TRUE. if the array V contains
     !!---- co-primes integers: there is no common divisor for all
     !!---- the integers. Only the first 20 prime numbers are tested
-    !!---- The value of imax the the maximum prime number to be tested (imax <=71)
+    !!---- The value of imax the the maximum prime number to be tested (imax <=7919)
     !!----
     !!---- Updated: January - 2011
     !!
@@ -2047,7 +2048,7 @@
     !!----
     !!---- Function Norm(X,G) Result(R)
     !!----    real(kind=cp)/integer, dimension(:),   intent(in) :: x
-    !!----    real(kind=cp),         dimension(:,:), intent(in) :: x
+    !!----    real(kind=cp),         dimension(:,:), intent(in) :: g
     !!----
     !!----    Calculate the Norm of a vector
     !!----
@@ -2057,7 +2058,7 @@
     !!--++
     !!--++ Function Norm_I(X,G) Result(R)
     !!--++    integer,      dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: x
+    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
@@ -2081,7 +2082,7 @@
     !!--++
     !!--++ Function Norm_R(X,G) Result(R)
     !!--++    real(kind=cp),dimension(:),   intent(in) :: x
-    !!--++    real(kind=cp),dimension(:,:), intent(in) :: x
+    !!--++    real(kind=cp),dimension(:,:), intent(in) :: g
     !!--++
     !!--++    Calculate the Norm of a vector
     !!--++
@@ -3057,11 +3058,11 @@
     End Subroutine Invert_Matrix
 
     !!----
-    !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,linear_dependent)
+    !!---- Subroutine Linear_Dependent(a,na,b,nb,mb,info)
     !!----    complex/integer/real(kind=cp), dimension(:),   intent(in)  :: a
     !!----    complex/integer/real(kind=cp), dimension(:,:), intent(in)  :: b
     !!----    integer,                                       intent(in)  :: na,nb,mb
-    !!----    logical,                                       intent(out) :: Linear_Dependent
+    !!----    logical,                                       intent(out) :: info
     !!--<<
     !!----    Provides the value .TRUE. if the vector A is linear dependent of the
     !!----    vectors constituting the rows (columns) of the matrix B. In input nb & mb
@@ -3078,11 +3079,11 @@
     !!
 
     !!--++
-    !!--++ Subroutine Linear_DependentC(a,na,b,nb,mb,linear_dependent)
+    !!--++ Subroutine Linear_DependentC(a,na,b,nb,mb,info)
     !!--++    complex, dimension(:),   intent(in)  :: a
     !!--++    complex, dimension(:,:), intent(in)  :: b
     !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: Linear_Dependent
+    !!--++    logical,                 intent(out) :: info
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3110,12 +3111,12 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Linear_DependentC(A,na,B,nb,mb,Linear_Dependent)
+    Subroutine Linear_DependentC(A,na,B,nb,mb,info)
        !---- Arguments ----!
        complex, dimension(:),   intent(in)  :: a
        complex, dimension(:,:), intent(in)  :: b
        integer,                 intent(in)  :: na,nb,mb
-       logical,                 intent(out) :: Linear_Dependent
+       logical,                 intent(out) :: info
 
        !---- Local variables ----!
        integer                                                     :: r,n1
@@ -3124,7 +3125,7 @@
 
        c=0.0
        call init_err_mathgen()
-       Linear_Dependent=.true.
+       info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentC: Error in dimension of input matrix or vector"
@@ -3143,7 +3144,7 @@
           c(n1+1,           1:mb) =-aimag(a(1:na))
           c(n1+1,    mb+1:mb+na ) =  real(a(1:na))
           call rank(c,tol,r)
-          if(r == min(n1+1,2*mb)) Linear_Dependent=.false.
+          if(r == min(n1+1,2*mb)) info=.false.
        else if( na == nb) then
           n1=2*mb+1
           if(n1+1 > 2*nb) return !the vector is linear dependent
@@ -3156,7 +3157,7 @@
           c(1:na,           1+n1) =-aimag(a(1:na))
           c(nb+1:nb+na,     1+n1) =  real(a(1:na))
           call rank(c,tol,r)
-          if(r == min(n1+1,2*nb)) Linear_Dependent=.false.
+          if(r == min(n1+1,2*nb)) info=.false.
        else
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentC: input dimension of vector incompatible with matrix"
@@ -3166,11 +3167,11 @@
     End Subroutine Linear_DependentC
 
     !!--++
-    !!--++ Subroutine Linear_DependentI(a,na,b,nb,mb,linear_dependent)
+    !!--++ Subroutine Linear_DependentI(a,na,b,nb,mb,info)
     !!--++    integer, dimension(:),   intent(in)  :: a
     !!--++    integer, dimension(:,:), intent(in)  :: b
     !!--++    integer,                 intent(in)  :: na,nb,mb
-    !!--++    logical,                 intent(out) :: Linear_Dependent
+    !!--++    logical,                 intent(out) :: info
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3186,12 +3187,12 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Linear_DependentI(A,na,B,nb,mb,Linear_Dependent)
+    Subroutine Linear_DependentI(A,na,B,nb,mb,info)
        !---- Arguments ----!
        integer, dimension(:),   intent(in)  :: a
        integer, dimension(:,:), intent(in)  :: b
        integer,                 intent(in)  :: na,nb,mb
-       logical,                 intent(out) :: Linear_Dependent
+       logical,                 intent(out) :: info
 
        !---- Local variables ----!
        integer                                                 :: r,n1
@@ -3200,7 +3201,7 @@
 
        c=0.0
        call init_err_mathgen()
-       Linear_Dependent=.true.
+       info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentI: Error in dimension of input matrix or vector"
@@ -3213,14 +3214,14 @@
           c(1:nb,1:mb)=real(b(1:nb,1:mb))
           c(n1,  1:mb)=real(a(1:na))      !C(nb+1,mb)
           call rank(c,tol,r)
-          if(r == min(n1,mb)) Linear_Dependent=.false.
+          if(r == min(n1,mb)) info=.false.
        else if( na == nb) then
           n1=mb+1
           if(n1 > nb) return !the vector is linear dependent
           c(1:nb,1:mb)=real(b(1:nb,1:mb))
           c(1:nb,  n1)=real(a(1:na))     !C(nb,mb+1)
           call rank(c,tol,r)
-          if(r == min(n1,nb)) Linear_Dependent=.false.
+          if(r == min(n1,nb)) info=.false.
        else
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentI: input dimension of vector incompatible with matrix"
@@ -3230,11 +3231,11 @@
     End Subroutine Linear_DependentI
 
     !!--++
-    !!--++ Subroutine Linear_DependentR(a,na,b,nb,mb,linear_dependent)
+    !!--++ Subroutine Linear_DependentR(a,na,b,nb,mb,info)
     !!--++    real(kind=cp), dimension(:),   intent(in)  :: a
     !!--++    real(kind=cp), dimension(:,:), intent(in)  :: b
     !!--++    integer,                       intent(in)  :: na,nb,mb
-    !!--++    logical,                                       intent(out) :: Linear_Dependent
+    !!--++    logical,                       intent(out) :: info
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Provides the value .TRUE. if the vector A is linear dependent of the
@@ -3250,12 +3251,12 @@
     !!--++
     !!--++ Update: February - 2005
     !!
-    Subroutine Linear_DependentR(A,na,B,nb,mb,Linear_Dependent)
+    Subroutine Linear_DependentR(A,na,B,nb,mb,info)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in)  :: a
        real(kind=cp), dimension(:,:), intent(in)  :: b
        integer,                       intent(in)  :: na,nb,mb
-       logical,                       intent(out) :: Linear_Dependent
+       logical,                       intent(out) :: info
 
        !---- Local Variables ----!
        integer                                                 :: r,n1
@@ -3264,7 +3265,7 @@
 
        c=0.0
        call init_err_mathgen()
-       Linear_Dependent=.true.
+       info=.true.
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentR: Error in dimension of input matrix or vector"
@@ -3277,14 +3278,14 @@
           c(1:nb,1:mb)=b(1:nb,1:mb)
           c(n1,  1:mb)=a(1:na)      !C(nb+1,mb)
           call rank(c,tol,r)
-          if(r == min(n1,mb)) Linear_Dependent=.false.
+          if(r == min(n1,mb)) info=.false.
        else if( na == nb) then   !Vector added as an additional column
           n1=mb+1
           if(n1 > nb) return !the vector is linear dependent
           c(1:nb,1:mb)=b(1:nb,1:mb)
           c(1:nb,  n1)=a(1:na)     !C(nb,mb+1)
           call rank(c,tol,r)
-          if(r == min(n1,nb)) Linear_Dependent=.false.
+          if(r == min(n1,nb)) info=.false.
        else
           ERR_MathGen=.true.
           ERR_MathGen_Mess=" Linear_DependentR: input dimension of vector incompatible with matrix"

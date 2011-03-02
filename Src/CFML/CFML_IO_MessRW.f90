@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_MESSAGES
@@ -14,8 +14,7 @@
 !!--..
 !!---- HISTORY
 !!----
-!!----    Update: February - 2005
-!!----            June    - 1999   Updated by JGP
+!!----    Update: 02/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    RealWin Library
@@ -69,7 +68,7 @@
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(Mess, Iunit)
+    !!---- Subroutine Error_Message(Mess, Iunit, Routine, Faltal)
     !!----    character(len=*), intent(in)           :: Mess    !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit   !  In -> Write information on Iunit unit
     !!----
@@ -77,10 +76,12 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Error_Message(Mess, Iunit)
+    Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
        !---- Arguments ----!
-       character(len=*), intent(in)  :: Mess
-       integer, optional, intent(in) :: iunit
+       character(len=*),            intent(in) :: Mess
+       integer, optional,           intent(in) :: iunit
+       Character(Len =*), Optional, Intent(In) :: Routine
+       Logical, Optional,           Intent(In) :: Fatal
 
        messval=message_box(text="Error: "//trim(mess),title="Stop/Warning Box")  !rw
 
@@ -89,23 +90,31 @@
           write(unit=iunit,fmt="(1x,a)") "*** ERROR: "//mess
           write(unit=iunit,fmt="(1x,a)") "***"
           write(unit=iunit,fmt="(1x,a)") " "
+          If (Present(Routine)) Then
+            Write(Unit = iunit, Fmt = "(tr1,a)") "**** Subroutine: "//trim(Routine)
+          End If
+          If (Present(Fatal)) Then
+           If (Fatal) Then
+               Write(Unit = iunit, Fmt = "(/tr1,a)") "**** The Program Will Stop Here."
+               Stop
+           End If
+          End If
        end if
 
        return
     End Subroutine Error_Message
 
     !!----
-    !!---- Subroutine Info_Message(Mess, iunit, scroll_window)
+    !!---- Subroutine Info_Message(Mess, Iunit, Scroll_Window)
     !!----    character(len=*),  intent(in) :: Mess           !  In -> Info information
-    !!----    integer, optional, intent(in) :: iunit          !  In -> Write information on Iunit unit
-    !!----    integer, optional, intent(in) :: scroll_window  !  In -> Write information on scroll windows
+    !!----    integer, optional, intent(in) :: Iunit          !  In -> Write information on Iunit unit
+    !!----    integer, optional, intent(in) :: Scroll_Window  !  In -> Write information on scroll windows
     !!----
     !!----    Print an message on the screen and in 'Iunit' if present
     !!----
     !!---- Update: February - 2005
     !!
-
-    Subroutine Info_Message(Mess, iunit, scroll_window)
+    Subroutine Info_Message(Mess, Iunit, Scroll_Window)
        character(len=*), intent(in)           :: Mess
        integer,          intent(in), optional :: iunit
        integer,          intent(in), optional :: scroll_window

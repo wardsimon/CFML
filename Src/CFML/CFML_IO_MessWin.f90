@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_MESSAGES
@@ -13,8 +13,7 @@
 !!--..
 !!---- HISTORY
 !!----
-!!----    Update: February - 2005
-!!----            June    - 1999   Updated by JGP
+!!----    Update: 02/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Winteracter or X/Winteracter Library
@@ -55,6 +54,7 @@
               stop_message, write_scroll_text
 
     !---- Definitions ----!
+
     !!----
     !!---- WIN_CONSOLE
     !!----    integer, private :: icwindow

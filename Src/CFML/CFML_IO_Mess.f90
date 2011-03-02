@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_MESSAGES
@@ -13,8 +13,7 @@
 !!--..
 !!---- HISTORY
 !!----
-!!----    Update: February - 2005
-!!----            June    - 1999   Updated by JGP
+!!----    Update: 02/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----
@@ -44,11 +43,11 @@
  Contains
 
     !!----
-    !!---- Subroutine Error_Message(Mess, Iunit, routine, fatal)
+    !!---- Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
     !!----    character(len=*), intent(in)           :: Mess          !  In -> Error information
     !!----    integer,          intent(in), optional :: Iunit         !  In -> Write information on Iunit unit
-    !!----    character(len=*), intent(in), optional :: routine       !  In -> The subroutine where the error occured
-    !!----    logical,          intent(in), optional :: fatal         !  In -> Should the program stop here ?
+    !!----    character(len=*), intent(in), optional :: Routine       !  In -> The subroutine where the error occured
+    !!----    logical,          intent(in), optional :: Fatal         !  In -> Should the program stop here ?
     !!----
     !!----    Print an error message on the screen or in "Iunit" if present
     !!----    If "routine" is present the subroutine where the occured will be also displayed.
