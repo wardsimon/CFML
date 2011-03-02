@@ -244,8 +244,8 @@ cd ./Src/CFML
 # Compilation Process
 #
 echo " ########################################################"
-echo " #### Crystallographic Fortran Modules Library (4.0) ####"
-echo " #### JRC - JGP                            1999-2009 ####"
+echo " #### Crystallographic Fortran Modules Library (5.0) ####"
+echo " #### JRC - JGP                            1999-2011 ####"
 echo " ########################################################"
 if [ $COMP = "lf95" ]
 then

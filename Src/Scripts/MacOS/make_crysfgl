@@ -190,8 +190,8 @@ cd ./Src/CFGL
 # Compilation Process
 #
 echo " ########################################################"
-echo " #### Fortran CFGL Library                     (4.0) ####"
-echo " #### JRC - LC - JGP                       2005-2009 ####"
+echo " #### Fortran CFGL Library                     (5.0) ####"
+echo " #### JRC - LC - JGP                       2005-2011 ####"
 echo " ########################################################"
 $COMP $OPT1  WCFGL_Constant.f90            $INC
 $COMP $OPT1  WCFGL_Atomic_Table.f90        $INC

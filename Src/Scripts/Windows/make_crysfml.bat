@@ -1,6 +1,6 @@
 @echo off
 rem
-rem ---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 4.00 ----
+rem ---- CRYSTALLOGRAPHIC FORTRAN MODULES LIBRARY 5.00 ----
 rem
    if not x%1 == x goto CONT
 rem
