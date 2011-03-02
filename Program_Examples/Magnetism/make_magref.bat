@@ -8,8 +8,8 @@ rem ****
 rem
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_CALC_POWDER: Make Calc_Powder Compilation
-   echo    Syntax: make_Calc_Powder [lf95/g95/gfortran/ifort]
+   echo    MAKE_MAGREF: Make Calc_Powder Compilation
+   echo    Syntax: make_magref [lf95/g95/gfortran/ifort]
    goto END
 rem
 :CONT

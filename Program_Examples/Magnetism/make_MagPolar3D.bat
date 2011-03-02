@@ -8,8 +8,8 @@ rem ****
 rem
    if not x%1 == x goto CONT
    cls
-   echo    MAKE_CALC_POWDER: Make MagPolar3D Compilation
-   echo    Syntax: MagPolar3D [lf95/g95/gfortran/ifort]
+   echo    MAKE_MAGPOLAR3D: Make MagPolar3D Compilation
+   echo    Syntax: Make_MagPolar3D [lf95/g95/gfortran/ifort]
    goto END
 rem
 :CONT
