@@ -107,6 +107,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -125,14 +127,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>SET_ORBITS_INLIST</span></p>
-<p><span class=rvts10>SUBROUTINE SET_ORBITS_INLIST (SPG, PL)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>SET_ORBITS_INLIST</span></span></h1>
+<p><span class=rvts10>Subroutine SET_ORBITS_inLIST (SPG, PL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=316><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>SPG</p>
 </td>
@@ -140,9 +142,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=316><p><span class=rvts11>TYPE</span>(POINT_LIST_TYPE)</p>
+<td width=316><p><span class=rvts11>TYPE</span>(POinT_LIST_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=73><p>PL</p>
 </td>
@@ -152,7 +154,7 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Set up of the integer pointer PL%P in the object <span class=rvts12>PL</span> of type <a class=rvts13 href="POINTLISTTYPE.html">POINT_LIST_TYPE</a>. Each point is associated with the number of an orbit. This pointer is useful to get the asymmetric unit with respect to the input space group of an arbitrary list of points (atom coordinates).</p>
+<p>Set up of the Integer pointer PL%P in the object <span class=rvts12>PL</span> of type <a class=rvts13 href="POINTLISTTYPE.html">POinT_LIST_TYPE</a>. Each point is associated with the number of an orbit. This pointer is useful to get the asymmetric unit with respect to the input space group of an arbitrary list of points (atom coordinates).</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

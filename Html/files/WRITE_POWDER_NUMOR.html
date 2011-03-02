@@ -105,6 +105,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -123,14 +125,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>WRITE_POWDER_NUMOR</span></p>
-<p><span class=rvts10>SUBROUTINE WRITE_POWDER_NUMOR(NUM,INST,LUN)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>WRITE_POWDER_NUMOR</span></span></h1>
+<p><span class=rvts10>Subroutine WRITE_POWDER_NUMOR(NUM,inST,LUN)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(POWDER_NUMOR_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>NUM</p>
 </td>
@@ -138,19 +140,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span><span class=rvts11>=</span>*)</p>
+<td width=330><p><span class=rvts11>Character </span>(<span class=rvts13>Len</span><span class=rvts11>=</span>*)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>INST</p>
+<td width=98><p>inST</p>
 </td>
-<td width=369><p>Instrumental Name</p>
+<td width=369><p>instrumental Name</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>LUN</p>
 </td>
@@ -161,5 +163,5 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p>Writes the characteristics of the numor objet <span class=rvts12>NUM</span> of type POWDER_NUMOR_TYPE in the file of logical unit <span class=rvts12>LUN</span>. If the subroutine is invoked without the&nbsp; <span class=rvts12>LUN</span>argument the subroutine outputs the information on the standard output (screen)</p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

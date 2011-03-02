@@ -105,6 +105,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -123,14 +125,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>CALC_MAP_BVS</span></p>
-<p><span class=rvts10>SUBROUTINE CALC_MAP_BVS (A, SPG, CELL, FILECOD, NDIMX, NDIMY, NDIMZ, ATNAME, DRMAX)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CALC_MAP_BVS</span></span></h1>
+<p><span class=rvts10>Subroutine CALC_MAP_BVS (A, SPG, CELL, FILECOD, NDIMX, NDIMY, NDIMZ, ATNAME, DRMAX)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(ATOMS_CONF_LIST_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>A</p>
 </td>
@@ -140,7 +142,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>SPG</p>
 </td>
@@ -150,7 +152,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>CELL</p>
 </td>
@@ -158,9 +160,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
+<td width=330><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>FILECOD</p>
 </td>
@@ -168,9 +170,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>NDIMX</p>
 </td>
@@ -178,9 +180,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>NDIMY</p>
 </td>
@@ -188,9 +190,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>NDIMZ</p>
 </td>
@@ -198,9 +200,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span> (<span class=rvts12>LEN</span>=*)</p>
+<td width=330><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>ATNAME</p>
 </td>
@@ -208,9 +210,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>DRMAX</p>
 </td>
@@ -223,5 +225,5 @@ p,ul,ol /* Paragraph Style */
 <p>Calculate a map of BVS values where each point of the grid is determined by a specie representative defined in <span class=rvts13>ATNAME</span>. </p>
 <p>The BVS value is evaluated into of <span class=rvts13>DRMAX</span> value. The BVS map is saved in the file called given as FILECOD.</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

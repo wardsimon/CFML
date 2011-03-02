@@ -122,6 +122,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -140,7 +142,7 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts17>DIFFRACTOMETER_TYPE</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts17>DIFFRACTOMETER_TYPE</span></span></h1>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -161,23 +163,23 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
 </td>
-<td width=150><p>INFO</p>
+<td width=150><p>inFO</p>
 </td>
-<td width=369><p>Information about the instrument</p>
+<td width=369><p>information about the instrument</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>10</span>)</p>
 </td>
-<td width=150><p>NAME_INST</p>
+<td width=150><p>NAME_inST</p>
 </td>
 <td width=369><p>Short name of the instrument</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>15</span>)</p>
 </td>
 <td width=150><p>GEOM</p>
 </td>
@@ -185,7 +187,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>6</span>)</p>
 </td>
 <td width=150><p>BL_FRAME</p>
 </td>
@@ -193,7 +195,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
 </td>
 <td width=150><p>DIST_UNITS</p>
 </td>
@@ -201,7 +203,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>4</span>)</p>
 </td>
 <td width=150><p>ANGL_UNITS</p>
 </td>
@@ -209,7 +211,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>30</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>30</span>)</p>
 </td>
 <td width=150><p>DETECTOR_TYPE</p>
 </td>
@@ -217,7 +219,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>DIST_SAMP_DETECTOR</p>
 </td>
@@ -226,15 +228,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
-<td width=150><p>WAVE_MIN</p>
+<td width=150><p>WAVE_Min</p>
 </td>
 <td width=369><p>Minimum wavelength (Laue diffractometers)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>WAVE_MAX</p>
 </td>
@@ -242,7 +244,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>VERT</p>
 </td>
@@ -250,7 +252,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>HORIZ</p>
 </td>
@@ -258,7 +260,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>AGAP</p>
 </td>
@@ -266,7 +268,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP)</p>
 </td>
 <td width=150><p>CGAP</p>
 </td>
@@ -274,7 +276,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>NP_VERT</p>
 </td>
@@ -282,7 +284,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>NP_HORIZ</p>
 </td>
@@ -290,7 +292,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>IGEOM</p>
 </td>
@@ -301,7 +303,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>IPSD</p>
 </td>
@@ -310,7 +312,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=150><p>E1</p>
 </td>
@@ -318,7 +320,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=150><p>E2</p>
 </td>
@@ -326,7 +328,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=150><p>E3</p>
 </td>
@@ -334,7 +336,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>NUM_ANG</p>
 </td>
@@ -342,7 +344,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>Dimension</span>(<span class=rvts14>15</span>)</p>
 </td>
 <td width=150><p>ANG_NAMES</p>
 </td>
@@ -350,7 +352,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15,2</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>15,2</span>)</p>
 </td>
 <td width=150><p>ANG_LIMITS</p>
 </td>
@@ -358,7 +360,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>15</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>15</span>)</p>
 </td>
 <td width=150><p>ANG_OFFSETS</p>
 </td>
@@ -366,7 +368,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=150><p>NUM_DISP</p>
 </td>
@@ -374,7 +376,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>12</span>), <span class=rvts13>Dimension</span>(<span class=rvts14>10</span>)</p>
 </td>
 <td width=150><p>DISP_NAMES</p>
 </td>
@@ -382,7 +384,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10,2</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>10,2</span>)</p>
 </td>
 <td width=150><p>DISP_LIMITS</p>
 </td>
@@ -390,7 +392,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>10</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>10</span>)</p>
 </td>
 <td width=150><p>DISP_OFFSETS</p>
 </td>
@@ -398,7 +400,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=150><p>DET_OFFSETS</p>
 </td>
@@ -406,7 +408,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=336><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>ALLOCATABLE</span>, <span class=rvts13>DIMENSION</span>(:,:)</p>
+<td width=336><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>ALLOCATABLE</span>, <span class=rvts13>Dimension</span>(:,:)</p>
 </td>
 <td width=150><p>ALPHAS</p>
 </td>
@@ -425,5 +427,5 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p>Definition for Diffractometer type</p>
-<p class=rvps3><span class=rvts18>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts18>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -111,6 +111,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -129,16 +131,16 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts15>SET_INSTRM_DIRECTORY</span></p>
-<p><span class=rvts10>SUBROUTINE SET_INSTRM_DIRECTORY(INSTRM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts15>SET_INSTRM_DIRECTORY</span></span></h1>
+<p><span class=rvts10>Subroutine SET_inSTRM_DIRECTORY(inSTRM)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER (</span><span class=rvts12>LEN</span><span class=rvts11>=</span>*<span class=rvts11>)</span></p>
+<td width=330><p><span class=rvts11>Character (</span><span class=rvts12>Len</span><span class=rvts11>=</span>*<span class=rvts11>)</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>INSTRM</p>
+<td width=98><p>inSTRM</p>
 </td>
 <td width=369><p>Name of the instrument</p>
 </td>
@@ -146,11 +148,11 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Assign the global public variable: <a class=rvts13 href="INSTRMDIRECTORY.html">INSTRM_DIRECTORY</a>.</p>
+<p>Assign the global public variable: <a class=rvts13 href="INSTRMDIRECTORY.html">inSTRM_DIRECTORY</a>.</p>
 <p><br></p>
-<p>The argument <span class=rvts14>INSTRM</span> is the name of the diffractometer. Then <a class=rvts13 href="INSTRMDIRECTORY.html">INSTRM_DIRECTORY</a>=<span class=rvts12>trim</span>(<a class=rvts13 href="ILLDATADIRECTORY.html">ILL_DATA_DIRECTORY</a>)//<span class=rvts12>trim</span>(<span class=rvts14>INSTRM</span>)//<span class=rvts13>DIRSLASH</span></p>
+<p>The argument <span class=rvts14>inSTRM</span> is the name of the diffractometer. Then <a class=rvts13 href="INSTRMDIRECTORY.html">inSTRM_DIRECTORY</a>=<span class=rvts12>trim</span>(<a class=rvts13 href="ILLDATADIRECTORY.html">ILL_DATA_DIRECTORY</a>)//<span class=rvts12>trim</span>(<span class=rvts14>inSTRM</span>)//<span class=rvts13>DIRSLASH</span></p>
 <p><br></p>
 <p>It is assumed that the subroutine <a class=rvts13 href="SETILLDATADIRECTORY.html">SET_ILL_DATA_DIRECTORY</a> has&nbsp; already been called.</p>
 <p> </p>
-<p class=rvps3><span class=rvts16>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

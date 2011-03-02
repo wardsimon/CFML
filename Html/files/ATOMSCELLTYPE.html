@@ -122,6 +122,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -140,7 +142,7 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts17>ATOMS_CELL_TYPE</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts17>ATOMS_CELL_TYPE</span></span></h1>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -160,7 +162,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=188><p>NAT</p>
 </td>
@@ -168,7 +170,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>10</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Character</span> (<span class=rvts14>Len</span><span class=rvts13>=</span><span class=rvts15>10</span>), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>NOMS</p>
 </td>
@@ -176,7 +178,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>XYZ</p>
 </td>
@@ -184,7 +186,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>CHARGE</p>
 </td>
@@ -192,7 +194,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>MOMENT</p>
 </td>
@@ -200,7 +202,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341 height=14><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341 height=14><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188 height=14><p>VARF</p>
 </td>
@@ -208,7 +210,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Integer</span>, <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>NEIGHB</p>
 </td>
@@ -216,7 +218,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span>, <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Integer</span>, <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>NEIGHB_ATM</p>
 </td>
@@ -224,7 +226,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>DISTANCE</p>
 </td>
@@ -232,7 +234,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>TRANS</p>
 </td>
@@ -240,7 +242,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=188><p>NDIST</p>
 </td>
@@ -248,7 +250,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; REAL</span> (<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Real</span> (<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>DDIST</p>
 </td>
@@ -256,7 +258,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=341><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span> (<span class=rvts14>LEN</span><span class=rvts13>=</span><span class=rvts15>8</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=341><p><span class=rvts13>&nbsp;&nbsp; Character</span> (<span class=rvts14>Len</span><span class=rvts13>=</span><span class=rvts15>8</span>), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=188><p>DDLAB</p>
 </td>
@@ -275,8 +277,8 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p><br></p>
-<p>where IDP is an integer number calculated as:</p>
+<p>where IDP is an Integer number calculated as:</p>
 <p><br></p>
 <p>nint( 0.74048*(DMAX/1.1)<span class=rvts16>3 </span>) where DMAX is the maximum distance used to calculate</p>
-<p class=rvps3><span class=rvts18>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts18>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

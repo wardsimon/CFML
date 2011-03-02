@@ -107,6 +107,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -125,16 +127,16 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>READN_SET_XTAL_STRUCTURE</span></p>
-<p><span class=rvts10>SUBROUTINE READN_SET_XTAL_STRUCTURE (FILENAM, MOLCRYS, MODE, IPHASE, JOB_INFO, FILE_LIST)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>READN_SET_XTAL_STRUCTURE</span></span></h1>
+<p><span class=rvts10>Subroutine READN_SET_XTAL_STRUCTURE (FILenAM, MOLCRYS, MODE, IPHASE, JOB_inFO, FILE_LIST)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>FILENAM</p>
+<td width=98><p>FILenAM</p>
 </td>
 <td width=369><p>Name of File</p>
 </td>
@@ -142,17 +144,17 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(MOLECULAR_CRYSTAL_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>MOLCRYS</p>
 </td>
-<td width=369><p>Molecule Information</p>
+<td width=369><p>Molecule information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>MODE</p>
 </td>
@@ -160,9 +162,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>IPHASE</p>
 </td>
@@ -170,19 +172,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(JOB_INFO_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(JOB_inFO_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=98><p>JOB_INFO</p>
+<td width=98><p>JOB_inFO</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>FILE_LIST</p>
 </td>
@@ -194,15 +196,15 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts13>or</span></p>
 <p><br></p>
-<p><span class=rvts10>SUBROUTINE READN_SET_XTAL_STRUCTURE (FILENAM, CELL, SPG, A, MODE, IPHASE, JOB_INFO, FILE_LIST)</span></p>
+<p><span class=rvts10>Subroutine READN_SET_XTAL_STRUCTURE (FILenAM, CELL, SPG, A, MODE, IPHASE, JOB_inFO, FILE_LIST)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>FILENAM</p>
+<td width=98><p>FILenAM</p>
 </td>
 <td width=369><p>Name of File</p>
 </td>
@@ -210,7 +212,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>CELL</p>
 </td>
@@ -220,7 +222,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>SPG</p>
 </td>
@@ -230,7 +232,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>A</p>
 </td>
@@ -238,9 +240,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>MODE</p>
 </td>
@@ -248,9 +250,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>IPHASE</p>
 </td>
@@ -258,19 +260,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(JOB_INFO_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(JOB_inFO_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=98><p>JOB_INFO</p>
+<td width=98><p>JOB_inFO</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>FILE_LIST</p>
 </td>
@@ -282,8 +284,8 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p>Subroutine to read an input file and construct the crystal structure&nbsp; in terms of the object MOLCRYS or CELL, SPG and A. </p>
-<p>The optional argument IPHASE is an integer telling to the program to read the phase number IPHASE in the case of the presence&nbsp; of more than one phase. </p>
+<p>The optional argument IPHASE is an Integer telling to the program to read the phase number IPHASE in the case of the presence&nbsp; of more than one phase. </p>
 <p>If absent only the first phase is read.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

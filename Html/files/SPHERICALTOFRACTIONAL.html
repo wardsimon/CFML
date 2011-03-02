@@ -97,6 +97,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -115,14 +117,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts12>SPHERICAL_TO_FRACTIONAL</span></p>
-<p><span class=rvts10>SUBROUTINE SPHERICAL_TO_FRACTIONAL (MOLECULE, CELL, NEWMOLECULE)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts12>SPHERICAL_TO_FRACTIONAL</span></span></h1>
+<p><span class=rvts10>Subroutine SPHERICAL_TO_FRACTIONAL (MOLECULE, CELL, NEWMOLECULE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
 </td>
-<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=108><p>MOLECULE</p>
 </td>
@@ -132,7 +134,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=108><p>CELL</p>
 </td>
@@ -140,9 +142,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=109><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=108><p>NEWMOLECULE</p>
 </td>
@@ -156,5 +158,5 @@ p,ul,ol /* Paragraph Style */
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p>If a third argument is present the subroutine creates a new molecule (copy of the old one) with Fractional coordinates, preserving the input molecule in Spherical Coordinates. Otherwise&nbsp; the input molecule is changed on output.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts13>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

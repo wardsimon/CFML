@@ -115,6 +115,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps4 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -133,28 +135,28 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps4><span class=rvts14>CFML_Math_General: Subroutines</span></p>
-<p><span class=rvts11>SUBROUTINE LU_BACKSUB (A, INDX, B)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts14>CFML_Math_General: Subroutines</span></span></h1>
+<p><span class=rvts11>Subroutine LU_BACKSUB (A, inDX, B)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=296><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION </span>(:,:)</p>
+<td width=296><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension </span>(:,:)</p>
 </td>
-<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
 </td>
 <td width=45><p>A</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p>Input Array</p>
+<td width=410><p>input Array</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=296><p><span class=rvts12>INTEGER, DIMENSION </span>(:)</p>
+<td width=296><p><span class=rvts12>Integer, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=98><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
 </td>
-<td width=45><p>INDX</p>
+<td width=45><p>inDX</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
@@ -162,14 +164,14 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=296><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION </span>(:)</p>
+<td width=296><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span> <span class=rvts12>OUT</span>)</p>
+<td width=98><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span> <span class=rvts12>out</span>)</p>
 </td>
 <td width=45><p>B</p>
 </td>
-<td width=40><p class=rvps3>IN:</p>
-<p class=rvps3>OUT:</p>
+<td width=40><p class=rvps3>in:</p>
+<p class=rvps3>out:</p>
 </td>
 <td width=410><p class=rvps2>Right-hand-side vector</p>
 <p>Solutions of the linear system</p>
@@ -180,9 +182,9 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine that solves the set of N linear equations <span class=rvts10>A</span> · <span class=rvts10>X</span> = <span class=rvts10>B</span></p>
 <p><span class=rvts10><br></span></p>
-<p>A and INDX are not modified by this routine and can be left in place for successive calls with different right-hand sides B</p>
+<p>A and inDX are not modified by this routine and can be left in place for successive calls with different right-hand sides B</p>
 <p><br></p>
 <p><span class=rvts10>NOTE</span>: Here the matrix A (N,N) is not as the original matrix A, but rather as its LU decomposition, determined by the routine <a class=rvts13 href="LUDECOMP_MathGen.html">LU_DECOMP</a>. </p>
 <p><br></p>
-<p class=rvps5><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

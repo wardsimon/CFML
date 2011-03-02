@@ -120,6 +120,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps4 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -138,8 +140,8 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps4><span class=rvts15>LEVENBERG_MARQUARDT_FIT</span></p>
-<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, TOL, INFO, IWA)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts15>LEVENBERG_MARQUARDT_FIT</span></span></h1>
+<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, TOL, inFO, IWA)</span></p>
 <p><br></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
@@ -156,9 +158,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>M</p>
 </td>
@@ -168,9 +170,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>N</p>
 </td>
@@ -180,25 +182,25 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=121><p>X</p>
 </td>
 <td width=52><p class=rvps3><br></p>
-<p class=rvps3>IN:</p>
-<p class=rvps3>OUT:</p>
+<p class=rvps3>in:</p>
+<p class=rvps3>out:</p>
 </td>
 <td width=370><p class=rvps2>Vector of length N</p>
-<p class=rvps2>Initial estimate of the solution vector</p>
+<p class=rvps2>initial estimate of the solution vector</p>
 <p class=rvps2>Final estimate of the solution vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=121><p>FVEC</p>
 </td>
@@ -208,9 +210,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>TOL</p>
 </td>
@@ -220,11 +222,11 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=121><p>INFO</p>
+<td width=121><p>inFO</p>
 </td>
 <td width=52><p class=rvps2>&lt; 0</p>
 <p class=rvps2>= 0</p>
@@ -253,15 +255,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER, DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Integer, Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=121><p>IWA</p>
 </td>
 <td width=52><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>is an integer work array of length n</p>
+<td width=370><p class=rvps2>is an Integer work array of length n</p>
 </td>
 </tr>
 </table>
@@ -270,7 +272,7 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts14>or</span></p>
 <p><span class=rvts14><br></span></p>
-<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, INFOUT, RESIDUALS)</span></p>
+<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, inFout, RESIDUALS)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -284,9 +286,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -296,7 +298,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>C</p>
 </td>
@@ -306,7 +308,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>VS</p>
 </td>
@@ -314,9 +316,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>CHI2</p>
 </td>
@@ -324,19 +326,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
+<td width=270><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=98><p>INFOUT</p>
+<td width=98><p>inFout</p>
 </td>
-<td width=410><p class=rvps2>Information about the refinement</p>
+<td width=410><p class=rvps2>information about the refinement</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>RESIDUALS</p>
 </td>
@@ -349,12 +351,12 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts14>and</span></p>
 <p><span class=rvts14><br></span></p>
-<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (M, N, X, FVEC, IFLAG)</span></p>
+<p><span class=rvts12>Subroutine MODEL_FUNCTN (M, N, X, FVEC, IFLAG)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -362,9 +364,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -372,9 +374,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -382,9 +384,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>FVEC</p>
 </td>
@@ -392,9 +394,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>IFLAG</p>
 </td>
@@ -404,14 +406,14 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
 <p><br></p>
 <p><br></p>
 <p><span class=rvts10> </span></p>
 <p><span class=rvts14>or</span></p>
 <p><span class=rvts10><br></span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, FJAC, TOL, INFO, IWA)</span></p>
+<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, FJAC, TOL, inFO, IWA)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -427,9 +429,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>M</p>
 </td>
@@ -439,9 +441,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>N</p>
 </td>
@@ -451,25 +453,25 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=121><p>X</p>
 </td>
 <td width=52><p class=rvps3><br></p>
-<p class=rvps3>IN:</p>
-<p class=rvps3>OUT:</p>
+<p class=rvps3>in:</p>
+<p class=rvps3>out:</p>
 </td>
 <td width=370><p class=rvps2>Vector of length N</p>
-<p class=rvps2>Initial estimate of the solution vector</p>
+<p class=rvps2>initial estimate of the solution vector</p>
 <p class=rvps2>Final estimate of the solution vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=121><p>FVEC</p>
 </td>
@@ -479,9 +481,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:,:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=121><p>FJAC</p>
 </td>
@@ -499,9 +501,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=121><p>TOL</p>
 </td>
@@ -511,11 +513,11 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=121><p>INFO</p>
+<td width=121><p>inFO</p>
 </td>
 <td width=52><p class=rvps2>&lt; 0</p>
 <p class=rvps2>= 0</p>
@@ -544,15 +546,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER, DIMENSION</span>(:)</p>
+<td width=270><p><span class=rvts11>Integer, Dimension</span>(:)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=121><p>IWA</p>
 </td>
 <td width=52><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>is an integer work array of length n</p>
+<td width=370><p class=rvps2>is an Integer work array of length n</p>
 </td>
 </tr>
 </table>
@@ -562,7 +564,7 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>or</span></p>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts10>SUBROUTINE LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, CALDER, INFOUT, RESIDUALS)</span></p>
+<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, CALDER, inFout, RESIDUALS)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -576,9 +578,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>INTEGER</span></p>
+<td width=270><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -588,7 +590,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>C</p>
 </td>
@@ -598,7 +600,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>VS</p>
 </td>
@@ -606,9 +608,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>CHI2</p>
 </td>
@@ -618,7 +620,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=270><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>CALDER</p>
 </td>
@@ -626,19 +628,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*)</p>
+<td width=270><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*)</p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=98><p>INFOUT</p>
+<td width=98><p>inFout</p>
 </td>
-<td width=410><p class=rvps2>Information about the refinement</p>
+<td width=410><p class=rvps2>information about the refinement</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
 </td>
-<td width=100><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>RESIDUALS</p>
 </td>
@@ -651,12 +653,12 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts14>and</span></p>
 <p><span class=rvts14><br></span></p>
-<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (M, N, X, FVEC, FJAC, IFLAG)</span></p>
+<p><span class=rvts12>Subroutine MODEL_FUNCTN (M, N, X, FVEC, FJAC, IFLAG)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -664,9 +666,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -674,9 +676,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -684,9 +686,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>FVEC</p>
 </td>
@@ -694,9 +696,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:,:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:,:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>FJAC</p>
 </td>
@@ -704,9 +706,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=98><p>IFLAG</p>
 </td>
@@ -716,11 +718,11 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
 <p><br></p>
 <p><span class=rvts10>&nbsp;&nbsp; </span> </p>
 <p><br></p>
 <p>The purpose of this routine is to minimize the sum of the squares of M nonlinear functions in N variables by a modification of the Levenberg-Marquardt algorithm.&nbsp; The user must provide a subroutine which calculates the functions. The jacobian is then calculated by a forward-difference approximation.</p>
 <p>&nbsp; </p>
-<p class=rvps5><span class=rvts16>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

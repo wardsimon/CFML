@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_GlobalDeps  (Mac OS version)
@@ -7,7 +7,7 @@
 !!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
-!!--..    Update: January - 2009
+!!--..    Update: 02/03/2011
 !!--..
 !!---- VARIABLES
 !!--..
@@ -35,10 +35,6 @@
 !!----    DEPS
 !!----    EPS
 !!--..
-!!--..    Compiler
-!!--..
-!!----    COMPNAME
-!!--..
 !!---- FUNCTIONS
 !!--..
 !!----    DIRECTORY_EXISTS
@@ -57,7 +53,7 @@ Module CFML_GlobalDeps
 
    !!----
    !!---- OPS
-   !!----   Integer variable 1: Windows, 2: Mac, 3: Linux, ....
+   !!----   Integer variable 1: Windows, 2: Linux, 3: MacOs, ....
    !!----   This is a variable set by the user of the library for the case
    !!----   that there is no external library with a procedure for getting
    !!----   the operating system.

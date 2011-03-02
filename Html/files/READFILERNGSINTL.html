@@ -109,6 +109,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps3 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -127,42 +129,42 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps3><span class=rvts14>READ_FILE_RNGSINTL</span></p>
-<p><span class=rvts10>SUBROUTINE READ_FILE_RNGSINTL (FILEVAR, NLINE_INI, NLINE_END, V1, V2)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts14>READ_FILE_RNGSINTL</span></span></h1>
+<p><span class=rvts10>Subroutine READ_FILE_RNGSinTL (FILEVAR, NLinE_inI, NLinE_END, V1, V2)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=295><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>DIMENSION</span>(:)</p>
+<td width=295><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Dimension</span>(:)</p>
 </td>
-<td width=105><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=84><p>FILEVAR</p>
 </td>
 <td width=41><br>
 </td>
-<td width=390><p>Input strings information</p>
+<td width=390><p>input strings information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>INTEGER</span></p>
+<td width=295><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=105><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span> <span class=rvts11>OUT</span>)</p>
+<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
 </td>
-<td width=84><p>NLINE_INI</p>
+<td width=84><p>NLinE_inI</p>
 </td>
-<td width=41><p class=rvps2>IN:</p>
-<p class=rvps2>OUT:</p>
+<td width=41><p class=rvps2>in:</p>
+<p class=rvps2>out:</p>
 </td>
 <td width=390><p>Line to beginning search</p>
 <p>Current line on Filevar</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>INTEGER</span></p>
+<td width=295><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=105><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=84><p>NLINE_END</p>
+<td width=84><p>NLinE_END</p>
 </td>
 <td width=41><p class=rvps2><br></p>
 </td>
@@ -170,9 +172,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=295><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=105><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=84><p>V1</p>
 </td>
@@ -182,9 +184,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=295><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=105><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=84><p>V2</p>
 </td>
@@ -201,5 +203,5 @@ p,ul,ol /* Paragraph Style */
 <p>If only one value is read v1=0 and v2= read value</p>
 <p>If the keyword RNGSL is not given in the file, the default values are v1=0.0, v2=1.0</p>
 <p><br></p>
-<p class=rvps4><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

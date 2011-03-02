@@ -105,6 +105,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -123,14 +125,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>GET_ORBIT</span></p>
-<p><span class=rvts10>SUBROUTINE GET_ORBIT (X, SPG, MULT, ORB, PTR, STR, PRIM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>GET_ORBIT</span></span></h1>
+<p><span class=rvts10>Subroutine GET_ORBIT (X, SPG, MULT, ORB, PTR, STR, PRIM)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(<span class=rvts12>3</span>)</p>
+<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts12>3</span>)</p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=79><p>X</p>
 </td>
@@ -140,7 +142,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=79><p>SPG</p>
 </td>
@@ -148,9 +150,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>INTEGER</span></p>
+<td width=285><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=79><p>MULT</p>
 </td>
@@ -158,9 +160,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP), <span class=rvts11>DIMENSION</span>(:,:)</p>
+<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:,:)</p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=79><p>ORB</p>
 </td>
@@ -168,9 +170,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=79><p>PTR</p>
 </td>
@@ -178,9 +180,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>INTEGER</span>, <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=79><p>STR</p>
 </td>
@@ -188,9 +190,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts13>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*), <span class=rvts11>Optional</span></p>
 </td>
-<td width=95><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=79><p>PRIM</p>
 </td>
@@ -200,9 +202,9 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Obtain the multiplicity and list of equivalent positions (including centring!) modulo integer lattice translations.</p>
+<p>Obtain the multiplicity and list of equivalent positions (including centring!) modulo Integer lattice translations.</p>
 <p><br></p>
 <p>It provides also pointers to the stabilizer and to the symmetry operators changing effectively the position.</p>
 <p>&nbsp;&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

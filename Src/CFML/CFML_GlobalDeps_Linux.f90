@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_GlobalDeps  (Linux version)
@@ -7,7 +7,7 @@
 !!----         All the global variables defined in this module are implicitly public.
 !!----
 !!---- HISTORY
-!!--..    Update: January - 2009
+!!--..    Update: 02/03/2011
 !!--..
 !!---- VARIABLES
 !!--..
@@ -34,10 +34,6 @@
 !!--..
 !!----    DEPS
 !!----    EPS
-!!--..
-!!--..    Compiler
-!!--..
-!!----    COMPNAME
 !!--..
 !!---- FUNCTIONS
 !!--..

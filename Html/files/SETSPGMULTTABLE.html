@@ -101,6 +101,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -119,14 +121,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts13>SET_SPG_MULT_TABLE</span></p>
-<p><span class=rvts10>SUBROUTINE SET_SPG_MULT_TABLE (SPG, TAB, COMPLETE)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>SET_SPG_MULT_TABLE</span></span></h1>
+<p><span class=rvts10>Subroutine SET_SPG_MULT_TABLE (SPG, TAB, COMPLETE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>SPG</p>
 </td>
@@ -134,9 +136,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>INTEGER, DIMENSION</span>(:,:) </p>
+<td width=285><p><span class=rvts11>Integer, Dimension</span>(:,:) </p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=93><p>TAB</p>
 </td>
@@ -144,9 +146,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>LOGICAL</span>, <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>LOGICAL</span>, <span class=rvts11>Optional</span></p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>COMPLETE</p>
 </td>
@@ -156,9 +158,9 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Subroutine to construct the multiplication table of the factor group of a space group. Two operators are equal if they differ only in a lattice translation. The multiplication table is a square matrix with integer numbers corresponding to the ordering of operators in the space group.</p>
+<p>Subroutine to construct the multiplication table of the factor group of a space group. Two operators are equal if they differ only in a lattice translation. The multiplication table is a square matrix with Integer numbers corresponding to the ordering of operators in the space group.</p>
 <p><br></p>
 <p>If <span class=rvts12>COMPLETE</span> is not present, or if <span class=rvts12>COMPLETE</span>=<span class=rvts12>.FALSE.</span>, we consider only the symmetry operators corresponding to the "primitive" content of the unit cell, so a maximun 48x48 matrix is needed to hold the table in this case. If <span class=rvts12>COMPLETE</span> is present and <span class=rvts12>.TRUE.</span>, the full table is constructed.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

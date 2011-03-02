@@ -101,6 +101,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -119,14 +121,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts13>PROF_VAL</span></p>
-<p><span class=rvts10>SUBROUTINE PROF_VAL( ETA, GAMMA, S_L, D_L, TWOTH, TWOTH0, DPRDT, DPRDG, DPRDE, DPRDS, DPRDD, PROFVAL, USE_ASYM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>PROF_VAL</span></span></h1>
+<p><span class=rvts10>Subroutine PROF_VAL( ETA, GAMMA, S_L, D_L, TWOTH, TWOTH0, DPRDT, DPRDG, DPRDE, DPRDS, DPRDD, PROFVAL, USE_ASYM)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>ETA</p>
 </td>
@@ -134,9 +136,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>GAMMA</p>
 </td>
@@ -144,9 +146,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>S_L</p>
 </td>
@@ -154,9 +156,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>D_L</p>
 </td>
@@ -164,9 +166,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>TWOTH</p>
 </td>
@@ -174,9 +176,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>TWOTH0</p>
 </td>
@@ -184,9 +186,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>DPRDT</p>
 </td>
@@ -194,9 +196,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>DPRDG</p>
 </td>
@@ -204,9 +206,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>DPRDE</p>
 </td>
@@ -214,9 +216,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>DPRDS</p>
 </td>
@@ -224,9 +226,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>DPRDD</p>
 </td>
@@ -234,9 +236,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>PROFVAL</p>
 </td>
@@ -246,7 +248,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>USE_ASYM</p>
 </td>
@@ -260,5 +262,5 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts12>NOTE</span>: Asymmetry due to axial divergence using the method of Finger, Cox and Jephcoat, J. Appl. Cryst. 27, 892, 1992.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

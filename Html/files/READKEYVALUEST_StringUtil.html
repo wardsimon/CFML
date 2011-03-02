@@ -109,6 +109,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps3 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -127,42 +129,42 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps3><span class=rvts14>READ_KEY_VALUEST</span></p>
-<p><span class=rvts11>SUBROUTINE READ_KEY_VALUEST (FILEVAR, NLINE_INI, NLINE_END, KEYWORD, VET1,&nbsp; VET2, IV)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts14>READ_KEY_VALUEST</span></span></h1>
+<p><span class=rvts11>Subroutine READ_KEY_VALUEST (FILEVAR, NLinE_inI, NLinE_END, KEYWORD, VET1,&nbsp; VET2, IV)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts12>CHARACTER</span> (<span class=rvts13>LEN</span>=*), <span class=rvts12>DIMENSION</span> (:)</p>
+<td width=285><p><span class=rvts12>Character</span> (<span class=rvts13>Len</span>=*), <span class=rvts12>Dimension</span> (:)</p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
 </td>
 <td width=72><p>FILEVAR</p>
 </td>
 <td width=32><p class=rvps2><br></p>
 </td>
-<td width=410><p>Input vector of Strings</p>
+<td width=410><p>input vector of Strings</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>INTEGER</span></p>
+<td width=285><p><span class=rvts12>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN OUT</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>in out</span>)</p>
 </td>
-<td width=72><p>NLINE_INI</p>
+<td width=72><p>NLinE_inI</p>
 </td>
-<td width=32><p class=rvps2>IN:</p>
-<p class=rvps2>OUT:</p>
+<td width=32><p class=rvps2>in:</p>
+<p class=rvps2>out:</p>
 </td>
-<td width=410><p>Initial position to search</p>
+<td width=410><p>initial position to search</p>
 <p>Current position in search</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>INTEGER</span></p>
+<td width=285><p><span class=rvts12>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
 </td>
-<td width=72><p>NLINE_END</p>
+<td width=72><p>NLinE_END</p>
 </td>
 <td width=32><p class=rvps2><br></p>
 </td>
@@ -170,9 +172,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>CHARACTER</span> (<span class=rvts13>LEN</span>=*)</p>
+<td width=285><p><span class=rvts12>Character</span> (<span class=rvts13>Len</span>=*)</p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>IN</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
 </td>
 <td width=72><p>KEYWORD</p>
 </td>
@@ -182,9 +184,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION</span> (:)</p>
+<td width=285><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension</span> (:)</p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
 </td>
 <td width=72><p>VET1</p>
 </td>
@@ -194,9 +196,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>REAL</span>(<span class=rvts12>KIND</span>=CP)<span class=rvts12>, DIMENSION</span> (:)</p>
+<td width=285><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension</span> (:)</p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
 </td>
 <td width=72><p>VET2</p>
 </td>
@@ -206,9 +208,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts12>INTEGER</span></p>
+<td width=285><p><span class=rvts12>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts12>INTENT</span>(<span class=rvts12>OUT</span>)</p>
+<td width=95><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
 </td>
 <td width=72><p>IV</p>
 </td>
@@ -220,7 +222,7 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that read parameters and standard deviation on <span class=rvts10>FILEVAR</span> starting with a particular <span class=rvts10>KEYWORD</span> between lines <span class=rvts10>NLINE_INI</span> and <span class=rvts10>NLINE_END</span>.</p>
+<p>Subroutine that read parameters and standard deviation on <span class=rvts10>FILEVAR</span> starting with a particular <span class=rvts10>KEYWORD</span> between lines <span class=rvts10>NLinE_inI</span> and <span class=rvts10>NLinE_END</span>.</p>
 <p><br></p>
-<p class=rvps4><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

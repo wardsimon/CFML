@@ -105,6 +105,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -123,14 +125,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts14>SET_SPACEGROUP</span></p>
-<p><span class=rvts10>SUBROUTINE SET_SPACEGROUP (SPACEGEN, SPACEGROUP, GEN, NGEN, MODE, FORCE_HALL)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>SET_SPACEGROUP</span></span></h1>
+<p><span class=rvts10>Subroutine SET_SPACEGROUP (SPACEGEN, SPACEGROUP, GEN, NGEN, MODE, FORCE_HALL)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*)</p>
+<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>SPACEGEN</p>
 </td>
@@ -140,7 +142,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=93><p>SPACEGROUP</p>
 </td>
@@ -148,9 +150,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>DIMENSION</span>(:), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>GEN</p>
 </td>
@@ -158,9 +160,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>NGEN</p>
 </td>
@@ -168,9 +170,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>MODE</p>
 </td>
@@ -178,9 +180,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>CHARACTER</span>(<span class=rvts12>LEN</span>=*), <span class=rvts11>OPTIONAL</span></p>
+<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
 </td>
-<td width=88><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=88><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=93><p>FORCE_HALL</p>
 </td>
@@ -192,9 +194,9 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine that construct the object SpaceGroup from the H-M or Hall symbol.</p>
 <p><br></p>
-<p>Expand the set of operators including centre of symmetry and non integer translations for centred cells. If the optional argument <span class=rvts13>GEN</span> is given, then <span class=rvts13>NGEN</span> and <span class=rvts13>MODE</span>="GEN" should be given.</p>
+<p>Expand the set of operators including centre of symmetry and non Integer translations for centred cells. If the optional argument <span class=rvts13>GEN</span> is given, then <span class=rvts13>NGEN</span> and <span class=rvts13>MODE</span>="GEN" should be given.</p>
 <p><br></p>
-<p>If the optional argument <span class=rvts13>MODE</span>="ITC", the space group will be generated using the generators given in the International Tables for the standard setting. In this&nbsp; case the string in SPACEGEN should correspond to the Hermann-Mauguin symbol.</p>
+<p>If the optional argument <span class=rvts13>MODE</span>="ITC", the space group will be generated using the generators given in the international Tables for the standard setting. in this&nbsp; case the string in SPACEGEN should correspond to the Hermann-Mauguin symbol.</p>
 <p>&nbsp;&nbsp; </p>
 <p>If the optional argument <span class=rvts13>MODE</span>="HMS","HALL" is given the string in SPACEGEN should correspond to the desired symbol.</p>
 <p><br></p>
@@ -202,5 +204,5 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>The use of the different options give rise to different ordering of the symmetry operators or different origins and settings for the same space group.</p>
 <p> </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -102,6 +102,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -120,34 +122,34 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts13>READN_SET_MAGNETIC_STRUCTURE</span></p>
-<p><span class=rvts10>SUBROUTINE READN_SET_MAGNETIC_STRUCTURE (FILE_CFL, N_INI, N_END, MGP, AM, SGO, MAG_DOM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>READN_SET_MAGNETIC_STRUCTURE</span></span></h1>
+<p><span class=rvts10>Subroutine READN_SET_MAGNETIC_STRUCTURE (FILE_CFL, N_inI, N_END, MGP, AM, SGO, MAG_DOM)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>FILE_CFL</p>
 </td>
-<td width=369><p>Input File</p>
+<td width=369><p>input File</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
-<td width=98><p>N_INI</p>
+<td width=98><p>N_inI</p>
 </td>
-<td width=369><p>Initial line</p>
+<td width=369><p>initial line</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>INTEGER</span></p>
+<td width=330><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>N_END</p>
 </td>
@@ -157,7 +159,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(MAGSYMM_K_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>MGP</p>
 </td>
@@ -167,7 +169,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts11>TYPE</span>(MATOM_LIST_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>AM</p>
 </td>
@@ -175,9 +177,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(MAGNETIC_GROUP_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(MAGNETIC_GROUP_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>SGO</p>
 </td>
@@ -185,9 +187,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(MAGNETIC_DOMAIN_TYPE), <span class=rvts11>OPTIONAL</span></p>
+<td width=330><p><span class=rvts11>TYPE</span>(MAGNETIC_DOMAin_TYPE), <span class=rvts11>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>MAG_DOM</p>
 </td>
@@ -197,8 +199,8 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Subroutine for reading and construct the MAGSYMM_K_TYPE variable <span class=rvts12>MGP</span>.&nbsp; It is supposed that the CFL file is included in the FILE_LIST_TYPE variable FILE_CFL. On output N_INI, N_END hold the lines with the starting and ending lines with information about a magnetic phase. Optionally the Magnetic space group (Shubnikov group) may be obtained separately for further use.</p>
+<p>Subroutine for reading and construct the MAGSYMM_K_TYPE variable <span class=rvts12>MGP</span>.&nbsp; It is supposed that the CFL file is included in the FILE_LIST_TYPE variable FILE_CFL. On output N_inI, N_END hold the lines with the starting and ending lines with information about a magnetic phase. Optionally the Magnetic space group (Shubnikov group) may be obtained separately for further use.</p>
 <p>Magnetic S-domains are also read in case of providing the optional variable MAG_DOM.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

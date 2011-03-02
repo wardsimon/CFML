@@ -109,6 +109,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps4 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -127,8 +129,8 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps4><span class=rvts13>CG_QUASI_NEWTON</span></p>
-<p><span class=rvts10>SUBROUTINE CG_QUASI_NEWTON(MODEL_ FUNCT, N, X, F, G, C, IPR )</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts13>CG_QUASI_NEWTON</span></span></h1>
+<p><span class=rvts10>Subroutine CG_QUASI_NEWTON(MODEL_ FUNCT, N, X, F, G, C, IPR )</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -144,9 +146,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>N</p>
 </td>
@@ -156,23 +158,23 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(N)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>X</p>
 </td>
-<td width=40><p class=rvps3>IN:</p>
-<p class=rvps3>OUT:</p>
+<td width=40><p class=rvps3>in:</p>
+<p class=rvps3>out:</p>
 </td>
 <td width=410><p>Must contain an initial estimate supplied by the user</p>
 <p>X will hold the best estimate to the minimizer obtained</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=104><p>F</p>
 </td>
@@ -182,9 +184,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(N)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(N)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=104><p>G</p>
 </td>
@@ -196,7 +198,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=242><p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>C</p>
 </td>
@@ -206,27 +208,27 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=242><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>IPR</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Logical unit for printing if the parameter C%IOUT /= 0.</p>
+<td width=410><p class=rvps2>Logical unit for printing if the parameter C%Iout /= 0.</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (N, X, F, G)</span></p>
+<p><span class=rvts12>Subroutine MODEL_FUNCTN (N, X, F, G)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -234,9 +236,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -244,9 +246,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>F</p>
 </td>
@@ -254,9 +256,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)<span class=rvts11>, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>G</p>
 </td>
@@ -265,10 +267,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
 <p><br></p>
 <p><br></p>
 <p>Minimization of Unconstrained Multivariate Functions Subroutine CG_QUASI_NEWTON minimizes an unconstrained nonlinear scalar valued function of a vector variable X either by the BFGS variable metric algorithm or by a beale restarted conjugate gradient algorithm.(BFGS: Broyden, Fletcher, Goldfarb and Shanno. ACM TRANSACTIONS ON MATHEMATICAL SOFTWARE 6 (DECEMBER 1980), 618-622).</p>
 <p><br></p>
-<p class=rvps5><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

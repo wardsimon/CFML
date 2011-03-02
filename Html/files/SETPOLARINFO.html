@@ -119,6 +119,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps4 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -137,14 +139,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps4><span class=rvts15>SET_POLAR_INFO</span></p>
-<p><span class=rvts10>SUBROUTINE SET_POLAR_INFO (CELL, H, SPV, PIN, NSF, MIV, POLARI)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts15>SET_POLAR_INFO</span></span></h1>
+<p><span class=rvts10>Subroutine SET_POLAR_inFO (CELL, H, SPV, Pin, NSF, MIV, POLARI)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=242><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>CELL</p>
 </td>
@@ -152,9 +154,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>H</p>
 </td>
@@ -162,9 +164,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>SPV</p>
 </td>
@@ -172,11 +174,11 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=104><p>PIN</p>
+<td width=104><p>Pin</p>
 </td>
 <td width=410><p>Magnitude of initial polarisation</p>
 </td>
@@ -184,7 +186,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=242><p><span class=rvts11>COMPLEX</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>NSF</p>
 </td>
@@ -192,9 +194,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>COMPLEX, DIMENSION </span>(<span class=rvts13>3</span>)</p>
+<td width=242><p><span class=rvts11>COMPLEX, Dimension </span>(<span class=rvts13>3</span>)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>MIV</p>
 </td>
@@ -202,9 +204,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(POLAR_INFO_TYPE)</p>
+<td width=242><p><span class=rvts11>TYPE</span>(POLAR_inFO_TYPE)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=104><p>POLARI</p>
 </td>
@@ -214,7 +216,7 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Initializes the variable <span class=rvts12>POLARI</span> using the type <a class=rvts14 href="POLARINFOTYPE.html">POLAR_INFO_TYPE</a></p>
+<p>initializes the variable <span class=rvts12>POLARI</span> using the type <a class=rvts14 href="POLARINFOTYPE.html">POLAR_inFO_TYPE</a></p>
 <p><br></p>
-<p class=rvps5><span class=rvts16>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

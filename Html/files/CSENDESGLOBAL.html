@@ -113,6 +113,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps5 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -131,8 +133,8 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps5><span class=rvts13>CSENDES_GLOBAL</span></p>
-<p><span class=rvts10>SUBROUTINE CSENDES_GLOBAL( MODEL_FUNCT, MINI, MAXI, NPARM, NSAMPL, NSEL, NSIG, X0, NC, F0, IPR, MODE)</span></p>
+<h1 class=rvps5><span class=rvts0><span class=rvts13>CSENDES_GLOBAL</span></span></h1>
+<p><span class=rvts10>Subroutine CSENDES_GLOBAL( MODEL_FUNCT, MinI, MAXI, NPARM, NSAMPL, NSEL, NSIG, X0, NC, F0, IPR, MODE)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -148,11 +150,11 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=104><p>MINI</p>
+<td width=104><p>MinI</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
@@ -160,22 +162,22 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>MAXI</p>
 </td>
-<td width=40><p class=rvps3>IN:</p>
-<p class=rvps3>OUT:</p>
+<td width=40><p class=rvps3>in:</p>
+<p class=rvps3>out:</p>
 </td>
 <td width=410><p>Vector of length NPARM containing the upper bounds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>NPARM</p>
 </td>
@@ -185,9 +187,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>NSAMPL</p>
 </td>
@@ -197,9 +199,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>NSEL</p>
 </td>
@@ -209,9 +211,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>NSIG</p>
 </td>
@@ -221,21 +223,21 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:,:)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:,:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>X0</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Output matrix (NPARM x NC) containing NC local minimizers found</p>
+<td width=410><p class=rvps2>output matrix (NPARM x NC) containing NC local minimizers found</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=104><p>NC</p>
 </td>
@@ -245,52 +247,52 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)<span class=rvts11>, DIMENSION </span>(:)</p>
+<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
 </td>
 <td width=104><p>F0</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Output vector of NC objective function values. </p>
+<td width=410><p class=rvps2>output vector of NC objective function values. </p>
 <p class=rvps2>F0(I) Belongs to the parameters X0(1,I), X0(2,I), ..., X0(NPARM,I)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER</span></p>
+<td width=242><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>IPR</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Printing Information</p>
+<td width=410><p class=rvps2>Printing information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>INTEGER, OPTIONAL</span></p>
+<td width=242><p><span class=rvts11>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=104><p>MODE</p>
 </td>
 <td width=40><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>If present the routine LOCAL_MIN_DFP is replaced by LOCAL_MIN_RAND</p>
+<td width=410><p class=rvps2>If present the routine LOCAL_Min_DFP is replaced by LOCAL_Min_RAND</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts12>SUBROUTINE MODEL_FUNCTN (NPARM, X, F)</span></p>
+<p><span class=rvts12>Subroutine MODEL_FUNCTN (NPARM, X, F)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>NPARM</p>
 </td>
@@ -298,9 +300,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP), <span class=rvts11>DIMENSION </span>(:)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -308,9 +310,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; REAL</span>(<span class=rvts11>KIND=</span>CP)</p>
+<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
 </td>
-<td width=98><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=98><p>F</p>
 </td>
@@ -319,14 +321,14 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END SUBROUTINE MODEL_FUNCTN</span></p>
+<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
 <p><br></p>
 <p>Global optimization procedure using the Boender-Timmer-Rinnoy Kan algorithm (Local Search Method)</p>
 <p><br></p>
 <p>Global optimization is a part of nonlinear optimization, it deals with problems with (possibly) several local minima. The presented method is stochastic (i.e. not deterministic). The framework procedure, the csendes_GLOBAL routine gives a computational evidence, that the best local minimum found is with high probability the global minimum.&nbsp; This routine calls a local search routine, and a routine for generating random numbers.</p>
 <p><br></p>
-<p>Let F(X) be a real function of NPARM parameters and we are looking for&nbsp; parameter values X(I) from the given intervals [MIN(I), MAX(I)] for each&nbsp; I = 1, 2, ..., NPARM.&nbsp; The problem is to determine such a point X*, that the function value F(X) is greater than or equal to F(X*) for every X in the NPARM-dimensional interval specified by MIN(I)'s and MAX(I)'s.</p>
+<p>Let F(X) be a real function of NPARM parameters and we are looking for&nbsp; parameter values X(I) from the given intervals [Min(I), MAX(I)] for each&nbsp; I = 1, 2, ..., NPARM.&nbsp; The problem is to determine such a point X*, that the function value F(X) is greater than or equal to F(X*) for every X in the NPARM-dimensional interval specified by Min(I)'s and MAX(I)'s.</p>
 <p><br></p>
 <p><br></p>
-<p class=rvps6><span class=rvts14>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps6><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

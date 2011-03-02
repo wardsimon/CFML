@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_GlobalDeps (Windows version)
@@ -34,10 +34,6 @@
 !!--..
 !!----    DEPS
 !!----    EPS
-!!--..
-!!--..    Compiler
-!!--..
-!!----    COMPNAME
 !!--..
 !!---- FUNCTIONS
 !!--..

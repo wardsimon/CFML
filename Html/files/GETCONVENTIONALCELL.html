@@ -115,6 +115,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -133,14 +135,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts16>GET_CONVENTIONAL_CELL</span></p>
-<p><span class=rvts10>SUBROUTINE GET_CONVENTIONAL_CELL(TWOFOLD, CELL, TR, MESSAGE, OK)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts16>GET_CONVENTIONAL_CELL</span></span></h1>
+<p><span class=rvts10>Subroutine GET_CONVENTIONAL_CELL(TWOFOLD, CELL, TR, MESSAGE, OK)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=274><p><span class=rvts11>TYPE</span>(TWOFOLD_AXES_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=56><p>TWOFOLD</p>
 </td>
@@ -150,7 +152,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=56><p>CELL</p>
 </td>
@@ -158,9 +160,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>INTEGER, DIMENSION </span>(<span class=rvts12>3</span>,<span class=rvts12>3</span>)</p>
+<td width=274><p><span class=rvts11>Integer, Dimension </span>(<span class=rvts12>3</span>,<span class=rvts12>3</span>)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=56><p>TR</p>
 </td>
@@ -168,9 +170,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>CHARACTER </span>(<span class=rvts13>LEN</span>=*)</p>
+<td width=274><p><span class=rvts11>Character </span>(<span class=rvts13>Len</span>=*)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=56><p>MESSAGE</p>
 </td>
@@ -180,7 +182,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=274><p><span class=rvts11>LOGICAL</span></p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>OUT</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
 <td width=56><p>OK</p>
 </td>
@@ -191,5 +193,5 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p>This subroutine provides the "conventional" (or quasi! being still tested ) from the supplied object <span class=rvts14>TWOFOLD</span> that has been obtained from a previous call to <a class=rvts15 href="GETTWOFOLDAXES.html">GET_TWO_FOLD_AXES</a>. The conventional unit cell can be deduced from the distribution of two-fold axes in the lattice. The cell produced in this procedure applies some rules for obtaining the conventional cell, for instance in monoclinic lattices (a single two-fold axis) the two-fold axis is along b and the final cell is right handed with a &lt;= c and beta &gt;= 90. It may be A,C or I centred. The convertion to the C-centred setting in the A and I centring, is not attempted. The angular tolerance for accepting a two-fold axis, or higher order axes, as such has been previously set into <span class=rvts14>TWOFOLD%TOL</span> component.</p>
-<p class=rvps3><span class=rvts17>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

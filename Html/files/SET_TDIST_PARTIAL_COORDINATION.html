@@ -97,6 +97,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -115,14 +117,14 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts12>SET_TDIST_PARTIAL_COORDINATION</span></p>
-<p><span class=rvts10>SUBROUTINE SET_TDIST_PARTIAL_COORDINATION (LIST, MAX_COOR, DMAX, CELL, SPG, A)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts12>SET_TDIST_PARTIAL_COORDINATION</span></span></h1>
+<p><span class=rvts10>Subroutine SET_TDIST_PARTIAL_COORDinATION (LIST, MAX_COOR, DMAX, CELL, SPG, A)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=316><p><span class=rvts11>INTEGER</span></p>
+<td width=316><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>LIST</p>
 </td>
@@ -130,9 +132,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=316><p><span class=rvts11>INTEGER</span></p>
+<td width=316><p><span class=rvts11>Integer</span></p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>MAX_COOR</p>
 </td>
@@ -140,9 +142,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=316><p><span class=rvts11>REAL</span>(<span class=rvts11>KIND</span>=CP)</p>
+<td width=316><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>DMAX</p>
 </td>
@@ -152,7 +154,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=316><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>CELL</p>
 </td>
@@ -162,7 +164,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=316><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>SPG</p>
 </td>
@@ -172,7 +174,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=316><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
 </td>
-<td width=101><p><span class=rvts11>INTENT</span>(<span class=rvts11>IN</span>)</p>
+<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
 <td width=73><p>A</p>
 </td>
@@ -183,9 +185,9 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p><br></p>
-<p>Modify the coordination type: COORD_INFO for the atoms affected by the change of atom "List"</p>
+<p>Modify the coordination type: COORD_inFO for the atoms affected by the change of atom "List"</p>
 <p><br></p>
-<p>This routine is a modification of SET_TDIST_COORDINATION to avoid superfluous calculations in global optimization methods. It assumes that SET_TDIST_COORDINATION has previously been&nbsp; called and the object COORD_INFO has already been set.</p>
+<p>This routine is a modification of SET_TDIST_COORDinATION to avoid superfluous calculations in global optimization methods. It assumes that SET_TDIST_COORDinATION has previously been&nbsp; called and the object COORD_inFO has already been set.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts13>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

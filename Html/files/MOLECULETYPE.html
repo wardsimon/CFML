@@ -117,6 +117,8 @@ p,ul,ol /* Paragraph Style */
 }
 .rvps2 /* Paragraph Style */
 {
+ text-align: left;
+ text-indent: 0px;
  background: #0000ff;
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
@@ -135,7 +137,7 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<p class=rvps2><span class=rvts16>MOLECULE_TYPE</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts16>MOLECULE_TYPE</span></span></h1>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -155,7 +157,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>80</span>)</p>
 </td>
 <td width=98><p>NAME_MOL</p>
 </td>
@@ -163,7 +165,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=98><p>NATOMS</p>
 </td>
@@ -173,7 +175,7 @@ p,ul,ol /* Paragraph Style */
 <tr valign=top>
 <td width=330><p><span class=rvts13>&nbsp;&nbsp; LOGICAL</span></p>
 </td>
-<td width=98><p>IN_XTAL</p>
+<td width=98><p>in_XTAL</p>
 </td>
 <td width=369><p>TRUE if global coordinates xcentre, orient are defined</p>
 </td>
@@ -195,7 +197,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
 </td>
 <td width=98><p>ROT_TYPE</p>
 </td>
@@ -205,19 +207,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>1</span>)</p>
 </td>
 <td width=98><p>COOR_TYPE</p>
 </td>
 <td width=369><p>Type of internal coordinates</p>
 <p>C : Cartesian</p>
-<p>F : Fractional (only if IN_XTAL=.TRUE.)</p>
+<p>F : Fractional (only if in_XTAL=.TRUE.)</p>
 <p>S : Spherical</p>
 <p>Z : Z-Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>3</span>)</p>
 </td>
 <td width=98><p>THERM_TYPE</p>
 </td>
@@ -230,7 +232,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=98><p>XCENTRE</p>
 </td>
@@ -238,7 +240,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)</p>
+<td width=330><p><span class=rvts12>&nbsp;&nbsp; </span><span class=rvts13>Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)</p>
 </td>
 <td width=98><p>MXCENTRE</p>
 </td>
@@ -246,7 +248,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts14>3</span>) <span class=rvts12> </span></p>
 </td>
 <td width=98><p>LXCENTRE</p>
 </td>
@@ -254,7 +256,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
 </td>
 <td width=98><p>ORIENT</p>
 </td>
@@ -262,7 +264,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3</span>)<span class=rvts12> </span></p>
 </td>
 <td width=98><p>MORIENT</p>
 </td>
@@ -270,7 +272,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3</span>) <span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts14>3</span>) <span class=rvts12>&nbsp; </span></p>
 </td>
 <td width=98><p>LORIENT</p>
 </td>
@@ -278,7 +280,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
 <td width=98><p>T_TLS</p>
 </td>
@@ -286,7 +288,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
 <td width=98><p>MT_TLS</p>
 </td>
@@ -294,7 +296,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>) </p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts14>6</span>) </p>
 </td>
 <td width=98><p>IT_TLS</p>
 </td>
@@ -302,7 +304,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
 <td width=98><p>L_TLS</p>
 </td>
@@ -310,7 +312,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>6</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
 <td width=98><p>ML_TLS</p>
 </td>
@@ -318,7 +320,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts14>6</span>)<span class=rvts12> </span></p>
 </td>
 <td width=98><p>IL_TLS</p>
 </td>
@@ -326,7 +328,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span></p>
 </td>
 <td width=98><p>S_TLS</p>
 </td>
@@ -334,7 +336,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp;&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp;&nbsp;&nbsp; </span></p>
 </td>
 <td width=98><p>MS_TLS</p>
 </td>
@@ -342,7 +344,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp; </span></p>
 </td>
 <td width=98><p>IS_TLS</p>
 </td>
@@ -350,7 +352,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(<span class=rvts14>3,3</span>)<span class=rvts12>&nbsp; </span><span class=rvts13>&nbsp;&nbsp; </span></p>
 </td>
 <td width=98><p>EULER</p>
 </td>
@@ -358,7 +360,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>6</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span><span class=rvts13>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>6</span>), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span><span class=rvts13>&nbsp;&nbsp; </span></p>
 </td>
 <td width=98><p>ATNAME</p>
 </td>
@@ -366,7 +368,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; CHARACTER</span>(<span class=rvts15>LEN</span><span class=rvts13>=</span><span class=rvts14>4</span>), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Character</span>(<span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>4</span>), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
 </td>
 <td width=98><p>ATSYMB</p>
 </td>
@@ -374,7 +376,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp; </span></p>
 </td>
 <td width=98><p>ATZ</p>
 </td>
@@ -382,7 +384,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12>&nbsp;&nbsp; </span></p>
 </td>
 <td width=98><p>PTR</p>
 </td>
@@ -390,15 +392,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
 <td width=98><p>I_COOR</p>
 </td>
-<td width=369><p>Internal coordinates (d,ang,dang)</p>
+<td width=369><p>internal coordinates (d,ang,dang)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
 <td width=98><p>MI_COOR</p>
 </td>
@@ -406,7 +408,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span><span class=rvts12> </span></p>
 </td>
 <td width=98><p>LI_COOR</p>
 </td>
@@ -414,7 +416,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>BISO</p>
 </td>
@@ -422,7 +424,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>MBISO</p>
 </td>
@@ -430,7 +432,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>LBISO</p>
 </td>
@@ -438,7 +440,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>OCC</p>
 </td>
@@ -446,7 +448,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; REAL</span>(<span class=rvts13>KIND=</span>CP), <span class=rvts13>DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Real</span>(<span class=rvts13>Kind=</span>CP), <span class=rvts13>Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>MOCC</p>
 </td>
@@ -454,7 +456,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>LOCC</p>
 </td>
@@ -462,7 +464,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>NB</p>
 </td>
@@ -470,15 +472,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
-<td width=98><p>INB</p>
+<td width=98><p>inB</p>
 </td>
-<td width=369><p>Index of neighbous</p>
+<td width=369><p>index of neighbous</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>TB</p>
 </td>
@@ -486,7 +488,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts13>&nbsp;&nbsp; INTEGER, DIMENSION</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
+<td width=330><p><span class=rvts13>&nbsp;&nbsp; Integer, Dimension</span>(:,:), <span class=rvts13>ALLOCATABLE</span></p>
 </td>
 <td width=98><p>CONN</p>
 </td>
@@ -505,5 +507,5 @@ p,ul,ol /* Paragraph Style */
 </div>
 <p><br></p>
 <p> </p>
-<p class=rvps3><span class=rvts17>Copyleft © 2010, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>
