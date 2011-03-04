@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Scattering_Chemical_Tables
@@ -12,9 +12,7 @@
 !!----         is found and stored in user-defined variables.
 !!----
 !!---- HISTORY
-!!----    Updated: January - 2005
-!!----             July - 2001      (Include new magnetic scattering coefficients)
-!!----             November - 1999: Created by JGP and JRC
+!!----    Updated: 04/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,       only: Cp
@@ -232,7 +230,7 @@
 
     !!----
     !!---- NUM_MAG_FORM
-    !!----    integer, parameter, public :: Num_Mag_Form  = 116
+    !!----    integer, parameter, public :: Num_Mag_Form  = 117
     !!----
     !!----    Number of total Magnetic_Form Data
     !!----
@@ -242,7 +240,7 @@
 
     !!----
     !!---- NUM_MAG_J2
-    !!----    integer, parameter, public :: Num_Mag_J2 = 95
+    !!----    integer, parameter, public :: Num_Mag_J2 = 96
     !!----
     !!----    Number of <j2> Magnetic_Form Data
     !!----
@@ -252,7 +250,7 @@
 
     !!----
     !!---- NUM_MAG_J4
-    !!----    integer, parameter, public :: Num_Mag_J4 = 95
+    !!----    integer, parameter, public :: Num_Mag_J4 = 96
     !!----
     !!----    Number of <j4> Magnetic_Form Data
     !!----

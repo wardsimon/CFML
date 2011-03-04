@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2009,              Version: 4.0
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Optimization_General
@@ -7,7 +7,7 @@
 !!----         optimization.
 !!----
 !!---- HISTORY
-!!----    Update: February - 2005
+!!----    Update: 04/03/2011
 !!----
 !!----    April - 2004 Created by JRC
 !!---- DEPENDENCIES

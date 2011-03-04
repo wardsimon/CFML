@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_String_Utilities
@@ -77,7 +77,7 @@
 !!----       READ_KEY_STR
 !!----       READ_KEY_STRVAL
 !!----       READ_KEY_VALUE
-!!----       READ_KEY_VALUEST
+!!----       READ_KEY_VALUESTD
 !!----       READING_LINES
 !!----       SETNUM_STD
 !!--++       SGETFTMFIELD         [Private]
@@ -101,7 +101,7 @@
     !---- List of public subroutines ----!
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
-              Read_Key_ValueST, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,   &
+              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,   &
               Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos
 
     !---- List of private subroutines ----!
@@ -1163,29 +1163,29 @@
     End Subroutine Frac_Trans_2Dig
 
     !!----
-    !!---- Subroutine Get_Basename(Filename, Basename)
-    !!----    character (len=*), intent( in) :: Filename !  In -> The input pathname.
+    !!---- Subroutine Get_Basename(Filename,ChSep, Basename)
+    !!----    character (len=*), intent(in)  :: Filename !  In -> The input pathname.
+    !!----    character (len=*), intent(in)  :: ChSep    !  In -> Character limit to define the basename '\','.'
     !!----    character (len=*), intent(out) :: Basename ! Out -> The final component of the input pathname
     !!----
     !!----
     !!---- Update: January - 2010
     !!
-    Subroutine Get_Basename(Filename,Basename)
+    Subroutine Get_Basename(Filename,ChSep,Basename)
        !---- Argument ----!
        Character (Len=*), Intent (In)  :: Filename
+       Character (Len=*), Intent (In)  :: ChSep
        Character (Len=*), Intent (Out) :: Basename
 
        !---- Local Variables ----!
-       Integer :: I
+       Integer :: i
 
-       I = Index(Filename, '.', Back = .True.)
+       i = Index(Filename, trim(ChSep), Back = .True.)
 
-       If (I > 0) Then
+       If (i > 0) Then
            Basename = Filename(1:I-1)
-
        Else
            Basename = Filename
-
        End If
 
        Return
@@ -1211,10 +1211,8 @@
 
        If (I > 0) Then
            Directory = Filename(1:I-1)
-
        Else
            Directory = Filename
-
        End If
 
        Return
@@ -2119,7 +2117,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_ValueST(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv)
+    Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv)
        !---- Arguments ----!
        character(len=*), dimension(:),  intent(in)     :: filevar
        integer,                         intent(in out) :: nline_ini
@@ -2157,7 +2155,7 @@
        end do
 
        return
-    End Subroutine Read_Key_ValueST
+    End Subroutine Read_Key_ValueSTD
 
     !!----
     !!---- Subroutine Reading_Lines(Filename,Nlines,Filevar)

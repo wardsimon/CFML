@@ -1,14 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Math_3D
 !!----   INFO: Simple mathematics general utilities for 3D Systems
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
-!!----            November - 2000  Updated by JGP
-!!----            October  - 1996  Routines created by JRC
+!!----    Update: 04/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,   only: cp, sp, dp, pi, to_rad, to_deg

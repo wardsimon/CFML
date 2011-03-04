@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_PowderProfiles_TOF
@@ -18,7 +18,7 @@
 !!--..         In FullProf, Omega is the general name given to the peak shape function
 !!----
 !!---- HISTORY
-!!----    Update:  September  - 2004
+!!----    Update:  03/03/2011
 !!----    Author : Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB)
 !!----             Laurent C. Chapon (ISIS/RAL) => Ikeda-Carperter function
 !!----
@@ -118,7 +118,7 @@ Module CFML_PowderProfiles_TOF
     !!----
     !!---- Update: October - 2005
     !!
-    logical, public  :: lorcomp
+    logical, public  :: Lorcomp
 
     !---- Interfaces ----!
     Interface  Erfc

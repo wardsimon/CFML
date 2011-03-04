@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_PowderProfiles_Finger
@@ -7,7 +7,7 @@
 !!----         Jephcoat, J. Appl. Cryst. 27, 892, 1992.
 !!----
 !!---- HISTORY
-!!----    Update:  September  - 2004
+!!----    Update:  03/03/2011
 !!----    Author : L. Finger and Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB)
 !!----
 !!---- VARIABLES

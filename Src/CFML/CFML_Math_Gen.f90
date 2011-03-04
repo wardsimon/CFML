@@ -140,7 +140,7 @@
 !!--++       RANK_dp                   [Overloaded]
 !!--++       RANK_sp                   [Overloaded]
 !!----       SECOND_DERIVATIVE
-!!----       SMOOTHING_PROC
+!!----       SMOOTHINGVEC
 !!----       SORT
 !!--++       SORT_I                    [Overloaded]
 !!--++       SORT_R                    [Overloaded]
@@ -200,7 +200,7 @@
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
                Sort_Strings, Spline, Splint, Set_Epsg, Set_Epsg_Default,In_Sort,      &
-               First_Derivative, Second_Derivative, Smoothing_proc, Points_in_Line2D, &
+               First_Derivative, Second_Derivative, SmoothingVec, Points_in_Line2D,   &
                Co_Prime_vector
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -2551,71 +2551,74 @@
     End Subroutine Rtan_sp
 
     !!----
-    !!----  Subroutine Co_Prime_vector(v,cop,f)
-    !!----   Integer, dimension(:), intent(in)  :: v      !input integer vector
-    !!----   Integer, dimension(:), intent(out) :: cop    !Output co-prime vector
-    !!----   Integer,  optional,    intent(out) :: f      !Common multiplicative factor
+    !!----  Subroutine Co_Prime_Vector(V,Cop,F)
+    !!----     integer, dimension(:), intent(in)  :: v      !input integer vector
+    !!----     integer, dimension(:), intent(out) :: cop    !Output co-prime vector
+    !!----     integer,  optional,    intent(out) :: f      !Common multiplicative factor
     !!----
-    !!----    Calculates the co-prime vector (cop) parallel to the input vector (v)
-    !!----    It uses the list of the first thousand prime numbers.
+    !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
+    !!----     It uses the list of the first thousand prime numbers.
     !!----
-    !!----    Updated: January - 2011
+    !!---- Updated: January - 2011
     !!----
-    Subroutine Co_Prime_vector(v,cop,f)
-      Integer, dimension(:), intent(in)  :: v
-      Integer, dimension(:), intent(out) :: cop
-      Integer,  optional,    intent(out) :: f
-      !---- Local variables ----!
-      integer :: i,j,im,k,dimv,fi,imax,mav,miv
-      integer, dimension(size(v)) :: av
-      Logical :: done
+    Subroutine Co_Prime_Vector(V,Cop,F)
+       !---- Arguments ----!
+       integer, dimension(:), intent(in)  :: v
+       integer, dimension(:), intent(out) :: cop
+       integer,  optional,    intent(out) :: f
 
-      cop=v
-      fi=1
-      if(present(f)) f=1
-      !---- If the maximum value of the indices is 1 they are not coprimes
-      av=abs(v)
-      mav=-1;miv=99999999
-      dimv=size(v)
-      do i=1,dimv
-        if(av(i) == 0) cycle
-        if(av(i) > mav) mav = av(i)
-        if(av(i) < miv) miv = av(i)
-      end do
-      if ( mav == 1) return
-      if ( mav == 0) return
+       !---- Local variables ----!
+       integer                     :: i,j,im,k,dimv,fi,imax,mav,miv
+       integer, dimension(size(v)) :: av
+       logical                     :: done
 
-      !---- Search the maximum prime number to be tested
-      imax=miv
-      if(imax > 7919) then
-        im=1000
-      else
-        do i=1,1000
-           if(imax > primes(i)) cycle
-           im=i
-           exit
-        end do
-      end if
+       cop=v
+       fi=1
+       if (present(f)) f=1
 
-      !---- Indices greater than 1
+       !---- If the maximum value of the indices is 1 they are not coprimes
+       av=abs(v)
+       mav=-1;miv=99999999
+       dimv=size(v)
+       do i=1,dimv
+          if (av(i) == 0) cycle
+          if (av(i) > mav) mav = av(i)
+          if (av(i) < miv) miv = av(i)
+       end do
+       if ( mav == 1) return
+       if ( mav == 0) return
 
-      do i=1,im
-         k=primes(i)
-         do
-            done=.true.
-            do j=1,dimv
-               if( mod(cop(j),k) /= 0) then
-                  done=.false.
-                  exit
-               end if
-            end do
-            if(.not. done) exit
-            cop=cop/k
-            fi=fi*k
-         end do
-      end do
-      if(present(f)) f=fi
-      return
+       !---- Search the maximum prime number to be tested
+       imax=miv
+       if (imax > 7919) then
+          im=1000
+       else
+          do i=1,1000
+             if (imax > primes(i)) cycle
+             im=i
+             exit
+          end do
+       end if
+
+       !---- Indices greater than 1
+       do i=1,im
+          k=primes(i)
+          do
+             done=.true.
+             do j=1,dimv
+                if ( mod(cop(j),k) /= 0) then
+                   done=.false.
+                   exit
+                end if
+             end do
+             if (.not. done) exit
+             cop=cop/k
+             fi=fi*k
+          end do
+       end do
+       if (present(f)) f=fi
+
+       return
     End Subroutine Co_Prime_vector
 
     !!----
@@ -3806,7 +3809,7 @@
     End Subroutine Second_Derivative
 
     !!----
-    !!---- Subroutine Smoothing_Proc(Y, N, NIter, Ys)
+    !!---- Subroutine SmoothingVec(Y, N, NIter, Ys)
     !!----    real(kind=cp),    dimension(:),           intent(in out) :: Y      !  In Out-> Array to be smoothed
     !!----    integer,                                  intent(in)     :: N      !  In -> Number of points
     !!----    integer,                                  intent(in)     :: NIter  !  In -> Number of iterations
@@ -3816,7 +3819,7 @@
     !!----
     !!---- Update: January - 2006
     !!
-    Subroutine Smoothing_Proc(Y, N, Niter, Ys)
+    Subroutine SmoothingVec(Y, N, Niter, Ys)
        !---- Arguments ----!
        real(kind=cp),dimension(:),            intent(in out) :: Y
        integer,                               intent(in)     :: n
@@ -3853,7 +3856,7 @@
        end do
 
        return
-    End Subroutine Smoothing_Proc
+    End Subroutine SmoothingVec
 
     !!---
     !!---- Subroutine Sort(a,n,indx)
@@ -4097,7 +4100,7 @@
 
     !!---
     !!---- Subroutine Sort_Strings(arr)
-    !!----    character(len=*) dimension(:), intent( in out) :: arr
+    !!----    character(len=*), dimension(:), intent(in out) :: arr
     !!----
     !!----    Sort an array of string
     !!----
@@ -4105,7 +4108,7 @@
     !!
     Recursive Subroutine Sort_Strings(Arr)
        !---- Argument ----!
-       character(len=*), intent(in out), dimension(:) :: Arr
+       character(len=*), dimension(:), intent(in out) :: Arr
 
        !---- Local variables ----!
        integer :: iq

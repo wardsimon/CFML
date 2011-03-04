@@ -1,13 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Diffraction_Patterns
 !!----   INFO: Diffraction Patterns Information
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
-!!----            January - 2004  Created by JRC
+!!----    Update: 04/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----    Use CFML_GlobalDeps,       only : cp
@@ -291,9 +290,9 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Allocate_Diffraction_Pattern(pat,n)
+    !!---- Subroutine Allocate_Diffraction_Pattern(pat,npts)
     !!----    type(Diffraction_Pattern_Type), intent (in out) :: pat
-    !!----    Integer,                        intent (in)     :: n
+    !!----    Integer,                        intent (in)     :: npts
     !!----
     !!----    Allocate the object pat of type Diffraction_Pattern_Type
     !!----
@@ -531,7 +530,7 @@
     Subroutine Purge_Diffraction_Pattern(Pat,Mode)
        !---- Arguments ----!
        type(Diffraction_Pattern_Type), intent (in out) :: Pat
-       character(len=*),               intent (in)     :: MODE
+       character(len=*),               intent (in)     :: Mode
 
        Select Case (u_case(Mode))
 
@@ -3208,17 +3207,17 @@
     End Subroutine Set_Background_Poly
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(namefile,Pat)
-    !!----    character (len=*),               intent(in) :: namefile
+    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat)
+    !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
     !!----
-    !!----    Write a pattern in X,Y,Sigma format in file namefile
+    !!----    Write a pattern in X,Y,Sigma format
     !!----
     !!---- Update: March - 2007
     !!
-    Subroutine Write_Pattern_XYSig(namefile,Pat)
+    Subroutine Write_Pattern_XYSig(Filename,Pat)
        !---- Arguments ----!
-       character (len=*),               intent(in) :: namefile
+       character (len=*),               intent(in) :: filename
        type (diffraction_pattern_type), intent(in) :: Pat
 
        !---- Local Variables ----!
@@ -3226,16 +3225,16 @@
 
        call init_err_diffpatt()
        call get_logunit(i_dat)
-       open(unit=i_dat,file=trim(namefile),status="replace",action="write",iostat=ier)
+       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error opening the file: "//trim(namefile)//" for writing!"
+          ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
           return
        end if
        write(unit=i_dat,fmt="(a)")"XYDATA"
        write(unit=i_dat,fmt="(a)")"TITLE "//pat%title
        write(unit=i_dat,fmt="(a)")"COND: "//pat%diff_kind//pat%scat_var//pat%instr
-       write(unit=i_dat,fmt="(a)")"FILE: "//trim(namefile)
+       write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
        write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
        if (pat%ct_step) then
           write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &

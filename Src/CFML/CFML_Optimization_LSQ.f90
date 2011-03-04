@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!----
@@ -206,9 +206,8 @@
 !!--..
 !!--..
 !!---- HISTORY
-!!----    Update: August - 2009
+!!----    Update: 04/03/2011
 !!----
-!!----    October - 1997 Created by JRC
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,    only : Cp, Dp
 !!--++    Use CFML_Math_General,  only : Invert_Matrix, enorm => Euclidean_Norm

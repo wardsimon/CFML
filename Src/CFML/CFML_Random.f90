@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Random_Generators
@@ -7,7 +7,7 @@
 !!----         distributions.
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
+!!----    Update: 03/03/2011
 !!----
 !!--..    Distribution                    Function/subroutine name
 !!--..    --------------------------------------------------------
@@ -150,7 +150,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public :: err_random
+    logical, public :: Err_Random
 
     !!----
     !!---- ERR_RANDOM_MESS

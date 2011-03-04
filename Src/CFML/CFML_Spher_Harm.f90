@@ -1,13 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Spherical_Harmonics
 !!----   INFO: Spherical Harmonics routines
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
-!!----            January - 2000    Based in public codes. Created by JRC
+!!----    Update: 03/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps, only: cp, dp, eps, pi, to_rad
@@ -64,7 +63,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    logical, public    :: ERR_Spher
+    logical, public    :: Err_Spher
 
     !!----
     !!---- ERR_Spher_Mess
@@ -74,7 +73,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    character(len=150), public :: ERR_Spher_Mess
+    character(len=150), public :: Err_Spher_Mess
 
  Contains
 

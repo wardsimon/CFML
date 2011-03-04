@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE:  CFML_PowderProfiles_CW
 !!----   INFO:  Calculation of peak profile functions
 !!----
 !!---- HISTORY
-!!----    Update: October - 2005
+!!----    Update: 03/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----    CFML_GlobalDeps, only: cp

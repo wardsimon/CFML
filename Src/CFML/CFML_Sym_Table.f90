@@ -1,14 +1,13 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Symmetry_Tables
 !!----   INFO: Tabulated information on Crystallographic Symmetry
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
+!!----    Update: 04/03/2011
 !!----
-!!----            June - 1999: Created by JGP and JRC
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,       only: cp
