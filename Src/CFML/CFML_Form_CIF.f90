@@ -588,7 +588,7 @@
        filevar(1)="atm "//trim(line)
 
        n=1
-       call Read_Key_ValueST(filevar,n,n,"atm",vet1,vet2,iv)
+       call Read_Key_ValueSTD(filevar,n,n,"atm",vet1,vet2,iv)
       ! call getnum(line,vet,ivet,iv)
        if (iv <= 0) then
           err_form=.true.
@@ -1036,42 +1036,42 @@
 
        !---- Celda ----!
        initl=nline_ini  !Preserve initial line => some CIF files have random order for cell parameters
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_length_a",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_length_a",vet1,vet2,iv)
        if (iv == 1) then
           Celda(1)   =vet1(1)
           a(1)=vet2(1)
        end if
 
        nline_ini=initl
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_length_b",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_length_b",vet1,vet2,iv)
        if (iv == 1) then
           Celda(2)   =vet1(1)
           a(2)=vet2(1)
        end if
 
        nline_ini=initl
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_length_c",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_length_c",vet1,vet2,iv)
        if (iv == 1) then
           Celda(3)   =vet1(1)
          a(3)=vet2(1)
        end if
 
        nline_ini=initl
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_angle_alpha",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_angle_alpha",vet1,vet2,iv)
        if (iv == 1) then
           Celda(4)   =vet1(1)
           a(4)=vet2(1)
        end if
 
        nline_ini=initl
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_angle_beta",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_angle_beta",vet1,vet2,iv)
        if (iv == 1) then
           Celda(5)   =vet1(1)
           a(5)=vet2(1)
        end if
 
        nline_ini=initl
-       call read_key_valueST(filevar,nline_ini,nline_end,"_cell_angle_gamma",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,nline_ini,nline_end,"_cell_angle_gamma",vet1,vet2,iv)
        if (iv == 1) then
           Celda(6)   =vet1(1)
           a(6)=vet2(1)
@@ -1758,7 +1758,7 @@
 
        !---- Celda ----!
 
-       call read_key_valueST(filevar,i,j,"cell",vet1,vet2,iv)
+       call read_key_valueSTD(filevar,i,j,"cell",vet1,vet2,iv)
        if (iv /=6) then
           err_form=.true.
           ERR_Form_Mess=" Bad Cell Parameters..."
@@ -2485,7 +2485,7 @@
        n=1
        call cutst(line2(1))
        line2(1)="Uval "//line2(1)
-       call Read_Key_ValueST(line2,n,n,"Uval",vet1,vet2,iv)
+       call Read_Key_ValueSTD(line2,n,n,"Uval",vet1,vet2,iv)
 
         if (iv /= 6) then
           err_form=.true.
