@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>POINTS_IN_LINE2D</title>
+<html><head><title>Points_in_Line2D</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,25 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff0000;
 }
-span.rvts13 /* Font Style */
+span.rvts13
+{
+ font-size: 7pt;
+ vertical-align: sub;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -121,54 +127,54 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Math_General: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine POinTS_in_LinE2D(X1, XN, N, XP</span>)</p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Math_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Points_in_Line2D(X1, XN, N, XP</span>)</p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>2</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts12>2</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>X1</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X1</p>
 </td>
-<td width=319><p>Point 1 in 2D</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Point 1 in 2D</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>2</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts12>2</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>XN</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>XN</p>
 </td>
-<td width=319><p>Point N in 2D</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=56><p>N</p>
-</td>
-<td width=319><p>Number of Total points</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Point N in 2D</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>XP</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=319><p>Vector of N points</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Total points</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:)</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>XP</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector of N points</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>The routine calculate N points belonging to the line defined by X1 and XN with equal distance between them.&nbsp; XP is a vector containing X1,X2,.....,XN points.</p>
+<p>Calculate N points belonging to the line defined by X1 and XN with equal distance between them.&nbsp; XP is a vector containing X<span class=rvts13>1</span>, X<span class=rvts13>2</span>,.....,X<span class=rvts13>N</span> points.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

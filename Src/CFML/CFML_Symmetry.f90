@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Crystallographic_Symmetry
@@ -14,10 +14,7 @@
 !!----         are provided in this module.
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
-!!----
-!!----            July    - 1999 Re-organised and updated by JGP and JRC.
-!!----            October - 1996 Created by JRC
+!!----    Update: 05/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----
@@ -39,12 +36,12 @@
 !!----    HEXA
 !!----    HEXAG
 !!----    INLAT
-!!----    LAT_TYPE
+!!----    Lat_Ch
 !!----    LTR
 !!----    MONOC
 !!----    NLAT
 !!----    NUM_SPGR_INFO
-!!----    ORTOR
+!!----    ORTHOR
 !!----    SPACEG
 !!----    SYM_OPER_TYPE
 !!----    WYCK_POS_TYPE
@@ -276,14 +273,14 @@
     integer, public        :: Inlat
 
     !!----
-    !!---- LAT_TYPE
-    !!----    character(len= 1), public     :: Lat_type
+    !!---- Lat_Ch
+    !!----    character(len= 1), public     :: Lat_Ch
     !!----
     !!----    First character of the space group symbol
     !!----
     !!---- Update: February - 2005
     !!
-    character(len= 1), public     :: Lat_type
+    character(len= 1), public     :: Lat_Ch
 
     !!----
     !!---- LTR
@@ -327,14 +324,14 @@
     integer, parameter, public :: Num_Spgr_Info = 612
 
     !!----
-    !!---- ORTOR
-    !!----    integer, parameter, public :: Ortor
+    !!---- ORTHOR
+    !!----    integer, parameter, public :: Orthor
     !!----
-    !!----    Index parameter for Orthorhombic Groups: Ortor  = 163
+    !!----    Index parameter for Orthorhombic Groups: Orthor  = 163
     !!----
     !!---- Update: February - 2005
     !!
-    integer, parameter, public :: Ortor  = 163
+    integer, parameter, public :: Orthor  = 163
 
     !!----
     !!---- SPACEG
@@ -6131,7 +6128,7 @@
     !!-->>
     !!----    Provides the Lattice type of the S.G. SYMB. Also gives the index (Inlat)
     !!----    of the lattice, the multiplicity (Nlat) and the fractionnal lattice translations
-    !!----    ((Ltr(in,j)j=1,3),in=1,Nlat) and Lat_Type.
+    !!----    ((Ltr(in,j)j=1,3),in=1,Nlat) and Lat_Ch.
     !!----
     !!---- Update: February - 2005
     !!
@@ -6235,7 +6232,7 @@
              ERR_Symm_Mess="Wrong Lattice Symbol "//LAT
        end select
 
-       LAT_type=LAT
+       Lat_Ch=LAT
 
        return
     End Subroutine Latsym
@@ -6882,7 +6879,7 @@
                 return
              end if
              call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm)
-             SpaceGroup%SPG_lat      = lat_type
+             SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%NumLat       = nlat
              SpaceGroup%Latt_trans   = Ltr
              SpaceGroup%Num_gen      = max(0,num_g)
@@ -6913,7 +6910,7 @@
 
              SpaceGroup%CrystalSys   = sys_cry(isystm)
              SpaceGroup%SG_setting   = "Non-Conventional (user-given operators)"
-             SpaceGroup%SPG_lat      = Lat_type
+             SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
              SpaceGroup%Latt_trans   = Ltr
@@ -6946,7 +6943,7 @@
              end if
              SpaceGroup%CrystalSys   = sys_cry(isystm)
              SpaceGroup%SG_setting   = "Generated from Hall symbol"
-             SpaceGroup%SPG_lat      = Lat_type
+             SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
              SpaceGroup%Latt_trans   = Ltr
@@ -7023,7 +7020,7 @@
                    End Select
                 end if
              end if
-             SpaceGroup%SPG_lat      = Lat_type
+             SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
              SpaceGroup%Latt_trans   = Ltr
@@ -7090,7 +7087,7 @@
              end if
 
              SpaceGroup%CrystalSys   = sys_cry(isystm)
-             SpaceGroup%SPG_lat      = Lat_type
+             SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
              SpaceGroup%Latt_trans   = Ltr

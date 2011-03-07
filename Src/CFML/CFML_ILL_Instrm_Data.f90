@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_ILL_Instrm_Data
 !!----   INFO: Subroutines related to Instrument information from ILL
 !!----
 !!---- HISTORY
-!!----    Update: April - 2008
+!!----    Update: 05/03/2011
 !!----
 !!--..    The default instrument cartesian frame is that defined by
 !!--..       W.R.Busing & H.A.Levy (Acta Cryst. 22,457-464 (1967)
@@ -87,7 +87,7 @@
 !!--..    igeom=4: Parallel (PSI=90)
 !!----
 !!---- DEPENDENCIES
-!!--++   Use CFML_GlobalDeps,        only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
+!!--++   Use CFML_GlobalDeps,       only: sp, dp, cp, pi, to_deg, to_rad, eps, OPS, OPS_sep
 !!--++   Use CFML_Math_General,     only: cosd,sind
 !!--++   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines
 !!--++   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
@@ -991,18 +991,18 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Allocate_SXTAL_Numors
 
     !!----
-    !!---- Subroutine Define_Uncompress_Program(uncompress)
-    !!----    character(len=*), intent(in) :: uncompress
+    !!---- Subroutine Define_Uncompress_Program(ProgName)
+    !!----    character(len=*), intent(in) :: ProgName
     !!----
     !!---- Routine that define the uncompress program that you wants to use
     !!----
     !!---- Update:  April - 2009
     !!
-    Subroutine Define_Uncompress_Program(uncompress)
+    Subroutine Define_Uncompress_Program(ProgName)
        !---- Argument ----!
-       character(len=*), intent(in) :: uncompress
+       character(len=*), intent(in) :: ProgName
 
-       uncompresscommand=uncompress
+       uncompresscommand=ProgName
 
        return
     End Subroutine Define_Uncompress_Program

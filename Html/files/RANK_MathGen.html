@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>RANK</title>
+<html><head><title>Rank</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,24 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
- font-style: italic;
  font-weight: bold;
 }
-span.rvts13
-{
- font-weight: bold;
-}
-span.rvts14 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -126,82 +117,46 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Math_General: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine RANK (A, TOL, R)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts12>CFML_Math_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Rank (A, Tol, R)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real </span>(<span class=rvts11>Kind</span>=<span class=rvts11>SP</span>),<span class=rvts11> Dimension </span>(:,:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real </span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=DP /SP),</span><span class=rvts1> Dimension </span><span class=rvts11>(:,:)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>A</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=319><p>input Array</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input Array</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real </span>(<span class=rvts11>Kind</span>=<span class=rvts11>SP</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real </span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=DP /SP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>TOL</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Tol</p>
 </td>
-<td width=319><p>Tolerance value</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=56><p>R</p>
-</td>
-<td width=319><p>Rank of A</p>
-</td>
-</tr>
-</table>
-</div>
-<p><br></p>
-<p><span class=rvts12>or</span></p>
-<p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real </span>(<span class=rvts11>Kind</span>=<span class=rvts11>DP</span>),<span class=rvts11> Dimension </span>(:,:)</p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=56><p>A</p>
-</td>
-<td width=319><p>input Array</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Tolerance value</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real </span>(<span class=rvts11>Kind</span>=<span class=rvts11>DP</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>TOL</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>R</p>
 </td>
-<td width=319><p>Tolerance value</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=56><p>R</p>
-</td>
-<td width=319><p>Rank of A</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Rank of A</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that computes the rank (in algebraic sense) of the rectangular matrix <span class=rvts13>A</span>. </p>
+<p>Compute the rank (in algebraic sense) of the rectangular matrix <span class=rvts11>A</span>. </p>
 <p><br></p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

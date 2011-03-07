@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>NIGGLI_CELL</title>
+<html><head><title>Niggli_Cell</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,16 +70,17 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-style: italic;
+ font-weight: bold;
 }
 span.rvts12
 {
- color: #ff0000;
+ font-weight: bold;
 }
 span.rvts13
 {
- font-style: italic;
  font-weight: bold;
+ color: #ff0000;
 }
 span.rvts14 /* Font Style */
 {
@@ -126,310 +127,310 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>NIGGLI_CELL</span></span></h1>
-<p><span class=rvts10>Subroutine NIGGLI_CELL(AD, NIGGLI_POinT_CELLN, TRANS)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Crystal_Metrics: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Niggli_Cell(AD, Niggli_Point, CellN, Trans)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>6</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>6</span><span class=rvts12>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>AD</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>AD</p>
 </td>
-<td width=319><p>Cell parameters as a vector</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell parameters as a vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>5</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>5</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>NIGGLI_POinT</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli_Point</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=89><p>CELLN</p>
-</td>
-<td width=319><p>Cell components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3,3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>TRANS</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CellN</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell components</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3,3</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Trans</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><span class=rvts13>or</span></p>
+<p><span class=rvts11>or</span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>Subroutine NIGGLI_CELL(N_MAT, NIGGLI_POinT_CELLN, TRANS)</span></p>
+<p><span class=rvts10>Subroutine Niggli_Cell(N_Mat, Niggli_Point, CellN, Trans)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>2</span>,<span class=rvts12>3</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>2</span><span class=rvts12>,</span><span class=rvts13>3</span><span class=rvts12>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>N_MAT</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N_Mat</p>
 </td>
-<td width=319><p>Niggli Matrix</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli Matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>5</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>5</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>NIGGLI_POinT</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli_Point</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=89><p>CELLN</p>
-</td>
-<td width=319><p>Cell components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3,3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>TRANS</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CellN</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell components</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3,3</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Trans</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts13><br></span></p>
-<p><span class=rvts13>or</span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts11>or</span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>Subroutine NIGGLI_CELL(A, B, C, AL, BE, GA, NIGGLI_POinT_CELLN, TRANS)</span></p>
+<p><span class=rvts10>Subroutine Niggli_Cell(A, B, C, AL, BE, GA, Niggli_Point, CellN, Trans)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>A</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=319><p>Cell Parameters</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>B</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>B</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=89><p>C</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>AL</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=89><p>BE</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>GA</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>AL</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>5</span>), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=89><p>NIGGLI_POinT</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>CELLN</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>BE</p>
 </td>
-<td width=319><p>Cell components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3,3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>TRANS</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>GA</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>5</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli_Point</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CellN</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell components</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3,3</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Trans</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts13><br></span></p>
-<p><span class=rvts13>or</span></p>
+<p><span class=rvts11><br></span></p>
+<p><span class=rvts11>or</span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>Subroutine NIGGLI_CELL(CELL, NIGGLI_POinT_CELLN, TRANS)</span></p>
+<p><span class=rvts10>Subroutine Niggli_Cell(Cell, Niggli_Point, CellN, Ttrans)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>CELL</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell</p>
 </td>
-<td width=319><p>Cell parameters </p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell parameters </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>5</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>5</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>NIGGLI_POinT</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli_Point</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=89><p>CELLN</p>
-</td>
-<td width=319><p>Cell components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3,3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>TRANS</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CellN</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell components</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3,3</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Trans</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><span class=rvts13>or</span></p>
+<p><span class=rvts11>or</span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>Subroutine NIGGLI_CELL(A, B, C, NIGGLI_POinT_CELLN, TRANS)</span></p>
+<p><span class=rvts10>Subroutine Niggli_Cell(A, B, C, Niggli_Point, CellN, Trans)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3</span><span class=rvts12>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>A</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=319><p>Vector in Cartesian components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3</span><span class=rvts12>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>B</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>B</p>
 </td>
-<td width=319><p>Vector in Cartesian components</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3</span>)</p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=89><p>C</p>
-</td>
-<td width=319><p>Vector in Cartesian components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>5</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3</span><span class=rvts12>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>NIGGLI_POinT</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=89><p>CELLN</p>
-</td>
-<td width=319><p>Cell components</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector in Cartesian components</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3,3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>5</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=89><p>TRANS</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Niggli_Point</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CellN</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell components</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(</span><span class=rvts13>3,3</span><span class=rvts12>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Trans</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>

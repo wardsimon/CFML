@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_T_SUBGROUPS</title>
+<html><head><title>Get_T_SubGroups</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,23 +70,19 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-style: italic;
 }
 span.rvts12
 {
- font-style: italic;
-}
-span.rvts13
-{
  font-weight: bold;
 }
-span.rvts14 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts15 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -125,46 +121,46 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>GET_T_SUBGROUPS</span></span></h1>
-<p><span class=rvts10>Subroutine GET_T_SUBGROUPS (SPG, SUBG, NSG)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Get_T_SubGroups (Spg, SubG, NSG)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=280><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=280 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Space_Group_Type)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=97><p>SPG</p>
+<td width=97 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spg</p>
 </td>
-<td width=410><p>SpaceGroup</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SpaceGroup</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=280><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE), <span class=rvts11>Dimension</span>(:)</p>
+<td width=280 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Space_Group_Type), </span><span class=rvts1>Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=97><p>SUBG</p>
+<td width=97 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SubG</p>
 </td>
-<td width=410><p>SubGroups</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SubGroups</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=280><p><span class=rvts11>Integer</span></p>
+<td width=280 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=97><p>NSG</p>
+<td width=97 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSG</p>
 </td>
-<td width=410><p>Number of SubGroups</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of SubGroups</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine to obtain the list of all non-trivial <span class=rvts12>translationengleiche</span> subgroups (t-subgroups) of a given space group. </p>
+<p>Subroutine to obtain the list of all non-trivial <span class=rvts11>translationengleiche</span> subgroups (t-subgroups) of a given space group. </p>
 <p><br></p>
-<p>The unit cell setting is supposed to be the same as that of the input space group <span class=rvts13>SPG</span>. The search of space sub-groups is performed using a systematic combination of the symmetry operators of the group.</p>
+<p>The unit cell setting is supposed to be the same as that of the input space group <span class=rvts12>SPG</span>. The search of space sub-groups is performed using a systematic combination of the symmetry operators of the group.</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CSENDES_GLOBAL</title>
+<html><head><title>CSendes_Global</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -133,174 +133,175 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps5><span class=rvts0><span class=rvts13>CSENDES_GLOBAL</span></span></h1>
-<p><span class=rvts10>Subroutine CSENDES_GLOBAL( MODEL_FUNCT, MinI, MAXI, NPARM, NSAMPL, NSEL, NSIG, X0, NC, F0, IPR, MODE)</span></p>
+<h1 class=rvps5><span class=rvts0><span class=rvts13>CFML_Optimization_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine CSendes_Global( Model_Funct, Mini, Maxi, NParm, NSampl, NSel, NSig, X0, NC, F0, Ipr, Mode)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98><p><span class=rvts11><br></span></p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=104><p>MODEL_FUNCT</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>Dummy name of the objective function to be optimized</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Dummy name of the objective function to be optimized</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>MinI</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mini</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>Vector of length NPARM containing the lower bounds</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector of length NPARM containing the lower bounds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>MAXI</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Maxi</p>
 </td>
-<td width=40><p class=rvps3>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=410><p>Vector of length NPARM containing the upper bounds</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector of length NPARM containing the upper bounds</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>NPARM</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NParm</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>Number of Parameters</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=104><p>NSAMPL</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps4>Number of sample points to be drawn uniformly in one cycle. Suggested value is 100*NPARM</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>NSEL</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSampl</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Number of best points selected from the actual sample. The suggested value is twice the expected number of local minima.</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>NSIG</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps2>The accuracy required in the parameter estimates. This convergence criterion is satisfied if on two successive iterations the parameter estimates agree, component by component, to nsig digits. The suggested value is 6.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps4>Number of sample points to be drawn uniformly in one cycle. Suggested value is 100*NPARM</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:,:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>X0</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSel</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>output matrix (NPARM x NC) containing NC local minimizers found</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=104><p>NC</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps2>Number of different Local Minimizers Found</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Number of best points selected from the actual sample. The suggested value is twice the expected number of local minima.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>F0</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSig</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>output vector of NC objective function values. </p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>The accuracy required in the parameter estimates. This convergence criterion is satisfied if on two successive iterations the parameter estimates agree, component by component, to nsig digits. The suggested value is 6.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:,:)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X0</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>output matrix (NPARM x NC) containing NC local minimizers found</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NC</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Number of different Local Minimizers Found</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>F0</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>output vector of NC objective function values. </p>
 <p class=rvps2>F0(I) Belongs to the parameters X0(1,I), X0(2,I), ..., X0(NPARM,I)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>IPR</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ipr</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Printing information</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Printing information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer, Optional</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>MODE</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mode</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>If present the routine LOCAL_Min_DFP is replaced by LOCAL_Min_RAND</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>If present the routine LOCAL_Min_DFP is replaced by LOCAL_Min_RAND</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
+<p>where</p>
 <p><br></p>
-<p><span class=rvts12>Subroutine MODEL_FUNCTN (NPARM, X, F)</span></p>
+<p><span class=rvts12>Subroutine Model_Funct (NParm, X, F)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>NPARM</p>
+<td width=98><p>NParm</p>
 </td>
 <td width=369><p>Number of free parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
@@ -310,7 +311,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span></p>
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
@@ -321,13 +322,13 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p>Global optimization procedure using the Boender-Timmer-Rinnoy Kan algorithm (Local Search Method)</p>
 <p><br></p>
-<p>Global optimization is a part of nonlinear optimization, it deals with problems with (possibly) several local minima. The presented method is stochastic (i.e. not deterministic). The framework procedure, the csendes_GLOBAL routine gives a computational evidence, that the best local minimum found is with high probability the global minimum.&nbsp; This routine calls a local search routine, and a routine for generating random numbers.</p>
+<p>Global optimization is a part of nonlinear optimization, it deals with problems with (possibly) several local minima. The presented method is stochastic (i.e. not deterministic). The framework procedure, the CSendes_Global routine gives a computational evidence, that the best local minimum found is with high probability the global minimum.&nbsp; This routine calls a local search routine, and a routine for generating random numbers.</p>
 <p><br></p>
-<p>Let F(X) be a real function of NPARM parameters and we are looking for&nbsp; parameter values X(I) from the given intervals [Min(I), MAX(I)] for each&nbsp; I = 1, 2, ..., NPARM.&nbsp; The problem is to determine such a point X*, that the function value F(X) is greater than or equal to F(X*) for every X in the NPARM-dimensional interval specified by Min(I)'s and MAX(I)'s.</p>
+<p>Let F(X) be a real function of NParm parameters and we are looking for&nbsp; parameter values X(I) from the given intervals [Min(I), MAX(I)] for each&nbsp; I = 1, 2, ..., NPARM.&nbsp; The problem is to determine such a point X*, that the function value F(X) is greater than or equal to F(X*) for every X in the NPARM-dimensional interval specified by Min(I)'s and MAX(I)'s.</p>
 <p><br></p>
 <p><br></p>
 <p class=rvps6><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>

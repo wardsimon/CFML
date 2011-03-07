@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal et al.
 !!----
 !!---- MODULE: CFML_Geometry_SXTAL
@@ -9,7 +9,7 @@
 !!----         have made some comments in the header of the routines these have been kept.
 !!----
 !!---- HISTORY
-!!----    Update: April - 2008
+!!----    Update: 06/03/2011
 !!----
 !!--..
 !!--..    The original routines have been transformed to Fortran 95 and the names
@@ -200,13 +200,13 @@
     Private
 
     !---- List of public subroutines ----!
-    Public :: Angs_4C_bisecting, Equatorial_Chi_Phi,Get_dspacing_theta,                 &
-              Get_GaOmNu_frChiPhi,Chi_mat,Phi_mat, Psi_mat,Get_Angs_NB,                 &
-              Calc_Om_Chi_Phi,Calc_Psi,d19psd,dspace,fixdnu,Normal_Beam_Angles,  &
-              s4cnb, snb4c,Flat_Cone_vertDet,Get_WaveGaNu_frZ4,normal,refvec,sxdpsd,    &
-              triple,z3frz1,z2frz1,z1frfc,z1frnb, z1frmd,z1frz4,z1frz3,z1frz2,z4frgn,   &
-              z4frz1,calang,genb,genub, cell_fr_UB, set_psd, get_z1_from_pixel,         &
-              Get_z1_D9angls, psd_convert 
+    Public :: Angs_4C_bisecting, Equatorial_Chi_Phi, Get_dspacing_theta,                        &
+              Get_GaOmNu_frChiPhi, Chi_mat, Phi_mat, Psi_mat, Get_Angs_NB,                      &
+              Calc_Om_Chi_Phi, Calc_Psi, d19psd, dspace, fixdnu, Normal_Beam_Angles,            &
+              s4cnb, snb4c, Flat_Cone_vertDet, Get_WaveGaNu_frZ4, normal, refvec, sxdpsd,       &
+              triple, z3frz1, z2frz1, z1frfc, z1frnb, z1frmd, z1frz4, z1frz3, z1frz2, z4frgn,   &
+              z4frz1, calang, genb, genub, cell_fr_UB, set_psd, get_z1_from_pixel,              &
+              Get_z1_D9angls, psd_convert
 
     !---- Definitions ----!
 
@@ -734,7 +734,7 @@
     !!----
     !!----    MPSD +VE - Find GamP, NuP given GamM, Cath and Anod
     !!----    MPSD -VE - Find Cath, Anod given GamM, GamP and NuP
-    !!-->>    
+    !!-->>
     !!----
     !!----    Extended for D19 cylindrical banana (from MJ Turner, peak find ...)
     !!----
@@ -765,7 +765,7 @@
           tn=tand(nup)
 
           Select Case(psd%ipsd)
-          
+
             Case(1)                               ! Vertically curved banana detector
              e=Sqrt(1.0 + td*td)
              f=psd%yoff*tn*e - psd%zoff
@@ -781,22 +781,22 @@
              zobs=(psd%radius+psd%yoff)*tn/cd - psd%zoff
              anod=amid + zobs/psd%agap                           ! D9
              cath=cmid - xobs/psd%cgap                           ! D9
-             
+
             Case(3)                         ! Still to be checked!
              xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19-like Horizontal banana
              zobs=tn*(psd%radius + psd%yoff) - psd%zoff
              anod=amid - zobs/psd%agap
              cath=cmid - xobs/psd%cgap
-             
+
           End Select
 
           If (anod > 0.0 .AND. anod < real(psd%nano-1) .AND.  &
               cath > 0.0 .AND. cath < real(psd%ncat-1)) Return
              ierr=-1
        Else
-             
+
           Select Case(psd%ipsd)
-          
+
             Case(1)                                  ! Vertically curved detector
              xobs=(cmid-cath)*psd%cgap               ! D19A
              zobs=(amid-anod)*psd%agap               ! D19A
@@ -813,10 +813,10 @@
              a=xobs       + psd%xoff
              b=psd%radius + psd%yoff
              z=zobs       + psd%zoff
-             d=Sqrt(a*a + b*b)                                     
+             d=Sqrt(a*a + b*b)
              gamp=gamm + atan2d(a,b)
              nup=atan2d(z,d)
-          
+
             Case(3)
               xobs=(cmid-cath)*psd%cgap     ! D19-like Horizontal banana
               zobs=(amid-anod)*psd%agap     ! Need to check yoff at large xobs
@@ -824,8 +824,8 @@
               b=psd%radius + psd%yoff
               z=    zobs   + psd%zoff
               gamp=gamm + (a/b)*to_deg
-              nup=Atan2d(z,b)       
-              
+              nup=Atan2d(z,b)
+
           End Select
        End If
 

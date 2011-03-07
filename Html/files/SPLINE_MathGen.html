@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SPLINE</title>
+<html><head><title>Spline</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,7 +70,7 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12 /* Font Style */
 {
@@ -118,72 +118,72 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts12>CFML_Math_General: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine SPLinE (X, Y, N, YP1, YPN, Y2)</span></p>
+<p><span class=rvts10>Subroutine Spline (X, Y, N, YP1, YPN, Y2)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>X</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X</p>
 </td>
-<td width=319><p>input vector</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>Y</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Y</p>
 </td>
-<td width=319><p>input vector</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=56><p>N</p>
-</td>
-<td width=319><p>Dimension of X and Y </p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>YP1</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=319><p>Derivate of Point 1</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=56><p>YPN</p>
-</td>
-<td width=319><p>Derivate of Point N</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Dimension of X and Y </p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>Y2</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>YP1</p>
 </td>
-<td width=319><p>Vector containing second derivatives at the given points</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Derivate of Point 1</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>YPN</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Derivate of Point N</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:)</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Y2</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector containing second derivatives at the given points</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that computes the Spline of N points</p>
+<p>Computes the spline of N points</p>
 <p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

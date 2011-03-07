@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>WRITE_SPACEGROUP</title>
+<html><head><title>Write_SpaceGroup</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -121,46 +117,46 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>WRITE_SPACEGROUP</span></span></h1>
-<p><span class=rvts10>Subroutine WRITE_SPACEGROUP (SPACEGROUP, IUNIT, FULL)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts12>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Write_SpaceGroup (SpaceGroup, Iunit, Full)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285 height=15><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=285 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Space_Group_Type)</span></p>
 </td>
-<td width=89 height=15><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=89 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=106 height=15><p>SPACEGROUP</p>
+<td width=106 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SpaceGroup</p>
 </td>
-<td width=410 height=15><p>Space Group</p>
+<td width=410 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Integer, Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=89><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=106><p>IUNIT</p>
+<td width=106 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Iunit</p>
 </td>
-<td width=410><p>Write information on IUNIT</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Write information on IUNIT</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>LOGICAL, Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Logical, Optional</span></p>
 </td>
-<td width=89><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=89 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=106><p>FULL</p>
+<td width=106 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Full</p>
 </td>
-<td width=410><p>Full operator or not</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Full operator or not</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Writing in file of logical unit <span class=rvts12>IUNIT</span> the characteristics of the space group <span class=rvts12>SPACEGROUP</span>. Part of the information contained in <span class=rvts12>SPACEGROUP</span> may be undefined, depending on the tabulated&nbsp; nature of the item. </p>
+<p>Writing in file of logical unit <span class=rvts11>IUNIT</span> the characteristics of the space group <span class=rvts11>SpaceGroup</span>. Part of the information contained in <span class=rvts11>SpaceGroup</span> may be undefined, depending on the tabulated&nbsp; nature of the item. </p>
 <p><br></p>
-<p>If <span class=rvts12>FULL</span>=<span class=rvts12>.TRUE.</span> is present the whole group is output including the symmetry symbol associated to each operator.</p>
+<p>If <span class=rvts11>FULL</span>=<span class=rvts11>.TRUE.</span> is present the whole group is output including the symmetry symbol associated to each operator.</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

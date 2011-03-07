@@ -109,6 +109,16 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts10>FIXDNU</span></span></h1>
-<p><br></p>
+<p>!!---- Subroutine fixdnu(wave,z1,ch,ph,ga,om,nu,ierr)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: wave</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In), Dimension(3) :: z1</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: nu</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: ch,ph,ga,om</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer, Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: ierr</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Calculate a setting CH,PH,GA,OM to put the diffracted beam at NU.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; PH puts the diffraction vector Z1 into the CHI circle (as for</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; bisecting geometry), CH brings the vector to the appropriate NU</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; and OM then positions the beam at GA.</p>
 <p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

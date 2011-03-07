@@ -109,6 +109,26 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts10>CALANG</span></span></h1>
-<p><br></p>
+<p>!!---- Subroutine calang(h,tteta,om,ch,ph,ierr,wav,ubm,geom)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),Dimension(3),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(In) :: h</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(Out):: tteta,om,ch,ph</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(Out):: ierr</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional, intent(in) :: wav</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), dimension(3,3),optional, intent(in) :: ubm</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional, intent(in) :: geom</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp;&nbsp; Original comments:</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; SUBROUTINE *** CALANG ***</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; VERSION DU 6/10/1976</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; CALCULE LES ANGLES 2THETA OMEGA CHI PHI&nbsp; :</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=1&nbsp; GEOMETRIE BISSECTRICE (PSI=0)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=2&nbsp; GEOMETRIE BISECTING - HICHI&nbsp; (D9, displex,cryostat)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=3&nbsp; GEOMETRIE NORMAL BEAM</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=4&nbsp; GEOMETRIE PARALLELE (PSI=90)&nbsp; (D15,D16)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; POUR REFLECTION H,K,L ET MATRICE UB DONNEES</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; This subroutine is a more general variant of Angs_4c_bisecting.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; If the optional arguments are given, the corresponding values</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&gt;&gt;&nbsp;&nbsp;&nbsp; are adopted instead of those of the current instrument.</p>
 <p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

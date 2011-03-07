@@ -158,24 +158,25 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>Mode</p>
 </td>
-<td width=369 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>= <span class=rvts11>inV</span> backward transform. </p>
-<p><span class=rvts15>&ne;</span> <span class=rvts11>inV</span> forward transform for the rest </p>
+<td width=369 style="border-width : 1px; border-color : #808080 #f0f0f0 #f0f0f0 #808080; border-style: solid;"><p>= <span class=rvts11>inv</span> backward transform. </p>
+<p><span class=rvts15>&ne;</span> <span class=rvts11>inv</span> forward transform for the rest </p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p>This function is similar to subroutine <a class=rvts13 href="SFFT.html">SFFT</a> and it is useful only when one is interested in conserving the original array. </p>
-<p>It is a slight modification of a complex split radix FFT routine presented by C.S. Burrus. </p>
+<p>This function is similar to subroutine <a class=rvts13 href="SFFT.html">SFFT</a> and it is useful only when one want to retain the original array. It is a slight modification of a complex split radix FFT routine presented by C.S. Burrus. </p>
+<p><br></p>
 <p><br></p>
 <p><span class=rvts12>NOTE:</span> There is no control of the error consisting in giving a dimension that is not a power of two. It is the responsibility of the user to provide a complex&nbsp; array of dimension equal to a power of 2.</p>
+<p><br></p>
 <p><br></p>
 <p><span class=rvts11>Example:</span></p>
 <p><br></p>
 <p>FX = F_FFT(X)</p>
 <p><br></p>
-<p>Y = F_FFT(FY,"inV")</p>
+<p>Y = F_FFT(FY,"inv")</p>
 <p> </p>
 <p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

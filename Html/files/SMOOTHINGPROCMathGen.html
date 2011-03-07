@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SMOOTHING_PROC</title>
+<html><head><title>SmoothingVec</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,7 +70,7 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12 /* Font Style */
 {
@@ -122,63 +122,63 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps3><span class=rvts0><span class=rvts12>CFML_Math_General: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine SMOOTHinG_PROC (Y, N, NITER, YS)</span></p>
+<p><span class=rvts10>Subroutine SmoothingVec (Y, N, NIter, Ys)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=278><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:)</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>Y</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Y</p>
 </td>
-<td width=50><p class=rvps2>in:</p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=396><p>input Vector</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input Vector</p>
 <p>Vector smoothed if YS is not present in the call of this routine</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=278><p><span class=rvts11>Integer</span></p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>N</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=50><p class=rvps2><br></p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=396><p>Number of Points</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=278><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=65><p>NITER</p>
-</td>
-<td width=50><p class=rvps2><br></p>
-</td>
-<td width=396><p>Number of Iterations</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Points</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=278><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:), <span class=rvts11>Optional</span></p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>YS</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NIter</p>
 </td>
-<td width=50><p class=rvps2><br></p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=396><p>If present, Vector smoothed</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Iterations</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ys</p>
+</td>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>If present, Vector smoothed</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Procedure to smooth the vector values</p>
+<p>Smooth a set of values contained in a vector of N points</p>
 <p><br></p>
 <p class=rvps4><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

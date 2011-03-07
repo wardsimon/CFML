@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>COST_BVS</title>
+<html><head><title>Cost_BVS</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -68,20 +68,21 @@ span.rvts10
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts11
-{
- color: #0000ff;
-}
-span.rvts12
-{
- color: #ff6600;
-}
-a.rvts13, span.rvts13
+a.rvts11, span.rvts11
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts13:hover { color: #0000ff; }
+a.rvts11:hover { color: #0000ff; }
+span.rvts12
+{
+ font-weight: bold;
+}
+span.rvts13
+{
+ font-weight: bold;
+ color: #ff6600;
+}
 span.rvts14 /* Font Style */
 {
  font-size: 16pt;
@@ -127,38 +128,38 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>COST_BVS</span></span></h1>
-<p><span class=rvts10>Subroutine COST_BVS (A, GII, GIC)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_BVS_Energy_Calc: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Cost_BVS (A, GII, GIC)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(ATOMS_CONF_LIST_TYPE)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Atoms_Conf_List_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>A</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=369><p>Atoms information</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>GII</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>GII</p>
 </td>
-<td width=369><p>Global instability index</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Global instability index</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>GIC</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>GIC</p>
 </td>
-<td width=369><p>If present GII_c is put in GII</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>If present GII_c is put in GII</p>
 </td>
 </tr>
 </table>
@@ -166,7 +167,8 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine to calculate the Global instability index.</p>
 <p><br></p>
-<p>Before calling this subroutine it is the responsibility of the calling program to make a previous call to <a class=rvts13 href="SETTDISTCOORDINATION.html">SET_TDIST_COORDinATION</a> in order to update the internal private variables related to distance/angle calculations.</p>
+<p>Before calling this subroutine it is the responsibility of the calling program to make a previous call to <a class=rvts11 href="SETTDISTCOORDINATION.html">Set_TDist_Coordination</a> in order to update the </p>
+<p>internal private variables related to distance/angle calculations.</p>
 <p><br></p>
 <p>All items corresponding to the bond-valence parameters contained in A have to be properly set before calling this procedure.</p>
 <p>&nbsp;&nbsp; </p>

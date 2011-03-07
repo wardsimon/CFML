@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>STRUCTURE_FACTORS</title>
+<html><head><title>Structure_Factors</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,26 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff6600;
 }
-span.rvts13 /* Font Style */
+a.rvts13, span.rvts13
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts13:hover { color: #0000ff; }
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -121,60 +128,60 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>STRUCTURE_FACTORS</span></span></h1>
-<p><span class=rvts10>Subroutine STRUCTURE_FACTORS (ATM, GRP, REFLEX, MODE, LAMBDA)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Structure_Factor_Module: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Structure_Factors (Atm, Grp, Reflex, Mode, Lambda)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=276><p><span class=rvts11>TYPE</span>(ATOM_LIST_LIST_TYPE)</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Atom_List_Type)</span></p>
 </td>
-<td width=93><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=105><p>ATM</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atm</p>
 </td>
-<td width=379><p>Atoms information</p>
+<td width=379 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Space_Group_Type)</span></p>
 </td>
-<td width=93><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=105><p>GRP</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Grp</p>
 </td>
-<td width=379><p>Space group information</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=276><p><span class=rvts11>TYPE</span>(REFLECTION_LIST_TYPE)</p>
-</td>
-<td width=93><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=105><p>REFLEX</p>
-</td>
-<td width=379><p>Reflection information</p>
+<td width=379 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space group information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(REFLECTION_LIST_TYPE)</span></p>
 </td>
-<td width=93><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=105><p>MODE</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Reflex</p>
 </td>
-<td width=379><p>Value:</p>
+<td width=379 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Reflection information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts11>=*), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mode</p>
+</td>
+<td width=379 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Value:</p>
 <p>NUC : For Nuclear reflections</p>
 <p>Rest: X-Ray reflections</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=276><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Optional</span></p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=93><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=105><p>LAMBDA</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Lambda</p>
 </td>
-<td width=379><p>Wavelength</p>
+<td width=379 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Wavelength</p>
 </td>
 </tr>
 </table>
@@ -182,6 +189,6 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Calculate the Structure Factors from a list of Atoms and a set of reflections. </p>
 <p><br></p>
-<p>A call to inIT_STRUCTURE_FACTORS is a pre-requisite for using this subroutine.</p>
-<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p>A call to <a class=rvts13 href="INITSTRUCTUREFACTORS.html">Init_Structure_Factors</a> is a pre-requisite for using this subroutine.</p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

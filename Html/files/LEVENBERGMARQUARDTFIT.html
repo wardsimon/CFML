@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>LEVENBERG_MARQUARDT_FIT</title>
+<html><head><title>Levenberg_Marquardt_Fit</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -78,21 +78,27 @@ span.rvts12
 }
 span.rvts13
 {
- color: #ff6600;
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
 }
 span.rvts14
 {
  font-size: 12pt;
  font-style: italic;
- font-weight: bold;
 }
-span.rvts15 /* Font Style */
+span.rvts15
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts16 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts17 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -140,95 +146,95 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps4><span class=rvts0><span class=rvts15>LEVENBERG_MARQUARDT_FIT</span></span></h1>
-<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, TOL, inFO, IWA)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts16>CFML_Optimization_LSQ: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Levenberg_Marquardt_Fit (Model_Funct, M, N, X, FVec, Tol, Info, Iwa)</span></p>
 <p><br></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=100><p><span class=rvts11><br></span></p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=121><p>MODEL_FUNCT</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=52><br>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><br>
 </td>
-<td width=370><p>Name of the subroutine</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>Name of the subroutine</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>M</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>M</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Positive number of functions</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=121><p>N</p>
-</td>
-<td width=52><p class=rvps2><br></p>
-</td>
-<td width=370><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>Positive number of functions</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>X</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>N</p>
 </td>
-<td width=52><p class=rvps3><br></p>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:)</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
+</td>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>X</p>
+</td>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps3><br></p>
 <p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=370><p class=rvps2>Vector of length N</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>Vector of length N</p>
 <p class=rvps2>initial estimate of the solution vector</p>
 <p class=rvps2>Final estimate of the solution vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>FVEC</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>FVec</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=121><p>TOL</p>
-</td>
-<td width=52><p class=rvps2><br></p>
-</td>
-<td width=370><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>inFO</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>Tol</p>
 </td>
-<td width=52><p class=rvps2>&lt; 0</p>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>Info</p>
+</td>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>&lt; 0</p>
 <p class=rvps2>= 0</p>
 <p class=rvps2>= 1</p>
 <p class=rvps2>= 2</p>
@@ -243,7 +249,7 @@ p,ul,ol /* Paragraph Style */
 <p class=rvps2><br></p>
 <p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>If the user has terminated execution</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>If the user has terminated execution</p>
 <p class=rvps2>Improper input parameters.</p>
 <p>Relative error in the sum of squares is at most TOL</p>
 <p>Algorithm estimates that the relative error between x and the solution is at most tol.</p>
@@ -255,94 +261,93 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer, Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Integer, Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>IWA</p>
+<td width=121 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p>Iwa</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>is an Integer work array of length n</p>
+<td width=370 style="border-width : 1px; border-color : #333333 #ffffff #ffffff #333333; border-style: solid;"><p class=rvps2>is an Integer work array of length n</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><br></p>
 <p><span class=rvts14>or</span></p>
-<p><span class=rvts14><br></span></p>
-<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, inFout, RESIDUALS)</span></p>
+<p><span class=rvts13><br></span></p>
+<p><span class=rvts10>Subroutine Levenberg_Marquardt_Fit (Model_Funct, M, C, VS, Chi2, InfOut, Residuals)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=100><p><span class=rvts11><br></span></p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=98><p>MODEL_FUNCT</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=410><p>Name of the subroutine calculating YC(i) for point X(i)</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the subroutine calculating YC(i) for point X(i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>M</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>M</p>
 </td>
-<td width=410><p class=rvps2>Number of observations</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=98><p>C</p>
-</td>
-<td width=410><p class=rvps2>Conditions of refinement</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Number of observations</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type </span><span class=rvts12>(LSQ_Conditions_Type)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>VS</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=410><p class=rvps2>State vector for the model calculation</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>CHI2</p>
-</td>
-<td width=410><p class=rvps2>Final reduced Chi-2</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Conditions of refinement</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type </span><span class=rvts12>(LSQ_State_Vector_Type)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>inFout</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>VS</p>
 </td>
-<td width=410><p class=rvps2>information about the refinement</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>State vector for the model calculation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>RESIDUALS</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Chi2</p>
 </td>
-<td width=410><p class=rvps2>Residuals vector</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Final reduced Chi-2</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts15>Len</span><span class=rvts12>=*)</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>InfOut</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>information about the refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Residuals</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Residuals vector</p>
 </td>
 </tr>
 </table>
@@ -350,13 +355,13 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p><span class=rvts14>and</span></p>
-<p><span class=rvts14><br></span></p>
-<p><span class=rvts12>Subroutine MODEL_FUNCTN (M, N, X, FVEC, IFLAG)</span></p>
+<p><span class=rvts13><br></span></p>
+<p><span class=rvts12>Subroutine Model_Funct (M, N, X, FVec, IFlag)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -364,9 +369,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -374,9 +379,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -384,21 +389,21 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12> </span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FVEC</p>
+<td width=98><p>FVec</p>
 </td>
 <td width=369><p>Array of residuals FVEC=(y-yc)/sig : FVEC(1:M)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>IFLAG</p>
+<td width=98><p>IFlag</p>
 </td>
 <td width=369><p>=1 calculate only FVEC without changing FJAC</p>
 <p>=2 calculate only FJAC keeping FVEC fixed</p>
@@ -406,90 +411,90 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p><br></p>
 <p><span class=rvts10> </span></p>
 <p><span class=rvts14>or</span></p>
 <p><span class=rvts10><br></span></p>
 <p><span class=rvts10><br></span></p>
-<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, N, X, FVEC, FJAC, TOL, inFO, IWA)</span></p>
+<p><span class=rvts10>Subroutine Levenberg_Marquardt_Fit (Model_Funct, M, N, X, FVec, FJac, Tol, Info, Iwa)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=100><p><span class=rvts11><br></span></p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=121><p>MODEL_FUNCT</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=52><br>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
-<td width=370><p>Name of the subroutine</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the subroutine</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>M</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>M</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Positive number of functions</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=121><p>N</p>
-</td>
-<td width=52><p class=rvps2><br></p>
-</td>
-<td width=370><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Positive number of functions</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>X</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=52><p class=rvps3><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Positive number of variables ( n &lt;= m)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:)</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
+</td>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X</p>
+</td>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 <p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=370><p class=rvps2>Vector of length N</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Vector of length N</p>
 <p class=rvps2>initial estimate of the solution vector</p>
 <p class=rvps2>Final estimate of the solution vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>FVEC</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FVec</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Vector of length M contains the functions evaluated at the output X.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:,:)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:,:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>FJAC</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FJac</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Is an output m by n array. the upper n by n submatrix of fjac&nbsp;&nbsp;&nbsp; contains an upper triangular matrix r with diagonal elements </p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Is an output m by n array. the upper n by n submatrix of fjac&nbsp;&nbsp;&nbsp; contains an upper triangular matrix r with diagonal elements </p>
 <p class=rvps2>of non increasing magnitude such that</p>
 <p class=rvps2>&nbsp; </p>
 <p class=rvps2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t&nbsp;&nbsp;&nbsp;&nbsp; t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t</p>
@@ -501,25 +506,25 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>TOL</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Tol</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most TOL. Therefore, TOL measures the relative error desired in the sum of squares.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>inFO</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Info</p>
 </td>
-<td width=52><p class=rvps2>&lt; 0</p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>&lt; 0</p>
 <p class=rvps2>= 0</p>
 <p class=rvps2>= 1</p>
 <p class=rvps2>= 2</p>
@@ -534,7 +539,7 @@ p,ul,ol /* Paragraph Style */
 <p class=rvps2><br></p>
 <p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>If the user has terminated execution</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>If the user has terminated execution</p>
 <p class=rvps2>Improper input parameters.</p>
 <p>Relative error in the sum of squares is at most TOL</p>
 <p>Algorithm estimates that the relative error between x and the solution is at most tol.</p>
@@ -546,15 +551,15 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer, Dimension</span>(:)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=121><p>IWA</p>
+<td width=121 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Iwa</p>
 </td>
-<td width=52><p class=rvps2><br></p>
+<td width=52 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=370><p class=rvps2>is an Integer work array of length n</p>
+<td width=370 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>is an Integer work array of length n</p>
 </td>
 </tr>
 </table>
@@ -564,87 +569,87 @@ p,ul,ol /* Paragraph Style */
 <p><span class=rvts14>or</span></p>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts10>Subroutine LEVENBERG_MARQUARDT_FIT(MODEL_FUNCT, M, C, VS, CHI2, CALDER, inFout, RESIDUALS)</span></p>
+<p><span class=rvts10>Subroutine Levenberg_Marquardt_Fit (Model_Funct, M, C, VS, Chi2, CalDer, InfOut, Residuals)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=270><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=100><p><span class=rvts11><br></span></p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=98><p>MODEL_FUNCT</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=410><p>Name of the subroutine calculating YC(i) for point X(i)</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the subroutine calculating YC(i) for point X(i)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Integer</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>M</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>M</p>
 </td>
-<td width=410><p class=rvps2>Number of observations</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>TYPE</span>(LSQ_CONDITIONS_TYPE)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=98><p>C</p>
-</td>
-<td width=410><p class=rvps2>Conditions of refinement</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Number of observations</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>TYPE</span>(LSQ_STATE_VECTOR_TYPE)</p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type </span><span class=rvts12>(LSQ_Conditions_Type)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>VS</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=410><p class=rvps2>State vector for the model calculation</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>CHI2</p>
-</td>
-<td width=410><p class=rvps2>Final reduced Chi-2</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Conditions of refinement</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>LOGICAL</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type </span><span class=rvts12>(LSQ_State_Vector_Type)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>CALDER</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>VS</p>
 </td>
-<td width=410><p class=rvps2>logical (should be .true.) used only for purposes of making unambiguous the generic procedure</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=270><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*)</p>
-</td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>inFout</p>
-</td>
-<td width=410><p class=rvps2>information about the refinement</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>State vector for the model calculation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=270><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=100><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>RESIDUALS</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Chi2</p>
 </td>
-<td width=410><p class=rvps2>Residuals vector</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Final reduced Chi-2</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Logical</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CalDer</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>logical (should be .true.) used only for purposes of making unambiguous the generic procedure</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts15>Len</span><span class=rvts12>=*)</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>InfOut</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>information about the refinement</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=270 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP), </span><span class=rvts1>Dimension</span><span class=rvts12>(:), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=100 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Residuals</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Residuals vector</p>
 </td>
 </tr>
 </table>
@@ -652,13 +657,13 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><br></p>
 <p><span class=rvts14>and</span></p>
-<p><span class=rvts14><br></span></p>
-<p><span class=rvts12>Subroutine MODEL_FUNCTN (M, N, X, FVEC, FJAC, IFLAG)</span></p>
+<p><span class=rvts13><br></span></p>
+<p><span class=rvts12>Subroutine Model_Funct (M, N, X, FVec, FJac, IFlag)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>M</p>
 </td>
@@ -666,9 +671,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -676,9 +681,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -686,31 +691,31 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12> </span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FVEC</p>
+<td width=98><p>FVec</p>
 </td>
 <td width=369><p>Array of residuals FVEC=(y-yc)/sig : FVEC(1:M)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:,:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:,:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FJAC</p>
+<td width=98><p>FJac</p>
 </td>
 <td width=369><p>Jacobian DFVEC/DX(i,j)=DFVEC(i)/DX(j): FJAC(1:m,1:n)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>IFLAG</p>
+<td width=98><p>IFlag</p>
 </td>
 <td width=369><p>=1 calculate only FVEC without changing FJAC</p>
 <p>=2 calculate only FJAC keeping FVEC fixed</p>
@@ -718,11 +723,10 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p><span class=rvts10>&nbsp;&nbsp; </span> </p>
-<p><br></p>
-<p>The purpose of this routine is to minimize the sum of the squares of M nonlinear functions in N variables by a modification of the Levenberg-Marquardt algorithm.&nbsp; The user must provide a subroutine which calculates the functions. The jacobian is then calculated by a forward-difference approximation.</p>
+<p>The purpose of this routine is to minimize the sum of the squares of M nonlinear functions in N variables by a modification of the Levenberg-Marquardt algorithm.&nbsp; The user must provide a subroutine which calculates the functions. The Jcobian is then calculated by a forward-difference approximation.</p>
 <p>&nbsp; </p>
-<p class=rvps5><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

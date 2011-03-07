@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>LOAD_EXTENDEDMAP</title>
+<html><head><title>Load_ExtendedMap</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -121,8 +121,8 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>LOAD_EXTENDEDMAP</span></span></h1>
-<p><span class=rvts10>Subroutine LOAD_EXTENDEDMAP (RHO, NGRID, LIMITS, RHONEW)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Maps_Calculations: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Load_ExtendedMap (Rho, NGrid, Limits, RhoNew)</span></p>
 <p><br></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -130,7 +130,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>RHO</p>
+<td width=98><p>Rho</p>
 </td>
 <td width=369><p>Array</p>
 </td>
@@ -140,7 +140,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>NGRID</p>
+<td width=98><p>NGrid</p>
 </td>
 <td width=369><p>Grid dimensions of RHO</p>
 </td>
@@ -150,7 +150,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
 </td>
-<td width=98><p>LIMITS</p>
+<td width=98><p>Limits</p>
 </td>
 <td width=369><p>Limits</p>
 </td>
@@ -160,7 +160,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
 </td>
-<td width=98><p>RHONEW</p>
+<td width=98><p>RhoNew</p>
 </td>
 <td width=369><p>RHO Extended</p>
 </td>
@@ -168,7 +168,7 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>RHONEW has one dimension more in each dimension that RHO. This routine is useful for 2D representation.</p>
+<p>RhoNew has one dimension more in each dimension that Rho. This routine is useful for 2D representation.</p>
 <p><br></p>
 <p>RHO(NX,NY,NZ) -&gt; RHONEW(NX+1,NY+1,NZ+1)</p>
 <p>&nbsp; </p>

@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Reflections_Utilities
@@ -7,9 +7,7 @@
 !!----         Bragg reflections
 !!----
 !!---- HISTORY
-!!----    Update: December - 2010
-!!----
-!!----            July -  1999. Reorganized by JGP and JRC
+!!----    Update: 06/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----

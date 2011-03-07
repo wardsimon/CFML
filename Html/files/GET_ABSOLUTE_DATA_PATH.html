@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_ABSOLUTE_DATA_PATH</title>
+<html><head><title>Get_Absolute_Data_Path</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,10 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff6600;
 }
 span.rvts13 /* Font Style */
@@ -99,7 +100,11 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ margin: 0px 0px 0px 24px;
+}
+.rvps3 /* Paragraph Style */
 {
  text-align: left;
  text-indent: 0px;
@@ -107,7 +112,7 @@ p,ul,ol /* Paragraph Style */
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
 }
-.rvps3 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -121,73 +126,75 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>GET_ABSOLUTE_DATA_PATH</span></span></h1>
-<p><span class=rvts10>Subroutine GET_ABSOLUTE_DATA_PATH(NUMOR, inSTRM, PATH, IYEAR, ICYCLE)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts13>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Get_Absolute_Data_Path (Numor, Instrm, Path, IYear, ICycle)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p>NUMOR</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Numor</p>
 </td>
-<td width=369><p>Numor</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Numor</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Character </span>(<span class=rvts12>Len</span><span class=rvts11>=</span>*)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character </span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts1>=</span><span class=rvts11>*)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p>inSTRM</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Instrm</p>
 </td>
-<td width=369><p>instrument Name</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>Character </span>(<span class=rvts12>Len</span><span class=rvts11>=</span>*)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>PATH</p>
-</td>
-<td width=369><p>Absolute Path</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>instrument Name</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer, Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character </span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts1>=</span><span class=rvts11>*)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p>IYEAR</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Path</p>
 </td>
-<td width=369><p>Year</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Absolute Path</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer, Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p>ICYCLE</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>IYear</p>
 </td>
-<td width=369><p>Cycle number</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Year</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ICycle</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cycle number</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Finds the absolute path to any numor. The base directory is set by a call to inITIALIZE_DATA_DIRECTORY. The procedure then searches for the NUMOR in the following order:</p>
-<ol style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li value=1>in the subdirectory defined by the year and cycle if passed as arguments to the subroutine (i.e args iyear, icycle).</li>
-<li value=2>in the subdirectory defined by the year and cycle of the previous call to get_absolute_data_path (since numors are likely to be adjacent).</li>
-<li value=3>in the DATA subdirectory (since likely to process recent data).</li>
-<li value=4>in the DATA-1 subdirectory (same logic as above)</li>
-<li value=5>Working from the current year and most recent cycle and working back through cycles and year until the stopping at the first cycle of 1973, when the first data was archived.</li>
-</ol>
+<p>Finds the absolute path to any Numor. </p>
+<p><br></p>
+<p>The base directory is set by a call to Initialize_Data_Directory. The procedure then searches for the Numor in the following order:</p>
+<ol style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ol style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
+<li value=1 class=rvps2 style="margin-left: 0">In the subdirectory defined by the year and cycle if passed as arguments to the subroutine (i.e args iyear, icycle).</li>
+<li value=2 class=rvps2 style="margin-left: 0">In the subdirectory defined by the year and cycle of the previous call to Get_Absolute_Data_Path (since Numors are likely to be adjacent).</li>
+<li value=3 class=rvps2 style="margin-left: 0">In the DATA subdirectory (since likely to process recent data).</li>
+<li value=4 class=rvps2 style="margin-left: 0">In the DATA-1 subdirectory (same logic as above)</li>
+<li value=5 class=rvps2 style="margin-left: 0">Working from the current year and most recent cycle and working back through cycles and year until the stopping at the first cycle of 1973, when the first data was archived.</li>
+</ol></ol>
 <p>&nbsp;&nbsp;&nbsp; </p>
-<p>Tries to find an uncompress numor first and then tries to find a compressed numor (.Z extension). If found the numor is uncompressed in the a temporary directory if defined (see subroutine inITIALIZE_DATA_DIRECTORY) or else into the current directory.</p>
+<p>Tries to find an uncompress Numor first and then tries to find a compressed Numor (.Z extension). If found the Numor is uncompressed in the a temporary directory if defined (see subroutine Initialize_Data_Directory) or else into the current directory.</p>
 <p>&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

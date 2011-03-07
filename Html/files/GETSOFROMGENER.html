@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_SO_FROM_GENER</title>
+<html><head><title>Get_SO_From_Gener</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,14 +70,16 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff0000;
 }
 span.rvts13
 {
+ font-weight: bold;
  color: #ff6600;
 }
 span.rvts14 /* Font Style */
@@ -129,137 +131,137 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps3><span class=rvts0><span class=rvts14>GET_SO_FROM_GENER</span></span></h1>
-<p><span class=rvts10>Subroutine GET_SO_FROM_GENER (ISYSTM, ISYMCE, IBRAVL, NG, SS, TS, LATSY, CO, NUM_G, SPACEGEN)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts14>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine GET_SO_FROM_GENER (ISystm, ISymCe, IBravl, NG, SS, TS, LatSy, CO, Num_G, SpaceGen)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span></p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>ISYSTM</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ISystm</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>Number of the crystalline system</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of the crystalline system</p>
 <p>1:T, 2:M, 3:O, 4:T, 5:R-Trg, 6:H, 7:C)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span></p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>ISYMCE</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ISymCe</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>0: Centric (-1 not at origin)</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>0: Centric (-1 not at origin)</p>
 <p>1: Acentric</p>
 <p>2: Centric (-1 at origin)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span></p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>IBRAVL</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>IBravl</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>1:P, 2:A, 3:B, 4:C, 5:I, 6:R, 7:F, 8:Z</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>1:P, 2:A, 3:B, 4:C, 5:I, 6:R, 7:F, 8:Z</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span></p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>NG</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NG</p>
 </td>
-<td width=40><p class=rvps2>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=470><p>Number of defined generators</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of defined generators</p>
 <p>Number of symmetry operators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:,:,:)</p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts11>, </span><span class=rvts1>Dimension</span><span class=rvts11>(:,:,:)</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>SS</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SS</p>
 </td>
-<td width=40><p class=rvps2>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=470><p>Rotation parts of the given generators&nbsp; (3,3,48)</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Rotation parts of the given generators&nbsp; (3,3,48)</p>
 <p>Rotation parts of the symmetry operators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:,:)</p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(:,:)</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>TS</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>TS</p>
 </td>
-<td width=40><p class=rvps2>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=470><p>Translation parts of the given generators&nbsp; (3,48)</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Translation parts of the given generators&nbsp; (3,48)</p>
 <p> Translation parts of the symmetry operators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=<span class=rvts12>2</span>)</p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts13>Len</span><span class=rvts11>=</span><span class=rvts12>2</span><span class=rvts11>)</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>LATSY</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>LatSy</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>Bravais Lattice symbol</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=231><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts12>3</span>)</p>
-</td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=83><p>CO</p>
-</td>
-<td width=40><p class=rvps2><br></p>
-</td>
-<td width=470><p>Coordinates of origin</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Bravais Lattice symbol</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Integer</span></p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>NUM_G</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>CO</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>Minimum number of generators</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Coordinates of origin</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=231><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=<span class=rvts12>1</span>)</p>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=96><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=83><p>SPACEGEN</p>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Num_G</p>
 </td>
-<td width=40><p class=rvps2><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=470><p>Type of Cell</p>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Minimum number of generators</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=231 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts13>Len</span><span class=rvts11>=</span><span class=rvts12>1</span><span class=rvts11>)</span></p>
+</td>
+<td width=96 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=83 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SpaceGen</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=470 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Type of Cell</p>
 </td>
 </tr>
 </table>

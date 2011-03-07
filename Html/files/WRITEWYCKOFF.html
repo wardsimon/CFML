@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>WRITE_WYCKOFF</title>
+<html><head><title>Write_Wyckoff</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,10 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff6600;
 }
 span.rvts13 /* Font Style */
@@ -121,48 +122,48 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>WRITE_WYCKOFF</span></span></h1>
-<p><span class=rvts10>Subroutine WRITE_WYCKOFF (WYCKOFF, SPG_NAME, LUN, SORTinG)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Write_Wyckoff (Wyckoff, Spg_Name, Lun, Sorting)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(WYCKOFF_TYPE)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Wyckoff_Type)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>WYCKOFF</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Wyckoff</p>
 </td>
-<td width=410><p>Wyckoff Type variable</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Wyckoff Type variable</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts11>=*)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>SPG_NAME</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spg_Name</p>
 </td>
-<td width=410><p>Space Group</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Integer, Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=93><p>LUN</p>
-</td>
-<td width=410><p>Unit to write the information</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>LOGICAL, Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>SORTinG</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Lun</p>
 </td>
-<td width=410><p>.true. for sorting list</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Unit to write the information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Logical, Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Sorting</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>.true. for sorting list</p>
 </td>
 </tr>
 </table>

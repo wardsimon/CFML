@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_BVS_Energy_Calc
@@ -7,7 +7,7 @@
 !!----         configuration properties depending on the crystal structure: BVS, Energy,....
 !!----
 !!---- HISTORY
-!!----    Update: Dic - 2007
+!!----    Update: 07/03/2011
 !!----
 !!----
 !!---- DEPENDENCIES

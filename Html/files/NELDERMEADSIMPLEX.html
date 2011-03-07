@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>NELDER_MEAD_SIMPLEX</title>
+<html><head><title>Nelder_Mead_Simplex</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -144,120 +144,120 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps5><span class=rvts0><span class=rvts15>NELDER_MEAD_SIMPLEX</span></span></h1>
-<p><span class=rvts10>Subroutine NELDER_MEAD_SIMPLEX(MODEL_FUNCT, NOP, P, STEP, VAR, FUNC, C, IPR )</span></p>
+<h1 class=rvps5><span class=rvts0><span class=rvts15>CFML_Optimization_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Nelder_Mead_Simplerx (Model_Funct, Nop, P, Step, Var, Func, C, Ipr )</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98><p><span class=rvts11><br></span></p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=104><p>MODEL_FUNCT</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><br>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>NOP</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Nop</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>The number of variables in the function to be minimized.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>The number of variables in the function to be minimized.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>P</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>P</p>
 </td>
-<td width=40><p class=rvps3>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=410><p> starting values of parameters</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p> starting values of parameters</p>
 <p>final values of parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>STEP</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Step</p>
 </td>
-<td width=40><p class=rvps3>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=410><p> initial step sizes</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p> initial step sizes</p>
 <p>final step sizes</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>VAR</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Var</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Contains the diagonal elements of the inverse of&nbsp; the information matrix</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=104><p>FUNC</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps2>The function value corresponding to the final parameter values.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Contains the diagonal elements of the inverse of&nbsp; the information matrix</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>C</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Func</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Conditions for the algorithm</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>The function value corresponding to the final parameter values.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer, Optional</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Opt_Conditions_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>IPR</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Logical unit for printing if the parameter C%Iout /= 0.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Conditions for the algorithm</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ipr</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Logical unit for printing if the parameter C%Iout /= 0.</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts12>Subroutine MODEL_FUNCTN (N, X, F, G)</span></p>
+<p><span class=rvts12>Subroutine Model_Funct (N, X, F, G)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -265,9 +265,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -275,9 +275,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>F</p>
 </td>
@@ -285,9 +285,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)<span class=rvts11>, Dimension </span>(:), <span class=rvts11>Optional</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>G</p>
 </td>
@@ -296,7 +296,7 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p>Procedure for function minimization using the SIMPLEX method.</p>
 <p><br></p>
@@ -310,13 +310,13 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%MXFUN</p>
+<td width=114><p>C%MxFun</p>
 </td>
 <td width=551><p class=rvps4>The maximum number of function evaluations allowed. Say, 20 times the number of parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%Iout</p>
+<td width=114><p>C%IOut</p>
 </td>
 <td width=551><p class=rvps4>&lt; 0 No printing</p>
 <p class=rvps4>= 0 Printing of parameter values and the function value after initial evidence of convergence</p>
@@ -324,19 +324,19 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%EPS</p>
+<td width=114><p>C%Eps</p>
 </td>
 <td width=551><p class=rvps4>Stopping criterion. The criterion is applied to the standard deviation of the values of FUNC at the points of the simplex</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%LOOPS</p>
+<td width=114><p>C%Loops</p>
 </td>
 <td width=551><p class=rvps4>The stopping rule is applied after every NLOOP function evaluations. Normally NLOOP should be slightly greater than NOP, say NLOOP = 2*NOP.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%IQUAD</p>
+<td width=114><p>C%IQuad</p>
 </td>
 <td width=551><p class=rvps4>= 1 If fitting of a quadratic surface is required</p>
 <p class=rvps4>= 0 If not</p>
@@ -345,13 +345,13 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>C%ACC</p>
+<td width=114><p>C%Acc</p>
 </td>
 <td width=551><p class=rvps4>criterion for expanding the simplex to overcome rounding errors before fitting the quadratic surface. The simplex is expanded so that the function values at the points of the simplex exceed those at the supposed minimum by at least an amount SIMP</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=114><p>IC%NFALG</p>
+<td width=114><p>IC%NFlag</p>
 </td>
 <td width=551><p class=rvps4>= 0 for successful termination</p>
 <p class=rvps4>= 1 If maximum no. of function evaluations exceeded</p>
@@ -365,7 +365,7 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts14>Other considerations:</span></p>
 <p><br></p>
-<p><span class=rvts12>P</span>, <span class=rvts12>STEP</span> and <span class=rvts12>VAR</span> (If C%Iquad = 1) must have dimension at least <span class=rvts12>NOP</span> in the calling program.</p>
+<p><span class=rvts12>P</span>, <span class=rvts12>Step</span> and <span class=rvts12>Var</span> (If C%Iquad = 1) must have dimension at least <span class=rvts12>Nop</span> in the calling program.</p>
 <p><br></p>
 <p>For details, see Nelder &amp; Mead, The Computer JournaL, January 1965. Programmed by D.E.Shaw, CSIRO, Division of Mathematics &amp; Statistics P.O. BOX 218, Lindfield, N.S.W. 2070</p>
 <p>&nbsp;&nbsp;&nbsp; </p>

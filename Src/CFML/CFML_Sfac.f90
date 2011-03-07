@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Structure_Factors
 !!----   INFO: Main module for Structure Factors Calculations
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
+!!----    Update: 06/03/2011
 !!----
 !!----
 !!---- DEPENDENCIES

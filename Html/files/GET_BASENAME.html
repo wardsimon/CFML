@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_BASENAME</title>
+<html><head><title>Get_BaseName</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -79,19 +79,16 @@ span.rvts12
 }
 span.rvts13
 {
- color: #0000ff;
-}
-span.rvts14
-{
+ font-weight: bold;
  color: #ff6600;
 }
-span.rvts15 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -130,28 +127,38 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>GET_BASENAME</span></span></h1>
-<p><span class=rvts11>Subroutine GET_BASENAME (FILenAME, BASENAME)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_String_Utilities: Subroutines</span></span></h1>
+<p><span class=rvts11>Subroutine Get_BaseName (Filename, ChSep, Basename)</span></p>
 <p><span class=rvts12><br></span></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts13>Character</span> (<span class=rvts14>Len</span>=*)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
 </td>
-<td width=110><p><span class=rvts13>Intent</span>(<span class=rvts13>in</span>)</p>
+<td width=110 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>FILenAME</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filename</p>
 </td>
-<td width=319><p>input string containing pathname</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input string containing pathname</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts13>Character</span> (<span class=rvts14>Len</span>=*)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
 </td>
-<td width=110><p><span class=rvts13>Intent</span>(<span class=rvts13>out</span>)</p>
+<td width=110 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>BASENAME</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ChSep</p>
 </td>
-<td width=319><p>The final component of the input pathname</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Normally it will be '\' or '.' or '/'</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
+</td>
+<td width=110 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Basename</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>The final component of the input Pathname</p>
 </td>
 </tr>
 </table>
@@ -159,8 +166,8 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>Subroutine returning a base name</p>
 <p><br></p>
-<p><span class=rvts10>Example:</span></p>
+<p><span class=rvts10><br></span></p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

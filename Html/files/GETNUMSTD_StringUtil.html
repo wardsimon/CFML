@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GETNUM_STD</title>
+<html><head><title>GetNum_STD</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -72,28 +72,25 @@ span.rvts11
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts12
-{
- color: #0000ff;
-}
-span.rvts13
-{
- color: #ff6600;
-}
-a.rvts14, span.rvts14
+a.rvts12, span.rvts12
 {
  font-weight: bold;
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts14:hover { color: #0000ff; }
-span.rvts15 /* Font Style */
+a.rvts12:hover { color: #0000ff; }
+span.rvts13
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -132,55 +129,54 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>GETNUM_STD</span></span></h1>
-<p><span class=rvts11>Subroutine GETNUM_STD (LinE, VALUE, STD, IC)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_String_Utilities: Subroutines</span></span></h1>
+<p><span class=rvts11>Subroutine GetNum_STD (Line, Value, STD, Ic)</span></p>
 <p><span class=rvts10><br></span></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts12>Character</span> (<span class=rvts13>Len</span>=*)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts10> (</span><span class=rvts13>Len</span><span class=rvts10>=*)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>in</span><span class=rvts10>)</span></p>
 </td>
-<td width=56><p>LinE</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Line</p>
 </td>
-<td width=319><p>input String to convert</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input String to convert</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension </span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts10>(</span><span class=rvts1>Kind</span><span class=rvts10>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts10>(:)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>out</span><span class=rvts10>)</span></p>
 </td>
-<td width=56><p>VALUE</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Value</p>
 </td>
-<td width=319><p>Vector of real numbers</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts12>Real</span>(<span class=rvts12>Kind</span>=CP)<span class=rvts12>, Dimension </span>(:)</p>
-</td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
-</td>
-<td width=56><p>STD</p>
-</td>
-<td width=319><p>Vector of standard deviation values</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector of real numbers</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts12>Integer</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts10>(</span><span class=rvts1>Kind</span><span class=rvts10>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts10>(:)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>out</span><span class=rvts10>)</span></p>
 </td>
-<td width=56><p>IC</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>STD</p>
 </td>
-<td width=319><p>Number of of components of vector Value</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector of standard deviation values</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>out</span><span class=rvts10>)</span></p>
+</td>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ic</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of of components of vector Value</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine that converts a string to numbers with standard deviation&nbsp; with format: X.FFFF(S). </p>
-<p>Control of errors is possible by inquiring the global variables <a class=rvts14 href="ERRStringUtil.html">ERR_STRinG</a> and <a class=rvts14 href="ERRMESSStringUtil.html">ERR_MESS_STRinG</a>.</p>
+<p>Subroutine that converts a string to numbers with standard deviation&nbsp; with format: X.FFFF(S). Control of errors is possible by inquiring the global variables <a class=rvts12 href="ERRStringUtil.html">Err_String</a> and <a class=rvts12 href="ERRMESSStringUtil.html">Err_Mess_String</a>.</p>
 <p><br></p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

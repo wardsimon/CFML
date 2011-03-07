@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>PURGE_DIFFRACTION_PATTERN</title>
+<html><head><title>Purge_Diffraction_Pattern</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,35 +70,32 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
- color: #ff6600;
-}
-span.rvts13
-{
  font-weight: bold;
 }
-span.rvts14
+span.rvts12
 {
  font-size: 12pt;
  font-style: italic;
  font-weight: bold;
 }
-a.rvts15, span.rvts15
+a.rvts13, span.rvts13
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts15:hover { color: #0000ff; }
-span.rvts16 /* Font Style */
+a.rvts13:hover { color: #0000ff; }
+span.rvts14
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts17 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -137,42 +134,42 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts16>PURGE_DIFFRACTION_PATTERN</span></span></h1>
-<p><span class=rvts10>Subroutine PURGE_DIFFRACTION_PATTERN(PAT, MODE)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts15>CFML_Diffraction_Patterns: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Purge_Diffraction_Pattern (Pat, Mode)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Diffraction_Pattern_Type)</span></p>
 </td>
-<td width=104><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=62><p>PAT</p>
+<td width=62 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pat</p>
 </td>
-<td width=410><p>Pattern</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pattern</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(DIFFRACTION_PATTERN_TYPE)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11> (</span><span class=rvts14>Len</span><span class=rvts11>=*)</span></p>
 </td>
-<td width=104><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=62><p>MODE</p>
+<td width=62 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mode</p>
 </td>
-<td width=410><br>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Deallocate components of the object <span class=rvts13>PAT</span>, of type <a class=rvts15 href="DIFFRACTIONPATTERNTYPE.html">DIFFRACTION_PATTERN_TYPE</a> depending on the value of the <span class=rvts13>MODE</span> string. </p>
+<p>Deallocate components of the object <span class=rvts11>Pat</span>, of type <a class=rvts13 href="DIFFRACTIONPATTERNTYPE.html">Diffraction_Pattern_Type</a> depending on the value of the <span class=rvts11>Mode</span> string. </p>
 <p><br></p>
 <p>At present the following MODE values are available:</p>
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=94><p class=rvps1><span class=rvts14>MODE</span></p>
+<td width=94><p class=rvps1><span class=rvts12>MODE</span></p>
 </td>
-<td width=243><p><span class=rvts14>Value</span></p>
+<td width=243><p><span class=rvts12>Value</span></p>
 </td>
 </tr>
 <tr valign=top>
@@ -208,5 +205,5 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

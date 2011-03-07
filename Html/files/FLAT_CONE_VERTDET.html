@@ -109,6 +109,20 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts10>FLAT_CONE_VERTDET</span></span></h1>
-<p><br></p>
+<p>!!---- Subroutine Flat_Cone_vertDet(wave,z1,ub,vrho,rho,ch,ph,ga,om,nu,ierr)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: wave</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In),&nbsp; Dimension(3)&nbsp;&nbsp;&nbsp; :: z1</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In),Dimension(3,3)&nbsp;&nbsp;&nbsp; :: ub</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In Out), Dimension(3) :: vrho</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: rho,ch,ph,ga,om,nu</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer, Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: ierr</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Calculate RHO (=PSI) about given rotation vector VRHO (and the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; corresponding angles OM, CH, PH) to put the vector Z1 into the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; flat-cone diffracting position. Calculate resulting GAMMA and NU.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp;&nbsp; V = [UB].H = [UB].[G].D where D is a real-space vector.</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [G]-1 = [B]T.[B] = [UB]T.[UB] hence V = [[UB]T]-1.D</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
 <p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

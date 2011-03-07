@@ -1,14 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Geometry_Calc
 !!----   INFO: Routines for Geometry Calculations
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
-!!----
-!!----    November - 2000 Updated by JGP and JRC
+!!----    Update: 06/03/2011
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -686,8 +684,8 @@
     End Function Matrix_Phithechi
 
     !!----
-    !!---- Function Matrix_Rx(Phi,Code) Result(M)
-    !!----    real(kind=cp),                      intent(in) :: Phi
+    !!---- Function Matrix_Rx(Ang,Code) Result(M)
+    !!----    real(kind=cp),                      intent(in) :: Ang
     !!----    character(len=*), optional,         intent(in) :: Code
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
@@ -700,9 +698,9 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Matrix_Rx(Phi,Code) Result(Mt)
+    Function Matrix_Rx(Ang,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=cp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Ang
        character(len=*), optional,  intent(in) :: Code
        real(kind=cp), dimension(3,3)           :: Mt
 
@@ -712,13 +710,13 @@
        if (present(code)) then
           select case (code(1:1))
              case("D","d") ! degrees
-                p=Phi*to_rad
+                p=Ang*to_rad
              case default ! radians
-                p=Phi
+                p=Ang
           end select
        else
           !---- radians ----!
-          p=Phi
+          p=Ang
        end if
        Mt(1,1)= 1.0        !              1  0  0
        Mt(2,1)= 0.0        !  u           0  c -s     Rx
@@ -734,8 +732,8 @@
     End Function Matrix_Rx
 
     !!----
-    !!---- Function Matrix_Ry(Phi,Code) Result(M)
-    !!----    real(kind=cp),                      intent(in) :: Phi
+    !!---- Function Matrix_Ry(Ang,Code) Result(M)
+    !!----    real(kind=cp),                      intent(in) :: Ang
     !!----    character(len=*), optional,         intent(in) :: Code
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
@@ -748,9 +746,9 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Matrix_Ry(Phi,Code) Result(Mt)
+    Function Matrix_Ry(Ang,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=cp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Ang
        character(len=*), optional,  intent(in) :: Code
        real(kind=cp), dimension(3,3)           :: Mt
 
@@ -760,13 +758,13 @@
        if (present(code)) then
           select case (code(1:1))
              case("D","d") ! degrees
-                p=Phi*to_rad
+                p=Ang*to_rad
              case default ! radians
-                p=Phi
+                p=Ang
           end select
        else
           !---- radians ----!
-          p=Phi
+          p=Ang
        end if
        Mt(1,1)= cos(p)  !             c  0  s
        Mt(2,1)= 0.0     !  u          0  1  0      Ry
@@ -782,8 +780,8 @@
     End Function Matrix_Ry
 
     !!----
-    !!---- Function Matrix_Rz(Phi,Code) Result(M)
-    !!----    real(kind=cp),                      intent(in) :: Phi
+    !!---- Function Matrix_Rz(Ang,Code) Result(M)
+    !!----    real(kind=cp),                      intent(in) :: Ang
     !!----    character(len=*), optional,         intent(in) :: Code
     !!----    real(kind=cp), dimension(3,3)                  :: M    ! Put -> Active Rotation Matrix
     !!----
@@ -796,9 +794,9 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Function Matrix_Rz(Phi,Code) Result(Mt)
+    Function Matrix_Rz(Ang,Code) Result(Mt)
        !---- Arguments ----!
-       real(kind=cp),               intent(in) :: Phi
+       real(kind=cp),               intent(in) :: Ang
        character(len=*), optional,  intent(in) :: Code
        real(kind=cp), dimension(3,3)           :: Mt
 
@@ -808,13 +806,13 @@
        if (present(code)) then
           select case (code(1:1))
              case("D","d") ! degrees
-                p=Phi*to_rad
+                p=Ang*to_rad
              case default ! radians
-                p=Phi
+                p=Ang
           end select
        else
           !---- radians ----!
-          p=Phi
+          p=Ang
        end if
        Mt(1,1)= cos(p)  !                 c  -s  0
        Mt(2,1)= sin(p)  !  u              s   c  0    Rz

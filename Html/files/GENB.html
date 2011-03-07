@@ -109,6 +109,16 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts10>GENB</span></span></h1>
-<p><br></p>
+<p>!!---- Subroutine genb(c,b)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Type(Crystal_Cell_Type), Intent(In)&nbsp;&nbsp; :: c</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(Out), Dimension(3,3)&nbsp;&nbsp;&nbsp;&nbsp; :: b</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp; Calculation of [B] matrix</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp; BUSING&amp;LEVY ACTA CRYST.(1967)22,457-464&nbsp; EQUATION 3</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp; WOOSTER R. SCI. INSTRUM. (1962)39,103</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C%cell&nbsp; : Direct cell parameters</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C%rcell : Reciprocal cell parameters</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C%ang&nbsp;&nbsp; : Direct cell angles</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C%rcell : Reciprocal cell angles</p>
 <p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

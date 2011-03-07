@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>LOCAL_MIN_DFP</title>
+<html><head><title>Local_Min_DFP</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -129,118 +129,118 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps4><span class=rvts0><span class=rvts13>LOCAL_MIN_DFP</span></span></h1>
-<p><span class=rvts10>Subroutine LOCAL_Min_DFP(MODEL_FUNCT, N, X, F, C, MinI, MAXI, IPR )</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts13>CFML_Optimization_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Local_Min_DFP(Model_Funct, N, X, F, C, Mini, Maxi, Ipr )</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=98><p><span class=rvts11><br></span></p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=104><p>MODEL_FUNCT</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><br>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>N</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>The number of variables in the function to be minimized.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>The number of variables in the function to be minimized.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>X</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X</p>
 </td>
-<td width=40><p class=rvps3>in:</p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>in:</p>
 <p class=rvps3>out:</p>
 </td>
-<td width=410><p>Must contain an initial estimate supplied by the user</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Must contain an initial estimate supplied by the user</p>
 <p>The Final Parameter Estimates As Determined By Local</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>F</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>F</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p>The value of the Function at the final parameter estimates</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(OPT_CONDITIONS_TYPE)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=104><p>C</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps2>Conditions for the algorithm</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>The value of the Function at the final parameter estimates</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Opt_Conditions_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>MinI</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Lower bounds of the parameters</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>MAXI</p>
-</td>
-<td width=40><p class=rvps3><br></p>
-</td>
-<td width=410><p class=rvps2>Upper bounds of the parameters</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Conditions for the algorithm</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Integer, Optional</span></p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=104><p>IPR</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mini</p>
 </td>
-<td width=40><p class=rvps3><br></p>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
 </td>
-<td width=410><p class=rvps2>Logical unit for printing if the parameter C%Iout /= 0.</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Lower bounds of the parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts12>(:)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Maxi</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Upper bounds of the parameters</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ipr</p>
+</td>
+<td width=40 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Logical unit for printing if the parameter C%Iout /= 0.</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts12>Subroutine MODEL_FUNCTN (N, X, F)</span></p>
+<p><span class=rvts12>Subroutine Model_Funct (N, X, F)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Integer</span></p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>N</p>
 </td>
@@ -248,9 +248,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP), <span class=rvts11>Dimension </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP), </span><span class=rvts1>Dimension </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>X</p>
 </td>
@@ -258,9 +258,9 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>F</p>
 </td>
@@ -269,11 +269,11 @@ p,ul,ol /* Paragraph Style */
 </tr>
 </table>
 </div>
-<p><span class=rvts12>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p>Provides the minimum of a function of N variables using a Quasic-Newton Method. If there is no stable minimum in the given region the algorithm may fail.</p>
 <p> </p>
-<p>The important parameters for the algorithm are stored in the C-variable on input the components C%EPS and C%MXFUN are needed (a call to inIT_OPT_CONDITIONS is enough to provide sensible values). On output the component C%ifun is updated.</p>
+<p>The important parameters for the algorithm are stored in the C-variable on input the components C%Eps and C%MxFun are needed (a call to Init_Opt_Conditions is enough to provide sensible values). On output the component C%ifun is updated.</p>
 <p><br></p>
 <p class=rvps5><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

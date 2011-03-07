@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!----
@@ -8,10 +8,7 @@
 !!----         automatic crystallographic operations.
 !!----
 !!---- HISTORY
-!!----    Update: January - 2005
-!!----
-!!----       July - 2000 Re-organised and updated by JGP and JRC.
-!!----    October - 1997 Created by JRC
+!!----    Update: 05/03/2011
 !!----
 !!--.. INFORMATION
 !!--..
@@ -167,7 +164,7 @@
     !---- List of public subroutines ----!
     public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,          &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,    &
-              Get_Primitive_Cell, Get_Two_Fold_Axes, Get_Conventional_Cell, &
+              Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,  &
               Get_Transfm_Matrix
 
 
@@ -751,7 +748,7 @@
     !!----
     !!----  This subroutine provides the "conventional" (or quasi! being still tested )
     !!----  from the supplied object "twofold" that has been obtained from a previous
-    !!----  call to Get_Two_Fold_Axes. The conventional unit cell can be deduced from
+    !!----  call to Get_TwoFold_Axes. The conventional unit cell can be deduced from
     !!----  the distribution of two-fold axes in the lattice. The cell produced in this
     !!----  procedure applies some rules for obtaining the conventional cell, for instance
     !!----  in monoclinic lattices (a single two-fold axis) the two-fold axis is along
@@ -1798,6 +1795,7 @@
     !!---- Update: January - 2011
     !!
     Subroutine Get_Transfm_Matrix(cella,cellb,trm,ok,tol)
+       !---- Arguments ----!
        type(Crystal_Cell_Type),     intent(in) :: cella,cellb
        real(kind=cp),dimension(3,3),intent(out):: trm
        Logical,                     intent(out):: ok
@@ -1812,38 +1810,39 @@
        tolt=1.0
        if(present(tol)) tolt=tol
        ok=.false.
-       dox: do i1=-2,2                   !         |i1  i4  i7|
-        do i2=-2,2                       !    Nu = |i2  i5  i8|
-         do i3=-2,2                      !         |i3  i6  i9|
-          do i4=-2,2
-           do i5=-2,2
-            do i6=-2,2
-             do i7=-2,2
-              do i8=-2,2
-               do i9=-2,2
-                j=i1*i5*i9+i4*i8*i3+i2*i6*i7-i3*i5*i7-i8*i6*i1-i2*i4*i9     !determinant (much faster than calling determ_A)
-                if ( j /= 1) cycle
-                Nu=reshape((/i1,i2,i3,i4,i5,i6,i7,i8,i9/),(/3,3/))
-                Trm=real(Nu)
-                call Change_Setting_Cell(Cella,Trm,Cellt)
-                if(Sum(abs(Cellt%cell(:)-Cellb%cell(:)))+Sum(abs(Cellt%ang(:)-Cellb%ang(:))) < 0.3  ) then
-                  ok=.true.
-                  exit dox
-                end if
-               end do    !i9
-              end do     !i8
-             end do      !i7
-            end do       !i6
-           end do        !i5
-          end do         !i4
-         end do          !i3
-        end do           !i2
+       dox: do i1=-2,2                     !         |i1  i4  i7|
+          do i2=-2,2                       !    Nu = |i2  i5  i8|
+             do i3=-2,2                    !         |i3  i6  i9|
+                do i4=-2,2
+                   do i5=-2,2
+                      do i6=-2,2
+                         do i7=-2,2
+                            do i8=-2,2
+                               do i9=-2,2
+                                  j=i1*i5*i9+i4*i8*i3+i2*i6*i7-i3*i5*i7-i8*i6*i1-i2*i4*i9     !determinant (much faster than calling determ_A)
+                                  if ( j /= 1) cycle
+                                  Nu=reshape((/i1,i2,i3,i4,i5,i6,i7,i8,i9/),(/3,3/))
+                                  Trm=real(Nu)
+                                  call Change_Setting_Cell(Cella,Trm,Cellt)
+                                  if (Sum(abs(Cellt%cell(:)-Cellb%cell(:)))+Sum(abs(Cellt%ang(:)-Cellb%ang(:))) < 0.3  ) then
+                                     ok=.true.
+                                     exit dox
+                                  end if
+                               end do    !i9
+                            end do     !i8
+                         end do      !i7
+                      end do       !i6
+                   end do        !i5
+                end do         !i4
+             end do          !i3
+          end do           !i2
        end do  dox       !i1
+
        return
     End Subroutine Get_Transfm_Matrix
 
     !!----
-    !!---- Subroutine Get_Two_Fold_Axes(Celln,Tol,Twofold)
+    !!---- Subroutine Get_TwoFold_Axes(Celln,Tol,Twofold)
     !!----    type(Crystal_Cell_Type), intent (in) :: Celln
     !!----    real(kind=cp),           intent (in) :: tol !angular tolerance in degrees
     !!----    Type(Twofold_Axes_Type), intent(out) :: twofold
@@ -1860,7 +1859,7 @@
     !!----
     !!---- Update: November - 2008
     !!
-    Subroutine Get_Two_Fold_Axes(Celln,Tol,Twofold)
+    Subroutine Get_TwoFold_Axes(Celln,Tol,Twofold)
        !---- Arguments ----!
        type(Crystal_Cell_Type), intent (in) :: Celln
        real(kind=cp),           intent (in) :: Tol !angular tolerance in degrees
@@ -1941,7 +1940,7 @@
        twofold%tol=tol
 
        return
-    End Subroutine Get_Two_Fold_Axes
+    End Subroutine Get_TwoFold_Axes
 
     !!----
     !!---- SUBROUTINE INIT_ERR_CRYS()

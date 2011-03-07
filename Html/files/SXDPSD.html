@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>SXDPSD</title>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+body {
+  margin: 5px 5px 5px 5px;
+  background-color: #ffffff;
+}
+/* ========== Text Styles ========== */
+hr { color: #000000}
+body, table, span.rvts0 /* Font Style */
+{
+ font-size: 10pt;
+ font-family: 'Arial', 'Helvetica', sans-serif;
+ font-style: normal;
+ font-weight: normal;
+ color: #000000;
+ text-decoration: none;
+}
+span.rvts1 /* Heading */
+{
+ font-weight: bold;
+ color: #0000ff;
+}
+span.rvts2 /* Subheading */
+{
+ font-weight: bold;
+ color: #000080;
+}
+span.rvts3 /* Keywords */
+{
+ font-style: italic;
+ color: #800000;
+}
+a.rvts4, span.rvts4 /* Jump 1 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+a.rvts5, span.rvts5 /* Jump 2 */
+{
+ color: #008000;
+ text-decoration: underline;
+}
+span.rvts6 /* Font Hint */
+{
+ color: #a0a0a0;
+}
+span.rvts7 /* Font Hint Title */
+{
+ font-size: 15pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ font-weight: bold;
+ color: #696969;
+}
+span.rvts8 /* Font Hint Bold */
+{
+ font-weight: bold;
+ color: #a0a0a0;
+}
+span.rvts9 /* Font Hint Italic */
+{
+ font-style: italic;
+ color: #a0a0a0;
+}
+span.rvts10 /* Font Style */
+{
+ font-size: 16pt;
+ font-family: 'Tahoma', 'Geneva', sans-serif;
+ color: #ffffff;
+}
+span.rvts11 /* Font Style */
+{
+ font-family: 'MS Sans Serif', 'Geneva', sans-serif;
+ color: #808080;
+}
+/* ========== Para Styles ========== */
+p,ul,ol /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ padding: 0px 0px 0px 0px;
+ margin: 0px 0px 0px 0px;
+}
+.rvps1 /* Centered */
+{
+ text-align: center;
+}
+.rvps2 /* Paragraph Style */
+{
+ text-align: left;
+ text-indent: 0px;
+ background: #0000ff;
+ padding: 5px 5px 2px 5px;
+ margin: -5px -5px 18px -5px;
+}
+.rvps3 /* Paragraph Style */
+{
+ text-align: center;
+ background: #e4e4e4;
+ margin: 20px 0px 0px 0px;
+}
+--></style>
+<link rel="StyleSheet" href="hnd.css" type="text/css"/>
+<script type="text/javascript">if(top.frames.length == 0) { sTopic = top.location.href.substring(top.location.href.lastIndexOf("/") + 1, top.location.href.length); top.location.href="../crysfml.htm?" + sTopic; }</script>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="hnd.js"></script>
+<meta name="generator" content="HelpNDoc Professional Edition"></head>
+<body>
+<h1 class=rvps2><span class=rvts0><span class=rvts10>SXDPSD</span></span></h1>
+<p>!!---- Subroutine sxdpsd(mpsd,gamm,wave,nup,gamp,xobs,zobs, xcel,time,zcel,ierr)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer, Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: mpsd</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp; Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: gamm</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp; Intent(In Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: wave,nup,gamp</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp; Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: xobs,zobs, xcel,time,zcel</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer, Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: ierr</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp;&nbsp; Original comments:</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; SPECIFICALLY FOR SXD ON SNS AT RAL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R.F.D STANSFIELD DEC-84</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The coordinate system adopted, whether the origin is at the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; moderator, at the sample (called the fixed laboratory system),</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; or at the surface of the PSD when positioned at 0 degrees;</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; is Y parallel to the beam, X in the horizontal plane on the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; diffraction side, and Z vertical. Hence if neutrons are diffracted</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; to the left, Z is vertically down.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The PSD is driven to an angle GamM. When GamM=0, the direct</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; beam strikes a perfectly aligned PSD at its centre C.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Call this point in space A. A is where we define NuP=0, GamP=0.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The coordinates of A with respect to the sample are (0, Distsd, 0);</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; and with respect to the moderator are (0, Distms+Distsd, 0).</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; For a mis-aligned detector, the coordinates of A with respect to</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; C are the translational offsets (Xoff, Yoff, Zoff) in mm.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; With the PSD at a general position GamM, the point where the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; direct beam struck it is rotated to O, where now NuP=0, GamP=GamM.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; For convenience, define a new cartesian system by rotating the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; axes of the fixed laboratory system about the vertical, such that</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; X is now along the line joining the sample and O on the PSD.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; In this system, the coordinates of a Bragg peak P with respect to</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; C are (Xobs, 0, Zobs) in mm, or (Xcel, 0, Zcel) in pixels.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Hence the coordinates of P with respect to O, in this system, are:</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp; (x)&nbsp;&nbsp;&nbsp;&nbsp; (Xobs&nbsp;&nbsp; + Xoff)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp; (y)&nbsp; =&nbsp; (Distsd + Yoff)&nbsp; and: Tan(GamP - GamM) = x/y</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp; (z)&nbsp;&nbsp;&nbsp;&nbsp; (Zobs&nbsp;&nbsp; + Zoff)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tan(NuP)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = z/SQRT(x*x + y*y)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The PSD front surface measures Dimx by Dimy mm, and is divided</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; into Nxcel by Nzcel pixels.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -------------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; At GamM=0 the direct</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PSD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; beam hits the detector</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp; front surface&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at A (NuP=0, GamP=0)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Gamma________I_______________.O______I_________________________.A</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Zoff&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; X________I___________.C&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Zobs&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ________I____.P&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -----!------!---!--------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ! Xobs !Xoff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !&nbsp;&nbsp; !&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Z&nbsp; Nu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GamM=0</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Time is the time coordinate (bin) relative to an elapsed time</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Toff after the emission of a pulse at the moderator.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The effect of moderator thickness on Time is NOT included yet.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Distot is the total distance travelled from the moderator to a</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; particular pixel on the PSD surface, in a total time Timtot.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Wave = Velcon * Timtot / Distot, where Velcon is the velocity of a</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; 1 Angstrom neutron in Km/s or mm/mms.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; MPSD +VE -&gt; Find Wave, NuP, GamP; given GamM, Xcel, Zcel and Time</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; MPSD -VE -&gt; Find Xcel, Zcel, Time; given Wave, NuP, GamP and GamM</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; (Routine not tested, probably obsolete for present SXD!!!)</p>
+<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+</body></html>

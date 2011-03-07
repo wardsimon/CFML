@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_CRYSTAL_SYSTEM</title>
+<html><head><title>Get_Crystal_System</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -68,29 +68,31 @@ span.rvts10
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts11
-{
- color: #0000ff;
-}
-span.rvts12
-{
- color: #ff0000;
-}
-span.rvts13
-{
- color: #ff6600;
-}
-a.rvts14, span.rvts14
+a.rvts11, span.rvts11
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts14:hover { color: #0000ff; }
-span.rvts15
+a.rvts11:hover { color: #0000ff; }
+span.rvts12
 {
  font-size: 12pt;
  font-style: italic;
  font-weight: bold;
+}
+span.rvts13
+{
+ font-weight: bold;
+}
+span.rvts14
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts15
+{
+ font-weight: bold;
+ color: #ff6600;
 }
 span.rvts16 /* Font Style */
 {
@@ -137,96 +139,96 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts16>GET_CRYSTAL_SYSTEM</span></span></h1>
-<p><span class=rvts10>Subroutine GET_CRYSTAL_SYSTEM (NG, SS, ISYSTM, CRYS)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts16>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Get_Crystal_System (NG, Ss, ISystm, Crys)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>NG</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NG</p>
 </td>
-<td width=410><p>Number of Operators (not related by inversion and lattice translations)</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Operators (not related by inversion and lattice translations)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:,:,:)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts13>, </span><span class=rvts1>Dimension</span><span class=rvts13>(:,:,:)</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>SS</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ss</p>
 </td>
-<td width=410><p>Rotation Part&nbsp;&nbsp; (3,3,48)</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=79><p>ISYSTM</p>
-</td>
-<td width=410><p>Number for Crystal System according to <a class=rvts14 href="SYSCRY.html">SYS_CRY</a></p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Rotation Part&nbsp;&nbsp; (3,3,48)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=<span class=rvts12>1</span>)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>out</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>CRYS</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ISystm</p>
 </td>
-<td width=410><p>Symbol of Crystal family</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number for Crystal System according to <a class=rvts11 href="SYSCRY.html">Sys_Cry</a></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts13>(</span><span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>1</span><span class=rvts13>)</span></p>
+</td>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>out</span><span class=rvts13>)</span></p>
+</td>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Crys</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Symbol of Crystal family</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><span class=rvts15>or</span></p>
+<p><span class=rvts12>or</span></p>
 <p><br></p>
-<p><span class=rvts10>Subroutine GET_CRYSTAL_SYSTEM (NG, GEN, ISYSTM, CRYS)</span></p>
+<p><span class=rvts10>Subroutine Get_Crystal_System (NG, Gen, ISsystm, Crys)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>NG</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NG</p>
 </td>
-<td width=410><p>Number of Operators (not related by inversion and lattice translations)</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of Operators (not related by inversion and lattice translations)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*), <span class=rvts11>Dimension</span>(:)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts13>(</span><span class=rvts15>Len</span><span class=rvts13>=*), </span><span class=rvts1>Dimension</span><span class=rvts13>(:)</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>GEN</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Gen</p>
 </td>
-<td width=410><p>Jones Faithful form of symmetry operators</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=79><p>ISYSTM</p>
-</td>
-<td width=410><p>Number for Crystal System according to <a class=rvts14 href="SYSCRY.html">SYS_CRY</a></p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Jones Faithful form of symmetry operators</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=<span class=rvts12>1</span>)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>out</span><span class=rvts13>)</span></p>
 </td>
-<td width=79><p>CRYS</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ISystm</p>
 </td>
-<td width=410><p>Symbol of Crystal family</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number for Crystal System according to <a class=rvts11 href="SYSCRY.html">SYS_CRY</a></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts13>(</span><span class=rvts15>Len</span><span class=rvts13>=</span><span class=rvts14>1</span><span class=rvts13>)</span></p>
+</td>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>out</span><span class=rvts13>)</span></p>
+</td>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Crys</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Symbol of Crystal family</p>
 </td>
 </tr>
 </table>

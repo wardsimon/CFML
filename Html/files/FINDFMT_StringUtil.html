@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>FINDFMT</title>
+<html><head><title>FindFMT</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -78,28 +78,25 @@ span.rvts12
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts13
-{
- color: #0000ff;
-}
-span.rvts14
-{
- color: #ff6600;
-}
-a.rvts15, span.rvts15
+a.rvts13, span.rvts13
 {
  font-weight: bold;
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts15:hover { color: #0000ff; }
-span.rvts16 /* Font Style */
+a.rvts13:hover { color: #0000ff; }
+span.rvts14
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts17 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -142,70 +139,70 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps3><span class=rvts0><span class=rvts16>FINDFMT</span></span></h1>
-<p><span class=rvts12>Subroutine FinDFMT (LUN, ALinE, FMTFIELDS, FMTSTRinG, IDEBUG)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts15>CFML_String_Utilities: Subroutines</span></span></h1>
+<p><span class=rvts12>Subroutine FindFMT (Lun, ALine, FMTFields, FMTString, Idebug)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts13>Integer</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=94><p><span class=rvts13>Intent</span>(<span class=rvts13>in</span>)</p>
+<td width=94 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>in</span><span class=rvts10>)</span></p>
 </td>
-<td width=73><p>LUN</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Lun</p>
 </td>
-<td width=32><p class=rvps2><br></p>
+<td width=32 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=410><p>Logical unit number</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Logical unit number</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts13>Character</span> (<span class=rvts14>Len</span>=*)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts10> (</span><span class=rvts14>Len</span><span class=rvts10>=*)</span></p>
 </td>
-<td width=94><p><span class=rvts13>Intent</span>(<span class=rvts13>in out</span>)</p>
+<td width=94 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>in out</span><span class=rvts10>)</span></p>
 </td>
-<td width=73><p>ALinE</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ALine</p>
 </td>
-<td width=32><p class=rvps2>in:</p>
+<td width=32 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=410><p>String to be decoded</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>String to be decoded</p>
 <p>input string without the first word</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts13>Character</span> (<span class=rvts14>Len</span>=*)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts10> (</span><span class=rvts14>Len</span><span class=rvts10>=*)</span></p>
 </td>
-<td width=94><p><span class=rvts13>Intent</span>(<span class=rvts13>in</span>)</p>
+<td width=94 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>in</span><span class=rvts10>)</span></p>
 </td>
-<td width=73><p>FMTFIELDS</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FMTFields</p>
 </td>
-<td width=32><p class=rvps2><br></p>
+<td width=32 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=410><p>Description of the format fields (e.g. IIFIF)</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts13>Character</span> (<span class=rvts14>Len</span>=*)</p>
-</td>
-<td width=94><p><span class=rvts13>Intent</span>(<span class=rvts13>out</span>)</p>
-</td>
-<td width=73><p>FMTSTRinG</p>
-</td>
-<td width=32><p class=rvps2><br></p>
-</td>
-<td width=410><p>format of the line (e.g. (I5,I1,F8.0,I4,F7.0,) )</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Description of the format fields (e.g. IIFIF)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts13>Integer, Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts10> (</span><span class=rvts14>Len</span><span class=rvts10>=*)</span></p>
 </td>
-<td width=94><p><span class=rvts13>Intent</span>(<span class=rvts13>in</span>)</p>
+<td width=94 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>out</span><span class=rvts10>)</span></p>
 </td>
-<td width=73><p>IDEBUG</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FMTString</p>
 </td>
-<td width=32><p class=rvps2><br></p>
+<td width=32 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=410><p>Logical unit number for writing the input file. If Zero then no writing is performed</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>format of the line (e.g. (I5,I1,F8.0,I4,F7.0,) )</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=94 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts10>(</span><span class=rvts1>in</span><span class=rvts10>)</span></p>
+</td>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Idebug</p>
+</td>
+<td width=32 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Logical unit number for writing the input file. If Zero then no writing is performed</p>
 </td>
 </tr>
 </table>
@@ -215,11 +212,11 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p><span class=rvts10>READ</span> (<span class=rvts11>unit</span>=String1, <span class=rvts11>fmt</span>='(a,i,2f,..)')&nbsp; AString, I1, R1, R2,...</p>
 <p><br></p>
-<p>but with additional error checking. Thus, given a description of the expected fields <span class=rvts10>FinDFMT</span> returns the format of the line to be decoded. </p>
+<p>but with additional error checking. Thus, given a description of the expected fields <span class=rvts10>FindFMT</span> returns the format of the line to be decoded. </p>
 <p><br></p>
 <p>Valid field descriptors are:<span class=rvts10> I</span> (Integer), <span class=rvts10>A</span> (free A format), 1 to 5 for A1 to A5</p>
 <p><br></p>
-<p><span class=rvts10>NOTE</span>: This routine have an associated an error code <a class=rvts15 href="IERRFMT_StringUtil.html">IERR_FMT</a>.&nbsp; If ocurrs an error then also an error message is generated and written to the public variable <a class=rvts15 href="MESSFINDFMT_StringUtil.html">MESS_FinDFMT</a></p>
+<p><span class=rvts10>NOTE</span>: This routine have an associated an error code <a class=rvts13 href="IERRFMT_StringUtil.html">Ierr_FMT</a>.&nbsp; If ocurrs an error then also an error message is generated and written to the public variable <a class=rvts13 href="MESSFINDFMT_StringUtil.html">Mess_FindFMT</a></p>
 <p><br></p>
-<p class=rvps4><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

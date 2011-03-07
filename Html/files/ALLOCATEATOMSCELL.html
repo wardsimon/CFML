@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>ALLOCATE_ATOMS_CELL</title>
+<html><head><title>Allocate_Atoms_Cell</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,19 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-size: 7pt;
  vertical-align: super;
 }
-a.rvts13, span.rvts13
+a.rvts12, span.rvts12
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts13:hover { color: #0000ff; }
+a.rvts12:hover { color: #0000ff; }
+span.rvts13
+{
+ font-weight: bold;
+}
 span.rvts14 /* Font Style */
 {
  font-size: 16pt;
@@ -128,62 +128,62 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>ALLOCATE_ATOMS_CELL</span></span></h1>
-<p><span class=rvts10>Subroutine ALLOCATE_ATOMS_CELL (NASU, MUL, DMAX, AC)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Atom_TypeDef: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Allocate_Atoms_Cell (NAsu, Mul, DMax, Ac)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=98><p>NASU</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NAsu</p>
 </td>
-<td width=369><p>Number of atoms in asymmetric unit</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of atoms in asymmetric unit</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=98><p>MUL</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mul</p>
 </td>
-<td width=369><p>General multiplicity of the Space Group</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=98><p>DMAX</p>
-</td>
-<td width=369><p>Maximun distance to be calculated</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>General multiplicity of the Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(ATOMS_CELL_TYPE)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=98><p>AC</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>DMax</p>
 </td>
-<td width=369><p>Object</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Maximun distance to be calculated</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts13>(Atoms_Cell_Type)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in out</span><span class=rvts13>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ac</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Object</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Allocation of objet AC of type <a class=rvts13 href="ATOMSCELLTYPE.html">ATOMS_CELL_TYPE</a>. </p>
+<p>Allocation of objet AC of type <a class=rvts12 href="ATOMSCELLTYPE.html">Atoms_Cell_Type</a>. </p>
 <p><br></p>
-<p>AC contains components with ALLOCATABLE attribute with dimension depending on the input arguments NASU, MUL and DMAX. The variables used for calculating the dimensions are:</p>
+<p>Ac contains components with allocatable attribute with dimension depending on the input arguments NAsu, Mul and DMax. The variables used for calculating the dimensions are:</p>
 <p><br></p>
 <p>NATCEL = NASU * MUL</p>
 <p><br></p>
-<p>IDP=NinT( 0.74048 * (DMAX/1.1)<span class=rvts12>3</span> )</p>
+<p>IDP=NinT( 0.74048 * (DMAX/1.1)<span class=rvts11>3</span> )</p>
 <p><br></p>
-<p>Note: This subroutine should be called before using the subroutines of this module with dummy arguments of type ATOMS_CELL_TYPE.</p>
+<p>Note: This subroutine should be called before using the subroutines of this module with dummy arguments of type <a class=rvts12 href="ATOMSCELLTYPE.html">Atoms_Cell_Type</a>.</p>
 <p>&nbsp;&nbsp; </p>
 <p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

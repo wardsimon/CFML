@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>TOF_JORGENSEN</title>
+<html><head><title>TOF_Jorgensen</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,12 +70,12 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-size: 7pt;
+ vertical-align: super;
 }
 span.rvts12
 {
- font-size: 7pt;
- vertical-align: super;
+ font-weight: bold;
 }
 span.rvts13 /* Font Style */
 {
@@ -122,68 +122,68 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>TOF_JORGENSEN</span></span></h1>
-<p><span class=rvts10>Subroutine TOF_JORGENSEN(DT, ALFA, BETA, SIGMA, TOF_PEAK, DERIV)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_PowderProfiles_TOF: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine TOF_Jorgensen (Dt, Alfa, Beta, Sigma, TOF_Peak, Deriv)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Read</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>DT</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Dt</p>
 </td>
-<td width=373><p>TOF(channel i) -TOF(Bragg position)</p>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>TOF(channel i) -TOF(Bragg position)</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Read</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>ALFA</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Alfa</p>
 </td>
-<td width=373><p>units microsecs<span class=rvts12>-1</span></p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=78><p>BETA</p>
-</td>
-<td width=373><p>units microsecs<span class=rvts12>-1</span></p>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>units microsecs<span class=rvts11>-1</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Read</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>SIGMA</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Beta</p>
 </td>
-<td width=373><p>units microsecs<span class=rvts12>2</span></p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>READ</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=78><p>TOF_PEAK</p>
-</td>
-<td width=373><br>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>units microsecs<span class=rvts11>-1</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(DERIV_TOF_TYPE),<span class=rvts11> Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Read</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
 </td>
-<td width=101><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=78><p>DERIV</p>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Sigma</p>
 </td>
-<td width=373><p>present if derivatives are to be calculated</p>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>units microsecs<span class=rvts11>2</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Read</span><span class=rvts12>(</span><span class=rvts1>Kind</span><span class=rvts12>=CP)</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>TOF_Peak</p>
+</td>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Deriv_TOF_Type),</span><span class=rvts1> Optional</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=78 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Deriv</p>
+</td>
+<td width=373 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>present if derivatives are to be calculated</p>
 </td>
 </tr>
 </table>

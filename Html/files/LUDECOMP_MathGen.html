@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>LU_DECOMP</title>
+<html><head><title>LU_Decomp</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -125,65 +121,65 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps3><span class=rvts0><span class=rvts13>CFML_Math_General: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine LU_DECOMP (A, D, SinGULAR, inDX)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts12>CFML_Math_General: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine LU_Decomp (A, D, Singular, Indx)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=278><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(:,:)</p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(:,:)</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>A</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=50><p class=rvps2>in:</p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=396><p>input Array</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input Array</p>
 <p>Matrix U in its upper triangular part (plus diagonal) and in the lower triangular part contains the nontrivial part of matrix L.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=278><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>D</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>D</p>
 </td>
-<td width=50><p class=rvps2><br></p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=396><p>D is output as +/-1 depending on whether&nbsp; the number of row interchanges was even or odd, respectively</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=278><p><span class=rvts11>LOGICAL</span></p>
-</td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=65><p>SinGULAR</p>
-</td>
-<td width=50><p class=rvps2><br></p>
-</td>
-<td width=396><p><span class=rvts12>.TRUE.</span> if A is singular</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>D is output as +/-1 depending on whether&nbsp; the number of row interchanges was even or odd, respectively</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=278><p><span class=rvts11>Integer, Dimension </span>(:), <span class=rvts11>Optional</span></p>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Logical</span></p>
 </td>
-<td width=107><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=65><p>inDX</p>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Singular</p>
 </td>
-<td width=50><p class=rvps2><br></p>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=396><p>Permutation vector</p>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11>.TRUE.</span> if A is singular</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=278 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Dimension </span><span class=rvts11>(:), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=107 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=65 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Indx</p>
+</td>
+<td width=50 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=396 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Permutation vector</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine to make the LU decomposition of an input matrix <span class=rvts12>A</span>.</p>
+<p>Subroutine to make the LU decomposition of an input matrix <span class=rvts11>A</span>.</p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p><br></p>
-<p class=rvps4><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CALC_FWHM_PEAK</title>
+<html><head><title>Calc_FWHM_Peak</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,16 +70,16 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-style: italic;
 }
 span.rvts12
 {
- font-style: italic;
+ font-size: 7pt;
+ vertical-align: sub;
 }
 span.rvts13
 {
- font-size: 7pt;
- vertical-align: sub;
+ font-weight: bold;
 }
 span.rvts14 /* Font Style */
 {
@@ -126,64 +126,64 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>CALC_FWHM_PEAK</span></span></h1>
-<p><span class=rvts10>Real Function CALC_FWHM_PEAK(PAT, XI, YI, YBI, RLIM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Diffraction_Patterns: Functions</span></span></h1>
+<p><span class=rvts10>Real Function Calc_FWHM_Peak (Pat, Xi, Yi, Ybi, RLim)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(DIFFRACTION_PATTERN_TYPE)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts13>(Diffraction_Pattern_Type)</span></p>
 </td>
-<td width=92><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=92 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=82><p>PAT</p>
+<td width=82 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pat</p>
 </td>
-<td width=410><p>Pattern profile</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pattern profile</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP)</span></p>
 </td>
-<td width=92><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=92 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=82><p>XI</p>
+<td width=82 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Xi</p>
 </td>
-<td width=410><p>X value on point i</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
-</td>
-<td width=92><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=82><p>YI</p>
-</td>
-<td width=410><p>Y value on point i</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X value on point i</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP)</span></p>
 </td>
-<td width=92><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=92 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=82><p>YBI</p>
+<td width=82 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Yi</p>
 </td>
-<td width=410><p>Y balue for Background on point i</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Y value on point i</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP)</span></p>
 </td>
-<td width=92><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=92 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
 </td>
-<td width=82><p>RLIM</p>
+<td width=82 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ybi</p>
 </td>
-<td width=410><p>Limit range in X units to search the point</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Y balue for Background on point i</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts13>(</span><span class=rvts1>Kind</span><span class=rvts13>=CP), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=92 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
+</td>
+<td width=82 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Rlim</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Limit range in X units to search the point</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Function that calculate the FWHM of a peak situated on (<span class=rvts12>xi,yi</span>). Then the routine search the Y<span class=rvts13>m</span> value in the range (xi-rlim, xi+rlim) to obtain the FWHM. </p>
+<p>Function that calculate the FWHM of a peak situated on (<span class=rvts11>xi,yi</span>). Then the routine search the Y<span class=rvts12>m</span> value in the range (xi-rlim, xi+rlim) to obtain the FWHM. </p>
 <p>The function return a negative values if an error is ocurred during calculation.</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>

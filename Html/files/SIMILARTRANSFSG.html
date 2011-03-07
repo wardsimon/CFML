@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SIMILAR_TRANSF_SG</title>
+<html><head><title>Similar_Transf_SG</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,27 +70,25 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
- color: #ff6600;
+ font-weight: bold;
+ color: #ff0000;
 }
 span.rvts13
 {
- color: #ff0000;
-}
-span.rvts14
-{
  font-weight: bold;
+ color: #ff6600;
 }
-span.rvts15 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -129,82 +127,82 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>SIMILAR_TRANSF_SG</span></span></h1>
-<p><span class=rvts10>Subroutine SIMILAR_TRANSF_SG (MAT, ORIG, SPG, SPGN, MATKind, FIX_LAT)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Similar_Transf_SG (Mat, Orig, Spg, SpgN, MatKind, Fix_Lat)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285 height=15><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts13>3,3</span>)</p>
+<td width=285 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3,3</span><span class=rvts11>)</span></p>
 </td>
-<td width=99 height=15><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93 height=15><p>MAT</p>
+<td width=93 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mat</p>
 </td>
-<td width=410 height=15><p>Matrix transforming the basis</p>
+<td width=410 height=15 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Matrix transforming the basis</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts13>3</span>)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>ORIG</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Orig</p>
 </td>
-<td width=410><p>Coordinates of the new origin</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=93><p>SPG</p>
-</td>
-<td width=410><p>Space Group</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Coordinates of the new origin</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Space_Group_Type)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>SPGN</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spg</p>
 </td>
-<td width=410><p>Maximum subgroup of SPG</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
-</td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=93><p>MATKind</p>
-</td>
-<td width=410><p>Type of the input matrix</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Space_Group_Type)</span></p>
 </td>
-<td width=99><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=93><p>FIX_LAT</p>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SpgN</p>
 </td>
-<td width=410><p>Fixing Lattice type</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Maximum subgroup of SPG</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts13>Len</span><span class=rvts11>=*), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>MatKind</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Type of the input matrix</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts13>Len</span><span class=rvts11>=*), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=99 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=93 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Fix_Lat</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Fixing Lattice type</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine to construct a space group <span class=rvts14>SPGN</span> that is a maximal subgroup of the input space group <span class=rvts14>SPG</span> compatible with the transformation of the basis corresponding to the matrix <span class=rvts14>MAT</span> and the new origin <span class=rvts14>ORIG</span>.</p>
+<p>Subroutine to construct a space group <span class=rvts11>SPGN</span> that is a maximal subgroup of the input space group <span class=rvts11>SPG</span> compatible with the transformation of the basis corresponding to the matrix <span class=rvts11>MAT</span> and the new origin <span class=rvts11>ORIG</span>.</p>
 <p><br></p>
-<p>The transformed <span class=rvts14>SPGN</span> will have (if it is the case) conventional centring vectors.</p>
+<p>The transformed <span class=rvts11>SPGN</span> will have (if it is the case) conventional centring vectors.</p>
 <p><br></p>
-<p>If <span class=rvts14>MATKind</span> is given and matkind="it"/"IT", the input matrix is given as in international Tables:</p>
+<p>If <span class=rvts11>MATKind</span> is given and matkind="it"/"IT", the input matrix is given as in international Tables:</p>
 <p><br></p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (a' b' c') = (a b c) Mat</p>
 <p><br></p>
-<p>If <span class=rvts14>MATKind</span> is not given or if it is not equal to "it"/"IT" the input matrix is the transpose of the international convention (column matrices for basis vectors).</p>
+<p>If <span class=rvts11>MATKind</span> is not given or if it is not equal to "it"/"IT" the input matrix is the transpose of the international convention (column matrices for basis vectors).</p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p>The new space group is obtained using the properties of conventional Bravais lattices and symmetry operators. Only the symmetry operators of the conventional form are retained to construct the new space group. </p>
 <p><br></p>
@@ -212,7 +210,7 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>The coordinates of the origin is always given with respect to the (a b c) basis.</p>
 <p><br></p>
-<p>If <span class=rvts14>FIX_LAT</span> is given a conventional lattice centring, this is fixed irrespective of the centring obtained by applying the similarity transformation. For instance is <span class=rvts14>FIX_LAT</span>="P" and the transformation implies new centring vectors or the input group is centred, the generators with fraccional translations are removed from the group. If <span class=rvts14>FIX_LAT</span>="A" (or whatever) the program will add the corresponding generators irrespective that the generator is in the original/transformed group.</p>
+<p>If <span class=rvts11>FIX_LAT</span> is given a conventional lattice centring, this is fixed irrespective of the centring obtained by applying the similarity transformation. For instance is <span class=rvts11>FIX_LAT</span>="P" and the transformation implies new centring vectors or the input group is centred, the generators with fraccional translations are removed from the group. If <span class=rvts11>FIX_LAT</span>="A" (or whatever) the program will add the corresponding generators irrespective that the generator is in the original/transformed group.</p>
 <p>&nbsp; </p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_SEPARATOR_POS</title>
+<html><head><title>Get_Separator_Pos</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -74,36 +74,34 @@ span.rvts11
 }
 span.rvts12
 {
- color: #0000ff;
+ font-style: italic;
 }
 span.rvts13
 {
- color: #ff6600;
-}
-span.rvts14
-{
- color: #ff0000;
-}
-span.rvts15
-{
- font-style: italic;
-}
-span.rvts16
-{
  font-family: 'Courier New', 'Courier', monospace;
 }
-span.rvts17
+span.rvts14
 {
  font-style: italic;
  font-weight: bold;
 }
-span.rvts18 /* Font Style */
+span.rvts15
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts16
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts17 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts19 /* Font Style */
+span.rvts18 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -142,69 +140,67 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts18>GET_SEPARATOR_POS</span></span></h1>
-<p><span class=rvts10>Subroutine GET_SEPARATOR_POS (LinE, CAR, POS, NCAR)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts17>CFML_String_Utilities: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Get_Separator_Pos (Line, Car, Pos, Ncar)</span></p>
 <p><span class=rvts11><br></span></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts12>Character</span> (<span class=rvts13>Len</span>=*)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11> (</span><span class=rvts15>Len</span><span class=rvts11>=*)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>LinE</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Line</p>
 </td>
-<td width=319><p>input String</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input String</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts12>Character</span> (<span class=rvts13>Len</span>=<span class=rvts14>1</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11> (</span><span class=rvts15>Len</span><span class=rvts11>=</span><span class=rvts16>1</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>in</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>CAR</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Car</p>
 </td>
-<td width=319><p>Separator character</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts12>Integer</span>,<span class=rvts12> Dimension</span>(:)</p>
-</td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
-</td>
-<td width=56><p>POS</p>
-</td>
-<td width=319><p>Vector with positions of <span class=rvts15>CAR</span> in <span class=rvts15>LinE</span></p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Separator character</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts12>Integer</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts11>,</span><span class=rvts1> Dimension</span><span class=rvts11>(:)</span></p>
 </td>
-<td width=101><p><span class=rvts12>Intent</span>(<span class=rvts12>out</span>)</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=56><p>NCAR</p>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pos</p>
 </td>
-<td width=319><p>Number of appearance of <span class=rvts15>CAR</span> in <span class=rvts15>LinE</span></p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector with positions of <span class=rvts12>Car</span> in <span class=rvts12>Line</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=56 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ncar</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of appearance of <span class=rvts12>Car</span> in <span class=rvts12>Line</span></p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Determines the positions of the separator character CAR in string LinE and generates the vector POS containing the positions. </p>
-<p>The number of times the character CAR appears in LinE is stored in NCAR. The separator CAR is not counted within substrings </p>
-<p>of LinE that are written within quotes. </p>
+<p>Determines the positions of the separator character <span class=rvts11>Car</span> in string <span class=rvts11>Line</span> and generates the vector <span class=rvts11>Pos</span> containing the positions. The number of times the character <span class=rvts11>Car</span> appears in <span class=rvts11>Line</span> is stored in <span class=rvts11>Ncar</span>. The separator <span class=rvts11>Car</span> is not counted within substrings of <span class=rvts11>Line</span> that are written within quotes. </p>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts17>Example:</span></p>
+<p><span class=rvts14>Example:</span></p>
 <p><br></p>
-<p><span class=rvts16> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts16>line =' 23, "List, of, authors", this book, year=1989'</span></p>
-<p><span class=rvts16> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts16>...</span></p>
-<p><span class=rvts16> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts16>call Get_Separator_Pos(line,',',pos,ncar)</span></p>
-<p><span class=rvts16> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts16>...</span></p>
+<p><span class=rvts13> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts13>line =' 23, "List, of, authors", this book, year=1989'</span></p>
+<p><span class=rvts13> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts13>...</span></p>
+<p><span class=rvts13> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts13>call Get_Separator_Pos(line,',',pos,ncar)</span></p>
+<p><span class=rvts13> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class=rvts13>...</span></p>
 <p> </p>
 <p>Then this routine provides</p>
 <p><br></p>
 <p> &nbsp; &nbsp; &nbsp; &nbsp;POS=(/4, 25, 36, 0, .../)</p>
 <p> &nbsp; &nbsp; &nbsp; &nbsp;NCAR=3</p>
 <p><br></p>
-<p class=rvps3><span class=rvts19>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts18>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

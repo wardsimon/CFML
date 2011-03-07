@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>GET_ORBIT</title>
+<html><head><title>Get_Orbit</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,14 +70,16 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff0000;
 }
 span.rvts13
 {
+ font-weight: bold;
  color: #ff6600;
 }
 span.rvts14 /* Font Style */
@@ -125,78 +127,78 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>GET_ORBIT</span></span></h1>
-<p><span class=rvts10>Subroutine GET_ORBIT (X, SPG, MULT, ORB, PTR, STR, PRIM)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Crystallographic_Symmetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Get_Orbit (X, Spg, Mult, Orb, Ptr, Str, Prim)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts12>3</span>)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=79><p>X</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>X</p>
 </td>
-<td width=410><p>Position vector</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Position vector</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Space_Group_Type)</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=79><p>SPG</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spg</p>
 </td>
-<td width=410><p>Space Group</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=79><p>MULT</p>
-</td>
-<td width=410><p>Multiplicity</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(:,:)</p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=79><p>ORB</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mult</p>
 </td>
-<td width=410><p>List of equivalent positions</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
-</td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=79><p>PTR</p>
-</td>
-<td width=410><p>Pointer to effective symops</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Multiplicity</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Integer</span>, <span class=rvts11>Dimension</span>(:), <span class=rvts11>Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(:,:)</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=79><p>STR</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Orb</p>
 </td>
-<td width=410><p>Pointer to stabilizer</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>List of equivalent positions</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=285><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts11>, </span><span class=rvts1>Dimension</span><span class=rvts11>(:), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=95><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=79><p>PRIM</p>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ptr</p>
 </td>
-<td width=410><p>If given, only the primitive cell is considered</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pointer to effective symops</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts11>, </span><span class=rvts1>Dimension</span><span class=rvts11>(:), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Str</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pointer to stabilizer</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts13>Len</span><span class=rvts11>=*), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=95 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=79 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Prim</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>If given, only the primitive cell is considered</p>
 </td>
 </tr>
 </table>

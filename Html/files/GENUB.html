@@ -109,6 +109,22 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts10>GENUB</span></span></h1>
-<p><br></p>
+<p> !!---- Subroutine GenUB(b,h1,h2,h1o,h2o,ub, ierr)</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Dimension(3,3), Intent(In)&nbsp; :: B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !Busing-Levy B-matrix</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Dimension(3),&nbsp;&nbsp; Intent(In)&nbsp; :: h1,h2&nbsp;&nbsp;&nbsp; !Miller indices</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Dimension(3),&nbsp;&nbsp; Intent(In)&nbsp; :: h1o,h2o&nbsp; !Components in Lab system</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Dimension(3,3), Intent(Out) :: ub</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Original from&nbsp;&nbsp; A.Filhol&nbsp; 25/05/84</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Given the [B] matrix, the Miller indices of two reflections, h1 &amp; h2,</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; and the components of these two reflections, h1o &amp; h2o, in the laboratory</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; system, this subroutine provides the matrix UB. Only the direction in the</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; laboratory system of reflections are needed, e.g. h1o and h2o may be unitary</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; vectors or whatever other vector along these directions.</p>
+<p>&nbsp;&nbsp;&nbsp; !!----</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; [hc] : Reflection H,K,L in the reciprocal lattice orthonormal system</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; [hc] = [B] [h]</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; [ho] : Reflection H,K,L in the Cartesian laboratory system</p>
+<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; [ho]=[UB]*[hc]</p>
 <p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

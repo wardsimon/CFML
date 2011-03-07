@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SPGR_INFO_TYPE</title>
+<html><head><title>Spgr_Info_Type</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -76,23 +76,31 @@ span.rvts11
 }
 span.rvts12
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts13
 {
+ font-weight: bold;
  color: #ff0000;
 }
 span.rvts14
 {
+ font-weight: bold;
  color: #ff6600;
 }
-span.rvts15 /* Font Style */
+span.rvts15
+{
+ font-size: 12pt;
+ font-style: italic;
+ font-weight: bold;
+}
+span.rvts16 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts17 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -131,86 +139,95 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>SPGR_INFO_TYPE</span></span></h1>
+<h1 class=rvps2><span class=rvts0><span class=rvts16>CFML_Symmetry_Tables: Variables</span></span></h1>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=311><p><span class=rvts11>TYPE</span><span class=rvts10> :: SPGR_inFO_TYPE</span></p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=134><br>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts15>Variable</span></p>
+<p><span class=rvts15><br></span></p>
 </td>
-<td width=276><br>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid; background-color: #ccffcc;"><p><span class=rvts15>Definition</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Integer</span></p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11>Type</span><span class=rvts10> :: Spgr_Info_Type</span></p>
 </td>
-<td width=134><p>N</p>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
-<td width=276><p>Number of the Space group according to I.T.</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Character</span> (<span class=rvts14>Len</span>=<span class=rvts13>12</span>)</p>
-</td>
-<td width=134><p>HM</p>
-</td>
-<td width=276><p>Hermann-Mauguin symbol</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Character</span> (<span class=rvts14>Len</span>=<span class=rvts13>16</span>)</p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=134><p>HALL</p>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
 </td>
-<td width=276><p>Hall symbol</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Integer</span></p>
-</td>
-<td width=134><p>LAUE</p>
-</td>
-<td width=276><p>Laue group</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of the Space group according to I.T.</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Integer</span></p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Character</span><span class=rvts12> (</span><span class=rvts14>Len</span><span class=rvts12>=</span><span class=rvts13>12</span><span class=rvts12>)</span></p>
 </td>
-<td width=134><p>PG</p>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>HM</p>
 </td>
-<td width=276><p>Point group</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Integer, Dimension</span>(<span class=rvts13>6</span>)</p>
-</td>
-<td width=134><p>ASU</p>
-</td>
-<td width=276><p>Asymmetric unit * 24</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Hermann-Mauguin symbol</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts12>&nbsp;&nbsp; Character</span> (<span class=rvts14>Len</span>=<span class=rvts13>5</span>)</p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Character</span><span class=rvts12> (</span><span class=rvts14>Len</span><span class=rvts12>=</span><span class=rvts13>16</span><span class=rvts12>)</span></p>
 </td>
-<td width=134><p>inF_EXTRA</p>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Hall</p>
 </td>
-<td width=276><p>Extra information</p>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Hall symbol</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=311><p><span class=rvts11>END TYPE</span><span class=rvts10> SPGR_inFO_TYPE</span></p>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
 </td>
-<td width=134><br>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Laue</p>
 </td>
-<td width=276><br>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Laue group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer</span></p>
+</td>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>PG</p>
+</td>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Point group</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Integer, Dimension</span><span class=rvts12>(</span><span class=rvts13>6</span><span class=rvts12>)</span></p>
+</td>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Asu</p>
+</td>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Asymmetric unit * 24</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>&nbsp;&nbsp; Character</span><span class=rvts12> (</span><span class=rvts14>Len</span><span class=rvts12>=</span><span class=rvts13>5</span><span class=rvts12>)</span></p>
+</td>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Inf_Extra</p>
+</td>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Extra information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=311 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11>End Type</span><span class=rvts10> Spgr_Info_Type</span></p>
+</td>
+<td width=134 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+<td width=276 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Definition for General info about Space Groups</p>
 <p><br></p>
 <p><br></p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p><br></p>
+<p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

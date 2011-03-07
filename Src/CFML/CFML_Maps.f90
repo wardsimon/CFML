@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Maps_Calculations
 !!----   INFO: Subroutines related to operations on the array's map
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
+!!----    Update: 07/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                only: cp

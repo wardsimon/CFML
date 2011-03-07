@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>REAL_SPHER_HARM_ANG</title>
+<html><head><title>Real_Spher_Harm_Ang</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,19 +70,15 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-weight: bold;
 }
-span.rvts13 /* Font Style */
+span.rvts12 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts14 /* Font Style */
+span.rvts13 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -121,67 +117,77 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>REAL_SPHER_HARM_ANG</span></span></h1>
-<p><span class=rvts10>Real Function Real_SPHER_HARM_ANG(L, M, P, THETA, PHI)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts12>CFML_Spherical_Harmonics: Functions</span></span></h1>
+<p><span class=rvts10>Real Function Real_Spher_Harm_Ang(L, M, P, Theta, Phi)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=260><p><span class=rvts11>Integer</span></p>
+<td width=260 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=75><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=75 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=73><p>L</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>L</p>
 </td>
-<td width=315><p>index l &gt;= 0</p>
+<td width=315 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>index l &gt;= 0</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>Integer</span></p>
+<td width=260 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=75><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=75 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=73><p>M</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>M</p>
 </td>
-<td width=315><p>index m &lt;= l</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=260><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=75><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=73><p>P</p>
-</td>
-<td width=315><p>+1: Cosine</p>
-<p>-1: Sine</p>
+<td width=315 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>index m &lt;= l</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=260 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=75><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=75 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=73><p>THETA</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>P</p>
 </td>
-<td width=315><p>Spherical coordinate in degree</p>
+<td width=315 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>+1: Cosine&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -1: Sine</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=260><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=260 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
 </td>
-<td width=75><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=75 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=73><p>PHI</p>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Theta</p>
 </td>
-<td width=315><p>Spherical coordinate in degree</p>
+<td width=315 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spherical coordinate in degree</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=260 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=75 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=73 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Phi</p>
+</td>
+<td width=315 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spherical coordinate in degree</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Return the value of Ylmn(Theta, Phi)</p>
+<p>Return the value of</p>
 <p><br></p>
-<p><span class=rvts12>NOTE</span>:&nbsp; M.Kara &amp; K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)</p>
+<p><img border=0 alt="" hspace=1 vspace=1 src="img_4.jpg"></p>
 <p><br></p>
-<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
+<p><br></p>
+<p>where</p>
+<p><img border=0 alt="" hspace=1 vspace=1 src="img_5.jpg"></p>
+<p><br></p>
+<p><img border=0 alt="" hspace=1 vspace=1 src="img_6.jpg"> </p>
+<p><br></p>
+<p><img border=0 alt="" hspace=1 vspace=1 src="img_7.jpg"></p>
+<p><br></p>
+<p><br></p>
+<p><span class=rvts11>NOTE</span>:&nbsp; M.Kara &amp; K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)</p>
+<p><br></p>
+<p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>
