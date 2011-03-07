@@ -1,14 +1,13 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_IO_Formats
 !!----   INFO: Creation/Conversion for several formats
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
+!!----    Update: 07/03/2011
 !!----
-!!----    September - 1999: Created by JGP
 !!----
 !!---- DEPENDENCIES
 !!----
@@ -22,7 +21,7 @@
 !!----    Functions:
 !!----
 !!----    Subroutines:
-!!----       FILE2FILE_LIST
+!!----       FILE_TO_FILELIST
 !!----       GET_JOB_INFO
 !!----       INIT_ERR_FORM
 !!----       READ_ATOM
@@ -97,7 +96,7 @@
               Read_File_Transf, Read_Shx_Atom, Read_Shx_Cell, Read_Shx_Cont, Read_Shx_Fvar,      &
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
-              Get_job_info, File2File_List
+              Get_job_info, File_To_FileList
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure
@@ -240,7 +239,7 @@
     !---- Subroutines ----!
 
     !!----
-    !!---- Subroutine File2File_List(File_dat,File_list)
+    !!---- Subroutine File_To_FileList(File_dat,File_list)
     !!----   character(len=*), dimension(:), intent( in) :: file_dat  !Input data file
     !!----   type(file_list_type),           intent(out) :: file_list !File list structure
     !!----
@@ -248,7 +247,7 @@
     !!----
     !!---- Update: August - 2008
     !!
-    Subroutine File2File_List(File_dat,File_list)
+    Subroutine File_To_FileList(File_dat,File_list)
        !---- Arguments ----!
        character(len=*),      intent( in) :: file_dat
        type(file_list_type),  intent(out) :: file_list
@@ -270,7 +269,7 @@
        end if
 
        return
-    End Subroutine File2File_List
+    End Subroutine File_To_FileList
 
     !!----
     !!---- Subroutine Get_Job_Info(file_dat,i_ini,i_end,Job_info)

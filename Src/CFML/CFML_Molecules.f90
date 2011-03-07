@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Molecular_Crystals
 !!----   INFO: Module to define molecules on Crystals
 !!----
 !!---- HISTORY
-!!----    Update: January - 2004
+!!----    Update: 07/03/2011
 !!----
 !!---- COMMENTARY
 !!--..    Explanations about Eulerian angles, active and passive rotations
@@ -284,7 +284,7 @@
 !!--++       EMPIRIC_FORMULA_FATOM           [Overloaded]
 !!--++       EMPIRIC_FORMULA_MOLCRYS         [Overloaded]
 !!--++       EMPIRIC_FORMULA_MOLEC           [Overloaded]
-!!----       FIX_ORDER
+!!----       FIX_REFERENCE
 !!----       FIX_ORIENT_CARTESIAN
 !!----       FRACTIONAL_TO_CARTESIAN
 !!----       FRACTIONAL_TO_SPHERICAL
@@ -334,14 +334,14 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_Err_Molec, Init_Molecule, Read_Free_Atoms, Read_Molecule,           &
+    public :: Init_Err_Molec, Init_Molecule, Read_Free_Atoms, Read_Molecule,             &
               Write_Molecule, Write_Molecular_Crystal, Write_Free_Atoms
 
-    public :: Cartesian_to_Fractional, Cartesian_to_Spherical, Cartesian_to_Zmatrix,   &
-              Fractional_to_Cartesian, Fractional_to_Spherical, Fractional_to_Zmatrix, &
-              Zmatrix_to_Cartesian, Zmatrix_to_Fractional, Zmatrix_to_Spherical,       &
-              Spherical_to_Cartesian, Spherical_to_Zmatrix,Spherical_to_Fractional,    &
-              Fix_Order,Fix_Orient_Cartesian, Set_Euler_Matrix, Molcrys_to_AtomList,   &
+    public :: Cartesian_to_Fractional, Cartesian_to_Spherical, Cartesian_to_Zmatrix,     &
+              Fractional_to_Cartesian, Fractional_to_Spherical, Fractional_to_Zmatrix,   &
+              Zmatrix_to_Cartesian, Zmatrix_to_Fractional, Zmatrix_to_Spherical,         &
+              Spherical_to_Cartesian, Spherical_to_Zmatrix,Spherical_to_Fractional,      &
+              Fix_Reference,Fix_Orient_Cartesian, Set_Euler_Matrix, Molcrys_to_AtomList, &
               Molec_to_AtomList, Empiric_Formula
 
     !---- List of private functions ----!
@@ -1146,7 +1146,7 @@
     End Subroutine Create_Connectivity_Cartesian
 
     !!----
-    !!---- Subroutine Fix_Order(Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY)
+    !!---- Subroutine Fix_Reference(Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY)
     !!----    type (Molecule_type),     intent(in out)           :: Molecule
     !!----    type (Molecule_type),     intent(   out), optional :: Newmolecule
     !!----    integer,                  intent(in),     optional :: NAtom_O
@@ -1165,7 +1165,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Fix_Order(Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY)
+    Subroutine Fix_Reference(Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY)
        !---- Arguments ----!
        type (Molecule_type),     intent(in out)           :: Molecule
        type (Molecule_type),     intent(   out), optional :: Newmolecule
@@ -1459,7 +1459,7 @@
           call Init_molecule(NewMolecule,Newmol%natoms)
           if (NewMolecule%natoms <=0) then
              err_molec=.true.
-             ERR_Molec_Mess="Error in Fix_Order: The optional variable was not dimensioned!"
+             ERR_Molec_Mess="Error in Fix_Reference: The optional variable was not dimensioned!"
              return
           end if
           Newmolecule=Newmol
@@ -1468,7 +1468,7 @@
        end if
 
        return
-    End Subroutine Fix_Order
+    End Subroutine Fix_Reference
 
     !!----
     !!---- Subroutine Fix_Orient_Cartesian(Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY,Mat)
@@ -1518,7 +1518,7 @@
        if (present(natom_xy)) n_xy=natom_xy
 
        if (molecule%natoms > 0) call Init_Molecule(Newmol,molecule%natoms)
-       call Fix_Order(Molecule,Newmol,n_or,n_x,n_xy)
+       call Fix_Reference(Molecule,Newmol,n_or,n_x,n_xy)
        if (err_molec) return
 
        !---- Traslation the Origin ----!

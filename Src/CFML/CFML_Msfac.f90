@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Magnetic_Structure_Factors
 !!----   INFO: Main module for Structure Factors Calculations
 !!----
 !!---- HISTORY
-!!----    Update: April - 2005
+!!----    Update: 07/03/2011
 !!----
 !!----
 !!---- DEPENDENCIES

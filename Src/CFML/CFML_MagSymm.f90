@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Magnetic_Symmetry
@@ -7,9 +7,8 @@
 !!----         and Magnetic Structures
 !!----
 !!---- HISTORY
-!!----    Update: April - 2005
+!!----    Update: 07/03/2011
 !!----
-!!----            April - 2005. Created by JRC
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                only: Sp, tpi

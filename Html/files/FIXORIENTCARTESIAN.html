@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>FIX_ORIENT_CARTESIAN</title>
+<html><head><title>Fix_Orient_Cartesian</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,10 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff0000;
 }
 span.rvts13 /* Font Style */
@@ -121,68 +122,68 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts13>FIX_ORIENT_CARTESIAN</span></span></h1>
-<p><span class=rvts10>Subroutine FIX_ORIENT_CARTESIAN (MOLECULE, NEWMOLECULE, NATOM_O, NATOM_X, NATOM_XY, MAT) </span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Molecular_Crystals: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Fix_Orient_Cartesian (Molecule, NewMolecule, NAtom_O, NAtom_X, NAtom_XY, Mat) </span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Molecule_Type)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
 </td>
-<td width=108><p>MOLECULE</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule</p>
 </td>
-<td width=319><p>Molecule Object</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Molecule_Type), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=108><p>NEWMOLECULE</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NewMolecule</p>
 </td>
-<td width=319><p>Molecule Object</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer, Optional</span></p>
-</td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=108><p>NATOM_O</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Integer, Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=108><p>NATOM_Y</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NAtom_O</p>
 </td>
-<td width=319><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer, Optional</span></p>
-</td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=108><p>NATOM_XY</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP), <span class=rvts11>Dimension</span>(<span class=rvts12>3</span>,<span class=rvts12>3</span>), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=108><p>MAT</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NAtom_Y</p>
 </td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NAtom_XY</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>,</span><span class=rvts12>3</span><span class=rvts11>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mat</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>MOLEC_TO_ATOMLIST</title>
+<html><head><title>Molec_To_AtomList</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -68,31 +68,28 @@ span.rvts10
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts11
-{
- color: #0000ff;
-}
-span.rvts12
-{
- color: #ff6600;
-}
-a.rvts13, span.rvts13
+a.rvts11, span.rvts11
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts13:hover { color: #0000ff; }
-span.rvts14
+a.rvts11:hover { color: #0000ff; }
+span.rvts12
 {
  font-weight: bold;
 }
-span.rvts15 /* Font Style */
+span.rvts13
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -131,57 +128,56 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>MOLEC_TO_ATOMLIST</span></span></h1>
-<p><span class=rvts10>Subroutine MOLEC_TO_ATOMLIST (MOLEC, ATM, COOR_TYPE, CELL)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Molecular_Crystals: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Molec_To_AtomList (Molec, Atm, Coor_Type, Cell)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Molecule_Type)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>MOLEC</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molec</p>
 </td>
-<td width=319><p>Molecule Object</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule Object</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Atom_List_Type)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>ATM</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atm</p>
 </td>
-<td width=319><p>Atoms information</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
-</td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=108><p>COOR_TYPE</p>
-</td>
-<td width=319><br>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atoms information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE), <span class=rvts11>Optional</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>CELL</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Coor_Type</p>
 </td>
-<td width=319><p>Cell parameters</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell parameters</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>Subroutine to pass all information from <a class=rvts13 href="MOLECULETYPE.html">MOLECULE_TYPE</a> to <a class=rvts13 href="ATOMLISTTYPE.html">ATOM_LIST_TYPE</a></p>
+<p>Subroutine to pass all information from <a class=rvts11 href="MOLECULETYPE.html">Molecule_Type</a> to <a class=rvts11 href="ATOMLISTTYPE.html">Atom_List_Type</a></p>
 <p><br></p>
-<p><span class=rvts14>COOR_TYPE</span> determine the type of coordinates parameter in output. </p>
-<p>in general <span class=rvts14>CELL</span> if necessary to obtain on output fractional coordinates or special case for Z-Matrix.</p>
+<p><span class=rvts12>Coor_Type</span> determine the type of coordinates parameter in output. In general <span class=rvts12>Cell</span> if necessary to obtain on output fractional coordinates or special case for Z-Matrix.</p>
 <p>&nbsp;&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

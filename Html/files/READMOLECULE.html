@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>READ_MOLECULE</title>
+<html><head><title>Read_Molecule</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,34 +70,31 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-size: 11pt;
  font-style: italic;
  font-weight: bold;
 }
-span.rvts13
-{
- color: #ff6600;
-}
-span.rvts14
+span.rvts12
 {
  font-weight: bold;
 }
-span.rvts15
+span.rvts13
 {
  font-style: italic;
  font-weight: bold;
 }
-span.rvts16 /* Font Style */
+span.rvts14
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts15 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts17 /* Font Style */
+span.rvts16 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -136,76 +133,76 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts16>READ_MOLECULE</span></span></h1>
-<p><span class=rvts10>Subroutine READ_MOLECULE (LUN, MOLECULE)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts15>CFML_Molecular_Crystals: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Read_Molecule (Lun, Molecule)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>LUN</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Lun</p>
 </td>
-<td width=319><p>Logical unit to be read</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Logical unit to be read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Molecule_Type)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>MOLECULE</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule</p>
 </td>
-<td width=319><p>Molecule Object</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule Object</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><span class=rvts12>or</span></p>
+<p><span class=rvts11>or</span></p>
 <p><br></p>
-<p><span class=rvts10>Subroutine READ_MOLECULE (FILE_DAT, N_inI, N_END, MOLECULE)</span></p>
+<p><span class=rvts10>Subroutine Read_Molecule (File_Dat, N_Ini, N_End, Molecule)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=274><p><span class=rvts11>Character</span>(<span class=rvts13>Len</span>=*),<span class=rvts11> Dimension</span>(:)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts14>Len</span><span class=rvts12>=*),</span><span class=rvts1> Dimension</span><span class=rvts12>(:)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>FILE_DAT</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>File_Dat</p>
 </td>
-<td width=319><p>Name of the File to read</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the File to read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>N_inI</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N_Ini</p>
 </td>
-<td width=319><p>initial line to be read</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=274><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=108><p>N_END</p>
-</td>
-<td width=319><p>Last line to be read</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>initial line to be read</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=274><p><span class=rvts11>TYPE</span>(MOLECULE_TYPE)</p>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=109><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=108><p>MOLECULE</p>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N_End</p>
 </td>
-<td width=319><p>Molecule Object</p>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Last line to be read</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=274 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Molecule_Type)</span></p>
+</td>
+<td width=109 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule</p>
+</td>
+<td width=319 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule Object</p>
 </td>
 </tr>
 </table>
@@ -214,15 +211,15 @@ p,ul,ol /* Paragraph Style */
 <p>Subroutine to read a molecule from a file.</p>
 <p><br></p>
 <p>The format of the file is:</p>
-<p>&nbsp;&nbsp;&nbsp; <span class=rvts14>MOLE[X] N_ATOMS MOLECULE_NAME COORDinATES_TYPE</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span class=rvts12>MOLE[X] N_ATOMS MOLECULE_NAME COORDinATES_TYPE</span></p>
 <p><br></p>
 <p>where</p>
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=221><p><span class=rvts15>Variables</span></p>
+<td width=221><p><span class=rvts13>Variables</span></p>
 </td>
-<td width=302><p><span class=rvts15>Definitions</span></p>
+<td width=302><p><span class=rvts13>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
@@ -250,16 +247,16 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>If keyword <span class=rvts14>MOLEX</span> is present, then the next line will be read (6 reals, 2 characters):</p>
-<p>&nbsp;&nbsp; <span class=rvts14>MOLECULE_CENTRE(3)&nbsp; MOLECULE_ORIENT(3)&nbsp; ROTATIONAL_ANGLE(1)_TYPE THERMAL_FACTOR_TYPE(3)</span></p>
+<p>If keyword <span class=rvts12>MOLEX</span> is present, then the next line will be read (6 reals, 2 characters):</p>
+<p>&nbsp;&nbsp; <span class=rvts12>MOLECULE_CENTRE(3)&nbsp; MOLECULE_ORIENT(3)&nbsp; ROTATIONAL_ANGLE(1)_TYPE THERMAL_FACTOR_TYPE(3)</span></p>
 <p><br></p>
 <p>where</p>
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=221><p><span class=rvts15>Variables</span></p>
+<td width=221><p><span class=rvts13>Variables</span></p>
 </td>
-<td width=302><p><span class=rvts15>Definitions</span></p>
+<td width=302><p><span class=rvts13>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
@@ -299,9 +296,9 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <div><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=76><p><span class=rvts15>Thermal Factors</span></p>
+<td width=76><p><span class=rvts13>Thermal Factors</span></p>
 </td>
-<td width=447><p><span class=rvts15>Definitions</span></p>
+<td width=447><p><span class=rvts13>Definitions</span></p>
 </td>
 </tr>
 <tr valign=top>
@@ -332,10 +329,10 @@ p,ul,ol /* Paragraph Style */
 <p><br></p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p>internal Coordinates for Atoms (N_Atoms Lines):</p>
-<p>&nbsp;&nbsp;&nbsp; <span class=rvts14> ATOM_NAME(6)&nbsp; ATOM_SPECIES(4)&nbsp; COORDinATES(3)&nbsp; N1&nbsp; N2&nbsp; N3&nbsp; BISO&nbsp; OCC [VARY]</span></p>
+<p>&nbsp;&nbsp;&nbsp; <span class=rvts12> ATOM_NAME(6)&nbsp; ATOM_SPECIES(4)&nbsp; COORDinATES(3)&nbsp; N1&nbsp; N2&nbsp; N3&nbsp; BISO&nbsp; OCC [VARY]</span></p>
 <p>&nbsp;&nbsp;&nbsp; </p>
 <p>If VARY is present as last option on the internal Coordinates line,&nbsp; then an extra line is read:</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; <span class=rvts14>CODES_COORDinATES(3)&nbsp;&nbsp; CODE_BISO(1)&nbsp; CODE_OCC(1)</span></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <span class=rvts12>CODES_COORDinATES(3)&nbsp;&nbsp; CODE_BISO(1)&nbsp; CODE_OCC(1)</span></p>
 <p>&nbsp;&nbsp;&nbsp; </p>
-<p class=rvps3><span class=rvts17>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

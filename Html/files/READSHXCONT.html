@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>READ_SHX_CONT</title>
+<html><head><title>Read_SHX_Cont</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,10 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff6600;
 }
 span.rvts13 /* Font Style */
@@ -125,82 +126,82 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps3><span class=rvts0><span class=rvts13>READ_SHX_CONT</span></span></h1>
-<p><span class=rvts10>Subroutine READ_SHX_CELL (FILEVAR, NLinE_inI, NLinE_END, N_ELEM_TYPE, ELEM_TYPE, N_ELEM)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts13>CFML_IO_Formats: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Read_SHX_Cont (Filevar, NLine_Ini, NLine_End,&nbsp; N_ELEM_TYPE, ELEM_TYPE, N_ELEM)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=295><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Dimension</span>(:)</p>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts11>=*), </span><span class=rvts1>Dimension</span><span class=rvts11>(:)</span></p>
 </td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p>FILEVAR</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filevar</p>
 </td>
-<td width=46><br>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
-<td width=359><p>input strings information</p>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>input strings information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>Integer</span></p>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span> <span class=rvts11>out</span>)</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11> </span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p>NLinE_inI</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NLine_Ini</p>
 </td>
-<td width=46><p class=rvps2>in:</p>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>in:</p>
 <p class=rvps2>out:</p>
 </td>
-<td width=359><p>Line to beginning search</p>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Line to beginning search</p>
 <p>Current line on Filevar</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>Integer</span></p>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p>NLinE_END</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NLine_End</p>
 </td>
-<td width=46><p class=rvps2><br></p>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=359><p>Line to the End search</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=295><p><span class=rvts11>Integer</span></p>
-</td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=101><p>N_ELEM_TYPE</p>
-</td>
-<td width=46><p class=rvps2><br></p>
-</td>
-<td width=359><p>Number of different species</p>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Line to the End search</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Dimension</span>(:)</p>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p>ELEM_TYPE</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N_Elem_Type</p>
 </td>
-<td width=46><p class=rvps2><br></p>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=359><p>Character to identify the specie</p>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of different species</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=295><p><span class=rvts11>Integer, Dimension</span>(:),<span class=rvts11> Optional</span></p>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11>(</span><span class=rvts12>Len</span><span class=rvts11>=*), </span><span class=rvts1>Dimension</span><span class=rvts11>(:)</span></p>
 </td>
-<td width=105><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
 </td>
-<td width=101><p>N_ELEM</p>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Elem_Type</p>
 </td>
-<td width=46><p class=rvps2><br></p>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
-<td width=359><p>Number of elements into the same species</p>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Character to identify the specie</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=295 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Dimension</span><span class=rvts11>(:),</span><span class=rvts1> Optional</span></p>
+</td>
+<td width=105 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=101 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N_Elem</p>
+</td>
+<td width=46 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
+</td>
+<td width=359 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Number of elements into the same species</p>
 </td>
 </tr>
 </table>

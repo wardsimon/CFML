@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CALC_POLAR_DOM</title>
+<html><head><title>Calc_Polar_Dom</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,10 +70,11 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
+ font-weight: bold;
 }
 span.rvts12
 {
+ font-weight: bold;
  color: #ff0000;
 }
 span.rvts13 /* Font Style */
@@ -129,88 +130,88 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps4><span class=rvts0><span class=rvts13>CALC_POLAR_DOM</span></span></h1>
-<p><span class=rvts10>Subroutine CALC_POLAR_DOM (CELL, H, SPV, Pin, NSF, MAG_DOM, MH, POLARI)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts13>CFML_Polarimetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Calc_Polar_Dom (Cell, H, SPV, Pin, NSF, Mag_Dom, MH, Polari)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Crystal_Cell_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>CELL</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell</p>
 </td>
-<td width=410><p>Cell Parametrs</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell Parametrs</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3</span>)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>H</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>H</p>
 </td>
-<td width=410><p>Scattering vector in hkl</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts12>3</span>)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>SPV</p>
-</td>
-<td width=410><p>Second Scattering plane vector in hkl</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Scattering vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>Pin</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SPV</p>
 </td>
-<td width=410><p>Magnitude of initial polarisation</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>COMPLEX</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>NSF</p>
-</td>
-<td width=410><p class=rvps3>Nuclear Scattering Factor</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Second Scattering plane vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(MAGNETIC_DOMAin_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>MAG_DOM</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pin</p>
 </td>
-<td width=410><p class=rvps3><br></p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(MAGHD_TYPE)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
-</td>
-<td width=104><p>MH</p>
-</td>
-<td width=410><p class=rvps2>Magnetic interaction vector</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Magnitude of initial polarisation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(POLAR_inFO_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Complex</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>POLARI</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSF</p>
 </td>
-<td width=410><p class=rvps2>All information about polarisation in one point hkl</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>Nuclear Scattering Factor</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Magnetic_Domain_Type)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mag_Dom</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3><br></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(MagHD_TYPE)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>MH</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Magnetic interaction vector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Polar_Info_Type)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Polari</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>All information about polarisation in one point hkl</p>
 </td>
 </tr>
 </table>

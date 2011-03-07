@@ -1,12 +1,12 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Keywords_Code_Parser
 !!----   INFO: Refinable Codes for Parameters
 !!----
 !!---- HISTORY
-!!----    Update: March - 2005
+!!----    Update: 07/03/2011
 !!----
 !!----
 !!---- DEPENDENCIES

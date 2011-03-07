@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999-2010,              Version: 4.1
+!!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
 !!----
 !!---- MODULE: CFML_Simulated_Annealing
@@ -19,9 +19,8 @@
 !!--++     use CFML_IO_Formats,       only: File_List_Type
 !!----
 !!---- HISTORY
-!!----    Update: March - 2005
+!!----    Update: 07/03/2011
 !!----
-!!----            Created by JRC in October -2002
 !!----
 !!---- VARIABLES
 !!--..    Parameters

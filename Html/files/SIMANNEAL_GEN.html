@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SIMANNEAL_GEN</title>
+<html><head><title>SimAnneal_Gen</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -74,11 +74,12 @@ span.rvts11
 }
 span.rvts12
 {
- color: #ff6600;
+ font-weight: bold;
 }
 span.rvts13
 {
  font-weight: bold;
+ color: #ff6600;
 }
 span.rvts14 /* Font Style */
 {
@@ -107,11 +108,7 @@ p,ul,ol /* Paragraph Style */
 {
  margin: 0px 0px 0px 3px;
 }
-.rvps3
-{
- text-align: right;
-}
-.rvps4 /* Paragraph Style */
+.rvps3 /* Paragraph Style */
 {
  text-align: left;
  text-indent: 0px;
@@ -119,7 +116,7 @@ p,ul,ol /* Paragraph Style */
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
 }
-.rvps5 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -133,93 +130,80 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps4><span class=rvts0><span class=rvts14>SIMANNEAL_GEN</span></span></h1>
-<p><span class=rvts10>Subroutine SIMANNEAL_GEN (MODEL_FUNCT, C, VS, IPR, FILESAV, FST)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts14>CFML_Simulated_Annealing: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine SimAnneal_Gen (Model_Funct, C, VS, Ipr, Filesav, FST)</span></p>
 <p><br></p>
-<p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=294><p><span class=rvts13>Defined Subroutine Model_Funct</span></p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts12>Defined Subroutine Model_Funct</span></p>
 </td>
-<td width=102><p><span class=rvts11><br></span></p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts11><br></span></p>
 </td>
-<td width=102><p>MODEL_FUNCT</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Model_Funct</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><br>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=294><p><span class=rvts11>TYPE </span>(SIMANN_CONDITIONS_TYPE)</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(SimAnn_Conditions_Type)</span></p>
 </td>
-<td width=102><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=102><p>C</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>C</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><br>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=294><p><span class=rvts11>TYPE </span>(STATE_VECTOR_TYPE)</p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(State_Vector_Type)</span></p>
 </td>
-<td width=102><p><span class=rvts11>Intent</span>(<span class=rvts11>in out</span>)</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in out</span><span class=rvts12>)</span></p>
 </td>
-<td width=102><p>VS</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>VS</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><br>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=294><p><span class=rvts11>Integer</span></p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
 </td>
-<td width=102><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=102><p>IPR</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ipr</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><p class=rvps2><br></p>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=294><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=102><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=102><p>FILESAV</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filesav</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><p class=rvps2><br></p>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=294><p><span class=rvts11>Character</span> (<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
+<td width=294 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=102><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=102><p>FST</p>
+<td width=102 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FST</p>
 </td>
-<td width=38><p class=rvps3><br></p>
-</td>
-<td width=360><p class=rvps2><br></p>
+<td width=360 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2><br></p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p><span class=rvts13>Subroutine MODEL_FUNCTN (V, COST)</span></p>
+<p><span class=rvts12>Subroutine Model_Funct (V, Cost)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP),<span class=rvts11>Dimension</span> <span class=rvts11> </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP),</span><span class=rvts1>Dimension</span><span class=rvts12> </span><span class=rvts1> </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>V</p>
 </td>
@@ -227,38 +211,38 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>COST</p>
+<td width=98><p>Cost</p>
 </td>
 <td width=369><p>Value of Model</p>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts13>END Subroutine MODEL_FUNCTN</span></p>
+<p><span class=rvts12>End Subroutine Model_Funct</span></p>
 <p><br></p>
 <p><br></p>
 <p>If FST is present the user need define the next subroutine</p>
 <p><br></p>
-<p><span class=rvts13>Subroutine WRITE_FST (FST_FILE, V, COST)</span></p>
+<p><span class=rvts12>Subroutine Write_FST (FST_File, V, Cost)</span></p>
 <div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Character</span> (<span class=rvts12>Len</span>=*)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Character</span><span class=rvts12> (</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FST_FILE</p>
+<td width=98><p>FST_File</p>
 </td>
 <td width=369><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP),<span class=rvts11>Dimension</span> <span class=rvts11> </span>(:)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP),</span><span class=rvts1>Dimension</span><span class=rvts12> </span><span class=rvts1> </span><span class=rvts12>(:)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98><p>V</p>
 </td>
@@ -266,20 +250,20 @@ p,ul,ol /* Paragraph Style */
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>&nbsp;&nbsp; Real</span>(<span class=rvts11>Kind=</span>CP)</p>
+<td width=330><p><span class=rvts1>&nbsp;&nbsp; Real</span><span class=rvts12>(</span><span class=rvts1>Kind=</span><span class=rvts12>CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>COST</p>
+<td width=98><p>Cost</p>
 </td>
 <td width=369><p>Value of Model</p>
 </td>
 </tr>
 </table>
 </div>
-<p><span class=rvts13>END Subroutine WRITE_FST</span></p>
+<p><span class=rvts12>End Subroutine Write_FST</span></p>
 <p><br></p>
 <p>&nbsp;&nbsp; </p>
 <p><br></p>
-<p class=rvps5><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps4><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>READN_SET_XTAL_STRUCTURE</title>
+<html><head><title>ReadN_Set_XTAL_Structure</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,17 +70,18 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
- color: #ff6600;
-}
-span.rvts13
-{
  font-size: 12pt;
  font-style: italic;
  font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+}
+span.rvts13
+{
+ font-weight: bold;
+ color: #ff6600;
 }
 span.rvts14 /* Font Style */
 {
@@ -127,165 +128,163 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts14>READN_SET_XTAL_STRUCTURE</span></span></h1>
-<p><span class=rvts10>Subroutine READN_SET_XTAL_STRUCTURE (FILenAM, MOLCRYS, MODE, IPHASE, JOB_inFO, FILE_LIST)</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_IO_Formats: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine ReadN_Set_XTAL_Structure (Filenam, MolCrys, Mode, IPhase, Job_Info, File_List)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FILenAM</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filenam</p>
 </td>
-<td width=369><p>Name of File</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of File</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(MOLECULAR_CRYSTAL_TYPE)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Molecular_Crystal_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>MOLCRYS</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>MolCrys</p>
 </td>
-<td width=369><p>Molecule information</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=98><p>MODE</p>
-</td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Molecule information</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer, Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>IPHASE</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mode</p>
 </td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(JOB_inFO_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>JOB_inFO</p>
-</td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FILE_LIST</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>IPhase</p>
 </td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Jonb_Info_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Job_Info</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(File_List_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>File_List</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p><span class=rvts13>or</span></p>
+<p><span class=rvts11>or</span></p>
 <p><br></p>
-<p><span class=rvts10>Subroutine READN_SET_XTAL_STRUCTURE (FILenAM, CELL, SPG, A, MODE, IPHASE, JOB_inFO, FILE_LIST)</span></p>
+<p><span class=rvts10>Subroutine ReadN_Set_XTAL_Structure (Filenam, Cell, Spg, A, Mode, IPhase, Job_Info, File_List)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts13>Len</span><span class=rvts12>=*)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FILenAM</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filenam</p>
 </td>
-<td width=369><p>Name of File</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of File</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Crystal_Cell_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>CELL</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell</p>
 </td>
-<td width=369><p>Cell Parameters</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(SPACE_GROUP_TYPE)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>SPG</p>
-</td>
-<td width=369><p>Space Group</p>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell Parameters</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(ATOM_LIST_TYPE)</p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Space_Group_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>A</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Spg</p>
 </td>
-<td width=369><p>Atom List</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>Character</span>(<span class=rvts12>Len</span>=*), <span class=rvts11>Optional</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=98><p>MODE</p>
-</td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Space Group</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>Integer, Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Atom_List_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>IPHASE</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>A</p>
 </td>
-<td width=369><br>
-</td>
-</tr>
-<tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(JOB_inFO_TYPE), <span class=rvts11>Optional</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
-</td>
-<td width=98><p>JOB_inFO</p>
-</td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Atom List</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=330><p><span class=rvts11>TYPE</span>(FILE_LIST_TYPE), <span class=rvts11>Optional</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts12>(</span><span class=rvts13>Len</span><span class=rvts12>=*), </span><span class=rvts1>Optional</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98><p>FILE_LIST</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Mode</p>
 </td>
-<td width=369><br>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>IPhase</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(Jonb_Info_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Job_Info</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts12>(File_List_Type), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>out</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>File_List</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
 <p><br></p>
-<p>Subroutine to read an input file and construct the crystal structure&nbsp; in terms of the object MOLCRYS or CELL, SPG and A. </p>
-<p>The optional argument IPHASE is an Integer telling to the program to read the phase number IPHASE in the case of the presence&nbsp; of more than one phase. </p>
-<p>If absent only the first phase is read.</p>
+<p>Subroutine to read an input file and construct the crystal structure&nbsp; in terms of the object MolCrys or Cell, Spg and A. The optional argument IPhase is an integer telling to the program to read the phase number IPhase in the case of the presence&nbsp; of more than one phase. If absent only the first phase is read.</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

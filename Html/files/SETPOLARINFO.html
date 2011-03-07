@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>SET_POLAR_INFO</title>
+<html><head><title>Set_Polar_Info</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -70,29 +70,26 @@ span.rvts10
 }
 span.rvts11
 {
- color: #0000ff;
-}
-span.rvts12
-{
  font-weight: bold;
 }
-span.rvts13
-{
- color: #ff0000;
-}
-a.rvts14, span.rvts14
+a.rvts12, span.rvts12
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts14:hover { color: #0000ff; }
-span.rvts15 /* Font Style */
+a.rvts12:hover { color: #0000ff; }
+span.rvts13
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -139,84 +136,84 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps4><span class=rvts0><span class=rvts15>SET_POLAR_INFO</span></span></h1>
-<p><span class=rvts10>Subroutine SET_POLAR_inFO (CELL, H, SPV, Pin, NSF, MIV, POLARI)</span></p>
+<h1 class=rvps4><span class=rvts0><span class=rvts14>CFML_Polarimetry: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Set_Polar_Info (Cell, H, SPV, Pin, NSF, MIV, Polari)</span></p>
 <p><br></p>
-<div><table width="100%" border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(CRYSTAL_CELL_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Crystal_Cell_Type)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>CELL</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell</p>
 </td>
-<td width=410><p>Cell Parametrs</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cell Parametrs</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts13>3</span>)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts13>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>H</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>H</p>
 </td>
-<td width=410><p>Scattering vector in hkl</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)<span class=rvts11>, Dimension </span>(<span class=rvts13>3</span>)</p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>SPV</p>
-</td>
-<td width=410><p>Second Scattering plane vector in hkl</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Scattering vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>Real</span>(<span class=rvts11>Kind</span>=CP)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span><span class=rvts1>, Dimension </span><span class=rvts11>(</span><span class=rvts13>3</span><span class=rvts11>)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>Pin</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>SPV</p>
 </td>
-<td width=410><p>Magnitude of initial polarisation</p>
-</td>
-</tr>
-<tr valign=top>
-<td width=242><p><span class=rvts11>COMPLEX</span></p>
-</td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
-</td>
-<td width=104><p>NSF</p>
-</td>
-<td width=410><p class=rvps3>Nuclear Scattering Factor</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Second Scattering plane vector in hkl</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>COMPLEX, Dimension </span>(<span class=rvts13>3</span>)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>in</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>MIV</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pin</p>
 </td>
-<td width=410><p class=rvps2>Magnetic interaction vector</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Magnitude of initial polarisation</p>
 </td>
 </tr>
 <tr valign=top>
-<td width=242><p><span class=rvts11>TYPE</span>(POLAR_inFO_TYPE)</p>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Complex</span></p>
 </td>
-<td width=98><p><span class=rvts11>Intent</span>(<span class=rvts11>out</span>)</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=104><p>POLARI</p>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>NSF</p>
 </td>
-<td width=410><p class=rvps2>All information about polarisation in one point hkl</p>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps3>Nuclear Scattering Factor</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Complex, Dimension </span><span class=rvts11>(</span><span class=rvts13>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>MIV</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>Magnetic interaction vector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=242 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Polar_Info_Type)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Polari</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p class=rvps2>All information about polarisation in one point hkl</p>
 </td>
 </tr>
 </table>
 </div>
 <p><br></p>
-<p>initializes the variable <span class=rvts12>POLARI</span> using the type <a class=rvts14 href="POLARINFOTYPE.html">POLAR_inFO_TYPE</a></p>
+<p>Initializes the variable <span class=rvts11>Polari</span> using the type <a class=rvts12 href="POLARINFOTYPE.html">Polar_Info_Type</a></p>
 <p><br></p>
-<p class=rvps5><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps5><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

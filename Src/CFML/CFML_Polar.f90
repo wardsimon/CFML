@@ -1,5 +1,5 @@
 !!----
-!!---- Copyleft(C) 1999 - 2010,              Version: 4.1
+!!---- Copyleft(C) 1999 - 2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Marc Janoschek & some modificantions OZ
 !!----
 !!---- MODULE: CFML_Polarimetry
@@ -13,10 +13,7 @@
 !!----   for the crystal frame are needed.
 !!----
 !!---- HISTORY
-!!----    Update: April - 2008
-!!----            April - 2005: Created by MJ and revised by JRC
-!!----            December - 2006: Added function Write_Polar_line for more convenient
-!!----                             output of matrices of many reflections in one file
+!!----    Update: 07/03/2011
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                 only: cp, tpi
