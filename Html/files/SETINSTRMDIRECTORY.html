@@ -68,32 +68,28 @@ span.rvts10
  font-size: 12pt;
  font-weight: bold;
 }
-span.rvts11
-{
- color: #ff6600;
-}
-a.rvts12, span.rvts12
+a.rvts11, span.rvts11
 {
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts12:hover { color: #0000ff; }
-span.rvts13
+a.rvts11:hover { color: #0000ff; }
+span.rvts12
 {
  font-weight: bold;
 }
-span.rvts14
+span.rvts13
 {
  font-weight: bold;
  color: #ff6600;
 }
-span.rvts15 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts16 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -110,7 +106,11 @@ p,ul,ol /* Paragraph Style */
 {
  text-align: center;
 }
-.rvps2 /* Paragraph Style */
+.rvps2
+{
+ margin: 0px 0px 0px 24px;
+}
+.rvps3 /* Paragraph Style */
 {
  text-align: left;
  text-indent: 0px;
@@ -118,7 +118,7 @@ p,ul,ol /* Paragraph Style */
  padding: 5px 5px 2px 5px;
  margin: -5px -5px 18px -5px;
 }
-.rvps3 /* Paragraph Style */
+.rvps4 /* Paragraph Style */
 {
  text-align: center;
  background: #e4e4e4;
@@ -132,28 +132,64 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts15>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine Set_Instrm_Directory (Instrm)</span></p>
+<h1 class=rvps3><span class=rvts0><span class=rvts14>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Set_Instrm_Directory (Working_Dir, Instrm, IYear, ICycle)</span></p>
 <p><br></p>
 <div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character (</span><span class=rvts14>Len</span><span class=rvts1>=</span><span class=rvts13>*</span><span class=rvts1>)</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character (</span><span class=rvts13>Len</span><span class=rvts1>=</span><span class=rvts12>*</span><span class=rvts1>), Optional</span></p>
 </td>
-<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts13>(</span><span class=rvts1>in</span><span class=rvts13>)</span></p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Working_Dir</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Directory for Numors</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character (</span><span class=rvts13>Len</span><span class=rvts1>=</span><span class=rvts12>*</span><span class=rvts1>), Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
 <td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Instrm</p>
 </td>
 <td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the instrument</p>
 </td>
 </tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character (</span><span class=rvts13>Len</span><span class=rvts1>=</span><span class=rvts12>*</span><span class=rvts1>), Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>IYear</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Year of the Numor</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character (</span><span class=rvts13>Len</span><span class=rvts1>=</span><span class=rvts12>*</span><span class=rvts1>), Optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ICycle</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cycle of the Numor</p>
+</td>
+</tr>
 </table>
 </div>
 <p><br></p>
-<p>Assign the global public variable: <a class=rvts12 href="INSTRMDIRECTORY.html">Instrm_Directory</a>.</p>
+<p>Assign the global public variable: <a class=rvts11 href="INSTRMDIRECTORY.html">Instrm_Directory</a>.</p>
 <p><br></p>
-<p>The argument <span class=rvts13>Instrm</span> is the name of the diffractometer. Then <a class=rvts12 href="INSTRMDIRECTORY.html">iInstrm_Directory</a>=<span class=rvts11>trim</span>(<a class=rvts12 href="ILLDATADIRECTORY.html">ILL_Data_Directory</a>)//<span class=rvts11>trim</span>(<span class=rvts13>Instrm</span>)//<span class=rvts12>DirSlash</span></p>
+<p>If Working_Dir was defined, then it is the directory defined for Instrm_Directory. If not, then <span class=rvts12>Instrm</span> is used.</p>
+<p>When the routine is called using <span class=rvts12>Instrm</span> argument, we have two options:</p>
+<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;"><ul style="text-indent: 0px; margin-left: 48px; list-style-position: outside;">
+<li class=rvps2 style="margin-left: 0">Using IYear and ICycle arguments: Instrm_Directory= ILL_Data_Directory/YYC/<span class=rvts12>Instrm/</span></li>
+<li class=rvps2 style="margin-left: 0">Only with Instrm argument: Instrm_Directory= ILL_Data_Directory/data/<span class=rvts12>Instrm/</span></li>
+</ul></ul>
 <p><br></p>
-<p>It is assumed that the subroutine <a class=rvts12 href="SETILLDATADIRECTORY.html">Set_ILL_Data_Directory</a> has&nbsp; already been called.</p>
+<p>It is assumed that the subroutine <a class=rvts11 href="SETILLDATADIRECTORY.html">Set_ILL_Data_Directory</a> has&nbsp; already been called.</p>
 <p> </p>
-<p class=rvps3><span class=rvts16>Copyleft © 2011, FullProf Suite Team</span></p>
+<p><br></p>
+<p class=rvps4><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

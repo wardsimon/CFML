@@ -129,7 +129,7 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine Set_ILL_Data_Directory (ILL_Data_Try)</span></p>
+<p><span class=rvts10>Subroutine Set_ILL_Data_Directory (FileDir)</span></p>
 <p><br></p>
 <div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
@@ -137,7 +137,7 @@ p,ul,ol /* Paragraph Style */
 </td>
 <td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts12>(</span><span class=rvts1>in</span><span class=rvts12>)</span></p>
 </td>
-<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ILL_Data_Try</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>FileDir</p>
 </td>
 <td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Proposed location of ILL data</p>
 </td>
@@ -145,11 +145,7 @@ p,ul,ol /* Paragraph Style */
 </table>
 </div>
 <p><br></p>
-<p>Assign the global public variable <a class=rvts11 href="ILLDATADIRECTORY.html">ILL_Data_Directory</a>.</p>
-<p><br></p>
-<p>If <span class=rvts12>ILL_Data_Try</span> is blank then data are in the current directory. If invoked without argument, the subroutine asks for the environment variable ILL_Data. </p>
-<p>If it is defined ILL_Data_Directory=ILL_Data,&nbsp; if not ILL_Data_Directory takes the default value defined in the declaration of the variable. If the directory </p>
-<p>doesn't exist the subroutine rises an error condition by putting Err_ILLData=.TRUE. and filling the error message variable Err_ILLData_Mess.</p>
+<p>Assign a new directory to the global public variable <a class=rvts11 href="ILLDATADIRECTORY.html">ILL_Data_Directory</a>. If the directory doesn't exist the subroutine rises an error condition by putting Err_ILLData=.TRUE. and filling the error message variable Err_ILLData_Mess. If <span class=rvts12>FileDir</span> is blank then data are in the current directory.</p>
 <p><br></p>
 <p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>
