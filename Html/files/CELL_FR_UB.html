@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CELL_FR_UB</title>
+<html><head><title>Cell_Fr_UB</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,13 +63,27 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 11pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -108,11 +122,54 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts10>CELL_FR_UB</span></span></h1>
-<p> !!---- Subroutine cell_fr_UB(ub,ipr,dcel,rcel)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),Dimension(3,3), Intent(In) :: ub</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(In) :: ipr</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Calculate and print cell parameters from UB-matrix</p>
-<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Geometry_SXTAL: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Calc_Fr_UB (UB, Ipr, DCell, RCell)</span></p>
+<p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>,</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UB</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UB Matrix</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ipr</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Flag to print information</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>6</span><span class=rvts11>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>DCell</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Direct cell parametrs</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>6</span><span class=rvts11>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>RCell</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Reciprocal cell parameters</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Calculate and print cell parameters from UB-matrix</p>
+<p><br></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CALANG</title>
+<html><head><title>CalAng</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,13 +63,33 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 11pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+a.rvts13, span.rvts13
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts13:hover { color: #0000ff; }
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -108,27 +128,104 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts10>CALANG</span></span></h1>
-<p>!!---- Subroutine calang(h,tteta,om,ch,ph,ierr,wav,ubm,geom)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),Dimension(3),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(In) :: h</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(Out):: tteta,om,ch,ph</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(Out):: ierr</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional, intent(in) :: wav</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), dimension(3,3),optional, intent(in) :: ubm</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional, intent(in) :: geom</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp;&nbsp; Original comments:</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; SUBROUTINE *** CALANG ***</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; VERSION DU 6/10/1976</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; CALCULE LES ANGLES 2THETA OMEGA CHI PHI&nbsp; :</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=1&nbsp; GEOMETRIE BISSECTRICE (PSI=0)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=2&nbsp; GEOMETRIE BISECTING - HICHI&nbsp; (D9, displex,cryostat)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=3&nbsp; GEOMETRIE NORMAL BEAM</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IPARA=4&nbsp; GEOMETRIE PARALLELE (PSI=90)&nbsp; (D15,D16)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; POUR REFLECTION H,K,L ET MATRICE UB DONNEES</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; This subroutine is a more general variant of Angs_4c_bisecting.</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; If the optional arguments are given, the corresponding values</p>
-<p>&nbsp;&nbsp;&nbsp; !!--&gt;&gt;&nbsp;&nbsp;&nbsp; are adopted instead of those of the current instrument.</p>
-<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Geometry_SXTAL: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine CalAng (H, TTheta, Om, Ch, Ph, Ierr, Wav, UBM, Geom)</span></p>
+<p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>H</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Reflection indices</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>TTheta</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>2Theta</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Om</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Omega</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ch</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Chi</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ph</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Phi</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ierr</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Flag for error</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Wav</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Wavelength</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>,</span><span class=rvts12>3</span><span class=rvts11>), </span><span class=rvts1>Optional</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UBM</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UB Matrix</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer, Optional</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Geom</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Geometric definition</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>This subroutine is a more general variant of <a class=rvts13 href="ANGS_4C_BISECTING.html">Angs_4C_Bisecting</a>.</p>
+<p>If the optional arguments are given, the corresponding values are adopted instead of those of the current instrument.</p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -63,13 +63,27 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 11pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -108,12 +122,66 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts10>Z4FrZ1</span></span></h1>
-<p> !!---- Subroutine z4frz1(z1,om,ch,ph,z4)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In), Dimension(3)&nbsp;&nbsp;&nbsp;&nbsp; :: z1</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: om,ch,ph</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(Out), Dimension(3)&nbsp;&nbsp;&nbsp; :: z4</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Calculate Z4 = [OM].[CHI].[PHI].Z1</p>
-<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Geometry_SXTAL: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Z4FrZ1 (Z1, Om, Ch, Ph, Z4)</span></p>
+<p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Z1</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Om</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ch</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ph</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Z4</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Calculate</p>
+<p><br></p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Z4= Om Ch Ph Z1 </p>
+<p><br></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>S4Cnb</title>
+<html><head><title>S4CNB</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,13 +63,27 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 11pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -108,21 +122,50 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts10>S4Cnb</span></span></h1>
-<p>!!---- Subroutine s4cnb(angl_4C,angl_NB,ierr)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), dimension(4), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp; :: angl_4C</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), dimension(3), Intent(Out)&nbsp;&nbsp;&nbsp; :: angl_NB</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent(Out)&nbsp;&nbsp;&nbsp; :: ierr</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!--&lt;&lt;&nbsp;&nbsp;&nbsp; Subroutine *** S4CNB ***&nbsp;&nbsp; A.Filhol &amp; M.Thomas</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Conversion of diffraction angles from the geometry</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; 4-CERCLES === TO ==&gt; NORMAL-BEAM</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ANGL_4C()"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ANGL_NB()"</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp; (/ 2Theta, Omega, Chi, Phi /)&nbsp;&nbsp; (/ Gamma, Omega_nb, nu /)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Error messages:</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IERR=0&nbsp; O.K.</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IERR=1&nbsp; calculation of nu impossible</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IERR=2&nbsp; calculation of gamma impossible</p>
-<p>&nbsp;&nbsp;&nbsp; !!--&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IERR=3&nbsp; calculation of phi impossible</p>
-<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Geometry_SXTAL: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine S4CNB (Angl_4C, Angl_NB, Ierr)</span></p>
+<p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>4</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Angl_4C</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>(/2Theta, Omega, chi, Phi/)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Angl_NB</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>(/Gamma, Omega_NB, Nu/)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ierr</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Error Control flag</p>
+<p>0 -&gt; OK</p>
+<p>1 -&gt; calculation of Nu impossible</p>
+<p>2 -&gt; calculation of Gamma impossible</p>
+<p>3 -&gt;&nbsp; calculation of phi impossible</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Conversion of diffraction angles from the geometry 4-Circles to Normal Beam.</p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

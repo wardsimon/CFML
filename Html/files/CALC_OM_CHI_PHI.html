@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>CALC_OM_CHI_PHI</title>
+<html><head><title>Calc_Om_Chi_Phi</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,13 +63,33 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-span.rvts10 /* Font Style */
+span.rvts10
+{
+ font-size: 11pt;
+ font-weight: bold;
+}
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff0000;
+}
+a.rvts13, span.rvts13
+{
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts13:hover { color: #0000ff; }
+span.rvts14 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts11 /* Font Style */
+span.rvts15 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -108,20 +128,100 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts10>CALC_OM_CHI_PHI</span></span></h1>
-<p>!!---- Subroutine Calc_Om_Chi_Phi(vhkl,vlab1,psi,ub,om,ch,ph,ierr)</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In),Dimension(3)&nbsp;&nbsp;&nbsp;&nbsp; :: vhkl,vlab1</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: psi</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In),Dimension(3,3)&nbsp;&nbsp; :: ub</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; real(kind=cp), Intent(In Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: om,ch,ph</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Integer, Intent(Out)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :: ierr</p>
-<p>&nbsp;&nbsp;&nbsp; !!----</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Calculate OM, CH, PH for diffraction vector at azimuthal angle PSI</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; from the diffraction condition expressed as :</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; [TZ]=[OM].[CH].[PH].[TS].[PSI]-1 if [R]=[OM].[CH].[PH]</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; then [R]'=[TZ].[PSI].[TS]-1</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; The om,ch,ph angles are provided, on input, to calculate the components</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; of the vector vlab1 in the Theta-system for Psi=0</p>
-<p>&nbsp;&nbsp;&nbsp; !!----&nbsp;&nbsp;&nbsp; Used only in the Flat_Cone_vertDet subroutine.</p>
-<p class=rvps3><span class=rvts11>Copyleft © 2011, FullProf Suite Team</span></p>
+<h1 class=rvps2><span class=rvts0><span class=rvts14>CFML_Geometry_SXTAL: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Calc_Om_Chi_Phi (Vhkl, VLab1, Psi, UB, Om, Ch, Ph, Ierr)</span></p>
+<p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vhkl</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Vector Indices hkl</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>VLab1</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><br>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Psi</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Psi</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP), </span><span class=rvts1>Dimension</span><span class=rvts11>(</span><span class=rvts12>3</span><span class=rvts11>,</span><span class=rvts12>3</span><span class=rvts11>)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UB</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>UB Matrix</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Om</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Omega</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ch</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Chi</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real</span><span class=rvts11>(</span><span class=rvts1>Kind</span><span class=rvts11>=CP)</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ph</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Phi</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=269 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=123 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>out</span><span class=rvts11>)</span></p>
+</td>
+<td width=108 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Ierr</p>
+</td>
+<td width=346 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Flag for error</p>
+</td>
+</tr>
+</table>
+</div>
+<p><br></p>
+<p>Calculate Om, Ch, Ph for diffraction vector at azimuthal angle Psi from the diffraction condition expressed as :</p>
+<p><br></p>
+<p>&nbsp;&nbsp; [TZ]=[OM].[CH].[PH].[TS].[PSI]-1&nbsp;&nbsp; if [R]=[OM].[CH].[PH]</p>
+<p><br></p>
+<p>then [R]'=[TZ].[PSI].[TS]-1</p>
+<p><br></p>
+<p>The Om, Ch, Ph angles are provided, on input, to calculate the components of the vector VLab1 in the Theta-system for Psi=0</p>
+<p>Used only in the procedure <a class=rvts13 href="FLAT_CONE_VERTDET.html">Flat_Cone_VertDet</a>.</p>
+<p class=rvps3><span class=rvts15>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>
