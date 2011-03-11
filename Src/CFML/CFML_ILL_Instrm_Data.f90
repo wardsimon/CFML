@@ -115,7 +115,7 @@
 !!--++    GOT_ILL_DATA_DIRECTORY            [Private]
 !!--++    GOT_ILL_TEMP_DIRECTORY            [Private]
 !!----    ILL_DATA_DIRECTORY
-!!--++    ILL_TEMP_DIRECTORY                [Private]
+!!----    ILL_TEMP_DIRECTORY
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
 !!--++    IVALUES                           [Private]
@@ -144,6 +144,7 @@
 !!--++       INITIALIZE_NUMORS_DIRECTORY     [Private]
 !!--++       INITIALIZE_TEMP_DIRECTORY       [Private]
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
+!!----       POWDERNUMOR_TO_DIFFPATTERN
 !!--++       READ_A_KEYTYPE                  [Private]
 !!----       READ_CURRENT_INSTRM
 !!--++       READ_F_KEYTYPE                  [Private]
@@ -172,22 +173,25 @@ Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
-   Use CFML_Math_General,     only: cosd,sind, equal_vector
-   use CFML_String_Utilities, only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
-   use CFML_Math_3D,          only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
-                                    invert => Invert_A
+   Use CFML_Math_General,         only: cosd,sind, equal_vector
+   use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
+   use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
+                                        invert => Invert_A
+   use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
+
    !---- Variables ----!
    Implicit none
 
    private
 
    !---- Public Subroutines ----!
-   public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,   &
-             Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory, &
-             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,                   &
-             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,                  &
-             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20, Set_Instrm_Geometry_Directory,     &
-             Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program
+   public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
+             Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory,   &
+             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,                     &
+             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,                    &
+             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20, Set_Instrm_Geometry_Directory,       &
+             Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program, &
+             PowderNumor_To_DiffPattern
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
@@ -461,6 +465,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: manip       ! principle scan angle
    !!----    integer                                    :: icalc       ! angle calculation type
    !!----    character(len=32)                          :: header      ! User, local contact, date
+   !!----    character(len=4)                           :: Instrm      ! Instrument name
    !!----    character(len=32)                          :: title       !
    !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
    !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
@@ -488,6 +493,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: manip       ! principle scan angle
       integer                                    :: icalc       ! angle calculation type
       character(len=32)                          :: header      ! User, local contact, date
+      character(len=4)                           :: Instrm      ! Instrument name
       character(len=32)                          :: title       !
       character(len=8)                           :: Scantype    ! omega, phi, etc...
       real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
@@ -663,18 +669,18 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=512), public  ::  ILL_Data_Directory = "c:\diffraction_Windows\illdata\"
 
-   !!--++
-   !!--++ ILL_TEMP_DIRECTORY
-   !!--++    character(len=512), private :: ILL_temp_directory
-   !!--++
-   !!--++    (Private)
-   !!--++    String containing information about the data directory for ILL
-   !!--++    Initialised (automatic save attribute) for Windows case but set
-   !!--++    In subroutine: Initialize_Data_Directory
-   !!--++
-   !!--++ Update: April - 2008
+   !!----
+   !!---- ILL_TEMP_DIRECTORY
+   !!----    character(len=512), private :: ILL_temp_directory
+   !!----
+   !!----
+   !!----    String containing information about the data directory for ILL
+   !!----    Initialised (automatic save attribute) for Windows case but set
+   !!----    In subroutine: Initialize_Data_Directory
+   !!----
+   !!---- Update: 10/03/2011
    !!
-   character(len=512), private ::  ILL_temp_directory = "c:\diffraction_Windows\illdata\"
+   character(len=512), public ::  ILL_Temp_directory = "c:\diffraction_Windows\illdata\"
 
    !!--++
    !!--++ IVALUES
@@ -900,6 +906,7 @@ Module CFML_ILL_Instrm_Data
           Num(i)%manip=0
           Num(i)%icalc=0
           Num(i)%header=" "
+          Num(i)%Instrm=" "
           Num(i)%title=" "
           Num(i)%scantype=" "
           Num(i)%angles=0.0
@@ -1096,7 +1103,7 @@ Module CFML_ILL_Instrm_Data
 
        ! Using Instrument Information
        select case(inst)
-          case("d1b","d20","d9","d15","d19")
+          case("d1b","d20","d9","d15","d19","d16")
              subdir = trim(inst)//"_"//numstr(2:2)//ops_sep
 
           case default ! d10, d3 etc don't divide numors up into sub directories
@@ -1104,17 +1111,15 @@ Module CFML_ILL_Instrm_Data
        end select
 
        if (present(iyear) .and. present(icycle)) then
-          ! Using Year+Cycle
+          !> Using Year+Cycle
           write(unit=yearcycle,fmt="(i4.4,i1.1)") iyear,icycle
           yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
-
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
           if (present(actual_path)) actual_path = path
-
           inquire(file=trim(path),exist=exists)
           if (exists) return ! found numor so return
 
-          ! Using previous + compressed data
+          !> Using previous + compressed data
           path = trim(path)//Extension
           inquire(file=trim(path),exist=exists)
           if (exists) then ! uncompress into temp directory
@@ -1124,25 +1129,27 @@ Module CFML_ILL_Instrm_Data
              return ! found numor so return
           end if
 
-          ! Using Year + Cycle of a previous call to routine
-          write(unit=yearcycle,fmt="(i4.4,i1.1)") year_illdata, cycle_number
-          yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
+          ! The next, not haven't sense if you use the Year and cycle     ! by JGP
 
-          path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-          if (present(actual_path)) actual_path = path
-          inquire(file=trim(path),exist=exists)
-          if (exists) return ! found numor so return
-
-          ! Using previous + compressed data
-          path = trim(path)//Extension
-          if (present(actual_path)) actual_path = path
-          inquire(file=trim(path),exist=exists)
-          if (exists) then ! uncompress into temp directory
-             call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-             if (present(actual_path)) actual_path = path
-             path = trim(ILL_temp_directory)//numstr
-             return ! found numor so return
-          end if
+          !> Using Year + Cycle of a previous call to routine
+          !write(unit=yearcycle,fmt="(i4.4,i1.1)") year_illdata, cycle_number
+          !yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
+          !
+          !path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
+          !if (present(actual_path)) actual_path = path
+          !inquire(file=trim(path),exist=exists)
+          !if (exists) return ! found numor so return
+          !
+          !! Using previous + compressed data
+          !path = trim(path)//Extension
+          !if (present(actual_path)) actual_path = path
+          !inquire(file=trim(path),exist=exists)
+          !if (exists) then ! uncompress into temp directory
+          !   call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
+          !   if (present(actual_path)) actual_path = path
+          !   path = trim(ILL_temp_directory)//numstr
+          !   return ! found numor so return
+          !end if
        end if
 
        !> Using Current_data
@@ -1165,9 +1172,9 @@ Module CFML_ILL_Instrm_Data
           path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
           if (present(actual_path)) actual_path = path
           inquire(file=trim(path),exist=exists)
-
           if (exists) return
 
+          ! Using previous + compressed data
           path = trim(path)//Extension
           inquire(file=trim(path),exist=exists)
           if (exists) then ! uncompress into temp directory
@@ -1176,10 +1183,11 @@ Module CFML_ILL_Instrm_Data
              path = trim(ILL_temp_directory)//numstr
              return ! found numor so return
           end if
+
           call get_next_yearcycle(yearcycle)
        end do
 
-       ! the numor was found compressed or uncompressed anywhere
+       ! the numor wasn't found compressed or uncompressed anywhere
        path = " "
        if (present(actual_path)) actual_path = path
 
@@ -1512,6 +1520,63 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Number_KeyTypes_on_File
+
+    !!----
+    !!---- Subroutine PowderNumor_To_DiffPattern(Numor,Pat)
+    !!----    type(powder_numor_type),        intent(in)  :: Numor
+    !!----    type(diffraction_pattern_type), intent(out) :: Pat
+    !!----
+    !!----
+    !!---- Pass the information from Powder_Numor_Type to Diffraction_Pattern_type
+    !!----
+    !!----
+    !!---- 10/03/2011
+    !!
+    Subroutine PowderNumor_To_DiffPattern(Numor,Pat)
+       !---- Arguments ----!
+       type(powder_numor_type),        intent(in)  :: Numor
+       type(diffraction_pattern_type), intent(out) :: Pat
+
+       !---- Local Variables ----!
+       integer :: i
+
+       !> Initialize
+       ERR_ILLData=.false.
+       ERR_ILLData_Mess=' '
+
+       if (numor%nbdata == 0) then
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess=' No points are defined in the present Numor'
+          return
+       end if
+
+       ! Allocating new points
+       call Allocate_Diffraction_Pattern(Pat,Numor%nbdata)
+
+       ! Load values
+       Pat%title=trim(Numor%title)
+
+       pat%Scat_Var=trim(numor%ScanType)
+       Pat%xmin=numor%scans(1)
+       Pat%step=numor%scans(2)
+       Pat%xmax=Pat%xmin+(Pat%npts-1)*Pat%step
+
+       Pat%Monitor=Numor%monitor
+       Pat%TSamp=Numor%conditions(3)
+       Pat%TSet=Numor%conditions(1)
+
+       Pat%Conv(1)=Numor%wave
+       Pat%y=Numor%counts(:,1)
+       do i=1,pat%npts
+          if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+          pat%sigma(i) = pat%y(i)
+          pat%x(i)= pat%xmin+(i-1)*pat%step
+       end do
+       pat%ymin=minval(pat%y(1:pat%npts))
+       pat%ymax=maxval(pat%y(1:pat%npts))
+
+       return
+    End Subroutine PowderNumor_To_DiffPattern
 
     !!--++
     !!--++ Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
@@ -1847,7 +1912,7 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        character(len=80)      :: line
-       integer                :: i,j,nl
+       integer                :: i,j,k,nl
        integer, dimension(10) :: ivet
        real, dimension(5)     :: vet
 
@@ -1882,15 +1947,21 @@ Module CFML_ILL_Instrm_Data
        end if
 
        if (nval_f > 0) then
-          nl=5*(nval_f/5 + mod(nval_f,5))
-          allocate(rvalues(nl))
+          nl=nval_f/5
+          if (mod(nval_f,5) /= 0) nl=nl+1
+          allocate(rvalues(nval_f))
           rvalues=0.0
 
           j=1
           do i=n_ini+ntext+2, n_end
              read(unit=filevar(i),fmt='(5E16.8)') vet
-             rvalues(j:j+4)=vet
-             j=j+5
+             if (i /= n_end) then
+                rvalues(j:j+4)=vet
+                j=j+5
+             else
+                k=nval_f-(nl-1)*5
+                rvalues(j:j+k-1)=vet(1:k)
+             end if
           end do
        end if
 
@@ -1913,7 +1984,7 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        character(len=80)      :: line
-       integer                :: i,j, nl
+       integer                :: i,j,k, nl
        integer, dimension(10) :: ivet
 
        ! Init output values
@@ -1947,15 +2018,21 @@ Module CFML_ILL_Instrm_Data
        end if
 
        if (nval_i > 0) then
-          nl=10*(nval_i/10 + mod(nval_i,10))
-          allocate(ivalues(nl))
+          nl=nval_i/10
+          if (mod(nval_i,10) /= 0) nl=nl+1
+          allocate(ivalues(nval_i))
           ivalues=0
 
           j=1
           do i=n_ini+ntext+2, n_end
              read(unit=filevar(i),fmt='(10i8)') ivet
-             ivalues(j:j+9)=ivet
-             j=j+10
+             if (i /= n_end) then
+                ivalues(j:j+9)=ivet
+                j=j+10
+             else
+                k=nval_i-(nl-1)*10
+                ivalues(j:j+k-1)=ivet(1:k)
+             end if
           end do
        end if
 
@@ -1978,8 +2055,8 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        character(len=80)      :: line
-       integer                :: i,j,nl
-       integer, dimension(10) :: ivet
+       integer                :: i,j,k,nl
+       integer, dimension(8)  :: ivet
 
        ! Init output values
        err_illdata=.false.
@@ -2012,15 +2089,21 @@ Module CFML_ILL_Instrm_Data
        end if
 
        if (nval_i > 0) then
-          nl=8*(nval_i/8 + mod(nval_i,8))
-          allocate(ivalues(nl))
+          nl=nval_i/8
+          if (mod(nval_i,8) /= 0) nl=nl+1
+          allocate(ivalues(nval_i))
           ivalues=0
 
           j=1
           do i=n_ini+ntext+2, n_end
-             read(unit=filevar(i),fmt='(8i10)') ivet(1:8)
-             ivalues(j:j+7)=ivet(1:8)
-             j=j+8
+             read(unit=filevar(i),fmt='(8i10)') ivet
+             if (i /= n_end) then
+                ivalues(j:j+7)=ivet
+                j=j+8
+             else
+                k=nval_i-(nl-1)*8
+                ivalues(j:j+k-1)=ivet(1:k)
+             end if
           end do
 
        end if
@@ -2030,7 +2113,7 @@ Module CFML_ILL_Instrm_Data
 
     !!----
     !!---- Subroutine Read_Numor_D1B(filevar,N)
-    !!----    character(len=*), intent(in)          :: fileinfo
+    !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(generic_numor_type), intent(out) :: n
     !!----
     !!---- Subroutine to read a Numor of D1B Instrument at ILL
@@ -2039,8 +2122,8 @@ Module CFML_ILL_Instrm_Data
     !!
     Subroutine Read_Numor_D1B(fileinfo,N)
        !---- Arguments ----!
-       character(len=*), intent(in)          :: fileinfo
-       type(generic_numor_type), intent(out) :: n
+       character(len=*),         intent(in)   :: fileinfo
+       type(powder_numor_type), intent(out)   :: n
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
@@ -2054,7 +2137,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the numor for D1B Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D1B Instrument'
           return
        end if
 
@@ -2071,7 +2154,7 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
-       ! Defining the different blocks
+       ! Defining the different blocks and load information on nl_keytypes
        call Set_KeyTypes_on_File(filevar,nlines)
 
        ! Numor
@@ -2081,97 +2164,42 @@ Module CFML_ILL_Instrm_Data
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
-          n%instr=line(1:4)
-          n%expname=line(5:14)
-          n%date=line(15:32)
+          n%instrm=line(1:4)
+          n%header=line(5:32)
        end if
 
        ! Title/Sample
        call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
        if (idum > 0) then
-          n%SampleID%n=4
-          if (allocated(n%sampleid%namevar)) deallocate(n%sampleid%namevar)
-          if (allocated(n%sampleid%cvalues)) deallocate(n%sampleid%cvalues)
-          allocate(n%sampleid%namevar(4))
-          allocate(n%sampleid%cvalues(4))
-
-          ! Given names
-          n%sampleid%namevar=' '
-          n%sampleid%namevar(1)='Name'
-          n%sampleid%namevar(2)='Local Contact'
-          n%sampleid%namevar(3)='Experimentalist'
-          n%sampleid%namevar(4)='Proposal Number'
-
-          ! Load values
-          n%sampleid%cvalues=' '
           n%title=trim(line)
-          n%sampleid%cvalues(1)=trim(line)
        end if
 
        ! Control Flags
        call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
        if (nval_i > 0) then
-          n%dacflags%n=nval_i
-          if (allocated(n%dacflags%namevar)) deallocate(n%dacflags%namevar)
-          if (allocated(n%dacflags%ivalues)) deallocate(n%dacflags%ivalues)
-          allocate(n%dacflags%namevar(nval_i))
-          allocate(n%dacflags%ivalues(nval_i))
-
-          ! Given names
-          n%dacflags%namevar=' '
-          n%dacflags%namevar( 5)='N. of additional parameters saved per data point'      ! Nbang (0-7)
-          n%dacflags%namevar( 7)='Number of data points saved'                           ! Npdone (Nframes)
-          n%dacflags%namevar( 8)='Count on Monitor or Time'                              ! Jcode (0/1)
-          n%dacflags%namevar(24)='N. of count data'                                      ! Nbdata
-
-          ! Load values
-          n%dacflags%ivalues=ivalues(1:nval_i)
        end if
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%dacparam%n=nval_f
-          if (allocated(n%dacparam%namevar)) deallocate(n%dacparam%namevar)
-          if (allocated(n%dacparam%rvalues)) deallocate(n%dacparam%rvalues)
-          allocate(n%dacparam%namevar(nval_f))
-          allocate(n%dacparam%rvalues(nval_f))
-
-          ! Given names
-          n%dacparam%namevar=' '
-
-          n%dacparam%namevar(18)='Wavelength'
-
-          n%dacparam%namevar(36)='Scan Start'
-          n%dacparam%namevar(37)='Scan Step'
-          n%dacparam%namevar(38)='Scan Width'
-
-          n%dacparam%namevar(39)='Preset monitor or Time'
-
-          n%dacparam%namevar(46)='Temp-s.pt'
-          n%dacparam%namevar(47)='Temp-Regul'
-          n%dacparam%namevar(48)='Temp-Sample'
-
-          ! Load values
-          n%dacparam%rvalues=rvalues(1:nval_f)
+          n%scantype='2theta'
+          n%wave=rvalues(18)
+          n%scans(1)=rvalues(7)
+          n%scans(2)=0.2
+          n%conditions(1:3)=rvalues(46:48)  ! Temp-s, Temp-r, Temp-sample
+          n%time=rvalues(39)*0.001          ! T en seg
        end if
 
        ! Counts
+       if (allocated(n%counts)) deallocate(n%counts)
        call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
        if (nval_i > 0) then
-          n%icounts%n=nval_i
-          if (allocated(n%icounts%namevar)) deallocate(n%icounts%namevar)
-          if (allocated(n%icounts%ivalues)) deallocate(n%icounts%ivalues)
-          allocate(n%icounts%namevar(3))
-          allocate(n%icounts%ivalues(nval_i))
-
-          ! Given Names
-          n%icounts%namevar(1)='Monitor'
-          n%icounts%namevar(2)='Time'
-          n%icounts%namevar(3)='Initial Scan'
-
-          ! Load values
-          n%icounts%ivalues=ivalues(1:nval_i)
+          n%nbdata=nval_i-3
+          n%monitor=real(ivalues(1))
+          if (n%nbdata > 0) then
+             allocate(n%counts(n%nbdata,1))
+             n%counts(:,1)=real(ivalues(4:nval_i))
+          end if
        end if
 
        return
@@ -2737,7 +2765,9 @@ Module CFML_ILL_Instrm_Data
     !!--++    integer,                        intent(out) :: nvers     ! Version data
     !!--++
     !!--++ (Private)
-    !!--++ Read the Blocktype R on Numor at ILL
+    !!--++ Read the Blocktype R on Numor at ILL.
+    !!--++ If text is readen, then it is saved on Text_ILL variable and the number of lines is
+    !!--++ saved on ntext
     !!--++
     !!--++ Update: April - 2009
     !!
@@ -2772,9 +2802,9 @@ Module CFML_ILL_Instrm_Data
 
        ! Getting information
        read(unit=filevar(n_ini+1),fmt='(10i8)') ivet
-       nrun =ivet(1)
-       nvers=ivet(3)
-       ntext=ivet(2)
+       nrun =ivet(1)   ! Numor
+       ntext=ivet(2)   ! Number of lines of descriptive text
+       nvers=ivet(3)   ! Version of the data
 
        if (ntext > 0) then
           allocate(text_ill(ntext))

@@ -139,7 +139,7 @@ rem
 rem WINTERACTER + DEBUG
 rem
 :IFORT_WD
-   rem call comp_ifort_wd
+   call comp_ifort_wd
    goto FIN
 rem
 rem ----------------------
