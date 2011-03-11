@@ -196,7 +196,7 @@ Module CFML_ILL_Instrm_Data
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
              Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,    &
-             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File
+             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Numor_Generic
 
 
    !---- Definitions ----!
@@ -1638,9 +1638,10 @@ Module CFML_ILL_Instrm_Data
 
        if (nchars > 0) then
           charline=' '
-          n=nchars/80 + mod(nchars,80)
+          n=nchars/80
+          if (mod(nchars,80) /= 0) n=n+1
           do i=1,n
-             charline=trim(charline)//filevar(n_ini+1+i)//char(9)
+             charline=trim(charline)//filevar(n_ini+1+i)//char(10)
           end do
        end if
 
@@ -2206,15 +2207,15 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D1B
 
     !!----
-    !!---- Subroutine Read_Numor_D20(filevar,N)
+    !!---- Subroutine Read_Numor_Generic(filevar,N)
     !!----    character(len=*), intent(in) :: fileinfo
     !!----    type(generic_numor_type), intent(out) :: n
     !!----
-    !!---- Read a Numor for D20 Instrument at ILL
+    !!---- Read a Numor (Not yet operative)
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 11/03/2011
     !!
-    Subroutine Read_Numor_D20(fileinfo,N)
+    Subroutine Read_Numor_Generic(fileinfo,N)
        !---- Arguments ----!
        character(len=*), intent(in) :: fileinfo
        type(generic_numor_type), intent(out) :: n
@@ -2465,6 +2466,129 @@ Module CFML_ILL_Instrm_Data
 
           ! Load values
           n%icounts%ivalues=ivalues(1:nval_i)
+       end if
+
+       return
+    End Subroutine Read_Numor_Generic
+
+    !!----
+    !!---- Subroutine Read_Numor_D20(filevar,N)
+    !!----    character(len=*), intent(in) :: fileinfo
+    !!----    type(generic_numor_type), intent(out) :: n
+    !!----
+    !!---- Read a Numor for D20 Instrument at ILL
+    !!----
+    !!---- Update: 11/03/2011
+    !!
+    Subroutine Read_Numor_D20(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*), intent(in) :: fileinfo
+       type(powder_numor_type), intent(out) :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=40), dimension(5)              :: dire
+       character(len=1024)                          :: line
+       character(len=80)                            :: linec
+       integer                                      :: nlines
+       integer                                      :: i,j,numor,idum,nl
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the numor for D20 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Check format for D20
+       call Number_KeyTypes_on_File(filevar,nlines)
+       if (.not. equal_vector(n_keytypes,(/1,2,1,6,0,1,0/),7)) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D20 Format'
+          return
+       end if
+
+       ! Defining the different blocks
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+
+       ! Title
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          i=index(line,'Title :')
+          j=index(line,'Local')
+          if (i > 0) then
+             n%title=line(i+7:j-2)
+             n%title=trim(n%title)
+          end if
+       end if
+
+       ! Wave
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%wave=rvalues(4)
+       end if
+
+       ! Monochromator Motor Parameters
+       !call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
+       !if (nval_f > 0) then
+       !end if
+
+       ! Diffractometer Motor Parameters
+       !call read_F_keyType(filevar,nl_keytypes(4,3,1),nl_keytypes(4,3,2))
+       !if (nval_f > 0) then
+       !   ! Zero 2Theta?
+       !end if
+
+       ! Detector and DAS Parameters
+       !call read_F_keyType(filevar,nl_keytypes(4,4,1),nl_keytypes(4,4,2))
+       !if (nval_f > 0) then
+       !end if
+
+       ! Data Acquisition Control Parameters
+       call read_F_keyType(filevar,nl_keytypes(4,5,1),nl_keytypes(4,5,2))
+       if (nval_f > 0) then
+          n%monitor=rvalues(51)
+          n%time=rvalues(52)
+       end if
+
+       ! Sample Status
+       call read_F_keyType(filevar,nl_keytypes(4,6,1),nl_keytypes(4,6,2))
+       if (nval_f > 0) then
+          n%conditions(1:3)=rvalues(2:4)
+          n%ScanType='2theta'
+          n%scans(1)=rvalues(5)
+          n%scans(2)=0.1
+       end if
+
+       ! S Block
+
+       ! Counts Information
+       call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
+       if (nval_i > 0) then
+          n%nbdata=nval_i
+          if (n%nbdata > 0) then
+             allocate(n%counts(n%nbdata,1))
+             n%counts(:,1)=real(ivalues(1:nval_i))
+          end if
        end if
 
        return
