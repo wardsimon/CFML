@@ -1069,8 +1069,6 @@ Module CFML_ILL_Instrm_Data
        character(len=7) :: subdir
        logical          :: exists
 
-       integer          :: i
-
        ! Init value
        path=" "
        if (present(actual_path)) actual_path = path
