@@ -151,6 +151,8 @@
 !!--++       READ_I_KEYTYPE                  [Private]
 !!--++       READ_J_KEYTYPE                  [Private]
 !!----       READ_NUMOR_D1B
+!!----       READ_NUMOR_D9
+!!----       READ_NUMOR_D19
 !!----       READ_NUMOR_D20
 !!----       READ_POWDER_NUMOR
 !!--++       READ_R_KEYTYPE                  [Private]
@@ -164,6 +166,8 @@
 !!----       SET_KEYTYPES_ON_FILE            [Private]
 !!----       UPDATE_CURRENT_INSTRM_UB
 !!----       WRITE_CURRENT_INSTRM_DATA
+!!----       WRITE_HEADERINFO_POWDER_NUMOR
+!!----       WRITE_HEADERINFO_SXTAL_NUMOR
 !!----       WRITE_GENERIC_NUMOR
 !!----       WRITE_POWDER_NUMOR
 !!----       WRITE_SXTAL_NUMOR
@@ -185,18 +189,21 @@ Module CFML_ILL_Instrm_Data
    private
 
    !---- Public Subroutines ----!
-   public :: Set_Current_Orient, Read_SXTAL_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
-             Allocate_SXTAL_numors, Write_SXTAL_Numor, Set_ILL_data_directory, Set_Instrm_directory,   &
-             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,                     &
-             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,                    &
-             Write_Generic_Numor, Read_Numor_D1B, Read_Numor_D20, Set_Instrm_Geometry_Directory,       &
-             Allocate_Powder_Numors, Read_POWDER_Numor, Write_POWDER_Numor, Define_Uncompress_Program, &
-             PowderNumor_To_DiffPattern
+   public :: Set_Current_Orient, Read_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
+             Allocate_SXTAL_numors, Set_ILL_data_directory, Set_Instrm_directory,                &
+             Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
+             Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
+             Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
+             Allocate_Powder_Numors, Define_Uncompress_Program, &
+             PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
              Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,    &
-             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Numor_Generic
+             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,         &
+             Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,          &
+             Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
+             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor
 
 
    !---- Definitions ----!
@@ -520,6 +527,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: manip       ! principle scan angle
    !!----    integer                                    :: icalc       ! angle calculation type
    !!----    character(len=32)                          :: header      ! User, local contact, date
+   !!----    character(len=4)                           :: Instrm      ! Instrument name
    !!----    character(len=32)                          :: title       !
    !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
    !!----    real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
@@ -551,6 +559,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: manip       ! principle scan angle
       integer                                    :: icalc       ! angle calculation type
       character(len=32)                          :: header      ! User, local contact, date
+      character(len=4)                           :: Instrm      ! Instrument name
       character(len=32)                          :: title       !
       character(len=8)                           :: Scantype    ! omega, phi, etc...
       real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
@@ -868,6 +877,22 @@ Module CFML_ILL_Instrm_Data
    !!
    integer,            public  ::  year_illdata
 
+   !---- Interfaces - Overloaded ----!
+    Interface  Read_Numor
+       Module Procedure Read_Powder_Numor
+       Module Procedure Read_SXTAL_Numor
+    End Interface
+
+    Interface  Write_Numor_Info
+       Module Procedure Write_Powder_Numor
+       Module Procedure Write_SXTAL_Numor
+    End Interface
+
+    Interface  Write_HeaderInfo_Numor
+       Module Procedure Write_HeaderInfo_Powder_Numor
+       Module Procedure Write_HeaderInfo_SXTAL_Numor
+    End Interface
+
  Contains
 
     !!----
@@ -968,6 +993,7 @@ Module CFML_ILL_Instrm_Data
           Num(i)%manip=0
           Num(i)%icalc=0
           Num(i)%header=" "
+          Num(i)%instrm=" "
           Num(i)%title=" "
           Num(i)%scantype=" "
           Num(i)%hmin=0.0
@@ -985,13 +1011,16 @@ Module CFML_ILL_Instrm_Data
           Num(i)%nframes=0
 
           if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
-          allocate(Num(i)%tmc_ang(num_ang,nframes))
+          if (num_ang > 0 .and. nframes > 0) then
+             allocate(Num(i)%tmc_ang(num_ang,nframes))
+             Num(i)%tmc_ang=0.0
+          end if
 
           if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
-          allocate(Num(i)%counts(ndata,nframes))
-
-          Num(i)%tmc_ang(:,:)=0.0
-          Num(i)%counts(:,:)=0.0
+          if (ndata > 0 .and. nframes > 0) then
+             allocate(Num(i)%counts(ndata,nframes))
+             Num(i)%counts=0.0
+          end if
        end do
 
        return
@@ -1639,7 +1668,7 @@ Module CFML_ILL_Instrm_Data
           n=nchars/80
           if (mod(nchars,80) /= 0) n=n+1
           do i=1,n
-             charline=trim(charline)//filevar(n_ini+1+i)//char(10)
+             charline=trim(charline)//filevar(n_ini+ntext+1+i)//char(10)
           end do
        end if
 
@@ -2205,6 +2234,295 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D1B
 
     !!----
+    !!---- Subroutine Read_Numor_D9(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D9 Instrument at ILL
+    !!----
+    !!---- Counts: 32 x 32 = 1024
+    !!----
+    !!---- Update: 14/03/2011
+    !!
+    Subroutine Read_Numor_D9(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(SXTAL_numor_type),   intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D9 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D9
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(line(1:4),'D9') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D9 Format'
+          return
+       end if
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line(1:60))
+          n%scantype=trim(line(73:))
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Number of Points
+          n%icdesc(1:7)=ivalues(25:31)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%HMin=rvalues(1:3)          ! HKL min
+          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          n%ub(1,:)=rvalues(9:11)      !
+          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          n%ub(3,:)=rvalues(15:17)     !
+          n%wave=rvalues(18)           ! Wavelength
+          n%HMax=rvalues(22:24)        ! HKL max
+          n%dh=rvalues(25:27)          ! Delta HKL
+          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          n%preset=rvalues(39)         ! Preset
+          n%cpl_fact=rvalues(43)       ! Coupling factor
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Loading Frames
+       do i=1,n%nframes
+
+          !Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          if (nval_f > 0) then
+             select case (nval_f)
+                case (4)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)
+                   n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
+
+                case (5)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)
+                   n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle
+
+                case default
+                   call IntegerToString(i,car,'(i5)')
+                   car=adjustl(car)
+                   err_illdata=.true.
+                   err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
+                                    //' parameters in the Frame: '//trim(car)
+                   return
+             end select
+          end if
+
+          ! Counts
+          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          if (nval_i /= n%nbdata) then
+             call IntegerToString(i,car,'(i5)')
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             return
+          end if
+          if (nval_i > 0) then
+             n%counts(:,i)=ivalues(1:n%nbdata)
+          end if
+       end do
+
+       return
+    End Subroutine Read_Numor_D9
+
+    !!----
+    !!---- Subroutine Read_Numor_D19(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D19 Instrument at ILL
+    !!----
+    !!---- Counts: 640 x 256 = 1024
+    !!----
+    !!---- Update: 14/03/2011
+    !!
+    Subroutine Read_Numor_D19(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(SXTAL_numor_type),   intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D19 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D19
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(line(1:4),'D19') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D19 Format'
+          return
+       end if
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line(1:60))
+          n%scantype=trim(line(73:))
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Number of Points
+          n%icdesc(1:7)=ivalues(25:31)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%HMin=rvalues(1:3)          ! HKL min
+          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          n%ub(1,:)=rvalues(9:11)      !
+          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          n%ub(3,:)=rvalues(15:17)     !
+          n%wave=rvalues(18)           ! Wavelength
+          n%HMax=rvalues(22:24)        ! HKL max
+          n%dh=rvalues(25:27)          ! Delta HKL
+          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          n%preset=rvalues(39)         ! Preset
+          n%cpl_fact=rvalues(43)       ! Coupling factor
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Loading Frames
+       do i=1,n%nframes
+
+          !Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
+             n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+             n%tmc_ang(2:3,i)=rvalues(2:3)
+             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+          else
+             call IntegerToString(i,car,'(i5)')
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
+                               //' parameters in the Frame: '//trim(car)
+             return
+          end if
+
+          ! Counts
+          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          if (nval_i /= n%nbdata) then
+             call IntegerToString(i,car,'(i5)')
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             return
+          end if
+          if (nval_i > 0) then
+             n%counts(:,i)=ivalues(1:n%nbdata)
+          end if
+       end do
+
+       return
+    End Subroutine Read_Numor_D19
+
+    !!----
     !!---- Subroutine Read_Numor_Generic(filevar,N)
     !!----    character(len=*), intent(in) :: fileinfo
     !!----    type(generic_numor_type), intent(out) :: n
@@ -2593,290 +2911,142 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D20
 
     !!----
-    !!---- Subroutine Read_POWDER_Numor(Numor,Instrm,Pathdir,Snum,Info)
-    !!----    integer,                 intent(in)    :: numor
-    !!----    character(len=*),        intent(in)    :: instrm
-    !!----    character(len=*),        intent(in)    :: pathdir
-    !!----    type(POWDER_Numor_type), intent(in out):: snum
-    !!----    logical, optional,       intent(in)    :: info
+    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,Num)
+    !!----    character(len=*),            intent(in)    :: PathNumor
+    !!----    character(len=*),            intent(in)    :: Instrument
+    !!----    type(Powder_Numor_type),     intent(out)   :: Num
     !!----
-    !!----    Read the numor "numor" from the ILL database and construct
-    !!----    the object 'snum' of type POWDER_Numor_type.
-    !!----    (not completely checked yet)
+    !!----    Read a Powder numor from the ILL database.
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: April - 2009
+    !!---- Update: 15/03/2011
     !!
-    Subroutine Read_POWDER_Numor(numor,instrm,pathdir,snum,info)
+    Subroutine Read_Powder_Numor(PathNumor,Instrument,Num)
        !---- Arguments ----!
-       integer,                 intent(in)    :: numor
-       character(len=*),        intent(in)    :: instrm
-       character(len=*),        intent(in)    :: pathdir
-       type(POWDER_Numor_type), intent(in out):: snum
-       logical, optional,       intent(in)    :: info
+       character(len=*),           intent(in)    :: PathNumor
+       character(len=*),           intent(in)    :: Instrument
+       type(Powder_Numor_Type),    intent(out)   :: Num
 
        !---- Local variables ----!
-       character(len=512)              :: filenam
-       character(len=6)                :: inst
-       character(len=8)                :: item
-       character(len=80)               :: line
-       integer                         :: i,j,n1,n2,n3, lun, ier
-       integer, dimension(31)          :: ival
-       real(kind=cp),    dimension(50) :: rval
-       logical                         :: existe
+       character(len=512)     :: Path, LocalDir
+       character(len=80)      :: Filename
+       character(len=4)       :: Instr
+       integer                :: i, n
 
-       ! Instrument
-       inst=adjustl(instrm)
-       call lcase(inst)
+       ! Initialize
+       ERR_ILLData=.false.
+       ERR_ILLData_Mess= ' '
 
-       ! Construct the absolute path and filename to be read
-       if (.not. got_ILL_data_directory  .or. len_trim(pathdir) == 0) then
-          call Get_Absolute_Data_Path(numor,instrm,filenam)
+       ! Check
+       if (len_trim(PathNumor) <= 0 .or. len_trim(Instrument) <=0 ) return
+       instr=u_case(adjustl(Instrument))
+
+       ! Path + Numor
+       n=index(pathnumor,ops_sep, back=.true.)
+       if (n > 0) then
+          path=pathnumor(:n)
+          filename=pathnumor(n+1:)
        else
-          write(unit=line,fmt="(i6.6)") numor
-          i=len_trim(pathdir)
-          if(i /= 0) then
-             if (pathdir(i:i) /= ops_sep) filenam=trim(pathdir)//ops_sep//trim(line)
-          end if
-          filenam=trim(pathdir)//trim(line)
+          path=' '
+          filename=trim(pathnumor)
        end if
 
-       ! Check if the data exist uncompressed or compressed
-       inquire(file=trim(filenam),exist=existe)
-       if (.not. existe) then
+       ! Compressed Numor
+       n=index(filename,'.Z')
+       if (n > 0) then
           ERR_ILLData=.true.
-          ERR_ILLData_Mess=" Error: the file: "//trim(filenam)//", doesn't exist!"
+          ERR_ILLData_Mess= " Numor file is compressed. Please uncompress the numor before to use this routine"
           return
        end if
 
-       call Get_LogUnit(lun)
-       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
-       if (ier /= 0) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess=" Error opening the file: "//trim(filenam)//", for reading numors"
-          return
-       end if
+       ! Read Numor
+       select case (trim(Instr))
+          case ('D1A')
 
-       Select Case (inst)
-          case("d1b")
-             read(unit=lun,fmt="(a)",iostat=ier) line
-             read(unit=lun,fmt=*,iostat=ier) snum%numor
-             do i=1,3
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             snum%header=line
-             do i=1,3
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             snum%title=line(1:32)
-             do i=1,2
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             read(unit=lun,fmt=*,iostat=ier) ival
-             if (ier /= 0) then
-                 ERR_ILLData=.true.
-                 ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading integer control values"
-                 return
-             end if
-             do i=1,2
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             read(unit=lun,fmt=*,iostat=ier) rval
-             if (ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading real control values"
-                return
-             end if
-             snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
-             snum%wave=rval(18)           ! wavelength             [valco(18)]
-             snum%scans=rval(36:38)       ! start, step, end     [valdef(1:3)]
-             snum%scans(2)=0.2
-             snum%monitor=rval(39)        ! monitor               [valdef(4)]
-             snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
-             snum%nbdata=ival(24)         ! nbdata
-             snum%manip=ival(4)           ! manip
-             snum%nbang=ival(5)           ! nbang
-             snum%nframes=ival(7)         ! npdone
-             snum%icalc=ival(9)           ! icalc
-             snum%icdesc(1:7)=ival(25:31) ! icdesc
-             if (present(info)) then
-                if (info) then
-                   do j=1,4
-                      read(unit=lun,fmt="(a)",iostat=ier) line
-                   end do
-                   read(unit=lun,fmt="(a8,2i8)", iostat=ier) item,n2,n3
-                   read(unit=item,fmt=*,iostat=ier) n1
-                   if (ier /=0) n1=99999999
-                   snum%scans(1)=real(n3)*0.001
-                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
-                   snum%monitor=real(n1)
-                   snum%time=real(n2)/60000.0
-                   return
-                end if
-             end if
-             if (allocated(snum%counts)) deallocate(snum%counts)
-             allocate(snum%counts(ival(24),ival(7)))
-             snum%counts=0.0
-             if (allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
-             allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
-             snum%tmc_ang=0.0
+          case ('D1B')
+             call Read_Numor_D1B(trim(path)//trim(filename),Num)
 
-             do i=1,snum%nframes
-                do j=1,3
-                   read(unit=lun,fmt="(a)",iostat=ier) line
-                end do
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
-                if (j > snum%nbdata) then
-                   read(unit=lun,fmt="(a8,2i8,7f8.0)", iostat=ier) item,n2,n3, snum%counts(1:7,i)
-                   if (ier /= 0) then
-                      ERR_ILLData=.true.
-                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                      return
-                   end if
-                   read(unit=lun,fmt=*, iostat=ier) snum%counts(8:snum%nbdata,i)
-                   if (ier /= 0) then
-                      ERR_ILLData=.true.
-                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                      return
-                   end if
+          case ('D2B')
 
-                   !Re-afect the values of n1,n2 and n3 to Monitor, Time and initial 2Theta
-                   snum%scans(1)=real(n3)*0.001
-                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
-                   read(unit=item,fmt=*,iostat=ier) n1
-                   if (ier /=0) n1=99999999
-                   snum%monitor=real(n1)
-                   snum%time=real(n2)/60000.0
-                else
-                   read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
-                   if (ier /= 0) then
-                      ERR_ILLData=.true.
-                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                      return
-                   end if
-                end if
-             end do
-             close(unit=lun)
+          case ('D20')
+             call Read_Numor_D20(trim(path)//trim(filename),Num)
 
-          Case("d20")
-             snum%scans(2)=0.1
-             read(unit=lun,fmt="(a)",iostat=ier) line
-             read(unit=lun,fmt=*,iostat=ier) snum%numor
-             do i=1,4
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             snum%header=line
-             do i=1,3
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             i=index(line,":")
-             snum%header=trim(snum%header)//line(i+1:)
-             do i=1,2
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             read(unit=lun,fmt=*,iostat=ier) ival
-             if (ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading integer control values"
-                return
-             end if
-             do i=1,2
-                read(unit=lun,fmt="(a)",iostat=ier) line
-             end do
-             read(unit=lun,fmt=*,iostat=ier) rval
-             if (ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess=" Error in file: "//trim(filenam)//", reading real control values"
-                return
-             end if
-             snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
-             snum%wave=rval(18)           ! wavelength             [valco(18)]
-             snum%scans=rval(36:38)       ! start, step, end     [valdef(1:3)]
-             snum%scans(2)=0.2
-             snum%monitor=rval(39)        ! monitor               [valdef(4)]
-             snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
-             snum%nbdata=ival(24)         ! nbdata
-             snum%manip=ival(4)           ! manip
-             snum%nbang=ival(5)           ! nbang
-             snum%nframes=ival(7)         ! npdone
-             snum%icalc=ival(9)           ! icalc
-             snum%icdesc(1:7)=ival(25:31) ! icdesc
-             if (present(info)) then
-                if (info) then
-                   do j=1,4
-                      read(unit=lun,fmt="(a)",iostat=ier) line
-                   end do
-                   read(unit=lun,fmt="(a8,2i8)", iostat=ier) item,n2,n3
-                   read(unit=item,fmt=*,iostat=ier) n1
-                   if(ier /=0) n1=99999999
-                   snum%scans(1)=real(n3)*0.001
-                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
-                   snum%monitor=real(n1)
-                   snum%time=real(n2)/60000.0
-                   return
-                end if
-             end if
-             if (allocated(snum%counts)) deallocate(snum%counts)
-             allocate(snum%counts(ival(24),ival(7)))
-             snum%counts=0.0
-             if (allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
-             allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
-             snum%tmc_ang=0.0
-
-             do i=1,snum%nframes
-                do j=1,3
-                   read(unit=lun,fmt="(a)",iostat=ier) line
-                end do
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
-                if (j > snum%nbdata) then
-                   read(unit=lun,fmt="(a8,2i8,7f8.0)", iostat=ier) item,n2,n3, snum%counts(1:7,i)
-                   if (ier /= 0) then
-                      ERR_ILLData=.true.
-                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                      return
-                   end if
-                   read(unit=lun,fmt=*, iostat=ier) snum%counts(8:snum%nbdata,i)
-                   if (ier /= 0) then
-                      ERR_ILLData=.true.
-                      write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                           " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                      return
-                   end if
-                   ! Re-afect the values of n1,n2 and n3 to Monitor, Time and initial 2Theta
-                   snum%scans(1)=real(n3)*0.001
-                   snum%scans(3)= snum%scans(1) + snum%scans(2)*real(snum%nbdata-1)
-                   read(unit=item,fmt=*,iostat=ier) n1
-                   if(ier /=0) n1=99999999
-                   snum%monitor=real(n1)
-                   snum%time=real(n2)/60000.0
-               else
-                  read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
-                  if (ier /= 0) then
-                     ERR_ILLData=.true.
-                     write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                          " Error in file: "//trim(filenam)//", reading counts at frame #",i
-                     return
-                  end if
-               end if
-            end do
-            close(unit=lun)
-
-         Case("d1a")
-         Case("d2b")
-         Case("d4c")
-
-         Case default
-            ERR_ILLData=.true.
-            ERR_ILLData_Mess= " Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
-       End Select
+          case default
+             ERR_ILLData=.true.
+             ERR_ILLData_Mess= " Incorrect Powder Instrument name: "//trim(instrument)
+             return
+       end select
 
        return
-    End Subroutine Read_POWDER_Numor
+    End Subroutine Read_Powder_Numor
+
+    !!----
+    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num)
+    !!----    character(len=*),            intent(in)    :: PathNumor
+    !!----    character(len=*),            intent(in)    :: Instrument
+    !!----    type(SXTAL_Numor_type),      intent(out)   :: Num
+    !!----
+    !!----    Read a SXTAL numor from the ILL database.
+    !!----    In case of error the subroutine puts ERR_ILLData=.true.
+    !!----    and fils the error message variable ERR_ILLData_Mess.
+    !!----
+    !!---- Update: 15/03/2011 9:16:46
+    !!
+    Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num)
+       !---- Arguments ----!
+       character(len=*),           intent(in)    :: PathNumor
+       character(len=*),           intent(in)    :: Instrument
+       type(SXTAL_Numor_Type),     intent(out)   :: Num
+
+       !---- Local variables ----!
+       character(len=512)     :: Path, LocalDir
+       character(len=80)      :: Filename
+       character(len=4)       :: Instr
+       integer                :: i, n
+
+       ! Initialize
+       ERR_ILLData=.false.
+       ERR_ILLData_Mess= ' '
+
+       ! Check
+       if (len_trim(PathNumor) <= 0 .or. len_trim(Instrument) <=0 ) return
+       instr=u_case(adjustl(Instrument))
+
+       ! Path + Numor
+       n=index(pathnumor,ops_sep, back=.true.)
+       if (n > 0) then
+          path=pathnumor(:n)
+          filename=pathnumor(n+1:)
+       else
+          path=' '
+          filename=trim(pathnumor)
+       end if
+
+       ! Compressed Numor
+       n=index(filename,'.Z')
+       if (n > 0) then
+          ERR_ILLData=.true.
+          ERR_ILLData_Mess= " Numor file is compressed. Please uncompress the numor before to use this routine"
+          return
+       end if
+
+       ! Read Numor
+       select case (trim(Instr))
+          case ('D9')
+             call Read_Numor_D9(trim(path)//trim(filename),Num)
+
+          case ('D19')
+             call Read_Numor_D19(trim(path)//trim(filename),Num)
+
+          case default
+             ERR_ILLData=.true.
+             ERR_ILLData_Mess= " Incorrect SXTAL Instrument name: "//trim(instrument)
+             return
+       end select
+
+       return
+    End Subroutine Read_SXTAL_Numor
 
     !!--++
     !!--++ Subroutine Read_R_KeyType(filevar, n_ini, n_end, nrun, nvers)
@@ -3018,236 +3188,6 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_S_KeyType
-
-    !!----
-    !!---- Subroutine Read_SXTAL_Numor(Numor,Instr,Snum)
-    !!----    integer,                intent(in)    :: numor
-    !!----    character(len=*),       intent(in)    :: Instr
-    !!----    type(SXTAL_Numor_type), intent(in out):: snum
-    !!----
-    !!----    Read the numor "numor" from the ILL database and construct
-    !!----    the object 'snum' of type SXTAL_Numor_type.
-    !!----    (not completely checked yet)
-    !!----    In case of error the subroutine puts ERR_ILLData=.true.
-    !!----    and fils the error message variable ERR_ILLData_Mess.
-    !!----
-    !!---- Update: July - 2010
-    !!
-    Subroutine Read_SXTAL_Numor(numor,Instrm,snum)
-       !---- Arguments ----!
-       integer,                intent(in)    :: numor
-       character(len=*),       intent(in)    :: Instrm
-       type(SXTAL_Numor_type), intent(in out):: snum
-
-       !---- Local variables ----!
-       character(len=280)              :: filenam
-       character(len=6)                :: inst
-       character(len=80)               :: line
-       integer                         :: i,j, lun, long,ier
-       integer, dimension(31)          :: ival
-       integer, dimension(35)          :: db21ival
-       integer, parameter :: db21_nframes = 1 ! npdone seems to *represent* a cumul. no of frames
-                                              ! and not actual number of frames in a numor
-       real(kind=cp),    dimension(50) :: rval
-       logical                         :: existe
-
-
-       !---- Construct the absolute path and filename to be read ----!
-       write(unit=inst,fmt='(i6.6)') numor
-       line=trim(Instrm_directory)
-       long=len_trim(line)
-       if(long > 1) then
-         if (line(long:long) /= ops_sep) line=trim(line)//ops_sep
-       else
-       	 line=" "
-       end if
-       filenam=trim(line)//inst
-
-       !---- Check if the data exist uncompressed or compressed
-       inquire(file=trim(filenam),exist=existe)
-       if (.not. existe) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="The file: "//trim(filenam)//", doesn't exist!"
-          return
-       end if
-
-       call Get_LogUnit(lun)
-       open(unit=lun,file=trim(filenam),status="old", action="read", position="rewind",iostat=ier)
-       if (ier /= 0) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess="Error opening the file: "//trim(filenam)//", for reading numors"
-          return
-       end if
-
-       inst=instrm
-       call lcase (inst)
-
-       Select Case (trim(inst))
-
-          Case("d9","d10","d19")
-              read(unit=lun,fmt="(a)",iostat=ier) line
-              read(unit=lun,fmt=*,iostat=ier) snum%numor
-              do i=1,4
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              snum%header=line
-              do i=1,4
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              snum%title=line(1:32)
-              snum%Scantype=adjustl(line(71:80))
-              do i=1,6
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              read(unit=lun,fmt=*,iostat=ier) ival
-              if(ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading integer control values"
-                return
-              end if
-              do i=1,12
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              read(unit=lun,fmt=*,iostat=ier) rval
-              if(ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading real control values"
-                return
-              end if
-              !valco      rval( 1:35)
-              !valdef     rval(36:45)
-              !valenv     rval(46:50)
-              snum%hmin=rval(1:3)          !h,k,l          [valco( 1: 3)]
-              snum%hmax=rval(22:24)        !h,k,l (max)    [valco(22:24)]
-              snum%dh=rval(25:27)          !dh,dk,dl       [valco(25:27)]
-              snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
-              snum%ub(1,:)=rval(9:11)      !
-              snum%ub(2,:)=rval(12:14)     ! UB matrix              [valco(9:17)]
-              snum%ub(3,:)=rval(15:17)     !
-              snum%wave=rval(18)           ! wavelength             [valco(18)]
-              snum%cpl_fact=rval(43)       ! Coupling Factor        [valdef(8)]
-              snum%scans=rval(36:38)       ! start, step, width     [valdef(1:3)]
-              snum%preset=rval(39)         ! preset                 [valdef(4)]
-              snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
-              snum%nbdata=ival(24)         ! nbdata
-              snum%manip=ival(4)           ! manip
-              snum%nbang=ival(5)           ! nbang
-              snum%nframes=ival(7)         ! npdone
-              snum%icalc=ival(9)           ! icalc
-              snum%icdesc(1:7)=ival(25:31) ! icdesc
-              if(allocated(snum%counts)) deallocate(snum%counts)
-              allocate(snum%counts(ival(24),ival(7)))
-              snum%counts=0.0
-              if(allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
-              allocate(snum%tmc_ang(ival(5)+3,ival(7)))   !normally five values, maximum nbang=2 angles
-              snum%tmc_ang=0.0
-
-              do i=1,snum%nframes
-                do j=1,3
-                   read(unit=lun,fmt="(a)",iostat=ier) line
-                end do
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%tmc_ang
-                read(unit=lun,fmt="(a)",iostat=ier) line
-                read(unit=lun,fmt=*,    iostat=ier) snum%tmc_ang(1:j,i)
-                snum%tmc_ang(4:j,i)= snum%tmc_ang(4:j,i)*0.001 !angles are stored here as milidegrees
-                read(unit=lun,fmt="(a)",iostat=ier) line
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
-                read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
-                if(ier /= 0) then
-                  ERR_ILLData=.true.
-                  write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                     "Error in file: "//trim(filenam)//", reading counts at frame #",i
-                  return
-                end if
-              end do
-              close(unit=lun)
-
-          case ("db21")
-              read(unit=lun,fmt="(a)",iostat=ier) line
-              read(unit=lun,fmt=*,iostat=ier) snum%numor
-              do i=1,5 ! *extra* line in first block of DB21 numor
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              snum%header=line
-              do i=1,4
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              snum%title=line(1:32)
-              snum%Scantype=adjustl(line(71:80))
-              do i=1,6 ! should work (for general case need to known nbang)
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              read(unit=lun,fmt=*,iostat=ier) db21ival ! assumes 35 integers
-              if(ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading integer control values"
-                return
-              end if
-              do i=1,12
-                read(unit=lun,fmt="(a)",iostat=ier) line
-              end do
-              read(unit=lun,fmt=*,iostat=ier) rval
-              if(ier /= 0) then
-                ERR_ILLData=.true.
-                ERR_ILLData_Mess="Error in file: "//trim(filenam)//", reading real control values"
-                return
-              end if
-              !valco      rval( 1:35)
-              !valdef     rval(36:45)
-              !valenv     rval(46:50)
-              snum%hmin=rval(1:3)          !h,k,l          [valco( 1: 3)]
-              snum%hmax=rval(22:24)        !h,k,l (max)    [valco(22:24)]
-              snum%dh=rval(25:27)          !dh,dk,dl       [valco(25:27)]
-              snum%angles=rval(4:8)        !Phi, chi, omega,  2theta(gamma), psi      [valco(4:8)]
-              snum%ub(1,:)=rval(9:11)      !
-              snum%ub(2,:)=rval(12:14)     ! UB matrix              [valco(9:17)]
-              snum%ub(3,:)=rval(15:17)     ! *NEED* to check ordering of *ELEMENTS*
-              snum%wave=rval(18)           ! wavelength             [valco(18)]
-              snum%cpl_fact=rval(43)       ! Coupling Factor        [valdef(8)]
-              snum%scans=rval(36:38)       ! start, step, width     [valdef(1:3)]
-              snum%preset=rval(39)         ! preset                 [valdef(4)]
-              snum%conditions=rval(46:50)  ! Temp-s.pt, Temp-Regul, Temp-sample, Voltmeter, Mag.field [valenv(1:5))]
-              snum%nbdata=db21ival(24)     ! nbdata
-              snum%manip=db21ival(4)       ! manip
-              snum%nbang=db21ival(5)       ! nbang
-              !snum%nframes=db21ival(7)    ! npdone
-              snum%nframes = db21_nframes
-              snum%icalc=db21ival(9)             ! icalc
-              snum%icdesc(1:11)= db21ival(25:35) ! icdesc
-              if(allocated(snum%counts)) deallocate(snum%counts)
-              allocate(snum%counts(db21ival(24),db21_nframes))
-              snum%counts=0.0
-              if(allocated(snum%tmc_ang)) deallocate(snum%tmc_ang)
-              allocate(snum%tmc_ang(db21ival(5)+3+1,db21_nframes)) !+1 for a spare var
-              snum%tmc_ang=0.0
-
-              do i=1,snum%nframes
-                do j=1,3
-                   read(unit=lun,fmt="(a)",iostat=ier) line
-                end do
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%tmc_ang
-                read(unit=lun,fmt="(a)",iostat=ier) line
-                read(unit=lun,fmt=*,    iostat=ier) snum%tmc_ang(1:j,i)
-                snum%tmc_ang(4:j,i)= snum%tmc_ang(4:j,i)*0.001 !angles are stored here as milidegrees
-                read(unit=lun,fmt="(a)",iostat=ier) line
-                read(unit=lun,fmt=*,    iostat=ier) j      !read number of items to store in snum%counts
-                read(unit=lun,fmt="(10f8.0)", iostat=ier) snum%counts(1:j,i)
-                if(ier /= 0) then
-                  ERR_ILLData=.true.
-                  write(unit=ERR_ILLData_Mess,fmt="(a,i4)") &
-                     "Error in file: "//trim(filenam)//", reading counts at frame #",i
-                  return
-                end if
-              end do
-              close(unit=lun)
-
-          Case default
-              ERR_ILLData=.true.
-              ERR_ILLData_Mess= "Error in file: "//trim(filenam)//", Incorrect Instrument name: "//inst
-       End Select
-
-       return
-    End Subroutine Read_SXTAL_Numor
 
     !!--++
     !!--++ Subroutine Read_V_KeyType(filevar, n_ini, n_end)
@@ -4182,6 +4122,40 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_Generic_Numor
 
     !!----
+    !!---- Subroutine Write_HeaderInfo_POWDER_Numor(Num,lun)
+    !!----    type(POWDER_Numor_type), intent(in) :: Num
+    !!----    integer,       optional, intent(in) :: lun
+    !!----
+    !!----    Writes the characteristics of the numor objet 'Num'
+    !!----    of type POWDER_Numor_type in the file of logical unit 'lun'.
+    !!----    If the subroutine is invoked without the 'lun' argument the subroutine
+    !!----    outputs the information on the standard output (screen)
+    !!----
+    !!---- Update: 15/03/2011
+    !!
+    Subroutine Write_HeaderInfo_POWDER_Numor(Num,lun)
+       !---- Arguments ----!
+       type(POWDER_Numor_type), intent(in) :: Num
+       integer,       optional, intent(in) :: lun
+
+       !--- Local variables ---!
+       integer       :: ipr
+
+       ipr=6
+       if (present(lun)) ipr=lun
+
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Header Information about the NUMOR: ",Num%numor," of instrument "//trim(num%instrm)
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
+
+       return
+    End Subroutine Write_HeaderInfo_POWDER_Numor
+
+    !!----
     !!---- Subroutine Write_POWDER_Numor(Num,lun)
     !!----    type(POWDER_Numor_type), intent(in) :: Num
     !!----    integer,      optional, intent(in) :: lun
@@ -4193,10 +4167,9 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: March - 2005
     !!
-    Subroutine Write_POWDER_Numor(Num,inst,lun)
+    Subroutine Write_POWDER_Numor(Num,lun)
        !---- Arguments ----!
        type(POWDER_Numor_type), intent(in) :: Num
-       character(len=*),        intent(in) :: inst
        integer,       optional, intent(in) :: lun
 
        !--- Local variables ---!
@@ -4207,11 +4180,12 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(inst)
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(num%instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
        write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//Num%Instrm
        write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
        write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_PHI: ", Num%angles(1)
        write(unit=ipr,fmt="(a,f14.3)") "      ANGLE_CHI: ", Num%angles(2)
@@ -4253,6 +4227,40 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_POWDER_Numor
 
     !!----
+    !!---- Subroutine Write_HeaderInfo_SXTAL_Numor(Num,lun)
+    !!----    type(SXTAL_Numor_type), intent(in) :: Num
+    !!----    integer,      optional, intent(in) :: lun
+    !!----
+    !!----    Writes the Header Information of the numor objet 'Num'
+    !!----    of type SXTAL_Numor_type in the file of logical unit 'lun'.
+    !!----    If the subroutine is invoked without the 'lun' argument the subroutine
+    !!----    outputs the information on the standard output (screen)
+    !!----
+    !!---- Update: 15/03/2011
+    !!
+    Subroutine Write_HeaderInfo_SXTAL_Numor(Num,lun)
+       !---- Arguments ----!
+       type(SXTAL_Numor_type), intent(in) :: Num
+       integer,      optional, intent(in) :: lun
+
+       !--- Local variables ---!
+       integer       :: ipr
+
+       ipr=6
+       if (present(lun)) ipr=lun
+
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(Num%Instrm)
+       write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
+       write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
+
+       return
+    End Subroutine Write_HeaderInfo_SXTAL_Numor
+
+    !!----
     !!---- Subroutine Write_SXTAL_Numor(Num,lun)
     !!----    type(SXTAL_Numor_type), intent(in) :: Num
     !!----    integer,      optional, intent(in) :: lun
@@ -4277,11 +4285,12 @@ Module CFML_ILL_Instrm_Data
        if (present(lun)) ipr=lun
 
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
-       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//Current_Instrm%name_inst
+       write(unit=ipr,fmt="(a,i6,a)") " ---  Information about the NUMOR: ",Num%numor," of instrument "//trim(Num%Instrm)
        write(unit=ipr,fmt="(a)")      " ---------------------------------------------------------------------------"
        write(unit=ipr,fmt="(a)") " "
        write(unit=ipr,fmt="(a)")        "         HEADER: "//Num%header
        write(unit=ipr,fmt="(a)")        "          TITLE: "//Num%title
+       write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//Num%Instrm
        write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//Num%Scantype
        write(unit=ipr,fmt="(a,f8.3)")   "  COUPLING_FACT: ", Num%cpl_fact
        write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", Num%hmin
