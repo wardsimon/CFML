@@ -2469,7 +2469,7 @@ Module CFML_ILL_Instrm_Data
              n%tmc_ang(2:3,i)=rvalues(2:3)
              n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
           else
-             call IntegerToString(i,car,'(i5)')
+             write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
@@ -2480,7 +2480,7 @@ Module CFML_ILL_Instrm_Data
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
           if (nval_i /= n%nbdata) then
-             call IntegerToString(i,car,'(i5)')
+             write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
@@ -2617,7 +2617,7 @@ Module CFML_ILL_Instrm_Data
                    n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle
 
                 case default
-                   call IntegerToString(i,car,'(i5)')
+                   write(unit=car,fmt='(i5)') i
                    car=adjustl(car)
                    err_illdata=.true.
                    err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
@@ -2629,7 +2629,7 @@ Module CFML_ILL_Instrm_Data
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
           if (nval_i /= n%nbdata) then
-             call IntegerToString(i,car,'(i5)')
+             write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
@@ -2758,7 +2758,7 @@ Module CFML_ILL_Instrm_Data
              n%tmc_ang(2:3,i)=rvalues(2:3)
              n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
           else
-             call IntegerToString(i,car,'(i5)')
+             write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
@@ -2769,7 +2769,7 @@ Module CFML_ILL_Instrm_Data
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
           if (nval_i /= n%nbdata) then
-             call IntegerToString(i,car,'(i5)')
+             write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
