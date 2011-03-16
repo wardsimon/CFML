@@ -134,8 +134,9 @@
 !!----    Functions:
 !!----
 !!----    Subroutines:
-!!----       ALLOCATE_POWDER_NUMORS
-!!----       ALLOCATE_SXTAL_NUMORS
+!!----       ALLOCATE_NUMORS
+!!--++       ALLOCATE_POWDER_NUMORS          [Overloaded]
+!!--++       ALLOCATE_SXTAL_NUMORS           [Overloaded]
 !!----       DEFINE_UNCOMPRESS_PROGRAM
 !!----       GET_ABSOLUTE_DATA_PATH
 !!----       GET_NEXT_YEARCYCLE
@@ -150,15 +151,17 @@
 !!--++       READ_F_KEYTYPE                  [Private]
 !!--++       READ_I_KEYTYPE                  [Private]
 !!--++       READ_J_KEYTYPE                  [Private]
-!!----       READ_NUMOR_D1B
-!!----       READ_NUMOR_D9
-!!----       READ_NUMOR_D19
-!!----       READ_NUMOR_D20
-!!----       READ_POWDER_NUMOR
+!!----       READ_NUMOR
+!!--++       READ_NUMOR_D19                  [Private]
+!!--++       READ_NUMOR_D1B                  [Private]
+!!--++       READ_NUMOR_D20                  [Private]
+!!--++       READ_NUMOR_D2B                  [Private]
+!!--++       READ_NUMOR_D9                   [Private]
+!!--++       READ_POWDER_NUMOR               [Overloaded]
 !!--++       READ_R_KEYTYPE                  [Private]
 !!--++       READ_S_KEYTYPE                  [Private]
 !!--++       READ_V_KEYTYPE                  [Private]
-!!----       READ_SXTAL_NUMOR
+!!--++       READ_SXTAL_NUMOR                [Overloaded]
 !!----       SET_CURRENT_ORIENT
 !!----       SET_DEFAULT_INSTRUMENT
 !!----       SET_ILL_DATA_DIRECTORY
@@ -166,11 +169,12 @@
 !!----       SET_KEYTYPES_ON_FILE            [Private]
 !!----       UPDATE_CURRENT_INSTRM_UB
 !!----       WRITE_CURRENT_INSTRM_DATA
-!!----       WRITE_HEADERINFO_POWDER_NUMOR
-!!----       WRITE_HEADERINFO_SXTAL_NUMOR
-!!----       WRITE_GENERIC_NUMOR
-!!----       WRITE_POWDER_NUMOR
-!!----       WRITE_SXTAL_NUMOR
+!!----       WRITE_HEADERINFO_NUMOR
+!!--++       WRITE_HEADERINFO_POWDER_NUMOR   [Overloaded]
+!!--++       WRITE_HEADERINFO_SXTAL_NUMOR    [Overloaded]
+!!----       WRITE_NUMOR_INFO
+!!--++       WRITE_POWDER_NUMOR              [Overloaded]
+!!--++       WRITE_SXTAL_NUMOR               [Overloaded]
 !!----
 !!
 Module CFML_ILL_Instrm_Data
@@ -190,12 +194,11 @@ Module CFML_ILL_Instrm_Data
 
    !---- Public Subroutines ----!
    public :: Set_Current_Orient, Read_Numor, Read_Current_Instrm, Write_Current_Instrm_data,     &
-             Allocate_SXTAL_numors, Set_ILL_data_directory, Set_Instrm_directory,                &
+             Allocate_Numors, Set_ILL_data_directory, Set_Instrm_directory,                      &
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
-             Allocate_Powder_Numors, Define_Uncompress_Program, &
-             PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor
+             Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
@@ -203,7 +206,8 @@ Module CFML_ILL_Instrm_Data
              Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,         &
              Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,          &
              Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
-             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor
+             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
+             Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A
 
 
    !---- Definitions ----!
@@ -878,20 +882,25 @@ Module CFML_ILL_Instrm_Data
    integer,            public  ::  year_illdata
 
    !---- Interfaces - Overloaded ----!
-    Interface  Read_Numor
-       Module Procedure Read_Powder_Numor
-       Module Procedure Read_SXTAL_Numor
-    End Interface
+   Interface  Allocate_Numors
+      Module Procedure Allocate_Powder_Numors
+      Module Procedure Allocate_SXTAL_Numors
+   End Interface
 
-    Interface  Write_Numor_Info
-       Module Procedure Write_Powder_Numor
-       Module Procedure Write_SXTAL_Numor
-    End Interface
+   Interface  Read_Numor
+      Module Procedure Read_Powder_Numor
+      Module Procedure Read_SXTAL_Numor
+   End Interface
 
-    Interface  Write_HeaderInfo_Numor
-       Module Procedure Write_HeaderInfo_Powder_Numor
-       Module Procedure Write_HeaderInfo_SXTAL_Numor
-    End Interface
+   Interface  Write_Numor_Info
+      Module Procedure Write_Powder_Numor
+      Module Procedure Write_SXTAL_Numor
+   End Interface
+
+   Interface  Write_HeaderInfo_Numor
+      Module Procedure Write_HeaderInfo_Powder_Numor
+      Module Procedure Write_HeaderInfo_SXTAL_Numor
+   End Interface
 
  Contains
 
@@ -945,13 +954,16 @@ Module CFML_ILL_Instrm_Data
           Num(i)%nframes=0
 
           if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
-          allocate(Num(i)%tmc_ang(num_ang,nframes))
+          if (num_ang > 0 .and. nframes > 0) then
+             allocate(Num(i)%tmc_ang(num_ang,nframes))
+             Num(i)%tmc_ang=0.0
+          end if
 
           if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
-          allocate(Num(i)%counts(ndata,nframes))
-
-          Num(i)%tmc_ang(:,:)=0.0
-          Num(i)%counts(:,:)=0.0
+          if (ndata > 0 .and. nframes > 0) then
+             allocate(Num(i)%counts(ndata,nframes))
+             Num(i)%counts=0.0
+          end if
        end do
 
        return
@@ -2140,6 +2152,124 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_J_KeyType
 
     !!----
+    !!---- Subroutine Read_Numor_D1A(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(powder_numor_type), intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D1A Instrument at ILL
+    !!----
+    !!---- Update: 15/03/2011
+    !!
+    Subroutine Read_Numor_D1A(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(powder_numor_type), intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       integer                                      :: nlines
+       integer                                      :: numor,idum
+       integer                                      :: i,j
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D1A Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Check format for D1B
+       call Number_KeyTypes_on_File(filevar,nlines)
+       if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D1A Format'
+          return
+       end if
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+       if (index(u_case(n%instrm),'D1A') <=0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D1A Format'
+          return
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line)
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          n%manip=ivalues(4)
+          n%nbang=ivalues(5)
+          n%nframes=ivalues(7)
+          n%nbdata=ivalues(24)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%scantype='2theta'
+          n%wave=rvalues(18)
+          n%scans(1)=rvalues(36)
+          n%scans(2)=rvalues(37)
+          n%conditions(1:5)=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample
+       end if
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+2,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Counts
+       call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
+       if (nval_i > 0) then
+          if (nval_i /= (n%nbdata+n%nbang+2)*n%nframes) then
+             err_illdata=.true.
+             err_illdata_mess='Counts problems in Numor format for D1A Instrument'
+             return
+          end if
+          i=0
+          do j=1,n%nframes
+             n%tmc_ang(1,j)=real(ivalues(i+2))*0.001    ! Time (s)
+             n%tmc_ang(2,j)=real(ivalues(i+1))          ! Monitor
+             n%tmc_ang(3,j)=real(ivalues(i+3))*0.001    ! Angles
+             n%counts(:,j)=ivalues(i+5:i+29)
+             i=i+29
+          end do
+       end if
+
+       return
+    End Subroutine Read_Numor_D1A
+
+    !!----
     !!---- Subroutine Read_Numor_D1B(filevar,N)
     !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(generic_numor_type), intent(out) :: n
@@ -2232,6 +2362,137 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_Numor_D1B
+
+    !!----
+    !!---- Subroutine Read_Numor_D2B(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(Powder_numor_type), intent(out)  :: n
+    !!----
+    !!---- Subroutine to read a Numor of D2B Instrument at ILL
+    !!----
+    !!---- Counts: 128 x 128
+    !!----
+    !!---- Update: 15/03/2011
+    !!
+    Subroutine Read_Numor_D2B(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(Powder_numor_type),  intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D2B Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D2B
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(u_case(line(1:4)),'D2B') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D2B Format'
+          return
+       end if
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line(1:60))
+          n%scantype=trim(line(73:))
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Number of Points
+          n%icdesc(1:7)=ivalues(25:31)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%wave=rvalues(18)           ! Wavelength
+          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Loading Frames
+       do i=1,n%nframes
+
+          !Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
+             n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+             n%tmc_ang(2:3,i)=rvalues(2:3)
+             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+          else
+             call IntegerToString(i,car,'(i5)')
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
+                               //' parameters in the Frame: '//trim(car)
+             return
+          end if
+
+          ! Counts
+          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          if (nval_i /= n%nbdata) then
+             call IntegerToString(i,car,'(i5)')
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             return
+          end if
+          if (nval_i > 0) then
+             n%counts(:,i)=ivalues(1:n%nbdata)
+          end if
+       end do
+
+       return
+    End Subroutine Read_Numor_D2B
 
     !!----
     !!---- Subroutine Read_Numor_D9(filevar,N)
@@ -2961,20 +3222,22 @@ Module CFML_ILL_Instrm_Data
        end if
 
        ! Read Numor
-       select case (trim(Instr))
+       select case (trim(u_case(Instr)))
           case ('D1A')
+             call Read_Numor_D1A(trim(path)//trim(filename),Num)
 
           case ('D1B')
              call Read_Numor_D1B(trim(path)//trim(filename),Num)
 
           case ('D2B')
+             call Read_Numor_D2B(trim(path)//trim(filename),Num)
 
           case ('D20')
              call Read_Numor_D20(trim(path)//trim(filename),Num)
 
           case default
              ERR_ILLData=.true.
-             ERR_ILLData_Mess= " Incorrect Powder Instrument name: "//trim(instrument)
+             ERR_ILLData_Mess= " Not Implemented for the Powder Instrument name: "//trim(instrument)
              return
        end select
 
@@ -3041,7 +3304,7 @@ Module CFML_ILL_Instrm_Data
 
           case default
              ERR_ILLData=.true.
-             ERR_ILLData_Mess= " Incorrect SXTAL Instrument name: "//trim(instrument)
+             ERR_ILLData_Mess= " Not Implemented for the SXTAL Instrument name: "//trim(instrument)
              return
        end select
 
