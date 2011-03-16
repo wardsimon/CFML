@@ -3064,11 +3064,9 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
-       character(len=40), dimension(5)              :: dire
        character(len=1024)                          :: line
-       character(len=80)                            :: linec
        integer                                      :: nlines
-       integer                                      :: i,j,numor,idum,nl
+       integer                                      :: i,j,numor,idum
 
        err_illdata=.false.
 
@@ -3190,10 +3188,10 @@ Module CFML_ILL_Instrm_Data
        type(Powder_Numor_Type),    intent(out)   :: Num
 
        !---- Local variables ----!
-       character(len=512)     :: Path, LocalDir
+       character(len=512)     :: Path
        character(len=80)      :: Filename
        character(len=4)       :: Instr
-       integer                :: i, n
+       integer                :: n
 
        ! Initialize
        ERR_ILLData=.false.
@@ -3263,10 +3261,10 @@ Module CFML_ILL_Instrm_Data
        type(SXTAL_Numor_Type),     intent(out)   :: Num
 
        !---- Local variables ----!
-       character(len=512)     :: Path, LocalDir
+       character(len=512)     :: Path
        character(len=80)      :: Filename
        character(len=4)       :: Instr
-       integer                :: i, n
+       integer                :: n
 
        ! Initialize
        ERR_ILLData=.false.
