@@ -99,6 +99,7 @@
 !!----    BASIC_NUMORC_TYPE
 !!----    BASIC_NUMORI_TYPE
 !!----    BASIC_NUMORR_TYPE
+!!----    CALIBRATION_DETECTOR_TYPE
 !!----    DIFFRACTOMETER_TYPE
 !!----    GENERIC_NUMOR_TYPE
 !!----    ILL_DATA_RECORD_TYPE
@@ -198,7 +199,8 @@ Module CFML_ILL_Instrm_Data
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
-             Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor
+             Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor,      &
+             Read_Calibration_File_D1A
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
@@ -262,6 +264,29 @@ Module CFML_ILL_Instrm_Data
       character(len=40), dimension(:), allocatable :: NameVar
       real(kind=cp),     dimension(:), allocatable :: RValues
    End Type Basic_NumR_Type
+
+   !!----
+   !!---- TYPE :: CALIBRATION_DETECTOR_TYPE
+   !!--..
+   !!---- Type, public :: Calibration_Detector_Type
+   !!----   character(len=4)                             :: Name_Instrm       ! Instrument Name
+   !!----   integer                                      :: NDet              ! Number of Detectors
+   !!----   integer                                      :: NPointsDet        ! Number of Points by Detector
+   !!----   logical, dimension(:), allocatable           :: Active            ! Flag for active detector or not
+   !!----   real(kind=cp), dimension(:), allocatable     :: PosX              ! Relative Positions of each Detector
+   !!----   real(kind=cp), dimension(:,:), allocatable   :: Effic             ! Efficiency of each point detector (NpointsDetect,NDect)
+   !!---- End Type Calibration_Detector_Type
+   !!----
+   !!---- Update: April - 2009
+   !!
+   Type, public :: Calibration_Detector_Type
+      character(len=4)                             :: Name_Instrm       ! Instrument Name
+      integer                                      :: NDet             ! Number of Detectors
+      integer                                      :: NPointsDet       ! Number of Points by Detector
+      logical, dimension(:), allocatable           :: Active            ! Flag for active detector or not
+      real(kind=cp), dimension(:), allocatable     :: PosX               ! Relative Positions of each Detector
+      real(kind=cp), dimension(:,:), allocatable   :: Effic             ! Efficiency of each point detector (NpointsDetect,NDect)
+   End Type Calibration_Detector_Type
 
    !!----
    !!---- TYPE :: DIFFRACTOMETER_TYPE
@@ -880,6 +905,17 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: March - 2009
    !!
    integer,            public  ::  year_illdata
+
+   !!--++
+   !!--++ SET_CALIBRATION_DETECTOR
+   !!--++    logical, private:: Set_Calibration_Detector
+   !!--++
+   !!--++    Logical variable taking the value .true. if the Calibration Detector
+   !!--++    is readed using the respective routine.
+   !!--++
+   !!--++ Update: 17/03/2011
+   !!
+   logical, private :: Set_Calibration_Detector = .false.
 
    !---- Interfaces - Overloaded ----!
    Interface  Allocate_Numors
@@ -1589,30 +1625,36 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
-       ! Allocating new points
-       call Allocate_Diffraction_Pattern(Pat,Numor%nbdata)
+       ! Powder Instruments / Allocating points
+       select case (trim(u_case(numor%instrm)))
+          case ('D1A')
+             call Allocate_Diffraction_Pattern(Pat,3000)
 
-       ! Load values
-       Pat%title=trim(Numor%title)
+          case ('D1B','D20')
+             call Allocate_Diffraction_Pattern(Pat,Numor%nbdata)
 
-       pat%Scat_Var=trim(numor%ScanType)
-       Pat%xmin=numor%scans(1)
-       Pat%step=numor%scans(2)
-       Pat%xmax=Pat%xmin+(Pat%npts-1)*Pat%step
+             ! Load values
+             Pat%title=trim(Numor%title)
 
-       Pat%Monitor=Numor%monitor
-       Pat%TSamp=Numor%conditions(3)
-       Pat%TSet=Numor%conditions(1)
+             pat%Scat_Var=trim(numor%ScanType)
+             Pat%xmin=numor%scans(1)
+             Pat%step=numor%scans(2)
+             Pat%xmax=Pat%xmin+(Pat%npts-1)*Pat%step
 
-       Pat%Conv(1)=Numor%wave
-       Pat%y=Numor%counts(:,1)
-       do i=1,pat%npts
-          if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
-          pat%sigma(i) = pat%y(i)
-          pat%x(i)= pat%xmin+(i-1)*pat%step
-       end do
-       pat%ymin=minval(pat%y(1:pat%npts))
-       pat%ymax=maxval(pat%y(1:pat%npts))
+             Pat%Monitor=Numor%monitor
+             Pat%TSamp=Numor%conditions(3)
+             Pat%TSet=Numor%conditions(1)
+
+             Pat%Conv(1)=Numor%wave
+             Pat%y=Numor%counts(:,1)
+             do i=1,pat%npts
+                if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+                pat%sigma(i) = pat%y(i)
+                pat%x(i)= pat%xmin+(i-1)*pat%step
+             end do
+             pat%ymin=minval(pat%y(1:pat%npts))
+             pat%ymax=maxval(pat%y(1:pat%npts))
+       end select
 
        return
     End Subroutine PowderNumor_To_DiffPattern
@@ -4412,6 +4454,16 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
        write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
        write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(Num%Scantype)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_START: ", Num%scans(1)
+       write(unit=ipr,fmt="(a,f14.3)") "     SCAN_STEP : ", Num%scans(2)
+       write(unit=ipr,fmt="(a,f14.3 )")  "      MONITOR: ", Num%monitor
+       write(unit=ipr,fmt="(a,f14.3 )")  "    TIME(seg): ", Num%time
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a)") " "
 
        return
     End Subroutine Write_HeaderInfo_POWDER_Numor
@@ -4517,6 +4569,31 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(a)")        "         HEADER: "//trim(Num%header)
        write(unit=ipr,fmt="(a)")        "          TITLE: "//trim(Num%title )
        write(unit=ipr,fmt="(a)")        "      INTRUMENT: "//trim(Num%Instrm)
+       write(unit=ipr,fmt="(a)")        "      SCAN_TYPE: "//trim(Num%Scantype)
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Min.): ", Num%hmin
+       write(unit=ipr,fmt="(a,3f8.3)")  "      HKL(Max.): ", Num%hmax
+       if (Num%Scantype == "phi") then
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," r.l.u."
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," r.l.u."
+       else
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_START: ", Num%scans(1) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_STEP : ", Num%scans(2) ," "//Current_Instrm%angl_units
+          write(unit=ipr,fmt="(a,f14.3,a)") "     SCAN_WIDTH: ", Num%scans(3) ," "//Current_Instrm%angl_units
+       end if
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SETPNT: ", Num%conditions(1)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-REGUL.: ", Num%conditions(2)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3,a)") "    Temp-SAMPLE: ", Num%conditions(3)," Kelvin"
+       write(unit=ipr,fmt="(a,f14.3  )") "      VOLTMETER: ", Num%conditions(4)
+       write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(a)") "       ORIENTATION MATRIX  UB"
+       write(unit=ipr,fmt="(a)") " --------------------------------------"
+       write(unit=ipr,fmt="(a)") " "
+       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(1,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(2,:)
+       write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(3,:)
+       write(unit=ipr,fmt="(a)") " "
 
        return
     End Subroutine Write_HeaderInfo_SXTAL_Numor
@@ -4606,5 +4683,89 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Write_SXTAL_Numor
+
+    !!----
+    !!---- Subroutine Read_Calibration_File_D1A(FileCal,Cal)
+    !!----    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!----    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!----
+    !!---- Load the Calibration parameters for a D1A Instrument
+    !!----
+    !!---- 17/03/2011
+    !!
+    Subroutine Read_Calibration_File_D1A(FileCal,Cal)
+        !---- Arguments ----!
+        character(len=*), intent(in)                 :: FileCal
+        type(calibration_detector_type), intent(out) :: Cal
+
+        !---- Local Variables ----!
+        character(len=512), dimension(:), allocatable :: filevar
+        integer                                       :: iv,nlines
+        integer, dimension(25)                        :: ivet
+        real(kind=cp), dimension(25)                  :: vet
+
+        ! Init
+        err_illdata=.false.
+        err_illdata_mess=' '
+
+        set_calibration_detector=.false.
+
+        ! Detecting numor
+        call Number_Lines(FileCal,nlines)
+        if (nlines <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Calibration File for D1A Instrument'
+           return
+        end if
+
+        ! Allocating variables
+        if (allocated(filevar)) deallocate(filevar)
+        allocate(filevar(nlines))
+        call Reading_Lines(FileCal,nlines,filevar)
+
+        ! Load Information on Cal Object
+        Cal%Name_Instrm='D1A'
+        Cal%NDet=25
+        Cal%NPointsDet=1
+        if (allocated(Cal%Active)) deallocate(Cal%Active)
+        if (allocated(Cal%PosX))    deallocate(Cal%PosX)
+        if (allocated(Cal%Effic))  deallocate(Cal%Effic)
+
+        allocate(Cal%Active(Cal%NDet))
+        allocate(Cal%PosX(Cal%NDet))
+        allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+
+        Cal%Active=.true.
+        Cal%PosX=0.0
+        Cal%Effic=1.0
+
+        ! First line is not considered
+
+        ! Second line is the relative position: Last to First
+        call getnum(filevar(2), vet,ivet,iv)
+        if (iv /= 25) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Positions of Detectors for D1A Instrument'
+           deallocate(filevar)
+           return
+        end if
+        Cal%PosX=vet
+
+        ! Efficiency of each detector
+        call getnum(filevar(2), vet,ivet,iv)
+        if (iv /= 25) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Efficiency values for Detectors of D1A Instrument'
+           deallocate(filevar)
+           return
+        end if
+        Cal%Effic(:,1)=vet
+
+        set_calibration_detector =.true.
+        deallocate(filevar)
+
+        return
+    End Subroutine Read_Calibration_File_D1A
+
 
  End Module CFML_ILL_Instrm_Data
