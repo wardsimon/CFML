@@ -183,7 +183,7 @@ Module CFML_ILL_Instrm_Data
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
    Use CFML_Math_General,         only: cosd,sind, equal_vector
-   use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines
+   use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
@@ -4752,7 +4752,7 @@ Module CFML_ILL_Instrm_Data
         Cal%PosX=vet
 
         ! Efficiency of each detector
-        call getnum(filevar(2), vet,ivet,iv)
+        call getnum(filevar(3), vet,ivet,iv)
         if (iv /= 25) then
            err_illdata=.true.
            err_illdata_mess=' Problems reading Efficiency values for Detectors of D1A Instrument'
