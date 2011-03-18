@@ -153,11 +153,14 @@
 !!--++       READ_I_KEYTYPE                  [Private]
 !!--++       READ_J_KEYTYPE                  [Private]
 !!----       READ_NUMOR
-!!--++       READ_NUMOR_D19                  [Private]
+!!--++       READ_NUMOR_D1A                  [Private]
 !!--++       READ_NUMOR_D1B                  [Private]
-!!--++       READ_NUMOR_D20                  [Private]
 !!--++       READ_NUMOR_D2B                  [Private]
+!!--++       READ_NUMOR_D4                   [Private]
 !!--++       READ_NUMOR_D9                   [Private]
+!!--++       READ_NUMOR_D10                  [Private]
+!!--++       READ_NUMOR_D19                  [Private]
+!!--++       READ_NUMOR_D20                  [Private]
 !!--++       READ_POWDER_NUMOR               [Overloaded]
 !!--++       READ_R_KEYTYPE                  [Private]
 !!--++       READ_S_KEYTYPE                  [Private]
@@ -209,7 +212,8 @@ Module CFML_ILL_Instrm_Data
              Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,          &
              Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
-             Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A
+             Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,  &
+             Read_Numor_D10
 
 
    !---- Definitions ----!
@@ -1203,28 +1207,6 @@ Module CFML_ILL_Instrm_Data
              path = trim(ILL_temp_directory)//numstr
              return ! found numor so return
           end if
-
-          ! The next, not haven't sense if you use the Year and cycle     ! by JGP
-
-          !> Using Year + Cycle of a previous call to routine
-          !write(unit=yearcycle,fmt="(i4.4,i1.1)") year_illdata, cycle_number
-          !yearcycle = yearcycle(len_trim(yearcycle)-2:len_trim(yearcycle))
-          !
-          !path = trim(ILL_data_directory)//trim(yearcycle)//ops_sep//trim(inst)//ops_sep//trim(subdir)//numstr
-          !if (present(actual_path)) actual_path = path
-          !inquire(file=trim(path),exist=exists)
-          !if (exists) return ! found numor so return
-          !
-          !! Using previous + compressed data
-          !path = trim(path)//Extension
-          !if (present(actual_path)) actual_path = path
-          !inquire(file=trim(path),exist=exists)
-          !if (exists) then ! uncompress into temp directory
-          !   call system(trim(uncompresscommand)//' '//trim(path)//' > '//trim(ILL_temp_directory)//numstr)
-          !   if (present(actual_path)) actual_path = path
-          !   path = trim(ILL_temp_directory)//numstr
-          !   return ! found numor so return
-          !end if
        end if
 
        !> Using Current_data
@@ -2306,6 +2288,9 @@ Module CFML_ILL_Instrm_Data
              n%counts(:,j)=ivalues(i+5:i+29)
              i=i+29
           end do
+
+          n%time=n%tmc_ang(1,1)
+          n%monitor=n%tmc_ang(2,1)
        end if
 
        return
@@ -2537,6 +2522,130 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D2B
 
     !!----
+    !!---- Subroutine Read_Numor_D4(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D4 Instrument at ILL
+    !!----
+    !!---- 9 Detectors x 64 cells
+    !!----   Each cell every 0.125º  (Total 8º by detector)
+    !!----   Angular space between detectors is 7º
+    !!----
+    !!---- Update: 18/03/2011
+    !!
+    Subroutine Read_Numor_D4(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),          intent(in)   :: fileinfo
+       type(Powder_numor_type),   intent(out)  :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+       integer                                      :: npos, npos1,npos2
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D4 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D4
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(u_case(line(1:4)),'D4') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D4 Format'
+          return
+       end if
+
+       ! Fixed parameters
+       n%nframes=9    ! Number of Detectors
+       n%nbdata=64    ! Cells for each Detector
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(2,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=u_case(line(1:4))
+          n%header=line(5:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          npos1=index(line,'Title')
+          npos2=index(line,'Subtitle')
+          if (npos1 > 0) then
+             line=line(npos1+5:npos2-1)
+             line=adjustl(line)
+             npos=index(line,':')
+             if (npos > 0) n%title=trim(line(npos+1:))
+          end if
+          n%scantype='2Theta'
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%monitor=rvalues(1)
+          n%time=rvalues(2)
+          n%wave=rvalues(5)
+          n%scans(1)=rvalues(15)
+          n%tmc_ang(2,:)=rvalues(31:39)    ! Total Counts for each detector (Monitor)
+       end if
+
+       call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
+       if (nval_f > 0) then
+          n%conditions(3)=rvalues(1)   ! T-Sample
+          n%conditions(2)=rvalues(2)   ! T-reg
+          n%conditions(1)=rvalues(3)   ! T-Set
+       end if
+
+       ! Loading Frames
+       do i=1,n%nframes
+          call read_I_keyType(filevar,nl_keytypes(5,i,1),nl_keytypes(5,i,2))
+          if (nval_i /= n%nbdata) then
+             write(unit=car,fmt='(i3)') i
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts for Detector '//trim(car)//' for D4 Instrument'
+             return
+          end if
+          n%counts(:,i)=real(ivalues(1:nval_i))
+       end do
+
+       return
+    End Subroutine Read_Numor_D4
+
+    !!----
     !!---- Subroutine Read_Numor_D9(filevar,N)
     !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(SXTAL_numor_type),  intent(out) :: n
@@ -2684,6 +2793,155 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Read_Numor_D9
+
+    !!----
+    !!---- Subroutine Read_Numor_D10(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!----
+    !!---- Subroutine to read a Numor of D10 Instrument at ILL
+    !!----
+    !!---- Counts: 32 x 32 = 1024 (Bidimensional)
+    !!----
+    !!---- Update: 18/03/2011 18:32:52
+    !!
+    Subroutine Read_Numor_D10(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(SXTAL_numor_type),   intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D10 Instrument'
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D9
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(line(1:4),'D10') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D10 Format'
+          return
+       end if
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line(1:60))
+          n%scantype=trim(line(73:))
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          if (ivalues(2) /= 2) then
+             err_illdata=.true.
+             err_illdata_mess='This numor was made using Point detector in the D10 Instrument'
+             return
+          end if
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Number of Points
+          n%icdesc(1:7)=ivalues(25:31)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%HMin=rvalues(1:3)          ! HKL min
+          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          n%ub(1,:)=rvalues(9:11)      !
+          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          n%ub(3,:)=rvalues(15:17)     !
+          n%wave=rvalues(18)           ! Wavelength
+          n%HMax=rvalues(22:24)        ! HKL max
+          n%dh=rvalues(25:27)          ! Delta HKL
+          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          n%preset=rvalues(39)         ! Preset
+          n%cpl_fact=rvalues(43)       ! Coupling factor
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Loading Frames
+       do i=1,n%nframes
+
+          !Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          if (nval_f > 0) then
+             select case (nval_f)
+                case (4)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)
+                   n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
+
+                case default
+                   write(unit=car,fmt='(i5)') i
+                   car=adjustl(car)
+                   err_illdata=.true.
+                   err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
+                                    //' parameters in the Frame: '//trim(car)
+                   return
+             end select
+          end if
+
+          ! Counts
+          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          if (nval_i /= n%nbdata) then
+             write(unit=car,fmt='(i5)') i
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             return
+          end if
+          if (nval_i > 0) then
+             n%counts(:,i)=ivalues(1:n%nbdata)
+          end if
+       end do
+
+       return
+    End Subroutine Read_Numor_D10
 
     !!----
     !!---- Subroutine Read_Numor_D19(filevar,N)
@@ -3272,6 +3530,9 @@ Module CFML_ILL_Instrm_Data
           case ('D2B')
              call Read_Numor_D2B(trim(path)//trim(filename),Num)
 
+          case ('D4')
+             call Read_Numor_D4(trim(path)//trim(filename),Num)
+
           case ('D20')
              call Read_Numor_D20(trim(path)//trim(filename),Num)
 
@@ -3338,6 +3599,9 @@ Module CFML_ILL_Instrm_Data
        select case (trim(Instr))
           case ('D9')
              call Read_Numor_D9(trim(path)//trim(filename),Num)
+
+          case ('D10')
+             call Read_Numor_D10(trim(path)//trim(filename),Num)
 
           case ('D19')
              call Read_Numor_D19(trim(path)//trim(filename),Num)
