@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Subroutines</title>
+<html><head><title>Write_Pattern_FreeFormat</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -63,19 +63,27 @@ span.rvts9 /* Font Hint Italic */
  font-style: italic;
  color: #a0a0a0;
 }
-a.rvts10, span.rvts10
+span.rvts10
 {
- color: #0000ff;
- text-decoration: underline;
+ font-size: 12pt;
+ font-weight: bold;
 }
-a.rvts10:hover { color: #0000ff; }
-span.rvts11 /* Font Style */
+span.rvts11
+{
+ font-weight: bold;
+}
+span.rvts12
+{
+ font-weight: bold;
+ color: #ff6600;
+}
+span.rvts13 /* Font Style */
 {
  font-size: 16pt;
  font-family: 'Tahoma', 'Geneva', sans-serif;
  color: #ffffff;
 }
-span.rvts12 /* Font Style */
+span.rvts14 /* Font Style */
 {
  font-family: 'MS Sans Serif', 'Geneva', sans-serif;
  color: #808080;
@@ -114,31 +122,34 @@ p,ul,ol /* Paragraph Style */
 <script type="text/javascript" src="hnd.js"></script>
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
-<h1 class=rvps2><span class=rvts0><span class=rvts11>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
-<p><span class=rvts10><br></span></p>
-<ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li><a class=rvts10 href="ALLOCATE_NUMORS.html">Allocate_Numors</a></li>
-<li><a class=rvts10 href="DEFINE_UNCOMPRESS_PROGRAM.html">Define_Uncompress_Program</a></li>
-<li><a class=rvts10 href="GET_ABSOLUTE_DATA_PATH.html">Get_Absolute_Data_Path</a></li>
-<li><a class=rvts10 href="GET_NEXT_YEARCYCLE.html">Get_Next_YearCycle</a>&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="GETSINGLEFRAME2D.html">Get_Single_Frame_2D</a></li>
-<li><a class=rvts10 href="INITIALIZE_DATA_DIRECTORY.html">Initialize_Data_Directory</a> </li>
-<li>Initialize_Numor </li>
-<li><a class=rvts10 href="PowderNumor_To_DiffPattern.html">PowderNumor_To_DiffPattern</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="READCURRENTINSTRM.html">Read_Current_Instrm</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="READ_NUMOR.html">Read_Numor</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="SETCURRENTORIENT.html">Set_Current_Orient</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="SETDEFAULTINSTRUMENT.html">Set_Default_Instrument</a>&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="SETILLDATADIRECTORY.html">Set_ILL_Data_Directory</a>&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="SETINSTRMDIRECTORY.html">Set_Instrm_Directory</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="UPDATECURRENTINSTRMUB.html">Update_Current_Instrm_UB</a>&nbsp;&nbsp; </li>
-<li><a class=rvts10 href="WRITECURRENTINSTRMDATA.html">Write_Current_Instrm_Data</a> </li>
-<li><a class=rvts10 href="Write_HeaderInfo_Numor.html">Write_HeaderInfo_Numor</a></li>
-<li><a class=rvts10 href="Write_Numor_Info.html">Write_Numor_Info</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
-</ul>
+<h1 class=rvps2><span class=rvts0><span class=rvts13>CFML_Diffraction_Patterns: Subroutines</span></span></h1>
+<p><span class=rvts10>Subroutine Write_Pattern_FreeFormat (Filename, Pat)</span></p>
 <p><br></p>
+<div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Character</span><span class=rvts11> (</span><span class=rvts12>Len</span><span class=rvts11>=*)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=62 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Filename</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Name of the file</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=285 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Diffraction_Pattern_Type)</span></p>
+</td>
+<td width=104 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=62 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pat</p>
+</td>
+<td width=410 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pattern</p>
+</td>
+</tr>
+</table>
+</div>
 <p><br></p>
+<p>Write a pattern in Free format (according to INSTRM=0 in the FullProf Program) in file <span class=rvts11>Filename</span></p>
 <p><br></p>
-<p><br></p>
-<p class=rvps3><span class=rvts12>Copyleft © 2011, FullProf Suite Team</span></p>
+<p class=rvps3><span class=rvts14>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

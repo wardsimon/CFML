@@ -142,7 +142,10 @@
 !!----       GET_ABSOLUTE_DATA_PATH
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
+!!--++       INIT_POWDER_NUMOR               [Overloaded]
+!!--++       INIT_SXTAL_NUMOR                [Overloaded]
 !!----       INITIALIZE_DATA_DIRECTORY
+!!----       INITIALIZE_NUMOR
 !!--++       INITIALIZE_NUMORS_DIRECTORY     [Private]
 !!--++       INITIALIZE_TEMP_DIRECTORY       [Private]
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
@@ -203,7 +206,7 @@ Module CFML_ILL_Instrm_Data
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
              Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor,      &
-             Read_Calibration_File_D1A
+             Read_Calibration_File_D1A, Initialize_Numor
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
@@ -213,7 +216,7 @@ Module CFML_ILL_Instrm_Data
              Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,  &
-             Read_Numor_D10
+             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor
 
 
    !---- Definitions ----!
@@ -284,12 +287,12 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2009
    !!
    Type, public :: Calibration_Detector_Type
-      character(len=4)                             :: Name_Instrm       ! Instrument Name
+      character(len=4)                             :: Name_Instrm      ! Instrument Name
       integer                                      :: NDet             ! Number of Detectors
       integer                                      :: NPointsDet       ! Number of Points by Detector
-      logical, dimension(:), allocatable           :: Active            ! Flag for active detector or not
-      real(kind=cp), dimension(:), allocatable     :: PosX               ! Relative Positions of each Detector
-      real(kind=cp), dimension(:,:), allocatable   :: Effic             ! Efficiency of each point detector (NpointsDetect,NDect)
+      logical, dimension(:), allocatable           :: Active           ! Flag for active detector or not
+      real(kind=cp), dimension(:), allocatable     :: PosX             ! Relative Positions of each Detector
+      real(kind=cp), dimension(:,:), allocatable   :: Effic            ! Efficiency of each point detector (NpointsDetect,NDect)
    End Type Calibration_Detector_Type
 
    !!----
@@ -927,6 +930,11 @@ Module CFML_ILL_Instrm_Data
       Module Procedure Allocate_SXTAL_Numors
    End Interface
 
+   Interface  Initialize_Numor
+      Module Procedure Init_Powder_Numor
+      Module Procedure Init_SXTAL_Numor
+   End Interface
+
    Interface  Read_Numor
       Module Procedure Read_Powder_Numor
       Module Procedure Read_SXTAL_Numor
@@ -976,34 +984,7 @@ Module CFML_ILL_Instrm_Data
        allocate(Num(num_max))
 
        do i=1, num_max
-          Num(i)%numor=0
-          Num(i)%manip=0
-          Num(i)%icalc=0
-          Num(i)%header=" "
-          Num(i)%Instrm=" "
-          Num(i)%title=" "
-          Num(i)%scantype=" "
-          Num(i)%angles=0.0
-          Num(i)%scans=0.0
-          Num(i)%monitor=0.0
-          Num(i)%time=0.0
-          Num(i)%wave=0.0
-          Num(i)%conditions=0.0
-          Num(i)%nbdata=0
-          Num(i)%nbang=0
-          Num(i)%nframes=0
-
-          if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
-          if (num_ang > 0 .and. nframes > 0) then
-             allocate(Num(i)%tmc_ang(num_ang,nframes))
-             Num(i)%tmc_ang=0.0
-          end if
-
-          if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
-          if (ndata > 0 .and. nframes > 0) then
-             allocate(Num(i)%counts(ndata,nframes))
-             Num(i)%counts=0.0
-          end if
+          call init_powder_numor(Num(i),num_ang,ndata,nframes)
        end do
 
        return
@@ -1041,38 +1022,7 @@ Module CFML_ILL_Instrm_Data
        allocate(Num(num_max))
 
        do i=1, num_max
-          Num(i)%numor=0
-          Num(i)%manip=0
-          Num(i)%icalc=0
-          Num(i)%header=" "
-          Num(i)%instrm=" "
-          Num(i)%title=" "
-          Num(i)%scantype=" "
-          Num(i)%hmin=0.0
-          Num(i)%hmax=0.0
-          Num(i)%dh=0.0
-          Num(i)%angles=0.0
-          Num(i)%ub=0.0
-          Num(i)%scans=0.0
-          Num(i)%preset=0.0
-          Num(i)%wave=0.0
-          Num(i)%cpl_fact=0.0
-          Num(i)%conditions=0.0
-          Num(i)%nbdata=0
-          Num(i)%nbang=0
-          Num(i)%nframes=0
-
-          if(allocated(Num(i)%tmc_ang)) deallocate(Num(i)%tmc_ang)
-          if (num_ang > 0 .and. nframes > 0) then
-             allocate(Num(i)%tmc_ang(num_ang,nframes))
-             Num(i)%tmc_ang=0.0
-          end if
-
-          if(allocated(Num(i)%counts)) deallocate(Num(i)%counts)
-          if (ndata > 0 .and. nframes > 0) then
-             allocate(Num(i)%counts(ndata,nframes))
-             Num(i)%counts=0.0
-          end if
+          call init_sxtal_numor(Num(i),num_ang,ndata,nframes)
        end do
 
        return
@@ -1404,6 +1354,130 @@ Module CFML_ILL_Instrm_Data
 
        return
     End Subroutine Get_Single_Frame_2D
+
+    !!----
+    !!---- Subroutine Init_Powder_Numor(Numor,NBAng, NBData, NFrames)
+    !!----
+    !!---- Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
+    !!---- allocate the respective arrays into the type object-
+    !!----
+    !!---- 21/03/2011
+    !!
+    Subroutine Init_Powder_Numor(Numor,NBAng, NBData, NFrames)
+        !---- Arguments ----!
+        type(Powder_Numor_type), intent(out) :: Numor
+        integer, optional,       intent(in)  :: NBAng
+        integer, optional,       intent(in)  :: NBData
+        integer, optional,       intent(in)  :: NFrames
+
+        !---- Local Variables ----!
+        Numor%numor=0
+        Numor%manip=0
+        Numor%icalc=0
+        Numor%header=" "
+        Numor%instrm=" "
+        Numor%title=" "
+        Numor%scantype=" "
+        Numor%angles=0.0
+        Numor%scans=0.0
+        Numor%monitor=0.0
+        Numor%time=0.0
+        Numor%wave=0.0
+        Numor%conditions=0.0
+
+        Numor%nbdata=0
+        Numor%nbang=0
+        Numor%nframes=0
+        if (present(nframes)) Numor%nframes=nframes
+        if (present(nbdata))  Numor%nbdata=nbdata
+        if (present(nbang))   Numor%nbang=nbang
+
+        if (allocated(Numor%tmc_ang)) deallocate(Numor%tmc_ang)
+        if (allocated(Numor%counts)) deallocate(Numor%counts)
+
+        if (present(nframes)) then
+           if (present(nbang)) then
+              if (nframes > 0 .and. nbang > 0) then
+                 allocate(Numor%tmc_ang(nbang,nframes))
+                 Numor%tmc_ang=0.0
+              end if
+           end if
+
+           if (present(nbdata)) then
+              if (nframes > 0 .and. nbdata > 0) then
+                 allocate(Numor%counts(nbdata,nframes))
+                 Numor%counts=0.0
+              end if
+           end if
+        end if
+
+        return
+    End Subroutine Init_Powder_Numor
+
+    !!----
+    !!---- Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
+    !!----
+    !!---- Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
+    !!---- allocate the respective arrays into the type object-
+    !!----
+    !!---- 21/03/2011
+    !!
+    Subroutine Init_SXTAL_Numor(Numor,NBAng, NBData, NFrames)
+        !---- Arguments ----!
+        type(SXTAL_Numor_type),  intent(out) :: Numor
+        integer, optional,       intent(in)  :: NBAng
+        integer, optional,       intent(in)  :: NBData
+        integer, optional,       intent(in)  :: NFrames
+
+        !---- Local Variables ----!
+        Numor%numor=0
+        Numor%manip=0
+        Numor%icalc=0
+        Numor%header=" "
+        Numor%instrm=" "
+        Numor%title=" "
+        Numor%scantype=" "
+        Numor%hmin=0.0
+        Numor%hmax=0.0
+        Numor%angles=0.0
+        Numor%ub=0.0
+        Numor%dh=0.0
+        Numor%scans=0.0
+        Numor%preset=0.0
+        Numor%wave=0.0
+        Numor%cpl_fact=0.0
+        Numor%conditions=0.0
+        Numor%ICDesc=0
+
+        Numor%nbdata=0
+        Numor%nbang=0
+        Numor%nframes=0
+
+        if (present(nframes)) Numor%nframes=nframes
+        if (present(nbdata))  Numor%nbdata=nbdata
+        if (present(nbang))   Numor%nbang=nbang
+
+        if (allocated(Numor%tmc_ang)) deallocate(Numor%tmc_ang)
+        if (allocated(Numor%counts)) deallocate(Numor%counts)
+
+        if (present(nframes)) then
+           if (present(nbang)) then
+              if (nframes > 0 .and. nbang > 0) then
+                 allocate(Numor%tmc_ang(nbang,nframes))
+                 Numor%tmc_ang=0.0
+              end if
+           end if
+
+           if (present(nbdata)) then
+              if (nframes > 0 .and. nbdata > 0) then
+                 allocate(Numor%counts(nbdata,nframes))
+                 Numor%counts=0.0
+              end if
+           end if
+        end if
+
+        return
+    End Subroutine Init_SXTAL_Numor
 
     !!----
     !!---- Subroutine Initialize_Data_Directory()
@@ -2285,7 +2359,7 @@ Module CFML_ILL_Instrm_Data
              n%tmc_ang(1,j)=real(ivalues(i+2))*0.001    ! Time (s)
              n%tmc_ang(2,j)=real(ivalues(i+1))          ! Monitor
              n%tmc_ang(3,j)=real(ivalues(i+3))*0.001    ! Angles
-             n%counts(:,j)=ivalues(i+5:i+29)
+             n%counts(:,j)=real(ivalues(i+5:i+29))
              i=i+29
           end do
 
@@ -2342,6 +2416,14 @@ Module CFML_ILL_Instrm_Data
        ! Defining the different blocks and load information on nl_keytypes
        call Set_KeyTypes_on_File(filevar,nlines)
 
+       ! Initialize Numor
+       call init_powder_numor(n)
+
+       ! Fixed Some values
+       n%nframes=1
+       n%scantype='2theta'
+       n%scans(2)=0.2
+
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
        n%numor=numor
@@ -2362,17 +2444,14 @@ Module CFML_ILL_Instrm_Data
        ! Control Flags
        call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
        if (nval_i > 0) then
+          n%icdesc(1)=ivalues(8)    ! 0:Monitor ; 1:Time
        end if
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
        if (nval_f > 0) then
-          n%scantype='2theta'
           n%wave=rvalues(18)
-          n%scans(1)=rvalues(7)
-          n%scans(2)=0.2
           n%conditions(1:3)=rvalues(46:48)  ! Temp-s, Temp-r, Temp-sample
-          n%time=rvalues(39)*0.001          ! T en seg
        end if
 
        ! Counts
@@ -2381,6 +2460,8 @@ Module CFML_ILL_Instrm_Data
        if (nval_i > 0) then
           n%nbdata=nval_i-3
           n%monitor=real(ivalues(1))
+          n%time=real(ivalues(2))*0.001
+          n%scans(1)=real(ivalues(3))*0.001
           if (n%nbdata > 0) then
              allocate(n%counts(n%nbdata,1))
              n%counts(:,1)=real(ivalues(4:nval_i))
@@ -3394,6 +3475,15 @@ Module CFML_ILL_Instrm_Data
        ! Defining the different blocks
        call Set_KeyTypes_on_File(filevar,nlines)
 
+       ! Initialize Numor
+       call init_powder_numor(n)
+
+       ! Fixed Some values
+       n%nframes=1
+       n%nbdata=1600
+       n%scantype='2theta'
+       n%scans(2)=0.1
+
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
        n%numor=numor
@@ -3449,9 +3539,7 @@ Module CFML_ILL_Instrm_Data
        call read_F_keyType(filevar,nl_keytypes(4,6,1),nl_keytypes(4,6,2))
        if (nval_f > 0) then
           n%conditions(1:3)=rvalues(2:4)
-          n%ScanType='2theta'
           n%scans(1)=rvalues(5)
-          n%scans(2)=0.1
        end if
 
        ! S Block
@@ -3459,8 +3547,7 @@ Module CFML_ILL_Instrm_Data
        ! Counts Information
        call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
        if (nval_i > 0) then
-          n%nbdata=nval_i
-          if (n%nbdata > 0) then
+          if (n%nbdata == nval_i) then
              allocate(n%counts(n%nbdata,1))
              n%counts(:,1)=real(ivalues(1:nval_i))
           end if
@@ -5023,7 +5110,7 @@ Module CFML_ILL_Instrm_Data
            deallocate(filevar)
            return
         end if
-        Cal%Effic(:,1)=vet
+        Cal%Effic(1,:)=vet
 
         set_calibration_detector =.true.
         deallocate(filevar)

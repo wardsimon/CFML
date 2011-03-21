@@ -50,6 +50,7 @@
 !!--++       READ_PATTERN_XYSIGMA           [Private]
 !!--++       SET_BACKGROUND_INTER           [Private]
 !!--++       SET_BACKGROUND_POLY            [Private]
+!!----       WRITE_PATTERN_FREEFORMAT
 !!----       WRITE_PATTERN_XYSIG
 !!----
 !!
@@ -68,8 +69,9 @@
     public ::  calc_fwhm_peak
 
     !---- List of public subroutines ----!
-    public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern, &
-               Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig
+    public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern,      &
+               Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig,&
+               Write_Pattern_FreeFormat
 
     !---- List of private subroutines ----!
     private :: Read_Pattern_D1A_D2B, Read_Pattern_D1A_D2B_Old, Read_Pattern_D1B_D20,       &
@@ -3253,5 +3255,49 @@
 
        return
     End Subroutine Write_Pattern_XYSig
+
+    !!----
+    !!---- Subroutine Write_Pattern_FreeFormat(Filename,Pat)
+    !!----    character (len=*),               intent(in) :: Filename
+    !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!----
+    !!----    Write a pattern in Free Format (Instrm=0)
+    !!----
+    !!---- Update: 21/03/2011
+    !!
+    Subroutine Write_Pattern_FreeFormat(Filename,Pat)
+       !---- Arguments ----!
+       character (len=*),               intent(in) :: filename
+       type (diffraction_pattern_type), intent(in) :: Pat
+
+       !---- Local Variables ----!
+       integer                                      :: i,j,k,nl,ier,i_dat
+
+       call init_err_diffpatt()
+       call get_logunit(i_dat)
+       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       if (ier /= 0 ) then
+          Err_diffpatt=.true.
+          ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
+          return
+       end if
+
+       write(unit=i_dat,fmt='(3(1x,f14.6)2x,a)') pat%xmin, pat%step, pat%xmax, trim(pat%Title)
+       nl=pat%npts/10
+       if (mod(pat%npts,10) /= 0) nl=nl+1
+       j=1
+       do i=1,nl
+          if (i /= nl) then
+             write(unit=i_dat,fmt='(10i8)') nint(pat%y(j:j+9))
+          else
+             k=pat%npts - 10*(i-1)
+             write(unit=i_dat,fmt='(10i8)') nint(pat%y(j:j+k-1))
+          end if
+          j=j+10
+       end do
+
+       close(unit=i_dat)
+       return
+    End Subroutine Write_Pattern_FreeFormat
 
  End Module CFML_Diffraction_Patterns
