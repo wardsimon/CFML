@@ -151,6 +151,9 @@
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
 !!----       POWDERNUMOR_TO_DIFFPATTERN
 !!--++       READ_A_KEYTYPE                  [Private]
+!!----       READ_CALIBRATION_FILE
+!!----       READ_CALIBRATION_FILE_D1A       [Private]
+!!----       READ_CALIBRATION_FILE_D2B       [Private]
 !!----       READ_CURRENT_INSTRM
 !!--++       READ_F_KEYTYPE                  [Private]
 !!--++       READ_I_KEYTYPE                  [Private]
@@ -206,7 +209,7 @@ Module CFML_ILL_Instrm_Data
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
              Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor,      &
-             Read_Calibration_File_D1A, Initialize_Numor
+             Read_Calibration_File, Initialize_Numor
 
    !---- Private Subroutines ----!
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
@@ -216,7 +219,8 @@ Module CFML_ILL_Instrm_Data
              Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,  &
-             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor
+             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,&
+             Read_Calibration_File_D2B
 
 
    !---- Definitions ----!
@@ -5036,13 +5040,50 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Write_SXTAL_Numor
 
     !!----
-    !!---- Subroutine Read_Calibration_File_D1A(FileCal,Cal)
+    !!---- Subroutine Read_Calibration_File(FileCal, Instrm, Cal )
     !!----    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!----    character(len=*), intent(in)                 :: Instrm     ! Instrument
     !!----    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
     !!----
-    !!---- Load the Calibration parameters for a D1A Instrument
+    !!---- Read the Calibration File for Different Instruments at ILL.
+    !!---- At the moment: D1A, D2B
     !!----
-    !!---- 17/03/2011
+    !!---- 22/03/2011
+    !!
+    Subroutine Read_Calibration_File(FileCal, Instrm, Cal)
+        !---- Arguments ----!
+        character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+        character(len=*), intent(in)                 :: Instrm     ! Instrument
+        type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+
+        !---- Local Variables ----!
+
+        err_illdata=.false.
+        err_illdata_mess=' '
+
+        select case (u_case(trim(Instrm)))
+           case ('D1A')
+              call Read_Calibration_File_D1A(FileCal,Cal)
+
+           case ('D2B')
+              call Read_Calibration_File_D2B(FileCal,Cal)
+
+           case default
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading Calibration File for '//trim(Instrm)//' Instrument'
+        end select
+
+        return
+    End Subroutine Read_Calibration_File
+
+    !!--++
+    !!--++ Subroutine Read_Calibration_File_D1A(FileCal,Cal)
+    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++
+    !!--++ Load the Calibration parameters for a D1A Instrument
+    !!--++
+    !!--++ 17/03/2011
     !!
     Subroutine Read_Calibration_File_D1A(FileCal,Cal)
         !---- Arguments ----!
@@ -5117,6 +5158,156 @@ Module CFML_ILL_Instrm_Data
 
         return
     End Subroutine Read_Calibration_File_D1A
+
+    !!--++
+    !!--++ Subroutine Read_Calibration_File_D2B(FileCal,Cal)
+    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++
+    !!--++ Load the Calibration parameters for a D2B Instrument
+    !!--++
+    !!--++ 17/03/2011
+    !!
+    Subroutine Read_Calibration_File_D2B(FileCal,Cal)
+        !---- Arguments ----!
+        character(len=*), intent(in)                 :: FileCal
+        type(calibration_detector_type), intent(out) :: Cal
+
+        !---- Local Variables ----!
+        character(len=512), dimension(:), allocatable :: filevar
+        integer                                       :: i,iv,ini,j,nlines,k
+        integer, dimension(6)                         :: ivet
+        real(kind=cp), dimension(6)                   :: vet
+
+        ! Init
+        err_illdata=.false.
+        err_illdata_mess=' '
+
+        set_calibration_detector=.false.
+
+        ! Detecting numor
+        call Number_Lines(FileCal,nlines)
+        if (nlines <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Calibration File for D2B Instrument'
+           return
+        end if
+
+        ! Allocating variables
+        if (allocated(filevar)) deallocate(filevar)
+        allocate(filevar(nlines))
+        call Reading_Lines(FileCal,nlines,filevar)
+
+        ! Load Information on Cal Object
+        Cal%Name_Instrm='D2B'
+        Cal%NDet=128
+        Cal%NPointsDet=128
+        if (allocated(Cal%Active)) deallocate(Cal%Active)
+        if (allocated(Cal%PosX))    deallocate(Cal%PosX)
+        if (allocated(Cal%Effic))  deallocate(Cal%Effic)
+
+        allocate(Cal%Active(Cal%NDet))
+        allocate(Cal%PosX(Cal%NDet))
+        allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+
+        Cal%Active=.true.
+        Cal%PosX=0.0           ! Load values is from 1 to 128 detector
+        Cal%Effic=1.0          ! Down or Up?
+
+        ! Angle Position
+        ini=0
+        do i=1,nlines
+           if (index(filevar(i),'angles') > 0) then
+              ini=i
+              exit
+           end if
+        end do
+        if (ini == 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Angles positions for Detectors in D2B Instrument'
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
+        ini=ini+1
+        j=0
+        do i=ini,nlines
+           call getnum(filevar(i), vet,ivet,iv)
+           if (iv <= 0) then
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading Angles positions for Detectors in D2B Instrument'
+              deallocate(filevar)
+              deallocate(Cal%Active)
+              deallocate(Cal%PosX)
+              deallocate(Cal%Effic)
+              return
+           end if
+           Cal%PosX(j+1:j+iv)=vet(1:iv)
+           j=j+iv
+           if (j == Cal%NDet) exit
+        end do
+
+        ! Efficiency of each detector
+        ini=0
+        do i=1,nlines
+           if (index(filevar(i),'efficiencies') > 0) then
+              ini=i
+              exit
+           end if
+        end do
+        if (ini == 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Efficiencies values for Detectors in D2B Instrument'
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
+        ini=ini+1
+        j=0   ! Number of Detector
+        k=0   ! Number of Points into the same Detector
+        do i=ini,nlines
+           call getnum(filevar(i), vet,ivet,iv)
+           if (iv <= 0) then
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading Efficiencies values for Detectors in D2B Instrument'
+              deallocate(filevar)
+              deallocate(Cal%Active)
+              deallocate(Cal%PosX)
+              deallocate(Cal%Effic)
+              return
+           end if
+           select case (iv)
+              case (2)
+                 Cal%Effic(j+1,k+1:k+iv)=vet(1:iv)
+                 j=j+1
+                 k=0
+              case (6)
+                 Cal%Effic(j+1,k+1:k+iv)=vet(1:iv)
+                 k=k+iv
+
+              case default
+                 err_illdata=.true.
+                 err_illdata_mess=' Problems reading Efficiencies values for Detectors in D2B Instrument'
+                 deallocate(filevar)
+                 deallocate(Cal%Active)
+                 deallocate(Cal%PosX)
+                 deallocate(Cal%Effic)
+                 return
+           end select
+           if (j == Cal%NDet) exit
+        end do
+
+        set_calibration_detector =.true.
+        deallocate(filevar)
+
+        return
+    End Subroutine Read_Calibration_File_D2B
 
 
  End Module CFML_ILL_Instrm_Data
