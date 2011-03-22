@@ -220,7 +220,7 @@ Module CFML_ILL_Instrm_Data
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,  &
              Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,&
-             Read_Calibration_File_D2B
+             Read_Calibration_File_D2B, Read_Calibration_File_D4
 
 
    !---- Definitions ----!
@@ -283,9 +283,9 @@ Module CFML_ILL_Instrm_Data
    !!----   character(len=4)                             :: Name_Instrm       ! Instrument Name
    !!----   integer                                      :: NDet              ! Number of Detectors
    !!----   integer                                      :: NPointsDet        ! Number of Points by Detector
-   !!----   logical, dimension(:), allocatable           :: Active            ! Flag for active detector or not
    !!----   real(kind=cp), dimension(:), allocatable     :: PosX              ! Relative Positions of each Detector
    !!----   real(kind=cp), dimension(:,:), allocatable   :: Effic             ! Efficiency of each point detector (NpointsDetect,NDect)
+   !!----   logical,       dimension(:,:), allocatable   :: Active            ! Flag for active detector or not
    !!---- End Type Calibration_Detector_Type
    !!----
    !!---- Update: April - 2009
@@ -293,10 +293,10 @@ Module CFML_ILL_Instrm_Data
    Type, public :: Calibration_Detector_Type
       character(len=4)                             :: Name_Instrm      ! Instrument Name
       integer                                      :: NDet             ! Number of Detectors
-      integer                                      :: NPointsDet       ! Number of Points by Detector
-      logical, dimension(:), allocatable           :: Active           ! Flag for active detector or not
+      integer                                      :: NPointsDet       ! Number of Points per Detector
       real(kind=cp), dimension(:), allocatable     :: PosX             ! Relative Positions of each Detector
       real(kind=cp), dimension(:,:), allocatable   :: Effic            ! Efficiency of each point detector (NpointsDetect,NDect)
+      logical,       dimension(:,:), allocatable   :: Active           ! Flag for active points on detector
    End Type Calibration_Detector_Type
 
    !!----
@@ -2289,7 +2289,7 @@ Module CFML_ILL_Instrm_Data
        allocate(filevar(nlines))
        call Reading_Lines(fileinfo,nlines,filevar)
 
-       ! Check format for D1B
+       ! Check format for D1A
        call Number_KeyTypes_on_File(filevar,nlines)
        if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
           err_illdata=.true.
@@ -2336,8 +2336,6 @@ Module CFML_ILL_Instrm_Data
        if (nval_f > 0) then
           n%scantype='2theta'
           n%wave=rvalues(18)
-          n%scans(1)=rvalues(36)
-          n%scans(2)=rvalues(37)
           n%conditions(1:5)=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample
        end if
 
@@ -2669,7 +2667,7 @@ Module CFML_ILL_Instrm_Data
        n%counts=0.0
 
        if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-       allocate(n%tmc_ang(2,n%nframes))
+       allocate(n%tmc_ang(3+6,n%nframes))
        n%tmc_ang=0.0
 
        ! Numor
@@ -2703,8 +2701,11 @@ Module CFML_ILL_Instrm_Data
           n%monitor=rvalues(1)
           n%time=rvalues(2)
           n%wave=rvalues(5)
-          n%scans(1)=rvalues(15)
-          n%tmc_ang(2,:)=rvalues(31:39)    ! Total Counts for each detector (Monitor)
+          n%scans(1)=rvalues(12)
+          n%tmc_ang(1,1)=rvalues(2)           ! Time
+          n%tmc_ang(2,1)=rvalues(1)           ! Monitor
+          n%tmc_ang(3,1)=rvalues(11)          ! Initial Angle
+          n%tmc_ang(4:12,1)=rvalues(31:39)    ! Total Counts for each detector (Monitor)
        end if
 
        call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
@@ -5068,6 +5069,9 @@ Module CFML_ILL_Instrm_Data
            case ('D2B')
               call Read_Calibration_File_D2B(FileCal,Cal)
 
+           case ('D4')
+              call Read_Calibration_File_D4(FileCal,Cal)
+
            case default
               err_illdata=.true.
               err_illdata_mess=' Problems reading Calibration File for '//trim(Instrm)//' Instrument'
@@ -5092,7 +5096,7 @@ Module CFML_ILL_Instrm_Data
 
         !---- Local Variables ----!
         character(len=512), dimension(:), allocatable :: filevar
-        integer                                       :: iv,nlines
+        integer                                       :: i,iv,nlines
         integer, dimension(25)                        :: ivet
         real(kind=cp), dimension(25)                  :: vet
 
@@ -5123,9 +5127,9 @@ Module CFML_ILL_Instrm_Data
         if (allocated(Cal%PosX))    deallocate(Cal%PosX)
         if (allocated(Cal%Effic))  deallocate(Cal%Effic)
 
-        allocate(Cal%Active(Cal%NDet))
         allocate(Cal%PosX(Cal%NDet))
         allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+        allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
 
         Cal%Active=.true.
         Cal%PosX=0.0
@@ -5152,6 +5156,11 @@ Module CFML_ILL_Instrm_Data
            return
         end if
         Cal%Effic(1,:)=vet
+
+        ! Mask for Points used or not
+        do i=1,Cal%NDet
+           if (Cal%Effic(1,i) < 0.0)  Cal%Active(1,i)=.false.
+        end do
 
         set_calibration_detector =.true.
         deallocate(filevar)
@@ -5206,9 +5215,9 @@ Module CFML_ILL_Instrm_Data
         if (allocated(Cal%PosX))    deallocate(Cal%PosX)
         if (allocated(Cal%Effic))  deallocate(Cal%Effic)
 
-        allocate(Cal%Active(Cal%NDet))
         allocate(Cal%PosX(Cal%NDet))
         allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+        allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
 
         Cal%Active=.true.
         Cal%PosX=0.0           ! Load values is from 1 to 128 detector
@@ -5303,11 +5312,180 @@ Module CFML_ILL_Instrm_Data
            if (j == Cal%NDet) exit
         end do
 
+        ! Mask for Point Detectors
+        do i=1,Cal%NDet
+           do j=1, Cal%NPointsDet
+              if (Cal%Effic(j,i) < 0.0) Cal%Active(j,i)=.false.
+           end do
+        end do
+
+
         set_calibration_detector =.true.
         deallocate(filevar)
 
         return
     End Subroutine Read_Calibration_File_D2B
 
+    !!--++
+    !!--++ Subroutine Read_Calibration_File_D4(FileCal,Cal)
+    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++
+    !!--++ Load the Calibration parameters for a D4 Instrument
+    !!--++
+    !!--++ 17/03/2011
+    !!
+    Subroutine Read_Calibration_File_D4(FileCal,Cal)
+        !---- Arguments ----!
+        character(len=*), intent(in)                 :: FileCal
+        type(calibration_detector_type), intent(out) :: Cal
+
+        !---- Local Variables ----!
+        character(len=512), dimension(:), allocatable :: filevar
+        character(len=80)                             :: line
+        integer                                       :: i,iv,ini,j,nlines,k
+        integer, dimension(6)                         :: ivet
+        real(kind=cp), dimension(6)                   :: vet
+
+        ! Init
+        err_illdata=.false.
+        err_illdata_mess=' '
+
+        set_calibration_detector=.false.
+
+        ! Detecting numor
+        call Number_Lines(FileCal,nlines)
+        if (nlines <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Calibration File for D4 Instrument'
+           return
+        end if
+
+        ! Allocating variables
+        if (allocated(filevar)) deallocate(filevar)
+        allocate(filevar(nlines))
+        call Reading_Lines(FileCal,nlines,filevar)
+
+        ! Load Information on Cal Object
+        Cal%Name_Instrm='D4'
+        Cal%NDet=9
+        Cal%NPointsDet=64
+        if (allocated(Cal%Active)) deallocate(Cal%Active)
+        if (allocated(Cal%PosX))    deallocate(Cal%PosX)
+        if (allocated(Cal%Effic))  deallocate(Cal%Effic)
+
+        allocate(Cal%PosX(Cal%NDet))
+        allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+        allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
+
+        Cal%Active=.true.
+        Cal%PosX=0.0
+        Cal%Effic=1.0
+
+        ! Angle Position
+        ini=0
+        do i=1,nlines
+           if (index(filevar(i),'angles') > 0) then
+              ini=i
+              exit
+           end if
+        end do
+        if (ini == 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Angles positions for Detectors in D4 Instrument'
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
+        ini=ini+1
+        j=0
+        do i=ini,nlines
+           line=adjustl(filevar(i))
+           if (len_trim(line) <=0) cycle
+           if (line(1:1) =='#') cycle
+           call getnum(line, vet,ivet,iv)
+           select case (iv)
+              case (2)
+                 j=j+1
+                 Cal%PosX(j)=vet(2)
+
+              case default
+                 err_illdata=.true.
+                 err_illdata_mess=' Problems reading Angles positions for Detectors in D4 Instrument'
+                 deallocate(filevar)
+                 deallocate(Cal%Active)
+                 deallocate(Cal%PosX)
+                 deallocate(Cal%Effic)
+                 return
+           end select
+           if (j == Cal%NDet) exit
+        end do
+
+        ! Efficiency of each detector
+        ini=0
+        do i=1,nlines
+           if (index(filevar(i),'efficiency') > 0) then
+              ini=i
+              exit
+           end if
+        end do
+        if (ini == 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Efficiencies values for Detectors in D4 Instrument'
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
+        ini=ini+1
+        do i=ini,nlines
+           line=adjustl(filevar(i))
+           if (len_trim(line) <=0) cycle
+           if (line(1:1) =='#') cycle
+           call getnum(line, vet,ivet,iv)
+           if (iv <= 0) then
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading Efficiencies values for Detectors in D4 Instrument'
+              deallocate(filevar)
+              deallocate(Cal%Active)
+              deallocate(Cal%PosX)
+              deallocate(Cal%Effic)
+              return
+           end if
+           select case (iv)
+              case (3)
+                 j=ivet(1)
+                 k=ivet(2)
+                 Cal%Effic(j,k)=vet(3)
+
+              case default
+                 err_illdata=.true.
+                 err_illdata_mess=' Problems reading Efficiencies values for Detectors in D4 Instrument'
+                 deallocate(filevar)
+                 deallocate(Cal%Active)
+                 deallocate(Cal%PosX)
+                 deallocate(Cal%Effic)
+                 return
+           end select
+        end do
+
+        ! Mask for Point Detectors
+        do i=1,Cal%NDet
+           do j=1, Cal%NPointsDet
+              if (Cal%Effic(j,i) < 0.0) Cal%Active(j,i)=.false.
+           end do
+        end do
+
+
+        set_calibration_detector =.true.
+        deallocate(filevar)
+
+        return
+    End Subroutine Read_Calibration_File_D4
 
  End Module CFML_ILL_Instrm_Data
