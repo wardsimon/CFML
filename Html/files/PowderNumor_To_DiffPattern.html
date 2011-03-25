@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>PowderNumor_To_DiffPattern</title>
+<html><head><title>PowderNumors_To_DiffPattern</title>
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 body {
@@ -118,17 +118,37 @@ p,ul,ol /* Paragraph Style */
 <meta name="generator" content="HelpNDoc Professional Edition"></head>
 <body>
 <h1 class=rvps2><span class=rvts0><span class=rvts12>CFML_ILL_Instrm_Data: Subroutines</span></span></h1>
-<p><span class=rvts10>Subroutine PowderNumor_To_DiffPattern (Numor, Pat)</span></p>
+<p><span class=rvts10>Subroutine PowderNumors_To_DiffPattern (PNumors, N, ActList, Pat, VNorm, Detect, Cal)</span></p>
 <p><br></p>
 <div><table width="100%" border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
-<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Powder_Numor_Type)</span></p>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Powder_Numor_Type), Dimension(:)</span></p>
 </td>
 <td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
 </td>
-<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Numor</p>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>PNumors</p>
 </td>
 <td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Numor Object</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>N</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pattern Object</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Logical, Dimension</span><span class=rvts11>(:)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>ActList</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Active or not a particular Numor from the list</p>
 </td>
 </tr>
 <tr valign=top>
@@ -141,10 +161,42 @@ p,ul,ol /* Paragraph Style */
 <td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Pattern Object</p>
 </td>
 </tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Real, optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>VNorm</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Normalization value (Monitor)</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Integer</span><span class=rvts11>,</span><span class=rvts1> optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Detect</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Select a particular Detector</p>
+</td>
+</tr>
+<tr valign=top>
+<td width=330 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Type</span><span class=rvts11>(Calibration_Detector_Type), </span><span class=rvts1>optional</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p><span class=rvts1>Intent</span><span class=rvts11>(</span><span class=rvts1>in</span><span class=rvts11>)</span></p>
+</td>
+<td width=98 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Cal</p>
+</td>
+<td width=369 style="border-width : 1px; border-color : #808080 #ffffff #ffffff #808080; border-style: solid;"><p>Calibration object for Detectors in a particular Instrument</p>
+</td>
+</tr>
 </table>
 </div>
 <p><br></p>
-<p>Pass all information from Numor object to Diffraction Pattern object</p>
+<p>Traslate The information from Numors (adding in general) to a Diffraction Object</p>
+<p><br></p>
+<p><br></p>
 <p><br></p>
 <p class=rvps3><span class=rvts13>Copyleft © 2011, FullProf Suite Team</span></p>
 </body></html>

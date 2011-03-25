@@ -135,6 +135,9 @@
 !!----    Functions:
 !!----
 !!----    Subroutines:
+!!--++       ADDING_NUMORS_D1A_DIFFPATTERN    [Private]
+!!--++       ADDING_NUMORS_D1B_D20            [Private]
+!!--++       ADDING_NUMORS_D4_DIFFPATTERN     [Private]
 !!----       ALLOCATE_NUMORS
 !!--++       ALLOCATE_POWDER_NUMORS          [Overloaded]
 !!--++       ALLOCATE_SXTAL_NUMORS           [Overloaded]
@@ -142,6 +145,7 @@
 !!----       GET_ABSOLUTE_DATA_PATH
 !!----       GET_NEXT_YEARCYCLE
 !!----       GET_SINGLE_FRAME_2D
+!!----       INIT_ERR_ILLDATA
 !!--++       INIT_POWDER_NUMOR               [Overloaded]
 !!--++       INIT_SXTAL_NUMOR                [Overloaded]
 !!----       INITIALIZE_DATA_DIRECTORY
@@ -149,7 +153,9 @@
 !!--++       INITIALIZE_NUMORS_DIRECTORY     [Private]
 !!--++       INITIALIZE_TEMP_DIRECTORY       [Private]
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
-!!----       POWDERNUMOR_TO_DIFFPATTERN
+!!--++       NUMORD1B_TO_DIFFPATTERN         [Private]
+!!--++       NUMORD20_TO_DIFFPATTERN         [Private]
+!!----       POWDERNUMORS_TO_DIFFPATTERN
 !!--++       READ_A_KEYTYPE                  [Private]
 !!----       READ_CALIBRATION_FILE
 !!----       READ_CALIBRATION_FILE_D1A       [Private]
@@ -191,7 +197,7 @@ Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
-   Use CFML_Math_General,         only: cosd,sind, equal_vector
+   Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint
    use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
@@ -208,19 +214,21 @@ Module CFML_ILL_Instrm_Data
              Update_Current_Instrm_UB, Set_Default_Instrument,Get_Single_Frame_2D,               &
              Initialize_Data_Directory, Get_Absolute_Data_Path, Get_Next_YearCycle,              &
              Write_Generic_Numor, Set_Instrm_Geometry_Directory, Write_Numor_Info,               &
-             Define_Uncompress_Program, PowderNumor_To_DiffPattern, Write_HeaderInfo_Numor,      &
-             Read_Calibration_File, Initialize_Numor
+             Define_Uncompress_Program, PowderNumors_To_DiffPattern, Write_HeaderInfo_Numor,     &
+             Read_Calibration_File, Initialize_Numor, Init_Err_ILLData
 
    !---- Private Subroutines ----!
-   private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File, &
-             Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,    &
-             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,         &
-             Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,          &
-             Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,          &
-             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,   &
-             Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,  &
-             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,&
-             Read_Calibration_File_D2B, Read_Calibration_File_D4
+   private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File,      &
+             Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,         &
+             Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,              &
+             Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,               &
+             Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,               &
+             Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,        &
+             Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
+             Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
+             Read_Calibration_File_D2B, Read_Calibration_File_D4, Adding_Numors_D1A_DiffPattern, &
+             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1B_To_DiffPattern,       &
+             NumorD20_To_DiffPattern
 
 
    !---- Definitions ----!
@@ -956,6 +964,571 @@ Module CFML_ILL_Instrm_Data
 
  Contains
 
+    !!--++
+    !!--++ Subroutine Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat,VNorm,Cal)
+    !!--++    type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
+    !!--++    integer,                                   intent(in)  :: N          ! Number of Numors
+    !!--++    logical, dimension(:),                     intent(in)  :: ActList    ! Active List to considering if Add
+    !!--++    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
+    !!--++    real,                            optional, intent(in)  :: VNorm      ! Normalization value
+    !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+    !!--++
+    !!--++ Adding Numors from D1A Instrument and Passing to DiffPattern
+    !!--++
+    !!--++ Date: 25/03/2011
+    !!
+    Subroutine Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat,VNorm,Cal)
+        !---- Arguments ----!
+        type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
+        integer,                                   intent(in)  :: N          ! Number of Numors
+        logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
+        type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
+        real, optional,                            intent(in)  :: VNorm      ! Normalization value
+        type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+
+        !---- Local Variables ----!
+        character(len=80)                   :: car
+        logical                             :: correction=.false.
+        integer                             :: np         ! Ptos final
+        integer                             :: i,j,k,kk,nn,nc,num
+        integer                             :: ndet, npoints
+        integer, dimension(:), allocatable  :: ind
+
+        real, dimension(:,:,:), allocatable :: x,y,d2y
+        real                                :: fac,x1,x2,xmin,xmax,step,yfc,cnorm
+
+
+        !> Init
+        call init_err_illdata()
+
+        if (N <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Number of Numors in the List was zero!'
+          return
+        end if
+
+        num=count(actlist == .true.)
+        if (num <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Number of active Numors in the List was zero!'
+          return
+        end if
+
+        if (present(Cal)) correction=.true.
+
+        !> Checking dimensions
+        ndet=25
+        npoints=0
+        do i=1,n
+           if (.not. actlist(i)) cycle
+           npoints=max(npoints,PNumors(i)%nframes)
+        end do
+
+        !> Allocating vectors...
+        if (allocated(x)) deallocate(x)
+        allocate(x(npoints,ndet,num))
+        if (allocated(y)) deallocate(y)
+        allocate(y(npoints,ndet,num))
+        if (allocated(ind)) deallocate(ind)
+        allocate(ind(n))
+        ind=0
+
+        cnorm=1.0
+        if (present(vnorm)) cnorm=vnorm
+
+        !> X
+        x=0.0
+        num=0
+        do i= 1, n
+           if (actlist(i) == .false.) cycle
+           num=num+1
+           if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%tmc_ang(2,1)  ! Monitor normalization value
+           ind(num)=i                                                            ! Vector for index
+
+           np=PNumors(i)%nframes
+           do k=1,np
+              x(k,:,num)=PNumors(i)%tmc_ang(3,k)
+           end do
+           if (correction) x(1:np,:,num)=x(1:np,:,num)+Cal%posX(1)
+
+           do k=1,np
+              if (correction) then
+                 do j=2,ndet
+                    x(k,ndet-j+1,num)=x(k,ndet,num)+cal%posX(j)
+                 end do
+              else
+                 do j=ndet-1,1,-1
+                    x(k,j,num)=x(k,j+1,num) -6.0
+                 end do
+              end if
+           end do
+        end do
+
+        !> Y
+        y=0.0
+        num=0
+        do i= 1, n
+           if (actlist(i) == .false.) cycle
+           num=num+1
+
+           np=PNumors(i)%nframes
+           do k=1,np
+              do j=1,ndet
+                 y(k,j,num)=PNumors(i)%counts(ndet-j+1,k)
+              end do
+           end do
+
+           if (correction) then
+              do k=1,np
+                 do j=1,ndet
+                    y(k,j,num)=y(k,j,num)*cnorm / (PNumors(i)%tmc_ang(2,k)*cal%effic(1,ndet-j+1))   !Effic loaded in reverse mode
+                 end do
+              end do
+           end if
+        end do
+
+        !> Passing for Interpolation procedure only the active points
+        xmin=1.0E+10
+        xmax=-1.0E-10
+        do i=1,num
+           do j=1,ndet
+              if (correction) then
+                 if (.not. Cal%Active(1,j)) cycle
+              end if
+              np=PNumors(ind(i))%nframes
+              xmin=min(xmin,minval(x(1:np,j,i)))
+              xmax=max(xmax,maxval(x(1:np,j,i)))
+           end do
+        end do
+
+        !> Second Derivative
+        if (allocated(d2y)) deallocate(d2y)
+        allocate(d2y(npoints,ndet,num))
+        d2y=0.0
+        do i=1,num
+           do j=1,ndet
+              if (correction) then
+                 if (.not. Cal%Active(1,j)) cycle
+              end if
+              np=PNumors(ind(i))%nframes
+              call second_derivative(x(1:np,j,i),y(1:np,j,i),np,d2y(1:np,j,i))
+           end do
+        end do
+
+        !> DiffPattern
+        step=abs(PNumors(ind(1))%tmc_ang(3,1)-PNumors(ind(1))%tmc_ang(3,2))
+        np=nint((xmax-xmin)/step)+1
+
+        call Allocate_Diffraction_Pattern (Pat, np)
+
+        Pat%Monitor=cnorm
+        Pat%diff_Kind='neutron'
+        Pat%Scat_Var='2theta'
+        Pat%instr='D1A'
+        Pat%xmin=xmin
+        Pat%xmax=xmax
+        Pat%step=step
+
+        !> First active Numor on the List
+        i=ind(1)
+        Pat%title=trim(PNumors(i)%title)
+        Pat%TSet=PNumors(i)%conditions(1)
+        Pat%TSamp=PNumors(i)%conditions(3)
+        Pat%Conv(1)=PNumors(i)%wave
+
+        Pat%x=0.0
+        Pat%y=0.0
+        Pat%sigma=0.0
+        Pat%nd=0
+
+        do nn=1,np
+           Pat%x(nn)=xmin+(nn-1)*step
+           nc=0
+
+           do i=1,num   ! From Numors
+              do j=1,ndet ! Detectors
+                 if (correction) then
+                    if (.not. Cal%Active(1,j)) cycle
+                 end if
+                 k=PNumors(ind(i))%nframes
+                 x1=minval(x(1:k,j,i))
+                 x2=maxval(x(1:k,j,i))
+                 kk=locate(x(1:k,j,i),k,Pat%x(nn))     ! Using x and not xx. It is correct!!!!
+                 if (kk == 0) cycle
+                 if (kk > k) cycle
+
+                 !> double ckeck!!!
+                 if (Pat%x(nn) < x1 .or. Pat%x(nn) > x2) cycle
+
+                 nc=nc+1
+                 call splint(x(1:k,j,i),y(1:k,j,i),d2y(1:k,j,i),k,Pat%x(nn),yfc)
+
+                 Pat%y(nn)=Pat%y(nn)+ yfc
+                 fac=cnorm/Pnumors(ind(i))%tmc_ang(2,kk)
+                 if (correction) fac= fac/abs(Cal%effic(1,ndet-j+1))
+                 Pat%sigma(nn)=Pat%sigma(nn)+yfc * fac
+              end do
+           end do
+
+           ! control
+           if (nc > 0) then
+              Pat%y(nn)=Pat%y(nn)/real(nc)
+              Pat%sigma(nn)=abs(Pat%sigma(nn))/real(nc*nc)
+              Pat%nd(nn)=nc
+           else
+              Pat%y(nn)=0.0
+              Pat%sigma(nn)=1.0
+              Pat%nd(nn)=0
+           end if
+        end do
+
+        Pat%ymin=minval(Pat%y)
+        Pat%ymax=maxval(Pat%y)
+
+        return
+    End Subroutine Adding_Numors_D1A_DiffPattern
+
+    !!----
+    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,VNorm)
+    !!----    type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
+    !!----    integer,                             intent(in) :: N          ! Number of Numors
+    !!----    logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
+    !!----    type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
+    !!----    real, optional,                      intent(in) :: VNorm      ! Normalization value
+    !!----
+    !!---- Adding Numors from D1B and D20 Instrument
+    !!----
+    !!---- 21/03/2011
+    !!
+    Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,VNorm)
+        !---- Arguments ----!
+        type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
+        integer,                             intent(in) :: N          ! Number of Numors
+        logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
+        type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
+        real, optional,                      intent(in) :: VNorm      ! Normalization value
+
+        !---- Local Variables ----!
+        logical :: adding, done
+        integer :: i,num
+        real    :: a,w,diff
+        real    :: cnorm, rnorm
+
+        call init_err_illdata()
+
+        !> Init Numor
+        call initialize_numor(numor)
+
+        if (N <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Number of Numors in the List was zero!'
+          return
+        end if
+
+        ! Check if all Numors can be added directly
+        done=.false.
+        adding=.true.
+        do i=1,N
+           if (.not. actlist(i)) cycle
+           if (.not. done) then
+              w=PNumors(i)%wave
+              done=.true.
+           end if
+           if (done) then
+              diff=abs(w-PNumors(i)%wave)
+              if (diff > 0.1) then
+                 adding=.false.
+                 exit
+              end if
+           end if
+        end do
+
+        if (.not. adding) then
+           err_illdata=.true.
+           err_illdata_mess='Impossible to add the numors selected. Not all Numors have the same Wavelength!'
+           return
+        end if
+
+        done=.false.
+        adding=.true.
+        do i=1,N
+           if (.not. actlist(i)) cycle
+           if (.not. done) then
+              a=PNumors(i)%scans(1)
+              done=.true.
+           end if
+           if (done) then
+              diff=abs(a-PNumors(i)%scans(1))
+              if (diff > 0.1) then
+                 adding=.false.
+                 exit
+              end if
+           end if
+        end do
+
+        if (.not. adding) then
+           err_illdata=.true.
+           err_illdata_mess='Impossible to add the numors selected. Not all Numors have the same initial Angle!'
+           return
+        end if
+
+        !> Add Procedure
+        num=0
+        done=.false.
+        do i=1,N
+           if (.not. actlist(i)) cycle
+
+           ! Initialize for the first active Numor to Add
+           if (.not. done) then
+              numor=PNumors(i)
+              if (allocated(numor%counts)) deallocate(numor%counts)
+              allocate(numor%counts(PNumors(i)%nbdata,PNumors(i)%nframes))
+              numor%counts=0.0
+
+              numor%monitor=0.0
+              numor%time=0.0
+              done=.true.
+           end if
+
+           ! Add
+           num=num+1
+           numor%monitor=numor%monitor+PNumors(i)%monitor
+           numor%time=numor%time+PNumors(i)%time
+           numor%counts(:,1)=numor%counts(:,1)+PNumors(i)%counts(:,1)
+        end do
+
+        ! Normalization
+        if (present(Vnorm)) then
+           rnorm=vnorm
+        else
+           rnorm=numor%monitor
+        end if
+        cnorm=rnorm/numor%monitor
+        numor%counts(:,1)=numor%counts(:,1)*cnorm
+
+        return
+    End Subroutine Adding_Numors_D1B_D20
+
+
+    !!--++
+    !!--++ Subroutine Adding_Numors_D4_DiffPattern(PNumors,N,ActList,Pat,VNorm,Detect,Cal)
+    !!--++    type(Powder_Numor_Type),dimension(:),      intent(in) :: PNumors    ! Powder Numors Vector
+    !!--++    integer,                                   intent(in) :: N          ! Number of Numors
+    !!--++    logical, dimension(:),                     intent(in) :: ActList    ! Active List to considering if Add
+    !!--++    type (Diffraction_Pattern_Type),           intent(out):: Pat        ! Pattern Diffraction
+    !!--++    real,                            optional, intent(in) :: VNorm      ! Normalization value
+    !!--++    integer,                         optional, intent(in) :: Detect     ! Selected Detector
+    !!--++    type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
+    !!--++
+    !!--++ Adding Numors from D4 Instrument and Passing to DiffPattern
+    !!--++
+    !!--++ 21/03/2011
+    !!
+    Subroutine Adding_Numors_D4_DiffPattern(PNumors,N,ActList,Pat,VNorm,Detect,Cal)
+        !---- Arguments ----!
+        type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
+        integer,                                   intent(in)  :: N          ! Number of Numors
+        logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
+        type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
+        real, optional,                            intent(in)  :: VNorm      ! Normalization value
+        integer, optional,                         intent(in)  :: Detect     ! Save scan for a particular Detector
+        type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+
+        !---- Local Variables ----!
+        character(len=80)                   :: car
+        logical                             :: correction=.false.
+        integer, parameter                  :: ndet=9     ! Number of Detectors
+        integer, parameter                  :: ncell=64   ! Number of Points by Detector
+        integer                             :: np         ! Ptos final
+        integer                             :: i,j,k,kk,nn,nc,num
+        integer, dimension(:), allocatable  :: ncc,ind
+
+        real, dimension(:,:,:), allocatable :: x,y,xx,yy,d2y
+        real                                :: fac,x1,x2,xmin,xmax,step,yfc, cnorm
+
+        !> Init
+        call init_err_illdata()
+
+        if (N <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Number of Numors in the List was zero!'
+          return
+        end if
+
+        num=count(actlist == .true.)
+        if (num <=0) then
+           err_illdata=.true.
+           err_illdata_mess=' Number of active Numors in the List was zero!'
+          return
+        end if
+
+        if (present(Cal)) correction=.true.
+
+        !> Allocating vectors...
+        if (allocated(x)) deallocate(x)
+        allocate(x(ncell,ndet,num))
+        if (allocated(y)) deallocate(y)
+        allocate(y(ncell,ndet,num))
+        if (allocated(ind)) deallocate(ind)
+        allocate(ind(n))
+        ind=0
+        cnorm=1.0
+        if (present(vnorm)) cnorm=vnorm
+
+        !> X
+        x=0.0
+        num=0
+        do i= 1, n
+           if (actlist(i) == .false.) cycle
+           num=num+1
+           if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%monitor       ! Monitor normalization value
+           ind(num)=i                                                            ! Vector for index
+
+           do j=1,ndet
+              fac=0.0
+              if (correction) fac=Cal%PosX(j)
+              x1=(j-1)*15.0 + PNumors(i)%tmc_ang(3,1) + fac
+              do k=1,ncell
+                 x(k,j,num)=x1 + (k-1)*0.125
+              end do
+           end do
+        end do
+
+        !> Y
+        y=0.0
+        num=0
+        do i= 1, n
+           if (actlist(i) == .false.) cycle
+           num=num+1
+           do j=1,ndet
+              do k=1,ncell
+                 fac=cnorm/Pnumors(i)%monitor
+                 if (correction) fac=fac/abs(Cal%effic(k,j))
+                 y(k,j,num)=PNumors(i)%counts(k,j)*fac
+              end do
+           end do
+        end do
+
+        !> Passing for Interpolation procedure only the active points
+        if (allocated(ncc)) deallocate(ncc)
+        allocate(ncc(ndet))
+        ncc=ncell
+
+        if (correction) then
+           do j=1,ndet
+              ncc(j)=count(Cal%Active(:,j) ==.true.)
+           end do
+        end if
+
+        if (allocated(xx)) deallocate(xx)
+        if (allocated(yy)) deallocate(yy)
+        allocate(xx(ncell,ndet,num))
+        allocate(yy(ncell,ndet,num))
+        xx=0.0
+        yy=0.0
+
+        xmin=1.0E+10
+        xmax=-1.0E-10
+        do i=1,num
+           do j=1,ndet
+              kk=0
+              do k=1,ncell
+                 if (correction) then
+                    if (.not. Cal%Active(k,j)) cycle
+                 end if
+                 kk=kk+1
+                 xx(kk,j,i)=x(k,j,i)
+                 yy(kk,j,i)=y(k,j,i)
+                 xmin=min(xmin,xx(kk,j,i))
+                 xmax=max(xmax,xx(kk,j,i))
+              end do
+           end do
+        end do
+
+        !> Second Derivative
+        if (allocated(d2y)) deallocate(d2y)
+        allocate(d2y(ncell,ndet,num))               ! Cell points, Detector, Number of Numors
+        d2y=0.0
+        do i=1,num
+           do j=1,ndet
+              call second_derivative(xx(1:ncc(j),j,i),yy(1:ncc(j),j,i),ncc(j),d2y(1:ncc(j),j,i))
+           end do
+        end do
+
+        !> DiffPattern
+        step=0.125
+        np=nint((xmax-xmin)/step)+1
+        call Allocate_Diffraction_Pattern (Pat, np)
+
+        Pat%Monitor=cnorm
+        Pat%diff_Kind='neutron'
+        Pat%Scat_Var='2theta'
+        Pat%instr='D4'
+        Pat%xmin=xmin
+        Pat%xmax=xmax
+        Pat%step=step
+
+        !> First active Numor on the List
+        i=ind(1)
+        Pat%title=trim(PNumors(i)%title)
+        Pat%TSet=PNumors(i)%conditions(1)
+        Pat%TSamp=PNumors(i)%conditions(3)
+        Pat%Conv(1)=PNumors(i)%wave
+
+        Pat%x=0.0
+        Pat%y=0.0
+        Pat%sigma=0.0
+        Pat%nd=0
+
+        do nn=1,np
+           Pat%x(nn)=xmin+(nn-1)*step
+           nc=0
+
+           do i=1,num   ! From Numors
+              do j=1,ndet ! Detectors
+                 if (present(detect)) then
+                    if (j /= detect) cycle
+                 end if
+                 x1=minval(xx(1:ncc(j),j,i))
+                 x2=maxval(xx(1:ncc(j),j,i))
+                 k=locate(x(:,j,i),ncell,Pat%x(nn))     ! Using x and not xx. It is correct!!!!
+                 if (k == 0) cycle
+                 if (k > ncell) cycle
+                 if (correction) then
+                    if (.not. Cal%Active(k,j)) cycle
+                 end if
+
+                 !> double ckeck!!!
+                 if (Pat%x(nn) < x1 .or. Pat%x(nn) > x2) cycle
+
+                 nc=nc+1
+                 call splint(xx(1:ncc(j),j,i),yy(1:ncc(j),j,i),d2y(1:ncc(j),j,i),ncc(j),Pat%x(nn),yfc)
+
+                 Pat%y(nn)=Pat%y(nn)+ yfc
+                 fac=cnorm/Pnumors(ind(i))%monitor
+                 if (correction) fac= fac/abs(Cal%effic(k,j))
+                 Pat%sigma(nn)=Pat%sigma(nn)+yfc * fac
+              end do
+           end do
+
+           ! control
+           if (nc > 0) then
+              Pat%y(nn)=Pat%y(nn)/real(nc)
+              Pat%sigma(nn)=abs(Pat%sigma(nn))/real(nc*nc)
+              Pat%nd(nn)=nc
+           else
+              Pat%y(nn)=0.0
+              Pat%sigma(nn)=1.0
+              Pat%nd(nn)=0
+           end if
+        end do
+
+        Pat%ymin=minval(Pat%y)
+        Pat%ymax=maxval(Pat%y)
+
+        return
+    End Subroutine Adding_Numors_D4_DiffPattern
+
     !!----
     !!---- Subroutine Allocate_POWDER_numors(num_max,ndata,num_ang,nframes,Num)
     !!----    integer,                                            intent(in)    :: num_max
@@ -1360,6 +1933,21 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Get_Single_Frame_2D
 
     !!----
+    !!---- Subroutine Init_Err_ILL()
+    !!----
+    !!----    Initialize the errors flags in ILLData
+    !!----
+    !!---- Update: 25/03/2011
+    !!
+    Subroutine Init_Err_ILLData()
+
+       ERR_ILLData=.false.
+       ERR_ILLData_Mess=" "
+
+       return
+    End Subroutine Init_Err_ILLData
+
+    !!----
     !!---- Subroutine Init_Powder_Numor(Numor,NBAng, NBData, NFrames)
     !!----
     !!---- Initialize the Type Numor. If NBAng, NBData and NFrames are > 0 then
@@ -1656,68 +2244,359 @@ Module CFML_ILL_Instrm_Data
        return
     End Subroutine Number_KeyTypes_on_File
 
+    !!--++
+    !!--++ Subroutine NumorD1B_To_DiffPattern(N, Pat)
+    !!--++    type(powder_numor_type),                   intent(in)  :: N
+    !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
+    !!--++
+    !!--++ Pass the information from Numor to DiffPat object
+    !!--++
+    !!--++ The routine is ready to use interpolation procedure if the user wants
+    !!--++ more than 400 points. Only need some modifications in this routine
+    !!--++
+    !!--++ 21/03/2011
+    !!
+    Subroutine NumorD1B_To_DiffPattern(N, Pat)
+       !---- Arguments ----!
+       type(powder_numor_type),                   intent(in)  :: N
+       type(diffraction_pattern_type),            intent(out) :: Pat
+
+       !---- Local Variables ----!
+       integer                           :: i,j, nc
+       integer, parameter                :: np=400
+       real, dimension(:,:), allocatable :: xp, yp, d2yp
+       real, dimension(:),   allocatable :: xf,yf
+       real                              :: xmin,xmax,xstep
+       real                              :: x1,x2,yfc
+
+       if (allocated(xp)) deallocate(xp)
+       if (allocated(yp)) deallocate(yp)
+       !if (allocated(d2yp)) deallocate(d2yp)
+
+       if (allocated(xf)) deallocate(xf)
+       if (allocated(yf)) deallocate(yf)
+
+       allocate(xp(n%nbdata,n%nframes))
+       allocate(yp(n%nbdata,n%nframes))
+       !allocate(d2yp(n%nbdata,n%nframes))
+
+       allocate (xf(np))
+       allocate (yf(np))
+
+       xp=0.0
+       yp=0.0
+       !d2yp=0.0
+
+       xf=0.0
+       yf=0.0
+
+       ! Load Angles for each detector tube
+       xp(1,1)=n%scans(1)
+       do i=2,n%nbdata
+          xp(i,1)=xp(1,1)+(i-1)*n%scans(2)
+       end do
+
+       ! Load Counts
+       yp=n%counts
+
+       ! Second Derivative
+       !do j=1,n%nframes
+       !   call second_derivative(xp(:,j),yp(:,j),n%nbdata,d2yp(:,j))
+       !end do
+
+       xmin=minval(xp)
+       xmax=maxval(xp)
+       xstep=n%scans(2)
+
+       do i=1,np    ! Points
+          xf(i)=xmin + (i-1)*xstep
+          yf(i)=yp(i,1)
+          !nc=0
+          !do j=1,n%nframes ! Pattern
+          !   x1=minval(xp(:,j))
+          !   x2=maxval(xp(:,j))
+          !   if ( (xf(i) > x1 .or. abs(xf(i)-x1) <= 0.001) .and. &
+          !        (xf(i) < x2 .or. abs(xf(i)-x2) <= 0.001) ) then
+          !      nc=nc+1
+          !      call splint(xp(:,j),yp(:,j),d2yp(:,j),n%nbdata,xf(i),yfc)
+          !      yf(i)=yf(i)+yfc
+          !   end if
+          !end do
+
+          ! control
+          !if (nc == 0) then
+          !   print*,'Error !!!!!!!!'
+          !   stop
+          !end if
+          !yf(i)=yf(i)/real(nc)
+       end do
+
+       call Allocate_Diffraction_Pattern (Pat, n%nbdata)
+
+       Pat%title=n%title
+       Pat%diff_Kind='neutron'
+       Pat%Scat_Var='2theta'
+       Pat%instr='D1B'
+       Pat%Monitor=n%monitor
+       Pat%xmin=xmin
+       Pat%xmax=xmax
+       Pat%ymin=minval(yf)
+       Pat%ymax=maxval(yf)
+       Pat%step=xstep
+       Pat%npts=np
+       Pat%nd=1
+
+       Pat%x=xf
+       Pat%y=yf
+
+       Pat%TSet=n%conditions(1)
+       Pat%TSamp=n%conditions(3)
+       Pat%Conv(1)=n%wave
+
+       return
+    End Subroutine NumorD1B_To_DiffPattern
+
+    !!--++
+    !!--++ Subroutine NumorD20_To_DiffPattern(N, Pat)
+    !!--++    type(powder_numor_type),                   intent(in)  :: N
+    !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
+    !!--++
+    !!--++ Pass the information from Numor to DiffPat object
+    !!--++
+    !!--++ The routine is ready to use interpolation procedure if the user wants
+    !!--++ more than 400 points. Only need some modifications in this routine
+    !!--++
+    !!--++ 21/03/2011
+    !!
+    Subroutine NumorD20_To_DiffPattern(N, Pat)
+       !---- Arguments ----!
+       type(powder_numor_type),                   intent(in)  :: N
+       type(diffraction_pattern_type),            intent(out) :: Pat
+
+       !---- Local Variables ----!
+       integer                           :: i,j, nc
+       integer, parameter                :: np=1600
+       real, dimension(:,:), allocatable :: xp, yp, d2yp
+       real, dimension(:),   allocatable :: xf,yf
+       real                              :: xmin,xmax,xstep
+       real                              :: x1,x2,yfc
+
+       !if (allocated(xp)) deallocate(xp)
+       !if (allocated(yp)) deallocate(yp)
+       !if (allocated(d2yp)) deallocate(d2yp)
+
+       if (allocated(xf)) deallocate(xf)
+       if (allocated(yf)) deallocate(yf)
+
+       allocate(xp(n%nbdata,n%nframes))
+       allocate(yp(n%nbdata,n%nframes))
+       !allocate(d2yp(n%nbdata,n%nframes))
+
+       allocate (xf(np))
+       allocate (yf(np))
+
+       xp=0.0
+       yp=0.0
+       !d2yp=0.0
+
+       xf=0.0
+       yf=0.0
+
+       ! Load Angles for each detector tube
+       xp(1,1)=n%scans(1)
+       do i=2,n%nbdata
+          xp(i,1)=xp(1,1)+(i-1)*n%scans(2)
+       end do
+
+       ! Load Counts
+       yp=n%counts
+
+       ! Second Derivative
+       !do j=1,n%nframes
+       !   call second_derivative(xp(:,j),yp(:,j),n%nbdata,d2yp(:,j))
+       !end do
+
+       xmin=minval(xp)
+       xmax=maxval(xp)
+       xstep=n%scans(2)
+
+       do i=1,np    ! Points
+          xf(i)=xmin + (i-1)*xstep
+          yf(i)=yp(i,1)
+          !nc=0
+          !do j=1,n%nframes ! Pattern
+          !   x1=minval(xp(:,j))
+          !   x2=maxval(xp(:,j))
+          !   if ( (xf(i) > x1 .or. abs(xf(i)-x1) <= 0.001) .and. &
+          !        (xf(i) < x2 .or. abs(xf(i)-x2) <= 0.001) ) then
+          !      nc=nc+1
+          !      call splint(xp(:,j),yp(:,j),d2yp(:,j),n%nbdata,xf(i),yfc)
+          !      yf(i)=yf(i)+yfc
+          !   end if
+          !end do
+
+          ! control
+          !if (nc == 0) then
+          !   print*,'Error !!!!!!!!'
+          !   stop
+          !end if
+          !yf(i)=yf(i)/real(nc)
+       end do
+
+       call Allocate_Diffraction_Pattern (Pat, n%nbdata)
+
+       Pat%title=n%title
+       Pat%diff_Kind='neutron'
+       Pat%Scat_Var='2theta'
+       Pat%instr='D20'
+       Pat%Monitor=n%monitor
+       Pat%xmin=xmin
+       Pat%xmax=xmax
+       Pat%ymin=minval(yf)
+       Pat%ymax=maxval(yf)
+       Pat%step=xstep
+       Pat%npts=np
+       Pat%nd=1
+
+       Pat%x=xf
+       Pat%y=yf
+
+       Pat%TSet=n%conditions(1)
+       Pat%TSamp=n%conditions(3)
+       Pat%Conv(1)=n%wave
+
+       return
+    End Subroutine NumorD20_To_DiffPattern
+
     !!----
-    !!---- Subroutine PowderNumor_To_DiffPattern(Numor,Pat)
-    !!----    type(powder_numor_type),        intent(in)  :: Numor
-    !!----    type(diffraction_pattern_type), intent(out) :: Pat
-    !!----
+    !!---- Subroutine PowderNumors_To_DiffPattern(PNumors, N, ActList, Pat, VNorm, Cal)
+    !!----    type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
+    !!----    integer,                                   intent(in)  :: N          ! Number of Numors
+    !!----    logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
+    !!----    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
+    !!----    real, optional,                            intent(in)  :: VNorm      ! Normalization value
+    !!----    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
     !!----
     !!---- Pass the information from Powder_Numor_Type to Diffraction_Pattern_type
     !!----
     !!----
-    !!---- 10/03/2011
+    !!---- Date: 25/03/2011
     !!
-    Subroutine PowderNumor_To_DiffPattern(Numor,Pat)
+    Subroutine PowderNumors_To_DiffPattern(PNumors,N,ActList,Pat, VNorm, Detect,Cal)
        !---- Arguments ----!
-       type(powder_numor_type),        intent(in)  :: Numor
-       type(diffraction_pattern_type), intent(out) :: Pat
+       type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
+       integer,                                   intent(in)  :: N          ! Number of Numors
+       logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
+       type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
+       real, optional,                            intent(in)  :: VNorm      ! Normalization value
+       integer, optional ,                        intent(in)  :: Detect     ! Select a particular detector (for D4)
+       type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
        !---- Local Variables ----!
-       integer :: i
+       character(len=4)        :: inst
+       integer                 :: i,num
+       type(POWDER_Numor_type) :: PPNum
 
        !> Initialize
-       ERR_ILLData=.false.
-       ERR_ILLData_Mess=' '
+       call Init_Err_ILLData()
 
-       if (numor%nbdata == 0) then
-          ERR_ILLData=.true.
-          ERR_ILLData_Mess=' No points are defined in the present Numor'
+       !> Init
+       if (N <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Number of Numors in the List was zero!'
           return
        end if
 
-       ! Powder Instruments / Allocating points
-       select case (trim(u_case(numor%instrm)))
+       num=count(actlist == .true.)
+       if (num <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Number of active Numors in the List was zero!'
+          return
+       end if
+
+       do i=1,n
+          if (actlist(i) == .false.) cycle
+          inst=PNumors(i)%Instrm
+          exit
+       end do
+       inst=u_case(adjustl(inst))
+       if (len_trim(inst) <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' The Instrument name for the first active numor was empty!'
+          return
+       end if
+
+       select case (trim(inst))
           case ('D1A')
-             call Allocate_Diffraction_Pattern(Pat,3000)
+             if (present(Cal)) then
+                if (present(VNorm)) then
+                   call Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat,VNorm,Cal)
+                else
+                   call Adding_Numors_D1A_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat,Cal=Cal)
+                end if
+             else
+                if (present(VNorm)) then
+                   call Adding_Numors_D1A_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat,VNorm=VNorm)
+                else
+                   call Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat)
+                end if
+             end if
 
-          case ('D1B','D20')
-             call Allocate_Diffraction_Pattern(Pat,Numor%nbdata)
+          case ('D1B')
+             if (present(VNorm)) then
+                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,VNorm)
+             else
+                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
+             end if
+             call NumorD1B_to_DiffPattern(PPNum, Pat)
+          case ('D2B')
 
-             ! Load values
-             Pat%title=trim(Numor%title)
+          case ('D4')
+             if (.not. present(Cal)) then
 
-             pat%Scat_Var=trim(numor%ScanType)
-             Pat%xmin=numor%scans(1)
-             Pat%step=numor%scans(2)
-             Pat%xmax=Pat%xmin+(Pat%npts-1)*Pat%step
+                if (.not. present(VNorm)) then
+                   if (.not. present(Detect)) then
+                      call Adding_Numors_D4_DiffPattern(PNumors,N,ActList,Pat)
+                   else
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat, Detect=Detect)
+                   end if
+                else
+                   if (.not. present(Detect)) then
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat,VNorm=VNorm)
+                   else
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat,VNorm=VNorm,Detect=Detect)
+                   end if
+                end if
+             else
 
-             Pat%Monitor=Numor%monitor
-             Pat%TSamp=Numor%conditions(3)
-             Pat%TSet=Numor%conditions(1)
+                if (.not. present(VNorm)) then
+                   if (.not. present(Detect)) then
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat, Cal=Cal)
+                   else
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat, Detect=Detect, Cal=Cal)
+                   end if
+                else
+                   if (.not. present(Detect)) then
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=N,ActList=ActList,Pat=Pat,VNorm=VNorm, Cal=Cal)
+                   else
+                      call Adding_Numors_D4_DiffPattern(PNumors=PNumors,N=Num,ActList=ActList,Pat=Pat,VNorm=VNorm, &
+                                                        Detect=Detect,Cal=Cal)
+                   end if
+                end if
+             end if
 
-             Pat%Conv(1)=Numor%wave
-             Pat%y=Numor%counts(:,1)
-             do i=1,pat%npts
-                if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
-                pat%sigma(i) = pat%y(i)
-                pat%x(i)= pat%xmin+(i-1)*pat%step
-             end do
-             pat%ymin=minval(pat%y(1:pat%npts))
-             pat%ymax=maxval(pat%y(1:pat%npts))
+          case ('D20')
+             if (present(VNorm)) then
+                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,VNorm)
+             else
+                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
+             end if
+             call NumorD20_to_DiffPattern(PPNum, Pat)
+
        end select
 
        return
-    End Subroutine PowderNumor_To_DiffPattern
+    End Subroutine PowderNumors_To_DiffPattern
 
     !!--++
     !!--++ Subroutine Read_A_KeyType(filevar, n_ini, n_end, nchars, charline)
@@ -5427,7 +6306,7 @@ Module CFML_ILL_Instrm_Data
         ! Efficiency of each detector
         ini=0
         do i=1,nlines
-           if (index(filevar(i),'efficiency') > 0) then
+           if (index(filevar(i),'effic') > 0) then
               ini=i
               exit
            end if
@@ -5461,7 +6340,7 @@ Module CFML_ILL_Instrm_Data
               case (3)
                  j=ivet(1)
                  k=ivet(2)
-                 Cal%Effic(j,k)=vet(3)
+                 Cal%Effic(k,j)=vet(3)
 
               case default
                  err_illdata=.true.
@@ -5480,7 +6359,6 @@ Module CFML_ILL_Instrm_Data
               if (Cal%Effic(j,i) < 0.0) Cal%Active(j,i)=.false.
            end do
         end do
-
 
         set_calibration_detector =.true.
         deallocate(filevar)

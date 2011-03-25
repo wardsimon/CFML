@@ -69,7 +69,7 @@
        If (Present(Iunit)) Lun = Iunit
 
        Write(Unit = Lun, Fmt = "(1X,A)") "****"
-       Write(Unit = Lun, Fmt = "(1X,A/)") "**** Error"
+       Write(Unit = Lun, Fmt = "(1X,A)") "**** Error"
 
        If (Present(Routine)) Then
            Lenr = Len_Trim(Routine)

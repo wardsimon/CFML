@@ -24,6 +24,7 @@
 !!----       CALC_FWHM_PEAK
 !!----
 !!----    Subroutines:
+!!----       ADD_DIFFRACTION_PATTERNS
 !!----       ALLOCATE_DIFFRACTION_PATTERN
 !!----       CALC_BACKGROUND
 !!----       INIT_ERR_DIFFPATT
@@ -71,7 +72,7 @@
     !---- List of public subroutines ----!
     public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern,      &
                Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig,&
-               Write_Pattern_FreeFormat
+               Write_Pattern_FreeFormat, Add_Diffraction_Patterns
 
     !---- List of private subroutines ----!
     private :: Read_Pattern_D1A_D2B, Read_Pattern_D1A_D2B_Old, Read_Pattern_D1B_D20,       &
@@ -160,6 +161,7 @@
        integer,       dimension (:), allocatable   :: istat         ! Information about the point "i"
        real(kind=cp), dimension (:), allocatable   :: ycalc         ! Calculated intensity
        real(kind=cp), dimension (:), allocatable   :: bgr           ! Background
+       integer,       dimension (:), allocatable   :: nd            ! Number of detectors contributing to the point "i"
     End Type Diffraction_Pattern_Type
 
     !!----
@@ -292,6 +294,115 @@
     !---------------------!
 
     !!----
+    !!---- Subroutine Add_Diffraction_Patterns(PatternsIn,N,Active,Pat,VNorm)
+    !!----    type(Diffraction_Pattern_Type),dimension(:), intent(in)  :: PatternsIn
+    !!----    integer,                                     intent(in)  :: N
+    !!----    logical, dimension(:),                       intent(in)  :: Active
+    !!----    type(Diffraction_Pattern_Type),              intent(out) :: Pat
+    !!----    real, optional                               intent(in)  :: VNorm
+    !!----
+    !!---- Add Patterns
+    !!----
+    !!---- Date: 25/03/2011
+    !!
+    Subroutine Add_Diffraction_Patterns(Patterns,N,Active, Pat, VNorm)
+        !---- Arguments ----!
+        type(Diffraction_Pattern_Type),dimension(:), intent(in)  :: Patterns
+        integer,                                     intent(in)  :: N
+        logical, dimension(:),                       intent(in)  :: Active
+        type(Diffraction_Pattern_Type),              intent(out) :: Pat
+        real, optional,                              intent(in)  :: VNorm
+
+        !---- Local Variables ----!
+        integer                           :: i,j,k,npts,nc,np
+        real                              :: xmin,xmax,step,x1,x2,y,cnorm,fac
+        real, dimension(:,:), allocatable :: d2y
+
+        ! Init
+        call Init_Err_DiffPatt()
+        Pat%npts=0
+
+        !> Checking
+        if (N <= 0) return
+        if (all(active) == .false.) return
+
+        !> Initial values
+        xmin=minval(Patterns(1:N)%xmin, mask= (active == .true.) )
+        xmax=maxval(Patterns(1:N)%xmax, mask= (active == .true.) )
+
+        npts=maxval(Patterns(1:N)%npts, mask= (active == .true.) )
+        if (npts <= 0) then
+           ERR_DiffPatt=.true.
+           ERR_DiffPatt_Mess="Number of Points in the new Pattern was zero! "
+           return
+        end if
+
+        step=minval(Patterns(1:N)%step, mask= (active == .true.) )
+        if (abs(step) <= 0.00001) then
+           ERR_DiffPatt=.true.
+           ERR_DiffPatt_Mess="Step size in the new Pattern was close to zero! "
+           return
+        end if
+
+        !> Second Derivative
+        if (allocated(d2y)) deallocate(d2y)
+        allocate(d2y(npts,n))
+        d2y=0.0
+        do i=1,n
+           if (active(i) == .false.) cycle
+           call second_derivative(Patterns(i)%x,Patterns(i)%y,Patterns(i)%npts,d2y(:,i))
+        end do
+
+        np=nint((xmax-xmin)/step)+1
+
+        !> Allocating New Pat
+        call Allocate_Diffraction_Pattern (Pat, np)
+
+        if (present(vnorm)) then
+           cnorm=vnorm
+        else
+           cnorm=maxval(Patterns(1:N)%ymax, mask= (active == .true.) )
+        end if
+
+        do j=1,np
+           Pat%x(j)=xmin + (j-1)*step
+           nc=0
+           do i=1,N
+              if (active(i) == .false.) cycle
+              x1=minval(Patterns(i)%x)
+              x2=maxval(Patterns(i)%x)
+              k=locate(Patterns(i)%x,Patterns(i)%npts,Pat%x(j))
+              if (k == 0) cycle
+              nc=nc+1
+              call splint(Patterns(i)%x,Patterns(i)%y,d2y(:,i),Patterns(i)%npts,Pat%x(j),y)
+              fac=cnorm/Patterns(i)%ymax
+              Pat%y(j)=Pat%y(j)+ y*fac
+              Pat%sigma(j)=Pat%sigma(j)+ Patterns(i)%sigma(k)
+           end do
+
+           ! control
+           if (nc > 0) then
+              Pat%y(i)=Pat%y(i)/real(nc)
+              Pat%sigma(i)=abs(Pat%sigma(i))/real(nc*nc)  ! No lo tengo muy claro
+              Pat%nd(i)=nc
+           else
+              Pat%y(i)=0.0
+              Pat%sigma(i)=1.0
+              Pat%nd(i)=0
+           end if
+        end do
+
+        Pat%Monitor=cnorm
+        Pat%xmin=xmin
+        Pat%xmax=xmax
+        Pat%step=step
+        Pat%ymin=minval(Pat%y)
+        Pat%ymax=maxval(Pat%y)
+
+        return
+    End Subroutine Add_Diffraction_Patterns
+
+    !!----
     !!---- Subroutine Allocate_Diffraction_Pattern(pat,npts)
     !!----    type(Diffraction_Pattern_Type), intent (in out) :: pat
     !!----    Integer,                        intent (in)     :: npts
@@ -354,6 +465,10 @@
        allocate(pat%istat(n))
        pat%istat=1
        pat%al_istat=.true.
+
+       if (allocated(pat%nd) ) deallocate(pat%nd)
+       allocate(pat%nd(n))
+       pat%nd=0
 
        return
     End Subroutine Allocate_Diffraction_Pattern
@@ -3234,8 +3349,8 @@
           return
        end if
        write(unit=i_dat,fmt="(a)")"XYDATA"
-       write(unit=i_dat,fmt="(a)")"TITLE "//pat%title
-       write(unit=i_dat,fmt="(a)")"COND: "//pat%diff_kind//pat%scat_var//pat%instr
+       write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
+       write(unit=i_dat,fmt="(a)")"COND: "//trim(pat%diff_kind)//trim(pat%scat_var)//trim(pat%instr)
        write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
        write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
        if (pat%ct_step) then
