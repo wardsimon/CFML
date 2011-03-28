@@ -68,20 +68,20 @@
        Lun = 6
        If (Present(Iunit)) Lun = Iunit
 
-       Write(Unit = Lun, Fmt = "(1X,A)") "****"
-       Write(Unit = Lun, Fmt = "(1X,A)") "**** Error"
+       Write(Unit = Lun, Fmt = "(A)") "****"
+       Write(Unit = Lun, Fmt = "(A)") "**** Error"
 
        If (Present(Routine)) Then
            Lenr = Len_Trim(Routine)
-           Write(Unit = Lun, Fmt = "(1X,A)") "**** Subroutine: "//Routine(1:Lenr)
+           Write(Unit = Lun, Fmt = "(A)") "**** Subroutine: "//Routine(1:Lenr)
        End If
 
        Lenm = Len_Trim(Mess)
-       Write(Unit = Lun, Fmt = "(1X,A)") "**** Message: "//Mess(1:Lenm)
+       Write(Unit = Lun, Fmt = "(A)") "**** Message: "//Mess(1:Lenm)
 
        If (Present(Fatal)) Then
            If (Fatal) Then
-               Write(Unit = Lun, Fmt = "(/1X,A)") "**** The Program Will Stop Here."
+               Write(Unit = Lun, Fmt = "(A)") "**** The Program Will Stop Here."
                Stop
            End If
        End If
