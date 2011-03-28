@@ -987,7 +987,6 @@ Module CFML_ILL_Instrm_Data
         type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
         !---- Local Variables ----!
-        character(len=80)                   :: car
         logical                             :: correction=.false.
         integer                             :: np         ! Ptos final
         integer                             :: i,j,k,kk,nn,nc,num
@@ -1335,7 +1334,6 @@ Module CFML_ILL_Instrm_Data
         type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
         !---- Local Variables ----!
-        character(len=80)                   :: car
         logical                             :: correction=.false.
         integer, parameter                  :: ndet=9     ! Number of Detectors
         integer, parameter                  :: ncell=64   ! Number of Points by Detector
@@ -2262,12 +2260,12 @@ Module CFML_ILL_Instrm_Data
        type(diffraction_pattern_type),            intent(out) :: Pat
 
        !---- Local Variables ----!
-       integer                           :: i,j, nc
+       integer                           :: i
        integer, parameter                :: np=400
-       real, dimension(:,:), allocatable :: xp, yp, d2yp
+       real, dimension(:,:), allocatable :: xp, yp
        real, dimension(:),   allocatable :: xf,yf
        real                              :: xmin,xmax,xstep
-       real                              :: x1,x2,yfc
+       !real                              :: x1,x2,yfc
 
        if (allocated(xp)) deallocate(xp)
        if (allocated(yp)) deallocate(yp)
@@ -2374,12 +2372,12 @@ Module CFML_ILL_Instrm_Data
        type(diffraction_pattern_type),            intent(out) :: Pat
 
        !---- Local Variables ----!
-       integer                           :: i,j, nc
+       integer                           :: i
        integer, parameter                :: np=1600
-       real, dimension(:,:), allocatable :: xp, yp, d2yp
+       real, dimension(:,:), allocatable :: xp, yp
        real, dimension(:),   allocatable :: xf,yf
        real                              :: xmin,xmax,xstep
-       real                              :: x1,x2,yfc
+       !real                              :: x1,x2,yfc
 
        !if (allocated(xp)) deallocate(xp)
        !if (allocated(yp)) deallocate(yp)
