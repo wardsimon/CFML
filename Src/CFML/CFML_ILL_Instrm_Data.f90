@@ -6063,9 +6063,10 @@ Module CFML_ILL_Instrm_Data
 
         !---- Local Variables ----!
         character(len=512), dimension(:), allocatable :: filevar
-        integer                                       :: i,iv,ini,j,nlines,k
+        integer                                       :: i,iv,ini,j,nlines,k, k1,k2
         integer, dimension(6)                         :: ivet
         real(kind=cp), dimension(6)                   :: vet
+        real(kind=cp), dimension(128)                 :: eff
 
         ! Init
         err_illdata=.false.
@@ -6098,11 +6099,14 @@ Module CFML_ILL_Instrm_Data
         allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
         allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
 
-        Cal%Active=.true.
+        Cal%Active=.false.
         Cal%PosX=0.0           ! Load values is from 1 to 128 detector
-        Cal%Effic=1.0          ! Down or Up?
+        Cal%Effic=1.0
 
-        ! Angle Position
+        !>
+        !> Angle Positions (From 1 to 128)
+        !> Corrections for angles for each tube detector. The reference is given on Numor%tmc_ang(4,nframes)
+        !>
         ini=0
         do i=1,nlines
            if (index(filevar(i),'angles') > 0) then
@@ -6138,6 +6142,65 @@ Module CFML_ILL_Instrm_Data
            if (j == Cal%NDet) exit
         end do
 
+        !>                                                      T1      T2      T3      T4
+        !> Active zone.                                        128      129    128     129
+        !> Tube 1 (Up) + Tube 2 in reverse mode (down)          .        .      .       .
+        !> Tube 1: 1-128 Points     Tube 2: 129 - 256           2       255     2      255
+        !>                                                      1       256     1      256
+        ini=0
+        do i=1,nlines
+           if (index(filevar(i),'zones') > 0) then
+              ini=i
+              exit
+           end if
+        end do
+        if (ini == 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Zones values for Detectors in D2B Instrument'
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
+        ini=ini+1
+        j=0   ! Number of Detector
+        do i=ini,nlines
+           call getnum(filevar(i), vet,ivet,iv)
+           if (iv <= 4) then
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading active zones for Detectors in D2B Instrument'
+              deallocate(filevar)
+              deallocate(Cal%Active)
+              deallocate(Cal%PosX)
+              deallocate(Cal%Effic)
+              return
+           end if
+
+           if (ivet(1) < 1 .or. ivet(2) > 128 .or. ivet(3) < 129 .or. ivet(4) > 256) then
+              err_illdata=.true.
+              err_illdata_mess=' Problems reading active zones for Detectors in D2B Instrument'
+              deallocate(filevar)
+              deallocate(Cal%Active)
+              deallocate(Cal%PosX)
+              deallocate(Cal%Effic)
+              return
+           end if
+
+           ! Tube 1
+           j=j+1
+           Cal%Active(ivet(1):ivet(2),j)=.true.
+
+           ! Tube 2 in reverse mode
+           k1=256-ivet(4)+1
+           k2=256-ivet(3)+1
+           Cal%Active(k1:k2,j+1)=.true.
+
+           j=j+2
+           if (j == Cal%NDet) exit
+        end do
+
         ! Efficiency of each detector
         ini=0
         do i=1,nlines
@@ -6159,6 +6222,7 @@ Module CFML_ILL_Instrm_Data
         ini=ini+1
         j=0   ! Number of Detector
         k=0   ! Number of Points into the same Detector
+        eff=0.0
         do i=ini,nlines
            call getnum(filevar(i), vet,ivet,iv)
            if (iv <= 0) then
@@ -6172,11 +6236,21 @@ Module CFML_ILL_Instrm_Data
            end if
            select case (iv)
               case (2)
-                 Cal%Effic(j+1,k+1:k+iv)=vet(1:iv)
+                 eff(k+1:k+iv)=vet(1:iv)
+
                  j=j+1
+                 if (mod(j,2) /= 0) then
+                    Cal%Effic(j,:)=eff
+                 else
+                    do k1=1,Cal%NPointsDet
+                       Cal%Effic(j,:)=eff(Cal%NPointsDet-k1+1)
+                    end do
+                 end if
+
                  k=0
+                 eff=0.0
               case (6)
-                 Cal%Effic(j+1,k+1:k+iv)=vet(1:iv)
+                 eff(k+1:k+iv)=vet(1:iv)
                  k=k+iv
 
               case default
@@ -6188,16 +6262,16 @@ Module CFML_ILL_Instrm_Data
                  deallocate(Cal%Effic)
                  return
            end select
+
            if (j == Cal%NDet) exit
         end do
 
-        ! Mask for Point Detectors
+        ! Check Mask for Point Detectors from Effic values
         do i=1,Cal%NDet
            do j=1, Cal%NPointsDet
               if (Cal%Effic(j,i) < 0.0) Cal%Active(j,i)=.false.
            end do
         end do
-
 
         set_calibration_detector =.true.
         deallocate(filevar)
