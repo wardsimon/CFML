@@ -325,20 +325,21 @@
 
         !> Checking
         if (N <= 0) return
-        if (all(active) == .false.) return
+        ! if (all(active) == .false.) return
+        if (all(active) .eqv. .false.) return
 
         !> Initial values
-        xmin=minval(Patterns(1:N)%xmin, mask= (active == .true.) )
-        xmax=maxval(Patterns(1:N)%xmax, mask= (active == .true.) )
+        xmin=minval(Patterns(1:N)%xmin, mask= (active .eqv. .true.) )
+        xmax=maxval(Patterns(1:N)%xmax, mask= (active .eqv. .true.) )
 
-        npts=maxval(Patterns(1:N)%npts, mask= (active == .true.) )
+        npts=maxval(Patterns(1:N)%npts, mask= (active .eqv. .true.) )
         if (npts <= 0) then
            ERR_DiffPatt=.true.
            ERR_DiffPatt_Mess="Number of Points in the new Pattern was zero! "
            return
         end if
 
-        step=minval(Patterns(1:N)%step, mask= (active == .true.) )
+        step=minval(Patterns(1:N)%step, mask= (active .eqv. .true.) )
         if (abs(step) <= 0.00001) then
            ERR_DiffPatt=.true.
            ERR_DiffPatt_Mess="Step size in the new Pattern was close to zero! "
@@ -350,7 +351,7 @@
         allocate(d2y(npts,n))
         d2y=0.0
         do i=1,n
-           if (active(i) == .false.) cycle
+           if (.not. active(i)) cycle
            call second_derivative(Patterns(i)%x,Patterns(i)%y,Patterns(i)%npts,d2y(:,i))
         end do
 
@@ -362,14 +363,14 @@
         if (present(vnorm)) then
            cnorm=vnorm
         else
-           cnorm=maxval(Patterns(1:N)%ymax, mask= (active == .true.) )
+           cnorm=maxval(Patterns(1:N)%ymax, mask= (active .eqv. .true.) )
         end if
 
         do j=1,np
            Pat%x(j)=xmin + (j-1)*step
            nc=0
            do i=1,N
-              if (active(i) == .false.) cycle
+              if (.not. active(i) ) cycle
               x1=minval(Patterns(i)%x)
               x2=maxval(Patterns(i)%x)
               k=locate(Patterns(i)%x,Patterns(i)%npts,Pat%x(j))

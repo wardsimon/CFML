@@ -1006,7 +1006,7 @@ Module CFML_ILL_Instrm_Data
           return
         end if
 
-        num=count(actlist == .true.)
+        num=count(actlist .eqv. .true.)
         if (num <=0) then
            err_illdata=.true.
            err_illdata_mess=' Number of active Numors in the List was zero!'
@@ -1039,7 +1039,7 @@ Module CFML_ILL_Instrm_Data
         x=0.0
         num=0
         do i= 1, n
-           if (actlist(i) == .false.) cycle
+           if (.not. actlist(i) ) cycle
            num=num+1
            if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%tmc_ang(2,1)  ! Monitor normalization value
            ind(num)=i                                                            ! Vector for index
@@ -1067,7 +1067,7 @@ Module CFML_ILL_Instrm_Data
         y=0.0
         num=0
         do i= 1, n
-           if (actlist(i) == .false.) cycle
+           if (.not. actlist(i) ) cycle
            num=num+1
 
            np=PNumors(i)%nframes
@@ -1353,7 +1353,7 @@ Module CFML_ILL_Instrm_Data
           return
         end if
 
-        num=count(actlist == .true.)
+        num=count(actlist .eqv. .true.)
         if (num <=0) then
            err_illdata=.true.
            err_illdata_mess=' Number of active Numors in the List was zero!'
@@ -1377,7 +1377,7 @@ Module CFML_ILL_Instrm_Data
         x=0.0
         num=0
         do i= 1, n
-           if (actlist(i) == .false.) cycle
+           if (.not. actlist(i) ) cycle
            num=num+1
            if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%monitor       ! Monitor normalization value
            ind(num)=i                                                            ! Vector for index
@@ -1396,7 +1396,7 @@ Module CFML_ILL_Instrm_Data
         y=0.0
         num=0
         do i= 1, n
-           if (actlist(i) == .false.) cycle
+           if (.not. actlist(i) ) cycle
            num=num+1
            do j=1,ndet
               do k=1,ncell
@@ -2505,7 +2505,7 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
-       num=count(actlist == .true.)
+       num=count(actlist .eqv. .true.)
        if (num <=0) then
           err_illdata=.true.
           err_illdata_mess=' Number of active Numors in the List was zero!'
@@ -2513,7 +2513,7 @@ Module CFML_ILL_Instrm_Data
        end if
 
        do i=1,n
-          if (actlist(i) == .false.) cycle
+          if (.not. actlist(i) ) cycle
           inst=PNumors(i)%Instrm
           exit
        end do
