@@ -6166,7 +6166,7 @@ Module CFML_ILL_Instrm_Data
         j=0   ! Number of Detector
         do i=ini,nlines
            call getnum(filevar(i), vet,ivet,iv)
-           if (iv <= 4) then
+           if (iv /= 4) then
               err_illdata=.true.
               err_illdata_mess=' Problems reading active zones for Detectors in D2B Instrument'
               deallocate(filevar)
@@ -6191,11 +6191,10 @@ Module CFML_ILL_Instrm_Data
            Cal%Active(ivet(1):ivet(2),j)=.true.
 
            ! Tube 2 in reverse mode
+           j=j+1
            k1=256-ivet(4)+1
            k2=256-ivet(3)+1
-           Cal%Active(k1:k2,j+1)=.true.
-
-           j=j+2
+           Cal%Active(k1:k2,j)=.true.
            if (j == Cal%NDet) exit
         end do
 
