@@ -2062,7 +2062,7 @@
           return
        end if
 
-       nlines = pat%npts/10+1
+       nlines = pat%npts/10-1
 
        call Allocate_Diffraction_Pattern(pat)
 

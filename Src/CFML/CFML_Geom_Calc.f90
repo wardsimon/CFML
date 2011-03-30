@@ -932,7 +932,7 @@
     !!----    "dmax" and "dangl" (angles of triplets at distance below "dangl" to an atom),
     !!----    without standard deviations. If dangl=0.0, no angle calculations are done.
     !!----    Needs as input the objects Cell (of type Crystal_cell), SpG (of type Space_Group)
-    !!----    and A (or type atom_list, that should be allocated in the calling program).
+    !!----    and A (of type atom_list, that should be allocated in the calling program).
     !!----    Writes results in file (unit=lun) if lun is present
     !!----    Control for error is present.
     !!----
@@ -2060,7 +2060,7 @@
        logical                                :: iprint
        character(len=6 )                      :: nam,nam1
        character(len=16)                      :: transla
-       character(len=90)                      :: form2= &
+       character(len=90)                      :: form1,form2= &
                        "("" "",2I4,""   ("",a,"")-("",a,""):"",f10.4,""   "",a,""  "",3F8.4)"
        integer                                :: i,k,lk,i1,i2,i3,jl,nn,L,inew,ne,id
        integer, dimension(3)                  :: ic1,ic2
@@ -2083,7 +2083,7 @@
        inew=0
        do i=1,ac%nat
           xo(:)=Ac%xyz(:,i)
-          nam= ac%noms(i)
+          nam= Ac%noms(i)
           if (iprint) then
              write(unit=lun,fmt="(/,/,a)")"    -------------------------------------------------------------------"
              write(unit=lun,fmt="(a,f8.4,a,a,3f8.4)")   &
@@ -2131,8 +2131,8 @@
                          Ac%distance   (i,ne)=dd   !Corresponding distance
                          Ac%trans(:,i,ne)=tn(:)    !corresponding lattice translation
                          do nn=1,inew
-                            if (abs(dd-ac%ddist(nn)) <= epsi) then
-                               if (equiv_atm(nam,nam1,ac%ddlab(nn)))  cycle do_jl
+                            if (abs(dd-Ac%ddist(nn)) <= epsi) then
+                               if (equiv_atm(nam,nam1,Ac%ddlab(nn)))  cycle do_jl
                             end if
                          end do
                          inew=inew+1
@@ -2148,13 +2148,15 @@
        Ac%ndist=inew
        if (iprint) then
           write(unit=lun,fmt="(/,/,a)") " -------------------"
-          write(unit=lun,fmt="(a)"  ) " Neighbouring matrix"
-          write(unit=lun,fmt="(a)")   " -------------------"
+          write(unit=lun,fmt="(a)"  )   " Neighbouring matrix"
+          write(unit=lun,fmt="(a)")     " -------------------"
           write(unit=lun,fmt="(a)")
-          write(unit=lun,fmt="(24i3)")"     ",(i,i=1,Ac%nat)
+          write(unit=form1,fmt="(a,i4,a)") "(a,",Ac%nat,"i3)"
+          write(unit=lun,fmt=form1)"     ",(i,i=1,Ac%nat)
           write(unit=lun,fmt="(a)")
+          write(unit=form1,fmt="(a,i4,a)") "(i3,a,",Ac%nat,"i3)"
           do i=1,ac%nat
-             write(unit=lun,fmt="(i3,a,24i3)")i,"  ",(mn(i,k),k=1,Ac%nat)
+             write(unit=lun,fmt=form1) i,"  ",(mn(i,k),k=1,Ac%nat)
           end do
           write(unit=lun,fmt="(a,/,/,/)")
        end if
