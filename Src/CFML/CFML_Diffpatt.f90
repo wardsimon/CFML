@@ -3192,6 +3192,9 @@
               end if
 
               line_da=line_da+1
+              if (txt1(1:5) == "TITLE") then !Title given
+                pat%title=txt1(7:)
+              end if
               if (txt1(1:5) == "INTER") then !Interpolation possible!
                  backspace (unit=i_dat)
                  line_da=line_da-2
