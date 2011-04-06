@@ -3518,7 +3518,7 @@
           return
        end if
 
-       write(unit=i_dat,fmt='(3(1x,f14.6)2x,a)') pat%xmin, pat%step, pat%xmax, trim(pat%Title)
+       write(unit=i_dat,fmt='(3(1x,f14.6),2x,a)') pat%xmin, pat%step, pat%xmax, trim(pat%Title)
        nl=pat%npts/10
        if (mod(pat%npts,10) /= 0) nl=nl+1
        j=1

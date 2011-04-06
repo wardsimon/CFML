@@ -1414,7 +1414,7 @@ Module CFML_ILL_Instrm_Data
 
         if (correction) then
            do j=1,ndet
-              ncc(j)=count(Cal%Active(:,j) ==.true.)
+              ncc(j)=count(Cal%Active(:,j) .eqv..true.)
            end do
         end if
 
