@@ -15,7 +15,7 @@ Module Super_Exchange
   public ::  Get_Expo, rkky, equiv_jotas, init_exchange_interaction, &
              write_exchange_interaction, Get_vect
 
-  integer, parameter, public :: num_de=50, num_se=50, num_sse=100
+  integer, parameter, public :: num_de=250, num_se=100, num_sse=200
 
   interface  Get_Expo
     module procedure Get_Expo_c
@@ -28,6 +28,7 @@ Module Super_Exchange
      character(len=4)     :: nam2    ! Nature of atom2
      integer              :: ns      ! Number of superexchange paths
      integer              :: nss     ! Number of super-superexchange paths
+     integer              :: nde     ! 0 if no direct exchange, 1 if direct exchange
      real                 :: valj    ! value of the exchange integral
      real                 :: dist    ! distance betwen atoms atom1-atom2
      character(len=40)               :: de_nam  ! atom1-atom2(transl)
@@ -245,6 +246,11 @@ Module Super_Exchange
      !Compare the number of super-exchange and super-super-exchange paths
      if(.not. (j1%ns == j2%ns .and. j1%nss == j2%nss)) return
 
+     !Compare direct exchange
+     if( j1%nde /= 0 .and. j2%nde /= 0) then
+       if(j1%de_nam /= j2%de_nam) return
+     end if
+
      !Compare the super-exchange paths
      if( j1%ns /= 0) then
        neq=0
@@ -334,6 +340,9 @@ Module Super_Exchange
         write(unit=lun,fmt="(a,a,3f8.4,3f8.2,a)")  "    SS-Exchange (d1,d2,d3,ang1,ang2,dihed): ",&
                                                    trim(j%ss_nam(i))//"  (",j%sse_geo(:,i)," )"
       end do
+      if( j%ns == 0 .and. j%nss == 0 .and. j%nde /= 0) then
+        write(unit=lun,fmt="(a)")  "    Direct-Exchange: "//trim(j%de_nam)
+      end if
       return
    End Subroutine Write_Exchange_Interaction
 

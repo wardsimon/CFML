@@ -1,0 +1,31 @@
+=> TITLE: pbso4.dat
+! Ang_init   Ang_fin  Nbac Npeak  Ncyc   Inte  Inst  Jobt  Cont Weight Corr Constr   %  Method
+   27.3500   43.7500     4     8  2400     0     6     2     0     0    70     0     0     0
+    0.000000    0.000000  <=  Lambda1 & Lambda2
+!  Global Profile Parameters:
+      0.000000     0      <= Kalph2/Kalph1 ratio  &  Flag
+      0.069844     0      <= Asymmetry-1(S_L)     &    '
+      0.060637     0      <= Asymmetry-2(D_L)     &    '
+      0.000000     0      <= Parameter  U         &    '
+      0.000000     0      <= Parameter  V         &    '
+      0.243716     1      <= Parameter  W         &    '
+      0.000000     0      <= Parameter  Z         &    '
+      0.445280     1      <= Parameter Eta0       &    '
+      0.000000     0      <= Parameter  X         &    '
+!  Background Parameters:
+!    2Theta/TOF/Energy   Background    Flag
+       27.3500      194.7718     1
+       32.3500      188.5582     1
+       37.3500      171.7309     1
+       43.7500      196.8035     1
+!  Reflection Parameters:
+!       2Theta     Intensity    Shift-FWHM     Shift-Eta    Flags
+     29.014618        35.535      0.000000      0.000000  1  1  0  0
+     30.549032        74.611      0.000000      0.000000  1  1  0  0
+     31.826412       222.190      0.000000      0.000000  1  1  0  0
+     33.264637       484.977      0.000000      0.000000  1  1  0  0
+     34.506222       113.371      0.000000      0.000000  1  1  0  0
+     37.015980       748.234      0.000000      0.000000  1  1  0  0
+     40.398518       708.818      0.000000      0.000000  1  1  0  0
+     41.472115       393.187      0.000000      0.000000  1  1  0  0
+!  Chi2 =       0.983883

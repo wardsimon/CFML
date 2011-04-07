@@ -14,7 +14,8 @@
     Use CFML_Math_general,              only: sort, negligible
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, nlat
     Use CFML_String_Utilities,          only: Pack_String, Frac_Trans_1Dig
-    use CFML_Geometry_Calc,             only: angle_uv, angle_dihedral,P1_dist
+    use CFML_Geometry_Calc,             only: angle_uv, angle_dihedral,P1_dist, &
+                                              Err_Geom,Err_Geom_Mess
     Use CFML_Atom_TypeDef,              only: Atoms_Cell_Type,  equiv_atm
     use CFML_crystal_metrics,           only: Crystal_Cell_Type
     Use Super_Exchange
@@ -52,6 +53,12 @@
      !Construct full connectivity of atoms in the cell without printing
      !The structure Ac(Atoms_Cell_type) contains all atoms + coordinations, etc...
      call P1_dist( dmax, Cell, SpG, Ac)
+
+     if(Err_Geom) then
+       write(unit=*,fmt="(/,a)") " => WARNING"
+       write(unit=*,fmt="(a)") trim(ERR_Geom_Mess)
+       write(unit=*,fmt="(a,/)") " => The calculation of exchange paths may be wrong!"
+     end if
 
      !Inititalize spaths
      spaths(:,:)%nd=0
@@ -114,8 +121,8 @@
      !Working now with the structure of Ac
      !to determine the exchange paths
      !
-        nsij=0    !Number of super-exchange paths
-        nssij=0   !Number of super-super-exchange paths
+     nsij=0    !Number of super-exchange paths
+     nssij=0   !Number of super-super-exchange paths
      do i=1,Ac%nat
        if(Ac%moment(i) < 0.01) cycle              !Select magnetic atom i (M)
        !Determine the number of the magnetic atom
@@ -397,22 +404,24 @@
     !  Subroutine to determine and write the different exchange interactions
     !  given the list of exchange paths
     !
+    integer, parameter :: max_jx=96
     integer :: i,j,k,im,km,j1,j2,n,L,nj,nt
     integer, dimension(n_mag,n_mag) :: nterms
-    integer,          dimension(48) :: p
-    character(len=16),dimension(48) :: trans
+    integer,          dimension(max_jx) :: p
+    character(len=16),dimension(max_jx) :: trans
+    character(len=16),dimension(max_jx) :: Nam_12
     character(len=60)  :: text
     character(len=30)  :: expo
     character(len=16)  :: transla
     real, dimension(3) :: vect
     real :: dmin
-    type (Exchange_interaction), dimension(n_mag,n_mag,48) :: jota
-    type (Exchange_interaction), dimension(48)             :: jxch
+    type (Exchange_interaction), dimension(n_mag,n_mag,max_jx) :: jota
+    type (Exchange_interaction), dimension(max_jx)             :: jxch
     logical :: newt
 
     nterms=0
     nj=0
-    do k=1,48
+    do k=1,max_jx
       call init_exchange_interaction(jxch(k))
       do j=1,n_mag
          do i=1,n_mag
@@ -430,12 +439,14 @@
            n=n+1
            trans(n)=spaths(im,km)%SE(i)%nam(j1:j2)
         end do
+
         do i=1,spaths(im,km)%nss
            j1=index(spaths(im,km)%SSE(i)%nam,"(")
            j2=index(spaths(im,km)%SSE(i)%nam,")")
            n=n+1
            trans(n)=spaths(im,km)%SSE(i)%nam(j1:j2)
         end do
+
         do i=1,spaths(im,km)%nd
         !if(spaths(im,km)%nd ==1) then
            j1=index(spaths(im,km)%DE(i)%nam,"(")
@@ -444,6 +455,7 @@
            trans(n)=spaths(im,km)%DE(i)%nam(j1:j2)
         !end if
         end do
+
         L=0
         !Loop for making a pointer to paths for different terms in the element im,km
         if(n /= 0) then
@@ -492,7 +504,7 @@
            n=0
            do i=1,spaths(im,km)%ns
               n=n+1
-              if(nt==p(n)) then
+              if(nt == p(n)) then
                 jota(im,km,nt)%ns=jota(im,km,nt)%ns+1
                 L=jota(im,km,nt)%ns
                 jota(im,km,nt)%se_geo(1:3,L) = spaths(im,km)%SE(i)%geom(1:3)
@@ -500,9 +512,10 @@
                 jota(im,km,nt)%s_nam(L)      = spaths(im,km)%SE(i)%nam
               end if
            end do
+
            do i=1,spaths(im,km)%nss
               n=n+1
-              if(nt==p(n)) then
+              if(nt == p(n)) then
                 jota(im,km,nt)%nss=jota(im,km,nt)%nss+1
                 L=jota(im,km,nt)%nss
                 jota(im,km,nt)%sse_geo(1:6,L) = spaths(im,km)%SSE(i)%geom(1:6)
@@ -510,10 +523,11 @@
                 jota(im,km,nt)%ss_nam(L)      = spaths(im,km)%SSE(i)%nam
               end if
            end do
+
            do i=1,spaths(im,km)%nd
            !if(spaths(im,km)%nd ==1) then
               n=n+1
-              if(nt==p(n)) then
+              if(nt == p(n)) then
                 jota(im,km,nt)%dist = spaths(im,km)%DE(i)%dist
                 jota(im,km,nt)%de_nam = spaths(im,km)%DE(i)%nam
               end if
@@ -538,7 +552,7 @@
       end do
     end do
 
-    jxch(1)=jota(i,k,n)
+    jxch(1)=jota(i,k,n)  !i,j,k is selected from the minimum distance in the previous loop
     jxch(1)%J= "J1"
     jxch(1)%valj=-10.0
     jota(i,k,n)%valj=-10.0
@@ -549,8 +563,9 @@
           newt=.true.
           do i=1,nj
             if(Equiv_jotas(jota(im,km,nt),jxch(i)) ) then
-              jota(im,km,nt)%J=jxch(i)%J
-              jota(im,km,nt)%valj=jxch(i)%valj
+              !jota(im,km,nt)%J=jxch(i)%J
+              !jota(im,km,nt)%valj=jxch(i)%valj
+              jota(im,km,nt) = jxch(i) !Equalisation of the two types
               newt=.false.
               exit
             end if
@@ -563,7 +578,7 @@
             else
               write(unit=jxch(nj)%J,fmt="(a,i2)") "J",nj
             end if
-            if(present(kf) .and. (jxch(nj)%ns+ jxch(nj)%nss == 0) ) then
+            if(present(kf) .and. (jxch(nj)%ns + jxch(nj)%nss == 0) ) then
                jxch(nj)%valj=rkky(jxch(nj)%dist,kf)
             else
                jxch(nj)%valj=-10.0*(dmin/jxch(nj)%dist)**12
@@ -601,10 +616,10 @@
     write(unit=lun,fmt="(a)"  )   " Effective Neighbouring matrix"
     write(unit=lun,fmt="(a)")     " -----------------------------"
     write(unit=lun,fmt="(a)")
-    write(unit=lun,fmt="(a,24i3)")"     ",(i,i=1,n_mag)
+    write(unit=lun,fmt="(a,24i4)")"     ",(i,i=1,n_mag)
     write(unit=lun,fmt="(a)")
     DO i=1,n_mag
-     write(unit=lun,fmt="(i3,a,24i3)")i,"  ",(nterms(i,k),k=1,n_mag)
+     write(unit=lun,fmt="(i3,a,24i4)")i,"  ",(nterms(i,k),k=1,n_mag)
     END DO
     write(unit=lun,fmt="(a,/,/)")
     write(unit=lun,fmt="(/,a,44a1,/,a,/,a,44a1,/)") " ", ("-",j=1,44),  &
@@ -613,8 +628,8 @@
     DO im=1,n_mag
       DO km=1,n_mag
 
-        write(unit=4,fmt="(2i3,i4)") im,km,nterms(im,km)
-        write(unit=lun,fmt="(/,a,3(i2,a),/)") " => J(",im,",",km,")[K]   (",nterms(im,km), " terms)"
+        write(unit=4,fmt="(2i4,i5)") im,km,nterms(im,km)
+        write(unit=lun,fmt="(/,a,3(i3,a),/)") " => J(",im,",",km,")[K]   (",nterms(im,km), " terms)"
 
         Do nt=1,nterms(im,km)
             transla=" "
@@ -660,7 +675,8 @@
    Use CFML_String_Utilities,          only: l_case, number_lines, reading_lines
    use CFML_Math_general,              only: negligible
    use CFML_Math_3D,                   only: set_eps
-   use CFML_Geometry_Calc,             only: Allocate_Coordination_Type, calc_dist_angle
+   use CFML_Geometry_Calc,             only: Allocate_Coordination_Type, calc_dist_angle, &
+                                             Err_Geom,ERR_Geom_Mess
    Use CFML_Crystal_Metrics
    Use CFML_IO_Formats
    Use CFML_Atom_TypeDef
@@ -671,13 +687,13 @@
 
    character(len=120), allocatable, dimension(:) :: file_dat
    integer                                       :: nlines, n_ini,n_end
-
+   integer, parameter :: max_magt=96
    type (Crystal_Cell_Type) :: Cell
    type (Space_Group_Type)  :: Spg, gP1
    type (Atom_list_Type)    :: A       !Original list of atoms in the asymmetric unit
    type (Atom_list_Type)    :: Ap      !List of atoms inside a primitive cell
    type (Atoms_Cell_Type)   :: Acm, Ac !Magnetic atoms and all atoms inside a primitive cell
-   type (SE_Connection), dimension (48,48) :: spaths     !a maximun of 48 magnetic atoms in the cell
+   type (SE_Connection), dimension (max_magt,max_magt) :: spaths     !a maximun of max_magt magnetic atoms in the cell
    type (Job_Info_type)     :: Job_Info
    character(len=1)    :: ans
    character(len=20)   :: sp1
@@ -836,11 +852,12 @@
    if(SpG%Centred == 2) numops=2*numops
    Call Allocate_Atoms_Cell(nauas,numops,dmax,Ac)
    call Allocate_Coordination_Type(Ac%nat,1,dmax,max_coord)
-   call Multi(lun,.true.,.false.,SpG,A,Ac)  !construct Ac
+   write(unit=*,fmt="(a,i6)") " => Calculated maximum coordination: ",max_coord
+   call Multi(lun,.true.,.false.,SpG,A,Ac)  !construct Ac,  Multi(Lun,Iprin,Conven,Spg,A,Ac)
    Call deAllocate_atom_list(A)
 
-   call Allocate_Atom_list(Ac%nat,Ap)       !allocate space for Ap
-   call atoms_cell_to_list(Ac,Ap)
+   call Allocate_Atom_List(Ac%nat,Ap)       !allocate space for Ap
+   call Atoms_Cell_to_List(Ac,Ap)
    sp1=SpG%SPG_Symb(1:1)//" 1"
    call Set_SpaceGroup(sp1,gP1)     !construct space group P1
    iprin=.false.
@@ -848,11 +865,15 @@
    read(unit=*,fmt="(a)") ans
    if(ans == "y" .or. ans == "Y") iprin=.true.
    if(iprin) then
-      call calc_dist_angle(Dmax, Dangl, Cell, gP1, Ap, Lun)
+      call Calc_Dist_Angle(Dmax, Dangl, Cell, gP1, Ap, Lun)
    else
-      call calc_dist_angle(dmax, dangl, Cell, gP1, Ap)
+      call Calc_Dist_Angle(Dmax, Dangl, Cell, gP1, Ap)
    end if
-
+   if(Err_Geom) then
+     write(unit=*,fmt="(/,a)") " => WARNING"
+     write(unit=*,fmt="(a)") trim(ERR_Geom_Mess)
+     write(unit=*,fmt="(a,/)") " => The calculation of exchange paths may be wrong!"
+   end if
 
    ! Extraction of a part (magnetic atoms) of the object Ap by copying into Acm
    if(.not. allocated(ptr)) allocate (ptr(Ap%natoms))
@@ -876,7 +897,6 @@
    if(ans == "y" .or. ans == "Y") iprin=.true.
    if(.not. negligible(dbond)) &
       call Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex,Cell,gP1,Ac,spaths)
-
    Call deAllocate_Atoms_Cell(Ac)    !From Ac we have conserved only "spaths"
    Call Allocate_Atoms_Cell(nmag, 1, dmax, Acm)
 
@@ -901,6 +921,7 @@
    DO i=1,Acm%nat
      write(unit=4,fmt="(a6,a,4f9.5)")Acm%noms(i)," ",Acm%xyz(:,i),Acm%moment(i)
    END DO
+
    Call construct_jxch(lun,iprin,nmag,spaths)
 
    Call deAllocate_Atoms_Cell(Acm)
