@@ -1034,12 +1034,13 @@
 
        write(unit=lun,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
                                            "      --------------------------------------------------------"
-       write(unit=lun,fmt="(/,a,/)")       "    #   Parameter name         No.(Model)        Final-Value     Standard Deviation"
+       write(unit=lun,fmt="(/,a,/)") &
+       "    #   Parameter name                       No.(Model)         Final-Value   Standard Deviation"
        inum=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
             inum=inum+1
-            write(unit=lun,fmt="(i5,a,i6,a,2f20.5)") inum,"    "//vs%nampar(i),i," ",vs%pv(i),vs%spv(i)
+            write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
        write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
@@ -1137,12 +1138,13 @@
 
        write(unit=lun,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
                                            "      --------------------------------------------------------"
-       write(unit=lun,fmt="(/,a,/)")       "    #   Parameter name         No.(Model)        Final-Value     Standard Deviation"
+       write(unit=lun,fmt="(/,a,/)") &
+       "    #   Parameter name                       No.(Model)         Final-Value   Standard Deviation"
        inum=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
             inum=inum+1
-            write(unit=lun,fmt="(i5,a,i6,a,2f20.5)") inum,"    "//vs%nampar(i),i," ",vs%pv(i),vs%spv(i)
+            write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
        write(unit=lun,fmt="(/,a,f12.5)") " => Final value of Chi2: ",chi2
@@ -1347,19 +1349,24 @@
           Case(1)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
-                       " Convergence reached: The relative error in the sum of squares is at most ",c%tol
+               "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
+
           Case(2)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
-                       " Convergence reached: The relative error between x and the solution is at most ",c%tol
+                "     Convergence reached: The relative error between x and the solution is at most ",c%tol
+
           Case(3)
-             c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error "// &
-           "in the sum of squares and the difference between x and the solution are both at most ",c%tol
+            c%reached=.true.
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
+             "     Convergence reached: The relative error "// &
+             "in the sum of squares and the difference between x and the solution are both at most ",c%tol
+
           Case(4,8)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
-              " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+              "     Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+
           Case(5)
              c%reached=.false.
              write(unit=infout,fmt="(a,i6)") &
@@ -1550,19 +1557,24 @@
           Case(1)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
-                       " Convergence reached: The relative error in the sum of squares is at most ",c%tol
+                   "     Convergence reached: The relative error in the sum of squares is at most ",c%tol
+
           Case(2)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2,&
-                       " Convergence reached: The relative error between x and the solution is at most ",c%tol
+                    "     Convergence reached: The relative error between x and the solution is at most ",c%tol
+
           Case(3)
              c%reached=.true.
-             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2," Convergence reached: The relative error"// &
+             write(unit=infout,fmt="(a,f12.5,a,e12.5)") "Initial Chi2:", ichi2, &
+             "    Convergence reached: The relative error"// &
              " in the sum of squares and the difference between x and the solution are both at most ",c%tol
+
           Case(4,8)
              c%reached=.true.
              write(unit=infout,fmt="(a,f12.5,a)") "Initial Chi2:", ichi2, &
-              " Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+              "    Convergence reached: Residuals vector is orthogonal to the columns of the Jacobian to machine precision"
+
           Case(5)
              c%reached=.false.
              write(unit=infout,fmt="(a,i6)") &
@@ -3590,7 +3602,7 @@
        !---- Writing during cycles ----!
        write(unit=lun,fmt="(/,/,a,i5,a,f14.6)")" => Cycle No.:",ic,"  Chi2 =",chi2
        write(unit=lun,fmt="(/,/,a,/)") &
-            "    Name-Par        No.      Old-Value          Change        New-Value         Sigma        Change/Sigma"
+       "    Name-Par                 No.      Old-Value          Change        New-Value         Sigma        Change/Sigma"
        j=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
