@@ -19,7 +19,7 @@
 !!----
 !!---- HISTORY
 !!----    Update:  03/03/2011
-!!----    Author : Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB)
+!!----    Author : Juan Rodriguez-Carvajal (CEA/DSM/DRECAM/LLB-ILL)
 !!----             Laurent C. Chapon (ISIS/RAL) => Ikeda-Carperter function
 !!----
 !!---- VARIABLES
@@ -61,12 +61,23 @@ Module CFML_PowderProfiles_TOF
     !---- Definitions ----!
 
     !!--++
-    !!--++ INV_8LN2
-    !!--++    real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
+    !!--++ exp_m
+    !!--++    real(kind=dp),private, parameter ::    exp_m=0.003_dp
     !!--++
     !!--++    Private variable
     !!--++
-    !!--++ Update: October - 2005
+    !!--++ Update: October - 2011
+    !!
+    real(kind=dp),private, parameter ::    exp_m=0.003_dp
+
+    !!--++
+    !!--++ INV_8LN2
+    !!--++    real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
+    !!--++
+    !!--++    Private variable use for scaling the divisions in exponential function calculations
+    !!--++    (used to avoid intermediates overflows/underflows)
+    !!--++
+    !!--++ Update: April - 2011
     !!
     real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
 
@@ -356,7 +367,7 @@ Module CFML_PowderProfiles_TOF
        Nu=1.0_dp-(R*alfa_min/xik)
        Nv=1.0_dp-(R*alfa_plu/zik)
        Ns=-2.0_dp*(1-R*alfa/yik)
-       Nr=2.0_dp*R*alfa*alfa*beta*ki*ki/xik/yik/zik
+       Nr=2.0_dp*R*alfa*alfa*beta*ki*ki/xik/yik/zik 
        y_u=(alfa_min*sigma-dt)*denoinv
        y_v=(alfa_plu*sigma-dt)*denoinv
        y_s=(alfa*sigma-dt)*denoinv
@@ -365,10 +376,10 @@ Module CFML_PowderProfiles_TOF
        g_v=0.5_dp*alfa_plu*(alfa_plu*sigma-2.0*dt)
        g_s=0.5_dp*alfa*(alfa*sigma-2.0*dt)
        g_r=0.5_dp*beta*(beta*sigma-2.0*dt)
-       udiv=max(1,nint(0.003*g_u))
-       vdiv=max(1,nint(0.003*g_v))
-       sdiv=max(1,nint(0.003*g_s))
-       rdiv=max(1,nint(0.003*g_r))
+       udiv=max(1,nint(exp_m*g_u))
+       vdiv=max(1,nint(exp_m*g_v))
+       sdiv=max(1,nint(exp_m*g_s))
+       rdiv=max(1,nint(exp_m*g_r))
        g_u=g_u/udiv
        g_v=g_v/vdiv
        g_s=g_s/sdiv
@@ -384,7 +395,7 @@ Module CFML_PowderProfiles_TOF
        erfs=erfc(y_s)
        erfr=erfc(y_r)
 
-       if (y_u < 27) then      ! LCC , november 2003: Modifications to the original code
+       if (y_u < 27.0_dp) then      ! LCC , november 2003: Modifications to the original code
           omg_u=expu*erfu      ! to solve underflow problems occuring
           do i=1, udiv-1       ! when erfc(y_*) becomes too small and exp(g_*) too large,
              omg_u=omg_u*expu  ! --> Use an approximation at third order to erfc.
@@ -394,7 +405,7 @@ Module CFML_PowderProfiles_TOF
           (1-1.0/(2.0*y_u**2)+3.0/(2.0*y_u**2)**2+15.0/(2.0*y_u**2)**3)
        endif
 
-       if (y_v < 27) then
+       if (y_v < 27.0_dp) then
           omg_v=expv*erfv
           do i=1, vdiv-1
              omg_v=omg_v*expv
@@ -404,7 +415,7 @@ Module CFML_PowderProfiles_TOF
           (1-1.0/(2.0*y_v**2)+3.0/(2.0*y_v**2)**2+15.0/(2.0*y_v**2)**3)
        endif
 
-       if (y_s < 27) then
+       if (y_s < 27.0_dp) then
           omg_s=exps*erfs
           do i=1, sdiv-1
              omg_s=omg_s*exps
@@ -414,7 +425,7 @@ Module CFML_PowderProfiles_TOF
           (1.0-1.0/(2.0*y_s**2)+3.0/(2.0*y_s**2)**2+15.0/(2.0*y_s**2)**3)
        endif
 
-       if (y_r < 27) then
+       if (y_r < 27.0_dp) then
           omg_r=expr*erfr
           do i=1, rdiv-1
              omg_r=omg_r*expr
@@ -572,8 +583,8 @@ Module CFML_PowderProfiles_TOF
        v=0.5*beta*(beta*sigma-2.0*dt)
        ! To avoid pathological behaviour EXP(U) is calculated as
        ! {EXP(U/N)}^N using mutiplicative loops
-       udiv=max(1,nint(0.003*u))   !udiv=max(1,int(2.0*u))
-       vdiv=max(1,nint(0.003*v))   !vdiv=max(1,int(2.0*v))
+       udiv=max(1,nint(exp_m*u))   !udiv=max(1,int(2.0*u))
+       vdiv=max(1,nint(exp_m*v))   !vdiv=max(1,int(2.0*v))
        u=u/udiv
        v=v/vdiv
        afpbet=alfa+beta
@@ -672,8 +683,8 @@ Module CFML_PowderProfiles_TOF
        v=0.5*beta*(beta*sigma-2.0*dt)
        ! To avoid pathological behaviour EXP(U) is calculated as
        ! {EXP(U/N)}^N using mutiplicative loops
-       udiv=max(1,nint(0.003*u))
-       vdiv=max(1,nint(0.003*v))
+       udiv=max(1,nint(exp_m*u))
+       vdiv=max(1,nint(exp_m*v))
        u=u/udiv
        v=v/vdiv
        afpbet=alfa+beta

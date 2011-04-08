@@ -1,7 +1,7 @@
 #!/bin/sh
 # Compilation script for CrysFML library
 # Author: Javier Gonzalez-Platas
-# Date: Dic-2008
+# Date: March-2011
 #
 if [ a$1 = a ]
 then

@@ -1,7 +1,7 @@
 #! /bin/sh
 # Compilation script for CrysFGL library
 # Author: Javier Gonzalez-Platas (Script)
-# Date: Dic-2008
+# Date: March-2011
 #
 if [ a$1 = a ]
 then
@@ -154,7 +154,7 @@ else
           OPT1="-c -O"
           ;;
       'ifort')
-          OPT1="-c -O -warn -vec-report0"
+          OPT1="-c -O -warn -vec-report0 -arch i386"
           ;;
       'lf95')
           OPT1="-c -O --nchk --tpp"
@@ -189,27 +189,30 @@ cd ./Src/CFGL
 #
 # Compilation Process
 #
+DDL="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
+DDL=" "
+
 echo " ########################################################"
 echo " #### Fortran CFGL Library                     (5.0) ####"
 echo " #### JRC - LC - JGP                       2005-2011 ####"
 echo " ########################################################"
-$COMP $OPT1  WCFGL_Constant.f90            $INC
-$COMP $OPT1  WCFGL_Atomic_Table.f90        $INC
-$COMP $OPT1  WCFGL_Objects_Definition.f90  $INC
-$COMP $OPT1  WCFGL_Geometry.f90            $INC
-$COMP $OPT1  WCFGL_Chull3D.f90             $INC
-$COMP $OPT1  WCFGL_Quaternion.f90          $INC
-$COMP $OPT1  WCFGL_Trackball.f90           $INC
-$COMP $OPT1  WCFGL_Metrix.f90              $INC
-$COMP $OPT1  WCFGL_Glatom.f90              $INC
-$COMP $OPT1  WCFGL_Glbond.f90              $INC
-$COMP $OPT1  WCFGL_Atom_Tree.f90           $INC
-$COMP $OPT1  WCFGL_Matom_Tree.f90          $INC
-$COMP $OPT1  WCFGL_Bond_Tree.f90           $INC
-$COMP $OPT1  WCFGL_Glpoly.f90              $INC
-$COMP $OPT1  WCFGL_Poly_Tree.f90           $INC
-$COMP $OPT1  WCFGL_Display.f90             $INC
-$COMP $OPT1  WCFGL_IO.f90                  $INC
+$COMP $OPT1  WCFGL_Constant.f90            $INC $DDL
+$COMP $OPT1  WCFGL_Atomic_Table.f90        $INC $DDL
+$COMP $OPT1  WCFGL_Objects_Definition.f90  $INC $DDL
+$COMP $OPT1  WCFGL_Geometry.f90            $INC $DDL
+$COMP $OPT1  WCFGL_Chull3D.f90             $INC $DDL
+$COMP $OPT1  WCFGL_Quaternion.f90          $INC $DDL
+$COMP $OPT1  WCFGL_Trackball.f90           $INC $DDL
+$COMP $OPT1  WCFGL_Metrix.f90              $INC $DDL
+$COMP $OPT1  WCFGL_Glatom.f90              $INC $DDL
+$COMP $OPT1  WCFGL_Glbond.f90              $INC $DDL
+$COMP $OPT1  WCFGL_Atom_Tree.f90           $INC $DDL
+$COMP $OPT1  WCFGL_Matom_Tree.f90          $INC $DDL
+$COMP $OPT1  WCFGL_Bond_Tree.f90           $INC $DDL
+$COMP $OPT1  WCFGL_Glpoly.f90              $INC $DDL
+$COMP $OPT1  WCFGL_Poly_Tree.f90           $INC $DDL
+$COMP $OPT1  WCFGL_Display.f90             $INC $DDL
+$COMP $OPT1  WCFGL_IO.f90                  $INC $DDL
 #
 # Making CrysFGL Library
 #
