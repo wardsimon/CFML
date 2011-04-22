@@ -2261,11 +2261,13 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        integer                           :: i
-       integer, parameter                :: np=400
+       integer                           :: np
        real, dimension(:,:), allocatable :: xp, yp
        real, dimension(:),   allocatable :: xf,yf
        real                              :: xmin,xmax,xstep
        !real                              :: x1,x2,yfc
+
+       np=n%nbdata
 
        if (allocated(xp)) deallocate(xp)
        if (allocated(yp)) deallocate(yp)
@@ -2288,7 +2290,7 @@ Module CFML_ILL_Instrm_Data
        xf=0.0
        yf=0.0
 
-       ! Load Angles for each detector tube
+       ! Load Angles for each detector cell
        xp(1,1)=n%scans(1)
        do i=2,n%nbdata
           xp(i,1)=xp(1,1)+(i-1)*n%scans(2)
@@ -2547,6 +2549,7 @@ Module CFML_ILL_Instrm_Data
                 call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
              end if
              call NumorD1B_to_DiffPattern(PPNum, Pat)
+
           case ('D2B')
 
           case ('D4')
@@ -3298,14 +3301,18 @@ Module CFML_ILL_Instrm_Data
        ! Initialize Numor
        call init_powder_numor(n)
 
-       ! Fixed Some values
+       ! Fixing some values
        n%nframes=1
        n%scantype='2theta'
-       n%scans(2)=0.2
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
        n%numor=numor
+       if(n%numor >= 102577) then
+         n%scans(2)=0.1
+       else
+         n%scans(2)=0.2
+       end if
 
        ! Instr/Experimental Name/ Date
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
