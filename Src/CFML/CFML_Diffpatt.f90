@@ -1349,7 +1349,7 @@
                 end if
 
                 !pat%npts = (pat%xmax-pat%xmin)/pat%step+1.5
-                pat%npts = nint((pat%xmax-pat%xmin)/pat%step)
+                pat%npts = nint((pat%xmax-pat%xmin)/pat%step+1.0)
 
                 ! Title?
                 i=index(aline,trim(dire(3)))
