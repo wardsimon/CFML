@@ -1130,7 +1130,7 @@ Module CFML_ILL_Instrm_Data
 
         !> First active Numor on the List
         i=ind(1)
-        Pat%title=trim(PNumors(i)%title)
+        Pat%title=trim(PNumors(i)%title)//", Instr: "//trim(PNumors(i)%instrm)//", Header:"//trim(PNumors(i)%header)
         Pat%TSet=PNumors(i)%conditions(1)
         Pat%TSamp=PNumors(i)%conditions(3)
         Pat%Conv(1)=PNumors(i)%wave
@@ -1468,7 +1468,7 @@ Module CFML_ILL_Instrm_Data
 
         !> First active Numor on the List
         i=ind(1)
-        Pat%title=trim(PNumors(i)%title)
+        Pat%title=trim(PNumors(i)%title)//", Instr: "//trim(PNumors(i)%instrm)//", Header:"//trim(PNumors(i)%header)
         Pat%TSet=PNumors(i)%conditions(1)
         Pat%TSamp=PNumors(i)%conditions(3)
         Pat%Conv(1)=PNumors(i)%wave
@@ -2333,7 +2333,7 @@ Module CFML_ILL_Instrm_Data
 
        call Allocate_Diffraction_Pattern (Pat, n%nbdata)
 
-       Pat%title=n%title
+       Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
        Pat%diff_Kind='neutron'
        Pat%Scat_Var='2theta'
        Pat%instr='D1B'
@@ -2445,7 +2445,7 @@ Module CFML_ILL_Instrm_Data
 
        call Allocate_Diffraction_Pattern (Pat, n%nbdata)
 
-       Pat%title=n%title
+       Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
        Pat%diff_Kind='neutron'
        Pat%Scat_Var='2theta'
        Pat%instr='D20'
