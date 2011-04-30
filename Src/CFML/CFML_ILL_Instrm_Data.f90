@@ -119,6 +119,8 @@
 !!----    ILL_TEMP_DIRECTORY
 !!----    INSTRM_DIRECTORY
 !!--++    INSTRM_DIRECTORY_SET              [Private]
+!!--++    INSTRM_GEOMETRY_DIRECTORY_SET     [Private]
+!!--++    INSTRM_INFO_ONLY                  [Private]
 !!--++    IVALUES                           [Private]
 !!----    MACHINE_NAME
 !!--++    N_KEYTYPES                        [Private]
@@ -153,8 +155,7 @@
 !!--++       INITIALIZE_NUMORS_DIRECTORY     [Private]
 !!--++       INITIALIZE_TEMP_DIRECTORY       [Private]
 !!--++       NUMBER_KEYTYPES_ON_FILE         [Private]
-!!--++       NUMORD1B_TO_DIFFPATTERN         [Private]
-!!--++       NUMORD20_TO_DIFFPATTERN         [Private]
+!!--++       NUMORD1BD20_TO_DIFFPATTERN      [Private]
 !!----       POWDERNUMORS_TO_DIFFPATTERN
 !!--++       READ_A_KEYTYPE                  [Private]
 !!----       READ_CALIBRATION_FILE
@@ -227,8 +228,7 @@ Module CFML_ILL_Instrm_Data
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
              Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
              Read_Calibration_File_D2B, Read_Calibration_File_D4, Adding_Numors_D1A_DiffPattern, &
-             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1B_To_DiffPattern,       &
-             NumorD20_To_DiffPattern
+             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern
 
 
    !---- Definitions ----!
@@ -714,6 +714,29 @@ Module CFML_ILL_Instrm_Data
    !!
    character(len=150), public :: ERR_ILLData_Mess=" "
 
+   !!--++
+   !!--++ GOT_ILL_DATA_DIRECTORY
+   !!--++    logical, private:: got_ILL_data_directory
+   !!--++
+   !!--++    Logical variable taking the value .true. if the instrument directory
+   !!--++    has been obtained from subroutine Initialize_Data_Directory
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   logical, private :: got_ILL_data_directory = .false.
+
+   !!--++
+   !!--++ GOT_ILL_TEMP_DIRECTORY
+   !!--++    logical, private:: got_ILL_temp_directory
+   !!--++
+   !!--++    Logical variable taking the value .true. if the instrument directory
+   !!--++    for temporary uncompressed data has been obtained from subroutine
+   !!--++    Initialize_Data_Directory
+   !!--++
+   !!--++ Update: March - 2009
+   !!
+   logical, private :: got_ILL_temp_directory = .false.
+
    !!----
    !!---- ILL_DATA_DIRECTORY
    !!----    character(len=512), public :: ILL_data_directory
@@ -794,27 +817,15 @@ Module CFML_ILL_Instrm_Data
    logical, private :: Instrm_Geometry_Directory_Set=.false.
 
    !!--++
-   !!--++ GOT_ILL_DATA_DIRECTORY
-   !!--++    logical, private:: got_ILL_data_directory
+   !!--++ INSTRM_INFO_ONLY
+   !!--++    logical, private:: Instrm_Info_Only
    !!--++
-   !!--++    Logical variable taking the value .true. if the instrument directory
-   !!--++    has been obtained from subroutine Initialize_Data_Directory
+   !!--++    logical variable taking the value .true. if when reading a numor
+   !!--++    only the header information is needed
    !!--++
-   !!--++ Update: March - 2009
+   !!--++ Update: April - 2011
    !!
-   logical, private :: got_ILL_data_directory = .false.
-
-   !!--++
-   !!--++ GOT_ILL_TEMP_DIRECTORY
-   !!--++    logical, private:: got_ILL_temp_directory
-   !!--++
-   !!--++    Logical variable taking the value .true. if the instrument directory
-   !!--++    for temporary uncompressed data has been obtained from subroutine
-   !!--++    Initialize_Data_Directory
-   !!--++
-   !!--++ Update: March - 2009
-   !!
-   logical, private :: got_ILL_temp_directory = .false.
+   logical, private :: Instrm_Info_Only=.false.
 
    !!----
    !!---- MACHINE_NAME
@@ -994,7 +1005,7 @@ Module CFML_ILL_Instrm_Data
         integer, dimension(:), allocatable  :: ind
 
         real, dimension(:,:,:), allocatable :: x,y,d2y
-        real                                :: fac,x1,x2,xmin,xmax,step,yfc,cnorm
+        real                                :: fac,x1,x2,xmin,xmax,step,yfc,cnorm,tim
 
 
         !> Init
@@ -1033,6 +1044,7 @@ Module CFML_ILL_Instrm_Data
         ind=0
 
         cnorm=1.0
+        tim=0.0
         if (present(vnorm)) cnorm=vnorm
 
         !> X
@@ -1041,9 +1053,9 @@ Module CFML_ILL_Instrm_Data
         do i= 1, n
            if (.not. actlist(i) ) cycle
            num=num+1
-           if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%tmc_ang(2,1)  ! Monitor normalization value
+           if (num == 1 .and. .not. present(vnorm)) cnorm=PNumors(i)%tmc_ang(2,1)  ! Monitor normalization value
            ind(num)=i                                                            ! Vector for index
-
+           tim=tim+PNumors(i)%time
            np=PNumors(i)%nframes
            do k=1,np
               x(k,:,num)=PNumors(i)%tmc_ang(3,k)
@@ -1121,7 +1133,8 @@ Module CFML_ILL_Instrm_Data
         call Allocate_Diffraction_Pattern (Pat, np)
 
         Pat%Monitor=cnorm
-        Pat%diff_Kind='neutron'
+        Pat%col_time=tim
+        Pat%diff_Kind="neutrons_cw"
         Pat%Scat_Var='2theta'
         Pat%instr='D1A'
         Pat%xmin=xmin
@@ -1188,30 +1201,27 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Adding_Numors_D1A_DiffPattern
 
     !!----
-    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,VNorm)
+    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor)
     !!----    type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
     !!----    integer,                             intent(in) :: N          ! Number of Numors
     !!----    logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
     !!----    type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
-    !!----    real, optional,                      intent(in) :: VNorm      ! Normalization value
     !!----
     !!---- Adding Numors from D1B and D20 Instrument
     !!----
-    !!---- 21/03/2011
+    !!---- 30/04/2011
     !!
-    Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,VNorm)
+    Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor)
         !---- Arguments ----!
         type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
         integer,                             intent(in) :: N          ! Number of Numors
         logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
         type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
-        real, optional,                      intent(in) :: VNorm      ! Normalization value
 
         !---- Local Variables ----!
         logical :: adding, done
         integer :: i,num
         real    :: a,w,diff
-        real    :: cnorm, rnorm
 
         call init_err_illdata()
 
@@ -1296,15 +1306,6 @@ Module CFML_ILL_Instrm_Data
            numor%counts(:,1)=numor%counts(:,1)+PNumors(i)%counts(:,1)
         end do
 
-        ! Normalization
-        if (present(Vnorm)) then
-           rnorm=vnorm
-        else
-           rnorm=numor%monitor
-        end if
-        cnorm=rnorm/numor%monitor
-        numor%counts(:,1)=numor%counts(:,1)*cnorm
-
         return
     End Subroutine Adding_Numors_D1B_D20
 
@@ -1342,7 +1343,7 @@ Module CFML_ILL_Instrm_Data
         integer, dimension(:), allocatable  :: ncc,ind
 
         real, dimension(:,:,:), allocatable :: x,y,xx,yy,d2y
-        real                                :: fac,x1,x2,xmin,xmax,step,yfc, cnorm
+        real                                :: fac,x1,x2,xmin,xmax,step,yfc, cnorm, tim
 
         !> Init
         call init_err_illdata()
@@ -1372,7 +1373,7 @@ Module CFML_ILL_Instrm_Data
         ind=0
         cnorm=1.0
         if (present(vnorm)) cnorm=vnorm
-
+        tim=0.0
         !> X
         x=0.0
         num=0
@@ -1381,7 +1382,7 @@ Module CFML_ILL_Instrm_Data
            num=num+1
            if (num==1 .and. .not. present(vnorm)) cnorm=PNumors(i)%monitor       ! Monitor normalization value
            ind(num)=i                                                            ! Vector for index
-
+           tim=tim+PNumors(i)%time
            do j=1,ndet
               fac=0.0
               if (correction) fac=Cal%PosX(j)
@@ -1459,7 +1460,8 @@ Module CFML_ILL_Instrm_Data
         call Allocate_Diffraction_Pattern (Pat, np)
 
         Pat%Monitor=cnorm
-        Pat%diff_Kind='neutron'
+        Pat%col_time=tim
+        Pat%diff_Kind="neutrons_cw"
         Pat%Scat_Var='2theta'
         Pat%instr='D4'
         Pat%xmin=xmin
@@ -2243,230 +2245,67 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
-    !!--++ Subroutine NumorD1B_To_DiffPattern(N, Pat)
+    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm)
     !!--++    type(powder_numor_type),                   intent(in)  :: N
     !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
+    !!--++    real,  optional,                           intent(in)  :: VNorm
     !!--++
-    !!--++ Pass the information from Numor to DiffPat object
+    !!--++ Pass the information from D1B/D20 Numor to DiffPat object
     !!--++
-    !!--++ The routine is ready to use interpolation procedure if the user wants
-    !!--++ more than 400 points. Only need some modifications in this routine
     !!--++
-    !!--++ 21/03/2011
+    !!--++ 30/04/2011
     !!
-    Subroutine NumorD1B_To_DiffPattern(N, Pat)
+    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm)
        !---- Arguments ----!
        type(powder_numor_type),                   intent(in)  :: N
        type(diffraction_pattern_type),            intent(out) :: Pat
+       real,  optional,                           intent(in)  :: VNorm
 
        !---- Local Variables ----!
        integer                           :: i
        integer                           :: np
-       real, dimension(:,:), allocatable :: xp, yp
-       real, dimension(:),   allocatable :: xf,yf
-       real                              :: xmin,xmax,xstep
-       !real                              :: x1,x2,yfc
+       real                              :: xmin,xmax,xstep,cnorm
 
        np=n%nbdata
-
-       if (allocated(xp)) deallocate(xp)
-       if (allocated(yp)) deallocate(yp)
-       !if (allocated(d2yp)) deallocate(d2yp)
-
-       if (allocated(xf)) deallocate(xf)
-       if (allocated(yf)) deallocate(yf)
-
-       allocate(xp(n%nbdata,n%nframes))
-       allocate(yp(n%nbdata,n%nframes))
-       !allocate(d2yp(n%nbdata,n%nframes))
-
-       allocate (xf(np))
-       allocate (yf(np))
-
-       xp=0.0
-       yp=0.0
-       !d2yp=0.0
-
-       xf=0.0
-       yf=0.0
-
-       ! Load Angles for each detector cell
-       xp(1,1)=n%scans(1)
-       do i=2,n%nbdata
-          xp(i,1)=xp(1,1)+(i-1)*n%scans(2)
-       end do
-
-       ! Load Counts
-       yp=n%counts
-
-       ! Second Derivative
-       !do j=1,n%nframes
-       !   call second_derivative(xp(:,j),yp(:,j),n%nbdata,d2yp(:,j))
-       !end do
-
-       xmin=minval(xp)
-       xmax=maxval(xp)
+       call Allocate_Diffraction_Pattern (Pat, np)
+       xmin=n%scans(1)
        xstep=n%scans(2)
 
        do i=1,np    ! Points
-          xf(i)=xmin + (i-1)*xstep
-          yf(i)=yp(i,1)
-          !nc=0
-          !do j=1,n%nframes ! Pattern
-          !   x1=minval(xp(:,j))
-          !   x2=maxval(xp(:,j))
-          !   if ( (xf(i) > x1 .or. abs(xf(i)-x1) <= 0.001) .and. &
-          !        (xf(i) < x2 .or. abs(xf(i)-x2) <= 0.001) ) then
-          !      nc=nc+1
-          !      call splint(xp(:,j),yp(:,j),d2yp(:,j),n%nbdata,xf(i),yfc)
-          !      yf(i)=yf(i)+yfc
-          !   end if
-          !end do
-
-          ! control
-          !if (nc == 0) then
-          !   print*,'Error !!!!!!!!'
-          !   stop
-          !end if
-          !yf(i)=yf(i)/real(nc)
+          Pat%x(i)=xmin + (i-1)*xstep
+          Pat%y(i)=n%counts(i,1)
+          Pat%sigma(i)=Pat%y(i)
        end do
-
-       call Allocate_Diffraction_Pattern (Pat, n%nbdata)
-
+       xmax=Pat%x(np)
        Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
-       Pat%diff_Kind='neutron'
+       Pat%diff_Kind="neutrons_cw"
        Pat%Scat_Var='2theta'
-       Pat%instr='D1B'
+       Pat%instr=n%instrm
        Pat%Monitor=n%monitor
+       Pat%col_time=n%time
        Pat%xmin=xmin
        Pat%xmax=xmax
-       Pat%ymin=minval(yf)
-       Pat%ymax=maxval(yf)
+       Pat%ymin=minval(Pat%y)
+       Pat%ymax=maxval(Pat%y)
        Pat%step=xstep
        Pat%npts=np
        Pat%nd=1
-
-       Pat%x=xf
-       Pat%y=yf
-
        Pat%TSet=n%conditions(1)
        Pat%TSamp=n%conditions(3)
        Pat%Conv(1)=n%wave
 
-       return
-    End Subroutine NumorD1B_To_DiffPattern
-
-    !!--++
-    !!--++ Subroutine NumorD20_To_DiffPattern(N, Pat)
-    !!--++    type(powder_numor_type),                   intent(in)  :: N
-    !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
-    !!--++
-    !!--++ Pass the information from Numor to DiffPat object
-    !!--++
-    !!--++ The routine is ready to use interpolation procedure if the user wants
-    !!--++ more than 400 points. Only need some modifications in this routine
-    !!--++
-    !!--++ 21/03/2011
-    !!
-    Subroutine NumorD20_To_DiffPattern(N, Pat)
-       !---- Arguments ----!
-       type(powder_numor_type),                   intent(in)  :: N
-       type(diffraction_pattern_type),            intent(out) :: Pat
-
-       !---- Local Variables ----!
-       integer                           :: i
-       integer, parameter                :: np=1600
-       real, dimension(:,:), allocatable :: xp, yp
-       real, dimension(:),   allocatable :: xf,yf
-       real                              :: xmin,xmax,xstep
-       !real                              :: x1,x2,yfc
-
-       !if (allocated(xp)) deallocate(xp)
-       !if (allocated(yp)) deallocate(yp)
-       !if (allocated(d2yp)) deallocate(d2yp)
-
-       if (allocated(xf)) deallocate(xf)
-       if (allocated(yf)) deallocate(yf)
-
-       allocate(xp(n%nbdata,n%nframes))
-       allocate(yp(n%nbdata,n%nframes))
-       !allocate(d2yp(n%nbdata,n%nframes))
-
-       allocate (xf(np))
-       allocate (yf(np))
-
-       xp=0.0
-       yp=0.0
-       !d2yp=0.0
-
-       xf=0.0
-       yf=0.0
-
-       ! Load Angles for each detector tube
-       xp(1,1)=n%scans(1)
-       do i=2,n%nbdata
-          xp(i,1)=xp(1,1)+(i-1)*n%scans(2)
-       end do
-
-       ! Load Counts
-       yp=n%counts
-
-       ! Second Derivative
-       !do j=1,n%nframes
-       !   call second_derivative(xp(:,j),yp(:,j),n%nbdata,d2yp(:,j))
-       !end do
-
-       xmin=minval(xp)
-       xmax=maxval(xp)
-       xstep=n%scans(2)
-
-       do i=1,np    ! Points
-          xf(i)=xmin + (i-1)*xstep
-          yf(i)=yp(i,1)
-          !nc=0
-          !do j=1,n%nframes ! Pattern
-          !   x1=minval(xp(:,j))
-          !   x2=maxval(xp(:,j))
-          !   if ( (xf(i) > x1 .or. abs(xf(i)-x1) <= 0.001) .and. &
-          !        (xf(i) < x2 .or. abs(xf(i)-x2) <= 0.001) ) then
-          !      nc=nc+1
-          !      call splint(xp(:,j),yp(:,j),d2yp(:,j),n%nbdata,xf(i),yfc)
-          !      yf(i)=yf(i)+yfc
-          !   end if
-          !end do
-
-          ! control
-          !if (nc == 0) then
-          !   print*,'Error !!!!!!!!'
-          !   stop
-          !end if
-          !yf(i)=yf(i)/real(nc)
-       end do
-
-       call Allocate_Diffraction_Pattern (Pat, n%nbdata)
-
-       Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
-       Pat%diff_Kind='neutron'
-       Pat%Scat_Var='2theta'
-       Pat%instr='D20'
-       Pat%Monitor=n%monitor
-       Pat%xmin=xmin
-       Pat%xmax=xmax
-       Pat%ymin=minval(yf)
-       Pat%ymax=maxval(yf)
-       Pat%step=xstep
-       Pat%npts=np
-       Pat%nd=1
-
-       Pat%x=xf
-       Pat%y=yf
-
-       Pat%TSet=n%conditions(1)
-       Pat%TSamp=n%conditions(3)
-       Pat%Conv(1)=n%wave
+       if(present(VNorm)) then
+          Pat%Norm_Mon=VNorm
+          cnorm = VNorm/Pat%monitor
+          Pat%y=Pat%y*cnorm
+          Pat%sigma=Pat%sigma*cnorm*cnorm
+       else
+          Pat%Norm_Mon=n%monitor
+       end if
 
        return
-    End Subroutine NumorD20_To_DiffPattern
+    End Subroutine NumorD1BD20_To_DiffPattern
+
 
     !!----
     !!---- Subroutine PowderNumors_To_DiffPattern(PNumors, N, ActList, Pat, VNorm, Cal)
@@ -2527,6 +2366,15 @@ Module CFML_ILL_Instrm_Data
        end if
 
        select case (trim(inst))
+          case ('D1B','D20')
+
+             call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
+             if (present(VNorm)) then
+                call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm)
+             else
+                call NumorD1BD20_to_DiffPattern(PPNum, Pat)
+             end if
+
           case ('D1A')
              if (present(Cal)) then
                 if (present(VNorm)) then
@@ -2541,14 +2389,6 @@ Module CFML_ILL_Instrm_Data
                    call Adding_Numors_D1A_DiffPattern(PNumors,N,ActList,Pat)
                 end if
              end if
-
-          case ('D1B')
-             if (present(VNorm)) then
-                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,VNorm)
-             else
-                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
-             end if
-             call NumorD1B_to_DiffPattern(PPNum, Pat)
 
           case ('D2B')
 
@@ -2585,14 +2425,6 @@ Module CFML_ILL_Instrm_Data
                    end if
                 end if
              end if
-
-          case ('D20')
-             if (present(VNorm)) then
-                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,VNorm)
-             else
-                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
-             end if
-             call NumorD20_to_DiffPattern(PPNum, Pat)
 
        end select
 
@@ -3219,6 +3051,8 @@ Module CFML_ILL_Instrm_Data
           n%conditions(1:5)=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample
        end if
 
+       if(Instrm_Info_only) return
+
        ! Allocating
        if (allocated(n%counts)) deallocate(n%counts)
        allocate(n%counts(n%nbdata,n%nframes))
@@ -3308,7 +3142,7 @@ Module CFML_ILL_Instrm_Data
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
        n%numor=numor
-       if(n%numor >= 102577) then
+       if(n%numor >= 102577) then   !Hardcoded here waiting for a proper database
          n%scans(2)=0.1
        else
          n%scans(2)=0.2
@@ -3348,6 +3182,7 @@ Module CFML_ILL_Instrm_Data
           n%monitor=real(ivalues(1))
           n%time=real(ivalues(2))*0.001
           n%scans(1)=real(ivalues(3))*0.001
+          if(Instrm_Info_only) return    !This is placed here waiting for a proper database
           if (n%nbdata > 0) then
              allocate(n%counts(n%nbdata,1))
              n%counts(:,1)=real(ivalues(4:nval_i))
@@ -3470,6 +3305,8 @@ Module CFML_ILL_Instrm_Data
                                //' parameters in the Frame: '//trim(car)
              return
           end if
+
+          if(Instrm_Info_only) return
 
           ! Counts
           call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
@@ -3599,6 +3436,8 @@ Module CFML_ILL_Instrm_Data
           n%conditions(1)=rvalues(3)   ! T-Set
        end if
 
+       if(Instrm_Info_only) return
+
        ! Loading Frames
        do i=1,n%nframes
           call read_I_keyType(filevar,nl_keytypes(5,i,1),nl_keytypes(5,i,2))
@@ -3710,6 +3549,8 @@ Module CFML_ILL_Instrm_Data
           n%cpl_fact=rvalues(43)       ! Coupling factor
           n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
        end if
+
+       if(Instrm_Info_only) return
 
        ! Allocating
        if (allocated(n%counts)) deallocate(n%counts)
@@ -3865,6 +3706,8 @@ Module CFML_ILL_Instrm_Data
           n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
        end if
 
+       if(Instrm_Info_only) return
+
        ! Allocating
        if (allocated(n%counts)) deallocate(n%counts)
        allocate(n%counts(n%nbdata,n%nframes))
@@ -4008,6 +3851,8 @@ Module CFML_ILL_Instrm_Data
           n%cpl_fact=rvalues(43)       ! Coupling factor
           n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
        end if
+
+       if(Instrm_Info_only) return
 
        ! Allocating
        if (allocated(n%counts)) deallocate(n%counts)
@@ -4431,6 +4276,8 @@ Module CFML_ILL_Instrm_Data
           n%scans(1)=rvalues(5)
        end if
 
+       if(Instrm_Info_only) return
+
        ! S Block
 
        ! Counts Information
@@ -4446,22 +4293,26 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D20
 
     !!----
-    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,Num)
+    !!---- Subroutine Read_Powder_Numor(PathNumor,Instrument,Num,inf)
     !!----    character(len=*),            intent(in)    :: PathNumor
     !!----    character(len=*),            intent(in)    :: Instrument
     !!----    type(Powder_Numor_type),     intent(out)   :: Num
+    !!-----   logical, optional,           intent(in)    :: inf
     !!----
     !!----    Read a Powder numor from the ILL database.
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
+    !!----    If inf is present and .true. only the heaede information
+    !!----    is read, the data are not loaded in num.
     !!----
-    !!---- Update: 15/03/2011
+    !!---- Update: 29/04/2011
     !!
-    Subroutine Read_Powder_Numor(PathNumor,Instrument,Num)
+    Subroutine Read_Powder_Numor(PathNumor,Instrument,Num,inf)
        !---- Arguments ----!
        character(len=*),           intent(in)    :: PathNumor
        character(len=*),           intent(in)    :: Instrument
        type(Powder_Numor_Type),    intent(out)   :: Num
+       logical, optional,          intent(in)    :: inf
 
        !---- Local variables ----!
        character(len=512)     :: Path
@@ -4496,6 +4347,13 @@ Module CFML_ILL_Instrm_Data
        end if
 
        ! Read Numor
+
+       if(present(inf)) then
+         if(inf) then
+           Instrm_Info_only=.true.   !Temporarily set to .true.
+         end if
+       end if
+
        select case (trim(u_case(Instr)))
           case ('D1A')
              call Read_Numor_D1A(trim(path)//trim(filename),Num)
@@ -4515,29 +4373,36 @@ Module CFML_ILL_Instrm_Data
           case default
              ERR_ILLData=.true.
              ERR_ILLData_Mess= " Not Implemented for the Powder Instrument name: "//trim(instrument)
-             return
        end select
+
+       if(present(inf)) then
+         if(inf) then
+           Instrm_Info_only=.false.   !revert to .false.
+         end if
+       end if
 
        return
     End Subroutine Read_Powder_Numor
 
     !!----
-    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num)
+    !!---- Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num,inf)
     !!----    character(len=*),            intent(in)    :: PathNumor
     !!----    character(len=*),            intent(in)    :: Instrument
     !!----    type(SXTAL_Numor_type),      intent(out)   :: Num
+    !!----    logical, optional,           intent(in)    :: inf
     !!----
     !!----    Read a SXTAL numor from the ILL database.
     !!----    In case of error the subroutine puts ERR_ILLData=.true.
     !!----    and fils the error message variable ERR_ILLData_Mess.
     !!----
-    !!---- Update: 15/03/2011 9:16:46
+    !!---- Update: 29/04/2011
     !!
-    Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num)
+    Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num,inf)
        !---- Arguments ----!
        character(len=*),           intent(in)    :: PathNumor
        character(len=*),           intent(in)    :: Instrument
        type(SXTAL_Numor_Type),     intent(out)   :: Num
+       logical, optional,          intent(in)    :: inf
 
        !---- Local variables ----!
        character(len=512)     :: Path
@@ -4572,6 +4437,12 @@ Module CFML_ILL_Instrm_Data
        end if
 
        ! Read Numor
+       if(present(inf)) then
+         if(inf) then
+           Instrm_Info_only=.true.   !Temporarily set to .true.
+         end if
+       end if
+
        select case (trim(Instr))
           case ('D9')
              call Read_Numor_D9(trim(path)//trim(filename),Num)
@@ -4585,8 +4456,13 @@ Module CFML_ILL_Instrm_Data
           case default
              ERR_ILLData=.true.
              ERR_ILLData_Mess= " Not Implemented for the SXTAL Instrument name: "//trim(instrument)
-             return
        end select
+
+       if(present(inf)) then
+         if(inf) then
+           Instrm_Info_only=.false.   !revert to .false.
+         end if
+       end if
 
        return
     End Subroutine Read_SXTAL_Numor

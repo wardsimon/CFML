@@ -53,6 +53,7 @@
 !!--++       SET_BACKGROUND_INTER           [Private]
 !!--++       SET_BACKGROUND_POLY            [Private]
 !!----       WRITE_PATTERN_FREEFORMAT
+!!----       WRITE_PATTERN_INSTRM5
 !!----       WRITE_PATTERN_XYSIG
 !!----
 !!
@@ -73,7 +74,8 @@
     !---- List of public subroutines ----!
     public ::  Init_Err_DiffPatt, Calc_Background, Read_Background_File, Read_Pattern,      &
                Purge_Diffraction_Pattern, Allocate_Diffraction_Pattern, Write_Pattern_XYSig,&
-               Write_Pattern_FreeFormat, Add_Diffraction_Patterns, Delete_Noisy_Points
+               Write_Pattern_FreeFormat, Add_Diffraction_Patterns, Delete_Noisy_Points,     &
+               Write_Pattern_INSTRM5
 
     !---- List of private subroutines ----!
     private :: Read_Pattern_D1A_D2B, Read_Pattern_D1A_D2B_Old, Read_Pattern_D1B_D20,       &
@@ -101,6 +103,8 @@
     !!----    real(kind=cp)                               :: ymax
     !!----    real(kind=cp)                               :: scal
     !!----    real(kind=cp)                               :: monitor
+    !!----    real(kind=cp)                               :: norm_mon      !Normalisation monitor
+    !!----    real(kind=cp)                               :: col_time      !Data collection time
     !!----    real(kind=cp)                               :: step
     !!----    real(kind=cp)                               :: Tsamp         !Sample Temperature
     !!----    real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
@@ -125,37 +129,39 @@
     !!----
     !!---- End Type Diffraction_Pattern_Type
     !!----
-    !!----    Definition for Diffraction Pattern
+    !!----    Definition for Diffraction Pattern Type
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: April - 2011  !Initialisation values have been included except for allocatables
     !!
     Type, public :: Diffraction_Pattern_Type
-       character(len=180)                          :: Title         !Identification of the pattern
-       character(len=20)                           :: diff_kind     !type of radiation
-       character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
-       character(len=20)                           :: instr         !file type
-       character(len=512)                          :: filename      !file name
-       real(kind=cp)                               :: xmin
-       real(kind=cp)                               :: xmax
-       real(kind=cp)                               :: ymin
-       real(kind=cp)                               :: ymax
-       real(kind=cp)                               :: scal
-       real(kind=cp)                               :: monitor
-       real(kind=cp)                               :: step
-       real(kind=cp)                               :: Tsamp         !Sample Temperature
-       real(kind=cp)                               :: Tset          !Setting Temperature (wished temperature)
-       integer                                     :: npts          !Number of points
-       logical                                     :: ct_step       !Constant step
-       logical                                     :: gy,gycalc,&
-                                                      gbgr,gsigma   !logicals for graphics
+       character(len=180)                          :: Title=" "        !Identification of the pattern
+       character(len=20)                           :: diff_kind=" "    !type of radiation
+       character(len=20)                           :: scat_var=" "     !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
+       character(len=20)                           :: instr=" "        !file type
+       character(len=512)                          :: filename=" "     !file name
+       real(kind=cp)                               :: xmin=0.0
+       real(kind=cp)                               :: xmax=0.0
+       real(kind=cp)                               :: ymin=0.0
+       real(kind=cp)                               :: ymax=0.0
+       real(kind=cp)                               :: scal=0.0
+       real(kind=cp)                               :: monitor=0.0
+       real(kind=cp)                               :: norm_mon=0.0
+       real(kind=cp)                               :: col_time=0.0
+       real(kind=cp)                               :: step=0.0
+       real(kind=cp)                               :: Tsamp=0.0        !Sample Temperature
+       real(kind=cp)                               :: Tset=0.0         !Setting Temperature (wished temperature)
+       integer                                     :: npts=0           !Number of points
+       logical                                     :: ct_step=.false.  !Constant step
+       logical                                     :: gy=.false.,gycalc=.false.,&
+                                                      gbgr=.false.,gsigma=.false.   !logicals for graphics
 
-       logical                                     :: al_x,al_y,&
-                                                      al_ycalc, &   !logicals for allocation
-                                                      al_bgr,   &
-                                                      al_sigma, &
-                                                      al_istat
+       logical                                     :: al_x=.false.,al_y=.false.,&
+                                                      al_ycalc=.false., &   !logicals for allocation
+                                                      al_bgr=.false.,   &
+                                                      al_sigma=.false., &
+                                                      al_istat=.false.
 
-       real(kind=cp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+       real(kind=cp), dimension (3)                :: conv=0.0      ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
        real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
        real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
        real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
@@ -3445,54 +3451,6 @@
     End Subroutine Set_Background_Poly
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat)
-    !!----    character (len=*),               intent(in) :: Filename
-    !!----    type (diffraction_pattern_type), intent(in) :: Pat
-    !!----
-    !!----    Write a pattern in X,Y,Sigma format
-    !!----
-    !!---- Update: March - 2007
-    !!
-    Subroutine Write_Pattern_XYSig(Filename,Pat)
-       !---- Arguments ----!
-       character (len=*),               intent(in) :: filename
-       type (diffraction_pattern_type), intent(in) :: Pat
-
-       !---- Local Variables ----!
-       integer                                      :: i, ier, i_dat
-
-       call init_err_diffpatt()
-       call get_logunit(i_dat)
-       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
-       if (ier /= 0 ) then
-          Err_diffpatt=.true.
-          ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
-          return
-       end if
-       write(unit=i_dat,fmt="(a)")"XYDATA"
-       write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
-       write(unit=i_dat,fmt="(a)")"COND: "//trim(pat%diff_kind)//trim(pat%scat_var)//trim(pat%instr)
-       write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
-       write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
-       if (pat%ct_step) then
-          write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
-          "INTER ", 1.0,1.0,2,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
-       else
-          write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
-          "INTER ", 1.0,1.0,0,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
-       end if
-       write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, pat%npts
-       write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
-       write(unit=i_dat,fmt="(a)") "!     "//trim(pat%scat_var)//"             Y            Sigma "
-       do i=1,pat%npts
-          write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-       end do
-       close(unit=i_dat)
-
-       return
-    End Subroutine Write_Pattern_XYSig
-
-    !!----
     !!---- Subroutine Write_Pattern_FreeFormat(Filename,Pat)
     !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
@@ -3535,5 +3493,96 @@
        close(unit=i_dat)
        return
     End Subroutine Write_Pattern_FreeFormat
+
+    !!----
+    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat)
+    !!----    character (len=*),               intent(in) :: Filename
+    !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!----
+    !!----    Write a pattern in 2-axis format with fixed step (Instrm=5)
+    !!----
+    !!---- Update: 29/04/2011
+    !!
+    Subroutine Write_Pattern_INSTRM5(Filename,Pat)
+       !---- Arguments ----!
+       character (len=*),               intent(in) :: Filename
+       type (diffraction_pattern_type), intent(in) :: Pat
+
+       !---- Local Variables ----!
+       integer   :: i,j,k,np,ier,i_dat
+
+       call init_err_diffpatt()
+       call get_logunit(i_dat)
+       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       if (ier /= 0 ) then
+          Err_diffpatt=.true.
+          ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
+          return
+       end if
+       np=Pat%npts
+
+       Write(unit=i_dat,fmt='(a)') trim(Pat%Title)
+       Write(unit=i_dat,fmt="(a,f10.5)") trim(pat%diff_kind)//" "//trim(pat%scat_var)//", Wavelength (angstroms): ",pat%conv(1)
+       Write(unit=i_dat,fmt="(a)")  "! Npoints TSample  TSetting Variance    Norm-Monitor           Monitor"
+       if(Pat%ymax > 999999999.0) then
+         write(unit=i_dat,fmt="(a,f16.1)") "!  Warning! Maximum number of counts above the allowed format ",Pat%ymax
+         Err_diffpatt=.true.
+         ERR_DiffPatt_Mess=" Too high counts ... format error in the file: "//trim(filename)//" at writing!"
+       end if
+       Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  Pat%npts, Pat%tsamp,Pat%tset, 0,&
+                                                          Pat%Norm_Mon, Pat%Monitor
+       Write(unit=i_dat,fmt="(3F12.5)")  Pat%xmin,Pat%step,Pat%xmax
+       Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(1:np)
+       close(unit=i_dat)
+       return
+    End Subroutine Write_Pattern_INSTRM5
+
+    !!----
+    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat)
+    !!----    character (len=*),               intent(in) :: Filename
+    !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!----
+    !!----    Write a pattern in X,Y,Sigma format
+    !!----
+    !!---- Update: March - 2007
+    !!
+    Subroutine Write_Pattern_XYSig(Filename,Pat)
+       !---- Arguments ----!
+       character (len=*),               intent(in) :: filename
+       type (diffraction_pattern_type), intent(in) :: Pat
+
+       !---- Local Variables ----!
+       integer                                      :: i, ier, i_dat
+
+       call init_err_diffpatt()
+       call get_logunit(i_dat)
+       open(unit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
+       if (ier /= 0 ) then
+          Err_diffpatt=.true.
+          ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)//" for writing!"
+          return
+       end if
+       write(unit=i_dat,fmt="(a)")"XYDATA"
+       write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
+       write(unit=i_dat,fmt="(a)")"COND: "//trim(pat%diff_kind)//"-"//trim(pat%scat_var)//"-"//trim(pat%instr)
+       write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
+       write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsamp,pat%tset
+       if (pat%ct_step) then
+          write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
+          "INTER ", 1.0,1.0,2,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
+       else
+          write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
+          "INTER ", 1.0,1.0,0,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
+       end if
+       write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, pat%npts
+       write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
+       write(unit=i_dat,fmt="(a)") "!     "//trim(pat%scat_var)//"             Y            Sigma "
+       do i=1,pat%npts
+          write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+       end do
+       close(unit=i_dat)
+
+       return
+    End Subroutine Write_Pattern_XYSig
 
  End Module CFML_Diffraction_Patterns
