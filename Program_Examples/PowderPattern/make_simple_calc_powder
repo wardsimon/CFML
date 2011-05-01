@@ -117,7 +117,7 @@ esac
 #
 # Compilation Process
 #
-$COMP $OPT1 simple_calc_powder.f90    $INC
+$COMP $OPT1 Simple_calc_powder.f90    $INC
 case $COMP
 in
   'af95')
