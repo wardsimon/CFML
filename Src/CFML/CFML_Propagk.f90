@@ -102,7 +102,7 @@
     !!----    Type (Group_k_Type),         intent(in) :: SpaceGk
     !!----    logical, optional,           intent(in) :: Friedel
     !!----
-    !!----    Calculate if two real(kind=cp) reflections are equivalent
+    !!----    Calculate if two real reflections are equivalent
     !!----
     !!---- Update: February - 2005
     !!
