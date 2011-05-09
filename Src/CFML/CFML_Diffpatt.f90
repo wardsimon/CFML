@@ -3576,7 +3576,7 @@
        end if
        write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, pat%npts
        write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
-       write(unit=i_dat,fmt="(a)") "!     "//trim(pat%scat_var)//"             Y            Sigma "
+       write(unit=i_dat,fmt="(a,a10,a)") "!     ",pat%scat_var,"        Y          Sigma "
        do i=1,pat%npts
           write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
        end do

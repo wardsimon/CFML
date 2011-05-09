@@ -525,8 +525,8 @@ Module CFML_ILL_Instrm_Data
    !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
    !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
    !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
-   !!----    real(kind=cp)                              :: monitor     !
-   !!----    real(kind=cp)                              :: time        !
+   !!----    real(kind=cp)                              :: monitor     ! Average monitor Sum(Monitors)/nframes
+   !!----    real(kind=cp)                              :: time        ! Total time: sum times of each frame
    !!----    real(kind=cp)                              :: wave        ! wavelength
    !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
    !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
@@ -553,8 +553,8 @@ Module CFML_ILL_Instrm_Data
       character(len=8)                           :: Scantype    ! omega, phi, etc...
       real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
       real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
-      real(kind=cp)                              :: monitor     !
-      real(kind=cp)                              :: time        !
+      real(kind=cp)                              :: monitor     ! Average monitor Sum(Monitors)/nframes
+      real(kind=cp)                              :: time        ! Total time: sum times of each frame
       real(kind=cp)                              :: wave        ! wavelength
       real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
       integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
@@ -1027,7 +1027,9 @@ Module CFML_ILL_Instrm_Data
         if (present(Cal)) correction=.true.
 
         !> Checking dimensions
-        ndet=25
+        ndet=PNumors(1)%nbdata
+        write(*,*) " Number of    numors: ",n
+        write(*,*) " Number of detectors: ",ndet
         npoints=0
         do i=1,n
            if (.not. actlist(i)) cycle
@@ -1054,7 +1056,7 @@ Module CFML_ILL_Instrm_Data
            if (.not. actlist(i) ) cycle
            num=num+1
            if (num == 1 .and. .not. present(vnorm)) cnorm=PNumors(i)%tmc_ang(2,1)  ! Monitor normalization value
-           ind(num)=i                                                            ! Vector for index
+           ind(num)=i                                                              ! Vector for index
            tim=tim+PNumors(i)%time
            np=PNumors(i)%nframes
            do k=1,np
@@ -1152,7 +1154,7 @@ Module CFML_ILL_Instrm_Data
         Pat%y=0.0
         Pat%sigma=0.0
         Pat%nd=0
-
+        fac=1.0 !The calculation below may be wrong ... it is commented
         do nn=1,np
            Pat%x(nn)=xmin+(nn-1)*step
            nc=0
@@ -1176,7 +1178,7 @@ Module CFML_ILL_Instrm_Data
                  call splint(x(1:k,j,i),y(1:k,j,i),d2y(1:k,j,i),k,Pat%x(nn),yfc)
 
                  Pat%y(nn)=Pat%y(nn)+ yfc
-                 fac=cnorm/Pnumors(ind(i))%tmc_ang(2,kk)
+                 !fac=cnorm/Pnumors(ind(i))%tmc_ang(2,kk)
                  if (correction) fac= fac/abs(Cal%effic(1,ndet-j+1))
                  Pat%sigma(nn)=Pat%sigma(nn)+yfc * fac
               end do
@@ -3020,7 +3022,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
        if (index(u_case(n%instrm),'D1A') <=0) then
           err_illdata=.true.
@@ -3071,16 +3073,18 @@ Module CFML_ILL_Instrm_Data
              return
           end if
           i=0
+          n%time=0.0
+          n%monitor=0.0
           do j=1,n%nframes
              n%tmc_ang(1,j)=real(ivalues(i+2))*0.001    ! Time (s)
              n%tmc_ang(2,j)=real(ivalues(i+1))          ! Monitor
              n%tmc_ang(3,j)=real(ivalues(i+3))*0.001    ! Angles
              n%counts(:,j)=real(ivalues(i+5:i+29))
              i=i+29
+             n%time=n%time+n%tmc_ang(1,j)
+             n%monitor=n%monitor+n%tmc_ang(2,j)
           end do
-
-          n%time=n%tmc_ang(1,1)
-          n%monitor=n%tmc_ang(2,1)
+          n%monitor=n%monitor/real(n%nframes)
        end if
 
        return
@@ -3152,7 +3156,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -3238,7 +3242,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (index(u_case(line(1:4)),'D2B') <= 0) then
           err_illdata=.true.
-          err_illdata_mess='This numor does not correspond with D2B Format'
+          err_illdata_mess='This numor does not correspond to D2B Format'
           return
        end if
 
@@ -3250,7 +3254,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -3289,20 +3293,24 @@ Module CFML_ILL_Instrm_Data
        n%tmc_ang=0.0
 
        ! Loading Frames
+       n%monitor=0.0
+       n%time=0.0
        do i=1,n%nframes
 
           !Time/Monitor/Counts/Angles
           call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
           if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
              n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
-             n%tmc_ang(2:3,i)=rvalues(2:3)
-             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+             n%tmc_ang(2:3,i)=rvalues(2:3)   ! Monitor and Total Counts
+             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angles in degrees
+             n%time=n%time+n%tmc_ang(1,i)
+             n%monitor=n%monitor+n%tmc_ang(2,i)
           else
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                               //' parameters in the Frame: '//trim(car)
+                               //' parameters in Frame: '//trim(car)
              return
           end if
 
@@ -3314,13 +3322,14 @@ Module CFML_ILL_Instrm_Data
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
-             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             err_illdata_mess='Problem reading Counts in Frame: '//trim(car)
              return
           end if
           if (nval_i > 0) then
              n%counts(:,i)=ivalues(1:n%nbdata)
           end if
        end do
+       n%monitor=n%monitor/real(n%nframes)
 
        return
     End Subroutine Read_Numor_D2B
@@ -3399,7 +3408,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=u_case(line(1:4))
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -3512,7 +3521,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -3663,7 +3672,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -3814,7 +3823,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title/Sample
@@ -4226,7 +4235,7 @@ Module CFML_ILL_Instrm_Data
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (idum > 0) then
           n%instrm=line(1:4)
-          n%header=line(5:32)
+          n%header=line(5:14)//"   "//line(15:32)
        end if
 
        ! Title
