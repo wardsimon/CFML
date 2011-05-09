@@ -6061,21 +6061,13 @@ Module CFML_ILL_Instrm_Data
            if (iv /= 4) then
               err_illdata=.true.
               err_illdata_mess=' Problems reading active zones for Detectors in D2B Instrument'
-              deallocate(filevar)
-              deallocate(Cal%Active)
-              deallocate(Cal%PosX)
-              deallocate(Cal%Effic)
-              return
+              exit
            end if
 
            if (ivet(1) < 1 .or. ivet(2) > 128 .or. ivet(3) < 129 .or. ivet(4) > 256) then
               err_illdata=.true.
               err_illdata_mess=' Problems reading active zones for Detectors in D2B Instrument'
-              deallocate(filevar)
-              deallocate(Cal%Active)
-              deallocate(Cal%PosX)
-              deallocate(Cal%Effic)
-              return
+              exit
            end if
 
            ! Tube 1
@@ -6089,6 +6081,14 @@ Module CFML_ILL_Instrm_Data
            Cal%Active(k1:k2,j)=.true.
            if (j == Cal%NDet) exit
         end do
+
+        if(err_illdata) then
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
 
         ! Efficiency of each detector
         ini=0
@@ -6110,18 +6110,14 @@ Module CFML_ILL_Instrm_Data
 
         ini=ini+1
         j=0   ! Number of Detector
-        k=0   ! Number of Points into the same Detector
-        eff=0.0
+        k=0   ! Number of Points in the same Detector
+        eff=1.0
         do i=ini,nlines
            call getnum(filevar(i), vet,ivet,iv)
            if (iv <= 0) then
               err_illdata=.true.
               err_illdata_mess=' Problems reading Efficiencies values for Detectors in D2B Instrument'
-              deallocate(filevar)
-              deallocate(Cal%Active)
-              deallocate(Cal%PosX)
-              deallocate(Cal%Effic)
-              return
+              exit
            end if
            select case (iv)
               case (2)
@@ -6129,15 +6125,15 @@ Module CFML_ILL_Instrm_Data
 
                  j=j+1
                  if (mod(j,2) /= 0) then
-                    Cal%Effic(j,:)=eff
+                    Cal%Effic(:,j)=eff  !It was reversed !!! j and k
                  else
                     do k1=1,Cal%NPointsDet
-                       Cal%Effic(j,:)=eff(Cal%NPointsDet-k1+1)
+                       Cal%Effic(k1,j)=eff(Cal%NPointsDet-k1+1) !instead of 'k1' it was written ':' and reversed !!!!!
                     end do
                  end if
 
                  k=0
-                 eff=0.0
+                 eff=1.0
               case (6)
                  eff(k+1:k+iv)=vet(1:iv)
                  k=k+iv
@@ -6145,20 +6141,24 @@ Module CFML_ILL_Instrm_Data
               case default
                  err_illdata=.true.
                  err_illdata_mess=' Problems reading Efficiencies values for Detectors in D2B Instrument'
-                 deallocate(filevar)
-                 deallocate(Cal%Active)
-                 deallocate(Cal%PosX)
-                 deallocate(Cal%Effic)
-                 return
+                 exit
            end select
 
            if (j == Cal%NDet) exit
         end do
 
+        if(err_illdata) then
+           deallocate(filevar)
+           deallocate(Cal%Active)
+           deallocate(Cal%PosX)
+           deallocate(Cal%Effic)
+           return
+        end if
+
         ! Check Mask for Point Detectors from Effic values
-        do i=1,Cal%NDet
-           do j=1, Cal%NPointsDet
-              if (Cal%Effic(j,i) < 0.0) Cal%Active(j,i)=.false.
+        do j=1,Cal%NDet
+           do i=1, Cal%NPointsDet
+              if (Cal%Effic(i,j) < 0.0) Cal%Active(i,j)=.false.
            end do
         end do
 
