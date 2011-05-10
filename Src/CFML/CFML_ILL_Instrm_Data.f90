@@ -3269,9 +3269,9 @@ Module CFML_ILL_Instrm_Data
        if (nval_i > 0) then
           n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
           n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%nframes=ivalues(7)            ! Number of Frames. The same as required in general
           n%icalc=ivalues(9)
-          n%nbdata=ivalues(24)            ! Number of Points
+          n%nbdata=ivalues(24)            ! Total number of points per frame: D2B-> 128x128=16384
           n%icdesc(1:7)=ivalues(25:31)
        end if
 
