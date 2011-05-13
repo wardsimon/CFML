@@ -37,7 +37,7 @@ rem
    lf95 -c CFML_bonds_table.f90      -o0 -nchk   >> out
    lf95 -c CFML_cryst_types.f90      -o1 -nchk   >> out
    lf95 -c CFML_symmetry.f90         -o1 -nchk   >> out
-   lf95 -c CFML_ILL_Instrm_data.f90  -o1 -nchk   >> out
+   lf95 -c CFML_ILL_Instrm_data_LF.f90  -o1 -nchk   >> out
 rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms, SXTAL geometry

@@ -1481,6 +1481,7 @@ Module CFML_ILL_Instrm_Data
         Pat%y=0.0
         Pat%sigma=0.0
         Pat%nd=0
+        Pat%npts=np
 
         do nn=1,np
            Pat%x(nn)=xmin+(nn-1)*step
@@ -3583,9 +3584,14 @@ Module CFML_ILL_Instrm_Data
                    n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
 
                 case (5)
-                   n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
-                   n%tmc_ang(2:3,i)=rvalues(2:3)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
                    n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle
+
+                case (8)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
+                   n%tmc_ang(4:8,i)=rvalues(4:8)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
 
                 case default
                    write(unit=car,fmt='(i5)') i

@@ -33,7 +33,7 @@ CrysFML
 +CFML_magsymm&
 +CFML_msfac&
 +CFML_io_mess&
-+CFML_ILL_Instrm_data&
++CFML_ILL_Instrm_data_LF&
 +CFML_SXTAL_geom&
 +f2kcli
 crysfml.lst

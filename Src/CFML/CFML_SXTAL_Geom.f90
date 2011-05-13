@@ -1828,17 +1828,30 @@
     !!---
     !!---- Update: July 2008
     !!
-    Subroutine Set_PSD()
+    Subroutine Set_PSD(dist,cg,ag,nh,nv,ip)
+       real,   optional, intent(in) :: dist,cg,ag
+       integer,optional, intent(in) :: nh,nv,ip
 
-       psd%xoff   = Current_Instrm%det_offsets(1)
-       psd%yoff   = Current_Instrm%det_offsets(2)
-       psd%zoff   = Current_Instrm%det_offsets(3)
-       psd%radius = Current_Instrm%dist_samp_detector
-       psd%cgap   = Current_Instrm%cgap
-       psd%agap   = Current_Instrm%agap
-       psd%ncat   = Current_Instrm%np_horiz
-       psd%nano   = Current_Instrm%np_vert
-       psd%ipsd   = Current_Instrm%ipsd
+       if(present(dist) .and. present(cg) .and. present(ag) .and. present(nh) &
+                        .and. present(nv) .and. present(ip)) then
+          psd%xoff   = 0.0; psd%yoff=0.0; psd%zoff=0.0
+          psd%radius = dist
+          psd%cgap   = cg
+          psd%agap   = ag
+          psd%ncat   = nh
+          psd%nano   = nv
+          psd%ipsd   = ip
+       else
+          psd%xoff   = Current_Instrm%det_offsets(1)
+          psd%yoff   = Current_Instrm%det_offsets(2)
+          psd%zoff   = Current_Instrm%det_offsets(3)
+          psd%radius = Current_Instrm%dist_samp_detector
+          psd%cgap   = Current_Instrm%cgap
+          psd%agap   = Current_Instrm%agap
+          psd%ncat   = Current_Instrm%np_horiz
+          psd%nano   = Current_Instrm%np_vert
+          psd%ipsd   = Current_Instrm%ipsd
+       end if
        psd_set    = .true.
 
        return
