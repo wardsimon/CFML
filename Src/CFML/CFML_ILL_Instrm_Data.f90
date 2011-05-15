@@ -3486,6 +3486,7 @@ Module CFML_ILL_Instrm_Data
        character(len=5)                             :: car
        integer                                      :: i,nlines
        integer                                      :: numor,idum
+       logical                                      :: check_qscan
 
        err_illdata=.false.
 
@@ -3530,7 +3531,9 @@ Module CFML_ILL_Instrm_Data
        if (idum > 0) then
           n%title=trim(line(1:60))
           n%scantype=trim(line(73:))
+          if(len_trim(n%scantype) == 0) n%scantype='q-scan'
        end if
+       check_qscan=.false.
 
        ! Control Flags
        call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
@@ -3581,17 +3584,18 @@ Module CFML_ILL_Instrm_Data
                 case (4)
                    n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
                    n%tmc_ang(2:3,i)=rvalues(2:3)
-                   n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
+                   n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle (that of the scan ..)
 
                 case (5)
                    n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
                    n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
-                   n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle
+                   n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle (gamma omega?)
 
                 case (8)
                    n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
                    n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
                    n%tmc_ang(4:8,i)=rvalues(4:8)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
+                   check_qscan=.true.
 
                 case default
                    write(unit=car,fmt='(i5)') i
@@ -3616,7 +3620,9 @@ Module CFML_ILL_Instrm_Data
              n%counts(:,i)=ivalues(1:n%nbdata)
           end if
        end do
-
+       if(check_qscan) then
+         n%scantype='q-scan'
+       end if
        return
     End Subroutine Read_Numor_D9
 
@@ -3686,6 +3692,7 @@ Module CFML_ILL_Instrm_Data
        if (idum > 0) then
           n%title=trim(line(1:60))
           n%scantype=trim(line(73:))
+          if(len_trim(n%scantype) == 0) n%scantype='q-scan'
        end if
 
        ! Control Flags

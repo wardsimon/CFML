@@ -13,11 +13,17 @@ rem
 rem
 :CONT
    cd .\scripts\windows
+   if x%2 == xwin goto WIN
    call make_crysfml %1
    if x%2 == xall goto ALL
    if x%2 == xrw  goto RW
    goto END
 :ALL
+   if x%1 == xlf95 call make_crysfml %1 rwin
+   call make_crysfml %1 win
+   call make_crysfgl %1
+   goto END
+:WIN
    if x%1 == xlf95 call make_crysfml %1 rwin
    call make_crysfml %1 win
    call make_crysfgl %1

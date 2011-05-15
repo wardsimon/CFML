@@ -604,17 +604,18 @@
 
     !!----
     !!---- Subroutine cell_fr_UB(ub,ipr,dcel,rcel)
-    !!----    real(kind=cp),Dimension(3,3), Intent(In) :: ub
-    !!----    Integer,             Intent(In) :: ipr
+    !!---- real(kind=cp),Dimension(3,3),         Intent(In) :: ub
+    !!---- Integer, optional,                    Intent(In)  :: ipr
+    !!---- real(kind=cp),Dimension(6), optional, Intent(out) :: dcel,rcel
     !!----
     !!----    Calculate and print cell parameters from UB-matrix
     !!----
-    !!---- Update: April 2008
+    !!---- Update: May 2011
     !!
     Subroutine cell_fr_UB(ub,ipr,dcel,rcel)
        !---- Arguments ----!
        real(kind=cp),Dimension(3,3),         Intent(In)  :: ub
-       Integer,                              Intent(In)  :: ipr
+       Integer, optional,                    Intent(In)  :: ipr
        real(kind=cp),Dimension(6), optional, Intent(out) :: dcel,rcel
 
        !--- Local Variables ---!
@@ -651,33 +652,34 @@
          rcel(1:3)=cala
          rcel(4:6)=calang
        end if
-       !.....Now invert UB to obtain the hkl's along the orthogonal diffractometer axes
-       ubinv=invert(ub)
-       Write(Unit=ipr,Fmt="(/,a)")                " => Parameters deduced from the UB matrix "
-       Write(Unit=ipr,Fmt="(a,3f12.5,tr4,3f9.4)") " => Direct     cell dimensions: ",acal,angcal
-       Write(Unit=ipr,Fmt="(a,3f12.8,tr4,3f9.4)") " => Reciprocal cell dimensions: ",cala,calang
-       Write(Unit=ipr,Fmt="(/,a,/)") " =>  Inverse of UB-Matrix "
-       Write(Unit=ipr,Fmt="(a)")            "             X(PH=0,CH=0)  Y(PH=90,CH=0)    Z(CHI=90)"
-       Write(Unit=ipr,Fmt="(a,3f14.8)")     "          H",ubinv(1,:)
-       Write(Unit=ipr,Fmt="(a,3f14.8)")     "          K",ubinv(2,:)
-       Write(Unit=ipr,Fmt="(a,3f14.8)")     "          L",ubinv(3,:)
-       !.....Now calculate angles between recip axes and orthogonal diffract. axes
-       Do  i=1,3
-         Do  j=1,3
-           x = ub(i,j)/cala(j)
-           If (x > 1.0) Then
-              Write (ipr,"(a,3e12.4)") " Error x >1.0! Values of x,ub,acal: ",x,ub(i,j),acal(i)
-           Else
-             angle(i,j) = acosd(x)
-           End If
+       if(present(ipr)) then
+         !.....Now invert UB to obtain the hkl's along the orthogonal diffractometer axes
+         ubinv=invert(ub)
+         Write(Unit=ipr,Fmt="(/,a)")                " => Parameters deduced from the UB matrix "
+         Write(Unit=ipr,Fmt="(a,3f12.5,tr4,3f9.4)") " => Direct     cell dimensions: ",acal,angcal
+         Write(Unit=ipr,Fmt="(a,3f12.8,tr4,3f9.4)") " => Reciprocal cell dimensions: ",cala,calang
+         Write(Unit=ipr,Fmt="(/,a,/)") " =>  Inverse of UB-Matrix "
+         Write(Unit=ipr,Fmt="(a)")            "             X(PH=0,CH=0)  Y(PH=90,CH=0)    Z(CHI=90)"
+         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          H",ubinv(1,:)
+         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          K",ubinv(2,:)
+         Write(Unit=ipr,Fmt="(a,3f14.8)")     "          L",ubinv(3,:)
+         !.....Now calculate angles between recip axes and orthogonal diffract. axes
+         Do  i=1,3
+           Do  j=1,3
+             x = ub(i,j)/cala(j)
+             If (x > 1.0) Then
+                Write (ipr,"(a,3e12.4)") " Error x >1.0! Values of x,ub,acal: ",x,ub(i,j),acal(i)
+             Else
+               angle(i,j) = acosd(x)
+             End If
+           End Do
          End Do
-       End Do
-       Write(Unit=ipr,Fmt="(/,a)")"    With all diffractometer angles set to 0, the angles between the "
-       Write(Unit=ipr,Fmt="(a)")  "    reciprocal (A*,B*,C*) and diffractometer (X,Y,Z) axes are ..."
-       Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-X  B*-X  C*-X)  (",angle(1,:),")"
-       Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-Y  B*-Y  C*-Y)  (",angle(2,:),")"
-       Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-Z  B*-Z  C*-Z)  (",angle(3,:),")"
-
+         Write(Unit=ipr,Fmt="(/,a)")"    With all diffractometer angles set to 0, the angles between the "
+         Write(Unit=ipr,Fmt="(a)")  "    reciprocal (A*,B*,C*) and diffractometer (X,Y,Z) axes are ..."
+         Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-X  B*-X  C*-X)  (",angle(1,:),")"
+         Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-Y  B*-Y  C*-Y)  (",angle(2,:),")"
+         Write(Unit=ipr,Fmt="(a,3f12.4,a)") "    (A*-Z  B*-Z  C*-Z)  (",angle(3,:),")"
+       end if
        Return
     End Subroutine cell_fr_UB
 
@@ -1481,16 +1483,16 @@
     End Subroutine Get_z1_D9angls
 
     !!----
-    !!---- Subroutine Get_z1_from_pixel(npx,npz,snum,z1)
-    !!----    integer,                intent(in)  :: npx,npz
+    !!---- Subroutine Get_z1_from_pixel(npx,npz,ifr,snum,z1)
+    !!----    integer,                intent(in)  :: npx,npz,ifr (pixel and frame)
     !!----    type(SXTAL_Numor_type), intent(in)  :: snum
     !!----    real(kind=cp), dimension(3),     intent(out) :: z1
     !!----
-    !!---- Update: April 2008
+    !!---- Update: May 2011
     !!
-    Subroutine Get_z1_from_pixel(npx,npz,snum,z1)
+    Subroutine Get_z1_from_pixel(npx,npz,ifr,snum,z1)
        !---- Arguments ----!
-       integer,                      intent(in)  :: npx,npz
+       integer,                      intent(in)  :: npx,npz,ifr
        type(SXTAL_Numor_type),       intent(in)  :: snum
        real(kind=cp), dimension(3),  intent(out) :: z1
 
@@ -1499,10 +1501,21 @@
        real(kind=cp)  :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
        mpsd  = 1  !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
-       phim  = snum%angles(1)
-       chim  = snum%angles(2)
-       omem  = snum%angles(3)
-       gamm  = snum%angles(4)
+      phim  = snum%angles(1)  !Angles corresponding to hmin,kmin,lmin
+      chim  = snum%angles(2)
+      omem  = snum%angles(3)
+      gamm  = snum%angles(4)
+      if(snum%scantype == 'omega') then
+         omem  = snum%tmc_ang(4,ifr)
+      else if(snum%scantype == 'phi') then
+         phim  = snum%tmc_ang(4,ifr)
+      else if(snum%scantype == 'q-scan') then  ! Angles: gamma, omega, Chi,phi, psi?
+         gamm  = snum%tmc_ang(4,ifr)
+         omem  = snum%tmc_ang(5,ifr)
+         chim  = snum%tmc_ang(6,ifr)
+         phim  = snum%tmc_ang(7,ifr)
+      end if
+
        anod  = npx
        cath  = npz
        wave  = Current_Orient%wave
