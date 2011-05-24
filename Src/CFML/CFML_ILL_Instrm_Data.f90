@@ -1203,23 +1203,24 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Adding_Numors_D1A_DiffPattern
 
     !!----
-    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor)
-    !!----    type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
-    !!----    integer,                             intent(in) :: N          ! Number of Numors
-    !!----    logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
-    !!----    type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
+    !!---- Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,Cal)
+    !!----    type(Powder_Numor_Type),dimension(:),      intent(in) :: PNumors    ! Powder Numors Vector
+    !!----    integer,                                   intent(in) :: N          ! Number of Numors
+    !!----    logical,                dimension(:),      intent(in) :: ActList    ! Active List to considering if Add
+    !!----    type (Powder_Numor_Type),                  intent(out):: Numor      ! Final Numor
+    !!----    type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
     !!----
     !!---- Adding Numors from D1B and D20 Instrument
     !!----
     !!---- 30/04/2011
     !!
-    Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor)
+    Subroutine Adding_Numors_D1B_D20(PNumors,N,ActList,Numor,Cal)
         !---- Arguments ----!
-        type(Powder_Numor_Type),dimension(:),intent(in) :: PNumors    ! Powder Numors Vector
-        integer,                             intent(in) :: N          ! Number of Numors
-        logical,                dimension(:),intent(in) :: ActList    ! Active List to considering if Add
-        type (Powder_Numor_Type),            intent(out):: Numor      ! Final Numor
-
+        type(Powder_Numor_Type),dimension(:),      intent(in) :: PNumors    ! Powder Numors Vector
+        integer,                                   intent(in) :: N          ! Number of Numors
+        logical,                dimension(:),      intent(in) :: ActList    ! Active List to considering if Add
+        type (Powder_Numor_Type),                  intent(out):: Numor      ! Final Numor
+        type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
         !---- Local Variables ----!
         logical :: adding, done
         integer :: i,num
@@ -1305,7 +1306,11 @@ Module CFML_ILL_Instrm_Data
            num=num+1
            numor%monitor=numor%monitor+PNumors(i)%monitor
            numor%time=numor%time+PNumors(i)%time
-           numor%counts(:,1)=numor%counts(:,1)+PNumors(i)%counts(:,1)
+           if(present(cal)) then
+             numor%counts(:,1)=numor%counts(:,1)+PNumors(i)%counts(:,1)/cal%effic(1,:)
+           else
+             numor%counts(:,1)=numor%counts(:,1)+PNumors(i)%counts(:,1)
+           end if
         end do
 
         return
@@ -2370,8 +2375,11 @@ Module CFML_ILL_Instrm_Data
 
        select case (trim(inst))
           case ('D1B','D20')
-
-             call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
+             if(present(cal)) then
+               call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,Cal)
+             else
+               call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
+             end if
              if (present(VNorm)) then
                 call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm)
              else
@@ -4251,6 +4259,7 @@ Module CFML_ILL_Instrm_Data
           n%header=line(5:14)//"   "//line(15:32)
        end if
 
+
        ! Title
        call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
        if (idum > 0) then
@@ -4259,6 +4268,11 @@ Module CFML_ILL_Instrm_Data
           if (i > 0) then
              n%title=line(i+7:j-2)
              n%title=trim(n%title)
+          end if
+          i=index(line,'SAMPLE             :')
+          j=index(line,'Experimentalist')
+          if( i > 0) then
+             n%title=trim(line(i+20:j-2))//"--"//trim(n%title)
           end if
        end if
 
@@ -5854,6 +5868,9 @@ Module CFML_ILL_Instrm_Data
            case ('D4')
               call Read_Calibration_File_D4(FileCal,Cal)
 
+           case ('D20')
+              call Read_Calibration_File_D20(FileCal,Cal)
+
            case default
               err_illdata=.true.
               err_illdata_mess=' Problems reading Calibration File for '//trim(Instrm)//' Instrument'
@@ -6180,6 +6197,77 @@ Module CFML_ILL_Instrm_Data
 
         return
     End Subroutine Read_Calibration_File_D2B
+
+    !!--++
+    !!--++ Subroutine Read_Calibration_File_D20(FileCal,Cal)
+    !!--++    character(len=*), intent(in)                 :: FileCal    ! Path+Filename of Calibration File
+    !!--++    type(calibration_detector_type), intent(out) :: Cal        ! Calibration Detector Object
+    !!--++
+    !!--++ Load the Calibration parameters for D20 Instrument
+    !!--++
+    !!--++ 16/05/2011
+    !!
+    Subroutine Read_Calibration_File_D20(FileCal,Cal)
+        !---- Arguments ----!
+        character(len=*), intent(in)                 :: FileCal
+        type(calibration_detector_type), intent(out) :: Cal
+
+        !---- Local Variables ----!
+        character(len=160)               :: txt
+        integer                          :: i,lun, ier
+
+        ! Init
+        err_illdata=.false.
+        err_illdata_mess=' '
+
+        set_calibration_detector=.false.
+
+        Call Get_LogUnit(lun)
+        open(unit=lun,file=trim(FileCal),status='old',action="read",position="rewind",iostat=ier)
+        if (ier /= 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problems reading Calibration File for D20 Instrument'
+           return
+        end if
+        read(unit=lun,fmt="(a)") txt  !First line is a text indentifying the file
+
+        ! Load Information on Cal Object
+        Cal%Name_Instrm='D20'
+        Cal%NDet=1600
+        Cal%NPointsDet=1
+        if (allocated(Cal%Active)) deallocate(Cal%Active)
+        if (allocated(Cal%PosX))   deallocate(Cal%PosX)
+        if (allocated(Cal%Effic))  deallocate(Cal%Effic)
+
+        allocate(Cal%PosX(Cal%NDet))
+        allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
+        allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
+
+        Cal%Active=.true.
+        Cal%PosX=0.0
+        Cal%Effic=1.0
+        read(unit=lun,fmt=*,iostat=ier) Cal%PosX(1:1600)
+        if(ier /= 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problem reading cell positions of D20 detector'
+           return
+        end if
+        read(unit=lun,fmt=*,iostat=ier) Cal%Effic(1,1:1600)
+        if(ier /= 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problem reading efficiencies of D20 detector'
+           return
+        end if
+
+        ! Mask for Points to be used or not
+        do i=1,Cal%NDet
+           if (Cal%Effic(1,i) < 0.0)  Cal%Active(1,i)=.false.
+        end do
+
+        set_calibration_detector =.true.
+
+        return
+    End Subroutine Read_Calibration_File_D20
 
     !!--++
     !!--++ Subroutine Read_Calibration_File_D4(FileCal,Cal)

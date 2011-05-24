@@ -1970,10 +1970,6 @@
        integer :: jl, ju, jm
 
        jl=0
-
-       ! Check limits
-       if (x < xx(1) .or. x > xx(n)) return
-
        ju=n+1
        do
           if(ju-jl <= 1) exit
@@ -2015,10 +2011,6 @@
        integer :: jl, ju, jm
 
        jl=0
-
-       ! Check limits
-       if (x < xx(1) .or. x > xx(n)) return
-
        ju=n+1
        do
           if(ju-jl <= 1) exit
