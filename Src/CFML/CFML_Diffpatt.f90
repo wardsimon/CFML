@@ -3509,7 +3509,7 @@
        type (diffraction_pattern_type), intent(in) :: Pat
 
        !---- Local Variables ----!
-       integer   :: i,j,k,np,ier,i_dat
+       integer   :: np,ier,i_dat
 
        call init_err_diffpatt()
        call get_logunit(i_dat)
