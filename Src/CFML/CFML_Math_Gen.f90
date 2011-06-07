@@ -82,7 +82,9 @@
 !!--++       IMINLOC_R                 [OVerloaded]
 !!----       LOCATE
 !!--++       LOCATE_I                  [Overloaded]
+!!--++       LOCATE_IB                  [Overloaded]
 !!--++       LOCATE_R                  [Overloaded]
+!!--++       LOCATE_RB                 [Overloaded]
 !!----       MODULO_LAT
 !!----       NORM
 !!--++       NORM_I                    [Overloaded]
@@ -195,7 +197,7 @@
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
                Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
                ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
-               Norm_I, Norm_R, Scalar_I, Scalar_R
+               Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
@@ -445,6 +447,8 @@
     Interface  Locate
        Module Procedure Locate_I
        Module Procedure Locate_R
+       Module Procedure Locate_Ib
+       Module Procedure Locate_Rb
     End Interface
 
     Interface Norm
@@ -1930,6 +1934,9 @@
 
     !!----
     !!---- Function Locate(xx, n, x) Result(j)
+    !!----     or
+    !!---- Function Locate(xx,x) Result(j)
+    !!----
     !!----    integer/real(kind=sp), dimension(n),intent(in)  :: xx
     !!----    integer ,                           intent(in)  :: n
     !!----    integer/real(kind=sp),              intent(in)  :: x
@@ -1941,7 +1948,7 @@
     !!----               XX(J) <= X < XX(J+1)
     !!-->>
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: June - 2011
     !!
 
     !!--++
@@ -1957,7 +1964,7 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: June - 2011
     !!
     Function Locate_I(xx,n,x) Result(j)
        !---- Argument ----!
@@ -1969,6 +1976,14 @@
        !---- Local Variables ----!
        integer :: jl, ju, jm
 
+       if(x <= xx(1)) then
+         j=1
+         return
+       end if
+       if(x >= xx(n)) then
+         j=n
+         return
+       end if
        jl=0
        ju=n+1
        do
@@ -1984,7 +1999,56 @@
 
        return
     End Function Locate_I
+    !!--++
+    !!--++ Function Locate_Ib(xx, x) Result(j)
+    !!--++    integer, dimension(:),intent(in)  :: xx
+    !!--++    integer,              intent(in)  :: x
+    !!--++    integer ,             intent(out) :: j
+    !!--++
+    !!--++    Subroutine for locating the index J of an array XX(:)
+    !!--++    satisfying:
+    !!--++
+    !!--++               XX(J) <= X < XX(J+1)
+    !!--++
+    !!--++
+    !!--++ Update: June - 2011
+    Function Locate_Ib(xx,x) Result(j)
+       !---- Argument ----!
+       integer, dimension(:), intent(in):: xx
+       integer,               intent(in):: x
+       integer                          :: j
 
+       !---- Local Variables ----!
+       integer :: jl, ju, jm, i1,i2
+       integer, dimension(1) :: mi
+
+       mi=lbound(xx)
+       i1=mi(1)
+       mi=ubound(xx)
+       i2=mi(1)
+
+       if(x <= xx(i1)) then
+         j=i1
+         return
+       end if
+       if(x >= xx(i2)) then
+         j=i2
+         return
+       end if
+       jl=i1-1
+       ju=i2+1
+       do
+          if(ju-jl <= 1) exit
+          jm=(ju+jl)/2
+          if ((xx(i2) > xx(i1)) .eqv. (x > xx(jm))) then
+             jl=jm
+          else
+             ju=jm
+          end if
+       end do
+       j=jl
+       return
+    End Function Locate_Ib
     !!--++
     !!--++ Function Locate_R(xx, n, x) Result(j)
     !!--++    real(kind=cp), dimension(:),intent(in)  :: xx
@@ -1998,7 +2062,7 @@
     !!--++               XX(J) <= X < XX(J+1)
     !!--++
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: June - 2011
     !!
     Function Locate_R(xx,n,x) Result(j)
        !---- Argument ----!
@@ -2010,6 +2074,14 @@
        !---- Local Variables ----!
        integer :: jl, ju, jm
 
+       if(x <= xx(1)) then
+         j=1
+         return
+       end if
+       if(x >= xx(n)) then
+         j=n
+         return
+       end if
        jl=0
        ju=n+1
        do
@@ -2025,6 +2097,59 @@
 
        return
     End Function Locate_R
+
+    !!--++
+    !!--++ Function Locate_Rb(xx, x) Result(j)
+    !!--++    real(kind=cp), dimension(:),intent(in)  :: xx
+    !!--++    real(kind=cp),              intent(in)  :: x
+    !!--++    integer ,                   intent(out) :: j
+    !!--++
+    !!--++    Function for locating the index J of an array XX(:)
+    !!--++    satisfying:
+    !!--++
+    !!--++               XX(J) <= X < XX(J+1)
+    !!--++
+    !!--++
+    !!--++ Update: June - 2011
+    !!
+    Function Locate_Rb(xx,x) Result(j)
+       !---- Argument ----!
+       real(kind=cp), dimension(:), intent(in):: xx
+       real(kind=cp),               intent(in):: x
+       integer                                :: j
+
+       !---- Local Variables ----!
+       integer :: jl, ju, jm, i1,i2
+       integer, dimension(1) :: mi
+
+       mi=lbound(xx)
+       i1=mi(1)
+       mi=ubound(xx)
+       i2=mi(1)
+
+       if(x <= xx(i1)) then
+         j=i1
+         return
+       end if
+       if(x >= xx(i2)) then
+         j=i2
+         return
+       end if
+       jl=i1-1
+       ju=i2+1
+       do
+          if(ju-jl <= 1) exit
+          jm=(ju+jl)/2
+          if ((xx(i2) > xx(i1)) .eqv. (x > xx(jm))) then
+             jl=jm
+          else
+             ju=jm
+          end if
+       end do
+       j=jl
+
+       return
+    End Function Locate_Rb
 
     !!----
     !!---- Function Modulo_Lat(U)
