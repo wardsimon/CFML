@@ -719,9 +719,7 @@
        write (unit=jbvs, fmt='(a)') " BVS "
        write (unit=jbvs, fmt='(3f12.4,3x,3f8.3)') cell%cell,cell%ang
        write (unit=jbvs, fmt='(9i6)') ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
-       do k=1,ndimz
-          write(unit=jbvs,fmt='(8g10.5)') ((map_bvs(k,i,j),i=1,ndimx),j=1,ndimy)
-       end do
+       write(unit=jbvs,fmt='(8g12.5)') map_bvs
        close(unit=jbvs)
 
        !---- End Procedure ----!
