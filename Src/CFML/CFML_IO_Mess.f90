@@ -63,7 +63,8 @@
        Logical,               Intent(In), Optional :: Fatal
 
        !---- Local Variables ----!
-       Integer :: Lun, Lenm, Lenr
+       Integer          :: Lun, Lenm, Lenr
+       character(len=1) :: ent
 
        Lun = 6
        If (Present(Iunit)) Lun = Iunit
@@ -79,7 +80,8 @@
        If (Present(Fatal)) Then
            If (Fatal) Then
                Write(Unit = Lun, Fmt = "(A)") " => Fatal error: the program stops here."
-               Write(Unit = Lun, Fmt = "(A/)")"    ****"
+               Write(Unit= *, Fmt="(/,a)") " => Press <enter> to finish "
+               Read (Unit= *, Fmt="(a)") ent
                Stop
            End If
        End If

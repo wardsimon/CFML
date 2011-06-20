@@ -3003,7 +3003,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D1A Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D1A Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3125,7 +3125,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D1B Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D1B Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3234,7 +3234,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D2B Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D2B Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3375,7 +3375,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D4 Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D4 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3502,7 +3502,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D9 Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D9 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3663,7 +3663,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D10 Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D10 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3815,7 +3815,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D19 Instrument'
+          err_illdata_mess=' Problems trying to read the Numor for D19 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -3956,7 +3956,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the numor for D20 Instrument'
+          err_illdata_mess=' Problems trying to read the numor for D20 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -4219,7 +4219,7 @@ Module CFML_ILL_Instrm_Data
        call Number_Lines(fileinfo,nlines)
        if (nlines <=0) then
           err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the numor for D20 Instrument'
+          err_illdata_mess=' Problems trying to read the numor for D20 Instrument in file '//trim(fileinfo)
           return
        end if
 
@@ -4924,7 +4924,7 @@ Module CFML_ILL_Instrm_Data
               if (Instrm_directory(i:i) /= ops_sep) Instrm_directory=trim(Instrm_directory)//ops_sep
            else
               ERR_ILLData=.true.
-              ERR_ILLData_Mess="A working directory was empty"
+              ERR_ILLData_Mess="Provided working directory string is empty"
               return
            end if
        else
