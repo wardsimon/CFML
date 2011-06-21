@@ -1169,7 +1169,7 @@
     !!----    character (len=*), intent(out) :: Basename ! Out -> The final component of the input pathname
     !!----
     !!----
-    !!---- Update: January - 2010
+    !!---- Update: June - 2011  (JRC correction)
     !!
     Subroutine Get_Basename(Filename,ChSep,Basename)
        !---- Argument ----!
@@ -1183,7 +1183,7 @@
        i = Index(Filename, trim(ChSep), Back = .True.)
 
        If (i > 0) Then
-           Basename = Filename(1:I-1)
+           Basename = Filename(I+1:)     ! It was written like (1:I-1) which is just the path!!!!!
        Else
            Basename = Filename
        End If
