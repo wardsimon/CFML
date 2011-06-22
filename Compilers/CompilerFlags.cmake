@@ -10,7 +10,7 @@ IF(${COMPILER_NAME} STREQUAL ifort)
     
 ELSEIF(${COMPILER_NAME} STREQUAL g95)
 
-    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-O0 -std=f2003 -ftrace=full")
+    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT  "-O0 -std=f2003 -ftrace=full")
     SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O3 -std=f2003 -funroll-loops -msse2")
 
 ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
