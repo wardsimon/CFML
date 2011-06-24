@@ -11,7 +11,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # Set the project name and its associated language.
 PROJECT(crysfml Fortran)
 
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
 ADD_SUBDIRECTORY(Src)
 

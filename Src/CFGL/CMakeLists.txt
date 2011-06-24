@@ -23,8 +23,11 @@ SET(crysfgl_LIB_SRCS
     WCFGL_Trackball.f90
 )
 
+INCLUDE_DIRECTORIES(${LIB_PATH}/LibC)
+
 # A static version of crysfgl will be built.
 ADD_LIBRARY(wcrysfgl STATIC ${crysfgl_LIB_SRCS})
+TARGET_LINK_LIBRARIES(wcrysfgl crysfml_common)
 
 # Set the path where the crysfgl library and their associated mod files will be stored.
 SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibGL)

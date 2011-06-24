@@ -158,6 +158,8 @@ SET_TARGET_PROPERTIES(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/Li
 # Set the path where the crysfml and wcrysfml libraries and their associated mod files will be stored.
 IF(${WINDOW})
 
+    INCLUDE_DIRECTORIES(${LIB_PATH}/LibC)
+    
     ADD_LIBRARY(wcrysfml STATIC ${crysfml_WINDOW_LIB_SRCS} ${COMMON_OBJS_FILES})
     TARGET_LINK_LIBRARIES(wcrysfml crysfml_common)
 
@@ -228,6 +230,5 @@ ELSEIF(${COMPILER_NAME} STREQUAL lf95)
         ENDIF()
 
     ENDIF()
-
 
 ENDIF()
