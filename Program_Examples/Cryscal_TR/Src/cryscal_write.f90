@@ -406,7 +406,7 @@ end subroutine write_molecular_features
 
 !-----------------------------------------------------------------------------------------------------
 subroutine write_REF(input_string)
- USE cryscal_module, ONLY: keyword_create_CIF, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_XCALIBUR, SADABS
+ USE cryscal_module, ONLY: keyword_create_CIF, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_XCALIBUR, EVAL, SADABS
  USE IO_module,      ONLY: write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string
@@ -456,6 +456,7 @@ subroutine write_REF(input_string)
    call write_info("#----------------------------------------------------------------------------#")
    call write_info("#                   DATA COLLECTION                                          #")
    call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
    call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_APEX%diffrn_measurement_device_type))
    call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_APEX%diffrn_measurement_method))
    call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_APEX%diffrn_radiation_wavelength))
@@ -478,9 +479,15 @@ subroutine write_REF(input_string)
    call write_info("#                   COMPUTER PROGRAMS USED                                   #")
    call write_info("#----------------------------------------------------------------------------#")
    call write_info("")
-   call write_info("_computing_data_collection      "//trim(CIF_parameter_KCCD%computing_data_collection))
-   call write_info("_computing_cell_refinement      "//trim(CIF_parameter_KCCD%computing_cell_refinement))
-   call write_info("_computing_data_reduction       "//trim(CIF_parameter_KCCD%computing_data_reduction))
+   !call write_info("_computing_data_collection      "//trim(CIF_parameter_KCCD%computing_data_collection))
+   !call write_info("_computing_cell_refinement      "//trim(CIF_parameter_KCCD%computing_cell_refinement))
+   !call write_info("_computing_data_reduction       "//trim(CIF_parameter_KCCD%computing_data_reduction))
+   
+   call write_info("_computing_data_collection      "//trim(EVAL%data_collection))
+   call write_info("_computing_cell_refinement      "//trim(EVAL%cell_refinement))
+   call write_info("_computing_data_reduction       "//trim(EVAL%data_collection))
+   
+   
    call write_info("")
   endif
 

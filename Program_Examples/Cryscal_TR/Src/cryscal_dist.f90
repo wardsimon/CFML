@@ -298,7 +298,7 @@ end subroutine scalar_product
     
    end do
    close(unit=55) 
-   call system("del bond_str.out")
+   !call system("del bond_str.out")
 
   ! ---------------------------------------------------------------------
   
@@ -579,7 +579,8 @@ end subroutine calcul_connect
 
             n_ini=1
             dis_ini=disbond(indx(n_ini))
-            do i=2,n_dis
+            !do i=2,n_dis
+			do i=n_ini, n_dis   ! modif. TR 19.04.2011
                if (abs(disbond(indx(i))-dis_ini) <= 0.001) then
                   if (i < n_dis) cycle
                   write(unit=lun,fmt='(3x,i3,12x,f12.4)') i-n_ini+1,disbond(indx(n_ini))

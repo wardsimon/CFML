@@ -418,8 +418,8 @@ subroutine create_FST_file(input_file, extension)
    if(atom_Zr .and. atom_Se) WRITE(4, '(a)')   'CONN ZN  SE  0.   2.6 RADIUS 1.'
    
  
-   WRITE(4, '(a)') '!MOLECULE'
-   WRITE(4, '(a)') '!CONN Ni1 O 0. 2.3   POLY Ni1   COLOR 1 1 0 0.5'
+   WRITE(4, '(a)') '!MOLECULE'   
+   WRITE(4, '(a)') '!CONN Ni O 0. 2.3'
    WRITE(4, '(a)') '!POLY Ni1 COLOR 1 1 0 0.5'
    
   close (UNIT=4)

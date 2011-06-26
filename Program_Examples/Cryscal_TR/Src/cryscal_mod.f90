@@ -8,7 +8,7 @@ module hkl_module
  integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
  INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
  INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
- 
+
 
  !type, public :: reflexion_type
  ! integer,             dimension(:),   allocatable   :: h,k,l, code
@@ -67,7 +67,7 @@ module hkl_module
  LOGICAL                                   :: search_H_string
  LOGICAL                                   :: search_equiv
  LOGICAL                                   :: search_friedel
- 
+
 
 
  type, public :: HKL_file_features
@@ -117,14 +117,14 @@ module cryscal_module
  !USE CFML_Math_General,              ONLY  : sp
  !USE  CFML_Constants,                 ONLY : sp
  USE CFML_GlobalDeps,                 ONLY : sp
- 
+
  USE HKL_module, only : max_ref
 
 
 
   implicit none
-  
-  character (len=256), parameter               :: cryscal_version = 'Feb. 2011'
+
+  character (len=256), parameter               :: cryscal_version = 'June 2011'
   character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX - Rennes)'
   character (LEN=256)                          :: cryscal_ini
   character (LEN=256)                          :: winplotr_exe
@@ -196,13 +196,13 @@ module cryscal_module
   character (len=6),  dimension(500)           :: atom1_dist, atom2_dist  ! label de l'atome 1 et de l'atome 2 pour calculer la distance entre 1 et 2
   character (LEN=6),  DIMENSION(500)           :: atom1_ang,  atom2_ang,  atom3_ang, atom4_ang   ! labels des atomes 1,2,3 et 4 pour calculaer les angles
   character (len=6),  dimension(500, 100)      :: atom_bary               ! labels des atomes pour le calcul du barycentre
-  
+
   TYPE, PUBLIC :: ATOM_CONN_type                         ! caracteristiques de l'atome pour le calcul de la connectivité
-   character (len=6)     :: label                        ! label 
+   character (len=6)     :: label                        ! label
    character (len=6)     :: type                         ! type
   end type ATOM_CONN_type
   type (ATOM_CONN_TYPE) :: ATOM_CONN
-  
+
   REAL,               dimension(3,3)           :: MAT                     ! composantes de la matrice de transformation 3*3
   REAL,               dimension(3,3)           :: MAT_inv                 ! composantes de la matrice inverse
   REAL,               DIMENSION(3,3)           :: Mit                     ! composantes de la matrice inverse transposee
@@ -227,9 +227,12 @@ module cryscal_module
   CHARACTER (LEN=256)                          :: X_file_name             ! nom du fichier.x (DENZO)
   CHARACTER (LEN=256)                          :: RMAT_file_name          ! nom du fichier.rmat (DIRAX)
   CHARACTER (LEN=256)                          :: ABS_file_name           ! nom du fichier.ABS (SADABS)
-  CHARACTER (LEN=256)                          :: SADABS_line             ! Ratio of minimum to maximum apparent transmission
+  CHARACTER (LEN=256)                          :: SADABS_line_ratio                ! Ratio of minimum to maximum apparent transmission (SADABS output)
+  CHARACTER (LEN=256)                          :: SADABS_line_estimated_Tmin_Tmax  ! Estimated Tmin and Tmax values (SADABS output)
   real                                         :: SADABS_ratio            ! value of the ratio Tmin/Tmax
-  
+  real                                         :: SADABS_Tmin
+  real                                         :: SADABS_Tmax
+
 
   REAL                                         :: F000                    ! pouvoir diffusant dans la maille
 
@@ -359,7 +362,7 @@ module cryscal_module
   REAL                                         :: shift_2theta            ! valeur du decalage en 2theta
 
   LOGICAL                                      :: write_HKL               ! sortie des HKL
-  LOGICAL                                      :: create_PAT              ! creation d'un diagramme 
+  LOGICAL                                      :: create_PAT              ! creation d'un diagramme
   LOGICAL                                      :: HKL_2THETA
   LOGICAL                                      :: HKL_THETA
   LOGICAL                                      :: HKL_STL
@@ -396,7 +399,7 @@ module cryscal_module
   INTEGER, PARAMETER                           :: nb_help_max = 117       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
-  
+
 
   integer                                      :: nb_help                 ! nombre d'arguments de HELP
   LOGICAL,            DIMENSION(nb_help_max)   :: write_keys
@@ -406,16 +409,17 @@ module cryscal_module
   CHARACTER (LEN=256)                          :: SYST_command            !
   logical                                      :: keyword_KEY             ! liste des mots cles
   logical                                      :: keyword_CLA             ! liste des arguments en ligne de commande
-  
+
   REAL, parameter                              :: pi=3.1415926535897932
 
   LOGICAL                                      :: keyword_X_WAVE          ! write X-rays Kalpha1, Kalpha2 wavelength
+  LOGICAL                                      :: CIF_format80            ! 
 
   integer                                      :: nb_atom                 ! nombre d'atomes dans la liste
   integer                                      :: nb_hkl                  ! nombre de reflections
   integer                                      :: nb_hkl_SFAC_calc        ! nombre de reflections pour le calcul de facteur de structure
   integer                                      :: nb_dist_calc            ! nombre de distances a calculer
-  real                                         :: CONN_dmax_ini           ! valeur initiale de CONN_dmax                     
+  real                                         :: CONN_dmax_ini           ! valeur initiale de CONN_dmax
   real                                         :: CONN_dmax               ! dist. max. pour calcul de la connectivité
   logical                                      :: CONN_all                ! calcul de connectivite pour tous les atomes
   REAL                                         :: dist_coef
@@ -480,7 +484,7 @@ module cryscal_module
   LOGICAL                                      :: keyword_WRITE_REF_SADABS
   LOGICAL                                      :: keyword_modif_ARCHIVE
   LOGICAL                                      :: keyword_SOLVE_to_INS
-  
+
   LOGICAL                                      :: keyword_create_ACE  !  creation d'un fichier.ACE pour Carine
   LOGICAL                                      :: keyword_create_CEL  !  creation d'un fichier.CEL pour powdercell
   LOGICAL                                      :: keyword_create_INS  !  creation d'un fichier.INS pour SHELXL
@@ -499,9 +503,9 @@ module cryscal_module
   INTEGER, parameter                           :: HKL_unit            = 12
   INTEGER, parameter                           :: HKLF5_unit          = 13
   INTEGER, parameter                           :: HKL_list_out1_unit  = 31
-  INTEGER, parameter                           :: HKL_list_out2_unit  = 32  
-  
-  INTEGER, parameter                           :: HELP_unit           = 38    ! unité logique attribue au fichier cryscal_manual.txt  
+  INTEGER, parameter                           :: HKL_list_out2_unit  = 32
+
+  INTEGER, parameter                           :: HELP_unit           = 38    ! unité logique attribue au fichier cryscal_manual.txt
   INTEGER, parameter                           :: KEYS_unit           = 39    ! unité logique attribue au fichier cryscal_keys.txt
   INTEGER, parameter                           :: INI_unit            = 40
   INTEGER, parameter                           :: CIF_unit            = 41    ! unite logique attribuée au fichier CRYSCAL.CIF
@@ -513,7 +517,7 @@ module cryscal_module
   INTEGER, parameter                           :: CEL_unit            = 47    ! unite logique attribuee au fichier .CEL
   INTEGER, parameter                           :: ACE_unit            = 48    ! unite logique attribuee au fichier .ACE
   INTEGER, parameter                           :: NEWS_unit           = 49    ! unité logique attribuee au fichier cryscal_news.txt
-  
+
   INTEGER, parameter                           :: CFL_read_unit   = 50
   INTEGER, parameter                           :: CEL_read_unit   = 51      ! unite logique attribuee au fichier .CEL (en lecture)
   INTEGER, parameter                           :: CIF_read_unit   = 52      ! unite logique attribuee au fichier .CIF (en lecture)
@@ -524,11 +528,11 @@ module cryscal_module
   INTEGER, parameter                           :: X_read_unit     = 57      ! unite logique attribuee au fichier.x (DENZO)
   INTEGER, parameter                           :: RMAT_read_unit  = 58      ! unite logique attribuee au fichier.RMAT (DIRAX)
   INTEGER, parameter                           :: ABS_read_unit   = 59      ! unite logique attribuee au fichier.ABS (SADABS)
-  
+
   INTEGER, parameter                           :: PAT_unit        = 60      ! unite logique attribuee au fichier CRYSCAL_pat.xy
   INTEGER, parameter                           :: PRF_unit        = 61      ! unite logique attribuee au fichier CRYSCAL_pat.PRF
-  
-  
+
+
 
   INTEGER, parameter                           :: tmp_unit        = 22
 
@@ -569,7 +573,7 @@ module cryscal_module
   logical                                      :: data_atomic_radius_PLOT
   logical                                      :: keyword_DATA_atomic_weight
   logical                                      :: data_atomic_weight_PLOT
-  
+
   logical                                      :: known_atomic_label
   logical                                      :: known_atomic_features
   logical                                      :: known_data_neutrons
@@ -601,7 +605,7 @@ module cryscal_module
   INTEGER         :: HELP_CREATE_REPORT_numor
   INTEGER         :: HELP_D_HKL_numor
   INTEGER         :: HELP_D_STAR_numor
-  INTEGER         :: HELP_DATA_ATOMIC_DENSITY_numor  
+  INTEGER         :: HELP_DATA_ATOMIC_DENSITY_numor
   INTEGER         :: HELP_DATA_ATOMIC_RADIUS_numor
   INTEGER         :: HELP_DATA_ATOMIC_WEIGHT_numor
   INTEGER         :: HELP_DATA_NEUTRONS_numor
@@ -806,7 +810,7 @@ module cryscal_module
   type (DEVICE_type)  :: DEVICE
 
   type, public  :: PROGRAM_type
-   CHARACTER (len=256)               :: name      ! programme utilise 
+   CHARACTER (len=256)               :: name      ! programme utilise
    CHARACTER (len=256)               :: reference ! reference associée
    CHARACTER (len=80)                :: CIF_ref   ! reference associée pour fichier.CIF (max = 80 car)
   END type PROGRAM_type
@@ -940,6 +944,7 @@ module cryscal_module
    CHARACTER (LEN=256)  :: content
    real                 :: weight
    real                 :: density
+   integer              :: Z
   end type molecule_features
   type(molecule_features)  :: molecule
 
@@ -974,6 +979,7 @@ module atome_module
     REAL                    :: weight
     CHARACTER(LEN=4)        :: symbol
     CHARACTER(LEN=13)       :: name
+	INTEGER                 :: Z    ! nombre d'electrons
    ! neutrons data
     REAL                    :: bcoh             ! longueur de diffusion coherente neutronique
     REAL                    :: SEDinc           ! section efficace de diffusion incoherente
@@ -981,21 +987,7 @@ module atome_module
     REAL                    :: N_SED_coh        !  section efficace de diffusion coherente (=4pi. b**2)
     REAL                    :: N_SED_inc        !  section efficace de diffusion incoherente
     REAL                    :: N_SE_absorption  !  section efficace de diffusion d'absorption (a la longueur d'onde utilisee)
-  ! Xrays data
-   ! REAL                    :: cam_mo_Ka        ! coef. absorption massique pour MoKa
-   ! REAL                    :: cam_cu_ka        ! coef. absorption massique pour CuKa
-   ! REAL                    :: cam_co_ka        ! coef. absorption massique pour CoKa
-   ! REAL                    :: cam_cr_Ka        ! coef. absorption massique pour MoKa
-   ! REAL                    :: cam_fe_ka        ! coef. absorption massique pour CuKa
-   ! REAL                    :: cam_ag_ka        ! coef. absorption massique pour CoKa
-   !
-   ! REAL                    :: tics_mo_ka       ! total interaction cross section pour MoKa
-   ! REAL                    :: tics_cu_ka       ! total interaction cross section pour CuKa
-   ! REAL                    :: tics_co_ka       ! total interaction cross section pour CoKa
-   ! REAL                    :: tics_cr_ka       ! total interaction cross section pour CrKa
-   ! REAL                    :: tics_fe_ka       ! total interaction cross section pour FeKa
-   ! REAL                    :: tics_ag_ka       ! total interaction cross section pour AgKa
-
+  
     REAL, DIMENSION(7)      :: cam        ! coef. absorption massique pour Ag, Mo, Cu, Co, Fe, Cr
     REAL, DIMENSION(7)      :: tics       ! total interaction cross section pour Ag, Mo, Cu, Co, Fe, Cr
 
@@ -1026,7 +1018,7 @@ module wavelength_module
   END TYPE X_target_type
 
   TYPE (X_target_type), DIMENSION(tabulated_target_nb) :: X_target
-  
+
   logical                                              :: anti_cathode
 
 
@@ -1085,34 +1077,34 @@ subroutine def_HKL_rule()
  HKL_rule(1)  = '  h00     h=2n+1  21 .  .  '
  HKL_rule(2)  = '  0k0     k=2n+1  . 21  .  '
  HKL_rule(3)  = '  00l     l=2n+1  .  . 21  '
- 
+
  HKL_rule(4)  = '  0kl     k=2n+1  b  .  .  '
  HKL_rule(5)  = '  0kl     l=2n+1  c  .  .  '
  HKL_rule(6)  = '  0kl   k+l=2n+1  n  .  .  '
- 
+
  HKL_rule(7)  = '  h0l     h=2n+1  .  a  .  '
  HKL_rule(8)  = '  h0l     l=2n+1  .  c  .  '
  HKL_rule(9)  = '  h0l   h+l=2n+1  .  n  .  '
- 
+
  HKL_rule(10) = '  hk0     h=2n+1  .  .  a  '
  HKL_rule(11) = '  hk0     k=2n+1  .  .  b  '
  HKL_rule(12) = '  hk0   h+k=2n+1  .  .  n  '
- 
+
  HKL_rule(13) = '  hhl     h+l=2n+1  .  .  '
  HKL_rule(14) = '  hkk     k+h=2n+1  .  .  '
  HKL_rule(15) = '  hkh     h+k=2n+1  .  .  '
- 
- 
+
+
  HKL_rule(16) = '  hkl   k+l=2n+1  A        '
  HKL_rule(17) = '  hkl   h+l=2n+1  B        '
  HKL_rule(18) = '  hkl   h+k=2n+1  C        '
  HKL_rule(19) = '  hkl not all odd/even F   '
  HKL_rule(20) = '  hkl h+k+l=2n+1  I        '
- 
+
  HKL_rule(21) = '  h00     h=4n+1 41 .  .   '
  HKL_rule(22) = '  0k0     k=4n+1 .  41 .   '
  HKL_rule(23) = '  00l     l=4n+1 .  . 41   '
- 
+
  HKL_rule(24) = '  0kl   k+l=4n+1 d  .  .   '
  HKL_rule(25) = '  h0l   h+l=4n+1 .  d  .   '
  HKL_rule(26) = '  hk0   h+k=4n+1 .  .  d   '
@@ -1131,19 +1123,19 @@ subroutine def_HKL_rule()
  HKL_rule(HKL_rule_nb+1)  = '  h00     h=2n'
  HKL_rule(HKL_rule_nb+2)  = '  0k0     k=2n'
  HKL_rule(HKL_rule_nb+3)  = '  00l     l=2n'
- 
+
  HKL_rule(HKL_rule_nb+4)  = '  0kl     k=2n'
  HKL_rule(HKL_rule_nb+5)  = '  0kl     l=2n'
  HKL_rule(HKL_rule_nb+6)  = '  0kl   k+l=2n'
- 
+
  HKL_rule(HKL_rule_nb+7)  = '  h0l     h=2n'
  HKL_rule(HKL_rule_nb+8)  = '  h0l     l=2n'
  HKL_rule(HKL_rule_nb+9)  = '  h0l   h+l=2n+'
- 
+
  HKL_rule(HKL_rule_nb+10) = '  hk0     h=2n'
  HKL_rule(HKL_rule_nb+11) = '  hk0     k=2n'
  HKL_rule(HKL_rule_nb+12) = '  hk0   h+k=2n'
- 
+
  HKL_rule(HKL_rule_nb+13) = '  hhl     h+l=2n'
  HKL_rule(HKL_rule_nb+14) = '  hkk     k+h=2n'
  HKL_rule(HKL_rule_nb+15) = '  hkh     k+k=2n'
@@ -1153,11 +1145,11 @@ subroutine def_HKL_rule()
  HKL_rule(HKL_rule_nb+18) = '  hkl   h+k=2n'
  HKL_rule(HKL_rule_nb+19) = '  hkl all odd/even'
  HKL_rule(HKL_rule_nb+20) = '  hkl h+k+l=2n'
- 
+
  HKL_rule(HKL_rule_nb+21) = '  h00     h/=4n+1'
  HKL_rule(HKL_rule_nb+22) = '  0k0     k/=4n+1'
  HKL_rule(HKL_rule_nb+23) = '  00l     l/=4n+1'
- 
+
  HKL_rule(HKL_rule_nb+24) = '  0kl   k+l/=4n+1'
  HKL_rule(HKL_rule_nb+25) = '  h0l   h+l/=4n+1'
  HKL_rule(HKL_rule_nb+26) = '  hk0   h+k/=4n+1'
@@ -1167,7 +1159,7 @@ subroutine def_HKL_rule()
  HKL_rule(HKL_rule_nb+28) = '  hkl    h=2n'
  HKL_rule(HKL_rule_nb+29) = '  hkl    k=2n'
  HKL_rule(HKL_rule_nb+30) = '  hkl    l=2n'
- 
+
  HKL_rule(HKL_rule_nb+31) = '  hkl    h=2n and k=2n'
  HKL_rule(HKL_rule_nb+32) = '  hkl    h=2n and l=2n'
  HKL_rule(HKL_rule_nb+33) = '  hkl    k=2n and l=2n'
@@ -1178,7 +1170,7 @@ end subroutine def_HKL_rule
 !-------------------------------------------------------------------
  module MATRIX_list_module
   implicit none
-  integer, parameter                               :: max_mat_nb = 31
+  integer, parameter                               :: max_mat_nb = 32
   REAL,                DIMENSION(3,3,max_mat_nb)   :: transf_mat
   CHARACTER (LEN=64),  DIMENSION(max_mat_nb)       :: transf_mat_text
   INTEGER                                          :: matrix_num
@@ -1188,7 +1180,7 @@ end subroutine def_HKL_rule
 
 subroutine def_transformation_matrix()
  USE MATRIX_list_module
- 
+
  ! ' #1: a b c  ==>  a  b  c'
  ! ' #2: a b c  ==> -a -b -c'
  ! ' #3: a b c  ==>  a -c  b (orthorh. system)'
@@ -1215,15 +1207,24 @@ subroutine def_transformation_matrix()
  ! '#24: a b c  ==>   -a  a+b   -c (hexa. setting)'
  ! '#25: a b c  ==>   -b   -a   -c (hexa. setting)'
  ! '#26: a b c  ==>  a+b   -b   -c (hexa. setting)'
- 
+
  ! '#27: a b c  ==> -a-c    b    a (mono. setting)'
  ! '#28: a b c  ==>    c    b -a-c (mono. setting)'
+ 
  ! '#29: a b c  ==>   -a   -b  a+c (mono. setting)'
  ! '#30: a b c  ==>   -c   -b   -a (mono. setting)'
  ! '#31: a b c  ==>  a+c   -b   -c (mono. setting)'
+ ! '#32: a b c  ==>    c   -b    a (mono. setting)'
+ 
+ ! '#33: a b c  ==>    a   -b -a-c (mono. setting) : #33 = #32 x #27'
+ 
+ 
+ ! rem PLATON P21/n --> P21/c : 1  0  0    0 -1  0  -1  0 -1    #33      a  -b -a-c
+ !                             -1  0  0    0 -1  0   1  0  1    #29     -a  -b  a+c
+ !
+ !            P21/a --> P21/c : 0  0 -1    0 -1  0  -1  0  0    #30     -c  -b  -a
+ !                              0  0  1    0 -1  0   1  0  0    #32      c  -b   a 
 
-
-  
 
   transf_mat_text(1)  = ' #1: a b c  ==>  a  b  c'
   transf_mat(1,:,1)  = (/ 1.,  0.,  0./)           !
@@ -1250,30 +1251,30 @@ subroutine def_transformation_matrix()
   !transf_mat_text(5)  = ' #5: a b c  ==> -c  b  a (orthorh. system)'
   transf_mat_text(5)  = ' #5: a b c  ==> -c  b  a'
   transf_mat(1,:,5)  = (/ 0.,  0., -1./)           !
-  transf_mat(2,:,5)  = (/ 0.,  1.,  0./)           ! 
-  transf_mat(3,:,5)  = (/ 1.,  0.,  0./)           ! 
+  transf_mat(2,:,5)  = (/ 0.,  1.,  0./)           !
+  transf_mat(3,:,5)  = (/ 1.,  0.,  0./)           !
 
   !transf_mat_text(6)  = ' #6: a b c  ==>  b  c  a (orthorh. system)'
   transf_mat_text(6)  = ' #6: a b c  ==>  b  c  a'
-  transf_mat(1,:,6)  = (/ 0.,  1.,  0./)           ! 
-  transf_mat(2,:,6)  = (/ 0.,  0.,  1./)           ! 
-  transf_mat(3,:,6)  = (/ 1.,  0.,  0./)           ! 
+  transf_mat(1,:,6)  = (/ 0.,  1.,  0./)           !
+  transf_mat(2,:,6)  = (/ 0.,  0.,  1./)           !
+  transf_mat(3,:,6)  = (/ 1.,  0.,  0./)           !
 
   !transf_mat_text(7)  = ' #7: a b c  ==>  c  a  b (orthorh. system)'
   transf_mat_text(7)  = ' #7: a b c  ==>  c  a  b'
-  transf_mat(1,:,7)  = (/ 0.,  0.,  1./)           ! 
-  transf_mat(2,:,7)  = (/ 1.,  0.,  0./)           ! 
-  transf_mat(3,:,7)  = (/ 0.,  1.,  0./)           ! 
+  transf_mat(1,:,7)  = (/ 0.,  0.,  1./)           !
+  transf_mat(2,:,7)  = (/ 1.,  0.,  0./)           !
+  transf_mat(3,:,7)  = (/ 0.,  1.,  0./)           !
 
   transf_mat_text(8)  = ' #8: P      ==>  R      '
-  transf_mat(1,:,8)  = (/ 1., -1.,  0./)           ! 
-  transf_mat(2,:,8)  = (/ 0.,  1., -1./)           ! 
-  transf_mat(3,:,8)  = (/ 1.,  1.,  1./)           ! 
+  transf_mat(1,:,8)  = (/ 1., -1.,  0./)           !
+  transf_mat(2,:,8)  = (/ 0.,  1., -1./)           !
+  transf_mat(3,:,8)  = (/ 1.,  1.,  1./)           !
 
   transf_mat_text(9)  = ' #9: R      ==>  P      '
   transf_mat(1,:,9)  = (/  2./3.,  1./3.,  1./3./)    !
   transf_mat(2,:,9)  = (/ -1./3.,  1./3.,  1./3./)    !
-  transf_mat(3,:,9)  = (/ -1./3., -2./6.,  1./3./)    !
+  transf_mat(3,:,9)  = (/ -1./3., -2./3.,  1./3./)    !
 
   transf_mat_text(10) = '#12: R_reverse  ==>  O_obverse'
   transf_mat(1,:,10) = (/-1.,  0.,  0./)         !
@@ -1345,7 +1346,7 @@ subroutine def_transformation_matrix()
   transf_mat(1,:,23) = (/ 0.,   1.,  0./)      !
   transf_mat(2,:,23) = (/-1.,  -1.,  0./)      !
   transf_mat(3,:,23) = (/ 0.,   0.,  1./)      !
-  
+
   transf_mat_text(24) = '#24: a b c  ==>   -a  a+b -c (hexa. setting)'
   transf_mat(1,:,24) = (/-1.,   0.,  0./)      !
   transf_mat(2,:,24) = (/ 1.,   1.,  0./)      !
@@ -1365,7 +1366,7 @@ subroutine def_transformation_matrix()
   transf_mat(1,:,27) = (/-1.,   0., -1./)      !
   transf_mat(2,:,27) = (/ 0.,   1.,  0./)      !
   transf_mat(3,:,27) = (/ 1.,   0.,  0./)      !
-  
+
   transf_mat_text(28) = '#28: a b c  ==>    c    b -a-c (mono. setting)'
   transf_mat(1,:,28) = (/ 0.,   0.,  1./)      !
   transf_mat(2,:,28) = (/ 0.,   1.,  0./)      !
@@ -1375,20 +1376,28 @@ subroutine def_transformation_matrix()
   transf_mat(1,:,29) = (/-1.,   0.,  0./)      !
   transf_mat(2,:,29) = (/ 0.,  -1.,  0./)      !
   transf_mat(3,:,29) = (/ 1.,   0.,  1./)      !
-  
+
   transf_mat_text(30) = '#30: a b c  ==>   -c   -b   -a (mono. setting)'
   transf_mat(1,:,30) = (/ 0.,   0., -1./)      !
   transf_mat(2,:,30) = (/ 0.,  -1.,  0./)      !
   transf_mat(3,:,30) = (/-1.,   0.,  0./)      !
-  
+
   transf_mat_text(31) = '#31: a b c  ==>  a+c   -b   -c (mono. setting)'
   transf_mat(1,:,31) = (/ 1.,   0.,  1./)      !
   transf_mat(2,:,31) = (/ 0.,  -1.,  0./)      !
   transf_mat(3,:,31) = (/ 0.,   0., -1./)      !
 
- 
- 
- 
+  transf_mat_text(32) = '#32: a b c  ==>    c   -b   a (mono. setting)'
+  transf_mat(1,:,32) = (/ 0.,   0.,  1./)      !
+  transf_mat(2,:,32) = (/ 0.,  -1.,  0./)      !
+  transf_mat(3,:,32) = (/ 1.,   0.,  0./)      !
+
+  !transf_mat_text(33) = '#33: a b c  ==>    a   -b  -a-c (mono. setting)'
+  !transf_mat(1,:,33) = (/ 1.,   0.,  0./)      !
+  !transf_mat(2,:,33) = (/ 0.,  -1.,  0./)      !
+  !transf_mat(3,:,33) = (/-1.,   0., -1./)      !
+
+
 
 end subroutine def_transformation_matrix
 
@@ -1403,9 +1412,9 @@ module Definition_fractions
   real,               DIMENSION(nb_fraction)  :: ratio_real_neg,   ratio_real_pos
 
 
-  contains 
+  contains
   subroutine def_fractions
-  
+
   ratio_string_pos(1:nb_fraction) = (/'1/2 ',                                                 &
                                       '1/3 ', '2/3 ', '4/3 ', '5/3 ',                         &
                                       '1/4 ', '3/4 ', '5/4 ',                                 &
@@ -1436,5 +1445,5 @@ ratio_real_neg(1:nb_fraction) = -ratio_real_pos(1:nb_fraction)
 
   return
   end subroutine def_fractions
-  
+
 end Module Definition_Fractions

@@ -213,7 +213,7 @@ END subroutine interactive_mode
        IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
         call atomic_identification()
         IF(keyword_CELL)                      call atomic_density_calculation()
-        IF(keyword_ZUNIT)	              call molecular_weight()
+        IF(keyword_ZUNIT)	                  call molecular_weight()
         IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()
         IF(keyword_CELL)                      call absorption_calculation()
        endif

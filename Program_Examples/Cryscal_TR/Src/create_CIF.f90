@@ -7,7 +7,8 @@ subroutine write_CIF_file(input_string)
                             CIF_cell_measurement, CIF_diffrn_reflns,                        &
                             nb_atom, atom_label, atom_type, atom_coord, atom_Ueq, atom_occ, &
                             atom_occ_perc,                                                  &
-                            UB_matrix, P4P_file_name, SADABS_line, SADABS_ratio,            &
+                            UB_matrix, P4P_file_name, SADABS_line_ratio, SADABS_ratio,      &
+                            SADABS_line_estimated_Tmin_Tmax, SADABS_Tmin, SADABS_Tmax,      &
                             CIF_parameter, SQUEEZE, CIF_dist, keyword_modif_ARCHIVE
  USE text_module, only     : CIF_lines_nb, CIF_title_line
 
@@ -47,7 +48,7 @@ subroutine write_CIF_file(input_string)
   IF(absorption%Tmin > 0.) then
    if(keyword_modif_archive) then
     if(absorption%Tmax > 0. .and. SADABS_ratio > 0.) then
-     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmax*sadabs_ratio
+     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmax*sadabs_ratio      
     else
      WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin*0.99
     endif
@@ -64,7 +65,8 @@ subroutine write_CIF_file(input_string)
   else
   WRITE(CIF_unit, '(a)')      "_exptl_absorpt_correction_T_max                      ?"
   endif
-  IF(LEN_TRIM(SADABS_line) /=0) then
+ 
+  IF(LEN_TRIM(SADABS_line_ratio) /=0) then
    WRITE(CIF_unit, '(a)')  ""
    WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------#"
    WRITE(CIF_unit, '(a)')  "# Tmax and Tmin values correspond to EXPECTED values calculated     #"
@@ -72,9 +74,17 @@ subroutine write_CIF_file(input_string)
    WRITE(CIF_unit, '(a)')  "# with SADABS program, Tmax should be given as Tmax_expected and    #"
    WRITE(CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                   #"
    WRITE(CIF_unit, '(a)')  "# SADABS output:                                                    #"
-   WRITE(CIF_unit, '(2a)') "# ", TRIM(SADABS_line)
+   WRITE(CIF_unit, '(2a)') "# ", TRIM(SADABS_line_ratio), "      #"
    WRITE(CIF_unit, '(a)')  "#-------------------------------------------------------------------#"
+  ELSEIF(LEN_TRIM(SADABS_line_estimated_Tmin_Tmax) /=0) then
+   WRITE(CIF_unit, '(a)')  ""
+   WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------------#"
+   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                          #"
+   WRITE(CIF_unit, '(3a)') "# ", TRIM(SADABS_line_estimated_Tmin_Tmax), "             #"
+   WRITE(CIF_unit, '(a)')  "# The ratio of these values is more reliable than their absolute values!  #"
+   WRITE(CIF_unit, '(a)')  "#-------------------------------------------------------------------------#"
   endif
+ 
 
       case ('SADABS')
   WRITE(CIF_unit, '(a)') trim(SADABS%type)
@@ -113,7 +123,7 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
   WRITE(CIF_unit, '(a)') "#                   COMPUTER PROGRAMS USED                                   #"
   WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
-  WRITE(CIF_unit, '(a)') ""
+  WRITE(CIF_unit, '(a)') " "
   WRITE(CIF_unit, '(2a)') "_computing_data_collection       ", trim(CIF_parameter%computing_data_reduction)
   WRITE(CIF_unit, '(2a)') "_computing_cell_refinement       ", trim(CIF_parameter%computing_cell_refinement)
   WRITE(CIF_unit, '(2a)') "_computing_data_reduction        ", trim(CIF_parameter%computing_data_reduction)
@@ -166,6 +176,11 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
   WRITE(CIF_unit, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
   WRITE(CIF_unit, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
+
+  WRITE(*, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
+  WRITE(*, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
+  WRITE(*, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
+ !
  ! WRITE(CIF_unit, '(2a)') "_computing_publication_material ", trim(CIF_parameter%computing_publication_material)
   
   WRITE(CIF_unit, '(a)')  "_computing_publication_material "

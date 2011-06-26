@@ -180,12 +180,18 @@ subroutine create_INS_from_SOLVE
        write(unit=tmp_unit+2, fmt='(a)') 'LIST 4'
        
      case ('PLAN')
-       WRITE(unit=tmp_unit+2, fmt='(a)')         'PLAN -20    ! Fourier peak list'  
-       WRITE(unit=tmp_unit+2, fmt='(a)')         'ACTA        ! create .CIF file'
-       WRITE(unit=tmp_unit+2, fmt='(a)')         'BOND $H     ! include H in bond lengths / angles table'
-       WRITE(unit=tmp_unit+2, fmt='(a)')         'HTAB        ! analyse all hydrogen bonds'
-       WRITE(unit=tmp_unit+2, fmt='(a)')         'CONF        ! all torsion angles except involving hydrogen'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  PLAN -20  : Fourier peak list'  
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'PLAN -20'  
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  ACTA      : create .CIF file'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'ACTA'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  BOND $H   : include H in bond lengths / angles table'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'BOND $H'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  HTAB      : analyse all hydrogen bonds'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'HTAB'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  CONF      : all torsion angles except involving hydrogen'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'CONF'
        WRITE(unit=tmp_unit+2, fmt='(a)')         'WPDB -2     !'
+       WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  TEMP      : temperature in celcius'
        WRITE(unit=tmp_unit+2, fmt='(a6,F8.0,a)') 'TEMP  ', temperature, '    ! temperature in celcius'
        if(shelxs_file) then
         write(tmp_unit+2, fmt='(a)')             'FVAR 1.0'  ! le fichier a ete cree par SHELXS et ne contient pas la ligne FVAR

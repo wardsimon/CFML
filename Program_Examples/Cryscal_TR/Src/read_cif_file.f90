@@ -680,7 +680,7 @@ end subroutine read_SQUEEZE_file
 ! ----------------------------------------------------------------------------------
  subroutine read_and_modif_ARCHIVE(input_unit)
   use cryscal_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit, &
-                             CIF_parameter, SADABS_ratio, CIFdep, ACTA
+                             CIF_parameter, SADABS_ratio, CIFdep, ACTA, CIF_format80
   use macros_module,  only : u_case, test_file_exist
   implicit none
    integer, intent(in)               :: input_unit
@@ -1106,57 +1106,7 @@ end subroutine read_SQUEEZE_file
    endif
    
    
-!-----------------------------------------------------------------------------------------
-! sept. 09   
-   
-   !if(index(read_line, '_atom_site_disorder_group') /=0) then
-   ! write(CIF_archive_unit, '(a)') trim(read_line)
-   ! do
-   !  read(unit = input_unit, '(a)', iostat=i_error) read_line
-   !  if(i_error /=0) exit
-   !  if(len_trim(read_line) == 0) exit
-   !  read(read_line, *) CIF_str(1:CIF_atom_site_item_nb)
-   !  
-   !
-   !  long = len_trim(CIF_str(CIF_atom_site_refinement_flags_numor))     
-   !  if(CIF_str(CIF_atom_site_refinement_flags_numor)(long:long) == 'P') then
-   !  ! write(CIF_archive_unit, '(a)') trim(read_line)
-   !   call get_fmt(4, CIF_str(3:6), fmt_, 0)      
-   !   if(CIF_atom_site_item_nb == 12) then
-   !    write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a10,a5,a3,2a2)' 
-   !   else
-   !    write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a10,a3,a5,a3,2a2)' 
-   !   endif
-   !   write(CIF_archive_unit, fmt_) CIF_str(1:CIF_atom_site_item_nb)
-   !
-   !  else
-   !   call get_fmt(4, CIF_str(3:6), fmt_, 0)
-   !   if(CIF_atom_site_item_nb==12) then
-   !    write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a2,a5,3a2)'        
-   !   else
-   !    write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,2a2,a5,3a2)'            
-   !   endif
-   !   !write(tmp_string, fmt_) CIF_str(1:CIF_atom_site_item_nb)
-   !   !if(len_trim(tmp_string) <=80) then
-   !    write(CIF_archive_unit, fmt_) CIF_str(1:CIF_atom_site_item_nb)
-   !   !else
-   !   ! write(CIF_archive_unit, '(a)') trim(read_line)
-   !   !endif          
-   !  endif
-   !
-   !  
-   !  !if(CIF_str(12)(1:1) == '.') then
-   !  ! call get_fmt(4, CIF_str(3:6), fmt_, 0)
-   !  ! write(fmt_, '(3a)') '(a5,a3', trim(fmt_), ',a5,a2,a5,3a3)'        
-   !  ! write(CIF_archive_unit, fmt_) CIF_str(1:12)
-   !  !else ! cas d'un desordre traite avec PART 1 / PÄRT 2
-   !  ! write(CIF_archive_unit, '(a)') trim(read_line)
-   !  !endif
-   ! end do
-   ! write(CIF_archive_unit, '(a)') ''
-   !endif
-   
-   
+ 
   
 !  >>> new sept. 09
 
@@ -1174,8 +1124,7 @@ end subroutine read_SQUEEZE_file
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit     
      read(read_line, *) CIF_str(1:CIF_atom_site_item_nb)
-     
-   
+    
      long = len_trim(CIF_str(CIF_atom_site_refinement_flags_numor))     
      !if(CIF_str(CIF_atom_site_refinement_flags_numor)(long:long) == 'P') then
      if(index(CIF_str(CIF_atom_site_refinement_flags_numor), 'P') /=0) then
@@ -1196,7 +1145,7 @@ end subroutine read_SQUEEZE_file
         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)' 
        endif
       endif
-      write(CIF_archive_unit, fmt_) CIF_str(1:CIF_atom_site_item_nb)
+      !write(CIF_archive_unit, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
    
      else
       !call get_fmt(4, CIF_str(3:6), fmt_, 0)      
@@ -1216,14 +1165,15 @@ end subroutine read_SQUEEZE_file
         write(fmt_final, '(3a)')  '(a5,', trim(fmt_), 'a5,2a2,a5,a3,2a2,a3)'            
        endif      
       endif
-      
-      !write(tmp_string, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
-      !if(len_trim(tmp_string) <=80) then
-       write(CIF_archive_unit, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
-      !else
-      ! write(CIF_archive_unit, '(a)') trim(read_line)
-      !endif          
+            	 
      endif
+	 
+	 write(tmp_string, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
+     if(len_trim(tmp_string) > 80 .and. .not. CIF_format80) then
+      write(CIF_archive_unit, '(a)') trim(read_line)
+     else
+      write(CIF_archive_unit, fmt_final) CIF_str(1:CIF_atom_site_item_nb)  
+     endif          
    
      
      !if(CIF_str(12)(1:1) == '.') then
@@ -1238,29 +1188,6 @@ end subroutine read_SQUEEZE_file
    
    endif 
    
-!----------------------------------------------------------------------------------------------   
-! sept.09 
-   
-!   if(index(read_line, '_atom_site_aniso_U_12') /=0) then
-!    write(CIF_archive_unit, '(a)') trim(read_line)
-!    do
-!     read(unit = input_unit, '(a)', iostat=i_error) read_line
-!     if(i_error /=0) exit
-!     if(len_trim(read_line) == 0) exit
-!     write (*,*) " # ", trim(read_line)
-!     read(read_line, *) CIF_str(1:7)
-!     call get_fmt(6, CIF_str(2:7), fmt_, 0)
-!     write(fmt_, '(3a)') '(a4', trim(fmt_), ')'
-!     !write(CIF_archive_unit, '(a5, 6a15)') CIF_str(1:7)
-!     write(tmp_string, fmt_) CIF_str(1:7)
-!     if(len_trim(tmp_string) <=80) then
-!      write(CIF_archive_unit, fmt_) CIF_str(1:7)
-!     else
-!      write(CIF_archive_unit, '(a)') trim(read_line)
-!     endif
-!    end do
-!    write(CIF_archive_unit, '(a)') ''
-!   endif
 
 !  >> new sept. 09
 
@@ -1281,15 +1208,16 @@ end subroutine read_SQUEEZE_file
       call get_fmt(6, CIF_str(2:7), fmt_, 0)
             
       write(fmt_final, '(3a)') '(a4,', trim(fmt_),')'    
-      !write(tmp_string, fmt_final) CIF_str(1:7)
-      !if(len_trim(tmp_string) <=80) then
+      write(tmp_string, fmt_final) CIF_str(1:7)
+      if(len_trim(tmp_string) > 80 .and. .not. CIF_format80) then
+	   write(CIF_archive_unit, '(a)') trim(read_line)
+	  else
        write(CIF_archive_unit, fmt_final) CIF_str(1:7)
-      !else
-      ! write(CIF_archive_unit, '(a)') trim(read_line)
-      !endif
+      endif
      end do
      write(CIF_archive_unit, '(a)') ''
-    endif
+    
+	endif
     
 !-----------------------------------------------------------------------------------------------   
    
@@ -1432,7 +1360,7 @@ end subroutine read_SQUEEZE_file
  
 !---------------------------------------------------------------------------
  subroutine Get_SADABS_ratio
-  use  cryscal_module, only : SADABS_ratio, IMPORT_cif_unit
+  use  cryscal_module, only : SADABS_ratio, SADABS_Tmin, SADABS_Tmax, IMPORT_cif_unit
   use  macros_module,  only : test_file_exist
   implicit none
    integer                  :: i_error,i1
@@ -1455,6 +1383,24 @@ end subroutine read_SQUEEZE_file
    endif 
   end do
   close(unit=IMPORT_CIF_unit)
+  
+  if(SADABS_ratio < 0.) then
+   open(unit = IMPORT_CIF_unit, file = 'import.cif', iostat=i_error)
+   call test_file_exist("import.cif", file_exist)
+   do
+    read(IMPORT_CIF_unit, '(a)', iostat = i_error) read_line
+    if(i_error /=0) exit
+    read_line = adjustl(read_line)
+    i1 = index(read_line, '# Estimated minimum and maximum transmission:')
+    if (i1 /=0) then
+     i1 = index(read_line, ':')
+     read(read_line(i1+1:), *) SADABS_Tmin, SADABS_Tmax
+     SADABS_ratio = SADABS_Tmin / SADABS_Tmax
+    endif 
+   end do
+   close(unit=IMPORT_CIF_unit)  
+  endif
+
  
 
  return

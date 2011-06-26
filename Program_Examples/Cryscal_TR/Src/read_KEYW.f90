@@ -853,14 +853,19 @@ subroutine identification_keywords(read_line)
 	!endif
 	
     !!  - fev. 2011 !!
+	write_HKL  = .false.
+	create_PAT = .false.
 	read(new_line, *) arg_string(1:nb_arg)
 	read(arg_string(1), *) X_max
 	if(nb_arg /=1) then
 	 do i=2, nb_arg
 	  if(arg_string(i)(1:3) == 'OUT') write_HKL  = .true.
-	  if(arg_string(i)(1:3) == 'PAT' .or. arg_string(i)(1:7) == 'PATTERN') create_PAT = .true.
+	  if(arg_string(i)(1:7) == 'PATTERN' .or. arg_string(i)(1:3) == 'PAT'   .or.    &
+	     arg_string(i)(1:7) == 'PROFILE' .or. arg_string(i)(1:4) == 'PROF'  .or.    &
+		 arg_string(i)(1:3) == 'PRF')       create_PAT = .true.
 	 end do
 	end if
+	if(create_PAT) write_HKL=.true.
     !!-----------------!!
 	
 		

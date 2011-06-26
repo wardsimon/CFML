@@ -351,30 +351,52 @@ end subroutine read_RMAT_input_file
 
 subroutine read_SADABS_file()
  USE Macros_module,  ONLY : test_file_exist
- USE cryscal_module, ONLY : P4P_file_name, ABS_file_name, ABS_read_unit, SADABS_line
+ USE cryscal_module, ONLY : P4P_file_name, ABS_file_name, ABS_read_unit, SADABS_line_ratio, SADABS_line_estimated_Tmin_Tmax
  implicit none
   INTEGER                       :: i1, i_error, long
   CHARACTER (LEN=256)           :: read_line
   LOGICAL                       :: file_exist
 
+  SADABS_line_ratio               = ''
+  SADABS_line_estimated_Tmin_Tmax = ''
   i1 = INDEX(P4P_file_name, '_0M.P4P')
   IF(i1 == 0) return
 
   ABS_file_name = P4P_file_name(1:i1-1)//'m.abs'
   call test_file_exist(trim(ABS_file_name), file_exist)
-  if(.not. file_exist) return
-
-  OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
-  do
-   READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
-   IF(i_error /=0) exit
-   read_line = ADJUSTL(read_line)
-   long = LEN_TRIM('Ratio of minimum to maximum apparent transmission:')
-   IF(read_line(1:long) == 'Ratio of minimum to maximum apparent transmission:') then
-    SADABS_line = read_line
-    exit
-   endif
-  end do
-
+  
+  if(file_exist) then
+   OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
+   do
+    READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
+    IF(i_error /=0) exit
+    read_line = ADJUSTL(read_line)
+    long = LEN_TRIM('Ratio of minimum to maximum apparent transmission:')
+    IF(read_line(1:long) == 'Ratio of minimum to maximum apparent transmission:') then
+     SADABS_line_ratio = read_line
+     exit
+    endif
+   end do
+   return
+   
+  else
+   ! mars 2011 : new version of SADABS
+   ABS_file_name = P4P_file_name(1:i1-1)//'.abs'
+   call test_file_exist(trim(ABS_file_name), file_exist)
+   if(.not. file_exist) return
+  
+   OPEN(UNIT=ABS_read_unit, FILE=TRIM(ABS_file_name))
+   do
+    READ(ABS_read_unit, '(a)', IOSTAT=i_error) read_line
+    IF(i_error /=0) exit
+    read_line = ADJUSTL(read_line)
+    long = LEN_TRIM('Estimated minimum and maximum transmission:')
+    IF(read_line(1:long) == 'Estimated minimum and maximum transmission:') then
+     SADABS_line_estimated_Tmin_Tmax = read_line
+     exit
+    endif
+   end do
+  endif 
+  
  RETURN
 end subroutine read_SADABS_file

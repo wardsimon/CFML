@@ -145,7 +145,7 @@ end subroutine calcul_X_mu
 subroutine write_mu(input_string)
  USE cryscal_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,      &
                             keyword_TRANSMISSION, nb_dim_transmission, dim_transmission, keyword_create_CIF, &
-                            keyword_WRITE_REF_APEX, absorption, SADABS_ratio
+                            keyword_WRITE_REF_APEX, absorption, SADABS_ratio, SADABS_Tmin, SADABS_Tmax
  USE IO_module,      ONLY : write_info
  USE math_module,    ONLY : transmission
 
@@ -195,12 +195,15 @@ subroutine write_mu(input_string)
    if(ON_SCREEN) then
     call write_info("")
     call write_info("   Tmax and Tmin values correspond to EXPECTED values calculated from crystal size." )
-    call write_info("   If SADABS program has been used for absorption correction, it provided one ")
-    call write_info("   'relative-correction-factor'. In such a case, Tmax should be given as")   
-    call write_info("   Tmax_expected and Tmin = Tmax * 'relative-correction-factor'")
     if(SADABS_ratio > 0.) then
+     call write_info("   If SADABS program has been used for absorption correction, it provided one ")
+     call write_info("   'relative-correction-factor'. In such a case, Tmax should be given as")   
+     call write_info("   Tmax_expected and Tmin = Tmax * 'relative-correction-factor'")     
      write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
      call write_info(trim(message_text))
+    elseif(SADABS_Tmin > 0. .and. SADABS_Tmax > 0.) then
+     write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
+     call write_info(trim(message_text))   
     endif 
     call write_info("") 
    endif  

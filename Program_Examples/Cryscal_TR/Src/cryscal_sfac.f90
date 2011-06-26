@@ -88,10 +88,12 @@ subroutine Calcul_SFAC_hkl
     Atm%atom(i)%ChemSymb = atom_type(i)
     Atm%atom(i)%SFACsymb = atom_type(i)
     Atm%atom(i)%Biso     = atom_Biso(i)
-    Atm%atom(i)%occ      = atom_occ(i)
     Atm%atom(i)%x(1:3)   = atom_coord(1:3, i)
     vet=Atm%atom(i)%x
     Atm%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+    !Atm%atom(i)%occ      = atom_occ(i)* Atm%atom(i)%Mult / SPG%multip
+    Atm%atom(i)%occ      = atom_occ_perc(i)* Atm%atom(i)%Mult / SPG%multip
+	!Atm%atom(i)%occ      = atom_occ_perc(i) 
    end do
   !-------------------------------------------
 
@@ -251,7 +253,8 @@ subroutine generate_HKL()
   INTEGER,            ALLOCATABLE, DIMENSION(:) :: ordered_array
   REAL                                          :: STL_min, STL_max
   REAL                                          :: d_hkl, Z, Q_hkl
-  REAL                                          :: Lp, F2, II_max, scale
+  REAL                                          :: F2, II_max, scale
+  REAL, ALLOCATABLE, DIMENSION(:)               :: Lp
   LOGICAL                                       :: calcul_I
 
 
@@ -265,7 +268,7 @@ subroutine generate_HKL()
   character(len=256)                            :: read_line
   integer                                       :: i_error
 
-
+ 
 
   Friedel = .true.
 
@@ -335,11 +338,13 @@ subroutine generate_HKL()
  IF(ALLOCATED(ref))               DEALLOCATE(ref)
  IF(ALLOCATED(II))                DEALLOCATE(II)
  IF(ALLOCATED(Angle_2theta))      DEALLOCATE(Angle_2theta)
+ IF(ALLOCATED(Lp))                DEALLOCATE(Lp)
  ALLOCATE(reflex_HKL(Num_ref))
  !ALLOCATE(reflex_list_HKL(Num_ref))
  ALLOCATE(ref(Num_ref))
  ALLOCATE(II(Num_ref))
  ALLOCATE(Angle_2theta(Num_Ref))
+ ALLOCATE(Lp(Num_ref))
 
  IF(ALLOCATED(ordered_array)) DEALLOCATE(ordered_array)
  ALLOCATE(ordered_array(Num_ref))
@@ -403,20 +408,21 @@ subroutine generate_HKL()
    if(allocated(Atm%atom))  deallocate(Atm%atom)
    allocate (Atm%atom(nb_atom))
 
+       
    do i=1, Atm%natoms
     Atm%atom(i)%Lab      = atom_label(i)
     Atm%atom(i)%ChemSymb = atom_type(i)
     Atm%atom(i)%SFACsymb = atom_type(i)
-    Atm%atom(i)%Biso     = atom_Biso(i)
-    Atm%atom(i)%occ      = atom_occ(i)
+    Atm%atom(i)%Biso     = atom_Biso(i)    
     Atm%atom(i)%x(1:3)   = atom_coord(1:3, i)
     vet=Atm%atom(i)%x
-    Atm%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
-   end do
-
-
-
-
+	Atm%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+    !Atm%atom(i)%occ      = atom_occ(i)* Atm%atom(i)%Mult / SPG%multip
+	Atm%atom(i)%occ      = atom_occ_perc(i)* Atm%atom(i)%Mult / SPG%multip
+	!Atm%atom(i)%occ      = atom_occ_perc(i)
+	
+	!write (*,*) i, atom_occ(i), atom_occ_perc(i), Atm%atom(i)%Mult , SPG%multip, Atm%atom(i)%occ
+  end do
 
    !call Write_Crystal_Cell(crystal_cell,1)
    !call Write_SpaceGroup(SpG,1)
@@ -467,7 +473,7 @@ subroutine generate_HKL()
     if(beam_type(1:9) == 'electrons') calcul_I = .false.
     if(calcul_I) then
      write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
-                                 '         Phase        F-Real        F-Imag        |Fc|^2       I/Imax'
+                                 '         Phase        F-Real        F-Imag           Lp         |Fc|^2       I/Imax'
     else
      write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
                                  '         Phase        F-Real        F-Imag        |Fc|^2'
@@ -497,13 +503,13 @@ subroutine generate_HKL()
      F2 = reflex_list_HKL%ref(i)%Fc*reflex_list_HKL%ref(i)%Fc
      if(calcul_I) then      
       if(beam_type(1:8) == 'neutrons') then
-       call Calcul_Lp("N", angle_2theta(i), Lp)
+       call Calcul_Lp("N", angle_2theta(i), Lp(i))
        scale = 0.1
       elseif(beam_type(1:6) == 'x_rays') then
-       call Calcul_Lp("X", angle_2theta(i), Lp)
-       scale = 0.0001      
+       call Calcul_Lp("X", angle_2theta(i), Lp(i))
+       scale = 0.00001      
       endif
-      II(i) = scale*reflex_list_HKL%ref(i)%mult * Lp * F2
+      II(i) = scale*reflex_list_HKL%ref(i)%mult * Lp(i) * F2
      endif
     end do
     if(calcul_I) II_max = maxval(II(1:reflex_list_HKL%Nref))
@@ -513,11 +519,12 @@ subroutine generate_HKL()
     if(HKL_2theta) then  !calcul du 2theta
      F2 = reflex_list_HKL%ref(i)%Fc*reflex_list_HKL%ref(i)%Fc
      if(calcul_I) then
-      write(message_text,fmt="(i5,3x, 3i4,2x,i5,7f14.5,f14.3,3x,F10.3)")  &
+      write(message_text,fmt="(i5,3x, 3i4,2x,i5,7f14.5,2f14.3,3x,F10.3)")  &
          i, reflex_list_HKL%ref(i)%h,     reflex_list_HKL%ref(i)%mult,    angle_2theta(i), &
             reflex_list_HKL%ref(i)%S,     0.5/reflex_list_HKL%ref(i)%S,   &
             reflex_list_HKL%ref(i)%Fc,    reflex_list_HKL%ref(i)%Phase,   &
             reflex_list_HKL%ref(i)%a,     reflex_list_HKL%ref(i)%b,       &
+			Lp(i), &
             F2, 100.*II(i)/II_max
      else
       write(message_text,fmt="(i5,3x, 3i4,2x,i5,7f14.5,f14.3)")  &
@@ -526,7 +533,7 @@ subroutine generate_HKL()
             reflex_list_HKL%ref(i)%Fc,    reflex_list_HKL%ref(i)%Phase,   &
             reflex_list_HKL%ref(i)%a,     reflex_list_HKL%ref(i)%b,       &
             F2
- endif
+     endif
 
     else
      write(message_text,fmt="(i5,3x, 3i4,2x,i5,6f14.5,f14.3)")  &
@@ -572,7 +579,7 @@ subroutine generate_HKL()
  !  call structure_factors(Atm, SPG, reflex_list_HKL,'X-rays', wavelength)
  !
 
-    if(HKL_2theta .and. create_PAT) then
+ if(HKL_2theta .and. create_PAT) then
      if(beam_type(1:8) == 'neutrons') then
       !call create_diffraction_pattern("n", wavelength, X_min, X_max, reflex_list_HKL%Nref, angle_2theta, II)
       call create_diffraction_pattern("n", wavelength, X_min, X_max, reflex_list_HKL, angle_2theta, II)

@@ -66,8 +66,11 @@ subroutine cryscal_init()
   X_file_name    = ''
   RMAT_file_name = ''
   ABS_file_name  = ''
-  SADABS_line    = ''
+  SADABS_line_ratio               = ''
+  SADABS_line_estimated_Tmin_Tmax = ''
   SADABS_ratio   = -999.
+  SADABS_Tmin    = -999.
+  SADABS_Tmax    = -999.
 
   nb_atom = 0
   nb_hkl  = 0
@@ -90,6 +93,8 @@ subroutine cryscal_init()
   
   Create_INS_temperature = -999.
   Create_INS_u_threshold = -999.
+  
+  CIF_format80 = .true. 
 
   X_target(1:tabulated_target_nb)%logic  = .false.
   X_target(1:tabulated_target_nb)%write  = .true.
@@ -321,8 +326,8 @@ subroutine cryscal_init()
   CIF_parameter%Bravais                          = '?'
   
   
-  write(CIF_parameter%computing_structure_solution,   '(3a)') "'", trim(structure_solution%CIF_ref),   ")'"  
-  write(CIF_parameter%computing_structure_refinement, '(3a)') "'", trim(structure_refinement%CIF_ref), ")'"
+  write(CIF_parameter%computing_structure_solution,   '(3a)') "'", trim(structure_solution%CIF_ref),   "'"  
+  write(CIF_parameter%computing_structure_refinement, '(3a)') "'", trim(structure_refinement%CIF_ref), "'"
                                                            
   CIF_parameter%computing_molecular_graphics         = "'Ortep-3 for Windows (Farrugia, 1997)'"
   CIF_parameter%computing_publication_material_1     = " WinGX publication routines (Farrugia, 1999),"
@@ -747,7 +752,7 @@ subroutine cryscal_init()
                              CIF_parameter, CIF_parameter_APEX, CIF_parameter_KCCD, CIF_parameter_XCALIBUR, &
                              wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                      &
                              DENZO, EVAL, APEX, CRYSALIS,                                                   &
-                             CONN_dmax_ini, CONN_dmax,                                                      &                             
+                             CONN_dmax_ini, CONN_dmax, CIF_format80,                                        &                             
                              keyword_create_ACE, keyword_create_CEL, keyword_create_CFL, keyword_create_FST, keyword_create_INS,&
                              INI_create_ACE,     INI_create_CEL,     INI_create_CFL,     INI_create_FST,     INI_create_INS,    &
                              structure_solution, structure_refinement, absorption_correction,               &
@@ -1427,6 +1432,50 @@ subroutine cryscal_init()
     
    endif
 
+
+   !-------- CIF COMMAND LINE ARGUMENTS --------------------------------------------------------------------
+   rewind(unit=INI_unit)
+   do
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    IF(iostat_err /=0)           exit
+    if(len_trim(read_line) == 0) cycle
+    i1 = index(read_line, '!') 
+    if(i1 /=0) then
+     if(i1 == 1) cycle
+     read_line = read_line(1:i1-1)
+    endif
+    read_line = ADJUSTL(read_line)
+    IF(read_line(1:9) == '[OPTIONS]') then
+     do
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      IF(iostat_err /=0)           exit
+      IF(LEN_TRIM(read_line) == 0) exit
+      i1 = index(read_line, '!') 
+      if(i1 /=0) then
+       if(i1 == 1) cycle
+       read_line = read_line(1:i1-1)
+      endif
+      read_line = ADJUSTL(read_line)
+      i2 = INDEX(read_line, '=')
+      IF(i2 ==0) exit
+      
+      READ(read_line(i2+1:), '(a)') INI_string
+      INI_string = adjustl(INI_string)
+      IF(l_case(read_line(1:12)) == 'cif_format80' .and. INI_string(1:1) == '0') then
+       CIF_format80     = .false.       
+       cycle      	   
+      endif
+     end do
+    endif 	
+   end do
+   
+   if(DEBUG_file%write) then
+    if (CIF_format80) then
+     call write_DEBUG_file ('CIF_format80',      '1     ! ')
+    else
+     call write_DEBUG_file ('CIF_format80',      '0     ! ')
+    endif     
+   endif
 
 !-------- STRUCTURE PROGRAMS --------------------------------------------------------------------
    rewind(unit=INI_unit)

@@ -668,6 +668,7 @@ subroutine molecular_weight()
   REAL,              DIMENSION(nb_atoms_type) :: Weight_percent, atomic_percent
   CHARACTER(LEN=16), DIMENSION(nb_atoms_type) :: labl
   REAL                                        :: mol_weight, Total_sto
+  INTEGER                                     :: n_electrons
   CHARACTER (LEN=16)                          :: fmt_
 
  if(ON_SCREEN) then
@@ -710,14 +711,20 @@ subroutine molecular_weight()
  end do
 
 
- ! molecular weight
- Mol_Weight = 0.
- Total_sto  = 0.
+ ! molecular weight et nombre d'electrons
+ Mol_Weight  = 0.
+ Total_sto   = 0.
+ n_electrons = 0
  do  i=1, nb_atoms_type
   Mol_Weight = Mol_Weight + atom(Num_atom(i))%weight * sto(i)
   total_sto = total_sto + sto(i)
- end do
+  n_electrons = n_electrons + atom(Num_atom(i))%Z * sto(i)
+  end do
  molecule%weight = mol_weight
+ molecule%Z      = n_electrons
+
+
+ 
 
  ! weight percentage
  do i=1, nb_atoms_type
@@ -736,10 +743,14 @@ subroutine molecular_weight()
  call write_info('')
  WRITE(message_text, '(2a)')       '   >> Molecular formula: ',trim(molecule%formula)
  call write_info(TRIM(message_text))
-
+ 
  call write_info('')
  WRITE(message_text,'(a,F8.2)') '   >> Molecular weight: ',Molecule%weight
   call write_info(TRIM(message_text))
+ call write_info('')
+ WRITE(message_text, '(a,I6)')       '   >> Total number of electrons in the molecule: ', molecule%Z
+  call write_info(TRIM(message_text))
+
  write(message_text,'(a)')      ' '
   call write_info(TRIM(message_text))
  write(message_text,'(a)')      '    Atom     Atomic weight Stoechiometry        % atomic        % weight'

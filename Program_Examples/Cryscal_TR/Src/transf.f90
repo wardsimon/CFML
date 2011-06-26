@@ -5,11 +5,12 @@ subroutine write_matrice()
  USE IO_module,           ONLY : write_info
  USE MATRIX_list_module,  ONLY : matrix_num, transf_mat_text
  use matrix_module,       only : matrix_determinant_33
+ 
 
 
- IF(matrix_num /=0) then
+ IF(matrix_num /=0) then 
   call write_info('')
-  WRITE(message_text, '(2x,a)') TRIM(transf_mat_text(matrix_num))
+  WRITE(message_text, '(2x,a)') TRIM(transf_mat_text(matrix_num))  
   call write_info(TRIM(message_text))
  endif
 
@@ -51,20 +52,20 @@ subroutine  transf_cell_parameters
 
 ! parametres a, b, c
   unit_cell%new_param(1) =   M(1,1)**2. * unit_cell%param(1)**2. +  M(1,2) ** 2. * unit_cell%param(2) **2. &
-                     + M(1,3)**2. * unit_cell%param(3)**2.  +                                              &
+                           + M(1,3)**2. * unit_cell%param(3)**2.  +                                        &
                 2*M(1,1) * M(1,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
                 2*M(1,1) * M(1,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(1,2) * M(1,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
 
 
   unit_cell%new_param(2) =   M(2,1)**2. * unit_cell%param(1)**2. +  M(2,2) ** 2. * unit_cell%param(2) **2. &
-                     + M(2,3)**2. * unit_cell%param(3)**2.  +                                              &
+                           + M(2,3)**2. * unit_cell%param(3)**2.  +                                        &
                 2*M(2,1) * M(2,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
                 2*M(2,1) * M(2,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(2,2) * M(2,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
 				
   unit_cell%new_param(3) =   M(3,1)**2. * unit_cell%param(1)**2. +  M(3,2) ** 2. * unit_cell%param(2) **2. &
-                     + M(3,3)**2. * unit_cell%param(3)**2.  +                                              &
+                           + M(3,3)**2. * unit_cell%param(3)**2.  +                                        &
                 2*M(3,1) * M(3,2) * unit_cell%param(1) * unit_cell%param(2) *  cosGamma1 +                 &
                 2*M(3,1) * M(3,3) * unit_cell%param(1) * unit_cell%param(3) *  cosBeta1  +                 &
                 2*M(3,2) * M(3,3) * unit_cell%param(2) * unit_cell%param(3) *  cosAlfa1
@@ -73,20 +74,20 @@ subroutine  transf_cell_parameters
 
  ! esd des parametres
   unit_cell%new_param_ESD(1) =   M(1,1)**2. * unit_cell%param_ESD(1)**2. +  M(1,2) ** 2. * unit_cell%param_ESD(2) **2. &
-                     + M(1,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                               + M(1,3)**2. * unit_cell%param_ESD(3)**2.  +                                            &
                 2*M(1,1) * M(1,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
                 2*M(1,1) * M(1,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(1,2) * M(1,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
 				
 				
   unit_cell%new_param_ESD(2) =   M(2,1)**2. * unit_cell%param_ESD(1)**2. +  M(2,2) ** 2. * unit_cell%param_ESD(2) **2. &
-                     + M(2,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                               + M(2,3)**2. * unit_cell%param_ESD(3)**2.  +                                            &
                 2*M(2,1) * M(2,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
                 2*M(2,1) * M(2,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(2,2) * M(2,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
 
   unit_cell%new_param_ESD(3) =   M(3,1)**2. * unit_cell%param_ESD(1)**2. +  M(3,2) ** 2. * unit_cell%param_ESD(2) **2. &
-                     + M(3,3)**2. * unit_cell%param_ESD(3)**2.  +                                                      &
+                               + M(3,3)**2. * unit_cell%param_ESD(3)**2.  +                                            &
                 2*M(3,1) * M(3,2) * unit_cell%param_ESD(1) * unit_cell%param_ESD(2) *  cosGamma1 +                     &
                 2*M(3,1) * M(3,3) * unit_cell%param_ESD(1) * unit_cell%param_ESD(3) *  cosBeta1  +                     &
                 2*M(3,2) * M(3,3) * unit_cell%param_ESD(2) * unit_cell%param_ESD(3) *  cosAlfa1
@@ -104,14 +105,14 @@ subroutine  transf_cell_parameters
 
 
   a2c2  =    M(1,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(1,2) * M(3,2) * unit_cell%param(2) ** 2.  +   &
-                M(1,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                              &
+             M(1,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                                 &
              unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(1,1) * M(3,2) + M(1,2) * M(3,1))  +  &
              unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(1,1) * M(3,3) + M(1,3) * M(3,1))  +  &
              unit_cell%param(2) * unit_cell%param(3) * cosAlfa1  * (M(1,2) * M(3,3) + M(1,3) * M(3,2))
 
 
   b2c2  =    M(2,1) * M(3,1) * unit_cell%param(1) ** 2. +  M(2,2) * M(3,2) * unit_cell%param(2) ** 2.  +   &
-                M(2,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                              &
+             M(2,3) * M(3,3) * unit_cell%param(3) ** 2.  +                                                 &
              unit_cell%param(1) * unit_cell%param(2) * cosGamma1 * (M(2,1) * M(3,2) + M(2,2) * M(3,1))  +  &
              unit_cell%param(1) * unit_cell%param(3) * cosbeta1  * (M(2,1) * M(3,3) + M(2,3) * M(3,1))  +  &
              unit_cell%param(2) * unit_cell%param(3) * cosAlfa1  * (M(2,2) * M(3,3) + M(2,3) * M(3,2))
@@ -533,8 +534,9 @@ subroutine   transf_triclinic
   call write_info(' ')
   call write_info(' --------- Triclinic  transformations -----------')
 
-
+  
   do mat_numor = 3, 7
+   matrix_num = mat_numor
    call write_info('')
    call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
    Mat(:,:) = transf_mat(:,:, mat_numor)
@@ -564,9 +566,11 @@ subroutine   transf_monoclinic
   call write_info(' --------- Monoclinic transformations -----------')
 
 
-  do mat_numor = 27, 28
+  !do mat_numor = 27, 28
+  do mat_numor = 27, 31
+   matrix_num = mat_numor
    call write_info('')
-   call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
+   !call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
    Mat(:,:) = transf_mat(:,:, mat_numor)
    call write_matrice()
    Mat_det = matrix_determinant_33(Mat)
@@ -576,14 +580,14 @@ subroutine   transf_monoclinic
   call write_info('')
   call write_info('   . examples:')
   call write_info('')
-  call write_info('      P 21/c  ==> P 21/a:   matrix M #1')
-  call write_info('      P 21/c  ==> P 21/n:   matrix M #2')
+  !call write_info('      P 21/c (a<c) ==> P 21/n (a<c):   matrix M #29')
+  !call write_info('      P 21/c (a<c) ==> P 21/a (a<c):   matrix M #28')
   call write_info('')
-  call write_info('      P 21/n  ==> P 21/c:   matrix M #1')
-  call write_info('      P 21/n  ==> P 21/a:   matrix M #2')
+  !call write_info('      P 21/n (a<c) ==> P 21/a (a>c):   matrix M #27')
+  call write_info('      P 21/n (a<c) ==> P 21/c (a<c):   matrix M #28')
   call write_info('')
-  call write_info('      P 21/a  ==> P 21/n:   matrix M #1')
-  call write_info('      P 21/a  ==> P 21/c:   matrix M #2')
+  !call write_info('      P 21/a (a<c) ==> P 21/n (a<c):   matrix M #28')
+  call write_info('      P 21/a (a<c) ==> P 21/c (a>c):   matrix M #30')
   call write_info('')
 
 
@@ -609,6 +613,7 @@ subroutine   twin_hexa
 
 
   do mat_numor = 22, 26
+   matrix_num = mat_numor
    call write_info('')
    call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
    Mat(:,:) = transf_mat(:,:, mat_numor)
@@ -640,6 +645,7 @@ subroutine   twin_pseudo_hexa
 
 
   do mat_numor = 27, 31
+   matrix_num = mat_numor
    call write_info('')
    call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
    Mat(:,:) = transf_mat(:,:, mat_numor)
@@ -672,6 +678,7 @@ subroutine   permutation_abc
 
 
   do mat_numor = 3, 7
+   matrix_num = mat_numor
    call write_info('')
    call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
    Mat(:,:) = transf_mat(:,:, mat_numor)
@@ -740,7 +747,7 @@ subroutine   transf_hex_to_rhomb
   call write_info(' ')
   call write_info(' ')
   call write_info('               ( 2/3  1/3  1/3)')
-  call write_info('  with:  Tr_h =(-1/3  1/3  1/3)')
+  call write_info('  with:  Th_r =(-1/3  1/3  1/3)')
   call write_info('               (-1/3 -2/3  1/3)')
   call write_info(' ')
   call write_info(' ')
@@ -824,7 +831,7 @@ end subroutine write_list_matrice
 !-----------------------------------------------------------------
 
 subroutine find_new_group()
- USE cryscal_module,            ONLY : SPG, Mat, message_text, nb_symm_op
+ USE cryscal_module,            ONLY : SPG, Mat, message_text, nb_symm_op, Mit
  USE macros_module,             ONLY : remove_car, replace_car
  USE IO_module,                 ONLY : write_info
  use CFML_Crystallographic_Symmetry, ONLY : set_spacegroup,   get_hallsymb_from_gener
@@ -845,15 +852,27 @@ subroutine find_new_group()
  SPG%Bravais = ADJUSTL(SPG%Bravais)
 
  ! creation de la carte des operateurs de symmetrie
- nb_symm_op = SPG%NumOps  - 1
- do op_num = 1, nb_symm_op
-  car_symop(op_num) = SPG%SymopSymb(op_num+1)
- end do
+ 
+ !write(*,*) ' num op : ', SPG%numops, SPG%multip
+ !write(*,*) ' centro : ', SPG%centred
+ 
+ ! SPG%NumOps : nombre d'operateurs de symetrie reduit, y compris l'identite
+ !              
+ !nb_symm_op = SPG%NumOps  - 1
+ !do op_num = 1, nb_symm_op
+ ! car_symop(op_num) = SPG%SymopSymb(op_num+1)
+ ! write(*,*) op_num, car_symop(op_num)
+ !end do
+ 
+ !do op_num= 1, SPG%Multip
+ ! WRITE(*,*)   op_num, SPG%SymopSymb(op_num)
+ !end do
 
- IF(SPG%Centred  /=1)  then
-  nb_symm_op = nb_symm_op + 1
-  car_symop(nb_symm_op)='-X,-Y,-Z'
- endif
+ 
+! IF(SPG%Centred  /=1)  then
+!  nb_symm_op = nb_symm_op + 1
+!  car_symop(nb_symm_op)='-X,-Y,-Z'
+! endif
 
  select case (SPG%Bravais(1:1))
     case ('I') ! I
@@ -888,7 +907,8 @@ subroutine find_new_group()
   END select
 
 
-  do op_num =2, SPG%NumOps
+  !do op_num =2, SPG%NumOps
+   do op_num=1, SPG%multip
 
    input_line = TRIM(SPG%SymopSymb(op_num))
    input_line = remove_car(input_line, ' ')
@@ -901,34 +921,48 @@ subroutine find_new_group()
    op_STRING = ADJUSTL(op_STRING)
    call get_op_ROT_TRANS(op_STRING, op_ROT, op_TRANS)
 
-   new_op_ROT   = MATMUL(ABS(MAT), op_ROT)
-   new_op_TRANS = MATMUL(MAT, op_TRANS)
+   call get_matrice_inverse_transposee   !!! very important !!
+   new_op_ROT   = MATMUL(ABS(Mit), op_ROT)
+   new_op_TRANS = MATMUL(Mit, op_TRANS)
+
+   !new_op_ROT   = MATMUL(ABS(MAT), op_ROT)
+   !new_op_TRANS = MATMUL(MAT, op_TRANS)
 
    call get_op_STRING(new_op_ROT, new_op_TRANS, op_string)
    op_string = ADJUSTL(op_string)
 
    op_string(1) = replace_car(op_string(1), "y", "x")
    op_string(1) = replace_car(op_string(1), "z", "x")
-   op_string(1) = replace_car(op_string(2), "x", "y")
-   op_string(1) = replace_car(op_string(2), "z", "y")
-   op_string(1) = replace_car(op_string(3), "x", "z")
-   op_string(1) = replace_car(op_string(3), "y", "z")
+   op_string(2) = replace_car(op_string(2), "x", "y")
+   op_string(2) = replace_car(op_string(2), "z", "y")
+   op_string(3) = replace_car(op_string(3), "x", "z")
+   op_string(3) = replace_car(op_string(3), "y", "z")
 
    IF(op_string(1)(1:1) == '+') op_string(1) = op_string(1)(2:)
    IF(op_string(2)(1:1) == '+') op_string(2) = op_string(2)(2:)
    IF(op_string(3)(1:1) == '+') op_string(3) = op_string(3)(2:)
 
-   WRITE(car_symop(op_num-1), '(5a)')  op_string(1),  ',',  op_string(2), ',', op_string(3)
-   car_symop(op_num-1) = remove_car(car_symop(op_num-1), ' ')
+   WRITE(car_symop(op_num), '(5a)')  op_string(1),  ',',  op_string(2), ',', op_string(3)
+   car_symop(op_num) = remove_car(car_symop(op_num), ' ')
    
   end do
 
 
-  ! deduction du nouveau symbol du groupe
+  ! deduction du nouveau symbol du groupe  
  WRITE(SPG_num_string, '(i3)')SPG%NumSpg
+ !write(*,*) SPG%numspg, SPG_num_string
+ !nb_symm_op = nb_symm_op + 1
+ !car_symop(1)="x,y,z"
+ 
+ nb_symm_op = SPG%multip
+ !write(*,*) ' nb_sym_op :  ', nb_symm_op
+ !do op_num=1, nb_symm_op
+ ! write(*,*) op_num, car_symop(op_num)
+ !end do
  call set_spacegroup(TRIM(SPG_num_string), SPG, car_symop, nb_symm_op, 'GEN') 
- call set_spacegroup(TRIM(SPG_num_string), SPG)
-   
+ 
+ !call set_spacegroup(TRIM(SPG_num_string), SPG)
+  
   call get_hallsymb_from_gener(SPG)
 
   WRITE(message_text, '(2a)') '  > New Space group: ', TRIM(SPG%SPG_Symb)
@@ -940,4 +974,5 @@ subroutine find_new_group()
 
  RETURN
 end subroutine find_new_group
+
 

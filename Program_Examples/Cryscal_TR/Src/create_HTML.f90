@@ -196,7 +196,7 @@ implicit none
   WRITE(HTML_unit, '(a)') '    structure_solution_name         = SIR97'
   WRITE(HTML_unit, '(3a)')'    structure_solution_reference    = A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, ', &
                                                                 'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, ',   &
-																'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
+							        'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   WRITE(HTML_unit, '(a)') '    structure_solution_cif_ref      = SIR97 (Altomare et al., 1999)'
   WRITE(HTML_unit, '(a)') '    structure_refinement_name       = SHELXL-97'
   WRITE(HTML_unit, '(a)') '    structure_refinement_reference  = Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
@@ -848,11 +848,14 @@ subroutine create_structural_report()
 
   WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;Structural data</p>"
 
-
   WRITE(HTML_unit, '(a)')  "<pre style='font-size:14'>"
-  CALL transf_moiety_string("HTML", CIF_parameter%formula_moiety , HTML_string)
-  WRITE(HTML_unit, '(10x,2a)') "Empirical formula                      ", TRIM(HTML_string)
-  !WRITE(HTML_unit, '(10x,2a)') "Empirical formula                      ", TRIM(CIF_parameter%formula_moiety)
+  CALL transf_moiety_string("HTML", CIF_parameter%formula_sum , HTML_string)
+  WRITE(HTML_unit, '(10x,2a)') "Empirical formula                      ", TRIM(adjustl(HTML_string))
+  if(CIF_parameter%formula_sum(1:len_trim(CIF_parameter%formula_sum)) /=   &
+     CIF_parameter%formula_moiety(1:len_trim(CIF_parameter%formula_moiety)))  then
+   CALL transf_moiety_string("HTML", CIF_parameter%formula_moiety , HTML_string)
+   WRITE(HTML_unit, '(10x,2a)') "Extended  formula                      ", TRIM(adjustl(HTML_string))
+  end if
   WRITE(HTML_unit, '(10x,2a)') "Formula weight                         ", TRIM(CIF_parameter%formula_weight)
   WRITE(HTML_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter%diffracto_temperature)," <i>K</i>"
   WRITE(HTML_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), " Å "
@@ -1436,17 +1439,40 @@ subroutine create_structural_report()
   !WRITE(HTML_unit, '(a)') "</blockquote></blockquote>"
 
 
+  !file_exist = .false.
+  !GIF_file = "platon_ortep.gif"
+  !call test_file_exist(trim(GIF_file), file_exist)
+  !if(.not. file_exist) then
+  ! GIF_file   = "ortep.gif"
+  ! call test_file_exist(trim(GIF_file), file_exist)
+  ! if(.not. file_exist) then
+  !  GIF_file = "platon_jobte.gif"
+  !  call test_file_exist(trim(GIF_file), file_exist)
+  !  if(.not. file_exist) then
+  !   GIF_file = "platon_Ite.gif"
+  !   call test_file_exist(trim(GIF_file), file_exist)
+  !  end if
+  ! endif
+  !endif
+  
   file_exist = .false.
-  GIF_file = "platon_ortep.gif"
-  call test_file_exist(trim(GIF_file), file_exist)
-  if(.not. file_exist) then
-   GIF_file   = "ortep.gif"
+  do
+   GIF_file = "platon_ortep.gif"
    call test_file_exist(trim(GIF_file), file_exist)
-   if(.not. file_exist) then
-    GIF_file = "platon_jobte.gif"
-    call test_file_exist(trim(GIF_file), file_exist)
-   endif
-  endif
+   if(file_exist) exit
+   
+   GIF_file= "ortep.gif"
+   call test_file_exist(trim(GIF_file), file_exist)
+   if(file_exist) exit
+   
+   GIF_file = "platon_jobte.gif"
+   call test_file_exist(trim(GIF_file), file_exist)
+   if(file_exist) exit
+   
+   GIF_file = "platon_Ite.gif"
+   call test_file_exist(trim(GIF_file), file_exist)
+   exit
+  end do
 
   if(file_exist) then
     WRITE(HTML_unit, '(a)') ""
@@ -1506,7 +1532,7 @@ subroutine get_sym_op(input_string, numor_op, t)
 
   i1 = index(input_string, '_')
   if(i1==0) then
-    read(input_string, *) numor_op
+    !read(input_string, *) numor_op
     t(1) = 5
     t(2) = 5
     t(3) = 5
