@@ -2800,7 +2800,7 @@
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
        integer                                      :: i, j, i1, long, nb_sep, nb_col, n, ier
-       real(kind=cp)                                :: step_time
+       real(kind=cp)                                :: step_time, wav
 
 
        call init_err_diffpatt()
@@ -2858,6 +2858,24 @@
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  pat%npts
+              end if
+           ELSE IF (line(1:5) == "_WL1=") THEN
+              i=INDEX(line,"=")
+              j = LEN_TRIM(line)
+              if (LEN_TRIM(line(i+1:j)) /=0) then
+                 read(unit=line(i+1:j),fmt=*)  pat%conv(1)
+              end if
+           ELSE IF (line(1:5) == "_WL2=") THEN
+              i=INDEX(line,"=")
+              j = LEN_TRIM(line)
+              if (LEN_TRIM(line(i+1:j)) /=0) then
+                 read(unit=line(i+1:j),fmt=*)  pat%conv(2)
+              end if
+           ELSE IF (line(1:9) == "_WLRATIO=") THEN
+              i=INDEX(line,"=")
+              j = LEN_TRIM(line)
+              if (LEN_TRIM(line(i+1:j)) /=0) then
+                 read(unit=line(i+1:j),fmt=*)  pat%conv(3)
               end if
            END IF
         END DO
