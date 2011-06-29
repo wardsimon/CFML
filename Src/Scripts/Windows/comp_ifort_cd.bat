@@ -70,7 +70,6 @@ rem
    ifort /c CFML_refcodes.f90         /debug:full /check /traceback /nologo
    ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /nologo
    ifort /c CFML_magsymm.f90          /debug:full /check /traceback /nologo
-   ifort /c CFML_msfac.f90            /debug:full /check /traceback /nologo
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry
