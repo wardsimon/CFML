@@ -52,7 +52,7 @@ ELSEIF(UNIX)
     # Intel Fortran compiler
     IF(${COMPILER_NAME} STREQUAL ifort)
 
-        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Linux_intel.f90)
+        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Linux_Intel.f90)
 
     ELSE()
 
