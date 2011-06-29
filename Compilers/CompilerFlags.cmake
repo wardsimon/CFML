@@ -5,8 +5,8 @@ SET(CMAKE_Fortran_FLAGS_INIT "")
 
 IF(${COMPILER_NAME} STREQUAL ifort)
 
-    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "/debug:full /check /traceback /nologo")
-    SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "/O2 /nologo /Qvec-report0")
+    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-debug:full -check -traceback -nologo")
+    SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O2 -nologo -Qvec-report0")
     
 ELSEIF(${COMPILER_NAME} STREQUAL g95)
 
