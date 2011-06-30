@@ -1,7 +1,11 @@
-# The variable that will store the name of the source file for the built in CONSOLE mode.
+#####################################################
+# Define the source files for crysfml library       #
+#####################################################
+
+# This will store the source files for the crysfgl library.
 SET(crysfgl_LIB_SRCS "")
 
-# Append new sources files for the build of CrysFGL.
+# The source files of the crysfgl library.
 SET(crysfgl_LIB_SRCS
     ${crysfgl_LIB_SRCS}
     WCFGL_Atomic_Table.f90
@@ -23,48 +27,49 @@ SET(crysfgl_LIB_SRCS
     WCFGL_Trackball.f90
 )
 
-INCLUDE_DIRECTORIES(${LIB_PATH}/LibC)
+#####################################################
 
-# A static version of crysfgl will be built.
+
+
+#####################################################
+# Define targets properties                         #
+#####################################################
+
+INCLUDE_DIRECTORIES(${LIB_PATH}/LibC ${LIB_PATH}/LibW)
+
+# Add the crysfgl library to the project.
 ADD_LIBRARY(wcrysfgl STATIC ${crysfgl_LIB_SRCS})
+
+# The crysfml_common will be linked to crysfgl library.
 TARGET_LINK_LIBRARIES(wcrysfgl crysfml_common)
 
-# Set the path where the crysfgl library and their associated mod files will be stored.
+# Sets the path where to place the crysfgl library.
 SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibGL)
+
+# Sets the path where to place the mod files for the crysfgl library.
 SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibGL)
+
+IF(WIN32)
+    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")
+ELSEIF(APPLE)
+    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.ifi")        
+ELSEIF(UNIX)
+    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")    
+ENDIF()
+
 
 # Some compiler specific flags are defined for the library to build.
 # Case of Intel fortran compiler.
-IF(${COMPILER_NAME} STREQUAL ifort)
+#IF(${COMPILER_NAME} STREQUAL ifort)
 
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Intel)
+#    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in GUI mode.
+#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "/I. /I$ENV{WINTER}/lib.if8 /I${LIB_PATH}/LibW")
 
-    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in WINDOW mode.
-    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "/I. /I$ENV{WINTER}/lib.if8 /I${LIB_PATH}/LibW")
+    
+#    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in GUI mode.
+#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}\lib.l95;${LIB_PATH}/LibW")
 
-# Case of gfortran compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
+#    # Excepted the following files for which the compilation flags is slightly different.
+#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-nstchk")
 
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/gfortran)
-
-# Case of g95 compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL g95)
-
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/G95)
-
-# Case of Lahey compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL lf95)
-
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Lahey)
-
-    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in WINDOW mode.
-    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}\lib.l95;${LIB_PATH}/LibW")
-
-    # Excepted the following files for which the compilation flags is slightly different.
-    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-nstchk")
-
-ENDIF()
+#ENDIF()

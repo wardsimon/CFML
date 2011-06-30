@@ -1,26 +1,12 @@
-MACRO(ADD_PREFIX prefix rootlist)
-  SET(outlist )
-  FOREACH(root ${${rootlist}})
-    LIST(APPEND outlist ${prefix}${root})
-  ENDFOREACH(root)
-  SET(${rootlist} ${outlist})
-ENDMACRO(ADD_PREFIX)
+#####################################################
+# Define the source files for crysfml library       #
+#####################################################
 
-MACRO(ADD_SUFFIX rootlist suffix)
-  SET(outlist )
-  FOREACH(root ${${rootlist}})
-    LIST(APPEND outlist ${root}${suffix})
-  ENDFOREACH(root)
-  SET(${rootlist} ${outlist})
-ENDMACRO(ADD_SUFFIX)
-
-# This will store the source files common to a build in CONSOLE and WINDOW mode.
+# This will store the source files common to a build in CONSOLE and GUI mode.
 SET(crysfml_COMMON_LIB_SRCS "")
 
-#####################################################
-# Case of the OS and compiler dependant source files.
-#####################################################
-# Windows
+
+# WINDOWS
 IF(WIN32)
 
     # Intel Fortran compiler
@@ -62,9 +48,7 @@ ELSEIF(UNIX)
 
 ENDIF()
 
-####################################################################
-# The other common files between a build in CONSOLE and WINDOW mode.
-####################################################################
+# Those files are in common for a build in Console or in GUI mode.
 SET(crysfml_COMMON_LIB_SRCS
     ${crysfml_COMMON_LIB_SRCS}
     CFML_Atom_Mod.f90
@@ -102,23 +86,14 @@ SET(crysfml_COMMON_LIB_SRCS
     CFML_Sym_Table.f90
 )
 
-#######################################################################################
-# Case of the extra files that have to be built differently in CONSOLE and WINDOW mode.
-#######################################################################################
+# Files specific to a build in CONSOLE mode.
+SET(crysfml_CONSOLE_LIB_SRCS CFML_IO_Mess.f90 CFML_Optimization_SAn.f90)
 
-# This will store the extra files for a build in CONSOLE mode.
-SET(crysfml_CONSOLE_LIB_SRCS
-    CFML_IO_Mess.f90
-    CFML_Optimization_SAn.f90
-)
+# Files specific to a build in GUI mode.
+IF(${GUI})
 
-# This will store the extra files for a build in WINDOW mode.
-SET(crysfml_WINDOW_LIB_SRCS
-    CFML_Optimization_SAn.f90
-)
-# Case of a built in WINDOW mode: some other specific source files are added.
-IF(${WINDOW})
-
+    SET(crysfml_GUI_LIB_SRCS CFML_Optimization_SAn.f90)
+    
     # Case of The Lahey compiler with a RWIN build (-DRWIN=True).
     IF(${COMPILER_NAME} STREQUAL lf95 AND ${RWIN})
 
@@ -130,105 +105,129 @@ IF(${WINDOW})
 
     ENDIF()
 
-    # A Winteracter-supported version of the library will be built.
-    # ADD_LIBRARY(wcrysfml STATIC ${wcrysfml_LIB_SRCS})
-
 ENDIF()
 
-# A CONSOLE version of crysfml library will be built.
-ADD_LIBRARY(crysfml_common STATIC ${crysfml_COMMON_LIB_SRCS})
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/Common)
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibC)
+#####################################################
+
+
+
+#####################################################
+# Define sources properties                    #
+#####################################################
 
 SET(COMMON_OBJS_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/crysfml_common.dir)
 SET(COMMON_OBJS_FILES ${crysfml_COMMON_LIB_SRCS})
 ADD_SUFFIX(COMMON_OBJS_FILES ${CMAKE_Fortran_OUTPUT_EXTENSION})
 ADD_PREFIX(${COMMON_OBJS_DIR}/ COMMON_OBJS_FILES)
 
-SET_SOURCE_FILES_PROPERTIES(
-  ${COMMON_OBJS_FILES}
-  PROPERTIES GENERATED true
-)
+# Those file are generated during the build.
+SET_SOURCE_FILES_PROPERTIES(${COMMON_OBJS_FILES} PROPERTIES GENERATED true)
 
+#####################################################
+
+
+
+#####################################################
+# Define targets properties                         #
+#####################################################
+
+# The crysfml_common library is common to Console and GUI mode.
+ADD_LIBRARY(crysfml_common STATIC ${crysfml_COMMON_LIB_SRCS})
+
+# The crysfml library is the CONSOLE version of the library. It is also built in GUI mode.
 ADD_LIBRARY(crysfml STATIC ${crysfml_CONSOLE_LIB_SRCS} ${COMMON_OBJS_FILES})
-TARGET_LINK_LIBRARIES(crysfml crysfml_common)
+
+# Sets the path where to place the crysfml_common library.
+SET_TARGET_PROPERTIES(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/Common)
+
+# Sets the path where to place the mod files for the crysfml_common library.
+SET_TARGET_PROPERTIES(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibC)
+
+# Sets the path where to place the crysfml library.
 SET_TARGET_PROPERTIES(crysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibC)
+
+# Sets the path where to place the mod files for the crysfml library.
 SET_TARGET_PROPERTIES(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibC)
 
-# Set the path where the crysfml and wcrysfml libraries and their associated mod files will be stored.
-IF(${WINDOW})
+# The crysfml_common will be linked to crysfml library.
+TARGET_LINK_LIBRARIES(crysfml crysfml_common)
+
+if(${GUI})
 
     INCLUDE_DIRECTORIES(${LIB_PATH}/LibC)
-    
+            
+    # The wcrysfml library is the GUI version of the library. It is linked using Winteracter.
     ADD_LIBRARY(wcrysfml STATIC ${crysfml_WINDOW_LIB_SRCS} ${COMMON_OBJS_FILES})
-    TARGET_LINK_LIBRARIES(wcrysfml crysfml_common)
 
+    IF(WIN32)
+        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")        
+    ELSEIF(APPLE)
+        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.ifi")        
+    ELSEIF(UNIX)
+        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")    
+    ENDIF()
+
+
+    # Sets the path where to place the mod files for the wcrysfml library.
     SET_TARGET_PROPERTIES(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibW)
+    
+    # Sets the path where to place the mod files for the wcrysfml library.
     SET_TARGET_PROPERTIES(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibW)
-
+        
+    # The crysfml_common will be linked to wcrysfml library.
+    TARGET_LINK_LIBRARIES(wcrysfml crysfml_common)
+    
 ENDIF()
+
+#####################################################
+
+
+
 
 # Some compiler specific flags are defined for the library to build.
 # Case of Intel fortran compiler.
-IF(${COMPILER_NAME} STREQUAL ifort)
-
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Intel)
-
-    # An include directive for Winteracter is added in case of a build in WINDOW mode.
-    IF(${WINDOW})
-
-        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")
-
-    ENDIF()
+#IF(${COMPILER_NAME} STREQUAL ifort)
 
 # Case of gfortran compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
+#ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
 
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/gfortran)
 
     # By default all the source file are compiled with "-std=f2003" flag.
-    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
+#    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
 
     # Excepted the following files for which the compilation flags is slightly different.
-    SET_SOURCE_FILES_PROPERTIES(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
-    SET_SOURCE_FILES_PROPERTIES(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
-    SET_SOURCE_FILES_PROPERTIES(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
-    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")
+#    SET_SOURCE_FILES_PROPERTIES(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
+#    SET_SOURCE_FILES_PROPERTIES(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
+#    SET_SOURCE_FILES_PROPERTIES(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
+#    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")
 
 # Case of g95 compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL g95)
-
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/G95)
+#ELSEIF(${COMPILER_NAME} STREQUAL g95)
 
     # By default all the source file are compiled with "-std=f2003" flag.
-    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
+#    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
 
     # Excepted the following files for which the compilation flags is slightly different.
-    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
+#    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
 
 # Case of Lahey compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL lf95)
+#ELSEIF(${COMPILER_NAME} STREQUAL lf95)
 
-    # The base output path for the libraries.
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Lahey)
 
-    IF(${WINDOW})
+#    IF(${GUI})
 
-        # An include directive for Realwin is added in case of a build in WINDOW mode.
-        IF(${RWIN})
+#        # An include directive for Realwin is added in case of a build in GUI mode.
+#        IF(${RWIN})
 
-            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-mod .;$ENV{RWIN}")
+#            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-mod .;$ENV{RWIN}")
 
-        # An include directive for Winteracter is added in case of a build in WINDOW mode.
-        ELSE()
+#        # An include directive for Winteracter is added in case of a build in GUI mode.
+#        ELSE()
 
-            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}/lib.l95")
+#            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}/lib.l95")
 
-        ENDIF()
+#        ENDIF()
 
-    ENDIF()
+#    ENDIF()
 
-ENDIF()
+#ENDIF()
