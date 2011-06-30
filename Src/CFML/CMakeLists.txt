@@ -123,6 +123,8 @@ ADD_PREFIX(${COMMON_OBJS_DIR}/ COMMON_OBJS_FILES)
 # Those file are generated during the build.
 SET_SOURCE_FILES_PROPERTIES(${COMMON_OBJS_FILES} PROPERTIES GENERATED true)
 
+
+
 #####################################################
 
 
@@ -164,9 +166,12 @@ if(${GUI})
     ELSEIF(APPLE)
         SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.ifi")        
     ELSEIF(UNIX)
-        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")    
+        IF(${COMPILER_NAME} STREQUAL ifort)    
+            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")
+        ELSEIF(${COMPILER_NAME} STREQUAL g95)
+            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.g95")
+        ENDIF()
     ENDIF()
-
 
     # Sets the path where to place the mod files for the wcrysfml library.
     SET_TARGET_PROPERTIES(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibW)
