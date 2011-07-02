@@ -2851,34 +2851,30 @@
     End Subroutine Get_Laue_Str
 
     !!----
-    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,str,prim)
+    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim)
     !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,                      intent(out) :: mult  !  Out -> Multiplicity
     !!----    real(kind=cp), dimension(:,:),intent(out) :: orb   !  Out -> List of equivalent positions
-    !!----    integer,dimension(:),optional,intent(out) :: ptr   !  Out -> Pointer to effective symops
-    !!----    integer,dimension(:),optional,intent(out) :: str   !  Out -> Pointer to stabilizer
+    !!----    integer,dimension(:),optional,intent(out) :: ptr   !  Out -> Pointer to the symmetry elements
     !!----    character(len=*),    optional,intent( in) :: prim  !  In  -> If given, only the primitive cell is considered
     !!----
     !!----    Obtain the multiplicity and list of equivalent positions
     !!----    (including centring!) modulo integer lattice translations.
-    !!----    It provides also pointers to the stabilizer and to the
-    !!----    symmetry operators changing effectively the position.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: June - 2011 (JRC - removing pointer to stabilizer)
     !!
-    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,str,prim)
+    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,prim)
        !---- Arguments ----!
        real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
        integer,                      intent(out) :: mult
        real(kind=cp),dimension(:,:), intent(out) :: orb
        integer,dimension(:),optional,intent(out) :: ptr
-       integer,dimension(:),optional,intent(out) :: str
        character(len=*),    optional,intent( in) :: prim
 
        !---- Local variables ----!
-       integer                                :: j, nt,is
+       integer                                :: j, nt
        real(kind=cp), dimension(3)            :: xx,v
        character(len=1)                       :: laty
 
@@ -2886,23 +2882,9 @@
        if(present(prim)) laty=Spg%spg_lat
        mult=1
        orb(:,1)=x(:)
-       if(present(ptr)) then
-          ptr=0
-          ptr(1)=1
-       end if
-       if(present(str)) then
-         str=0
-         str(1)=1
-       end if
-       is=1
 
        ext: do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)
-          !if(Lattice_trans(xx-x,Spg%spg_lat) .and. present(str)) then    !stabilizer
-          if(sum(abs(xx-x)) < 2.0*eps_symm .and. present(str)) then    !stabilizer
-            is=is+1
-            str(is)=j
-          end if
           xx=modulo_lat(xx)
           do nt=1,mult
              v=orb(:,nt)-xx(:)
@@ -2913,7 +2895,7 @@
           end do
           mult=mult+1
           orb(:,mult)=xx(:)
-          if(present(ptr)) ptr(mult)=j  !Effective symop
+          if(present(ptr)) ptr(mult) = j   !Effective symop
        end do ext
 
        return
@@ -5434,39 +5416,52 @@
     End Subroutine Get_SO_from_HMS
 
     !!----
-    !!---- Subroutine Get_Stabilizer(X,Spg,Order,Ptr)
-    !!----    real(kind=cp), dimension(3), intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
-    !!----    type(Space_Group_type),      intent (in)  :: Spg   ! Space group
-    !!----    integer,                     intent(out)  :: order ! Number of sym.op. keeping invariant the position x
-    !!----    integer, dimension(:),       intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
-    !!----                                                       ! of the stabilizer (point group) of x
+    !!---- Subroutine Get_Stabilizer(X,Spg,Order,Ptr,Atr)
+    !!----    real(kind=cp), dimension(3),  intent (in)  :: x     ! real(kind=cp) space position (fractional coordinates)
+    !!----    type(Space_Group_type),       intent (in)  :: Spg   ! Space group
+    !!----    integer,                      intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+    !!----    integer, dimension(:),        intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+    !!----                                                        ! of the stabilizer (point group) of x
+    !!----    real(kind=cp), dimension(:,:),intent(out)  :: atr   ! Associated additional translation to the symmetry operator
     !!----
     !!----    Subroutine to obtain the list of symmetry operator of a space group that leaves
     !!----    invariant an atomic position. This subroutine provides a pointer to the symmetry
-    !!----    operators of the site point group.
+    !!----    operators of the site point group and the additional translation with respect to
+    !!----    the canonical representant.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: June - 2011 (JRC)
     !!
-    Subroutine Get_Stabilizer(X,Spg,Order,Ptr)
+    Subroutine Get_Stabilizer(X,Spg,Order,Ptr,Atr)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent (in)  :: x     ! real space position (fractional coordinates)
-       type(Space_Group_type),      intent (in)  :: Spg   ! Space group
-       integer,                     intent(out)  :: order ! Number of sym.op. keeping invariant the position x
-       integer, dimension(:),       intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
-                                                          ! of the stabilizer of x
+       real(kind=cp), dimension(3),  intent (in)  :: x     ! real space position (fractional coordinates)
+       type(Space_Group_type),       intent (in)  :: Spg   ! Space group
+       integer,                      intent(out)  :: order ! Number of sym.op. keeping invariant the position x
+       integer, dimension(:),        intent(out)  :: ptr   ! Array pointing to the symmetry operators numbers
+                                                           ! of the stabilizer of x
+       real(kind=cp), dimension(:,:),intent(out)  :: atr   ! Associated additional translation to the symmetry operator
        !---- Local variables ----!
-       real(kind=cp), dimension(3):: xx
-       integer                    :: j
+       real(kind=cp), dimension(3)    :: xx, tr
 
-       order  = 1    !Identity belongs always to the stabilizer
-       ptr(:) = 0
-       ptr(1) = 1
+       integer                        :: j,n1,n2,n3
 
-       do j=2,Spg%multip
-          xx=ApplySO(Spg%SymOp(j),x)-x
-          if (sum(abs(xx)) > 2.0 * eps_symm) cycle
-          order=order+1
-          ptr(order)=j
+       order    = 1    !Identity belongs always to the stabilizer
+       ptr(:)   = 0
+       atr(:,:) = 0.0
+       ptr(1)   = 1
+
+       do n1=-1,1
+        do n2=-1,1
+          do n3=-1,1
+            tr=real((/n1,n2,n3/))
+             do j=2,Spg%multip
+                xx=ApplySO(Spg%SymOp(j),x)+tr-x
+                if (sum(abs(xx)) > 2.0 * eps_symm) cycle
+                order=order+1
+                ptr(order)=j
+                atr(:,order)=tr
+             end do
+          end do
+        end do
        end do
 
        return
@@ -6509,32 +6504,37 @@
     End Subroutine Read_SymTrans_Code
 
     !!----
-    !!---- Subroutine Read_Xsym(Info,Istart,Sim,Tt)
+    !!---- Subroutine Read_Xsym(Info,Istart,Sim,Tt,ctrl)
     !!----    character (len=*),                     intent( in)    :: Info   !  In -> String with the symmetry symbol
     !!----                                                                             in the form: SYMM  x,-y+1/2,z
     !!----    integer,                               intent(in)     :: istart !  In -> Starting index of info to read in.
     !!----    integer, dimension(3,3),               intent(out)    :: sim    ! Out -> Rotational part of S.O.
     !!----    real(kind=cp), optional, dimension(3), intent(out)    :: tt     ! Out -> Traslational part of S.O.
     !!----
+    !!----
     !!----    Read symmetry or transformation operators in the form X,Y,Z, etc...
     !!----    Provides the rotational matrix and translation associated a to SYMM symbol
     !!----    in the Jones Faithful representation.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: June - 2011 (JRC, adding ctrl for controlling if a real symmetry operator is needed)
     !!
-    Subroutine Read_Xsym(Info,Istart,Sim,Tt)
+    Subroutine Read_Xsym(Info,Istart,Sim,Tt,ctrl)
        !---- Arguments ----!
-       character (len=*),            intent(in)              :: Info
-       integer,                      intent(in)              :: istart
-       integer, dimension(3,3),      intent(out)             :: sim
+       character (len=*),                     intent(in)     :: Info
+       integer,                               intent(in)     :: istart
+       integer, dimension(3,3),               intent(out)    :: sim
        real(kind=cp), optional, dimension(3), intent(out)    :: tt
+       logical,       optional,               intent(in)     :: ctrl
 
        !---- Local variables ----!
        character (len=*), dimension(10), parameter :: ANUM=(/"1","2","3","4","5","6","7","8","9","0"/)
        integer, dimension(10), parameter           :: NUM =(/1,2,3,4,5,6,7,8,9,0/)
        integer :: i,imax,nop,s,np,isl,ifound,ip,k,mod_istart,ST=0,I_P,ist
        real(kind=cp) :: t,a
+       logical       :: control
 
+       control=.true.
+       if(present(ctrl)) control=ctrl
        call init_err_symm()
        imax=len_trim(info)
        if (present(tt)) tt=0.0
@@ -6598,7 +6598,7 @@
                    end if
                 end do
                 err_symm=.true.
-                ERR_Symm_Mess=" Invalid character... "//INFO(I:I)//" in Sym. Op."
+                ERR_Symm_Mess=" Invalid character... "//INFO(I:I)//" in operator string"
                 return
              end if
           end do  loop_string   !end loop through the string (index:i= ist,imax)
@@ -6609,14 +6609,16 @@
 
           t=t*st
           if (present(tt)) tt(nop)=t
+
           if (ifound == 0) then
              err_symm=.true.
              ERR_Symm_Mess=" Blank operator field"
              return
           end if
+
        end do    !End external loop over the three expected items (index:NOP)
 
-       if (determ_A(sim) == 0) then      !Verify it is a suitable s.o.
+       if (determ_A(sim) == 0 .and. control) then      !Verify it is a suitable s.o.
           err_symm=.true.
           ERR_Symm_Mess=" The above operator is wrong: "//info
           return
@@ -8232,7 +8234,8 @@
        !---- Initialize ----!
        symb=" "
        n=axes_rotation(s)
-       t0=mod(t+10.0_cp,1.0_cp)
+       !t0=mod(t+10.0_cp,1.0_cp)  !Attempt to use the given translation
+       t0=t                       !of the symmetry operator
        x1 =0.0
        ix1=0
 

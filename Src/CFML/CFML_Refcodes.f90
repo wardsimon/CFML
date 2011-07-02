@@ -3240,14 +3240,17 @@
        !---- Local variables ----!
        character (len=1)               :: car
        character (len=1), dimension(6) :: cdd
-       character (len=1), dimension(6) ::  strc
+       character (len=1), dimension(6) :: strc
+       character (len=40)              :: Symm_Symb
 
-       integer                :: i, j, order
-       integer, dimension(48) :: ss_ptr
-       integer, dimension(6)  :: codd
-
-       real(kind=cp), parameter     :: epss=0.01
-       real(kind=cp), dimension(6)  :: cod, mul
+       integer                        :: i, j, order
+       integer,       dimension(48)   :: ss_ptr
+       real(kind=cp), dimension(3,48) :: atr
+       integer,       dimension(6)    :: codd
+       integer,       dimension(3,3)  :: Rsym
+       real(kind=cp), parameter       :: epss=0.01
+       real(kind=cp), dimension(6)    :: cod, mul
+       real(kind=cp), dimension(3)    :: tr
 
        cod=real(icodes)
 
@@ -3262,7 +3265,7 @@
           order=ord
           ss_ptr(1:order) = ss(1:ord)
        else
-          call get_stabilizer(x,Spgr,order,ss_ptr)
+          call get_stabilizer(x,Spgr,order,ss_ptr,atr)
        end if
 
        strc=(/"a","b","c","d","e","f"/)
@@ -3270,7 +3273,10 @@
 
        if (order > 1 ) then
           do j=2,order
-             call sym_b_relations(Spgr%SymopSymb(ss_ptr(j)),codd,mul)
+             Rsym=Spgr%SymOp(ss_ptr(j))%Rot
+             tr=Spgr%SymOp(ss_ptr(j))%tr + atr(:,j)
+             call Get_SymSymb(Rsym,tr,Symm_Symb)
+             call sym_b_relations(Symm_Symb,codd,mul)
              do i=1,6
                 if (abs(mul(i)) <= epss) then
                    cdd(i) = "0"
@@ -3325,7 +3331,7 @@
        end do
 
        if (present(ipr)) then
-          write(unit=ipr,fmt="(a,6f10.4)")        "     Codes on Betas       : ",real(icodes)
+          write(unit=ipr,fmt="(a,6f10.4)")         "     Codes on Betas       : ",real(icodes)
           write(unit=ipr,fmt="(a,6(a,tr1),6f7.3)") "     Codes and multipliers:  ",cdd,multip
        end if
 
@@ -3364,9 +3370,12 @@
        real(kind=cp), parameter         :: epss=0.001_cp
        integer                          :: j=0, order=0, L=0, L1=0, L2=0, jx=0, ii=0, m=0, ipar=0
        integer, dimension(48)           :: ss_ptr
+       real (kind=cp), dimension(3,48)  :: atr
        integer, dimension(3)            :: cdd
-       real(kind=cp),    dimension(3)   :: cod
+       integer, dimension(3,3)          :: Rsym
+       real(kind=cp),    dimension(3)   :: cod, tr
        character (len=40)               :: symbol
+       character (len=40)               :: Symm_Symb
        character (len=3),dimension(0:12):: car=(/"  0","  a","  b","  c", &  ! 0     1     2     3
                                                        " -a"," -b"," -c", &  !       4     5     6
                                                        " 2a"," 2b"," 2c", &  !       7     8     9
@@ -3377,7 +3386,7 @@
           order=ord
           ss_ptr(1:order) = ss(1:ord)
        else
-          call get_stabilizer(x,Spgr,order,ss_ptr)
+          call get_stabilizer(x,Spgr,order,ss_ptr,atr)
        end if
 
        cdd = (/1,2,3/)
@@ -3397,7 +3406,10 @@
        if (order > 1 ) then
           do j=2,order
              symbol=" "
-             call symmetry_symbol(Spgr%SymOp(ss_ptr(j)),symbol)
+             Rsym=Spgr%SymOp(ss_ptr(j))%Rot
+             tr=Spgr%SymOp(ss_ptr(j))%tr + atr(:,j)
+             call Get_SymSymb(Rsym,tr,Symm_Symb)
+             call symmetry_symbol(Symm_Symb,symbol)
              ipar=index(symbol,")")
              L =index(symbol(ipar+1:)," ")+ipar
              L1=index(symbol(ipar+1:),",")+ipar
