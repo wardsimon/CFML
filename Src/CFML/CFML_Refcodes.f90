@@ -95,7 +95,7 @@
     Use CFML_Math_General,              only: Sort
     Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
-                                              Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb
+                                              Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb,Read_Xsym
     Use CFML_Atom_TypeDef,              only: Atom_list_Type  !, Atom_Type
     Use CFML_Molecular_Crystals,        only: Molecule_Type, Molecular_Crystal_Type
     Use CFML_IO_Formats,                only: File_List_Type
