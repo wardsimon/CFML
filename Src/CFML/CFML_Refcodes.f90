@@ -3339,240 +3339,220 @@
     End Subroutine Get_Atombet_Ctr
 
     !!--++
-    !!--++  Subroutine Get_Atompos_Ctr(X,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
-    !!--++     real(kind=cp), dimension(3),     intent(in    ) :: x      !Atom position (fractional coordinates)
-    !!--++     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
-    !!--++     Integer,                         intent(in out) :: codini !Last attributed parameter
-    !!--++     integer,       dimension(3),     intent(in out) :: Icodes
-    !!--++     real(kind=cp), dimension(3),     intent(in out) :: Multip
-    !!--++     integer,               optional, intent(in    ) :: Ord
-    !!--++     integer, dimension(:), optional, intent(in    ) :: Ss
-    !!--++     integer,               optional, intent(in    ) :: Ipr
+    !!--++  Subroutine Get_Atompos_Ctr(X,Spgr,Codini,Icodes,Multip,Ord,Ss,Att,Ipr)
+    !!--++     real(kind=cp), dimension(3),       intent(in    ) :: x      !Atom position (fractional coordinates)
+    !!--++     type(Space_Group_type),            intent(in    ) :: Spgr   !Space Group
+    !!--++     Integer,                           intent(in out) :: codini !Last attributed parameter
+    !!--++     integer,       dimension(3),       intent(in out) :: Icodes
+    !!--++     real(kind=cp), dimension(3),       intent(in out) :: Multip
+    !!--++     integer,                 optional, intent(in    ) :: Ord
+    !!--++     integer, dimension(:),   optional, intent(in    ) :: Ss
+    !!--++     integer, dimension(:,:), optional, intent(in    ) :: Atr
+    !!--++     integer,                 optional, intent(in    ) :: Ipr
     !!--++
     !!--++     (Private)
     !!--++     Subroutine to get the appropriate constraints in the refinement codes of
-    !!--++     atoms positions.
+    !!--++     atoms positions. The algorithm is based in an analysis of the symbol generated
+    !!--++     for the symmetry elements of the operators belonging to the stabilizer of the
+    !!--++     atom position. This routine operates with splitted codes in the sense of
+    !!--++     FullProf rules
     !!--++
-    !!--++  Update: March - 2005
+    !!--++     Updated: July - 2011 (JRC, the old subroutine has been completely changed)
     !!
-    Subroutine Get_Atompos_Ctr(X,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
-       !---- Arguments ----!
-       real(kind=cp), dimension(3),     intent(in    ) :: x
-       type(Space_Group_type),          intent(in    ) :: Spgr
-       integer,                         intent(in out) :: Codini
-       integer,       dimension(3),     intent(in out) :: Icodes
-       real(kind=cp), dimension(3),     intent(in out) :: Multip
-       integer,               optional, intent(in    ) :: Ord
-       integer, dimension(:), optional, intent(in    ) :: Ss
-       integer,               optional, intent(in    ) :: Ipr
+    Subroutine Get_Atompos_Ctr(X,Spgr,Codini,ICodes,Multip,Ord,Ss,Att,Ipr)
+       real(kind=cp), dimension(3),            intent(in)     :: X
+       type(Space_Group_type),                 intent(in)     :: Spgr
+       Integer,                                intent(in out) :: Codini
+       Integer,       dimension(3),            intent(in out) :: ICodes
+       real(kind=cp), dimension(3),            intent(in out) :: Multip
+       integer,                       optional,intent(in)     :: Ord
+       integer, dimension(:),         optional,intent(in)     :: Ss
+       real(kind=cp), dimension(:,:), optional,intent(in)     :: Att
+       integer,                       optional,intent(in)     :: Ipr
 
-       !---- Local variables ----!
-       real(kind=cp), parameter         :: epss=0.001_cp
-       integer                          :: j=0, order=0, L=0, L1=0, L2=0, jx=0, ii=0, m=0, ipar=0
-       integer, dimension(48)           :: ss_ptr
-       real (kind=cp), dimension(3,48)  :: atr
-       integer, dimension(3)            :: cdd
-       integer, dimension(3,3)          :: Rsym
-       real(kind=cp),    dimension(3)   :: cod, tr
-       character (len=40)               :: symbol
-       character (len=40)               :: Symm_Symb
-       character (len=3),dimension(0:12):: car=(/"  0","  a","  b","  c", &  ! 0     1     2     3
-                                                       " -a"," -b"," -c", &  !       4     5     6
-                                                       " 2a"," 2b"," 2c", &  !       7     8     9
-                                                       "a/2","b/2","c/2"/)   !      10    11    12
+       ! Local variables
+       integer                          :: i,j,k,order,L,L1,L2,ipar,j1
+       integer,          dimension(3,3) :: RSym
+       integer,          dimension(48)  :: ss_ptr
+       real(kind=cp),    dimension(3,48):: atr
+       real(kind=cp),    dimension(3)   :: tr
 
+       character(len=40)                :: symbol,tsymbol,sym_symb
+       Character(len=10), dimension(3)  :: nsymb
+       Character(len=3),  dimension(3)  :: ssymb
+       real(kind=cp),     parameter     :: epss=0.001
 
-       if (present(ord) .and. present(ss)) then
-          order=ord
-          ss_ptr(1:order) = ss(1:ord)
+       if(present(ord) .and. present(ss) .and. present(att)) then
+         order=ord
+         ss_ptr(1:order) = ss(1:ord)
+         atr(:,1:order)  = att(:,1:ord)
        else
-          call get_stabilizer(x,Spgr,order,ss_ptr,atr)
+         call get_stabilizer(x,Spgr,order,ss_ptr,atr)
        end if
 
-       cdd = (/1,2,3/)
-       cod=real(icodes)              !Parameter number with sign
+       !If codes were not assigned with explicit number
+       !attribute numbers bigger than initial Codini
+
        do j=1,3
-          if (abs(cod(j)) < 1.0 .and. multip(j) > epss)  then
-             codini=codini+1
-             cod(j) = real(codini)
+          if(Icodes(j) < 1  .and. abs(multip(j)) > epss)  then
+               codini = codini+1
+               Icodes(j) = codini
           end if
        end do
 
-       if (present(ipr)) then
-          write(unit=ipr,fmt="(/,a,3f10.5)") "     Atom Position:",x
-          if (order > 1 ) write(unit=ipr,fmt="( a)")        "     List of symmetry element of the stabilizer:"
-       end if
+       ssymb=(/"  x","  y","  z"/)
 
-       if (order > 1 ) then
-          do j=2,order
-             symbol=" "
-             Rsym=Spgr%SymOp(ss_ptr(j))%Rot
-             tr=Spgr%SymOp(ss_ptr(j))%tr + atr(:,j)
-             call Get_SymSymb(Rsym,tr,Symm_Symb)
-             call symmetry_symbol(Symm_Symb,symbol)
-             ipar=index(symbol,")")
-             L =index(symbol(ipar+1:)," ")+ipar
-             L1=index(symbol(ipar+1:),",")+ipar
-             L2=index(symbol(L1+1:),",")+L1
-             if (L1 == 0) L1=1
-             if (L2 == 0) L2=1
-             if (L  == 0) L=1
+       if(present(Ipr)) write(unit=Ipr,fmt='(/a,3f10.5)')  ' => Atom Position:',x
 
-             !---- Test fixed parameters on x,y,z-positions ----!
-             if (index(symbol(L:L1),"x") == 0 ) then
-                cdd(1) = 0
-                cod(1) = 0.0
-                multip(1) = 0.0
+       if(order > 1 ) then  !A constraint in position must exist
+
+          if(present(Ipr)) write(unit=Ipr,fmt='(a)')   ' => List of symmetry element of the stabilizer without identity:'
+
+          do k=2,order
+           symbol=" "
+           Rsym=Spgr%SymOp(ss_ptr(k))%Rot
+           tr=Spgr%SymOp(ss_ptr(k))%tr + atr(:,k)
+           call Get_SymSymb(Rsym,tr,Sym_Symb)
+           call symmetry_symbol(Sym_Symb,tsymbol)
+             i=index(tsymbol,";")
+             if(i /= 0) then
+               symbol=tsymbol(1:i-1)
+               call Read_Xsym(tsymbol(i+1:),1,Rsym,Tr,.false.)
+               if(sum(abs(x-tr)) < epss) then
+                  ssymb=(/"  0","  0","  0"/)
+                  if(present(Ipr)) then
+                    write(unit=Ipr,fmt="(a,i2,a,t20,a,t55,a,t90,4a)") "     Operator ",k,": ", &
+                    trim(Sym_Symb),trim(tsymbol),"  ssymb:" ,(ssymb(j)//"  ",j=1,3)
+                  end if
+                  cycle
+               end if
+             else
+               symbol=tsymbol
              end if
-             if (index(symbol(L1:L2),"x") == 0 .and. index(symbol(L1:L2),"y") == 0 ) then
-                cdd(2)=0
-                cod(2) = 0.0
-                multip(2) = 0.0
+             ipar=index(symbol,")")              !Translation element appears before position
+             L =index(symbol(ipar+1:)," ")+ipar  !Position of the first blank after translation
+             L1=index(symbol(ipar+1:),",")+ipar  !Position of the first comma after translation
+             L2=index(symbol(L1+1:),",")+L1      !Position of the second comma
+             if(L1 == 0) L1=1
+             if(L2 == 0) L2=1
+             if(L  == 0) L=1
+
+             !Construct a new symbol that estabish automatically the constraints
+             nsymb = (/symbol(L+1:L1-1),symbol(L1+1:L2-1),symbol(L2+1:)/)
+
+             do i=1,3
+                 do j=1,10  !Delete unwanted symbols (keep only x,y,z,2 and -
+                    if(nsymb(i)(j:j) == " ") cycle
+                    if(nsymb(i)(j:j) /= "x" .and. nsymb(i)(j:j) /= "y" .and. &
+                       nsymb(i)(j:j) /= "z" .and. nsymb(i)(j:j) /= "-" .and. &
+                       nsymb(i)(j:j) /= "2" ) nsymb(i)(j:j)=" "
+                 end do
+                 if(len_trim(nsymb(i))  == 0 .or. (index(nsymb(i),"x") == 0 .and. &
+                    index(nsymb(i),"y") == 0 .and. index(nsymb(i),"z") == 0  ) ) then
+                    ssymb(i)="  0"
+                    cycle
+                 end if
+                 !Now remove 2s on the right of x,y, or z
+                 j1=index(nsymb(i),"2")
+                 if( j1 /= 0) then
+                    if(len_trim(nsymb(i)) == j1) nsymb(i)=nsymb(i)(1:j1-1)
+                 end if
+                 !Now remove -s on the right of x,y, or z
+                 j1=index(nsymb(i),"-")
+                 if( j1 /= 0) then
+                    if(len_trim(nsymb(i)) == j1) nsymb(i)=nsymb(i)(1:j1-1)
+                 end if
+                 nsymb(i)= adjustl(nsymb(i))
+             end do
+
+             if(ssymb(1) /= "  0" .and. ssymb(1) /= "  a") then
+                ssymb(1)= nsymb(1)
+                ssymb(1)= adjustr(ssymb(1))
              end if
-             if (index(symbol(L2:),"x") == 0 .and. index(symbol(L2:),"y") == 0 .and. &
-                 index(symbol(L2:),"z") == 0 ) then
-                cdd(3)=0
-                cod(3) = 0.0
-                multip(3) = 0.0
+
+             if(ssymb(2) /= "  0" .and. ssymb(2) /= "  a" .and. ssymb(2) /= "  b" .and. &
+                ssymb(2) /= " -a" .and. ssymb(2) /= " 2a"   ) then
+                ssymb(2) = nsymb(2)
+                ssymb(2) = adjustr(ssymb(2))
              end if
 
-             !---- Test x on y-position ----!
-             if (cdd(2) == 2) then
-                ii=index(symbol(L1+1:L2),"x")
-                m=ii+L1-1  !absolute position of x - 1
-                if (ii /= 0 .and. multip(1) > epss .and. m > 0) then
-                   select case (symbol(m:m))
-                      case("-")
-                         cod(2) = -cod(1)
-                         multip(2) =  multip(1)
-                         cdd(2) = 4 !-a
-
-                      case(",")
-                         jx=index(symbol(L+1:L1),"x")
-                         jx=jx+L-1
-                         if (jx > 0) then
-                            if (symbol(jx:jx) == "2") then
-                               cod(2) = cod(1)
-                               multip(2) = 0.5*multip(1)
-                               cdd(2) = 10  !a/2
-                            else
-                               cod(2) = cod(1)
-                               multip(2) = multip(1)
-                               cdd(2) = 1  !a
-                            end if
-                         end if
-
-                      case ("2")
-                         cod(2) = cod(1)
-                         multip(2) = 2.0*multip(1)
-                         cdd(2) = 7   !2a
-                   end select
-
-                else if (ii /= 0) then
-                   cod(2) = 0.0
-                   multip(2) = 0.0
-                   cdd(2) = 0      !0
-                end if
-             end if  ! cdd(2)==2
-
-             !---- Test x on z-position ----!
-             if (cdd(3) == 3) then
-                ii=index(symbol(L2+1:),"x")
-                m=ii+L2-1
-                if (ii /= 0 .and. multip(1) > epss .and. m > 0) then
-                   select case (symbol(m:m))
-                      case ("-")
-                         cod(3) = -cod(1)
-                         multip(3) =  multip(1)
-                         cdd(3) = 4    !-a
-
-                      case (",")
-                         jx=index(symbol(L+1:L1),"x")
-                         jx=jx+L-1
-                         if (jx > 0) then
-                            if (symbol(jx:jx) == "2") then
-                               cod(3) = cod(1)
-                               multip(3) = 0.5*multip(1)
-                               cdd(3) = 10 !a/2
-                            else
-                               cod(3) = cod(1)
-                               multip(3) = multip(1)
-                               cdd(3) = 1   !a
-                            end if
-                         end if
-
-                      case ("2")
-                         cod(3) = cod(1)
-                         multip(3) = 2.0*multip(1)
-                         cdd(3) = 7  !2a
-                   end select
-
-                else if (ii /= 0 ) then
-                   cod(3) = 0.0
-                   multip(3) = 0.0
-                   cdd(3) = 0    !0
-                end if
-             end if ! cdd(3)==0
-
-             !---- Test y on z-position ----!
-             if (cdd(3) == 3) then
-                ii=index(symbol(L2+1:),"y")
-                m=ii+L2-1
-                if (ii /= 0 .and. multip(2) > epss .and. m > 0) then
-                   select case (symbol(m:m))
-                      case ("-")
-                         cod(3) = -cod(2)
-                         multip(3) =  multip(2)
-                         cdd(3) = 5    !-b
-
-                      case (",")
-                         jx=index(symbol(L1:L2),"y")
-                         jx=jx+L1-1
-                         if (j > 0) then
-                            if (symbol(jx:jx) == "2") then
-                               cod(3) = cod(2)
-                               multip(3) = 0.5*multip(2)
-                               cdd(3) = 11   !b/2
-                            else
-                               cod(3) = cod(2)
-                               multip(3) = multip(2)
-                               cdd(3) = 2   !b
-                            end if
-                         end if
-
-                      case ("2")
-                         cod(3) = cod(2)
-                         multip(3) = 2.0*multip(2)
-                         cdd(3) = 8  !2b
-                   end select
-
-                else if (ii /= 0)  then
-                   cod(3) = 0.0
-                   multip(3) = 0.0
-                   cdd(3) = 0   !0
-                end if
-             end if ! cdd(3)==0
-
-             if (present(ipr)) then
-                write(unit=ipr,fmt="(a,i2,a,t20,a,t55,a,t90,a,7i4)") "     Operator ",j,": ", &
-                     trim(Spgr%SymopSymb(ss_ptr(j))),trim(symbol),"  ipar, L,L1,L2,ii,m,jx:" ,ipar,L,L1,L2,ii,m,jx
+             if(ssymb(3) /= "  0" .and. ssymb(3) /= "  a" .and. ssymb(3) /= "  b" .and. &
+                ssymb(3) /= "  c" .and. ssymb(3) /= " 2a" .and. ssymb(3) /= " 2b" .and. &
+                ssymb(3) /= " -a" .and. ssymb(3) /= " -b") then
+                ssymb(3) = nsymb(3)
+                ssymb(3) = adjustr(ssymb(3))
              end if
-          end do !do j=1,order  over operators of the stabilizer
+
+             do i=1,3
+                if(ssymb(i)(3:3) == "x")  ssymb(i)(3:3) = "a"
+             end do
+             do i=1,3
+                if(ssymb(i)(3:3) == "y")  ssymb(i)(3:3) = "b"
+             end do
+             do i=1,3
+                if(ssymb(i)(3:3) == "z")  ssymb(i)(3:3) = "c"
+             end do
+             if(present(Ipr)) then
+                write(unit=Ipr,fmt="(a,i2,a,t20,a,t55,a,t90,4a)") "     Operator ",k,": ", &
+                trim(Sym_Symb),trim(tsymbol),"  Ssymb:" ,(ssymb(j)//"  ",j=1,3)
+             end if
+
+          end do !do k=1,order  over operators of the stabilizer
+
+       else
+         ssymb=(/"  a","  b","  c"/)
+
        end if  !order > 1
 
-       do j=1,3
-          if (multip(j) < epss) then
-             icodes(j) = 0
-          else
-             icodes(j)=nint(cod(j))
-          end if
+       do i=1,3                  !Fixing codes
+         if(ssymb(i)=="  0") then
+           Icodes(i)=0
+           multip(i)=0.0
+         end if
        end do
 
-       if (present(ipr)) then
-          write(unit=ipr,fmt="(a,3f10.4)") "     Codes positions: ",real(icodes)
-          write(unit=ipr,fmt="(5a)")       "     Codes   string : ( ",(car(cdd(j)),j=1,3) ," )"
-       end if
+       if(index(ssymb(1),"a") /= 0) then
 
+         do i=2,3  !Fixing codes
+           if(index(ssymb(i),"-a") /= 0) then
+             Icodes(i)=Icodes(1)
+             multip(i)=-multip(1)
+           else if(index(ssymb(i),"a") /= 0) then
+             Icodes(i)=Icodes(1)
+             multip(i)=multip(1)
+
+             if(index(ssymb(i),"2") /= 0) then
+               multip(i)=2.0* multip(1)
+             else if(index(ssymb(1),"2") /= 0) then
+               multip(i)=0.5* multip(1)
+             end if
+
+           end if
+         end do
+       else  !the x-coordinate is fixed, analyse y and z
+         if(index(ssymb(2),"b") /= 0 .and. index(ssymb(3),"b") /= 0) then
+           Icodes(3)=Icodes(2)
+           if(ssymb(2) == ssymb(3)) then
+             multip(3)= multip(2)
+           else if(ssymb(3) == " -b" .and. ssymb(2) == "  b") then
+             multip(3)= -multip(2)
+           else if(ssymb(3) == "  b" .and. ssymb(2) == " -b") then
+             multip(3)= -multip(2)
+           end if
+         end if
+
+       end if !if(index(ssymb(1),"a") /= 0)
+
+       do j=1,3
+         if(abs(multip(j)) < epss) then
+           Icodes(j) = 0
+         end if
+       end do
+       if(present(Ipr)) then
+         write(unit=Ipr,fmt="(a,3i5)")    "     Codes positions: ",Icodes
+         write(unit=Ipr,fmt="(a,3f5.1)")  "     Multipliers    : ",multip
+         write(unit=Ipr,fmt="(5a)")       "     Codes   string : ( ",(ssymb(j),j=1,3) ," )"
+       end if
        return
     End Subroutine Get_Atompos_Ctr
 
