@@ -1670,9 +1670,10 @@
     !!----    Determines the number of words (Ic) in the string "Line" and generates a
     !!----    character vector "Dire" with separated words.
     !!----    Control of errors is possible by inquiring the global variables ERR_STRING
-    !!----    and ERR_String_Mess.
+    !!----    and ERR_String_Mess. The last modification allows to treat strings between
+    !!----    quotes as a single word.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: July - 2011
     !!
     Subroutine Getword(line,dire,ic)
        !---- Argument ----!
@@ -1683,7 +1684,7 @@
        !---- Local variables ----!
        character (len=len(line)) :: line1,line2
        integer                   :: nlong2
-       integer                   :: ndim
+       integer                   :: ndim, j
 
        call init_err_string()
        ic=0
@@ -1692,7 +1693,19 @@
 
        do
           line1=adjustl(line1)
-          call cutst(line1,line2=line2,nlong2=nlong2)
+          if(line1(1:1) == '"') then
+             j=index(line1(2:),'"') + 1
+             if( j > 1) then
+               line2=line1(1:j)
+               nlong2=len_trim(line2)
+             else
+               err_string=.true.
+               ERR_String_Mess="Non balanced quotes!"
+               exit
+             end if
+          else
+             call cutst(line1,line2=line2,nlong2=nlong2)
+          end if
           if (nlong2 == 0) exit
           ic=ic+1
           if (ic > ndim) then
