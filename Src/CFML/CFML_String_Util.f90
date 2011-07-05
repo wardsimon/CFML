@@ -1694,10 +1694,11 @@
        do
           line1=adjustl(line1)
           if(line1(1:1) == '"') then
-             j=index(line1(2:),'"') + 1
-             if( j > 1) then
-               line2=line1(1:j)
+             j=index(line1(2:),'"')
+             if( j > 0) then
+               line2=line1(2:j)
                nlong2=len_trim(line2)
+               line1 = line1(j+2:)
              else
                err_string=.true.
                ERR_String_Mess="Non balanced quotes!"
