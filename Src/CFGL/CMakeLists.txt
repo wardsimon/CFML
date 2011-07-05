@@ -1,4 +1,17 @@
 #####################################################
+# Infos
+#####################################################
+
+# CMake file for crysfml project
+# Written by Eric Pellegrini
+# Institut Laue Langevin
+# Grenoble, France
+
+#####################################################
+
+
+
+#####################################################
 # Define the source files for crysfml library       #
 #####################################################
 
@@ -35,19 +48,16 @@ SET(crysfgl_LIB_SRCS
 # Define targets properties                         #
 #####################################################
 
-INCLUDE_DIRECTORIES(${LIB_PATH}/LibC ${LIB_PATH}/LibW)
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/Lib/LibC ${CMAKE_BINARY_DIR}/Lib/LibW)
 
 # Add the crysfgl library to the project.
 ADD_LIBRARY(wcrysfgl STATIC ${crysfgl_LIB_SRCS})
 
-# The crysfml_common will be linked to crysfgl library.
-TARGET_LINK_LIBRARIES(wcrysfgl crysfml_common)
-
 # Sets the path where to place the crysfgl library.
-SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibGL)
+SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibGL)
 
 # Sets the path where to place the mod files for the crysfgl library.
-SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibGL)
+SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibGL)
 
 IF(WIN32)
     SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")
@@ -57,14 +67,19 @@ ELSEIF(UNIX)
     SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")    
 ENDIF()
 
+# The crysfml_common will be linked to crysfgl library.
+TARGET_LINK_LIBRARIES(wcrysfgl crysfml_common)
+
+ADD_CUSTOM_COMMAND(
+    TARGET wcrysfgl
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibGL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibGL ${LIB_PATH}/LibGL)
+
 
 # Some compiler specific flags are defined for the library to build.
 # Case of Intel fortran compiler.
-#IF(${COMPILER_NAME} STREQUAL ifort)
-
-#    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in GUI mode.
-#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "/I. /I$ENV{WINTER}/lib.if8 /I${LIB_PATH}/LibW")
-
+#IF(${COMPILER_NAME} STREQUAL lf95)
     
 #    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in GUI mode.
 #    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}\lib.l95;${LIB_PATH}/LibW")

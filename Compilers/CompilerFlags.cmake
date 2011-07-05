@@ -1,3 +1,16 @@
+#####################################################
+# Infos
+#####################################################
+
+# CMake file for crysfml project
+# Written by Eric Pellegrini
+# Institut Laue Langevin
+# Grenoble, France
+
+#####################################################
+
+
+
 # Extract the compiler name (without extension) from its path and puts its in COMPILER_NAME variable.
 GET_FILENAME_COMPONENT(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
@@ -17,11 +30,9 @@ IF(${COMPILER_NAME} STREQUAL ifort)
         SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-debug:full /check /traceback /nologo")
         SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "/O2 /nologo /Qvec-report0")
     ELSEIF(APPLE)
-        SET(OPTFLAG "/Od")
         SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-c -g -warn")
         SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O -warn -vec-report0")
     ELSEIF(UNIX)
-        SET(OPTFLAG "/Od")
         SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-c -g -warn")
         SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O -warn -vec-report0")
     ENDIF()
@@ -32,17 +43,33 @@ ELSEIF(${COMPILER_NAME} STREQUAL g95)
     # The directory that will store the libraries built with g95.
     SET(LIB_PATH ${PROJECT_SOURCE_DIR}/G95)
 
-    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT  "-O0 -std=f2003 -ftrace=full")
-    SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O3 -std=f2003 -funroll-loops -msse2")
-
+    IF(WIN32)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT  "-O0 -ftrace=full")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O3 -funroll-loops -msse2")
+    ELSEIF(APPLE)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT  "-c -g -Wall")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O")
+    ELSEIF(UNIX)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT  "-c -g -Wall")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O")
+    ENDIF()
+    
 # Default flags for gfortran compiler.
 ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
 
     # The directory that will store the libraries built with gfortran.
     SET(LIB_PATH ${PROJECT_SOURCE_DIR}/gfortran)
 
-    SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-O0 -ftrace=full")
-    SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O3 -funroll-loops -msse2")
+    IF(WIN32)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-O0 -ftrace=full")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-O3 -funroll-loops -msse2")
+    ELSEIF(APPLE)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-c -g -Wall -m32")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O -m32")
+    ELSEIF(UNIX)
+        SET(CMAKE_Fortran_FLAGS_DEBUG_INIT "-c -g -Wall")
+        SET(CMAKE_Fortran_FLAGS_RELEASE_INIT "-c -O")    
+    ENDIF()
 
 # Default flags for lf95 compiler.
 ELSEIF(${COMPILER_NAME} STREQUAL lf95)

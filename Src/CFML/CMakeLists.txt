@@ -1,10 +1,22 @@
 #####################################################
-# Define the source files for crysfml library       #
+# Infos
+#####################################################
+
+# CMake file for crysfml project
+# Written by Eric Pellegrini
+# Institut Laue Langevin
+# Grenoble, France
+
+#####################################################
+
+
+
+#####################################################
+# The source files for crysfml library              #
 #####################################################
 
 # This will store the source files common to a build in CONSOLE and GUI mode.
 SET(crysfml_COMMON_LIB_SRCS "")
-
 
 # WINDOWS
 IF(WIN32)
@@ -97,11 +109,11 @@ IF(${GUI})
     # Case of The Lahey compiler with a RWIN build (-DRWIN=True).
     IF(${COMPILER_NAME} STREQUAL lf95 AND ${RWIN})
 
-        SET(crysfml_WINDOW_LIB_SRCS ${crysfml_WINDOW_LIB_SRCS} CFML_IO_MessRW.f90)
+        SET(crysfml_GUI_LIB_SRCS ${crysfml_GUI_LIB_SRCS} CFML_IO_MessRW.f90)
 
     ELSE()
 
-        SET(crysfml_WINDOW_LIB_SRCS ${crysfml_WINDOW_LIB_SRCS} CFML_IO_MessWin.f90)
+        SET(crysfml_GUI_LIB_SRCS ${crysfml_GUI_LIB_SRCS} CFML_IO_MessWin.f90)
 
     ENDIF()
 
@@ -123,7 +135,34 @@ ADD_PREFIX(${COMMON_OBJS_DIR}/ COMMON_OBJS_FILES)
 # Those file are generated during the build.
 SET_SOURCE_FILES_PROPERTIES(${COMMON_OBJS_FILES} PROPERTIES GENERATED true)
 
+# Some compiler specific flags are defined for the library to build.
+IF(${COMPILER_NAME} STREQUAL gfortran)
 
+    IF(WIN32)
+        # By default all the source file are compiled with "-std=f2003" flag.
+        SET_SOURCE_FILES_PROPERTIES(${crysfml_COMMON_LIB_SRCS} ${crysfml_CONSOLE_LIB_SRCS} 
+                                    PROPERTIES COMPILE_FLAGS "-std=f2003")
+
+        # Excepted the following files for which the compilation flags is slightly different for various reasons.
+        SET_SOURCE_FILES_PROPERTIES(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
+        SET_SOURCE_FILES_PROPERTIES(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
+        SET_SOURCE_FILES_PROPERTIES(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
+        SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")        
+    ENDIF()
+
+# Case of g95 compiler.
+ELSEIF(${COMPILER_NAME} STREQUAL g95)
+
+    IF(WIN32)
+        # By default all the source file are compiled with "-std=f2003" flag.
+        SET_SOURCE_FILES_PROPERTIES(${crysfml_COMMON_LIB_SRCS} ${crysfml_CONSOLE_LIB_SRCS} ${crysfml_GUI_LIB_SRCS}
+                                    PROPERTIES COMPILE_FLAGS "-std=f2003")
+
+        # Excepted the following files for which the compilation flags is slightly different.
+        SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
+    ENDIF()
+        
+ENDIF()
 
 #####################################################
 
@@ -140,26 +179,32 @@ ADD_LIBRARY(crysfml_common STATIC ${crysfml_COMMON_LIB_SRCS})
 ADD_LIBRARY(crysfml STATIC ${crysfml_CONSOLE_LIB_SRCS} ${COMMON_OBJS_FILES})
 
 # Sets the path where to place the crysfml_common library.
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/Common)
+SET_TARGET_PROPERTIES(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/Common)
 
 # Sets the path where to place the mod files for the crysfml_common library.
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibC)
+SET_TARGET_PROPERTIES(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
 
 # Sets the path where to place the crysfml library.
-SET_TARGET_PROPERTIES(crysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibC)
+SET_TARGET_PROPERTIES(crysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
 
 # Sets the path where to place the mod files for the crysfml library.
-SET_TARGET_PROPERTIES(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibC)
+SET_TARGET_PROPERTIES(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
 
 # The crysfml_common will be linked to crysfml library.
 TARGET_LINK_LIBRARIES(crysfml crysfml_common)
 
+ADD_CUSTOM_COMMAND(TARGET crysfml
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibC
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibC ${LIB_PATH}/LibC)
+
 if(${GUI})
 
-    INCLUDE_DIRECTORIES(${LIB_PATH}/LibC)
+    INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/Lib/LibC)
             
     # The wcrysfml library is the GUI version of the library. It is linked using Winteracter.
-    ADD_LIBRARY(wcrysfml STATIC ${crysfml_WINDOW_LIB_SRCS} ${COMMON_OBJS_FILES})
+    ADD_LIBRARY(wcrysfml STATIC ${crysfml_GUI_LIB_SRCS} ${COMMON_OBJS_FILES})
 
     IF(WIN32)
         SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")        
@@ -173,14 +218,20 @@ if(${GUI})
         ENDIF()
     ENDIF()
 
-    # Sets the path where to place the mod files for the wcrysfml library.
-    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}/LibW)
+    # Sets the path where to place the wcrysfml library.
+    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibW)
     
     # Sets the path where to place the mod files for the wcrysfml library.
-    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${LIB_PATH}/LibW)
+    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibW)
         
     # The crysfml_common will be linked to wcrysfml library.
     TARGET_LINK_LIBRARIES(wcrysfml crysfml_common)
+
+    ADD_CUSTOM_COMMAND(
+      TARGET wcrysfml
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibW
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibW ${LIB_PATH}/LibW)
     
 ENDIF()
 
@@ -189,31 +240,7 @@ ENDIF()
 
 
 
-# Some compiler specific flags are defined for the library to build.
-# Case of Intel fortran compiler.
-#IF(${COMPILER_NAME} STREQUAL ifort)
 
-# Case of gfortran compiler.
-#ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
-
-
-    # By default all the source file are compiled with "-std=f2003" flag.
-#    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
-
-    # Excepted the following files for which the compilation flags is slightly different.
-#    SET_SOURCE_FILES_PROPERTIES(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
-#    SET_SOURCE_FILES_PROPERTIES(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
-#    SET_SOURCE_FILES_PROPERTIES(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
-#    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")
-
-# Case of g95 compiler.
-#ELSEIF(${COMPILER_NAME} STREQUAL g95)
-
-    # By default all the source file are compiled with "-std=f2003" flag.
-#    SET_SOURCE_FILES_PROPERTIES(${crysfml_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-std=f2003")
-
-    # Excepted the following files for which the compilation flags is slightly different.
-#    SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
 
 # Case of Lahey compiler.
 #ELSEIF(${COMPILER_NAME} STREQUAL lf95)

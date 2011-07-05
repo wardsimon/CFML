@@ -1,20 +1,11 @@
-IF(${COMPILER_NAME} STREQUAL ifort)
-    
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Intel)
-        
-ELSEIF(${COMPILER_NAME} STREQUAL gfortran)
-    
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/gfortran)
+#####################################################
+# Infos
+#####################################################
 
-ELSEIF(${COMPILER_NAME} STREQUAL g95)
-    
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/G95)
-
-ELSEIF(${COMPILER_NAME} STREQUAL lf95)
-    
-    SET(LIB_PATH ${PROJECT_SOURCE_DIR}/Lahey)
-    
-ENDIF()
+# CMake file for crysfml project
+# Written by Eric Pellegrini
+# Institut Laue Langevin
+# Grenoble, France
 
 ADD_SUBDIRECTORY(CFML)
 
