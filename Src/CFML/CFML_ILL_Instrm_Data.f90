@@ -1702,7 +1702,7 @@ Module CFML_ILL_Instrm_Data
        ! Uncompress program must be defined
        if (len_trim(uncompresscommand) == 0) then
           if (Ops == 1) then
-             call define_uncompress_program('7z e')
+             call define_uncompress_program('7z e -y -so')
           else
              call define_uncompress_program('gzip -q -d -c')
           end if
@@ -3632,6 +3632,7 @@ Module CFML_ILL_Instrm_Data
          n%scantype='q-scan'
        end if
        return
+
     End Subroutine Read_Numor_D9
 
     !!----
