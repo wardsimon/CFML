@@ -2138,7 +2138,7 @@ Module CFML_ILL_Instrm_Data
           If (Ops == 1) Then
              Ill_Data_Directory = '\\Serdon\illdata'                     ! For Windows
           Else
-             Ill_Data_Directory = '/net/serdon/Illdata'                  ! For Linux/MACoS
+             Ill_Data_Directory = '/net/serdon/illdata'                  ! For Linux/MACoS
           End If
        End If
 
