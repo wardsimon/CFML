@@ -2800,7 +2800,7 @@
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
        integer                                      :: i, j, i1, long, nb_sep, nb_col, n, ier
-       real(kind=cp)                                :: step_time, wav
+       real(kind=cp)                                :: step_time
 
 
        call init_err_diffpatt()
