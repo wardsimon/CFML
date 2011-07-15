@@ -3207,50 +3207,82 @@
     End Subroutine Fill_RefCodes_Molec
 
     !!--++
-    !!--++  Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,Codes,Ord,Ss,Debug)
-    !!--++     real(kind=cp), dimension(3),     intent(in    ) :: x      ! Atom position (fractional coordinates)
-    !!--++     real(kind=cp), dimension(6),     intent(in out) :: betas  !Anisotropic temperature factors
-    !!--++     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
-    !!--++     Integer,                         intent(in out) :: codini !Last attributed parameter
-    !!--++     real(kind=cp), dimension(6),     intent(in out) :: codes  !codewords for positions
-    !!--++     integer,               optional, intent(in    ) :: ord    !Order of the stabilizer
-    !!--++     integer, dimension(:), optional, intent(in    ) :: ss     !Pointer to SymmOp. of stabilizer
-    !!--++     integer,               optional, intent(in    ) :: debug  !Debug variable
+    !!--++  Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,Icodes,Multip,Ord,Ss,Ipr)
+    !!--++     real(kind=cp), dimension(3),             intent(in    ) :: X         !Atom position (fractional coordinates)
+    !!--++     real(kind=cp), dimension(6),             intent(in out) :: Betas     !Anisotropic temperature factors
+    !!--++     type(Space_Group_type),                  intent(in    ) :: Spgr      !Space Group
+    !!--++     Integer,                                 intent(in out) :: Codini    !Last attributed parameter
+    !!--++     Integer, dimension(6),                   intent(in out) :: Icodes    !codewords for betas only number
+    !!--++     real(kind=cp), dimension(6),             intent(in out) :: Multip    !Multipliers
+    !!--++     integer,                       optional, intent(in    ) :: Ord       !Order of the stabilizer
+    !!--++     integer, dimension(:),         optional, intent(in    ) :: Ss        !Pointer to SymmOp. of stabilizer
+    !!--++     integer,                       optional, intent(in    ) :: Ipr       !Printing unit for debug
     !!--++
-    !!--++     (Private)
-    !!--++     Subroutine to get the appropriate constraints in the refinement codes of
-    !!--++     anisotropic atomic displacement(thermal) parameters.
+    !!--++  Subroutine to get the appropriate constraints in the refinement codes of
+    !!--++  anisotropic atomic displacement(thermal) parameters.
+    !!--++  New algorithm based in the Wigner theorem.
+    !!--++  The matrix Bet = Sum { R Beta RT} displays the symmetry constraints to be
+    !!--++  applied to the anisotropic temperature factors. The sum runs over all rotational
+    !!--++  symmetry operators of the stabilizer of the particular atom position in the given
+    !!--++  space group.
+    !!--++  There are a total of 29 kind of relations that may appear in the Bet matrix:
     !!--++
-    !!--++     Uses: Space_Group_type, get_stabilizer, sym_b_relations
+    !!--++        1 A A A 0   0   0
+    !!--++        2 A A C 0   0   0
+    !!--++        3 A B A 0   0   0
+    !!--++        4 A B B 0   0   0
+    !!--++        5 A A A D   D   D
+    !!--++        6 A A A D  -D  -D
+    !!--++        7 A A A D  -D   D
+    !!--++        8 A A A D   D  -D
+    !!--++        9 A A C A/2 0   0
+    !!--++       10 A B C 0   0   0
+    !!--++       11 A A C D   0   0
+    !!--++       12 A B A 0   E   0
+    !!--++       13 A B B 0   0   F
+    !!--++       14 A B C B/2 0   0
+    !!--++       15 A B C A/2 0   0
+    !!--++       16 A B C D   0   0
+    !!--++       17 A B C 0   E   0
+    !!--++       18 A B C 0   0   F
+    !!--++       19 A A C D   E  -E
+    !!--++       20 A A C D   E   E
+    !!--++       21 A B A D   E  -D
+    !!--++       22 A B A D   E   D
+    !!--++       23 A B B D  -D   F
+    !!--++       24 A B B D   D   F
+    !!--++       25 A B C B/2 F/2 F
+    !!--++       26 A B C A/2 0   F
+    !!--++       27 A B C B/2 E   0
+    !!--++       28 A B C A/2 E   E/2
+    !!--++       29 A B C D   E   F
     !!--++
-    !!--++  Update: March - 2005
+    !!--++   Updated: 14 July 2011
+    !!--++
     !!
-    Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,ICodes,Multip,Ord,Ss,Ipr)
-       !---- Arguments ----!
-       real(kind=cp), dimension(3),     intent(in    ) :: x
-       real(kind=cp), dimension(6),     intent(in out) :: betas
-       type(Space_Group_type),          intent(in    ) :: Spgr
-       integer,                         intent(in out) :: codini
-       integer,       dimension(6),     intent(in out) :: Icodes
-       real(kind=cp), dimension(6),     intent(in out) :: Multip
-       integer,               optional, intent(in    ) :: Ord
-       integer, dimension(:), optional, intent(in    ) :: Ss
-       integer,               optional, intent(in    ) :: Ipr
 
-       !---- Local variables ----!
-       character (len=1)               :: car
-       character (len=1), dimension(6) :: cdd
-       character (len=1), dimension(6) :: strc
-       character (len=40)              :: Symm_Symb
+    Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,Icodes,Multip,Ord,Ss,Ipr)
+       real(kind=cp), dimension(3),             intent(in    ) :: X
+       real(kind=cp), dimension(6),             intent(in out) :: Betas
+       type(Space_Group_type),                  intent(in    ) :: Spgr
+       Integer,                                 intent(in out) :: Codini
+       Integer, dimension(6),                   intent(in out) :: Icodes
+       real(kind=cp), dimension(6),             intent(in out) :: Multip
+       integer,                       optional, intent(in    ) :: Ord
+       integer, dimension(:),         optional, intent(in    ) :: Ss
+       integer,                       optional, intent(in    ) :: Ipr
 
-       integer                        :: i, j, order
-       integer,       dimension(48)   :: ss_ptr
-       real(kind=cp), dimension(3,48) :: atr
-       integer,       dimension(6)    :: codd
-       integer,       dimension(3,3)  :: Rsym
-       real(kind=cp), parameter       :: epss=0.01
-       real(kind=cp), dimension(6)    :: cod, mul
-       real(kind=cp), dimension(3)    :: tr
+
+       ! Local variables
+       character (len=1), dimension(6)   :: cdd
+       integer                           :: i,j,order
+       integer,           dimension(48)  :: ss_ptr
+       integer,           dimension(6)   :: codd
+       integer,           dimension(3,3) :: Rsym
+       real(kind=cp),     dimension(3,3) :: bet,bett,Rs
+       real(kind=cp),     dimension(6)   :: cod
+       real(kind=cp),     dimension(3,48):: atr
+       real(kind=cp),     parameter      :: epss=0.01_cp
 
        cod=real(icodes)
 
@@ -3268,58 +3300,218 @@
           call get_stabilizer(x,Spgr,order,ss_ptr,atr)
        end if
 
-       strc=(/"a","b","c","d","e","f"/)
-       cdd = strc
-
+       bet=reshape((/17.0, 7.0,3.0,  &
+                     7.0,13.0,5.0,  &
+                     3.0, 5.0,11.0/),(/3,3/))
+       bett=bet
        if (order > 1 ) then
           do j=2,order
              Rsym=Spgr%SymOp(ss_ptr(j))%Rot
-             tr=Spgr%SymOp(ss_ptr(j))%tr + atr(:,j)
-             call Get_SymSymb(Rsym,tr,Symm_Symb)
-             call sym_b_relations(Symm_Symb,codd,mul)
-             do i=1,6
-                if (abs(mul(i)) <= epss) then
-                   cdd(i) = "0"
-                   multip(i)=0.0
-                else
-                   cdd(i) = strc(codd(i))
-                   multip(i)=mul(i)
-                end if
-             end do
-             strc=cdd
+             Rs=real(Rsym)
+             bett=bett+ matmul(Rs,matmul(bet,transpose(Rs)))
           end do
+       end if
+       Rsym=nint(1000.0*bett)
+       codd=(/Rsym(1,1),Rsym(2,2),Rsym(3,3),Rsym(1,2),Rsym(1,3),Rsym(2,3)/)
+       cdd=(/'a','b','c','d','e','f'/)
+       multip=1.0
+       !Search systematically all the possible constraints
 
-          car=cdd(1)
-          do j=2,6
-             if (cdd(j) == "0") then
-                cod(j) = 0.0
-                betas(j)= 0.0
+       if(codd(1) == codd(2) .and. codd(1) == codd(3)) then ! a a a
+         if(codd(4) == codd(5) .and. codd(4) == codd(6) ) then ! a a a d d d
+           if(codd(4) == 0) then
+             cdd=(/'a','a','a','0','0','0'/)     ! 1 A A A 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             betas(2:3)=betas(1)
+             cod(2:3)=cod(1); cod(4:6)=0.0
+           else
+             cdd=(/'a','a','a','d','d','d'/)     ! 5 A A A D   D   D
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(5:6)=betas(4)
+             betas(2:3)=betas(1)
+             cod(2:3)=cod(1); cod(5:6)=cod(4)
+           end if
+         else if(codd(4) == -codd(5) .and. codd(4) == -codd(6) ) then !a a a d -d -d
+           cdd=(/'a','a','a','d','d','d'/)       ! 6 A A A D  -D  -D
+           multip=(/1.0,1.0,1.0,1.0,-1.0,-1.0/)
+           betas(5:6)=-betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)=cod(4)
+         else if(codd(4) == -codd(5) .and. codd(4) ==  codd(6) ) then !a a a d -d  d
+           cdd=(/'a','a','a','d','d','d'/)       ! 7 A A A D  -D   D
+           multip=(/1.0,1.0,1.0,1.0,-1.0, 1.0/)
+           betas(5)=-betas(4); betas(6)=betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)= cod(4)
+         else if(codd(4) ==  codd(5) .and. codd(4) == -codd(6) ) then !a a a d  d -d
+           cdd=(/'a','a','a','d','d','d'/)       ! 8 A A A D   D  -D
+           multip=(/1.0,1.0,1.0,1.0, 1.0,-1.0/)
+           betas(6)=-betas(4); betas(5)=betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)= cod(4)
+         end if
+
+       else if(codd(1) == codd(2)) then ! a a c
+         if(codd(4) == codd(5) .and. codd(4) == codd(6) .and. codd(4) == 0) then ! a a c 0 0 0
+             cdd=(/'a','a','c','0','0','0'/)     ! 2 A A C 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             betas(2)=betas(1)
+             cod(2)=cod(1); cod(4:6)= 0.0
+         else if(codd(5) == codd(6) .and. codd(5) == 0) then ! a a c x 0 0
+             if(codd(4) == codd(1)/2) then
+               cdd=(/'a','a','c','a','0','0'/)     ! 9 A A C A/2 0   0
+               multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+               betas(5:6)=0.0; betas(4)=betas(1)*0.5
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(4)= cod(1); cod(5:6)=0.0
+             else
+               cdd=(/'a','a','c','d','0','0'/)     !11 A A C D   0   0
+               multip=(/1.0,1.0,1.0,1.0,0.0,0.0/)
+               betas(5:6)=0.0
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(5:6)=0.0
              end if
-             if (cdd(j) == car) then
-                cod(j) = cod(1)
-                betas(j)= betas(1)*multip(j)
+         else
+             if(codd(5) == codd(6)) then  ! a a c d e e
+               cdd=(/'a','a','c','d','e','e'/)     !20 A A C D   E   E
+               multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+               betas(6)=betas(5)
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(6)=cod(5)
+             else if(codd(5) == -codd(6)) then  ! a a c d e -e
+               cdd=(/'a','a','c','d','e','e'/)     !19 A A C D   E  -E
+               multip=(/1.0,1.0,1.0,1.0,1.0,-1.0/)
+               betas(6)=-betas(5)
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(6)=cod(5)
              end if
-             if (cdd(j) == "a") then
-                cod(j) = cod(1)
-                betas(j)= betas(1)*multip(j)
-             end if
-             if (cdd(j) == "b") then
-                cod(j) = cod(2)
-                betas(j)= betas(2)*multip(j)
-             end if
-             if (cdd(j) == "c") then
-                cod(j) = cod(3)
-                betas(j)= betas(3)*multip(j)
-             end if
-             if (cdd(j) == "d") then
-                cod(j) = cod(4)
-                betas(j)= betas(4)*multip(j)
-             end if
-             if (cdd(j) == "e") then
-                cod(j) = cod(5)
-                betas(j)= betas(5)*multip(j)
-             end if
-          end do
+         end if
+
+       else if(codd(1) == codd(3)) then ! a b a
+         if(codd(4) == codd(6)) then    ! a b a d x d
+           if(codd(4) == 0) then  ! a b a 0 x 0
+             if(codd(5) == 0) then ! a b a 0 0 0
+               cdd=(/'a','b','a','0','0','0'/)     ! 3 A B A 0   0   0
+               multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+               betas(4:6)=0.0
+               betas(3)=betas(1)
+               cod(3)=cod(1); cod(4:6)=0.0
+             else                  ! a b a 0 e 0
+               cdd=(/'a','b','a','0','e','0'/)     !12 A B A 0   E   0
+               multip=(/1.0,1.0,1.0,0.0,1.0,0.0/)
+               betas(4)=0.0;  betas(6)=0.0
+               betas(3)=betas(1)
+               cod(3)=cod(1); cod(4)=0.0;  cod(6)=0.0
+             endif
+           else  !! a b a d e d
+             cdd=(/'a','b','a','d','e','d'/)       !22 A B A D   E   D
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(6)=betas(4)
+             betas(3)=betas(1)
+             cod(3)=cod(1); cod(6)=cod(4)
+          end if
+
+         else if(codd(4) == -codd(6)) then ! a b a d e -d
+           cdd=(/'a','b','a','d','e','d'/)         !21 A B A D   E  -D
+           multip=(/1.0,1.0,1.0,1.0,1.0,-1.0/)
+           betas(6)=-betas(4)
+           betas(3)=betas(1)
+           cod(3)=cod(1); cod(6)=cod(4)
+         end if
+
+       else if(codd(2) == codd(3)) then ! a b b
+         if(codd(4) == codd(5)) then    ! a b b d d x
+           if(codd(4) == 0) then  ! a b b 0 0 x
+             if(codd(6) == 0) then ! a b b 0 0 0
+               cdd=(/'a','b','b','0','0','0'/)     ! 4 A B B 0   0   0
+               multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+               betas(4:6)=0.0
+               betas(3)=betas(2)
+               cod(3)=cod(2); cod(4:6)=0.0
+             else                  ! a b b 0 0 f
+               cdd=(/'a','b','b','0','0','f'/)     !13 A B B 0   0   F
+               multip=(/1.0,1.0,1.0,0.0,0.0,1.0/)
+               betas(4:5)=0.0
+               betas(3)=betas(2)
+               cod(3)=cod(2); cod(4:5)=0.0
+             endif
+           else  !! a b b d d f
+             cdd=(/'a','b','b','d','d','f'/)       !24 A B B D   D   F
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(5)=betas(4)
+             betas(3)=betas(2)
+             cod(3)=cod(2); cod(5)=cod(4)
+           end if
+         else if(codd(4) == -codd(5)) then ! a b b d -d e
+           cdd=(/'a','b','b','d','d','f'/)         !23 A B B D  -D   F
+           multip=(/1.0,1.0,1.0,1.0,-1.0,1.0/)
+           betas(5)=-betas(4)
+           betas(3)=betas(2)
+           cod(3)=cod(2); cod(5)=cod(4)
+         end if
+
+       else !Now a /= b /= c
+
+         if(codd(4) == codd(5) .and. codd(4) == 0) then ! a b c 0 0 x
+           if(codd(6) == 0) then ! a b c 0 0 0
+             cdd=(/'a','b','c','0','0','0'/)          !10 A B C 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             cod(4:6)=0.0
+           else
+             cdd=(/'a','b','c','0','0','f'/)          !18 A B C 0   0   F
+             multip=(/1.0,1.0,1.0,0.0,0.0,1.0/)
+             betas(4:5)=0.0
+             cod(4:5)=0.0
+           end  if
+         else if(codd(5) == codd(6) .and. codd(5) == 0) then  ! a b c x 0 0
+           if(codd(4) == codd(1)/2) then ! a b c a/2 0 0
+             cdd=(/'a','b','c','a','0','0'/)          !15 A B C A/2 0   0
+             multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+             betas(5:6)=0.0; betas(4)=betas(1)*0.5
+             cod(4)=cod(1); cod(5:6)=0.0
+           else if(codd(4) == codd(2)/2) then    !a b c b/2 0 0
+             cdd=(/'a','b','c','b','0','0'/)          !14 A B C B/2 0   0
+             multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+             betas(5:6)=0.0; betas(4)=betas(2)*0.5
+             cod(4)=cod(2); cod(5:6)=0.0
+           else
+             cdd=(/'a','b','c','d','0','0'/)          !16 A B C D   0   0
+             multip=(/1.0,1.0,1.0,1.0,0.0,0.0/)
+             betas(5:6)=0.0
+             cod(5:6)=0.0
+           end  if
+         else if(codd(4) == codd(6) .and. codd(4) == 0) then !a b c 0 e 0
+           cdd=(/'a','b','c','0','e','0'/)            !17 A B C 0   E   0
+           multip=(/1.0,1.0,1.0,0.0,1.0,0.0/)
+           betas(4)=0.0; betas(6)=0.0
+           cod(4)=0.0; cod(6)=0.0
+         else if(codd(4) == codd(1)/2 .and. codd(5) == 0) then !a b c a/2 0 f
+           cdd=(/'a','b','c','a','0','f'/)            !26 A B C A/2 0   F
+           multip=(/1.0,1.0,1.0,0.5,0.0,1.0/)
+           betas(4)=betas(1)*0.5; betas(5)=0.0
+           cod(4)=cod(1); cod(5)=0.0
+         else if(codd(4) == codd(2)/2 .and. codd(6) == 0) then !a b c b/2 e 0
+           cdd=(/'a','b','c','b','e','0'/)            !27 A B C B/2 E   0
+           multip=(/1.0,1.0,1.0,0.5,1.0,0.0/)
+           betas(4)=betas(2)*0.5; betas(6)=0.0
+           cod(4)=cod(2); cod(6)=0.0
+         else if(codd(4) == codd(2)/2 .and. codd(5) == codd(6)/2) then !a b c b/2 f/2 f
+           cdd=(/'a','b','c','b','f','f'/)            !25 A B C B/2 F/2 F
+           multip=(/1.0,1.0,1.0,0.5,0.5,1.0/)
+           betas(4)=betas(2)*0.5; betas(5)=betas(6)*0.5
+           cod(4)=cod(2); cod(5)=cod(6)
+         else if(codd(4) == codd(1)/2 .and. codd(6) == codd(5)/2) then !a b c a/2 e e/2
+           cdd=(/'a','b','c','a','e','e'/)            !28 A B C A/2 E   E/2
+           multip=(/1.0,1.0,1.0,0.5,1.0,0.5/)
+           betas(4)=betas(1)*0.5; betas(6)=betas(5)*0.5
+           cod(4)=cod(1); cod(6)=cod(5)
+         else
+           cdd=(/'a','b','c','d','e','f'/)            !29 A B C D   E   F
+           multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+         end if
        end if
 
        do j=1,6
@@ -3330,11 +3522,14 @@
           end if
        end do
 
-       if (present(ipr)) then
-          write(unit=ipr,fmt="(a,6f10.4)")         "     Codes on Betas       : ",real(icodes)
-          write(unit=ipr,fmt="(a,6(a,tr1),6f7.3)") "     Codes and multipliers:  ",cdd,multip
+       if(present(Ipr)) then
+         Write(Ipr,'(a,6i5)')           '     Codes on Betas       :  ',Icodes
+         Write(Ipr,'(a,6(a,1x),6f7.3)') '     Codes and multipliers:  ',cdd,multip
+         Write(Ipr,'(a)')               '     Beta_TOT matrix:  '
+         Do I=1,3
+          Write(Ipr,'(a,3f12.4)')       '                      ',bett(i,:)
+         End Do
        end if
-
        return
     End Subroutine Get_Atombet_Ctr
 
