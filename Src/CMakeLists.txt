@@ -1,14 +1,10 @@
-#####################################################
-# Infos
-#####################################################
-
 # CMake file for crysfml project
 # Written by Eric Pellegrini
 # Institut Laue Langevin
 # Grenoble, France
 
-ADD_SUBDIRECTORY(CFML)
+add_subdirectory(CFML)
 
-IF(${GUI})
-    ADD_SUBDIRECTORY(CFGL)
-ENDIF()
+if(${GUI})
+    add_subdirectory(CFGL)
+endif()

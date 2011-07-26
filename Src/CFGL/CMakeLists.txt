@@ -1,26 +1,10 @@
-#####################################################
-# Infos
-#####################################################
-
-# CMake file for crysfml project
+# CMake file for crysfgl project
 # Written by Eric Pellegrini
 # Institut Laue Langevin
 # Grenoble, France
 
-#####################################################
-
-
-
-#####################################################
-# Define the source files for crysfml library       #
-#####################################################
-
-# This will store the source files for the crysfgl library.
-SET(crysfgl_LIB_SRCS "")
-
-# The source files of the crysfgl library.
-SET(crysfgl_LIB_SRCS
-    ${crysfgl_LIB_SRCS}
+# The source files.
+set(crysfgl_SRCS
     WCFGL_Atomic_Table.f90
     WCFGL_Atom_Tree.f90
     WCFGL_Bond_Tree.f90
@@ -40,51 +24,39 @@ SET(crysfgl_LIB_SRCS
     WCFGL_Trackball.f90
 )
 
-#####################################################
+# The path for winteracter library mod files.
+include_directories(${WINTER_MOD_DIR})
 
+# The path for crysfml_common library mod files.
+include_directories(${PROJECT_BINARY_DIR}/Lib/Common)
 
+# The path for wcrysfml library mod files.
+include_directories(${PROJECT_BINARY_DIR}/Lib/LibW)
 
-#####################################################
-# Define targets properties                         #
-#####################################################
+# The path for winteracter library.
+link_directories(${WINTER_LIB_DIR})
 
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/Lib/LibC ${CMAKE_BINARY_DIR}/Lib/LibW)
+# The path for crysfml_common library.
+link_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+
+# The path for wcrysfml library mod files.
+link_directories(${PROJECT_BINARY_DIR}/Lib/LibW)
 
 # Add the crysfgl library to the project.
-ADD_LIBRARY(wcrysfgl STATIC ${crysfgl_LIB_SRCS})
-
-# Sets the path where to place the crysfgl library.
-SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibGL)
-
-# Sets the path where to place the mod files for the crysfgl library.
-SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibGL)
-
-IF(WIN32)
-    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")
-ELSEIF(APPLE)
-    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.ifi")        
-ELSEIF(UNIX)
-    SET_TARGET_PROPERTIES(wcrysfgl PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")    
-ENDIF()
+add_library(wcrysfgl STATIC ${crysfgl_SRCS})
 
 # The crysfml_common will be linked to crysfgl library.
-TARGET_LINK_LIBRARIES(wcrysfgl crysfml_common)
+target_link_libraries(wcrysfgl crysfml_common)
 
-ADD_CUSTOM_COMMAND(
-    TARGET wcrysfgl
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibGL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibGL ${LIB_PATH}/LibGL)
+target_link_libraries(wcrysfgl winter)
 
+# Sets the path where to place the crysfgl library.
+set_target_properties(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibGL)
 
-# Some compiler specific flags are defined for the library to build.
-# Case of Intel fortran compiler.
-#IF(${COMPILER_NAME} STREQUAL lf95)
-    
-#    # By default, an include directive for Winteracter and wcrysfml are added in case of a build in GUI mode.
-#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-mod .;$ENV{WINTER}\lib.l95;${LIB_PATH}/LibW")
+# Sets the path where to place the mod files for the crysfgl library.
+set_target_properties(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibGL)
 
-#    # Excepted the following files for which the compilation flags is slightly different.
-#    SET_SOURCE_FILES_PROPERTIES(${crysfgl_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-nstchk")
-
-#ENDIF()
+add_custom_command(TARGET wcrysfgl
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibGL
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibGL ${CRYSFGL_LIB_DIR})

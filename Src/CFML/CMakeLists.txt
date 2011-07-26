@@ -1,68 +1,36 @@
-#####################################################
-# Infos
-#####################################################
-
 # CMake file for crysfml project
 # Written by Eric Pellegrini
 # Institut Laue Langevin
 # Grenoble, France
 
-#####################################################
-
-
-
-#####################################################
-# The source files for crysfml library              #
-#####################################################
-
-# This will store the source files common to a build in CONSOLE and GUI mode.
-SET(crysfml_COMMON_LIB_SRCS "")
-
 # WINDOWS
-IF(WIN32)
-
+if(WIN32)
     # Intel Fortran compiler
-    IF(${COMPILER_NAME} STREQUAL ifort)
-
-        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Windows_intel.f90)
-
-    ELSE()
-
-        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Windows.f90)
-
+    if(${COMPILER_NAME} STREQUAL ifort)
+        set(crysfml_COMMON_SRCS CFML_GlobalDeps_Windows_intel.f90)
+    else()
+        set(crysfml_COMMON_SRCS CFML_GlobalDeps_Windows.f90)
         # Lahey Fortran compiler.
-        IF(${COMPILER_NAME} STREQUAL lf95)
-
-            SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} f2kcli.f90)
-
-        ENDIF()
-
-    ENDIF()
-
+        if(${COMPILER_NAME} STREQUAL lf95)
+            set(crysfml_COMMON_SRCS ${crysfml_COMMON_SRCS} f2kcli.f90)
+        endif()
+    endif()
 # MacOS
-ELSEIF(APPLE)
-
-    SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_MacOS.f90)
-
+elseif(APPLE)
+    set(crysfml_COMMON_SRCS CFML_GlobalDeps_MacOS.f90)
 # Unix
-ELSEIF(UNIX)
-
+elseif(UNIX)
     # Intel Fortran compiler
-    IF(${COMPILER_NAME} STREQUAL ifort)
+    if(${COMPILER_NAME} STREQUAL ifort)
+        set(crysfml_COMMON_SRCS CFML_GlobalDeps_Linux_Intel.f90)
+    else()
+        set(crysfml_COMMON_SRCS CFML_GlobalDeps_Linux.f90)
+    endif()
+endif()
 
-        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Linux_Intel.f90)
-
-    ELSE()
-
-        SET(crysfml_COMMON_LIB_SRCS ${crysfml_COMMON_LIB_SRCS} CFML_GlobalDeps_Linux.f90)
-
-    ENDIF()
-
-ENDIF()
-
-# Those files are in common for a build in Console or in GUI mode.
-SET(crysfml_COMMON_LIB_SRCS
-    ${crysfml_COMMON_LIB_SRCS}
+# The sources files for crysfml_common library.
+set(crysfml_COMMON_SRCS
+    ${crysfml_COMMON_SRCS}
     CFML_Atom_Mod.f90
     CFML_Bonds_Table.f90
     CFML_Chem_Scatt.f90
@@ -95,145 +63,131 @@ SET(crysfml_COMMON_LIB_SRCS
     CFML_String_Util.f90
     CFML_SXTAL_Geom.f90
     CFML_Symmetry.f90
-    CFML_Sym_Table.f90
-)
+    CFML_Sym_Table.f90)
 
-# Files specific to a build in CONSOLE mode.
-SET(crysfml_CONSOLE_LIB_SRCS CFML_IO_Mess.f90 CFML_Optimization_SAn.f90)
+# The sources files for crysfml library.
+set(crysfml_CONSOLE_SRCS CFML_IO_Mess.f90 CFML_Optimization_SAn.f90)
 
-# Files specific to a build in GUI mode.
-IF(${GUI})
-
-    SET(crysfml_GUI_LIB_SRCS CFML_Optimization_SAn.f90)
-    
+# The sources files for wcrysfml library.
+if(${GUI})
+    set(crysfml_GUI_SRCS CFML_Optimization_SAn.f90)    
     # Case of The Lahey compiler with a RWIN build (-DRWIN=True).
-    IF(${COMPILER_NAME} STREQUAL lf95 AND ${RWIN})
+    if(${COMPILER_NAME} STREQUAL lf95 AND ${RWIN})
+        set(crysfml_GUI_SRCS ${crysfml_GUI_SRCS} CFML_IO_MessRW.f90)
+    else()
+        set(crysfml_GUI_SRCS ${crysfml_GUI_SRCS} CFML_IO_MessWin.f90)
+    endif()
+endif()
 
-        SET(crysfml_GUI_LIB_SRCS ${crysfml_GUI_LIB_SRCS} CFML_IO_MessRW.f90)
-
-    ELSE()
-
-        SET(crysfml_GUI_LIB_SRCS ${crysfml_GUI_LIB_SRCS} CFML_IO_MessWin.f90)
-
-    ENDIF()
-
-ENDIF()
-
-#####################################################
-
-
-
-#####################################################
-# Define sources properties                    #
-#####################################################
-
-SET(COMMON_OBJS_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/crysfml_common.dir)
-SET(COMMON_OBJS_FILES ${crysfml_COMMON_LIB_SRCS})
-ADD_SUFFIX(COMMON_OBJS_FILES ${CMAKE_Fortran_OUTPUT_EXTENSION})
-ADD_PREFIX(${COMMON_OBJS_DIR}/ COMMON_OBJS_FILES)
+set(COMMON_OBJS_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/crysfml_common.dir)
+set(COMMON_OBJS_FILES ${crysfml_COMMON_SRCS})
+add_suffix(COMMON_OBJS_FILES ${CMAKE_Fortran_OUTPUT_EXTENSION})
+add_prefix(${COMMON_OBJS_DIR}/ COMMON_OBJS_FILES)
 
 # Those file are generated during the build.
-SET_SOURCE_FILES_PROPERTIES(${COMMON_OBJS_FILES} PROPERTIES GENERATED true)
+set_source_files_properties(${COMMON_OBJS_FILES} PROPERTIES GENERATED true)
 
 # Some compiler specific flags are defined for the library to build.
-IF(${COMPILER_NAME} STREQUAL gfortran)
+if(${COMPILER_NAME} STREQUAL gfortran)
 
-    IF(WIN32)
+    if(WIN32)
         # By default all the source file are compiled with "-std=f2003" flag.
-        SET_SOURCE_FILES_PROPERTIES(${crysfml_COMMON_LIB_SRCS} ${crysfml_CONSOLE_LIB_SRCS} 
+        set_source_files_properties(${crysfml_COMMON_SRCS} ${crysfml_CONSOLE_SRCS} 
                                     PROPERTIES COMPILE_FLAGS "-std=f2003")
 
         # Excepted the following files for which the compilation flags is slightly different for various reasons.
-        SET_SOURCE_FILES_PROPERTIES(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
-        SET_SOURCE_FILES_PROPERTIES(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
-        SET_SOURCE_FILES_PROPERTIES(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
-        SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")        
-    ENDIF()
+        set_source_files_properties(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS "")
+        set_source_files_properties(CFML_Conf_Calc.f90 PROPERTIES COMPILE_FLAGS "")
+        set_source_files_properties(CFML_Optimization_SAn.f90 PROPERTIES COMPILE_FLAGS "")
+        set_source_files_properties(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "-std=gnu")        
+    endif()
 
 # Case of g95 compiler.
-ELSEIF(${COMPILER_NAME} STREQUAL g95)
+elseif(${COMPILER_NAME} STREQUAL g95)
 
-    IF(WIN32)
+    if(WIN32)
         # By default all the source file are compiled with "-std=f2003" flag.
-        SET_SOURCE_FILES_PROPERTIES(${crysfml_COMMON_LIB_SRCS} ${crysfml_CONSOLE_LIB_SRCS} ${crysfml_GUI_LIB_SRCS}
+        set_source_files_properties(${crysfml_COMMON_SRCS} ${crysfml_CONSOLE_SRCS} ${crysfml_GUI_SRCS}
                                     PROPERTIES COMPILE_FLAGS "-std=f2003")
 
         # Excepted the following files for which the compilation flags is slightly different.
-        SET_SOURCE_FILES_PROPERTIES(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
-    ENDIF()
+        set_source_files_properties(CFML_ILL_Instrm_Data.f90 PROPERTIES COMPILE_FLAGS "")
+    endif()
         
-ENDIF()
-
-#####################################################
-
-
-
-#####################################################
-# Define targets properties                         #
-#####################################################
+endif()
 
 # The crysfml_common library is common to Console and GUI mode.
-ADD_LIBRARY(crysfml_common STATIC ${crysfml_COMMON_LIB_SRCS})
-
-# The crysfml library is the CONSOLE version of the library. It is also built in GUI mode.
-ADD_LIBRARY(crysfml STATIC ${crysfml_CONSOLE_LIB_SRCS} ${COMMON_OBJS_FILES})
+add_library(crysfml_common STATIC ${crysfml_COMMON_SRCS})
 
 # Sets the path where to place the crysfml_common library.
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/Common)
+set_target_properties(crysfml_common PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/Common)
 
 # Sets the path where to place the mod files for the crysfml_common library.
-SET_TARGET_PROPERTIES(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
+set_target_properties(crysfml_common PROPERTIES Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/Common)
+
+add_custom_command(TARGET crysfml_common
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CRYSFML_COMMON_LIB_DIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/Common ${CRYSFML_COMMON_LIB_DIR}
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CRYSFML_LIB_DIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/Common ${CRYSFML_LIB_DIR}
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${WCRYSFML_LIB_DIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/Common ${WCRYSFML_LIB_DIR})
+
+# This directory contains the crysfml_common library mod files.
+include_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+
+# The linker path for crysfml_common library.
+link_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+
+# The crysfml library is the CONSOLE version of the library. It is also built in GUI mode.
+add_library(crysfml STATIC ${crysfml_CONSOLE_SRCS} ${COMMON_OBJS_FILES})
 
 # Sets the path where to place the crysfml library.
-SET_TARGET_PROPERTIES(crysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
+set_target_properties(crysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibC)
 
 # Sets the path where to place the mod files for the crysfml library.
-SET_TARGET_PROPERTIES(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibC)
+set_target_properties(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibC)
 
 # The crysfml_common will be linked to crysfml library.
-TARGET_LINK_LIBRARIES(crysfml crysfml_common)
+target_link_libraries(crysfml crysfml_common)
 
-ADD_CUSTOM_COMMAND(TARGET crysfml
+add_custom_command(TARGET crysfml
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibC
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibC ${LIB_PATH}/LibC)
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibC ${CRYSFML_LIB_DIR})
 
 if(${GUI})
 
-    INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/Lib/LibC)
+    # This directory contains the crysfml_common library mod files.
+    include_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+
+    # This directory contains the winteracter library mod files.
+    include_directories(${WINTER_MOD_DIR})
+
+    # The linker path for crysfml_common library.
+    link_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+
+    # The linker path for winteracter library.
+    link_directories(${WINTER_LIB_DIR})
             
     # The wcrysfml library is the GUI version of the library. It is linked using Winteracter.
-    ADD_LIBRARY(wcrysfml STATIC ${crysfml_GUI_LIB_SRCS} ${COMMON_OBJS_FILES})
+    add_library(wcrysfml STATIC ${crysfml_GUI_SRCS} ${COMMON_OBJS_FILES})
 
-    IF(WIN32)
-        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "/I$ENV{WINTER}/lib.if8")        
-    ELSEIF(APPLE)
-        SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.ifi")        
-    ELSEIF(UNIX)
-        IF(${COMPILER_NAME} STREQUAL ifort)    
-            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.if8")
-        ELSEIF(${COMPILER_NAME} STREQUAL g95)
-            SET_TARGET_PROPERTIES(wcrysfml PROPERTIES COMPILE_FLAGS "-I$ENV{WINTER}/lib.g95")
-        ENDIF()
-    ENDIF()
+    target_link_libraries(wcrysfml crysfml_common)
 
+    target_link_libraries(wcrysfml winter)
+    
     # Sets the path where to place the wcrysfml library.
-    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibW)
+    set_target_properties(wcrysfml PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibW)
     
     # Sets the path where to place the mod files for the wcrysfml library.
-    SET_TARGET_PROPERTIES(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Lib/LibW)
+    set_target_properties(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibW)
         
-    # The crysfml_common will be linked to wcrysfml library.
-    TARGET_LINK_LIBRARIES(wcrysfml crysfml_common)
-
-    ADD_CUSTOM_COMMAND(
-      TARGET wcrysfml
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibW
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibW ${LIB_PATH}/LibW)
+    add_custom_command(TARGET wcrysfml
+                       POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibW ${WCRYSFML_LIB_DIR})
     
-ENDIF()
+endif()
 
 #####################################################
 

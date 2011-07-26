@@ -57,38 +57,28 @@ ENDMACRO(ADD_SUFFIX)
 
 
 # The general compiling options for all compilers will be loaded the following file.
-SET(CMAKE_USER_MAKE_RULES_OVERRIDE_Fortran ${CMAKE_SOURCE_DIR}/Compilers/CompilerFlags.cmake)
+#set(CMAKE_USER_MAKE_RULES_OVERRIDE_Fortran ${CMAKE_SOURCE_DIR}/Compilers/CompilerFlags.cmake)
 
-# You must use a CMake >= 2.8.4 to build this project.
-# Indeed, with prior versions, the resource files were skipped from the compilation silently.
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.4 FATAL_ERROR)
+# Minimum version required because of a bug in prior versions: the resource files were 
+# not considered in the compilation.
+cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
 
 # By default rwin library is not used.
-SET(RWIN FALSE CACHE BOOL "Use rwin library (only with lf95 compiler)")
+#SET(RWIN FALSE CACHE BOOL "Use rwin library (only with lf95 compiler)")
+option(RWIN "Use rwin library (only with lf95 compiler)" OFF)
 
 # By default the built is in CONSOLE mode.
-SET(GUI FALSE CACHE BOOL "do the build in GUI mode")
+#SET(GUI FALSE CACHE BOOL "do the build in GUI mode")
+option(GUI  "Build also crysfgl and wcrysfml library" ON)
 
 # The project is declared. It is a Fortran project.
-PROJECT(crysfml Fortran)
+project(crysfml Fortran)
 
-# Switch off the verbosity.
-SET(CMAKE_VERBOSE_MAKEFILE OFF)
+include($ENV{CRYSFML}/resources/general.cmake)
+include($ENV{CRYSFML}/resources/${COMPILER_NAME}_${CMAKE_SYSTEM_NAME}.cmake)
 
-# Some checkings.
-IF (${GUI})
+# The directory that will store the libraries built with ifort.
+#set(LIB_PATH ${PROJECT_SOURCE_DIR}/${COMPILER_NAME})
 
-    IF(WIN32)        
-        IF(NOT (${COMPILER_NAME} STREQUAL "ifort" OR ${COMPILER_NAME} STREQUAL "lf95"))        
-            MESSAGE(FATAL_ERROR "The crysfml library can not be built in GUI mode using ${COMPILER_NAME} 
-compiler on ${CMAKE_HOST_SYSTEM} platform.")            
-        ENDIF()
-    
-    ENDIF()
-
-ENDIF()
-
-# Add the subdirectories making the project.
-ADD_SUBDIRECTORY(Src)
-
-
+# The subdirectories of the project.
+add_subdirectory(Src)
