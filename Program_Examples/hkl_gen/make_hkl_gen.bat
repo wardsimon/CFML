@@ -9,7 +9,7 @@ rem
    if not x%1 == x goto CONT
    cls
    echo    MAKE_HKL_GEN: Make HKL_GEN Compilation
-   echo    Syntax: make_hkl_gen [f95/lf95/g95/gfrotran/ifort]
+   echo    Syntax: make_hkl_gen [f95/lf95/g95/gfortran/ifort]
    goto END
 rem
 :CONT
@@ -32,9 +32,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c hkl_gen.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   rem ifort /exe:hkl_gen *.obj C:\CrysFML\Intel\LibC\crysfml.lib
-   link /subsystem:console /out:hkl_gen.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   ifort /c hkl_gen.f90 /O2 /nologo /I%CRYSFML%\ifort\LibC
+   rem ifort /exe:hkl_gen *.obj %CRYSFML%\ifort\LibC\crysfml.lib
+   link /subsystem:console /out:hkl_gen.exe *.obj %CRYSFML%\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
