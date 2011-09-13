@@ -106,7 +106,7 @@
      write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance between magnetic atoms:",dmax,  " angstroms"
      write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance for direct exchange   :",directex," angstrom"
      write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance between anions        :",dbond, &
-                                        " angstroms (also for cation-anion bonds)"
+                                       " angstroms (also for cation-anion bonds)"
      write(unit=lun,fmt="(a,f9.3,a )") "   Maximum angle between M-M' and M-A     :",angm , " degrees"
      write(unit=lun,fmt="(a,f9.3,a,/)")"   Maximum angle between M-M' and M-A     :",angn , " degrees"
 
@@ -404,16 +404,16 @@
     !  Subroutine to determine and write the different exchange interactions
     !  given the list of exchange paths
     !
-    integer, parameter :: max_jx=96
-    integer :: i,j,k,im,km,j1,j2,n,L,nj,nt
-    integer, dimension(n_mag,n_mag) :: nterms
+    integer, parameter                  :: max_jx=96
+    integer                             :: i,j,k,im,km,j1,j2,n,L,nj,nt
+    integer, dimension(n_mag,n_mag)     :: nterms
     integer,          dimension(max_jx) :: p
     character(len=16),dimension(max_jx) :: trans
     character(len=16),dimension(max_jx) :: Nam_12
-    character(len=60)  :: text
-    character(len=30)  :: expo
-    character(len=16)  :: transla
-    real, dimension(3) :: vect
+    character(len=60)                   :: text
+    character(len=30)                   :: expo
+    character(len=16)                   :: transla
+    real, dimension(3)                  :: vect
     real :: dmin
     type (Exchange_interaction), dimension(n_mag,n_mag,max_jx) :: jota
     type (Exchange_interaction), dimension(max_jx)             :: jxch
@@ -563,9 +563,11 @@
           newt=.true.
           do i=1,nj
             if(Equiv_jotas(jota(im,km,nt),jxch(i)) ) then
-              !jota(im,km,nt)%J=jxch(i)%J
-              !jota(im,km,nt)%valj=jxch(i)%valj
-              jota(im,km,nt) = jxch(i) !Equalisation of the two types
+              jota(im,km,nt)%J=jxch(i)%J
+              jota(im,km,nt)%valj=jxch(i)%valj
+              !Equalisation of the two types THIS IS WRONG!!!!!
+              !the components of "jxch" are not good to be trasferred
+              !jota(im,km,nt) = jxch(i)
               newt=.false.
               exit
             end if

@@ -636,7 +636,7 @@
    write(unit=lun2,fmt="(a,/)") "--------------------------------------------"
    DO i=1,natcel
      DO j=1,natcel
-       read(unit=1,fmt="(2i3,i4)") inn,jnn,nterm(i,j)
+       read(unit=1,fmt="(2i4,i5)") inn,jnn,nterm(i,j)
        IF(inn /= i .AND. jnn /= j)  &
            write(unit=*,fmt="(a)") " => Warning!, check the input exchange matrix!"
        write(unit=lun2,fmt="(a,3(i2,a))") " => J(",i,",",j,")[K]   (",nterm(i,j), " terms)"
