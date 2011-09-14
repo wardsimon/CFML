@@ -10,7 +10,7 @@ rem
    cls
    echo    MAKE_Simbo: Make SIMBO Compilation
    echo    Syntax: make_simbo [f95/lf95/g95/gfortran/ifort]
-   goto END
+   goto FIN
 rem
 :CONT
    if x%1 == xf95       goto F95
@@ -18,7 +18,8 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
-   goto END
+   echo    Unknown compiler!
+   goto FIN
 rem
 rem ****---- Absoft Compiler ----****
 :F95
@@ -35,7 +36,7 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
    ifort /c Simbo.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   link /subsystem:console /stack:102400000 /out:Simbo.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
+   link /subsystem:console /stack:64000000 /out:Simbo.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
@@ -53,4 +54,12 @@ rem **---- GFORTRAN Compiler ----**
    goto END
 rem
 :END
-   del *.obj *.mod *.o *.map *.bak > nul
+rem  Comment the following lines if upx or %FULLPROF% are not available
+rem  or if you want to conserve the object files
+rem  Compression of executable
+        upx Simbo.exe
+rem  Move the excutable to a directory in the Path
+        if exist %FULLPROF% move Simbo.exe %FULLPROF% > nul
+rem  Remove unnecessary files
+        del *.obj *.mod *.o *.map *.bak > nul
+:FIN
