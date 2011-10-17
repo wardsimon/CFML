@@ -5829,7 +5829,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 12):: car
+       character(len= 20):: car
        integer           :: i,j,k, np,npp,npos
        real(kind=cp)     :: suma
 
@@ -5840,7 +5840,7 @@
           npp=0
           do j=1,3
              if (abs(x(i,j)) > 0.0 ) then
-                call get_fraction_1dig(x(i,j),car)
+                call get_fraction_2dig(x(i,j),car)
                 car=adjustl(car)
                 if (abs(abs(x(i,j))-1.0) <= eps_symm) then
                      if (npp == 0) then
@@ -5913,7 +5913,7 @@
              cycle
           end if
 
-          call get_fraction_1dig(t(i),car)
+          call get_fraction_2dig(t(i),car)
           car=adjustl(car)
           suma=0.0
           do j=1,3
