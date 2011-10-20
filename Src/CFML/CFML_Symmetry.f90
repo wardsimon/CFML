@@ -5919,10 +5919,11 @@
           do j=1,3
              suma=suma+abs(x(i,j))
           end do
-          if (suma <= 3.0*eps_symm) then
-             if (car(1:1) == "+") car=car(2:4)//" "
-          end if
           np=len_trim(car)
+          if (suma <= 3.0*eps_symm) then
+             if (car(1:1) == "+") car=car(2:np)//" "
+          end if
+
           if (i < 3) then
              symb(npos:)=car(1:np)//", "
              npos=len_trim(symb)+2
