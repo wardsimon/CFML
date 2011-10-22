@@ -1,0 +1,669 @@
+!***********************************************************************
+!                                                                      *
+!     Copyright 1987-2002 Michael M. J. Treacy and Michael W. Deem     *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!*******************      Source file DIFFaX.f       *******************
+!***********************************************************************
+!***********************************************************************
+!******************** version 1.808, 16th Apr, 2002 ********************
+!***********************************************************************
+!***********************************************************************
+! This program calculates the powder diffraction spectrum of a crystal *
+! formed from layers which stack coherently, but not deterministically.*
+! The algorithm used is described in detail in "A General Recursion    *
+! Method for Calculating Diffracted Intensities From Crystals          *
+! Containing Planar Faults", by M.M.J. Treacy, M.W. Deem and           *
+! J.M. Newsam, Proceedings of the Royal Society, London, A (1991) 433, *
+! pp 499 - 520.                                                        *
+!                                                                      *
+! Source code written by Michael M. J. Treacy and Michael W. Deem      *
+!                                                                      *
+! HISTORY:                                                             *
+! 6/87-5/88; MMJT: Original versions were named 'betaPXD' and 'FauPXD'.*
+! They were 'hardwired' for simulating PXD patterns from zeolite beta, *
+! and the faujasite/'Breck's structure 6' zeolite family.              *
+!                                                                      *
+! 5-8/88; MWD: Completely rewritten in generalized form for Cray and   *
+! VAX, and named 'PDS'.                                                *
+!                                                                      *
+! 8/88-11/89; MMJT: Control file option added. Improved handling of    *
+! sharp peaks. Symmetry testing added. Layer 'stacking uncertainty'    *
+! factors added. Selected area electron diffraction option added.      *
+! Explicit layer sequencing option. Optimization of layer form factor  *
+! calculations. Renamed 'DIFFaX' for, (D)iffraction (I)ntensities      *
+! (F)rom (Fa)ulted (X)tals.                                            *
+!                                                                      *
+! 12/89 - 3/90; MMJT: Finite crystal thickness now accepted under      *
+!              'RECURSIVE' option. Self-consistency check of atomic    *
+!               coordinates in data file. (v1.76)                      *
+!                                                                      *
+! 4/90 - 12/90; MMJT: Minor bug fixes. Streamlined 'data.sfc' file.    *
+!               (v1.761 and v1.762)                                    *
+!                                                                      *
+! 1/91; MMJT: Eliminated the use of scratch file while reading data.   *
+!             GETLNE now handles multiple, nested, comments (v1.763)   *
+!                                                                      *
+! 5/91; MMJT: Eliminated bug in default tolerance parameter. Added     *
+!             average crystal composition printout to dump file.       *
+!             (v1.764)                                                 *
+!                                                                      *
+! 8/91; MMJT: Replaced the LU decomposition routines CLUDCM and CLUBKS *
+!             (from "Numerical Recipes") with the faster linpack       *
+!             routines, CGEFA and CGESL (v1.765)                       *
+!                                                                      *
+! 8/91; MMJT: Improved sharp peak detection - use peak widths rather   *
+!             than the more complicated phase coherence argument in    *
+!             subroutine SHARP (v1.766)                                *
+!                                                                      *
+! 4/92; MMJT: Fixed bug in INTEN2 where last layer in an explicit      *
+!             sequence was inadvertently assigned a scattering factor  *
+!             of C_ONE. Improved error checking for explicit layers so *
+!             that when alpha(j,i) = 0, an error is issued if j        *
+!             follows i. XP_MAX increased to 5000. GETLNE now checks   *
+!             that data lines do not exceed maximum length. (v1.767)   *
+!                                                                      *
+! 12/94; MMJT:Reinstated the use of the scratch file that had been     *
+!             eliminated in v1.763. The Cray, and Microsoft fortran    *
+!             compiler for PC, adhere to the FORTRAN77 standard and    *
+!             do not allow unformatted reads/writes from/to strings.   *
+!                                                                      *
+! 1/95; MMJT: Finessed the diffraction symmetry detection routines.    *
+!             Introduced the subroutine THRESH. (v1.769)               *
+!                                                                      *
+! 2/95; MMJT: Fixed glitches in THRESH, TST_MIR and TST_ROT that were  *
+!             introduced in the 1/95 fix. (still v1.769)               *
+!                                                                      *
+! 3/95; MMJT: Implemented Debye-Scherrer type broadening due to finite *
+!             lateral layer widths. Added CHWDTH, RDWDTH. Modified the *
+!             way the powder pattern is written to the array spec, so  *
+!             that the low angle intensity begins at spec(1). Atom     *
+!             names are now case insensitive. The layer Bij factors    *
+!             were reordered - B23, B31 become B13, B23.               *
+!             GET_G modified to handle singularities better. (v1.80)   *
+!                                                                      *
+! 7/95; MMJT: Fixed rare zero integration range bug in GLQ16.          *
+!             Fixed "fatsWalla" bug in GET_MAT.  (v1.801)              *
+!                                                                      *
+! 5/96; MMJT: Fixed a bug in the LL() function in INTEGR() which was   *
+!             introduced by a "cosmetic" change in v1.801.  (v1.802)   *
+!                                                                      *
+! 10/96; MMJT:Changed eps3 to eps5 in CHWDTH function so that the      *
+!             broadening tails extend further.  (v1.803)               *
+!                                                                      *
+! 7/97; MMJT: Added subroutines NXTARG and RDNMBR. These allow data    *
+!             to be entered as fractions (ie 1/3). Improved robustness *
+!             of the "fatswalla" interlayer uncertainty code. (v1.804) *
+!                                                                      *
+! 6/98; MMJT: Fixed bug in PV() that was introduced in v1.80. (v1.805) *
+!                                                                      *
+! 3/00; MMJT: Now allow 16-bit deep SADPs. (v1.806)                    *
+!                                                                      *
+! 8/00; MMJT: RDSTAK changed so that if a stacking probability is zero,*
+!              the rest of the line is ignored.        (v1.807)        *
+!                                                                      *
+! 4/02; MMJT: Removed calls to iidnnt in WRTSADP.      (v1.808)        *
+!***********************************************************************
+!***************************** Legal Note ******************************
+!***********************************************************************
+!                                                                      *
+! * * * * * * * * * *  DISCLAIMER OF WARRANTIES: * * * * * * * * * * * *
+!                                                                      *
+! The authors make no warranties whatsoever, express or implied, with  *
+! respect to the DIFFaX software or any of its parts, nor do they      *
+! warrant that the DIFFaX software, or any of its parts, will be       *
+! error-free, will operate without interruption, or will be compatible *
+! with any software or hardware possessed by the user.                 *
+!                                                                      *
+! * * * * * * * * * *  LIMITATION OF LIABILITY:  * * * * * * * * * * * *
+!                                                                      *
+! The authors will not be liable for any special, incidental, or       *
+! consequential damages, even if informed of the possibility of such   *
+! damages in advance.                                                  *
+!                                                                      *
+!***********************************************************************
+!************************** DIFFaX file i/o. ***************************
+!***********************************************************************
+!                                                                      *
+! * * * * OPTIONAL CONTROLFILE FOR AUTOMATIC RUNNING OF DIFFaX * * * * *
+!                                                                      *
+! DIFFaX first searches the current directory for a control file named *
+! 'control.dif'. If it finds this file it opens it on unit 'cntrl'     *
+! and this becomes the default input unit. Structure filenames,        *
+! and the various parameters (which would normally be requested        *
+! interactively) obviously must be in the correct sequence. The data   *
+! read from 'control' is echoed on the default output device (ie. the  *
+! screen, unit 'op') so the user can check that the responses          *
+! are properly synchronized. If 'control.dif' does not exist, the      *
+! default input device is the keyboard (unit number 'ip'), and the     *
+! user is expected to answer the prompts. DIFFaX will loop through the *
+! contents of 'control', and thus can be used to rerun DIFFaX on fresh *
+! data files, without quitting. Under direction from a control file,   *
+! normal termination of DIFFaX occurs when a filename 'END' is         *
+! encountered. Interactively, DIFFaX will end normally when the user   *
+! chooses not to return to the function menu.                          *
+! The name of the control file is stored in the global character       *
+! variable 'cfname', and is assigned in 'main'.                        *
+!                                                                      *
+!                                                                      *
+! * * * * * * * * * * *  STRUCTURE INPUT FILE  * * * * * * * * * * * * *
+!                                                                      *
+! The structure input file is opened on unit 'df'. It can have any     *
+! name except 'END' (case insensitive). For clarity it may be best to  *
+! keep it short (less than 8 characters) and (optionally) with '.dat'  *
+! appended. Output files use the input name up to the first blank      *
+! (' ') or period ('.') as their root name. Thus, if 'beta.dat'        *
+! (or 'beta') is the data input file name, then 'beta.spc' etc... will *
+! be the form of the output file names.                                *
+!                                                                      *
+!                                                                      *
+! * * * * * * * STRUCTURE FACTOR PARAMETER INPUT FILE  * * * * * * * * *
+!                                                                      *
+! The structure factor parameter file, 'data.sfc' is opened on unit    *
+! 'sf'. If a file of name 'data.sfc' is not found, DIFFaX will abort.  *
+! The name of the structure factor parameter file is stored in the     *
+! global character variable 'sfname', and is assigned in 'main'.       *
+!                                                                      *
+!                                                                      *
+! * * * * * * * * * * *  SPECTRUM OUTPUT FILE  * * * * * * * * * * * * *
+!                                                                      *
+! Spectra are output as text files on unit 'sp'. Each record contains  *
+!        2theta     intensity     (instrumentally broadened intensity) *
+! in tab-delimited format. 'Instrumentally broadened intensity' is     *
+! output only if the pseudo-Voigt, Gaussian or Lorentzian options were *
+! requested. Spectra output file names are in the form 'rootname.spc', *
+! or alternatively, if that name is already taken, as 'rootname.spc#', *
+! where #=1,2,3 etc...                                                 *
+!                                                                      *
+!                                                                      *
+! * * * * * * * * * STREAK INTENSITIES OUTPUT FILE * * * * * * * * * * *
+!                                                                      *
+! Streak calculations are output on unit 'sk'. Streak output file      *
+! names are in the form 'rootname.str', or alternatively, if that name *
+! is already taken, as 'rootname.str#', where #=1,2,3 etc...           *
+!                                                                      *
+!                                                                      *
+! * * *   SELECTED AREA DIFFRACTION PATTERN (SADP) OUTPUT FILE   * * * *
+!                                                                      *
+! Selected area diffraction pattern data is saved in binary format in  *
+! a file named 'rootname.sadp' which is output on unit 'sad'. If that  *
+! name is already taken, the alternative name 'rootname.sadp#' is      *
+! used, where #=1,2,3 etc...                                           *
+!                                                                      *
+!                                                                      *
+! * * * * * *  OPTIONAL DUMP FILE OF STRUCTURAL PARAMETERS * * * * * * *
+!                                                                      *
+! If the user requests a dump of the structure data file (as DIFFaX    *
+! read it!) a dumpfile named 'rootname.dmp' is output on unit dmp. If  *
+! that name is already taken, the alternative name 'rootname.dmp#' is  *
+! used, where #=1,2,3 etc...This is valuable for debugging the input   *
+! data file.                                                           *
+!                                                                      *
+!                                                                      *
+! * * * * * * *  OPTIONAL DUMP FILE OF INTENSITIES FOUND   * * * * * * *
+! * * * * * * * WHEN EVALUATING DIFFRACTION POINT SYMMETRY * * * * * * *
+!                                                                      *
+! The user may also output the history of the intensity values found   *
+! when DIFFaX attempts to establish the point group symmetry of the    *
+! diffraction output. This is useful when debugging the datafile. The  *
+! intensity data is saved in a file named 'rootname.sym' which is      *
+! output on unit 'sy'. If that name is already taken, the alternative  *
+! name 'rootname.sym#' is used, where #=1,2,3 etc...                   *
+!                                                                      *
+!***********************************************************************
+!******************************* DIFFaX ********************************
+!***********************************************************************
+!
+! ______________________________________________________________________
+! Title: DIFFaX
+! Authors: MWD and MMJT
+! Date: 23 Oct 1988
+! Description: This is the main program. First, important global
+! constants, such as PI, are defined. The name of the control file
+! is assigned to cfname, and then FNDCTL searches for this file in the
+! current directory. If found, the control file is opened and it
+! becomes the default input device. If not found, then the keyboard is
+! the standard input device. The user's data file, and the atomic
+! scattering factor data file (whose name is contained in 'sfname')
+! are then searched for in the current directory (GETFIL), and opened.
+! The user's data file is then read (RDFILE). The standard scattering
+! factor data file 'sfname' is then searched for data on the atom
+! types specified by the user (SFC). The layer existence
+! probabilities are calculated (GET_G). If the user data file
+! requested EXPLICIT, RANDOM stacking, then DIFFaX computes a random
+! layer sequence consistent with the stacking probabilities (GETLAY).
+! Reciprocal lattice constants related to the unit cell are then
+! calculated (SPHCST). If the user requested (either interactively,
+! or through the control file) a dump of what DIFFaX read from the
+! user's data file, then an annotated dump is generated (DUMP). DETUN
+! then delicately adjusts the probability data so as to avoid zero
+! determinants at the sharp peaks. The user is then asked if a dump
+! of DIFFaX's symmetry evaluations is required, and then searches the
+! data looking for simple opportunities to speed up the calculation
+! (OPTIMZ). The user is then asked if he wants to calculate the
+! intensity at a point (POINT), along a streak (GOSTRK), integrated
+! within a defined interval (GOINTR), a powder pattern (GOSPEC) or
+! a selected area diffraction pattern (GOSADP). If running
+! interactively, the user can return to any of these menu options,
+! except if GOSPEC was chosen, where DIFFaX will finish. If a control
+! file is being used, then DIFFaX will return to the beginning if
+! GOSPEC was chosen. If a new data file name is read then DIFFaX will
+! run again. If the control file reads 'End' (case insensitive) as the
+! new file name, then DIFFaX will finish.
+! Note: The file names contained in 'cfname' and 'sfname', and the name
+! 'End' are reserved names, and cannot be used by the user as data file
+! names.
+!
+!      COMMON VARIABLES:
+!            uses:  rndm, cntrl, CFile, SymGrpNo
+!
+!        modifies:  PI, PI2, DEG2RAD, RAD2DEG, DoDatdump,
+!                   DoSymDump, cfname, sfname
+! ______________________________________________________________________
+!
+
+
+ Module diffax_mod
+
+  use CFML_GlobalDeps, only :  cp, sp, dp
+
+!***********************************************************************
+!*****************      Declaration of parameters      *****************
+!***********************************************************************
+
+      IMPLICIT NONE
+      INTEGER, PARAMETER ::   max_l=20, &    !MAX_L  -  the maximum number of layer types allowed
+                              max_a=200,&    !MAX_A  -  the maximum number of atoms per layer
+                              max_ta=20,&    !MAX_TA -  the maximum number of different atom types
+                              max_sp=200001,& !MAX_SP -  the maximum number of points in the spectrum
+                              max_cyc=20,&   !MAX_CYC-  the maximum number of iteration cycles
+ !                            max_npar= 30000, &      ! maximum number of parameters to refine
+                              sadsize=256    !SADSIZE - the array size for the selected area diffraction pattern
+
+      INTEGER, PARAMETER :: xp_max=5000, &   !XP_MAX   -  the maximum number of layers that can be
+                                             !            explicitly sequenced non-recursively.
+                              rcsv_max=1022,&!RCSV_MAX -  the maximum number of layers that can be
+                                             !            explicitly sequenced recursively. RCSV_MAX should
+                                             !            not exceed 2**MAX_BIN - 2
+                              max_nam=31,&   !MAX_NAM   -  the maximum allowable number of characters in a filename
+                              max_bin=10     !MAX_BIN   -  Maximum number of 'bits' to be used in binary
+                                             !             representation of RCRSV_MAX+2
+
+      INTEGER, PARAMETER :: ffact_size=201,&   !FFACT_SIZE-  Array size for pre-computed Lorentzian used for
+                                               !             computing the lateral (a-b) size broadening.
+                              n_sigmas=7       !N_SIGMAS  -  Number of half-widths to compute Lorentzian. The
+                                               !             remainder of the array goes linearly to zero.
+
+      REAL(kind=dp),    PARAMETER :: inf_width=1.0D4  !inf_width -  Layer width in Angstroms that DIFFaX considers to
+                                               !             be infinite, with no detectable size broadening
+      INTEGER, PARAMETER :: ip=5, &     !ip  -  standard input device number
+                              op=6, &   !op  -  standard output device number
+                              df=2, &   !df  -  unit that the structure data file will be read from
+                              sf=4, &   !sf  -  unit that the standard scattering factor data will be read from
+                              dmp=10,&  !dmp  -  unit that the structure data dump will be written to
+                              sy=11,&   !sy  -  unit that the symmetry evaluation data will be written to
+                              unit_sp=12,&   !sk  -  unit that the streak data will be written to.
+                              sk=13,&   !sp  -  unit that the spectrum data will be written to.
+                              sa=14 ,&     !sa  -  unit that the 8-bit binary formatted selected area diffraction pattern data will be written to.
+                              san_out = 17,&  ! output device number for SAN
+                              simplex_out = 26 ! output device number for simplex
+
+
+      INTEGER, PARAMETER :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
+
+      INTEGER, PARAMETER :: clip = 14       !CLIP    -  allowed length of filename appendages
+
+      INTEGER, PARAMETER   :: max_bckg_points=100               !Maximum of background points
+
+      INTEGER, PARAMETER :: UNKNOWN = -1    !UNKNOWN -  flag indicating whether or not the symmetry
+                                            !           point-group has been defined by the user
+! define some useful numerical constants
+
+      COMPLEX(kind=dp), PARAMETER :: c_zero = (0.0D0,0.0D0), c_one = (1.0D0,0.0D0)
+      REAL(kind=dp),    PARAMETER :: zero = 0.0D0, quarter = 0.25D0, half = 0.5D0,     &
+                               one = 1.0D0, two = 2.0D0, three = 3.0D0, four = 4.0D0,  &
+                               five = 5.0D0, six = 6.0D0, eight = 8.0D0, ten = 10.0D0, &
+                               twelve = 12.0D0, twenty = 20.0D0, fifty = 50.0D0,       &
+                               hundred = 100.0D0, one_eighty = 180.0D0, two_fiftyfive = 255.0D0
+      REAL(kind=dp),    PARAMETER :: eps1 = 1.0D-1, eps2 = 1.0D-2, eps3 = 1.0D-3,  &
+                               eps4 = 1.0D-4, eps5 = 1.0D-5, eps6 = 1.0D-6,  &
+                               eps7 = 1.0D-7, eps8 = 1.0D-8, eps9 = 1.0D-9,  &
+                               eps10 = 1.0D-10, eps14 = 1.0D-14
+
+      REAL(kind=dp),    PARAMETER :: EIGHTBITS= 256.0D0, FIFTEENBITS= 32768.0D0, SIXTEENBITS= 65536.0D0
+!
+!************   Description of variables
+!
+!
+!   d-> indicates that the variable is read in from the user's data file.
+!
+!   i-> indicates that the variable is acquired interactively at run_time, either by
+!       prompting the user for keyboard input, or (if present) by reading the control file.
+!
+!   s-> indicates that the variable is read in from the atomic scattering factor data file.
+!       Normally, this data should never change.
+!
+!
+!**********************************************************************
+!**************      Declaration of COMMON variables      **************
+!***********************************************************************
+
+    ! save
+!
+!*********************     character variables
+!
+
+  CHARACTER (LEN=4), dimension(max_ta)     :: atom_l  ! The name of each type of atom found in the structure data file
+  CHARACTER (LEN=4), dimension(max_a,max_l):: a_name  !d-> Name of each atom. DIFFaX expects 4 characters.
+                                                      !    See file 'data.sfc' for allowed names
+  CHARACTER (LEN=12) :: pnt_grp     !d->  Symbolic name of the point group symmetry of
+                                    !     the diffraction data.
+  CHARACTER (LEN=16) :: sfname, &   !     The name of the data file containing the
+                                    !     atomic scattering factor data (usually set to 'data.sfc')
+                        cfname      !     The name of the control file containing the automated responses to
+                                    !     DIFFaX's prompts (usually set to 'control.dif')
+
+ CHARACTER (LEN=31)    :: infile, outfile
+
+ character (len=15), dimension(80):: namepar
+ character (len = 20)                            :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
+ character (len = 20)                             :: background_file  !name of backfround file
+ character (len=20)                               :: mode             ! calculation for background: polynomial or interpolation
+!
+!**********************     logical variables
+!
+  LOGICAL, dimension(max_l) :: one_b, &   !  TRUE if all Debye-Waller factors are the same
+                               one_occup  !  TRUE if all occupancy factors are the same
+
+  LOGICAL, dimension(max_l, max_l) :: bs_zero,  & !TRUE if all layer stacking uncertainty factors in
+                                                  !one transition are all zero.
+                                      there       !TRUE if the transition j to i is non-zero
+
+
+
+  LOGICAL :: only_real,   &   !TRUE if all layers are centrosymmetric
+             same_bs,     &   !TRUE if all layer stacking uncertainty factors are identical
+             all_bs_zero, &   !TRUE when all Bs_zero(i,j) = TRUE
+             rot_only,    &   !TRUE if diffraction point group symmetry has no vertical mirrors
+             cfile,       &   !TRUE if there is a file named 'control.dif' in the current directory.
+                              !     This is the so-called 'control file' that automates the running of DIFFaX
+             dodatdump,   &   !TRUE if the user wants a dump of the data file
+             dosymdump,   &   !TRUE if the user wants to dump the output of the symmetry tests
+             intp_f,      &   !TRUE if the form factors are to be interpolated for the purposes of the
+                              !     Gauss-Legendre adaptive quadrature integration.
+             trim_origin, &   !If TRUE, intensity near the origin will be ignored for the purposes of
+                              !applying instrumental broadening
+             recrsv,      &   !d-> TRUE if the recursive model is to be used to calculate diffraction
+                              !    from a statistical ensemble of crystallites
+             xplcit,      &   !d-> TRUE if the user specifies a layer sequence explicitly
+                              !    'recrsv' and 'xplcit' cannot both be TRUE
+             rndm,        &   !d-> TRUE if 'xplcit' is TRUE, and if the user wishes the computer to generate
+                              !    a random sequence of layers biassed by the transition probabilities 'l_alpha'
+             inf_thick,   &   !TRUE if crystal is to be treated as if it has an infinite number of layers
+             has_l_mirror,&   !TRUE if the diffraction data has a mirror perpendicular to c* (along fault axis)
+             h_mirror,    &   !TRUE if diffraction data has a mirror across the a*-c* plane
+             k_mirror,    &   !TRUE if diffraction data has a mirror across the b*-c* plane
+             hk_mirror        !TRUE if diffraction data has a mirror across the a*=b*, c* plane
+
+  LOGICAL :: check_sym,   &   !TRUE if user specified a point group symmetry to test against. If the user's
+                              !     choice is incompatible with the input data, then this will be reset to FALSE
+             same_rz,     &   !TRUE if all stacking vectors have the same z-component
+             any_sharp,   &   !TRUE if DIFFaX suspects there are any sharp peaks
+             same_layer,  &   !TRUE if all of the explicitly defined layers are identical
+             finite_width     !d-> TRUE if layer widths are finite
+
+
+!
+!*********************     integer*4 variables
+!
+  INTEGER, dimension(MAX_A,MAX_L) :: a_number   !d-> numeric label of atom in the layer
+  INTEGER, dimension(MAX_A,MAX_L) :: a_type     !d-> type of each atom in each layer (a_type <= MAX_TA)
+  INTEGER  :: blurring     !d->      -  Type of instrumental broadening to simulate.
+                           !            Choices are; PS_VGT, GAUSS, LORENZ
+  INTEGER  ::  bitdepth    !i->  The bit-depth of the selected area diffraction.
+                           !     pattern (sadp) data. Can equal 8 or 16.
+  INTEGER  :: bckg_points  ! number of background points
+
+  INTEGER  :: CENTRO = 1   !  numeric constant (= 1) indicating layer has a center of symmetry.
+
+  INTEGER  :: cntrl        !  -  The device number to read input from.
+                           !  If the file 'control.dif' is present, this file
+                           !  becomes the default input. Otherwise, it is the keyboard.
+  Integer    :: conv_a = 0 , conv_b=0 , conv_c=0 , conv_d = 0 , conv_e = 0, conv_f=0 , conv_g=0 !labels of refinable parameters  used not to repeat calculations
+  INTEGER, dimension(MAX_TA) :: e_sf    !s->   Electron scattering factors.
+
+
+  INTEGER  :: full_brd     !i->  1 if full adaptive integration is to be carried out on the sharp spots.
+
+  INTEGER  :: full_shrp    !i->  1 if full adaptive integration is to be carried out on the streaks.
+
+  INTEGER  ::   h_bnd      !  Maximum value of h to explore.
+  INTEGER  ::   k_bnd      !  Maximum value of k to explore.
+
+  INTEGER, dimension(MAX_L) :: l_actual    ! Contains the layer number that layer i is structurally identical to.
+                                           ! If all layers are unique, l_actual(i) = i; else, l_actual(i) <= i
+
+  REAL(kind=sp)  ::  l_cnt        ! Number of layers in explicit sequence. This is
+                           ! tallied by DIFFaX, by counting the layers.
+  INTEGER, dimension(MAX_L)  :: l_n_atoms   ! number of atoms in each layer
+
+  INTEGER, dimension(MAX_L)  :: l_symmetry  !d->  symmetry of layer (NONE or CENTRO)
+
+  INTEGER, dimension(XP_MAX) :: l_seq , l_seqdef  !d-> array containing the explicitly defined sequence of layers.
+                                        !    Used only if 'xplcit' = TRUE
+
+  INTEGER  :: loglin      !i->  1 if logarithmic scaling of SADP data is required
+
+  integer    :: n_plex    !number of parameters to be refined   in simplex
+
+  integer    :: numcal = 0
+
+  INTEGER  :: GAUSS  = 1   ! numeric constant (= 1) indicating user wishes to simulate Gaussian
+                           ! instrumental broadening, with a constant half width
+
+  INTEGER  :: LORENZ = 2   ! numeric constant (= 2) indicating user wishes to simulate Lorentzian
+                           ! instrumental broadening, with a constant half width
+
+  INTEGER  :: PS_VGT = 3   !  numeric constant (= 3) indicating user wishes to simulate pseudo-Voigt
+                           !  instrumental broadening.
+
+  INTEGER  :: PV_GSS = 4   !  numeric constant (= 4) indicating user wishes to simulate Gaussian
+                           !  instrumental broadening, with a variable half width
+
+  INTEGER  :: PV_LRN = 5   !  numeric constant (= 5) indicating user wishes to simulate Lorentzian
+                           !  instrumental broadening, with a variable half width
+  integer, dimension(80)      :: pnum
+  INTEGER  ::  maxsad    !  Maximum intensity of sadp patterns.
+
+  INTEGER  ::  n_actual  ! Number of unique layers ( <= n_layers).
+  INTEGER  ::  n_atoms   ! Temporary variable holding the number of unique atoms in a given layer.
+
+  INTEGER  ::  n_layers  !d-> Number of user-defined layers. n_layers <= MAX_L
+
+  INTEGER  ::  no_trials !  Number of reciprocal space points to sample.
+                         !  whilst evaluating diffraction symmetry.
+  INTEGER  ::   NONE = 0 !  numeric constant (= 0) indicating layer has no center of symmetry.
+
+  INTEGER  ::  rad_type  !d->  Type of radiation for which to calculate diffraction intensities.
+                         !     Choices are: X_RAY, NEUTRN, ELECTN
+
+  integer    ::  punts     !     number of excluded points
+  INTEGER  ::  sadblock  !     Length of a row of SADP data
+  INTEGER  ::  SymGrpNo  !d->  Numeric descriptor of diffraction symmetry.
+
+  INTEGER  ::  X_RAY  = 0   !     Numeric constant (= 0) indicating radiation type is X-rays.
+  INTEGER  ::  NEUTRN = 1   !     Numeric constant (= 1) indicating radiation type is neutrons.
+  INTEGER  ::  ELECTN = 2   !     Numeric constant (= 2) indicating radiation type is electrons.
+  INTEGER  ::   n_cyc       !     number of cycles of refinement to be done
+!
+  INTEGER, dimension(max_bin) ::  pow         !?
+  INTEGER                     ::  max_pow     ! ?
+
+  integer                       :: n_high, numpar   ,npar
+
+  integer                       :: opt
+  integer :: d_punt     !number of reflections
+  integer :: h_min, h_max, k_min, k_max ! lower and higher values of index h and k
+
+!
+!**********************     REAL(kind=dp) variables
+!
+ REAL(kind=dp)  ::  a0    !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  ab0   !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  b0    !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  bc0   !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  c0    !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  ca0   !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  ::  d0    !  One of seven reciprocal lattice constants
+ REAL(kind=dp)  :: cell_a      !d->  -  Unit cell a axis dimension.
+ REAL(kind=dp)  :: cell_b      !d->  -  Unit cell b axis dimension.
+ REAL(kind=dp)  :: cell_c      !d->  -  Unit cell c axis dimension.
+ REAL(kind=dp)  :: cell_gamma  !d->  -  Angle between a and b axes. Angle between b and
+                        !        c, and a and c axes is 90 degrees by default.
+ REAL(kind=dp)  :: d_ret
+ REAL(kind=dp)  :: a_B11,a_B22,a_B33,a_B12,a_B23,a_B31 ! The average values of the r_Bij arrays
+
+ REAL(kind=dp)  :: bnds_wt    !  Equals 1.0 if rot_only is TRUE, otherwise equals 0.5
+                       !  if rot_only is FALSE (ie there is a vertical mirror)
+ REAL(kind=dp)  :: brightness !?
+ REAL(kind=dp)  :: d_theta    !d->  Angular increment in PXD spectrum.
+
+ REAL(kind=dp)  :: DEG2RAD    !     Conversion factor for degrees to radians
+
+ REAL(kind=dp)  :: fatsWalla_hk ! temporary storage for Fats-Waller factor
+ REAL(kind=dp)  :: ffact_scale  ! Angular scale (radians) of array 'formfactor'.
+ REAL(kind=dp)  :: ffhkcnst     ! Constant associated with the form-factor half-width.
+                         ! Depends on reflection indices h and k, as well as Wx and Wy.
+ REAL(kind=dp)  :: ffwdth       ! Form factor half width in reciprocal Angstroms.
+
+ REAL(kind=dp)  ::  h_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
+                      !  of the wedge in reciprocal space to integrate within. This is defined by the
+                      !  symmetry of the diffraction data.
+ REAL(kind=dp)  ::  h_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
+                      !  of the wedge in reciprocal space to integrate within. This is defined by the
+                      !  symmetry of the diffraction data.
+ REAL(kind=dp)  ::  k_end    !- (h_end,k_end) is a vector in the h-k plane of reciprocal space defining the upper boundary
+                      !  of the wedge in reciprocal space to integrate within. This is defined by the
+                      !  symmetry of the diffraction data.
+ REAL(kind=dp)  ::  k_start  !- (h_start,k_start) is a vector in the h-k plane of reciprocal space defining the lower boundary
+                      !  of the wedge in reciprocal space to integrate within. This is defined by the
+                      !  symmetry of the diffraction data.
+ REAL(kind=dp)  ::  FWHM     !d->    Full width half maximum of instrumental broadening.
+
+ REAL(kind=dp)  :: l_bnd       !    Maximum value of l to explore.
+ REAL(kind=dp)  :: l_rz        !    Value of Rz if same_rz = TRUE.
+ REAL(kind=dp)  :: lambda, lambda2, ratio      !d-> Radiation wavelength.
+ REAL(kind=dp)  :: max_angle   !    Maximum angle that intensity information is to
+                        !    be taken from for the purposes of evaluating
+                        !    diffraction symmetry.
+ REAL(kind=dp)  :: max_var     !    Maximum mean variation of intensities when a
+                        !    given symmetry operator was applied.
+ REAL(kind=dp)  :: mltplcty    !    1/mltplcty is the fraction of reciprocal space
+                        !    necessary to integrate over, as determined by
+                        !    the diffraction point group symmetry.
+
+ real(kind=sp), dimension(80)    :: mult,  gen
+ REAL(kind=dp)  :: PI          !    The value of pi, 3.141592653589793.....
+ REAL(kind=dp)  :: PI2         !    The value of 2*pi
+ REAL(kind=sp)  :: pv_gamma    !d-> Pseudo-Voigt gamma parameter.
+ REAL(kind=dp)  :: pv_u        !d-> Pseudo-Voigt u parameter.
+ REAL(kind=dp)  :: pv_v        !d-> Pseudo-Voigt v parameter.
+ REAL(kind=dp)  :: pv_w        !d-> Pseudo-Voigt w parameter.
+ real(kind=sp)  :: pv_x, pv_dg, pv_dl   ! Pseudo-voigt x parameter and gaussian and lorentzian average volumetric sizes
+!real(kind=sp)  :: pv_hg, pv_hl         ! gaussian and lorentzian FWHM
+ REAL(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
+ REAL(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
+                        !    the selected area diffraction patterns.
+ REAL(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum.
+ REAL(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum.
+ REAL(kind=dp)  :: theta1      !    angle relative to (1,0,0) of lower wedge bound
+ REAL(kind=dp)  :: theta2      !    angle relative to (1,0,0) of upper wedge bound
+ REAL(kind=dp)  :: tolerance   !d-> Maximum deviation that intensities can have
+                        !    from symmetry related points if intensities are
+                        !    to be considered equal.
+ REAL(kind=dp)  :: tiny_inty   !    a small intensity value used in the diffraction
+                        !    symmetry checking routines. Intensities lower
+                        !    than tiny_inty are treated as being close to zero.
+ REAL(kind=dp)  ::  Wa         !i-> In-plane width of crystal along a-direction.
+ REAL(kind=dp)  ::  Wb         !i-> In-plane width of crystal perpendicular to
+                        !    a-direction. Wx and Wy in Angstroms.
+
+ real(kind=sp)    :: rpo         !lowest rp
+ REAL(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_occup   !d-> Occupancy of each atom in each layer
+                                               !    (Normally this will lie between 0 and 1)
+
+ REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: a_pos     !d->  x,y,z relative coordinates of each atom in each layer.
+
+ real(kind=sp), dimension (80,80,80)     :: dos_theta
+ REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: l_r       !d->   Array of layer stacking vectors. The order is (column, row).
+
+ REAL(kind=dp), dimension(MAX_SP)        :: brd_spc   ! Array holding the powder diffraction data
+                                                      ! after instrumental broadening has been applied.
+ REAL(kind=dp), dimension(MAX_SP)        :: spec      ! Array holding the unbroadened powder diffraction data.
+                                                      ! This array also holds the SADP image data.
+
+ REAL(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
+
+ real(kind=sp), dimension (80)           :: vector      !vector containing all the parameters to optimize
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L)  :: detune
+   ! detune -  Array of small positive numbers whose purpose is to prevent the determinant of the
+   !           recursion array 'mat' from becoming zero at the sharp peaks. This produces a singularity which
+   !           is hard to integrate accurately over. In essence, the 'detune' parameters are small stacking
+   !           uncertainty factors. The result is to reduce the value of l_alpha(j,i) by an amount
+   !           detune(j,i), such that the sum over the alphas for stacking from a given layer do not quite
+   !           add to unity.
+
+ REAL(kind=dp), dimension(FFACT_SIZE)  ::   formfactor
+   !formfactor-  Array containing a normalized Lorentzian profile,the form factor due to in-plane size broadening.
+   !             The profile is Lorentzian out to N_SIGMAS half-widths, and linear to zero from there. The linear
+   !             portion has the same gradient as the last point of the Lorentzian portion, thus the sampling step
+   !             is governed by N_SIGMAS as well as FFACT_SIZE.
+
+
+
+ REAL(kind=dp), dimension(MAX_L)      :: high_atom ! The highest atomic z-rel position in each layer
+ REAL(kind=dp), dimension(MAX_L)      :: low_atom  ! The lowest atomic z-rel position in each layer
+
+ REAL(kind=dp), dimension(MAX_L)      :: l_g ! Array of layer existence probabilities.
+                                      ! These are determined by the transition
+                                      ! probabilities 'l_alpha' entered by the user.
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L):: hx_ky     !  Temporary storage of h*Rx + k*Ry, whilst
+                                            !  l*Rz is being computed along the streaks.
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L):: l_alpha   !d-> Array of layer transition probabilities. The order is (column,row)
+
+ REAL(kind=dp), dimension(MAX_A,MAX_L):: r_B11,r_B22,r_B33,r_B12,r_B23,r_B31
+          ! d-> The 6 components of the anisotropic layer stacking uncertainties. These are
+          !     equivalent to the atomic Debye-Waller factors, except they apply to the stacking
+          !     vectors. These parameters allow for 'turbostratic' disorder such as is found
+          !     in liquid crystals. These parameters are optional, and can be entered by the user
+          !     in the PARAMETERS section enclosed in parentheses.
+
+ REAL(kind=dp), dimension(9,MAX_TA) :: x_sf !s-> X-ray scattering factors.
+
+ real(kind=sp),dimension (max_sp)   :: ycalcdef
+ real(kind=sp),dimension(80)        :: statok
+ real(kind=cp),dimension(80)        :: v_plex  ! vector of refinable parameters in simplex
+ real(kind=cp),dimension(80)        :: steplex
+ real(kind=cp),dimension(80)        :: var_plex !diagonal elements of the of the inverse of the information matrix.
+
+!********************     complex*16 variables
+
+  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: l_phi ! Phases of components of 'mat'
+
+  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: mat   ! Recursion matrix relating the scattering
+                                                    ! from crystals centered on different layers
+  COMPLEX(kind=dp), dimension(MAX_L,MAX_L) :: mat1  ! Storage for intermediate 'mat' results.
+
+  COMPLEX(kind=dp) :: wavefn   !  Coherent wavefunction calculated for an
+                               !  explicitly defined sequence of layers (if requested)
+
+ End Module diffax_mod
+!----------------------------------------------------------------------------------------------------
