@@ -7,7 +7,7 @@ Program Optimizing_structures
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,&
-                                             file_list_type, File2File_List
+                                             file_list_type, File_To_FileList
    use CFML_BVS_Energy_Calc,           only: calc_BVS
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
                                              Init_Structure_Factors, err_sfac,err_sfac_mess
@@ -116,7 +116,7 @@ Program Optimizing_structures
               if(j /= 0) line=trim(line(1:j-1))
               filrest= adjustl(line(12:))
               inquire(file=trim(filrest),exist=esta)
-              call File2File_List(filrest,fich_rest)
+              call File_To_FileList(filrest,fich_rest)
               If(err_form) then
                  write(unit=*,fmt="(a)") trim(err_form_mess)
                  stop
