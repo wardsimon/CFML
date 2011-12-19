@@ -63,7 +63,7 @@
 !!
  Module CFML_Magnetic_Structure_Factors
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                   only: cp, sp, tpi
+    Use CFML_GlobalDeps,                  only: cp, sp, tpi
     Use CFML_Math_General,                only: atan2d, sort
     Use CFML_String_Utilities,            only: L_Case,U_Case, Get_LogUnit
     Use CFML_Scattering_Chemical_Tables,  only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -174,7 +174,7 @@
     !!----        real(kind=cp)                      :: s           !sinTheta/Lambda
     !!----        real(kind=cp)                      :: sqAMiV      !Square of the Average Magnetic Interaction vector
     !!----        real(kind=cp)                      :: sqMiV       !Average of the Square of Magnetic Interaction vectors
-    !!----        real(kind=cp), dimension(3)        :: H           ! H +/- k
+    !!----        real(kind=cp),   dimension(3)      :: H           ! H +/- k
     !!----        complex(kind=cp),dimension(3,2,24) :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
     !!----        complex(kind=cp),dimension(3,2,24) :: MiV         !Magnetic interaction vector of each domain
     !!----        complex(kind=cp),dimension(3)      :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
@@ -193,7 +193,7 @@
        real(kind=cp)                      :: s         !sinTheta/Lambda
        real(kind=cp)                      :: sqAMiV    !Square of the Average Magnetic Interaction vector
        real(kind=cp)                      :: sqMiV     !Average of the Square of Magnetic Interaction vectors
-       real(kind=cp), dimension(3)        :: H         ! H +/- k
+       real(kind=cp),   dimension(3)      :: H         ! H +/- k
        complex(kind=cp),dimension(3,2,24) :: MsF       !Magnetic structure factors of each domain (second dimension for chirality domains)
        complex(kind=cp),dimension(3,2,24) :: MiV       !Magnetic interaction vector of each domain
        complex(kind=cp),dimension(3)      :: AMiV      !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}

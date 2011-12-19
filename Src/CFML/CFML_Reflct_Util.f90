@@ -3051,7 +3051,7 @@
     End Subroutine Hkl_RpR
 
     !!----
-    !!---- Subroutine  Hkl_Uni(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex)
+    !!---- Subroutine  Hkl_Uni(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex, no_order)
     !!----    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!----    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!----    Logical,                           intent(in) :: Friedel
@@ -3063,15 +3063,17 @@
     !!----    Type (Reflection_Type), dimension(:), intent(out):: reflex !Ordered set of reflections
     !!----         or
     !!----    Type(Reflection_List_Type),        intent(out):: reflex   !Ordered set of reflections
+    !!----    logical,                optional,  intent(in) :: no_order
     !!----
     !!----    Calculate unique reflections between two values (value1,value2)
-    !!----    of sin_theta/lambda
+    !!----    of sin_theta/lambda. If no_order is present and .true. the sort subroutine
+    !!----    is not invoked.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: December - 2011
     !!
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_Reflect(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex)
+    !!--++ Subroutine  Hkl_Uni_Reflect(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3079,14 +3081,16 @@
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
+    !!--++    logical,                optional,  intent(in) :: no_order
     !!--++
     !!--++    (Overloaded)
     !!--++    Calculate unique reflections between two values (value1,value2)
-    !!--++    of sin_theta/lambda
+    !!--++    of sin_theta/lambda. If no_order is present and .true. the sort subroutine
+    !!--++    is not invoked.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_Reflect(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex)
+    Subroutine Hkl_Uni_Reflect(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
        !---- Arguments ----!
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
@@ -3095,6 +3099,7 @@
        character(len=1),                     intent(in)     :: code
        integer,                              intent(out)    :: num_ref
        type (Reflect_Type),    dimension(:), intent(out)    :: reflex
+       logical,                   optional,  intent(in)     :: no_order
 
        !---- Local variables ----!
        real(kind=cp)                         :: vmin,vmax,sval
@@ -3213,26 +3218,33 @@
                    num_ref=maxref
                    exit ext_do
                 end if
-                hkl(:,num_ref)=kk
-                mul(num_ref)  =hkl_mult(kk,SpaceGroup,friedel)
+                hkl(:,num_ref)= kk
+                mul(num_ref)  = hkl_mult(kk,SpaceGroup,friedel)
                 sv(num_ref)   = sval
              end do
           end do
        end do ext_do
 
-       call sort(sv,num_ref,ind)
+       if(present(no_order)) then
+         if(no_order) then
+          ind=(/i,i=1,num_ref/)
+         else
+          call sort(sv,num_ref,ind)
+         end if
+       else
+         call sort(sv,num_ref,ind)
+       end if
 
        do i=1,num_ref
-          reflex(i)%h= hkl(:,ind(i))
+          reflex(i)%h   = hkl(:,ind(i))
           reflex(i)%mult= mul(ind(i))
           reflex(i)%S   = sv(ind(i))
        end do
-
        return
     End Subroutine Hkl_Uni_reflect
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_Reflection(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex)
+    !!--++ Subroutine  Hkl_Uni_Reflection(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex, no_order)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3240,14 +3252,16 @@
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(out):: num_Ref  !Number of generated reflections
     !!--++    Type (Reflect_Type), dimension(:), intent(out):: reflex   !Ordered set of reflections
+    !!--++    logical,                optional,  intent(in) :: no_order
     !!--++
     !!--++    (Overloaded)
     !!--++    Calculate unique reflections between two values (value1,value2)
-    !!--++    of sin_theta/lambda
+    !!--++    of sin_theta/lambda. If no_order is present and .true. the sort subroutine
+    !!--++    is not invoked.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_Reflection(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex)
+    Subroutine Hkl_Uni_Reflection(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,Num_Ref,Reflex,no_order)
        !---- Arguments ----!
        type (Crystal_Cell_Type),             intent(in)     :: crystalcell
        type (Space_Group_Type) ,             intent(in)     :: spacegroup
@@ -3256,6 +3270,7 @@
        character(len=1),                     intent(in)     :: code
        integer,                              intent(out)    :: num_ref
        type (Reflection_Type), dimension(:), intent(out)    :: reflex
+       logical,                   optional,  intent(in)     :: no_order
 
        !---- Local variables ----!
        real(kind=cp)                         :: vmin,vmax,sval
@@ -3381,7 +3396,15 @@
           end do
        end do ext_do
 
-       call sort(sv,num_ref,ind)
+       if(present(no_order)) then
+         if(no_order) then
+          ind=(/i,i=1,num_ref/)
+         else
+          call sort(sv,num_ref,ind)
+         end if
+       else
+         call sort(sv,num_ref,ind)
+       end if
 
        do i=1,num_ref
           reflex(i)%h= hkl(:,ind(i))
@@ -3393,7 +3416,7 @@
     End Subroutine Hkl_Uni_Reflection
 
     !!--++
-    !!--++ Subroutine  Hkl_Uni_ReflList(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex)
+    !!--++ Subroutine  Hkl_Uni_ReflList(Crystalcell, Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order)
     !!--++    Type (Crystal_Cell_Type),          intent(in) :: CrystalCell  !Cell Objet
     !!--++    Type (Space_Group_Type) ,          intent(in) :: SpaceGroup   !Space group Object
     !!--++    Logical,                           intent(in) :: Friedel
@@ -3401,14 +3424,16 @@
     !!--++    character(len=1),                  intent(in) :: code     !If code="r", d-spacing are input
     !!--++    Integer            ,               intent(in) :: MaxRef   !Maximum Number of reflections to be generated
     !!--++    Type(Reflection_List_Type),        intent(out):: reflex   !Ordered set of reflections
+    !!--++    logical,                optional,  intent(in) :: no_order
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Calculate unique reflections between two values (value1,value2)
-    !!--++    of sin_theta/lambda
+    !!--++    of sin_theta/lambda. If no_order is present and .true. the sort subroutine
+    !!--++    is not invoked.
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: December - 2011
     !!
-    Subroutine Hkl_Uni_ReflList(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex)
+    Subroutine Hkl_Uni_ReflList(Crystalcell,Spacegroup,Friedel,Value1,Value2,Code,MaxRef,Reflex,no_order)
        !---- Arguments ----!
        type (Crystal_Cell_Type),       intent(in)     :: crystalcell
        type (Space_Group_Type) ,       intent(in)     :: spacegroup
@@ -3417,6 +3442,7 @@
        character(len=1),               intent(in)     :: code
        integer,                        intent(in)     :: MaxRef
        type (Reflection_List_Type),    intent(out)    :: reflex
+       logical,             optional,  intent(in)     :: no_order
 
        !---- Local variables ----!
        real(kind=cp)                   :: vmin,vmax,sval
@@ -3541,7 +3567,15 @@
           end do
        end do ext_do
 
-       call sort(sv,num_ref,ind)
+       if(present(no_order)) then
+         if(no_order) then
+          ind=(/i,i=1,num_ref/)
+         else
+          call sort(sv,num_ref,ind)
+         end if
+       else
+         call sort(sv,num_ref,ind)
+       end if
 
        if(allocated(reflex%ref)) deallocate(reflex%ref)
        allocate(reflex%ref(num_ref))
