@@ -3227,7 +3227,7 @@
 
        if(present(no_order)) then
          if(no_order) then
-          ind=(/i,i=1,num_ref/)
+          ind=(/(i,i=1,num_ref)/)
          else
           call sort(sv,num_ref,ind)
          end if
@@ -3398,7 +3398,7 @@
 
        if(present(no_order)) then
          if(no_order) then
-          ind=(/i,i=1,num_ref/)
+          ind=(/(i,i=1,num_ref)/)
          else
           call sort(sv,num_ref,ind)
          end if
@@ -3569,7 +3569,7 @@
 
        if(present(no_order)) then
          if(no_order) then
-          ind=(/i,i=1,num_ref/)
+          ind=(/(i,i=1,num_ref)/)
          else
           call sort(sv,num_ref,ind)
          end if
