@@ -1,0 +1,58 @@
+Title  TbMnO3 (Only for simulation purposes, arbitrary magnetic structure)
+!        a        b        c     alpha    beta   gamma
+Cell   5.34088  5.89638 7.46820   90.0    90.0    90.0
+!     Space Group
+Spgr  P b n m
+!                   x        y       z        B      occ  Spin Charge
+Atom   Tb Tb   -0.018500 0.066000 0.250000 0.200000  0.5   8.0   3.0
+Atom   Mn Mn    0.500000 0.000000 0.000000 0.200000  0.5   4.0   3.0
+Atom   O1 O     0.110000 0.458000 0.250000 0.200000  0.5   0.0  -2.0
+Atom   O2 O    -0.308000 0.306000 0.053000 0.200000  1.0   0.0  -2.0
+
+WAVE    0.843    !Wavelength in angstroms. May be given in the instrument file, if given here the Wave is updated
+
+UBMAT     !Busing-Levy UB-matrix. May be given in the instrument file, if given here the UB-instr is updated
+    0.0863517  -0.1534547   0.0134032
+   -0.1688478  -0.0783243   0.0079406
+   -0.0013389  -0.0195595  -0.1369527
+
+GEOM  -3   !Normal beam geometry z points down (D3)  !Normally given in the instrument file
+
+SPHER    !Use the possibility of selecting h,k,l ordering using the vector order=(/3,2,1/) or a permutation
+ORDER   3 1 2     !L is changing first, H in second position and finally K.
+
+ANGOR   omega     ! The above prescription is overwritten
+                  ! Other options are:
+                  !   ANGOR         ! Ordering is as given in the instruction ORDER
+                  !   ANGOR gamma   ! Increasing gamma
+                  !   ANGOR 2theta  ! Increasing 2theta
+                  !   ANGOR omega   ! Increasing omega
+                  !   ANGOR chi     ! Increasing chi
+                  !   ANGOR nu      ! Increasing nu
+                  !   ANGOR phi     ! Increasing phi
+
+!    Additional limits for hkl generation  (sintheta/Lambda -min and max - are provided in the command line)
+!     hmin hmax   kmin kmax  lmin lmax
+HLIM   -6   6      -6    6     0    10
+
+SRANG   0.0  0.8  !Range of sintheta/Lambda in 1/Anstroms
+
+INSTR  D3_instrm.geom  !name of the instrument file (contains WAVE, GEOM, UBMAT + other info)
+
+Mag_Structure
+ !
+ lattiCE -P
+ kvect   0.00000   0.23450000   0.00000
+ magcent
+ symm  x,y,z
+ msym  u,v,w, 0.0
+ symm  x+1/2,-y+1/2,-z
+ msym  u,v,w, 0.0
+ symm  -x+1/2,y+1/2,-z+1/2
+ msym  u,-v,w, 0.0
+ symm  -x,-y,z+1/2
+ msym  u,-v,w, 0.0
+ matom TB  JTB3     -0.018500 0.066000 0.250000   0.2000 0.50000
+ skp       1  1      0.12700  5.60000  0.99300   0.00000  0.00000  0.00000    0.00000
+ !
+End_Mag_Structure

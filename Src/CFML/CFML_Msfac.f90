@@ -18,7 +18,7 @@
 !!--++     Use CFML_Crystal_Metrics,             only: Crystal_Cell_type
 !!--++     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
 !!--++     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Magnetic_Domain_type
-!!--++     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
+!!--++     Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, Reflection_List_Type, hkl_s
 !!--++     Use CFML_Atom_TypeDef,                only: Matom_list_type
 !!--++     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 !!----
@@ -72,7 +72,7 @@
     Use CFML_Crystallographic_Symmetry,   only: Space_Group_Type, Set_spaceGroup
     Use CFML_Magnetic_Symmetry,           only: ApplyMSO, MagSymm_k_type, Magnetic_Group_Type, Write_Magnetic_Structure, &
                                                 Magnetic_Domain_type
-    Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, hkl_s
+    Use CFML_Reflections_Utilities,       only: HKL_R, HKL_Gen, Get_MaxNumRef, Reflect_Type, Reflection_List_Type, hkl_s
     Use CFML_Atom_TypeDef,                only: Matom_list_type, Allocate_mAtom_list
     Use CFML_Propagation_Vectors,         only: K_Equiv_Minus_K
 
@@ -1038,28 +1038,37 @@
     End Subroutine Create_Table_mFR
 
     !!----
-    !!---- Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder)
-    !!----    type(Crystal_Cell_type), intent(in)     :: cell
-    !!----    type(MagSymm_k_Type),    intent(in)     :: Grp
-    !!----    real(kind=cp),           intent(in)     :: smax
-    !!----    type(MagH_List_Type),    intent(in out) :: H
-    !!----    logical, optional,       intent(in)     :: ord
-    !!----    logical, optional,       intent(in)     :: powder
+    !!---- Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)
+    !!----    type(Crystal_Cell_type),               intent(in)     :: cell
+    !!----    type(MagSymm_k_Type),                  intent(in)     :: Grp
+    !!----    real(kind=cp),                         intent(in)     :: smax
+    !!----    type(MagH_List_Type),                  intent(in out) :: H
+    !!----    logical, optional,                     intent(in)     :: ord
+    !!----    logical, optional,                     intent(in)     :: powder
+    !!----    type (Reflection_List_Type), optional, intent(in)     :: hkl
     !!----
     !!----    Generates half reciprocal sphere of integer reflections and
     !!----    add satellites according to the information given in Grp.
-    !!----    Construct partially the object Reflex.
+    !!----    If Ord is given the reflections are reordered
+    !!----    by increasing sinTheta/Lambda.
+    !!----    If Powder is given, the unique reflections for a powder pattern
+    !!----    are generated. The extinctions are obtained from a calculation of
+    !!----    a random magnetic structure respecting the symmetry provided in Grp.
+    !!----    If hkl is provided, the call to HKL_GEN is avoided.
+    !!----    The subroutine constructs partially the object H.
     !!----
-    !!---- Update: April - 2005
+    !!---- Created:    April - 2005
+    !!---- Updated: December - 2011
     !!
-    Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder)
+    Subroutine Gen_Satellites(Cell,Grp,Smax,H,Ord,Powder,hkl)
        !---- Arguments ----!
-       type(Crystal_Cell_type), intent(in)     :: cell
-       type(MagSymm_k_Type),    intent(in)     :: Grp
-       real(kind=cp),           intent(in)     :: smax
-       type(MagH_List_Type),    intent(in out) :: H
-       logical, optional,       intent(in)     :: ord
-       logical, optional,       intent(in)     :: powder
+       type(Crystal_Cell_type),               intent(in)     :: cell
+       type(MagSymm_k_Type),                  intent(in)     :: Grp
+       real(kind=cp),                         intent(in)     :: smax
+       type(MagH_List_Type),                  intent(in out) :: H
+       logical, optional,                     intent(in)     :: ord
+       logical, optional,                     intent(in)     :: powder
+       type (Reflection_List_Type), optional, intent(in)     :: hkl
 
        !---- Local variables ----!
        integer                                       :: i,j,k, numref,num_ref,n, ng, lu, addk,nmat,ik
@@ -1083,11 +1092,24 @@
 
        ! Determine the higher reciprocal cell parameter to add it to the given smax
        maxr=maxval(Cell%rcell)
-       smgen=smax+maxr  !generate reflections up to
-       numref= Get_MaxNumRef(smgen, Cell%CellVol)
+       smgen=smax+maxr  !generate reflections up to smgen
+       if(present(hkl)) then
+         numref=hkl%nref
+       else
+         numref= Get_MaxNumRef(smgen, Cell%CellVol)
+       end if
        if(allocated(reflex)) deallocate(reflex)
        allocate(reflex(numref))
-       call hkl_gen(Cell,G,.true.,0.0_cp,smgen,num_ref,reflex)
+       if(present(hkl)) then
+         num_ref=numref
+         do i=1,num_ref
+          reflex(i)%h=hkl%Ref(i)%h
+          reflex(i)%s=hkl%Ref(i)%s
+          reflex(i)%Mult=hkl%Ref(i)%Mult
+         end do
+       else
+         call hkl_gen(Cell,G,.true.,0.0_cp,smgen,num_ref,reflex)
+       end if
 
        !calculate the total number of satellites
        n=Grp%nkv
@@ -1320,7 +1342,8 @@
              end do
 
           else   ! present(ord)=.false.
-             do j=1,ng
+             h%nref=ng-1
+             do j=1,h%nref
                 h%Mh(j)%keqv_minus = hloc%Mh(j)%keqv_minus
                 h%Mh(j)%num_k      = hloc%Mh(j)%num_k
                 h%Mh(j)%signp      = hloc%Mh(j)%signp
