@@ -59,7 +59,6 @@
 !!----       WRITE_CFL
 !!----
 !!
-
  Module CFML_Atom_TypeDef
 
     !---- Use Files ----!
