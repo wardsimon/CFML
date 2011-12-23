@@ -7,6 +7,7 @@
 !!----         and Magnetic Structures
 !!----
 !!---- HISTORY
+!!----
 !!----    Update: 07/03/2011
 !!----
 !!----
@@ -20,6 +21,7 @@
 !!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
 !!--++    Use CFML_IO_Formats,                only: file_list_type
 !!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 !!----
 !!---- VARIABLES
 !!--..    Types
@@ -59,6 +61,7 @@
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                               Magnetic_Form
     Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
+    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
 
     !---- Variables ----!
     implicit none
@@ -158,6 +161,7 @@
     !!--..
     !!---- Type, Public :: MagSymm_k_Type
     !!----    character(len=31)                        :: MagModel   ! Name to characterize the magnetic symmetry
+    !!----    character(len=10)                        :: Sk_type    ! If Sk_type="Spherical_Frame" the input Fourier coefficients are in spherical components
     !!----    character(len=1)                         :: Latt       ! Symbol of the crystallographic lattice
     !!----    integer                                  :: nirreps    ! Number of irreducible representations (max=4, if nirreps /= 0 => nmsym=0)
     !!----    integer                                  :: nmsym      ! Number of magnetic operators per crystallographic operator (max=8)
@@ -182,10 +186,12 @@
     !!----  concerning the crystallographic symmetry, propagation vectors and magnetic matrices.
     !!----  Needed for calculating magnetic structure factors.
     !!----
-    !!---- Update: April - 2005
+    !!---- Created: April - 2005
+    !!---- Updated: April - 2005
     !!
     Type, Public :: MagSymm_k_Type
        character(len=31)                        :: MagModel
+       character(len=15)                        :: Sk_type
        character(len=1)                         :: Latt
        integer                                  :: nirreps
        integer                                  :: nmsym
@@ -291,6 +297,7 @@
 
 
        MGp%MagModel="Unnamed Model"
+       MGp%Sk_Type="Crystal_Frame"       ! "Spherical_Frame"
        MGp%Latt="P"
        MGp%nmsym=0
        MGp%nirreps=0
@@ -320,13 +327,14 @@
     End Subroutine Init_MagSymm_k_Type
 
     !!----
-    !!---- Subroutine Readn_Set_Magnetic_Structure_k(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom)
+    !!---- Subroutine Readn_Set_Magnetic_Structure_k(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
     !!----    type(file_list_type),                intent (in)     :: file_cfl
     !!----    integer,                             intent (in out) :: n_ini, n_end
     !!----    type(MagSymm_k_Type),                intent (out)    :: MGp
     !!----    type(mAtom_List_Type),               intent (out)    :: Am
     !!----    type(Magnetic_Group_Type), optional, intent (out)    :: SGo
     !!----    type(Magnetic_Domain_type),optional, intent (out)    :: Mag_dom
+    !!----    type(Crystal_Cell_type),   optional, intent (in)     :: Cell
     !!----
     !!----    Subroutine for reading and construct the MagSymm_k_Type variable MGp.
     !!----    It is supposed that the CFL file is included in the file_list_type
@@ -336,9 +344,9 @@
     !!----    separately for further use.
     !!----    Magnetic S-domains are also read in case of providing the optional variable Mag_dom.
     !!----
-    !!---- Update: November 2006
+    !!---- Updates: November 2006, December 2011
     !!
-    Subroutine Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom)
+    Subroutine Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
        !---- Arguments ----!
        type(file_list_type),                intent (in)     :: file_cfl
        integer,                             intent (in out) :: n_ini, n_end
@@ -346,13 +354,15 @@
        type(mAtom_List_Type),               intent (out)    :: Am
        type(Magnetic_Group_Type), optional, intent (out)    :: SGo
        type(Magnetic_Domain_type),optional, intent (out)    :: Mag_dom
+       type(Crystal_Cell_type),   optional, intent (in)     :: Cell
 
        !---- Local Variables ----!
        integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, &
                   num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip
        real(kind=cp)                 :: ph
-       real(kind=cp),dimension(3)    :: rsk,isk
+       real(kind=cp),dimension(3)    :: rsk,isk,car,side
        real(kind=cp),dimension(3,12) :: br,bi
+       real(kind=cp),dimension(3,3)  :: cryst_to_cart, cart_to_cryst
        real(kind=cp),dimension(12)   :: coef
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
@@ -370,6 +380,12 @@
 
        no_iline=0
        no_eline=0
+
+       if(present(Cell)) then
+         side(:)=Cell%cell
+         cryst_to_cart=Cell%Cr_Orth_cel
+         cart_to_cryst=Cell%Orth_Cr_cel
+       end if
 
        do i=n_ini,n_end
           ! Read comment
@@ -465,6 +481,16 @@
                 MGp%centred = 1
                 MGp%Latt= u_case(lattice(1:1))
              end if
+             cycle
+          end if
+
+          ! Read type of Fourier coefficients
+          if (lowline(1:9) == "spherical") then
+             if(.not. present(Cell)) then
+               err_magsym=.true.
+               ERR_MagSym_Mess=" Cell argument is needed when Spherical components are used for Fourier Coefficients!"
+             end if
+             MGp%Sk_type = "Spherical_Frame"
              cycle
           end if
 
@@ -759,11 +785,23 @@
                 write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Fourier Coefficient #", num_skp
                 return
              end if
-             Am%atom(num_matom)%nvk= num_skp
-             Am%atom(num_matom)%imat(ik)= im
-             Am%atom(num_matom)%Skr(:,ik)= rsk(:)
-             Am%atom(num_matom)%Ski(:,ik)= isk(:)
-             Am%atom(num_matom)%mphas(ik)= ph
+               Am%atom(num_matom)%nvk= num_skp
+               Am%atom(num_matom)%imat(ik)= im
+               Am%atom(num_matom)%mphas(ik)= ph
+
+             if(MGp%Sk_type == "Spherical_Frame") then
+               Am%atom(num_matom)%Spher_Skr(:,ik)= rsk(:)
+               Am%atom(num_matom)%Spher_Ski(:,ik)= isk(:)
+               !Transform from Cartesian coordinates to unitary Crystallographic frame
+               call Get_Cart_from_Spher(rsk(1),rsk(3),rsk(2),car,"D")
+               Am%atom(num_matom)%Skr(:,ik)=matmul(cart_to_cryst,car)*side(:)
+               call Get_Cart_from_Spher(isk(1),isk(3),isk(2),car,"D")
+               Am%atom(num_matom)%Ski(:,ik)=matmul(cart_to_cryst,car)*side(:)
+             else  !In this case, the Cell argument may be not given
+                   !so no transformation is done. This can be done in other parts of the calling program
+               Am%atom(num_matom)%Skr(:,ik)= rsk(:)
+               Am%atom(num_matom)%Ski(:,ik)= isk(:)
+             end if
 
              do  !repeat reading until continuous SPK lines are exhausted
                 i=i+1

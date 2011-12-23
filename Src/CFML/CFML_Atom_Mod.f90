@@ -260,10 +260,13 @@
     !!----                           ===================
     !!----    integer                                 :: nvk           ! Number of propagation vectors (excluding -k)
     !!----    integer,      dimension(12)             :: imat          ! Number of the magnetic matrices/irrep set to be applied
+
     !!----    real(kind=cp),dimension(3,12)           :: SkR           ! Real part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkR     ! Real part of Fourier Coefficient in spherical components
     !!----    real(kind=cp),dimension(3,12)           :: mSkR          ! Multipliers for the real part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lskr          ! Numbers in the list of LSQ parameters
     !!----    real(kind=cp),dimension(3,12)           :: SkI           ! Imaginary part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkI     ! Imaginary part of Fourier Coefficient in spherical components
     !!----    real(kind=cp),dimension(3,12)           :: mSki          ! Multipliers for the imaginary part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lski          ! Numbers in the list of LSQ parameters
     !!----    real(kind=cp),dimension(12)             :: mphas         ! Magnetic Phase in fractions of 2pi
@@ -313,10 +316,12 @@
        integer,      dimension(12)             :: imat
 
        real(kind=cp),dimension(3,12)           :: SkR
+       real(kind=cp),dimension(3,12)           :: Spher_SkR
        real(kind=cp),dimension(3,12)           :: mSkR
        integer,      dimension(3,12)           :: lskr
 
        real(kind=cp),dimension(3,12)           :: SkI
+       real(kind=cp),dimension(3,12)           :: Spher_SkI
        real(kind=cp),dimension(3,12)           :: mSki
        integer,      dimension(3,12)           :: lski
 
@@ -945,9 +950,11 @@
        A%nvk      =0
        A%imat     =0
        A%SkR      =0.0
+       A%Spher_SkR=0.0
        A%mSkR     =0.0
        A%lSkR     =0
        A%SkI      =0.0
+       A%Spher_SkI=0.0
        A%mSkI     =0.0
        A%lSkI     =0
        A%mphas    =0.0

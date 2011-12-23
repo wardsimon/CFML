@@ -472,7 +472,8 @@ Program Sxtal_Ref_Gen
                                                                 ang,trim(comment)
 
               Case(3)
-                write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,ang(1:3),trim(comment)
+                write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
+                                                                ang(1:3),trim(comment)
 
            End Select
 
@@ -498,9 +499,11 @@ Program Sxtal_Ref_Gen
 
              Select Case (Current_Instrm%igeom)
                Case(1,2)
-                 write(unit=lun,fmt="(3i4,3f12.5,4f10.3,tr2,a)") hlist(:,j),hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,ang,trim(comment)
+                 write(unit=lun,fmt="(3i4,3f12.5,4f10.3,tr2,a)") hlist(:,j),hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
+                                                                 ang,trim(comment)
                Case(3)
-                 write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,ang(1:3),trim(comment)
+                 write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
+                                                                 ang(1:3),trim(comment)
              End Select
              if(len_trim(comment) == 0) then
                n=n+1
