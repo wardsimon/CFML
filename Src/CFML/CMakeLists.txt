@@ -37,6 +37,7 @@ set(crysfml_COMMON_SRCS
     CFML_Conf_Calc.f90
     CFML_Cryst_Types.f90
     CFML_Diffpatt.f90
+    CFML_Export_Vtk.f90
     CFML_FFTs.f90
     CFML_Form_CIF.f90
     CFML_Geom_Calc.f90
