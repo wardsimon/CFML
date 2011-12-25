@@ -12,7 +12,7 @@
 !!----
 Module CFML_Export_VTK
 
-use CFML_Globaldeps, Only: dp, dp
+use CFML_Globaldeps, Only: cp, dp
 use CFML_Crystal_metrics, Only: Crystal_Cell_Type
 use CFML_String_Utilities, Only: Pack_String
 
@@ -24,7 +24,7 @@ contains
 
 !!----
 !!---- Subroutine array3D_2_vts(Z,filename)
-!!----    real(kind=dp), dimension(:,:,:), intent(in) :: Z			! 3D Array to export
+!!----    real(kind=cp), dimension(:,:,:), intent(in) :: Z			! 3D Array to export
 !!----    Character(len=*),                intent(in) :: filename ! Name of the vtk file
 !!----	Export a 3D array representing for example a density
 !!----  into a vts file (vtk file format). This format correponds to the new xml format of vtk
@@ -35,14 +35,14 @@ contains
 !!---- Update: December - 2011
 !!
 subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename)
-	real(kind=dp), dimension(:,:,:), intent(in) :: Z      ! 3D Array to export
+	real(kind=cp), dimension(:,:,:), intent(in) :: Z      ! 3D Array to export
 	type(Crystal_Cell_Type), intent(in)         :: cell   ! The unit-cell
-	real(kind=dp), intent(in)                   :: xmin   ! Limits of x
-	real(kind=dp), intent(in)                   :: xmax   ! Limits of x
-	real(kind=dp), intent(in)                   :: ymin   ! Limits of y
-	real(kind=dp), intent(in)                   :: ymax   ! Limits of y
-	real(kind=dp), intent(in)                   :: zmin   ! Limits of z
-	real(kind=dp), intent(in)                   :: zmax   ! Limits of z
+	real(kind=cp), intent(in)                   :: xmin   ! Limits of x
+	real(kind=cp), intent(in)                   :: xmax   ! Limits of x
+	real(kind=cp), intent(in)                   :: ymin   ! Limits of y
+	real(kind=cp), intent(in)                   :: ymax   ! Limits of y
+	real(kind=cp), intent(in)                   :: zmin   ! Limits of z
+	real(kind=cp), intent(in)                   :: zmax   ! Limits of z
 	Character(len=*),                intent(in) :: filename ! Name of the vtk file
 	! Local variables
 	integer :: nx, ny, nz
@@ -53,7 +53,7 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
 	character(len=48)   :: nbit_c, offset_c, nx_c, ny_c, nz_c
 	character(len=1000) :: header
 	integer :: offset
-	real(kind=dp), dimension(3) :: pos
+	real(kind=cp), dimension(3) :: pos
     integer :: ntot ! Total number of points
     integer :: ntot_bytes
 
