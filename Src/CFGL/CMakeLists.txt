@@ -1,10 +1,34 @@
-# CMake file for crysfgl project
-# Written by Eric Pellegrini
-# Institut Laue Langevin
-# Grenoble, France
+# The minimum version number insuring a correct build.
+cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
+
+# The crysfgl Fortran project.
+project(cfgl Fortran)
+
+# The name of the library.
+set(LIBRARY_NAME wcrysfgl)
+
+# Get the "resources" directory name. 
+get_filename_component(RESOURCES_DIR ${PROJECT_SOURCE_DIR} PATH)
+get_filename_component(RESOURCES_DIR ${RESOURCES_DIR} PATH)
+set(RESOURCES_DIR ${RESOURCES_DIR}/resources)
+
+# Append it to the CMake modules path.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${RESOURCES_DIR})
+
+# Include a module defining global variables.
+include(general)
+
+# Append it to the CMake modules path.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${RESOURCES_DIR})
+
+# Find the winteracter library. If not found, stops here.
+find_package(WINTERACTER REQUIRED)
+
+# Find the wcrysfml library. If not found, stops here.
+find_package(WCRYSFML REQUIRED)
 
 # The source files.
-set(crysfgl_SRCS
+set(SOURCES
     WCFGL_Atomic_Table.f90
     WCFGL_Atom_Tree.f90
     WCFGL_Bond_Tree.f90
@@ -25,38 +49,25 @@ set(crysfgl_SRCS
 )
 
 # The path for winteracter library mod files.
-include_directories(${WINTER_MOD_DIR})
-
-# The path for crysfml_common library mod files.
-include_directories(${PROJECT_BINARY_DIR}/Lib/Common)
+include_directories(${WINTERACTER_INCLUDE_DIR})
 
 # The path for wcrysfml library mod files.
-include_directories(${PROJECT_BINARY_DIR}/Lib/LibW)
-
-# The path for winteracter library.
-link_directories(${WINTER_LIB_DIR})
-
-# The path for crysfml_common library.
-link_directories(${PROJECT_BINARY_DIR}/Lib/Common)
-
-# The path for wcrysfml library mod files.
-link_directories(${PROJECT_BINARY_DIR}/Lib/LibW)
+include_directories(${WCRYSFML_INCLUDE_DIR})
 
 # Add the crysfgl library to the project.
-add_library(wcrysfgl STATIC ${crysfgl_SRCS})
+add_library(${LIBRARY_NAME} STATIC ${SOURCES})
 
-# The crysfml_common will be linked to crysfgl library.
-target_link_libraries(wcrysfgl crysfml_common)
+# The library is linked to winteracter and wcrysfml.
+target_link_libraries(${LIBRARY_NAME} ${WINTERACTER_LIBRARY} ${WCRYSFML_LIBRARY})
 
-target_link_libraries(wcrysfgl winter)
+get_filename_component(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} PATH)
 
-# Sets the path where to place the crysfgl library.
-set_target_properties(wcrysfgl PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibGL)
+# The rules to run at install time for the library.
+install(TARGETS ${LIBRARY_NAME} ARCHIVE DESTINATION ${INSTALL_PREFIX}/crysfml/LibGL)
 
-# Sets the path where to place the mod files for the crysfgl library.
-set_target_properties(wcrysfgl PROPERTIES Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/Lib/LibGL)
-
-add_custom_command(TARGET wcrysfgl
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${LIB_PATH}/LibGL
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/Lib/LibGL ${CRYSFGL_LIB_DIR})
+# The rules to run at install time for the mod files. Take care the "/" is on purpose.
+install(DIRECTORY ${PROJECT_BINARY_DIR}/ 
+        DESTINATION ${INSTALL_PREFIX}/crysfml/LibGL 
+        FILES_MATCHING
+        PATTERN "*.mod"
+        PATTERN CMakeFiles EXCLUDE)
