@@ -93,13 +93,16 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
      write(unit=nx_c,fmt=*) nx
      write(unit=ny_c,fmt=*) ny
      write(unit=nz_c,fmt=*) nz
-     write(unit=header,fmt='(A)') '<StructuredGrid WholeExtent="0 '//trim(Pack_String(nx_c))//' 0 '//trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nz_c))//'">'
+     write(unit=header,fmt='(A)') '<StructuredGrid WholeExtent="0 '//&
+     trim(Pack_String(nx_c))//' 0 '//trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nz_c))//'">'
      write(unit=vtk_id) trim(header)//end_line
-     write(unit=header,fmt='(A)') '<Piece Extent="0 '//trim(Pack_String(nx_c))//' 0 '//trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nx_c))//'">'
+     write(unit=header,fmt='(A)') '<Piece Extent="0 '//trim(Pack_String(nx_c))//' 0 '//&
+     trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nx_c))//'">'
      write(unit=vtk_id) trim(header)//end_line
      write(unit=vtk_id) '<Points>'//end_line
      write(unit=nbit_c,fmt=*) nbits
-     write(unit=header,fmt='(A)') '<DataArray NumberOfComponents="3" offset="0" type="Float'//trim(Pack_String(nbit_c))//'" Name="points" format="appended"/>'
+     write(unit=header,fmt='(A)') '<DataArray NumberOfComponents="3" offset="0" type="Float'//&
+     trim(Pack_String(nbit_c))//'" Name="points" format="appended"/>'
      write(unit=vtk_id) trim(header)//end_line
      write(unit=vtk_id) '</Points>'//end_line
      write(unit=vtk_id) '<PointData scalars="density">'//end_line
