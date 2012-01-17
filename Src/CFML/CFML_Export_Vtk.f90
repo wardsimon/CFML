@@ -61,11 +61,11 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
 	! Open the file and check that the file is valid
 	open(unit=vtk_id,file=trim(filename)//'.vts', &
          form       = 'UNFORMATTED',  &
-         access     = 'SEQUENTIAL',   &
+         access     = 'STREAM',   &
          action     = 'WRITE',        &
-         convert    = 'LITTLE_ENDIAN',&
-         recordtype = 'STREAM',       &
-         buffered   = 'YES',          &
+!         convert    = 'LITTLE_ENDIAN',&
+!         recordtype = 'STREAM',       &
+!         buffered   = 'YES',          &
          iostat=ier)
 	 if (ier/=0) then
 		i_error=.true.
@@ -104,7 +104,8 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
      write(unit=vtk_id) '</Points>'//end_line
      write(unit=vtk_id) '<PointData scalars="density">'//end_line
      write(unit=offset_c,fmt=*) offset
-     write(unit=header,fmt='(A)') '<DataArray NumberOfComponents="1" offset="'//trim(Pack_string(offset_c))//'" type="Float'//trim(Pack_String(nbit_c))//'" Name="density" format="appended"/>'
+     write(unit=header,fmt='(A)') '<DataArray NumberOfComponents="1" offset="'// &
+     trim(Pack_string(offset_c))//'" type="Float'//trim(Pack_String(nbit_c))//'" Name="density" format="appended"/>'
      write(unit=vtk_id) trim(header)//end_line
      write(unit=vtk_id) '</PointData>'//end_line
      write(unit=vtk_id) '</Piece>'//end_line
