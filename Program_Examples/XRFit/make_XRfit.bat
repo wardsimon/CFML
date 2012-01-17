@@ -33,9 +33,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Cw_Diffraction_Pv.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /c XRFit.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   link /subsystem:console /stack:102400000 /out:XRFit.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
+   ifort /c Cw_Diffraction_Pv.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c XRFit.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
+   link /subsystem:console /stack:102400000 /out:XRFit.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

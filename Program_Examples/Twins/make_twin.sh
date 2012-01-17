@@ -102,8 +102,8 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'ifort')
-      INC="-I../../Intel/LibC"
-      LIB="-L../../Intel/LibC"
+      INC="-I../../ifort/LibC"
+      LIB="-L../../ifort/LibC"
       LIBDYNAMIC="-lcrysfml"
       LIBSTATIC="-lcrysfml"
      ;;

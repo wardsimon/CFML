@@ -34,10 +34,10 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /c Phase_Diagram.f90   /O2 /nologo /IC:\CrysFML\Intel\LibC
-   rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\Intel\LibC\crysfml.lib
-   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c Phase_Diagram.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
+   rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

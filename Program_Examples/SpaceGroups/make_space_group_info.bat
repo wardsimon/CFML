@@ -32,9 +32,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c space_group_info.f90 /O2 /nologo /IC:\CrysFML\Intel\LibC
-   ifort /exe:space_group_info *.obj C:\CrysFML\Intel\LibC\crysfml.lib
-   rem link /subsystem:console /out:space_group_info.exe *.obj C:\CrysFML\Intel\LibC\crysfml.lib
+   ifort /c space_group_info.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /exe:space_group_info *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   rem link /subsystem:console /out:space_group_info.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

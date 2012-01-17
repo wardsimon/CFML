@@ -31,11 +31,11 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Diffax_glb.f90  /O2 /nologo         /I"%CRYSFML%"\Intel\LibC
-   ifort /c Faults_Read.f90 /O2 /nologo         /I"%CRYSFML%"\Intel\LibC
-   ifort /c Diffax_calc.f90 /O2 /nologo         /I"%CRYSFML%"\Intel\LibC
-   ifort /c Faults.f90      /O2 /nologo         /I"%CRYSFML%"\Intel\LibC
-   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\Intel\LibC\crysfml.lib
+   ifort /c Diffax_glb.f90  /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+   ifort /c Faults_Read.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+   ifort /c Diffax_calc.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+   ifort /c Faults.f90      /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

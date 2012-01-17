@@ -27,9 +27,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Simple_Calc_Powder.f90 /Ox /nologo /I. /I..\..\Intel\LibC
-   rem ifort /exe:Simple_Calc_Powder *.obj ..\..\Intel\LibC\CrysFML.lib /link /stack:102400000
-   link /subsystem:console /stack:102400000 /out:Simple_Calc_Powder.exe *.obj ..\..\Intel\LibC\CrysFML.lib
+   ifort /c Simple_Calc_Powder.f90 /Ox /nologo /I. /I..\..\ifort\LibC
+   rem ifort /exe:Simple_Calc_Powder *.obj ..\..\ifort\LibC\CrysFML.lib /link /stack:102400000
+   link /subsystem:console /stack:102400000 /out:Simple_Calc_Powder.exe *.obj ..\..\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

@@ -32,9 +32,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Sxtal_Refgen.f90 /O2 /nologo /I%CRYSFML%\Intel\LibC
-rem   ifort /c Sxtal_Refgen.f90 /debug:full /check /traceback  /nologo /I%CRYSFML%\Intel\LibC
-   link /subsystem:console /out:Sxtal_Refgen.exe *.obj %CRYSFML%\Intel\LibC\crysfml.lib
+   ifort /c Sxtal_Refgen.f90 /O2 /nologo /I%CRYSFML%\ifort\LibC
+rem   ifort /c Sxtal_Refgen.f90 /debug:full /check /traceback  /nologo /I%CRYSFML%\ifort\LibC
+   link /subsystem:console /out:Sxtal_Refgen.exe *.obj %CRYSFML%\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

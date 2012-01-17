@@ -27,9 +27,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c MagPolar3D.f90 /Ox /nologo /I. /IC:\CrysFML\Intel\LibC
-   rem ifort /exe:MagPolar3D_if *.obj C:\CrysFML\Intel\LibC\CrysFML.lib /link /stack:102400000
-   link /subsystem:console /stack:102400000 /out:MagPolar3D_if.exe *.obj C:\CrysFML\Intel\LibC\CrysFML.lib
+   ifort /c MagPolar3D.f90 /Ox /nologo /I. /IC:\CrysFML\ifort\LibC
+   rem ifort /exe:MagPolar3D_if *.obj C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:102400000
+   link /subsystem:console /stack:102400000 /out:MagPolar3D_if.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

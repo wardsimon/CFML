@@ -36,13 +36,13 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c menu_1.f90 /O2 /nologo /I..\..\Intel\LibC
-   ifort /c menu_2.f90 /O2 /nologo /I..\..\Intel\LibC
-   ifort /c menu_3.f90 /O2 /nologo /I..\..\Intel\LibC
-   ifort /c menu_4.f90 /O2 /nologo /I..\..\Intel\LibC
-   ifort /c calsym.f90 /O2 /nologo /I..\..\Intel\LibC
-   rem ifort /exe:CrysCalc *.obj ..\..\Intel\LibC\crysfml.lib
-   link /subsystem:console /out:CrysCalc.exe *.obj ..\..\Intel\LibC\crysfml.lib
+   ifort /c menu_1.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c menu_2.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c menu_3.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c menu_4.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c calsym.f90 /O2 /nologo /I..\..\ifort\LibC
+   rem ifort /exe:CrysCalc *.obj ..\..\ifort\LibC\crysfml.lib
+   link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
