@@ -21,7 +21,7 @@
     use CFML_String_Utilities, only: Ucase
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, ERR_Crys_Mess, &
                                      Set_Crystal_Cell,Get_Cryst_Family, Niggli_Cell,     &
-                                     Write_Crystal_Cell, Get_Primitive_Cell,Get_two_fold_axes,  &
+                                     Write_Crystal_Cell, Get_Primitive_Cell,Get_twofold_axes,  &
                                      Twofold_Axes_Type, Get_Conventional_Cell, Change_Setting_Cell
     use CFML_Math_3D,          only: determ_A, determ_V, invert_A
     use CFML_Math_General,     only: sort
@@ -114,7 +114,7 @@
         if(ier /= 0) told=0.2
         message=" "
       end if
-      call Get_two_fold_axes(celln,tol,twofold)
+      call Get_twofold_axes(celln,tol,twofold)
       write(unit=io,fmt="(/,a,6f10.4,a)")"             Input Cell (Aic): ",ad,"  Centring: "//ls
       write(unit=io,fmt="(a,6f10.4)")    "   Primitive input Cell (Api): ",Cellp%cell,Cellp%ang
       write(unit=io,fmt="(a,6f10.4)")    "            Niggli Cell  (AN): ",celln%cell,celln%ang

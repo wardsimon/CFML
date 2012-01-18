@@ -128,7 +128,7 @@
 !!----       GET_DERIV_ORTH_CELL
 !!----       GET_PRIMITIVE_CELL
 !!----       GET_TRANSFM_MATRIX
-!!----       GET_TWO_FOLD_AXES
+!!----       GET_TWOFOLD_AXES
 !!----       INIT_ERR_CRYS
 !!----       NIGGLI_CELL                 [Overloaded]
 !!--++       NIGGLI_CELL_ABC             [Private]
