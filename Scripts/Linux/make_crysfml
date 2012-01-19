@@ -240,7 +240,7 @@ fi
 #
 # Changing to the Src Directory
 #
-cd ./Src/CFML
+cd Src/
 #
 # Compilation Process
 #
@@ -309,28 +309,28 @@ then
    in
       'af95')
           ar cr libcrysfml.a *.o
-          mv *.mod ../../Absoft/LibC
-          mv *.a ../../Absoft/LibC
+          mv *.mod ../Absoft/LibC
+          mv *.a ../Absoft/LibC
           ;;
       'g95')
           ar cr libcrysfml.a *.o
-          mv *.mod ../../G95/LibC
-          mv *.a ../../G95/LibC
+          mv *.mod ../G95/LibC
+          mv *.a ../G95/LibC
           ;;
       'gfortran')
           ar cr libcrysfml.a *.o
-          mv *.mod ../../GFortran/LibC
-          mv *.a ../../GFortran/LibC
+          mv *.mod ../GFortran/LibC/
+          mv *.a ../GFortran/LibC/
           ;;
       'ifort')
           ar cr libcrysfml.a *.o
-          mv *.mod ../../Intel/LibC
-          mv *.a ../../Intel/LibC
+          mv *.mod ../Intel/LibC
+          mv *.a ../Intel/LibC
           ;;
       'lf95')
           $COMP *.o --out libcrysfml.a --nshared
-          mv *.mod ../../Lahey/LibC
-          mv *.a ../../Lahey/LibC
+          mv *.mod ../Lahey/LibC
+          mv *.a ../Lahey/LibC
           ;;
    esac
 else
@@ -338,28 +338,28 @@ else
    in
       'af95')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../../Absoft/LibW
-          mv *.a ../../Absoft/LibW
+          mv *.mod ../Absoft/LibW
+          mv *.a ../Absoft/LibW
           ;;
       'g95')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../../G95/LibW
-          mv *.a ../../G95/LibW
+          mv *.mod ../G95/LibW
+          mv *.a ../G95/LibW
           ;;
       'gfortran')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../../GFortran/LibW
-          mv *.a ../../GFortran/LibW
+          mv *.mod ../GFortran/LibW
+          mv *.a ../GFortran/LibW
           ;;
       'ifort')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../../Intel/LibW
-          mv *.a ../../Intel/LibW
+          mv *.mod ../Intel/LibW
+          mv *.a ../Intel/LibW
           ;;
       'lf95')
           $COMP *.o --out libwcrysfml.a --nshared
-          mv *.mod ../../Lahey/LibW
-          mv *.a ../../Lahey/LibW
+          mv *.mod ../Lahey/LibW
+          mv *.a ../Lahey/LibW
           ;;
    esac
 fi
