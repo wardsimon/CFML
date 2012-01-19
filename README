@@ -1,0 +1,92 @@
+CMake is a system used to control the software compilation process using simple platform 
+and compiler independent configuration files. CMake generates native makefiles and 
+workspaces that can be used in the compiler environment of your choice. 
+
+Here are the instructions to run cmake in order to build the CrysFML library.
+
+                             ***
+
+1) Download and install a recent version of cmake (>= 2.8.0 required)
+
+                             ***
+
+2) check that the cmake binary directory is in the PATH altogether 
+   with the different compilers that will be used for the build.
+
+                             ***
+
+3) Set CRYSFML_SOURCE environment variable to the absolute path where 
+   the CrysFML sources are located.
+   
+   I decided to not use the CRYSFML environment variable used in the 
+   old building process as, for further use of CrysFML library with 
+   ProgCFML or SXTalSoft libraries, a distinction between the source 
+   and library locations must be established.
+
+                             ***
+                             
+4) Create a directory wherever you want that will contain the files 
+   generated during the build (e.g. ${CRYSFML_SOURCE}/build). Now 
+   you are ready for the cmake run that will configure your build.
+
+                             ***
+    
+5) cd path_to_your_build_directory
+ 
+                             ***
+
+6) The CMake usage is:
+      
+      cmake -G generator -Dvariable=value path_to_your_source_directory
+
+   generator:
+      CMake requires to know for which build tool it shall generate 
+      files (GNU make, Visual Studio, Xcode, etc). If not specified 
+      on the command line, it tries to guess it based on you 
+      environment. Once identified the build tool, CMake uses the 
+      corresponding Generator for creating files for your build tool. 
+      You can explicitly specify the generator with the command line 
+      option -G "Name of the generator".
+         
+      For knowing the available generators on your platform, execute
+   
+         cmake --help
+       
+      This will list the generator's names at the end of the help text. 
+      Take care the generator's names are case-sensitive.
+   
+      For standard console Makefiles the generator should be:
+         - "NMake Makefiles" on Windows
+         - "Unix Makefiles" on Linux
+           
+   variable:
+      Variables customize how the build will be generated.
+       
+      Useful CMake variables (case sensitive):
+       
+         * GUI: ON|OFF. Default OFF
+           If OFF, only CrysFML will be built.
+           If ON, both CrysFML and WCrysFML libraries will be built
+           
+         * CMAKE_Fortran_COMPILER: ifort|g95|gfortran. Default ifort.
+           Sets the compiler to use for the build.
+
+         * CMAKE_BUILD_TYPE: Release|Debug|RelWithDebInfo|MinSizeRel. Default Release.
+           Sets the build type for make based generators.
+           
+         * CMAKE_INSTALL_PREFIX.
+           Default /usr/lib/libcrysfml (Unix) C:\Program Files\libcrysfml (Windows)
+           Path where the library will be installed if "make install" is invoked or the 
+           "INSTALL" target is built.
+
+                             ***
+           
+7) The final step is now to build and install the library. The command to invoke will 
+   depend on the generator used for the build.
+
+   Examples:
+      - Unix: make install
+      - Window: nmake install 
+
+   ifort build for CrysFML and WCrysFML on Windows:
+       cmake           
