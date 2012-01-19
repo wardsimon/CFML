@@ -88,19 +88,19 @@ in
        fi
        ;;
    'ifort')
-       if [ -d "./Intel" ]
+       if [ -d "./ifort" ]
        then
-          if [ -d "./Intel/LibC" ]
+          if [ -d "./ifort/LibC" ]
           then
              echo " "
           else
-             mkdir "./Intel/LibC"
-             mkdir "./Intel/LibW"
+             mkdir "./ifort/LibC"
+             mkdir "./ifort/LibW"
           fi
        else
-          mkdir "Intel"
-          mkdir "./Intel/LibC"
-          mkdir "./Intel/LibW"
+          mkdir "ifort"
+          mkdir "./ifort/LibC"
+          mkdir "./ifort/LibW"
        fi
        ;;
    'lf95')
@@ -324,8 +324,8 @@ then
           ;;
       'ifort')
           ar cr libcrysfml.a *.o
-          mv *.mod ../Intel/LibC
-          mv *.a ../Intel/LibC
+          mv *.mod ../ifort/LibC
+          mv *.a ../ifort/LibC
           ;;
       'lf95')
           $COMP *.o --out libcrysfml.a --nshared
@@ -353,8 +353,8 @@ else
           ;;
       'ifort')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../Intel/LibW
-          mv *.a ../Intel/LibW
+          mv *.mod ../ifort/LibW
+          mv *.a ../ifort/LibW
           ;;
       'lf95')
           $COMP *.o --out libwcrysfml.a --nshared
