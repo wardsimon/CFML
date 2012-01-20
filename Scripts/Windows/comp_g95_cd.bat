@@ -63,7 +63,7 @@ rem
    echo .... Formats
 rem
    g95 -c CFML_form_cif.f90         -O0 -ftrace=full  -std=f2003    >> out
-   g95 -c CFML_Export_Vtk.f90       -O0 -ftrace=full  -std=f2003    >> out
+   g95 -c CFML_Export_Vtk.f90       -O0 -ftrace=full                >> out
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
