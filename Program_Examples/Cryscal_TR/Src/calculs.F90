@@ -20,14 +20,28 @@ subroutine get_label_atom_coord(input_string, i,n, ok)
  LOGICAL, INTENT(INOUT)       :: ok
  INTEGER                      :: i1, j, atom_index, long, num_sym_op
  CHARACTER(LEN=6)             :: label
-
- IF(input_string(1:4) == 'dist') then
+ integer                      :: long_input_string
+ logical                      :: input_dist, input_ang
+ 
+ input_dist = .false.
+ input_ang  = .false.
+ 
+ if(long_input_string == 4) then
+  if(input_string(1:4) == 'dist') input_dist = .true.
+ elseif(long_input_string == 3) then
+  if(input_string(1:3) == 'ang') input_ang = .true.
+ endif
+  
+  
+ IF(input_dist) then
   IF(n==1) then
    label = atom1_dist(i)
   ELSEif(n==2) then
    label = atom2_dist(i)
   endif
- ELSEIF(input_string(1:3) == 'ang') then
+ endif 
+ 
+ IF(input_ang) then
   IF(n==1) then
    label = atom1_ang(i)
   ELSEif(n==2) then
@@ -37,7 +51,6 @@ subroutine get_label_atom_coord(input_string, i,n, ok)
   ELSEif(n==4) then
    label = atom4_ang(i)
   endif
-
  endif
 
 
@@ -230,7 +243,8 @@ end subroutine angle_calculation
 !-------------------------------------------------------------------------------
 subroutine volume_calculation(input_string)
  use cryscal_module,  only        :  ON_SCREEN, pi, unit_cell, keyword_create_CIF, CIF_unit, &
-                                     DC_ort, ort_DC, RC_ort, ort_RC, GMD, GMR, keyword_CELL, message_text
+                                     DC_ort, ort_DC, RC_ort, ort_RC, GMD, GMR, keyword_CELL, &
+									 known_cell_ESD, message_text
 
  USE CFML_Math_General      ,  ONLY        :  cosd, sind, acosd
  USE math_module,     ONLY        :  orthog, metric, matinv
@@ -357,7 +371,11 @@ subroutine volume_calculation(input_string)
 
   if(keyword_create_CIF) then
    call write_CIF_file('UNIT_CELL_INFO')
-   call write_CIF_file('CELL_PARAM')
+   IF(known_cell_ESD) then
+    call write_CIF_file('CELL_PARAM_ESD')
+   else
+    call write_CIF_file('CELL_PARAM')
+   endif
   endif
 
  return
@@ -563,45 +581,46 @@ end subroutine calcul_dhkl
 
 
 !----------------------------------------------------------
-subroutine atomic_density_calculation( )
- USE cryscal_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, nb_at, unit_cell, message_text
+subroutine atomic_density_calculation()
+ USE cryscal_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, nb_at, unit_cell, message_text 
  USE IO_module
 
- implicit none
+ implicit none  
  !local variables
  REAL                                      :: density
  INTEGER                                   :: i
 
- if(ON_SCREEN) then
- call write_info(' ')
- call write_info('          Atomic density ')
- call write_info('          --------------')
- call write_info(' ')
+ if(ON_SCREEN ) then
+  call write_info(' ')
+  call write_info('          Atomic density ')
+  call write_info('          --------------')
+  call write_info(' ')
 
- write(message_text,'(a)')      '    Atom     nb atoms/cm3 E22'
-  call write_info(TRIM(message_text))
- write(message_text,'(a)')      ' '
-  call write_info(TRIM(message_text))
+  write(message_text,'(a)')      '    Atom     nb atoms/cm3 E22'
+   call write_info(TRIM(message_text))
+  write(message_text,'(a)')      ' '
+   call write_info(TRIM(message_text))
  endif
 
+ 
 ! calcul du nombre d'atomes i/cm3
  density = 0.
  do i = 1, nb_atoms_type
   nb_at(i) = SFAC_number(i) / unit_cell%volume * 1.E24
 
   if(ON_SCREEN) then
-  write(message_text, '(a8,10x,F9.2)') TRIM(SFAC_type(i)),  nb_at(i)/1.e22
-  call write_info(TRIM(message_text))
+   write(message_text, '(a8,10x,F9.2)') TRIM(SFAC_type(i)),  nb_at(i)/1.e22
+   call write_info(TRIM(message_text))
   endif
 
   density  = density +  nb_at(i)
  end do
 
  if(ON_SCREEN) then
- call write_info('')
- WRITE(message_text,'(5x,a,F9.2,a)') "           => Atomic density = ", density/1.e22,' E22 atoms/cm3'
+  call write_info('')
+  WRITE(message_text,'(5x,a,F9.2,a)') "           => Atomic density = ", density/1.e22,' E22 atoms/cm3'
   call write_info(TRIM(message_text))
- call write_info('')
+  call write_info('')
  endif
 
 
@@ -687,6 +706,7 @@ subroutine molecular_weight()
   !else
   ! sto(i) = SFAC_number(i)
   endif
+  
 
   IF(INT(sto(i)) < 10) then
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
@@ -786,7 +806,7 @@ subroutine density_calculation()
 
   if(ON_SCREEN) then
   call write_info('')
-  WRITE(message_text,'(5x,a,F9.3)') "   >> Density (g/cm3)    = ", molecule%density
+  WRITE(message_text,'(1x,a,F9.3)') "   >> Density (g/cm3)    = ", molecule%density
   call write_info(TRIM(message_text))
   call write_info('')
   end if
@@ -862,133 +882,95 @@ end subroutine calcul_2theta
 
 !-----------------------------------------------------------------
 
-subroutine calc_therm_iso()
- USE cryscal_module, ONLY : THERM_Biso, THERM_Uiso, nb_therm_values, therm_values, pi, message_text
- USE IO_module
+!
+!subroutine calc_THERM_ANISO()   sept. 2011  >>>> therm.F90
+!
+! USE cryscal_module,        ONLY : THERM_uij, THERM_bij, THERM_beta, therm_values,  unit_cell, pi, message_text, crystal_cell
+! USE CFML_Crystal_Metrics,  only : U_equiv, Convert_U_B, convert_U_betas, convert_B_U, convert_B_Betas, &
+!                                   convert_Betas_U, convert_Betas_B
+! !USE CFML_Math_General,    ONLY : sp
+! !USE  CFML_Constants,       ONLY : sp
+! USE CFML_math_3D,          ONLY : matrix_diageigen
+! USE CFML_GlobalDeps,       ONLY : sp
+! use CFML_Crystal_Metrics,  only : Set_Crystal_Cell  !, Crystal_cell_type
+! USE IO_module
 
- implicit none
-  integer                  :: i
-  real                     :: new_therm_value
+! implicit none
+!  integer                          :: i
+!  REAL(kind=sp), DIMENSION(6)      :: Xij
+!  REAL(kind=sp), DIMENSION(3,3)    :: M_U, eigen
+!  REAL(kind=sp), DIMENSION(3)      :: rms
+!  REAL, DIMENSION(6)               :: new_ADP
+!  REAL(kind=sp)                    :: Ueq
+!  !type (Crystal_Cell_Type)         :: crystal_cell
 
- call write_info('')
- call write_info('   >> ISOTROPIC THERMAL PARAMETERS CONVERSION:')
- call write_info('')
+!  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
 
- if (THERM_Biso) then      ! Biso --> Uiso
-  call write_info('       Biso       Uiso')
+! call write_info('')
+! call write_info('   >> ANISOTROPIC THERMAL PARAMETERS CONVERSION:')
+! call write_info('')
 
-  do i=1, nb_therm_values
-   new_therm_value = therm_values(i) / (8*pi**2)
-   WRITE(message_text, '(2(5x,F8.4))') therm_values(i), new_therm_value
-   call write_info(TRIM(message_text))
-  end do
-  return
+! Xij(1:6) = therm_values(1:6)
 
- ELSEIF(THERM_Uiso) then   ! Uiso --> Biso
-  call write_info('       Uiso       Biso')
+! M_U = reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6),Xij(3) /),(/3,3/))
+! call matrix_diageigen(M_U, rms,eigen)
+! do i=1, 3
+!  if(rms(i) < 0.0) then
+!   write(message_text, '(a)') "   -> Matrix U non-positive definite!"
+!   call write_info(trim(message_text))
+!   call write_info('')
+!  endif
+! end do
 
-  do i=1, nb_therm_values
-   new_therm_value = therm_values(i) * (8*pi**2)
-   WRITE(message_text,'(2(5x,F8.4))') therm_values(i), new_therm_value
-   call write_info(TRIM(message_text))
-  end do
-  return
- end if
+! IF(THERM_Uij) then
+!  Ueq = U_equiv(Crystal_cell, Xij)
+!  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', Xij
+!  call write_info(TRIM(message_text))
 
+!  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
+!  call write_info(TRIM(message_text))
+!  new_ADP = convert_U_B(Xij)
+!  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', new_ADP
+!  call write_info(TRIM(message_text))
 
+!  new_ADP = convert_U_betas(Xij, crystal_cell)
+!  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', new_ADP
+!  call write_info(TRIM(message_text))
 
- RETURN
-end subroutine calc_therm_iso
+! ELSEIF(therm_Bij) then
+!  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', Xij
+!  call write_info(TRIM(message_text))
 
-!--------------------------------------------------------------------------
+!  new_ADP = convert_B_U(Xij)
+!  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', new_ADP
+!  call write_info(TRIM(message_text))
+!  Ueq = U_equiv(Crystal_cell, new_ADP)
+!  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
+!  call write_info(TRIM(message_text))
 
-subroutine calc_THERM_ANISO()
- USE cryscal_module,        ONLY : THERM_uij, THERM_bij, THERM_beta, therm_values,  unit_cell, pi, message_text, crystal_cell
- USE CFML_Crystal_Metrics,  only : U_equiv, Convert_U_B, convert_U_betas, convert_B_U, convert_B_Betas, &
-                                   convert_Betas_U, convert_Betas_B
- !USE CFML_Math_General,    ONLY : sp
- !USE  CFML_Constants,       ONLY : sp
- USE CFML_math_3D,          ONLY : matrix_diageigen
- USE CFML_GlobalDeps,       ONLY : sp
- use CFML_Crystal_Metrics,  only : Set_Crystal_Cell  !, Crystal_cell_type
- USE IO_module
+!  new_ADP = convert_B_betas(Xij, crystal_cell)
+!  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', new_ADP
+!  call write_info(TRIM(message_text))
 
- implicit none
-  integer                          :: i
-  REAL(kind=sp), DIMENSION(6)      :: Xij
-  REAL(kind=sp), DIMENSION(3,3)    :: M_U, eigen
-  REAL(kind=sp), DIMENSION(3)      :: rms
-  REAL, DIMENSION(6)               :: new_ADP
-  REAL(kind=sp)                    :: Ueq
-  !type (Crystal_Cell_Type)         :: crystal_cell
+! ELSEIF(therm_BETA) then
+!  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', Xij
+!  call write_info(TRIM(message_text))
 
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+!  new_ADP = convert_Betas_B(Xij, crystal_cell)
+!  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', new_ADP
+!  call write_info(TRIM(message_text))
 
- call write_info('')
- call write_info('   >> ANISOTROPIC THERMAL PARAMETERS CONVERSION:')
- call write_info('')
+!  new_ADP = convert_Betas_U(Xij, crystal_cell)
+!  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', new_ADP
+!  call write_info(TRIM(message_text))
 
- Xij(1:6) = therm_values(1:6)
+!  Ueq = U_equiv(Crystal_cell, new_ADP)
+!  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
+!  call write_info(TRIM(message_text))
 
- M_U = reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6),Xij(3) /),(/3,3/))
- call matrix_diageigen(M_U, rms,eigen)
- do i=1, 3
-  if(rms(i) < 0.0) then
-   write(message_text, '(a)') "   -> Matrix U non-positive definite!"
-   call write_info(trim(message_text))
-   call write_info('')
-  endif
- end do
+! endif
 
- IF(THERM_Uij) then
-  Ueq = U_equiv(Crystal_cell, Xij)
-  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', Xij
-  call write_info(TRIM(message_text))
-
-  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
-  call write_info(TRIM(message_text))
-  new_ADP = convert_U_B(Xij)
-  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_U_betas(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', new_ADP
-  call write_info(TRIM(message_text))
-
- ELSEIF(therm_Bij) then
-  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', Xij
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_B_U(Xij)
-  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-  Ueq = U_equiv(Crystal_cell, new_ADP)
-  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_B_betas(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', new_ADP
-  call write_info(TRIM(message_text))
-
- ELSEIF(therm_BETA) then
-  WRITE(message_text,'(a,6F8.5)') '   >> Beta_ij:     ', Xij
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_Betas_B(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F8.5)') '   >> B_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_Betas_U(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F8.5)') '   >> U_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-
-  Ueq = U_equiv(Crystal_cell, new_ADP)
-  WRITE(message_text,'(a,F8.5)')  '   >> Ueq  (A2):   ', Ueq
-  call write_info(TRIM(message_text))
-
- endif
-
-end subroutine calc_THERM_ANISO
+!end subroutine calc_THERM_ANISO
 
 !--------------------------------------------------------------------------
 ! calcul de l'angle entre 2 vecteurs
@@ -1008,9 +990,20 @@ subroutine  calcul_vector_angle(input_string)
   real                          :: aux
   REAL                          :: angle
   CHARACTER (LEN=12)            :: space_string
-
+  integer                       :: long_input_string
+  logical                       :: input_direct, input_reciprocal
+  
+  input_direct     = .false.
+  input_reciprocal = .false.
+  
+  if(long_input_string == 6) then
+   if(input_string(1:6) == 'direct') input_direct = .true.
+  elseif(long_input_string ==  10) then
+   if(input_string(1:10) == 'reciprocal') input_reciprocal = .true.
+  endif
+  
   call write_info('')
-  IF(input_string(1:6) == 'direct') then
+  IF(input_direct) then
    nb_ang = nb_da
    V1(1:3) = U1_da(1:3, nb_da)
    V2(1:3) = U2_da(1:3, nb_da)
@@ -1018,8 +1011,9 @@ subroutine  calcul_vector_angle(input_string)
    gm = gmd
    space_string = 'A'
    call write_info('   >> Calculation of angle between two vectors of the direct space:')
-
-  ELSEIF(input_string(1:10) == 'reciprocal') then
+  endif 
+  
+  IF(input_reciprocal) then
    nb_ang = nb_ra
    V1(1:3) = U1_ra(1:3, nb_ra)
    V2(1:3) = U2_ra(1:3, nb_ra)
@@ -1027,7 +1021,6 @@ subroutine  calcul_vector_angle(input_string)
    gm = gmr
    space_string = 'A-1'
    call write_info('   >> Calculation of angle between two vectors of the reciprocal space:')
-
   endif
 
   do i=1, nb_ang

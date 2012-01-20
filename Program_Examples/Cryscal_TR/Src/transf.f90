@@ -35,7 +35,7 @@ end subroutine write_matrice
 subroutine  transf_cell_parameters
  USE cryscal_module, ONLY   : M => mat, Mat_det, unit_cell, pi, message_text,   &
                               WRITE_triclinic_transf, WRITE_monoclinic_transf,  &
-                              WRITE_twin_hexa, WRITE_twin_pseudo_hexa
+                              WRITE_twin_hexa, WRITE_twin_pseudo_hexa, update_parameters
  USE IO_module,      ONLY   : write_info
  implicit none
   real                               :: cosAlfa1, cosBeta1, cosGamma1
@@ -180,8 +180,10 @@ subroutine  transf_cell_parameters
  tmp_cell = unit_cell%param
  
  if (      .not. WRITE_triclinic_transf  .and.  .not. WRITE_monoclinic_transf &
-     .and. .not. WRITE_twin_hexa         .and.  .not. WRITE_twin_pseudo_hexa) &
-      unit_cell%param = unit_cell%new_param
+     .and. .not. WRITE_twin_hexa         .and.  .not. WRITE_twin_pseudo_hexa) then
+	 
+    if(update_parameters)  unit_cell%param = unit_cell%new_param
+ end if	  
  !unit_cell%param = tmp_cell
  !call volume_calculation('out')
 
@@ -219,7 +221,7 @@ end subroutine transf_HKL
 !----------------------------------------------------------------------
 
 subroutine transf_coord()
- USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_type, message_text
+ USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_type, message_text, update_parameters
  USE IO_module,      ONLY      : write_info
  use matrix_module,  ONLY      : MV_product
  implicit none
@@ -239,6 +241,7 @@ subroutine transf_coord()
    new_atom_coord(:,i) = MV_product(atom_coord(:, i), Mit)
    WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_type(i)),  new_atom_coord(:,i)
    call write_info(TRIM(message_text))
+   if(update_parameters) atom_coord(:,i) = new_atom_coord(:,i)
   END do
   call write_info('')
  endif
@@ -272,7 +275,7 @@ end subroutine write_atomic_matrix
 !----------------------------------------------------------------------
 
 subroutine transl_coord()
- USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_type, message_text
+ USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_type, message_text, update_parameters
  USE IO_module,      ONLY : write_info
  implicit none
 
@@ -294,6 +297,7 @@ subroutine transl_coord()
   WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_type(i)),  new_coord
   call write_info(TRIM(message_text))
 
+  if(update_parameters) atom_coord(:, i) = new_coord
  END do
 
  call write_info('')
@@ -773,7 +777,7 @@ subroutine write_list_matrice()
   call write_info('  > List of transformation matrices implemented in CRYSCAL: ')
   call write_info('')
 
-  do i=1, Max_mat_nb
+  do i=1, Max_mat_nb + user_mat_nb
    Mat(:,:) =  transf_mat(:,:,i)
    call get_matrice_inverse_transposee()
 

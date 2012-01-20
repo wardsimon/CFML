@@ -55,7 +55,7 @@ subroutine read_CFL_input_file(inp_unit)
 !---------------------------------------------------------------------------------
 
 subroutine incident_beam()
- USE cryscal_module, ONLY : X_rays, neutrons, wavelength
+ USE cryscal_module, ONLY : X_rays, neutrons, wavelength, LOCK_wave_value
  USE wavelength_module
  implicit none
   integer             :: i
@@ -66,7 +66,7 @@ subroutine incident_beam()
   X_target(1:tabulated_target_nb)%logic = .false.
   
   do i=1, tabulated_target_nb
-   if(ABS(wavelength - X_target(i)%wave(1)) < 0.02) then
+   if(ABS(wavelength - X_target(i)%wave(1)) < LOCK_wave_value) then
     wavelength = X_target(i)%wave(1)
     X_target(i)%logic = .true.
     anti_cathode    = .true.
@@ -98,7 +98,7 @@ end subroutine incident_beam
   CHARACTER (LEN=64), DIMENSION(20)        :: arg_string
   INTEGER                                  :: i
   integer                                  :: i1, i2, i_pos, i_error, nb_arg
-  LOGICAL                                  :: lecture_ok
+  !LOGICAL                                  :: lecture_ok
 
   READ(read_line, *) input_keyword
   input_keyword = ADJUSTL(input_keyword)
@@ -378,7 +378,8 @@ end subroutine incident_beam
      neutrons  = .false.
      electrons = .false.
      beam_type = 'x_rays'
-     call get_X_radiation(beam_type)
+     !call get_X_radiation(beam_type)
+	 call get_X_radiation(trim(input_arg))
      keyword_wave = .true.
     ELSEIF(input_arg(1:4) == 'NEUT') then
      neutrons  = .true.
@@ -443,7 +444,7 @@ end subroutine incident_beam
     IF(keyword_CHEM) sfac_number(1:nb_atoms_type) = sto(1:nb_atoms_type) * Z_unit
 
     IF(keyword_create_CIF)  call write_CIF_file('ZUNIT')
-
+    molecule%Z_unit = int(Z_unit)
 
    CASE ('SFAC')
     if(nb_arg == 0) then
@@ -516,9 +517,9 @@ end subroutine incident_beam
     endif
     call decode_CHEM_string(arg_line, nb_arg)
 
-
-
-
+   case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
+    keyword_MU = .true.
+    
    CASE ('ATOM', 'ATM')
     IF(nb_arg <5) then
      call check_arg('5', 'ATOM')
@@ -699,7 +700,7 @@ end subroutine incident_beam
 
 
 
-   CASE ('SYMM', 'SYM', 'SYMETRY_OPERATOR')
+   CASE ('SYMM', 'SYM', 'SYMMETRY_OPERATOR')
     IF(nb_arg ==0) then
      call check_arg('0', 'SYMM')
      return

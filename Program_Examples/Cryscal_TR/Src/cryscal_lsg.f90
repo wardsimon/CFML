@@ -2,7 +2,8 @@
 subroutine list_space_groups()
  USE list_space_groups_module, ONLY : sg, definition_space_groups
  USE cryscal_module,           ONLY : list_sg, list_sg_centric, message_text, known_space_groups
- USE IO_module,                ONLY : write_only
+ USE IO_module,                ONLY : write_info
+
 
   implicit none
    character (len=16), dimension(15) :: sg2

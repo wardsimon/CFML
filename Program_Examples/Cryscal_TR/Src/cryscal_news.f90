@@ -13,8 +13,97 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '  T. Roisnel / CDIFX Rennes')
   call write_cryscal_news_line(input_string,  '')
 
+  if(news_year(1:3) == 'all' .or. news_year(1:2) == '12' .or. news_year(1:4) == '2012') then
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . January 12 :')
+   call write_cryscal_news_line(input_string,  '     # CRYSCAL has been compiled with the new CRYSFML library')   
+   call write_cryscal_news_line(input_string,  '     # MOVE instruction for SHELXL (output of SG_INFO for acentric')
+   call write_cryscal_news_line(input_string,  '       space groupe  ) is now correct for non conventional settings')
+  endif
+
 
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '11' .or. news_year(1:4) == '2011') then
+  call write_cryscal_news_line(input_string,  '')
+  call write_cryscal_news_line(input_string,  '   . December 11 :')
+  call write_cryscal_news_line(input_string,  '     # Some minor changes have been performed in the code to be compiled ')
+  call write_cryscal_news_line(input_string,  '       with Intel Fortran Compiler')
+  call write_cryscal_news_line(input_string,  '     # HKL arrays are now dimensionned dynamically. Default dimension is')
+  call write_cryscal_news_line(input_string,  '       500000 but can be defined by user in the setting file though the')
+  call write_cryscal_news_line(input_string,  '       "hkl_reflections" keyword in the [ARRAYS DIMENSIONS] section.')  
+  call write_cryscal_news_line(input_string,  '     # "LOCK_wave_value" field can be input in the cryscal.ini setting file to')
+  call write_cryscal_news_line(input_string,  '       to define the lock the input wavelength to the value of the closer')
+  call write_cryscal_news_line(input_string,  '       Xray target (Cu, Mo ...). if not present in the setting file, the default')
+  call write_cryscal_news_line(input_string,  '       value for this field is 0.02.')
+  call write_cryscal_news_line(input_string,  '       Examples : ')
+  call write_cryscal_news_line(input_string,  '       - input wavelength = 1.53 and LOCK_wave_value = 0.02  : wave_length = 1.5406')
+  call write_cryscal_news_line(input_string,  '       - input wavelength = 1.53 and LOCK_wave_value = 0.005 : wave_length = 1.53')
+  call write_cryscal_news_line(input_string,  '' )  
+  call write_cryscal_news_line(input_string,  '   . November 11 :')
+  call write_cryscal_news_line(input_string,  '     # Minor corrections in the HTML report in the "symmetry transformations')
+  call write_cryscal_news_line(input_string,  '       used to generate equivalent atoms" parts (distances, angles, torsion ')
+  call write_cryscal_news_line(input_string,  '       angles and hydrogen bonds)')
+  call write_cryscal_news_line(input_string,  '     # LST_SG keyword : ')
+  call write_cryscal_news_line(input_string,  '       - "chiral" and "polar" arguments can se specified to output ')  
+  call write_cryscal_news_line(input_string,  '         chiral and polar space groups respectively')
+
+  call write_cryscal_news_line(input_string,  '     # SG_INFO keyword outputs the MOVE instruction for SHELXL')
+  call write_cryscal_news_line(input_string,  '     # in the case of acentric space groups.')
+  
+  
+  call write_cryscal_news_line(input_string,  '     # CRYSCAL has been compiled with last version of CFML (5.00)')  
+  call write_cryscal_news_line(input_string,  '      and changes in the space_group routine have been made to be ')  
+  call write_cryscal_news_line(input_string,  '      to be in agreement with the CFML library.')
+  call write_cryscal_news_line(input_string,  '')
+  
+  call write_cryscal_news_line(input_string,  '')
+  call write_cryscal_news_line(input_string,  '   . October 11 :')
+  call write_cryscal_news_line(input_string,  '     # LST_SG keyword : ')
+  call write_cryscal_news_line(input_string,  '       - "enantio" argument can se specified to output ')  
+  call write_cryscal_news_line(input_string,  '         enantiomorphic space goups')
+  call write_cryscal_news_line(input_string,  '       - Point group is output')
+  call write_cryscal_news_line(input_string,  '  ')  
+  call write_cryscal_news_line(input_string,  '     # MU keyword : explicit keyword to perform absorption coefficient')  
+  call write_cryscal_news_line(input_string,  '       calculation. Cell paramaters, wave and cell content has to be')  
+  call write_cryscal_news_line(input_string,  '       known. This keyword can be useful after reading of parameters')  
+  call write_cryscal_news_line(input_string,  '       from an external file as CIF or INS file.')  
+  call write_cryscal_news_line(input_string,  '       ex : READ_CIF UAl2.cif')
+  call write_cryscal_news_line(input_string,  '            WAVE X_cu')
+  call write_cryscal_news_line(input_string,  '            MU')
+  call write_cryscal_news_line(input_string,  '')
+
+  call write_cryscal_news_line(input_string,  '     # DIAG keyword : diagonalization of a 3*3 matrix and ouput Eigen values')  
+  call write_cryscal_news_line(input_string,  '                      and Eigen vectors')  
+  call write_cryscal_news_line(input_string,  '     # THERM_SHELX keyword : ADP parameters are input in the following')
+  call write_cryscal_news_line(input_string,  '       SHELX order, i.e. 11 22 33 23 13 12')
+  call write_cryscal_news_line(input_string,  '')
+
+  call write_cryscal_news_line(input_string,  '')
+  call write_cryscal_news_line(input_string,  '   . July 11 :')
+  call write_cryscal_news_line(input_string,  '     # Up to 5 extra matrices can be provided by the user in the cryscal.ini')
+  call write_cryscal_news_line(input_string,  '       setting file in the [USER TRANSFORMATION MATRICES] section. These ')
+  call write_cryscal_news_line(input_string,  '       matrices are defined through the "MAT_n" keyword followed by the 9')  
+  call write_cryscal_news_line(input_string,  '       components of the matrix m11 m12 m13 m21 m22 m23 m31 m32 m33 .')
+  call write_cryscal_news_line(input_string,  '       and a comment text.')
+  
+  call write_cryscal_news_line(input_string,  '       New "USER_MAT" keyword has been added to select a particular matrix')
+  call write_cryscal_news_line(input_string,  '       provided by the user in the cryscal.ini setting file. ')  
+  call write_cryscal_news_line(input_string,  '       The matrix to be selected can be input either by the numor preceded by')
+  call write_cryscal_news_line(input_string,  '       the "# symbol, either the comment text preceded by the "$" symbol')
+  call write_cryscal_news_line(input_string,  '       Examples : USER_MAT #1')
+  call write_cryscal_news_line(input_string,  '                  USER_MAT $2a')
+  
+  
+  call write_cryscal_news_line(input_string,  '     # "include_RES_file" field can be input in the cryscal.ini setting file to')
+  call write_cryscal_news_line(input_string,  '       embed the contain of last .res SHELXL file in the archive_cryscal.cif file')
+  call write_cryscal_news_line(input_string,  '       to avoid PLAT005_ALERT_5G alert in the CHECK CIF procedure. The SHELXL ')  
+  call write_cryscal_news_line(input_string,  '       .res file name corresponds to the last project ID in WinGX.')
+  call write_cryscal_news_line(input_string,  '     # After a matrix transformation of atomic coordinates, the list of atoms')
+  call write_cryscal_news_line(input_string,  '       is updated with new coordinates.')
+  call write_cryscal_news_line(input_string,  '     # Search_group procedure outputs only space groups those Bravais lattice')
+  call write_cryscal_news_line(input_string,  '       corresponds to the Bravais lattice contained in the import.cif file')
+  call write_cryscal_news_line(input_string,  '     # Include "_symmetry_space_group_name_H-M" string in the import.cif file')
+  call write_cryscal_news_line(input_string,  '       created from .P4P and .HKL file')
+  
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '   . June 11 :')
   call write_cryscal_news_line(input_string,  '     # CRYSCAL has been compiled with new version of CFML (5.00)')
@@ -321,12 +410,26 @@ end subroutine write_cryscal_NEWS
   implicit none
    character (len=*), intent(in)    :: input_string
    character (len=*), intent(inout) :: input_line
-
-  if(input_string(1:6) == 'screen') then
+   integer                          :: long_input_string
+   logical                          :: input_screen, input_html, input_text
+   
+   input_screen = .false.
+   input_html   = .false.
+   input_text   = .false.
+   
+   long_input_string = len_trim(input_string)
+   if(long_input_string == 4) then
+    if(input_string(1:4) == 'html') input_html = .true.
+	if(input_string(1:4) == 'text') input_text = .true.
+   elseif(long_input_string == 6) then
+    if(input_string(1:6) == 'screen') input_screen = .true.   
+   endif
+   
+  if(input_screen) then
    call write_info(trim(input_line))
-  elseif(input_string(1:4) == 'html') then
+  elseif(input_html) then
    write(HTML_unit, '(a)') trim(input_line)
-  elseif(input_string(1:4) == 'text') then
+  elseif(input_text) then
    write(2, '(a)') trim(input_line)
   end if
 

@@ -22,12 +22,13 @@ subroutine read_INS_input_file(input_file, input_string)
   CHARACTER (LEN=*), INTENT(IN)            :: input_string 
   CHARACTER (LEN=256)                      :: read_line
   INTEGER                                  :: i, n, i1, i2, i_error
-  integer                                  :: j, k, long
+  integer                                  :: j, k, long, long_input_string
   INTEGER, DIMENSION(500)                  :: n_sl            ! nombre d'atomes avec le meme label
 
   REAL, DIMENSION(10)                      :: var
   character (len=10)                       :: tmp_string
-
+  LOGICAL                                  :: input_out, input_string_cell  
+  
   ! local variable for SHELX.INS file
   integer                                    :: nb_lines, npos
   character(len=80),dimension(:),allocatable :: fileshx
@@ -37,6 +38,17 @@ subroutine read_INS_input_file(input_file, input_string)
   !type (Crystal_Cell_Type)                   :: crystal_cell
 
 
+   
+  long_input_string = len_trim(input_string)
+  input_out    = .true.
+  input_string_cell   = .false.  
+  if(long_input_string == 6) then
+   if(input_string(1:6) == 'NO_OUT')  input_out = .false.
+  elseif(long_input_string == 4) then
+   if(input_string(1:4) == 'CELL')    input_string_CELL = .true.
+  endif 
+   
+	
  ! lecture fichier SHELXL.INS
  ! read .INS input file for SHELX
  ! extract space group from the lattice and symmetry operators
@@ -59,20 +71,23 @@ subroutine read_INS_input_file(input_file, input_string)
  !---- TITL ----!
   npos=1
   call Read_Shx_Titl(fileshx, npos, nb_lines, main_Title)
-  if(input_string(1:6) /= 'NO_OUT') then 
-   call write_info(' ' )
-   call write_info('  . TITL: '//trim(main_title))
-  endif 
+  if(input_OUT) then 
+    input_out = .true.
+    call write_info(' ' )
+    call write_info('  . TITL: '//trim(main_title))
+  endif   
 
  !---- CELL / ZERR ----!
   call Read_Shx_Cell(fileshx, npos, nb_lines, unit_cell%param, unit_cell%param_esd, wavelength, Z_unit_INS)
   known_cell_esd = .true.
   call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  IF(unit_cell%volume < 0.1) call volume_calculation('no_out')  ! << oct. 2011
+  
   keyword_CELL  = .true.
   keyword_WAVE  = .true.
   keyword_ZUNIT = .true.
  
-  if(input_string(1:6) /= 'NO_OUT') then
+  if(input_OUT) then
    call write_info(' ')
    write(message_text,'(a,6F10.4)') '  . CELL: ', (unit_cell%param(i), i=1,6)
    call write_info(TRIM(message_text))
@@ -87,7 +102,7 @@ subroutine read_INS_input_file(input_file, input_string)
 
   call volume_calculation('')
   !call incident_beam()
-  IF(input_string(1:4) == "CELL") return
+  IF(input_string_CELL) return
 
 
  !---- OBTAIN SPACE GROUP (LATT / SYMM) ----!
@@ -142,7 +157,7 @@ subroutine read_INS_input_file(input_file, input_string)
  end select ! nl
  symm_nb = nb_symm_op
 
- if(input_string(1:6) /= 'NO_OUT') then
+ if(input_OUT) then
   call write_info(' ')
   IF(ABS(n_latt) /= 1) then
    write(message_text,'(a,i2,4a)') '  . LATT: ',n_latt, ' (',TRIM(centro_string), ' / ',trim(nlatt_string)
@@ -166,7 +181,7 @@ subroutine read_INS_input_file(input_file, input_string)
    symm_op_string(3,i) = op_string(i2+1:)
  end do
 
- if(input_string(1:6) /= 'NO_OUT') then
+ if(input_OUT) then
   if(nb_symm_op /=0) then
    call write_info(' ')
    write(message_text,*) ' . Number of symmetry operations: ',nb_symm_op
@@ -184,7 +199,7 @@ subroutine read_INS_input_file(input_file, input_string)
   call get_hallsymb_from_gener(SPG)
   space_group_symbol = SPG%Spg_Symb
   !space_group_multip = SPG%multip
-  if(input_string(1:6) /= 'NO_OUT') then 
+  if(input_OUT) then 
    IF(LEN_TRIM(space_group_symbol) /=0) then
     keyword_SPGR = .true.
     call write_info(' ')
@@ -203,7 +218,7 @@ subroutine read_INS_input_file(input_file, input_string)
   keyword_SFAC_UNIT = .true.
   call Read_Shx_Fvar(fileshx, npos, nb_lines, n_fvar, fvar)
 
-  if(input_string(1:6) /= 'NO_OUT') then
+  if(input_OUT) then
    if(n_elem_atm < 10) then
     write(fmt_sfac, '(a,i1,a)') '(a,',n_elem_atm,'(2x,a))'
     write(fmt_unit, '(a,i1,a)') '(a,',n_elem_atm,'F6.1)'
@@ -237,6 +252,7 @@ subroutine read_INS_input_file(input_file, input_string)
      atom_occ(i)       = Atm_list%atom(i)%occ
      atom_mult(i)      = Atm_list%atom(i)%mult
      atom_mult(i)      = Get_Multip_Pos(atom_coord(1:3,i), SPG)
+	 atom_occ_perc(i)  = atom_occ(i) / (SPG%multip/atom_mult(i))
 
      !atom_Ueq(i)       = Atm_list%atom(i)%u(7)
      !atom_Biso(i)      = Atm_list%atom(i)%u(7)*8.0*pi*pi
@@ -245,17 +261,16 @@ subroutine read_INS_input_file(input_file, input_string)
      atom_Biso(i)      = Atm_list%atom(i)%Ueq*8.0*pi*pi
      if (atom_Biso(i) < 0.0) atom_Biso(i)=1.0
 
-     if(input_string(1:6) /= 'NO_OUT') then
-      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4)') i,  atom_label(i), atom_type (i) , &
-	                                                    atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), atom_mult(i)
+     if(input_OUT) then
+      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4,F10.5)') i,  atom_label(i), atom_type (i) , &
+	                                                    atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), atom_mult(i), &
+														atom_occ_perc(i)     
       call write_info(TRIM(message_text))
      endif 
    end do
 
-   if(input_string(1:6) /= 'NO_OUT')  call Deallocate_atom_list(Atm_list)
-   if (allocated(fileshx)) deallocate(fileshx)
    
-   if(input_string(1:6) == 'NO_OUT') then  ! CRYSCAL create_ins
+   if(.not. input_OUT) then  ! CRYSCAL create_ins
    ! modif. des labels pour éviter les doublons
     do i=1, Atm_list%natoms
      n_sl(i) = 1
@@ -278,6 +293,10 @@ subroutine read_INS_input_file(input_file, input_string)
      end do 
     end do
    endif
+   
+   if(input_OUT)  call Deallocate_atom_list(Atm_list)
+   if (allocated(fileshx)) deallocate(fileshx)
+  
 
   ! pour compatibilite avec CRYSCAL
    nb_atoms_type                = n_elem_atm
@@ -285,8 +304,22 @@ subroutine read_INS_input_file(input_file, input_string)
    SFAC_number(1:nb_atoms_type) = n_elem(1:nb_atoms_type)
    !atom_label(1:nb_atom)        = atom_type(1:nb_atom)
    Z_unit                       = REAL(Z_unit_INS)
+   ! ------------------------------
+   
+   ! oct. 2011 : creation de molecule%formula
+   ! creation de l'objet "molecule"
+   !  >> permet un calcul du coef. d'absorption avec la commande MU/ABSORPTION
+   !on_screen = .false.
+   molecule%Z_unit              = Z_unit_INS
+   call atomic_identification()  
+   call get_content  
+   call molecular_weight
+   call density_calculation
+   keyword_CONT =.true.
+   !on_screen = .true.
+   !------------------------------------------------------------------------------------
 
-! ------------------------------
+
 
  do        ! lecture du fichier d'entree
   READ(1, '(a)', IOSTAT=i_error) read_line

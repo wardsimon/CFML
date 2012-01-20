@@ -9,25 +9,41 @@ subroutine interactive_mode(input_string)
   CHARACTER (LEN=256)           :: read_line
   INTEGER                       :: i_error
   CHARACTER (LEN=32)            :: current_keyword
+  INTEGER                       :: long_input_string
+  LOGICAL                       :: input_keyboard, input_file
 
- close(unit=CFL_unit) 
- open(UNIT=CFL_unit, file = 'cryscal.cfl')
- !open (UNIT=11, FILE="cryscal.CFL")
+  long_input_string = len_trim(input_string)
+  input_keyboard = .false.
+  input_file     = .false.
+  
+  if(long_input_string == 4) then
+   if(input_string(1:4) == 'file') input_file = .true.
+  elseif(long_input_string == 8) then
+   if(input_string(1:8)  == 'keyboard') then
+    close(unit=CFL_unit) 
+    open(UNIT=CFL_unit, file = 'cryscal.cfl')
+	input_keyboard = .true.
+   end if 
+  endif 
 
  do
   current_keyword = ''
 
-  IF(input_string(1:8) == 'keyboard') then
+  IF(input_keyboard) then  
    call write_info(' ')
    call write_info(' > Enter keyword: ')
    call read_input_line(input_line)
    READ(input_line,'(a)', IOSTAT=i_error) read_line
    IF(i_error /=0) cycle
+   
 
-  ELSEIF(input_string(1:4) == 'file') then
+  ELSEIF(input_file) then
    READ(UNIT=CFL_read_unit, fmt='(a)', IOSTAT=i_error) read_line
    !READ(UNIT=input_unit, fmt='(a)', IOSTAT=i_error) read_line
    IF(i_error < 0) EXIT   ! fin du fichier
+     
+  ! stocke la commande dans le fichier cryscal.cfl
+  !  write(unit = CFL_unit, fmt='(a)') trim(read_line)
   endif
 
   IF(LEN_TRIM(read_line) == 0) cycle
@@ -42,12 +58,21 @@ subroutine interactive_mode(input_string)
   !IF(LEN_TRIM(read_line) == 1) then
   ! IF(read_line(1:1) =='X' .OR. read_line(1:1) == 'Q' .or. read_line(1:1) == '0') call end_of_program
   !endif
-  IF(read_line(1:3) == 'END'  .OR. read_line(1:4) == 'QUIT') exit
-  IF(read_line(1:4) == 'EXIT' .OR. read_line(1:4) == 'STOP') exit
+  if(len_trim(read_line) >= 3) then
+   if(read_line(1:3) == "END") exit   
+  elseif(len_trim(read_line) >= 4) then
+   if(read_line(1:4) == "QUIT") exit   
+   if(read_line(1:4) == "EXIT") exit   
+   if(read_line(1:4) == "STOP") exit   
+  endif
+  !IF(read_line(1:3) == 'END'  .OR. read_line(1:4) == 'QUIT') exit
+  !IF(read_line(1:4) == 'EXIT' .OR. read_line(1:4) == 'STOP') exit
   IF(LEN_TRIM(read_line) == 1) then
    IF(read_line(1:1) =='X'  .OR. read_line(1:1) == 'Q'  .or. read_line(1:1) == '0')  exit
   endif
-  IF(read_line(1:2) =='XX' .OR. read_line(1:2) == 'QQ' .or. read_line(1:2) == '00') call end_of_program
+  if(len_trim(read_line) == 2) then
+   IF(read_line(1:2) =='XX' .OR. read_line(1:2) == 'QQ' .or. read_line(1:2) == '00') call end_of_program
+  endif 
 
   READ(read_line, *) current_keyword
   current_keyword = ADJUSTL(current_keyword)
@@ -56,6 +81,10 @@ subroutine interactive_mode(input_string)
  ! open (UNIT=CFL_unit, file = 'cryscal.cfl')
   unknown_keyword     = .false.
   unknown_CFL_keyword = .false.
+
+  call write_info('')
+  call write_info('    >> Input command: '//trim(read_line))
+  call write_info('')
 
   call identification_CFL_keywords(read_line)       ! read_CFL_.F90
   call identification_keywords(read_line)           ! read_KEYW.F90
@@ -68,6 +97,7 @@ subroutine interactive_mode(input_string)
   endif
 
   call run_keyword_interactive(current_keyword)
+  
 
  END do
 
@@ -81,6 +111,7 @@ END subroutine interactive_mode
  subroutine run_keyword_interactive(current_keyword)
  USE cryscal_module
  USE HKL_module
+ USE IO_module
  use external_applications_module, ONLY : launch_browser
  !USE realwin, ONLY : SPAWN
 
@@ -90,7 +121,7 @@ END subroutine interactive_mode
 
   select case (TRIM(current_keyword))
 
-      CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR')
+      CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR', 'APPLY_SYM_OP', 'APPLY_SYMOP')
         IF(nb_atom /=0)  call apply_symm
 
       case ('CELL', 'CELL_PARAMETERS')
@@ -147,7 +178,7 @@ END subroutine interactive_mode
       case ('LST_SG', 'LIST_SG', 'LSPGR', 'LIST_SPACE_GROUPS' )
         call list_space_groups()
 
-      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYMMETRY_OPERATORS')
+      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM', 'WRITE_SYMM', 'WRITE_SYMMETRY_OPERATORS')
         IF(WRITE_symm_op) call write_symm_op_mat()
 
 
@@ -157,8 +188,8 @@ END subroutine interactive_mode
       case ('MATMUL')
         call multi_matrix()
 
-      CASE ('MAT', 'MATR', 'MATRIX')
-        IF (keyword_MATR) then
+      CASE ('MAT', 'MATR', 'MATRIX', 'USER_MAT', 'USER_MATR', 'USER_MATRIX' )
+        IF (keyword_MAT) then
          call WRITE_matrice()
          if (keyword_CELL)    call transf_cell_parameters
          if (nb_hkl  /=0)     call transf_HKL
@@ -190,7 +221,15 @@ END subroutine interactive_mode
 
          endif
         endif
+		
+		
+      CASE ('DIAG', 'DIAG_MAT', 'DIAG_MATR', 'DIAG_MATRIX')
+        IF (keyword_DIAG) then
+         call WRITE_matrice()
+		 call DIAG_matrice()
+        endif
 
+	    
       case ('NEWS')
         call write_cryscal_NEWS('screen')
 
@@ -217,6 +256,9 @@ END subroutine interactive_mode
         IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()
         IF(keyword_CELL)                      call absorption_calculation()
        endif
+	   
+	  case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
+       if(keyword_MU) call Absorption_routine	  
 
       CASE ('SITE_INFO', 'LIST_SITE_INFO')
         !site_info_all_atoms = .true.
@@ -245,7 +287,7 @@ END subroutine interactive_mode
       case ('TRANSLATION', 'TRANS', 'TRANSLATE', 'MOVE')
         IF(nb_atom /=0)  call transl_coord()
 
-      CASE ('THERM', 'THERMAL', 'ADP')                        ! conversion des parametres d'agitation thermique
+      CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX')   ! conversion des parametres d'agitation thermique
        IF(keyword_THERM) then
         IF(THERM_aniso) then
          call calc_therm_aniso
@@ -306,6 +348,7 @@ END subroutine interactive_mode
 
       CASE ('FILE')                                           ! lecture fichier.HKL ou .CIF
        IF(keyword_FILE) then
+	    call allocate_HKL_arrays
         call def_HKL_rule()
         call read_and_sort_hkl('sort')
         ! cas d'un fichier import.cif : calcul systematique du Rint -----
@@ -397,9 +440,13 @@ END subroutine interactive_mode
 
       case ('RESET', 'RAZ', 'INITIALIZE', 'INIT')
         if (keyword_RESET) then
-         call cryscal_INIT
-         call Def_transformation_matrix
+		 tmp_logical = mode_interactif
+         call Deallocate_HKL_arrays
+		 call deallocate_PGF_data_arrays
+		 call Def_transformation_matrix
+         call cryscal_INIT               
          call read_cryscal_ini()
+		 mode_interactif = tmp_logical
         end if
 
 
@@ -432,11 +479,19 @@ END subroutine interactive_mode
 
 
       case ('WRITE_CELL', 'OUTPUT_CELL')
-        IF (keyword_CELL) call volume_calculation('out')
+	    ! oct. 2011 
+	    IF(.NOT. keyword_CELL) then
+         call write_info('')
+         call write_info('  Cell parameters has to be known for WRITE_CELL keyword')
+         call write_info('')
+         return
+        endif
+        !IF (keyword_CELL) call volume_calculation('out')   ! commenté oct. 2011
+		call volume_calculation('out')
 
 
-      case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA')
-        call write_molecular_features
+      case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'WRITE_MOLECULE', 'OUTPUT_CHEM', 'OUTPUT_CHEMICAL_FORMULA',  'OUTPUT_MOLECULE')
+       call write_molecular_features
 
       case ('WRITE_QVEC', 'OUTPUT_QVEC')
         if (keyword_WRITE_QVEC) call write_QVEC
@@ -483,10 +538,16 @@ END subroutine interactive_mode
       case ('READ_CIF', 'READ_CIF_FILE', 'CIF_FILE')
         if (keyword_read_CIF) THEN
          OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
-         call check_CIF_input_file(TRIM(CIF_file_name))
-         call read_CIF_input_file(TRIM(CIF_file_name), '?')
-         call read_CIF_input_file_TR(CIF_read_unit)
+          call check_CIF_input_file(TRIM(CIF_file_name))
+          call read_CIF_input_file(TRIM(CIF_file_name), '?')
+          call read_CIF_input_file_TR(CIF_read_unit)
          CLOSE(UNIT=CIF_read_unit)
+		 ! >> creation de l'objet MOLECULE
+		 call atomic_identification()  
+         call get_content  
+         call molecular_weight
+         call density_calculation
+		 !
          if (keyword_SPGR )    call space_group_info
          if (keyword_SYMM)     CALL decode_sym_op
         end if

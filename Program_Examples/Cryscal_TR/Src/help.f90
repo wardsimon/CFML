@@ -83,6 +83,10 @@ subroutine HELP_on_line
     case ("ABSENT_HKL", "HKL_ABSENT")
      call write_help_lines(HELP_ABSENT_HKL_numor)
      keyword_ok = .true.
+	 
+	case ("ABSORPTION", "ABSORPTION_CALC", "CALC_ABSORPTION", "MU", "MU_CALC", "CALC_MU")	
+     call write_help_lines(HELP_ABSORPTION_numor)
+     keyword_ok = .true.
 
     case ("ACTA", "CIF")
      call write_help_lines(HELP_ACTA_numor)
@@ -182,6 +186,10 @@ subroutine HELP_on_line
      keyword_ok = .true.
 
 
+    CASE ('DIAG', 'DIAG_MAT', 'DIAG_MATR', 'DIAG_MATRIX')
+     call write_help_lines(HELP_DIAG_MAT_numor)
+     keyword_ok = .true.
+	 
     case ("DIR_ANG", "DIRANG", "DIRECT_ANGLE")
      call write_help_lines(HELP_DIR_ANG_numor)
      keyword_ok = .true.
@@ -470,6 +478,10 @@ subroutine HELP_on_line
     case ("THERM", "THERMAL", "ADP")
      call write_help_lines(HELP_THERM_numor)
      keyword_ok = .true.
+	 
+	case ("THERM_SHELX", "THERMAL_SHELX", "ADP_SHELX")
+     call write_help_lines(HELP_THERM_SHELX_numor)
+     keyword_ok = .true. 
 
     case ('THETA', 'TH', 'TH_HKL', 'THETAHKL', 'THETA_HKL')
      call write_help_lines(HELP_THETA_numor)
@@ -537,7 +549,7 @@ subroutine HELP_on_line
      call write_help_lines(HELP_WRITE_SG_numor)
      keyword_ok = .true.
 
-    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYMMETRY_OPERATORS")
+    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS")
      call write_help_lines(HELP_WRITE_SYM_OP_numor)
      keyword_ok = .true.
 

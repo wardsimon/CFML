@@ -92,7 +92,7 @@ module atomic_data
  atom( 81: 90)%Z = (/ 81,  82,  83,  84,  85,  86,  87,  88,  89,  90/)
  atom( 91:100)%Z = (/ 91,  92,  93,  94,  95,  96,  97,  98,  99, 100/)
  atom(101:103)%Z = (/101, 102, 103/)
- atom(201:201)%Z = (/201/)
+ atom(201:201)%Z = (/  1/)
 
  ! configuration electronique
  atom(1:201)%config_electr   = ""

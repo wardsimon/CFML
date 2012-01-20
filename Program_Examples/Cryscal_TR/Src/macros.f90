@@ -497,12 +497,13 @@ subroutine Get_current_folder_name(folder_name)
 
 end subroutine Get_current_folder_name
 !------------------------------------------------------------------------------------
-subroutine Get_WinGX_job(job)
+subroutine Get_WinGX_job(job, wingx_structure_directory)
  use IO_module
 
 
  implicit none
-  character (len=12), intent(out) :: job
+  character (len=32), intent(out) :: job
+  character (len=256)             :: wingx_structure_directory
   character (len=256)             :: wingx_path_name
   character (len=256)             :: wingx_ini
   character (len=256)             :: read_line
@@ -521,7 +522,7 @@ subroutine Get_WinGX_job(job)
    wingx_ini= trim(wingx_path_name) // '\wingx.ini'
   else
    call write_info('')
-   call write_info('WinGX not installed !!')
+   call write_info('!! WinGX not installed !!')
    call write_info('')
    return
   endif
@@ -538,7 +539,10 @@ subroutine Get_WinGX_job(job)
     read(22, '(a)', iostat=i_error) read_line
     if(i_error /=0) exit
     read_line = adjustl(read_line)
-    if(index(read_line, 'StructureName=') /=0) then
+	if(index(read_line, 'StructureDirectory=') /=0) then
+     i1 = index(read_line, '=')
+     read(read_line(i1+1 :), '(a)') Wingx_Structure_directory
+	elseif(index(read_line, 'StructureName=') /=0) then
      i1 = index(read_line, '=')
      read(read_line(i1+1 :), '(a)') job
      exit

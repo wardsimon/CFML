@@ -46,7 +46,7 @@ subroutine absorption_calculation
    call write_info('')
    call write_info('  > Incident beam radiation: X_rays')
    endif
-   
+
    IF(.not. anti_cathode) then
     write(message_text, '(8x, a,F10.5,a)') '!! Xrays cross section are not tabulated for the current wavelength (', &
 	                                       wavelength,  ' A)'
@@ -59,19 +59,19 @@ subroutine absorption_calculation
      anti_cathode = .true.
     !endif
    endif
-   
+
    do k=1, tabulated_target_nb
     if(anti_cathode) then
      if(X_target(k)%logic) then
       call Calcul_X_mu(X_target(k)%label)
       exit
-     endif     
+     endif
     else
-     call Calcul_X_mu(X_target(k)%label) 
-     if(ON_SCREEN) call write_info('')    
+     call Calcul_X_mu(X_target(k)%label)
+     if(ON_SCREEN) call write_info('')
     endif
-   end do   
-    
+   end do
+
   end if
 
  else
@@ -80,18 +80,18 @@ subroutine absorption_calculation
    call write_info('')
    call write_info('  > Incident beam radiation: X_rays')
    endif
-      
+
    do k=1, tabulated_target_nb
     if(anti_cathode) then
      if(X_target(k)%logic) then
       call Calcul_X_mu(X_target(k)%label)
       exit
-     endif     
+     endif
     else
-     call Calcul_X_mu(X_target(k)%label) 
-     if(ON_SCREEN) call write_info('')    
+     call Calcul_X_mu(X_target(k)%label)
+     if(ON_SCREEN) call write_info('')
     endif
-   end do   
+   end do
 
 
  ENDIF ! keyword_BEAM
@@ -150,9 +150,9 @@ subroutine write_mu(input_string)
  USE math_module,    ONLY : transmission
 
  implicit none
-  CHARACTER, INTENT(IN)         :: input_string
-  REAL                          :: d_min, d_max, T_min, T_max, T
-  INTEGER                       :: i
+  CHARACTER (LEN=*), INTENT(IN)   :: input_string
+  REAL                            :: d_min, d_max, T_min, T_max, T
+  INTEGER                         :: i
 
  if(ON_SCREEN) then
   call write_info(' ')
@@ -160,8 +160,8 @@ subroutine write_mu(input_string)
    call write_info(TRIM(message_text))
   WRITE(message_text,'(a,F10.5,a)') '           ',0.1*absorption%mu, ' mm-1'
    call write_info(TRIM(message_text))
- endif 
-  
+ endif
+
  IF(keyword_create_CIF)  call write_CIF_file('ABSORPTION')
 
  if (keyword_SIZE) then
@@ -171,13 +171,13 @@ subroutine write_mu(input_string)
    call write_info(TRIM(message_text))
    call write_info(' ')
   endif
-  
+
   d_min = MINVAL(crystal%size)
   d_max = MAXVAL(crystal%size)
 
   absorption%Tmin = transmission(0.1*absorption%mu, d_max)
   absorption%Tmax = transmission(0.1*absorption%mu, d_min)
-  
+
   if(ON_SCREEN) then
    call write_info('')
    WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Min of transmission (for x =  ',d_max, ' mn) = ', absorption%Tmin
@@ -197,16 +197,16 @@ subroutine write_mu(input_string)
     call write_info("   Tmax and Tmin values correspond to EXPECTED values calculated from crystal size." )
     if(SADABS_ratio > 0.) then
      call write_info("   If SADABS program has been used for absorption correction, it provided one ")
-     call write_info("   'relative-correction-factor'. In such a case, Tmax should be given as")   
-     call write_info("   Tmax_expected and Tmin = Tmax * 'relative-correction-factor'")     
+     call write_info("   'relative-correction-factor'. In such a case, Tmax should be given as")
+     call write_info("   Tmax_expected and Tmin = Tmax * 'relative-correction-factor'")
      write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
      call write_info(trim(message_text))
     elseif(SADABS_Tmin > 0. .and. SADABS_Tmax > 0.) then
      write(message_text, '(3x,a,F8.4,a, F8.4)') ' Tmin = Tmax * ', sadabs_ratio, ' = ', absorption%Tmax * sadabs_ratio
-     call write_info(trim(message_text))   
-    endif 
-    call write_info("") 
-   endif  
+     call write_info(trim(message_text))
+    endif
+    call write_info("")
+   endif
 
   endif
 
@@ -222,7 +222,7 @@ subroutine write_mu(input_string)
    call write_info(TRIM(message_text))
    end do
    call write_info('')
-  endif 
+  endif
  endif
 
  IF(input_string(1:3) == 'yes' .and. ON_SCREEN) then
@@ -270,13 +270,13 @@ subroutine neutron_cross_section()
    atom(num_atom(i))%N_SED_inc = atom(num_atom(i))%SEDinc
    atom(num_atom(i))%N_SE_absorption = atom(num_atom(i))%SEA*2200./neutron_velocity
 
-   if(ON_SCREEN) then   
+   if(ON_SCREEN) then
     WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC_type(i), num_atom(i), sfac_number(i),                 &
                                                      atom(num_atom(i))%N_SED_coh,  atom(num_atom(i))%N_SED_inc, &
 													 atom(num_atom(i))%SEA,                                     &
                                                      atom(num_atom(i))%N_SE_absorption
     call write_info(TRIM(message_text))
-   endif 
+   endif
   end do
 
  RETURN
@@ -359,7 +359,7 @@ subroutine X_attenuation_calculation()
   if(ON_SCREEN) then
    WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), num_atom(i), SFAC_number(i), atom(num_atom(i))%X_attenuation
    call write_info(trim(message_text))
-  endif 
+  endif
   absorption%mu = absorption%mu +  nb_at(i)*atom(num_atom(i))%X_attenuation*1.E-24
  end do
 
@@ -386,13 +386,13 @@ subroutine F000_calculation(beam)
   else
    ! F000: somme des
   end if
-  
+
   if(ON_SCREEN) then
    call write_info('')
    WRITE(message_text, '(a,F8.1)')    '   >> F000 = ', real(F000)
    call write_info(TRIM(message_text))
    call write_info('')
-  endif 
+  endif
 
   IF(keyword_create_CIF)  call write_CIF_file('F000')
 
@@ -404,3 +404,39 @@ end subroutine F000_calculation
 !--------------------------------------------------------------
 
 
+subroutine Absorption_routine
+ use CRYSCAL_module, only : keyword_CELL, keyword_WAVE, keyword_CONT, keyword_CHEM, message_text
+ USE IO_module ,     ONLY : write_info
+
+ implicit none
+ 
+ if(.not. keyword_CELL) then
+  write(unit=message_text, fmt='(2a)') ' Cell parameters are mandatory for a absorption coefficient calculation.', & 
+                                       ' Please enter CELL keyword to input cell parameters.'
+  call write_info(trim(message_text))
+  call write_info('')
+  return
+ endif
+
+ if(.not. keyword_WAVE) then
+  write(unit=message_text, fmt='(2a)') ' Wavelength value of incident beam is mandatory for a absorption coefficient', &
+                                       ' calculation. Please enter WAVE keyword to input incident wavelength.'
+  call write_info(trim(message_text))
+  call write_info('')
+  return
+ endif
+ 
+! if(.not. keyword_CONT .and. .not. keyword_CHEM) then
+!  write(unit=message_text, fmt='(2a)') ' Cell content is mandatory for a absorption coefficient calculation.', &
+!                                       ' Please enter CONT keyword to input cell content.'
+!  call write_info(trim(message_text))
+!  call write_info('')
+!  return
+! endif
+ 
+ call atomic_identification()
+ call atomic_density_calculation()
+ call absorption_calculation
+ 
+ return
+end subroutine Absorption_routine

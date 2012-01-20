@@ -1102,11 +1102,23 @@ subroutine search_hkl_F2(input_string)
 
  implicit none
   CHARACTER(LEN=*), INTENT(IN) :: input_string
-  INTEGER                      :: i, n_req
+  INTEGER                      :: i, n_req, long_input_string
   REAL                         :: F2_req, sig_F2_req, ratio_req
   REAL                         :: wF2_req, sum_weight
   INTEGER, DIMENSION(3)        :: ref_H
+  LOGICAL                      :: input_NEG, input_POS, input_ABSENT
 
+  long_input_string = len_trim(input_string)
+  input_POS    = .false.
+  input_NEG    = .false.
+  input_ABSENT = .false.
+  
+  if(long_input_string == 3) then
+   if(input_string(1:3) == 'POS') input_POS = .true.
+   if(input_string(1:3) == 'NEG') input_NEG = .true.
+  elseif(long_input_string == 6) then
+   if(input_string(1:6) == 'ABSENT') input_ABSENT = .true.
+  endif
 
   IF(.NOT. keyword_file) then
    call write_info('')
@@ -1123,11 +1135,11 @@ subroutine search_hkl_F2(input_string)
   endif
 
   call write_info('')
-  IF(input_string(1:3) == 'POS') then
+  IF(input_POS) then
    call write_info( '  ... Search for positive intensity reflections: ')
-  ELSEIF(input_string(1:3) == 'NEG') then
+  ELSEIF(input_NEG) then
    call write_info( '  ... Search for negative intensity reflections: ')
-  ELSEIF(input_string(1:6) == 'ABSENT') then
+  ELSEIF(input_ABSENT) then
    call write_info( '  ... Search for observed absent reflections: ')
   endif
   call write_info('')
@@ -1240,17 +1252,17 @@ subroutine search_hkl_F2(input_string)
   ratio_mean  = ratio_req/n_req
 
   call write_info('')
-  IF(input_string(1:3) == 'POS') then
+  IF(input_POS) then
    WRITE(message_text,'(a,I6)')    '   . Number of positive intensity reflections: ', n_req
    call write_info(TRIM(message_text))
    WRITE(message_text, '(a,F4.0)') '     Criteria: F2/sig > ',  n_sig
    call write_info(TRIM(message_text))
 
-  ELSEIF(input_string(1:3) == 'NEG') then
+  ELSEIF(input_NEG) then
    WRITE(message_text,'(a,I6)')    '   . Number of negative intensity reflections: ', n_req
    call write_info(TRIM(message_text))
 
-  ELSEIF(input_string(1:6) == 'ABSENT') then
+  ELSEIF(input_ABSENT) then
    WRITE(message_text, '(a,I6)')   '   . Total number of reflections:             ', n_ref
    call write_info(TRIM(message_text))
    WRITE(message_text, '(a,I6)')   '   . Number of authorized reflections:        ', n_ref - n_req
@@ -1476,17 +1488,23 @@ subroutine calcul_global_Rint(input_string)
   INTEGER                   :: n_ok       ! nombre de reflections conservees
   INTEGER                   :: n_ok_2     ! nombre de reflections conservees avec I>2sig
   INTEGER                   :: ns
-  LOGICAL                   :: friedel
+  LOGICAL                   :: merge, friedel
   REAL                      :: total, sig, sigg
   REAL                      :: sum_an, sum_aw, sum_anw
   REAL                      :: aver_sig, Rwint
   REAL                      :: sum_weight
   CHARACTER (LEN=12)        :: ans
+  INTEGER                   :: long_input_string
 
   INTEGER,  ALLOCATABLE, DIMENSION(:) :: ordered_array
   real,     ALLOCATABLE, DIMENSION(:) :: ordered_X, ordered_Y, ordered_sigY
-
-
+  
+  
+  long_input_string = len_trim(input_string)
+  merge = .false.
+  if(input_string == "merge") merge = .true.
+  
+  
   IF(SPG%NumSpg == 0) then
    call write_info('')
    call write_info('  !! SPGR keyword mandatory for the Rint calculation procedure !!')
@@ -1515,7 +1533,7 @@ subroutine calcul_global_Rint(input_string)
    return
   END if
 
-  IF(input_string == 'merge') then
+  IF(merge) then
    i1 = INDEX(HKL_file%NAME, '.')
    IF(i1 /=0) then
     WRITE(HKL_file%MERGE , '(2a)') HKL_file%NAME(1:i1-1), '_merge.hkl'
@@ -1527,7 +1545,7 @@ subroutine calcul_global_Rint(input_string)
 
 
   
-  !
+  !  
   IF(.NOT. known_theta) call calcul_theta()
   
 
@@ -1662,13 +1680,13 @@ subroutine calcul_global_Rint(input_string)
      sum_aw  = sum_aw  + sig*((F2_av(i) - F2(j))**2)/sig_F2(j)**2
      sum_anw = sum_anw + sig*(F2(j)/sig_F2(j))**2
 
-     if (input_string(1:5) == 'merge')  then
+     if (merge)  then
       F2_mean    = F2_mean     + F2(j)/1/sig_F2(j)**2
       sum_weight = sum_weight + 1/sig_F2(j)**2
      endif
     end if
    end do
-   IF(input_string(1:5) == 'merge') then
+   IF(merge) then
     !F2_mean = F2_mean / n_equiv(i)
     F2_mean = F2_mean /sum_weight
 
@@ -1712,7 +1730,7 @@ subroutine calcul_global_Rint(input_string)
   call write_info('')
 
 
-  IF(input_string == 'merge') then
+  IF(merge) then
    WRITE(message_text, '(2a)') '  >>> merged HKL file: ', TRIM(HKL_file%MERGE)
    call write_info(TRIM(message_text))
    WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections            : ', n_ok

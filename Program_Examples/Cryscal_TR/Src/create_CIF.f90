@@ -305,26 +305,36 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(a)')     ""
 
       case ('SPACE_GROUP')
+ 	  
   WRITE(CIF_unit, '(a)')     ""
-  WRITE(CIF_unit, '(2a)')    "_symmetry_cell_setting                   ", TRIM(SPG%CrystalSys)
-  WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(SPG%SPG_Symb),  "'"
-  WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_Hall         '", TRIM(SPG%Hall),      "'"
-  WRITE(CIF_unit, '(a,I3)')  "_symmetry_Int_Tables_number              ", SPG%NumSpg
+  if(SPG%Numspg ==0) then
+   WRITE(CIF_unit, '(a)')    "_symmetry_cell_setting                   '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_space_group_name_H-M           '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_space_group_name_Hall          '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_Int_Tables_number              '?'"
+  else
+   WRITE(CIF_unit, '(2a)')    "_symmetry_cell_setting                   ", TRIM(SPG%CrystalSys)
+   WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(SPG%SPG_Symb),  "'"
+   WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_Hall         '", TRIM(SPG%Hall),      "'"
+   WRITE(CIF_unit, '(a,I3)')  "_symmetry_Int_Tables_number              ", SPG%NumSpg
+  endif
   WRITE(CIF_unit, '(a)')     "loop_"
   WRITE(CIF_unit, '(a)')     "  _symmetry_equiv_pos_as_xyz"
   do i=1, nb_symm_op
    WRITE(CIF_unit, '(7a)')  "'", TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i)), "'"
   end do
+  WRITE(CIF_unit, '(a)')     ""
 
-  !    case ('SYM_OP')
-  !WRITE(CIF_unit, '(a)')     TRIM(input_value(1))
-
+ 
       case ('CRYSTAL_SYSTEM')
   IF(unit_cell%crystal_system(1:1) /= '?') then
    WRITE(CIF_unit, '(a)')     ""
    WRITE(CIF_unit, '(3a)')    "_symmetry_cell_setting                  '", TRIM(unit_cell%crystal_system),"'"
-   WRITE(CIF_unit, '(a)')     ""
+  endif
+  if(unit_cell%H_M(1:1) /= '?') then  
+   WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(unit_cell%H_M),"'"   
   END if
+  WRITE(CIF_unit, '(a)')     ""
 
       case ('CELL_PARAM')
   WRITE(CIF_unit, '(a)')     ""
@@ -431,9 +441,12 @@ subroutine write_CIF_file(input_string)
 
       case ('ATOM')
   do i=1, nb_atom  
-   WRITE( CIF_unit, '(4a,4F9.5,a,F4.2)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
-                                                atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
-                                                ' Uani ', atom_occ_perc(i)
+   WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
+                                          atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
+                                          ' Uiso ', atom_occ_perc(i)
+   !WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
+   !                                       atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
+   !                                       ' Uiso ', atom_occ(i)
    
   END do
 
@@ -558,31 +571,23 @@ end subroutine create_CIF_P4P_import
 !------------------------------------------------------------
 
 subroutine verif_CIF_character(input_string)
- USE macros_module, ONLY : replace_car
+ USE macros_module,  ONLY : replace_car
+ USE accents_module
+ use IO_module, only : write_info
  implicit none
   CHARACTER (LEN=256), intent(INOUT) :: input_string
-  INTEGER                            :: i
+  INTEGER                            :: i, j
 
+   
   do i=1, LEN_TRIM(input_string)
-   select case (input_string(i:i))
-       case ('é')
-        !call replace_car(input_string, "é", "\'e")
-        input_string  = replace_car(input_string, "é", "\'e")
-        
-       case ('è')
-        !call replace_car(input_string, "è", "\`e")
-        input_string  = replace_car(input_string, "è", "\`e")
-
-       case ('à')
-        !call replace_car(input_string, "à", "\`a")
-        input_string = replace_car(input_string,  "à", "\`a")
-
-       case ('â')
-        !call replace_car(input_string, "â", "\^a")
-        input_string = replace_car(input_string, "â", "\^a")
-
-       case default
-   end select
+   
+   do j=1, nb_char
+    if(input_string(i:i) == accents(1, j)(1:1)) then
+	 input_string = replace_car(input_string, accents(1,j)(1:1), trim(accents(2,j)))!
+	 exit
+	endif
+   end do
+   
   end do
 
  RETURN
@@ -679,6 +684,7 @@ end subroutine write_CIF
 
 subroutine write_CIF_author(input_unit)
  use cryscal_module, only : AUTHOR, keyword_modif_archive
+ 
  implicit none
   integer, intent(in)          :: input_unit
   character (len=256)          :: CIF_string
@@ -700,7 +706,8 @@ subroutine write_CIF_author(input_unit)
    call write_CIF(input_unit, "#   >> Person making the deposition :")
    call write_CIF(input_unit, "")
    call write_CIF(input_unit, "")
-   WRITE(CIF_string, '(5a)') "_publ_contact_author_name          '", TRIM(AUTHOR%name),", ", TRIM(AUTHOR%first_name), "'"
+
+    WRITE(CIF_string, '(5a)') "_publ_contact_author_name          '", TRIM(AUTHOR%name),", ", TRIM(AUTHOR%first_name), "'"
     call write_CIF(input_unit, trim(CIF_string))
    WRITE(CIF_string, '(2a)') "_publ_contact_author_email          ", trim(AUTHOR%email)
     call write_CIF(input_unit, trim(CIF_string))
@@ -724,6 +731,7 @@ subroutine write_CIF_author(input_unit)
    call write_CIF(input_unit, "_publ_author_name")
    call write_CIF(input_unit, "_publ_author_address")
    call write_CIF(input_unit, "")
+  
 
    WRITE(CIF_string, '(5a)') "     '",TRIM(AUTHOR%name),", ", TRIM(AUTHOR%first_name), "'"
     call write_CIF(input_unit, trim(CIF_string))
@@ -807,12 +815,34 @@ end subroutine write_CIF_text
 
 !---------------------------------------------------------------------
 subroutine write_CIF_address(input_unit, address)
-
  implicit none
   integer,           intent(in)         :: input_unit
   character (len=*), intent(in)         :: address
-  character (len=256)                   :: CIF_string
-  integer                               :: i
+  character (len=256)                   :: CIF_string, address_part  
+  integer                               :: i, i1
+  
+  
+  ! ----------- new : sept. 2011 ---------------------
+  write(address_part, '(a)') trim(address)
+  
+  call write_CIF(input_unit, ";")  
+  do   
+   i1 = index(trim(address_part), ",") 
+   if(i1 /=0) then
+    write(CIF_string, '(2a)') "     ", trim(adjustl(address_part(1:i1-1)))
+	call write_CIF(input_unit, trim(CIF_string))
+	
+	address_part = address_part(i1+1:)
+   else
+    call write_CIF(input_unit, "     "//trim(adjustl(address_part)))
+	exit
+   endif
+   
+  end do
+  call write_CIF(input_unit, ";")
+  
+  return
+  ! ---------------------------------------------------------------
 
    IF(LEN_TRIM(address) > 70) then
     do i=1, INT(LEN_TRIM(address)/70) + 1
@@ -830,5 +860,6 @@ subroutine write_CIF_address(input_unit, address)
     WRITE(CIF_string, '(2a)') "      ",TRIM(address)
      call write_CIF(input_unit, trim(CIF_string))
    endif
-
+ 
+ return
 end subroutine write_CIF_address

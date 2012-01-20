@@ -1,4 +1,5 @@
 !     Last change:  TR    2 May 2008   12:34 pm
+!     Last change:  TR    2 May 2008   12:34 pm
 !--------------------------------------------------------------------
 
 module text_module
@@ -14,7 +15,7 @@ module text_module
  CHARACTER (LEN=80), DIMENSION(CIF_lines_nb)         :: CIF_title_line
 
  INTEGER,            DIMENSION(nb_help_max)          :: HELP_lines_nb
- CHARACTER (LEN=80), DIMENSION(nb_help_max,60)       :: HELP_line
+ CHARACTER (LEN=80), DIMENSION(nb_help_max,100)      :: HELP_line
 
  INTEGER, parameter                                  :: CLA_nb = 13
  INTEGER,            DIMENSION(CLA_nb)               :: CLA_lines_nb
@@ -60,7 +61,7 @@ subroutine def_CIF_file_title
  CIF_title_line(1) = '###########################################################'
  CIF_title_line(2) = '#                   CIF file created by CRYSCAL           #'
  CIF_title_line(3) = '#                  T.R. / CDIFX Rennes / 2006-11          #'
- CIF_title_line(4) = '#         www.cdifx.univ-rennes1.fr/progs/cryscal.exe     #'
+ CIF_title_line(4) = '#                www.cdifx.univ-rennes1.fr/cryscal        #'
  CIF_title_line(5) = '###########################################################'
 
 end subroutine def_CIF_file_title
@@ -163,8 +164,23 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
+  
+  ! 2
+  n = 0    ;  HELP_numor = HELP_ABSORPTION_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > ABSORPTION:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           no argument'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             absorption coefficient calculation'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keywords:  CELL, WAVE, CONT / CHEM'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  ABSORPTION, ABSORPTION_CALC, CALC_ABSORPTION'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MU, CALC_MU, MU_CALC' 
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+  
 
- ! 2
+ ! 3
   n = 0    ;  HELP_numor = HELP_ACTA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ACTA:'
@@ -177,7 +193,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 3
+ ! 4
   n = 0    ; HELP_numor = HELP_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ANG:'
@@ -195,17 +211,17 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           and S_3, S_4 respectively (cf ATOM keyword)'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . remark:              atom label can refer to equivalent position through'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           a particular symetry operator (cf SYMM keyword). '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           a particular symmetry operator (cf SYMM keyword). '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           This is specified by adding "_$n" to the'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           atomic label, with n refering to the number of '
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           symetry operator in the list.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           symmetry operator in the list.'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             ANG O1 C8 C9 C10_$1'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  ANG, ANGLE'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 4
+ ! 5
   n = 0    ; HELP_numor = HELP_APPLY_OP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > APPLY_OP:'
@@ -215,11 +231,12 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:              apply the symmetry operators on the atomic '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           positions'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   SYMM, ATOM'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  APPLY_OP, APPLY_SYMMETRY_OPERATOR'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  APPLY_OP, APPLY_SYMMETRY_OPERATOR,'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           APPLY_SYM_OP, APPLY_SYMOP'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 5
+ ! 6
   n = 0    ;  HELP_numor = HELP_ATOM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ATOM:'
@@ -241,7 +258,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 6
+ ! 7
   n= 0     ;  HELP_numor = HELP_ATOM_LIST_numor
   n = n + 1;  HELP_line(HELP_numor, n)   = ''
   n = n + 1;  HELP_line(HELP_numor, n)   = ' > ATOM_LIST:'
@@ -255,7 +272,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n)  = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 7
+ ! 8
   n = 0    ;  HELP_numor = HELP_BARY_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > BARY:'
@@ -269,7 +286,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 8
+ ! 9
   n = 0    ;  HELP_numor = HELP_BEAM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > BEAM:'
@@ -290,7 +307,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 9
+ ! 10
   n = 0    ;  HELP_numor = HELP_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CELL:'
@@ -316,7 +333,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 10
+ ! 11
   n = 0    ;  HELP_numor = HELP_CHEM_numor
   n = n + 1;  HELP_line(HELP_numor, n)  = ' '
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > CHEM:'
@@ -336,7 +353,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n)  = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 11
+ ! 12
   n = 0    ;  HELP_numor = HELP_CONN_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CONN:'
@@ -359,7 +376,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 12
+ ! 13
   n = 0    ;  HELP_numor = HELP_CONT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CONT:'
@@ -375,7 +392,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
-  ! 13
+  ! 14 
   n = 0    ;  HELP_numor = HELP_CREATE_ACE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_ACE :'
@@ -393,7 +410,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 14
+  ! 15
   n = 0    ;  HELP_numor = HELP_CREATE_CEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_CEL'
@@ -411,7 +428,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 15
+  ! 16
   n = 0    ;  HELP_numor = HELP_CREATE_CFL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_CFL'
@@ -429,7 +446,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 165
+  ! 17 
   n = 0    ;  HELP_numor = HELP_CREATE_FST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_FST'
@@ -447,7 +464,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 17
+  ! 18 
   n = 0    ;  HELP_numor = HELP_CREATE_INS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_INS'
@@ -466,7 +483,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 18
+ ! 19
   n = 0    ;  HELP_numor = HELP_CREATE_REPORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_REPORT:'
@@ -489,7 +506,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 19
+ ! 20
   n = 0    ;  HELP_numor = HELP_D_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > D_HKL: '
@@ -505,7 +522,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 20
+ ! 21
   n = 0    ;  HELP_numor = HELP_D_STAR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > D_STAR: '
@@ -521,7 +538,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 21
+ ! 22
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_DENSITY_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_DENSITY:'
@@ -537,7 +554,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 22
+ ! 23
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_RADIUS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_RADIUS:'
@@ -552,7 +569,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 23
+ ! 24
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_WEIGHT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_WEIGHT:'
@@ -568,7 +585,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 24
+ ! 25
   n = 0    ;  HELP_numor = HELP_DATA_NEUTRONS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_NEUTRONS:'
@@ -589,7 +606,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 25
+ ! 26
   n = 0    ;  HELP_numor = HELP_DATA_XRAYS_numor
   n = n + 1;  HELP_line(HELP_numor, n)  = ''
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > DATA_XRAYS:'
@@ -608,7 +625,28 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = 12
 
- ! 26
+ 
+  ! 27
+  n = 0    ;  HELP_numor = HELP_DIAG_MAT_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > DIAG:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           9 reals '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             transformation (3,3) matrix components'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            MATR   0  0  1    0  1  0    -1  0  -1'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MATR   0.5 0.5 0   -0.5 0.5 0   0 0 1'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MATR   1/2 1/2 0   -1/2 1/2 0   0 0 1'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              Diagonalization of the 3*3 matrix and output'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           the Eigen values and Eigen vectors'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           (dependent keyword = FILE)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIAG, DIAG_MAT, DIAG_MATR, DIAG_MATRIX'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+ 
+ 
+ ! 28
   n = 0    ;  HELP_numor = HELP_DIR_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DIR_ANG:'
@@ -626,7 +664,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 27
+ ! 29
   n = 0    ;  HELP_numor = HELP_DIST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DIST:'
@@ -636,9 +674,9 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             calculation of the interatomic distance between 2'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           atoms labelled by their atom labels (cf ATOM keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . remark:              atom label can refer to equivalent position through'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           a particular symetry operator (cf SYMM keyword)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           a particular symmetry operator (cf SYMM keyword)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           atomic label, with n refering to the number of '
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           symetry operator in the list.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           symmetry operator in the list.'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             DIST C8 C10'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           DIST C10 C9'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           DIST C10 C9_$1'
@@ -646,7 +684,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 28
+ ! 30
   n = 0    ;  HELP_numor = HELP_EDIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EDIT:'
@@ -660,7 +698,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 29
+ ! 31
   n = 0    ;  HELP_numor = HELP_EQUIV_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EQUIV:'
@@ -679,7 +717,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 30
+ ! 32 
   n = 0    ;  HELP_numor = HELP_EXIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EXIT:'
@@ -692,7 +730,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 31
+ ! 33
   n = 0    ;  HELP_numor = HELP_FILE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FILE:'
@@ -727,7 +765,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 32
+ ! 34
   n = 0    ;  HELP_numor = HELP_FIND_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FIND_HKL:'
@@ -754,7 +792,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 33
+ ! 35
   n = 0    ;  HELP_numor = HELP_FIND_HKL_LIST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FIND_HKL_LIST:'
@@ -821,7 +859,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 34
+ ! 36
   n = 0    ;  HELP_numor = HELP_GEN_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > GEN_HKL:'
@@ -867,7 +905,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 35
+ ! 37
   n = 0    ;  HELP_numor = HELP_HEADER_numor
   n = n + 1;  HELP_line(HELP_HEADER_numor, n) = ''
   n = n + 1;  HELP_line(HELP_HEADER_numor, n) = ' > HEADER:'
@@ -880,7 +918,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_HEADER_numor) = n
 
 
- ! 36
+ ! 38
   n = 0    ;  HELP_numor = HELP_HEX_RHOMB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HEX_RHOMB:'
@@ -895,7 +933,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
- ! 37
+ ! 39
   n = 0    ;  HELP_numor = HELP_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL:'
@@ -913,7 +951,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 38
+ ! 40
   n = 0    ;  HELP_numor = HELP_HKL_NEG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL_NEG:'
@@ -932,7 +970,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 39
+ ! 41
   n = 0    ;  HELP_numor = HELP_HKL_POS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL_POS:'
@@ -953,7 +991,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 40
+ ! 42
   n = 0    ;  HELP_numor = HELP_INSIDE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > INSIDE:'
@@ -969,7 +1007,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 41
+ ! 43
   n = 0    ;  HELP_numor = HELP_LIST_EXTI_numor
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ''
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ' > LIST_EXTI_RULE:'
@@ -981,7 +1019,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ''
   HELP_lines_nb(HELP_LIST_EXTI_numor) = n
 
- ! 42
+ ! 44
   n = 0    ;  HELP_numor = HELP_LIST_KEYS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_KEYS:'
@@ -1001,7 +1039,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 43
+ ! 45
   n = 0    ;  HELP_numor = HELP_LIST_LAUE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_LAUE:'
@@ -1016,7 +1054,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor ) = n
 
 
- ! 44
+ ! 46
   n = 0    ;  HELP_numor = HELP_LIST_MATR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_MAT:'
@@ -1030,7 +1068,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 45
+ ! 47
   n = 0    ;  HELP_numor = HELP_LIST_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_SG:'
@@ -1038,9 +1076,10 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           character strings'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           available arguments (order is not important):'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                            . symetry arguments: "all", "centric", "acentric", '
-  n = n + 1;  HELP_line(HELP_numor, n) = '                              "triclinic", "monoclinic", "orthorhombic", '
-  n = n + 1;  HELP_line(HELP_numor, n) = '                              "tetragonal","trigonal", "hexagonal", "cubic"'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           . symmetry arguments: "all", "centric", "acentric", '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             "triclinic", "monoclinic", "orthorhombic", '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             "tetragonal","trigonal", "hexagonal", "cubic"'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           . "chiral", "enantio", "polar"'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . Bravais arguments: "P", "A", "B", "C", "I", '
   n = n + 1;  HELP_line(HELP_numor, n) = '                             "F", "R" '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . Laue class arguments: "laue_n", with n relative'
@@ -1061,11 +1100,13 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                            acentric and C centred space groups '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           LST_SG laue_4: list tetragonal space groups with 4/m, '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            Laue class'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           LST_SG trigonal enantio'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           LST_SG cubic chiral'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  LIST_SG, LST_SG, LIST_SPACE_GROUPS'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 46
+ ! 48
   n = 0    ;  HELP_numor = HELP_MAG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAG:'
@@ -1082,7 +1123,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 47
+ ! 49
   n = 0    ;  HELP_numor = HELP_MAN_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAN:'
@@ -1102,7 +1143,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 48
+ ! 50
   n = 0    ;  HELP_numor = HELP_MAN_HTML_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAN_HTML:'
@@ -1118,7 +1159,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 49
+ ! 51
   n = 0    ;  HELP_numor = HELP_MATMUL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MATMUL:'
@@ -1132,7 +1173,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 50
+ ! 52
   n = 0    ;  HELP_numor = HELP_MATR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MATR:'
@@ -1144,11 +1185,11 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           MATR   0.5 0.5 0   -0.5 0.5 0   0 0 1'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           MATR   1/2 1/2 0   -1/2 1/2 0   0 0 1'
   n = n + 1;  HELP_line(HELP_numor, n) = '  or'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           "#" character + 1 integer'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           "#" 1 integer'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             number of matrix in the matrices list implemented in'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           CRYSCAL (see LIST_MATR keyword)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             MATR  #3'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . special arguments  :    "I"  : identity matrix'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . special arguments  :     "I"  : identity matrix'
   n = n + 1;  HELP_line(HELP_numor, n) = '                              "-I" : inverse matrix'
   n = n + 1;  HELP_line(HELP_numor, n) = '  or'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           3 character strings: a, -a, b, -b, c, -c'
@@ -1174,7 +1215,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 51
+ ! 53
   n = 0    ;  HELP_numor = HELP_MENDEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MENDEL:'
@@ -1200,7 +1241,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 52
+ ! 54
   n = 0    ;  HELP_numor = HELP_MERGE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MERGE:'
@@ -1216,7 +1257,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 53
+ ! 55 
   n = 0    ;  HELP_numor = HELP_MONOCLINIC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MONOCLINIC:'
@@ -1233,7 +1274,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 54
+ ! 56
   n = 0    ;  HELP_numor = HELP_NEWS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > NEWS:'
@@ -1248,7 +1289,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 55
+ ! 57
   n = 0    ;  HELP_numor = HELP_NIGGLI_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > NIGGLI_CELL'
@@ -1262,7 +1303,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 56
+ ! 58
   n = 0    ;  HELP_numor = HELP_OBV_REV_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > OBV_REV:'
@@ -1283,7 +1324,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 57
+ ! 59
   n = 0    ;  HELP_numor = HELP_P4P_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ""
   n = n + 1;  HELP_line(HELP_numor, n) = "  > P4P:"
@@ -1301,7 +1342,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 58
+ ! 60
   n = 0    ;  HELP_numor = HELP_PAUSE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ""
   n = n + 1;  HELP_line(HELP_numor, n) = "  > PAUSE:"
@@ -1315,7 +1356,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 59
+ ! 61
   n = 0    ;  HELP_numor = HELP_PERMUT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > PERMUT:'
@@ -1332,7 +1373,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 60
+ ! 62 
   n = 0    ;  HELP_numor = HELP_Q_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > QHKL: '
@@ -1347,7 +1388,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 61
+ ! 63
   n = 0    ;  HELP_numor = HELP_QVEC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > QVEC:'
@@ -1365,7 +1406,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 62
+ ! 64
   n = 0    ;  HELP_numor = HELP_READ_CEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_CEL'
@@ -1381,7 +1422,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 63
+ ! 65
   n = 0    ;  HELP_numor = HELP_READ_CIF_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_CIF'
@@ -1396,7 +1437,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 64
+ ! 66
   n = 0    ;  HELP_numor = HELP_READ_INS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_INS'
@@ -1412,7 +1453,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 65
+ ! 67
   n = 0    ;  HELP_numor = HELP_READ_PCR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_PCR'
@@ -1427,7 +1468,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 66
+ ! 68
   n = 0    ;  HELP_numor = HELP_READ_NREPORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = " "
   n = n + 1;  HELP_line(HELP_numor, n) = "  > READ_NREPORT:"
@@ -1442,7 +1483,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 67
+ ! 69
   n = 0    ;  HELP_numor = HELP_REC_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > REC_ANG:'
@@ -1459,7 +1500,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 68
+ ! 70
   n = 0    ;  HELP_numor = HELP_REF_APEX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_APEX'
@@ -1473,7 +1514,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           APEX, APEXII'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 69
+ ! 71
   n = 0    ;  HELP_numor = HELP_REF_EVAL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_DENZO'
@@ -1486,7 +1527,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 70
+ ! 72
   n = 0    ;  HELP_numor = HELP_REF_DENZO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_EVAL'
@@ -1500,7 +1541,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           EVAL, EVALCCD'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 71
+ ! 73
   n = 0    ;  HELP_numor = HELP_REF_KCCD_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_KCCD'
@@ -1513,7 +1554,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_KCCD, KCCD'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 72
+ ! 74
   n = 0    ;  HELP_numor = HELP_REF_SADABS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_SADABS'
@@ -1529,7 +1570,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 73
+ ! 75
   n = 0    ;  HELP_numor = HELP_RESET_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > RESET'
@@ -1543,7 +1584,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
- ! 74
+ ! 76
   n = 0    ;  HELP_numor = HELP_RINT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > RINT:'
@@ -1560,7 +1601,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 75
+ ! 77
   n = 0    ;  HELP_numor = HELP_RHOMB_HEX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > RHOMB_HEX:'
@@ -1574,7 +1615,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 76
+ ! 78
   n = 0    ;  HELP_numor = HELP_SEARCH_EXTI_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SEARCH_EXTI:'
@@ -1595,7 +1636,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 77
+ ! 79
   n = 0    ;  HELP_numor = HELP_SEARCH_SPGR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SEARCH_SPACE_GROUP:'
@@ -1622,7 +1663,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 78
+ ! 80
   n = 0    ;  HELP_numor = HELP_SET_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SET:'
@@ -1636,7 +1677,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 79
+ ! 81
   n = 0    ;  HELP_numor = HELP_SETTING_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SETTING:'
@@ -1648,7 +1689,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 80
+ ! 82 
   n = 0    ;  HELP_numor = HELP_SFAC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SFAC:'
@@ -1673,7 +1714,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 81
+  ! 83
   n = 0    ;  HELP_numor = HELP_SFHKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SF_HKL:'
@@ -1693,7 +1734,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 82
+ ! 84
   n = 0    ;  HELP_numor = HELP_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG:'
@@ -1716,7 +1757,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 83
+ ! 85
   n = 0    ;  HELP_numor = HELP_SG_ALL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_ALL:'
@@ -1731,7 +1772,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 84
+ ! 86
   n = 0    ;  HELP_numor = HELP_SG_EXTI_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_EXTI:'
@@ -1746,7 +1787,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 85
+ ! 87
   n = 0    ;  HELP_numor = HELP_SG_INFO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_INFO:'
@@ -1764,7 +1805,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 86
+ ! 88
   n = 0    ;  HELP_numor = HELP_SG_SUB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_SUB:'
@@ -1778,7 +1819,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 87
+ ! 89
   n = 0    ;  HELP_numor = HELP_SHANNON_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHANNON:'
@@ -1800,7 +1841,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 88
+ ! 90
   n = 0    ;  HELP_numor = HELP_SHELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHELL:'
@@ -1838,7 +1879,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 89
+ ! 91
   n = 0    ;  HELP_numor = HELP_SHIFT_2TH_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHIFT_2TH:'
@@ -1854,7 +1895,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 90
+ ! 92
   n = 0    ;  HELP_numor = HELP_SITE_INFO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SITE_INFO:'
@@ -1874,7 +1915,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 91
+ ! 93
   n = 0    ;  HELP_numor = HELP_SIZE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SIZE:'
@@ -1891,7 +1932,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 92
+ ! 94
   n = 0    ;  HELP_numor = HELP_SORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SORT:'
@@ -1926,7 +1967,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 93
+ ! 95
   n = 0    ;  HELP_numor = HELP_STL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > STL: '
@@ -1942,7 +1983,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 94
+ ! 96
   n = 0    ;  HELP_numor = HELP_SYMM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SYMM:'
@@ -1970,7 +2011,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '  '
   HELP_lines_nb(HELP_numor) = n
 
- ! 95
+ ! 97
   n = 0    ;  HELP_numor = HELP_SYST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SYST:'
@@ -1983,7 +2024,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 96
+ ! 98
   n = 0    ;  HELP_numor = HELP_THERM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THERM:'
@@ -2011,7 +2052,36 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 97
+  
+   ! 99
+  n = 0    ;  HELP_numor = HELP_THERM_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > THERM_SHELX:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT/OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           1 character string + reals'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             conversion of atomic displacement parameters:'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           . available arguments: '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - "Uiso", "U_iso": conversion from Uiso to Biso'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - "Biso", "B_iso": conversion from Biso to Uiso'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - "U_ij", "Uij"  : conversion from U_ij to B_ij and'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                                beta_ij'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - "U_ij", "Uij"  : conversion from U_ij to B_ij and'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                                beta_ij'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - "beta_ij", "betaij", "beta"": conversion from '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                               beta_ij to B_ij and U_ij'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           . reals values correspond to isotropic thermal'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             parameters values (Biso or Uiso) or anisotropic'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             thermal parameters (Uij, Bij, Beta) in the following'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             order: 11, 22, 33, 23, 13, 12 (as in SHELXL program)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            THERM Biso 0.52 0.76 0.35'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           THERM B_ij 0.01 0.01 0.01 0.0 0.0 0.0'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword    CELL for anisotropic thermal parameters conversion'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  THERM_SHELX, THERMAL_SHELX, ADP_SHELX'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+ ! 100
   n = 0    ;  HELP_numor = HELP_THETA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THETA: '
@@ -2026,7 +2096,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 98
+ ! 101
   n = 0    ;  HELP_numor = HELP_TITL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TITL:'
@@ -2039,7 +2109,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 99
+ ! 102
   n = 0    ;  HELP_numor = HELP_TRANSLATION_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRANSLATION:'
@@ -2053,7 +2123,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 100
+ ! 103
   n = 0    ;  HELP_numor = HELP_TRANSMISSION_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRANSMISSION:'
@@ -2066,7 +2136,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 101
+ ! 104
   n = 0    ;  HELP_numor = HELP_TWIN_HEXA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWIN_HEXA:'
@@ -2083,7 +2153,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-! 102
+! 105
   n = 0    ;  HELP_numor = HELP_TRICLINIC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRICLINIC:'
@@ -2102,7 +2172,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 103
+ ! 106 
   n = 0    ;  HELP_numor = HELP_TWIN_PSEUDO_HEXA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWIN_PSEUDO_HEXA:'
@@ -2120,7 +2190,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 104
+ ! 107
   n = 0    ;  HELP_numor = HELP_TWO_THETA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWO_THETA: '
@@ -2134,7 +2204,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 105
+ ! 108
   n = 0    ;  HELP_numor = HELP_UNIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > UNIT:'
@@ -2159,7 +2229,37 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 106
+  ! 109
+  n = 0    ;  HELP_numor = HELP_MATR_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > USER_MAT:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           "#" + 1 integer'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             number of user matrix in the matrices list defined  by'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           the user in the cryscal.ini setting file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             USER_MAT  #3'
+  n = n + 1;  HELP_line(HELP_numor, n) = '  or'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           "$" character string'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             this character string has to be one of the comment text'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           accompagnying the matrix defined by the user in the'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           cryscal.ini setting file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             MATR  $2a'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              calculation of new cell parameters (dependent '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           keyword = CELL)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           calculation of new atomic coordinates (dependent '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           keyword = ATOM)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           calculation of new hkl Miller indices (dependent'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           keyword = HKL)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           create a new file containing the new hkl indices '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           (dependent keyword = FILE)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  USER_MAT, USER_MATR, USER_MATRIX'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+  
+  
+ ! 110
   n = 0    ;  HELP_numor = HELP_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WAVE:'
@@ -2182,7 +2282,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 107
+ ! 111
   n = 0    ;  HELP_numor = HELP_WEB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WEB:'
@@ -2197,7 +2297,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 108
+ ! 112
   n = 0    ;  HELP_numor = HELP_WRITE_BEAM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_BEAM:'
@@ -2212,7 +2312,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 109
+ ! 113
   n = 0    ;  HELP_numor = HELP_WRITE_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_CELL:'
@@ -2225,7 +2325,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 110
+ ! 114
   n = 0    ;  HELP_numor = HELP_WRITE_CHEM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > WRITE_CHEM:'
@@ -2239,7 +2339,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 111
+ ! 115
   n = 0    ;  HELP_numor = HELP_WRITE_DEVICE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_DEVICE:'
@@ -2252,7 +2352,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
-  ! 112
+  ! 116
   n = 0    ;  HELP_numor = HELP_WRITE_QVEC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_QVEC:'
@@ -2265,7 +2365,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 113
+ ! 117
   n = 0    ;  HELP_numor = HELP_WRITE_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SG:'
@@ -2278,7 +2378,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
-! 114
+! 118
   n = 0    ;  HELP_numor = HELP_WRITE_SYM_OP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SYM_OP:'
@@ -2289,12 +2389,12 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           rotational and translational parts with the SYMM'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   SPGR or SYMM'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYM_OP, WRITE_SYMM_OP,'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYMP, WRITE_SYMM,'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           WRITE_SYMMETRY_OPERATORS'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 115
+ ! 119
   n = 0    ;  HELP_numor = HELP_WRITE_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_WAVE:'
@@ -2307,7 +2407,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_lines_nb(HELP_numor) =  9
 
- ! 116
+ ! 120
   n = 0    ;  HELP_numor = HELP_X_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > X_WAVE:'
@@ -2321,7 +2421,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 117
+ ! 121
   n = 0    ;  HELP_numor = HELP_ZUNIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ZUNIT:'

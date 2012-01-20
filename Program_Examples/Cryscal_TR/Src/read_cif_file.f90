@@ -20,7 +20,7 @@ subroutine read_CIF_input_file(input_file, input_string)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)            :: input_file
   CHARACTER (len=*), INTENT(IN)            :: input_string
-  INTEGER                                  :: i
+  INTEGER                                  :: i, long_input_string
 
   ! local variable for .CIF file
   integer                                    :: nb_lines, npos
@@ -28,18 +28,18 @@ subroutine read_CIF_input_file(input_file, input_string)
   character(len=40),dimension(48)            :: car_symop
 
   integer                                    :: n_elem_atm    ! N. of different species
-!  real            ,  dimension(15)           :: n_elem        ! Number of elementos into the same species
+  !real            ,  dimension(15)           :: n_elem        ! Number of elementos into the same species
   character(len=2),  dimension(15)           :: elem_atm      ! Character to identify the specie
   character(len=40)                          :: symb_spgr
   
-  logical                                    :: out
+  logical                                    :: input_out
 
-
-  out = .true.
-  IF(input_string(1:6) == 'NO_OUT') out = .false.
-  
-
-
+  long_input_string = len_trim(input_string)
+  input_out = .true.
+  if(long_input_string == 6) then
+   if(input_string(1:6) == 'NO_OUT') input_out = .false.
+  endif
+   
   call number_lines(trim(input_file),nb_lines)
   if (nb_lines ==0) then
    call write_info(' > No lines could be read. Program will be stopped')
@@ -56,7 +56,7 @@ subroutine read_CIF_input_file(input_file, input_string)
   !---- TITL ----!
   npos=1
   call Read_Cif_Title(file_cif, npos, nb_lines, main_title)
-  if(out .and. ON_SCREEN) then
+  if(input_out .and. ON_SCREEN) then
    call write_info(' ' )
    call write_info('  . TITL: '//trim(main_title))
   endif 
@@ -66,7 +66,8 @@ subroutine read_CIF_input_file(input_file, input_string)
   call Read_Cif_Cell(file_cif, npos, nb_lines, unit_cell%param, unit_cell%param_esd)
   known_cell_esd = .true.
   call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
-  if(.not. out) return
+  if(.not. input_out) return
+  IF(unit_cell%volume < 0.1) call volume_calculation('no_out')  ! << oct. 2011
   
   keyword_CELL  = .true.
   if(ON_SCREEN) then
@@ -189,7 +190,7 @@ end subroutine read_CIF_input_file
 subroutine read_CIF_input_file_TR(input_unit)
  USE cryscal_module, ONLY : keyword_WAVE, wavelength, keyword_SIZE, Z_unit,          &
                             keyword_ZUNIT, CIF_diffrn_reflns, CIF_cell_measurement,  &
-                            crystal, CIF_parameter, unit_cell, nb_atoms_type
+                            crystal, CIF_parameter, unit_cell, nb_atoms_type, molecule
  USE macros_module,  ONLY : nombre_de_colonnes, remove_car
  implicit none
   INTEGER, INTENT(IN)       :: input_unit
@@ -239,6 +240,7 @@ subroutine read_CIF_input_file_TR(input_unit)
    keyword_ZUNIT = .true.
    READ(string_value, *) Z_unit
   endif
+  molecule%Z_unit = int(Z_unit)
 
  ! chemical formula
   call get_champ_value(input_unit,'_chemical_formula_sum',        string_value, ok)
@@ -247,6 +249,7 @@ subroutine read_CIF_input_file_TR(input_unit)
    string_value = remove_car(string_value, "'")
    call nombre_de_colonnes(string_value, nb_arg)
    call decode_CHEM_string(string_value, nb_arg)
+   molecule%formula = string_value
   endif
 
 
@@ -557,6 +560,58 @@ subroutine get_crystal_system_from_CIF_file(file_unit, crystal_system)
 
 
 end subroutine get_crystal_system_from_CIF_file
+
+
+!--------------------------------------------------------------------------
+
+subroutine get_H_M_from_CIF_file(file_unit, H_M)
+ USE macros_module,  ONLY : l_case
+ USE IO_module
+ implicit none
+  INTEGER,           INTENT(IN)        :: file_unit
+  character (len=32), INTENT(OUT)      :: H_M
+  character (len=256)                  :: line
+  CHARACTER (LEN=256)                  :: champ_text, champ_value
+  integer                              :: ier
+  LOGICAL                              :: logical_wave
+
+  rewind(file_unit)
+  do
+   read(file_unit, '(a)', iostat=ier) line
+   if(ier<0) then
+    call write_info('')
+    call write_info(' ... No Hermann Mauguin space group in the import.cif file !!')
+    call write_info('')
+    return
+   ELSEIF(ier >0) then
+    call write_info('')
+    call write_info(' ... Problem reading crystal system in import.cif file !!')
+    call write_info('')
+    return
+   endif
+
+   line = ADJUSTL(line)
+
+   
+   if(trim(line(1:30))=='_symmetry_space_group_name_H-M') then
+    READ(line, *, IOSTAT=ier ) champ_text, champ_value
+    IF(ier/=0) then
+      call write_info('')
+      call write_info(' ... Problem reading crystal_system !!')
+      call write_info('')
+      return
+    endif  
+    
+    exit
+   endif 
+  END do
+  
+  H_M = adjustl(champ_value(1:32))
+
+
+
+end subroutine get_H_M_from_CIF_file
+
 !--------------------------------------------------------------------------
 
 subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
@@ -680,8 +735,9 @@ end subroutine read_SQUEEZE_file
 ! ----------------------------------------------------------------------------------
  subroutine read_and_modif_ARCHIVE(input_unit)
   use cryscal_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit, &
-                             CIF_parameter, SADABS_ratio, CIFdep, ACTA, CIF_format80
-  use macros_module,  only : u_case, test_file_exist
+                             CIF_parameter, SADABS_ratio, CIFdep, ACTA, CIF_format80, include_RES_file, tmp_unit
+  use macros_module,  only : u_case, test_file_exist, Get_Wingx_job
+  use IO_module,      only : write_info
   implicit none
    integer, intent(in)               :: input_unit
    character (len=256)               :: read_line
@@ -697,6 +753,10 @@ end subroutine read_SQUEEZE_file
    character (len=16), dimension(16) :: CIF_str
    character (len=16), dimension(8)  :: CIF_str_fmt
    character (len=64)                :: fmt_, fmt_final
+   character (len=32)                :: job
+   character (len=256)               :: wingx_structure_dir
+   character (len=256)               :: wingx_res_file
+   
    
    ! caracteristiques de la boucle _atom_site
    integer                           :: CIF_atom_site_item_nb                ! nombre de champs dans la boucle _atom_site_ 
@@ -1089,6 +1149,37 @@ end subroutine read_SQUEEZE_file
     cycle
    endif
   
+   ! -------  juillet 2011 : add jobname.res
+   if(index(read_line, '_refine_diff_density_rms') /= 0) then
+    write(CIF_archive_unit, '(a)')   trim(read_line)
+	write(CIF_archive_unit, '(a)')   ''
+    if(include_RES_file) then
+	 call Get_Wingx_job(job, wingx_structure_dir)
+	 if(job(1:1) /= '?') then
+	  write(wingx_res_file, '(4a)') trim(wingx_structure_dir), '\', trim(job), '.res'
+	  call test_file_exist(trim(wingx_res_file), file_exist)
+	  if(file_exist) then
+	   call write_info('')
+	   call write_info('  ... Include '//trim(wingx_res_file)//' SHELXL file.')
+	   call write_info('')
+	   write(CIF_archive_unit, '(a)')   '_iucr_refine_instructions_details'
+	   write(CIF_archive_unit, '(a)')   ';'
+	   open(unit=tmp_unit, file=trim(wingx_res_file))
+	    write(CIF_archive_unit, '(2a)') ' .res file for SHELXL : ', trim(job)//'.res'
+		write(CIF_archive_unit, '(a)')  '.................................................................'
+	    do
+	     read(unit=tmp_unit, fmt='(a)', iostat=i_error) read_line
+	     if(i_error /=0) exit
+	     write(CIF_archive_unit, '(a)') trim(read_line)
+		end do 
+	   close(unit=tmp_unit)	
+	   write(CIF_archive_unit, '(a)')   ';'
+	  endif	
+	 endif 
+	end if 
+	cycle
+   endif
+   ! -----------------------------------------------------------
    
    if(index(read_line, '_atom_type_scat_source') /=0)  then
     write(CIF_archive_unit, '(a)') trim(read_line)

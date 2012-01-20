@@ -88,7 +88,7 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
  USE cryscal_module, ONLY : P4P_read_unit, known_cell_esd, wavelength, keyword_WAVE,    &
                             unit_cell, CIF_cell_measurement, message_text,              &
                             keyword_SIZE, crystal, UB_matrix, molecule, CIF_string
- USE macros_module,  ONLY : test_file_exist, nombre_de_colonnes, l_case
+ USE macros_module,  ONLY : test_file_exist, nombre_de_colonnes, l_case, u_case
  USE IO_module,      ONLY : write_info
 
 
@@ -97,10 +97,12 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
   LOGICAL,           INTENT(OUT) :: lecture_ok
   ! local variables
   CHARACTER (LEN=256)              :: P4P_line 
-  INTEGER                          :: ier, i, i1, i2
-  CHARACTER(LEN=16), DIMENSION(10) :: arg_string
+  INTEGER                          :: ier, i, i1, i2, long
+  INTEGER                          :: nb_arg
+  CHARACTER(LEN=16), DIMENSION(12) :: arg_string
   LOGICAL                          :: file_exist
 
+  arg_string = '?'
   lecture_ok = .false.
   file_exist = .false.
   P4P_line   = ''
@@ -113,10 +115,15 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
    do
     READ(P4P_read_unit, '(a)', IOSTAT=ier) P4P_line
     IF(ier <0) EXIT ! fin du fichier
-    READ(P4P_line, *) arg_string(1), arg_string(2)
-    arg_string(1) = ADJUSTL(arg_string(1))
-    arg_string(2) = ADJUSTL(arg_string(2))
-
+	long = len_trim(P4P_line)
+	call nombre_de_colonnes(P4P_line, nb_arg)
+	IF(nb_arg/=0)  then
+     READ(P4P_line, *) arg_string(1:nb_arg)
+	 arg_string(1:nb_arg) = adjustl(arg_string(1:nb_arg))
+    else
+	 cycle
+	end if
+ 
     select case (arg_string(1))
         case ('CELL')
          READ(P4P_line(5:),*) unit_cell%param(1:6), unit_cell%volume
@@ -147,7 +154,7 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
          READ(arg_string(1), *) CIF_cell_measurement%reflns_used
          READ(arg_string(2), *) CIF_cell_measurement%theta_min
          READ(arg_string(3), *) CIF_cell_measurement%theta_max
-         !exit
+         exit
 
         case ('ORT1')
          READ(P4P_line(5:), *) UB_matrix(1,1), UB_matrix(1,2), UB_matrix(1,3)
@@ -169,24 +176,66 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
          molecule%formula = ADJUSTL(molecule%formula)
 
         case ('BRAVAIS')
-         !READ(P4P_line(8:), '(a)') unit_cell%Bravais
-         !unit_cell%Bravais = ADJUSTL(unit_cell%Bravais)
-         READ(P4P_line(8:), '(a)') CIF_string
-         CIF_string = ADJUSTL(CIF_string)
-         i1 = INDEX(CIF_string, '(')
-         i2 = INDEX(CIF_string, ')')
-         unit_cell%crystal_system = '?'
-         unit_cell%Bravais        = '?'
-         if (i1 > 1) then
-          READ(CIF_string(1:i1-1), *) unit_cell%crystal_system
-          IF(i2 /=0) READ(CIF_string(i2+1:), *) unit_cell%Bravais
-         else
-          READ(CIF_string, *) unit_cell%crystal_system, unit_cell%Bravais
+         !!READ(P4P_line(8:), '(a)') unit_cell%Bravais
+         !!unit_cell%Bravais = ADJUSTL(unit_cell%Bravais)
+         !READ(P4P_line(8:), '(a)') CIF_string
+         !CIF_string = ADJUSTL(CIF_string)
+         !i1 = INDEX(CIF_string, '(')
+         !i2 = INDEX(CIF_string, ')')
+         !unit_cell%crystal_system = '?'
+         !unit_cell%Bravais        = '?'
+         !if (i1 > 1) then
+         ! READ(CIF_string(1:i1-1), *) unit_cell%crystal_system
+         ! IF(i2 /=0) READ(CIF_string(i2+1:), *) unit_cell%Bravais
+         !else
+         ! READ(CIF_string, *) unit_cell%crystal_system, unit_cell%Bravais
+         !endif
+		 
+		 i1 = index(P4P_line, '(')
+		 if(i1 /=0) then
+		  read(P4P_line(8:i1-1), *)   unit_cell%crystal_system
+		 else
+          read(P4P_line(8:),     *)   unit_cell%crystal_system
          endif
+         read(P4P_line(long:long), *) unit_cell%Bravais		 
+		
+		 !read(P4P_line(8:), *)        unit_cell%crystal_system
+		 !read(P4P_line(long:long), *) unit_cell%Bravais
          unit_cell%crystal_system = l_case(unit_cell%crystal_system)
          unit_cell%crystal_system = ADJUSTL(unit_cell%crystal_system)
+		 unit_cell%Bravais        = u_case(unit_cell%Bravais)
          unit_cell%Bravais        = ADJUSTL(unit_cell%Bravais)
-
+		 
+		 
+		 ! creation de la chaine unit_cell%H_M
+		 select case(unit_cell%crystal_system)
+		  case ("cubic")
+		   write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"23"  
+		   
+		  case ("tetragonal")		  
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"4"  
+			
+	      case ("trigonal", "rhomboedral")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"3"  
+   		   
+	      case ("hexagonal")
+		   if(arg_string(3) == 'RO') then
+		    write(unit_cell%H_M, '(a)') "R3"  
+		   else
+            write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"6"  
+		   endif	
+			
+		  case ("orthorhombic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"222"  
+		  
+		  case ("monoclinic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"2"  
+		   
+		  case("triclinic")
+           write(unit_cell%H_M, '(2a)') trim(unit_cell%Bravais),"1"  
+		 		  		
+		 end select 
+ 
        case ('TITLE')
         READ(P4P_line(6:), '(a)') CIF_string
         CIF_string = ADJUSTL(CIF_string)
@@ -194,8 +243,11 @@ subroutine read_P4P_file(P4P_file, lecture_ok)
          READ(CIF_string(15:), *) molecule%common_name
          molecule%common_name = ADJUSTL(molecule%common_name)
         endif
+		
+	   case ('REF05', 'DATA')
+        exit	   
 
-        case default
+       case default
     end select
    END do
 

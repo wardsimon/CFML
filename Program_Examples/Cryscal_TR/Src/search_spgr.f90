@@ -2,7 +2,7 @@
 
 subroutine search_SPGR
  USE IO_module,                      ONLY : write_info
- USE cryscal_module,                 ONLY : crystal_system
+ USE cryscal_module,                 ONLY : crystal_system, unit_cell
  USE HKL_module
  USE CFML_symmetry_tables,           ONLY : spgr_info, Set_Spgr_Info, Remove_Spgr_Info
  USE CFML_crystallographic_symmetry, ONLY : Space_Group_Type, set_spacegroup
@@ -102,7 +102,7 @@ subroutine search_SPGR
       end do
       
       if (n_good < 5) then
-       call write_info('Too few GOOD reflections! Humm..., re-measure your crystal!')
+       call write_info('Too few GOOD reflections! Humm..., re-measure your crystal or another one!')
        return
       endif
      
@@ -131,9 +131,17 @@ do_group: do i=i1,i2
          end do
 
          ! Passing here means that all reflections are allowed in the group -> Possible group!
-         m=m+1
-         num_group(m)= i
-         num_abs(m)  = n_absent
+		 if(unit_cell%H_M(1:1) /='?') then
+		  if(hms(1:1) == unit_cell%H_M(1:1)) then
+           m=m+1
+           num_group(m)= i
+           num_abs(m)  = n_absent
+		  endif 
+		 else
+		  m=m+1
+          num_group(m)= i
+          num_abs(m)  = n_absent
+         endif		 
       end do  do_group
 
      call write_info( "   ")
@@ -165,8 +173,15 @@ do_group: do i=i1,i2
         hms(2:)=l_case(hms(2:))
         hall=spgr_info(j)%hall
         numg=spgr_info(j)%N
-        write(unit=message,fmt="(i10,4a,i8)")  numg,"                   ",hms,"          ",hall,num_abs(ptr(i))
-        call write_info(trim(message))
+		if(unit_cell%H_M(1:1) /= "?") then
+         if (hms(1:1) == unit_cell%H_M(1:1)) then  ! uniquement les groupes du même reseau de Bravais
+          write(unit=message,fmt="(i10,4a,i8)")  numg,"                   ",hms,"          ",hall,num_abs(ptr(i))
+		  call write_info(trim(message))
+		 endif 
+		else 
+		 write(unit=message,fmt="(i10,4a,i8)")  numg,"                   ",hms,"          ",hall,num_abs(ptr(i))
+		 call write_info(trim(message))
+		endif        
      end do
 
       

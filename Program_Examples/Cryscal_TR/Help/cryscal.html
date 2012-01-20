@@ -1,7 +1,7 @@
 <!-- CRYSCAL user's guide (HTML file) created by CRYSCAL.exe
      Web site : http://www.cdifx.univ-rennes/cryscal.htm
-     Version : Feb. 2011
-     Author  : T. Roisnel (CDIFX - Rennes)
+     Version : Jan. 2012
+     Author  : T. Roisnel (CDIFX / SCR UMR6226 - Rennes)
 !-->
 <HTML>
 <HEAD>
@@ -47,7 +47,7 @@
   *                                                           *
   *                                                           *
   *                (T.R. / CDIFX - UMR6226 Rennes)            *
-  *                           Feb. 2011                       *
+  *                           Jan. 2012                       *
   *                                                           *
   *            with courtesy of JRC and JGP for CFML          *
   *                                                           *
@@ -138,6 +138,7 @@
 <A NAME="kw_list"></A><p class="title_1"> List of CRYSCAL keywords :<br></p>
 <ul><ul>
    <li class="item"><A HREF="#ABSENT_HKL">ABSENT_HKL</A>
+   <li class="item"><A HREF="#ABSORPTION">ABSORPTION</A>
    <li class="item"><A HREF="#ACTA">ACTA</A>
    <li class="item"><A HREF="#ANG">ANG</A>
    <li class="item"><A HREF="#APPLY_OP">APPLY_OP</A>
@@ -162,6 +163,7 @@
    <li class="item"><A HREF="#DATA_ATOMIC_WEIGHT">DATA_ATOMIC_WEIGHT</A>
    <li class="item"><A HREF="#DATA_NEUTRONS">DATA_NEUTRONS</A>
    <li class="item"><A HREF="#DATA_XRAYS">DATA_XRAYS</A>
+   <li class="item"><A HREF="#DIAG_MAT">DIAG_MAT</A>
    <li class="item"><A HREF="#DIR_ANG">DIR_ANG</A>
    <li class="item"><A HREF="#DIST">DIST</A>
    <li class="item"><A HREF="#EDIT">EDIT</A>
@@ -233,10 +235,12 @@
    <li class="item"><A HREF="#SYMM">SYMM</A>
    <li class="item"><A HREF="#SYST">SYST</A>
    <li class="item"><A HREF="#THERM">THERM</A>
+   <li class="item"><A HREF="#THERM_SHELX">THERM_SHELX</A>
    <li class="item"><A HREF="#THETA">THETA</A>
    <li class="item"><A HREF="#TITL">TITL</A>
    <li class="item"><A HREF="#TRANSLATION">TRANSLATION</A>
    <li class="item"><A HREF="#TRANSMISSION">TRANSMISSION</A>
+   <li class="item"><A HREF="#USER_MAT">USER_MAT</A>
    <li class="item"><A HREF="#TRICLINIC">TRICLINIC</A>
    <li class="item"><A HREF="#TWIN_HEXA">TWIN_HEXA</A>
    <li class="item"><A HREF="#TWIN_PSEUDO_HEXA">TWIN_PSEUDO_HEXA</A>
@@ -277,6 +281,17 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="ABSORPTION"></A>
+<p class='title_3'>  > ABSORPTION:</p> <pre style='font-size:14'>
+    . type:                CALCULATION keyword
+    . arguments:           no argument
+    . meaning:             absorption coefficient calculation
+    . mandatory keywords:  CELL, WAVE, CONT / CHEM
+    . identical keywords:  ABSORPTION, ABSORPTION_CALC, CALC_ABSORPTION
+                           MU, CALC_MU, MU_CALC
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="ACTA"></A>
 <p class='title_3'>  > ACTA:</p> <pre style='font-size:14'>
     . type:                OUTPUT keyword
@@ -302,10 +317,10 @@
                            and S_3, S_4 respectively (cf ATOM keyword)
 
     . remark:              atom label can refer to equivalent position through
-                           a particular symetry operator (cf SYMM keyword).
+                           a particular symmetry operator (cf SYMM keyword).
                            This is specified by adding "_$n" to the
                            atomic label, with n refering to the number of
-                           symetry operator in the list.
+                           symmetry operator in the list.
 
     . example:             ANG O1 C8 C9 C10_$1
     . identical keywords:  ANG, ANGLE
@@ -319,7 +334,8 @@
     . outputs:              apply the symmetry operators on the atomic
                            positions
     . mandatory keyword:   SYMM, ATOM
-    . identical keywords:  APPLY_OP, APPLY_SYMMETRY_OPERATOR
+    . identical keywords:  APPLY_OP, APPLY_SYMMETRY_OPERATOR,
+                           APPLY_SYM_OP, APPLY_SYMOP
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -370,7 +386,7 @@
     . arguments:           character string
     . meaning:             type of the incident beam:
                              - BEAM NEUT  for neutrons
-                             - BEAM ELECTRONS  for neutrons
+                             - BEAM ELECTRONS  for electrons
                              - X_Ag for X Rays (Silver K_alpha)
                              - X_Mo for X Rays (Molybdenum K_alpha)
                              - X_Cu for X Rays (Copper K_alpha)
@@ -413,6 +429,8 @@
     . meaning:             Molecular chemical formula: El_i is the chemical
                            symbol of the species i and n_i is the corresponding
                            number of atoms in the formula unit
+    . output:              molecular weight, total number of electrons,
+                           atomic and weight percentage
 
     . mandatory keyword:   ZUNIT
     . example:             CHEM C4 O6 H9 N1
@@ -637,6 +655,21 @@
                            WinPLOTR
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
+<A NAME="DIAG_MAT"></A>
+<p class='title_3'>  > DIAG:</p> <pre style='font-size:14'>
+    . type:                INPUT keyword
+    . arguments:           9 reals
+    . meaning:             transformation (3,3) matrix components
+    . examples:            MATR   0  0  1    0  1  0    -1  0  -1
+                           MATR   0.5 0.5 0   -0.5 0.5 0   0 0 1
+                           MATR   1/2 1/2 0   -1/2 1/2 0   0 0 1
+    . output:              Diagonalization of the 3*3 matrix and output
+                           the Eigen values and Eigen vectors
+                           (dependent keyword = FILE)
+    . identical keywords:  DIAG, DIAG_MAT, DIAG_MATR, DIAG_MATRIX
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
 <A NAME="DIR_ANG"></A>
 <p class='title_3'>  > DIR_ANG:</p> <pre style='font-size:14'>
     . type:                CALCULATION keyword
@@ -659,9 +692,9 @@
     . meaning:             calculation of the interatomic distance between 2
                            atoms labelled by their atom labels (cf ATOM keyword
     . remark:              atom label can refer to equivalent position through
-                           a particular symetry operator (cf SYMM keyword)
+                           a particular symmetry operator (cf SYMM keyword)
                            atomic label, with n refering to the number of
-                           symetry operator in the list.
+                           symmetry operator in the list.
     . example:             DIST C8 C10
                            DIST C10 C9
                            DIST C10 C9_$1
@@ -997,9 +1030,10 @@
     . type:                OUPUT keyword
     . arguments:           character strings
                            available arguments (order is not important):
-                            . symetry arguments: "all", "centric", "acentric",
-                              "triclinic", "monoclinic", "orthorhombic",
-                              "tetragonal","trigonal", "hexagonal", "cubic"
+                           . symmetry arguments: "all", "centric", "acentric",
+                             "triclinic", "monoclinic", "orthorhombic",
+                             "tetragonal","trigonal", "hexagonal", "cubic"
+                           . "chiral", "enantio", "polar"
                            . Bravais arguments: "P", "A", "B", "C", "I",
                              "F", "R"
                            . Laue class arguments: "laue_n", with n relative
@@ -1020,6 +1054,8 @@
                             acentric and C centred space groups
                            LST_SG laue_4: list tetragonal space groups with 4/m,
                             Laue class
+                           LST_SG trigonal enantio
+                           LST_SG cubic chiral
     . identical keywords:  LIST_SG, LST_SG, LIST_SPACE_GROUPS
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1077,31 +1113,17 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="MATR"></A>
-<p class='title_3'>  > MATR:</p> <pre style='font-size:14'>
-    . type:                INPUT keyword
-    . arguments:           9 reals
-    . meaning:             transformation (3,3) matrix components
-    . examples:            MATR   0  0  1    0  1  0    -1  0  -1
-                           MATR   0.5 0.5 0   -0.5 0.5 0   0 0 1
-                           MATR   1/2 1/2 0   -1/2 1/2 0   0 0 1
+<p class='title_3'>  > USER_MAT:</p> <pre style='font-size:14'>
+    . arguments:           "#" + 1 integer
+    . meaning:             number of user matrix in the matrices list defined  b
+                           the user in the cryscal.ini setting file
+    . example:             USER_MAT  #3
   or
-    . arguments:           "#" character + 1 integer
-    . meaning:             number of matrix in the matrices list implemented in
-                           CRYSCAL (see LIST_MATR keyword)
-    . example:             MATR  #3
-    . special arguments  :    "I"  : identity matrix
-                              "-I" : inverse matrix
-  or
-    . arguments:           3 character strings: a, -a, b, -b, c, -c
-    . meaning:             setting of the unit cell
-    . example:             MATR  -c b a
-  or
-    . arguments:           2 character strings: P, A, B, C, I, F, R_rev, R_obv
-    . meaning:             Bravais lattices of the original and final cells.
-                           The transformation matrices are related to matrices
-                           from #8 to #21 in the matrix list
-    . example:             MATR C P
-                           MATR R_obv R_rev
+    . arguments:           "$" character string
+    . meaning:             this character string has to be one of the comment te
+                           accompagnying the matrix defined by the user in the
+                           cryscal.ini setting file
+    . example:             MATR  $2a
 
     . output:              calculation of new cell parameters (dependent
                            keyword = CELL)
@@ -1111,7 +1133,7 @@
                            keyword = HKL)
                            create a new file containing the new hkl indices
                            (dependent keyword = FILE)
-    . identical keywords:  MAT, MATR, MATRIX
+    . identical keywords:  USER_MAT, USER_MATR, USER_MATRIX
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1768,7 +1790,7 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="THERM"></A>
-<p class='title_3'>  > THERM:</p> <pre style='font-size:14'>
+<p class='title_3'>  > THERM_SHELX:</p> <pre style='font-size:14'>
     . type:                INPUT/OUTPUT keyword
     . arguments:           1 character string + reals
     . meaning:             conversion of atomic displacement parameters:
@@ -1784,12 +1806,16 @@
                            . reals values correspond to isotropic thermal
                              parameters values (Biso or Uiso) or anisotropic
                              thermal parameters (Uij, Bij, Beta) in the followin
-                             order: 11, 22, 33, 12, 13, 23
+                             order: 11, 22, 33, 23, 13, 12 (as in SHELXL program
     . examples:            THERM Biso 0.52 0.76 0.35
                            THERM B_ij 0.01 0.01 0.01 0.0 0.0 0.0
     . mandatory keyword    CELL for anisotropic thermal parameters conversion
-    . identical keywords:  THERM, THERMAL, ADP
+    . identical keywords:  THERM_SHELX, THERMAL_SHELX, ADP_SHELX
 
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="THERM_SHELX"></A>
+<p class='title_3'>                                                                                </p> <pre style='font-size:14'>
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="THETA"></A>
@@ -1835,7 +1861,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TRICLINIC"></A>
+<A NAME="USER_MAT"></A>
 <p class='title_3'>  > TRICLINIC:</p> <pre style='font-size:14'>
     . type:                OUTPUT keyword
     . arguments :          no argument
@@ -1849,7 +1875,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWIN_HEXA"></A>
+<A NAME="TRICLINIC"></A>
 <p class='title_3'>  > TWIN_HEXA:</p> <pre style='font-size:14'>
     . type:                OUTPUT keyword
     . arguments :          no argument
@@ -1863,7 +1889,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWIN_PSEUDO_HEXA"></A>
+<A NAME="TWIN_HEXA"></A>
 <p class='title_3'>  > TWIN_PSEUDO_HEXA:</p> <pre style='font-size:14'>
     . type:                OUTPUT keyword
     . arguments :          no argument
@@ -1877,7 +1903,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="TWO_THETA"></A>
+<A NAME="TWIN_PSEUDO_HEXA"></A>
 <p class='title_3'>  > TWO_THETA:</p> <pre style='font-size:14'>
     . argument:            real values
     . meaning:             2Theta (deg) values
@@ -1888,7 +1914,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="UNIT"></A>
+<A NAME="TWO_THETA"></A>
 <p class='title_3'>  > UNIT:</p> <pre style='font-size:14'>
     . type:                INPUT keyword
     . arguments:           n character strings
@@ -1908,6 +1934,10 @@
     . mandatory keyword:   SFAC
     . example:             UNIT 16. 24. 36. 4.
 
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="UNIT"></A>
+<p class='title_3'>                                                                                </p> <pre style='font-size:14'>
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="WEB"></A>
@@ -2010,7 +2040,7 @@
                            rotational and translational parts with the SYMM
                            keyword
     . mandatory keyword:   SPGR or SYMM
-    . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYM_OP, WRITE_SYMM
+    . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYMP, WRITE_SYMM,
                            WRITE_SYMMETRY_OPERATORS
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -2133,10 +2163,101 @@
   T. Roisnel / CDIFX Rennes
 
 
+   . January 12 :
+     # CRYSCAL has been compiled with the new CRYSFML library
+     # MOVE instruction for SHELXL (output of SG_INFO for acentric
+       space groupe  ) is now correct for non conventional settings
+
+   . December 11 :
+     # Some minor changes have been performed in the code to be compiled
+       with Intel Fortran Compiler
+     # HKL arrays are now dimensionned dynamically. Default dimension is
+       500000 but can be defined by user in the setting file though the
+       "hkl_reflections" keyword in the [ARRAYS DIMENSIONS] section.
+     # "LOCK_wave_value" field can be input in the cryscal.ini setting file to
+       to define the lock the input wavelength to the value of the closer
+       Xray target (Cu, Mo ...). if not present in the setting file, the default
+       value for this field is 0.02.
+       Examples :
+       - input wavelength = 1.53 and LOCK_wave_value = 0.02  : wave_length = 1.5406
+       - input wavelength = 1.53 and LOCK_wave_value = 0.005 : wave_length = 1.53
+
+   . November 11 :
+     # Minor corrections in the HTML report in the "symmetry transformations
+       used to generate equivalent atoms" parts (distances, angles, torsion
+       angles and hydrogen bonds)
+     # LST_SG keyword :
+       - "chiral" and "polar" arguments can se specified to output
+         chiral and polar space groups respectively
+     # SG_INFO keyword outputs the MOVE instruction for SHELXL
+     # in the case of acentric space groups.
+     # CRYSCAL has been compiled with last version of CFML (5.00)
+      and changes in the space_group routine have been made to be
+      to be in agreement with the CFML library.
+
+
+   . October 11 :
+     # LST_SG keyword :
+       - "enantio" argument can se specified to output
+         enantiomorphic space goups
+       - Point group is output
+
+     # MU keyword : explicit keyword to perform absorption coefficient
+       calculation. Cell paramaters, wave and cell content has to be
+       known. This keyword can be useful after reading of parameters
+       from an external file as CIF or INS file.
+       ex : READ_CIF UAl2.cif
+            WAVE X_cu
+            MU
+
+     # DIAG keyword : diagonalization of a 3*3 matrix and ouput Eigen values
+                      and Eigen vectors
+     # THERM_SHELX keyword : ADP parameters are input in the following
+       SHELX order, i.e. 11 22 33 23 13 12
+
+
+   . July 11 :
+     # Up to 5 extra matrices can be provided by the user in the cryscal.ini
+       setting file in the [USER TRANSFORMATION MATRICES] section. These
+       matrices are defined through the "MAT_n" keyword followed by the 9
+       components of the matrix m11 m12 m13 m21 m22 m23 m31 m32 m33 .
+       and a comment text.
+       New "USER_MAT" keyword has been added to select a particular matrix
+       provided by the user in the cryscal.ini setting file.
+       The matrix to be selected can be input either by the numor preceded by
+       the "# symbol, either the comment text preceded by the "$" symbol
+       Examples : USER_MAT #1
+                  USER_MAT $2a
+     # "include_RES_file" field can be input in the cryscal.ini setting file to
+       embed the contain of last .res SHELXL file in the archive_cryscal.cif file
+       to avoid PLAT005_ALERT_5G alert in the CHECK CIF procedure. The SHELXL
+       .res file name corresponds to the last project ID in WinGX.
+     # After a matrix transformation of atomic coordinates, the list of atoms
+       is updated with new coordinates.
+     # Search_group procedure outputs only space groups those Bravais lattice
+       corresponds to the Bravais lattice contained in the import.cif file
+     # Include "_symmetry_space_group_name_H-M" string in the import.cif file
+       created from .P4P and .HKL file
+
+   . June 11 :
+     # CRYSCAL has been compiled with new version of CFML (5.00)
+
+   . May 11 :
+     # Bug has been corrected in the structure factor calculation routine
+     # Total number of electrons is output after CHEM keyword.
+     # The matrix used for the hexagonal to rhomboedral system was corrupted.
+
+   . April 11 :
+     # Some changes in the routine to get new space group after matrix
+       transformation
+     # Some changes in the monoclinic transformation matrix list
+     # A non systematic bug in the bonds distribution list (CONN keyword)
+       has been corrected
+
    . Feb. 11 :
      # Stucture factors calculation can be performed for electrons
-       diffraction in the GEN_HKL routine. This has to be specified
-       by the BEAM keyword and its ELECTRONS argument
+       diffraction (GEN_HKL and SF_HKL routines). This has to be
+       specified by the BEAM keyword and "ELECTRONS" argument
      # Some examples of CFL input files can be downloaded from the
        CRYSCAL web site (www.cdifx.univ-rennes1.fr/cryscal)
      # Some changes in output files :
@@ -2401,7 +2522,6 @@ environment variable.</p>
 
     <font color="darkred">[WEB ADDRESS]</font>
     fps        = www.ill.fr/dif/Soft/fp/
-    cri        = www.cri.univ-rennes1.fr/
     cdifx      = www.cdifx.univ-rennes1.fr/
     cryscal    = www.cdifx.univ-rennes1.fr/cryscal
     reciprocs  = www.cdifx.univ-rennes1.fr/reciprocs
@@ -2419,6 +2539,9 @@ environment variable.</p>
     address     = Centre de Diffractométrie X, UMR6511 CNRS Université de Rennes 1,Sciences Chimiques de Rennes, 35042 RENNES Cedex France
     email       = thierry.roisnel@univ-rennes1.fr
     web         = www.cdifx.univ-rennes1.fr
+
+    <font color="darkred">[ARRAYS DIMENSIONS]</font>
+    hkl_reflections = 200000       ! max. number of hkl reflections in a file
 
     <font color="darkred">[CREATE INS]</font>
     temperature = 100K       ! experimental temperature value
@@ -2447,6 +2570,17 @@ environment variable.</p>
     absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
     absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
 
+    <font color="darkred">[OPTIONS]</font>
+    LOCK_wave_value              = 0.02   ! lock wavelength to anticathode value
+    CIF_format80                 = 0      ! formatted line, when creating a CIF file, if more than 80 characters
+    include_RES_file             = 1      ! include .RES file in the archive_cryscal.cif file
+    update_parameters            = 1      ! update parameters after transformation(cell parameters, atomic coordinates) 
+
+    <font color="darkred">[USER TRANSFORMATION MATRICES]</font>
+    MAT_1                        =     2.  0.  0.    0.  1.  0.    0.  0.  1.   !  2abc
+    MAT_2                        =     1.  0.  0.    0.  2.  0.    0.  0.  1.   !  a2bc
+    MAT_3                        =     1.  0.  0.    0.  1.  0.    0.  0.  2.   !  ab2c
+
 <A HREF="#cryscal_main">[return]</a>
 </pre>
 <br>
@@ -2471,6 +2605,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>CDIFX - Feb. 2011</i></P>
+<p class='retrait_2'>last updated: <i>TR / CDIFX - Jan. 2012</i></P>
 </BODY>
 </HTML>

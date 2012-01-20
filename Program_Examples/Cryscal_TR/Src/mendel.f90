@@ -327,7 +327,7 @@ end subroutine write_atomic_features_from_CFML
 subroutine write_X_rays_scatt_factors(symb_car)
  USE CFML_Scattering_Chemical_Tables
  USE cryscal_module,                   ONLY : message_text, mendel_atom_nb,  mendel_atom_label, mendel_plot, PGF_file, PGF_data, &
-                                              winplotr_exe
+                                              winplotr_exe, allocate_PGF_data_arrays
  USE macros_module,                    ONLY : u_case
  USE IO_module,                        ONLY : write_info
 
@@ -346,6 +346,8 @@ subroutine write_X_rays_scatt_factors(symb_car)
 
   !call Set_Xray_Form ! definition des facteurs de diffusion
 
+  call Allocate_PGF_data_arrays(76)
+  
   !do i=1, mendel_atom_nb
    ok = .false.
    do j=1, Num_Xray_Form
@@ -390,7 +392,7 @@ subroutine write_X_rays_scatt_factors(symb_car)
       f0(i) = f0(i) + Xray_form(j)%A(k)*EXP(-Xray_form(j)%B(k)*stl(i)**2)
      end do
      f0(i) = f0(i) + Xray_form(j)%C
-     WRITE(pgf_data(i)%string, '(a,F6.2,a,F6.3)') 'stl (A-1) = ', stl(i), '  f0 = ', f0(i)
+     WRITE(pgf_data%string(i), '(a,F6.2,a,F6.3)') 'stl (A-1) = ', stl(i), '  f0 = ', f0(i)
     end do
     WRITE(Pgf_file%NAME, '(a)') TRIM(u_case(Xray_form(j)%symb))//'_X_scat_fact_versus_stl.pgf'
     call create_PGF_file(TRIM(Pgf_file%name), stl, f0, pgf_data%string, 76, "f0 :"//u_case(Xray_form(j)%symb))
@@ -477,7 +479,7 @@ subroutine WRITE_data(input_string)
  USE cryscal_module, ONLY : message_text, pgf_data, pgf_file,                                              &
                             known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x,  &
                             data_neutrons_PLOT, data_Xrays_PLOT, data_atomic_density_PLOT, data_atomic_weight_PLOT,      &
-                            data_atomic_radius_PLOT,   winplotr_exe
+                            data_atomic_radius_PLOT,   winplotr_exe, allocate_PGF_data_arrays
  USE atome_module,   ONLY : atom
  USE wavelength_module
  use atomic_data
@@ -490,6 +492,8 @@ subroutine WRITE_data(input_string)
   REAL                          :: Xmin, Xmax, Ymin, Ymax
 
 
+  call Allocate_PGF_data_arrays(96)
+  
   if(.not. known_atomic_label)  then
    call definition_atomic_label    ! %symbol, %name
    known_atomic_label = .true.
@@ -521,8 +525,8 @@ subroutine WRITE_data(input_string)
        IF(data_neutrons_PLOT) then
         pgf_file%name = 'neutrons_bcoh.pgf'
         do i=1,96
-         pgf_data(i)%X = REAL(i)
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%bcoh
+         pgf_data%X(i) = REAL(i)
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%bcoh
         END do
         call create_PGF_file(TRIM(pgf_file%name), pgf_data%X, atom%bcoh, pgf_data%string, 96, "bcoh")
         IF(LEN_TRIM(winplotr_exe) == 0) then
@@ -536,7 +540,7 @@ subroutine WRITE_data(input_string)
 
         pgf_file%name = 'neutrons_sedinc.pgf'
         do i=1,96
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sedinc
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sedinc
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sedinc, pgf_data%string, 96, "sedinc")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )    ! lf95
@@ -544,7 +548,7 @@ subroutine WRITE_data(input_string)
 
         pgf_file%name = 'neutrons_sea.pgf'
         do i=1,96
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sea
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%sea
         END do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%sea, pgf_data%string, 96, "sea")
         !IF(LEN_TRIM(winplotr_exe) /=0) call system('winplotr '//trim(pgf_file%name), .true. )
@@ -604,8 +608,8 @@ subroutine WRITE_data(input_string)
           write(11,'(a)')        '#             STYLE : 1'
           write(11,'(a)')        '#   DATA: X Y COMM'
           do i = 1, 96
-           pgf_data(i)%X = REAL(i)
-           WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%tics(k)
+           pgf_data%X(i) = REAL(i)
+           WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%tics(k)
           end do
           call create_PGF_file_multi(11,pgf_data%X, atom%tics(k), pgf_data%string, 96)
          END do
@@ -675,8 +679,8 @@ subroutine WRITE_data(input_string)
           write(11,'(a)')        '#             STYLE : 1'
           write(11,'(a)')        '#   DATA: X Y COMM'
           do i = 1, 96
-           pgf_data(i)%X = REAL(i)
-           WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%cam(k)
+           pgf_data%X(i) = REAL(i)
+           WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%cam(k)
           end do
           call create_PGF_file_multi(11,pgf_data%X, atom%cam(k), pgf_data%string, 96)
          END do
@@ -706,8 +710,8 @@ subroutine WRITE_data(input_string)
        IF(data_atomic_density_PLOT) then
         pgf_file%name = 'atomic_density.pgf'
         do i=1, 96
-         pgf_data(i)%X = REAL(i)
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%density
+         pgf_data%X(i) = REAL(i)
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%density
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%density, pgf_data%string, 96, "density")
         IF(LEN_TRIM(winplotr_exe) == 0) then
@@ -732,8 +736,8 @@ subroutine WRITE_data(input_string)
        IF(data_atomic_radius_PLOT) then
         pgf_file%name = 'atomic_radius.pgf'
         do i=1, 96
-         pgf_data(i)%X = REAL(i)
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%radius
+         pgf_data%X(i) = REAL(i)
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%radius
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%radius, pgf_data%string, 96, "radius")
         IF(LEN_TRIM(winplotr_exe) == 0) then
@@ -758,8 +762,8 @@ subroutine WRITE_data(input_string)
        if (data_atomic_weight_PLOT) then
         pgf_file%name = 'atomic_weight.pgf'
         do i=1,96
-         pgf_data(i)%X = REAL(i)
-         WRITE(pgf_data(i)%string, '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%weight
+         pgf_data%X(i) = REAL(i)
+         WRITE(pgf_data%string(i), '(2a,F15.5)') atom(i)%symbol, ': ', atom(i)%weight
         end do
         call create_PGF_file(TRIM(pgf_file%name),pgf_data%X, atom%weight, pgf_data%string, 96, "weight")
         IF(LEN_TRIM(winplotr_exe) == 0) then

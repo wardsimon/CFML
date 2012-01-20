@@ -4,8 +4,7 @@ subroutine read_and_sort_HKL(input_string)
  USE cryscal_module, ONLY      : nb_sort,  sort_type,  cut_off,             &
                                  nb_shell, shell_type, shell_plot,          &
                                  keyword_CELL, keyword_WAVE, keyword_FILE,  &
-                                 HKL_unit, message_text
- USE HKL_module,     ONLY      : HKL_file
+                                 HKL_unit, message_text, lecture_OK
  USE macros_module,  ONLY      : test_file_exist
  USE IO_module,      ONLY      : write_info
  USE hkl_module
@@ -14,9 +13,22 @@ subroutine read_and_sort_HKL(input_string)
   CHARACTER (LEN=*), INTENT(IN)        :: input_string
   INTEGER                              :: i
   LOGICAL                              :: file_exist
-  LOGICAL                              :: lecture_ok
+  !LOGICAL                              :: lecture_ok
   CHARACTER (LEN=4)                    :: ext_string
+  INTEGER                              :: long_input_string
+  LOGICAL                              :: input_sort, input_shell
 
+  !lecture_ok = .false.
+  input_sort  = .false.
+  input_shell = .false.
+  
+  long_input_string = len_trim(input_string)
+  if(long_input_string == 4) then
+   IF(input_string(1:4) == 'sort') input_sort = .true.
+  elseif(long_input_string == 5) then
+   IF(input_string(1:5) == 'shell') input_shell = .true.
+  endif
+  
 
   IF(.NOT. keyword_FILE) then
    call write_info('')
@@ -43,14 +55,13 @@ subroutine read_and_sort_HKL(input_string)
   call write_info(' ')
   i = INDEX(HKL_file%NAME, ".")
   if (i/=0) then
-   IF(input_string(1:4) == 'sort') then
-
+   IF(input_sort) then
     HKL_file%d     = TRIM(HKL_file%NAME(1:i-1))//'_sort_d'//TRIM(ext_string)
     HKL_file%stl   = TRIM(HKL_file%NAME(1:i-1))//'_sort_stl'//TRIM(ext_string)
     HKL_file%theta = TRIM(HKL_file%NAME(1:i-1))//'_sort_theta'//TRIM(ext_string)
     HKL_file%I     = TRIM(HKL_file%NAME(1:i-1))//'_sort_i'//TRIM(ext_string)
     HKL_file%Isig  = TRIM(HKL_file%NAME(1:i-1))//'_sort_isig'//TRIM(ext_string)
-   ELSEIF(input_string(1:5) == 'shell') then
+   ELSEIF(input_shell) then
     HKL_file%d     = TRIM(HKL_file%NAME(1:i-1))//'_shell_d'//TRIM(ext_string)
     HKL_file%stl   = TRIM(HKL_file%NAME(1:i-1))//'_shell_stl'//TRIM(ext_string)
     HKL_file%theta = TRIM(HKL_file%NAME(1:i-1))//'_shell_theta'//TRIM(ext_string)
@@ -70,8 +81,8 @@ subroutine read_and_sort_HKL(input_string)
       call write_info('  >>> Create '// TRIM(HKL_file%d)// ' file ...')
       call write_info(' ')
 
-      OPEN(UNIT=12, FILE=TRIM(HKL_file%d))
-      IF(.not. HKL_data_known) call read_data_file(lecture_ok)
+      OPEN(UNIT=12, FILE=TRIM(HKL_file%d))	  
+      IF(.not. HKL_data_known) call read_data_file(lecture_ok)	  
       IF(.NOT. lecture_ok) return
       call classement(i,'shell_d')
       CLOSE(UNIT=12)
@@ -250,7 +261,7 @@ end subroutine read_and_sort_HKL
 subroutine read_data_file(ok)
  USE cryscal_module,    ONLY         : cut_off, unit_cell, wave => wavelength,              &
                                        keyword_CELL, keyword_WAVE, message_text, HKL_unit,  &
-                                       PGF_data, PGF_file, known_theta, keyword_create_CIF, &
+                                       known_theta, keyword_create_CIF, &
                                        crystal_system 
  USE HKL_module
  USE IO_module,         ONLY          : write_info
@@ -322,6 +333,9 @@ subroutine read_data_file(ok)
    !call volume_calculation('out')
    call get_crystal_system_from_CIF_file(HKL_unit, crystal_system)
    keyword_CELL = .true.
+   
+   call get_H_M_from_CIF_file(HKL_unit, unit_cell%H_M)
+   
    call read_lines_before_hkl(HKL_unit, cos_exist)
    IF(.not. cos_exist) then
     HKL_file%HKL = 'import.HKL'
@@ -714,14 +728,17 @@ END subroutine check_F2
 
 !----------------------------------------------------------------------------------------------------------------
 subroutine check_nref(n_ref)
- USE HKL_module, ONLY : max_ref
+ !USE HKL_module, ONLY : max_ref
+ USE cryscal_module, ONLY : max_ref
  USE IO_module,  ONLY : write_info
  INTEGER, INTENT(IN)  :: n_ref
 
     IF(n_ref > max_ref) then
      call write_info('')
      call write_info('  >> Number of reflections larger than arrays dimensions.')
-     call write_info('     Please inform the author of CRYSCAL program (T.R./ CDIFX Rennes):')
+	 call write_info('     Change the hkl array in the cryscal.ini setting file')
+     call write_info('     if lower than 500000 or contact the author of CRYSCAL')
+     call write_info('     program (T.R./ CDIFX Rennes):')
      call write_info('      thierry.roisnel@univ-rennes1.fr')
      call write_info('     Program will be stopped.')
      call write_info(' ')
@@ -735,7 +752,8 @@ subroutine classement(n, input_string)
                                      sort_out, sort_out_n,                                             &
                                      keyword_CELL, keyword_WAVE, message_text,                         &
                                      nb_shell, shell_arg_min_max, shell_min, shell_max,                &
-                                     PGF_data, PGF_file, known_theta, winplotr_exe, input_line
+                                     PGF_data, PGF_file, known_theta, winplotr_exe, input_line,        &
+									 allocate_PGF_data_arrays
  USE CFML_Math_General,       ONLY          : sort
  USE hkl_module
  USE IO_module
@@ -757,12 +775,23 @@ subroutine classement(n, input_string)
  real                              :: intensity_max, expected_max_intensity
  real, parameter                   :: eps = 0.000001
  INTEGER,  ALLOCATABLE, DIMENSION(:) :: ordered_array
-
+ 
+ LOGICAL                           :: sort_X
+ LOGICAL                           :: X_stl, X_d, X_theta, X_int, X_isig
+ LOGICAL                           :: shell_X, shell_stl, shell_d, shell_theta, shell_int, shell_isig
+ LOGICAL                           :: input_sort, input_no_sort
 
   long_input_string = LEN_TRIM(input_string)
+  input_sort    = .false.
+  input_no_sort = .false.
+  if(long_input_string == 5) then
+   if(input_string(1:5) == 'sort_') input_sort = .true.
+  elseif(long_input_string == 7) then
+   if(input_string(1:7) == 'no_sort') input_no_sort = .true.
+  endif 
 
 
-  IF(input_string(1:5) == 'sort_' .or. input_string(1:7) == 'no_sort') then
+  IF(input_sort .or. input_no_sort) then
    if (n==0 .or. n==1) then
     call test_ratio_I_sig()
     !call statistics_on_E2()
@@ -794,10 +823,12 @@ subroutine classement(n, input_string)
    endif
   endif
 
-
+  
    IF(ALLOCATED(ordered_array)) DEALLOCATE(ordered_array)
    ALLOCATE(ordered_array(n_ref))
 
+   
+   
    select case (input_string)
      case ('sort_stl')
        call write_info('')
@@ -891,13 +922,49 @@ subroutine classement(n, input_string)
 
 
    IF(keyword_CELL) then
-    IF(input_string(1:5) == 'sort_' .or. input_string(1:9) == 'shell_stl') then
-     call write_info('')
+    sort_X      = .false.
+    X_stl       = .false.
+	X_d         = .false.
+	X_theta     = .false.
+	X_int       = .false.
+	X_isig      = .false.
+	shell_X     = .false.
+	shell_stl   = .false.
+	shell_theta = .false.
+	shell_d     = .false.
+	shell_int   = .false.
+	shell_isig  = .false.
+	
+    if(long_input_string >= 5) then
+	 if(input_string(1:5) == 'sort_') sort_X = .true.
+	endif 
+	if(long_input_string == 7) then
+	 if(input_string(1:7) == 'shell_d') shell_d = .true.
+	endif
+	if(long_input_string == 9) then
+	 if(input_string(1:9) == 'shell_stl') shell_stl = .true.
+	 if(input_string(1:9) == 'shell_int') shell_int = .true.
+	endif	
+	if(long_input_string == 10) then
+	 if(input_string(1:10) == 'shell_isig') shell_isig = .true.
+	endif
+	if(long_input_string == 11) then
+	 if(input_string(1:11) == 'shell_theta') shell_theta = .true.
+	endif
+	if (input_string(long_input_string-2:long_input_string) == 'stl')   X_stl   = .true.
+	if (input_string(long_input_string  :long_input_string) == 'd')     X_d     = .true.
+	if (input_string(long_input_string-4:long_input_string) == 'theta') X_theta = .true.
+	if (input_string(long_input_string-2:long_input_string) == 'int')   X_int   = .true.
+	if (input_string(long_input_string-3:long_input_string) == 'isig')  X_isig  = .true.
+   
+   
+    IF(sort_X .or. shell_stl) then
+	 call write_info('')
      write(message_text,'(a,2(2x,F8.5))') '  Experimental (sinTheta/lambda) shell: ',   min_stl, max_stl
      call write_info(TRIM(message_text))
      call write_info('')
 
-     if (input_string(long_input_string-2:long_input_string) == 'stl' ) then
+     if (X_stl) then
       IF(.NOT. shell_arg_min_max) then
        call write_info(' > Enter expected (sinTheta/lambda) min. and max. values [0. 0.: exp. values]: ')
        call read_input_line(input_line)
@@ -921,11 +988,11 @@ subroutine classement(n, input_string)
      endif
     endif
 
-    IF(input_string(1:5) == 'sort_' .or. input_string(1:7) == 'shell_d') then
+    IF(sort_X .or. shell_d) then
      write(message_text,'(a,2(2x,F8.5))') '  Experimental d_hkl(A) shell:          ',   min_d_hkl, max_d_hkl
      call write_info(TRIM(message_text))
      call write_info('')
-     if (input_string(long_input_string:long_input_string) == 'd' ) then
+     if (X_d) then
       IF(.NOT. shell_arg_min_max) then
        call write_info('  > Enter expected d_hkl min. and max. values [0. 0.: exp. values]: ')
        call read_input_line(input_line)
@@ -949,11 +1016,11 @@ subroutine classement(n, input_string)
      endif
     endif
 
-    IF(input_string(1:5) == 'sort_' .or. input_string(1:11) == 'shell_theta') then
+    IF(sort_X .or. shell_theta) then
      write(message_text,'(a,2(2x,F8.3))') '  Experimental theta(deg) shell:        ',   min_theta, max_theta
      call write_info(TRIM(message_text))
      call write_info('')
-     if (input_string(long_input_string-4:long_input_string) == 'theta' ) then
+     if (X_theta) then
       IF(.NOT. shell_arg_min_max) then
        call write_info(' > Enter expected theta min. and max. values [0. 0.: exp. values]: ')
        call read_input_line(input_line)
@@ -979,7 +1046,7 @@ subroutine classement(n, input_string)
    ENDIF ! fin de la condition if (keyword_CELL
 
 
-   IF(input_string(1:5) == 'sort_' .or. input_string(1:9) == 'shell_int') then
+   IF(sort_X .or. shell_int) then
     IF(.not. HKL_file%M91 .and. .not. HKL_file%M95) then
      write(message_text,'(a,2F8.2)')      '  Experimental Intensities shell:        ', intensity_min, intensity_max
     else
@@ -988,7 +1055,7 @@ subroutine classement(n, input_string)
     call write_info(TRIM(message_text))
     call write_info('')
 
-    if (input_string(long_input_string-2:long_input_string) == 'int' ) then
+    if (X_int) then
      IF(.NOT. shell_arg_min_max) then
       call write_info(' > Enter expected Intensity cut-off min. and max. values [0. 0.: exp. values]: ')
       call read_input_line(input_line)
@@ -1011,7 +1078,7 @@ subroutine classement(n, input_string)
     endif
    endif
 
-   IF(input_string(1:5) == 'sort_' .or. input_string(1:10) == 'shell_isig') then
+   IF(sort_X .or. shell_isig) then
     IF(.not. HKL_file%M91 .and. .not. HKL_file%M95) then
      write(message_text,'(a,2F8.2)')       '  Experimental (I/sig) shell:           ', min_cut_off, max_cut_off
     else
@@ -1020,7 +1087,7 @@ subroutine classement(n, input_string)
     call write_info(TRIM(message_text))
     call write_info('')
 
-    IF(input_string(long_input_string-3:long_input_string) == 'isig' ) then
+    IF(X_isig) then
      IF(.NOT. shell_arg_min_max) then
       call write_info(' > Enter expected I/sig cut-off min. and max. values [0. 0.: exp. values]: ')
       call read_input_line(input_line)
@@ -1065,6 +1132,8 @@ subroutine classement(n, input_string)
     end do
    endif
 
+   call Allocate_PGF_data_arrays(n_ref)
+   
     call write_info('')
     select case (input_string)
      case ('sort_d', 'shell_d')
@@ -1073,12 +1142,12 @@ subroutine classement(n, input_string)
        if(d_hkl(i) >= expected_min_d_hkl .and. d_hkl(i) <= expected_max_d_hkl)  then
         call write_sorted_file(i)
         n_ref_eff = n_ref_eff + 1        
-       	pgf_data(n_ref_eff)%X = d_hkl(i)
-       	pgf_data(n_ref_eff)%Y = F2(i)
-       	pgf_data(n_ref_eff)%h = h(i)
-       	pgf_data(n_ref_eff)%k = k(i)
-       	pgf_data(n_ref_eff)%l = l(i)
-        WRITE(pgf_data(n_ref_eff)%string, '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
+       	pgf_data%X(n_ref_eff) = d_hkl(i)
+       	pgf_data%Y(n_ref_eff) = F2(i)
+       	pgf_data%h(n_ref_eff) = h(i)
+       	pgf_data%k(n_ref_eff) = k(i)
+       	pgf_data%l(n_ref_eff) = l(i)
+        WRITE(pgf_data%string(n_ref_eff), '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
         
         IF(sort_out(n) .AND. n_ref_eff <=sort_out_n(n)) then
          if(i==1) then
@@ -1123,12 +1192,12 @@ subroutine classement(n, input_string)
        if(sinTheta_lambda(i) >= expected_min_stl .and. sinTheta_lambda(i) <= expected_max_stl) then
         call write_sorted_file(i)
         n_ref_eff = n_ref_eff + 1
-       	pgf_data(n_ref_eff)%X = sinTheta_lambda(i)
-       	pgf_data(n_ref_eff)%Y = F2(i)
-       	pgf_data(n_ref_eff)%h = h(i)
-       	pgf_data(n_ref_eff)%k = k(i)
-       	pgf_data(n_ref_eff)%l = l(i)
-        WRITE(pgf_data(n_ref_eff)%string, '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
+       	pgf_data%X(n_ref_eff) = sinTheta_lambda(i)
+       	pgf_data%Y(n_ref_eff) = F2(i)
+       	pgf_data%h(n_ref_eff) = h(i)
+       	pgf_data%k(n_ref_eff) = k(i)
+       	pgf_data%l(n_ref_eff) = l(i)
+        WRITE(pgf_data%string(n_ref_eff), '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
         IF(sort_out(n) .AND. n_ref_eff<=sort_out_n(n)) then
          if(i==1) then
           call write_info('    h   k   l      F2     sig      stl (A-1)')          
@@ -1173,12 +1242,12 @@ subroutine classement(n, input_string)
        if(Theta_hkl(i) >= expected_min_theta .and. theta_hkl(i) <= expected_max_theta) then
         call write_sorted_file(i)
         n_ref_eff = n_ref_eff + 1
-       	pgf_data(n_ref_eff)%X = Theta_hkl(i)
-       	pgf_data(n_ref_eff)%Y = F2(i)
-       	pgf_data(n_ref_eff)%h = h(i)
-       	pgf_data(n_ref_eff)%k = k(i)
-       	pgf_data(n_ref_eff)%l = l(i)
-        WRITE(pgf_data(n_ref_eff)%string, '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
+       	pgf_data%X(n_ref_eff)= Theta_hkl(i)
+       	pgf_data%Y(n_ref_eff) = F2(i)
+       	pgf_data%h(n_ref_eff) = h(i)
+       	pgf_data%k(n_ref_eff) = k(i)
+       	pgf_data%l(n_ref_eff) = l(i)
+        WRITE(pgf_data%string(n_ref_eff), '(a,3I4,a)') '(', h(i), k(i), l(i), ')'
         IF(sort_out(n) .AND. n_ref_eff <=sort_out_n(n)) then
          if(i==1) then
           call write_info('    h   k   l      F2     sig    theta (deg)')
@@ -1544,8 +1613,8 @@ end subroutine calcul_Q
  subroutine sort_arrays(sort_type, sort_sign, ordered, Z)
 
  ! classement d'un tableau X,Y... par ordre croissant des X
-   USE cryscal_module, ONLY : message_text
- USE IO_module,        ONLY : write_info
+   USE cryscal_module, ONLY : message_text, max_ref
+   USE IO_module,      ONLY : write_info
    USE HKL_module,     ONLY : n_ref, h, k,l, F2, sig_F2, code, cos_dir, HKL_flag
 
   implicit none
@@ -1569,12 +1638,12 @@ end subroutine calcul_Q
    if (ALLOCATED(temp_H))      DEALLOCATE(temp_H)
    if (ALLOCATED(temp_code))   DEALLOCATE(temp_code)
 
-   ALLOCATE(temp_Z(500000))
-   ALLOCATE(temp_F2(500000))
-   ALLOCATE(temp_sig_F2(500000))
-   ALLOCATE(temp_cos(500000,6))
-   ALLOCATE(temp_code(500000))
-   ALLOCATE(temp_H(500000,3))
+   ALLOCATE(temp_Z(Max_ref))
+   ALLOCATE(temp_F2(Max_ref))
+   ALLOCATE(temp_sig_F2(Max_ref))
+   ALLOCATE(temp_cos(Max_ref,6))
+   ALLOCATE(temp_code(Max_ref))
+   ALLOCATE(temp_H(Max_ref,3))
 
 
 
@@ -1613,9 +1682,9 @@ end subroutine calcul_Q
          temp_cos(i,1:6)  = cos_dir(rang,1:6)
 
          if (1000*int(i/1000) == i ) then
-           write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)') '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
-                                                           '  (',temp_H(i,1:3),')'
-           call write_info(TRIM(message_text))
+   		   write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
+                                                              '  (',temp_H(i,1), temp_H(i,2),temp_H(i,3),')'
+		   call write_info(TRIM(message_text))
          endif
         end do
         !Z       = temp_Z
@@ -1640,8 +1709,8 @@ end subroutine calcul_Q
          temp_code(i)     = code(rang)
          temp_cos(i,1:6)  = cos_dir(rang,1:6)
          if (1000*int(i/1000) == i ) then
-           write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)') '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
-                                                           '  (',temp_H(i,1:3),')'
+		   write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
+                                                     '  (',temp_H(i,1), temp_H(i,2),temp_H(i,3),')'
            call write_info(TRIM(message_text))
          endif
         end do

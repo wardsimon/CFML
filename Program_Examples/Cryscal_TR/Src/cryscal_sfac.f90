@@ -775,7 +775,7 @@ subroutine create_diffraction_pattern(input_string, wavelength, X_min, X_max, re
  write(unit=PAT_unit, fmt='(a,F12.5,a)')  '! Wavelength  = ', wavelength, ' A'
  write(unit=PAT_unit, fmt='(3(a,F8.3))')  '! 2theta_min  = ', X_min, ' 2theta_max  = ', X_max , ' 2theta_step = ', step
  write(unit=PAT_unit, fmt='(a,3F8.4)')    '! Resolution UVW parameters = ', U, V, W
- write(unit=PAT_unit, fmt='(a,F5.3)')     '! Pseudo-Voigt profile : eta = ', eta
+ write(unit=PAT_unit, fmt='(a,F6.3)')     '! Pseudo-Voigt profile : eta = ', eta
  write(unit=PAT_unit, fmt='(a,F6.0)')     '! Constant backgound value = ', background
  write(unit=PAT_unit, fmt='(a,80a1)')     '!', ('-',i=1,80)
 

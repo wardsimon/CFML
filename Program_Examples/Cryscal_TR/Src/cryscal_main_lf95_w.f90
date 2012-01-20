@@ -20,8 +20,9 @@ program crystallographic_calculations
 
 
  ! >>>>  initialisation
-  call cryscal_init()
   call Def_transformation_matrix
+  call cryscal_init()
+  tmp_logical = .false.
 
 
  ! >>>>  analyse de la ligne de commande

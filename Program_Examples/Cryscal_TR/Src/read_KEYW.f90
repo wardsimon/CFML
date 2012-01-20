@@ -66,7 +66,7 @@ subroutine identification_keywords(read_line)
   INTEGER                                    :: long_kw, long, long1, long2
   CHARACTER (LEN=256)                        :: arg_line, new_line, arg1
   CHARACTER (LEN=12), DIMENSION(nb_help_max) :: temp_string
-  INTEGER                                    :: i, j, i1, i2, i_error, nb_arg
+  INTEGER                                    :: i, j, i1, i2, num, i_error, nb_arg
   INTEGER                                    :: current_i, i_ok
   REAL,               DIMENSION(10)          :: var
   CHARACTER (LEN=64), DIMENSION(20)          :: arg_string
@@ -117,13 +117,13 @@ subroutine identification_keywords(read_line)
 
    case ('ACTA', 'CIF', 'CREATE_CIF')
     keyword_create_CIF = .true.
-    OPEN(UNIT=CIF_unit, FILE='cryscal.cif')
-    do i=1, CIF_lines_nb
-     WRITE(CIF_unit, '(a)') trim(CIF_title_line(i))
-    end do
-    WRITE(CIF_unit, '(a)') ''
-    WRITE(CIF_unit, '(a)') 'data_cryscal'
-    WRITE(CIF_unit, '(a)') ''
+    !OPEN(UNIT=CIF_unit, FILE='cryscal.cif')
+    !do i=1, CIF_lines_nb
+    ! WRITE(CIF_unit, '(a)') trim(CIF_title_line(i))
+    !end do
+    !WRITE(CIF_unit, '(a)') ''
+    !WRITE(CIF_unit, '(a)') 'data_cryscal'
+    !WRITE(CIF_unit, '(a)') ''
     
    case ('CREATE_ACE')
     keyword_create_ACE = .true.  
@@ -601,7 +601,7 @@ subroutine identification_keywords(read_line)
 
    CASE ('MAT', 'MATR', 'MATRIX')
     ! matrice de transformation
-    keyword_MATR = .false.
+    keyword_MAT = .false.
     matrix_num = 0
     IF(nb_arg == 1) then
      IF(arg_string(1)(1:1) == 'I' .OR. arg_string(1)(1:2) == '+I') then
@@ -609,7 +609,16 @@ subroutine identification_keywords(read_line)
      ELSEIF(arg_string(1)(1:2) == '-I') then
       matrix_num = 2
      ELSEIF(arg_string(1)(1:1) == '#') then
-      READ(arg_string(1)(2:),*) matrix_num
+      READ(arg_string(1)(2:),*,  iostat=i_error) num
+	  if(i_error == 0) then
+	   matrix_num = num
+	  else
+       call write_info('')
+       WRITE(message_text, '(a)') ' ... Incorrect way to input the matric. Please enter "MAN MAT" keyword for more details.'
+       call write_info(trim(message_text))
+       call write_info('')
+	   return
+	  endif
      else
       call check_arg('9', 'MATRIX')
       return
@@ -663,16 +672,19 @@ subroutine identification_keywords(read_line)
      return
     endif
 
-    IF(matrix_num /=0 .and. (matrix_num <1 .OR. matrix_num > max_mat_nb)) then
+    IF(matrix_num /=0 .and. (matrix_num <1 .OR. matrix_num > max_mat_nb+max_user_mat_nb)) then
      call write_info('')
-     WRITE(message_text, '(a,i2,a)') ' ... Numor of matrix has to be in the 1-', max_mat_nb, ' range...'
+     WRITE(message_text, '(a,i2,a)') ' ... Numor of matrix has to be in the 1-', max_mat_nb+max_user_mat_nb, ' range...'
      call write_info(trim(message_text))
      call write_info('')
      return
     endif
-    IF(matrix_num /=0 .and. matrix_num <=max_mat_nb) then
-     call def_transformation_matrix()
-      Mat(1:3,1:3) = transf_mat(1:3,1:3,matrix_num)
+    IF(matrix_num /=0 ) then
+	 !if(matrix_num <=max_mat_nb+max_user_mat_nb) then
+     ! call def_transformation_matrix()
+	 !endif 
+     Mat(1:3,1:3) = transf_mat(1:3,1:3,matrix_num)
+	 
     ELSEIF(nb_arg /=3) then
      i1 = index(arg_line, '/')
      if(i1 /=0) then ! elements fractionnaires
@@ -683,15 +695,98 @@ subroutine identification_keywords(read_line)
       READ(arg_string(7:9), *) Mat(3,1:3)
      endif 
     endif
-    keyword_MATR = .true.
+    keyword_MAT = .true.
     call check_matrice(Mat)    
     WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
     call write_info(TRIM(message_text))
     call write_info('')
 
+   CASE ('USER_MAT', 'USER_MATR', 'USER_MATRIX')
+    if(user_mat_nb == 0) then
+	 call write_info('')     
+     call write_info(' ... No matrix provided by user in the setting.ini file !')
+     call write_info('')
+	 return
+	endif
+	
+    ! matrice de transformation
+    keyword_MAT = .false.
+    matrix_num  = 0
+	matrix_text = '?'
+    IF(nb_arg /= 0) then
+     IF(arg_string(1)(1:1) == '#') then
+      READ(arg_string(1)(2:),*) matrix_num	
+     ELSEIF(arg_string(1)(1:1) == '$') then
+      read(arg_string(1)(2:),*) matrix_text
+	  matrix_text = adjustl(matrix_text)
+      do i=1, user_mat_nb
+	   if(l_case(matrix_text(1:len_trim(matrix_text))) == l_case(user_mat_text(i)(1:len_trim(user_mat_text(i))))) then
+        matrix_num = i
+        exit
+       else
+	    call write_info('')
+        WRITE(message_text, '(a)') ' ... Matrix not defined in the setting file !'
+        call write_info(trim(message_text))
+        call write_info('')
+        return
+       endif		
+      end do 
+	  
+     else
+	  read(arg_string(1), *, iostat=i_error) matrix_num      
+	  if(i_error/=0) then
+	   matrix_num = 1
+	   return
+	  endif	  
+     endif  
+    endif
+
+    IF(matrix_num /=0 .and. (matrix_num <1 .OR. matrix_num > user_mat_nb)) then
+     call write_info('')
+     WRITE(message_text, '(a,i2,a)') ' ... Numor of user matrix has to be in the 1-', user_mat_nb, ' range...'
+     call write_info(trim(message_text))
+     call write_info('')
+     return
+    endif
+    IF(matrix_num /=0 ) then	 
+     matrix_num = matrix_num + max_mat_nb	 
+     Mat(1:3,1:3) = transf_mat(1:3,1:3,matrix_num)	 
+    endif
+    keyword_MAT = .true.
+    call check_matrice(Mat)    
+    WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
+    call write_info(TRIM(message_text))
+    call write_info('')
+	
+	
    CASE ('LST_MAT', 'LST_MATR', 'LST_MATRIX',  'LIST_MAT',  'LIST_MATR',  'LIST_MATRIX', 'LIST_TRANSFORMATION_MATRIX')
     keyword_LST_MAT  = .true.
 
+
+	
+   CASE ('DIAG', 'DIAG_MAT', 'DIAG_MATR', 'DIAG_MATRIX')
+    ! matrice 3*3 a diagonaliser
+    keyword_DIAG = .false.    
+       
+    if(nb_arg /=9) then
+     call check_arg('9', 'DIAG_MATRIX')
+     return
+    endif
+	i1 = index(arg_line, '/')
+    if(i1 /=0) then ! elements fractionnaires
+     call Get_matrix_coord(arg_line)
+    else
+     READ(arg_string(1:3), *) Mat(1,1:3)
+     READ(arg_string(4:6), *) Mat(2,1:3)
+     READ(arg_string(7:9), *) Mat(3,1:3)
+    endif 
+    
+
+    keyword_DIAG = .true.
+    call check_matrice(Mat)    
+    WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
+    call write_info(TRIM(message_text))
+    call write_info('')
 
 
    CASE ('TRANSLATION', 'TRANS', 'TRANSLATE', 'MOVE')
@@ -1128,7 +1223,7 @@ subroutine identification_keywords(read_line)
 
 
 
-   CASE ('THERM', 'THERMAL', 'ADP')
+   CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX')
     THERM_Uiso              = .false.
     THERM_Biso              = .false.
     THERM_Uij               = .false.
@@ -1137,6 +1232,11 @@ subroutine identification_keywords(read_line)
     THERM_aniso             = .false.
     keyword_THERM           = .false.
 
+	if(input_keyword(1:11) == 'THERM_SHELX'     .or.   &
+	   input_keyword(1:13) == 'THERMAL_SHELX'   .or.   &
+	   input_keyword(1:9)  == 'ADP_SHELX')  then
+	   keyword_THERM_SHELX = .true.
+	endif
     IF(nb_arg <2) then
      call check_arg('at least 2', 'THERM')
      return
@@ -1194,7 +1294,7 @@ subroutine identification_keywords(read_line)
    CASE ('SG_INFO', 'SP_INFO', 'SPACE_GROUP_INFO', 'LIST_SPACE_GROUP_INFO')
     WRITE_SPG_info     = .true.
     write_SPG_info_all = .true.
-    write_spg_exti     = .false.
+    write_SPG_exti     = .false.
     IF(nb_arg /=0 .and. arg_string(1)(1:3)=='RED') write_SPG_info_all = .false.
 
    CASE ('SG_EXTI', 'SP_EXTI', 'SG_EXTINCTIONS', 'SPACE_GROUP_EXTI', 'SPACE_GROUP_EXTINCTIONS')
@@ -1208,11 +1308,11 @@ subroutine identification_keywords(read_line)
 
 
    !CASE ('SYM_OP', 'SYMM_OP', 'SYM_OPERATOR', 'SYMM_OPERATOR')
-   CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP',  'WRITE_SYMMETRY_OPERATORS')
+   CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP',  'WRITE_SYM', 'WRITE_SYMM', 'WRITE_SYMMETRY_OPERATORS')
     WRITE_symm_op  = .true.
 
 
-   CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR')
+   CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR', 'APPLY_SYM_OP', 'APPLY_SYMOP')    
     WRITE_APPLY_symm = .true.
 
 
@@ -1335,6 +1435,9 @@ subroutine identification_keywords(read_line)
     list_sg_centric(1:2) = .false.
     list_sg_laue(1:14)   = .true.
     list_sg_multip       = .false.
+	list_sg_enantio      = .false.
+	list_sg_chiral       = .false.
+	list_sg_polar        = .false.
 
     IF(nb_arg == 0) then
      list_sg(1:7)  = .true.
@@ -1381,9 +1484,22 @@ subroutine identification_keywords(read_line)
         list_sg_centric(1:2) = .false.
         list_sg_centric(2) = .true.
         IF(nb_arg == 1) list_sg(1:7) = .true.
+		
+	   case ('enantio', 'enantiomorphic')
+        list_sg_enantio = .true.	   
+		IF(nb_arg == 1) list_sg(1:7) = .true.
+		
+	   case('chiral')
+	    list_sg_chiral = .true.
+		if(nb_arg == 1) list_sg(1:7) = .true.
+
+       case('polar')
+	    list_sg_polar = .true.
+		if(nb_arg == 1) list_sg(1:7) = .true.
 
        case ('mult', 'multip', 'multipl', 'multiplicity')
         list_sg_multip = .true.
+		IF(nb_arg == 1) list_sg(1:7) = .true.
 
        case ('p')
         list_sg_bravais(1:7) = .false.
@@ -1585,16 +1701,16 @@ subroutine identification_keywords(read_line)
     keyword_WEB = .true.
 
    case ('WRITE_CELL', 'OUTPUT_CELL')
-    IF(.NOT. keyword_CELL) then
-     call write_info('')
-     call write_info('  Cell parameters has to be known for WRITE_CELL keyword')
-     call write_info('')
-     return
-    endif
+    !IF(.NOT. keyword_CELL) then
+    ! call write_info('')
+    ! call write_info('  Cell parameters has to be known for WRITE_CELL keyword')
+    ! call write_info('')
+    ! return
+    !endif
     keyword_WRITE_CELL = .true.
 
  
-   case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'OUTPUT_CHEM')
+   case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'WRITE_MOLECULE', 'OUTPUT_CHEM', 'OUTPUT_CHEMICAL_FORMULA',  'OUTPUT_MOLECULE')
     IF(len_trim(molecule%formula) == 0) then
      call write_info('')
      call write_info('  Chemical formula not known !')
@@ -1816,26 +1932,51 @@ subroutine get_SPG(input_string)
 
  implicit none
   character (len=*), intent(in)  :: input_string
+  integer                        :: long_input_string
+  LOGICAL                        :: input_tricl, input_mono, input_ortho, input_tetra, input_trig, input_hexa, input_cub
   
-     IF(input_string(1:4) == 'TRIC') then
+  input_tricl = .false.
+  input_mono  = .false.
+  input_ortho = .false.
+  input_tetra = .false.
+  input_trig  = .false.
+  input_hexa  = .false.
+  input_cub   = .false.
+  
+  long_input_string = len_trim(input_string)
+  
+  if(long_input_string == 4) then
+   if(input_string(1:4) == 'TRIC') input_tricl = .true.
+   if(input_string(1:4) == 'MONO') input_mono  = .true.
+   if(input_string(1:4) == 'TRIG') input_trig  = .true.
+   if(input_string(1:4) == 'HEXA') input_hexa  = .true.
+  elseif(long_input_string == 5) then
+   if(input_string(1:5) == 'ORTHO') input_ortho = .true.
+   if(input_string(1:5) == 'TETRA') input_tetra = .true.
+  elseif(long_input_string == 3) then
+   if(input_string(1:3) == 'CUB')   input_cub = .true.
+  endif   
+
+  
+     IF(input_tricl) then
        space_group_symbol = 'P 1'
        call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:4) == 'MONO')  then
+     ELSEIF(input_mono)  then
       space_group_symbol = 'P 2'
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:5) == 'ORTHO') then
+     ELSEIF(input_ortho) then
       space_group_symbol = 'P 2 2 2'
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:5) == 'TETRA') then
+     ELSEIF(input_tetra) then
       space_group_symbol = 'P 4'
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:4) == 'TRIG')  then
+     ELSEIF(input_trig)  then
       space_group_symbol = 'P 3'
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:4) == 'HEXA')  then
+     ELSEIF(input_hexa)  then
       space_group_symbol = 'P 6'
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_string(1:3) == 'CUB')   then
+     ELSEIF(input_cub)   then
       space_group_symbol = 'P 2 3'
       call set_spacegroup(space_group_symbol, SPG)
      endif

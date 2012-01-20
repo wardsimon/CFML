@@ -1,131 +1,18 @@
 ! Last change:  TR   11 Dec 2007   12:19 pm
 !--------------------------------------------------------------------
-module hkl_module
- implicit none
-
- integer                           :: n_ref          ! nombre de reflections dans le fichier
- integer                           :: n_ref_2        ! nombre de reflections avec I > 2sig
- integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
- INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
- INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
-
-
- !type, public :: reflexion_type
- ! integer,             dimension(:),   allocatable   :: h,k,l, code
- ! real,                dimension(:),   allocatable   :: F2, sig_F2, E, E2, E3, E4, E5, E6
- ! real,                dimension(:),   allocatable   :: stl, d, theta
- ! real,                dimension(:,:), allocatable   :: cos_dir
- ! real,                dimension(:),   allocatable   :: I_sig, I_
- ! logical,             dimension(:),   allocatable   :: impair, search_OK
- ! character (len=16),  dimension(:),   allocatable   :: string
- ! character (len=256), dimension(:),   allocatable   :: line
- ! integer,             dimension(:,:), allocatable   :: flag
- ! integer,             dimension(:),   allocatable   :: good
- !end type reflexion_type
- !type (reflexion_type) :: HKL
-
- integer, parameter                        :: max_ref = 500000
- INTEGER,             DIMENSION(max_ref)   :: h, k, l, code
- REAL,                DIMENSION(max_ref)   :: F2, sig_F2, E, E2, E3, E4, E5, E6
- REAL,                DIMENSION(max_ref)   :: sinTheta_lambda, d_hkl, theta_hkl
- LOGICAL,             DIMENSION(max_ref)   :: HKL_impair
- CHARACTER (LEN=20),  DIMENSION(max_ref)   :: HKL_string
- CHARACTER (LEN=256), DIMENSION(max_ref)   :: HKL_line
- INTEGER,             DIMENSION(max_ref,3) :: HKL_flag
- INTEGER,             DIMENSION(max_ref)   :: HKL_good
- REAL,                DIMENSION(max_ref,6) :: cos_dir
- REAL,                DIMENSION(max_ref)   :: I_sigma,I_
- LOGICAL,             DIMENSION(max_ref)   :: HKL_search_ok
-
- CHARACTER (LEN=256), DIMENSION(10)       :: M95_comment_line
- INTEGER                                  :: M95_comment_line_nb
-
-
- logical                                  :: cos_exist    ! fichier contenant les cos. dir.
- logical                                  :: cif_file     ! fichier *.CIF (ex: import.cif)
- real                                     :: sig_coef     ! coef. pour les sigmas
-
- LOGICAL                                  :: HKL_data_known
-
-
- INTEGER                           :: n_pair, n_impair
- REAL                              :: F2_pair, F2_impair, mean_F2_pair, mean_F2_impair
- REAL                              :: F2_mean, sig_F2_mean, ratio_mean
- REAL                              :: wF2_mean
- REAL                              :: E_mean, E2_mean, E2m1_mean
- REAL                              :: E3_mean, E4_mean, E5_mean, E6_mean
- real                              :: Rint
- REAL                              :: I_ratio, ratio_criteria
- REAL                              :: n_sig, threshold
- LOGICAL                           :: ordered_HKL
-
- character (len=4), dimension(3)           :: requested_H_string
- INTEGER,           DIMENSION(3)           :: requested_H
- integer                                   :: requested_HKL_list
- integer, parameter                        :: HKL_rule_nb =33
- CHARACTER(LEN=32), DIMENSION(2*HKL_rule_nb) :: HKL_rule
- LOGICAL                                   :: search_H_string
- LOGICAL                                   :: search_equiv
- LOGICAL                                   :: search_friedel
-
-
-
- type, public :: HKL_file_features
-  CHARACTER (LEN=256)                          :: name           ! nom du fichier.HKL
-  CHARACTER (LEN=256)                          :: output         ! fichier de sortie .HKL
-  CHARACTER (LEN=256)                          :: output2        ! fichier de sortie .HKL #2
-  CHARACTER (LEN=256)                          :: HKL            ! fichier .HKL
-  CHARACTER (LEN=256)                          :: d
-  CHARACTER (LEN=256)                          :: stl
-  CHARACTER (LEN=256)                          :: theta
-  CHARACTER (LEN=256)                          :: I
-  CHARACTER (LEN=256)                          :: Isig
-  CHARACTER (LEN=256)                          :: merge
-  CHARACTER (LEN=256)                          :: transf
-  LOGICAL                                      :: CIF            ! fichier *.cif (ex: import.cif)
-  LOGICAL                                      :: SHELX          ! fichier *.HKL (SHELX format)
-  LOGICAL                                      :: final_y        ! fichier final.y cree par EVALCCD
-  LOGICAL                                      :: RAW            ! fichier .RAW cree par SAINT
-  LOGICAL                                      :: M91            ! fichier .M91 cree par JANA
-  LOGICAL                                      :: M95            ! fichier .M95 cree par JANA
-  LOGICAL                                      :: plot           ! trace de F2=f(sinTheta/lambda)
-  LOGICAL                                      :: read_NEG       ! lecture intensites negatives
- end type HKL_file_features
- type(HKL_file_features)  :: HKL_file
-
- TYPE, PUBLIC :: HKL_list_features
-  INTEGER             :: EXTI_number        ! numero d'extinction systematique
-  LOGICAL             :: ALL                ! aucun critere sur la selection
-  LOGICAL             :: OUT                ! liste a l'ecran les reflexions compatibles avec EXTI_number
-  LOGICAL             :: WRITE              ! ecrit dans un fichier les reflexions compatibles avec EXTI_number
-  LOGICAL             :: SUPPRESS           ! supprime du fichier initial les reflexions compatibles avec EXTI_number
- END TYPE HKL_list_features
- TYPE (HKL_list_features) :: HKL_list
- TYPE (HKL_list_features) :: HKL_list_POS
- TYPE (HKL_list_features) :: HKL_list_NEG
- TYPE (HKL_list_features) :: HKL_list_ABSENT
-
-
-END module hkl_module
-
 
 
 module cryscal_module
  use CFML_crystallographic_symmetry, ONLY  : space_group_type
  use CFML_Atom_TypeDef,              only  : Atom_list_Type
  USE CFML_Crystal_Metrics,           ONLY  : Crystal_cell_type
- !USE CFML_Math_General,              ONLY  : sp
- !USE  CFML_Constants,                 ONLY : sp
- USE CFML_GlobalDeps,                 ONLY : sp
+ USE CFML_GlobalDeps,                 ONLY : sp, cp
 
- USE HKL_module, only : max_ref
-
-
-
+ 
   implicit none
 
-  character (len=256), parameter               :: cryscal_version = 'June 2011'
-  character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX - Rennes)'
+  character (len=256), parameter               :: cryscal_version = 'Jan. 2012'
+  character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX / SCR UMR6226 - Rennes)'
   character (LEN=256)                          :: cryscal_ini
   character (LEN=256)                          :: winplotr_exe
 
@@ -151,6 +38,7 @@ module cryscal_module
   LOGICAL                                      :: unknown_keyword
   LOGICAL                                      :: unknown_CFL_keyword
   LOGICAL                                      :: mode_interactif         ! mode interactif
+  LOGICAL                                      :: tmp_logical
 
  ! real,               dimension(6)             :: cell_param              ! parametres de maille
  ! real,               dimension(6)             :: cell_param_ESD          ! ESD des parametres de maille
@@ -256,6 +144,7 @@ module cryscal_module
   LOGICAL                                      :: keyword_CONT            ! connaissance du contenu de la maille
   LOGICAL                                      :: keyword_CHEM            ! connaissance du contenu de la maille
   logical                                      :: keyword_ZUNIT           ! connaissance du Z
+  LOGICAL                                      :: keyword_MU              ! calcul du coef. d'absorption
 
   LOGICAL                                      :: keyword_WRITE_CELL      ! ecriture des parametres de maille
   LOGICAL                                      :: keyword_WRITE_CHEM      ! ecriture des caracteristiques de la molecule: formule, weight ...
@@ -275,14 +164,19 @@ module cryscal_module
   LOGICAL,            DIMENSION(2)             :: list_sg_centric         ! liste des groupes d'espace centric/acentric
   LOGICAL,            DIMENSION(14)            :: list_sg_laue            ! classe de Laue
   LOGICAL                                      :: list_sg_multip          ! multip. du groupe
+  LOGICAL                                      :: list_sg_enantio         ! liste des groupes enantiomorphes
+  LOGICAL                                      :: list_sg_chiral          ! liste des groupes chiraux 
+  LOGICAL                                      :: list_sg_polar           ! liste des groupes polaires
   logical                                      :: keyword_SIZE            ! connaissance de la taille de l'echantillon
-  LOGICAL                                      :: keyword_MATR            ! connaissance d'une matrice de transformation
+  LOGICAL                                      :: keyword_MAT             ! connaissance d'une matrice de transformation
   LOGICAL                                      :: keyword_LST_MAT         ! liste les principales matrices de transformation
   LOGICAL                                      :: keyword_TRANSL          ! connaissance d'une translation
   REAL,               DIMENSION(3)             :: translat                ! translation
   LOGICAL                                      :: keyword_MATMUL          ! multiplication de 2 matrices 3*3
+  LOGICAL                                      :: keyword_DIAG            ! diagonalisation d'une matrice 3*3
 
   LOGICAL                                      :: keyword_THERM           ! mot cle = THERM
+  LOGICAL                                      :: keyword_THERM_SHELX
   LOGICAL                                      :: THERM_Uiso              !
   LOGICAL                                      :: THERM_Biso
   LOGICAL                                      :: THERM_Uij
@@ -361,6 +255,7 @@ module cryscal_module
   LOGICAL                                      :: keyword_SH_2th          ! decalage de 2theta
   REAL                                         :: shift_2theta            ! valeur du decalage en 2theta
 
+  LOGICAL                                      :: lecture_ok
   LOGICAL                                      :: write_HKL               ! sortie des HKL
   LOGICAL                                      :: create_PAT              ! creation d'un diagramme
   LOGICAL                                      :: HKL_2THETA
@@ -396,7 +291,7 @@ module cryscal_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max = 117       ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_help_max = 121       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -413,7 +308,10 @@ module cryscal_module
   REAL, parameter                              :: pi=3.1415926535897932
 
   LOGICAL                                      :: keyword_X_WAVE          ! write X-rays Kalpha1, Kalpha2 wavelength
+  REAL                                         :: LOCK_wave_value         ! comparaison with targets wavelength values
   LOGICAL                                      :: CIF_format80            ! 
+  LOGICAL                                      :: include_RES_file        !
+  LOGICAL                                      :: update_parameters       ! update cell parameters, atomic coordinates ... after a matrix transdformation
 
   integer                                      :: nb_atom                 ! nombre d'atomes dans la liste
   integer                                      :: nb_hkl                  ! nombre de reflections
@@ -536,6 +434,7 @@ module cryscal_module
 
   INTEGER, parameter                           :: tmp_unit        = 22
 
+  
   LOGICAL                                      :: keyword_P4P               ! lecture fichier.P4P: extraction cell_param, wave, ...
   logical                                      :: keyword_RAW               ! lecture fichier.RAW + creation fichier.HKL format SHELX
 
@@ -586,6 +485,7 @@ module cryscal_module
 
 
   INTEGER         :: HELP_ABSENT_HKL_numor
+  INTEGER         :: HELP_ABSORPTION_numor
   INTEGER         :: HELP_ACTA_numor
   INTEGER         :: HELP_ANG_numor
   INTEGER         :: HELP_APPLY_OP_numor
@@ -610,6 +510,7 @@ module cryscal_module
   INTEGER         :: HELP_DATA_ATOMIC_WEIGHT_numor
   INTEGER         :: HELP_DATA_NEUTRONS_numor
   INTEGER         :: HELP_DATA_XRAYS_numor
+  INTEGER         :: HELP_DIAG_MAT_numor
   INTEGER         :: HELP_DIR_ANG_numor
   INTEGER         :: HELP_DIST_numor
   INTEGER         :: HELP_EDIT_numor
@@ -683,6 +584,7 @@ module cryscal_module
   INTEGER         :: HELP_SYMM_numor
   INTEGER         :: HELP_SYST_numor
   INTEGER         :: HELP_THERM_numor
+  INTEGER         :: HELP_THERM_SHELX_numor
   INTEGER         :: HELP_THETA_numor
   INTEGER         :: HELP_TITL_numor
   INTEGER         :: HELP_TRICLINIC_numor
@@ -692,6 +594,7 @@ module cryscal_module
   INTEGER         :: HELP_TWIN_PSEUDO_HEXA_numor
   INTEGER         :: HELP_TWO_THETA_numor
   INTEGER         :: HELP_UNIT_numor
+  INTEGER         :: HELP_USER_MAT_numor
   INTEGER         :: HELP_WAVE_numor
   INTEGER         :: HELP_WEB_numor
   INTEGER         :: HELP_WRITE_BEAM_numor
@@ -742,6 +645,7 @@ module cryscal_module
    CHARACTER (LEN=64)                    :: crystal_system
    CHARACTER (LEN=1)                     :: Bravais
    CHARACTER (LEN=32)                    :: lattice
+   CHARACTER (LEN=32)                    :: H_M
   END TYPE unit_cell_type
   TYPE (unit_cell_type) :: unit_cell
 
@@ -944,18 +848,23 @@ module cryscal_module
    CHARACTER (LEN=256)  :: content
    real                 :: weight
    real                 :: density
-   integer              :: Z
+   integer              :: Z        ! nombre total d'electrons dans la molecule
+   integer              :: Z_unit   ! nombre de formula units
   end type molecule_features
   type(molecule_features)  :: molecule
 
+  integer  :: max_ref 
   type, public :: pgf_data_features
-   real                :: X
-   real                :: Y
-   integer             :: h, k, l
-   CHARACTER (LEN=32)  :: string
+   real,               dimension(:), allocatable  :: X
+   real,               dimension(:), allocatable  :: Y
+   integer,            dimension(:), allocatable  :: h, k, l
+   CHARACTER (LEN=32), dimension(:), allocatable  :: string
   end type pgf_data_features
-  type(pgf_data_features), dimension(max_ref) :: pgf_data
+  !type(pgf_data_features), dimension(max_ref) :: pgf_data
+  !type (PGF_data_features), dimension(:), allocatable : PGF_data
+  type (PGF_data_features) :: PGF_data
 
+  
   type, public :: pgf_file_features
    character (len=256)  :: name
    character (len=256)  :: X_legend
@@ -966,7 +875,317 @@ module cryscal_module
   ! ------------ type ---------------------------------------------------------------------------------
 
 
+  
+  contains
+  
+   subroutine allocate_PGF_data_arrays(dim)
+    integer, intent(in) :: dim
+	integer             :: ier
+    
+	if(allocated(PGF_data%X))   deallocate(PGF_data%X)
+	 allocate(PGF_data%X(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_X')
+	
+	if(allocated(PGF_data%Y))   deallocate(PGF_data%Y)
+	 allocate(PGF_data%Y(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_Y')
+	 
+	if(allocated(PGF_data%h))   deallocate(PGF_data%h)
+	 allocate(PGF_data%h(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_h')
+	 
+	if(allocated(PGF_data%k))   deallocate(PGF_data%k)
+	 allocate(PGF_data%k(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_k')
+	 
+	if(allocated(PGF_data%l))   deallocate(PGF_data%l)
+	allocate(PGF_data%l(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_l')
+	 
+	if(allocated(PGF_data%string))   deallocate(PGF_data%string)
+	 allocate(PGF_data%string(dim), stat=ier)
+     if(ier/=0) call write_alloc_error('PGF_data_string')
+	
+	return
+	
+   end subroutine allocate_PGF_data_arrays
+   
+   
+   subroutine deallocate_PGF_data_arrays()
+    
+	if(allocated(PGF_data%X))        deallocate(PGF_data%X)
+	if(allocated(PGF_data%Y))        deallocate(PGF_data%Y)
+	if(allocated(PGF_data%h))        deallocate(PGF_data%h)
+	if(allocated(PGF_data%k))        deallocate(PGF_data%k)
+	if(allocated(PGF_data%l))        deallocate(PGF_data%l)
+	if(allocated(PGF_data%string))   deallocate(PGF_data%string)
+	
+	return
+	
+   end subroutine deallocate_PGF_data_arrays
+   
+   
+   subroutine write_alloc_error(input_string)
+    character (len=*), intent(in) :: input_string
+    
+    write(*,*) '  ! Problem to allocate memory for '//trim(input_string)//' array. Program will be stopped!'
+    !call deallocate_HKL_arrays
+    !call deallocate_PGF_data_arrays
+    stop
+	
+   end subroutine write_alloc_error
+   
 end module cryscal_module
+
+!-----------------------------------------------------------------------------------------------------------
+
+
+!--------------------------------------------------------------------------------------------------------------
+module hkl_module
+ use cryscal_module, only : max_ref, deallocate_PGF_data_arrays, write_alloc_error
+ 
+ implicit none
+
+ integer                           :: n_ref          ! nombre de reflections dans le fichier
+ integer                           :: n_ref_2        ! nombre de reflections avec I > 2sig
+ integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
+ INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
+ INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
+
+
+ !type, public :: reflexion_type
+  integer,             dimension(:),   allocatable   :: h, k, l, code
+  real,                dimension(:),   allocatable   :: F2, sig_F2, E, E2, E3, E4, E5, E6
+  real,                dimension(:),   allocatable   :: sinTheta_lambda, d_hkl, theta_hkl
+  LOGICAL,             dimension(:),   allocatable   :: HKL_impair
+  CHARACTER (LEN=20),  DIMENSION(:),   allocatable   :: HKL_string
+  CHARACTER (LEN=256), DIMENSION(:),   allocatable   :: HKL_line
+  INTEGER,             DIMENSION(:,:), allocatable   :: HKL_flag
+  INTEGER,             DIMENSION(:),   allocatable   :: HKL_good
+  REAL,                DIMENSION(:,:), allocatable   :: cos_dir
+  REAL,                DIMENSION(:),   allocatable   :: I_sigma,I_
+  LOGICAL,             DIMENSION(:),   allocatable   :: HKL_search_ok
+ !end type reflexion_type
+ !type (reflexion_type) :: HKL
+
+ integer, parameter                         :: MAX_allowed = 500000
+ !integer, parameter                        :: max_ref = 500000
+ !INTEGER,             DIMENSION(max_ref)   :: h, k, l, code
+ !REAL,                DIMENSION(max_ref)   :: F2, sig_F2, E, E2, E3, E4, E5, E6
+ !REAL,                DIMENSION(max_ref)   :: sinTheta_lambda, d_hkl, theta_hkl
+ !LOGICAL,             DIMENSION(max_ref)   :: HKL_impair
+ !CHARACTER (LEN=20),  DIMENSION(max_ref)   :: HKL_string
+ !CHARACTER (LEN=256), DIMENSION(max_ref)   :: HKL_line
+ !INTEGER,             DIMENSION(max_ref,3) :: HKL_flag
+ !INTEGER,             DIMENSION(max_ref)   :: HKL_good
+ !REAL,                DIMENSION(max_ref,6) :: cos_dir
+ !REAL,                DIMENSION(max_ref)   :: I_sigma,I_
+ !LOGICAL,             DIMENSION(max_ref)   :: HKL_search_ok
+
+ CHARACTER (LEN=256), DIMENSION(10)       :: M95_comment_line
+ INTEGER                                  :: M95_comment_line_nb
+
+
+ logical                                  :: cos_exist    ! fichier contenant les cos. dir.
+ logical                                  :: cif_file     ! fichier *.CIF (ex: import.cif)
+ real                                     :: sig_coef     ! coef. pour les sigmas
+
+ LOGICAL                                  :: HKL_data_known
+
+
+ INTEGER                           :: n_pair, n_impair
+ REAL                              :: F2_pair, F2_impair, mean_F2_pair, mean_F2_impair
+ REAL                              :: F2_mean, sig_F2_mean, ratio_mean
+ REAL                              :: wF2_mean
+ REAL                              :: E_mean, E2_mean, E2m1_mean
+ REAL                              :: E3_mean, E4_mean, E5_mean, E6_mean
+ real                              :: Rint
+ REAL                              :: I_ratio, ratio_criteria
+ REAL                              :: n_sig, threshold
+ LOGICAL                           :: ordered_HKL
+
+ character (len=4), dimension(3)           :: requested_H_string
+ INTEGER,           DIMENSION(3)           :: requested_H
+ integer                                   :: requested_HKL_list
+ integer, parameter                        :: HKL_rule_nb =33
+ CHARACTER(LEN=32), DIMENSION(2*HKL_rule_nb) :: HKL_rule
+ LOGICAL                                   :: search_H_string
+ LOGICAL                                   :: search_equiv
+ LOGICAL                                   :: search_friedel
+
+
+
+ type, public :: HKL_file_features
+  CHARACTER (LEN=256)                          :: name           ! nom du fichier.HKL
+  CHARACTER (LEN=256)                          :: output         ! fichier de sortie .HKL
+  CHARACTER (LEN=256)                          :: output2        ! fichier de sortie .HKL #2
+  CHARACTER (LEN=256)                          :: HKL            ! fichier .HKL
+  CHARACTER (LEN=256)                          :: d
+  CHARACTER (LEN=256)                          :: stl
+  CHARACTER (LEN=256)                          :: theta
+  CHARACTER (LEN=256)                          :: I
+  CHARACTER (LEN=256)                          :: Isig
+  CHARACTER (LEN=256)                          :: merge
+  CHARACTER (LEN=256)                          :: transf
+  LOGICAL                                      :: CIF            ! fichier *.cif (ex: import.cif)
+  LOGICAL                                      :: SHELX          ! fichier *.HKL (SHELX format)
+  LOGICAL                                      :: final_y        ! fichier final.y cree par EVALCCD
+  LOGICAL                                      :: RAW            ! fichier .RAW cree par SAINT
+  LOGICAL                                      :: M91            ! fichier .M91 cree par JANA
+  LOGICAL                                      :: M95            ! fichier .M95 cree par JANA
+  LOGICAL                                      :: plot           ! trace de F2=f(sinTheta/lambda)
+  LOGICAL                                      :: read_NEG       ! lecture intensites negatives
+ end type HKL_file_features
+ type(HKL_file_features)  :: HKL_file
+
+ TYPE, PUBLIC :: HKL_list_features
+  INTEGER             :: EXTI_number        ! numero d'extinction systematique
+  LOGICAL             :: ALL                ! aucun critere sur la selection
+  LOGICAL             :: OUT                ! liste a l'ecran les reflexions compatibles avec EXTI_number
+  LOGICAL             :: WRITE              ! ecrit dans un fichier les reflexions compatibles avec EXTI_number
+  LOGICAL             :: SUPPRESS           ! supprime du fichier initial les reflexions compatibles avec EXTI_number
+ END TYPE HKL_list_features
+ TYPE (HKL_list_features) :: HKL_list
+ TYPE (HKL_list_features) :: HKL_list_POS
+ TYPE (HKL_list_features) :: HKL_list_NEG
+ TYPE (HKL_list_features) :: HKL_list_ABSENT
+
+ 
+ contains
+
+ subroutine allocate_HKL_arrays
+  integer        :: ier
+  
+  if (allocated(h))       deallocate(h)
+   allocate(h(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('h')
+   
+  if (allocated(k))       deallocate(k)
+   allocate(k(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('k')
+   
+  if (allocated(l))       deallocate(l)
+   allocate(l(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('l')
+
+  if (allocated(code))    deallocate(code)
+   allocate(code(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('code')
+   
+  if (allocated(F2))       deallocate(F2)
+   allocate(F2(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('F2')
+  if (allocated(sig_F2))   deallocate(sig_F2)
+   allocate(sig_F2(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('sig_F2')
+  if (allocated(E))       deallocate(E)
+   allocate(E(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E')
+  if (allocated(E2))      deallocate(E2)
+   allocate(E2(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E2')
+  if (allocated(E3))      deallocate(E3)
+   allocate(E3(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E3')
+  if (allocated(E4))      deallocate(E4)
+   allocate(E4(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E4')
+  if (allocated(E5))      deallocate(E5)
+   allocate(E5(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E5')
+  if (allocated(E6))      deallocate(E6)
+   allocate(E6(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('E6')
+   
+  if (allocated(sinTheta_lambda)) deallocate(sinTheta_lambda)
+   allocate(sinTheta_lambda(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('sinTheta_lambda')
+  
+  if (allocated(d_hkl)) deallocate(d_hkl)
+   allocate(d_hkl(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('d_hkl')
+   
+  if (allocated(Theta_hkl)) deallocate(Theta_hkl)
+   allocate(Theta_hkl(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('Theta_hkl')
+   
+  if (allocated(HKL_impair)) deallocate(HKL_impair)
+   allocate(HKL_impair(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_impair')
+   
+  if (allocated(HKL_string)) deallocate(HKL_string)
+   allocate(HKL_string(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_string')
+   
+  if (allocated(HKL_line)) deallocate(HKL_line)
+   allocate(HKL_line(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_line')
+   
+  if (allocated(HKL_flag)) deallocate(HKL_flag)
+   allocate(HKL_flag(Max_ref,3), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_flag')
+   
+  if (allocated(HKL_good)) deallocate(HKL_good)
+   allocate(HKL_good(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_good')
+   
+  if (allocated(cos_dir)) deallocate(cos_dir)
+   allocate(cos_dir(Max_ref,6), stat=ier)
+   if(ier/=0) call write_alloc_error('cos_dir')
+   
+  if (allocated(I_sigma)) deallocate(I_sigma)
+   allocate(I_sigma(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('I_sigma')
+   
+  if (allocated(I_)) deallocate(I_)
+   allocate(I_(Max_ref), stat=ier)
+   if(ier/=0)  call write_alloc_error('I_')
+   
+  if (allocated(HKL_search_ok)) deallocate(HKL_search_ok)
+   allocate(HKL_search_ok(Max_ref), stat=ier)
+   if(ier/=0) call write_alloc_error('HKL_search_ok')
+
+  return   
+ end subroutine allocate_HKL_arrays
+ 
+ 
+ 
+ subroutine deallocate_HKL_arrays
+    
+  if (allocated(h))               deallocate(h)
+  if (allocated(k))               deallocate(k)  
+  if (allocated(l))               deallocate(l)
+  if (allocated(code))            deallocate(code)
+  if (allocated(F2))              deallocate(F2)
+  if (allocated(sig_F2))          deallocate(sig_F2)
+  if (allocated(E))               deallocate(E)
+  if (allocated(E2))              deallocate(E2)
+  if (allocated(E3))              deallocate(E3)
+  if (allocated(E4))              deallocate(E4)
+  if (allocated(E5))              deallocate(E5)
+  if (allocated(E6))              deallocate(E6)
+  if (allocated(sinTheta_lambda)) deallocate(sinTheta_lambda)
+  if (allocated(d_hkl))           deallocate(d_hkl)
+  if (allocated(Theta_hkl))       deallocate(Theta_hkl)
+  if (allocated(HKL_impair))      deallocate(HKL_impair)
+  if (allocated(HKL_string))      deallocate(HKL_string)
+  if (allocated(HKL_line))        deallocate(HKL_line)
+  if (allocated(HKL_flag))        deallocate(HKL_flag)
+  if (allocated(HKL_good))        deallocate(HKL_good)
+  if (allocated(cos_dir) )        deallocate(cos_dir)
+  if (allocated(I_sigma))         deallocate(I_sigma)
+  if (allocated(I_))              deallocate(I_)
+  if (allocated(HKL_search_ok))   deallocate(HKL_search_ok)
+  
+  return   
+  
+  
+ end subroutine deallocate_HKL_arrays
+ 
+ 
+ 
+END module hkl_module
+
 
 
 
@@ -1167,19 +1386,26 @@ subroutine def_HKL_rule()
 
 end subroutine def_HKL_rule
 
-!-------------------------------------------------------------------
+!-----------------------------------------------------------------------------------------------
  module MATRIX_list_module
   implicit none
-  integer, parameter                               :: max_mat_nb = 32
-  REAL,                DIMENSION(3,3,max_mat_nb)   :: transf_mat
-  CHARACTER (LEN=64),  DIMENSION(max_mat_nb)       :: transf_mat_text
-  INTEGER                                          :: matrix_num
+  integer, parameter                                               :: max_mat_nb      = 32
+  integer, parameter                                               :: max_user_mat_nb = 5
+  integer                                                          :: user_mat_nb
+  REAL,                 DIMENSION(3,3,max_mat_nb+max_user_mat_nb)  :: transf_mat
+  CHARACTER (LEN=256),  DIMENSION(max_mat_nb+max_user_mat_nb)      :: transf_mat_text
+  CHARACTER (LEN=256),  DIMENSION(max_user_mat_nb)                 :: user_mat_text
+  
+  INTEGER                                                          :: matrix_num
+  CHARACTER (len=256)                                              :: matrix_text
 
  end module MATRIX_list_module
-!-------------------------------------------------------------------
+!-----------------------------------------------------------------------------------------------
 
 subroutine def_transformation_matrix()
  USE MATRIX_list_module
+ 
+  
 
  ! ' #1: a b c  ==>  a  b  c'
  ! ' #2: a b c  ==> -a -b -c'
@@ -1218,6 +1444,7 @@ subroutine def_transformation_matrix()
  
  ! '#33: a b c  ==>    a   -b -a-c (mono. setting) : #33 = #32 x #27'
  
+ ! + 5 matrices defined by the user in the setting file
  
  ! rem PLATON P21/n --> P21/c : 1  0  0    0 -1  0  -1  0 -1    #33      a  -b -a-c
  !                             -1  0  0    0 -1  0   1  0  1    #29     -a  -b  a+c
@@ -1397,8 +1624,17 @@ subroutine def_transformation_matrix()
   !transf_mat(2,:,33) = (/ 0.,  -1.,  0./)      !
   !transf_mat(3,:,33) = (/-1.,   0., -1./)      !
 
-
-
+  ! initialisation des matrices utilisateurs
+  do i=1, 5
+   write(unit=transf_mat_text(max_mat_nb+i), fmt='(a,i2,a,i1)')  '#', max_mat_nb+i, ': user matrix #', i
+   write(unit=user_mat_text(i),              fmt='(a,i2,a,i1)')  '#u', i, ': user matrix #', i   
+   transf_mat(1,:,max_mat_nb+i) = (/ 1.,   0.,  0./)      !
+   transf_mat(2,:,max_mat_nb+i )= (/ 0.,   1.,  0./)      !
+   transf_mat(3,:,max_mat_nb+i) = (/ 0.,   0.,  1./)      !
+  end do
+  
+  
+   
 end subroutine def_transformation_matrix
 
 
@@ -1447,3 +1683,50 @@ ratio_real_neg(1:nb_fraction) = -ratio_real_pos(1:nb_fraction)
   end subroutine def_fractions
 
 end Module Definition_Fractions
+
+
+!-------------------------------------------------------------------------------------------------------------------
+
+Module Accents_module
+ implicit none
+  integer, parameter                         :: nb_char = 14
+  CHARACTER (LEN=8), DIMENSION(4, nb_char)   :: accents
+  integer                                    :: n
+  
+
+
+  contains
+
+  subroutine def_accents
+    !                            caractere       format_CIF       HTML            HTML decimal      
+	
+    n=0
+    n=n+1;  accents(1:4, n) = (/ "à       ",    "\`a     ",      "&agrave;",     "&#224;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "â       ",    "\^a     ",      "&acirc; ",     "&#226;  "     /)
+
+    n=n+1;  accents(1:4, n) = (/ "é       ",    "\'e     ",      "&eacute;",     "&#233;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "è       ",    "\`e     ",      "&egrave;",     "&#232;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "ê       ",    "\^e     ",      "&ecirc; ",     "&#234;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "ë       ",    '\"e     ',      "&euml;  ",     "&#235;  "     /)
+
+    n=n+1;  accents(1:4, n) = (/ "î       ",    "\^i     ",      "&icirc; ",     "&#238;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "ï       ",    '\"i     ',      "&iuml;  ",     "&#239;  "     /)
+
+    n=n+1;  accents(1:4, n) = (/ "ô       ",    "\^o     ",      "&ocirc; ",     "&#244;  "     /)
+
+    n=n+1;  accents(1:4, n) = (/ "ù       ",    "\`u     ",      "&ugrave;",     "&#249;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "û       ",    "\^u     ",      "&ucirc; ",     "&#251;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "ü       ",    '\"u     ',      "&uuml;  ",     "&#252;  "     /)
+
+    n=n+1;  accents(1:4, n) = (/ "ç       ",    "\,c     ",      "&ccedil;",     "&#231;  "     /)
+    n=n+1;  accents(1:4, n) = (/ "ñ       ",    "\~n     ",      "&ntilde;",     "&#241;  "     /)
+
+	!exposant
+    !n=n+1;  accents(1:4, n) = (/ "expo    ",    "^       ",      "<sup>   ",     "        "     /)
+	
+	
+
+    return
+  end subroutine def_accents
+									  
+End Module Accents_module

@@ -86,7 +86,6 @@ subroutine read_keywords_from_file(arg_file)
  !OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
 
 
-  
  select case (extension(1:3))
 
      case ("ins", "res")
@@ -143,14 +142,16 @@ subroutine read_keywords_from_file(arg_file)
       endif
 
      case ("cif")
+
       OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
       input_CIF = .true.
+
       call check_CIF_input_file(TRIM(input_file))
+
       IF(input_file(:) /= 'archive.cif') then
        call get_P4P_file_name(P4P_file_name)
        IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
       endif
-
       call read_CIF_input_file(TRIM(input_file), '?')          ! read_CIF_file.F90
       !call read_CIF_input_file_TR(input_file)                  ! read_CIF_file.F90
       call read_CIF_input_file_TR(input_unit)                  ! read_CIF_file.F90
@@ -200,10 +201,35 @@ subroutine run_keywords()
   call write_info('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
   endif
 
+ IF(keyword_READ_INS) then
+  OPEN(UNIT=INS_read_unit, FILE=TRIM(INS_file_name), ACTION="read")
+   call read_INS_input_file(TRIM(INS_file_name), "ALL")
+   call read_INS_SHELX_lines  
+  CLOSE(UNIT=INS_read_unit)
+  if (keyword_SPGR )    call space_group_info
+  if (keyword_SYMM)     CALL decode_sym_op
+ end if
+ 
+ if(keyword_READ_CIF) then
+  OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
+   call check_CIF_input_file(TRIM(CIF_file_name))
+   call read_CIF_input_file(TRIM(CIF_file_name), '?')
+   call read_CIF_input_file_TR(CIF_read_unit)
+  CLOSE(UNIT=CIF_read_unit)
+  ! >> creation de l'objet MOLECULE
+	call atomic_identification()  
+    call get_content  
+    call molecular_weight
+    call density_calculation
+	
+  if (keyword_SPGR )    call space_group_info
+  if (keyword_SYMM)     CALL decode_sym_op
+ endif
+  
  IF(keyword_setting)                       call output_setting()              ! cryscal.init.F90
  if(keyword_HELP)                          call HELP_on_line         !         help.F90
  IF(keyword_HEADER)                        call write_header         !         help.F90
- IF(keyword_KEY)                           call KEYS_on_line         !      cryscal.F90
+ IF(keyword_KEY)                           call KEYS_on_line         !         cryscal.F90
  IF(keyword_create_CRYSCAL_HTML)           call create_CRYSCAL_HTML           !  create_HTML.F90
 
  IF(keyword_CELL)                          call volume_calculation('out')   !       calculs.F90
@@ -218,11 +244,11 @@ subroutine run_keywords()
  IF(keyword_SIZE)                          call crystal_volume_calculation('out') ! calculs.F90
 
  IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
-  call atomic_identification()                                              ! calculs.F90
-  IF(keyword_CELL)                      call atomic_density_calculation()   ! calculs.F90
-  IF(keyword_ZUNIT)	                call molecular_weight()             ! calculs.F90
-  IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()          ! calculs.F90
-  IF(keyword_CELL)                      call absorption_calculation()       ! mu_calc.F90
+  call atomic_identification()                                                   ! calculs.F90
+  IF(keyword_CELL)                      call atomic_density_calculation()        ! calculs.F90
+  IF(keyword_ZUNIT)	                    call molecular_weight()                  ! calculs.F90
+  IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()               ! calculs.F90
+  IF(keyword_CELL)                      call absorption_calculation()            ! mu_calc.F90
  END if
 
 
@@ -236,7 +262,7 @@ subroutine run_keywords()
 
 
  ! transformation de la maille
- if (keyword_MATR) then
+ if (keyword_MAT) then
   call WRITE_matrice()
   if (keyword_CELL)  call transf_cell_parameters
   if (nb_hkl  /=0)   call transf_HKL
@@ -296,6 +322,8 @@ subroutine run_keywords()
  ! tri fichier.HKL
  !if (keyword_FILE  .and. nb_sort /=0) call read_and_sort_hkl()
  if (keyword_FILE) then
+  call allocate_HKL_arrays
+ 
   call def_HKL_rule()
   if (nb_shell /=0) then
    call read_and_sort_hkl('shell')
@@ -373,23 +401,13 @@ subroutine KEYS_on_line()
   do i=1, nb_help_max
    IF(write_keys(i)) then
     nb_keys_to_write = nb_keys_to_write + 1
-    !if(input_string(1:6) == 'screen') then
-     IF(nb_keys_to_write == 1) then
+      IF(nb_keys_to_write == 1) then
       call write_info('')
       call write_info('   > CRYSCAL keywords list:')
       call write_info('')
      endif
      WRITE(message_text, '(5x,2a)') '. ', TRIM(help_string(i))
-     call write_info(TRIM(message_text))
-    !elseif(input_string(1:4) == 'file') then
-    ! if(nb_keys_to_write == 1) then
-    !  write(unit = KEYS_unit, '(a)') ''
-    !  write(unit = KEYS_unit, '(a)') '   > CRYSCAL keywords list::'
-    !  write(unit = KEYS_unit, '(a)') ''
-    ! endif
-    ! WRITE(message_text, '(5x,2a)') '. ', TRIM(help_string(i))
-    ! write(unit = KEYS_unit, '(a)') trim(message_text)
-    !endif
+     call write_info(TRIM(message_text))    
    endif
   end do
 
@@ -410,6 +428,7 @@ subroutine check_CIF_input_file(input_file)
                             AUTHOR, DEVICE
  USE text_module,    ONLY : CIF_lines_nb, CIF_title_line
  use macros_module,  only : u_case
+ use Accents_module, ONLY : def_accents
  USE IO_module
 
  implicit none
@@ -453,20 +472,21 @@ subroutine check_CIF_input_file(input_file)
     stop
    endif
 
+   
+   call def_accents
    call verif_CIF_character(AUTHOR%NAME)
    call verif_CIF_character(AUTHOR%first_name)
    call verif_CIF_character(AUTHOR%address)
    call verif_CIF_character(AUTHOR%email)
    call verif_CIF_character(AUTHOR%web)
+ 
 
    do i=1, CIF_lines_nb
     call write_CIF(CIF_unit, trim(CIF_title_line(i)))
    end do
-
    call write_CIF_AUTHOR(CIF_unit)
-
   endif
-
+ 
  return
 END subroutine check_CIF_input_file
 

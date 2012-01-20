@@ -33,6 +33,8 @@ subroutine space_group_info
   type(space_group_type), dimension(48) :: Subgroup
   type(space_group_type)                :: SpGn
   integer                               :: nsg, j, ng, l
+  logical                               :: enantio, chiral, polar
+  CHARACTER (len=32)                    :: MOVE_string
 
 
 
@@ -71,6 +73,7 @@ subroutine space_group_info
    END do
    CLOSE(UNIT=3)
   endif 
+  
   CLOSE(UNIT=2)
   open (UNIT=2, FILE='cryscal.log', ACTION="write",position = "append")
  else
@@ -111,6 +114,7 @@ subroutine space_group_info
 !  close(unit=2)
 !  call system('copy cryscal.log + sg.out')
 !  call system('echo on')
+
 
   if(ON_SCREEN) then
    OPEN(UNIT=3, FILE="sg.out")
@@ -228,6 +232,31 @@ subroutine space_group_info
    end do   
   endif
 
+ 
+  if(WRITE_SPG_info .AND. SPG%centred ==1) then
+    call test_enantio(SPG%NumSPG, enantio)    
+	call test_chiral(SPG%NUmSPG, chiral)
+    call test_polar(SPG%NUmSPG, polar)	
+	call write_info("")   
+	if(chiral) then
+	 call write_info(" => Chiral space group:          yes")
+	else
+	 call write_info(" => Chiral space group:          no")
+	endif
+	if(polar) then
+	 call write_info(" => Polar space group:           yes")
+	else
+	 call write_info(" => Polar space group:           no")
+	endif
+    if(enantio) then
+     call write_info(" => Enantiomorphic space group:  yes")
+ 	 call write_info(" => Inverse structure in SHELXL: MOVE 1 1 1 -1 and invert translation parts of the s.o.")
+    else	
+	 call get_MOVE_string(Move_string)
+     call write_info(" => Enantiomorphic space group: no")
+	 call write_info(" => Inverse structure in SHELXL: "//trim(MOVE_string))
+    endif 
+   endif 	
 
  return
 end subroutine space_group_info
@@ -237,35 +266,45 @@ subroutine get_SITE_info()
  USE cryscal_module 
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
-                                            symmetry_symbol, Wyckoff_Type
+                                            symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
+											Get_symSymb
  USE macros_module,                  ONLY : u_case
- USE CFML_Math_General,              ONLY : acosd
+ USE CFML_Math_General,              ONLY : acosd, set_epsg, set_epsg_default
+
  !USE CFML_constants,                 ONLY : sp 
- USE CFML_GlobalDeps,                 ONLY : sp
+ USE CFML_GlobalDeps,                 ONLY : sp, cp
 
  implicit none
  ! local variables
-  INTEGER                           :: i, j, k
-  REAL , DIMENSION(3)               :: r
-  INTEGER                           :: site_multiplicity
-  INTEGER                           :: Wyck_mult
+  INTEGER                            :: i, j, k
+  REAL (kind=cp), DIMENSION(3)       :: r
+  INTEGER                            :: site_multiplicity
+  INTEGER                            :: Wyck_mult
 
   type(wyckoff_type)   :: wyckoff
 
-  real , dimension(3,192)           :: orbit
-  CHARACTER (LEN=80)                :: text80
-  integer, dimension(192)           :: effsym  ! Pointer to effective symops
-  integer, dimension(192)           :: ss_ptr  ! Pointer to stabilizer
+  real (kind=cp) , dimension(3,192)  :: orbit
+  CHARACTER (LEN=80)                 :: text80
+  CHARACTER (LEN=40)                 :: Symm_Symb
+  integer, dimension(192)            :: effsym  ! Pointer to effective symops
+  integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
+  !integer                            :: ss_ptr  
+  integer                            :: order
+  real(kind=cp),     dimension(3,48) :: atr
+  integer, dimension(3,3)            :: Rsym
+  real,    dimension(3)      :: tt
 
-  LOGICAL, DIMENSION(nb_atom)       :: write_site_info_label
+  
+  LOGICAL, DIMENSION(nb_atom)        :: write_site_info_label
   
   ! pour determiner les constraintes sur les Bij 
-  REAL , DIMENSION(6)               :: beta_ij 
-  integer                           :: codini
-  real(kind=sp), dimension(6)       :: codes  !codewords for positions
+  REAL , DIMENSION(6)                :: beta_ij 
+  integer                            :: codini
+  real(kind=cp), dimension(6)        :: codes  !codewords for positions
 
   
 
+  call set_epsg(0.001_cp)  !In mathematical comparisons -> CFML_Math_General
 
   !call set_spacegroup(space_group_symbol, SPG)     ! <<<<<<<<<
 
@@ -298,28 +337,35 @@ subroutine get_SITE_info()
    call write_info(trim(message_text))
    call write_info(' ')
 
-!   SITE_multiplicity = Get_Multip_Pos(r, SPG)
-!   WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', SITE_multiplicity
-!   call write_info(trim(message_text))
-
 
  !  call Get_Orbit(r, SPG, Wyck_mult, orbit, effsym, ss_ptr )
 
-   call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym, ss_ptr )
+   call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
 !   SITE_multiplicity = Get_Multip_Pos(r, SPG)
-   WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', wyckoff%num_orbit
-   call write_info(trim(message_text))
 
+   ! oct. 2011
+   call Get_stabilizer(r, SPG, order, ss_ptr, atr)
+
+   !WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', wyckoff%num_orbit
+   !call write_info(trim(message_text))
+   
+   site_multiplicity = Get_Multip_Pos(r, SPG)
+   WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
+   call write_info(trim(message_text))
+   
 
    call write_info('     . list of symmetry operators and symmetry elements of the site point group:')
 
-
-   do j=1,  wyckoff%num_orbit
-    if(ss_ptr(j) == 0) cycle
-    call symmetry_symbol(SPG%SymOp(ss_ptr(j)),text80)
-    write(message_text,'(7x, a,i3,a,a,a)') ' Operator ',j,': ', SPG%SymopSymb(ss_ptr(j)),trim(text80)
-    call write_info(trim(message_text))
-   END do
+   !do j=1, site_multiplicity
+   do j=1, order
+     Rsym = SPG%SymOp(ss_ptr(j))%Rot
+     tt   = SPG%SymOp(ss_ptr(j))%tr + atr(:,j)
+     call Get_SymSymb(Rsym,tt,Symm_Symb)
+     call symmetry_symbol(Symm_Symb,text80)  
+	 write(message_text,'(7x, a,i3,a,a,a)') ' Operator ',j,': ', Symm_Symb,trim(text80)
+	 call write_info(trim(message_text))
+   end do
+ 
 
 
    ! orbit
@@ -328,6 +374,7 @@ subroutine get_SITE_info()
     call write_info(' ')
 
    do j=1,  wyckoff%num_orbit
+    SPG%SymopSymb(effsym(1)) = 'x,y,z' 
     if(j <10) then
      write(message_text,"(10x,a6,a,i1,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,":   ",orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     elseif(j < 100) then
@@ -335,8 +382,10 @@ subroutine get_SITE_info()
     else
      write(message_text,"(10x,a6,a,i3,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,": ",  orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     endif
-    call write_info(trim(message_text))
+    call write_info(trim(message_text))  
    END do
+   
+
    
    ! constrains on ADP
   
@@ -354,7 +403,8 @@ subroutine get_SITE_info()
 
 
   end do
-
+  
+  call set_epsg_default()
  return
 
 end subroutine get_site_info
@@ -432,60 +482,94 @@ end subroutine write_symm_op_reduced_set
 !!========================================================================================================
 !! extracted from fp_codes.F90
 !!
-!!----  subroutine get_atombet_ctr(x,betas,Spgr,codini,codes,ord,ss,debug)
-!!----     real(kind=sp), dimension(3),     intent(in    ) :: x      !Atom position (fractional coordinates)
-!!----     real(kind=sp), dimension(6),     intent(in out) :: betas  !Anisotropic temperature factors
-!!----     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
-!!----     Integer,                         intent(in out) :: codini !Last attributed parameter
-!!----     real(kind=sp), dimension(6),     intent(in out) :: codes  !codewords for positions
-!!----     integer,               optional, intent(in    ) :: ord    !Order of the stabilizer
-!!----     integer, dimension(:), optional, intent(in    ) :: ss     !Pointer to SymmOp. of stabilizer
-!!----     integer,               optional, intent(in    ) :: debug  !Debug variable
-!!----
-!!----  Subroutine to get the appropriate constraints in the refinement codes of
-!!----  anisotropic atomic displacement(thermal) parameters.
-!!----
-!!----  Uses: Space_Group_type, get_stabilizer, sym_b_relations
-!!----
-!!----  Updated: 1 April 2002
-!!----
-!!
-!!    subroutine get_atombet_ctr(x,betas,Spgr,codini,codes,ord,ss,debug)
-    subroutine get_atombet_ctr(x,betas,Spgr,codini,codes)
-     USE CFML_Math_General,              ONLY  : acosd
-     !USE CFML_constants,                 ONLY      : sp 
-     USE CFML_GlobalDeps,                 ONLY : sp
-     USE CFML_crystallographic_symmetry, ONLY  : Space_group_type, get_stabilizer, sym_b_relations
-    
-     implicit none
-       real(kind=sp), dimension(3),     intent(in    ) :: x
-       real(kind=sp), dimension(6),     intent(in out) :: betas
-       !real, dimension(3),     intent(in    ) :: x
-       !real, dimension(6),     intent(in out) :: betas
-       
-       type(Space_Group_type),          intent(in    ) :: Spgr
-       Integer,                         intent(in out) :: codini
-       real(kind=sp), dimension(6),     intent(in out) :: codes
-       !integer,               optional, intent(in    ) :: ord, debug
-       !integer, dimension(:), optional, intent(in    ) :: ss
+    !!
+    !!----  Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes,ord,ss,att,Ipr)
+    !!----     real(kind=cp), dimension(3),     intent(in    ) :: x      !Atom position (fractional coordinates)
+    !!----     real(kind=cp), dimension(6),     intent(in out) :: betas  !Anisotropic temperature factors
+    !!----     type(Space_Group_type),          intent(in    ) :: Spgr   !Space Group
+    !!----     Integer,                         intent(in out) :: codini !Last attributed parameter
+    !!----     real(kind=cp), dimension(6),     intent(in out) :: codes  !codewords for positions
+    !!----     integer,               optional, intent(in    ) :: ord    !Order of the stabilizer
+    !!----     integer, dimension(:), optional, intent(in    ) :: ss     !Pointer to SymmOp. of stabilizer
+    !!----     integer,               optional, intent(in    ) :: Ipr    !Printing unit for debug
+    !!----
+    !!----  Subroutine to get the appropriate constraints in the refinement codes of
+    !!----  anisotropic atomic displacement(thermal) parameters.
+    !!----  New algorithm based in the Wigner theorem.
+    !!----  The matrix Bet = Sum { R Beta RT} displays the symmetry constraints to be
+    !!----  applied to the anisotropic temperature factors. The sum runs over all rotational
+    !!----  symmetry operators of the stabilizer of the particular atom position in the given
+    !!----  space group.
+    !!----  There are a total of 29 kind of relations that may appear in the Bet matrix:
+    !!----
+    !!----     1    A A A 0   0   0  -> m-3m, -43m, 432, m-3,23, 3[111].2[001]
+    !!----     2    A A C 0   0   0  -> 4/mmm, -42m, 4mm, 422, 4/m, -4,4, 4[001]
+    !!----     3    A B A 0   0   0  -> 4[010]
+    !!----     4    A B B 0   0   0  -> 4[100]
+    !!----     5    A A A D   D   D  -> -3m, 3m, 32, -3, 3   3[111]
+    !!----     6    A A A D  -D  -D  -> 3[11-1]
+    !!----     7    A A A D  -D   D  -> 3[1-11]
+    !!----     8    A A A D   D  -D  -> 3[-111]
+    !!----     9    A A C A/2 0   0  -> 6/mmm, -6m2, 6mm, 622, 6/m, 6,-6,-3m, 32,-3, 3:  h 3[001]
+    !!----    10    A B C 0   0   0  -> mmm, mm2, 222  2[001] 2[100]
+    !!----    11    A A C D   0   0  -> 2[001], 2[110]    w
+    !!----    12    A B A 0   E   0  -> 2[010], 2[101]
+    !!----    13    A B B 0   0   F  -> 2[100], 2[011]
+    !!----    14    A B C B/2 0   0  -> 2[001], 2[100]    h
+    !!----    15    A B C A/2 0   0  -> 2[001], 2[010]    h
+    !!----    16    A B C D   0   0  -> 2/m, m, 2: 2[001] w
+    !!----    17    A B C 0   E   0  -> 2[010]
+    !!----    18    A B C 0   0   F  -> 2[100]
+    !!----    19    A A C D   E  -E  -> 2[110]            w
+    !!----    20    A A C D   E   E  -> 2[1-10]           w
+    !!----    21    A B A D   E  -D  -> 2[101]
+    !!----    22    A B A D   E   D  -> 2[10-1]
+    !!----    23    A B B D  -D   F  -> 2[011]
+    !!----    24    A B B D   D   F  -> 2[01-1]
+    !!----    25    A B C B/2 F/2 F  -> 2[100]            h
+    !!----    26    A B C A/2 0   F  -> 2[210]            h
+    !!----    27    A B C B/2 E   0  -> 2[120]            h
+    !!----    28    A B C A/2 E   E/2-> 2[010]            h
+    !!----    29    A B C D   E   F  -> 1, -1
+    !!----
+    !!----   Updated: 14 July 2011
+    !!----
+
+    !Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes,ord,ss,att,Ipr)	
+	Subroutine Get_Atombet_Ctr(x,betas,Spgr,codini,codes)	
+	  USE CFML_globaldeps,                only : cp
+	  USE CFML_crystallographic_symmetry, only : Space_group_type, Get_stabilizer, Sym_b_relations
+	  
+	  
+	  implicit none
+       real(kind=cp), dimension(3),             intent(in    ) :: x
+       real(kind=cp), dimension(6),             intent(in out) :: betas
+       type(Space_Group_type),                  intent(in    ) :: Spgr
+       Integer,                                 intent(in out) :: codini
+       real(kind=cp), dimension(6),             intent(in out) :: codes
+       !real(kind=cp), dimension(:,:), optional, intent(in)     :: att
+       !integer,                       optional, intent(in    ) :: ord, Ipr
+       !integer, dimension(:),         optional, intent(in    ) :: ss
+
        ! Local variables
        character (len=1), dimension(6)   :: cdd
-       real(kind=sp),     dimension(6)   :: multip
-       integer,           dimension(6,48):: p_mul=0,p_cod=0
-       integer :: i,j,order
-       real(kind=sp)    :: suma
-       integer,           dimension(48) :: ss_ptr
-       character (len=1), dimension(6)  :: strc
-       character (len=1)                :: car
-       integer,           dimension(6)  :: codd
-       real(kind=sp),     dimension(6)  :: cod,mul,multi
-       real(kind=sp),     parameter     :: epss=0.01
+       real(kind=cp),     dimension(6)   :: multip
+       integer                           :: i,j,order
+       real(kind=cp)                     :: suma
+       integer,           dimension(48)  :: ss_ptr
+       integer,           dimension(6)   :: codd
+       integer,           dimension(3,3) :: Rsym
+       real(kind=cp),     dimension(3,3) :: bet,bett,Rs
+       real(kind=cp),     dimension(3)   :: tr
+       real(kind=cp),     dimension(6)   :: cod,multi
+       real(kind=cp),     dimension(3,48):: atr
+       real(kind=cp),     parameter      :: epss=0.01_cp
 
        suma=0.0
        do j=1,6
           suma=suma+abs(codes(j))
-          cod(j)=int(abs(codes(j))/10.0)             !Input Parameter number with sign
-          multi(j)=mod(codes(j),10.0)                !Input Multipliers
+          cod(j)=int(abs(codes(j))/10.0_cp)             !Input Parameter number with sign
+          multi(j)=mod(codes(j),10.0_cp)                !Input Multipliers
           if(cod(j) < 1.0 .and. abs(multi(j)) > epss)  then
                codini=codini+1
                cod(j) = real(codini)
@@ -493,136 +577,245 @@ end subroutine write_symm_op_reduced_set
        end do
        if(suma < epss) return  !No refinement is required
 
-       !if(present(ord) .and. present(ss)) then
+       !if(present(ord) .and. present(ss) .and. present(att)) then
        !  order=ord
        !  ss_ptr(1:order) = ss(1:ord)
+       !  atr(:,1:order)  = att(:,1:ord)
        !else
-         call get_stabilizer(x,Spgr,order,ss_ptr)
+         call get_stabilizer(x,Spgr,order,ss_ptr,atr)
        !end if
 
-       strc=(/'a','b','c','d','e','f'/)
-       cdd = strc
-!      multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
-       multip=multi
+       bet=reshape((/17.0, 7.0,3.0,  &
+                     7.0,13.0,5.0,  &
+                     3.0, 5.0,11.0/),(/3,3/))
+       bett=bet
        if (order > 1 ) then
           do j=2,order
-             call sym_b_relations(Spgr%SymopSymb(ss_ptr(j)),codd,mul)
-             p_mul(:,j)= nint(mul*10.0)
-             p_cod(:,j)=codd
-             do i=1,6
-                if (abs(mul(i)) <= epss) then
-                   cdd(i) = "0"
-                   multip(i)=0.0
-                else
-                    if(cdd(i) /= "0") then
-                     cdd(i) = strc(codd(i))
-                     multip(i)=mul(i)
-                    end if
-                end if
-             end do
-             strc=cdd
-          end do
-
-          if(cdd(4) == cdd(5)) then
-              i=0
-              ss_ptr=0
-              do j=2,order
-                if(p_cod(4,j) /= p_cod(5,j)) cycle
-                i=i+1
-                ss_ptr(i)=10*p_mul(4,j)+ p_mul(5,j)
-              end do
-              if(i > 1) then
-                do j=2,i
-                  if(ss_ptr(1) /= ss_ptr(j)) then  !incompatible constraints => multip should be zero
-                    multip(4)=0.0
-                    multip(5)=0.0
-                  end if
-                end do
-              end if
-          end if
-
-          if(cdd(5) == cdd(6)) then
-              i=0
-              ss_ptr=0
-              do j=2,order
-                if(p_cod(5,j) /= p_cod(6,j)) cycle
-                i=i+1
-                ss_ptr(i)=10*p_mul(5,j)+ p_mul(6,j)
-              end do
-              if(i > 1) then
-                do j=2,i
-                  if(ss_ptr(1) /= ss_ptr(j)) then  !incompatible constraints => multip should be zero
-                    multip(5)=0.0
-                    multip(6)=0.0
-                  end if
-                end do
-              end if
-          end if
-
-          do j=1,5
-           do i=j+1,6
-             if( cdd(j) == cdd(i)) then
-                if( abs(multip(j)) < epss .or. abs(multip(i)) < epss) then
-                  cod(j) =0.0
-                  cod(i) =0.0
-                  cdd(j) = "0"
-                  cdd(i) = "0"
-                  multip(i) = 0.0
-                  multip(j) = 0.0
-                end if
-             end if
-           end do
-          end do
-
-          car=cdd(1)
-          do j=2,6
-             if (cdd(j) == "0") then
-                cod(j) = 0.0
-                betas(j)= 0.0
-             end if
-             if (cdd(j) == car) then
-                cod(j) = cod(1)
-                betas(j)= betas(1)*multip(j)
-             end if
-             if (cdd(j) == "a") then
-                cod(j) = cod(1)
-                betas(j)= betas(1)*multip(j)
-             end if
-             if (cdd(j) == "b") then
-                cod(j) = cod(2)
-                betas(j)= betas(2)*multip(j)
-             end if
-             if (cdd(j) == "c") then
-                cod(j) = cod(3)
-                betas(j)= betas(3)*multip(j)
-             end if
-             if (cdd(j) == "d") then
-                cod(j) = cod(4)
-                betas(j)= betas(4)*multip(j)
-             end if
-             if (cdd(j) == "e") then
-                cod(j) = cod(5)
-                betas(j)= betas(5)*multip(j)
-             end if
-             if (cdd(j) == "f") then
-                cod(j) = cod(6)
-                betas(j)= betas(6)*multip(j)
-             end if
+             Rsym=Spgr%SymOp(ss_ptr(j))%Rot
+             Rs=real(Rsym)
+             bett=bett+ matmul(Rs,matmul(bet,transpose(Rs)))
           end do
        end if
+       Rsym=nint(1000.0*bett)
+       codd=(/Rsym(1,1),Rsym(2,2),Rsym(3,3),Rsym(1,2),Rsym(1,3),Rsym(2,3)/)
+       cdd=(/'a','b','c','d','e','f'/)
+       multip=1.0
+       !Search systematically all the possible constraints
 
-        do j=1,6
-          if(abs(multi(j)) < epss .or. cdd(j) == '0' ) then
-            codes(j) = 0.0
-          else
-            codes(j) = sign(1.0, multip(j))*(abs(cod(j))*10.0 + abs(multip(j)) )
+       if(codd(1) == codd(2) .and. codd(1) == codd(3)) then ! a a a
+         if(codd(4) == codd(5) .and. codd(4) == codd(6) ) then ! a a a d d d
+           if(codd(4) == 0) then
+             cdd=(/'a','a','a','0','0','0'/)     ! 1 A A A 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             betas(2:3)=betas(1)
+             cod(2:3)=cod(1); cod(4:6)=0.0
+           else
+             cdd=(/'a','a','a','d','d','d'/)     ! 5 A A A D   D   D
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(5:6)=betas(4)
+             betas(2:3)=betas(1)
+             cod(2:3)=cod(1); cod(5:6)=cod(4)
+           end if
+         else if(codd(4) == -codd(5) .and. codd(4) == -codd(6) ) then !a a a d -d -d
+           cdd=(/'a','a','a','d','d','d'/)       ! 6 A A A D  -D  -D
+           multip=(/1.0,1.0,1.0,1.0,-1.0,-1.0/)
+           betas(5:6)=-betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)=cod(4)
+         else if(codd(4) == -codd(5) .and. codd(4) ==  codd(6) ) then !a a a d -d  d
+           cdd=(/'a','a','a','d','d','d'/)       ! 7 A A A D  -D   D
+           multip=(/1.0,1.0,1.0,1.0,-1.0, 1.0/)
+           betas(5)=-betas(4); betas(6)=betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)= cod(4)
+         else if(codd(4) ==  codd(5) .and. codd(4) == -codd(6) ) then !a a a d  d -d
+           cdd=(/'a','a','a','d','d','d'/)       ! 8 A A A D   D  -D
+           multip=(/1.0,1.0,1.0,1.0, 1.0,-1.0/)
+           betas(6)=-betas(4); betas(5)=betas(4)
+           betas(2:3)=betas(1)
+           cod(2:3)=cod(1); cod(5:6)= cod(4)
+         end if
+
+       else if(codd(1) == codd(2)) then ! a a c
+         if(codd(4) == codd(5) .and. codd(4) == codd(6) .and. codd(4) == 0) then ! a a c 0 0 0
+             cdd=(/'a','a','c','0','0','0'/)     ! 2 A A C 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             betas(2)=betas(1)
+             cod(2)=cod(1); cod(4:6)= 0.0
+         else if(codd(5) == codd(6) .and. codd(5) == 0) then ! a a c x 0 0
+             if(codd(4) == codd(1)/2) then
+               cdd=(/'a','a','c','a','0','0'/)     ! 9 A A C A/2 0   0
+               multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+               betas(5:6)=0.0; betas(4)=betas(1)*0.5
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(4)= cod(1); cod(5:6)=0.0
+             else
+               cdd=(/'a','a','c','d','0','0'/)     !11 A A C D   0   0
+               multip=(/1.0,1.0,1.0,1.0,0.0,0.0/)
+               betas(5:6)=0.0
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(5:6)=0.0
+             end if
+         else
+             if(codd(5) == codd(6)) then  ! a a c d e e
+               cdd=(/'a','a','c','d','e','e'/)     !20 A A C D   E   E
+               multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+               betas(6)=betas(5)
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(6)=cod(5)
+             else if(codd(5) == -codd(6)) then  ! a a c d e -e
+               cdd=(/'a','a','c','d','e','e'/)     !19 A A C D   E  -E
+               multip=(/1.0,1.0,1.0,1.0,1.0,-1.0/)
+               betas(6)=-betas(5)
+               betas(2)=betas(1)
+               cod(2)=cod(1); cod(6)=cod(5)
+             end if
+         end if
+
+       else if(codd(1) == codd(3)) then ! a b a
+         if(codd(4) == codd(6)) then    ! a b a d x d
+           if(codd(4) == 0) then  ! a b a 0 x 0
+             if(codd(5) == 0) then ! a b a 0 0 0
+               cdd=(/'a','b','a','0','0','0'/)     ! 3 A B A 0   0   0
+               multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+               betas(4:6)=0.0
+               betas(3)=betas(1)
+               cod(3)=cod(1); cod(4:6)=0.0
+             else                  ! a b a 0 e 0
+               cdd=(/'a','b','a','0','e','0'/)     !12 A B A 0   E   0
+               multip=(/1.0,1.0,1.0,0.0,1.0,0.0/)
+               betas(4)=0.0;  betas(6)=0.0
+               betas(3)=betas(1)
+               cod(3)=cod(1); cod(4)=0.0;  cod(6)=0.0
+             endif
+           else  !! a b a d e d
+             cdd=(/'a','b','a','d','e','d'/)       !22 A B A D   E   D
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(6)=betas(4)
+             betas(3)=betas(1)
+             cod(3)=cod(1); cod(6)=cod(4)
           end if
-        end do
-        !if(present(debug)) then
-        ! write(98,'(a,6f10.4)')        '     Codes on Betas       : ',codes
-        ! WRITE(98,'(a,6(a,1x),6f7.3)') '     Codes and multipliers:  ',cdd,multip
-        !end if
-        return
-end subroutine get_atombet_ctr
+
+         else if(codd(4) == -codd(6)) then ! a b a d e -d
+           cdd=(/'a','b','a','d','e','d'/)         !21 A B A D   E  -D
+           multip=(/1.0,1.0,1.0,1.0,1.0,-1.0/)
+           betas(6)=-betas(4)
+           betas(3)=betas(1)
+           cod(3)=cod(1); cod(6)=cod(4)
+         end if
+
+       else if(codd(2) == codd(3)) then ! a b b
+         if(codd(4) == codd(5)) then    ! a b b d d x
+           if(codd(4) == 0) then  ! a b b 0 0 x
+             if(codd(6) == 0) then ! a b b 0 0 0
+               cdd=(/'a','b','b','0','0','0'/)     ! 4 A B B 0   0   0
+               multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+               betas(4:6)=0.0
+               betas(3)=betas(2)
+               cod(3)=cod(2); cod(4:6)=0.0
+             else                  ! a b b 0 0 f
+               cdd=(/'a','b','b','0','0','f'/)     !13 A B B 0   0   F
+               multip=(/1.0,1.0,1.0,0.0,0.0,1.0/)
+               betas(4:5)=0.0
+               betas(3)=betas(2)
+               cod(3)=cod(2); cod(4:5)=0.0
+             endif
+           else  !! a b b d d f
+             cdd=(/'a','b','b','d','d','f'/)       !24 A B B D   D   F
+             multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+             betas(5)=betas(4)
+             betas(3)=betas(2)
+             cod(3)=cod(2); cod(5)=cod(4)
+           end if
+         else if(codd(4) == -codd(5)) then ! a b b d -d e
+           cdd=(/'a','b','b','d','d','f'/)         !23 A B B D  -D   F
+           multip=(/1.0,1.0,1.0,1.0,-1.0,1.0/)
+           betas(5)=-betas(4)
+           betas(3)=betas(2)
+           cod(3)=cod(2); cod(5)=cod(4)
+         end if
+
+       else !Now a /= b /= c
+
+         if(codd(4) == codd(5) .and. codd(4) == 0) then ! a b c 0 0 x
+           if(codd(6) == 0) then ! a b c 0 0 0
+             cdd=(/'a','b','c','0','0','0'/)          !10 A B C 0   0   0
+             multip=(/1.0,1.0,1.0,0.0,0.0,0.0/)
+             betas(4:6)=0.0
+             cod(4:6)=0.0
+           else
+             cdd=(/'a','b','c','0','0','f'/)          !18 A B C 0   0   F
+             multip=(/1.0,1.0,1.0,0.0,0.0,1.0/)
+             betas(4:5)=0.0
+             cod(4:5)=0.0
+           end  if
+         else if(codd(5) == codd(6) .and. codd(5) == 0) then  ! a b c x 0 0
+           if(codd(4) == codd(1)/2) then ! a b c a/2 0 0
+             cdd=(/'a','b','c','a','0','0'/)          !15 A B C A/2 0   0
+             multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+             betas(5:6)=0.0; betas(4)=betas(1)*0.5
+             cod(4)=cod(1); cod(5:6)=0.0
+           else if(codd(4) == codd(2)/2) then    !a b c b/2 0 0
+             cdd=(/'a','b','c','b','0','0'/)          !14 A B C B/2 0   0
+             multip=(/1.0,1.0,1.0,0.5,0.0,0.0/)
+             betas(5:6)=0.0; betas(4)=betas(2)*0.5
+             cod(4)=cod(2); cod(5:6)=0.0
+           else
+             cdd=(/'a','b','c','d','0','0'/)          !16 A B C D   0   0
+             multip=(/1.0,1.0,1.0,1.0,0.0,0.0/)
+             betas(5:6)=0.0
+             cod(5:6)=0.0
+           end  if
+         else if(codd(4) == codd(6) .and. codd(4) == 0) then !a b c 0 e 0
+           cdd=(/'a','b','c','0','e','0'/)            !17 A B C 0   E   0
+           multip=(/1.0,1.0,1.0,0.0,1.0,0.0/)
+           betas(4)=0.0; betas(6)=0.0
+           cod(4)=0.0; cod(6)=0.0
+         else if(codd(4) == codd(1)/2 .and. codd(5) == 0) then !a b c a/2 0 f
+           cdd=(/'a','b','c','a','0','f'/)            !26 A B C A/2 0   F
+           multip=(/1.0,1.0,1.0,0.5,0.0,1.0/)
+           betas(4)=betas(1)*0.5; betas(5)=0.0
+           cod(4)=cod(1); cod(5)=0.0
+         else if(codd(4) == codd(2)/2 .and. codd(6) == 0) then !a b c b/2 e 0
+           cdd=(/'a','b','c','b','e','0'/)            !27 A B C B/2 E   0
+           multip=(/1.0,1.0,1.0,0.5,1.0,0.0/)
+           betas(4)=betas(2)*0.5; betas(6)=0.0
+           cod(4)=cod(2); cod(6)=0.0
+         else if(codd(4) == codd(2)/2 .and. codd(5) == codd(6)/2) then !a b c b/2 f/2 f
+           cdd=(/'a','b','c','b','f','f'/)            !25 A B C B/2 F/2 F
+           multip=(/1.0,1.0,1.0,0.5,0.5,1.0/)
+           betas(4)=betas(2)*0.5; betas(5)=betas(6)*0.5
+           cod(4)=cod(2); cod(5)=cod(6)
+         else if(codd(4) == codd(1)/2 .and. codd(6) == codd(5)/2) then !a b c a/2 e e/2
+           cdd=(/'a','b','c','a','e','e'/)            !28 A B C A/2 E   E/2
+           multip=(/1.0,1.0,1.0,0.5,1.0,0.5/)
+           betas(4)=betas(1)*0.5; betas(6)=betas(5)*0.5
+           cod(4)=cod(1); cod(6)=cod(5)
+         else
+           cdd=(/'a','b','c','d','e','f'/)            !29 A B C D   E   F
+           multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+         end if
+       end if
+
+       do j=1,6
+         if(abs(multi(j)) < epss .or. cdd(j) == '0' ) then
+           codes(j) = 0.0_cp
+         else
+           codes(j) = sign(1.0_cp, multip(j))*(abs(cod(j))*10.0_cp + abs(multip(j)) )
+         end if
+       end do
+       !if(present(Ipr)) then
+       !  write(Ipr,'(a,6f10.4)')        '     Codes on Betas       : ',codes
+       !  Write(Ipr,'(a,6(a,1x),6f7.3)') '     Codes and multipliers:  ',cdd,multip
+       !  Write(Ipr,'(a)')               '     Beta_TOT matrix:  '
+       !  do i=1,3
+       !   Write(Ipr,'(a,3f12.4)')       '                      ',bett(i,:)
+       !  end do
+       !end if
+       return
+    End Subroutine Get_Atombet_Ctr
 
 !==========================================================================================
+

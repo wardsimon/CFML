@@ -8,7 +8,7 @@ rem Info Header
 rem
    cls
    echo MAKE_CRYSCAL: Make the CRYSCAL
-   echo Syntax: make_cryscal [lf95/g95/all]  [debug]
+   echo Syntax: make_cryscal [lf95/g95/ifort/all]  [debug]
    echo         --- compiler ---        ---  options  ---
    goto FIN
 rem
@@ -17,9 +17,13 @@ rem
 :CONT
    echo **-------------------------------------------------------**
    echo **----                                               ----**
-   echo **---- CRYSCAL                                       ----**
+   echo **----                   CRYSCAL                     ----**
    echo **----                                               ----**
-   echo **---- TR                                 (2007-2011)----**
+   echo **----          TR [CDIFX-UMR6226 Rennes]            ----**
+   echo **----                (2007-2011)                    ----**
+   echo **----                                               ----**
+   echo **----  Compilation:                                 ----**
+   echo **         make_cryscal [lf95/g95/gfortran/all]      ----**
    echo **-------------------------------------------------------**
 rem
 rem Compiler Version
@@ -27,6 +31,7 @@ rem
    if x%1 == xall      goto LF95_ZONE
    if x%1 == xlf95     goto LF95_ZONE
    if x%1 == xg95      goto G95_ZONE
+   if x%1 == xifort    goto IFORT_ZONE
    goto FIN
 rem
 rem ------------------------
@@ -52,6 +57,17 @@ rem
 rem CONSOLE
 rem
    call make_comp_g95
+   goto FIN
+
+rem ----------------------------------------------
+rem ---- Intel Fortran COMPILER ----
+rem ----------------------------------------------
+rem
+:IFORT_ZONE
+rem
+rem CONSOLE
+rem
+   call make_comp_ifort
    goto FIN
 rem
 rem >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

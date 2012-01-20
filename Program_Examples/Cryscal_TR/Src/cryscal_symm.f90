@@ -589,7 +589,8 @@ end subroutine get_new_string
 
 subroutine write_symm_op_mat()
  USE  cryscal_module, ONLY :    keyword_SPGR, R => symm_op_rot,  T => symm_op_trans, nb_symm_op, symm_op_mat,   &
-                                symm_op_string, symm_op_xyz, space_group_symbol, message_text, Mat_det
+                                symm_op_string, symm_op_xyz, space_group_symbol, message_text, Mat_det,         &
+								keyword_create_CIF
  USE  IO_module,      ONLY :    write_info
  implicit none
   integer                :: i, num
@@ -658,6 +659,10 @@ subroutine write_symm_op_mat()
 
  end do
 
+ 
+ IF(keyword_create_CIF) then
+   call write_CIF_file('SPACE_GROUP')  
+ endif
 
 end subroutine write_symm_op_mat
 !------------------------------------------------------------------------------------

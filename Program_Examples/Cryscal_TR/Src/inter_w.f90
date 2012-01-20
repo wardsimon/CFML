@@ -10,8 +10,10 @@ subroutine interactive_mode(input_string)
   INTEGER                       :: i_error
   CHARACTER (LEN=32)            :: current_keyword
 
- close(unit=CFL_unit)
- open (UNIT=CFL_unit, file = 'cryscal.cfl')
+ IF(input_string(1:8) == 'keyboard') then
+  close(unit=CFL_read_unit)
+  open (UNIT=CFL_read_unit, file = 'cryscal.cfl')
+ endif
  !open (UNIT=11, FILE="cryscal.CFL")
 
  do
@@ -28,6 +30,8 @@ subroutine interactive_mode(input_string)
    READ(UNIT=CFL_read_unit, fmt='(a)', IOSTAT=i_error) read_line
    !READ(UNIT=input_unit, '(a)', IOSTAT=i_error) read_line
    IF(i_error < 0) EXIT   ! fin du fichier
+   ! stocke la commande dans le fichier cryscal.cfl
+   ! write(unit = CFL_unit, fmt='(a)') trim(read_line)
   endif
 
   IF(LEN_TRIM(read_line) == 0) cycle
@@ -57,6 +61,10 @@ subroutine interactive_mode(input_string)
   unknown_keyword     = .false.
   unknown_CFL_keyword = .false.
 
+  call write_info('')
+  call write_info('    >> Input command: '//trim(read_line))
+  call write_info('')
+
   call identification_CFL_keywords(read_line)       ! read_CFL_.F90
   call identification_keywords(read_line)           ! read_KEYW.F90
 
@@ -81,6 +89,7 @@ END subroutine interactive_mode
  subroutine run_keyword_interactive(current_keyword)
  USE cryscal_module
  USE HKL_module
+ USE IO_module
  use external_applications_module, ONLY : launch_browser
  USE realwin, ONLY : SPAWN
 
@@ -90,8 +99,8 @@ END subroutine interactive_mode
 
   select case (TRIM(current_keyword))
 
-      CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR')
-        IF(nb_atom /=0)  call apply_symm
+    CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR', 'APPLY_SYM_OP', 'APPLY_SYMOP')        
+     IF(nb_atom /=0)  call apply_symm
 
       case ('CELL', 'CELL_PARAMETERS')
         IF(keyword_CELL) call volume_calculation('out')
@@ -146,7 +155,7 @@ END subroutine interactive_mode
       case ('LST_SG', 'LIST_SG', 'LSPGR', 'LIST_SPACE_GROUPS' )
         call list_space_groups()
 
-      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYMMETRY_OPERATORS')
+      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM', 'WRITE_SYMM', 'WRITE_SYMMETRY_OPERATORS')
         IF(WRITE_symm_op) call write_symm_op_mat()
 
 
@@ -156,8 +165,8 @@ END subroutine interactive_mode
       case ('MATMUL')
         call multi_matrix()
 
-      CASE ('MAT', 'MATR', 'MATRIX')
-        IF (keyword_MATR) then
+      CASE ('MAT', 'MATR', 'MATRIX', 'USER_MAT', 'USER_MATR', 'USER_MATRIX')
+        IF (keyword_MAT) then
          call WRITE_matrice()
          if (keyword_CELL)    call transf_cell_parameters
          if (nb_hkl  /=0)     call transf_HKL
@@ -190,6 +199,13 @@ END subroutine interactive_mode
          endif
         endif
 
+      CASE ('DIAG', 'DIAG_MAT', 'DIAG_MATR', 'DIAG_MATRIX')
+        IF (keyword_DIAG) then
+         call WRITE_matrice()
+		 call DIAG_matrice()
+        endif
+
+		
       case ('NEWS')
         call write_cryscal_NEWS('screen')
 
@@ -212,11 +228,14 @@ END subroutine interactive_mode
        IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
         call atomic_identification()
         IF(keyword_CELL)                      call atomic_density_calculation()
-        IF(keyword_ZUNIT)	              call molecular_weight()
+        IF(keyword_ZUNIT)	                  call molecular_weight()
         IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()
         IF(keyword_CELL)                      call absorption_calculation()
        endif
 
+     case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
+       if(keyword_MU) call Absorption_routine	  
+	   
       CASE ('SITE_INFO', 'LIST_SITE_INFO')
         !site_info_all_atoms = .true.
         IF(nb_atom /=0 .AND. keyword_SPGR) call get_SITE_info()
@@ -244,7 +263,7 @@ END subroutine interactive_mode
       case ('TRANSLATION', 'TRANS', 'TRANSLATE', 'MOVE')
         IF(nb_atom /=0)  call transl_coord()
 
-      CASE ('THERM', 'THERMAL', 'ADP')                        ! conversion des parametres d'agitation thermique
+      CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX')     ! conversion des parametres d'agitation thermique
        IF(keyword_THERM) then
         IF(THERM_aniso) then
          call calc_therm_aniso
@@ -305,6 +324,7 @@ END subroutine interactive_mode
 
       CASE ('FILE')                                           ! lecture fichier.HKL ou .CIF
        IF(keyword_FILE) then
+	    call allocate_HKL_arrays
         call def_HKL_rule()
         call read_and_sort_hkl('sort')
         ! cas d'un fichier import.cif : calcul systematique du Rint -----
@@ -397,9 +417,13 @@ END subroutine interactive_mode
 
       case ('RESET', 'RAZ', 'INITIALIZE', 'INIT')
         if (keyword_RESET) then
-         call cryscal_INIT
-         call Def_transformation_matrix
+         tmp_logical = mode_interactif
+         call Deallocate_HKL_arrays
+		 call deallocate_PGF_data_arrays
+		 call Def_transformation_matrix
+         call cryscal_INIT         
          call read_cryscal_ini()
+		 mode_interactif = tmp_logical
         endif 
 
 
@@ -432,10 +456,18 @@ END subroutine interactive_mode
 
 
       case ('WRITE_CELL', 'OUTPUT_CELL')
-        IF (keyword_CELL) call volume_calculation('out')
+	    ! oct. 2011 
+	    IF(.NOT. keyword_CELL) then
+         call write_info('')
+         call write_info('  Cell parameters has to be known for WRITE_CELL keyword')
+         call write_info('')
+         return
+        endif
+        !IF (keyword_CELL) call volume_calculation('out')   ! commenté oct. 2011
+		call volume_calculation('out')
 
 
-      case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA')
+      case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'WRITE_MOLECULE', 'OUTPUT_CHEM', 'OUTPUT_CHEMICAL_FORMULA',  'OUTPUT_MOLECULE')
         call write_molecular_features
 
       case ('WRITE_QVEC', 'OUTPUT_QVEC')

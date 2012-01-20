@@ -94,7 +94,11 @@ subroutine cryscal_init()
   Create_INS_temperature = -999.
   Create_INS_u_threshold = -999.
   
-  CIF_format80 = .true. 
+  Max_ref           = Max_allowed   ! Max. number of hkl reflections
+  LOCK_wave_value   = 0.02
+  CIF_format80      = .true. 
+  include_RES_file  = .false.
+  update_parameters = .true.
 
   X_target(1:tabulated_target_nb)%logic  = .false.
   X_target(1:tabulated_target_nb)%write  = .true.
@@ -145,13 +149,17 @@ subroutine cryscal_init()
    list_sg_centric(1:2)= .false.
    list_sg_laue(1:14)  = .false.
    list_sg_multip      = .false.
+   list_sg_enantio     = .false.
+   list_sg_chiral      = .false.
+   list_sg_polar       = .false.
   keyword_LAUE         = .false.
   keyword_ATOM_list    = .false.
   keyword_SFAC_UNIT    = .false.
   keyword_CONT         = .false.
   keyword_CHEM         = .false.
   keyword_ZUNIT        = .false.
-  keyword_MATR         = .false.
+  keyword_MU           = .false.
+  keyword_MAT          = .false.
   keyword_LST_MAT      = .false.
   keyword_TRANSL       = .false.
   keyword_FILE         = .false.
@@ -159,6 +167,7 @@ subroutine cryscal_init()
   keyword_P4P          = .false.
   keyword_RAW          = .false.
   keyword_MATMUL       = .false.
+  keyword_DIAG         = .false.
 
   keyword_INSIDE       = .false.
   keyword_PAUSE        = .false.
@@ -231,6 +240,7 @@ subroutine cryscal_init()
  !OBV_REV_twin_matrix  = 2            ! matrice de maclage:  ( 0-1 0 -1 0 0  0 0-1): twofold axis parallel to (a-b)'
   write_HKL            = .false.      ! sortie des HKL
   create_PAT           = .false.      ! creation d'un diagramme
+  lecture_OK           = .false.
 
   keyword_SH_2th       = .false.
   SHIFT_2theta         = 0.
@@ -426,6 +436,7 @@ subroutine cryscal_init()
   unit_cell%crystal_system = '?'
   unit_cell%Bravais        = '?'
   unit_cell%lattice        = '?'
+  unit_cell%H_M            = '?'
 
 
   UB_matrix = 0.
@@ -453,6 +464,8 @@ subroutine cryscal_init()
   molecule%content     = '?'
   molecule%weight      = 0.0
   molecule%density     = 0.0
+  molecule%Z           = 0
+  molecule%Z_unit      = 1
 
 
 
@@ -491,6 +504,7 @@ subroutine cryscal_init()
   keyword_LST_MAT         = .false.
 
   keyword_THERM           = .false.
+  keyword_THERM_SHELX     = .false.
   THERM_Uiso              = .false.
   THERM_Biso              = .false.
   THERM_Uij               = .false.
@@ -596,150 +610,155 @@ subroutine cryscal_init()
   write_keys = .true.
                                    !1                      2                      3                      4                    5               
   HELP_string( 1: nb_help_max) = &
-  (/'ABSENT_HKL         ', 'ACTA               ', 'ANG                ', 'APPLY_OP           ', 'ATOM               ', &
-    'ATOM_LIST          ', 'BARY               ', 'BEAM               ', 'CELL               ', 'CHEM               ', &
-    'CONN               ', 'CONT               ', 'CREATE_ACE         ', 'CREATE_CEL         ', 'CREATE_CFL         ', &
-    'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'D_HKL              ', 'D_STAR             ', &
-    'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', 'DATA_ATOMIC_WEIGHT ', 'DATA_NEUTRONS      ', 'DATA_XRAYS         ', &
-    'DIR_ANG            ', 'DIST               ', 'EDIT               ', 'EQUIV_HKL          ', 'EXIT               ', &
-    'FILE               ', 'FIND_HKL           ', 'FIND_HKL_LIST      ', 'GEN_HKL            ', 'HEADER             ', &
-    'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', 'HKL_POS            ', 'INSIDE             ', &
-    'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', 'LIST_MATR          ', 'LIST_SG            ', &
-    'MAG                ', 'MAN                ', 'MAN_HTML           ', 'MATMUL             ', 'MATR               ', &
-    'OBV_REV            ', 'MENDEL             ', 'MERGE              ', 'MONOCLINIC         ', 'NEWS               ', &
-    'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', 'Q_HKL              ', &
-    'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_INS           ', 'READ_PCR           ', &
-    'READ_NREPORT       ', 'REC_ANG            ', 'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', &
-    'REF_KCCD           ', 'REF_SADABS         ', 'RESET              ', 'RINT               ', 'RHOMB_HEX          ', &
-    'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', 'SETTING            ', 'SFAC               ', &
-    'SF_HKL             ', 'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', 'SG_INFO            ', &
-    'SG_SUB             ', 'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', 'SITE_INFO          ', &
-    'SIZE               ', 'SORT               ', 'STL                ', 'SYMM               ', 'SYST               ', &
-    'THERM              ', 'THETA              ', 'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', &
-    'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', &
-    'WEB                ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', &
-    'WRITE_SG           ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', &
-    'WAVE               ', 'WRITE_QVEC         '/)
+  (/'ABSENT_HKL         ', 'ABSORPTION         ', 'ACTA               ', 'ANG                ', 'APPLY_OP           ', &
+    'ATOM               ', 'ATOM_LIST          ', 'BARY               ', 'BEAM               ', 'CELL               ', &
+    'CHEM               ', 'CONN               ', 'CONT               ', 'CREATE_ACE         ', 'CREATE_CEL         ', &
+    'CREATE_CFL         ', 'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'D_HKL              ', &
+    'D_STAR             ', 'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', 'DATA_ATOMIC_WEIGHT ', 'DATA_NEUTRONS      ', &
+    'DATA_XRAYS         ', 'DIAG_MAT           ', 'DIR_ANG            ', 'DIST               ', 'EDIT               ', &
+    'EQUIV_HKL          ', 'EXIT               ', 'FILE               ', 'FIND_HKL           ', 'FIND_HKL_LIST      ', &
+    'GEN_HKL            ', 'HEADER             ', 'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', &
+    'HKL_POS            ', 'INSIDE             ', 'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', &
+    'LIST_MATR          ', 'LIST_SG            ', 'MAG                ', 'MAN                ', 'MAN_HTML           ', &
+    'MATMUL             ', 'MATR               ', 'OBV_REV            ', 'MENDEL             ', 'MERGE              ', &
+    'MONOCLINIC         ', 'NEWS               ', 'NIGGLI             ', 'P4P                ', 'PAUSE              ', &
+    'PERMUT             ', 'Q_HKL              ', 'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', &
+    'READ_INS           ', 'READ_PCR           ', 'READ_NREPORT       ', 'REC_ANG            ', 'REF_APEX           ', &
+    'REF_DENZO          ', 'REF_EVAL           ', 'REF_KCCD           ', 'REF_SADABS         ', 'RESET              ', &
+    'RINT               ', 'RHOMB_HEX          ', 'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', &
+    'SETTING            ', 'SFAC               ', 'SF_HKL             ', 'SG                 ', 'SG_ALL             ', &
+    'SG_EXTI            ', 'SG_INFO            ', 'SG_SUB             ', 'SHANNON            ', 'SHELL              ', &
+    'SHIFT_2TH          ', 'SITE_INFO          ', 'SIZE               ', 'SORT               ', 'STL                ', &
+    'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', 'THETA              ', &
+    'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', 'USER_MAT           ', 'TRICLINIC          ', &
+	'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', 'WEB                ', &
+	'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_SG           ', &
+	'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', 'WAVE               ', &
+	'WRITE_QVEC         '/)
 						
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
   numor = 1;            HELP_ABSENT_HKL_numor          =  numor  !  1
-  numor = numor + 1;    HELP_ACTA_numor                =  numor  !  2
-  numor = numor + 1;    HELP_ANG_numor                 =  numor  !  3
-  numor = numor + 1;    HELP_APPLY_OP_numor            =  numor  !  4
-  numor = numor + 1;    HELP_ATOM_numor                =  numor  !  5
-  numor = numor + 1;    HELP_ATOM_LIST_numor           =  numor  !  6
-  numor = numor + 1;    HELP_BARY_numor                =  numor  !  7
-  numor = numor + 1;    HELP_BEAM_numor                =  numor  !  8
-  numor = numor + 1;    HELP_CELL_numor                =  numor  !  9
-  numor = numor + 1;    HELP_CHEM_numor                =  numor  ! 10
-  numor = numor + 1;    HELP_CONN_numor                =  numor  ! 11
-  numor = numor + 1;    HELP_CONT_numor                =  numor  ! 12
-  numor = numor + 1;    HELP_CREATE_ACE_numor          =  numor  ! 13  
-  numor = numor + 1;    HELP_CREATE_CEL_numor          =  numor  ! 14
-  numor = numor + 1;    HELP_CREATE_CFL_numor          =  numor  ! 15
-  numor = numor + 1;    HELP_CREATE_FST_numor          =  numor  ! 16
-  numor = numor + 1;    HELP_CREATE_INS_numor          =  numor  ! 17 
+  numor = numor + 1;    HELP_ABSORPTION_numor          =  numor  !  2
+  numor = numor + 1;    HELP_ACTA_numor                =  numor  !  3
+  numor = numor + 1;    HELP_ANG_numor                 =  numor  !  4
+  numor = numor + 1;    HELP_APPLY_OP_numor            =  numor  !  5
+  numor = numor + 1;    HELP_ATOM_numor                =  numor  !  6
+  numor = numor + 1;    HELP_ATOM_LIST_numor           =  numor  !  7
+  numor = numor + 1;    HELP_BARY_numor                =  numor  !  8
+  numor = numor + 1;    HELP_BEAM_numor                =  numor  !  9
+  numor = numor + 1;    HELP_CELL_numor                =  numor  ! 10
+  numor = numor + 1;    HELP_CHEM_numor                =  numor  ! 11
+  numor = numor + 1;    HELP_CONN_numor                =  numor  ! 12
+  numor = numor + 1;    HELP_CONT_numor                =  numor  ! 13
+  numor = numor + 1;    HELP_CREATE_ACE_numor          =  numor  ! 14  
+  numor = numor + 1;    HELP_CREATE_CEL_numor          =  numor  ! 15
+  numor = numor + 1;    HELP_CREATE_CFL_numor          =  numor  ! 16
+  numor = numor + 1;    HELP_CREATE_FST_numor          =  numor  ! 17
+  numor = numor + 1;    HELP_CREATE_INS_numor          =  numor  ! 19 
   numor = numor + 1;    HELP_CREATE_REPORT_numor       =  numor  ! 19
-  numor = numor + 1;    HELP_D_HKL_numor               =  numor  ! 19
-  numor = numor + 1;    HELP_D_STAR_numor              =  numor  ! 20
-  numor = numor + 1;    HELP_DATA_ATOMIC_DENSITY_numor =  numor  ! 21
-  numor = numor + 1;    HELP_DATA_ATOMIC_RADIUS_numor  =  numor  ! 22
-  numor = numor + 1;    HELP_DATA_ATOMIC_WEIGHT_numor  =  numor  ! 23  
-  numor = numor + 1;    HELP_DATA_NEUTRONS_numor       =  numor  ! 24
-  numor = numor + 1;    HELP_DATA_XRAYS_numor          =  numor  ! 25
-  numor = numor + 1;    HELP_DIR_ANG_numor             =  numor  ! 26
-  numor = numor + 1;    HELP_DIST_numor                =  numor  ! 27
-  numor = numor + 1;    HELP_EDIT_numor                =  numor  ! 28
-  numor = numor + 1;    HELP_EQUIV_numor               =  numor  ! 29
-  numor = numor + 1;    HELP_EXIT_numor                =  numor  ! 30
-  numor = numor + 1;    HELP_FILE_numor                =  numor  ! 31
-  numor = numor + 1;    HELP_FIND_HKL_numor            =  numor  ! 32
-  numor = numor + 1;    HELP_FIND_HKL_LIST_numor       =  numor  ! 33  
-  numor = numor + 1;    HELP_GEN_HKL_numor             =  numor  ! 34
-  numor = numor + 1;    HELP_HEADER_numor              =  numor  ! 35
-  numor = numor + 1;    HELP_HEX_RHOMB_numor           =  numor  ! 36
-  numor = numor + 1;    HELP_HKL_numor                 =  numor  ! 37 
-  numor = numor + 1;    HELP_HKL_NEG_numor             =  numor  ! 38
-  numor = numor + 1;    HELP_HKL_POS_numor             =  numor  ! 39
-  numor = numor + 1;    HELP_INSIDE_numor              =  numor  ! 40
-  numor = numor + 1;    HELP_LIST_EXTI_numor           =  numor  ! 41
-  numor = numor + 1;    HELP_LIST_KEYS_numor           =  numor  ! 42
-  numor = numor + 1;    HELP_LIST_LAUE_numor           =  numor  ! 43
-  numor = numor + 1;    HELP_LIST_MATR_numor           =  numor  ! 44
-  numor = numor + 1;    HELP_LIST_SG_numor             =  numor  ! 45
-  numor = numor + 1;    HELP_MAG_numor                 =  numor  ! 46
-  numor = numor + 1;    HELP_MAN_numor                 =  numor  ! 47
-  numor = numor + 1;    HELP_MAN_HTML_numor            =  numor  ! 48
-  numor = numor + 1;    HELP_MATMUL_numor              =  numor  ! 49
-  numor = numor + 1;    HELP_MATR_numor                =  numor  ! 50
-  numor = numor + 1;    HELP_MENDEL_numor              =  numor  ! 51
-  numor = numor + 1;    HELP_MERGE_numor               =  numor  ! 52
-  numor = numor + 1;    HELP_MONOCLINIC_numor          =  numor  ! 53
-  numor = numor + 1;    HELP_NEWS_numor                =  numor  ! 54
-  numor = numor + 1;    HELP_NIGGLI_CELL_numor         =  numor  ! 55
-  numor = numor + 1;    HELP_OBV_REV_numor             =  numor  ! 56
-  numor = numor + 1;    HELP_P4P_numor                 =  numor  ! 57
-  numor = numor + 1;    HELP_PAUSE_numor               =  numor  ! 58
-  numor = numor + 1;    HELP_PERMUT_numor              =  numor  ! 59
-  numor = numor + 1;    HELP_Q_HKL_numor               =  numor  ! 60
-  numor = numor + 1;    HELP_QVEC_numor                =  numor  ! 61
-  numor = numor + 1;    HELP_READ_CEL_numor            =  numor  ! 62
-  numor = numor + 1;    HELP_READ_CIF_numor            =  numor  ! 63
-  numor = numor + 1;    HELP_READ_INS_numor            =  numor  ! 64
-  numor = numor + 1;    HELP_READ_PCR_numor            =  numor  ! 65
-  numor = numor + 1;    HELP_READ_NREPORT_numor        =  numor  ! 66
-  numor = numor + 1;    HELP_REC_ANG_numor             =  numor  ! 67
-  numor = numor + 1;    HELP_REF_APEX_numor            =  numor  ! 68
-  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 69
-  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 70
-  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 71
-  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 72
-  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 73
-  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 74
-  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 75
-  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 76
-  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 77
-  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 78
-  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 79
-  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 80
-  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 81
-  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 82
-  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 83
-  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 84
-  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 85
-  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  ! 86 
-  numor = numor + 1;    HELP_SHANNON_numor             =  numor  ! 87
-  numor = numor + 1;    HELP_SHELL_numor               =  numor  ! 88
-  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  ! 89
-  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  ! 90
-  numor = numor + 1;    HELP_SIZE_numor                =  numor  ! 91
-  numor = numor + 1;    HELP_SORT_numor                =  numor  ! 92
-  numor = numor + 1;    HELP_STL_numor                 =  numor  ! 93 
-  numor = numor + 1;    HELP_SYMM_numor                =  numor  ! 94
-  numor = numor + 1;    HELP_SYST_numor                =  numor  ! 95
-  numor = numor + 1;    HELP_THERM_numor               =  numor  ! 96
-  numor = numor + 1;    HELP_THETA_numor               =  numor  ! 97
-  numor = numor + 1;    HELP_TITL_numor                =  numor  ! 98
-  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  ! 99
-  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !100
-  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !101
-  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !102
-  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !103
-  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !104 
-  numor = numor + 1;    HELP_UNIT_numor                =  numor  !105
-  numor = numor + 1;    HELP_WAVE_numor                =  numor  !106
-  numor = numor + 1;    HELP_WEB_numor                 =  numor  !107
-  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !108 
-  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !109
-  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !110
-  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !111 
-  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !112 
-  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !113
-  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !114
-  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !115
-  numor = numor + 1;    HELP_X_wave_numor              =  numor  !116
-  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !117  
+  numor = numor + 1;    HELP_D_HKL_numor               =  numor  ! 20
+  numor = numor + 1;    HELP_D_STAR_numor              =  numor  ! 21
+  numor = numor + 1;    HELP_DATA_ATOMIC_DENSITY_numor =  numor  ! 22
+  numor = numor + 1;    HELP_DATA_ATOMIC_RADIUS_numor  =  numor  ! 23
+  numor = numor + 1;    HELP_DATA_ATOMIC_WEIGHT_numor  =  numor  ! 24  
+  numor = numor + 1;    HELP_DATA_NEUTRONS_numor       =  numor  ! 25
+  numor = numor + 1;    HELP_DATA_XRAYS_numor          =  numor  ! 26
+  numor = numor + 1;    HELP_DIAG_MAT_numor            =  numor  ! 27
+  numor = numor + 1;    HELP_DIR_ANG_numor             =  numor  ! 28
+  numor = numor + 1;    HELP_DIST_numor                =  numor  ! 29
+  numor = numor + 1;    HELP_EDIT_numor                =  numor  ! 30
+  numor = numor + 1;    HELP_EQUIV_numor               =  numor  ! 31
+  numor = numor + 1;    HELP_EXIT_numor                =  numor  ! 32
+  numor = numor + 1;    HELP_FILE_numor                =  numor  ! 33
+  numor = numor + 1;    HELP_FIND_HKL_numor            =  numor  ! 34
+  numor = numor + 1;    HELP_FIND_HKL_LIST_numor       =  numor  ! 35  
+  numor = numor + 1;    HELP_GEN_HKL_numor             =  numor  ! 36
+  numor = numor + 1;    HELP_HEADER_numor              =  numor  ! 37
+  numor = numor + 1;    HELP_HEX_RHOMB_numor           =  numor  ! 38
+  numor = numor + 1;    HELP_HKL_numor                 =  numor  ! 39 
+  numor = numor + 1;    HELP_HKL_NEG_numor             =  numor  ! 40
+  numor = numor + 1;    HELP_HKL_POS_numor             =  numor  ! 41
+  numor = numor + 1;    HELP_INSIDE_numor              =  numor  ! 42
+  numor = numor + 1;    HELP_LIST_EXTI_numor           =  numor  ! 43
+  numor = numor + 1;    HELP_LIST_KEYS_numor           =  numor  ! 44
+  numor = numor + 1;    HELP_LIST_LAUE_numor           =  numor  ! 45
+  numor = numor + 1;    HELP_LIST_MATR_numor           =  numor  ! 46
+  numor = numor + 1;    HELP_LIST_SG_numor             =  numor  ! 47
+  numor = numor + 1;    HELP_MAG_numor                 =  numor  ! 48
+  numor = numor + 1;    HELP_MAN_numor                 =  numor  ! 49
+  numor = numor + 1;    HELP_MAN_HTML_numor            =  numor  ! 50
+  numor = numor + 1;    HELP_MATMUL_numor              =  numor  ! 51
+  numor = numor + 1;    HELP_MATR_numor                =  numor  ! 52
+  numor = numor + 1;    HELP_MENDEL_numor              =  numor  ! 53
+  numor = numor + 1;    HELP_MERGE_numor               =  numor  ! 54
+  numor = numor + 1;    HELP_MONOCLINIC_numor          =  numor  ! 55
+  numor = numor + 1;    HELP_NEWS_numor                =  numor  ! 56
+  numor = numor + 1;    HELP_NIGGLI_CELL_numor         =  numor  ! 57
+  numor = numor + 1;    HELP_OBV_REV_numor             =  numor  ! 58
+  numor = numor + 1;    HELP_P4P_numor                 =  numor  ! 59
+  numor = numor + 1;    HELP_PAUSE_numor               =  numor  ! 60
+  numor = numor + 1;    HELP_PERMUT_numor              =  numor  ! 61
+  numor = numor + 1;    HELP_Q_HKL_numor               =  numor  ! 62
+  numor = numor + 1;    HELP_QVEC_numor                =  numor  ! 63
+  numor = numor + 1;    HELP_READ_CEL_numor            =  numor  ! 64
+  numor = numor + 1;    HELP_READ_CIF_numor            =  numor  ! 65
+  numor = numor + 1;    HELP_READ_INS_numor            =  numor  ! 66
+  numor = numor + 1;    HELP_READ_PCR_numor            =  numor  ! 67
+  numor = numor + 1;    HELP_READ_NREPORT_numor        =  numor  ! 68
+  numor = numor + 1;    HELP_REC_ANG_numor             =  numor  ! 69
+  numor = numor + 1;    HELP_REF_APEX_numor            =  numor  ! 70
+  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 71
+  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 72
+  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 73
+  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 74
+  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 75
+  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 76
+  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 77
+  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 78
+  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 79
+  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 80
+  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 81
+  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 82
+  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 83
+  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 84
+  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 85
+  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 86
+  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 87
+  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  ! 88 
+  numor = numor + 1;    HELP_SHANNON_numor             =  numor  ! 89
+  numor = numor + 1;    HELP_SHELL_numor               =  numor  ! 90
+  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  ! 91
+  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  ! 92
+  numor = numor + 1;    HELP_SIZE_numor                =  numor  ! 93
+  numor = numor + 1;    HELP_SORT_numor                =  numor  ! 94
+  numor = numor + 1;    HELP_STL_numor                 =  numor  ! 95 
+  numor = numor + 1;    HELP_SYMM_numor                =  numor  ! 96
+  numor = numor + 1;    HELP_SYST_numor                =  numor  ! 97
+  numor = numor + 1;    HELP_THERM_numor               =  numor  ! 98
+  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  ! 99
+  numor = numor + 1;    HELP_THETA_numor               =  numor  !100
+  numor = numor + 1;    HELP_TITL_numor                =  numor  !101
+  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !102
+  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !103
+  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !104
+  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !105
+  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !106
+  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !107 
+  numor = numor + 1;    HELP_UNIT_numor                =  numor  !108
+  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !109
+  numor = numor + 1;    HELP_WAVE_numor                =  numor  !110
+  numor = numor + 1;    HELP_WEB_numor                 =  numor  !111
+  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !112 
+  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !113
+  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !114
+  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !115 
+  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !116 
+  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !117
+  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !118
+  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !119
+  numor = numor + 1;    HELP_X_wave_numor              =  numor  !120 
+  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !  
 
 
 
@@ -748,25 +767,31 @@ subroutine cryscal_init()
 
  subroutine read_cryscal_ini()
   USE cryscal_module, ONLY : DEBUG_file, INI_unit, cryscal_ini, winplotr_exe, my_editor, my_browser, my_word, &
-                             WEB, AUTHOR, DEVICE,                                                           &
-                             CIF_parameter, CIF_parameter_APEX, CIF_parameter_KCCD, CIF_parameter_XCALIBUR, &
-                             wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                      &
-                             DENZO, EVAL, APEX, CRYSALIS,                                                   &
-                             CONN_dmax_ini, CONN_dmax, CIF_format80,                                        &                             
+                             WEB, AUTHOR, DEVICE,                                                             &
+                             CIF_parameter, CIF_parameter_APEX, CIF_parameter_KCCD, CIF_parameter_XCALIBUR,   &
+                             wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                        &
+                             DENZO, EVAL, APEX, CRYSALIS,                                                     &
+                             CONN_dmax_ini, CONN_dmax, CIF_format80, include_RES_file, update_parameters,     &                             
+							 LOCK_wave_value,  Max_ref,                                                       &
                              keyword_create_ACE, keyword_create_CEL, keyword_create_CFL, keyword_create_FST, keyword_create_INS,&
                              INI_create_ACE,     INI_create_CEL,     INI_create_CFL,     INI_create_FST,     INI_create_INS,    &
                              structure_solution, structure_refinement, absorption_correction,               &
-                             Create_INS_temperature, Create_INS_U_threshold
-  USE HKL_module,     ONLY : n_sig, threshold
+                             Create_INS_temperature, Create_INS_U_threshold,                                &
+							 message_text
+  USE HKL_module,     ONLY : n_sig, threshold, MAX_allowed
   USE macros_module,  ONLY : u_case, l_case
+  USE MATRIX_list_module
+  USE IO_module,                 ONLY : write_info
+
 
   implicit none
    CHARACTER (LEN=256)    :: cryscal_path_name, winplotr_path_name
-   INTEGER                :: long, iostat_err, i1, i2
+   INTEGER                :: long, iostat_err, i, i1, i2
    LOGICAL                :: file_exist
-   CHARACTER (LEN=256)    :: read_line
+   CHARACTER (LEN=256)    :: read_line, message2_text
    CHARACTER (len=256)    :: INI_string
    real                   :: INI_real
+   real, dimension(3,3)   :: arg_mat
 
 
 
@@ -830,27 +855,27 @@ subroutine cryscal_init()
    !  if(len_trim(cryscal_ini) == 0) cryscal_ini  = trim(winplotr_path_name)//'\cryscal.ini'
    ! else
    !  if(DEBUG_file%write) then
-   !   call write_DEBUG_file('')
-   !   call write_DEBUG_file('No environment variable defined for CRYSCAL.')
-   !   call write_DEBUG_file('')
+   !   call write_DEBUG_file('','')
+   !   call write_DEBUG_file('No environment variable defined for CRYSCAL.','')
+   !   call write_DEBUG_file('','')
    !  endif
    !  return
    ! endif
    !endif
 
    if(DEBUG_file%write) then
-    call write_DEBUG_file('', '')
+    call write_DEBUG_file('','')
     call write_DEBUG_file('CRYSCAL_ini', trim(cryscal_ini))
-    call write_DEBUG_file('', '')
+    call write_DEBUG_file('','')
    endif
 
 
    INQUIRE(FILE=TRIM(cryscal_ini), EXIST=file_exist)
    IF(.NOT. file_exist) then
     if(DEBUG_file%write) then
-     call write_DEBUG_file('', '')
-     call write_DEBUG_file('!! CRYSCAL.ini does not exist.', '')
-     call write_DEBUG_file('', '')
+     call write_DEBUG_file('','')
+     call write_DEBUG_file('!! CRYSCAL.ini does not exist.','')
+     call write_DEBUG_file('','')
 
      call CIF_default_values     
     endif
@@ -1296,6 +1321,45 @@ subroutine cryscal_init()
     call write_DEBUG_file ('CONNECTIVITY_dmax', trim(read_line))
    endif
 
+   !-------- ARRAYS DIMENSIONS    ---------------------------------------------------------------------
+  rewind(unit = INI_unit)  
+   do
+    READ(INI_unit, '(a)', IOSTAT = iostat_err) read_line
+    if(iostat_err /=0)           exit
+    if(len_trim(read_line) == 0) cycle
+
+    if(read_line(1:19) == '[ARRAYS DIMENSIONS]') then
+     do
+      read(INI_unit, '(a)', iostat = iostat_err) read_line
+      if(iostat_err /=0)          exit
+      if(len_trim(read_line)==0)  exit
+      i1 = index(read_line, '!') 
+      if(i1 /=0) then
+       if(i1 == 1) cycle
+       read_line = read_line(1:i1-1)
+      endif
+      read_line = adjustl(read_line)
+      i2 = index(read_line, '=')
+      if(i2==0) exit
+      
+      read(read_line(i2+1:), '(a)') INI_string
+      INI_string = adjustl(INI_string)
+      if(l_case(read_line(1:15)) == 'hkl_reflections') then 
+       read(ini_string, *, iostat=iostat_err) INI_real
+       if(iostat_err/=0) exit
+	   if(INI_real < MAX_allowed) Max_ref = INI_real
+       cycle
+      end if
+     end do
+    endif
+   end do
+ 
+   if(DEBUG_file%write) then    
+    write(read_line, '(I10,a)') Max_ref,      '    ! Max. number of hkl reflections in a file'
+    call write_DEBUG_file ('Max_ref',  trim(read_line))
+   endif
+
+   
 
 !-------- CREATE INS parameters     ---------------------------------------------------------------------
   rewind(unit = INI_unit)  
@@ -1433,7 +1497,7 @@ subroutine cryscal_init()
    endif
 
 
-   !-------- CIF COMMAND LINE ARGUMENTS --------------------------------------------------------------------
+   !-------- OPTIONS --------------------------------------------------------------------
    rewind(unit=INI_unit)
    do
     READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
@@ -1461,22 +1525,168 @@ subroutine cryscal_init()
       
       READ(read_line(i2+1:), '(a)') INI_string
       INI_string = adjustl(INI_string)
-      IF(l_case(read_line(1:12)) == 'cif_format80' .and. INI_string(1:1) == '0') then
+	  IF(l_case(read_line(1:15)) == 'lock_wave_value') then
+	   read(INI_string, *) LOCK_wave_value
+	   cycle
+      ELSEIF(l_case(read_line(1:12)) == 'cif_format80' .and. INI_string(1:1) == '0') then
        CIF_format80     = .false.       
-       cycle      	   
+       cycle  
+      ELSEIF(l_case(read_line(1:16)) == 'include_res_file' .and. INI_string(1:1) == '1') then
+       include_RES_file = .true.       	   
+       cycle  
+	  ELSEIF(l_case(read_line(1:17)) == 'update_parameters' .and. INI_string(1:1) == '0') then
+       update_parameters = .false.       	   
+       cycle  
       endif
+	  
+	  
      end do
     endif 	
    end do
    
    if(DEBUG_file%write) then
+    write(message2_text, '(F6.3,a)') LOCK_wave_value, '   ! '
+    call write_DEBUG_file ('LOCK_wave_value', trim(message2_text))    
     if (CIF_format80) then
-     call write_DEBUG_file ('CIF_format80',      '1     ! ')
+     call write_DEBUG_file ('CIF_format80',         '1     ! ')
     else
-     call write_DEBUG_file ('CIF_format80',      '0     ! ')
+     call write_DEBUG_file ('CIF_format80',         '0     ! ')
     endif     
+    if (include_res_file) then
+     call write_DEBUG_file ('Include_RES_file',      '1     ! ')
+    else
+     call write_DEBUG_file ('Include_RES_file',      '0     ! ')
+    endif     
+	if (update_parameters) then
+     call write_DEBUG_file ('Update_parameters',     '1     ! ')
+    else
+     call write_DEBUG_file ('Update_parameters',     '0     ! ')
+    endif     
+
    endif
 
+   !-------- USER's MATRICES --------------------------------------------------------------------
+   rewind(unit=INI_unit)
+   do
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    IF(iostat_err /=0)           exit
+    if(len_trim(read_line) == 0) cycle
+    i1 = index(read_line, '!') 
+    if(i1 /=0) then
+     if(i1 == 1) cycle
+     read_line = read_line(1:i1-1)
+    endif
+    read_line = ADJUSTL(read_line)
+    user_mat_nb = 0
+
+    IF(read_line(1:30) == '[USER TRANSFORMATION MATRICES]') then
+
+     do
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      IF(iostat_err /=0)           exit
+      IF(LEN_TRIM(read_line) == 0) exit
+	  long = len_trim(read_line)
+      !i1 = index(read_line, '!') 
+      !if(i1 /=0) then
+      ! if(i1 == 1) cycle
+      ! read_line = read_line(1:i1-1)
+      !endif
+      !read_line = ADJUSTL(read_line)
+      i2 = INDEX(read_line, '=')
+      IF(i2 ==0) exit    
+      READ(read_line(i2+1:), '(a)') INI_string
+      INI_string = adjustl(INI_string)
+      IF(l_case(read_line(1:5)) == 'mat_1') then
+	   arg_mat(:,:) = 0.
+	   read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
+	   if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+1) = arg_mat(:,:)   
+       user_mat_nb = user_mat_nb  + 1	
+	   i1 = index(read_line, '!')
+ 	   if(i1 /= long) then
+        user_mat_text(user_mat_nb) = '?'	 
+	    read(read_line(i1+1:long), '(a)', iostat=iostat_err) INI_string	
+		if(iostat_err ==0) then
+		 user_mat_text(user_mat_nb) = INI_string
+         user_mat_text(user_mat_nb) = adjustl(user_mat_text(user_mat_nb))	
+		endif
+	   end if
+       cycle  
+      ELSEIF(l_case(read_line(1:5)) == 'mat_2') then
+	   arg_mat(:,:) = 0.
+	   read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
+	   if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+2) = arg_mat(:,:)     	   
+	   user_mat_nb = user_mat_nb  + 1	
+	   i1 = index(read_line, '!')
+ 	   if(i1 /= long) then
+	    user_mat_text(user_mat_nb) = '?'
+	    read(read_line(i1+1:long), '(a)', iostat=iostat_err) INI_string	
+		if(iostat_err ==0) then
+		 user_mat_text(user_mat_nb) = INI_string
+         user_mat_text(user_mat_nb) = adjustl(user_mat_text(user_mat_nb))	
+		end if
+	   end if
+	   cycle  
+	  ELSEIF(l_case(read_line(1:5)) == 'mat_3') then
+	   arg_mat(:,:) = 0.
+	   read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
+	   if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+3) = arg_mat(:,:)     	   
+	   user_mat_nb = user_mat_nb  + 1	
+	   i1 = index(read_line, '!')
+ 	   if(i1 /= long) then
+	    user_mat_text(user_mat_nb) = '?'
+	    read(read_line(i1+1:long), '(a)', iostat=iostat_err) INI_string	
+		if(iostat_err ==0) then
+		 user_mat_text(user_mat_nb) = INI_string
+         user_mat_text(user_mat_nb) = adjustl(user_mat_text(user_mat_nb))			
+        endif		
+	   end if
+       cycle  
+	  ELSEIF(l_case(read_line(1:5)) == 'mat_4') then
+	   arg_mat(:,:) = 0.
+	   read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
+	   if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+4) = arg_mat(:,:)     	   
+	   user_mat_nb = user_mat_nb  + 1
+	   i1 = index(read_line, '!')
+ 	   if(i1 /= long) then
+	    user_mat_text(user_mat_nb) = '?'
+	    read(read_line(i1+1:long), '(a)', iostat=iostat_err) INI_string	
+		if(iostat_err ==0) then
+		 user_mat_text(user_mat_nb) = INI_string
+         user_mat_text(user_mat_nb) = adjustl(user_mat_text(user_mat_nb))	
+		endif 
+	   end if
+       cycle  
+	  ELSEIF(l_case(read_line(1:5)) == 'mat_5') then
+	   arg_mat(:,:) = 0.
+	   read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
+	   if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+5) = arg_mat(:,:)     	   
+	   user_mat_nb = user_mat_nb  + 1	
+	   i1 = index(read_line, '!')
+ 	   if(i1 /= long) then
+	    user_mat_text(user_mat_nb) = '?'
+	    read(read_line(i1+1:long), '(a)', iostat=iostat_err) INI_string	
+		if(iostat_err ==0) then
+		 user_mat_text(user_mat_nb) = INI_string
+         user_mat_text(user_mat_nb) = adjustl(user_mat_text(user_mat_nb))	
+		endif
+	   end if
+       cycle  
+      endif
+     end do
+    endif 	
+   end do
+   
+   
+    
+   if(DEBUG_file%write) then
+    do i=1, user_mat_nb
+	 write(message_text,  '(a,i2)')        'User matrix #', i
+	 write(message2_text, '(3(2x,3F4.0),2a)')  transf_mat(:,:, max_mat_nb+i), '   ! ' , trim(user_mat_text(i))
+    call write_DEBUG_file (trim(message_text), trim(message2_text))
+    end do
+   endif
+
+   
 !-------- STRUCTURE PROGRAMS --------------------------------------------------------------------
    rewind(unit=INI_unit)
    do
@@ -1489,7 +1699,7 @@ subroutine cryscal_init()
      read_line = read_line(1:i1-1)
     endif
     read_line = ADJUSTL(read_line)
-    IF(read_line(1:20) == '[STRUCTURE PROGRAMS]') then
+    IF(read_line(1:20) == '[STRUCTURE PROGRAMS]' .or. read_line(1:10) == '[PROGRAMS]') then
      do
       READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
@@ -1502,7 +1712,8 @@ subroutine cryscal_init()
       read_line = ADJUSTL(read_line)
       i2 = INDEX(read_line, '=')
       IF(i2 ==0) exit
-      
+ 
+
       READ(read_line(i2+1:), '(a)') INI_string
       INI_string = adjustl(INI_string)
       IF(l_case(read_line(1:23)) == 'structure_solution_name') then
@@ -1544,9 +1755,9 @@ subroutine cryscal_init()
     call write_DEBUG_file ('Structure_refinement_name',       trim(structure_refinement%name))
     call write_DEBUG_file ('Structure_refinement_reference',  trim(structure_refinement%reference))   
     call write_DEBUG_file ('Structure_refinement_cif_ref',    trim(structure_refinement%cif_ref))   
-    call write_DEBUG_file ('Absorption_correction_name',      trim(Absorption_correction%name))
-    call write_DEBUG_file ('Absorption_correction_reference', trim(Absorption_correction%reference))   
-    call write_DEBUG_file ('Absorption_correction_cif_ref',   trim(Absorption_correction%cif_ref))   
+    call write_DEBUG_file ('Absorption_correction_name',      trim(absorption_correction%name))
+    call write_DEBUG_file ('Absorption_correction_reference', trim(absorption_correction%reference))   
+    call write_DEBUG_file ('Absorption_correction_cif_ref',   trim(absorption_correction%cif_ref))   
    endif
 
 
@@ -1581,8 +1792,8 @@ subroutine output_setting
  USE cryscal_module, ONLY :  INI_unit, cryscal_ini, my_browser, my_editor, WEB, DEVICE, AUTHOR, message_text,  &
                              CONN_dmax_ini, INI_create_ACE, INI_create_CEL, INI_create_CFL, INI_create_FST, INI_create_INS,    &
                              structure_solution, structure_refinement, absorption_correction,      &
-                             Create_INS_temperature, Create_INS_U_threshold
- USE HKl_module,     ONLY :  n_sig, threshold
+                             Create_INS_temperature, Create_INS_U_threshold, max_ref
+ USE HKL_module,     ONLY :  n_sig, threshold
  USE IO_module,      ONLY :  write_info
  implicit none
   integer                 :: i
@@ -1632,6 +1843,11 @@ subroutine output_setting
  call write_info('   > web            = '//trim(AUTHOR%WEB))
  call write_info('')
  
+ call write_info(' [ARRAYS DIMENSIONS]')
+ write(message_text, '(I8)') Max_ref
+ call write_info('   > hkl_reflections = '//   trim(message_text))
+ call write_info('')
+ 
  call write_info(' [PARAMETERS]')
  write(message_text, '(F5.2)') n_sig
  call write_info('   > I_sig          = '//   trim(message_text))
@@ -1642,7 +1858,7 @@ subroutine output_setting
  call write_info('')
  
  call write_info(' [CREATE INS]')
- write(message_text, '(F6.2)') Create_INS_temperature
+ write(message_text, '(F8.2)') Create_INS_temperature
  call write_info('   > Temperature    = '//   trim(message_text))
  write(message_text, '(F4.1)') Create_INS_U_threshold
  call write_info('   > U_threshold    ='//  trim(message_text))
@@ -1707,44 +1923,73 @@ subroutine get_X_radiation(input_string)
 
  implicit none
   character (len=*), intent(in)   :: input_string
+  integer                         :: long_input_string
+  logical                         :: target_Ag, target_Co, target_Cr, target_Cu, target_Fe, target_Mo, target_Ni
+  
+  target_Ag = .false.
+  target_Co = .false.
+  target_Cr = .false.
+  target_Cu = .false.
+  target_Fe = .false.
+  target_Mo = .false.
+  target_Ni = .false.
+  
+  long_input_string = len_trim(input_string)
+  
+  if(long_input_string == 3) then
+   if(input_string(1:3) == 'XAG') target_Ag = .true.
+   if(input_string(1:3) == 'XCO') target_Co = .true.
+   if(input_string(1:3) == 'XCR') target_Cr = .true.
+   if(input_string(1:3) == 'XCU') target_Cu = .true.
+   if(input_string(1:3) == 'XFE') target_Fe = .true.
+   if(input_string(1:3) == 'XMO') target_Mo = .true.
+   if(input_string(1:3) == 'XNi') target_Ni = .true.
+  elseif(long_input_string == 4) then
+   if(input_string(1:4) == 'X_AG') target_Ag = .true.
+   if(input_string(1:4) == 'X_CO') target_Co = .true.
+   if(input_string(1:4) == 'X_CR') target_Cr = .true.
+   if(input_string(1:4) == 'X_CU') target_Cu = .true.
+   if(input_string(1:4) == 'X_FE') target_Fe = .true.
+   if(input_string(1:4) == 'X_MO') target_Mo = .true.
+   if(input_string(1:4) == 'X_Ni') target_Ni = .true.
+  endif 
 
-
-     IF(input_string(1:4) == 'X_AG' .or. input_string(1:3) == 'XAG') then
+     IF(target_Ag) then
       wavelength =  X_target(1)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(1)%logic   = .true.
       keyword_WAVE = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_MO' .or. input_string(1:3) == 'XMO') then
+     ELSEIF(target_Mo) then
       wavelength =  X_target(2)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(2)%logic   = .true.
       keyword_WAVE = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_CU' .or. input_string(1:3) == 'XCU') then
+     ELSEIF(target_Cu) then
       wavelength =  X_target(3)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(3)%logic   = .true.
       keyword_WAVE = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_NI' .OR. input_string(1:3) == 'XNI') then
+     ELSEIF(target_Ni) then
       wavelength = X_target(4)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(4)%logic   = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_CO' .or. input_string(1:3) == 'XCO') then
+     ELSEIF(target_Co) then
       wavelength =  X_target(5)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(5)%logic   = .true.
       keyword_WAVE = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_FE' .or. input_string(1:3) == 'XFE') then
+     ELSEIF(target_Fe) then
       wavelength =  X_target(6)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(6)%logic   = .true.
       keyword_WAVE = .true.
       anti_cathode = .true.
-     ELSEIF(input_string(1:4) == 'X_CR' .or. input_string(1:3) == 'XCR') then
+     ELSEIF(target_Cr) then
       wavelength =  X_target(7)%wave(1)
       X_target(1:tabulated_target_nb)%logic = .false.
       X_target(7)%logic   = .true.
@@ -1775,12 +2020,12 @@ subroutine write_DEBUG_file(field, value)
    write(DEBUG_file%unit, '(a)') trim(field)
 
   else
-   !if(value(1:1) == '?' .or. len_trim(value)==0) then
-   ! write(DEBUG_file%unit, '(a)') ''
-   !else
+   if(value(1:1) == '?' .or. len_trim(value)==0) then
+    write(DEBUG_file%unit, '(a)') ''
+   else
     write(fmt_, '(a,i2,a)') '(1x,a,', 32-long, 'x, 2a)'
     write(DEBUG_file%unit, trim(fmt_))  field,  ': ', adjustl(value)
-   !endif
+   endif
   endif
 
 end subroutine write_DEBUG_file

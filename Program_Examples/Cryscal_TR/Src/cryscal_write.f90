@@ -39,7 +39,6 @@ end subroutine Write_HELP
  
 
   stop
-  return
   
  end subroutine Write_cryscal_html
 !------------------------------------------------------------------------
@@ -216,22 +215,32 @@ end subroutine write_Xrays_wavelength
  end subroutine Write_QVEC
 !-------------------------------------------------------------------------
 
-subroutine write_space_group(i1, i2)
+subroutine write_space_group(i1, i2, n_enantio, n_chiral, n_polar)
  use CFML_crystallographic_symmetry, only : set_spacegroup
- USE cryscal_module,            ONLY : list_sg, list_sg_centric, list_sg_multip, message_text, SPG
+ USE cryscal_module,            ONLY : list_sg, list_sg_centric, list_sg_multip, list_sg_enantio, list_sg_chiral, &
+                                       list_sg_polar, message_text, SPG
  USE IO_module,                 ONLY : write_info
  implicit none
-  INTEGER, INTENT(IN)       :: i1, i2   ! numero du groupe d'espace
+  INTEGER, INTENT(IN)       :: i1, i2    ! numero du groupe d'espace
+  INTEGER, INTENT(INOUT)    :: n_enantio ! nombre de groupes d'espace enantiomorphes repondant au critere recherche
+  INTEGER, INTENT(INOUT)    :: n_chiral  ! nombre de groupes d'espace chiraux repondant au critere recherche
+  INTEGER, INTENT(INOUT)    :: n_polar   ! nombre de groupes d'espace polaires repondant au critere recherche
   CHARACTER (LEN=3)         :: string_i
+  CHARACTER (LEN=12)        :: PG_string, Laue_string
+  CHARACTER (LEN=1)         :: enantio_string, chiral_string, polar_string
   INTEGER                   :: i, n
-  LOGICAL                   :: ok
+  LOGICAL                   :: ok, enantio, chiral, polar
 
-  ! numero du groupe d'espace: 		SPG%NumSpg
+  ! numero du groupe d'espace: 		    SPG%NumSpg
   ! symbole:                            SPG%SPG_Symb
   ! centro:                             SPG%Centred  =0 Centric(-1 no at origin)
   !                                                  =1 Acentric
   !                                                  =2 Centric(-1 at origin)
   n=0
+  !n_enantio = 0   ! initialise dans la routine list_space_groups (cryscal_lsg_cfml.F90)
+  !n_chiral  = 0
+  !n_polar   = 0
+  
   do i = i1, i2
    WRITE(string_i, '(i3)') i
    call set_spacegroup(string_i, SPG)
@@ -244,12 +253,50 @@ subroutine write_space_group(i1, i2)
 
    call test_laue(SPG%Laue, ok)
    IF(.NOT. ok) cycle
+   
+   call test_enantio(i, enantio)
+   if(enantio) n_enantio = n_enantio + 1
+   if(.not. enantio .and. list_sg_enantio) cycle
+   
+   call test_chiral(i, chiral)
+   if(chiral) n_chiral = n_chiral + 1
+   if(.not. chiral .and. list_sg_chiral) cycle
+
+   call test_polar(i, polar)
+   if(polar) n_polar = n_polar + 1
+   if(.not. polar .and. list_sg_polar) cycle
+
+   write(Laue_string, '(3a)') '(', trim(SPG%laue), ')'	   
+   write(PG_string,   '(3a)') '[', trim(SPG%PG), ']'	
+   if(.not. enantio .or. list_sg_enantio) then 
+    enantio_string = ' '
+   else
+	enantio_string = '*'
+   endif	
+  
+   if(.not. chiral .or. list_sg_chiral) then 
+    chiral_string = ' '
+   else
+	chiral_string = '+'
+   endif	
+  
+   if(.not. polar .or. list_sg_polar) then 
+    polar_string = ' '
+   else
+	polar_string ='§'
+   endif	
 
    IF(list_sg_multip) then
-    WRITE(message_text, '(10x,a,I3,a,5x,a,10x,3a,I3)') 'IT# ', i,'.', SPG%SPG_symb(1:10) , '(',TRIM(SPG%laue),')    mult.=', &
-	                                                    SPG%multip
+	WRITE(message_text, '(10x,a,I3,a,5x,4a,10x,a,5x,2a,I3)') 'IT# ', i,'.', chiral_string(1:1),enantio_string(1:1),     &
+	                                                         polar_string(1:1), SPG%SPG_symb(1:10) , Laue_string(1:10), &
+															 PG_string(1:8), '    mult.=', SPG%multip 	
+	
+    
    else
-    WRITE(message_text, '(10x,a,I3,a,5x,a,10x,3a)')    'IT# ', i,'.', SPG%SPG_symb(1:10) , '(',TRIM(SPG%laue),')'
+    WRITE(message_text, '(10x,a,I3,a,5x,4a,10x,a,5x,a)')     'IT# ', i,'.', chiral_string(1:1),enantio_string(1:1),     &
+	                                                         polar_string(1:1), SPG%SPG_symb(1:10) , Laue_string(1:10), &
+															 PG_string(1:8)
+	
    endif
    call write_info(TRIM(message_text))
    n=n+1
@@ -259,6 +306,8 @@ subroutine write_space_group(i1, i2)
    call write_info('  >> No space group founded with the required conditions.')
    call write_info('')
   endif
+  
+  
 
  RETURN
 
@@ -329,15 +378,16 @@ subroutine write_atom_list()
 
  IF(keyword_SPGR) then
   if(input_PCR .or. keyword_read_PCR) then
-   call write_info('   NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
+   call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
   else
-   call write_info('   NAME     LABEL    x         y         z         Biso      Occ(%)    Mult')
+   call write_info('         NAME     LABEL    x         y         z         Biso      Occ(%)    Mult')
   endif
  else
-  call write_info( '   NAME     LABEL    x         y         z         Biso      Occ')
+  call write_info( '         NAME     LABEL    x         y         z         Biso      Occ')
  endif
  call write_info('')
 
+ 
  IF(keyword_SPGR .and. (input_PCR .or. keyword_read_PCR)) then
   atom_mult(1) = Get_Multip_Pos(atom_coord(1:3,1), SPG)
   f1 = atom_occ(1) * REAL(SPG%Multip) / REAL(atom_mult(1))
@@ -347,16 +397,21 @@ subroutine write_atom_list()
  do i= 1, nb_atom
   IF(keyword_SPGR) then
    atom_mult(i) = Get_Multip_Pos(atom_coord(1:3,i), SPG)
+   
+  
    if(input_PCR .or. keyword_read_PCR) then
     f =  SPG%Multip / atom_mult(i)
     occ_perc = atom_occ(i) *  f * f1
     atom_occ_perc(i) =  occ_perc
     
-    write(message_text,'(3x,a4,5x,a4,2x,6F10.5,I4)')  atom_label(i), atom_type (i) , atom_coord(1:3,i), &
-                                                      atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i)
+    write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+                                                               atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i)
    else
-    write(message_text,'(3x,a4,5x,a4,2x,5F10.5,I4)')  atom_label(i), atom_type (i) , atom_coord(1:3,i), &
-                                                      atom_Biso(i),  atom_occ_perc(i),    atom_mult(i)
+    !write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+    !                                                           atom_Biso(i),  atom_occ_perc(i),    atom_mult(i)
+	write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+                                                               atom_Biso(i),  atom_occ(i),    atom_mult(i)
+	
 
    endif
   else
@@ -386,18 +441,31 @@ subroutine write_molecular_features
  call write_info('')
  call write_info('  >> Molecular features:')
  call write_info('')
- write(message_text, '(2a)')       '    . formula : ', trim(molecule%formula)
+ write(message_text, '(2a)')        '    . formula                                     : ', trim(molecule%formula)
  call write_info(trim(message_text))
- write(message_text, '(a, F8.2)')  '    . weight  : ', molecule%weight
+  
+ if(molecule%Z_unit /=0) then
+  write(message_text, '(a, I3)')    '    . number of formula units                     : ', molecule%Z_unit
+  call write_info(trim(message_text))
+ endif
+ 
+ IF(molecule%content(1:1) /= '?') then
+  write(message_text, '(2a)')       '    . content                                     : ', trim(molecule%content)
+  call write_info(trim(message_text))
+ endif
+ 
+ write(message_text, '(a, F8.2)')   '    . weight                                      : ', molecule%weight
  call write_info(trim(message_text))
  if(molecule%density > 0.01) then
-  write(message_text, '(a, F9.3)') '    . density : ', molecule%density
+  write(message_text, '(a, F9.3)')  '    . density                                     : ', molecule%density
   call write_info(trim(message_text))
  endif
- IF(LEN_TRIM(molecule%content) /=0) then
-  write(message_text, '(2a)')      '    . content : ', trim(molecule%content)
-  call write_info(trim(message_text))
+ 
+ if(molecule%Z /=0) then
+  WRITE(message_text, '(a,I6)')     '    . total number of electrons in the molecule   : ', molecule%Z
+  call write_info(TRIM(message_text))
  endif
+
  call write_info('')
 
  return
@@ -410,9 +478,28 @@ subroutine write_REF(input_string)
  USE IO_module,      ONLY: write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string
+ INTEGER                      :: long_input_string
+ LOGICAL                      :: input_KCCD, input_APEX, input_EVAL, input_DENZO, input_SADABS
 
-
- IF(input_string(1:4) == 'KCCD') then
+ long_input_string = len_trim(input_string)
+ input_KCCD   = .false.
+ input_APEX   = .false.
+ input_EVAL   = .false.
+ input_DENZO  = .false.
+ input_SADABS = .false.
+ 
+ if(long_input_string == 4) then
+  if(input_string(1:4) == 'KCCD') input_KCCD = .true.
+  if(input_string(1:4) == 'APEX') input_APEX = .true.
+  if(input_string(1:4) == 'EVAL') input_EVAL = .true.
+ elseif(long_input_string == 5) then 
+  if(input_string(1:5) == 'DENZO') input_DENZO = .true.
+ elseif(long_input_string == 6) then
+  if(input_string(1:6) == 'SADABS') input_KCCD = .true.
+ endif 
+  
+ 
+ IF(input_KCCD) then
 
   IF(keyword_create_CIF) then
    call write_CIF_file("KCCD")
@@ -435,7 +522,7 @@ subroutine write_REF(input_string)
   endif
 
 
- elseIF(input_string(1:4) == 'APEX') then
+ ELSEIF(input_APEX) then
   IF(keyword_create_CIF)   then
    call write_CIF_file('APEX')
   else
@@ -469,7 +556,7 @@ subroutine write_REF(input_string)
   endif
 
 
- ELSEIF(input_string(1:4) == 'EVAL') then
+ ELSEIF(input_EVAL) then
 
   IF(keyword_create_CIF) then
    call write_CIF_file('EVAL_PROGRAMS')
@@ -491,7 +578,7 @@ subroutine write_REF(input_string)
    call write_info("")
   endif
 
- ELSEIF(input_string(1:5) == 'DENZO') then
+ ELSEIF(input_DENZO) then
 
   IF(keyword_create_CIF)  then
    call write_CIF_file('DENZO_PROGRAMS')
@@ -507,7 +594,7 @@ subroutine write_REF(input_string)
    call write_info("")
   endif
 
- ELSEIF(input_string(1:6) == 'SADABS') then
+ ELSEIF(input_SADABS) then
   if(keyword_create_CIF) then
    call write_CIF_file('SADABS')
   else
