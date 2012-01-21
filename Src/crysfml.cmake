@@ -41,7 +41,7 @@ set_target_properties(crysfml PROPERTIES Fortran_MODULE_DIRECTORY ${crysfml_BINA
 # Install section
 #################################
 
-message(${CRYSFML_PREFIX})
+# message(${CRYSFML_PREFIX})
 
 # The rules for installing the library.
 install(TARGETS crysfml ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
