@@ -1,6 +1,6 @@
 !!----
 !!---- Copyleft(C) 1999 - 2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Marc Janoschek & some modificantions OZ
+!!---- Juan Rodriguez-Carvajal & Marc Janoschek & some modificantions Oksana Zaharko (OZ)
 !!----
 !!---- MODULE: CFML_Polarimetry
 !!----   INFO: Subroutines and Functions to calculate the polarisation tensor
@@ -13,7 +13,12 @@
 !!----   for the crystal frame are needed.
 !!----
 !!---- HISTORY
-!!----    Update: 07/03/2011
+!!----    Update: January  - 2012: General revision of variables introduced by OZ (JRC)
+!!----            November - 2011: New subroutines and calculations with domains (OZ)
+!!----            April    - 2008:
+!!----            December - 2006: Added function Write_Polar_line for more convenient
+!!----                             output of matrices of many reflections in one file
+!!----            April    - 2005: Created by MJ and revised by JRC
 !!----
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                 only: cp, tpi
@@ -30,6 +35,11 @@
 !!----    POLAR_CALC_LIST_TYPE
 !!----    POLAR_OBS_TYPE
 !!----    POLAR_OBS_LIST_TYPE
+!!----    Polar_ObsMulti_List_type
+!!----    Polar_Calc_sVs_type
+!!----    Polar_Calc_sVs_List_type
+!!----    Polar_CalcMulti_sVs_List_type
+
 !!----
 !!---- PROCEDURES
 !!----    Functions:
@@ -45,9 +55,12 @@
 !!--++       TCHIRAL                   [Private]
 !!----
 !!----    Subroutines:
-!!----       SET_POLAR_INFO
+!!----       CALC_POLAR_DOM  (OZ adapted from SET_POLAR_INFO by including domain information, Feb 2009)
+!!----       SET_POLAR_INFO  (Useful only for theoretical monodomains)
 !!----       WRITE_POLAR_INFO
 !!----       WRITE_POLAR_LINE
+!!----       Calc_Polar_Dom_Efficiency
+!!----       Calc_Polar_CrSec
 !!----
 !!
  Module CFML_Polarimetry
@@ -69,7 +82,8 @@
     !---- List of public functions ----!
 
     !---- List of public subroutines ----!
-    public  :: Calc_Polar_Dom, Set_Polar_Info, Write_Polar_Info, Write_Polar_line
+    public  :: Calc_Polar_Dom, Set_Polar_Info, Write_Polar_Info, Write_Polar_line, &
+               Calc_Polar_Dom_Efficiency, Calc_Polar_CrSec
 
     !---- List of private Operators ----!
 
@@ -86,26 +100,26 @@
     !!---- TYPE :: Polar_calc_type
     !!--..
     !!---- Type, public :: Polar_calc_type
-    !!----     REAL(kind=cp), DIMENSION (3)      :: H     ! Scattering vector in hkl
-    !!----     REAL(kind=cp), DIMENSION (3)      :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
-    !!----     TYPE(Crystal_Cell_Type)           :: Cell  ! Unit Cell of Crystal
-    !!----     REAL(kind=cp)                     :: P     ! magnitude of initial polarisation vector
-    !!----     COMPLEX, DIMENSION (3,2,24)       :: MIV   ! magnetic interaction vector
-    !!----     COMPLEX                           :: NSF   ! nuclear structure factor
-    !!----     REAL(kind=cp)                     :: NC    ! nuclear scattering contribution
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: MY    ! magnetic contribution along y
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: MZ    ! magnetic contribution along z
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: RY    ! real part of nuclear magnetic interference term along y
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: RZ    ! real part of nuclear magnetic interference term along z
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: IY    ! imaginary part of nuclear magnetic interference term along y
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: IZ    ! imaginary part of nuclear magnetic interference term along y
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: TC    ! chiral contribution
-    !!----     REAL(kind=cp), DIMENSION (2,24)   :: MM    ! magnetic-magnetic interference term
-    !!----     REAL(kind=cp), DIMENSION (3,2,24) :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
-    !!----     REAL(kind=cp), DIMENSION (3,3)    :: Pij   ! the polarisation tensor
+    !!----     real(kind=cp), dimension (3)      :: H     ! Scattering vector in hkl
+    !!----     real(kind=cp), dimension (3)      :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
+    !!----     Type(Crystal_Cell_Type)           :: Cell  ! Unit Cell of Crystal
+    !!----     real(kind=cp)                     :: P     ! magnitude of initial polarisation vector
+    !!----     complex, dimension (3,2,24)       :: MIV   ! magnetic interaction vector
+    !!----     complex                           :: NSF   ! nuclear structure factor
+    !!----     real(kind=cp)                     :: NC    ! nuclear scattering contribution
+    !!----     real(kind=cp), dimension (2,24)   :: MY    ! magnetic contribution along y
+    !!----     real(kind=cp), dimension (2,24)   :: MZ    ! magnetic contribution along z
+    !!----     real(kind=cp), dimension (2,24)   :: RY    ! real part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)   :: RZ    ! real part of nuclear magnetic interference term along z
+    !!----     real(kind=cp), dimension (2,24)   :: IY    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)   :: IZ    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)   :: TC    ! chiral contribution
+    !!----     real(kind=cp), dimension (2,24)   :: MM    ! magnetic-magnetic interference term
+    !!----     real(kind=cp), dimension (3,2,24) :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
+    !!----     real(kind=cp), dimension (3,3)    :: Pij   ! the polarisation tensor
     !!---- End Type Polar_calc_type
     !!----
-    !!---- Update: Februar 2009 OZ
+    !!---- Update: February 2009 (OZ)
     !!
 
     !!
@@ -191,7 +205,7 @@
     !!----
     !!---- TYPE :: Polar_obs_type
     !!--..
-    !!----     REAL(kind=cp), DIMENSION (3)    :: H
+    !!----     real(kind=cp), dimension (3)    :: H
     !!----     real(kind=cp), dimension (3,3)  :: oPij   ! the observed polarisation tensor
     !!----     real(kind=cp), dimension (3,3)  :: soPij  ! the Sigma of polarisation tensor
     !!---- End Type Polar_obs_type
@@ -199,9 +213,9 @@
     !!---- Update: Februar 2009 OZ
     !!
     Type, public :: Polar_obs_type
-       REAL(kind=cp), DIMENSION (3)     :: H
-       REAL(kind=cp), DIMENSION (3,3)   :: oPij
-       REAL(kind=cp), DIMENSION (3,3)   :: soPij
+       real(kind=cp), dimension (3)     :: H
+       real(kind=cp), dimension (3,3)   :: oPij
+       real(kind=cp), dimension (3,3)   :: soPij
     End Type Polar_obs_type
 
     !!----
@@ -217,6 +231,48 @@
        integer                                         :: NRef  ! Number of Reflections
        type(Polar_obs_type),allocatable, dimension(:)  :: Polaro ! Observed Polarisation tensor for the Reflection List
     End Type Polar_Obs_List_type
+    !!
+    !!---- TYPE :: Polar_ObsMulti_List_type
+    !!
+    !!---- Created: November 2011 OZ
+    !!
+    Type, public :: Polar_ObsMulti_List_type
+       integer                                         :: Nset  ! Number of Datasets
+       type(Polar_Obs_List_type),allocatable, dimension(:)  :: Polarolist ! Observed Polarisation tensor for the Reflection List
+    End Type Polar_ObsMulti_List_type
+
+    !!
+    !!---- TYPE :: Polar_Calc_sVs_type
+    !!
+    !!---- Created: November 2011 OZ
+    !!
+    Type, public :: Polar_Calc_sVs_type
+        real(kind=cp), dimension (3)      :: H     ! Scattering vector in hkl
+        real(kind=cp), dimension (3)      :: SPV   ! Second vector in Scattering plane
+        Type(Crystal_Cell_Type)           :: Cell  ! Unit Cell of Crystal
+        real(kind=cp)                     :: P     ! Polarisation
+        real(kind=cp), dimension (3,3)    :: Pij   ! Calculated Polarisation tensor
+    End Type Polar_Calc_sVs_type
+
+    !!----
+    !!---- TYPE :: Polar_Calc_sVs_List_type
+    !!
+    !!---- Created: November 2011 OZ
+    !!
+    Type, public :: Polar_Calc_sVs_List_type
+       integer                                         :: NRef  ! Number of Reflections
+       type(Polar_Calc_sVs_type),allocatable, dimension(:) :: PolarisVs ! Observed Polarisation tensor for the Reflection List
+    End Type Polar_Calc_sVs_List_type
+
+    !!
+    !!---- TYPE :: Polar_CalcMulti_sVs_List_type
+    !!
+    !!---- Created: November 2011 OZ
+    !!
+    Type, public :: Polar_CalcMulti_sVs_List_type
+       integer                                         :: Nset  ! Number of Datasets
+       type(Polar_Calc_sVs_List_type),allocatable, dimension(:) :: PolarisVslist ! Calculated Polarisation tensors for NRef
+    End Type Polar_CalcMulti_sVs_List_type
 
  Contains
 
@@ -334,7 +390,7 @@
     !!--++    X  || scattering vector Q     (where Q is the scattering Vector in cartesian real space coordinates, it will be calculated from H and matrices in Cell)
     !!--++    Y _|_ scattering vector Q in scattering plane
     !!--++    Z _|_ scattering vector Q out of scattering plane (ATTENTION: This choice is not non-ambiguous, there are always two possible choices
-    !!--++                                                       for a right handed coordinate frame which will fullfils this condition!!!)
+    !!--++                                                       for a right handed coordinate frame which will fullfil this condition!!!)
     !!--++
     !!--++                           Y
     !!--++                          /|\
@@ -369,9 +425,9 @@
        Complex, dimension(3)                   :: MIV_PF
 
        !---- Local variables ----!
-       real(kind=cp), DIMENSION (3)            :: QSV,Q,SV,X,Y,Z
-       real(kind=cp), DIMENSION (3,3)          :: M
-       INTEGER                                 :: i
+       real(kind=cp), dimension (3)            :: QSV,Q,SV,X,Y,Z
+       real(kind=cp), dimension (3,3)          :: M
+       integer                                 :: i
 
        Q = Cart_Vector("R",H,Cell)
        SV = Cart_Vector("R",SPV,Cell)
@@ -516,14 +572,14 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Calc_Polar(Cell, H, UB, Pin, NSF, Mh, Mag_dom, Polari)
+    !!---- Subroutine Calc_Polar(Cell, H, UB, Pin, NSF, Mag_dom, Mh,  Polari)
     !!----    Type (Crystal_Cell_Type),            intent(in)    :: Cell  !  In -> Cell variable
-    !!----    REAL(kind=cp), DIMENSION (3),        intent(in)    :: H     !  In -> Scattering vector in hkl
-    !!----    Real(kind=cp), dimension(3),         intent( in)   :: UB    !  In -> Busing-Levy UB-matrix
-    !!----    Real(kind=cp),                       intent( in)   :: Pin   !  In -> magnitude of initial polarisation
-    !!----    COMPLEX,                             intent( in)   :: NSF   !  In -> Nuclear Structure Factor
-    !!----    type(MagHD_Type),                    intent(in out):: Mh    !  In -> Contains Magnetic structure factor, MiV, domain info, ...
+    !!----    real(kind=cp), dimension (3),        intent(in)    :: H     !  In -> Scattering vector in hkl
+    !!----    Real(kind=cp), dimension(3),         intent(in)    :: UB    !  In -> Busing-Levy UB-matrix
+    !!----    Real(kind=cp),                       intent(in)    :: Pin   !  In -> magnitude of initial polarisation
+    !!----    complex,                             intent(in)    :: NSF   !  In -> Nuclear Structure Factor
     !!----    type(Magnetic_Domain_type),          intent(in)    :: Mag_Dom
+    !!----    type(MagHD_Type),                    intent(in out):: Mh    !  In -> Contains Magnetic structure factor, MiV, domain info, ...
     !!----    Type (Polar_calc_type),              intent( out)  :: Polari !  Out ->type with all information about polarisation in
     !!----                                                                          one point hkl
     !!----
@@ -539,25 +595,25 @@
     !!----    The Busing-Levy UB-matrix is provided as an input argument.
     !!----    Alternative to the use of partial functions
     !!----    W A R N I N G: This subroutine is not yet operational
-    !!----    Calcula
+    !!----    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!----
     !!---- Created: November - 2011 JRC
     !!
-!    Subroutine Calc_Polar(Cell, H, UB, Pin, NSF, Mh, Mag_dom, Polari)
+!    Subroutine Calc_Polar(Cell, H, UB, Pin, NSF, Mag_dom, Mh,  Polari)
 !       !---- Arguments ----!
-!       type (Crystal_Cell_Type),     intent(in)       :: Cell
-!       real(kind=cp), dimension (3), intent(in)       :: H
-!       Real(kind=cp), dimension(3,3),intent(in)       :: UB
-!       Real(kind=cp),                intent( in)      :: Pin
-!       complex,                      intent( in)      :: NSF
-!       type(Magnetic_Domain_type),   intent(in)       :: Mag_Dom
-!       type(MagHD_Type),             intent(in out)   :: Mh
-!       type(Polar_calc_type),        intent(out)      :: Polari
+!       type (Crystal_Cell_Type),     intent(in)    :: Cell
+!       real(kind=cp), dimension (3), intent(in)    :: H
+!       Real(kind=cp), dimension(3,3),intent(in)    :: UB
+!       Real(kind=cp),                intent(in)    :: Pin
+!       complex,                      intent(in)    :: NSF
+!       type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
+!       type(MagHD_Type),             intent(in out):: Mh
+!       type(Polar_calc_type),        intent(out)   :: Polari
 !
 !       !---- Local variables ----!
-!       REAL(kind=cp), DIMENSION (3)   :: sigma             ! elastic cross for different incident polarisation directions
-!       REAL(kind=cp)                  :: nc,my,mz,rnmy,rnmz,inmy,inmz,tc,mmc,A !the different contribution to cross-section
-!       COMPLEX, DIMENSION (3)         :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
+!       real(kind=cp), dimension (3)   :: sigma             ! elastic cross for different incident polarisation directions
+!       real(kind=cp)                  :: nc,my,mz,rnmy,rnmz,inmy,inmz,tc,mmc,A !the different contribution to cross-section
+!       complex, dimension (3)         :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
 !       integer                        :: nd,ich,nch
 !
 !
@@ -635,14 +691,14 @@
 
     !!----
     !!---- Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari)
-    !!----    Type (Crystal_Cell_Type),  intent(in)    :: Cell  !  In -> Cell variable
-    !!----    REAL(kind=cp), DIMENSION (3),intent(in)  :: H     !  In -> Scattering vector in hkl
-    !!----    Real(kind=cp), dimension(3), intent( in) :: SPV   !  In -> Second Scattering plane vector in hkl
-    !!----    Real(kind=cp), intent( in)               :: Pin   !  In -> magnitude of initial polarisation
-    !!----    COMPLEX, intent( in)                     :: NSF   !  In -> Nuclear Scattering Factor
-    !!----    type(MagHD_Type),        intent(in out)  :: Mh
-    !!----    type(Magnetic_Domain_type),intent(in)    :: Mag_Dom
-    !!----    Type (Polar_calc_type), intent( out)     :: Polari !  Out ->type with all information about polarisation in
+    !!----    Type (Crystal_Cell_Type),    intent(in)    :: Cell  !  In -> Cell variable
+    !!----    real(kind=cp), dimension (3),intent(in)    :: H     !  In -> Scattering vector in hkl
+    !!----    real(kind=cp), dimension(3), intent(in)    :: SPV   !  In -> Second Scattering plane vector in hkl
+    !!----    real(kind=cp), intent( in)                 :: Pin   !  In -> magnitude of initial polarisation
+    !!----    complex, intent( in)                       :: NSF   !  In -> Nuclear Scattering Factor
+    !!----    Type(Magnetic_Domain_type),  intent(in)    :: Mag_Dom
+    !!----    Type(MagHD_Type),            intent(in out):: Mh
+    !!----    Type (Polar_calc_type),      intent( out)  :: Polari !  Out ->type with all information about polarisation in
     !!----                                                                 one point hkl
     !!----
     !!----    Calculates Polarization matrix for domain case
@@ -652,10 +708,10 @@
     Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari)
        !---- Arguments ----!
        type (Crystal_Cell_Type),    intent(in)       :: Cell
-       REAL(kind=cp), DIMENSION (3),intent(in)       :: H
-       Real(kind=cp), dimension(3), intent(in)       :: SPV
-       Real(kind=cp), intent( in)                    :: Pin
-       COMPLEX, intent( in)                          :: NSF
+       real(kind=cp), dimension (3),intent(in)       :: H
+       real(kind=cp), dimension(3), intent(in)       :: SPV
+       real(kind=cp),               intent(in)       :: Pin
+       complex,                     intent( in)      :: NSF
        type(Magnetic_Domain_type),  intent(in)       :: Mag_Dom
        type(MagHD_Type),            intent(in out)   :: Mh
        type(Polar_calc_type),       intent(out)      :: Polari
@@ -1065,7 +1121,7 @@
          fmt_out(22:29)='(f12.3))'
          lfmt_out=29
          write(unit=iunit,fmt=fmt_out(1:lfmt_out))   tit, Polari%CS(1,1,1:Mag_Dom%nd),' :',Polari%CS(1,2,1:Mag_Dom%nd)
-       endif
+       end if
        tit="                      along y = "
        if(nch==1) then
          fmt_out(6:17)='(f12.3))'
@@ -1078,7 +1134,7 @@
          fmt_out(22:29)='(f12.3))'
          lfmt_out=29
          write(unit=iunit,fmt=fmt_out(1:lfmt_out))   tit, Polari%CS(2,1,1:Mag_Dom%nd),' :',Polari%CS(2,2,1:Mag_Dom%nd)
-       endif
+       end if
        tit="                      along z = "
        if(nch==1) then
          fmt_out(6:17)='(f12.3))'
@@ -1091,7 +1147,7 @@
          fmt_out(22:29)='(f12.3))'
          lfmt_out=29
          write(unit=iunit,fmt=fmt_out(1:lfmt_out))   tit, Polari%CS(3,1,1:Mag_Dom%nd),' :',Polari%CS(3,2,1:Mag_Dom%nd)
-       endif
+       end if
 
 
 
@@ -1135,5 +1191,311 @@
 
        return
     End Subroutine Write_Polar_line
+
+    !!----
+    !!----    Subroutine Calc_Polar_Dom_Efficiency(Cell,H,SPV,Pin,NSF,Mag_dom,Mh,Polari)
+    !!----      type (Crystal_Cell_Type),    intent(in)       :: Cell
+    !!----      REAL(kind=cp), DIMENSION (3),intent(in)       :: H
+    !!----      Real(kind=cp), dimension(3), intent(in)       :: SPV
+    !!----      Real(kind=cp), intent(in)                     :: Pin
+    !!----      Complex,               intent(in)    :: NSF
+    !!----      type(Magnetic_Domain_type),intent(in):: Mag_Dom
+    !!----      type(MagHD_Type),    intent(in out)  :: Mh
+    !!----      type(Polar_calc_type),     intent(out)      :: Polari
+    !!----
+    !!----   Calculates Polarization matrix from polarised cross-sections, accounts for partial polarization
+    !!----
+    !!----   Created: November - 2011 OZ
+    !!
+
+    Subroutine Calc_Polar_Dom_Efficiency(Cell,H,SPV,Pin,NSF,Mag_dom,Mh,Polari)
+
+      Type (Crystal_Cell_Type),    intent(in)    :: Cell
+      Real(kind=cp), dimension (3),intent(in)    :: H
+      Real(kind=cp), dimension(3), intent(in)    :: SPV
+      Real(kind=cp),               intent(in)    :: Pin
+      Complex,                     intent(in)    :: NSF
+      Type(Magnetic_Domain_type),  intent(in)    :: Mag_Dom
+      Type(MagHD_Type),            intent(in out):: Mh
+      Type(Polar_calc_type),       intent(out)   :: Polari
+
+    !!---- Local variables ----!
+      integer                                 :: nd,ich,nch,i,j
+      Complex, dimension(2,2)                 :: ScatAmp
+      Complex, dimension(2,2)                 :: Spin_Px,Spin_Py,Spin_Pz
+      Real(kind=cp)                           :: coef, A, Pinm, Pf
+      Complex, dimension(3)                   :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
+      Complex, dimension(3,3,4)               :: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
+      Real(kind=cp), dimension(3,3,4)         :: CrSec
+      Real(kind=cp), dimension(3,3)           :: Ipp,Ipm,Imp,Imm
+      real(kind=cp), parameter                :: eps=0.00001_cp
+
+! shortcut for TASP as two benders have same efficiency
+       Pf=Pin
+! Neutron spin states
+       coef=1.0_cp/sqrt(2.0_cp)
+
+       Spin_Px(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)] !up
+       Spin_Px(2,:)=[coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)] !down
+
+       Spin_Py(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)] !up
+       Spin_Py(2,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)] !down
+
+       Spin_Pz(1,:)=[(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)] !up
+       Spin_Pz(2,:)=[(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)] !down
+
+       A = tpi**3/Cell%CellVol
+       !First store given info in Polari
+       Polari%H = H
+       Polari%SPV = SPV
+       Polari%Cell = Cell
+       Polari%P = Pin
+       Polari%NSF = NSF
+       Polari%Pij(:,:) = 0.0_cp
+       Ipp = 0.0_cp
+       Ipm = 0.0_cp
+       Imp = 0.0_cp
+       Imm = 0.0_cp
+
+       nch=1
+       if(Mag_Dom%chir) nch=2
+        do nd=1,Mag_Dom%nd
+         do ich=1,nch
+          MIV=Mh%Miv(:,ich,nd)
+! Magnetic Interaction Vector in polarisation frame
+          MIV_PF = Magn_Inter_Vec_PF(MIV,H,SPV, Cell)
+! Partial Scattering Amplitudes
+! U++ U-+
+! U+- U--
+          ScatAmp(1,1)=NSF+MIV_PF(3)
+          ScatAmp(1,2)=MIV_PF(1)-(0.0_cp,1.0_cp)*MIV_PF(2)
+          ScatAmp(2,1)=MIV_PF(1)+(0.0_cp,1.0_cp)*MIV_PF(2)
+          ScatAmp(2,2)=NSF-MIV_PF(3)
+! Matrix elements between two spin states <spin Potential spin>
+          do i=1,2
+           sVs(1,1,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs xx,-xx
+           sVs(2,1,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs yx,-yx
+           sVs(3,1,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs zx,xzx
+
+           sVs(1,2,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs xy,-xy
+           sVs(2,2,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs yy,-yy
+           sVs(3,2,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs zy,-zy
+
+           sVs(1,3,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs xz,-xz
+           sVs(2,3,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs yz,-yz
+           sVs(3,3,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs zz,-zz
+          end do
+
+          do i=1,2
+           sVs(1,1,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs x-x,-x-x
+           sVs(2,1,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs y-x,-y-x
+           sVs(3,1,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs z-x,-z-x
+
+           sVs(1,2,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs x-y,-x-y
+           sVs(2,2,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs y-y,-y-y
+           sVs(3,2,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs z-y,-z-y
+
+           sVs(1,3,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs x-z,-x-z
+           sVs(2,3,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs y-z,-y-z
+           sVs(3,3,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs z-z,-z-z
+          end do
+
+! Scattering Cross-Sections and Polarization Matrices
+! 1st direction is scattered, 2nd - incoming
+          CrSec=CONJG(sVs)*sVs
+
+       if(Pin > 0.0_cp) then
+        do i=1,3
+         do j=1,3
+          Ipp(i,j) = Ipp(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,1)*Pin*Pf + CrSec(i,j,2)*Pin*(1.0_cp-Pf) + &
+                     CrSec(i,j,3)*(1.0_cp-Pin)*Pf + CrSec(i,j,4)*(1.0_cp-Pin)*(1.0_cp-Pf) )
+          Imp(i,j) = Imp(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,2)*Pin*Pf + CrSec(i,j,1)*Pin*(1.0_cp-Pf) + &
+                     CrSec(i,j,4)*(1.0_cp-Pin)*Pf + CrSec(i,j,3)*(1.0_cp-Pin)*(1.0_cp-Pf) )
+         end do
+        end do
+       end if
+
+       if(Pin < 0.0_cp) then
+       Pinm=-Pin
+       Pf=Pinm
+        do i=1,3
+         do j=1,3
+          Imm(i,j) = Imm(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,4)*Pinm*Pf + CrSec(i,j,3)*Pinm*(1.0_cp-Pf) + &
+                     CrSec(i,j,2)*(1.0_cp-Pinm)*Pf + CrSec(i,j,1)*(1.0_cp-Pinm)*(1.0_cp-Pf) )
+          Ipm(i,j) = Ipm(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,3)*Pinm*Pf + CrSec(i,j,4)*Pinm*(1.0_cp-Pf) + &
+                     CrSec(i,j,1)*(1.0_cp-Pinm)*Pf + CrSec(i,j,2)*(1.0_cp-Pinm)*(1.0_cp-Pf) )
+          end do
+        end do
+       end if
+
+         end do !loop over chiral domains
+        end do !loop over S-domains
+
+       if(Pin > 0.0_cp) then
+        do i=1,3
+         do j=1,3
+           if(Ipp(i,j)+Imp(i,j) <= eps) then
+           Polari%Pij(i,j) = 0.0_cp
+          else
+           Polari%Pij(i,j)=(Ipp(i,j)-Imp(i,j))/(Ipp(i,j)+Imp(i,j))
+          end if
+         end do
+        end do
+       end if
+       if(Pin < 0.0_cp) then
+        do i=1,3
+         do j=1,3
+          if(Imm(i,j)+Ipm(i,j) <= eps) then
+           Polari%Pij(i,j) = 0.0_cp
+          else
+           Polari%Pij(i,j)=-(Imm(i,j)-Ipm(i,j))/(Imm(i,j)+Ipm(i,j))
+          end if
+         end do
+        end do
+       end if
+
+       return
+    End Subroutine Calc_Polar_Dom_Efficiency
+
+    !!----
+    !!---- Subroutine Calc_Polar_CrSec(Cell,H,SPV,Pin,NSF,Mag_dom,Mh,Ipp,Ipm,Imp,Imm)
+    !!----
+    !!----      type (Crystal_Cell_Type),    intent(in)       :: Cell
+    !!----      REAL(kind=cp), DIMENSION (3),intent(in)       :: H
+    !!----      Real(kind=cp), dimension(3), intent(in)       :: SPV
+    !!----      Real(kind=cp), intent(in)                     :: Pin
+    !!----      Complex,               intent(in)    :: NSF
+    !!----      type(Magnetic_Domain_type),intent(in):: Mag_Dom
+    !!----      type(MagHD_Type),    intent(in out)  :: Mh
+    !!----      Real(kind=cp), dimension(3,3),intent(out)     :: Ipp,Ipm,Imp,Imm
+    !!---- Calculates polarised cross-sections, accounts for partial polarization
+    !!---- is useful for MultiSourceData refinement
+    !!----
+
+    Subroutine Calc_Polar_CrSec(Cell,H,SPV,Pin,NSF,Mag_dom,Mh,Ipp,Ipm,Imp,Imm)
+
+      type (Crystal_Cell_Type),    intent(in)       :: Cell
+      REAL(kind=cp), DIMENSION (3),intent(in)       :: H
+      Real(kind=cp), dimension(3), intent(in)       :: SPV
+      Real(kind=cp), intent(in)                     :: Pin
+      Complex,               intent(in)    :: NSF
+      type(Magnetic_Domain_type),intent(in):: Mag_Dom
+      type(MagHD_Type),    intent(in out)  :: Mh
+      Real(kind=cp), dimension(3,3),intent(out)     :: Ipp,Ipm,Imp,Imm
+
+    !!---- Local variables ----!
+      integer                              :: nd,ich,nch,i,j
+      Complex, dimension(2,2)              :: ScatAmp
+      Complex, dimension(2,2)              :: Spin_Px,Spin_Py,Spin_Pz
+      Real(kind=cp)                        :: coef, A, Pinm, Pf
+      Complex, dimension(3)                :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
+      Complex, dimension(3,3,4)            :: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
+      Real(kind=cp), dimension(3,3,4)      :: CrSec
+
+! shortcut for TASP as two benders have same efficiency
+       Pf=Pin
+! Neutron spin states
+       coef=1.0_cp/sqrt(2.0_cp)
+
+       Spin_Px(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)] !up
+       Spin_Px(2,:)=[coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)] !down
+
+       Spin_Py(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)] !up
+       Spin_Py(2,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)] !down
+
+       Spin_Pz(1,:)=[(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)] !up
+       Spin_Pz(2,:)=[(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)] !down
+
+       A = tpi**3/Cell%CellVol
+
+       Ipp = 0.0_cp
+       Ipm = 0.0_cp
+       Imp = 0.0_cp
+       Imm = 0.0_cp
+
+       nch=1
+       if(Mag_Dom%chir) nch=2
+        do nd=1,Mag_Dom%nd
+         do ich=1,nch
+          MIV=Mh%Miv(:,ich,nd)
+! Magnetic Interaction Vector in polarisation frame
+          MIV_PF = Magn_Inter_Vec_PF(MIV,H,SPV, Cell)
+! Partial Scattering Amplitudes
+! U++ U-+
+! U+- U--
+          ScatAmp(1,1)=NSF+MIV_PF(3)
+          ScatAmp(1,2)=MIV_PF(1)-(0.0_cp,1.0_cp)*MIV_PF(2)
+          ScatAmp(2,1)=MIV_PF(1)+(0.0_cp,1.0_cp)*MIV_PF(2)
+          ScatAmp(2,2)=NSF-MIV_PF(3)
+! Matrix elements between two spin states <spin Potential spin>
+          do i=1,2
+           sVs(1,1,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs xx,-xx
+           sVs(2,1,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs yx,-yx
+           sVs(3,1,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Px(1,:))) ! sVs zx,xzx
+
+           sVs(1,2,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs xy,-xy
+           sVs(2,2,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs yy,-yy
+           sVs(3,2,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Py(1,:))) ! sVs zy,-zy
+
+           sVs(1,3,i)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs xz,-xz
+           sVs(2,3,i)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs yz,-yz
+           sVs(3,3,i)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Pz(1,:))) ! sVs zz,-zz
+          end do
+
+          do i=1,2
+           sVs(1,1,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs x-x,-x-x
+           sVs(2,1,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs y-x,-y-x
+           sVs(3,1,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Px(2,:))) ! sVs z-x,-z-x
+
+           sVs(1,2,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs x-y,-x-y
+           sVs(2,2,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs y-y,-y-y
+           sVs(3,2,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Py(2,:))) ! sVs z-y,-z-y
+
+           sVs(1,3,i+2)=dot_product(Spin_Px(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs x-z,-x-z
+           sVs(2,3,i+2)=dot_product(Spin_Py(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs y-z,-y-z
+           sVs(3,3,i+2)=dot_product(Spin_Pz(i,:),matmul(ScatAmp,Spin_Pz(2,:))) ! sVs z-z,-z-z
+          end do
+
+! Scattering Cross-Sections and Polarization Matrices
+! 1st direction is scattered, 2nd - incoming
+          CrSec=CONJG(sVs)*sVs
+
+       if(Pin > 0.0_cp) then
+        do i=1,3
+         do j=1,3
+          Ipp(i,j) = Ipp(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,1)*Pin*Pf + CrSec(i,j,2)*Pin*(1.0_cp-Pf) + &
+                     CrSec(i,j,3)*(1.0_cp-Pin)*Pf + CrSec(i,j,4)*(1.0_cp-Pin)*(1.0_cp-Pf) )
+          Imp(i,j) = Imp(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,2)*Pin*Pf + CrSec(i,j,1)*Pin*(1.0_cp-Pf) + &
+                     CrSec(i,j,4)*(1.0_cp-Pin)*Pf + CrSec(i,j,3)*(1.0_cp-Pin)*(1.0_cp-Pf) )
+         end do
+        end do
+       end if
+
+       if(Pin < 0.0_cp) then
+       Pinm=-Pin
+       Pf=Pinm
+        do i=1,3
+         do j=1,3
+          Imm(i,j) = Imm(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,4)*Pinm*Pf + CrSec(i,j,3)*Pinm*(1.0_cp-Pf) + &
+                     CrSec(i,j,2)*(1.0_cp-Pinm)*Pf + CrSec(i,j,1)*(1.0_cp-Pinm)*(1.0_cp-Pf) )
+          Ipm(i,j) = Ipm(i,j) + Mag_Dom%Pop(ich,nd)* &
+                   ( CrSec(i,j,3)*Pinm*Pf + CrSec(i,j,4)*Pinm*(1.0_cp-Pf) + &
+                     CrSec(i,j,1)*(1.0_cp-Pinm)*Pf + CrSec(i,j,2)*(1.0_cp-Pinm)*(1.0_cp-Pf) )
+          end do
+        end do
+       end if
+
+         end do !loop over chiral domains
+        end do !loop over S-domains
+
+       return
+    End Subroutine Calc_Polar_CrSec
 
  End Module CFML_Polarimetry

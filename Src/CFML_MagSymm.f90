@@ -14,6 +14,7 @@
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                only: Sp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
+!!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
 !!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
@@ -51,6 +52,7 @@
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: cp, tpi
     Use CFML_Math_General,              only: Modulo_Lat
+    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
                                               Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &

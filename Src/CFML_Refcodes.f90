@@ -7,6 +7,7 @@
 !!----
 !!---- HISTORY
 !!----    Update: 07/03/2011
+!!----    Modifications: 12/2011
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -20,12 +21,16 @@
 !!--..
 !!----    ANG_REST
 !!----    CODE_NAM
+!!----    mCODE_NAM                    !NEW 12/11
 !!----    DIS_REST
 !!----    ERR_REFCODES
 !!----    ERR_REFCODES_MESS
 !!--++    NCODE                        [Private]
 !!--++    NKEY                         [Private]
+!!--++    mNCODE                       [Private] !NEW 12/11
+!!--++    mNKEY                        [Private] !NEW 12/11
 !!----    KEY_CODE
+!!----    KEY_mCODE                    !NEW 12/11
 !!----    NP_CONS
 !!----    NP_MAX
 !!----    NP_REFI
@@ -50,7 +55,7 @@
 !!--++       DELETE_REFCODES_FATOM       [Overloaded]
 !!--++       DELETE_REFCODES_MOLCRYS     [Overloaded]
 !!--++       DELETE_REFCODES_MOLEC       [Overloaded]
-!!--++       FILL_REFCODES               [Private]
+!!--++       
 !!--++       FILL_REFCODES_FATOM         [Overloaded]
 !!--++       FILL_REFCODES_MOLCRYS       [Overloaded]
 !!--++       FILL_REFCODES_MOLEC         [Overloaded]
@@ -70,19 +75,24 @@
 !!----       INIT_ERR_REFCODES
 !!----       INIT_REFCODES
 !!--++       INIT_REFCODES_FATOM         [Overloaded]
+!!--++       INIT_REFCODES_FmATOM        [Overloaded] !NEW 12/11
 !!--++       INIT_REFCODES_MOLCRYS       [Overloaded]
 !!--++       INIT_REFCODES_MOLEC         [Overloaded]
 !!----       READ_REFCODES_FILE
 !!--++       READ_REFCODES_FILE_FATOM    [Overloaded]
+!!--++       READ_REFCODES_FILE_FmATOM   [Overloaded] !NEW 12/11
 !!--++       READ_REFCODES_FILE_MOLCRYS  [Overloaded]
 !!--++       READ_REFCODES_FILE_MOLEC    [Overloaded]
 !!--++       SPLIT_OPERATIONS            [Private]
+!!--++       SPLIT_mOPERATIONS           [Private]    !NEW 12/11
 !!----       VSTATE_TO_ATOMSPAR
 !!--++       VSTATE_TO_ATOMSPAR_FATOM    [Overloaded]
+!!--++       VSTATE_TO_ATOMSPAR_FmATOM   [Overloaded] !NEW 12/11
 !!--++       VSTATE_TO_ATOMSPAR_MOLCRYS  [Overloaded]
 !!--++       VSTATE_TO_ATOMSPAR_MOLEC    [Overloaded]
 !!----       WRITE_INFO_REFCODES
 !!--++       WRITE_INFO_REFCODES_FATOM   [Overloaded]
+!!--++       WRITE_INFO_REFCODES_FmATOM  [Overloaded] !NEW 12/11
 !!--++       WRITE_INFO_REFCODES_MOLCRYS [Overloaded]
 !!--++       WRITE_INFO_REFCODES_MOLEC   [Overloaded]
 !!----       WRITE_INFO_REFPARAMS
@@ -96,9 +106,11 @@
     Use CFML_String_Utilities,          only: Cutst, U_Case, L_Case, Getword, GetNum
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Get_Stabilizer, Symmetry_Symbol,   &
                                               Sym_B_Relations, Read_SymTrans_Code, Get_SymSymb,Read_Xsym
-    Use CFML_Atom_TypeDef,              only: Atom_list_Type  !, Atom_Type
+    Use CFML_Atom_TypeDef,              only: Atom_list_Type, mAtom_list_Type
     Use CFML_Molecular_Crystals,        only: Molecule_Type, Molecular_Crystal_Type
     Use CFML_IO_Formats,                only: File_List_Type
+    Use CFML_Magnetic_Symmetry
+    Use CFML_Math_3D,                   only: Get_Spheric_Coord
 
     !---- Variables ----!
     implicit none
@@ -117,19 +129,25 @@
 
     !---- List of private subroutines ----!
     private :: Delete_RefCodes,   &
-               Delete_RefCodes_FAtom, Delete_RefCodes_Molcrys, Delete_RefCodes_Molec,          &
+               Delete_RefCodes_FAtom, Delete_RefCodes_FmAtom, Delete_RefCodes_Molcrys,          &
+               Delete_RefCodes_Molec, &
                Fill_RefCodes,     &
-               Fill_RefCodes_FAtom, Fill_RefCodes_Molcrys, Fill_RefCodes_Molec,                &
-               Get_AtomBet_Ctr, Get_Atompos_Ctr,                                               &
+               Fill_RefCodes_FAtom, Fill_RefCodes_FmAtom, Fill_RefCodes_Molcrys,                &
+               Fill_RefCodes_Molec,   &
+               Get_AtomBet_Ctr, Get_Atompos_Ctr,                                                &
                Get_ConCodes_Line, &
-               Get_ConCodes_Line_FAtom, Get_ConCodes_Line_Molcrys, Get_ConCodes_Line_Molec,    &
-               Get_RefCodes_Line, &
-               Get_RefCodes_Line_FAtom, Get_RefCodes_Line_Molcrys, Get_RefCodes_Line_Molec,    &
-               Init_RefCodes_FAtom, Init_RefCodes_Molcrys, Init_RefCodes_Molec,                &
-               Read_RefCodes_File_FAtom, Read_RefCodes_File_Molcrys, Read_RefCodes_File_Molec, &
-               Split_Operations,  &
-               VState_to_AtomsPar_FAtom, VState_to_AtomsPar_Molcrys, VState_to_AtomsPar_Molec, &
-               Write_Info_RefCodes_FAtom, Write_Info_RefCodes_Molcrys, Write_Info_RefCodes_Molec
+               Get_ConCodes_Line_FAtom, Get_ConCodes_Line_FmAtom, Get_ConCodes_Line_Molcrys,    &
+               Get_ConCodes_Line_Molec, Get_RefCodes_Line, &
+               Get_RefCodes_Line_FAtom, Get_RefCodes_Line_FmAtom, Get_RefCodes_Line_Molcrys,    &
+               Get_RefCodes_Line_Molec, &
+               Init_RefCodes_FAtom, Init_RefCodes_FmAtom, Init_RefCodes_Molcrys,                &
+               Init_RefCodes_Molec, &
+               Read_RefCodes_File_FAtom, Read_RefCodes_File_FmAtom, Read_RefCodes_File_Molcrys, &
+               Read_RefCodes_File_Molec, Split_Operations, Split_mOperations, &
+               VState_to_AtomsPar_FAtom, VState_to_AtomsPar_FmAtom, VState_to_AtomsPar_Molcrys, &
+               VState_to_AtomsPar_Molec, &
+               Write_Info_RefCodes_FAtom,Write_Info_RefCodes_FmAtom,Write_Info_RefCodes_Molcrys,& 
+               Write_Info_RefCodes_Molec
 
     !---- Definitions ----!
 
@@ -232,6 +250,25 @@
                                                                          "Xc_   ","Yc_   ","Zc_   ",       &
                                                                          "Theta_","Phi_  ","Chi_  ",       &
                                                                          "Th_L_ ","Th_T_ ","Th_S_ "/)
+    integer, private, parameter :: mNCode=25
+
+    !!----
+    !!---- mCODE_NAM
+    !!----    character(len=*), dimension(mNCode), public, parameter :: mCode_Nam
+    !!----
+    !!----    Variable for treatement Codes
+    !!----    mag clone of CODE_NAM
+    !!---- Created: December - 2011
+    !!
+    character(len=*),dimension(mNCode), public, parameter :: mCode_Nam=(/"Rx_   ","Ry_   ","Rz_   ",&
+                                                                         "Ix_   ","Iy_   ","Iz_   ",&
+                                                                         "Rm_   ","Rphi_ ","Rth_  ",&
+                                                                         "Im_   ","Iphi_ ","Ith_  ",&
+                                                                         "MagPh_",               &
+                                                                         "C1_   ","C2_   ","C3_   ",   &
+                                                                         "C4_   ","C5_   ","C6_   ",   &
+                                                                         "C7_   ","C8_   ","C9_   ",   &
+                                                                         "C10_  ","C11_  ","C12_  "/)
 
     !!----
     !!---- DIS_REST
@@ -281,8 +318,19 @@
     !!----
     !!---- Update: March - 2005
     !!
-    character(len=*), dimension(Nkey), public, parameter :: Key_Code=(/ "XYZ","OCC","BIS","BAN","ALL", &
-                                                                        "CEN","ORI","THE"/)
+    character(len=*), dimension(Nkey), public, parameter :: Key_Code=(/ "XYZ ","OCC ","BIS ","BAN ", &
+                                                                        "ALL ","CEN ","ORI ","THE "/)
+    integer, private, parameter :: mNKey=3
+
+    !!----
+    !!---- KEY_mCODE
+    !!----    character(len=*), dimension(mNKey), public, parameter :: key_mCode
+    !!----
+    !!----    Key codes defined in the module
+    !!----    mag clone of KEY_CODE
+    !!---- Created: December - 2011
+    !!
+    character(len=*), dimension(mNkey), public, parameter :: Key_mCode=(/"Rxyz","Ixyz","Mxyz"/)
     !!----
     !!---- NP_CONS
     !!----    integer, public :: NP_Cons
@@ -416,48 +464,56 @@
     !---- Interfaces - Overloaded ----!
     Interface Delete_RefCodes
        Module Procedure Delete_RefCodes_FAtom
+       Module Procedure Delete_RefCodes_FmAtom
        Module Procedure Delete_RefCodes_Molcrys
        Module Procedure Delete_RefCodes_Molec
     End Interface
 
     Interface Fill_RefCodes
        Module Procedure Fill_RefCodes_FAtom
+       Module Procedure Fill_RefCodes_FmAtom
        Module Procedure Fill_RefCodes_Molcrys
        Module Procedure Fill_RefCodes_Molec
     End Interface
 
     Interface Get_ConCodes_Line
        Module Procedure Get_ConCodes_Line_FAtom
+       Module Procedure Get_ConCodes_Line_FmAtom
        Module Procedure Get_ConCodes_Line_Molcrys
        Module Procedure Get_ConCodes_Line_Molec
     End Interface
 
     Interface Get_RefCodes_Line
        Module Procedure Get_RefCodes_Line_FAtom
+       Module Procedure Get_RefCodes_Line_FmAtom
        Module Procedure Get_RefCodes_Line_Molcrys
        Module Procedure Get_RefCodes_Line_Molec
     End Interface
 
     Interface Init_RefCodes
        Module Procedure Init_RefCodes_FAtom
+       Module Procedure Init_RefCodes_FmAtom
        Module Procedure Init_RefCodes_Molcrys
        Module Procedure Init_RefCodes_Molec
     End Interface
 
     Interface Read_RefCodes_File
        Module Procedure Read_RefCodes_File_FAtom
+       Module Procedure Read_RefCodes_File_FmAtom
        Module Procedure Read_RefCodes_File_Molcrys
        Module Procedure Read_RefCodes_File_Molec
     End Interface
 
     Interface VState_to_AtomsPar
        Module Procedure VState_to_AtomsPar_FAtom
+       Module Procedure VState_to_AtomsPar_FmAtom
        Module Procedure VState_to_AtomsPar_Molcrys
        Module Procedure VState_to_AtomsPar_Molec
     End Interface
 
     Interface Write_Info_RefCodes
        Module Procedure Write_Info_RefCodes_FAtom
+       Module Procedure Write_Info_RefCodes_FmAtom
        Module Procedure Write_Info_RefCodes_Molcrys
        Module Procedure Write_Info_RefCodes_Molec
     End Interface
@@ -703,6 +759,122 @@
 
        return
     End Subroutine Delete_RefCodes_FAtom
+
+    !!--++
+    !!--++ Subroutine Delete_RefCodes_FmAtom(N, FmAtom)
+    !!--++    integer,              intent(in)     :: N
+    !!--++    type(mAtom_List_Type),intent(in out) :: FmAtom
+    !!--++
+    !!--++ Delete the number of Refinable Parameters (N) on the list
+    !!--++ magnetic clone of Delete_RefCodes_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Delete_RefCodes_FmAtom(N, FmAtom)
+       !---- Arguments ----!
+       integer,              intent(in)     :: N
+       type(mAtom_List_Type), intent(in out) :: FmAtom
+
+       !---- Local Variables ----!
+       logical :: deleted
+       integer :: i,j,k,ik
+
+       deleted=.false.
+
+       !---- Eliminate N Parameter ----!
+       do i=1,FmAtom%natoms
+       ik=FmAtom%atom(i)%nvk
+          do j=1,3
+           do k=1,ik
+             if (FmAtom%atom(i)%mSkR(j,k) == N) then
+                 FmAtom%atom(i)%mSkR(j,k)=0.0
+                 FmAtom%atom(i)%lskr(j,k)=0
+                 deleted=.true.
+             end if
+           end do
+          end do
+
+          do j=1,3
+           do k=1,ik
+             if (FmAtom%atom(i)%mSkI(j,k) == N) then
+                 FmAtom%atom(i)%mSkI(j,k)=0.0
+                 FmAtom%atom(i)%lski(j,k)=0
+                 deleted=.true.
+             end if
+           end do
+          end do
+
+          do k=1,ik
+             if (FmAtom%atom(i)%mmphas(k) == N) then
+                 FmAtom%atom(i)%mmphas(k)=0.0
+                 FmAtom%atom(i)%lmphas(k)=0
+                 deleted=.true.
+             end if
+          end do
+
+          do j=1,12
+           do k=1,ik
+             if (FmAtom%atom(i)%mbas(j,k) == N) then
+                 FmAtom%atom(i)%mbas(j,k)=0.0
+                 FmAtom%atom(i)%lbas(j,k)=0
+                 deleted=.true.
+             end if
+           end do
+          end do
+       end do
+
+       !---- Updating Variables ----!
+       do i=1,FmAtom%natoms
+          do j=1,3
+           do k=1,ik
+             if (FmAtom%atom(i)%mSkR(j,k) > N) then
+                 FmAtom%atom(i)%mSkR(j,k)=FmAtom%atom(i)%mSkR(j,k)-1
+             end if
+           end do
+          end do
+          
+          do j=1,3
+           do k=1,ik
+             if (FmAtom%atom(i)%mSkI(j,k) > N) then
+                 FmAtom%atom(i)%mSkI(j,k)=FmAtom%atom(i)%mSkI(j,k)-1
+             end if
+           end do
+          end do
+
+          do k=1,ik
+             if (FmAtom%atom(i)%mmphas(k) > N) then
+                 FmAtom%atom(i)%mmphas(k)=FmAtom%atom(i)%mmphas(k)-1
+             end if
+          end do
+
+          do j=1,12
+           do k=1,ik
+             if (FmAtom%atom(i)%mbas(j,k) > N) then
+                 FmAtom%atom(i)%mbas(j,k)=FmAtom%atom(i)%mbas(j,k)-1
+             end if
+           end do
+          end do
+       end do
+
+       !---- Updating V_Vectors ----!
+       if (deleted) then
+          do i=N+1,Np_refi
+             V_Vec(i-1)=V_Vec(i)
+             V_Name(i-1)=V_Name(i)
+             V_Bounds(:,i-1)=V_Bounds(:,i)
+             V_BCon(i-1)=V_BCon(i)
+             V_List(i-1)=V_List(i)
+          end do
+          V_Vec(np_refi)=0.0
+          V_Name(np_refi)=" "
+          V_Bounds(:,np_refi)=0.0
+          V_BCon(np_refi)=0
+          V_List(np_refi)=0
+
+          np_refi=np_refi-1
+       end if
+
+       return
+    End Subroutine Delete_RefCodes_FmAtom
 
     !!--++
     !!--++ Subroutine Delete_RefCodes_MolCrys(N,MolCrys)
@@ -1464,7 +1636,7 @@
                    if (FAtom%atom(na)%locc ==0) then
                       np_refi=np_refi+1
                       V_Vec(np_refi)=FAtom%atom(na)%occ
-                      V_Name(np_refi)=trim(code_nam(5))//trim(FAtom%atom(na)%lab)
+                      V_Name(np_refi)=trim(mcode_nam(5))//trim(FAtom%atom(na)%lab)
                       FAtom%atom(na)%mocc=1.0
                       FAtom%atom(na)%locc=np_refi
                       V_Bounds(1,np_refi)=xl
@@ -1476,7 +1648,7 @@
                    if (FAtom%atom(na)%lbiso ==0) then
                       np_refi=np_refi+1
                       V_Vec(np_refi)=FAtom%atom(na)%biso
-                      V_Name(np_refi)=trim(code_nam(4))//trim(FAtom%atom(na)%lab)
+                      V_Name(np_refi)=trim(mcode_nam(4))//trim(FAtom%atom(na)%lab)
                       FAtom%atom(na)%mbiso=1.0
                       FAtom%atom(na)%lbiso=np_refi
                       V_Bounds(1,np_refi)=xl
@@ -1492,7 +1664,7 @@
                                               np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
                          if (FAtom%atom(na)%lu(j) == np_refi) then
                             V_Vec(np_refi)=FAtom%atom(na)%u(j)
-                            V_Name(np_refi)=trim(code_nam(5+j))//trim(FAtom%atom(na)%lab)
+                            V_Name(np_refi)=trim(mcode_nam(5+j))//trim(FAtom%atom(na)%lab)
                             V_Bounds(1,np_refi)=xl
                             V_Bounds(2,np_refi)=xu
                             V_Bounds(3,np_refi)=xs
@@ -1513,6 +1685,391 @@
 
        return
     End Subroutine Fill_RefCodes_FAtom
+
+    !!--++
+    !!--++ Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom,Spg)
+    !!--++    integer,                       intent(in)     :: Key
+    !!--++    character(len=*),              intent(in)     :: Dire
+    !!--++    integer,                       intent(in)     :: Na
+    !!--++    integer,                       intent(in)     :: Nb
+    !!--++    real(kind=cp),                 intent(in)     :: Xl
+    !!--++    real(kind=cp),                 intent(in)     :: Xu
+    !!--++    real(kind=cp),                 intent(in)     :: Xs
+    !!--++    integer,                       intent(in)     :: Ic
+    !!--++    type(mAtom_List_Type),         intent(in out) :: FmAtom
+    !!--++    type(space_group_type),        intent(in)     :: Spg
+    !!--++
+    !!--++ Write on Vectors the Information for Free Magnetic Atoms
+    !!--++ magnetic clone of Fill_RefCodes_FAtom
+    !!--++ Created: December - 2011
+    !!--++
+    Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom,Spg)
+       !---- Arguments ----!
+       integer,                       intent(in)     :: Key
+       character(len=*),              intent(in)     :: Dire
+       integer,                       intent(in)     :: Na
+       integer,                       intent(in)     :: Nb
+       real(kind=cp),                 intent(in)     :: Xl
+       real(kind=cp),                 intent(in)     :: Xu
+       real(kind=cp),                 intent(in)     :: Xs
+       integer,                       intent(in)     :: Ic
+       type(mAtom_List_Type),         intent(in out) :: FmAtom
+       type(space_group_type),        intent(in)     :: Spg
+
+       !---- Local variables ----!
+       integer           :: j,nc,ik
+
+       call init_err_refcodes()
+       if (Na <= 0) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess="Number of atom no defined"
+          return
+       end if
+
+       !---- Get im, number of the magnetic matrices/irrep set
+       ik=FmAtom%atom(na)%nvk
+
+       select case (dire)
+          !---- FIX Directive ----!
+          case ("fix")
+
+             select case (key)
+                case (0)
+                   !---- nb must be different zero ----!
+                   select case (nb)
+                      case (0)
+                         err_refcodes=.true.
+                         ERR_RefCodes_Mess="Option not defined"
+                         return
+
+                      case ( 1:3)
+                         !---- Rx_, Ry_, Rz_ ----!
+                         if (FmAtom%atom(na)%lSkR(nb,ik) /=0) then
+                            nc=FmAtom%atom(na)%lSkR(nb,ik)
+                            call Delete_RefCodes(nc,FmAtom)
+                         end if
+
+                      case ( 4:6)
+                         !---- Ix_, Iy_, Iz_ ----!
+                         if (FmAtom%atom(na)%lSkI(nb-3,ik) /=0) then
+                            nc=FmAtom%atom(na)%lSkI(nb-3,ik)
+                            call Delete_RefCodes(nc,FmAtom)
+                         end if
+
+                      case ( 7:9)
+                         !---- Rm_, Rphi_, Rth_ ----!
+                         if (FmAtom%atom(na)%lSkR(nb-6,ik) /=0) then
+                            nc=FmAtom%atom(na)%lSkR(nb-6,ik)
+                            call Delete_RefCodes(nc,FmAtom)
+                         end if
+
+                      case (10:12)
+                         !---- Im_, Iphi_, Ith_ ----!
+                         if (FmAtom%atom(na)%lSkI(nb-9,ik) /=0) then
+                            nc=FmAtom%atom(na)%lSkI(nb-9,ik)
+                            call Delete_RefCodes(nc,FmAtom)
+                         end if
+
+                      case (13)
+                         !---- MagPh_ ----!
+                            if (FmAtom%atom(na)%lmphas(ik) /=0) then
+                               nc=FmAtom%atom(na)%lmphas(ik)
+                               call Delete_RefCodes(nc,FmAtom)
+                            end if
+
+                      case (14:22)
+                         !---- C1_,..C12_ ----!
+                            if (FmAtom%atom(na)%lbas(nb-13,ik) /=0) then
+                               nc=FmAtom%atom(na)%lbas(nb-13,ik)
+                               call Delete_RefCodes(nc,FmAtom)
+                            end if
+
+                      case (23)
+                         err_refcodes=.true.
+                         ERR_RefCodes_Mess="Option not defined for this type of variable "
+                         return
+                   end select ! nb
+
+                case (1)
+                   !---- Rxyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkR(j,ik) /=0) then
+                         nc=FmAtom%atom(na)%lSkR(j,ik)
+                         call Delete_RefCodes(nc,FmAtom)
+                      end if
+                   end do
+
+                case (2)
+                   !---- Ixyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkI(j,ik) /=0) then
+                         nc=FmAtom%atom(na)%lSkI(j,ik)
+                         call Delete_RefCodes(nc,FmAtom)
+                      end if
+                   end do
+
+                case (3)
+                   !---- Mxyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkR(j,ik) /=0) then
+                         nc=FmAtom%atom(na)%lSkR(j,ik)
+                         call Delete_RefCodes(nc,FmAtom)
+                      end if
+                   end do
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkI(j,ik) /=0) then
+                         nc=FmAtom%atom(na)%lSkI(j,ik)
+                         call Delete_RefCodes(nc,FmAtom)
+                      end if
+                   end do
+
+                case (4:)
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Incompatible information for this type of variable "
+                   return
+             end select
+
+          !---- VARY Directive ----!
+          case ("var")
+
+              select case (key)
+                case (0)
+
+                   !---- nb must be different zero ----!
+                   select case (nb)
+                      case (0)
+                         err_refcodes=.true.
+                         ERR_RefCodes_Mess="Option not defined"
+                         return
+
+                      case ( 1:3)
+                         !---- Rx_, Ry_, Rz_ ----!
+                         if (FmAtom%atom(na)%lSkR(nb,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkR(nb,ik)=np_refi
+                            FmAtom%atom(na)%mSkR(nb,ik)=1.0
+
+                            if (FmAtom%atom(na)%lSkR(nb,ik) == np_refi) then
+                               V_Vec(np_refi)=FmAtom%atom(na)%SkR(nb,ik)
+                               V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                               V_Bounds(1,np_refi)=xl
+                               V_Bounds(2,np_refi)=xu
+                               V_Bounds(3,np_refi)=xs
+                               V_BCon(np_refi)=ic
+                               V_list(np_refi)=na
+                            else
+                               np_refi=np_refi-1
+                            end if
+                         end if
+
+                      case ( 4:6)
+                         !---- Ix_, Iy_, Iz_ ----!
+                         if (FmAtom%atom(na)%lSkI(nb-3,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkI(nb-3,ik)=np_refi
+                            FmAtom%atom(na)%mSkI(nb-3,ik)=1.0
+
+                            if (FmAtom%atom(na)%lSkI(nb-3,ik) == np_refi) then
+                               V_Vec(np_refi)=FmAtom%atom(na)%SkI(nb-3,ik)
+                               V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                               V_Bounds(1,np_refi)=xl
+                               V_Bounds(2,np_refi)=xu
+                               V_Bounds(3,np_refi)=xs
+                               V_BCon(np_refi)=ic
+                               V_list(np_refi)=na
+                             else
+                               np_refi=np_refi-1
+                            end if
+                         end if
+
+                      case ( 7:9)
+                         !---- Rm_, Rphi_, Rth_ ----!
+                         if (FmAtom%atom(na)%lSkR(nb-6,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkR(nb-6,ik)=np_refi
+                            FmAtom%atom(na)%mSkR(nb-6,ik)=1.0
+
+                            if (FmAtom%atom(na)%lSkR(nb-6,ik) == np_refi) then
+                               V_Vec(np_refi)=FmAtom%atom(na)%Spher_SkR(nb-6,ik)
+                               V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                               V_Bounds(1,np_refi)=xl
+                               V_Bounds(2,np_refi)=xu
+                               V_Bounds(3,np_refi)=xs
+                               V_BCon(np_refi)=ic
+                               V_list(np_refi)=na
+                            else
+                               np_refi=np_refi-1
+                            end if
+                         end if
+
+                      case (10:12)
+                         !---- Im_, Iphi_, Ith_ ----!
+                         if (FmAtom%atom(na)%lSkI(nb-9,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkI(nb-9,ik)=np_refi
+                            FmAtom%atom(na)%mSkI(nb-9,ik)=1.0
+
+                            if (FmAtom%atom(na)%lSkI(nb-9,ik) == np_refi) then
+                               V_Vec(np_refi)=FmAtom%atom(na)%Spher_SkI(nb-9,ik)
+                               V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                               V_Bounds(1,np_refi)=xl
+                               V_Bounds(2,np_refi)=xu
+                               V_Bounds(3,np_refi)=xs
+                               V_BCon(np_refi)=ic
+                               V_list(np_refi)=na
+                             else
+                               np_refi=np_refi-1
+                            end if
+                         end if
+
+                      case (13)
+                         !---- MagPh_ ----!
+                         if (FmAtom%atom(na)%lmphas(ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%mmphas(ik)=1.0
+                            FmAtom%atom(na)%lmphas(ik)=np_refi
+
+                            V_Vec(np_refi)=FmAtom%atom(na)%mphas(ik)
+                            V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                            V_Bounds(1,np_refi)=xl
+                            V_Bounds(2,np_refi)=xu
+                            V_Bounds(3,np_refi)=xs
+                            V_BCon(np_refi)=ic
+                            V_list(np_refi)=na
+                         end if
+
+                      case (14:22)
+                         !---- C1_,..C12_ ----!
+                         if (FmAtom%atom(na)%lbas(nb-13,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lbas(nb-13,ik)=np_refi
+                            FmAtom%atom(na)%mbas(nb-13,ik)=1.0
+
+                            if (FmAtom%atom(na)%lbas(nb-13,ik) == np_refi) then
+                               V_Vec(np_refi)=FmAtom%atom(na)%cbas(nb-13,ik)
+                               V_Name(np_refi)=trim(mcode_nam(nb))//trim(FmAtom%atom(na)%lab)
+                               V_Bounds(1,np_refi)=xl
+                               V_Bounds(2,np_refi)=xu
+                               V_Bounds(3,np_refi)=xs
+                               V_BCon(np_refi)=ic
+                               V_list(np_refi)=na
+                             else
+                               np_refi=np_refi-1
+                            end if
+                         end if
+
+                      case (23:)
+                         err_refcodes=.true.
+                         ERR_RefCodes_Mess="Option Not defined by this type of variables"
+                         return
+
+                   end select ! nb
+
+                case (1)
+                   !---- Rxyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkR(j,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkR(j,ik)=np_refi
+                            FmAtom%atom(na)%mSkR(j,ik)=1.0
+
+                         if (FmAtom%atom(na)%lSkR(j,ik) == np_refi) then
+                            V_Vec(np_refi)=FmAtom%atom(na)%SkR(j,ik)
+                            V_Name(np_refi)=trim(mcode_nam(j))//trim(FmAtom%atom(na)%lab)
+                            V_Bounds(1,np_refi)=xl
+                            V_Bounds(2,np_refi)=xu
+                            V_Bounds(3,np_refi)=xs
+                            V_BCon(np_refi)=ic
+                            V_list(np_refi)=na
+                         else
+                            np_refi=np_refi-1
+                         end if
+                      end if
+                   end do
+
+                case (2)
+                   !---- Ixyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkI(j,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkI(j,ik)=np_refi
+                            FmAtom%atom(na)%mSkI(j,ik)=1.0
+
+                         if (FmAtom%atom(na)%lSkI(j,ik) == np_refi) then
+                            V_Vec(np_refi)=FmAtom%atom(na)%SkI(j,ik)
+                            V_Name(np_refi)=trim(mcode_nam(j+3))//trim(FmAtom%atom(na)%lab)
+                            V_Bounds(1,np_refi)=xl
+                            V_Bounds(2,np_refi)=xu
+                            V_Bounds(3,np_refi)=xs
+                            V_BCon(np_refi)=ic
+                            V_list(np_refi)=na
+                         else
+                            np_refi=np_refi-1
+                         end if
+                      end if
+                   end do
+
+                case (3)
+                    !---- Mxyz ----!
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkR(j,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkR(j,ik)=np_refi
+                            FmAtom%atom(na)%mSkR(j,ik)=1.0
+
+                         if (FmAtom%atom(na)%lSkR(j,ik) == np_refi) then
+                            V_Vec(np_refi)=FmAtom%atom(na)%SkR(j,ik)
+                            V_Name(np_refi)=trim(mcode_nam(j))//trim(FmAtom%atom(na)%lab)
+                            V_Bounds(1,np_refi)=xl
+                            V_Bounds(2,np_refi)=xu
+                            V_Bounds(3,np_refi)=xs
+                            V_BCon(np_refi)=ic
+                            V_list(np_refi)=na
+                         else
+                            np_refi=np_refi-1
+                         end if
+                      end if
+                   end do
+                   
+                   do j=1,3
+                      if (FmAtom%atom(na)%lSkI(j,ik) ==0) then
+
+                            np_refi=np_refi+1
+                            FmAtom%atom(na)%lSkI(j,ik)=np_refi
+                            FmAtom%atom(na)%mSkI(j,ik)=1.0
+
+                         if (FmAtom%atom(na)%lSkI(j,ik) == np_refi) then
+                            V_Vec(np_refi)=FmAtom%atom(na)%SkI(j,ik)
+                            V_Name(np_refi)=trim(mcode_nam(j+3))//trim(FmAtom%atom(na)%lab)
+                            V_Bounds(1,np_refi)=xl
+                            V_Bounds(2,np_refi)=xu
+                            V_Bounds(3,np_refi)=xs
+                            V_BCon(np_refi)=ic
+                            V_list(np_refi)=na
+                         else
+                            np_refi=np_refi-1
+                         end if
+                      end if
+                   end do
+ 
+                case (4:)
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Option Not defined by this type of variables"
+                   return
+             end select
+       end select
+
+       return
+    End Subroutine Fill_RefCodes_FmAtom
 
     !!--++
     !!--++ Subroutine Fill_RefCodes_Molcrys(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,Molcrys,NMol)
@@ -3783,7 +4340,7 @@
        character(len=*),     intent(in)     :: Line
        type(Atom_List_Type), intent(in out) :: FAtom
 
-       !---- Loval variables ----!
+       !---- Local variables ----!
        character(len=20), dimension(30) :: label
        integer                          :: j,ic,n,na,nb,nc,nd,npos
        integer                          :: nl,nl2,iv
@@ -3801,7 +4358,7 @@
           return
        end if
 
-       !---- Set Father Information----!
+       !---- Set Futher Information----!
        !---- Na is the number of atom on List
        !---- Nb is the key (X,Y,Z,Occ,...)
        !---- Fac0 is the multiplier
@@ -3959,6 +4516,207 @@
 
        return
     End Subroutine Get_ConCodes_Line_FAtom
+
+    !!--++
+    !!--++ Subroutine Get_ConCodes_Line_FmAtom(Line,FmAtom)
+    !!--++    character(len=*),         intent(in)     :: Line
+    !!--++    integer,                  intent(in)     :: Nat
+    !!--++    type(mAtom_List_Type),    intent(in out) :: FmAtom
+    !!--++
+    !!--++ Get the Magnetic Constraints Relations: Presently only 'equal'
+    !!--++ mag clone of Get_ConCodes_Line_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Get_ConCodes_Line_FmAtom(Line,FmAtom)
+       !---- Arguments ----!
+       character(len=*),     intent(in)     :: Line
+       type(mAtom_List_Type),intent(in out) :: FmAtom
+
+       !---- Local variables ----!
+       character(len=20), dimension(30) :: label
+       integer                          :: j,ic,n,na,nb,nc,nd,npos
+       integer                          :: nl,nl2,iv,ik
+       integer, dimension(1)            :: ivet
+       real(kind=cp)                    :: fac_0,fac_1
+       real(kind=cp),dimension(1)       :: vet
+
+       call init_err_refcodes()
+
+       nl=0
+       call getword(line,label,ic)
+       if (ic < 2) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess="EQUAL keyword needs two labels: "//trim(line)
+          return
+       end if
+
+       !---- Set Futher Information----!
+       !---- Na is the number of atom on List
+       !---- Nb is the number of keys (Rx,Ry,Rz,Ix,Iy,Iz,MagPh...)
+       !---- Fac0 is the multiplier
+       !---- Nl is the number of refinement parameter
+
+       npos=index(label(1),"_")
+       if (npos ==0) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess="The name "//trim(label(1))//" does not fit any known code-name of CrysFML "
+          return
+       end if
+
+       na=0
+       do j=1,FmAtom%Natoms
+          if (u_case(FmAtom%atom(j)%lab) == u_case(label(1)(npos+1:npos+6))) then
+             na=j
+             exit
+          end if
+       end do
+       if (na == 0) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
+          return
+       end if
+
+       nb=0
+       do j=1,ncode
+          if (u_case(label(1)(1:npos))==u_case(trim(mcode_nam(j)))) then
+             nb=j
+             exit
+          end if
+       end do
+       if (nb == 0) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess="Code-name not found for parameter name: "//trim(label(1))
+          return
+       end if
+
+       !---- Get im, number of the magnetic matrices/irrep set
+       ik=FmAtom%atom(na)%nvk
+       
+       select case (nb)
+          case ( 1:3)
+             fac_0=FmAtom%atom(na)%mSkR(nb,ik)
+                nl=FmAtom%atom(na)%lSkR(nb,ik)
+          case ( 4:6)
+             fac_0=FmAtom%atom(na)%mSkI(nb-3,ik)
+                nl=FmAtom%atom(na)%lSkI(nb-3,ik)
+          case ( 7:9)
+             fac_0=FmAtom%atom(na)%mSkR(nb-6,ik)
+                nl=FmAtom%atom(na)%lSkR(nb-6,ik)
+          case (10:12)
+             fac_0=FmAtom%atom(na)%mSkI(nb-9,ik)
+                nl=FmAtom%atom(na)%lSkI(nb-9,ik)
+          case (13)
+             fac_0=FmAtom%atom(na)%mmphas(ik)
+                nl=FmAtom%atom(na)%lmphas(ik)
+           case (14:22)
+             fac_0=FmAtom%atom(na)%mbas(nb-13,ik)
+                nl=FmAtom%atom(na)%lbas(nb-13,ik)
+         case (23:)
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
+             return
+       end select ! nb
+
+       if (nb < ncode) then
+          if (nl == 0) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="No refinable parameter was selected for "//trim(label(1))
+             return
+          end if
+       end if
+
+       !---- Set the rest elements in Contsraints ----!
+       n=1
+       do
+          n=n+1
+          if (n > ic) exit
+
+          npos=index(label(n),"_")
+          if (npos ==0) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="No CrysFML code-name was found for "//trim(label(n))
+             return
+          end if
+
+          nc=0
+          do j=1,FmAtom%Natoms
+             if (u_case(FmAtom%atom(j)%lab) == u_case(label(n)(npos+1:npos+6))) then
+                nc=j
+                exit
+             end if
+          end do
+          if (nc == 0) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess=" Atom label not found for "//trim(label(n))
+             return
+          end if
+
+          nd=0
+          do j=1,ncode
+             if (u_case(label(n)(1:npos))==u_case(trim(mcode_nam(j)))) then
+                nd=j
+                exit
+             end if
+          end do
+          if (nd == 0) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="Code-name not found for "//trim(label(n))
+             return
+          end if
+
+          !---- Is there a new multiplier?
+          n=n+1
+          call getnum(label(n),vet,ivet,iv)
+          if (iv == 1) then
+             fac_1=vet(1)
+          else
+             fac_1=fac_0
+             n=n-1
+          end if
+
+          select case (nd)
+             case ( 1:3)
+                nl2=FmAtom%atom(nc)%lSkR(nd,ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mSkR(nd,ik)=fac_1
+                FmAtom%atom(nc)%lSkR(nd,ik)=nl
+             case ( 4:6)
+                nl2=FmAtom%atom(nc)%lSkI(nd-3,ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mSkI(nd-3,ik)=fac_1
+                FmAtom%atom(nc)%lSkI(nd-3,ik)=nl
+             case ( 7:9)
+                nl2=FmAtom%atom(nc)%lSkR(nd-6,ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mSkR(nd-6,ik)=fac_1
+                FmAtom%atom(nc)%lSkR(nd-6,ik)=nl
+             case (10:12)
+                nl2=FmAtom%atom(nc)%lSkI(nd-9,ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mSkI(nd-9,ik)=fac_1
+                FmAtom%atom(nc)%lSkI(nd-9,ik)=nl
+             case (13)
+                nl2=FmAtom%atom(nc)%lmphas(ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mmphas(ik)=fac_1
+                FmAtom%atom(nc)%lmphas(ik)=nl
+             case (14:22)
+                nl2=FmAtom%atom(nc)%lbas(nd-13,ik)
+                call Delete_refCodes(nl2,FmAtom)
+                FmAtom%atom(nc)%mbas(nd-13,ik)=fac_1
+                FmAtom%atom(nc)%lbas(nd-13,ik)=nl
+             case (23:)
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
+                return
+          end select ! nb
+
+          np_cons=np_cons+1
+
+       end do
+
+       return
+    End Subroutine Get_ConCodes_Line_FmAtom
 
     !!--++
     !!--++ Subroutine Get_ConCodes_Line_Molcrys(Line,Molcrys)
@@ -4661,7 +5419,6 @@
 
 
        call init_err_refcodes()
-
        nlong=len_trim(line)
 
        if (nlong ==0) then
@@ -4800,6 +5557,177 @@
 
        return
     End Subroutine Get_RefCodes_Line_FAtom
+
+    !!--++
+    !!--++ Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom,Spg)
+    !!--++    integer,                 intent(in)     :: Key
+    !!--++    character(len=*),        intent(in)     :: Dire
+    !!--++    character(len=*),        intent(in)     :: Line
+    !!--++    type(mAtom_List_Type),   intent(in out) :: FmAtom
+    !!--++    type(space_group_type),  intent(in)     :: Spg
+    !!--++
+    !!--++ Get Refinement Codes for Free Magnetic Atom type
+    !!--++ magnetic clone of Get_RefCodes_Line_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom,Spg)
+       !---- Arguments ----!
+       integer,                 intent(in)     :: Key
+       character(len=*),        intent(in)     :: Dire
+       character(len=*),        intent(in)     :: Line
+       type(mAtom_List_Type),   intent(in out) :: FmAtom
+       type(space_group_type),  intent(in)     :: Spg
+
+       !---- Local Variables ----!
+       character(len=20), dimension(30) :: label
+       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic !,k,nc
+       integer                          :: icond,iv,n_ini,n_end
+       integer, dimension(5)            :: ivet
+       integer, dimension(30)           :: ilabel
+       real(kind=cp)                    :: x_low,x_up,x_step
+       real(kind=cp),dimension(5)       :: vet
+
+
+       call init_err_refcodes()
+
+       nlong=len_trim(line)
+
+       if (nlong ==0) then
+          !---- Default Values ----!
+          do i=1,FmAtom%natoms
+             call Fill_Refcodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,FmAtom,Spg)
+          end do
+
+       else
+          !---- VARY/FIX Line: [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
+          ilabel=0
+          call getword(line,label,ic)
+          do i=1,ic
+             call getnum(label(i),vet,ivet,iv)
+             if (iv == 1) ilabel(i)=1
+          end do
+          ndir=count(ilabel(1:ic) < 1)
+
+          if (ndir <=0) then
+             !--- [INF,[SUP,[STEP,[COND]]]] ----!
+             call getnum(line,vet,ivet,iv)
+             select case (iv)
+                case (1)
+                   x_low=vet(1)
+                    x_up=vet(1)
+                  x_step=0.0
+                   icond=0
+
+                case (2)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=0.0
+                   icond=0
+
+                case (3)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=vet(3)
+                   icond=0
+
+                case (4)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=vet(3)
+                   icond=ivet(4)
+
+                case default
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Only numbers in "//trim(line)
+                   return
+             end select
+
+             nb=0
+             do na=1,FmAtom%natoms
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom,spg)
+             end do
+             if (err_refcodes) return
+
+          else
+             !---- [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
+             ! If Ilabel(i) == 0 then is a label otherwise is a number
+             n_ini=minloc(ilabel,dim=1)
+             ilabel(n_ini)=2
+             n_end=minloc(ilabel,dim=1)-1
+
+             do n=1,ndir
+                na=0
+                nb=0
+
+                !---- Default values ----!
+                x_low =0.0
+                x_up  =0.0
+                x_step=0.0
+                icond =0
+
+                !---- Label ----!
+                npos=index(label(n_ini),"_")
+                if (npos >0) then
+                   do j=1,mncode
+                      if (u_case(label(n_ini)(1:npos))==u_case(trim(mcode_nam(j)))) then
+                         nb=j
+                         exit
+                      end if
+                   end do
+                   if (nb == 0) then
+                      err_refcodes=.true.
+                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
+                      return
+                   end if
+                end if
+
+                do j=1,FmAtom%natoms
+                   if (u_case(FmAtom%atom(j)%lab) == u_case(label(n_ini)(npos+1:npos+6))) then
+                      na=j
+                      exit
+                   end if
+                end do
+                if (na == 0) then
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess=" Atom label not found for "//trim(line)
+                   return
+                end if
+
+                !---- Valu List: Inf,Sup,Step,Cond ----!
+                i=0
+                do j=n_ini+1,n_end
+                   i=i+1
+                   call getnum(label(j),vet,ivet,iv)
+                   select case (i)
+                      case (1)
+                         x_low=vet(1)
+                         x_up =vet(1)
+
+                      case (2)
+                         x_up =vet(1)
+
+                      case (3)
+                         x_step =vet(1)
+
+                      case (4)
+                         icond = ivet(1)
+                   end select
+                end do
+
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom,spg)
+                if (err_refcodes) return
+
+                n_ini=minloc(ilabel,dim=1)
+                ilabel(n_ini)=2
+                n_end=minloc(ilabel,dim=1)-1
+
+             end do
+          end if
+
+       end if
+
+       return
+    End Subroutine Get_RefCodes_Line_FmAtom
 
     !!--++
     !!--++ Subroutine Get_RefCodes_Line_Molcrys(Key,Dire,Line,Molcrys,NMol)
@@ -5655,6 +6583,48 @@
     End Subroutine Init_RefCodes_FAtom
 
     !!--++
+    !!--++ Subroutine Init_RefCodes_FmAtom(FmAtom)
+    !!--++    type(Atom_List_Type), intent(in out) :: FmAtom  ! Free Atom Object
+    !!--++
+    !!--++ Initialize magnetic refinement codes
+    !!--++ magnetic clone of Init_RefCodes_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Init_RefCodes_FmAtom(FmAtom)
+       !---- Arguments ----!
+       type(mAtom_List_Type), intent(in out)  :: FmAtom
+
+       !---- Local variables ----!
+       integer :: i
+
+       NP_Refi=0
+       NP_Cons=0
+
+       V_Vec   =0.0
+       V_Name=" "
+       V_Bounds=0.0
+       V_BCon  =0
+
+       do i=1,FmAtom%Natoms
+
+          FmAtom%atom(i)%mSkR=0.0
+          FmAtom%atom(i)%lskr=0
+
+          FmAtom%atom(i)%mSkI=0.0
+          FmAtom%atom(i)%lski=0
+
+          FmAtom%atom(i)%mmphas=0.0
+          FmAtom%atom(i)%lmphas=0
+
+          FmAtom%atom(i)%mbas=0.0
+          FmAtom%atom(i)%lbas=0
+
+       end do
+
+       return
+    End Subroutine Init_RefCodes_FmAtom
+
+    !!--++
     !!--++ Subroutine Init_RefCodes_MolCrys(MolCrys)
     !!--++    type(molecular_Crystal_type), intent(in out) :: MolCrys    ! Molecular Crystal Object
     !!--++
@@ -5932,6 +6902,95 @@
 
        return
     End Subroutine Read_RefCodes_File_FAtom
+
+    !!--++
+    !!--++ Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom,Spg)
+    !!--++    Type(file_list_type),    intent( in)    :: file_dat
+    !!--++    integer,                 intent( in)    :: n_ini
+    !!--++    integer,                 intent( in)    :: n_end
+    !!--++    type(mAtom_List_Type),   intent(in out) :: FmAtom
+    !!--++    type(space_group_type),  intent(in)     :: Spg
+    !!--++
+    !!--++    Subroutine for treatment of magnetic Codes controls
+    !!--++    magnetic clone of Read_RefCodes_File_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom,Spg)
+       !---- Arguments ----!
+       Type(file_list_type),     intent( in)    :: file_dat
+       integer,                  intent( in)    :: n_ini
+       integer,                  intent( in)    :: n_end
+       type(mAtom_List_Type),    intent(in out) :: FmAtom
+       type(space_group_type),   intent(in)     :: Spg
+
+       !---- Local variables ----!
+       character(len=132)              :: line
+       character(len=132),dimension(5) :: dire
+       integer                         :: i,k,nlong
+       integer                         :: nop_in_line,key
+
+       call init_err_refcodes()
+
+       do i=n_ini,n_end
+          line=adjustl(file_dat%line(i))
+          if (line(1:1) ==" ") cycle
+          if (line(1:1) =="!") cycle
+          k=index(line,"!")
+          if( k /= 0) line=trim(line(1:k-1))
+
+          select case (l_case(line(1:4)))
+
+             !---- Main Directive: FIX ----!
+             case ("fix ", "fixe")
+                call cutst(line,nlong)
+                call split_moperations(line,nop_in_line,dire)
+                do k=1,nop_in_line
+                   select case (l_case(dire(k)(1:4)))
+                      case ("rxyz")
+                         key=1
+                      case ("ixyz")
+                         key=2
+                      case ("mxyz")
+                         key=3
+                      case default
+                         key=0
+                   end select
+                   if (key /=0) call cutst(dire(k),nlong)
+                   call get_refcodes_line(key,"fix",dire(k),FmAtom,spg)
+                   if (err_refcodes) return
+                end do
+
+             !---- Main Directive: VARY ----!
+             case ("vary")
+                call cutst(line,nlong)
+                call split_moperations(line,nop_in_line,dire)
+                do k=1,nop_in_line
+                   select case (l_case(dire(k)(1:4)))
+                      case ("rxyz")
+                         key=1
+                      case ("ixyz")
+                         key=2
+                      case ("mxyz")
+                         key=3
+                      case default
+                         key=0
+                   end select
+
+                   if (key /=0) call cutst(dire(k),nlong)
+                   call get_refcodes_line(key,"var",dire(k),FmAtom,spg)
+                   if (err_refcodes) return
+                end do
+
+             !---- Main Directive: EQUAL ----!
+             case ("equa")
+                call cutst(line,nlong)
+                call get_concodes_line(line,FmAtom)
+
+          end select
+       end do
+
+       return
+    End Subroutine Read_RefCodes_File_FmAtom
 
     !!--++
     !!--++ Subroutine Read_RefCodes_File_Molcrys(file_dat,n_ini,n_end,molcrys)
@@ -6271,6 +7330,73 @@
        return
     End Subroutine Split_Operations
 
+    !!--++
+    !!--++ Subroutine Split_mOperations(Line, Ni, S_Lines)
+    !!--++    character(len=*),              intent( in) :: line
+    !!--++    integer,                       intent(out) :: ni
+    !!--++    character(len=*),dimension(:), intent(out) :: s_lines
+    !!--++
+    !!--++    (Private)
+    !!--++    Split diferent directives according to KEY_mCODE Variable
+    !!--++    magnetic clone of Subroutine Split_Operations
+    !!--++ Created: December - 2011
+    !!
+    Subroutine Split_mOperations(Line, Ni, S_Lines)
+       !---- Arguments ----!
+       character(len=*),              intent( in) :: line
+       integer,                       intent(out) :: ni
+       character(len=*),dimension(:), intent(out) :: s_lines
+
+       !---- Local variables ----!
+       character(len=150)      :: linec
+       character(len=10)       :: car
+       integer                 :: i,j,npos
+       integer,dimension(mnkey) :: ip,ipc
+
+       ni=0
+       s_lines=" "
+
+       linec=u_case(line)
+
+       !---- Search Subkeys: Rxyz,Ixyz,Mxyz ----!
+       ip=0
+       do i=1,mnkey
+          npos=index(linec,key_mcode(i))
+          if (npos > 0) then
+             car=linec(npos:)
+             j=index(car," ")
+             if (j > 0) car=car(:j-1)
+             j=index(car,"_")
+             if (j > 0) cycle
+          end if
+          ip(i)=npos
+       end do
+
+       npos=count(ip > 0)
+       if (npos == 0) then
+          ni=1
+          s_lines(1)=adjustl(line)
+       else
+          call sort(ip,mnkey,ipc)
+          do i=1,mnkey
+             if (ip(ipc(i)) == 0) then
+                if (ip(ipc(i+1)) <= 1) cycle
+                ni=ni+1
+                s_lines(ni)=adjustl(line(1:ip(ipc(i+1))-1))
+             else
+                ni=ni+1
+                if (i < mnkey) then
+                   s_lines(ni)=adjustl(line(ip(ipc(i)):ip(ipc(i+1))-1))
+                else
+                   s_lines(ni)=adjustl(line(ip(ipc(i)):))
+                end if
+             end if
+          end do
+       end if
+
+       return
+    End Subroutine Split_mOperations
+
     !!----
     !!---- Subroutine VState_to_AtomsPar(FAtom/MolCrys/Molec,Mode)
     !!----    type(Atom_List_Type),         intent(in out) :: FAtom
@@ -6361,7 +7487,7 @@
 
           !---- BANIS ----!
           do j=1,6
-             l=FAtom%atom(i)%lu(i)
+             l=FAtom%atom(i)%lu(j)
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
@@ -6381,6 +7507,163 @@
 
        return
     End Subroutine VState_to_AtomsPar_FAtom
+
+    !!--++
+    !!--++ Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp)
+    !!--++    type(mAtom_List_Type),      intent(in out) :: FmAtom
+    !!--++    character(len=*), optional, intent(in)     :: Mode
+    !!--++    type(MagSymm_k_Type), optional, intent(in) :: MGp
+    !!--++
+    !!--++ magnetic clone of VState_to_AtomsPar_FAtom
+    !!--++ Created: December - 2011
+    !!
+    Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp)
+       !---- Arguments ----!
+       type(mAtom_List_Type),      intent(in out) :: FmAtom
+       character(len=*), optional, intent(in)     :: Mode
+       type(MagSymm_k_Type), optional, intent(in) :: MGp
+
+       !---- Local Variables ----!
+       integer          :: i,j,l,ik
+       character(len=1) :: car
+
+       call init_err_refcodes()
+
+       car="s"
+       if (present(mode)) car=adjustl(mode)
+       do i=1,FmAtom%natoms
+
+          ik=FmAtom%atom(i)%nvk
+
+          !---- Rxyz ----!
+          do j=1,3
+             l=FmAtom%atom(i)%lSkR(j,ik)
+             if (l == 0) cycle
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+
+             select case (car)
+
+                case ("v","V") ! Passing Value
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                 else
+                   FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                 endif
+ 
+                case ("s","S") ! Passing Shift
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                 else
+                   FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
+                 endif
+
+             end select
+          end do
+
+          !---- Ixyz ----!
+          do j=1,3
+             l=FmAtom%atom(i)%lSkI(j,ik)
+             if (l == 0) cycle
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                case ("v","V") ! Passing Value
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                 else
+                   FmAtom%atom(i)%SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                 endif
+
+                case ("s","S") ! Passing Shift
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                 else
+                   FmAtom%atom(i)%SkI(j,ik)=FmAtom%atom(i)%SkI(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkI(j,ik)
+                 endif
+
+             end select
+          end do
+
+          !---- Mxyz ----!
+          do j=1,6
+            if(1<=j.and.j<=3) l=FmAtom%atom(i)%lSkR(j,ik)
+            if(4<=j.and.j<=6) l=FmAtom%atom(i)%lSkI(j-3,ik)
+             if (l == 0) cycle
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                case ("v","V") ! Passing Value
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                  if(1<=j.and.j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j.and.j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                 else
+                  if(1<=j.and.j<=3) FmAtom%atom(i)%SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                 endif
+
+                case ("s","S") ! Passing Shift
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                  if(1<=j.and.j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=FmAtom%atom(i)%Spher_SkR(j  ,ik)+ &
+                                                                   v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j.and.j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
+                                                                   v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                 else
+                  if(1<=j.and.j<=3) FmAtom%atom(i)%SkR(j  ,ik)=FmAtom%atom(i)%SkR(j  ,ik)+ &
+                                                             v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
+                                                             v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                 endif
+             end select
+          end do
+          
+          !---- MagPh ----!
+          l=FmAtom%atom(i)%lmphas(ik)
+          if (l == 0) cycle
+          if (l > np_refi) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+             return
+          end if
+          select case (car)
+             case ("v","V") ! Passing Value
+                FmAtom%atom(i)%mphas(ik)=v_vec(l)*FmAtom%atom(i)%mmphas(ik)
+
+             case ("s","S") ! Passing Shift
+                FmAtom%atom(i)%mphas(ik)=FmAtom%atom(i)%mphas(ik)+v_shift(l)*FmAtom%atom(i)%mmphas(ik)
+          end select
+
+          !---- C1-12 ----!
+          do j=1,12
+             l=FmAtom%atom(i)%lbas(j,ik)
+             if (l == 0) cycle
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                case ("v","V") ! Passing Value
+                   FmAtom%atom(i)%cbas(j,ik)=v_vec(l)*FmAtom%atom(i)%mbas(j,ik)
+
+                case ("s","S") ! Passing Shift
+                   FmAtom%atom(i)%cbas(j,ik)=FmAtom%atom(i)%cbas(j,ik)+v_shift(l)*FmAtom%atom(i)%mbas(j,ik)
+             end select
+          end do
+
+       end do
+
+       return
+    End Subroutine VState_to_AtomsPar_FmAtom
 
     !!--++
     !!--++ Subroutine VState_to_AtomsPar_Molcrys(Molcrys,Mode)
@@ -6798,6 +8081,8 @@
     !!---- Subroutine Write_Info_RefCodes(FAtom/MolCrys/Molec, Iunit)
     !!----    type(Atom_List_Type),         intent(in) :: FAtom
     !!----    or
+    !!----    type(mAtom_List_Type),        intent(in) :: mFAtom
+    !!----    or    
     !!----    type(molecular_crystal_type), intent(in) :: Molcrys
     !!----    or
     !!----    type(molecule_type),          intent(in) :: Molec
@@ -6809,8 +8094,9 @@
     !!
 
     !!--++
-    !!--++ Subroutine Write_Info_RefCodes_FAtom(FAtom, Iunit)
+    !!--++ Subroutine Write_Info_RefCodes_FAtom(FAtom, Spg, Iunit)
     !!--++    type(Atom_List_Type),  intent(in) :: FAtom
+    !!--++    type(Space_Group_Type), intent(in) :: Spg
     !!--++    integer, optional,     intent(in) :: Iunit
     !!--++
     !!--++    Overloaded
@@ -7031,6 +8317,109 @@
 
        return
     End Subroutine Write_Info_RefCodes_FAtom
+
+    !!--++
+    !!--++ Subroutine Write_Info_RefCodes_FmAtom(FmAtom, MGp, Iunit)
+    !!--++    type(mAtom_List_Type),  intent(in) :: FmAtom
+    !!--++    type(MagSymm_k_Type),   intent(in) :: MGp
+    !!--++    integer, optional,     intent(in)  :: Iunit
+    !!--++
+    !!--++    Write the Information about magnetic Refinement Codes
+    !!--++ magnetic clone of Write_Info_RefCodes_FAtom
+    !!--++ Createded: December - 2011
+    !!
+    Subroutine Write_Info_RefCodes_FmAtom(FmAtom, MGp, Iunit)
+       !---- Arguments ----!
+       type(mAtom_List_Type),  intent(in) :: FmAtom
+       type(MagSymm_k_Type),   intent(in) :: MGp
+       integer, optional,      intent(in) :: Iunit
+
+       !---- Local variables ----!
+       character(len=20)              :: car
+       character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
+       character(len=25),dimension(3) :: symcar
+       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4,ik
+       real(kind=cp)                  :: mu
+       real(kind=cp),dimension(3)     :: tr
+       real(kind=cp),dimension(3)     :: rsk,isk,rpol,ipol
+
+       !---- Format Zone ----!
+       fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"
+       fmt2="(t10,i3,t21,a,t31,a,t39,f8.4)"
+
+       lun=6
+       if (present(iunit)) lun=iunit
+
+       if (NP_Refi > 0) then
+          write(unit=lun, fmt="(a)") " "
+          write(unit=lun, fmt="(a,i5)") " => Refinable Parameters: ",np_refi
+          write(unit=lun, fmt="(a)") " "
+          write(unit=lun, fmt="(a,a)")"    Name      N.Param   Code-Name       Value        L.Bound       ",&
+                                      "U.Bound         Step    Condition   Multiplier    N.Atom"
+          write(unit=lun, fmt="(a,a)")" ==================================================================",&
+                                      "========================================================="
+
+          do i=1,FmAtom%natoms
+             !---- Get im, number of the magnetic matrices/irrep set
+             ik=FmAtom%atom(i)%nvk
+
+             !----Real components
+             do j=1,3
+                if (FmAtom%atom(i)%lSkR(j,ik) /= 0) then
+                   na=FmAtom%atom(i)%lSkR(j,ik)
+                   mu=FmAtom%atom(i)%mSkR(j,ik)
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   car=trim(mcode_nam(j+6))//trim(FmAtom%atom(i)%lab)
+                 else
+                   car=trim(mcode_nam(j  ))//trim(FmAtom%atom(i)%lab)
+                 endif
+                   write(unit=lun,fmt=fmt1)  &
+                        trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+
+                end if
+             end do
+
+             !----Imaginary components
+             do j=1,3
+                if (FmAtom%atom(i)%lSkI(j,ik) /= 0) then
+                   na=FmAtom%atom(i)%lSkI(j,ik)
+                   mu=FmAtom%atom(i)%mSkI(j,ik)
+                 if(MGp%Sk_type == "Spherical_Frame") then
+                   car=trim(mcode_nam(j+9))//trim(FmAtom%atom(i)%lab)
+                 else
+                   car=trim(mcode_nam(j+3))//trim(FmAtom%atom(i)%lab)
+                 endif
+                   write(unit=lun,fmt=fmt1)  &
+                        trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+                end if
+             end do
+  
+             if (FmAtom%atom(i)%lmphas(ik) /=0) then
+                na=FmAtom%atom(i)%lmphas(ik)
+                mu=FmAtom%atom(i)%mmphas(ik)
+                car=trim(mcode_nam(13))//trim(FmAtom%atom(i)%lab)
+                write(unit=lun,fmt=fmt1)  &
+                     trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+             end if
+          end do
+
+          !----C1-12 coefficients
+          do i=1,FmAtom%natoms
+             do j=1,12
+                if (FmAtom%atom(i)%lbas(j,ik) /= 0) then
+                   na=FmAtom%atom(i)%lbas(j,ik)
+                   mu=FmAtom%atom(i)%mbas(j,ik)
+                   car=trim(mcode_nam(j+13))//trim(FmAtom%atom(i)%lab)
+                   write(unit=lun,fmt=fmt1)  &
+                        trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+                end if
+             end do
+          end do
+
+       end if
+       return
+
+    End Subroutine Write_Info_RefCodes_FmAtom
 
     !!--++
     !!--++ Subroutine Write_Info_RefCodes_Molcrys(MolCrys, iunit)

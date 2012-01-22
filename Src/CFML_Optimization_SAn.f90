@@ -1985,13 +1985,13 @@
 
        !--- Local Variables ---!
        integer :: i,j
-       character(len=30) :: forma1,forma2
+       character(len=32) :: forma1,forma2
        character(len=15) :: namep
 
        forma1="(a,   (a,i2))"
        write(unit=forma1(4:6),fmt="(i3)") vs%nconf
-       forma2="(i6,a15,2f12.5,2i6,   f12.5))"
-       write(unit=forma2(20:22),fmt="(i3)") 2*vs%nconf+1
+       forma2="(i6,3x,a12,2f12.5,2i6,   f12.5))"
+       write(unit=forma2(23:25),fmt="(i3)") 2*vs%nconf+1
 
        write(unit=ipr,fmt="(/,a)") "     ========================================================="
        write(unit=ipr,fmt="(  a)") "     => SIMULATED ANNEALING MULTI-STATE VECTOR: "//trim(text)
@@ -2000,7 +2000,7 @@
        write(unit=ipr,fmt=forma1) "   Num           Name     Low_lim    High_Lim  BCond Code    BestConf",&
                                   ("      Value&Step Conf#",j, j=1,vs%nconf)
        do i=1,vs%npar
-          namep=adjustr(vs%nampar(i))
+          namep=adjustl(vs%nampar(i))
           write(unit=ipr,fmt=forma2) i,namep,vs%low(i),vs%high(i),vs%bound(i),vs%code(i),vs%config(i),&
                                    (vs%state(i,j),vs%stp(i,j),j=1,vs%nconf)
        end do
@@ -2036,14 +2036,14 @@
        character(len=30) :: forma
        character(len=15) :: namep
 
-       forma="(i6,a8,3f12.5,2(i7,f12.5))"
+       forma="(i6,3x,a8,3f12.5,2(i7,f12.5))"
 
        write(unit=ipr,fmt="(/,a)") "     ================================================="
        write(unit=ipr,fmt="(  a)") "     => SIMULATED ANNEALING STATE VECTOR: "//trim(text)
        write(unit=ipr,fmt="(a,/)") "     ================================================="
        write(unit=ipr,fmt="(a)") "   Num    Name       Value     Low_lim    High_Lim    BCond      Step    Code   BestConf"
        do i=1,vs%npar
-          namep=adjustr(vs%nampar(i))
+          namep=adjustl(vs%nampar(i))
           write(unit=ipr,fmt=forma)  i,namep,vs%state(i),vs%low(i),vs%high(i),vs%bound(i),vs%stp(i),vs%code(i),vs%config(i)
        end do
 
