@@ -15,27 +15,18 @@ Here are the instructions to run cmake in order to build the CrysFML library.
 
                              ***
 
-3) Set CRYSFML_SOURCE environment variable to the absolute path where 
-   the CrysFML sources are located.
-   
-   I decided to not use the CRYSFML environment variable used in the 
-   old building process as, for further use of CrysFML library with 
-   ProgCFML or SXTalSoft libraries, a distinction between the source 
-   and library locations must be established.
-
-                             ***
                              
-4) Create a directory wherever you want that will contain the files 
+3) Create a directory wherever you want that will contain the files 
    generated during the build (e.g. ${CRYSFML_SOURCE}/build). Now 
    you are ready for the cmake run that will configure your build.
 
                              ***
     
-5) cd path_to_your_build_directory
+4) cd path_to_your_build_directory
  
                              ***
 
-6) The CMake usage is:
+5) The CMake usage is:
       
       cmake -G generator -Dvariable=value path_to_your_source_directory
 
@@ -64,29 +55,39 @@ Here are the instructions to run cmake in order to build the CrysFML library.
        
       Useful CMake variables (case sensitive):
        
-         * GUI: ON|OFF. Default OFF
+         * GUI: ON|OFF.
+           Default OFF
            If OFF, only CrysFML will be built.
            If ON, both CrysFML and WCrysFML libraries will be built
            
-         * CMAKE_Fortran_COMPILER: ifort|g95|gfortran. Default ifort.
+         * CMAKE_Fortran_COMPILER: ifort|g95|gfortran.
+           Default ifort.
            Sets the compiler to use for the build.
 
-         * CMAKE_BUILD_TYPE: Release|Debug|RelWithDebInfo|MinSizeRel. Default Release.
+         * CMAKE_BUILD_TYPE: Release|Debug|RelWithDebInfo|MinSizeRel.
+           Default Release.
            Sets the build type for make based generators.
            
-         * CMAKE_INSTALL_PREFIX.
-           Default /usr/lib/libcrysfml (Unix) C:\Program Files\libcrysfml (Windows)
+         * CMAKE_INSTALL_PREFIX
+           Default /usr/lib/libcrysfml (Unix) C:\Program Files\libcrysfml (Windows).
            Path where the library will be installed if "make install" is invoked or the 
            "INSTALL" target is built.
 
+         * CRYSFML_PREFIX
+           Default crysfml.
+           Sets the name of the subdirectory within CMAKE_INSTALL_PREFIX where 
+           crysfml will be installed.
+
+         * WCRYSFML_PREFIX
+           Default wcrysfml.
+           Sets the name of the subdirectory within CMAKE_INSTALL_PREFIX where 
+           wcrysfml will be installed.
+
                              ***
            
-7) The final step is now to build and install the library. The command to invoke will 
+6) The final step is now to build and install the library. The command to invoke will 
    depend on the generator used for the build.
 
    Examples:
       - Unix: make install
       - Window: nmake install 
-
-   ifort build for CrysFML and WCrysFML on Windows:
-       cmake           
