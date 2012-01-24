@@ -33,7 +33,7 @@ set_source_files_properties(${CRYSFML_COMMON_OBJECTS} PROPERTIES GENERATED true)
 #################################
 
 # This directory contains the crysfml_common library mod files.
-include_directories(${PROJECT_BINARY_DIR}/crysfml_common)
+include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 
 # This directory contains the winteracter library mod files.
 include_directories(${WINTERACTER_MOD_DIR})
@@ -47,19 +47,22 @@ add_dependencies(wcrysfml crysfml_common)
 # The library is linked to winteracter.
 target_link_libraries(wcrysfml ${WINTERACTER_LIBRARY})
 
+# The directory where the wcrysfml specific module files will be stored.
+set(WCRYSFML_MODULE_DIRECTORY ${crysfml_BINARY_DIR}/wcrysfml_modules)
+
 # Sets the path where to place the mod files for the wcrysfml library.
-set_target_properties(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${wcrysfml_BINARY_DIR})
+set_target_properties(wcrysfml PROPERTIES Fortran_MODULE_DIRECTORY ${WCRYSFML_MODULE_DIRECTORY})
 
 #################################
 # Install section
 #################################
 
 # The rules for installing the library.
-install(TARGETS wcrysfml ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX})
+install(TARGETS wcrysfml ARCHIVE DESTINATION ${WCRYSFML_PREFIX})
 
 # The rules for installing the mod files. Take care the "/" is on purpose.
-install(DIRECTORY ${crysfml_common_BINARY_DIR}/ ${wcrysfml_BINARY_DIR}/
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX}
+install(DIRECTORY ${CRYSFML_COMMON_MODULE_DIRECTORY}/ ${WCRYSFML_MODULE_DIRECTORY}/
+        DESTINATION ${WCRYSFML_PREFIX}
         FILES_MATCHING
         PATTERN "*.mod"
         PATTERN CMakeFiles EXCLUDE)

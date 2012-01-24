@@ -79,5 +79,8 @@ set_source_files_properties(CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Ta
 # The crysfml_common library is common to Console and GUI mode.
 add_library(${LIB_NAME} STATIC ${CRYSFML_COMMON_SOURCES})
 
+# The directory where the CrySFML modules files will be stored.
+set(CRYSFML_COMMON_MODULE_DIRECTORY ${crysfml_common_BINARY_DIR}/crysfml_common_modules)
+
 # Sets the path where to place the mod files for the crysfml_common library.
-set_target_properties(${LIB_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${crysfml_common_BINARY_DIR})
+set_target_properties(${LIB_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_COMMON_MODULE_DIRECTORY})

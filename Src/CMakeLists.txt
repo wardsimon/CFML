@@ -11,7 +11,7 @@ project(cfml Fortran)
 #################################
 
 # Add some paths to the cmake module search path.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${cfml_SOURCE_DIR})
 
 # Build crysfml_common library.
 include(crysfml_common)

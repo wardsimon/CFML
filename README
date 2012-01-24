@@ -6,7 +6,7 @@ Here are the instructions to run cmake in order to build the CrysFML library.
 
                              ***
 
-1) Download and install a recent version of cmake (>= 2.8.0 required)
+1) download and install a recent version of cmake (>= 2.8.0 required)
 
                              ***
 
@@ -15,18 +15,22 @@ Here are the instructions to run cmake in order to build the CrysFML library.
 
                              ***
 
+3) set the environment variable CRYSFML to the directory where the README is 
+   located.
+
+                             ***
                              
-3) Create a directory wherever you want that will contain the files 
-   generated during the build (e.g. ${CRYSFML_SOURCE}/build). Now 
+4) create a directory wherever you want that will contain the files 
+   generated during the build (e.g. ${CRYSFML}/build). Now 
    you are ready for the cmake run that will configure your build.
 
                              ***
     
-4) cd path_to_your_build_directory
+5) change directory to the build directory created in step 4.
  
                              ***
 
-5) The CMake usage is:
+6) the CMake usage is:
       
       cmake -G generator -Dvariable=value path_to_your_source_directory
 
@@ -85,7 +89,7 @@ Here are the instructions to run cmake in order to build the CrysFML library.
 
                              ***
            
-6) The final step is now to build and install the library. The command to invoke will 
+7) the final step is now to build and install the library. The command to invoke will 
    depend on the generator used for the build.
 
    Examples:

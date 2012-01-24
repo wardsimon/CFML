@@ -1,7 +1,7 @@
 macro(set_compiler_flags)
-
+    
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
-
+    
     if(COMPILER_NAME STREQUAL ifort)
     
         if(WIN32)
