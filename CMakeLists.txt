@@ -23,8 +23,9 @@ set(CMAKE_Fortran_FLAGS "")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} $ENV{CRYSFML}/cmake)
 
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    get_filename_component(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} PATH)
+if (WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_GENERIC_PROGRAM_FILES}" CACHE PATH
+    "Install path prefix, prepended onto install directories." FORCE)
 endif()
 
 # Includes some modules.
