@@ -21,8 +21,10 @@ Here are the instructions to run cmake in order to build the CrysFML library.
                              ***
                              
 4) create a directory wherever you want that will contain the files 
-   generated during the build (e.g. ${CRYSFML}/build). Now 
-   you are ready for the cmake run that will configure your build.
+   generated during the build (e.g. ${CRYSFML}/build).
+   If you intend to do the build as superuser, this directory should 
+   give recursively the writing rights for every user.     
+   Now you are ready for the cmake run that will configure your build.
 
                              ***
     

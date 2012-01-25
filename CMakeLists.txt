@@ -12,6 +12,8 @@ set(WCRYSFML_PREFIX wcrysfml CACHE STRING "The name of wcrysfml library within l
 # The project is declared. It is a Fortran project.
 project(libcrysfml Fortran)
 
+get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
+
 # Set the a verbose make.
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -22,11 +24,6 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_Fortran_FLAGS "")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} $ENV{CRYSFML}/cmake)
-
-if (WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_GENERIC_PROGRAM_FILES}" CACHE PATH
-    "Install path prefix, prepended onto install directories." FORCE)
-endif()
 
 # Includes some modules.
 include(add_prefix)
