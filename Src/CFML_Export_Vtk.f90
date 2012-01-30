@@ -24,9 +24,9 @@ contains
 
 !!----
 !!---- Subroutine array3D_2_vts(Z,filename)
-!!----    real(kind=cp), dimension(:,:,:), intent(in) :: Z			! 3D Array to export
+!!----    real(kind=cp), dimension(:,:,:), intent(in) :: Z      ! 3D Array to export
 !!----    Character(len=*),                intent(in) :: filename ! Name of the vtk file
-!!----	Export a 3D array representing for example a density
+!!----  Export a 3D array representing for example a density
 !!----  into a vts file (vtk file format). This format correponds to the new xml format of vtk
 !!----  as opposed to the legacy ascii format. vts corresponds to a structured grid
 !!----  and the data is compressed using raw compression.
@@ -35,31 +35,31 @@ contains
 !!---- Update: December - 2011
 !!
 subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename)
-	real(kind=cp), dimension(:,:,:), intent(in) :: Z      ! 3D Array to export
-	type(Crystal_Cell_Type), intent(in)         :: cell   ! The unit-cell
-	real(kind=cp), intent(in)                   :: xmin   ! Limits of x
-	real(kind=cp), intent(in)                   :: xmax   ! Limits of x
-	real(kind=cp), intent(in)                   :: ymin   ! Limits of y
-	real(kind=cp), intent(in)                   :: ymax   ! Limits of y
-	real(kind=cp), intent(in)                   :: zmin   ! Limits of z
-	real(kind=cp), intent(in)                   :: zmax   ! Limits of z
-	Character(len=*),                intent(in) :: filename ! Name of the vtk file
-	! Local variables
-	integer :: nx, ny, nz
-	integer :: vtk_id, ier
-	logical :: i_error
-	integer :: i,j,k
-	integer :: nbytes, nbits
-	character(len=48)   :: nbit_c, offset_c, nx_c, ny_c, nz_c
-	character(len=1000) :: header
-	integer :: offset
-	real(kind=cp), dimension(3) :: pos
+  real(kind=cp), dimension(:,:,:), intent(in) :: Z      ! 3D Array to export
+  type(Crystal_Cell_Type), intent(in)         :: cell   ! The unit-cell
+  real(kind=cp), intent(in)                   :: xmin   ! Limits of x
+  real(kind=cp), intent(in)                   :: xmax   ! Limits of x
+  real(kind=cp), intent(in)                   :: ymin   ! Limits of y
+  real(kind=cp), intent(in)                   :: ymax   ! Limits of y
+  real(kind=cp), intent(in)                   :: zmin   ! Limits of z
+  real(kind=cp), intent(in)                   :: zmax   ! Limits of z
+  Character(len=*),                intent(in) :: filename ! Name of the vtk file
+  ! Local variables
+  integer :: nx, ny, nz
+  integer :: vtk_id, ier
+  logical :: i_error
+  integer :: i,j,k
+  integer :: nbytes, nbits
+  character(len=48)   :: nbit_c, offset_c, nx_c, ny_c, nz_c
+  character(len=1000) :: header
+  integer :: offset
+  real(kind=cp), dimension(3) :: pos
     integer :: ntot ! Total number of points
     integer :: ntot_bytes
 
 
-	! Open the file and check that the file is valid
-	open(unit=vtk_id,file=trim(filename)//'.vts', &
+  ! Open the file and check that the file is valid
+  open(unit=vtk_id,file=trim(filename)//'.vts', &
          form       = 'UNFORMATTED',  &
          access     = 'STREAM',   &
          action     = 'WRITE',        &
@@ -67,12 +67,12 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
 !         recordtype = 'STREAM',       &
 !         buffered   = 'YES',          &
          iostat=ier)
-	 if (ier/=0) then
-		i_error=.true.
-	 end if
+   if (ier/=0) then
+    i_error=.true.
+   end if
 
-	 ! Get the extent in each direction. Will be written as C array [0,n-1]
-	 nx=size(Z,1)-1
+   ! Get the extent in each direction. Will be written as C array [0,n-1]
+   nx=size(Z,1)-1
      ny=size(Z,2)-1
      nz=size(Z,3)-1
 
@@ -88,7 +88,7 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
      offset=nbytes*ntot*3+4
      !
      ! ----------- Here starts the header
-	 write(unit=vtk_id) '<?xml version="1.0"?>'//end_line
+   write(unit=vtk_id) '<?xml version="1.0"?>'//end_line
      write(unit=vtk_id) '<VTKFile byte_order="LittleEndian" version="0.1" type="StructuredGrid">'//end_line
      write(unit=nx_c,fmt=*) nx
      write(unit=ny_c,fmt=*) ny
@@ -121,7 +121,7 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
     ! First we write the number of bytes for the points
      write(unit=vtk_id) ntot*nbytes*3
     ! Then write the coordinates of the points
-	 do i=0,nx
+   do i=0,nx
         do j=0,ny
             do k=0,nz
                 pos=(/xmin+(xmax-xmin)*i/nx,ymin+(ymax-ymin)*j/ny,zmin+(zmax-zmin)*k/nz/)
