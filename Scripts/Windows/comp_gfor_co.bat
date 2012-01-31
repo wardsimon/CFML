@@ -66,15 +66,15 @@ rem
    echo .... Formats
 rem
    gfortran -c CFML_form_cif.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_Export_Vtk.f90       -O3  -std=f2003    >> out
+   gfortran -c CFML_Export_Vtk.f90       -O3  -std=gnu    -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem
-   gfortran -c CFML_refcodes.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem -std=f2003 removed because calls to flush subroutine
    gfortran -c CFML_optimization_san.f90 -O3              -funroll-loops  -msse2  >> out
    gfortran -c CFML_magsymm.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_refcodes.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry
