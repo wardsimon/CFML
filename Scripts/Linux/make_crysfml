@@ -268,7 +268,7 @@ if [ $MODE = "con" ]
 then
    $COMP $OPT1  CFML_IO_Mess.f90       $INC
 else
-   $COMP $OPT1  CFML_IO_MessWin.f90       $INC
+   $COMP $OPT1  CFML_IO_MessWin.f90    $INC
 fi
 $COMP $OPT1  CFML_Profile_TOF.f90
 $COMP $OPT1  CFML_Profile_Finger.f90
@@ -295,11 +295,11 @@ $COMP $OPT1  CFML_Maps.f90
 $COMP $OPT1  CFML_Molecules.f90
 $COMP $OPT1  CFML_Conf_Calc.f90
 $COMP $OPT1  CFML_Form_CIF.f90
-$COMP $OPT1  CFML_Refcodes.f90
 $COMP $OPT1  CFML_Optimization_SAn.f90 $INC
 $COMP $OPT1  CFML_MagSymm.f90
 $COMP $OPT1  CFML_Msfac.f90
 $COMP $OPT1  CFML_Polar.f90
+$COMP $OPT1  CFML_Refcodes.f90
 #
 # Making CrysFML Library
 #
