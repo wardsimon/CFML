@@ -55,7 +55,7 @@
 !!--++       DELETE_REFCODES_FATOM       [Overloaded]
 !!--++       DELETE_REFCODES_MOLCRYS     [Overloaded]
 !!--++       DELETE_REFCODES_MOLEC       [Overloaded]
-!!--++       
+!!--++
 !!--++       FILL_REFCODES_FATOM         [Overloaded]
 !!--++       FILL_REFCODES_MOLCRYS       [Overloaded]
 !!--++       FILL_REFCODES_MOLEC         [Overloaded]
@@ -146,7 +146,7 @@
                Read_RefCodes_File_Molec, Split_Operations, Split_mOperations, &
                VState_to_AtomsPar_FAtom, VState_to_AtomsPar_FmAtom, VState_to_AtomsPar_Molcrys, &
                VState_to_AtomsPar_Molec, &
-               Write_Info_RefCodes_FAtom,Write_Info_RefCodes_FmAtom,Write_Info_RefCodes_Molcrys,& 
+               Write_Info_RefCodes_FAtom,Write_Info_RefCodes_FmAtom,Write_Info_RefCodes_Molcrys,&
                Write_Info_RefCodes_Molec
 
     !---- Definitions ----!
@@ -831,7 +831,7 @@
              end if
            end do
           end do
-          
+
           do j=1,3
            do k=1,ik
              if (FmAtom%atom(i)%mSkI(j,k) > N) then
@@ -1687,7 +1687,7 @@
     End Subroutine Fill_RefCodes_FAtom
 
     !!--++
-    !!--++ Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom,Spg)
+    !!--++ Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom)
     !!--++    integer,                       intent(in)     :: Key
     !!--++    character(len=*),              intent(in)     :: Dire
     !!--++    integer,                       intent(in)     :: Na
@@ -1697,13 +1697,13 @@
     !!--++    real(kind=cp),                 intent(in)     :: Xs
     !!--++    integer,                       intent(in)     :: Ic
     !!--++    type(mAtom_List_Type),         intent(in out) :: FmAtom
-    !!--++    type(space_group_type),        intent(in)     :: Spg
     !!--++
     !!--++ Write on Vectors the Information for Free Magnetic Atoms
     !!--++ magnetic clone of Fill_RefCodes_FAtom
     !!--++ Created: December - 2011
+    !!--++ Updated: February -2012
     !!--++
-    Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom,Spg)
+    Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom)
        !---- Arguments ----!
        integer,                       intent(in)     :: Key
        character(len=*),              intent(in)     :: Dire
@@ -1714,7 +1714,6 @@
        real(kind=cp),                 intent(in)     :: Xs
        integer,                       intent(in)     :: Ic
        type(mAtom_List_Type),         intent(in out) :: FmAtom
-       type(space_group_type),        intent(in)     :: Spg
 
        !---- Local variables ----!
        integer           :: j,nc,ik
@@ -2039,7 +2038,7 @@
                          end if
                       end if
                    end do
-                   
+
                    do j=1,3
                       if (FmAtom%atom(na)%lSkI(j,ik) ==0) then
 
@@ -2060,7 +2059,7 @@
                          end if
                       end if
                    end do
- 
+
                 case (4:)
                    err_refcodes=.true.
                    ERR_RefCodes_Mess="Option Not defined by this type of variables"
@@ -4591,7 +4590,7 @@
 
        !---- Get im, number of the magnetic matrices/irrep set
        ik=FmAtom%atom(na)%nvk
-       
+
        select case (nb)
           case ( 1:3)
              fac_0=FmAtom%atom(na)%mSkR(nb,ik)
@@ -5559,28 +5558,27 @@
     End Subroutine Get_RefCodes_Line_FAtom
 
     !!--++
-    !!--++ Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom,Spg)
+    !!--++ Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom)
     !!--++    integer,                 intent(in)     :: Key
     !!--++    character(len=*),        intent(in)     :: Dire
     !!--++    character(len=*),        intent(in)     :: Line
     !!--++    type(mAtom_List_Type),   intent(in out) :: FmAtom
-    !!--++    type(space_group_type),  intent(in)     :: Spg
     !!--++
     !!--++ Get Refinement Codes for Free Magnetic Atom type
     !!--++ magnetic clone of Get_RefCodes_Line_FAtom
     !!--++ Created: December - 2011
+    !!--++ Updated: February -2012
     !!
-    Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom,Spg)
+    Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom)
        !---- Arguments ----!
        integer,                 intent(in)     :: Key
        character(len=*),        intent(in)     :: Dire
        character(len=*),        intent(in)     :: Line
        type(mAtom_List_Type),   intent(in out) :: FmAtom
-       type(space_group_type),  intent(in)     :: Spg
 
        !---- Local Variables ----!
        character(len=20), dimension(30) :: label
-       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic !,k,nc
+       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
@@ -5595,7 +5593,7 @@
        if (nlong ==0) then
           !---- Default Values ----!
           do i=1,FmAtom%natoms
-             call Fill_Refcodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,FmAtom,Spg)
+             call Fill_Refcodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,FmAtom)
           end do
 
        else
@@ -5644,7 +5642,7 @@
 
              nb=0
              do na=1,FmAtom%natoms
-                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom,spg)
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom) !,spg)
              end do
              if (err_refcodes) return
 
@@ -5714,7 +5712,7 @@
                    end select
                 end do
 
-                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom,spg)
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom)
                 if (err_refcodes) return
 
                 n_ini=minloc(ilabel,dim=1)
@@ -7553,7 +7551,7 @@
                  else
                    FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
                  endif
- 
+
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
@@ -7625,7 +7623,7 @@
                  endif
              end select
           end do
-          
+
           !---- MagPh ----!
           l=FmAtom%atom(i)%lmphas(ik)
           if (l == 0) cycle
@@ -8082,7 +8080,7 @@
     !!----    type(Atom_List_Type),         intent(in) :: FAtom
     !!----    or
     !!----    type(mAtom_List_Type),        intent(in) :: mFAtom
-    !!----    or    
+    !!----    or
     !!----    type(molecular_crystal_type), intent(in) :: Molcrys
     !!----    or
     !!----    type(molecule_type),          intent(in) :: Molec
@@ -8336,12 +8334,9 @@
 
        !---- Local variables ----!
        character(len=20)              :: car
-       character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
-       character(len=25),dimension(3) :: symcar
-       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4,ik
+       character(len=60)              :: fmt1,fmt2
+       integer                        :: i,j,na,lun,ik
        real(kind=cp)                  :: mu
-       real(kind=cp),dimension(3)     :: tr
-       real(kind=cp),dimension(3)     :: rsk,isk,rpol,ipol
 
        !---- Format Zone ----!
        fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"
@@ -8393,7 +8388,7 @@
                         trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
                 end if
              end do
-  
+
              if (FmAtom%atom(i)%lmphas(ik) /=0) then
                 na=FmAtom%atom(i)%lmphas(ik)
                 mu=FmAtom%atom(i)%mmphas(ik)
