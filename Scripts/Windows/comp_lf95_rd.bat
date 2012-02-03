@@ -68,9 +68,9 @@ rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
 rem
-   lf95 -c CFML_refcodes.f90         -g -chk   >> out
    lf95 -c CFML_optimization_san.f90 -g -chk -mod .;c:\rw_lf95  >> out
    lf95 -c CFML_magsymm.f90          -g -chk   >> out
+   lf95 -c CFML_refcodes.f90         -g -chk   >> out
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry

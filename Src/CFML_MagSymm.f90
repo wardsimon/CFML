@@ -364,7 +364,7 @@
        real(kind=cp)                 :: ph
        real(kind=cp),dimension(3)    :: rsk,isk,car,side
        real(kind=cp),dimension(3,12) :: br,bi
-       real(kind=cp),dimension(3,3)  :: cryst_to_cart, cart_to_cryst
+       real(kind=cp),dimension(3,3)  :: cart_to_cryst
        real(kind=cp),dimension(12)   :: coef
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
@@ -385,7 +385,6 @@
 
        if(present(Cell)) then
          side(:)=Cell%cell
-         cryst_to_cart=Cell%Cr_Orth_cel
          cart_to_cryst=Cell%Orth_Cr_cel
        end if
 
@@ -1008,13 +1007,13 @@
        character (len=4)   :: gn
        character (len=4),dimension(10) :: gen
        logical,          dimension(10) :: found
-       integer :: i,j, ng, k,m,nbl,n
+       integer :: i,j, ng, k,m,n  !,nbl
        integer,              dimension(3)   :: bl
        integer,              dimension(10)  :: syp, numop
        !integer, allocatable, dimension(:,:) :: tab
-       character(len=*),parameter, dimension(26) :: oper = &
-       (/"1 ","-1","m ","2 ","21","3 ","31","32","-3","4 ","41","42","43",&
-         "-4","6 ","61","62","63","64","65","-6","a ","b ","c ","d ","n "/)
+       !character(len=*),parameter, dimension(26) :: oper = &
+       !(/"1 ","-1","m ","2 ","21","3 ","31","32","-3","4 ","41","42","43",&
+       !  "-4","6 ","61","62","63","64","65","-6","a ","b ","c ","d ","n "/)
        character(len=40),allocatable, dimension(:) :: ope
 
 
@@ -1025,7 +1024,7 @@
        ! Generate the space group
        j=0
        bl=len_trim(SG%Shubnikov)
-       numop=0
+       !numop=0
        do i=1,len_trim(SG%Shubnikov)
           if (SG%Shubnikov(i:i) == " ") then
              j=j+1
@@ -1035,7 +1034,7 @@
 
        SG%Shubnikov(bl(1):) = l_case( Shubk(bl(1):))   !Ensures lower case for symmetry elements
 
-       nbl=j
+       !nbl=j
        j=0
        ng=0
        symb=" "

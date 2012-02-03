@@ -1223,7 +1223,7 @@
       integer                                 :: nd,ich,nch,i,j
       Complex, dimension(2,2)                 :: ScatAmp
       Complex, dimension(2,2)                 :: Spin_Px,Spin_Py,Spin_Pz
-      Real(kind=cp)                           :: coef, A, Pinm, Pf
+      Real(kind=cp)                           :: coef, Pinm, Pf !, A
       Complex, dimension(3)                   :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
       Complex, dimension(3,3,4)               :: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
       Real(kind=cp), dimension(3,3,4)         :: CrSec
@@ -1244,7 +1244,7 @@
        Spin_Pz(1,:)=(/ (1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp) /)!up
        Spin_Pz(2,:)=(/ (0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp) /) !down
 
-       A = tpi**3/Cell%CellVol
+       !A = tpi**3/Cell%CellVol
        !First store given info in Polari
        Polari%H = H
        Polari%SPV = SPV
@@ -1391,7 +1391,7 @@
       integer                              :: nd,ich,nch,i,j
       Complex, dimension(2,2)              :: ScatAmp
       Complex, dimension(2,2)              :: Spin_Px,Spin_Py,Spin_Pz
-      Real(kind=cp)                        :: coef, A, Pinm, Pf
+      Real(kind=cp)                        :: coef, Pinm, Pf !, A
       Complex, dimension(3)                :: MIV, MIV_PF       !MIV for one domain and in polarisation frame
       Complex, dimension(3,3,4)            :: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
       Real(kind=cp), dimension(3,3,4)      :: CrSec
@@ -1401,16 +1401,16 @@
 ! Neutron spin states
        coef=1.0_cp/sqrt(2.0_cp)
 
-       Spin_Px(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)] !up
-       Spin_Px(2,:)=[coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)] !down
+       Spin_Px(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)/) !up
+       Spin_Px(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)/) !down
 
-       Spin_Py(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)] !up
-       Spin_Py(2,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)] !down
+       Spin_Py(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)/) !up
+       Spin_Py(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)/) !down
 
-       Spin_Pz(1,:)=[(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)] !up
-       Spin_Pz(2,:)=[(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)] !down
+       Spin_Pz(1,:)=(/(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)/) !up
+       Spin_Pz(2,:)=(/(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)/) !down
 
-       A = tpi**3/Cell%CellVol
+       !A = tpi**3/Cell%CellVol
 
        Ipp = 0.0_cp
        Ipm = 0.0_cp

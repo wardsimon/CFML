@@ -1559,8 +1559,6 @@
                                        1,0,0, 2,0,0, 3,0,0, 4,0,0, 5,0,0/),(/3,13/))
        integer, dimension(3,3), parameter  :: x_1   = reshape( &
                                  (/ 1, 0, 0,  0, 1, 0,  0, 0, 1/),(/3,3/))
-       integer, dimension(3,3), parameter  :: y_1   = reshape( &
-                                 (/ 1, 0, 0,  0, 1, 0,  0, 0, 1/),(/3,3/))
        integer, dimension(3,3), parameter  :: z_1   = reshape( &
                                  (/ 1, 0, 0,  0, 1, 0,  0, 0, 1/),(/3,3/))
        integer, dimension(3,3), parameter  :: x_2   = reshape( &

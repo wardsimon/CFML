@@ -481,7 +481,6 @@
        real(kind=cp)                             :: vol
        !---- Local Variables ----!
        integer                       :: i,j,k,l,i1,j1
-       integer, dimension(3)         :: ih
        real(kind=cp)                 :: z,z0,area,factor
        real(kind=cp),dimension(6)    :: vxyz
        real(kind=cp),dimension(3)    :: d
@@ -501,14 +500,11 @@
        end do
 
        do i=1,nv-2
-          ih(1)=i
           i1=i+1
           do j=i1,nv-1
              j1=j+1
-             ih(2)=j
              vxyz(1:3)=Atm_cart(:,j)-Atm_cart(:,i)
         loop:do k=j1,nv
-                ih(3)=k
                 vxyz(4:6)=Atm_cart(:,k)-Atm_cart(:,i)
                 d(1)=vxyz(2)*vxyz(6)-vxyz(5)*vxyz(3)
                 d(2)=vxyz(4)*vxyz(3)-vxyz(1)*vxyz(6)

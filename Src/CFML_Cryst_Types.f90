@@ -1807,7 +1807,7 @@
        integer                 :: j,i1,i2,i3,i4,i5,i6,i7,i8,i9
        real(kind=cp)           :: tolt
 
-       tolt=1.0
+       tolt=0.3
        if(present(tol)) tolt=tol
        ok=.false.
        dox: do i1=-2,2                     !         |i1  i4  i7|
@@ -1824,7 +1824,7 @@
                                   Nu=reshape((/i1,i2,i3,i4,i5,i6,i7,i8,i9/),(/3,3/))
                                   Trm=real(Nu)
                                   call Change_Setting_Cell(Cella,Trm,Cellt)
-                                  if (Sum(abs(Cellt%cell(:)-Cellb%cell(:)))+Sum(abs(Cellt%ang(:)-Cellb%ang(:))) < 0.3  ) then
+                                  if (Sum(abs(Cellt%cell(:)-Cellb%cell(:)))+Sum(abs(Cellt%ang(:)-Cellb%ang(:))) < tolt  ) then
                                      ok=.true.
                                      exit dox
                                   end if

@@ -322,7 +322,7 @@
 
         !---- Local Variables ----!
         integer                           :: i,j,k,npts,nc,np
-        real                              :: xmin,xmax,step,x1,x2,y,cnorm,fac
+        real                              :: xmin,xmax,step,y,cnorm,fac
         real, dimension(:,:), allocatable :: d2y
 
         ! Init
@@ -377,8 +377,6 @@
            nc=0
            do i=1,N
               if (.not. active(i) ) cycle
-              x1=minval(Patterns(i)%x)
-              x2=maxval(Patterns(i)%x)
               k=locate(Patterns(i)%x,Patterns(i)%npts,Pat%x(j))
               if (k == 0) cycle
               nc=nc+1
@@ -1563,11 +1561,9 @@
        real(kind=cp),    dimension(4)               :: bcoef
        real(kind=cp)                                :: divi
        real(kind=cp)                                :: cnorm
-       logical                                      :: ok
        logical                                      :: tof !used only for some type of formats
 
        call init_err_diffpatt()
-       ok=.false.
        pat%tsamp=0.0
        pat%tset=0.0
        pat%scal=0.0

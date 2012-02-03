@@ -5642,7 +5642,7 @@
 
              nb=0
              do na=1,FmAtom%natoms
-                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom) !,spg)
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom)
              end do
              if (err_refcodes) return
 
@@ -6902,24 +6902,23 @@
     End Subroutine Read_RefCodes_File_FAtom
 
     !!--++
-    !!--++ Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom,Spg)
+    !!--++ Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom)
     !!--++    Type(file_list_type),    intent( in)    :: file_dat
     !!--++    integer,                 intent( in)    :: n_ini
     !!--++    integer,                 intent( in)    :: n_end
     !!--++    type(mAtom_List_Type),   intent(in out) :: FmAtom
-    !!--++    type(space_group_type),  intent(in)     :: Spg
     !!--++
     !!--++    Subroutine for treatment of magnetic Codes controls
     !!--++    magnetic clone of Read_RefCodes_File_FAtom
     !!--++ Created: December - 2011
+    !!--++ Updated: February - 2012
     !!
-    Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom,Spg)
+    Subroutine Read_RefCodes_File_FmAtom(file_dat,n_ini,n_end,FmAtom)
        !---- Arguments ----!
        Type(file_list_type),     intent( in)    :: file_dat
        integer,                  intent( in)    :: n_ini
        integer,                  intent( in)    :: n_end
        type(mAtom_List_Type),    intent(in out) :: FmAtom
-       type(space_group_type),   intent(in)     :: Spg
 
        !---- Local variables ----!
        character(len=132)              :: line
@@ -6954,7 +6953,7 @@
                          key=0
                    end select
                    if (key /=0) call cutst(dire(k),nlong)
-                   call get_refcodes_line(key,"fix",dire(k),FmAtom,spg)
+                   call get_refcodes_line(key,"fix",dire(k),FmAtom)
                    if (err_refcodes) return
                 end do
 
@@ -6975,7 +6974,7 @@
                    end select
 
                    if (key /=0) call cutst(dire(k),nlong)
-                   call get_refcodes_line(key,"var",dire(k),FmAtom,spg)
+                   call get_refcodes_line(key,"var",dire(k),FmAtom)
                    if (err_refcodes) return
                 end do
 
@@ -8334,13 +8333,12 @@
 
        !---- Local variables ----!
        character(len=20)              :: car
-       character(len=60)              :: fmt1,fmt2
+       character(len=60)              :: fmt1
        integer                        :: i,j,na,lun,ik
        real(kind=cp)                  :: mu
 
        !---- Format Zone ----!
        fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"
-       fmt2="(t10,i3,t21,a,t31,a,t39,f8.4)"
 
        lun=6
        if (present(iunit)) lun=iunit
