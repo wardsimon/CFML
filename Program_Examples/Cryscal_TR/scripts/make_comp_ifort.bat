@@ -51,8 +51,7 @@ del *.map
       ifort      stat_data.f90          /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      pgf_file.f90           /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      HELP.f90               /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
-rem   ifort      create_HTML.f90        /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
-      ifort      create_HTML2.f90       /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
+      ifort      create_HTML.f90        /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
 
       ifort      create_CIF.f90         /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      cryscal_lsg_cfml.f90   /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
