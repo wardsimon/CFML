@@ -1,7 +1,7 @@
 <!-- CRYSCAL user's guide (HTML file) created by CRYSCAL.exe
      Web site : http://www.cdifx.univ-rennes/cryscal.htm
-     Version : Jan. 2012
-     Author  : T. Roisnel (CDIFX / SCR UMR6226 - Rennes)
+     Version : Feb. 2012
+     Author  : T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)
 !-->
 <HTML>
 <HEAD>
@@ -47,7 +47,7 @@
   *                                                           *
   *                                                           *
   *                (T.R. / CDIFX - UMR6226 Rennes)            *
-  *                           Jan. 2012                       *
+  *                           Feb. 2012                       *
   *                                                           *
   *            with courtesy of JRC and JGP for CFML          *
   *                                                           *
@@ -247,6 +247,7 @@
    <li class="item"><A HREF="#TWO_THETA">TWO_THETA</A>
    <li class="item"><A HREF="#UNIT">UNIT</A>
    <li class="item"><A HREF="#WEB">WEB</A>
+   <li class="item"><A HREF="#WRITE_ADP">WRITE_ADP</A>
    <li class="item"><A HREF="#WRITE_BEAM">WRITE_BEAM</A>
    <li class="item"><A HREF="#WRITE_CELL">WRITE_CELL</A>
    <li class="item"><A HREF="#WRITE_CHEM">WRITE_CHEM</A>
@@ -1790,6 +1791,31 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="THERM"></A>
+<p class='title_3'>  > THERM:</p> <pre style='font-size:14'>
+    . type:                INPUT/OUTPUT keyword
+    . arguments:           1 character string + reals
+    . meaning:             conversion of atomic displacement parameters:
+                           . available arguments:
+                             - "Uiso", "U_iso": conversion from Uiso to Biso
+                             - "Biso", "B_iso": conversion from Biso to Uiso
+                             - "U_ij", "Uij"  : conversion from U_ij to B_ij and
+                                                beta_ij
+                             - "U_ij", "Uij"  : conversion from U_ij to B_ij and
+                                                beta_ij
+                             - "beta_ij", "betaij", "beta"": conversion from
+                               beta_ij to B_ij and U_ij
+                           . reals values correspond to isotropic thermal
+                             parameters values (Biso or Uiso) or anisotropic
+                             thermal parameters (Uij, Bij, Beta) in the followin
+                             order: 11, 22, 33, 12, 13, 23
+    . examples:            THERM Biso 0.52 0.76 0.35
+                           THERM B_ij 0.01 0.01 0.01 0.0 0.0 0.0
+    . mandatory keyword    CELL for anisotropic thermal parameters conversion
+    . identical keywords:  THERM, THERMAL, ADP
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="THERM_SHELX"></A>
 <p class='title_3'>  > THERM_SHELX:</p> <pre style='font-size:14'>
     . type:                INPUT/OUTPUT keyword
     . arguments:           1 character string + reals
@@ -1812,10 +1838,6 @@
     . mandatory keyword    CELL for anisotropic thermal parameters conversion
     . identical keywords:  THERM_SHELX, THERMAL_SHELX, ADP_SHELX
 
-<A HREF="#kw_list">[return to keywords list]</a>
-<hr></pre>
-<A NAME="THERM_SHELX"></A>
-<p class='title_3'>                                                                                </p> <pre style='font-size:14'>
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="THETA"></A>
@@ -1959,7 +1981,7 @@
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
-<A NAME="WRITE_BEAM"></A>
+<A NAME="WRITE_ADP"></A>
 <p class='title_3'>  > WEB:</p> <pre style='font-size:14'>
     . type:                OUTPUT keyword
     . argument:            web site name or address
@@ -1968,6 +1990,16 @@
                            in the [WEB] section
     . mandatory argument:  CELL or FILE .CIF
     . identical keywords:  WEB, INTERNET
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="WRITE_BEAM"></A>
+<p class='title_3'>  > WRITE_ADP:</p> <pre style='font-size:14'>
+    . type:                OUTPUT keyword
+    . argument:            no
+    . meaning:             write anisotropic displacements parameters
+    . mandatory action :   ADP have to be read previously in a CIF file
+    . identical keywords:  WRITE_ADP, WRITE_UIJ
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2570,7 +2602,6 @@ environment variable.</p>
     absorption_correction_reference = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
     absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
 
-    <font color="darkred">[OPTIONS]</font>
     LOCK_wave_value              = 0.02   ! lock wavelength to anticathode value
     CIF_format80                 = 0      ! formatted line, when creating a CIF file, if more than 80 characters
     include_RES_file             = 1      ! include .RES file in the archive_cryscal.cif file
@@ -2605,6 +2636,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>TR / CDIFX - Jan. 2012</i></P>
+<p class='retrait_2'>last updated: <i>TR / CDIFX - Feb. 2012</i></P>
 </BODY>
 </HTML>
