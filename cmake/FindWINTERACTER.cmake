@@ -4,15 +4,6 @@ get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
 if (WIN32)
 
-    find_path(WINTERACTER_INCLUDE_DIR
-              NAMES winparam.h
-              PATHS $ENV{WINTERACTER}/include
-                    $ENV{WINTER}/include
-                    $ENV{WINT}/include
-                    $ENV{USERPROFILE}/wint/include
-                    $ENV{HOMEDRIVE}/wint/include
-                    $ENV{SYSTEMDRIVE}/wint/include)
-
     if(COMPILER_NAME STREQUAL ifort)
 
         find_path(WINTERACTER_MOD_DIR
@@ -147,7 +138,11 @@ else()
     endif()
 
 endif()
-                                                  
+
+get_filename_component(WINTERACTER_INCLUDE_DIR ${WINTERACTER_LIBRARY} PATH)
+
+set(WINTERACTER_INCLUDE_DIR ${WINTERACTER_INCLUDE_DIR}/include)
+                                             
 set(WINTERACTER_PROCESS_INCLUDES WINTERACTER_INCLUDE_DIR)
 
 set(WINTERACTER_PROCESS_MODS WINTERACTER_MOD_DIR)
