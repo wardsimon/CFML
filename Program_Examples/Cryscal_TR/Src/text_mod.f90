@@ -2054,7 +2054,7 @@ subroutine def_keywords_lines()
 
   
    ! 99
-  n = 0    ;  HELP_numor = HELP_THERM_numor
+  n = 0    ;  HELP_numor = HELP_THERM_SHELX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THERM_SHELX:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
@@ -2298,6 +2298,19 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
  ! 112
+  n = 0    ;  HELP_numor = HELP_WRITE_ADP_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_ADP:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write anisotropic displacements parameters'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory action :   ADP have to be read previously in a CIF file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_ADP, WRITE_UIJ'  
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  HELP_lines_nb(HELP_numor) = n
+  
+ ! 113
   n = 0    ;  HELP_numor = HELP_WRITE_BEAM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_BEAM:'
@@ -2312,7 +2325,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 113
+ ! 114
   n = 0    ;  HELP_numor = HELP_WRITE_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_CELL:'
@@ -2325,7 +2338,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 114
+ ! 115
   n = 0    ;  HELP_numor = HELP_WRITE_CHEM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > WRITE_CHEM:'
@@ -2339,7 +2352,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 115
+ ! 116
   n = 0    ;  HELP_numor = HELP_WRITE_DEVICE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_DEVICE:'
@@ -2352,7 +2365,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
-  ! 116
+  ! 117
   n = 0    ;  HELP_numor = HELP_WRITE_QVEC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_QVEC:'
@@ -2365,7 +2378,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 117
+ ! 118
   n = 0    ;  HELP_numor = HELP_WRITE_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SG:'
@@ -2378,7 +2391,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
-! 118
+! 119
   n = 0    ;  HELP_numor = HELP_WRITE_SYM_OP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SYM_OP:'
@@ -2394,7 +2407,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 119
+ ! 120
   n = 0    ;  HELP_numor = HELP_WRITE_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_WAVE:'
@@ -2407,7 +2420,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_lines_nb(HELP_numor) =  9
 
- ! 120
+ ! 121
   n = 0    ;  HELP_numor = HELP_X_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > X_WAVE:'
@@ -2421,7 +2434,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 121
+ ! 122
   n = 0    ;  HELP_numor = HELP_ZUNIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ZUNIT:'

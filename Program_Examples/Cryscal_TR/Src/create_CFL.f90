@@ -44,10 +44,10 @@ subroutine create_CFL_file(input_file, extension)
    IF(nb_atom /=0) then
    do n_atom=1, nb_atom
     if((atom_occ_perc(n_atom) -1) .lt. .0001) then
-     WRITE(4,'(a,2a6,4(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  &
+     WRITE(4,'(a,2a6,4(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_typ(n_atom)),  &
 	                               (atom_coord(i,n_atom),i=1,3), atom_occ_perc(n_atom)
     else
-     WRITE(4,'(a,2a6,3(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  &
+     WRITE(4,'(a,2a6,3(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_typ(n_atom)),  &
 	                               (atom_coord(i,n_atom),i=1,3)
     endif
    END do
@@ -158,52 +158,52 @@ subroutine create_FST_file(input_file, extension)
    WRITE(4, '(a)')                         'BOX  -0.15  1.15  -0.15 1.15  -0.15 1.15'
  
    do n_atom=1, nb_atom    
-    WRITE(4,'(a,2a6,3(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  (atom_coord(i,n_atom),i=1,3)    
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'AL') atom_Al =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'AU') atom_Au =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'B')  atom_B  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'BA') atom_Ba =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'BR') atom_Br =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'C')  atom_C  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'CA') atom_Ca =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'CL') atom_Cl =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'CO') atom_Co =.true.
+    WRITE(4,'(a,2a6,3(1x,F8.5))') 'ATOM ', trim(atom_label(n_atom)),trim(atom_typ(n_atom)),  (atom_coord(i,n_atom),i=1,3)    
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'AL') atom_Al =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'AU') atom_Au =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'B')  atom_B  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'BA') atom_Ba =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'BR') atom_Br =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'C')  atom_C  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'CA') atom_Ca =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'CL') atom_Cl =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'CO') atom_Co =.true.
     
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'CU') atom_Cu =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'F')  atom_F  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'CU') atom_Cu =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'F')  atom_F  =.true.
     
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:1)) == 'FE') atom_Fe =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:1)) == 'HF') atom_Hf =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:2)) == 'I')  atom_I  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'IN') atom_In =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'IR') atom_Ir =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'K')  atom_K  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:1)) == 'FE') atom_Fe =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:1)) == 'HF') atom_Hf =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:2)) == 'I')  atom_I  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'IN') atom_In =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'IR') atom_Ir =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'K')  atom_K  =.true.
 
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'LI') atom_Li =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'MO') atom_Mo =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'MG') atom_Mg =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'N')  atom_N  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'NA') atom_Na =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'ND') atom_Nd =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'NI') atom_Ni =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'LI') atom_Li =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'MO') atom_Mo =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'MG') atom_Mg =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'N')  atom_N  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'NA') atom_Na =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'ND') atom_Nd =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'NI') atom_Ni =.true.
 
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'O')  atom_O  =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'P')  atom_P  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'PD') atom_Pd =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'PT') atom_Pt =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'RE') atom_Re =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'RU') atom_Ru =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'S')  atom_S  =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'SE') atom_Se =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'SI') atom_Si =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'SN') atom_Sn =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'SR') atom_Sr =.true.
-    if(len_trim(atom_type(n_atom)) == 1 .and. trim(atom_type(n_atom)(1:1)) == 'Y')  atom_Y  =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'O')  atom_O  =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'P')  atom_P  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'PD') atom_Pd =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'PT') atom_Pt =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'RE') atom_Re =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'RU') atom_Ru =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'S')  atom_S  =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'SE') atom_Se =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'SI') atom_Si =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'SN') atom_Sn =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'SR') atom_Sr =.true.
+    if(len_trim(atom_typ(n_atom)) == 1 .and. trim(atom_typ(n_atom)(1:1)) == 'Y')  atom_Y  =.true.
 
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'ZN') atom_Zn =.true.
-    if(len_trim(atom_type(n_atom)) == 2 .and. trim(atom_type(n_atom)(1:2)) == 'ZR') atom_Zr =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'ZN') atom_Zn =.true.
+    if(len_trim(atom_typ(n_atom)) == 2 .and. trim(atom_typ(n_atom)(1:2)) == 'ZR') atom_Zr =.true.
 
-    if(trim(atom_type(n_atom)(1:1)) == 'H') atom_H  =.true.    
+    if(trim(atom_typ(n_atom)(1:1)) == 'H') atom_H  =.true.    
    END do
 
    if(atom_C)                WRITE(4, '(a)')   'CONN C   C   0.   2.  RADIUS 1.'
@@ -496,8 +496,8 @@ subroutine create_INS_file(input_file, extension)
              !---- Weight ----!
 
   do i=1,nb_atom
-    !write(UNIT=ins_unit,'(a,1x,a4,5F10.5)')  atom_label(i), atom_type (i) , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
-    call get_atom_order(TRIM(atom_type(i)), atom_order)
+    !write(UNIT=ins_unit,'(a,1x,a4,5F10.5)')  atom_label(i), atom_typ (i) , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
+    call get_atom_order(TRIM(atom_typ(i)), atom_order)
 
     write(4,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , atom_coord(1:3,i), 10.+atom_occ(i) ,   atom_adp_equiv(i)
   end do

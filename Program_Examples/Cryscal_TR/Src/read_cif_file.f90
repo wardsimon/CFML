@@ -134,7 +134,7 @@ subroutine read_CIF_input_file(input_file, input_string)
 
    do i=1,nb_atom
     atom_label(i)     = Atm_list%atom(i)%lab
-    atom_type (i)     = Atm_list%atom(i)%ChemSymb
+    atom_typ(i)       = Atm_list%atom(i)%ChemSymb
     atom_coord(1:3,i) = Atm_list%atom(i)%x
     !atom_mult(i)      = Atm_list%atom(i)%mult
     atom_mult(i)      = Get_Multip_Pos(atom_coord(1:3,i), SPG)
@@ -144,30 +144,37 @@ subroutine read_CIF_input_file(input_file, input_string)
     if (Atm_list%atom(i)%thtype=='aniso') then
  !    n_t(i)=2
      atom_adp_aniso(1:6,i) = Atm_list%atom(i)%u(1:6)
-     atom_adp_aniso(1:6,i) = convert_u_betas(atom_adp_aniso(1:6,i), crystal_cell)
+     !atom_adp_aniso(1:6,i) = convert_u_betas(atom_adp_aniso(1:6,i), crystal_cell)
      atom_adp_equiv(i)     = 8.0*pi*pi*U_Equiv(crystal_cell, Atm_list%atom(i)%u(1:6))
     else
  !    n_t(i)=0
       !atom_adp_equiv(i)    = Atm_list%atom(i)%u(7)*8.0*pi*pi
       atom_adp_equiv(i)    = Atm_list%atom(i)%Ueq
+	  atom_adp_equiv(i)    = 8.0*pi*pi*Atm_list%atom(i)%Ueq
     end if
 
 !     atom_label(i)     = Atm_list%atom(i)%lab
-!     atom_type (i)     = Atm_list%atom(i)%ChemSymb
+!     atom_typ (i)      = Atm_list%atom(i)%ChemSymb
 !     atom_coord(1:3,i) = Atm_list%atom(i)%x
 !     atom_occ(i)       = Atm_list%atom(i)%occ
 !     atom_mult(i)      = Atm_list%atom(i)%mult
 !     atom_mult(i)      = Get_Multip_Pos(atom_coord(1:3,i), SPG)
 !
 !     atom_U(i)         = Atm_list%atom(i)%u(7)
-!     atom_Biso(i)      = Atm_list%atom(i)%u(7)*8.0*pi*pi
+     !atom_Biso(i)      = Atm_list%atom(i)%u(7)*8.0*pi*pi
+	 atom_Biso(i)      = atom_adp_equiv(i) 
 
      if(ON_SCREEN) then
-      !write(message_text,'(2x,2(1x,a),4F10.5,I4)')  atom_label(i)(1:6), atom_type (i)(1:6) , &
+      !write(message_text,'(2x,2(1x,a),4F10.5,I4)')  atom_label(i)(1:6), atom_typ (i)(1:6) , &
 	  !                                              atom_coord(1:3,i), atom_occ_perc(i), atom_mult(i)
       !call write_info(TRIM(message_text))
-      write(message_text,'(2x,2(1x,a6),2x,4F10.5,I4)')  atom_label(i), atom_type (i) , atom_coord(1:3,i), &
-	                                                    atom_occ_perc(i), atom_mult(i)
+	  if(Atm_list%atom(i)%thtype=='aniso') then
+       write(message_text,'(2x,2(1x,a6),2x,4F10.5,I4,6F10.5)')  atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+	                                                            atom_occ_perc(i), atom_mult(i), Atm_list%atom(i)%u(1:6)
+      else
+	  write(message_text,'(2x,2(1x,a6),2x,4F10.5,I4, F10.5)')  atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+	                                                            atom_occ_perc(i), atom_mult(i), Atm_list%atom(i)%Ueq
+      endif	  
       call write_info(TRIM(message_text))
      endif 
 
@@ -251,6 +258,8 @@ subroutine read_CIF_input_file_TR(input_unit)
    call decode_CHEM_string(string_value, nb_arg)
    molecule%formula = string_value
   endif
+  
+  !call Get_CIF_value(input_unit, string_value, molecule%formula)
 
 
  ! THmin, THmax
@@ -621,7 +630,7 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
  CHARACTER (LEN=*), INTENT(OUT)   :: string_value
  logical          , INTENT(INOUT) :: ok
  CHARACTER (LEN=256)              :: READ_line
- integer                          :: ier, long_string
+ integer                          :: ier, long_string, long_line
 
 
  REWIND(UNIT=CIF_unit)
@@ -633,8 +642,16 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
 
   read_line = ADJUSTL(read_line)
   long_string = LEN_TRIM(string_text)
+  long_line   = len_trim(read_line)
+  
   IF(READ_line(1:long_string) == TRIM(string_text)) then
-   READ(read_line(long_string+1:), '(a)') string_value
+   if(long_line == long_string) then  ! la valeur du champ n'est pas sur la même ligne
+    read(CIF_unit, '(a)', iostat=ier) read_line
+	if(ier/=0) return
+	read(read_line, '(a)') string_value
+   else
+     READ(read_line(long_string+1:), '(a)') string_value
+   endif
    string_value = ADJUSTL(string_value)
    IF(LEN_TRIM(string_value) == 0)   return
    IF(string_value(1:1)      == '?') return
@@ -1588,7 +1605,7 @@ subroutine Create_CEL_from_CIF
 
  USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,  &
                            CEL_unit, INS_file_name, CIF_file_name, CEL_file_name, PCR_file_name, &
-                           unit_cell, SPG, nb_atom, atom_coord, atom_type, atom_occ, atom_occ_perc
+                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc
  USE IO_module,      ONLY : write_info
  USE CFML_Scattering_Chemical_Tables, ONLY : chem_info, num_chem_info,   set_chem_info
 
@@ -1643,9 +1660,9 @@ subroutine Create_CEL_from_CIF
     if(nb_atom > 1) write(CEL_unit, '(a,i4)')     'natom ', nb_atom    
     do i=1, nb_atom 
      do j=1, Num_Chem_Info
-       if (u_case(atom_type(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
+       if (u_case(atom_typ(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
      end do
-     write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_type(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
+     write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_typ(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
      write(CEL_unit, '(a)') adjustl(trim(message_text))         
     end do 
     write(message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg
@@ -1674,7 +1691,7 @@ subroutine Create_ACE_from_CIF
 
  USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,  &
                            ACE_unit, INS_file_name, CIF_file_name, ACE_file_name, PCR_file_name, &
-                           unit_cell, SPG, nb_atom, atom_coord, atom_type, atom_occ, atom_occ_perc
+                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc
  USE IO_module,      ONLY : write_info
  USE CFML_Scattering_Chemical_Tables, ONLY : chem_info, num_chem_info,   set_chem_info
 
@@ -1778,7 +1795,7 @@ subroutine Create_ACE_from_CIF
     write(coord_string(1), '(F8.5)')  atom_coord(1:1,i)
     write(coord_string(2), '(F8.5)')  atom_coord(2:2,i)
     write(coord_string(3), '(F8.5)')  atom_coord(3:3,i)
-    write(ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_type(i))), tab, '0+', tab,         &
+    write(ACE_unit, '(6(a,a1),a)')  trim(adjustl(atom_typ(i))), tab, '0+', tab,         &
                                     trim(adjustl(coord_string(1))), tab,                 &
                                     trim(adjustl(coord_string(2))), tab,                 &
                                     trim(adjustl(coord_string(3))), tab,                 &
@@ -1792,9 +1809,9 @@ subroutine Create_ACE_from_CIF
 !    if(nb_atom > 1) write(unit = CEL_unit, '(a,i4)')     'natom ', nb_atom    
 !    do i=1, nb_atom 
 !     do j=1, Num_Chem_Info
-!       if (u_case(atom_type(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
+!       if (u_case(atom_typ(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
 !     end do
-!     write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_type(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
+!     write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_typ(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
 !     write(unit = CEL_unit, '(a)') adjustl(trim(message_text))         
 !    end do 
 !    write(unit = message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg

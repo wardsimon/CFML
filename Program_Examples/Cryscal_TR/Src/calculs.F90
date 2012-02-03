@@ -773,13 +773,14 @@ subroutine molecular_weight()
 
  write(message_text,'(a)')      ' '
   call write_info(TRIM(message_text))
- write(message_text,'(a)')      '    Atom     Atomic weight Stoechiometry        % atomic        % weight'
+ write(message_text,'(a)')      '    Atom       Z      Atomic weight    Stoechiometry        % atomic        % weight'
   call write_info(TRIM(message_text))
  write(message_text,'(a)')      ' '
   call write_info(TRIM(message_text))
  do i=1, nb_atoms_type
-  write(message_text, '(a8,10x,F8.4,8x,F6.2, 2(10x,F6.2))') TRIM(SFAC_type(i)),  atom(Num_atom(i))%weight, &
-                                                            sto(i), Atomic_percent(i), Weight_percent(i)
+  write(message_text, '(a8,4x,I4,11x,F8.4,11x,F6.2, 2(10x,F6.2))') TRIM(SFAC_type(i)),  atom(Num_atom(i))%Z, &
+                                                                   atom(Num_atom(i))%weight, &
+                                                                   sto(i), Atomic_percent(i), Weight_percent(i)
   call write_info(TRIM(message_text))
  end do
  endif

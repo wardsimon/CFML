@@ -245,7 +245,7 @@ end subroutine write_mu
 
 subroutine neutron_cross_section()
  USE atome_module
- USE cryscal_module, ONLY          : ON_SCREEN, nb_atoms_type, wavelength, atom_type, SFAC_type, sfac_number, num_atom, &
+ USE cryscal_module, ONLY          : ON_SCREEN, nb_atoms_type, wavelength, atom_typ, SFAC_type, sfac_number, num_atom, &
                                      message_text
  USE IO_module,  ONLY              : write_info
 
@@ -357,7 +357,9 @@ subroutine X_attenuation_calculation()
  absorption%mu = 0.
  do i=1, nb_atoms_type
   if(ON_SCREEN) then
-   WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), num_atom(i), SFAC_number(i), atom(num_atom(i))%X_attenuation
+   !WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), num_atom(i), SFAC_number(i), atom(num_atom(i))%X_attenuation
+   WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), atom(num_atom(i))%Z, SFAC_number(i),  &
+                                                     atom(num_atom(i))%X_attenuation
    call write_info(trim(message_text))
   endif
   absorption%mu = absorption%mu +  nb_at(i)*atom(num_atom(i))%X_attenuation*1.E-24

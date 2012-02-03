@@ -143,7 +143,7 @@ END subroutine interactive_mode
       case ('KEY', 'KEYS', 'LST_KEYS', 'LIST_KEYS', 'LST_KEYWORDS', 'LIST_KEYWORDS')
         call keys_on_line()
 
-      CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS')
+      CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS', 'WRITE_ADP', 'WRITE_UIJ')
         IF(nb_atom /=0)  call write_atom_list   !
 
       case ('LST_LAUE', 'LIST_LAUE', 'LST_LAUE_CLASS', 'LIST_LAUE_CLASS')
@@ -546,6 +546,10 @@ END subroutine interactive_mode
 
       case ('SIR', 'SIR97')
         if (keyword_SIR) call create_SIR_file
+
+		
+      case('VER', 'VERSION')
+        if(keyword_VERSION) call write_version
 
       case ('XRAYS_WAVELENGTH', 'X_WAVE')
         if (keyword_X_WAVE) CALL write_Xrays_wavelength

@@ -107,6 +107,10 @@ subroutine HELP_on_line
     case ("ATOM_LIST", "LIST_ATOM_LIST", "LIST_ATOMS", "LST_ATOMS", "WRITE_ATOMS", "WRITE_ATMS")
      call write_help_lines(HELP_ATOM_LIST_numor)
      keyword_ok = .true.
+	 
+	case("WRITE_ADP", "WRITE_UIJ")
+	 call write_help_lines(HELP_WRITE_ADP_numor)
+	 keyword_ok = .true.
 
     case ("BARY", "CENTROID")
      call write_help_lines(HELP_BARY_numor)
@@ -478,7 +482,7 @@ subroutine HELP_on_line
     case ("THERM", "THERMAL", "ADP")
      call write_help_lines(HELP_THERM_numor)
      keyword_ok = .true.
-	 
+	
 	case ("THERM_SHELX", "THERMAL_SHELX", "ADP_SHELX")
      call write_help_lines(HELP_THERM_SHELX_numor)
      keyword_ok = .true. 

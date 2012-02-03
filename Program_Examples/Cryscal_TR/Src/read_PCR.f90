@@ -81,7 +81,7 @@ subroutine read_PCR_input_file
    end do
 
    do n_atom=1, nb_atom
-    READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) atom_label(n_atom),atom_type(n_atom), (atom_coord(i, n_atom) ,i=1,3), &
+    READ(UNIT=PCR_read_unit, fmt=*, IOSTAT=i_error) atom_label(n_atom),atom_typ(n_atom), (atom_coord(i, n_atom) ,i=1,3), &
                                              atom_Biso(n_atom), atom_Occ(n_atom), so_1, so_2, N_t
     IF(N_t == 2) then
      n_lines = 3
@@ -93,7 +93,7 @@ subroutine read_PCR_input_file
      READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
      IF(i_error < 0) EXIT   ! fin du fichier
     end do
-    WRITE(message_text,fmt='(a,2a6,5(1x,F8.5))') '  > ATOM: ', trim(atom_label(n_atom)),trim(atom_type(n_atom)),  &
+    WRITE(message_text,fmt='(a,2a6,5(1x,F8.5))') '  > ATOM: ', trim(atom_label(n_atom)),trim(atom_typ(n_atom)),  &
 	                                             (atom_coord(i,n_atom),i=1,3), atom_Biso(n_atom), atom_occ(n_atom)
     call write_info(TRIM(message_text))
 
@@ -158,7 +158,7 @@ end subroutine read_PCR_input_file
 
 subroutine read_CEL_input_file(input_file)
  USE CRYSCAL_module, only          : CEL_read_unit, unit_cell, SPG, space_group_symbol, nb_atom, &
-                                     atom_label, atom_type, atom_coord, atom_occ_perc, atom_occ, atom_Biso, &
+                                     atom_label, atom_typ, atom_coord, atom_occ_perc, atom_occ, atom_Biso, &
                                      keyword_CELL, keyword_SPGR
  USE macros_module,  only          : u_case, nombre_de_colonnes
  USE IO_module
@@ -206,7 +206,7 @@ subroutine read_CEL_input_file(input_file)
  !     read(adjusted_line, *) atom_label(n_atom), atomic_number, (atom_coord(i, n_atom) ,i=1,3)     
  !    endif
  !     
- !    call get_atom_symbol(atomic_number, atom_type(n_atom)) 
+ !    call get_atom_typ(atomic_number, atom_typ(n_atom)) 
  !   end do 
  !  endif
  ! end do
@@ -269,7 +269,7 @@ subroutine read_CEL_input_file(input_file)
     atom_occ_perc(n_atom) = 1.   
    endif
       
-   call get_atom_symbol(atomic_number, atom_type(n_atom)) 
+   call get_atom_typ(atomic_number, atom_typ(n_atom)) 
   end do 
  
 
@@ -299,7 +299,7 @@ end subroutine read_CEL_input_file
 
 !----------------------------------------------------------------------------------------------
 
-subroutine Get_atom_symbol(atomic_number, atomic_symbol)
+subroutine Get_atom_typ(atomic_number, atomic_symbol)
  USE CRYSCAL_module,                  ONLY : known_atomic_label
  USE CFML_Scattering_Chemical_Tables, ONLY : set_chem_info, chem_info, Num_Chem_Info  
 
@@ -321,4 +321,4 @@ subroutine Get_atom_symbol(atomic_number, atomic_symbol)
   
   
  return
-end subroutine Get_atom_symbol 
+end subroutine Get_atom_typ 

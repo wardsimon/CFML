@@ -247,7 +247,7 @@ subroutine read_INS_input_file(input_file, input_string)
    do i=1,nb_atom
 
      atom_label(i)     = Atm_list%atom(i)%lab
-     atom_type (i)     = Atm_list%atom(i)%ChemSymb
+     atom_typ(i)       = Atm_list%atom(i)%ChemSymb
      atom_coord(1:3,i) = Atm_list%atom(i)%x
      atom_occ(i)       = Atm_list%atom(i)%occ
      atom_mult(i)      = Atm_list%atom(i)%mult
@@ -260,11 +260,12 @@ subroutine read_INS_input_file(input_file, input_string)
      atom_Ueq(i)       = Atm_list%atom(i)%Ueq
      atom_Biso(i)      = Atm_list%atom(i)%Ueq*8.0*pi*pi
      if (atom_Biso(i) < 0.0) atom_Biso(i)=1.0
-
+     atom_adp_aniso(1:6,i) = Atm_list%atom(i)%u(1:6) 
+	 
      if(input_OUT) then
-      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4,F10.5)') i,  atom_label(i), atom_type (i) , &
+      write(message_text,'(2x,i3, 2(1x,a4),5F10.5,I4,F10.5,6f10.5)') i,  atom_label(i), atom_typ(i) , &
 	                                                    atom_coord(1:3,i), atom_occ(i) ,  atom_Ueq(i), atom_mult(i), &
-														atom_occ_perc(i)     
+														atom_occ_perc(i), Atm_list%atom(i)%u(1:6)     
       call write_info(TRIM(message_text))
      endif 
    end do
@@ -302,7 +303,7 @@ subroutine read_INS_input_file(input_file, input_string)
    nb_atoms_type                = n_elem_atm
    SFAC_type(1:nb_atoms_type)   = elem_atm(1:n_elem_atm)
    SFAC_number(1:nb_atoms_type) = n_elem(1:nb_atoms_type)
-   !atom_label(1:nb_atom)        = atom_type(1:nb_atom)
+   !atom_label(1:nb_atom)        = atom_typ(1:nb_atom)
    Z_unit                       = REAL(Z_unit_INS)
    ! ------------------------------
    
@@ -386,7 +387,7 @@ end subroutine read_INS_SHELX_lines
 !----------------------------------------------------------------
 subroutine create_TRANSF_ins
  use cryscal_module, only : INS_unit, unit_cell, SPG, wavelength, Z_unit, Mat, nb_atom, &
-                            ATOM_type, Atom_Ueq, Atom_occ, ATOM_label, new_atom_coord
+                            ATOM_typ, Atom_Ueq, Atom_occ, ATOM_label, new_atom_coord
  use SHELX_module 
  use macros_module,  only : u_case
  use IO_module
@@ -431,7 +432,7 @@ subroutine create_TRANSF_ins
 
  !--- Atoms -----!
   do i=1,nb_atom
-    call get_atom_order(atom_type(i), atom_order)
+    call get_atom_order(atom_typ(i), atom_order)
     write(ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
   end do
 
@@ -555,8 +556,8 @@ end do
   write(INS_unit, fmt_fvar) 'FVAR ', fvar(1:n_fvar)
 
   do i=1,nb_atom
-    !write(UNIT=ins_unit,'(a,1x,a4,5F10.5)')  atom_label(i), atom_type (i) , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
-    call get_atom_order(atom_type(i), atom_order)
+    !write(UNIT=ins_unit,'(a,1x,a4,5F10.5)')  atom_label(i), atom_typ(i) , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
+    call get_atom_order(atom_typ(i), atom_order)
     write(ins_unit,'(a,1x,I4,5F10.5)')  atom_label(i), atom_order , new_atom_coord(1:3,i), 10.+atom_occ(i) ,  atom_Ueq(i)
   end do
 

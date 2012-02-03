@@ -85,8 +85,8 @@ subroutine Calcul_SFAC_hkl
 
    do i=1, Atm%natoms
     Atm%atom(i)%Lab      = atom_label(i)
-    Atm%atom(i)%ChemSymb = atom_type(i)
-    Atm%atom(i)%SFACsymb = atom_type(i)
+    Atm%atom(i)%ChemSymb = atom_typ(i)
+    Atm%atom(i)%SFACsymb = atom_typ(i)
     Atm%atom(i)%Biso     = atom_Biso(i)
     Atm%atom(i)%x(1:3)   = atom_coord(1:3, i)
     vet=Atm%atom(i)%x
@@ -411,8 +411,8 @@ subroutine generate_HKL()
        
    do i=1, Atm%natoms
     Atm%atom(i)%Lab      = atom_label(i)
-    Atm%atom(i)%ChemSymb = atom_type(i)
-    Atm%atom(i)%SFACsymb = atom_type(i)
+    Atm%atom(i)%ChemSymb = atom_typ(i)
+    Atm%atom(i)%SFACsymb = atom_typ(i)
     Atm%atom(i)%Biso     = atom_Biso(i)    
     Atm%atom(i)%x(1:3)   = atom_coord(1:3, i)
     vet=Atm%atom(i)%x

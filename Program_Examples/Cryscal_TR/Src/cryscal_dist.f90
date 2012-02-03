@@ -127,7 +127,7 @@ end subroutine scalar_product
 
  subroutine calcul_connectivity_atom
   use cryscal_module,                 ONLY : keyword_create_CIF, CIF_DIST, CONN_all, nb_atom, atom_CONN,  &
-                                             CONN_dmax, SPG, crystal_cell, Atm_list, Atom_label, Atom_type,  &
+                                             CONN_dmax, SPG, crystal_cell, Atm_list, Atom_label, Atom_typ,  &
                                              Atom_Biso, Atom_occ, Atom_occ_perc, Atom_coord, unit_cell, space_group_symbol
   use CFML_geometry_calc,             ONLY : calc_dist_angle 
   use CFML_atom_TypeDef,              ONLY : allocate_Atom_list, deallocate_Atom_list
@@ -151,7 +151,7 @@ end subroutine scalar_product
    atom_ok = .false.
    do i=1, nb_atom
     if(u_case(atom_CONN%label) == u_case(atom_label(i))) then    
-     ATOM_CONN%type = atom_type(i)
+     ATOM_CONN%type = atom_typ(i)
      atom_ok = .true.
      exit
     end if
@@ -192,7 +192,7 @@ end subroutine scalar_product
  
    do i=1, Atm_list%natoms
     Atm_list%atom(i)%Lab      = atom_label(i)
-    Atm_list%atom(i)%ChemSymb = atom_type(i)
+    Atm_list%atom(i)%ChemSymb = atom_typ(i)
     Atm_list%atom(i)%Biso     = atom_Biso(i)
     Atm_list%atom(i)%occ      = atom_occ(i)
     Atm_list%atom(i)%x(1:3)   = atom_coord(1:3, i) 

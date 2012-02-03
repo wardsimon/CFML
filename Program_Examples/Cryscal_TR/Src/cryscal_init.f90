@@ -154,6 +154,7 @@ subroutine cryscal_init()
    list_sg_polar       = .false.
   keyword_LAUE         = .false.
   keyword_ATOM_list    = .false.
+  keyword_ADP_list     = .false.
   keyword_SFAC_UNIT    = .false.
   keyword_CONT         = .false.
   keyword_CHEM         = .false.
@@ -168,6 +169,7 @@ subroutine cryscal_init()
   keyword_RAW          = .false.
   keyword_MATMUL       = .false.
   keyword_DIAG         = .false.
+  keyword_VERSION      = .false.
 
   keyword_INSIDE       = .false.
   keyword_PAUSE        = .false.
@@ -632,9 +634,9 @@ subroutine cryscal_init()
     'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', 'THETA              ', &
     'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', 'USER_MAT           ', 'TRICLINIC          ', &
 	'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', 'WEB                ', &
-	'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_SG           ', &
-	'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', 'WAVE               ', &
-	'WRITE_QVEC         '/)
+	'WRITE_ADP          ', 'WRITE_BEAM         ', 'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', &
+	'WRITE_SG           ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', 'X_WAVE             ', 'ZUNIT              ', &
+	'WAVE               ', 'WRITE_QVEC         '/)
 						
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
@@ -749,16 +751,17 @@ subroutine cryscal_init()
   numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !109
   numor = numor + 1;    HELP_WAVE_numor                =  numor  !110
   numor = numor + 1;    HELP_WEB_numor                 =  numor  !111
-  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !112 
-  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !113
-  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !114
-  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !115 
-  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !116 
-  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !117
-  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !118
-  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !119
-  numor = numor + 1;    HELP_X_wave_numor              =  numor  !120 
-  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !  
+  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !112
+  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !113 
+  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !114
+  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !115
+  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !116 
+  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !117 
+  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !118
+  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !119
+  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !120
+  numor = numor + 1;    HELP_X_wave_numor              =  numor  !121 
+  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !122  
 
 
 

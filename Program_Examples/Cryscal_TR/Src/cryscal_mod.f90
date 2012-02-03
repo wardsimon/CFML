@@ -11,8 +11,9 @@ module cryscal_module
  
   implicit none
 
-  character (len=256), parameter               :: cryscal_version = 'Jan. 2012'
-  character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX / SCR UMR6226 - Rennes)'
+  character (len=256), parameter               :: cryscal_version = 'Feb. 2012'
+  character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)'
+  character (len=256), parameter               :: CFML_version = "version 5.0 (JRC, JGP)"
   character (LEN=256)                          :: cryscal_ini
   character (LEN=256)                          :: winplotr_exe
 
@@ -62,9 +63,9 @@ module cryscal_module
   REAL,               DIMENSION(6,nb_atom_max)         :: atom_adp_aniso          ! parametres de deplacements atomiques
   REAL,               DIMENSION(nb_atom_max)           :: atom_adp_equiv          ! parametre de deplacements atomiques equivalent
   character (len=10), dimension(nb_atom_max)           :: atom_label              ! label des atomes (ATOM)
-  character (len=4),  dimension(nb_atom_max)           :: atom_type               ! symbole des atomes (ATOM)
+  character (len=4),  dimension(nb_atom_max)           :: atom_typ                ! symbole des atomes (ATOM)
   real,               dimension(nb_atom_max)           :: atom_occ_perc           ! % occupation du site
-  real,               dimension(nb_atom_max)           :: atom_occ               ! occupation du site = mult. site / mult. generale
+  real,               dimension(nb_atom_max)           :: atom_occ                ! occupation du site = mult. site / mult. generale
   real,               dimension(nb_atom_max)           :: atom_Ueq                ! U
   real,               dimension(nb_atom_max)           :: atom_Biso               ! Biso
   integer,            dimension(nb_atom_max)           :: atom_mult               ! multiplicite du site
@@ -158,6 +159,7 @@ module cryscal_module
   LOGICAL                                      :: keyword_LAUE            ! liste des classes de Laue
   CHARACTER (LEN=48), DIMENSION(14)            :: laue_class              !
   LOGICAL                                      :: keyword_ATOM_list       ! liste des atomes
+  LOGICAL                                      :: keyword_ADP_list        ! liste des ADP des atomes
   CHARACTER (LEN=32), DIMENSION(250)           :: sg                      ! groupes d'espaces
   LOGICAL,            DIMENSION(7)             :: list_sg                 ! symmetry des groupes d'espace
   LOGICAL,            DIMENSION(7)             :: list_sg_Bravais         ! reseau de Bravais
@@ -175,6 +177,8 @@ module cryscal_module
   LOGICAL                                      :: keyword_MATMUL          ! multiplication de 2 matrices 3*3
   LOGICAL                                      :: keyword_DIAG            ! diagonalisation d'une matrice 3*3
 
+  LOGICAL                                      :: keyword_VERSION         ! version CRYSCAL
+  
   LOGICAL                                      :: keyword_THERM           ! mot cle = THERM
   LOGICAL                                      :: keyword_THERM_SHELX
   LOGICAL                                      :: THERM_Uiso              !
@@ -291,7 +295,7 @@ module cryscal_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max = 121       ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_help_max = 122       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -597,6 +601,7 @@ module cryscal_module
   INTEGER         :: HELP_USER_MAT_numor
   INTEGER         :: HELP_WAVE_numor
   INTEGER         :: HELP_WEB_numor
+  INTEGER         :: HELP_WRITE_ADP_numor
   INTEGER         :: HELP_WRITE_BEAM_numor
   INTEGER         :: HELP_WRITE_CELL_numor
   INTEGER         :: HELP_WRITE_CHEM_numor

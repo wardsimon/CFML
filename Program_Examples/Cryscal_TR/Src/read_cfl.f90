@@ -543,7 +543,7 @@ end subroutine incident_beam
     input_line = ADJUSTL(input_line)
 
     READ(arg_string(1),*) atom_label(nb_atom)
-    READ(arg_string(2),*) atom_type(nb_atom)
+    READ(arg_string(2),*) atom_typ(nb_atom)
 
 	
     do i=3, nb_arg
@@ -585,23 +585,23 @@ end subroutine incident_beam
 
     call write_info(' ')
     if(i /=0)  then
-      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
 	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
     else
      IF(nb_arg == 3) then
-      WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+      WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
 	                                           (atom_coord(i,nb_atom),i=1,3)
      ELSEIF(nb_arg == 4) then
-      WRITE(message_text,'(a,2a6,4(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+      WRITE(message_text,'(a,2a6,4(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
 	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom)
      ELSEIF(nb_arg == 5) then
-      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_type(nb_atom)),  &
+      WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
 	                                           (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
      endif
     endif
     call write_info(TRIM(message_text))
 
-   ! WRITE(message_text,*) ' 2: ', atom_label(nb_atom),atom_type(nb_atom)
+   ! WRITE(message_text,*) ' 2: ', atom_label(nb_atom),atom_typ(nb_atom)
    ! call write_info(trim(message_text))
    ! WRITE(message_text,*) ' 3: ', TRIM(input_line)
    ! call write_info(trim(message_text))

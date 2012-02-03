@@ -278,6 +278,7 @@ subroutine run_keywords()
  IF(keyword_INSIDE    .AND. nb_atom /=0)  call inside_unit_cell
 
  IF(keyword_ATOM_list .AND. nb_atom /=0)  call write_atom_list
+ IF(keyword_ADP_list  .AND. nb_atom /=0)  call write_atom_list
 
  if (keyword_SPGR )    call space_group_info                 ! space_group.F90
 

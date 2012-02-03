@@ -239,17 +239,17 @@ subroutine space_group_info
     call test_polar(SPG%NUmSPG, polar)	
 	call write_info("")   
 	if(chiral) then
-	 call write_info(" => Chiral space group:          yes")
+	 call write_info(" => Chiral space group:         yes")
 	else
-	 call write_info(" => Chiral space group:          no")
+	 call write_info(" => Chiral space group:         no")
 	endif
 	if(polar) then
-	 call write_info(" => Polar space group:           yes")
+	 call write_info(" => Polar space group:          yes")
 	else
-	 call write_info(" => Polar space group:           no")
+	 call write_info(" => Polar space group:          no")
 	endif
     if(enantio) then
-     call write_info(" => Enantiomorphic space group:  yes")
+     call write_info(" => Enantiomorphic space group: yes")
  	 call write_info(" => Inverse structure in SHELXL: MOVE 1 1 1 -1 and invert translation parts of the s.o.")
     else	
 	 call get_MOVE_string(Move_string)
@@ -373,9 +373,10 @@ subroutine get_SITE_info()
     call write_info('     --> Complete orbit of the atom: ')
     call write_info(' ')
 
+   effsym(1) = 1
    do j=1,  wyckoff%num_orbit
     SPG%SymopSymb(effsym(1)) = 'x,y,z' 
-    if(j <10) then
+	if(j <10) then
      write(message_text,"(10x,a6,a,i1,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,":   ",orbit(:,j),trim(SPG%SymopSymb(effsym(j)))
     elseif(j < 100) then
      write(message_text,"(10x,a6,a,i2,a,3f9.5,tr4,a)") trim(atom_label(i)),'_',j,":  ", orbit(:,j),trim(SPG%SymopSymb(effsym(j)))

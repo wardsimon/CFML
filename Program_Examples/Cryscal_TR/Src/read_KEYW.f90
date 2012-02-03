@@ -142,6 +142,11 @@ subroutine identification_keywords(read_line)
 
    CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS')
     keyword_atom_list = .true.
+	keyword_ADP_list  = .false.
+
+   CASE ('WRITE_ADP')
+    keyword_ADP_list  = .true.
+	keyword_atom_list = .false.
 
    case ('EDIT')
     IF(nb_arg == 0) then
@@ -697,7 +702,7 @@ subroutine identification_keywords(read_line)
     endif
     keyword_MAT = .true.
     call check_matrice(Mat)    
-    WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
+    WRITE(message_text, '(a,F8.3)') '  > Matrix determinant: ', Mat_det
     call write_info(TRIM(message_text))
     call write_info('')
 
@@ -754,7 +759,7 @@ subroutine identification_keywords(read_line)
     endif
     keyword_MAT = .true.
     call check_matrice(Mat)    
-    WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
+    WRITE(message_text, '(a,F8.3)') '  > Matrix determinant: ', Mat_det
     call write_info(TRIM(message_text))
     call write_info('')
 	
@@ -776,15 +781,25 @@ subroutine identification_keywords(read_line)
     if(i1 /=0) then ! elements fractionnaires
      call Get_matrix_coord(arg_line)
     else
-     READ(arg_string(1:3), *) Mat(1,1:3)
-     READ(arg_string(4:6), *) Mat(2,1:3)
-     READ(arg_string(7:9), *) Mat(3,1:3)
+     !READ(arg_string(1:3), *) Mat(1,1:3)  >> warning 402 with IFORT : in call to I/O read routine,  
+     !READ(arg_string(4:6), *) Mat(2,1:3)  >> an array temporary was created for 
+     !READ(arg_string(7:9), *) Mat(3,1:3)  >> argument #1
+	 READ(arg_string(1), *) Mat(1,1)
+	 READ(arg_string(2), *) Mat(1,2)
+	 READ(arg_string(3), *) Mat(1,3) 
+	 READ(arg_string(4), *) Mat(2,1)
+	 READ(arg_string(5), *) Mat(2,2)
+	 READ(arg_string(6), *) Mat(2,3)
+	 READ(arg_string(7), *) Mat(3,1)
+	 READ(arg_string(8), *) Mat(3,2)
+	 READ(arg_string(9), *) Mat(3,3)
+
     endif 
     
 
     keyword_DIAG = .true.
     call check_matrice(Mat)    
-    WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det
+    WRITE(message_text, '(a,F8.3)') '  > Matrix determinant: ', Mat_det
     call write_info(TRIM(message_text))
     call write_info('')
 
@@ -1223,7 +1238,7 @@ subroutine identification_keywords(read_line)
 
 
 
-   CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX')
+   CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX', 'THERM_SHELXL', 'THERMAL_SHELXL', 'ADP_SHELXL')
     THERM_Uiso              = .false.
     THERM_Biso              = .false.
     THERM_Uij               = .false.
@@ -1867,7 +1882,10 @@ subroutine identification_keywords(read_line)
      X_target(1: tabulated_target_nb)%write = .true.
     endif
 
-   CASE ('END')
+   case('VER', 'VERSION')
+    keyword_version  = .true.   
+   	
+   CASE ('END', 'EXIT', 'QUIT')
     return
 
   ! CASE default

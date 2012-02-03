@@ -2,7 +2,7 @@
 subroutine create_CRYSCAL_HTML()
 ! creation du manuel au format HTML
 USE cryscal_module,               ONLY : nb_help_max, help_string, HTML_unit, browse_cryscal_HTML, my_browser, &
-                                         cryscal_version, cryscal_author
+                                         cryscal_version, cryscal_author, max_ref
 USE text_module
 USE external_applications_module, ONLY : launch_browser
 USE MATRIX_list_module
@@ -178,6 +178,7 @@ implicit none
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[ARRAYS DIMENSIONS]</font>'
   WRITE(HTML_unit, '(a)') '    hkl_reflections = 200000       ! max. number of hkl reflections in a file'
+
   WRITE(HTML_unit, '(a)') ''
   WRITE(HTML_unit, '(a)') '    <font color="darkred">[CREATE INS]</font>'
   WRITE(HTML_unit, '(a)') '    temperature = 100K       ! experimental temperature value'
@@ -212,7 +213,6 @@ implicit none
                                                                 'Wisconsin, USA'
 
   WRITE(HTML_unit, '(a)') ''
-  WRITE(HTML_unit, '(a)') '    <font color="darkred">[OPTIONS]</font>'
   WRITE(HTML_unit, '(a)') '    LOCK_wave_value              = 0.02   ! lock wavelength to anticathode value'
   WRITE(HTML_unit, '(2a)')'    CIF_format80                 = 0      ! formatted line, when creating a CIF file, ', &
                                                                       'if more than 80 characters'
@@ -384,13 +384,17 @@ subroutine create_structural_report()
  CHARACTER (LEN=12), dimension(4)    :: torsion_sym
 
 
- CHARACTER (LEN=12)                  :: atom_label, atom_symbol, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
+ CHARACTER (LEN=12)                  :: atom_label, atom_typ, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
  CHARACTER (LEN=12)                  :: atom_U11, atom_U22, atom_U33, atom_U23, atom_U13, atom_U12
  CHARACTER (len=12)                  :: site_label_D, site_label_H, site_label_A
  CHARACTER (len=12)                  :: dist_DH, dist_HA, dist_DA, angle_DHA, site_sym_A
 
  LOGICAL                             :: alpha_car, num_car
 
+ n_sym_htab = 0
+ n_sym_dist = 0
+ n_sym_ang  = 0
+ n_sym_tor  = 0
 
 
  file_exist = .false.
@@ -437,33 +441,43 @@ subroutine create_structural_report()
    long = LEN_TRIM(CIF_field_value)
 
 
-   IF(CIF_field_value(1:1)== "'" .AND. CIF_field_value(long:long) == "'") CIF_field_value = CIF_field_value(2:long-1)
+   IF(CIF_field_value(1:1)== "'") then
+    if(CIF_field_value(long:long) == "'" ) CIF_field_value = CIF_field_value(2:long-1)
+   ENDIF	
 
 
    select case (CIF_field(1:long_field))
        case ('_chemical_formula_moiety')
-        READ(CIF_field_value, '(a)') CIF_parameter%formula_moiety
+	    call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_moiety)		
+		
+        !READ(CIF_field_value, '(a)') CIF_parameter%formula_moiety
         !call remove_car(CIF_parameter%formula_moiety, ' ')
         !CIF_parameter%formula_moiety = remove_car(trim(CIF_parameter%formula_moiety), ' ')
 
        case ('_chemical_formula_sum')
-        READ(CIF_field_value, '(a)') CIF_parameter%formula_sum
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%formula_sum
+        call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_sum)		
 
        case ('_chemical_formula_weight')
-        READ(CIF_field_value, '(a)') CIF_parameter%formula_weight
+        !READ(CIF_field_value, '(a)') CIF_parameter%formula_weight
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_weight)		
 
 
        case ('_symmetry_cell_setting', '_space_group_crystal_system')
-        READ(CIF_field_value, '(a)') CIF_parameter%symmetry_cell_setting
+        !READ(CIF_field_value, '(a)') CIF_parameter%symmetry_cell_setting
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_cell_setting)		
 
 
        case ('_symmetry_space_group_name_h-m', '_space_group_name_h-m', '_space_group_name_h-m_alt')
-        READ(CIF_field_value, '(a)') CIF_parameter%symmetry_space_group
+        !READ(CIF_field_value, '(a)') CIF_parameter%symmetry_space_group
         !READ(read_line(2:long-1), '(a)') CIF_parameter%symmetry_space_group
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_space_group)		
+
 
        case ('_symmetry_int_tables_number', '_space_group_it_number')
-        READ(CIF_field_value, '(a)') CIF_parameter%symmetry_IT_number
+        !READ(CIF_field_value, '(a)') CIF_parameter%symmetry_IT_number
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%symmetry_IT_number)		
+
 
        case ('_symmetry_equiv_pos_as_xyz')
         n_op = 0
@@ -485,96 +499,96 @@ subroutine create_structural_report()
 		
 
        case ('_cell_length_a')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_length_a
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_length_a
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_length_a)		
 
        case ('_cell_length_b')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_length_b
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_length_b
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_length_b)		
 
        case ('_cell_length_c')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_length_c
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_length_c
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_length_c)		
 
        case ('_cell_angle_alpha')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_alpha
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_alpha
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_angle_alpha)		
 
        case ('_cell_angle_beta')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_beta
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_beta
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_angle_beta)		
 
        case ('_cell_angle_gamma')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_gamma
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_angle_gamma
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_angle_gamma)		
 
        case ('_cell_volume')
-        READ(CIF_field_value, '(a)') CIF_parameter%cell_volume
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%cell_volume
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%cell_volume)		
 
        case ('_cell_formula_units_z')
-        READ(CIF_field_value, '(a)') CIF_parameter%formula_units_Z
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%formula_units_Z
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_units_Z)		
 
        case ('_exptl_crystal_density_diffrn')
-        READ(CIF_field_value, '(a)') CIF_parameter%exptl_density
-
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%exptl_density
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%exptl_density)		
 
        CASE ('_diffrn_reflns_number')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffrn_reflns_number
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffrn_reflns_number
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffrn_reflns_number)		
 
        case ('_reflns_number_total')
-        READ(CIF_field_value, '(a)') CIF_parameter%reflns_number_total
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%reflns_number_total
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%reflns_number_total)		
 
        case ('_diffrn_reflns_av_r_equivalents')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffrn_reflns_av_R_equivalents
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffrn_reflns_av_R_equivalents
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffrn_reflns_av_R_equivalents)		
 
        case ('_refine_ls_number_parameters')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_number_parameters
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_number_parameters
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_ls_number_parameters)		
 
        case ('_refine_ls_number_restraints')
-        READ(CIF_field_value, '(a)') CIF_parameter%restraints_number
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%restraints_number
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%restraints_number)		
 
        case ('_refine_ls_wr_factor_gt')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_wR_factor_gt
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_wR_factor_gt
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_ls_wR_factor_gt)		
 
        CASE ('_refine_ls_r_factor_gt')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_R_factor_gt
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_R_factor_gt
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_ls_R_factor_gt)		
 
        CASE ('_refine_ls_r_factor_all')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_R_factor_all
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_R_factor_all
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_ls_R_factor_all)		
 
        case ('_refine_ls_wr_factor_ref')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_wR_factor_ref
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_ls_wR_factor_ref
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_ls_wR_factor_ref)		
 
        CASE ('_refine_ls_goodness_of_fit_ref')
-        READ(CIF_field_value, '(a)') CIF_parameter%chi2
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%chi2
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%chi2)		
 
        CASE ('_reflns_number_gt')
-        READ(CIF_field_value, '(a)') CIF_parameter%reflns_number_gt
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%reflns_number_gt
+     	call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%reflns_number_gt)		
 
        case ('_refine_diff_density_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_diff_density_max
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_diff_density_max
+     	call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_diff_density_max)		
 
        case ('_refine_diff_density_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%refine_diff_density_min
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%refine_diff_density_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%refine_diff_density_min)		
 
        case ('_diffrn_measurement_device_type')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffracto_device
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffracto_device
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_device)		
         IF(CIF_parameter%diffracto_device(1:6) == 'APEXII') then
          device_mark =  'Bruker-AXS'
          device_type =  'APEXII Kappa-CCD diffractometer'
@@ -588,89 +602,88 @@ subroutine create_structural_report()
 
 
        case ('_diffrn_ambient_temperature')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffracto_temperature
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffracto_temperature
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_temperature)		
 
        case ('_diffrn_radiation_type')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_type
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_type
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_type)		
 
        case ('_diffrn_radiation_source')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_source
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_source
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_source)		
 
        case ('_diffrn_radiation_wavelength')
-        READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_wavelength
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%diffracto_radiation_wavelength
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%diffracto_radiation_wavelength)		
 
        CASE ('_refine_ls_hydrogen_treatment')
-        READ(CIF_field_value, '(a)') CIF_parameter%H_treatment
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%H_treatment
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%H_treatment)		
 
        case ('_diffrn_reflns_theta_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%theta_min
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%theta_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%theta_min)		
 
        case ('_diffrn_reflns_theta_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%theta_max
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%theta_max
+      	call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%theta_max)		
 
        case ('_diffrn_reflns_limit_h_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%h_min
+        !READ(CIF_field_value, '(a)') CIF_parameter%h_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%h_min)		
        case ('_diffrn_reflns_limit_h_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%h_max
+        !READ(CIF_field_value, '(a)') CIF_parameter%h_max
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%h_max)		
        case ('_diffrn_reflns_limit_k_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%k_min
+        !READ(CIF_field_value, '(a)') CIF_parameter%k_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%k_min)		
        case ('_diffrn_reflns_limit_k_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%k_max
+        !READ(CIF_field_value, '(a)') CIF_parameter%k_max
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%k_max)		
        case ('_diffrn_reflns_limit_l_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%l_min
+        !READ(CIF_field_value, '(a)') CIF_parameter%l_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%l_min)		
        case ('_diffrn_reflns_limit_l_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%l_max
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%l_max
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%l_max)		
 
        case ('_exptl_crystal_size_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_max
+        !READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_max
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%crystal_size_max)		
        case ('_exptl_crystal_size_mid')
-        READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_mid
+        !READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_mid
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%crystal_size_mid)		
        case ('_exptl_crystal_size_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_min
+        !READ(CIF_field_value, '(a)') CIF_parameter%crystal_size_min
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%crystal_size_min)		
 
        case ('_exptl_crystal_colour')
         READ(CIF_field_value, '(a)') CIF_parameter%crystal_colour
 
        case ('_exptl_crystal_f_000')
-        READ(CIF_field_value, '(a)') CIF_parameter%F000
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%F000
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%F000)		
 
        case ('_diffrn_measured_fraction_theta_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%completeness
-        IF(LEN_TRIM(CIF_parameter%completeness) == 0) then
-         READ(CIF_unit, '(a)', IOSTAT=i_error) CIF_input_line
-         IF(i_error < 0) exit
-         IF(i_error /=0) then
-          call write_info('')
-          call write_info(' !! Error reading archive.CIF file !!')
-         call write_info('')
-         return
-         endif
-         READ(CIF_input_line, '(a)') CIF_parameter%completeness
-         CIF_parameter%completeness = ADJUSTL(CIF_parameter%completeness)
-        endif
-
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%completeness
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%completeness)		
+ 
        case ('_exptl_absorpt_coefficient_mu')
-        READ(CIF_field_value, '(a)') CIF_parameter%exptl_mu
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%exptl_mu
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%exptl_mu)		
 
        case ('_exptl_absorpt_correction_type')
-        READ(CIF_field_value, '(a)') CIF_parameter%absorption_correction_type
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%absorption_correction_type
+     	call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%absorption_correction_type)		
 
        case ('_exptl_absorpt_correction_t_min')
-        READ(CIF_field_value, '(a)') CIF_parameter%T_min
+        !READ(CIF_field_value, '(a)') CIF_parameter%T_min
+     	call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%T_min)		
 
        case ('_exptl_absorpt_correction_t_max')
-        READ(CIF_field_value, '(a)') CIF_parameter%T_max
-
+        !READ(CIF_field_value, '(a)') CIF_parameter%T_max
+		call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%T_max)		
 
        case default
    end select
@@ -707,7 +720,7 @@ subroutine create_structural_report()
   WRITE(HTML_unit, '(a)') "<BODY BGCOLOR='#FFFFFF' style='font-family:Times new roman; font-size:14; line-height:150%'>"
 
   WRITE(HTML_unit, '(a)') "<br>"
-  WRITE(HTML_unit, '(a)') "<p class='title_main'>Crystal structure report</p><br>"
+  WRITE(HTML_unit, '(a)') "<p class='title_main'><i>Job</i>: Crystal structure report</p><br>"
   WRITE(HTML_unit, '(a)') "<p class='title_2'>&nbsp;&nbsp;X-ray crystallographic study</p>"
 
 
@@ -1037,10 +1050,10 @@ subroutine create_structural_report()
            CIF_parameter%atom = CIF_input_line
            call nombre_de_colonnes(CIF_parameter%atom, nb_col)
            if(nb_col ==5) then
-            READ(CIF_parameter%atom, *) atom_label, atom_symbol, atom_x, atom_y, atom_z
+            READ(CIF_parameter%atom, *) atom_label, atom_typ, atom_x, atom_y, atom_z
             atom_Ueq = '?'
            else
-            READ(CIF_parameter%atom, *) atom_label, atom_symbol, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
+            READ(CIF_parameter%atom, *) atom_label, atom_typ, atom_x, atom_y, atom_z, atom_Ueq, atom_adp_type, atom_occ
            endif
            WRITE(HTML_unit, '(10x,6(a,3x))') atom_label(1:12), atom_x(1:12), atom_y(1:12), atom_z(1:12), atom_occ(1:12), &
 		                                     atom_Ueq(1:12)
@@ -1412,7 +1425,7 @@ subroutine create_structural_report()
    ! liaisons H
 
 
-
+   n_sym_htab = 0
    open (unit = CIF_unit, file = TRIM(archive_CIF))
    n = 0
     do
@@ -1429,7 +1442,7 @@ subroutine create_structural_report()
 
 
      long_field = LEN_TRIM(CIF_field)
-     select case (CIF_field(1:long_field))
+     select case (CIF_field(1:long_field))       
        case ('_geom_hbond_atom_site_label_D')
         n_sym_htab = 0
         do
@@ -1855,4 +1868,36 @@ subroutine write_HTML_sym(n_sym, op_string, op_n, op_t)
  return
 end subroutine write_HTML_sym
 
+!------------------------------------------------------------------------------------------------------------
+subroutine Get_CIF_value(CIF_unit, CIF_value_IN, CIF_value_OUT)
+ USE IO_module, only  : write_info
 
+ implicit none
+  integer,            intent(in)   :: CIF_unit
+  character(len=80), intent(IN)    :: CIF_value_IN
+  character(len=80), intent(OUT)   :: CIF_value_OUT
+  character(len=256)               :: read_line
+  integer                          :: i_error, long
+  
+
+        READ(CIF_value_IN, '(a)') CIF_value_OUT
+        IF(LEN_TRIM(CIF_value_OUT) == 0) then
+         READ(CIF_unit, '(a)', IOSTAT=i_error) read_line
+         IF(i_error < 0) return
+         IF(i_error /=0) then
+          call write_info('')
+          call write_info(' !! Error reading archive.CIF file !!')
+         call write_info('')
+         return
+         endif
+         READ(read_line, '(a)') CIF_value_OUT
+         CIF_value_OUT = ADJUSTL(CIF_value_OUT)
+        endif
+
+		
+		long = LEN_TRIM(CIF_value_OUT)
+        IF(CIF_value_OUT(1:1)== "'" .AND. CIF_value_OUT(long:long) == "'") CIF_value_OUT = CIF_value_OUT(2:long-1)
+
+
+  return
+end subroutine Get_CIF_value

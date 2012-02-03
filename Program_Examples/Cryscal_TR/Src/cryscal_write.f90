@@ -43,6 +43,20 @@ end subroutine Write_HELP
  end subroutine Write_cryscal_html
 !------------------------------------------------------------------------
 
+subroutine Write_version
+ use cryscal_module,       ONLY : cryscal_version, cryscal_author, CFML_version
+ use IO_module,            ONLY : write_info
+ 
+ call write_info('')
+ call write_info('   > CRYSCAL version: '//trim(cryscal_version))
+ call write_info('   > Author:          '//trim(cryscal_author))
+ call write_info('   > CFML version:    '//trim(CFML_version))
+
+ call write_info('')
+
+end subroutine Write_version
+!------------------------------------------------------------------------
+
 subroutine Write_KEYWORD()
   USE IO_module, only : write_info
 
@@ -358,10 +372,10 @@ end subroutine write_current_space_group
 !---------------------------------------------------------------------------------------------
 
 subroutine write_atom_list()
- USE cryscal_module, ONLY : message_text, nb_atom, keyword_SPGR,                           &
-                            atom_label, atom_type, atom_coord, atom_occ, atom_occ_perc,    &
+ USE cryscal_module, ONLY : message_text, nb_atom, keyword_SPGR, keyword_ADP_list,         &
+                            atom_label, atom_typ, atom_coord, atom_occ, atom_occ_perc,    &
                             atom_mult, atom_Biso,  atom_occ, atom_Ueq, SPG, input_PCR,     &
-                            keyword_create_CIF, keyword_read_PCR
+                            keyword_create_CIF, keyword_read_PCR, atom_adp_aniso
  use CFML_Crystallographic_Symmetry,        only : Get_Multip_Pos
 
  USE IO_module,      ONLY : write_info
@@ -375,16 +389,19 @@ subroutine write_atom_list()
  call write_info('  > ATOMS LIST:')
  call write_info('')
 
-
- IF(keyword_SPGR) then
-  if(input_PCR .or. keyword_read_PCR) then
-   call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
-  else
-   call write_info('         NAME     LABEL    x         y         z         Biso      Occ(%)    Mult')
-  endif
+ if(keyword_ADP_list) then
+    call write_info('   NAME     LABEL    U_11      U_22      U_33      U_23      U_13      U_12')
  else
-  call write_info( '         NAME     LABEL    x         y         z         Biso      Occ')
- endif
+  IF(keyword_SPGR) then
+   if(input_PCR .or. keyword_read_PCR) then
+    call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
+   else
+    call write_info('         NAME     LABEL    x         y         z         Biso      Occ(%)    Mult')
+   endif
+  else
+   call write_info( '         NAME     LABEL    x         y         z         Beq       Occ')
+  endif
+ endif 
  call write_info('')
 
  
@@ -395,33 +412,42 @@ subroutine write_atom_list()
  endif
 
  do i= 1, nb_atom
+ if(keyword_ADP_list) then
+   write(message_text,'(3x,a4,5x,a4,2x,6F10.5)')     atom_label(i), atom_typ (i) , atom_adp_aniso(1:3,i), &
+                                                     atom_adp_aniso(6,i), atom_adp_aniso(5,i), atom_adp_aniso(4,i)
+
+ else
+  
+  
   IF(keyword_SPGR) then
    atom_mult(i) = Get_Multip_Pos(atom_coord(1:3,i), SPG)
    
-  
    if(input_PCR .or. keyword_read_PCR) then
     f =  SPG%Multip / atom_mult(i)
     occ_perc = atom_occ(i) *  f * f1
     atom_occ_perc(i) =  occ_perc
     
-    write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+    write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,I4)')  i, atom_label(i), atom_typ (i) , atom_coord(1:3,i), &
                                                                atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i)
    else
-    !write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+    !write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
     !                                                           atom_Biso(i),  atom_occ_perc(i),    atom_mult(i)
-	write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+	write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
                                                                atom_Biso(i),  atom_occ(i),    atom_mult(i)
 	
 
    endif
   else
    
-   write(message_text,'(3x,a4,5x,a4,2x,5F10.5)')     atom_label(i), atom_type (i) , atom_coord(1:3,i), &
+   write(message_text,'(3x,a4,5x,a4,2x,5F10.5)')     atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
                                                      atom_Biso(i),  atom_occ_perc(i)
 
   endif
+ end if 
   call write_info(TRIM(message_text))
+ 
  end do
+  
 
  IF(keyword_create_CIF) then
    call write_CIF_file('ATOMS_HEADER')

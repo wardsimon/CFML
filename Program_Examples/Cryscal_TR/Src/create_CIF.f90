@@ -5,7 +5,7 @@ subroutine write_CIF_file(input_string)
                             keyword_CELL, keyword_WAVE, keyword_SIZE, wavelength, Z_unit,   &
                             absorption, SADABS, SPG, unit_cell, molecule,                   &
                             CIF_cell_measurement, CIF_diffrn_reflns,                        &
-                            nb_atom, atom_label, atom_type, atom_coord, atom_Ueq, atom_occ, &
+                            nb_atom, atom_label, atom_typ, atom_coord, atom_Ueq, atom_occ, &
                             atom_occ_perc,                                                  &
                             UB_matrix, P4P_file_name, SADABS_line_ratio, SADABS_ratio,      &
                             SADABS_line_estimated_Tmin_Tmax, SADABS_Tmin, SADABS_Tmax,      &
@@ -441,10 +441,10 @@ subroutine write_CIF_file(input_string)
 
       case ('ATOM')
   do i=1, nb_atom  
-   WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
+   WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_typ(i)(1:4), ' ', &
                                           atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
                                           ' Uiso ', atom_occ_perc(i)
-   !WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_type(i)(1:4), ' ', &
+   !WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_typ(i)(1:4), ' ', &
    !                                       atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
    !                                       ' Uiso ', atom_occ(i)
    

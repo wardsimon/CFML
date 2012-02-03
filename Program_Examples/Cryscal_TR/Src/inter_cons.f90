@@ -58,12 +58,12 @@ subroutine interactive_mode(input_string)
   !IF(LEN_TRIM(read_line) == 1) then
   ! IF(read_line(1:1) =='X' .OR. read_line(1:1) == 'Q' .or. read_line(1:1) == '0') call end_of_program
   !endif
-  if(len_trim(read_line) >= 3) then
-   if(read_line(1:3) == "END") exit   
-  elseif(len_trim(read_line) >= 4) then
+  if(len_trim(read_line) >= 4) then
    if(read_line(1:4) == "QUIT") exit   
    if(read_line(1:4) == "EXIT") exit   
-   if(read_line(1:4) == "STOP") exit   
+   if(read_line(1:4) == "STOP") exit 
+  elseif(len_trim(read_line) >= 3) then
+   if(read_line(1:3) == "END") exit   
   endif
   !IF(read_line(1:3) == 'END'  .OR. read_line(1:4) == 'QUIT') exit
   !IF(read_line(1:4) == 'EXIT' .OR. read_line(1:4) == 'STOP') exit
@@ -165,7 +165,7 @@ END subroutine interactive_mode
       case ('KEY', 'KEYS', 'LST_KEYS', 'LIST_KEYS', 'LST_KEYWORDS', 'LIST_KEYWORDS')
         call keys_on_line()
 
-      CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS')
+      CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS', 'WRITE_ADP', 'WRITE_UIJ')
         IF(nb_atom /=0)  call write_atom_list   !
 
       case ('LST_LAUE', 'LIST_LAUE', 'LST_LAUE_CLASS', 'LIST_LAUE_CLASS')
@@ -287,7 +287,8 @@ END subroutine interactive_mode
       case ('TRANSLATION', 'TRANS', 'TRANSLATE', 'MOVE')
         IF(nb_atom /=0)  call transl_coord()
 
-      CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX')   ! conversion des parametres d'agitation thermique
+      CASE ('THERM', 'THERMAL', 'ADP', 'THERM_SHELX', 'THERMAL_SHELX', 'ADP_SHELX', 'THERM_SHELXL', 'THERMAL_SHELXL', 'ADP_SHELXL')
+	  ! conversion des parametres d'agitation thermique
        IF(keyword_THERM) then
         IF(THERM_aniso) then
          call calc_therm_aniso
@@ -576,6 +577,10 @@ END subroutine interactive_mode
       case ('SIR', 'SIR97')
         if (keyword_SIR) call create_SIR_file
 
+		
+      case('VER', 'VERSION')
+        if(keyword_VERSION) call write_version
+		
       case ('XRAYS_WAVELENGTH', 'X_WAVE')
         if (keyword_X_WAVE) CALL write_Xrays_wavelength
 

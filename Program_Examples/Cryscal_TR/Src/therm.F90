@@ -56,6 +56,7 @@ subroutine calc_THERM_ANISO()
 
  implicit none
   integer                          :: i, j, ineg
+  integer, dimension(1)            :: i1, i2, i3
   REAL(kind=sp), DIMENSION(6)      :: Xij, tmp_Xij
   REAL(kind=sp), DIMENSION(3,3)    :: M_U, eigen, beta, aux
   REAL(kind=sp), DIMENSION(3,3)    :: L, LT
@@ -94,7 +95,7 @@ subroutine calc_THERM_ANISO()
   Xij(6) = tmp_Xij(4)
  endif
  
- call write_info(trim(message_text))
+ !call write_info(trim(message_text))
  if(therm_Uij) then
   Xij = convert_U_betas(Xij, crystal_cell) 
   THERM_beta = .true.
@@ -107,248 +108,6 @@ subroutine calc_THERM_ANISO()
   THERM_Uij  = .false.  
  endif 
 
- IF(THERM_Uij) then
-  
-  
-  
-  M_U = reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6),Xij(3) /),(/3,3/))
-  M_U = M_U*1.E04
-!     write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,1)
-!	 call write_info(trim(message_text))
-!     write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,2)
-!	 call write_info(trim(message_text))
-!     write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,3)
-!	 call write_info(trim(message_text))
-!     call write_info('')
-	 
- call matrix_diageigen(M_U, rms,eigen)
- 
- ! do i=1, 3  
- !  if(rms(i) < 0.0) then
- !   write(message_text, '(a)') "   -> Matrix U non-positive definite!"
- !   call write_info(trim(message_text))
- !   call write_info('')
- !   ineg = 1
- !  else
- !   ineg = 0 
- !   !rms(i) = sqrt(rms(i))
- !   !write(message_text, '(1(2x,F8.5))') rms(i) 
- !   !call write_info(trim(message_text))
- !  endif
- ! end do
-  
- ! write(message_text,'(a)') '    U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
- ! call write_info(trim(message_text))
- ! do i=1, 3  
- ! WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(eigen(j,i),j=1,3)
- ! call write_info(trim(message_text))
- ! enddo
-  
- ! write(message_text, '(3(2x,F8.5))') eigen(1:3, 1) 
- ! call write_info(trim(message_text))
- ! write(message_text, '(3(2x,F8.5))') eigen(1:3, 2) 
- ! call write_info(trim(message_text))
- ! write(message_text, '(3(2x,F8.5))') eigen(1:3, 3) 
- ! call write_info(trim(message_text))
-  
-  !rms(1:3) = sqrt(rms(1:3))
-  !write(message_text, '(5x, a, 3F8.5)') " RMS (A)  :   " , rms(1:3) 
-  !call write_info(trim(message_text))
-  !call write_info('')
-  
-  write(message_text,'(a)') '    U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
-  call write_info(trim(message_text))
-  do i=1, 3  
-  rms(i) = rms(i)*1E-04
-  WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(eigen(j,i),j=1,3)
-  call write_info(trim(message_text))
-  enddo
-  call write_info('')
-  
-  ineg = 0
-  Uiso = 0
-  do i=1,3
-   if(rms(i) < 0.) then
-    ineg = 1
-	WRITE(message_text,'(a)')'   -> Matrix U non-positive definite! '
-	call write_info(trim(message_text)) 
-	call write_info('')
-   else
-    Uiso= Uiso + rms(i)
-    rms(i) = sqrt(rms(i))
-   endif
-  end do   
-  Uiso = Uiso / 3.
-  
-  DO i=1,3
-   DO j=1,3
-    M_U(j,i)=L(i,j)/Crystal_cell%cell(j)
-   END DO
-  END DO
-	
-	
-  if(ineg == 0) then
-   write(message_text, '(a)') '     R.M.S. in ANGSTROMS ------       Angles with A, B, C'
-   call write_info(trim(message_text))
-   LT=matmul(M_U, eigen)   
-   DO i=1,3
-    DO j=1,3
-     IF(ABS(LT(i,j)) > 1.0) LT(i,j)=sign(1.0,LT(i,j))
-     LT(i,j)=acosd(LT(i,j))
-    END DO
-   END DO
-		
-   DO i=1,3
-   WRITE(message_text,'((5x,F10.5,a,3(1x,F10.3)))')    rms(i),'          ----',(LT(j,i),j=1,3)
-   call write_info(trim(message_text))
-   END DO
-   call write_info('')
-  end if
-
-  write(message_text, '(a)')      '                        11        22        33        12        13        23'
-  call write_info(trim(message_text))
-  call write_info('')
-  
-
-  !Ueq = U_equiv(Crystal_cell, Xij)
-  WRITE(message_text,'(a,6F10.5)') '   >> U_ij (A2):   ', Xij
-  call write_info(TRIM(message_text))
-  
-  new_ADP = convert_U_B(Xij)
-  WRITE(message_text,'(a,6F10.5)') '   >> B_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_U_betas(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F10.5)') '   >> Beta_ij:     ', new_ADP
-  call write_info(TRIM(message_text))
-  
-  Ueq = U_equiv(Crystal_cell, Xij)
-  WRITE(message_text,'(a,F10.5)')  '   >> Ueq  (A2):   ', Ueq
-  call write_info(TRIM(message_text)) 
-  WRITE(message_text,'(a,F10.5)')  '   >> Uiso (A2):   ', Uiso
-  call write_info(TRIM(message_text)) 
-  WRITE(message_text,'(a,F10.5)')  '   >> Beq  (A2):   ', Ueq*8.*pi**2.
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F10.5)')  '   >> Biso (A2):   ', Uiso*8.*pi**2.
-  call write_info(TRIM(message_text))
-
-
- ELSEIF(therm_Bij) then
-  new_ADP = convert_B_U(Xij)
-  M_U = reshape((/new_ADP(1),new_ADP(4),new_ADP(5), new_ADP(4),new_ADP(2),new_ADP(6),new_ADP(5),new_ADP(6),new_ADP(3) /),(/3,3/))
-  M_U = M_U*1.e04
-  
-   !write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,1)
-   !call write_info(trim(message_text))
-   !write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,2)
-   !call write_info(trim(message_text))
-   !write(message_text, '(a, 1(x, 3F10.5))')  ' M_U :  ', M_U(1:3,3)
-   !call write_info(trim(message_text))
-
-  call matrix_diageigen(M_U, rms,eigen)
-   
-  
-!  write(message_text,'(a)') '    U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
-!  call write_info(trim(message_text))
-!  do i=1, 3  
-!  WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(eigen(j,i),j=1,3)
-!  call write_info(trim(message_text))
-!  enddo
-
-  write(message_text,'(a)') '    U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
-  call write_info(trim(message_text))
-  do i=1, 3 
-  rms(i) = rms(i) * 1.E-04  
-  WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(eigen(j,i),j=1,3)
-  call write_info(trim(message_text))
-  enddo
-  call write_info('')
- 
-  ineg = 0 
-  Uiso = 0
-  do i=1,3
-   if(rms(i) < 0.) then
-    ineg = 1
-	WRITE(message_text,'(a)')'   -> Matrix U non-positive definite! '
-	call write_info(trim(message_text)) 
-	call write_info('')
-   else    
-    Uiso = Uiso + rms(i)
-    rms(i) = sqrt(rms(i))
-   endif
-  end do   
-  Uiso = Uiso / 3.
-  
-  
-
-  DO i=1,3
-   DO j=1,3
-    M_U(j,i)=L(i,j)/Crystal_cell%cell(j)
-   END DO
-  END DO
- 
-  
-  if(ineg == 0) then
-   write(message_text, '(a)') '     R.M.S. in ANGSTROMS ------       Angles with A, B, C'
-   call write_info(trim(message_text)) 
-   LT = MATMUL(M_U, eigen)
-   LT=acosd(LT)
-   DO i=1,3
-   WRITE(message_text,'((5x,F10.5,a,3(1x,F10.3)))')    rms(i),'          ----',(LT(j,i),j=1,3)
-   call write_info(trim(message_text))
-   END DO
-   call write_info('')
-  end if
-  
-
- 
-
-  write(message_text, '(a)')      '                        11        22        33        12        13        23'
-  call write_info(trim(message_text))
-  call write_info('')
-  
-  WRITE(message_text,'(a,6F10.5)') '   >> B_ij (A2):   ', Xij
-  call write_info(TRIM(message_text))
-
-  new_ADP = convert_B_U(Xij)
-  WRITE(message_text,'(a,6F10.5)') '   >> U_ij (A2):   ', new_ADP
-  call write_info(TRIM(message_text))
-  Ueq = U_equiv(Crystal_cell, new_ADP)
-  
-  new_ADP = convert_B_betas(Xij, crystal_cell)
-  WRITE(message_text,'(a,6F10.5)') '   >> Beta_ij  :   ', new_ADP
-  call write_info(TRIM(message_text))
-  
-  WRITE(message_text,'(a,F10.5)')  '   >> Ueq  (A2):   ', Ueq
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F10.5)')  '   >> Uiso (A2):   ', Uiso
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F10.5)')  '   >> Beq  (A2):   ', Ueq*8.*pi**2.
-  call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F10.5)')  '   >> Biso (A2):   ', Uiso*8.*pi**2.
-  call write_info(TRIM(message_text))
-
-
-  
-
- ELSEIF(therm_BETA) then
- 
- !beta=reshape((/Xij(1),Xij(4),Xij(5), Xij(4),Xij(2),Xij(6), Xij(5),Xij(6), Xij(3) /),(/3,3/))
- !beta=beta*0.5/pi/pi
- !beta=matmul(matmul(crystal_cell%Cr_Orth_cel,beta),transpose(crystal_cell%Cr_Orth_cel))
- !call matrix_diageigen(beta,rms,eigen)
- !write(message_text,fmt="(a)") "               U-Eigen Value(A**2) ----       Eigen vector(Orth. syst.)     R.M.S (Angstroms)"
- !call write_info(trim(message_text))
- !do j =1,3
- ! if (rms(j) < 0.0)  then
- !  write(message_text,fmt="((t16,f10.5,a,3(tr1,f10.5),a))")       rms(j), "          --- ", eigen(:,j),"   -> Matrix U non-positive definite!"
- ! else
- !  write(message_text,fmt="((t16,f10.5,a,3(tr1,f10.5),a,f14.5))") rms(j), "          ---(", eigen(:,j),")", sqrt(rms(j))
- ! end if
- ! call write_info(trim(message_text))
- !end do
- 
-  
  
   DO j=1,3                  !Transformation to 3x3 symmetric matrix
    beta(j,j)=Xij(j)
@@ -360,45 +119,7 @@ subroutine calc_THERM_ANISO()
   beta(3,1)=beta(1,3)
   beta(3,2)=beta(2,3)
   
-  
- ! 
- !DO i=1,3
- !       DO j=1,3
- !         !u(j,i)=l(i,j)/crystal_cell%cell(j)
- !         beta(i,j)=beta(i,j)/2.0/pi/pi
- !       END DO
- !     END DO 
-  
-  !write(message_text, '(3(2x,3F8.5))') beta(1:3, 1), beta(1:3,2), beta(1:3,3)
-  !call write_info(trim(message_text))
-  !aux=matmul(L,beta)
-  !beta=matmul(aux,LT)
-  ! write(message_text, '(3(2x,3F8.5))') beta(1:3, 1), beta(1:3,2), beta(1:3,3)
-  !call write_info(trim(message_text))
-  !CALL matrix_diageigen(beta,rms,aux)
-
-  !  do i=1, 3  
-  !WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(aux(j,i),j=1,3)
-  !call write_info(trim(message_text))
-  !enddo
-
- 
- 
- 
-  !new_ADP2 = convert_Betas_B(Xij, crystal_cell)
-  !new_ADP = convert_B_U(new_ADP2)
-  !M_U = reshape((/new_ADP(1),new_ADP(4),new_ADP(5), new_ADP(4),new_ADP(2),new_ADP(6),new_ADP(5),new_ADP(6),new_ADP(3) /),(/3,3/))
-  !call matrix_diageigen(M_U, rms, eigen)
- 
- 
- !write(message_text, '(3(1x,3F8.5))') M_U(1:3, 1), M_U(1:3, 2), M_U(1:3, 3)
- !call write_info(trim(message_text))
- !   do i=1, 3  
- ! WRITE(message_text,'((5x,F10.5,a,3(1x,F10.5)))')    rms(i),'          ----',(eigen(j,i),j=1,3)
- ! call write_info(trim(message_text))
- ! enddo
-
- beta=beta*1E4
+  beta=beta*1E4
  !write(message_text, '(a, 3(x, 3F10.5))')  ' beta :  ', beta(1:3,1),  beta(1:3, 2),  beta(1:3,3)
  !call write_info(trim(message_text))
 
@@ -413,14 +134,8 @@ subroutine calc_THERM_ANISO()
  beta=matmul(aux,LT)
  CALL matrix_diageigen(beta,rms,eigen)
 
- !write(message_text, '(a, 1(x, 3F10.5))')  ' beta :  ', beta(1:3,1)
- !call write_info(trim(message_text))
- !write(message_text, '(a, 1(x, 3F10.5))')  ' beta :  ', beta(1:3,2)
- !call write_info(trim(message_text))
- !write(message_text, '(a, 1(x, 3F10.5))')  ' beta :  ', beta(1:3,3)
- !call write_info(trim(message_text))
-
-  write(message_text,'(a)') '    U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
+ 
+  write(message_text,'(a)') '     U-Eigen Value (A**2) ----      Eigen vector(Orth. syst.)'
   call write_info(trim(message_text))
   do i=1, 3  
   rms(i) = rms(i)*1.E-04
@@ -444,7 +159,36 @@ subroutine calc_THERM_ANISO()
   end do  
   Uiso = Uiso/3.  
   
-  
+  write(message_text, '(a)') '     Principal mean square atomic displacements U'
+  call write_info(trim(message_text))
+  i1(1) = 0
+  i2(1) = 0
+  i3(1) = 0
+  i1 = maxloc(rms)
+  i3 = minloc(rms)
+  if(i1(1) == 1) then
+   if(i3(1) == 2) then
+    i2(1) = 3
+   else
+    i2(1) = 2
+   endif
+  elseif(i1(1)==2) then
+   if(i3(1)==1) then
+    i2(1)=3
+   else
+    i2(1)=1
+   endif
+  elseif(i1(1)==3) then
+   if(i3(1)==2) then
+    i2(1)=1
+   else
+    i2(1)=2
+   endif
+  endif
+  write(message_text, '(5x,3F10.5)') rms(i1(1))**2, rms(i2(1))**2, rms(i3(1))**2
+  call write_info(trim(message_text))
+  call write_info('')
+
 
   
   if(ineg == 0) then
@@ -466,11 +210,7 @@ subroutine calc_THERM_ANISO()
    call write_info('')
   end if
   
-  
-  !write(message_text, '(5x, a, 3F10.5)') " RMS (A)  :   " , rms(1:3) 
-  !call write_info(trim(message_text))
-  !call write_info('')
-
+ 
   write(message_text, '(a)')      '                        11        22        33        12        13        23'
   call write_info(trim(message_text))
   call write_info('')
@@ -498,8 +238,7 @@ subroutine calc_THERM_ANISO()
   !WRITE(message_text,'(a,F10.5)')  '   >> Biso (A2):   ', Uiso*8.*pi**2.
   !call write_info(TRIM(message_text))
 
- endif
-
+ 
 end subroutine calc_THERM_ANISO
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

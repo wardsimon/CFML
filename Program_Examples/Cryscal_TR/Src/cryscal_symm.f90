@@ -668,7 +668,7 @@ end subroutine write_symm_op_mat
 !------------------------------------------------------------------------------------
 
 subroutine apply_symm()
- USE cryscal_module, ONLY      : R => symm_op_rot,  T => symm_op_trans, nb_atom, atom_coord, atom_label, atom_type,         &
+ USE cryscal_module, ONLY      : R => symm_op_rot,  T => symm_op_trans, nb_atom, atom_coord, atom_label, atom_typ,         &
                                  nb_symm_op, message_text,                                                                  &
                                  keyword_create_CIF, CIF_unit
  USE IO_module,      ONLY      : write_info
@@ -721,28 +721,28 @@ subroutine apply_symm()
    if(num<10) then
     write(message_text,'(a,I3,a,a6,a,i1,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
-                                                       trim(atom_type(i)),  new_coord(1:3)
+                                                       trim(atom_typ(i)),  new_coord(1:3)
    elseif(num < 100) then
     write(message_text,'(a,I3,a,a6,a,i2,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
-                                                       trim(atom_type(i)),  new_coord(1:3)
+                                                       trim(atom_typ(i)),  new_coord(1:3)
    else
     write(message_text,'(a,I3,a,a6,a,i3,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
-                                                       trim(atom_type(i)),  new_coord(1:3)
+                                                       trim(atom_typ(i)),  new_coord(1:3)
    endif
 
     call write_info(TRIM(message_text))
     call write_info('')
    IF(keyword_create_CIF) then
     IF(num<10) then
-     WRITE(CIF_unit, '(a,a,i1,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+     WRITE(CIF_unit, '(a,a,i1,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_typ(i)),  & 
 	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     ELSEif(num<100) then
-     WRITE(CIF_unit, '(a,a,i2,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+     WRITE(CIF_unit, '(a,a,i2,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_typ(i)),  & 
 	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     else
-     WRITE(CIF_unit, '(a,a,i3,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_type(i)),  & 
+     WRITE(CIF_unit, '(a,a,i3,a6, 3(1x,F8.5),a)') trim(atom_label(i)),'_',num, trim(atom_typ(i)),  & 
 	                                              new_coord(1:3), '  0.05   Uiso  1  1'
     endif
    endif

@@ -25,7 +25,7 @@ subroutine write_matrice()
 
 
  Mat_det = matrix_determinant_33(M)
- WRITE(message_text, '(a,F6.3)') '  > Matrix determinant: ', Mat_det 
+ WRITE(message_text, '(a,F8.3)') '  > Matrix determinant: ', Mat_det 
  call write_info(TRIM(message_text))
  call write_info('')
 
@@ -221,7 +221,7 @@ end subroutine transf_HKL
 !----------------------------------------------------------------------
 
 subroutine transf_coord()
- USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_type, message_text, update_parameters
+ USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_typ, message_text, update_parameters
  USE IO_module,      ONLY      : write_info
  use matrix_module,  ONLY      : MV_product
  implicit none
@@ -239,7 +239,7 @@ subroutine transf_coord()
   call write_info('')
   do i=1, nb_atom
    new_atom_coord(:,i) = MV_product(atom_coord(:, i), Mit)
-   WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_type(i)),  new_atom_coord(:,i)
+   WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  new_atom_coord(:,i)
    call write_info(TRIM(message_text))
    if(update_parameters) atom_coord(:,i) = new_atom_coord(:,i)
   END do
@@ -275,7 +275,7 @@ end subroutine write_atomic_matrix
 !----------------------------------------------------------------------
 
 subroutine transl_coord()
- USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_type, message_text, update_parameters
+ USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_typ, message_text, update_parameters
  USE IO_module,      ONLY : write_info
  implicit none
 
@@ -294,7 +294,7 @@ subroutine transl_coord()
 
   new_coord = atom_coord(:, i) + translat
 
-  WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_type(i)),  new_coord
+  WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  new_coord
   call write_info(TRIM(message_text))
 
   if(update_parameters) atom_coord(:, i) = new_coord
@@ -307,7 +307,7 @@ end subroutine transl_coord
 !----------------------------------------------------------------------
 
 subroutine inside_unit_cell()
- USE cryscal_module, ONLY : nb_atom, atom_coord, atom_label, atom_type, message_text
+ USE cryscal_module, ONLY : nb_atom, atom_coord, atom_label, atom_typ, message_text
  USE IO_module,      ONLY : write_info
  use matrix_module,  ONLY : MV_product
  implicit none
@@ -341,7 +341,7 @@ subroutine inside_unit_cell()
 
   END do
 
-  WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_type(i)),  atom_coord(:,i)
+  WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  atom_coord(:,i)
   call write_info(TRIM(message_text))
 
  END do
