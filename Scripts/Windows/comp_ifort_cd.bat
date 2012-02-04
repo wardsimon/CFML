@@ -66,11 +66,11 @@ rem
    ifort /c CFML_Export_Vtk.f90       /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 7 ----**
-   echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry
+   echo ....  Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
-   ifort /c CFML_refcodes.f90         /debug:full /check /traceback /CB /nologo /Qvec-report0
-   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_magsymm.f90          /debug:full /check /traceback /CB /nologo /Qvec-report0
+   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /CB /nologo /Qvec-report0
+   ifort /c CFML_refcodes.f90         /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 8 ----**
    echo .... Magnetic Structure Factors, Polarimetry
