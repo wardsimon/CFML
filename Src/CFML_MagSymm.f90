@@ -101,13 +101,14 @@
     !!---- TYPE :: MAGNETIC_DOMAIN_TYPE
     !!--..
     !!---- Type, public :: Magnetic_Domain_type
-    !!----    integer                         :: nd=0          !Number of rotational domains (not counting chiral domains)
-    !!----    logical                         :: Chir=.false.  !True if chirality domains exist
-    !!----    integer,dimension(3,3,24)       :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
-    !!----    real(kind=cp), dimension (2,24) :: pop=0.0       !Populations of domains (sum=1,
-    !!----                                                     !the second value is /=0 for chir=.true.)
-    !!----    real(kind=cp), dimension (2,24) :: Lpop=0        !Number of the refined parameter
-    !!----    real(kind=cp), dimension (2,24) :: Mpop=0.0      !Refinement codes for populations
+    !!----    integer                           :: nd=0          !Number of rotational domains (not counting chiral domains)
+    !!----    logical                           :: Chir=.false.  !True if chirality domains exist
+    !!----    integer,dimension(3,3,24)         :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
+    !!----    real(kind=cp), dimension (2,24)   :: pop=0.0       !Populations of domains (sum=1,
+    !!----                                                       !the second value is /=0 for chir=.true.)
+    !!----    integer,dimension (2,24)          :: Lpop=0        !Number of the refined parameter
+    !!----    real(kind=cp), dimension (2,24)   :: Mpop=0.0      !Refinement codes for populations
+    !!----    character(len=10),dimension (2,24):: Lab           !Label of domain
     !!---- End type Magnetic_Domain_type
     !!----
     !!----
@@ -129,8 +130,9 @@
        integer,dimension(3,3,24)                :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
        real(kind=cp), dimension (2,24)          :: pop=0.0       !Populations of domains (sum=1,
                                                                  !the second value is /=0 for chir=.true.)
-       real(kind=cp), dimension (2,24)          :: Lpop=0        !Number of the refined parameter
-       real(kind=cp), dimension (2,24)          :: Mpop=0.0      !Refinement codes for populations
+       integer      , dimension (2,24)          :: Lpop=0        !Number of the refined parameter
+       real(kind=cp), dimension (2,24)          :: Mpop=0.0      !Multipliers for population
+       character(len=10),dimension (2,24)       :: Lab           !Label of domain
     End type Magnetic_Domain_type
 
     !!----
@@ -329,7 +331,7 @@
     End Subroutine Init_MagSymm_k_Type
 
     !!----
-    !!---- Subroutine Readn_Set_Magnetic_Structure_k(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
+    !!---- Subroutine Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
     !!----    type(file_list_type),                intent (in)     :: file_cfl
     !!----    integer,                             intent (in out) :: n_ini, n_end
     !!----    type(MagSymm_k_Type),                intent (out)    :: MGp
@@ -359,7 +361,7 @@
        type(Crystal_Cell_type),   optional, intent (in)     :: Cell
 
        !---- Local Variables ----!
-       integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, &
+       integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, num_defdom, &
                   num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip
        real(kind=cp)                 :: ph
        real(kind=cp),dimension(3)    :: rsk,isk,car,side
@@ -368,7 +370,7 @@
        real(kind=cp),dimension(12)   :: coef
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
-       character(len=2)     :: lattice
+       character(len=2)     :: lattice, chardom
        character(len=4)     :: symbcar
        character(len=30)    :: msyr
        logical              :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
@@ -422,6 +424,7 @@
 
        num_k=0
        num_dom=0
+       num_defdom=0
        num_xsym=0
        kvect_begin=.true.
        magdom_begin=.true.
@@ -434,12 +437,15 @@
        skp_begin   =.false.
        bfcoef_begin=.false.
        if (present(mag_dom)) then  !Initialise Mag_dom
-          Mag_dom%nd=0
+          Mag_dom%nd=1
           Mag_dom%Chir=.false.
           Mag_dom%DMat=0
+          do j=1,3
+           Mag_dom%DMat(j,j,1)=1
+          enddo
           Mag_dom%pop=0.0
-          Mag_dom%Lpop=0
-          Mag_dom%Mpop=0.0
+          Mag_dom%pop(1,1)=1.0 !one domain is always present
+          Mag_dom%Lab=" "
        end if
 
        do
@@ -536,14 +542,22 @@
           if (present(mag_dom)) then
              if (lowline(1:6) == "magdom" .and. magdom_begin) then
                 num_dom=num_dom+1
+                num_defdom=num_defdom+1
                 ip=index(lowline,":")
                 msyr=lowline(8:ip-1)
                 call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
                 if (ph > 0.001) Mag_Dom%chir=.true.
-                if (Mag_Dom%chir) then
+                 if (Mag_Dom%chir) then
                    read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1:2,num_dom)!, Mag_Dom%MPop(1:2,num_dom)
+                   write(chardom,"(i2.2)") num_defdom
+                   Mag_Dom%Lab(1,num_dom)="magdom"//chardom
+                   num_defdom=num_defdom+1
+                   write(chardom,"(i2.2)") num_defdom
+                   Mag_Dom%Lab(2,num_dom)="magdom"//chardom
                 else
                    read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1,num_dom)  !, Mag_Dom%MPop(1,num_dom)
+                   write(chardom,"(i2.2)") num_defdom
+                   Mag_Dom%Lab(1,num_dom)="magdom"//chardom
                 end if
                 if (ier /= 0) then
                    err_magsym=.true.
@@ -559,14 +573,23 @@
                    if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                    if (lowline(1:6) == "magdom") then
                       num_dom=num_dom+1
+                      num_defdom=num_defdom+1
                       ip=index(lowline,":")
                       msyr=lowline(8:ip-1)
                       call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
                       if (ph > 0.001) Mag_Dom%chir=.true.
                       if (Mag_Dom%chir) then
                          read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1:2,num_dom) !, Mag_Dom%MPop(1:2,num_dom)
+                         write(chardom,"(i2.2)") num_defdom
+                         Mag_Dom%Lab(1,num_dom)="magdom"//chardom
+                         num_defdom=num_defdom+1
+                         write(chardom,"(i2.2)") num_defdom
+                         Mag_Dom%Lab(2,num_dom)="magdom"//chardom
+                         num_defdom=num_defdom+1
                       else
                          read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1,num_dom) !, Mag_Dom%MPop(1,num_dom)
+                         write(chardom,"(i2.2)") num_dom
+                         Mag_Dom%Lab(1,num_dom)="magdom"//chardom
                       end if
                       if (ier /= 0) then
                          err_magsym=.true.

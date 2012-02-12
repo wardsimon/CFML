@@ -1,5 +1,6 @@
 Program Optimizing_MagStructure
-   !---- Use Modules ----! modify this
+   !---- Optimizing Magnetic Structure vs Integrated Intensity for a MultiDomain Case
+   !---- Use Modules ----!
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case, Get_LogUnit
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, mAtom_list_Type
@@ -20,9 +21,11 @@ Program Optimizing_MagStructure
    
    !---- Local Variables ----!
    implicit none
-!   type (file_list_type)              :: file_cfl
+
+   !---- List of public subroutines ----!
+
    type (SimAnn_Conditions_type),save :: c
-   type (state_Vector_Type)           :: vs
+   type (state_Vector_Type),save      :: vs
    type (Multistate_Vector_Type)      :: mvs
    type (Atom_list_Type)              :: A
    
@@ -47,12 +50,12 @@ Program Optimizing_MagStructure
 
     write (unit=*,fmt="(/,/,6(a,/))")                                                  &
             "            ------ PROGRAM FOR OPTIMIZING Magnetic STRUCTURE ------"            , &
-            "                    ---- Version 1.0 January-2012 ----"                          , &
+            "                    ---- Version 1.1 February-2012 ----"                        , &
             "    *******************************************************************************"  , &
             "    * Presently optimizes a magnetic structure given in *.CFL file           "  , &
             "    * against magnetic intensities listed in *.INT file                      "  , &
             "    *******************************************************************************"  , &
-            "                             (OZ-January-2012 )"
+            "                             (OZ-February-2012 )"
    write (unit=*,fmt=*) " "
 
    if(.not. arggiven) then
@@ -64,12 +67,12 @@ Program Optimizing_MagStructure
    open(unit=lun,file=trim(filcod)//".out", status="replace",action="write")
    write(unit=lun,fmt="(/,/,6(a,/))")                                                  &
             "            ------ PROGRAM FOR OPTIMIZING Magnetic STRUCTURE ------"            , &
-            "                    ---- Version 1.0 January-2012 ----"                          , &
+            "                    ---- Version 1.1 February-2012 ----"                        , &
             "    *******************************************************************************"  , &
             "    * Presently optimizes a magnetic structure given in *.CFL file           "  , &
             "    * against magnetic intensities listed in *.INT file                      "  , &
             "    *******************************************************************************"  , &
-            "                             (OZ-January-2012 )"
+            "                             (OZ-February-2012 )"
 
    inquire(file=trim(filcod)//".cfl",exist=esta)
    if( .not. esta) then
@@ -92,26 +95,27 @@ Program Optimizing_MagStructure
 
      n_ini=1
      n_end=file_cfl%nlines
-     call Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,mA,Cell=Cell) !Cell is needed for Spherical components
+     call Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,mA,Mag_dom=Mag_dom,Cell=Cell) !Cell is needed for Spherical components
        if(err_MagSym) then
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          stop
        end if
-     call Write_Magnetic_Structure(lun,mGp,mA)
-
-     NP_Max= mA%natoms*17  ! Rxyz,Ixyz (also Rm, Rphi, Rth), mPhase, C1-12
+     call Write_Magnetic_Structure(lun,mGp,mA,Mag_dom)
+     NP_Max= mA%natoms*17+Mag_dom%nd*2  ! Rxyz,Ixyz (also Rm, Rphi, Rth), mPhase, C1-12 + domains
      call Allocate_Vparam(NP_Max)
 
      !Determine the refinement codes from vary/fix instructions
      call Init_RefCodes(mA)
+     call Init_RefCodes(mag_Dom)
      n_ini=1
      n_end=file_cfl%nlines
-     call Read_RefCodes_File(file_cfl,n_ini,n_end,mA,Spg)
+     call Read_RefCodes_File(file_cfl,n_ini,n_end,mA,Spg,Mag_dom)
+
      if(Err_RefCodes) then
        write(unit=*,fmt="(a)") trim(err_refcodes_mess)
      end if
 
-     call Write_Info_RefCodes(FmAtom=mA,MGp=mGp,Iunit=lun)
+     call Write_Info_RefCodes(FmAtom=mA,Mag_dom=Mag_dom,MGp=mGp,Iunit=lun)
 
      !--- Read data file name(s)
      call Readn_Set_sqMiV_Data(file_cfl)
@@ -140,7 +144,6 @@ Program Optimizing_MagStructure
       end if
      call Write_SimAnn_Cond(lun,c)
      call cpu_time(start)
-
      if(c%num_conf == 1) then
         !--- Set up the Simulated Annealing State Vector
          call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vs)
@@ -156,10 +159,11 @@ Program Optimizing_MagStructure
 
          !---Write a CFL file
          call Copy_mAtom_List(mA, mA_clone)
+         call Copy_MagDom_List(Mag_dom, Mag_dom_clone)
          call Get_LogUnit(i_cfl)
          write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
          open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
-         call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,line) 
+         call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,Mag_dom_clone,line) 
          close(unit=i_cfl)
 
      else   ! Multi-configuration Simulated Annealing
@@ -176,22 +180,23 @@ Program Optimizing_MagStructure
          call Write_SimAnn_MStateV(lun,mvs,"FINAL STATE",1)
          !Write CFL files
          call Copy_mAtom_List(mA, mA_clone)
+         call Copy_MagDom_List(Mag_dom, Mag_dom_clone)
          n=mvs%npar
          do i=1,c%num_conf
            line=" "
            write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
            V_vec(1:n)=mvs%state(1:n,i)
-           call VState_to_AtomsPar(mA_clone,mode="V",MGp=Mgp) ! V-Passing Value
+           call VState_to_AtomsPar(mA_clone,mode="V",MGp=Mgp,Mag_dom=Mag_dom_clone) ! V-Passing Value
            call Get_LogUnit(i_cfl)
            open(unit=i_cfl,file=trim(line),status="replace",action="write")
            write(unit=line,fmt="(a,i2,a,f12.2)") "  Configuration #",i," found by SimAnneal_MultiConf,  cost=",mvs%cost(i)
-           call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,line)
+           call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,Mag_dom_clone,line)
            close(unit=i_cfl)
          end do
      end if
 
      call Write_FinalCost(lun)
-     call Write_SOL_mCFL(lun,file_cfl,mA_Clone,line)
+     call Write_SOL_mCFL(lun,file_cfl,mA_Clone,Mag_dom_clone,line)
 
      !--- Here results are written
      call Write_ObsCalc(file_cfl)

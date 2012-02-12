@@ -14,12 +14,14 @@ lattiCE -I
 kvect   0.50000   0.00000   0.50000
 !spherical !Rm      Rphi  Rtheta
 magcent
+magdom   u, v, w, 0.01  : 0.35 0.15
+magdom  -u,-v, w, 0.01  : 0.35 0.15
 symm  x,y,z
 msym  u,v,w, 0.0
 symm  -x,y,-z
 msym  u,v,w, 0.0
 matom HO  JHO3     0.50000  0.00000  0.20255   0.51197 0.25000
-skp       1  1     0.12700  0.00000  8.99300   1.00000  0.50000  4.00000    0.11000
+skp       1  1     0.12700  0.12700  8.99300   1.00000  0.50000  4.00000    0.11000
 matom NI  MNI2     0.00000  0.00000  0.00000   0.51197 0.12500
 skp       1  1     0.58500  0.00000 -1.28600   0.80000  0.80000  0.80000    0.22000
 !
@@ -28,8 +30,11 @@ End_Mag_Structure
 ! Codes for refinement
 !vary Rx_Ho 0 3 0.1 1 Ry_Ho 0 4 0.2 1 Rz_Ho 0 5 0.3 1
 vary Rxyz  1 9 0.01 1
-vary MagPh_Ho 0 1 0.2 1
-vary MagPh_Ni 0 1 0.2 1
+equal Rx_Ho Ry_Ho
+!vary MagPh_Ho 0 1 0.2 1
+!vary MagPh_Ni 0 1 0.2 1
+vary magdom01 magdom03
+equal magdom01 magdom03
 !
 F2Mag_data mag.int
 
@@ -48,11 +53,11 @@ CostNam  General_Cost
 TemParM     30.0       0.95       80
 
 !         Nalgor  Nconf nm_cycl   num_therm   accept%
-Algor_T     0       3   50        0        10.0
+Algor_T     0       1   50        0        10.0
 
 !         Value of Seed (if SeedVAL = 0, random seed)
 SeedVAL     0
 !
-Threshold   1.0
+Threshold   10.0
 !         Treatment of initial configuration
 InitCON   RAN

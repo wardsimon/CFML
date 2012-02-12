@@ -1,4 +1,4 @@
-  Module cost_magfunctions
+  Module cost_magfunctions 
       use CFML_GlobalDeps,                only: cp,sp,eps
       use CFML_crystallographic_symmetry, only: space_group_type
 
@@ -9,6 +9,7 @@
       use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,v_Vec,v_Shift,v_Bounds,v_BCon,v_Name,v_List, &
                                                 VState_to_AtomsPar
       use CFML_Magnetic_Structure_Factors
+      use CFML_Magnetic_Symmetry
 
       use prep_input
 
@@ -75,10 +76,6 @@
           end select
 
        end do
-
-       !Normalize weight vector
-!        w=sum(Wcost)
-!        Wcost=Wcost/w
 
        return
     End Subroutine Readn_Set_CostFunctPars
@@ -152,6 +149,8 @@
 !******************************************!
       real,dimension(:),    intent( in):: v
       real,                 intent(out):: cost
+      
+       !---- Arguments ----!
 
       !---- Local variables ----!
       integer :: i,ic, nop, nlist=1, numv
@@ -161,12 +160,10 @@
       v_vec(1:NP_Refi)=v(1:NP_Refi)
 
       numv=count(abs(v_shift) > 0.00001, dim=1)
-
       if(numv == 1) then
          i=maxloc(abs(v_shift),dim=1)
          List(1)=v_list(i)
-         call VState_to_AtomsPar(mA,mode="S",MGp=MGp) !Update Atomic parameters with the proper constraints,
-
+         call VState_to_AtomsPar(mA,mode="S",MGp=MGp,Mag_dom=Mag_dom) !Update Atomic parameters with the proper constraints, 
          cost=0.0
 
          do ic=0,N_costf
@@ -177,7 +174,7 @@
 
                case(0)      !F2mag
                      call Calc_sqMiV_Data
-                     call Cost_sqMiV(P_cost(0),Scalef)
+                     call Cost_sqMiV(P_cost(0),Scale)
                      cost=cost+ P_cost(0)* WCost(0)
 
             End Select
@@ -185,7 +182,7 @@
 
       else            !New configuration
 
-         call VState_to_AtomsPar(mA,mode="V",MGp=MGp)   !Update Atomic parameters with the proper constraints
+         call VState_to_AtomsPar(mA,mode="V",MGp=MGp,Mag_dom=Mag_dom)   !Update Atomic parameters with the proper constraints
          cost=0.0
 
          do ic=0,N_costf
@@ -196,7 +193,7 @@
 
                case(0)      !F2mag=sqMiV
                      call Calc_sqMiV_Data
-                     call Cost_sqMiV(P_cost(0),Scalef)
+                     call Cost_sqMiV(P_cost(0),Scale)
                      cost=cost+ P_cost(0)* WCost(0)
 
             End Select
@@ -207,29 +204,29 @@
     End Subroutine General_Cost_function
 
 !******************************************!
-    Subroutine Cost_sqMiV(cost,Scalef)
+    Subroutine Cost_sqMiV(cost,Scale)
 !******************************************!
-       real,                 intent(out)   :: cost
-       real,                 intent(in out):: Scalef
+       real,                 intent(out):: cost
+       real,                 intent(in out):: Scale
        !---- Local variables ----!
        integer              :: j,n
 
        n=Oblist%Nobs
-       Scalef=sum( [(MhList%Mh(j)%sqMiV*Oblist%Ob(j)%Gobs*Oblist%Ob(j)%wGobs,j=1,n)])/ &
+       Scale=sum( [(MhList%Mh(j)%sqMiV*Oblist%Ob(j)%Gobs*Oblist%Ob(j)%wGobs,j=1,n)])/ &
              sum( [(MhList%Mh(j)%sqMiV**2 * Oblist%Ob(j)%wGobs,j=1,n)] )
-       cost=sum(([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scalef*MhList%Mh(j)%sqMiV)**2,j=1,n)]))/(n-NP_Refi)
-
+       cost=sum(([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scale*MhList%Mh(j)%sqMiV)**2,j=1,n)]))/(n-NP_Refi)
        return
     End Subroutine Cost_sqMiV
 
 !******************************************!
-Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
+Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
 !******************************************!
     !!----
-    !!---- Subroutine Write_SOL_mCFL(lun,file_cfl,Cel,SpG,mA,comment)
+    !!---- Subroutine Write_SOL_mCFL(lun,file_cfl,Cel,SpG,mA,Mag_dom,comment)
     !!----    integer,                  intent(in)      :: lun
     !!----    type(file_list_type),     intent (in out) :: file_cfl
     !!----    type (atom_list_type),    intent(in)      :: mA
+    !!----    type (Magnetic_Domain_type),optional,intent(in)    :: Mag_dom
     !!----    character(len=*),optional,intent(in)      :: comment
     !!----
     !!----    Write a file mCFL
@@ -238,33 +235,62 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
     !!
 
        !---- Arguments ----!
-       integer,                  intent(in)      :: lun
-       type(file_list_type),     intent (in out) :: file_cfl
-       type (mAtom_list_type),   intent(in)      :: mA
-       character(len=*),optional,intent(in)      :: comment
+       integer,                  intent(in)           :: lun
+       type(file_list_type),     intent (in out)      :: file_cfl
+       type (mAtom_list_type),   intent(in)           :: mA
+       type (Magnetic_Domain_type),optional,intent(in):: Mag_dom
+       character(len=*),optional,intent(in)           :: comment
 
        !----- Local variables -----!
        integer                         :: j,i,n,ier
-       integer                         :: num_matom,num_skp,ik,im
+       integer                         :: num_matom,num_skp,num_dom,ik,im,ip
        real,dimension(3)               :: Rsk,Isk
        real(kind=cp),dimension(12)     :: coef
        real(kind=cp)                   :: Ph
        character(len=132)              :: lowline,line
        character(len=30)               :: forma
-       logical                         :: skp_begin, bfcoef_begin
+       character(len=14)               :: pop
+       logical                         :: skp_begin, bfcoef_begin, magdom_begin=.true.
 
        if(present(comment)) write(unit=lun,fmt="(a)") "TITLE "//trim(comment)
        write(unit=lun,fmt="(a)") "!  Automatically generated CFL file (Write_SOL_mCFL)"
        write(unit=lun,fmt="(a)") "!  "
 
       num_matom=0
+      num_dom=0
       i=1
 
-      do
+      do 
       i=i+1
       if(i >= file_cfl%nlines) exit
 
        lowline=l_case(adjustl(file_cfl%line(i)))
+ 
+       if(lowline(1:6) == "magdom".and.magdom_begin) then
+        num_dom=num_dom+1 
+        ip=index(lowline,":")
+        forma="(a  ,a14)"
+        write(unit=forma(3:4),fmt="(i2)") ip
+        write(pop,"(2f7.4)") Mag_Dom%Pop(1:2,num_dom)/sum(Mag_dom%Pop) !normalization to Sum_dom=1
+        write(unit=file_cfl%line(i),fmt=forma) lowline(1:ip),pop
+
+        do
+         i=i+1
+         lowline=adjustl(l_case(file_cfl%line(i)))         
+         if(lowline(1:6) == "magdom") then
+          num_dom=num_dom+1 
+          ip=index(lowline,":")
+          forma="(a  ,a14)"
+          write(unit=forma(3:4),fmt="(i2)") ip
+          write(pop,"(2f7.4)") Mag_Dom%Pop(1:2,num_dom)/sum(Mag_dom%Pop) !normalization to Sum_dom=1
+          write(unit=file_cfl%line(i),fmt=forma) lowline(1:ip),pop
+         else
+          i=i-1
+          magdom_begin=.false.
+          exit
+         endif
+        enddo
+       endif! end magdom
 
        if(lowline(1:5) == "matom") then
           num_matom=num_matom+1 !max NMatom=mA%natoms
@@ -276,7 +302,7 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
        endif
 
        if(lowline(1:3) == "skp".and.skp_begin) then
-        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
+        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk 
         read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
         if(MGp%Sk_type == "Spherical_Frame") then
          Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
@@ -285,13 +311,13 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
         else
          Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
          Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-         Ph=mA%atom(num_matom)%mphas(ik)
+         Ph=mA%atom(num_matom)%mphas(ik)        
         endif
-
+        
         write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
         do
          i=i+1
-         lowline=adjustl(l_case(file_cfl%line(i)))
+         lowline=adjustl(l_case(file_cfl%line(i)))         
          if(lowline(1:3) == "skp") then
           num_skp=num_skp+1
           read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
@@ -302,7 +328,7 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
           else
            Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
            Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-           Ph=mA%atom(num_matom)%mphas(ik)
+           Ph=mA%atom(num_matom)%mphas(ik)        
           endif
           write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
          else
@@ -316,26 +342,26 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,comment)
 
        forma="(a6,i8,i3,  f8.3)"
 
-       if(lowline(1:6) == "bfcoef" .and. bfcoef_begin) then
-        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
+       if(lowline(1:6) == "bfcoef".and.bfcoef_begin) then
+        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk 
         read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
         n=abs(MGp%nbas(im))
         write(unit=forma(11:12),fmt="(i2)") n+1
         read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
-        coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
-        Ph=mA%atom(num_matom)%mphas(ik)
-        write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph
+        coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik) 
+        Ph=mA%atom(num_matom)%mphas(ik)        
+        write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph        
         do
          i=i+1
-         lowline=adjustl(l_case(file_cfl%line(i)))
+         lowline=adjustl(l_case(file_cfl%line(i)))         
          if(lowline(1:6) == "bfcoef") then
           num_skp=num_skp+1
           read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
           n=abs(MGp%nbas(im))
           write(unit=forma(11:12),fmt="(i2)") n+1
           read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
-          coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
-          Ph=mA%atom(num_matom)%mphas(ik)
+          coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik) 
+          Ph=mA%atom(num_matom)%mphas(ik)        
           write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph
          else
           i=i-1
