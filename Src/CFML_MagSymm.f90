@@ -442,7 +442,7 @@
           Mag_dom%DMat=0
           do j=1,3
            Mag_dom%DMat(j,j,1)=1
-          enddo
+          end do
           Mag_dom%pop=0.0
           Mag_dom%pop(1,1)=1.0 !one domain is always present
           Mag_dom%Lab=" "

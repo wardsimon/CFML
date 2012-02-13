@@ -4161,7 +4161,7 @@
                betas(4)=0.0;  betas(6)=0.0
                betas(3)=betas(1)
                cod(3)=cod(1); cod(4)=0.0;  cod(6)=0.0
-             endif
+             end if
            else  !! a b a d e d
              cdd=(/'a','b','a','d','e','d'/)       !22 A B A D   E   D
              multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
@@ -4193,7 +4193,7 @@
                betas(4:5)=0.0
                betas(3)=betas(2)
                cod(3)=cod(2); cod(4:5)=0.0
-             endif
+             end if
            else  !! a b b d d f
              cdd=(/'a','b','b','d','d','f'/)       !24 A B B D   D   F
              multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
@@ -7395,7 +7395,7 @@
                    if (key ==4) then
                     call get_refcodes_line(key,"fix",dire(k),Mag_dom)
                    else
-                    call get_refcodes_line(key,"fix",dire(k),FmAtom,spg)
+                    call get_refcodes_line(key,"fix",dire(k),FmAtom)
                    end if
                    if (err_refcodes) return
                 end do
@@ -7423,7 +7423,7 @@
                     call get_refcodes_line(key,"var",dire(k),Mag_dom)
                    else
                     call get_refcodes_line(key,"var",dire(k),FmAtom)
-                   endif
+                   end if
                    if (err_refcodes) return
                 end do
 
@@ -7434,7 +7434,7 @@
                     call get_concodes_line(line,Mag_dom)
                    else
                     call get_concodes_line(line,FmAtom)
-                   endif
+                   end if
 
           end select
        end do
@@ -8003,14 +8003,14 @@
                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
                  else
                    FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
-                 endif
+                 end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
                  else
                    FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
-                 endif
+                 end if
 
              end select
           end do
@@ -8030,14 +8030,14 @@
                    FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
                  else
                    FmAtom%atom(i)%SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
-                 endif
+                 end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
                  else
                    FmAtom%atom(i)%SkI(j,ik)=FmAtom%atom(i)%SkI(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkI(j,ik)
-                 endif
+                 end if
 
              end select
           end do
@@ -8060,7 +8060,7 @@
                  else
                   if(1<=j.and.j<=3) FmAtom%atom(i)%SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
                   if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                 endif
+                 end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
@@ -8073,7 +8073,7 @@
                                                              v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
                   if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
                                                              v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
-                 endif
+                 end if
              end select
           end do
 
@@ -9363,7 +9363,7 @@
                    car=trim(mcode_nam(j+6))//trim(FmAtom%atom(i)%lab)
                  else
                    car=trim(mcode_nam(j  ))//trim(FmAtom%atom(i)%lab)
-                 endif
+                 end if
                    write(unit=lun,fmt=fmt1)  &
                         trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
 
@@ -9379,7 +9379,7 @@
                    car=trim(mcode_nam(j+9))//trim(FmAtom%atom(i)%lab)
                  else
                    car=trim(mcode_nam(j+3))//trim(FmAtom%atom(i)%lab)
-                 endif
+                 end if
                    write(unit=lun,fmt=fmt1)  &
                         trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
                 end if

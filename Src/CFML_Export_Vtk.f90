@@ -63,6 +63,7 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
          form       = 'UNFORMATTED',  &
          access     = 'STREAM',   &
          action     = 'WRITE',        &
+         status     = 'REPLACE',        &
 !         convert    = 'LITTLE_ENDIAN',&
 !         recordtype = 'STREAM',       &
 !         buffered   = 'YES',          &

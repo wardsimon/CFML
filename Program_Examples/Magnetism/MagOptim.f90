@@ -16,9 +16,9 @@ Program Optimizing_MagStructure
                                              Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
                                              Write_SimAnn_MStateV, SimAnneal_MultiConf,Set_SimAnn_MStateV, &
                                              Sann_Opt_MultiConf
-   use cost_magfunctions                 
+   use cost_magfunctions
    use prep_input
-   
+
    !---- Local Variables ----!
    implicit none
 
@@ -28,7 +28,7 @@ Program Optimizing_MagStructure
    type (state_Vector_Type),save      :: vs
    type (Multistate_Vector_Type)      :: mvs
    type (Atom_list_Type)              :: A
-   
+
    character(len=256)                 :: filcod     !Name of the input file
    character(len=256)                 :: filhkl     !Name of the hkl-file
    character(len=256)                 :: filrest    !Name of restraints file
@@ -80,7 +80,7 @@ Program Optimizing_MagStructure
      stop
    end if
 
-  
+
 !!----
 !!---- reading from CFL file
 !!----
@@ -109,7 +109,7 @@ Program Optimizing_MagStructure
      call Init_RefCodes(mag_Dom)
      n_ini=1
      n_end=file_cfl%nlines
-     call Read_RefCodes_File(file_cfl,n_ini,n_end,mA,Spg,Mag_dom)
+     call Read_RefCodes_File(file_cfl,n_ini,n_end,mA,Mag_dom)
 
      if(Err_RefCodes) then
        write(unit=*,fmt="(a)") trim(err_refcodes_mess)
@@ -127,12 +127,12 @@ Program Optimizing_MagStructure
        stop
      end if
      call Write_CostFunctPars(lun)
- 
+
       write(unit=*,fmt="(a)") " Normal End of Routine: Read_Cfl"
       write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
 
 
-     !--- Read job and subjob (Opti, f2mag) 
+     !--- Read job and subjob (Opti, f2mag)
      call Readn_Set_Job(file_cfl)
 
      !--- Set up the simulated annealing conditions
@@ -163,7 +163,7 @@ Program Optimizing_MagStructure
          call Get_LogUnit(i_cfl)
          write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
          open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
-         call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,Mag_dom_clone,line) 
+         call Write_SOL_mCFL(i_cfl,file_cfl,mA_Clone,Mag_dom_clone,line)
          close(unit=i_cfl)
 
      else   ! Multi-configuration Simulated Annealing
@@ -200,7 +200,7 @@ Program Optimizing_MagStructure
 
      !--- Here results are written
      call Write_ObsCalc(file_cfl)
-     
+
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING magnetic STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
      call cpu_time(fin)

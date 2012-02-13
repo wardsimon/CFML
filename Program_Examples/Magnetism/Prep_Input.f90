@@ -1,5 +1,5 @@
 Module prep_input
- !---- Use Modules ----! 
+ !---- Use Modules ----!
  use CFML_GlobalDeps,             only: sp, cp, eps
  use CFML_Atom_TypeDef,           only: mAtom_list_Type, allocate_mAtom_list
  use CFML_String_Utilities,       only: l_case
@@ -8,7 +8,7 @@ Module prep_input
  use CFML_Propagation_vectors,    only: K_Equiv_Minus_K
  use CFML_crystal_Metrics,        only: Crystal_Cell_Type
  use CFML_Keywords_Code_Parser
- use CFML_Magnetic_Symmetry 
+ use CFML_Magnetic_Symmetry
  use CFML_Magnetic_Structure_Factors
 
  implicit none
@@ -22,7 +22,7 @@ Module prep_input
  real, public                :: Scale
 
    !---- Known used types are decleared belove the new types
-   
+
     !!----
     !!---- TYPE :: mOBSERVATION_TYPE
     !!--..
@@ -71,7 +71,7 @@ Module prep_input
  type (Crystal_Cell_Type)          :: Cell
  type (mAtom_List_Type),save       :: mA,mA_clone
  type (Magnetic_Domain_type),save  :: Mag_Dom,Mag_dom_clone
- 
+
 contains
 
 !---- Subroutines ----!
@@ -90,7 +90,7 @@ contains
        real,   dimension(3)        :: vk,v_k
        real                        :: Gobs,SGobs,lambda
        logical                     :: esta
-    
+
           esta=.false.
           do i=1,file_cfl%nlines
             line=adjustl(l_case(file_cfl%line(i)))
@@ -109,7 +109,7 @@ contains
           end if
 
      open(unit=lin,file=trim(fildat), status="old",action="read")
-! temporarily programmed for the special case k,-k, i.e. m=1,2     
+! temporarily programmed for the special case k,-k, i.e. m=1,2
      read(unit=lin,fmt=*) title
      read(unit=lin,fmt=*) formt
      read(unit=lin,fmt=*) lambda,ityp,ipow
@@ -129,7 +129,7 @@ contains
 
      if(allocated(Oblist%Ob)) deallocate(Oblist%Ob)
      allocate(Oblist%Ob(Nf2))
-     
+
      if(allocated(Mhlist%Mh)) deallocate(Mhlist%Mh)
      allocate(Mhlist%Mh(Nf2))
      Mhlist%Nref= Nf2
@@ -139,7 +139,7 @@ contains
       allocate(Oblist%Ob(i)%Hd(1:3,1))
      enddo
      Oblist%Nobs= Nf2
-     
+
      read(unit=lin,fmt=*) title
      read(unit=lin,fmt=*) formt
      read(unit=lin,fmt=*) lambda,ityp,ipow
@@ -181,10 +181,10 @@ contains
      enddo
        Oblist%Ob(:)%wGobs=1.d0/max([(Oblist%Ob(i)%sGobs**2,i=1,Nf2)],eps)
 
-2    close(lin)     
+2    close(lin)
 
     End Subroutine Readn_Set_sqMiV_Data
-    
+
 !******************************************!
     Subroutine Readn_Set_Job(file_cfl)
 !******************************************!
@@ -212,13 +212,13 @@ contains
               endif
           end select
        end do
-    End Subroutine Readn_Set_Job 
+    End Subroutine Readn_Set_Job
 
 !******************************************!
     Subroutine Calc_sqMiV_Data(lun)
 !******************************************!
 ! gets magn str Factor and Miv from Calc_Magnetic_StrF_MiV
-! 
+!
        !---- Argument ----!
        integer, optional,           intent(in) :: lun
 
@@ -227,15 +227,15 @@ contains
        real                        :: cost
        character(len=1)            :: mode
 
-       if (present(lun)) write(lun,'(a)') '   hkl                      Imag   sImag   Icalc'
-       n=Oblist%Nobs       
+       if (present(lun)) write(lun,'(a)') '     h      k       l          Imag        sImag      Icalc'
+       n=Oblist%Nobs
        do j=1,Nf2 ! This is loop over reflections with Int
 
          !Calculate magnetic structure factor and magnetic interaction vector
          ! as mode='y' MiV w.r.t. cartesian crystallographic frame
          mode='y'
          Mh=MhList%Mh(j)
-!         call Calc_Magnetic_StrF_MiV(Cell,MGp,mA,Mh) ! was withput domains 
+!         call Calc_Magnetic_StrF_MiV(Cell,MGp,mA,Mh) ! was withput domains
          call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac
 
 !----    without mode components with respect to direct cell system {e1,e2,e3}
@@ -249,7 +249,7 @@ contains
                 sum( [(MhList%Mh(j)%sqMiV**2 *Oblist%Ob(j)%wGobs,j=1,n)] )
 
          do j=1,Nf2 ! This is loop over reflections with Int
-          write(unit=lun,fmt="(6f8.4)") Oblist%Ob(j)%Hd(:,1),&
+          write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(j)%Hd(:,1),&
                                         Oblist%Ob(j)%Gobs,Oblist%Ob(j)%SGobs,Scale*MhList%Mh(j)%sqMiV
          end do !end loop over reflections
          cost=sum( ([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scale*MhList%Mh(j)%sqMiV)**2,j=1,n)]) )/(n-NP_Refi)
@@ -261,7 +261,7 @@ contains
        end if
 
     End Subroutine Calc_sqMiV_Data
-   
+
 !******************************************!
     !!----
     !!---- Subroutine Copy_mAtom_List(mA, mA_clone)
@@ -276,7 +276,7 @@ contains
     Subroutine Copy_mAtom_List(mA, mA_clone)
 !******************************************!
        !---- Arguments ----!
-       type(mAtom_list_type),   intent(in)  :: mA  
+       type(mAtom_list_type),   intent(in)  :: mA
        type(mAtom_list_type),   intent(out) :: mA_clone
        !---- Local variables ----!
        integer                    :: n
@@ -301,11 +301,11 @@ contains
     Subroutine Copy_MagDom_List(Mag_dom, Mag_dom_clone)
 !******************************************!
        !---- Arguments ----!
-       type(Magnetic_Domain_type),   intent(in)  :: Mag_dom  
+       type(Magnetic_Domain_type),   intent(in)  :: Mag_dom
        type(Magnetic_Domain_type),   intent(out) :: Mag_dom_clone
        !---- Local Variables ----!
 
-       
+
        Mag_dom_clone%nd=Mag_dom%nd
        Mag_dom_clone%Chir=Mag_dom%Chir
        Mag_dom_clone%DMat=Mag_dom%DMat
@@ -342,15 +342,15 @@ contains
 
           i=index(line,"f2mag")
            if(i /= 0) then
-            write(lun,'(a)') '     hkl                      Iobs      Ical'
+            write(lun,'(/,a)') '     h       k       l            Iobs        Ical'
             do i=1,Nf2
              write(unit=lun,fmt='(3(f8.4),2x,2(f12.2))') Oblist%Ob(i)%Hd(:,1),Oblist%Ob(i)%Gobs,Scale*Mhlist%Mh(i)%sqMiV
-            enddo
+            end do
            endif
 
           end select
         enddo
-   
+
    End Subroutine Write_ObsCalc
-   
+
 end module prep_input
