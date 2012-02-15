@@ -26,22 +26,22 @@
        do
           call system('cls')
 
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Reflections Menu "
-          print*," ========================"
-          print*," "
-          print*," "
-          print*," [0] Back..."
-          print*," "
-          print*," [1] Asymmetric Unit in Reciprocal Space"
-          print*," [2] Change an arbitrary reflection to the Asymmetric Unit"
-          print*," [3] Systematic Absences of Reflections"
-          print*," [4] List of Equivalent Reflections"
-          print*," [5] List of unique reflections within a range of S or D"
-          print*," [6] Multiplicity of reflections"
-          print*," "
-          print*," OPTION: "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Reflections Menu "
+          write(unit=*,fmt="(a)") " ========================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [0] Back..."
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [1] Asymmetric Unit in Reciprocal Space"
+          write(unit=*,fmt="(a)") " [2] Change an arbitrary reflection to the Asymmetric Unit"
+          write(unit=*,fmt="(a)") " [3] Systematic Absences of Reflections"
+          write(unit=*,fmt="(a)") " [4] List of Equivalent Reflections"
+          write(unit=*,fmt="(a)") " [5] List of unique reflections within a range of S or D"
+          write(unit=*,fmt="(a)") " [6] Multiplicity of reflections"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
           car=adjustl(car)
@@ -88,23 +88,23 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Asymmetric Unit in Reciprocal Space"
-          print*," ==========================================="
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Asymmetric Unit in Reciprocal Space"
+          write(unit=*,fmt="(a)") " ==========================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
           spgr=adjustl(line)
           call set_spacegroup(spgr,grp_espacial)
           call write_asu(grp_espacial)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
           do
-             print*," Enter a reflection [3 integers] <cr> -> stops:"
+             write(unit=*,fmt=*) " Enter a reflection [3 integers] <cr> -> stops:"
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              read(unit=line,fmt=*,iostat=ierr) h
@@ -137,16 +137,16 @@
 
        do
           call system('cls')
-          print*," "
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Put Reflections in the Asymmetric Unit"
-          print*," =============================================="
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Put Reflections in the Asymmetric Unit"
+          write(unit=*,fmt="(a)") " =============================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           if (info) then
-             print*," Space Group (HM/Hall/Num): "
+             write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
@@ -155,11 +155,11 @@
              info=.false.
           end if
 
-          print*," "
-          print*,"  Reflection hkl and phase: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) "  Reflection hkl and phase: "
           read(*,*) h(1),h(2),h(3),fase
-          print*," "
-          print*," "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
 
           if (.not. allocated(reflexiones)) allocate (reflexiones(grp_espacial%multip))
@@ -186,7 +186,7 @@
              write(*,'(a,3i4,f8.1)') " Reflection in asymmetric unit: ", h,fase1
           end do
 
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
        end do
 
@@ -211,16 +211,16 @@
 
        do
           call system('cls')
-          print*," "
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Systematic Absences"
-          print*," ==========================="
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Systematic Absences"
+          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           if (info) then
-             print*," Space Group (HM/Hall/Num): "
+             write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
@@ -229,18 +229,18 @@
              info=.false.
           end if
 
-          print*," "
-          print*," "
-          print*,"  Reflection hkl: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) "  Reflection hkl: "
           read(*,*) h(1),h(2),h(3)
-          print*," "
+          write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           if (hkl_absent(h,grp_espacial)) then
-             print*," This reflexion IS a Systematic Absence"
+             write(unit=*,fmt=*) " This reflexion IS a Systematic Absence"
           else
-             print*," This reflexion IS NOT a Systematic Absence"
+             write(unit=*,fmt=*) " This reflexion IS NOT a Systematic Absence"
           end if
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
        end do
 
@@ -268,16 +268,16 @@
 
        do
           call system('cls')
-          print*," "
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     List of equivalent reflections "
-          print*," ======================================"
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     List of equivalent reflections "
+          write(unit=*,fmt="(a)") " ======================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           if (info) then
-             print*," Space Group (HM/Hall/Num): "
+             write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
@@ -286,10 +286,10 @@
              info=.false.
           end if
 
-          print*," "
-          print*," Reflection hkl and phase: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " Reflection hkl and phase: "
           read(*,*) h(1),h(2),h(3),fase
-          print*," "
+          write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           if (.not. allocated(reflexiones)) allocate (reflexiones(grp_espacial%multip))
 
@@ -320,13 +320,13 @@
              j=j+1
              j=mod(j,12)
              if (j==0) then
-                print*," "
+                write(unit=*,fmt=*) " "
                 call system("pause ")
-                print*," "
+                write(unit=*,fmt=*) " "
              end if
           end do
 
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
        end do
 
@@ -357,35 +357,35 @@
 
        do
           call system('cls')
-          print*," "
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     List of Unique Reflections  "
-          print*," ======================================"
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     List of Unique Reflections  "
+          write(unit=*,fmt="(a)") " ======================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           if (info) then
-             print*," Space Group (HM/Hall/Num): "
+             write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
-             print*," Unit Cell Parameters ( a b c alpha beta gamma): "
+             write(unit=*,fmt=*) " Unit Cell Parameters ( a b c alpha beta gamma): "
              read(*,*) celda, angulo
              call Set_Crystal_Cell(celda, angulo, celdilla)
              info=.false.
           end if
-          print*," "
-          print*," INTERVAL in Sin_Theta/Lambda: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " INTERVAL in Sin_Theta/Lambda: "
           read(*,*) val1,val2
           if (val1*val2 < 0.0001) exit
-          print*," "
+          write(unit=*,fmt=*) " "
           if (.not. allocated(reflexiones)) allocate (reflexiones(10000))
           call hkl_uni(celdilla,grp_espacial,.true.,val1,val2,'s',num,reflexiones)
-          print*," "
-          print*," Name of the output file: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " Name of the output file: "
           read(*,'(a)') name_file
           open(1,file=name_file)
           write(1,'(a)') "    LIST OF UNIQUE REFLECTIONS"
@@ -423,16 +423,16 @@
 
        do
           call system('cls')
-          print*," "
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Multiplicity of the Reflection"
-          print*," ======================================"
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Multiplicity of the Reflection"
+          write(unit=*,fmt="(a)") " ======================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           if (info) then
-             print*," Space Group (HM/Hall/Num): "
+             write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
@@ -441,14 +441,14 @@
              info=.false.
           end if
 
-          print*," "
-          print*," Reflection hkl: "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " Reflection hkl: "
           read(*,*) h(1),h(2),h(3)
-          print*," "
+          write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           mul=hkl_mult(h,grp_espacial,.true.)
           write(*,'(6x,a,i6)') "Multiplicity of reflection: ",mul
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
        end do
 

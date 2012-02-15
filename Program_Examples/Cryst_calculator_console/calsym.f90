@@ -13,6 +13,7 @@
     use Menu_2
     use Menu_3
     use Menu_4
+    use Menu_5
 
     !---- Variables ----!
     implicit none
@@ -23,20 +24,21 @@
     do
        call system("cls")
 
-       print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-       print*," "
-       print*,"     Principal Menu "
-       print*," ======================"
-       print*," "
-       print*," "
-       print*," [0] Exit"
-       print*," "
-       print*," [1] Space Groups"
-       print*," [2] Reflections"
-       print*," [3] Atoms Calculations"
-       print*," [4] Chemical Information"
-       print*," "
-       print*," OPTION: "
+       write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") "     Principal Menu "
+       write(unit=*,fmt="(a)") " ======================"
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") " [0] Exit"
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") " [1] Space Groups"
+       write(unit=*,fmt="(a)") " [2] Reflections"
+       write(unit=*,fmt="(a)") " [3] Atoms Calculations"
+       write(unit=*,fmt="(a)") " [4] Chemical Information"
+       write(unit=*,fmt="(a)") " [5] Geometry calculations"
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)",advance="no") " OPTION: "
        read(unit=*,fmt="(a)") car
        if (len_trim(car) == 0) exit
        car=adjustl(car)
@@ -56,6 +58,9 @@
 
            case ("4 ")
               call Menu_Princ4()
+
+           case ("5 ")
+              call Menu_Princ5()
 
        end select
     end do

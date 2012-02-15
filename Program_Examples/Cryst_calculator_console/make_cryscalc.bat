@@ -30,6 +30,7 @@ rem ****---- Lahey Compiler ----****
    lf95 -c menu_2.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c menu_3.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c menu_4.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
+   lf95 -c menu_5.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c calsym.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95  *.obj -out CrysCalc -tp -nomap -stchk -nchk -o1 -lib ..\..\lahey\LibC\CrysFML
    goto END
@@ -40,6 +41,7 @@ rem ****---- Intel Compiler ----****
    ifort /c menu_2.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c menu_3.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c menu_4.f90 /O2 /nologo /I..\..\ifort\LibC
+   ifort /c menu_5.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c calsym.f90 /O2 /nologo /I..\..\ifort\LibC
    rem ifort /exe:CrysCalc *.obj ..\..\ifort\LibC\crysfml.lib
    link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort\LibC\crysfml.lib
@@ -51,6 +53,7 @@ rem **---- G95 Compiler ----**
    g95 -c -O3 -funroll-loops  -msse2   menu_2.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   menu_3.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   menu_4.f90     -I..\..\G95\LibC
+   g95 -c -O3 -funroll-loops  -msse2   menu_5.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   calsym.f90     -I..\..\G95\LibC
    g95  *.o -o cryscalc -O3  -funroll-loops  -msse2  -L..\..\G95\LibC -lcrysfml
    goto END
@@ -61,6 +64,7 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c -O3 -funroll-loops  -msse2   menu_2.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_3.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_4.f90     -I..\..\GFortran\LibC
+   gfortran -c -O3 -funroll-loops  -msse2   menu_5.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   calsym.f90     -I..\..\GFortran\LibC
    gfortran *.o -o cryscalc -O3  -funroll-loops  -msse2  -L..\..\GFortran\LibC -lcrysfml
    goto END

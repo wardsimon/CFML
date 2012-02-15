@@ -25,17 +25,17 @@
        do
           call system('cls')
 
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Atoms Calculations "
-          print*," ============================"
-          print*," "
-          print*," "
-          print*," [0] Back..."
-          print*," "
-          print*," [1] Multiplicity Position"
-          print*," "
-          print*," OPTION: "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Atoms Calculations "
+          write(unit=*,fmt="(a)") " ============================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [0] Back..."
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [1] Multiplicity Position"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
           car=adjustl(car)
@@ -75,13 +75,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Space Groups Information "
-          print*," ================================"
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Space Groups Information "
+          write(unit=*,fmt="(a)") " ================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
@@ -90,13 +90,13 @@
 
           do
              call system('cls')
-             print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-             print*," "
-             print*,"     Multiplicity Position "
-             print*," ============================="
-             print*," "
-             print*," "
-             print*," Position: "
+             write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+             write(unit=*,fmt="(a)") " "
+             write(unit=*,fmt="(a)") "     Multiplicity Position "
+             write(unit=*,fmt="(a)") " ============================="
+             write(unit=*,fmt="(a)") " "
+             write(unit=*,fmt="(a)") " "
+             write(unit=*,fmt="(a)",advance="no") " Position: "
 
              read(*,'(a)') line
              if (len_trim(line)==0) exit
@@ -121,7 +121,7 @@
                    mlt=0.0
                 end if
 
-                print*," "
+                write(unit=*,fmt=*) " "
                 write(*,'(a,f7.4)') " Multiplicity: ",mlt
                 call system('pause')
              end if

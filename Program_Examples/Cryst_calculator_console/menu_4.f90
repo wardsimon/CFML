@@ -24,17 +24,17 @@
        do
           call system('cls')
 
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Chemical Information "
-          print*," ============================"
-          print*," "
-          print*," "
-          print*," [0] Back..."
-          print*," "
-          print*," [1] International Table"
-          print*," "
-          print*," OPTION: "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Chemical Information "
+          write(unit=*,fmt="(a)") " ============================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [0] Back..."
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [1] International Table"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
           car=adjustl(car)
@@ -74,13 +74,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     International Chemical Table "
-          print*," ===================================="
-          print*," "
-          print*," "
-          print*," Element: "
+          write(unit=*,fmt=*) "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) "     International Chemical Table "
+          write(unit=*,fmt=*) " ===================================="
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " Element: "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
@@ -91,8 +91,8 @@
           if (iv == 1) then
              do i=1,num_chem_info
                 if (ivet(1) /= chem_info(i)%z) cycle
-                print*," "
-                print*," "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " "
                 write(*,'(5x,a,a)')      "            Name: ",chem_info(i)%name
                 write(*,'(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
                 write(*,'(5x,a,i3)')     "   Atomic Number: ",chem_info(i)%z
@@ -108,16 +108,16 @@
                    npos=len_trim(line)
                 end do
                 write(*,'(5x,a,a)')     "Oxidation States: ",line
-                print*," "
-                print*," "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " "
                 exit
              end do
           else
              !---- Introduce notacion del Elemento ----!
              do i=1,num_chem_info
                 if (u_case(line(1:2)) /= chem_info(i)%symb ) cycle
-                print*," "
-                print*," "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " "
                 write(*,'(5x,a,a)')      "            Name: ",chem_info(i)%name
                 write(*,'(5x,a,a)')      "          Symbol: ",chem_info(i)%symb
                 write(*,'(5x,a,i3)')     "   Atomic Number: ",chem_info(i)%z
@@ -133,8 +133,8 @@
                    npos=len_trim(line)
                 end do
                 write(*,'(5x,a,a)')     "Oxidation States: ",line
-                print*," "
-                print*," "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " "
                 exit
              end do
 

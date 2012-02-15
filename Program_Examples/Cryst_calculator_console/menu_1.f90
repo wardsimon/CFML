@@ -27,26 +27,26 @@
        do
           call system('cls')
 
-          print*,"     CRYSTRALLOGRAPHIC CALCULATOR "
-          print*," "
-          print*,"     Space Groups Menu "
-          print*," ========================="
-          print*," "
-          print*," "
-          print*," [0] Back..."
-          print*," "
-          print*," [ 1] Space Group Information"
-          print*," [ 2] Determination of the full list of Symmetry Operators"
-          print*," [ 3] Construct a Space Group from a set of Generators"
-          print*," [ 4] Symbol Hall from a set of Generators"
-          print*," [ 5] Comparison of Two Space Groups"
-          print*," [ 6] Determination of the Laue class and Point Group"
-          print*," [ 7] Determination of the Symbol for Symmetry Operators"
-          print*," [ 8] Conversions: IT -> Kovalev, Miller&Love, Zack, etc..."
-          print*," [ 9] Wyckoff Positions (Testing...)"
-          print*," [10] Wyckoff for all Groups (Testing...)"
-          print*," "
-          print*," OPTION: "
+          write(unit=*,fmt="(a)") "     CRYSTRALLOGRAPHIC CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Space Groups Menu "
+          write(unit=*,fmt="(a)") " ========================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [0] Back..."
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [ 1] Space Group Information"
+          write(unit=*,fmt="(a)") " [ 2] Determination of the full list of Symmetry Operators"
+          write(unit=*,fmt="(a)") " [ 3] Construct a Space Group from a set of Generators"
+          write(unit=*,fmt="(a)") " [ 4] Symbol Hall from a set of Generators"
+          write(unit=*,fmt="(a)") " [ 5] Comparison of Two Space Groups"
+          write(unit=*,fmt="(a)") " [ 6] Determination of the Laue class and Point Group"
+          write(unit=*,fmt="(a)") " [ 7] Determination of the Symbol for Symmetry Operators"
+          write(unit=*,fmt="(a)") " [ 8] Conversions: IT -> Kovalev, Miller&Love, Zack, etc..."
+          write(unit=*,fmt="(a)") " [ 9] Wyckoff Positions (Testing...)"
+          write(unit=*,fmt="(a)") " [10] Wyckoff for all Groups (Testing...)"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
           car=adjustl(car)
@@ -103,13 +103,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Space Groups Information "
-          print*," ================================"
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Space Groups Information "
+          write(unit=*,fmt="(a)") " ================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
@@ -117,7 +117,7 @@
 
           call set_spacegroup(line,grp_espacial)
           call write_spacegroup(grp_espacial,full=.true.)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause ")
 
        end do
@@ -142,13 +142,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Determination of the Full list of Symmetry Operators "
-          print*," ==========================================================="
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Determination of the Full list of Symmetry Operators "
+          write(unit=*,fmt="(a)") " ==========================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
@@ -157,8 +157,8 @@
           call set_spacegroup(line,grp_espacial)
 
           !---- OutPut ----!
-          print*," "
-          print*," Output on Screen or File ([S]/F)? "
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " Output on Screen or File ([S]/F)? "
           read(*,'(a)') line
           call ucase(line)
           if (len_trim(line) == 0) line='S'
@@ -226,18 +226,18 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Space Group from Generators (Jones Faithful representation)"
-          print*," ==================================================================="
-          print*," "
-          print*," "
-          print*," Generators from International Tables ?(Y/[N]): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Space Group from Generators (Jones Faithful representation)"
+          write(unit=*,fmt="(a)") " ==================================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Generators from International Tables ?(Y/[N]): "
           read(*,"(a)") ans
           call ucase(ans)
           if (ans == 'Y' ) then
 
-             print*," Give the space group symbol  : "
+             write(unit=*,fmt=*) " Give the space group symbol  : "
              read(*,'(a)') spgr
               call Get_Generators(Spgr,Gener)
               ng=0
@@ -262,8 +262,8 @@
                 end do
           else
 
-             print*," "
-             print*," Give the number of generators (max 10): "
+             write(unit=*,fmt=*) " "
+             write(unit=*,fmt=*) " Give the number of generators (max 10): "
              read(*,*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
@@ -302,17 +302,17 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Hall Symbol from a set of Generators"
-          print*," ============================================"
-          print*," "
-          print*," "
-          print*," Generators from International Tables ?(Y/[N]): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Hall Symbol from a set of Generators"
+          write(unit=*,fmt="(a)") " ============================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " Generators from International Tables ?(Y/[N]): "
           read(*,"(a)") ans
           call ucase(ans)
           if (ans == 'Y' ) then
-             print*," Give the space group symbol  : "
+             write(unit=*,fmt=*) " Give the space group symbol  : "
              read(*,'(a)') spgr
               call Get_Generators(Spgr,Gener)
               ng=0
@@ -336,8 +336,8 @@
                   write(*,*)"  => Generator #", i, gen(i)
                 end do
           else
-             print*," "
-             print*," Give the number of generators (max 10): "
+             write(unit=*,fmt=*) " "
+             write(unit=*,fmt=*) " Give the number of generators (max 10): "
              read(*,*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
@@ -349,9 +349,9 @@
           end if
           call set_spacegroup(spgr,grp_espacial,gen,ng,'gen')
           call Get_HallSymb_from_Gener(grp_espacial,hall)
-          print*, " "
-          print*, "  Calculated Hall Symbol : "//hall
-          print*," "
+          write(unit=*,fmt=*)  " "
+          write(unit=*,fmt=*)  "  Calculated Hall Symbol : "//hall
+          write(unit=*,fmt=*) " "
           call system("pause")
 
           exit
@@ -383,28 +383,28 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"       Comparison of Two Space Groups"
-          print*,"   ======================================"
-          print*," "
-          print*," "
-          print*," [1] Generators <-> Generators"
-          print*," [2] Generators <-> International Tables"
-          print*," "
-          print*," OPTION: "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "       Comparison of Two Space Groups"
+          write(unit=*,fmt="(a)") "   ======================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " [1] Generators <-> Generators"
+          write(unit=*,fmt="(a)") " [2] Generators <-> International Tables"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
           car=adjustl(car)
 
           select case (car)
              case('1')
-                print*," "
-                print*," Generators from International Tables SET1 ?(Y/[N]): "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " Generators from International Tables SET1 ?(Y/[N]): "
                 read(*,'(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  print*," Give the space group symbol (SET1)  : "
+                  write(unit=*,fmt=*) " Give the space group symbol (SET1)  : "
                   read(*,'(a)') spgr
                    call Get_Generators(Spgr,Gener)
                    ng=0
@@ -426,8 +426,8 @@
                      write(*,*)"  => Generator #", i, gen(i)
                    end do
                 else
-                   print*," "
-                   print*," Give the number of generators SET 1 (max 10): "
+                   write(unit=*,fmt=*) " "
+                   write(unit=*,fmt=*) " Give the number of generators SET 1 (max 10): "
                    read(*,*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
@@ -441,12 +441,12 @@
 
                 call set_spacegroup(spgr,grp_espacial1,gen,ng,mode='gen ')
 
-                print*," "
-                print*," Generators from International Tables SET2 ?(Y/[N]): "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " Generators from International Tables SET2 ?(Y/[N]): "
                 read(*,'(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  print*," Give the space group symbol (SET2)  : "
+                  write(unit=*,fmt=*) " Give the space group symbol (SET2)  : "
                   read(*,'(a)') spgr
                    call Get_Generators(Spgr,Gener)
                    ng=0
@@ -468,8 +468,8 @@
                      write(*,*)"  => Generator #", i, gen(i)
                    end do
                 else
-                   print*," "
-                   print*," Give the number of generators SET 2 (max 10): "
+                   write(unit=*,fmt=*) " "
+                   write(unit=*,fmt=*) " Give the number of generators SET 2 (max 10): "
                    read(*,*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
@@ -483,12 +483,12 @@
                 call set_spacegroup(spgr,grp_espacial2,gen,ng,mode='gen ')
 
              case('2')
-                print*," "
-                print*," Generators from International Tables SET1 ?(Y/[N]): "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " Generators from International Tables SET1 ?(Y/[N]): "
                 read(*,'(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  print*," Give the space group symbol (SET1)  : "
+                  write(unit=*,fmt=*) " Give the space group symbol (SET1)  : "
                   read(*,'(a)') spgr
                    call Get_Generators(Spgr,Gener)
                    ng=0
@@ -510,8 +510,8 @@
                      write(*,*)"  => Generator #", i, gen(i)
                    end do
                 else
-                   print*," "
-                   print*," Give the number of generators SET 1 (max 10): "
+                   write(unit=*,fmt=*) " "
+                   write(unit=*,fmt=*) " Give the number of generators SET 1 (max 10): "
                    read(*,*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
@@ -524,8 +524,8 @@
                 end if
                 call set_spacegroup(spgr,grp_espacial1,gen,ng,mode='gen ')
 
-                print*," "
-                print*," Space Group SET2 (HM/Hall/Num): "
+                write(unit=*,fmt=*) " "
+                write(unit=*,fmt=*) " Space Group SET2 (HM/Hall/Num): "
                 read(*,'(a)') line
                 if (len_trim(line)==0) exit
                 line=adjustl(line)
@@ -568,18 +568,18 @@
                 if (len_trim(spgr) == 0) cycle
 
              case default
-                print*, " Wrong Option"
+                write(unit=*,fmt=*)  " Wrong Option"
                 cycle
           end select
 
           if (SpGr_Equal(grp_espacial1, grp_espacial2)) then
-             print*," "
-             print*,"  These Space Groups are EQUAL"
+             write(unit=*,fmt=*) " "
+             write(unit=*,fmt=*) "  These Space Groups are EQUAL"
           else
-             print*," "
-             print*,"  These Space Groups are NOT EQUAL"
+             write(unit=*,fmt=*) " "
+             write(unit=*,fmt=*) "  These Space Groups are NOT EQUAL"
           end if
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
           exit
        end do
@@ -598,13 +598,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Determination of the Laue class and Point Group "
-          print*," ======================================================="
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Determination of the Laue class and Point Group "
+          write(unit=*,fmt="(a)") " ======================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') spgr
           if (len_trim(spgr)==0) exit
@@ -615,14 +615,14 @@
           call Get_Laue_PG(grp_espacial,laue_car,point_car)
 
           !---- Print Information ----!
-          print*," "
-          print*," "
-          print*,"             Table                       Calculated"
-          print*,"    Laue Group   Point Group       Laue Group   Point Group"
-          print*,"   ========================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "             Table                       Calculated"
+          write(unit=*,fmt="(a)") "    Laue Group   Point Group       Laue Group   Point Group"
+          write(unit=*,fmt="(a)") "   ========================================================="
           write(*,'(6x,a5,10x,a5,13x,a5,10x,a5)') grp_espacial%laue,grp_espacial%pg, &
                                                  laue_car,point_car
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
           exit
 
@@ -649,17 +649,17 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Derivation symbols for symmetry operations"
-          print*," =================================================="
-          print*," "
-          print*," "
-          print*," Generators from International Tables ?(Y/[N]): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Derivation symbols for symmetry operations"
+          write(unit=*,fmt="(a)") " =================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Generators from International Tables ?(Y/[N]): "
           read(*,"(a)") ans
           call ucase(ans)
           if (ans == 'Y' ) then
-             print*," Give the space group symbol : "
+             write(unit=*,fmt=*) " Give the space group symbol : "
              read(*,'(a)') spgr
              call Get_Generators(Spgr,Gener)
              ng=0
@@ -683,8 +683,8 @@
              end do
 
           else
-             print*," "
-             print*," Give the number of generators (max 10): "
+             write(unit=*,fmt=*) " "
+             write(unit=*,fmt=*) " Give the number of generators (max 10): "
              read(*,*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
@@ -699,7 +699,7 @@
           !---- Testeo de rutina ----!
           do i=1,ng
              call Get_SymSymb(ss(:,:,i),ts(:,i),simbolo)
-             print*," "
+             write(unit=*,fmt=*) " "
              write(*,'(a,i1,5x,a)') " Generator: ",i, gen(i)
              call Symmetry_Symbol(gen(i),Symb)
              write(*,'(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
@@ -724,14 +724,14 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Conversion of Symmetry Operators of Space Groups"
-          print*,"          ONLY CALCULATIONS ON SYMMETRY OPERATORS"
-          print*," ========================================================"
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Conversion of Symmetry Operators of Space Groups"
+          write(unit=*,fmt="(a)") "          ONLY CALCULATIONS ON SYMMETRY OPERATORS"
+          write(unit=*,fmt="(a)") " ========================================================"
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') spgr
           if (len_trim(spgr)==0) exit
@@ -741,47 +741,47 @@
 
           !---- Systematic Conversions ----!
           call write_spacegroup(grp_espacial)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
 
-          print*," "
-          print*," IT -> ML"
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " IT -> ML"
           grp_modified=grp_espacial
           Call Setting_Change('IT','ML',grp_modified,Appl_trs, IAppl_trs)
-          print*,"            Applied Transformation: ",Appl_trs
-          print*," Inverse of Applied Transformation: ",IAppl_trs
+          write(unit=*,fmt=*) "            Applied Transformation: ",Appl_trs
+          write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
 
-          print*," "
-          print*," IT -> KO"
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " IT -> KO"
           grp_modified=grp_espacial
           Call Setting_Change('IT','KO',grp_modified,Appl_trs, IAppl_trs)
-          print*,"            Applied Transformation: ",Appl_trs
-          print*," Inverse of Applied Transformation: ",IAppl_trs
+          write(unit=*,fmt=*) "            Applied Transformation: ",Appl_trs
+          write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
 
-          print*," "
-          print*," IT -> ZA"
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " IT -> ZA"
           grp_modified=grp_espacial
           Call Setting_Change('IT','ZA',grp_modified,Appl_trs, IAppl_trs)
-          print*,"            Applied Transformation: ",Appl_trs
-          print*," Inverse of Applied Transformation: ",IAppl_trs
+          write(unit=*,fmt=*) "            Applied Transformation: ",Appl_trs
+          write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
 
-          print*," "
-          print*," IT -> BC"
+          write(unit=*,fmt=*) " "
+          write(unit=*,fmt=*) " IT -> BC"
           grp_modified=grp_espacial
           Call Setting_Change('IT','BC',grp_modified,Appl_trs, IAppl_trs)
-          print*,"            Applied Transformation: ",Appl_trs
-          print*," Inverse of Applied Transformation: ",IAppl_trs
+          write(unit=*,fmt=*) "            Applied Transformation: ",Appl_trs
+          write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
-          print*," "
+          write(unit=*,fmt=*) " "
           call system("pause")
 
           exit
@@ -805,13 +805,13 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Wyckoff Information "
-          print*," ==========================="
-          print*," "
-          print*," "
-          print*," Space Group (HM/Hall/Num): "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Wyckoff Information "
+          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
           read(*,'(a)') line
           if (len_trim(line)==0) exit
@@ -819,7 +819,7 @@
 
           call set_spacegroup(line,grp_espacial)
           call Get_Wyckoff(grp_espacial)
-           print*," "
+           write(unit=*,fmt=*) " "
           call system("pause ")
           exit
        end do
@@ -842,18 +842,18 @@
 
        do
           call system('cls')
-          print*,"     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
-          print*," "
-          print*,"     Wyckoff Information "
-          print*," ==========================="
-          print*," "
-          print*," "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "     Wyckoff Information "
+          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
 
           open(unit=1,file="itgen.spg",status="unknown",iostat=ier)
           if (ier /= 0) then
-             print*," "
-             print*," The file ITGEN.SPG is not present or some problems are present"
-             print*," "
+             write(unit=*,fmt="(a)") " "
+             write(unit=*,fmt="(a)") " The file ITGEN.SPG is not present or some problems are present"
+             write(unit=*,fmt="(a)") " "
              exit
           end if
           do
@@ -862,7 +862,7 @@
              if (line(1:4) /= "SPGR") cycle
              read(line(12:40),'(a)') spgr
 
-             print*, " Grupo Espacial: "//spgr
+             write(unit=*,fmt=*)  " Grupo Espacial: "//spgr
 
              call set_spacegroup(spgr,grp_espacial)
              call Get_Wyckoff(grp_espacial)
@@ -870,7 +870,7 @@
           end do
 
           close(unit=1)
-           print*," "
+           write(unit=*,fmt=*) " "
           call system("pause ")
           exit
        end do

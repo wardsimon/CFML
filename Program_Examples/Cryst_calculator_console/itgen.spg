@@ -1,0 +1,1220 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!   Generators of the 230 Space Groups in the standard setting        !!!!!
+!!!!   given in the INTERNATIONAL TABLES OF CRYSTALLOGRAPHY (IT83)       !!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SPGR(  2): P -1
+NGEN    1
+GEN  -x,-y,-z
+SPGR(  3): P 2
+NGEN    1
+GEN  -x,y,-z
+SPGR(  4): P 21
+NGEN    1
+GEN  -x,y+1/2,-z
+SPGR(  5): C 2
+NGEN    2
+GEN   x+1/2,y+1/2,z
+GEN  -x,y,-z
+SPGR(  6): P m
+NGEN    1
+GEN  x,-y,z
+SPGR(  7): P c
+NGEN    1
+GEN  x,-y,z+1/2
+SPGR(  8): C m
+NGEN    2
+GEN   x+1/2,y+1/2,z
+GEN  x,-y,z
+SPGR(  9): C c
+NGEN    2
+GEN   x+1/2,y+1/2,z
+GEN  x,-y,z+1/2
+SPGR( 10): P 2/m
+NGEN    2
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 11): P 21/m
+NGEN    2
+GEN  -x,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 12): C 2/m
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 13): P 2/c
+NGEN    2
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 14): P 21/c
+NGEN    2
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 15): C 2/c
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 16): P 2 2 2
+NGEN    2
+GEN  -x,-y,z
+GEN  -x,y,-z
+SPGR( 17): P 2 2 21
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  -x,y,-z+1/2
+SPGR( 18): P 21 21 2
+NGEN    2
+GEN  -x,-y,z
+GEN  -x+1/2,y+1/2,-z
+SPGR( 19): P 21 21 21
+NGEN    2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+SPGR( 20): C 2 2 21
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z+1/2
+GEN  -x,y,-z+1/2
+SPGR( 21): C 2 2 2
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z
+GEN  -x,y,-z
+SPGR( 22): F 2 2 2
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+SPGR( 23): I 2 2 2
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+SPGR( 24): I 21 21 21
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+SPGR( 25): P m m 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x,-y,z
+SPGR( 26): P m c 21
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  x,-y,z+1/2
+SPGR( 27): P c c 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x,-y,z+1/2
+SPGR( 28): P m a 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x+1/2,-y,z
+SPGR( 29): P c a 21
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  x+1/2,-y,z
+SPGR( 30): P n c 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x,-y+1/2,z+1/2
+SPGR( 31): P m n 21
+NGEN    2
+GEN  -x+1/2,-y,z+1/2
+GEN  x+1/2,-y,z+1/2
+SPGR( 32): P b a 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x+1/2,-y+1/2,z
+SPGR( 33): P n a 21
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  x+1/2,-y+1/2,z
+SPGR( 34): P n n 2
+NGEN    2
+GEN  -x,-y,z
+GEN  x+1/2,-y+1/2,z+1/2
+SPGR( 35): C m m 2
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z
+GEN  x,-y,z
+SPGR( 36): C m c 21
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z+1/2
+GEN  x,-y,z+1/2
+SPGR( 37): C c c 2
+NGEN    3
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z
+GEN  x,-y,z+1/2
+SPGR( 38): A m m 2
+NGEN    3
+GEN   x,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x,-y,z
+SPGR( 39): A b m 2
+NGEN    3
+GEN   x,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x,-y+1/2,z
+SPGR( 40): A m a 2
+NGEN    3
+GEN   x,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x+1/2,-y,z
+SPGR( 41): A b a 2
+NGEN    3
+GEN   x,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x+1/2,-y+1/2,z
+SPGR( 42): F m m 2
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  x,-y,z
+SPGR( 43): F d d 2
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  x+1/4,-y+1/4,z+1/4
+SPGR( 44): I m m 2
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x,-y,z
+SPGR( 45): I b a 2
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x+1/2,-y+1/2,z
+SPGR( 46): I m a 2
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  x+1/2,-y,z
+SPGR( 47): P m m m
+NGEN    3
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 48): P n n n:1
+NGEN    3
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR( 49): P c c m
+NGEN    3
+GEN  -x,-y,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 50): P b a n:1
+NGEN    3
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x+1/2,-y+1/2,-z
+SPGR( 51): P m m a
+NGEN    3
+GEN  -x+1/2,-y,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 52): P n n a
+NGEN    3
+GEN  -x+1/2,-y,z
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 53): P m n a
+NGEN    3
+GEN  -x+1/2,-y,z+1/2
+GEN  -x+1/2,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 54): P c c a
+NGEN    3
+GEN  -x+1/2,-y,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 55): P b a m
+NGEN    3
+GEN  -x,-y,z
+GEN  -x+1/2,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 56): P c c n
+NGEN    3
+GEN  -x+1/2,-y+1/2,z
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 57): P b c m
+NGEN    3
+GEN  -x,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 58): P n n m
+NGEN    3
+GEN  -x,-y,z
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 59): P m m n:1
+NGEN    3
+GEN  -x,-y,z
+GEN  -x+1/2,y+1/2,-z
+GEN  -x+1/2,-y+1/2,-z
+SPGR( 60): P b c n
+NGEN    3
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 61): P b c a
+NGEN    3
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 62): P n m a
+NGEN    3
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 63): C m c m
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z+1/2
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 64): C m c a
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y+1/2,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 65): C m m m
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 66): C c c m
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR( 67): C m m a
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x,-y+1/2,z
+GEN  -x,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 68): C c c a:1
+NGEN    4
+GEN   x+1/2,y+1/2,z
+GEN  -x+1/2,-y+1/2,z
+GEN  -x,y,-z
+GEN  -x,-y+1/2,-z+1/2
+SPGR( 69): F m m m
+NGEN    5
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 70): F d d d:1
+NGEN    5
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x+1/4,-y+1/4,-z+1/4
+SPGR( 71): I m m m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR( 72): I b a m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x+1/2,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 73): I b c a
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR( 74): I m m a
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y+1/2,z
+GEN  -x,y+1/2,-z
+GEN  -x,-y,-z
+SPGR( 75): P 4
+NGEN    2
+GEN  -x,-y,z
+GEN  -y,x,z
+SPGR( 76): P 41
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  -y,x,z+1/4
+SPGR( 77): P 42
+NGEN    2
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+SPGR( 78): P 43
+NGEN    2
+GEN  -x,-y,z+1/2
+GEN  -y,x,z+3/4
+SPGR( 79): I 4
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+SPGR( 80): I 41
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+SPGR( 81): P -4
+NGEN    2
+GEN  -x,-y,z
+GEN  y,-x,-z
+SPGR( 82): I -4
+NGEN    3
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  y,-x,-z
+SPGR( 83): P 4/m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,-y,-z
+SPGR( 84): P 42/m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  -x,-y,-z
+SPGR( 85): P 4/n:1
+NGEN    3
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z
+GEN  -x+1/2,-y+1/2,-z
+SPGR( 86): P 42/n:1
+NGEN    3
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR( 87): I 4/m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,-y,-z
+SPGR( 88): I 41/a:1
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  -x,-y+1/2,-z+1/4
+SPGR( 89): P 4 2 2
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+SPGR( 90): P 4 21 2
+NGEN    3
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z
+GEN  -x+1/2,y+1/2,-z
+SPGR( 91): P 41 2 2
+NGEN    3
+GEN  -x,-y,z+1/2
+GEN  -y,x,z+1/4
+GEN  -x,y,-z
+SPGR( 92): P 41 21 2
+NGEN    3
+GEN  -x,-y,z+1/2
+GEN  -y+1/2,x+1/2,z+1/4
+GEN  -x+1/2,y+1/2,-z+1/4
+SPGR( 93): P 42 2 2
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  -x,y,-z
+SPGR( 94): P 42 21 2
+NGEN    3
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z+1/2
+SPGR( 95): P 43 2 2
+NGEN    3
+GEN  -x,-y,z+1/2
+GEN  -y,x,z+3/4
+GEN  -x,y,-z
+SPGR( 96): P 43 21 2
+NGEN    3
+GEN  -x,-y,z+1/2
+GEN  -y+1/2,x+1/2,z+3/4
+GEN  -x+1/2,y+1/2,-z+3/4
+SPGR( 97): I 4 2 2
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+SPGR( 98): I 41 2 2
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  -x+1/2,y,-z+3/4
+SPGR( 99): P 4 m m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x,-y,z
+SPGR(100): P 4 b m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x+1/2,-y+1/2,z
+SPGR(101): P 42 c m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  x,-y,z+1/2
+SPGR(102): P 42 n m
+NGEN    3
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  x+1/2,-y+1/2,z+1/2
+SPGR(103): P 4 c c
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x,-y,z+1/2
+SPGR(104): P 4 n c
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x+1/2,-y+1/2,z+1/2
+SPGR(105): P 42 m c
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  x,-y,z
+SPGR(106): P 42 b c
+NGEN    3
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  x+1/2,-y+1/2,z
+SPGR(107): I 4 m m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x,-y,z
+SPGR(108): I 4 c m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  x,-y,z+1/2
+SPGR(109): I 41 m d
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  x,-y,z
+SPGR(110): I 41 c d
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  x,-y,z+1/2
+SPGR(111): P -4 2 m
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x,y,-z
+SPGR(112): P -4 2 c
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x,y,-z+1/2
+SPGR(113): P -4 21 m
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x+1/2,y+1/2,-z
+SPGR(114): P -4 21 c
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x+1/2,y+1/2,-z+1/2
+SPGR(115): P -4 m 2
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x,-y,z
+SPGR(116): P -4 c 2
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x,-y,z+1/2
+SPGR(117): P -4 b 2
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x+1/2,-y+1/2,z
+SPGR(118): P -4 n 2
+NGEN    3
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x+1/2,-y+1/2,z+1/2
+SPGR(119): I -4 m 2
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x,-y,z
+SPGR(120): I -4 c 2
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  x,-y,z+1/2
+SPGR(121): I -4 2 m
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x,y,-z
+SPGR(122): I -4 2 d
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  y,-x,-z
+GEN  -x+1/2,y,-z+3/4
+SPGR(123): P 4/m m m
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR(124): P 4/m c c
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR(125): P 4/n b m:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+GEN  -x+1/2,-y+1/2,-z
+SPGR(126): P 4/n n c:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(127): P 4/m b m
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x+1/2,y+1/2,-z
+GEN  -x,-y,-z
+SPGR(128): P 4/m n c
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR(129): P 4/n m m:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z
+GEN  -x+1/2,y+1/2,-z
+GEN  -x+1/2,-y+1/2,-z
+SPGR(130): P 4/n c c:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x+1/2,-y+1/2,-z
+SPGR(131): P 42/m m c
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR(132): P 42/m c m
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR(133): P 42/n b c
+NGEN    4
+GEN  -x+1/2,-y+1/2,z
+GEN  -y+1/2,x,z+1/2
+GEN  -x+1/2,y,-z
+GEN  -x,-y,-z
+SPGR(134): P 42/n n m:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x,y,-z
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(135): P 42/m b c
+NGEN    4
+GEN  -x,-y,z
+GEN  -y,x,z+1/2
+GEN  -x+1/2,y+1/2,-z
+GEN  -x,-y,-z
+SPGR(136): P 42/m n m
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR(137): P 42/n m c:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z+1/2
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(138): P 42/n c m:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -y+1/2,x+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(139): I 4/m m m
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z
+GEN  -x,-y,-z
+SPGR(140): I 4/m c m
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -y,x,z
+GEN  -x,y,-z+1/2
+GEN  -x,-y,-z
+SPGR(141): I 41/a m d:1
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  -x+1/2,y,-z+3/4
+GEN  -x,-y+1/2,-z+1/4
+SPGR(142): I 41/a c d:1
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y+1/2,z+1/2
+GEN  -y,x+1/2,z+1/4
+GEN  -x+1/2,y,-z+1/4
+GEN  -x,-y+1/2,-z+1/4
+SPGR(143): P 3
+NGEN    1
+GEN  -y,x-y,z
+SPGR(144): P 31
+NGEN    1
+GEN  -y,x-y,z+1/3
+SPGR(145): P 32
+NGEN    1
+GEN  -y,x-y,z+2/3
+SPGR(146): R 3
+NGEN    2
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+SPGR(147): P -3
+NGEN    2
+GEN  -y,x-y,z
+GEN  -x,-y,-z
+SPGR(148): R -3
+NGEN    3
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  -x,-y,-z
+SPGR(149): P 3 1 2
+NGEN    2
+GEN  -y,x-y,z
+GEN  -y,-x,-z
+SPGR(150): P 3 2 1
+NGEN    2
+GEN  -y,x-y,z
+GEN  y,x,-z
+SPGR(151): P 31 1 2
+NGEN    2
+GEN  -y,x-y,z+1/3
+GEN  -y,-x,-z+2/3
+SPGR(152): P 31 2 1
+NGEN    2
+GEN  -y,x-y,z+1/3
+GEN  y,x,-z
+SPGR(153): P 32 1 2
+NGEN    2
+GEN  -y,x-y,z+2/3
+GEN  -y,-x,-z+1/3
+SPGR(154): P 32 2 1
+NGEN    2
+GEN  -y,x-y,z+2/3
+GEN  y,x,-z
+SPGR(155): R 3 2
+NGEN    3
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  y,x,-z
+SPGR(156): P 3 m 1
+NGEN    2
+GEN  -y,x-y,z
+GEN  -y,-x,z
+SPGR(157): P 3 1 m
+NGEN    2
+GEN  -y,x-y,z
+GEN  y,x,z
+SPGR(158): P 3 c 1
+NGEN    2
+GEN  -y,x-y,z
+GEN  -y,-x,z+1/2
+SPGR(159): P 3 1 c
+NGEN    2
+GEN  -y,x-y,z
+GEN  y,x,z+1/2
+SPGR(160): R 3 m
+NGEN    3
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  -y,-x,z
+SPGR(161): R 3 c
+NGEN    3
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  -y,-x,z+1/2
+SPGR(162): P -3 1 m
+NGEN    3
+GEN  -y,x-y,z
+GEN  -y,-x,-z
+GEN  -x,-y,-z
+SPGR(163): P -3 1 c
+NGEN    3
+GEN  -y,x-y,z
+GEN  -y,-x,-z+1/2
+GEN  -x,-y,-z
+SPGR(164): P -3 m 1
+NGEN    3
+GEN  -y,x-y,z
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(165): P -3 c 1
+NGEN    3
+GEN  -y,x-y,z
+GEN  y,x,-z+1/2
+GEN  -x,-y,-z
+SPGR(166): R -3 m
+NGEN    4
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(167): R -3 c
+NGEN    4
+GEN   x+1/3,y+2/3,z+2/3
+GEN  -y,x-y,z
+GEN  y,x,-z+1/2
+GEN  -x,-y,-z
+SPGR(168): P 6
+NGEN    2
+GEN  -y,x-y,z
+GEN  -x,-y,z
+SPGR(169): P 61
+NGEN    2
+GEN  -y,x-y,z+1/3
+GEN  -x,-y,z+1/2
+SPGR(170): P 65
+NGEN    2
+GEN  -y,x-y,z+2/3
+GEN  -x,-y,z+1/2
+SPGR(171): P 62
+NGEN    2
+GEN  -y,x-y,z+2/3
+GEN  -x,-y,z
+SPGR(172): P 64
+NGEN    2
+GEN  -y,x-y,z+1/3
+GEN  -x,-y,z
+SPGR(173): P 63
+NGEN    2
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+SPGR(174): P -6
+NGEN    2
+GEN  -y,x-y,z
+GEN  x,y,-z
+SPGR(175): P 6/m
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  -x,-y,-z
+SPGR(176): P 63/m
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  -x,-y,-z
+SPGR(177): P 6 2 2
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  y,x,-z
+SPGR(178): P 61 2 2
+NGEN    3
+GEN  -y,x-y,z+1/3
+GEN  -x,-y,z+1/2
+GEN  y,x,-z+1/3
+SPGR(179): P 65 2 2
+NGEN    3
+GEN  -y,x-y,z+2/3
+GEN  -x,-y,z+1/2
+GEN  y,x,-z+2/3
+SPGR(180): P 62 2 2
+NGEN    3
+GEN  -y,x-y,z+2/3
+GEN  -x,-y,z
+GEN  y,x,-z+2/3
+SPGR(181): P 64 2 2
+NGEN    3
+GEN  -y,x-y,z+1/3
+GEN  -x,-y,z
+GEN  y,x,-z+1/3
+SPGR(182): P 63 2 2
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  y,x,-z
+SPGR(183): P 6 m m
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  -y,-x,z
+SPGR(184): P 6 c c
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  -y,-x,z+1/2
+SPGR(185): P 63 c m
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  -y,-x,z+1/2
+SPGR(186): P 63 m c
+NGEN    3
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  -y,-x,z
+SPGR(187): P -6 m 2
+NGEN    3
+GEN  -y,x-y,z
+GEN  x,y,-z
+GEN  -y,-x,z
+SPGR(188): P -6 c 2
+NGEN    3
+GEN  -y,x-y,z
+GEN  x,y,-z+1/2
+GEN  -y,-x,z+1/2
+SPGR(189): P -6 2 m
+NGEN    3
+GEN  -y,x-y,z
+GEN  x,y,-z
+GEN  y,x,-z
+SPGR(190): P -6 2 c
+NGEN    3
+GEN  -y,x-y,z
+GEN  x,y,-z+1/2
+GEN  y,x,-z
+SPGR(191): P 6/m m m
+NGEN    4
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(192): P 6/m c c
+NGEN    4
+GEN  -y,x-y,z
+GEN  -x,-y,z
+GEN  y,x,-z+1/2
+GEN  -x,-y,-z
+SPGR(193): P 63/m c m
+NGEN    4
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  y,x,-z+1/2
+GEN  -x,-y,-z
+SPGR(194): P 63/m m c
+NGEN    4
+GEN  -y,x-y,z
+GEN  -x,-y,z+1/2
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(195): P 2 3
+NGEN    3
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+SPGR(196): F 2 3
+NGEN    5
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+SPGR(197): I 2 3
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+SPGR(198): P 21 3
+NGEN    3
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+SPGR(199): I 21 3
+NGEN    4
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+SPGR(200): P m -3
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  -x,-y,-z
+SPGR(201): P n -3:1
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(202): F m -3
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  -x,-y,-z
+SPGR(203): F d -3:1
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  -x+1/4,-y+1/4,-z+1/4
+SPGR(204): I m -3
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  -x,-y,-z
+SPGR(205): P a -3
+NGEN    4
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  -x,-y,-z
+SPGR(206): I a -3
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  -x,-y,-z
+SPGR(207): P 4 3 2
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+SPGR(208): P 42 3 2
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,-z+1/2
+SPGR(209): F 4 3 2
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+SPGR(210): F 41 3 2
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+3/4
+SPGR(211): I 4 3 2
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+SPGR(212): P 43 3 2
+NGEN    4
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  y+1/4,x+3/4,-z+3/4
+SPGR(213): P 41 3 2
+NGEN    4
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+1/4
+SPGR(214): I 41 3 2
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+1/4
+SPGR(215): P -4 3 m
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,z
+SPGR(216): F -4 3 m
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,z
+SPGR(217): I -4 3 m
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,z
+SPGR(218): P -4 3 n
+NGEN    4
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,z+1/2
+SPGR(219): F -4 3 c
+NGEN    6
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,z+1/2
+SPGR(220): I -4 3 d
+NGEN    5
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  y+1/4,x+1/4,z+1/4
+SPGR(221): P m -3 m
+NGEN    5
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(222): P n -3 n:1
+NGEN    5
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(223): P m -3 n
+NGEN    5
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR(224): P n -3 m:1
+NGEN    5
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,-z+1/2
+GEN  -x+1/2,-y+1/2,-z+1/2
+SPGR(225): F m -3 m
+NGEN    7
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(226): F m -3 c
+NGEN    7
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y+1/2,x+1/2,-z+1/2
+GEN  -x,-y,-z
+SPGR(227): F d -3 m:1
+NGEN    7
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+3/4
+GEN  -x+1/4,-y+1/4,-z+1/4
+SPGR(228): F d -3 c:1
+NGEN    7
+GEN   x+1/2,y+1/2,z
+GEN   x+1/2,y,z+1/2
+GEN  -x,-y+1/2,z+1/2
+GEN  -x+1/2,y+1/2,-z
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+3/4
+GEN  -x+3/4,-y+3/4,-z+3/4
+SPGR(229): I m -3 m
+NGEN    6
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x,-y,z
+GEN  -x,y,-z
+GEN  z,x,y
+GEN  y,x,-z
+GEN  -x,-y,-z
+SPGR(230): I a -3 d
+NGEN    6
+GEN   x+1/2,y+1/2,z+1/2
+GEN  -x+1/2,-y,z+1/2
+GEN  -x,y+1/2,-z+1/2
+GEN  z,x,y
+GEN  y+3/4,x+1/4,-z+1/4
+GEN  -x,-y,-z
