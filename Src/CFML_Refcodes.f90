@@ -3882,7 +3882,7 @@
        type(Magnetic_Domain_type),    intent(in out) :: Mag_dom
 
        !---- Local variables ----!
-       integer           :: i,j,nc
+       integer           :: nc
 
        call init_err_refcodes()
        if (Na <= 0) then
@@ -5589,7 +5589,7 @@
 
        !---- Local variables ----!
        character(len=20), dimension(30) :: label
-       integer                          :: ic,n,na,nb,ina,inb,nc,nd,npos,ich
+       integer                          :: ic,n,na,nb,ina,inb,npos,ich
        integer                          :: nl,nl2,iv
        integer, dimension(1)            :: ivet
        real(kind=cp)                    :: fac_0,fac_1
@@ -6489,8 +6489,8 @@
 
        !---- Local Variables ----!
        character(len=20), dimension(30) :: label
-       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic,ich
-       integer                          :: icond,iv,n_ini,n_end
+       integer                          :: i,na,nb,ndir,nlong,ic,ich
+       integer                          :: icond,iv
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
        real(kind=cp)                    :: x_low,x_up,x_step
@@ -9328,12 +9328,9 @@
 
        !---- Local variables ----!
        character(len=20)              :: car
-       character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
-       character(len=25),dimension(3) :: symcar
-       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4,ik,ich
+       character(len=60)              :: fmt1,fmt2
+       integer                        :: i,j,na,lun,ik,ich
        real(kind=cp)                  :: mu
-       real(kind=cp),dimension(3)     :: tr
-       real(kind=cp),dimension(3)     :: rsk,isk,rpol,ipol
 
        !---- Format Zone ----!
        fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"
