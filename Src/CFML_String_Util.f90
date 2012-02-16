@@ -64,6 +64,8 @@
 !!----       GET_FRACTION_1DIG
 !!----       GET_FRACTION_2DIG
 !!----       GET_LOGUNIT
+!!----       GET_MAT_FROM_SYMB
+!!----       GET_NUM_STRING       [Private]
 !!----       GET_SEPARATOR_POS
 !!----       GETNUM
 !!----       GETNUM_STD
@@ -74,6 +76,7 @@
 !!----       LCASE
 !!----       NUMBER_LINES
 !!----       NUMCOL_FROM_NUMFMT
+!!----       READ_FRACT           [Private]
 !!----       READ_KEY_STR
 !!----       READ_KEY_STRVAL
 !!----       READ_KEY_VALUE
@@ -101,11 +104,11 @@
     !---- List of public subroutines ----!
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
-              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,   &
-              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos
+              Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
+              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, Get_Mat_From_Symb
 
     !---- List of private subroutines ----!
-    private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err
+    private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err, Get_Num_String,Read_Fract
 
 
     !---- Definitions ----!
@@ -1359,6 +1362,156 @@
        return
     End Subroutine Get_LogUnit
 
+    !!----  Subroutine Get_Mat_From_Symb(Symb,Mat,cod)
+    !!----    character(len=*),                intent(in)  :: Symb
+    !!----    real,dimension(3,3),             intent(out) :: Mat
+    !!----    character(len=1), dimension(3),  intent(in)  :: cod
+    !!----
+    !!----  Subroutine to extract the transformation matrix corresponding
+    !!----  to a symbol of the form:  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c
+    !!----  corresponding a cell transformation or a rotational symmetry operator.
+    !!----  The symbols: a,b,c are not exclusive. The last variable contains the
+    !!----  equivalent ones, for instance cod=(/"u","v","w"/) or cod=(/"x","y","z"/).
+    !!----  The numbers m(i) may be real or integer numbers or even fractions.
+    !!----  The returned real matrix corresponds to:
+    !!----                           / m1   m2   m3 \
+    !!----                    Mat = |  m4   m5   m6  |
+    !!----                           \ m7   m8   m9 /
+    !!----  In the symbor it may appear negative sign and the order within each
+    !!----  direction is irrelevant, for instantce: m2b+m1a+m3c,m6c+m5b+m4a,m9c+m8b+m7a
+    !!----  is strictly equivalent to the symbol given above
+    !!----
+    !!----   Created: February - 2012 (JRC)
+    !!----
+    Subroutine Get_Mat_From_Symb(Symb,Mat,cod)
+      character(len=*),                intent(in)  :: Symb
+      real,dimension(3,3),             intent(out) :: Mat
+      character(len=1), dimension(3),  intent(in)  :: cod
+      !---- local variables ----!
+      integer :: i,j
+      character(len=len(Symb)), dimension(3) :: split
+
+      i=index(Symb,",")
+      j=index(Symb,",",back=.true.)
+      split(1)= pack_string(Symb(1:i-1))
+      split(2)= pack_string(Symb(i+1:j-1))
+      split(3)= pack_string(Symb(j+1:))
+      do i=1,3
+       call Get_Num_String(trim(split(i)), Mat(i,:),cod)
+      end do
+      return
+    End Subroutine Get_Mat_From_Symb
+
+    !!--..  Subroutine Get_Num_String(string,v,cod)
+    !!--..    character(len=*),                intent(in)  :: string
+    !!--..    real,dimension(3),               intent(out) :: v
+    !!--..    character(len=1), dimension(3),  intent(in)  :: cod
+    !!--..
+    !!--..  Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
+    !!--..  a real vector from symbol of the form:  m1a+m2b+m3c. Similar comments
+    !!--..  as for the subroutine Get_Mat_From_Symb applies.
+    !!--..
+    !!--..  Created: February - 2012 (JRC).
+    !!--..
+    Subroutine Get_Num_String(string,v,cod)
+      character(len=*),                intent(in)  :: string
+      real,dimension(3),               intent(out) :: v
+      character(len=1), dimension(3),  intent(in)  :: cod
+      !--- Local variables ---!
+      integer :: i
+      integer, dimension(3) :: j
+      character(len=len(String)), dimension(3) :: nsp
+
+      do i=1,3
+        j(i)=index(string,cod(i))
+      end do
+
+      if(j(1) == 0) then
+
+        v(1)=0.0
+        if(j(2) == 0) then
+          v(2)=0.0
+          !only the third component exist
+          call Read_Fract(string(1:j(3)-1), v(3))
+        else if(j(3) == 0) then
+          v(3)=0.0
+          !only the second component exist
+          call Read_Fract(string(1:j(2)-1), v(2))
+        else    !j(2) and j(3) are not zero
+          if(j(2) < j(3)) then
+            call Read_Fract(string(1:j(2)-1), v(2))
+            call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+          else
+            call Read_Fract(string(1:j(3)-1), v(3))
+            call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+          end if
+        end if
+
+      else if(j(2) == 0) then
+
+        v(2)=0.0
+        !j(1)/=0 now, just check j(3)
+        if(j(3) == 0) then
+          v(3)=0.0
+          !only the First component exist
+          call Read_Fract(string(1:j(1)-1), v(1))
+        else  ! only 1 and 3
+          if(j(1) < j(3)) then
+            call Read_Fract(string(1:j(1)-1), v(1))
+            call Read_Fract(string(j(1)+1:j(3)-1), v(3))
+          else
+            call Read_Fract(string(1:j(3)-1), v(3))
+            call Read_Fract(string(j(3)+1:j(1)-1), v(1))
+          end if
+
+        endif
+
+      else if(j(3) == 0) then
+
+        v(3)=0.0
+        if(j(1) < j(2)) then
+          call Read_Fract(string(1:j(1)-1), v(1))
+          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
+        else
+          call Read_Fract(string(1:j(2)-1), v(2))
+          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
+        end if
+
+      else !none of them is zero
+
+        if(j(1) < j(2) .and. j(2) < j(3)) Then !normal order a b c
+          call Read_Fract(string(1:j(1)-1),      v(1))
+          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
+          call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+        else if(j(2) < j(1) .and. j(1) < j(3)) then ! b a c
+          call Read_Fract(string(1:j(2)-1),      v(2))
+          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
+          call Read_Fract(string(j(1)+1:j(3)-1), v(3))
+        else if(j(2) < j(3) .and. j(3) < j(1)) then ! b c a
+          call Read_Fract(string(1:j(2)-1),      v(2))
+          call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+          call Read_Fract(string(j(3)+1:j(1)-1), v(1))
+        else if(j(3) < j(2) .and. j(2) < j(1)) then ! c b a
+          call Read_Fract(string(1:j(3)-1),      v(3))
+          call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
+        else if(j(3) < j(1) .and. j(1) < j(2)) then ! c a b
+          call Read_Fract(string(1:j(3)-1),      v(3))
+          call Read_Fract(string(j(3)+1:j(1)-1), v(1))
+          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
+        else if(j(1) < j(3) .and. j(3) < j(2)) then ! a c b
+          call Read_Fract(string(1:j(1)-1),      v(1))
+          call Read_Fract(string(j(1)+1:j(3)-1), v(3))
+          call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+        else
+          !This is impossible in principle
+          ERR_String= .true.
+          ERR_String_Mess=" The provided symbol is illegal: "//trim(string)
+        end if
+      end if
+
+    End Subroutine Get_Num_String
+
     !!----
     !!---- Subroutine Getnum(Line, Vet, Ivet, Iv)
     !!----    character(len=*),              intent( in) :: Line    !  In -> Input String to convert
@@ -1927,6 +2080,63 @@
        end if
        return
     End Subroutine NumCol_from_NumFmt
+
+    !!--..  Subroutine Read_Fract(str,valu)
+    !!--..   Character(len=*), intent(in) :: str
+    !!--..   real,             intent(out):: valu
+    !!--..
+    !!--..  Auxiliary subroutine for reading a string containing a real number
+    !!--..  or a fraction. Is able to handle simple symbols:"", "-", "+", means
+    !!--..  respectively: 1,-1,1
+    !!--..
+    !!--..  Created: February - 2012 (JRC).
+    !!--..
+    Subroutine Read_Fract(str,valu)
+     Character(len=*), intent(in) :: str
+     real,             intent(out):: valu
+     !--- Local variables ---!
+     integer :: k, ierr
+     real(kind=cp) :: num,den
+
+     if(len_trim(str) == 0) then
+       valu=1.0
+       return
+     else if(len_trim(str) == 1) then
+       if(str == "+") then
+        valu=1.0
+        return
+       else if(str == "-") then
+        valu=-1.0
+        return
+       end if
+     end if
+     k=index(str,"/")
+     if(k == 0) then !a single number
+       read(unit=str,fmt=*,iostat=ierr) valu
+       if(ierr /= 0) then
+          valu=0.0
+          ERR_String= .true.
+          ERR_String_Mess=" The provided symbol is illegal: "//trim(str)
+          return
+       end if
+     else !fraction
+       read(unit=str(1:k-1),fmt=*,iostat=ierr) num
+       if(ierr /= 0) then
+          valu=0.0
+          ERR_String= .true.
+          ERR_String_Mess=" The provided symbol is illegal: "//str(1:k-1)
+          return
+       end if
+       read(unit=str(k+1:),fmt=*,iostat=ierr) den
+       if(ierr /= 0) then
+          valu=0.0
+          ERR_String= .true.
+          ERR_String_Mess=" The provided symbol is illegal: "//str(k+1:)
+          return
+       end if
+       valu=num/den
+     end if
+    End Subroutine Read_Fract
 
 
     !!----

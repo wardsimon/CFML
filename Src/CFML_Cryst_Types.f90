@@ -192,7 +192,7 @@
     !!----     real(kind=cp),dimension(3,3) :: Cr_Orth_cel        ! P-Matrix transforming Orthonormal
     !!----                                                        ! basis to direct Crytal cell (as I.T.)
     !!----                                                        ! (or crystallographic components to
-    !!----                                                        !  cartesian components)
+    !!----                                                        !  Cartesian components: XC = Cr_Orth_cel X -> XC,X: column vectors)
     !!----     real(kind=cp),dimension(3,3) :: Orth_Cr_cel        ! Inv(Cr_Orth_cel) -> Cartesian to cryst. components
     !!----     real(kind=cp),dimension(3,3) :: BL_M               ! Busing-Levy B-matrix (transforms hkl to  a
     !!----                                                          Cartesian system with x//a*, y in (a*,b*) and z//c
@@ -1451,7 +1451,7 @@
     !!--++
     !!--++    (PRIVATE)
     !!--++    Obtains the matrix giving the crystallographic basis in
-    !!--++    direct space in terms of a cartesian basis. The output matrix
+    !!--++    direct space in terms of a Cartesian basis. The output matrix
     !!--++    can be directly used for transforming crystallographic components
     !!--++    to Cartesian components of the components of a vector considered
     !!--++    as a column vector:   XC = CrystOrt X.
@@ -1476,7 +1476,7 @@
     !!--++
     !!--++      [a] = C [e] , In [a],[e] basis vectors are in column form
     !!--++      (a) = (e) CT, In (a),(e) basis vectors are in row form
-    !!--++      CrystOrt = CT  => (a) = (e) CystOrt
+    !!--++      CrystOrt = CT  => (a) = (e) CystOrt, in ITC: (a) = (e) P
     !!--++
     !!--++    Remember that  C.CT = GD (direct cell metrics)
     !!--++

@@ -18,6 +18,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd     goto IFORTd
    goto END
 rem
 rem ****---- Absoft Compiler ----****
@@ -45,6 +46,16 @@ rem ****---- Intel Compiler ----****
    ifort /c calsym.f90 /O2 /nologo /I..\..\ifort\LibC
    rem ifort /exe:CrysCalc *.obj ..\..\ifort\LibC\crysfml.lib
    link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort\LibC\crysfml.lib
+   goto END
+:IFORTD
+   ifort /c menu_1.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c menu_2.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c menu_3.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c menu_4.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c menu_5.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c calsym.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   rem ifort /exe:CrysCalc *.obj ..\..\ifort_debug\LibC\crysfml.lib
+   link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort_debug\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
