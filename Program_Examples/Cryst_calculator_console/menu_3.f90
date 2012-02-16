@@ -25,7 +25,7 @@
        do
           call system('cls')
 
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Atoms Calculations "
           write(unit=*,fmt="(a)") " ============================"
@@ -75,7 +75,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information "
           write(unit=*,fmt="(a)") " ================================"
@@ -90,7 +90,7 @@
 
           do
              call system('cls')
-             write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+             write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
              write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)") "     Multiplicity Position "
              write(unit=*,fmt="(a)") " ============================="

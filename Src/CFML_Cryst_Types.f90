@@ -101,6 +101,7 @@
 !!---- VARIABLES
 !!----    CRYSTAL_CELL_TYPE
 !!----    TWOFOLD_AXES_TYPE
+!!----    ZONE_AXIS_TYPE
 !!----    ERR_CRYS
 !!----    ERR_CRYS_MESS
 !!--++    IDENTITY                       [Private]
@@ -122,6 +123,7 @@
 !!----
 !!----    Subroutines:
 !!----       CHANGE_SETTING_CELL
+!!----       GET_BASIS_FROM_UVW
 !!----       GET_CONVENTIONAL_CELL
 !!----       GET_CRYST_FAMILY
 !!--++       GET_CRYST_ORTHOG_MATRIX     [Private]
@@ -165,7 +167,7 @@
     public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,          &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,    &
               Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,  &
-              Get_Transfm_Matrix
+              Get_Transfm_Matrix, Get_basis_from_uvw
 
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -249,6 +251,32 @@
        real(kind=cp), dimension(12)   :: maxes=0.0
        real(kind=cp), dimension(3)    :: a=0.0,b=0.0,c=0.0
     End Type Twofold_Axes_Type
+
+    !!----
+    !!----  TYPE :: ZONE_AXIS_TYPE
+    !!--..
+    !!----  Type, public :: Zone_Axis_Type
+    !!----    Integer               :: nlayer   ! Number of two-fold axes
+    !!----    Integer, dimension(3) :: uvw      ! Angular tolerance (ca 3 degrees)
+    !!----    Integer, dimension(3) :: rx       ! Cartesian components of two-fold axes
+    !!----    Integer, dimension(3) :: ry       ! Direct indices of two-fold axes
+    !!----  End Type Zone_Axis_Type             ! Reciprocal indices of two-fold axes
+    !!----
+    !!----
+    !!----  This type comes from ResVis. It is useful to have it as a genereal type for
+    !!----  many kinds of applications. Used in the subroutine Get_Basis_From_UVW.
+    !!----
+    !!---- Updated: February - 2012
+    !!
+
+    Type, public :: Zone_Axis_Type
+      Integer               :: nlayer
+      Integer, dimension(3) :: uvw
+      Integer, dimension(3) :: rx
+      Integer, dimension(3) :: ry
+    End Type Zone_Axis_Type
+
+
 
     !!----
     !!---- ERR_CRYS
@@ -736,6 +764,117 @@
 
        return
     End Subroutine Change_Setting_Cell
+
+    !!----
+    !!---- Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok)
+    !!----    real(kind=cp)             intent(in) :: dmin  !minimum d-spacing (smax=1/dmin)
+    !!----    integer, dimension(3),    intent(in) :: u     !Zone axis indices
+    !!----    type (Crystal_Cell_Type), intent(in) :: cell
+    !!----    type (Zone_Axis_Type),    intent(out):: ZoneB !Object containing u and basis vector in the plane
+    !!----    logical,                  intent(out):: ok
+    !!----
+    !!----  Subroutine to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
+    !!----  lattice vectors satisfying the equation
+    !!----                            hu+kv+lw=0
+    !!----  The two reciprocal lattice vectors have no coprime factors and
+    !!----  constitute the basis of a reciprocal lattice plane. They are
+    !!----  obtained as the shortest two reciprocal lattice vectors satisfying
+    !!----  the above equation. This subroutine has been moved from resvis_proc.f90 to here.
+    !!----
+    !!----  Created: February 2006 (Imported from old programs for electron diffraction, Thesis JRC)
+    !!----  Updated: February 2012 (JRC)
+    !!----
+    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok)
+       !--- Arguments ---!
+       real(kind=cp),            intent(in) :: dmin
+       integer, dimension(3),    intent(in) :: u
+       type (Crystal_Cell_Type), intent(in) :: cell
+       type (Zone_Axis_Type),    intent(out):: ZoneB
+       logical,                  intent(out):: ok
+       !--- Local Variables ---!
+       integer                :: n,ik,il,um,iv,i1,i2,i,coun1,coun2
+       integer,dimension(1)   :: i0
+       integer                :: kmin,kmax,lmin,lmax
+       integer,dimension(3)   :: au,h,mu
+       real, dimension(2)     :: rm
+       integer,dimension(3,2) :: bas
+       real                   :: rv,s2max
+
+       ZoneB%nlayer=0
+       ZoneB%uvw=u
+       ok=.false.
+
+       au=abs(u)
+       um=3*maxval(au)
+       i0=maxloc(au)
+
+       i=i0(1)
+       iv=u(i)
+       mu=u
+       if (iv < 0) then
+          mu=-u
+         iv=-iv
+       end if
+
+       Select Case (i)
+         Case(1)
+           i1=2; i2=3
+         Case(2)
+           i1=1; i2=3
+         Case(3)
+           i1=1; i2=2
+       End Select
+
+       rm(1)=100000.0; rm(2)=rm(1)
+       bas(:,1) = (/ 71,121, 113/)
+       bas(:,2) = (/117, 91,-111/)
+
+       s2max=1.0/(dmin*dmin)
+       kmax=nint(Cell%cell(i1)/dmin+1.0)
+       lmax=nint(Cell%cell(i2)/dmin+1.0)
+       kmax=min(um,kmax)
+       lmax=min(um,lmax)
+
+       kmin=-kmax; lmin=-lmax
+       coun1=0; coun2=0
+       do ik=kmin,kmax
+          do il=lmin,lmax
+             if (ik == 0 .and. il == 0) cycle
+             n=-ik*mu(i1)-il*mu(i2)
+             if (mod(n,iv) == 0) then               !n is multiple of iv
+                h(i)= n/iv ; h(i1)=ik ; h(i2) = il  !h is solution of hu+kv+lw=0
+                rv=dot_product(real(h),matmul(cell%gr,real(h)))
+                if (s2max < rv .or. rv < 1.0e-20) cycle
+                if (rv < rm(1)) then
+                   if (.not. co_linear(bas(:,1),h,3) ) then
+                      bas(:,2)=bas(:,1)
+                      rm(2) = rm(1)
+                      if (coun1 >=1) coun2=coun2+1
+                   end if
+                   bas(:,1)=h
+                   rm(1) = rv
+                   coun1=coun1+1
+                else if (rv < rm(2) .and. .not. co_linear(bas(:,1),h,3) ) then
+                   bas(:,2)=h
+                   rm(2) = rv
+                   coun2=coun2+1
+                end if
+             end if
+          end do
+       end do
+       ZoneB%rx=bas(:,1)
+       ZoneB%ry=bas(:,2)
+       if (coun1 >= 1 .and. coun2 >=1) ok=.true.
+       coun1=0; coun2=0
+       do i=1,3
+          if (ZoneB%rx(i) < 0) coun1=coun1+1
+          if (ZoneB%ry(i) < 0) coun2=coun2+1
+       end do
+       if (coun1 >= 2) ZoneB%rx=-ZoneB%rx
+       if (coun2 >= 2) ZoneB%ry=-ZoneB%ry
+
+       return
+    End Subroutine Get_Basis_From_Uvw
 
     !!----
     !!---- Subroutine Get_Conventional_Cell(Twofold,Cell,Tr,Message,Ok,told)

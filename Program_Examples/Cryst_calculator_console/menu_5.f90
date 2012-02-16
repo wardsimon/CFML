@@ -5,8 +5,9 @@
 !!
  Module Menu_5
    !---- Use File ----!
-   !use CFML_Crystallographic_Symmetry
-   use CFML_Crystal_Metrics
+   use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Set_Crystal_Cell, Write_Crystal_Cell, Get_Basis_From_UVW, &
+                                    Zone_Axis_Type
+   use CFML_GlobalDeps,       only: cp, Pi, Eps
    !use CFML_Math_3D
    use CFML_String_Utilities, only:  L_Case, pack_string, Get_Mat_From_Symb, Err_String, ERR_String_Mess
 
@@ -16,7 +17,6 @@
 
    type (Crystal_Cell_type) :: Celda
    Logical                  :: cell_Given=.false.
-   real, parameter          :: eps=1.0e-7
    integer                  :: ierr
    Character(len=1)         :: Cart_type="A"
 
@@ -33,7 +33,7 @@
        do
           call system('cls')
 
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Geometrical Calculations Menu "
           write(unit=*,fmt="(a)") " ======================================"
@@ -96,7 +96,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " [0] Back..."
           write(unit=*,fmt="(a)") " "
@@ -157,7 +157,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "        GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Angle between two directions in direct space"
           write(unit=*,fmt="(a)") " ===================================================="
@@ -228,7 +228,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "        GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Angle between two directions in reciprocal space"
           write(unit=*,fmt="(a)") " ======================================================="
@@ -302,7 +302,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "        GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Direction in direct space => unitary direction in reciprocal space"
           write(unit=*,fmt="(a)") " ==========================================================================="
@@ -362,7 +362,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "        GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Direction in reciprocal space => unitary direction in direct space"
           write(unit=*,fmt="(a)") " ==========================================================================="
@@ -421,7 +421,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "        GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Basis change matrix => get new unit cell parameters"
           write(unit=*,fmt="(a)") " =========================================================="
@@ -435,6 +435,11 @@
              line=L_Case(adjustl(line))
              Symb=line
              call Get_Mat_From_Symb(Symb,Mat,(/"a","b","c"/))
+             if(Err_String) then
+               write(unit=*,fmt="(a)") " => "//trim(Err_String_Mess)
+               call system("pause ")
+               cycle
+             end if
              write(unit=*,fmt="(a)") " => Matrix corresponding to trasformation: "//trim(Symb)
              do i=1,3
                 write(unit=*,fmt="(a,3f9.5)") "         ",Mat(i,:)
@@ -457,163 +462,103 @@
 
     subroutine Menu_Geom_7()
        !---- Local Variables ----!
+       character(len=40)      :: line
+       integer, dimension(3)  :: u
+       integer, dimension(:,:), allocatable  :: h
+       real,    dimension(3)  :: uc,hc
+       real                   :: dmin,Acirc,Abas
+       integer                :: i,j,k,n,m,np
+       Type(Zone_Axis_Type)   :: Zone_Axis
+       Logical                :: ok
+
+       do
+          call system('cls')
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "      Zone axis: list of zone planes and angles"
+          write(unit=*,fmt="(a)") " ====================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+
+          if (Cell_Given) then
+             write(unit=*,fmt="(a)",advance="no") " => Enter the indices of direction (<cr> for exit): "
+             read(*,'(a)') line
+             if (len_trim(line)==0) exit
+             line=adjustl(line)
+             read(unit=line,fmt=*,iostat=ierr) u
+             if(ierr /= 0) then
+                 write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
+                 call system("pause ")
+                 cycle
+             end if
+             write(unit=*,fmt="(a)",advance="no") " => Enter the minimum d-spacing of planes (<cr> for exit): "
+             read(*,'(a)') line
+             if (len_trim(line)==0) exit
+             line=adjustl(line)
+             read(unit=line,fmt=*,iostat=ierr) dmin
+             if(ierr /= 0) then
+                 write(unit=*,fmt="(a)") " -> Error in dmin ... retry!"
+                 call system("pause ")
+                 cycle
+             end if
+
+             call Get_basis_from_uvw(dmin,u,celda,Zone_Axis,ok)
+             if(.not. ok) then
+                write(unit=*,fmt="(a,3i3,a)") " => Problem in getting the basis in the reciprocal plane perpendicular to [",u,"]"
+                cycle
+             end if
+             ! Area of the circle of radius r*=1/dmin
+             Acirc=pi/dmin/dmin
+             ! Area of the unit cell spanned by the basis
+             Abas=Zone_Axis%rx
+             m=(hm(1)+1)*(2*hm(2)+1)*(2*hm(3)+1)/2 !
+             if(allocated(h)) deallocate(h)
+             allocate(h(3,m))
+             np=m
+             m=0
+             out: do i=0,hm(1)
+              ii=i*u(1)
+              do j=-hm(2),hm(2)
+                jj=j*u(2)
+                do k=-hm(3),hm(3)
+                  kk=k*u(3)
+                  n=ii+jj+kk
+                  if(n /= 0) cycle
+                  m=m+1
+                  if(m > np) exit out
+                  h(:,m)=(/i,j,k/)
+                end do
+               end do
+             end do out
+
+             uc=Cart_Vector("R",u,Celda)
+             mu=sqrt(dot_Product(uc,uc))
+             v=Matmul(Celda%GR,u)
+             vc=Cart_Vector("D",v,Celda)
+             mv=sqrt(dot_Product(vc,vc))
+             if(mu < eps) then
+                 write(unit=*,fmt="(a)") " -> The directions is [0 0 0] ... retry!"
+                 call system("pause ")
+                 cycle
+             end if
+             uc=uc/mu
+             v=v/mv
+             write(unit=*,fmt="(2(a,3f9.4),a)") "                        [hkl]*: [",u,"]  -> Unit vector: [",u/mu,"]"
+             write(unit=*,fmt="(a,3f9.4,a)")    "   Cartesian Unit vector[hkl]c: [",uc,"]"
+             write(unit=*,fmt="(a,3f9.4,a)")    "      Direct Unit vector[uvw] : [",v,"]*"
+
+          else
+             write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
+             call system("pause ")
+             exit
+          end if
+          write(unit=*,fmt=*) " "
+          call system("pause ")
+       end do
 
 
     End Subroutine Menu_Geom_7
 
-!    Subroutine get_mat_from_symb(Symb,Mat,cod)
-!      character(len=*),                intent(in)  :: Symb
-!      real,dimension(3,3),             intent(out) :: Mat
-!      character(len=1), dimension(3),  intent(in)  :: cod
-!      !---- local variables ----!
-!      integer :: i,j,k
-!      character(len=len(Symb)), dimension(3) :: split
-!
-!      i=index(Symb,",")
-!      j=index(Symb,",",back=.true.)
-!      split(1)= pack_string(Symb(1:i-1))
-!      split(2)= pack_string(Symb(i+1:j-1))
-!      split(3)= pack_string(Symb(j+1:))
-!      do i=1,3
-!       call get_num_string(trim(split(i)), Mat(i,:),cod)
-!      end do
-!     contains
-!
-!        Subroutine get_num_string(string, v,cod)
-!          character(len=*),                intent(in)  :: string
-!          real,dimension(3),               intent(out) :: v
-!          character(len=1), dimension(3),  intent(in)  :: cod
-!          integer :: i
-!          integer, dimension(3) :: j
-!          character(len=len(String)), dimension(3) :: nsp
-!
-!          do i=1,3
-!            j(i)=index(string,cod(i))
-!          end do
-!
-!          if(j(1) == 0) then
-!            v(1)=0.0
-!            if(j(2) == 0) then
-!              v(2)=0.0
-!              !only the third component exist
-!              call Read_Fract(string(1:j(3)-1), v(3))
-!            else if(j(3) == 0) then
-!              v(3)=0.0
-!              !only the second component exist
-!              call Read_Fract(string(1:j(2)-1), v(2))
-!            else    !j(2) and j(3) are not zero
-!              if(j(2) < j(3)) then
-!                call Read_Fract(string(1:j(2)-1), v(2))
-!                call Read_Fract(string(j(2)+1:j(3)-1), v(3))
-!              else
-!                call Read_Fract(string(1:j(3)-1), v(3))
-!                call Read_Fract(string(j(3)+1:j(2)-1), v(2))
-!              end if
-!            end if
-!
-!          else if(j(2) == 0) then
-!            v(2)=0.0
-!            !j(1)/=0 now, just check j(3)
-!            if(j(3) == 0) then
-!              v(3)=0.0
-!              !only the First component exist
-!              call Read_Fract(string(1:j(1)-1), v(1))
-!            else  ! only 1 and 3
-!              if(j(1) < j(3)) then
-!                call Read_Fract(string(1:j(1)-1), v(1))
-!                call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-!              else
-!                call Read_Fract(string(1:j(3)-1), v(3))
-!                call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-!              end if
-!
-!            endif
-!
-!          else if(j(3) == 0) then
-!            v(3)=0.0
-!            if(j(1) < j(2)) then
-!              call Read_Fract(string(1:j(1)-1), v(1))
-!              call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-!            else
-!              call Read_Fract(string(1:j(2)-1), v(2))
-!              call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-!            end if
-!
-!          else !none of them is zero
-!
-!            if(j(1) < j(2) .and. j(2) < j(3)) Then !normal order a b c
-!              call Read_Fract(string(1:j(1)-1),      v(1))
-!              call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-!              call Read_Fract(string(j(2)+1:j(3)-1), v(3))
-!            else if(j(2) < j(1) .and. j(1) < j(3)) then ! b a c
-!              call Read_Fract(string(1:j(2)-1),      v(2))
-!              call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-!              call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-!            else if(j(2) < j(3) .and. j(3) < j(1)) then ! b c a
-!              call Read_Fract(string(1:j(2)-1),      v(2))
-!              call Read_Fract(string(j(2)+1:j(3)-1), v(3))
-!              call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-!            else if(j(3) < j(2) .and. j(2) < j(1)) then ! c b a
-!              call Read_Fract(string(1:j(3)-1),      v(3))
-!              call Read_Fract(string(j(3)+1:j(2)-1), v(2))
-!              call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-!            else if(j(3) < j(1) .and. j(1) < j(2)) then ! c a b
-!              call Read_Fract(string(1:j(3)-1),      v(3))
-!              call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-!              call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-!            else if(j(1) < j(3) .and. j(3) < j(2)) then ! a c b
-!              call Read_Fract(string(1:j(1)-1),      v(1))
-!              call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-!              call Read_Fract(string(j(3)+1:j(2)-1), v(2))
-!            else
-!              !This is impossible
-!              write(*,*) "  Something strange has occured!"
-!            end if
-!          end if
-!
-!        End Subroutine get_num_string
-!
-!        Subroutine Read_Fract(str,valu)
-!         Character(len=*), intent(in) :: str
-!         real,             intent(out):: valu
-!         integer :: k
-!         real    :: num,den
-!         if(len_trim(str) == 0) then
-!           valu=1.0
-!           return
-!         else if(len_trim(str) == 1) then
-!           if(str == "+") then
-!            valu=1.0
-!            return
-!           else if(str == "-") then
-!            valu=-1.0
-!            return
-!           end if
-!         end if
-!         k=index(str,"/")
-!         if(k == 0) then !a single number
-!           read(unit=str,fmt=*,iostat=ierr) valu
-!           if(ierr /= 0) then
-!              valu=0.0
-!              write(*,"(a)") " => Error, input string: "//str
-!           end if
-!         else !fraction
-!           read(unit=str(1:k-1),fmt=*,iostat=ierr) num
-!           if(ierr /= 0) then
-!              valu=0.0
-!              write(*,"(a)") " => Error, input string: "//str(1:k-1)
-!              return
-!           end if
-!           read(unit=str(k+1:),fmt=*,iostat=ierr) den
-!           if(ierr /= 0) then
-!              valu=0.0
-!              write(*,"(a)") " => Error, input string: "//str(k+1:)
-!              return
-!           end if
-!           valu=num/den
-!         end if
-!        End Subroutine Read_Fract
-!
-!    End Subroutine get_mat_from_symb
 
  End Module Menu_5

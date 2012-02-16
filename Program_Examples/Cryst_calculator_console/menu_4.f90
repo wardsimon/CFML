@@ -24,7 +24,7 @@
        do
           call system('cls')
 
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Chemical Information "
           write(unit=*,fmt="(a)") " ============================"
@@ -74,7 +74,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt=*) "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt=*) "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) "     International Chemical Table "
           write(unit=*,fmt=*) " ===================================="

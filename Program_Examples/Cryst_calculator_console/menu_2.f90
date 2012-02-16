@@ -26,7 +26,7 @@
        do
           call system('cls')
 
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Reflections Menu "
           write(unit=*,fmt="(a)") " ========================"
@@ -88,7 +88,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Asymmetric Unit in Reciprocal Space"
           write(unit=*,fmt="(a)") " ==========================================="
@@ -138,7 +138,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Put Reflections in the Asymmetric Unit"
           write(unit=*,fmt="(a)") " =============================================="
@@ -212,7 +212,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Systematic Absences"
           write(unit=*,fmt="(a)") " ==========================="
@@ -269,7 +269,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     List of equivalent reflections "
           write(unit=*,fmt="(a)") " ======================================"
@@ -358,7 +358,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     List of Unique Reflections  "
           write(unit=*,fmt="(a)") " ======================================"
@@ -424,7 +424,7 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Multiplicity of the Reflection"
           write(unit=*,fmt="(a)") " ======================================"

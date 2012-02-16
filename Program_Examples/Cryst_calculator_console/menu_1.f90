@@ -103,7 +103,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information "
           write(unit=*,fmt="(a)") " ================================"
@@ -142,7 +142,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Determination of the Full list of Symmetry Operators "
           write(unit=*,fmt="(a)") " ==========================================================="
@@ -226,7 +226,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Group from Generators (Jones Faithful representation)"
           write(unit=*,fmt="(a)") " ==================================================================="
@@ -302,7 +302,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Hall Symbol from a set of Generators"
           write(unit=*,fmt="(a)") " ============================================"
@@ -383,7 +383,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "       Comparison of Two Space Groups"
           write(unit=*,fmt="(a)") "   ======================================"
@@ -598,7 +598,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Determination of the Laue class and Point Group "
           write(unit=*,fmt="(a)") " ======================================================="
@@ -649,7 +649,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Derivation symbols for symmetry operations"
           write(unit=*,fmt="(a)") " =================================================="
@@ -724,7 +724,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Conversion of Symmetry Operators of Space Groups"
           write(unit=*,fmt="(a)") "          ONLY CALCULATIONS ON SYMMETRY OPERATORS"
@@ -805,7 +805,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Wyckoff Information "
           write(unit=*,fmt="(a)") " ==========================="
@@ -842,7 +842,7 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTRALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Wyckoff Information "
           write(unit=*,fmt="(a)") " ==========================="
