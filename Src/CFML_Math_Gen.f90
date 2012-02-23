@@ -268,7 +268,7 @@
     !!----    List of the first 1000 prime numbers.
     !!----    Used by the subroutine Co_Prime_Vector and function Co_Prime
     !!----
-    !!---- Update: January - 2011
+    !!----  Created: January - 2011
     !!
     integer, parameter, dimension(1000), public :: primes =                                       &
            (/ 2,      3,      5,      7,     11,     13,     17,     19,     23,     29,  &
@@ -1519,36 +1519,43 @@
     !!----
     !!---- Function Co_Prime(v,imax) result(cop)
     !!----   integer, dimension(:), intent(in) :: v
-    !!----   integer,               intent(in) :: imax !Maximun prime number to be tested
+    !!----   integer,  optional,    intent(in) :: imax !Maximun prime number to be tested
     !!----   Logical                           :: cop
     !!----
-    !!---- Provides the value .TRUE. if the array V contains
-    !!---- co-primes integers: there is no common divisor for all
-    !!---- the integers. Only the first 20 prime numbers are tested
-    !!---- The value of imax the the maximum prime number to be tested (imax <=7919)
+    !!---- Provides the value .TRUE. if the array V contains co-prime
+    !!---- integers: there is no common divisor for all the integers.
+    !!---- Only the first 1000 prime numbers are stored in the module array "primes"
+    !!---- imax is the maximum prime number to be tested. It is calculated if not given.
     !!----
-    !!---- Updated: January - 2011
+    !!---- Created: January - 2011
+    !!---- Updated: February - 2012  (JRC) (imax argument made optional, really not needed)
     !!
     Function Co_Prime(v,imax) result(cop)
       integer, dimension(:), intent(in) :: v
-      integer,               intent(in) :: imax
+      integer, optional,     intent(in) :: imax
       Logical                           :: cop
       !---- Local variables ----!
-      integer :: i,j,im,k,dimv
+      integer :: i,j,im,k,dimv,imaxv,maxv
 
       cop=.true.
-      !---- If the maximum value of the indices is 1 they are not coprimes
-      if (maxval(abs(v)) == 1) return
-      if (maxval(abs(v)) == 0) then
+      maxv=maxval(abs(v))
+      if(present(imax)) then
+        imaxv=imax
+      else
+        imaxv=maxv
+      end if
+      !---- If the maximum value of the indices is 1 they are coprimes
+      if (maxv == 1) return
+      if (maxv == 0) then
          cop=.false.
          return
       end if
       !---- Search the maximum prime number to be tested
-      if (imax > 7919) then
+      if (imaxv > 7919) then
         im=1000
       else
         do i=1,1000
-           if(imax > primes(i)) cycle
+           if(imaxv > primes(i)) cycle
            im=i
            exit
         end do

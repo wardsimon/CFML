@@ -256,11 +256,11 @@
     !!----  TYPE :: ZONE_AXIS_TYPE
     !!--..
     !!----  Type, public :: Zone_Axis_Type
-    !!----    Integer               :: nlayer   ! Number of two-fold axes
-    !!----    Integer, dimension(3) :: uvw      ! Angular tolerance (ca 3 degrees)
-    !!----    Integer, dimension(3) :: rx       ! Cartesian components of two-fold axes
-    !!----    Integer, dimension(3) :: ry       ! Direct indices of two-fold axes
-    !!----  End Type Zone_Axis_Type             ! Reciprocal indices of two-fold axes
+    !!----    Integer               :: nlayer   ! number of the reciprocal layer considered normally nlayer=0
+    !!----    Integer, dimension(3) :: uvw      ! Indices of the zone axis
+    !!----    Integer, dimension(3) :: rx       ! Indices (reciprocal vector) of the basis vector 1
+    !!----    Integer, dimension(3) :: ry       ! Indices (reciprocal vector) of the basis vector 2
+    !!----  End Type Zone_Axis_Type
     !!----
     !!----
     !!----  This type comes from ResVis. It is useful to have it as a genereal type for
@@ -766,12 +766,13 @@
     End Subroutine Change_Setting_Cell
 
     !!----
-    !!---- Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok)
+    !!---- Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
     !!----    real(kind=cp)             intent(in) :: dmin  !minimum d-spacing (smax=1/dmin)
     !!----    integer, dimension(3),    intent(in) :: u     !Zone axis indices
     !!----    type (Crystal_Cell_Type), intent(in) :: cell
     !!----    type (Zone_Axis_Type),    intent(out):: ZoneB !Object containing u and basis vector in the plane
     !!----    logical,                  intent(out):: ok
+    !!----    character(len=*),optional,intent(in) :: mode
     !!----
     !!----  Subroutine to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
     !!----  lattice vectors satisfying the equation
@@ -779,24 +780,31 @@
     !!----  The two reciprocal lattice vectors have no coprime factors and
     !!----  constitute the basis of a reciprocal lattice plane. They are
     !!----  obtained as the shortest two reciprocal lattice vectors satisfying
-    !!----  the above equation. This subroutine has been moved from resvis_proc.f90 to here.
+    !!----  the above equation. If mode is provided and mode="R", we interpret
+    !!----  that the input zone axis is a reciprocal lattice vector and what we
+    !!----  obtain is the basis of a direct plane in terms of lattice vectors.
+    !!----  If mode="R", dmin corresponds n(uvw)max
+    !!----  This subroutine has been imported from resvis_proc.f90.
     !!----
     !!----  Created: February 2006 (Imported from old programs for electron diffraction, Thesis JRC)
     !!----  Updated: February 2012 (JRC)
     !!----
-    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok)
+    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
        !--- Arguments ---!
        real(kind=cp),            intent(in) :: dmin
        integer, dimension(3),    intent(in) :: u
        type (Crystal_Cell_Type), intent(in) :: cell
        type (Zone_Axis_Type),    intent(out):: ZoneB
        logical,                  intent(out):: ok
+       character(len=*),optional,intent(in) :: mode
+
        !--- Local Variables ---!
-       integer                :: n,ik,il,um,iv,i1,i2,i,coun1,coun2
+       integer                :: n,ik,il,um,iv,i1,i2,i,coun01,coun02,coun1,coun2
        integer,dimension(1)   :: i0
        integer                :: kmin,kmax,lmin,lmax
        integer,dimension(3)   :: au,h,mu
        real, dimension(2)     :: rm
+       real, dimension(3,3)   :: mat
        integer,dimension(3,2) :: bas
        real                   :: rv,s2max
 
@@ -812,7 +820,7 @@
        iv=u(i)
        mu=u
        if (iv < 0) then
-          mu=-u
+         mu=-u
          iv=-iv
        end if
 
@@ -829,22 +837,32 @@
        bas(:,1) = (/ 71,121, 113/)
        bas(:,2) = (/117, 91,-111/)
 
-       s2max=1.0/(dmin*dmin)
-       kmax=nint(Cell%cell(i1)/dmin+1.0)
-       lmax=nint(Cell%cell(i2)/dmin+1.0)
-       kmax=min(um,kmax)
-       lmax=min(um,lmax)
+       if(present(mode)) then
+         s2max=dmin*dmin   !here dmin is really n_max
+         kmax=nint(dmin/Cell%cell(i1)+1.0)
+         lmax=nint(dmin/Cell%cell(i2)+1.0)
+         kmax=min(um,kmax)
+         lmax=min(um,lmax)
+         mat=cell%gd
+       else
+         s2max=1.0/(dmin*dmin)
+         kmax=nint(Cell%cell(i1)/dmin+1.0)
+         lmax=nint(Cell%cell(i2)/dmin+1.0)
+         kmax=min(um,kmax)
+         lmax=min(um,lmax)
+         mat=cell%gr
+       end if
 
        kmin=-kmax; lmin=-lmax
        coun1=0; coun2=0
-       do ik=kmin,kmax
-          do il=lmin,lmax
+       do ik=kmax,kmin,-1
+          do il=lmax,lmin,-1
              if (ik == 0 .and. il == 0) cycle
              n=-ik*mu(i1)-il*mu(i2)
              if (mod(n,iv) == 0) then               !n is multiple of iv
                 h(i)= n/iv ; h(i1)=ik ; h(i2) = il  !h is solution of hu+kv+lw=0
-                rv=dot_product(real(h),matmul(cell%gr,real(h)))
-                if (s2max < rv .or. rv < 1.0e-20) cycle
+                rv=dot_product(real(h),matmul(mat,real(h)))
+                if (rv > s2max  .or. rv < 1.0e-20) cycle
                 if (rv < rm(1)) then
                    if (.not. co_linear(bas(:,1),h,3) ) then
                       bas(:,2)=bas(:,1)
@@ -865,13 +883,15 @@
        ZoneB%rx=bas(:,1)
        ZoneB%ry=bas(:,2)
        if (coun1 >= 1 .and. coun2 >=1) ok=.true.
-       coun1=0; coun2=0
+       coun01=0; coun02=0; coun1=0; coun2=0
        do i=1,3
           if (ZoneB%rx(i) < 0) coun1=coun1+1
           if (ZoneB%ry(i) < 0) coun2=coun2+1
+          if (ZoneB%rx(i) == 0) coun01=coun01+1
+          if (ZoneB%ry(i) == 0) coun02=coun02+1
        end do
-       if (coun1 >= 2) ZoneB%rx=-ZoneB%rx
-       if (coun2 >= 2) ZoneB%ry=-ZoneB%ry
+       if (coun1 >= 2 .or. (coun1 == 1 .and. coun01 == 2)) ZoneB%rx=-ZoneB%rx
+       if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
 
        return
     End Subroutine Get_Basis_From_Uvw

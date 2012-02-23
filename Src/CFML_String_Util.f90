@@ -1432,18 +1432,42 @@
         if(j(2) == 0) then
           v(2)=0.0
           !only the third component exist
-          call Read_Fract(string(1:j(3)-1), v(3))
+          if(j(3)-1 <= 0) then
+             v(3)=1.0
+          else
+            call Read_Fract(string(1:j(3)-1), v(3))
+          end if
         else if(j(3) == 0) then
           v(3)=0.0
           !only the second component exist
-          call Read_Fract(string(1:j(2)-1), v(2))
+          if(j(2)-1 <= 0) then
+            v(2)=1.0
+          else
+            call Read_Fract(string(1:j(2)-1), v(2))
+          end if
         else    !j(2) and j(3) are not zero
           if(j(2) < j(3)) then
-            call Read_Fract(string(1:j(2)-1), v(2))
-            call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+            if(j(2)-1 <= 0) then
+              v(2)=1.0
+            else
+              call Read_Fract(string(1:j(2)-1), v(2))
+            end if
+            if(j(3)-1-j(2) <= 0) then
+              v(3)=1.0
+            else
+              call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+            end if
           else
-            call Read_Fract(string(1:j(3)-1), v(3))
-            call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+            if(j(3)-1 <= 0) then
+              v(3)=1.0
+            else
+              call Read_Fract(string(1:j(3)-1), v(3))
+            end if
+            if(j(2)-1-j(3) <= 0) then
+              v(2)=1.0
+            else
+              call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+            end if
           end if
         end if
 
@@ -1454,11 +1478,23 @@
         if(j(3) == 0) then
           v(3)=0.0
           !only the First component exist
-          call Read_Fract(string(1:j(1)-1), v(1))
+          if(j(1)-1 <= 0) then
+            v(1)=1.0
+          else
+            call Read_Fract(string(1:j(1)-1), v(1))
+          end if
         else  ! only 1 and 3
           if(j(1) < j(3)) then
-            call Read_Fract(string(1:j(1)-1), v(1))
-            call Read_Fract(string(j(1)+1:j(3)-1), v(3))
+            if(j(1)-1 <= 0) then
+              v(1)=1.0
+            else
+              call Read_Fract(string(1:j(1)-1), v(1))
+            end if
+            if(j(3)-1-j(1) <= 0) then
+              v(3)=1.0
+            else
+              call Read_Fract(string(j(1)+1:j(3)-1), v(3))
+            end if
           else
             call Read_Fract(string(1:j(3)-1), v(3))
             call Read_Fract(string(j(3)+1:j(1)-1), v(1))
