@@ -36,9 +36,9 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " [1] Asymmetric Unit in Reciprocal Space"
           write(unit=*,fmt="(a)") " [2] Change an arbitrary reflection to the Asymmetric Unit"
-          write(unit=*,fmt="(a)") " [3] Systematic Absences of Reflections"
+          write(unit=*,fmt="(a)") " [3] Systematic Absence of Reflections"
           write(unit=*,fmt="(a)") " [4] List of Equivalent Reflections"
-          write(unit=*,fmt="(a)") " [5] List of unique reflections within a range of S or D"
+          write(unit=*,fmt="(a)") " [5] List of unique reflections within a range of S or D (output to a File)"
           write(unit=*,fmt="(a)") " [6] Multiplicity of reflections"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
@@ -100,12 +100,17 @@
           if (len_trim(line)==0) exit
           spgr=adjustl(line)
           call set_spacegroup(spgr,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           call write_asu(grp_espacial)
           write(unit=*,fmt=*) " "
           call system("pause ")
           do
-             write(unit=*,fmt=*) " Enter a reflection [3 integers] <cr> -> stops:"
-             read(*,'(a)') line
+             write(unit=*,fmt="(a)",advance="no") " Enter a reflection [3 integers] <cr> -> stops: "
+             read(unit=*,fmt='(a)') line
              if (len_trim(line)==0) exit
              read(unit=line,fmt=*,iostat=ierr) h
              if(ierr /= 0) cycle
@@ -147,17 +152,22 @@
 
           if (info) then
              write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall/Num): "
-
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
+             if(Err_Symm) then
+               write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+               call system('pause')
+               cycle
+             end if
              info=.false.
           end if
 
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) "  Reflection hkl and phase: "
-          read(*,*) h(1),h(2),h(3),fase
+          write(unit=*,fmt="(a)")              "  Space Group: "//trim(grp_espacial%SPG_Symb)
+          write(unit=*,fmt="(a)",advance="no") "  Reflection hkl and phase (0 0 0 0 for exit): "
+          read(unit=*,fmt=*) h(1:3),fase
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
@@ -183,7 +193,7 @@
              h=asu_hkl(k,grp_espacial)
              if (hkl_equal(h,nulo)) cycle
              if (hkl_equal(h,-k)) cycle
-             write(*,'(a,3i4,f8.1)') " Reflection in asymmetric unit: ", h,fase1
+             write(unit=*,fmt='(a,3i4,f8.1)') " Reflection in asymmetric unit: ", h,fase1
           end do
 
           write(unit=*,fmt=*) " "
@@ -214,8 +224,8 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Systematic Absences"
-          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") "     Systematic Absence of Reflections"
+          write(unit=*,fmt="(a)") "  ======================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
@@ -226,19 +236,24 @@
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
+             if(Err_Symm) then
+               write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+               call system('pause')
+               cycle
+             end if
              info=.false.
           end if
 
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) "  Reflection hkl: "
-          read(*,*) h(1),h(2),h(3)
+          write(unit=*,fmt="(a)")              "  Space Group: "//trim(grp_espacial%SPG_Symb)
+          write(unit=*,fmt="(a)",advance="no") "  Reflection hkl (0 0 0 for exit): "
+          read(unit=*,fmt=*) h(1:3)
           write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           if (hkl_absent(h,grp_espacial)) then
-             write(unit=*,fmt=*) " This reflexion IS a Systematic Absence"
+             write(unit=*,fmt="(a)") " This reflexion IS a Systematic Absence"
           else
-             write(unit=*,fmt=*) " This reflexion IS NOT a Systematic Absence"
+             write(unit=*,fmt="(a)") " This reflexion IS NOT a Systematic Absence"
           end if
           write(unit=*,fmt=*) " "
           call system("pause ")
@@ -283,12 +298,18 @@
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
+             if(Err_Symm) then
+               write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+               call system('pause')
+               cycle
+             end if
              info=.false.
           end if
 
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " Reflection hkl and phase: "
-          read(*,*) h(1),h(2),h(3),fase
+          write(unit=*,fmt="(a)")              "  Space Group: "//trim(grp_espacial%SPG_Symb)
+          write(unit=*,fmt="(a)",advance="no") "  Reflection hkl and phase (0 0 0 0 for exit): "
+          read(unit=*,fmt=*) h(1),h(2),h(3),fase
           write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           if (.not. allocated(reflexiones)) allocate (reflexiones(grp_espacial%multip))
@@ -313,7 +334,7 @@
              if ((i+1) <= num) then
                 l=reflexiones(i+1)%h
                 fase2=reflexiones(i+1)%phase
-                write(*,'(5x,3i4,f8.1,10x,3i4,f8.1)')k,fase1,l,fase2
+                write(unit=*,fmt='(5x,3i4,f8.1,10x,3i4,f8.1)')k,fase1,l,fase2
              else
                 write(*,'(5x,3i4,f8.1)')k,fase1
              end if
@@ -358,10 +379,10 @@
        do
           call system('cls')
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "         GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     List of Unique Reflections  "
-          write(unit=*,fmt="(a)") " ======================================"
+          write(unit=*,fmt="(a)") "     Output List of Unique Reflections to a file  "
+          write(unit=*,fmt="(a)") "   ==============================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
@@ -372,27 +393,34 @@
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
-             write(unit=*,fmt=*) " Unit Cell Parameters ( a b c alpha beta gamma): "
-             read(*,*) celda, angulo
+             if(Err_Symm) then
+               write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+               call system('pause')
+               cycle
+             end if
+             write(unit=*,fmt="(a)",advance="no") " Unit Cell Parameters ( a b c alpha beta gamma): "
+             read(unit=*,fmt=*) celda, angulo
              call Set_Crystal_Cell(celda, angulo, celdilla)
              info=.false.
           end if
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " INTERVAL in Sin_Theta/Lambda: "
-          read(*,*) val1,val2
-          if (val1*val2 < 0.0001) exit
+          write(unit=*,fmt="(a)",advance="no") " INTERVAL in Sin_Theta/Lambda (0 0 for exit): "
+          read(unit=*,fmt=*) val1,val2
+          if (val1 < 0.00001 .and. val2 < 0.00001) exit
           write(unit=*,fmt=*) " "
           if (.not. allocated(reflexiones)) allocate (reflexiones(10000))
           call hkl_uni(celdilla,grp_espacial,.true.,val1,val2,'s',num,reflexiones)
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " Name of the output file: "
-          read(*,'(a)') name_file
+          write(unit=*,fmt="(a)",advance="no") " Name of the output file: "
+          read(unit=*,fmt='(a)') name_file
           open(1,file=name_file)
           write(1,'(a)') "    LIST OF UNIQUE REFLECTIONS"
           write(1,'(a)') " ================================"
           call write_spacegroup(grp_espacial,1)
           call Write_Crystal_Cell(Celdilla,1)
           write(1,'(/a,2f8.4,a/)') " => List of reflections within: ",val1,val2," 1/Ang"
+          write(1,"(/,a)") "   h   k   l    m     1/d         #"
+          write(1,"(a)")   "   ================================"
           do i=1,num
              write(1,'(3i4,i5,f10.5,i8)') reflexiones(i)%h, reflexiones(i)%mult, &
                                           reflexiones(i)%S, i
@@ -426,8 +454,8 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Multiplicity of the Reflection"
-          write(unit=*,fmt="(a)") " ======================================"
+          write(unit=*,fmt="(a)") "        Multiplicity of Reflections"
+          write(unit=*,fmt="(a)") "  ======================================"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
@@ -438,16 +466,22 @@
              if (len_trim(line)==0) exit
              line=adjustl(line)
              call set_spacegroup(line,grp_espacial)
+             if(Err_Symm) then
+               write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+               call system('pause')
+               cycle
+             end if
              info=.false.
           end if
 
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " Reflection hkl: "
-          read(*,*) h(1),h(2),h(3)
+          write(unit=*,fmt="(a)")              "  Space Group: "//trim(grp_espacial%SPG_Symb)
+          write(unit=*,fmt="(a)",advance="no") "  Reflection hkl (0 0 0 for exit): "
+          read(unit=*,fmt=*) h
           write(unit=*,fmt=*) " "
           if (hkl_equal(h,nulo)) exit
           mul=hkl_mult(h,grp_espacial,.true.)
-          write(*,'(6x,a,i6)') "Multiplicity of reflection: ",mul
+          write(*,'(6x,a,3i4,a,i6)') "Multiplicity of reflection: ",h," : ",mul
           write(unit=*,fmt=*) " "
           call system("pause ")
        end do

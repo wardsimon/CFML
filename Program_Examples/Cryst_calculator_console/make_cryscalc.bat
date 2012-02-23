@@ -48,12 +48,12 @@ rem ****---- Intel Compiler ----****
    link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort\LibC\crysfml.lib
    goto END
 :IFORTD
-   ifort /c menu_1.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
-   ifort /c menu_2.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
-   ifort /c menu_3.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
-   ifort /c menu_4.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
-   ifort /c menu_5.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
-   ifort /c calsym.f90 /debug:full /check /traceback /nologo /I..\..\ifort\LibC
+   ifort /c menu_1.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
+   ifort /c menu_2.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
+   ifort /c menu_3.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
+   ifort /c menu_4.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
+   ifort /c menu_5.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
+   ifort /c calsym.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    rem ifort /exe:CrysCalc *.obj ..\..\ifort_debug\LibC\crysfml.lib
    link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort_debug\LibC\crysfml.lib
    goto END

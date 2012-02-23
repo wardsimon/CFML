@@ -67,9 +67,9 @@
     Subroutine Menu_Atom_1()
        !---- Local Variables ----!
        character(len=20)     :: line, spgr
-       integer               :: i, iv, ierr, npos
+       integer               :: i, iv, ierr, mlt
        integer, dimension(3) :: ivet
-       real                  :: mlt
+       real                  :: occ
        real, dimension(3)    :: vet,xp
        type (Space_Group_type)    :: grp_espacial
 
@@ -83,17 +83,21 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
-          read(*,'(a)') line
+          read(unit=*,fmt='(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
           call set_spacegroup(line,grp_espacial)
-
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           do
              call system('cls')
-             write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+             write(unit=*,fmt="(a)") "       GENERAL CRYSTALLOGRAPHY CALCULATOR "
              write(unit=*,fmt="(a)") " "
-             write(unit=*,fmt="(a)") "     Multiplicity Position "
-             write(unit=*,fmt="(a)") " ============================="
+             write(unit=*,fmt="(a)") "     Multiplicity and Occupancy of Position "
+             write(unit=*,fmt="(a)") "   ==========================================="
              write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)",advance="no") " Position: "
@@ -101,28 +105,13 @@
              read(*,'(a)') line
              if (len_trim(line)==0) exit
              line=adjustl(line)
-
+             vet=0.0
              call getnum(line,vet,ivet,iv)
              if (iv == 3) then
-                npos=0
-                do i=1,grp_espacial%multip
-                   xp=ApplySO(grp_espacial%Symop(i), vet)
-                   xp=mod(xp+10.0,1.0)
-
-                   if (abs(xp(1)-vet(1)) .le. 0.001 .and. &
-                       abs(xp(2)-vet(2)) .le. 0.001 .and. &
-                       abs(xp(3)-vet(3)) .le. 0.001 ) npos =npos+1
-
-                end do
-
-                if (npos /= 0) then
-                   mlt=1.0/real(npos)
-                else
-                   mlt=0.0
-                end if
-
+                mlt=Get_Multip_Pos(vet,grp_espacial)
+                occ=real(mlt)/real(grp_espacial%Multip)
                 write(unit=*,fmt=*) " "
-                write(*,'(a,f7.4)') " Multiplicity: ",mlt
+                write(*,'(a,i4,a,f3.6)') " Multiplicity: ",mlt, "     Occupancy(SHELX/FullProf) proportional to: ",occ
                 call system('pause')
              end if
           end do

@@ -35,10 +35,10 @@
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " [0] Back..."
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") " [ 1] Space Group Information"
-          write(unit=*,fmt="(a)") " [ 2] Determination of the full list of Symmetry Operators"
+          write(unit=*,fmt="(a)") " [ 1] Space Group Information (Complete information on the Screen)"
+          write(unit=*,fmt="(a)") " [ 2] List of the full list of Symmetry Operators (File/Screen)"
           write(unit=*,fmt="(a)") " [ 3] Construct a Space Group from a set of Generators"
-          write(unit=*,fmt="(a)") " [ 4] Symbol Hall from a set of Generators"
+          write(unit=*,fmt="(a)") " [ 4] Hall Symbol from a set of Generators"
           write(unit=*,fmt="(a)") " [ 5] Comparison of Two Space Groups"
           write(unit=*,fmt="(a)") " [ 6] Determination of the Laue class and Point Group"
           write(unit=*,fmt="(a)") " [ 7] Determination of the Symbol for Symmetry Operators"
@@ -103,10 +103,10 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Space Groups Information "
-          write(unit=*,fmt="(a)") " ================================"
+          write(unit=*,fmt="(a)") "     Space Groups Information (Complete information on the Screen)"
+          write(unit=*,fmt="(a)") "   =================================================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
@@ -116,6 +116,11 @@
           line=adjustl(line)
 
           call set_spacegroup(line,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           call write_spacegroup(grp_espacial,full=.true.)
           write(unit=*,fmt=*) " "
           call system("pause ")
@@ -142,10 +147,10 @@
 
        do
           call system('cls')
-          write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") "              GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Determination of the Full list of Symmetry Operators "
-          write(unit=*,fmt="(a)") " ==========================================================="
+          write(unit=*,fmt="(a)") "     List of the full list of Symmetry Operators (File/Screen) "
+          write(unit=*,fmt="(a)") " =================================================================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
@@ -155,11 +160,16 @@
           line=adjustl(line)
 
           call set_spacegroup(line,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
 
           !---- OutPut ----!
           write(unit=*,fmt=*) " "
-          write(unit=*,fmt=*) " Output on Screen or File ([S]/F)? "
-          read(*,'(a)') line
+          write(unit=*,fmt="(a)",advance="no") " Output on Screen or File ([S]/F)? "
+          read(unit=*,fmt='(a)') line
           call ucase(line)
           if (len_trim(line) == 0) line='S'
           select case (line(1:1))
@@ -167,12 +177,12 @@
                 lun=6
              case ('F')
                 lun=1
-                open(1,file="symoper.dat")
+                open(unit=1,file="symoper.dat",status="replace",action="write")
           end select
 
-          write(lun,'(a)') " Full list of Symmetry Operators"
-          write(lun,'(a)') " ==============================="
-          write(lun,'(a)') " "
+          write(unit=lun,fmt='(a)') " Full list of Symmetry Operators for space group: "//trim(grp_espacial%SPG_Symb)
+          write(unit=lun,fmt='(a)') " ============================================================"
+          write(unit=lun,fmt='(a,i4,/)') " General Multiplicity: ",grp_espacial%multip
 
           nlines= 1
           texto = " "
@@ -190,7 +200,7 @@
           end do
 
           do i=1,nlines
-             write(lun,'(a)') texto(i)
+             write(unit=lun,fmt='(a)') texto(i)
           end do
 
           if (lun == 1) then
@@ -237,9 +247,15 @@
           call ucase(ans)
           if (ans == 'Y' ) then
 
-             write(unit=*,fmt=*) " Give the space group symbol  : "
+             write(unit=*,fmt="(a)",advance="no") " Give the space group symbol: "
              read(*,'(a)') spgr
-              call Get_Generators(Spgr,Gener)
+             call Get_Generators(Spgr,Gener)
+             if(err_symtab) then
+               write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+               write(*,*) " "
+               call system("pause")
+               cycle
+             end if
               ng=0
               do
 
@@ -258,24 +274,29 @@
 
               end do
                 do i=1,ng
-                  write(*,*)"  => Generator #", i, gen(i)
+                  write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                 end do
           else
 
              write(unit=*,fmt=*) " "
-             write(unit=*,fmt=*) " Give the number of generators (max 10): "
+             write(unit=*,fmt="(a)",advance="no") " Give the number of generators (max 10): "
              read(*,*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
              istart=1
              do i=1,ng
-                write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
-                read(*,'(a)') gen(i)
+                write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
+                read(unit=*,fmt='(a)') gen(i)
                 call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
              end do
           end if
 
           call set_spacegroup(spgr,grp_espacial,gen,ng,mode='gen')
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           call write_spacegroup(grp_espacial,full=.true.)
           write(*,*)" "
           call system("pause")
@@ -308,13 +329,20 @@
           write(unit=*,fmt="(a)") " ============================================"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") " Generators from International Tables ?(Y/[N]): "
+          write(unit=*,fmt="(a)",advance="no") " Generators from International Tables ?(Y/[N]): "
           read(*,"(a)") ans
           call ucase(ans)
           if (ans == 'Y' ) then
-             write(unit=*,fmt=*) " Give the space group symbol  : "
-             read(*,'(a)') spgr
-              call Get_Generators(Spgr,Gener)
+             write(unit=*,fmt="(a)",advance="no") " Give the number or the space group symbol : "
+             read(unit=*,fmt='(a)') spgr
+             call Get_Generators(Spgr,Gener)
+             if(err_symtab) then
+               write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+               write(*,*) " "
+               call system("pause")
+               cycle
+             end if
+
               ng=0
               do
 
@@ -333,21 +361,26 @@
 
               end do
                 do i=1,ng
-                  write(*,*)"  => Generator #", i, gen(i)
+                  write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                 end do
           else
              write(unit=*,fmt=*) " "
-             write(unit=*,fmt=*) " Give the number of generators (max 10): "
+             write(unit=*,fmt="(a)",advance="no") " Give the number of generators (max 10): "
              read(*,*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
              istart=1
              do i=1,ng
-                write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
+                write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
                 read(*,'(a)') gen(i)
              end do
           end if
           call set_spacegroup(spgr,grp_espacial,gen,ng,'gen')
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           call Get_HallSymb_from_Gener(grp_espacial,hall)
           write(unit=*,fmt=*)  " "
           write(unit=*,fmt=*)  "  Calculated Hall Symbol : "//hall
@@ -400,13 +433,19 @@
           select case (car)
              case('1')
                 write(unit=*,fmt=*) " "
-                write(unit=*,fmt=*) " Generators from International Tables SET1 ?(Y/[N]): "
-                read(*,'(a)') car
+                write(unit=*,fmt="(a)",advance="no") " Generators from International Tables SET1 ?(Y/[N]): "
+                read(unit=*,fmt='(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  write(unit=*,fmt=*) " Give the space group symbol (SET1)  : "
-                  read(*,'(a)') spgr
+                  write(unit=*,fmt="(a)",advance="no") " Give the space group symbol (SET1)  : "
+                  read(unit=*,fmt='(a)') spgr
                    call Get_Generators(Spgr,Gener)
+                   if(err_symtab) then
+                     write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+                     write(*,*) " "
+                     call system("pause")
+                     cycle
+                   end if
                    ng=0
                    do
                      i=index(Gener,";")
@@ -423,32 +462,43 @@
                      end if
                    end do
                    do i=1,ng
-                     write(*,*)"  => Generator #", i, gen(i)
+                     write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                    end do
                 else
                    write(unit=*,fmt=*) " "
-                   write(unit=*,fmt=*) " Give the number of generators SET 1 (max 10): "
-                   read(*,*) ng
+                   write(unit=*,fmt="(a)",advance="no") " Give the number of generators SET 1 (max 10): "
+                   read(unit=*,fmt=*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
                    istart=1
                    do i=1,ng
-                      write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
-                      read(*,'(a)') gen(i)
+                      write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
+                      read(unit=*,fmt='(a)') gen(i)
                       call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
                    end do
                 end if
 
                 call set_spacegroup(spgr,grp_espacial1,gen,ng,mode='gen ')
+                if(Err_Symm) then
+                  write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+                  call system('pause')
+                  cycle
+                end if
 
                 write(unit=*,fmt=*) " "
-                write(unit=*,fmt=*) " Generators from International Tables SET2 ?(Y/[N]): "
+                write(unit=*,fmt="(a)",advance="no") " Generators from International Tables SET2 ?(Y/[N]): "
                 read(*,'(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  write(unit=*,fmt=*) " Give the space group symbol (SET2)  : "
-                  read(*,'(a)') spgr
+                   write(unit=*,fmt="(a)",advance="no") " Give the space group symbol (SET2)  : "
+                   read(unit=*,fmt='(a)') spgr
                    call Get_Generators(Spgr,Gener)
+                   if(err_symtab) then
+                     write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+                     write(*,*) " "
+                     call system("pause")
+                     cycle
+                   end if
                    ng=0
                    do
                      i=index(Gener,";")
@@ -465,17 +515,17 @@
                      end if
                    end do
                    do i=1,ng
-                     write(*,*)"  => Generator #", i, gen(i)
+                     write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                    end do
                 else
                    write(unit=*,fmt=*) " "
-                   write(unit=*,fmt=*) " Give the number of generators SET 2 (max 10): "
-                   read(*,*) ng
+                   write(unit=*,fmt="(a)",advance="no") " Give the number of generators SET 2 (max 10): "
+                   read(unit=*,fmt=*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
                    istart=1
                    do i=1,ng
-                      write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
+                      write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
                       read(*,'(a)') gen(i)
                       call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
                    end do
@@ -484,13 +534,19 @@
 
              case('2')
                 write(unit=*,fmt=*) " "
-                write(unit=*,fmt=*) " Generators from International Tables SET1 ?(Y/[N]): "
-                read(*,'(a)') car
+                write(unit=*,fmt="(a)",advance="no") " Generators from International Tables SET1 ?(Y/[N]): "
+                read(unit=*,fmt='(a)') car
                 call ucase(car)
                 if (car == 'Y' ) then
-                  write(unit=*,fmt=*) " Give the space group symbol (SET1)  : "
-                  read(*,'(a)') spgr
+                  write(unit=*,fmt="(a)",advance="no") " Give the space group symbol (SET1)  : "
+                  read(unit=*,fmt='(a)') spgr
                    call Get_Generators(Spgr,Gener)
+                   if(err_symtab) then
+                     write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+                     write(*,*) " "
+                     call system("pause")
+                     cycle
+                   end if
                    ng=0
                    do
                      i=index(Gener,";")
@@ -507,25 +563,25 @@
                      end if
                    end do
                    do i=1,ng
-                     write(*,*)"  => Generator #", i, gen(i)
+                     write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                    end do
                 else
                    write(unit=*,fmt=*) " "
-                   write(unit=*,fmt=*) " Give the number of generators SET 1 (max 10): "
-                   read(*,*) ng
+                   write(unit=*,fmt="(a)",advance="no") " Give the number of generators SET 1 (max 10): "
+                   read(unit=*,fmt=*) ng
                    if (ng == 0) exit
                    if (ng > 10) ng=10
                    istart=1
                    do i=1,ng
-                      write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
-                      read(*,'(a)') gen(i)
+                      write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
+                      read(unit=*,fmt='(a)') gen(i)
                       call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
                    end do
                 end if
                 call set_spacegroup(spgr,grp_espacial1,gen,ng,mode='gen ')
 
                 write(unit=*,fmt=*) " "
-                write(unit=*,fmt=*) " Space Group SET2 (HM/Hall/Num): "
+                write(unit=*,fmt="(a)",advance="no") " Space Group SET2 (HM/Hall/Num): "
                 read(*,'(a)') line
                 if (len_trim(line)==0) exit
                 line=adjustl(line)
@@ -581,7 +637,7 @@
           end if
           write(unit=*,fmt=*) " "
           call system("pause")
-          exit
+
        end do
 
     End Subroutine Menu_Spgr_5
@@ -611,6 +667,11 @@
           spgr=adjustl(spgr)
 
           call set_spacegroup(spgr,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
 
           call Get_Laue_PG(grp_espacial,laue_car,point_car)
 
@@ -624,7 +685,6 @@
                                                  laue_car,point_car
           write(unit=*,fmt=*) " "
           call system("pause")
-          exit
 
        end do
 
@@ -659,9 +719,15 @@
           read(*,"(a)") ans
           call ucase(ans)
           if (ans == 'Y' ) then
-             write(unit=*,fmt=*) " Give the space group symbol : "
-             read(*,'(a)') spgr
+             write(unit=*,fmt="(a)",advance="no") " Give the space group symbol : "
+             read(unit=*,fmt='(a)') spgr
              call Get_Generators(Spgr,Gener)
+             if(err_symtab) then
+               write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
+               write(*,*) " "
+               call system("pause")
+               cycle
+             end if
              ng=0
              do
                i=index(Gener,";")
@@ -678,20 +744,20 @@
                end if
              end do
              do i=1,ng
-               write(*,*)"  => Generator #", i, gen(i)
+               write(unit=*,fmt="(a,i3,a)")"  => Generator #", i, ": "//gen(i)
                call Read_Xsym(gen(i),1,ss(:,:,i),ts(:,i))
              end do
 
           else
              write(unit=*,fmt=*) " "
-             write(unit=*,fmt=*) " Give the number of generators (max 10): "
-             read(*,*) ng
+             write(unit=*,fmt="(a)",advance="no") " Give the number of generators (max 10): "
+             read(unit=*,fmt=*) ng
              if (ng == 0) exit
              if (ng > 10) ng=10
              istart=1
              do i=1,ng
-                write(*,'(a,i1,a)') " -> Give the generator number ",i,": "
-                read(*,'(a)') gen(i)
+                write(unit=*,fmt='(a,i1,a)',advance="no") " -> Give the generator number ",i,": "
+                read(unit=*,fmt='(a)') gen(i)
                 call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
              end do
           end if
@@ -700,9 +766,9 @@
           do i=1,ng
              call Get_SymSymb(ss(:,:,i),ts(:,i),simbolo)
              write(unit=*,fmt=*) " "
-             write(*,'(a,i1,5x,a)') " Generator: ",i, gen(i)
+             write(unit=*,fmt='(a,i1,5x,a)') " Generator: ",i, ": "//gen(i)
              call Symmetry_Symbol(gen(i),Symb)
-             write(*,'(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
+             write(unit=*,fmt='(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
           end do
           write(*,*) " "
           call system("pause")
@@ -738,6 +804,11 @@
           spgr=adjustl(spgr)
 
           call set_spacegroup(spgr,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
 
           !---- Systematic Conversions ----!
           call write_spacegroup(grp_espacial)
@@ -807,17 +878,22 @@
           call system('cls')
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Wyckoff Information "
-          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") "             Wyckoff Information "
+          write(unit=*,fmt="(a)") "        ==========================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
 
-          read(*,'(a)') line
+          read(unit=*,fmt='(a)') line
           if (len_trim(line)==0) exit
           line=adjustl(line)
 
           call set_spacegroup(line,grp_espacial)
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call system('pause')
+            cycle
+          end if
           call Get_Wyckoff(grp_espacial)
            write(unit=*,fmt=*) " "
           call system("pause ")
@@ -844,8 +920,8 @@
           call system('cls')
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
-          write(unit=*,fmt="(a)") "     Wyckoff Information "
-          write(unit=*,fmt="(a)") " ==========================="
+          write(unit=*,fmt="(a)") "             Wyckoff Information "
+          write(unit=*,fmt="(a)") "         ==========================="
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " "
 
@@ -862,7 +938,7 @@
              if (line(1:4) /= "SPGR") cycle
              read(line(12:40),'(a)') spgr
 
-             write(unit=*,fmt=*)  " Grupo Espacial: "//spgr
+             write(unit=*,fmt="(a)")  " Grupo Espacial: "//spgr
 
              call set_spacegroup(spgr,grp_espacial)
              call Get_Wyckoff(grp_espacial)
