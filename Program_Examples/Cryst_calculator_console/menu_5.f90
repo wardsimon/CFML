@@ -6,7 +6,7 @@
  Module Menu_5
    !---- Use File ----!
    use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Set_Crystal_Cell, Write_Crystal_Cell, &
-                                    Zone_Axis_Type, Cart_Vector, Change_Setting_Cell !, Get_Basis_From_UVW
+                                    Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
    use CFML_Math_3D,          only: Determ_V,invert_a, determ_a, Cross_Product
    use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector
@@ -59,6 +59,7 @@
           write(unit=*,fmt="(a)") "  [8] Basis change matrix => get new unit cell parameters"
           write(unit=*,fmt="(a)") "  [9] Zone axis: list of zone planes and angles,... special angles"
           write(unit=*,fmt="(a)") " [10] Indexing edges of a trapezoidal plane"
+          write(unit=*,fmt="(a)") " [11] List of planes intersecting a given one at a particular Zone Axis"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
@@ -732,13 +733,14 @@
        !---- Local Variables ----!
        character(len=80)      :: line
        real,    dimension(3)  :: uc,vc,h1,h2,h3,h4
-       real,    dimension(4)  :: angs
+       real,    dimension(4)  :: angs,abest
+       integer, dimension(3,8):: hb
        real,    dimension(:),allocatable  :: angles
        integer, dimension(:),allocatable  :: ii,jj,nang
        integer, dimension(3)  :: u,h,hi2,ho2,hi4,ho4
        real                   :: n_max,angle,mv1,mv2,mv3,mv4, tol, a13,a14,a23,a24, &
-                                 a1,a2,a3,a4, mu,mv
-       integer                :: i,j,k,nedges,n,msol,nsol
+                                 a1,a2,a3,a4, mu,mv,rf, rmin
+       integer                :: i,j,k,nedges,n,msol,nsol, nbest,neq
        Type(Zone_Axis_Type)   :: Zone_Axis
        Type(Zone_Planes_Type) :: Zone_Planes
        Logical                :: ok,v21,v41,v22,v42,vv
@@ -842,6 +844,7 @@
 
 
               nsol=0
+              rmin=999999.0
               do i=1,msol
                 if(nang(i) /= 1) cycle
                 h1= Zone_Planes%hc(:,ii(i))
@@ -914,15 +917,45 @@
                   if(.not. vv) cycle
                   !A solution has been found
                   nsol=nsol+1
-                  write(unit=*,fmt="(/,a,i5,tr4,3i3,a,3i3,f10.3)") "   Sol# ",nsol, &
-                          Zone_Planes%h(:,ii(i))," --- ",Zone_Planes%h(:,jj(i)),a1
+                  rf=abs(a1-angs(1))+abs(a2-angs(2))+abs(a3-angs(3))+abs(a4-angs(4))
+                  rf=100.0*rf/360.0
+                  if(rf < rmin-0.001) then
+                    rmin=rf
+                    neq=0
+                    nbest=nsol
+                    hb(:,1)=Zone_Planes%h(:,ii(i))
+                    hb(:,2)=Zone_Planes%h(:,jj(i))
+                    hb(:,3)=hi2;  hb(:,4)=ho2
+                    hb(:,5)=Zone_Planes%h(:,ii(j))
+                    hb(:,6)=Zone_Planes%h(:,jj(j))
+                    hb(:,7)=hi4;  hb(:,8)=ho4
+                    abest=(/a1,a2,a3,a4/)
+                  else if(abs(rf - rmin) < 0.001) then
+                    neq=neq+1
+                  end if
+                  write(unit=*,fmt="(/,a,i5,tr4,3i3,a,3i3,f10.3,a,f7.3)") "   Sol# ",nsol, &
+                          Zone_Planes%h(:,ii(i))," --- ",Zone_Planes%h(:,jj(i)),a1,"   R-factor(%)=",rf
                   write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi2," --- ",ho2,a2
                   write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ", &
                           Zone_Planes%h(:,ii(j))," --- ",Zone_Planes%h(:,jj(j)),a3
                   write(unit=*,fmt="(a,tr9,3i3,a,3i3,f10.3)") "        ",  hi4," --- ",ho4,a4
                 end do
               end do
-
+              if(nsol > 0) then
+                write(unit=*,fmt="(/,a,i3,a,f7.3,/,a,i2,a)") " -> The best solution is that of number: ",nbest, &
+                                    " of R-Factor(%)=",rmin, "    and ",neq, " additional equivalent solutions"
+                write(unit=*,fmt="(a)")   "           u  v  w  ---  u  v  w   Angle(Obs)  Angle(Cal)    Obs-Cal"
+                j=1
+                do i=1,4
+                  write(unit=*,fmt="(a,tr6,3i3,a,3i3,3f12.3)") "   ",  &
+                      hb(:,j)," --- ",hb(:,j+1),angs(i),abest(i),angs(i)-abest(i)
+                  j=j+2
+                end do
+              else
+                write(unit=*,fmt="(a)") " => NO solution! ... increase tolerance?"
+                call system("pause ")
+                cycle
+              end if
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
              call system("pause ")
@@ -932,6 +965,104 @@
           call system("pause ")
        end do
     End Subroutine Menu_Geom_10
+
+    !!----
+    !!---- Subroutine Menu_Geom_11
+    !!----
+    !!
+    Subroutine Menu_Geom_11()
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       integer, dimension(3)  :: h1,h2,u,uc
+       real,    dimension(3)  :: c1,c2
+       integer                :: i,j,k,n,hmax,kmax,lmax
+       real                   :: ang,ang1,ang2,mc1,mc2,dmin
+
+       do
+          call system('cls')
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "    List of planes intersecting a given one at a particular Zone Axis"
+          write(unit=*,fmt="(a)") "   Forming an angle with the given plane within the interval [ang1,ang2]"
+          write(unit=*,fmt="(a)") "    ================================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+
+          write(unit=*,fmt="(a)",advance="no") " => Enter the indices (hkl) of the Plane (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          read(unit=line,fmt=*,iostat=ierr) h1
+          if(ierr /= 0) then
+              write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
+              call system("pause ")
+              cycle
+          end if
+          write(unit=*,fmt="(a)",advance="no") " => Enter the indices [uvw] of the Zone Axis (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          read(unit=line,fmt=*,iostat=ierr) u
+          if(ierr /= 0) then
+              write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
+              call system("pause ")
+              cycle
+          end if
+
+          write(unit=*,fmt="(a)",advance="no") " => Enter the angular range to consider (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          read(unit=line,fmt=*,iostat=ierr) ang1,ang2
+          if(ierr /= 0) then
+              write(unit=*,fmt="(a)") " -> Error in ang1-ang2 ... retry!"
+              call system("pause ")
+              cycle
+          end if
+
+          write(unit=*,fmt="(a)",advance="no") " => Enter the minimum d-spacing of planes (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          read(unit=line,fmt=*,iostat=ierr) dmin
+          if(ierr /= 0) then
+              write(unit=*,fmt="(a)") " -> Error in dmin ... retry!"
+              call system("pause ")
+              cycle
+          end if
+          hmax=nint(Celda%cell(1)/dmin+1.0)
+          kmax=nint(Celda%cell(2)/dmin+1.0)
+          lmax=nint(Celda%cell(3)/dmin+1.0)
+          c1=Cart_Vector("R",real(h1),Celda)
+          mc1=sqrt(dot_Product(c1,c1))
+          write(unit=*,fmt="(/,2(a,3i3),a)") " => List of planes intersecting (",h1,") at the zone axis: [",u,"]"
+          n=0
+          do i=0,kmax
+            do j= kmax,-kmax,-1
+              do k= lmax,-lmax,-1
+                if(i == 0 .and. j == 0 .and. k == 0) cycle
+                h2=(/i,j,k/)
+                if(.not. co_prime(h2)) cycle
+                uc=Cross_Product(h1,h2)
+                if(co_linear(uc,u,3)) then
+                  !Calculate the angle with the initial plane
+                  c2=Cart_Vector("R",real(h2),Celda)
+                  mc2=sqrt(dot_Product(c2,c2))
+                  ang=180.0-Angle_val(c1,mc1,c2,mc2)
+                  if(ang >= ang1 .and. ang <= ang2) then
+                    n=n+1
+                    write(unit=*,fmt="(a,i5,a,3i4,a,f9.3,a)") "    #",n,"  (hkl):",h2,"  Angle:",ang," degrees"
+                  end if
+                end if
+              end do
+            end do
+          end do
+          write(unit=*,fmt=*) " "
+          call system("pause ")
+       end do
+
+    End Subroutine Menu_Geom_11
 
     Function Angle_val(h1,m1,h2,m2) result(angle)
      real, dimension(:), intent(in) :: h1,h2
@@ -943,7 +1074,7 @@
      angle=acosd(angle)
     End Function Angle_val
 
-    Subroutine Menu_Geom_11()
+    Subroutine Menu_Geom_12()
        !---- Local Variables ----!
        character(len=80)      :: line
        real,    dimension(3)  :: uc,vc
@@ -1164,10 +1295,8 @@
           write(unit=*,fmt=*) " "
           call system("pause ")
        end do
-    End Subroutine Menu_Geom_11
-
-    Subroutine Menu_Geom_12()
     End Subroutine Menu_Geom_12
+
 
    !!----  Get_Zone_Planes(u1,u2,dmin,Cell,Zone_Planes,Mode)
    !!----   !---- Arguments ----!
@@ -1392,110 +1521,110 @@
     !!----  Created: February 2006 (Imported from old programs for electron diffraction, Thesis JRC)
     !!----  Updated: February 2012 (JRC)
     !!----
-    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
-       !--- Arguments ---!
-       real(kind=cp),            intent(in) :: dmin
-       integer, dimension(3),    intent(in) :: u
-       type (Crystal_Cell_Type), intent(in) :: cell
-       type (Zone_Axis_Type),    intent(out):: ZoneB
-       logical,                  intent(out):: ok
-       character(len=*),optional,intent(in) :: mode
-
-       !--- Local Variables ---!
-       integer                :: n,ik,il,um,iv,i1,i2,i,coun01,coun02,coun1,coun2
-       integer,dimension(1)   :: i0
-       integer                :: kmin,kmax,lmin,lmax
-       integer,dimension(3)   :: au,h,mu
-       real, dimension(2)     :: rm
-       real, dimension(3,3)   :: mat
-       integer,dimension(3,2) :: bas
-       real                   :: rv,s2max
-
-       ZoneB%nlayer=0
-       ZoneB%uvw=u
-       ok=.false.
-
-       au=abs(u)
-       um=3*maxval(au)
-       i0=maxloc(au)
-
-       i=i0(1)
-       iv=u(i)
-       mu=u
-       if (iv < 0) then
-         mu=-u
-         iv=-iv
-       end if
-
-       Select Case (i)
-         Case(1)
-           i1=2; i2=3
-         Case(2)
-           i1=1; i2=3
-         Case(3)
-           i1=1; i2=2
-       End Select
-
-       rm(1)=100000.0; rm(2)=rm(1)
-       bas(:,1) = (/ 71,121, 113/)
-       bas(:,2) = (/117, 91,-111/)
-
-       if(present(mode)) then
-         s2max=dmin*dmin   !here dmin is really n_max
-         kmax=nint(dmin/Cell%cell(i1)+1.0)
-         lmax=nint(dmin/Cell%cell(i2)+1.0)
-         kmax=min(um,kmax)
-         lmax=min(um,lmax)
-         mat=cell%gd
-       else
-         s2max=1.0/(dmin*dmin)
-         kmax=nint(Cell%cell(i1)/dmin+1.0)
-         lmax=nint(Cell%cell(i2)/dmin+1.0)
-         kmax=min(um,kmax)
-         lmax=min(um,lmax)
-         mat=cell%gr
-       end if
-
-       kmin=-kmax; lmin=-lmax
-       coun1=0; coun2=0
-       do ik=kmax,kmin,-1
-          do il=lmax,lmin,-1
-             if (ik == 0 .and. il == 0) cycle
-             n=-ik*mu(i1)-il*mu(i2)
-             if (mod(n,iv) == 0) then               !n is multiple of iv
-                h(i)= n/iv ; h(i1)=ik ; h(i2) = il  !h is solution of hu+kv+lw=0
-                rv=dot_product(real(h),matmul(mat,real(h)))
-                if (rv > s2max  .or. rv < 1.0e-20) cycle
-                if (rv < rm(1)) then
-                   if (.not. co_linear(bas(:,1),h,3) ) then
-                      bas(:,2)=bas(:,1)
-                      rm(2) = rm(1)
-                      if (coun1 >=1) coun2=coun2+1
-                   end if
-                   bas(:,1)=h
-                   rm(1) = rv
-                   coun1=coun1+1
-                else if (rv < rm(2) .and. .not. co_linear(bas(:,1),h,3) ) then
-                   bas(:,2)=h
-                   rm(2) = rv
-                   coun2=coun2+1
-                end if
-             end if
-          end do
-       end do
-       ZoneB%rx=bas(:,1)
-       ZoneB%ry=bas(:,2)
-       if (coun1 >= 1 .and. coun2 >=1) ok=.true.
-       coun01=0; coun02=0; coun1=0; coun2=0
-       do i=1,3
-          if (ZoneB%rx(i) < 0) coun1=coun1+1
-          if (ZoneB%ry(i) < 0) coun2=coun2+1
-          if (ZoneB%rx(i) == 0) coun01=coun01+1
-          if (ZoneB%ry(i) == 0) coun02=coun02+1
-       end do
-       if (coun1 >= 2 .or. (coun1 == 1 .and. coun01 == 2)) ZoneB%rx=-ZoneB%rx
-       if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
-
-       return
-    End Subroutine Get_Basis_From_Uvw
+!    Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
+!       !--- Arguments ---!
+!       real(kind=cp),            intent(in) :: dmin
+!       integer, dimension(3),    intent(in) :: u
+!       type (Crystal_Cell_Type), intent(in) :: cell
+!       type (Zone_Axis_Type),    intent(out):: ZoneB
+!       logical,                  intent(out):: ok
+!       character(len=*),optional,intent(in) :: mode
+!
+!       !--- Local Variables ---!
+!       integer                :: n,ik,il,um,iv,i1,i2,i,coun01,coun02,coun1,coun2
+!       integer,dimension(1)   :: i0
+!       integer                :: kmin,kmax,lmin,lmax
+!       integer,dimension(3)   :: au,h,mu
+!       real, dimension(2)     :: rm
+!       real, dimension(3,3)   :: mat
+!       integer,dimension(3,2) :: bas
+!       real                   :: rv,s2max
+!
+!       ZoneB%nlayer=0
+!       ZoneB%uvw=u
+!       ok=.false.
+!
+!       au=abs(u)
+!       um=3*maxval(au)
+!       i0=maxloc(au)
+!
+!       i=i0(1)
+!       iv=u(i)
+!       mu=u
+!       if (iv < 0) then
+!         mu=-u
+!         iv=-iv
+!       end if
+!
+!       Select Case (i)
+!         Case(1)
+!           i1=2; i2=3
+!         Case(2)
+!           i1=1; i2=3
+!         Case(3)
+!           i1=1; i2=2
+!       End Select
+!
+!       rm(1)=100000.0; rm(2)=rm(1)
+!       bas(:,1) = (/ 71,121, 113/)
+!       bas(:,2) = (/117, 91,-111/)
+!
+!       if(present(mode)) then
+!         s2max=dmin*dmin   !here dmin is really n_max
+!         kmax=nint(dmin/Cell%cell(i1)+1.0)
+!         lmax=nint(dmin/Cell%cell(i2)+1.0)
+!         kmax=min(um,kmax)
+!         lmax=min(um,lmax)
+!         mat=cell%gd
+!       else
+!         s2max=1.0/(dmin*dmin)
+!         kmax=nint(Cell%cell(i1)/dmin+1.0)
+!         lmax=nint(Cell%cell(i2)/dmin+1.0)
+!         kmax=min(um,kmax)
+!         lmax=min(um,lmax)
+!         mat=cell%gr
+!       end if
+!
+!       kmin=-kmax; lmin=-lmax
+!       coun1=0; coun2=0
+!       do ik=kmax,kmin,-1
+!          do il=lmax,lmin,-1
+!             if (ik == 0 .and. il == 0) cycle
+!             n=-ik*mu(i1)-il*mu(i2)
+!             if (mod(n,iv) == 0) then               !n is multiple of iv
+!                h(i)= n/iv ; h(i1)=ik ; h(i2) = il  !h is solution of hu+kv+lw=0
+!                rv=dot_product(real(h),matmul(mat,real(h)))
+!                if (rv > s2max  .or. rv < 1.0e-20) cycle
+!                if (rv < rm(1)) then
+!                   if (.not. co_linear(bas(:,1),h,3) ) then
+!                      bas(:,2)=bas(:,1)
+!                      rm(2) = rm(1)
+!                      if (coun1 >=1) coun2=coun2+1
+!                   end if
+!                   bas(:,1)=h
+!                   rm(1) = rv
+!                   coun1=coun1+1
+!                else if (rv < rm(2) .and. .not. co_linear(bas(:,1),h,3) ) then
+!                   bas(:,2)=h
+!                   rm(2) = rv
+!                   coun2=coun2+1
+!                end if
+!             end if
+!          end do
+!       end do
+!       ZoneB%rx=bas(:,1)
+!       ZoneB%ry=bas(:,2)
+!       if (coun1 >= 1 .and. coun2 >=1) ok=.true.
+!       coun01=0; coun02=0; coun1=0; coun2=0
+!       do i=1,3
+!          if (ZoneB%rx(i) < 0) coun1=coun1+1
+!          if (ZoneB%ry(i) < 0) coun2=coun2+1
+!          if (ZoneB%rx(i) == 0) coun01=coun01+1
+!          if (ZoneB%ry(i) == 0) coun02=coun02+1
+!       end do
+!       if (coun1 >= 2 .or. (coun1 == 1 .and. coun01 == 2)) ZoneB%rx=-ZoneB%rx
+!       if (coun2 >= 2 .or. (coun2 == 1 .and. coun02 == 2)) ZoneB%ry=-ZoneB%ry
+!
+!       return
+!    End Subroutine Get_Basis_From_Uvw
  End Module Menu_5
