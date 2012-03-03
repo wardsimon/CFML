@@ -1420,7 +1420,6 @@
       !--- Local variables ---!
       integer :: i
       integer, dimension(3) :: j
-      character(len=len(String)), dimension(3) :: nsp
 
       do i=1,3
         j(i)=index(string,cod(i))
