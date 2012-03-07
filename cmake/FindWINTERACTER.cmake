@@ -58,7 +58,7 @@ if (WIN32)
     
     endif()        
     
-else()
+else(WIN32)
 
     find_path(WINTERACTER_INCLUDE_DIR
               NAMES winparam.h
@@ -139,7 +139,7 @@ else()
 
 endif()
 
-get_filename_component(WINTERACTER_INCLUDE_DIR ${WINTERACTER_LIBRARY} PATH)
+get_filename_component(WINTERACTER_INCLUDE_DIR ${WINTERACTER_MOD_DIR} PATH)
 
 set(WINTERACTER_INCLUDE_DIR ${WINTERACTER_INCLUDE_DIR}/include)
                                              
