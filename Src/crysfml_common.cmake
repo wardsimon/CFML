@@ -1,11 +1,3 @@
-# The minimum version number insuring a correct build.
-cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
-
-set(LIB_NAME crysfml_common)
-
-# The crysfml_common Fortran project.
-project(${LIB_NAME} Fortran)
-
 #################################
 # Sources section
 #################################
@@ -76,11 +68,17 @@ set_source_files_properties(${CRYSFML_COMMON_SOURCES} PROPERTIES COMPILE_FLAGS $
 # Those files need specific optimization flags.
 set_source_files_properties(CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS1})        
 
+#################################
+# Build section
+#################################
+
+set(LIBRARY_NAME crysfml_common)
+
 # The crysfml_common library is common to Console and GUI mode.
-add_library(${LIB_NAME} STATIC ${CRYSFML_COMMON_SOURCES})
+add_library(${LIBRARY_NAME} STATIC ${CRYSFML_COMMON_SOURCES})
 
 # The directory where the CrySFML modules files will be stored.
-set(CRYSFML_COMMON_MODULE_DIRECTORY ${crysfml_common_BINARY_DIR}/crysfml_common_modules)
+set(CRYSFML_COMMON_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_common_modules)
 
 # Sets the path where to place the mod files for the crysfml_common library.
-set_target_properties(${LIB_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_COMMON_MODULE_DIRECTORY})
+set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_COMMON_MODULE_DIRECTORY})

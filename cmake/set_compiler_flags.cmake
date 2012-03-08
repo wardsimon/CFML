@@ -1,4 +1,7 @@
 macro(set_compiler_flags)
+
+    # Nullify all the Fortran flags.
+    set(CMAKE_Fortran_FLAGS "")
     
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
     
@@ -30,7 +33,7 @@ macro(set_compiler_flags)
                 set(OPT_FLAGS "-g")
                 set(OPT_FLAGS1 "-g")
             elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-                set(CMAKE_Fortran_FLAGS_RELEASE "-O -warn -vec-report0")
+                set(CMAKE_Fortran_FLAGS_RELEASE "-warn -vec-report0")
                 set(OPT_FLAGS "-O")
                 set(OPT_FLAGS1 "-O0")
             endif()    
