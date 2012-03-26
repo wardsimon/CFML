@@ -73,12 +73,12 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
    end if
 
    ! Get the extent in each direction. Will be written as C array [0,n-1]
-   nx=size(Z,1)-1
-     ny=size(Z,2)-1
-     nz=size(Z,3)-1
+     nx=size(Z,1)
+     ny=size(Z,2)
+     nz=size(Z,3)
 
      ! Total number of points
-     ntot=(nx+1)*(ny+1)*(nz+1)
+     ntot=(nx)*(ny)*(nz)
 
      ! Determine the number of bits used
      nbytes=sizeof(Z(1,1,1))
@@ -91,14 +91,14 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
      ! ----------- Here starts the header
    write(unit=vtk_id) '<?xml version="1.0"?>'//end_line
      write(unit=vtk_id) '<VTKFile byte_order="LittleEndian" version="0.1" type="StructuredGrid">'//end_line
-     write(unit=nx_c,fmt=*) nx
-     write(unit=ny_c,fmt=*) ny
-     write(unit=nz_c,fmt=*) nz
+     write(unit=nx_c,fmt=*) nx-1
+     write(unit=ny_c,fmt=*) ny-1
+     write(unit=nz_c,fmt=*) nz-1
      write(unit=header,fmt='(A)') '<StructuredGrid WholeExtent="0 '//&
           trim(Pack_String(nx_c))//' 0 '//trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nz_c))//'">'
      write(unit=vtk_id) trim(header)//end_line
      write(unit=header,fmt='(A)') '<Piece Extent="0 '//trim(Pack_String(nx_c))//' 0 '//&
-          trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nx_c))//'">'
+          trim(Pack_String(ny_c))//' 0 '//trim(Pack_String(nz_c))//'">'
      write(unit=vtk_id) trim(header)//end_line
      write(unit=vtk_id) '<Points>'//end_line
      write(unit=nbit_c,fmt=*) nbits
@@ -122,22 +122,22 @@ subroutine array3D_pointdata_2_vts(Z,cell,xmin,xmax,ymin,ymax,zmin,zmax,filename
     ! First we write the number of bytes for the points
      write(unit=vtk_id) ntot*nbytes*3
     ! Then write the coordinates of the points
-   do i=0,nx
-        do j=0,ny
-            do k=0,nz
-                pos=(/xmin+(xmax-xmin)*i/nx,ymin+(ymax-ymin)*j/ny,zmin+(zmax-zmin)*k/nz/)
+    do k=1,nz
+       do j=1,ny
+            do i=1,nx
+                pos=(/xmin+(xmax-xmin)*(i-1.0)/nx,ymin+(ymax-ymin)*(j-1.0)/ny,zmin+(zmax-zmin)*(k-1.0)/nz/)
                 pos=Matmul(cell%Cr_Orth_cel,pos)
                 write(vtk_id) pos
             end do
           end do
-        end do
+      end do
      ! write the number of bytes for the point data
        write(unit=vtk_id) ntot*nbytes
      ! write the point data
-      do i=0,nx
-        do j=0,ny
-            do k=0,nz
-                write(vtk_id) Z(i+1,j+1,k+1)
+      do k=1,nz
+        do j=1,ny
+            do i=1,nx
+                write(vtk_id) Z(i,j,k)
             end do
         end do
      end do
