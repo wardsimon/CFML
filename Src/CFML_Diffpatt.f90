@@ -322,7 +322,7 @@
 
         !---- Local Variables ----!
         integer                           :: i,j,k,npts,nc,np
-        real                              :: xmin,xmax,step,y,cnorm,fac
+        real                              :: xmin,xmax,step,x1,x2,y,cnorm,fac
         real, dimension(:,:), allocatable :: d2y
 
         ! Init
@@ -377,6 +377,8 @@
            nc=0
            do i=1,N
               if (.not. active(i) ) cycle
+              x1=minval(Patterns(i)%x)
+              x2=maxval(Patterns(i)%x)
               k=locate(Patterns(i)%x,Patterns(i)%npts,Pat%x(j))
               if (k == 0) cycle
               nc=nc+1
@@ -872,7 +874,7 @@
        do
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
-          if (len_trim(line) == 0) cycle
+          if (len_trim(line) == 0) cycle    
           if (index(line,"!") /= 0) cycle
           i=i+1
        end do
@@ -1561,9 +1563,11 @@
        real(kind=cp),    dimension(4)               :: bcoef
        real(kind=cp)                                :: divi
        real(kind=cp)                                :: cnorm
+       logical                                      :: ok
        logical                                      :: tof !used only for some type of formats
 
        call init_err_diffpatt()
+       ok=.false.
        pat%tsamp=0.0
        pat%tset=0.0
        pat%scal=0.0
@@ -2791,7 +2795,7 @@
        type (diffraction_pattern_type), intent(in out) :: pat
 
        !---- Local Variables ----!
-       logical                                      :: string_counts, string_2thetacounts, string_2thetacps ,free_format
+       logical                                      :: string_counts, string_CPS, string_2thetacounts, string_2thetacps ,free_format
        character (len=132)                          :: line
        character(len=20),dimension(30)              :: dire
        character(len=1)                             :: separateur
@@ -2806,6 +2810,7 @@
        pat%scal=0.0
        pat%monitor=0.0
        string_COUNTS       = .false.
+       string_CPS          = .false.
        string_2THETACOUNTS = .false.
        string_2THETACPS    = .false.
        free_format         = .false.
@@ -2816,28 +2821,65 @@
        !---- recherche du type de donnees et de divers parametres (step, 2theta_min ...) ----!
 
         DO
-           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
+           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line                      
+
            if (ier/=0) then
               Err_diffpatt=.true.
               ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
               return
            end if
+           if(len_trim(line) == 0) cycle   ! TR : 29.03.12
            IF (line(1:7) == "_COUNTS") THEN
-              string_COUNTS    = .true.
-              EXIT
+             string_COUNTS    = .true.
+             if(index(line,"=")/=0) then
+              read(unit=i_dat,fmt="(a)",iostat=ier) line
+              if(ier/=0) then
+               Err_diffpatt=.true.
+               ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
+               return
+              endif 
+             endif         
+             EXIT
+           ELSE IF (line(1:4)  =="_CPS") THEN
+              string_CPS = .true.
+              if(index(line,"=")/=0) then   ! TR : 29.03.12
+               read(unit=i_dat,fmt="(a)",iostat=ier) line
+               if(ier/=0) then
+                Err_diffpatt=.true.
+                ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
+                return
+               endif         
+              endif       
+              exit  
            ELSE IF (line(1:13) =="_2THETACOUNTS") then
               string_2THETACOUNTS = .true.
+              if(index(line,"=")/=0) then   ! TR : 29.03.12
+               read(unit=i_dat,fmt="(a)",iostat=ier) line
+               if(ier/=0) then
+                Err_diffpatt=.true.
+                ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
+                return
+               endif         
+              endif                    
               exit
            ELSE IF (line(1:10) == "_2THETACPS") THEN
               string_2THETACPS = .true.
+              if(index(line,"=")/=0) then   ! TR : 29.03.12
+               read(unit=i_dat,fmt="(a)",iostat=ier) line
+               if(ier/=0) then
+                Err_diffpatt=.true.
+                ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
+                return
+               endif         
+              endif       
               EXIT
-           ELSE IF (line(1:8) == "_2THETA=") THEN
+           ELSE IF (line(1:7) == "_2THETA" .or. line(1:6) == '_START') THEN
               i = INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  pat%xmin
               end if
-           ELSE IF (line(1:10) == "_STEPSIZE=") THEN
+           ELSE IF (line(1:9) == "_STEPSIZE") THEN
               i=INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
@@ -2849,25 +2891,25 @@
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  step_time
               end if
-           ELSE IF (line(1:11) == "_STEPCOUNT=") THEN
+           ELSE IF (line(1:10) == "_STEPCOUNT") THEN
               i=INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  pat%npts
               end if
-           ELSE IF (line(1:5) == "_WL1=") THEN
+           ELSE IF (line(1:4) == "_WL1") THEN
               i=INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  pat%conv(1)
               end if
-           ELSE IF (line(1:5) == "_WL2=") THEN
+           ELSE IF (line(1:4) == "_WL2") THEN
               i=INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
                  read(unit=line(i+1:j),fmt=*)  pat%conv(2)
               end if
-           ELSE IF (line(1:9) == "_WLRATIO=") THEN
+           ELSE IF (line(1:8) == "_WLRATIO") THEN
               i=INDEX(line,"=")
               j = LEN_TRIM(line)
               if (LEN_TRIM(line(i+1:j)) /=0) then
@@ -2875,7 +2917,7 @@
               end if
            END IF
         END DO
-
+        
         if (pat%npts <= 0) then
            ! _STEPCOUNT not given ... estimate the number of points for allocating the diffraction
            ! pattern by supposing the maximum angle equal to 160 degrees
@@ -2887,17 +2929,46 @@
              return
            end if
         end if
-
+      
+        do    ! TR : 29.03.12
+         if(len_trim(line) /=0) exit
+         read(unit=i_dat, fmt="(a)", iostat=ier) line
+         if(ier/=0) then
+           Err_diffpatt=.true.
+           ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
+           return
+         endif
+        end do
+        
+        
+        if(string_2THETACOUNTS .or. string_COUNTS .or. string_2THETACPS) then   ! TR : 29.03.12
+         if(index(line, '=') /=0) then
+          do
+           read(unit=i_dat, fmt="(a)", iostat=ier) line
+           if(ier/=0) then
+             Err_diffpatt=.true.
+             ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
+             return
+           endif
+           if(len_trim(line) == 0) cycle   
+           exit
+          end do
+         endif
+        endif
+        
         call Allocate_Diffraction_Pattern(pat)
 
         !---- lecture de la premiere ligne de donnees pour determiner le
         !---- format: format libre, type de separateur
+        do
         read(unit=i_dat,fmt= "(a)", IOSTAT=ier) line
         if (ier/=0) then
            Err_diffpatt=.true.
            ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
            return
         end if
+         if(len_trim(line) /=0) exit  ! TR : 29.03.12
+        end do
         i1 = INDEX(line, CHAR(9))      ! "TAB" ?
         if (i1/=0) then
            separateur=CHAR(9)
@@ -2942,6 +3013,7 @@
            j = j+1
            read(unit=i_dat,fmt= "(a)", IOSTAT=ier) line
            if (ier /= 0) exit
+           if (len_trim(line) == 0) cycle    ! TR : 29.03.12
            IF (free_format) then
               call getword(line,dire,nb_col)
               if (nb_col==0) then
