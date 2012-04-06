@@ -778,11 +778,11 @@
              cath=cmid - xobs/psd%cgap                           ! D19A
 
             Case(2)                                             ! Flat detector
-             cd=cosd(delga)
-             xobs=(psd%radius+psd%yoff)*td    - psd%xoff
+             cd=cosd(delga)                                     ! D9, D10, Db21
+             xobs=(psd%radius+psd%yoff)*td    - psd%xoff        ! D16, etc.
              zobs=(psd%radius+psd%yoff)*tn/cd - psd%zoff
-             anod=amid + zobs/psd%agap                           ! D9
-             cath=cmid - xobs/psd%cgap                           ! D9
+             anod=amid + zobs/psd%agap
+             cath=cmid - xobs/psd%cgap
 
             Case(3)                         ! Still to be checked!
              xobs=(psd%radius + psd%yoff)*delga*to_rad - psd%xoff    ! D19-like Horizontal banana
@@ -811,7 +811,7 @@
 
             Case(2)                            ! Flat detector
              xobs=  (cmid-cath)*psd%cgap       ! D9, D10, Db21
-             zobs= -(amid-anod)*psd%agap       ! etc.
+             zobs= -(amid-anod)*psd%agap       ! D16, etc.
              a=xobs       + psd%xoff
              b=psd%radius + psd%yoff
              z=zobs       + psd%zoff

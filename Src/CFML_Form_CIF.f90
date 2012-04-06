@@ -240,8 +240,8 @@
 
     !!----
     !!---- Subroutine File_To_FileList(File_dat,File_list)
-    !!----   character(len=*), dimension(:), intent( in) :: file_dat  !Input data file
-    !!----   type(file_list_type),           intent(out) :: file_list !File list structure
+    !!----   character(len=*),     intent( in) :: file_dat  !Input data file
+    !!----   type(file_list_type), intent(out) :: file_list !File list structure
     !!----
     !!----    Charge an external file to an object of File_List_Type.
     !!----

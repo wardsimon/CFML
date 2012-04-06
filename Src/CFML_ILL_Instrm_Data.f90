@@ -6,7 +6,8 @@
 !!----   INFO: Subroutines related to Instrument information from ILL
 !!----
 !!---- HISTORY
-!!----    Update: 05/03/2011
+!!----    Created: 05/02/2006
+!!----    Updated: 05/04/2012
 !!----
 !!--..    The default instrument cartesian frame is that defined by
 !!--..       W.R.Busing & H.A.Levy (Acta Cryst. 22,457-464 (1967)
@@ -172,6 +173,7 @@
 !!--++       READ_NUMOR_D4                   [Private]
 !!--++       READ_NUMOR_D9                   [Private]
 !!--++       READ_NUMOR_D10                  [Private]
+!!--++       READ_NUMOR_D16                  [Private]
 !!--++       READ_NUMOR_D19                  [Private]
 !!--++       READ_NUMOR_D20                  [Private]
 !!--++       READ_POWDER_NUMOR               [Overloaded]
@@ -222,8 +224,8 @@ Module CFML_ILL_Instrm_Data
    private:: Initialize_Numors_Directory,Initialize_Temp_Directory,Number_Keytypes_On_File,      &
              Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,         &
              Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,              &
-             Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,               &
-             Read_Numor_D9, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,               &
+             Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,Read_Numor_D9, &
+             Read_Numor_D16, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,               &
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,        &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
              Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
@@ -586,6 +588,7 @@ Module CFML_ILL_Instrm_Data
    !!----    real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
    !!----    real(kind=cp)                              :: preset      !
    !!----    real(kind=cp)                              :: wave        ! wavelength
+   !!----    real(kind=cp)                              :: dist        ! wavelength
    !!----    real(kind=cp)                              :: cpl_fact    ! Coupling Factor
    !!----    real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
    !!----    integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
@@ -618,6 +621,7 @@ Module CFML_ILL_Instrm_Data
       real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
       real(kind=cp)                              :: preset      !
       real(kind=cp)                              :: wave        ! wavelength
+      real(kind=cp)                              :: dist        ! distance sample-detector (it may be different from that of the instrument file)
       real(kind=cp)                              :: cpl_fact    ! Coupling Factor
       real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
       integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
@@ -634,6 +638,7 @@ Module CFML_ILL_Instrm_Data
    !!---- TYPE :: SXTAL_ORIENT_TYPE
    !!--..
    !!---- Type, public :: SXTAL_Orient_type
+   !!----    logical                      :: orient_set
    !!----    real(kind=cp)                :: wave       ! Wavelength (in Laue machines any value between Lambda_min and Lambda_max)
    !!----    real(kind=cp),dimension(3,3) :: UB         ! UB matrix in Busing-Levy setting
    !!----    real(kind=cp),dimension(3,3) :: UBINV      ! Inverse of UB-matrix
@@ -642,9 +647,11 @@ Module CFML_ILL_Instrm_Data
    !!----
    !!----    Definition for XTAL Orientation Parameters
    !!----
-   !!---- Update: April - 2008
+   !!---- Created: April - 2007
+   !!---- Updated: April - 2012
    !!
    Type, public :: SXTAL_Orient_type
+      logical                      :: orient_set=.false.
       real(kind=cp)                :: wave       !Wavelength (in Laue machines any value between Lambda_min and Lambda_max)
       real(kind=cp),dimension(3,3) :: UB         !UB matrix in Busing-Levy setting
       real(kind=cp),dimension(3,3) :: UBINV      !Inverse of UB-matrix
@@ -676,8 +683,8 @@ Module CFML_ILL_Instrm_Data
    !!---- CURRENT_ORIENT
    !!----    type(SXTAL_Orient_type), public :: Current_Orient
    !!----
-   !!----    Define a Current variable
-   !!----    instrument
+   !!----    Define the Current Orientation variable
+   !!----    from the instrument
    !!----
    !!---- Update: April - 2008
    !!
@@ -2045,6 +2052,7 @@ Module CFML_ILL_Instrm_Data
         Numor%scans=0.0
         Numor%preset=0.0
         Numor%wave=0.0
+        Numor%dist=0.0
         Numor%cpl_fact=0.0
         Numor%conditions=0.0
         Numor%ICDesc=0
@@ -3475,7 +3483,7 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Subroutine Read_Numor_D9(filevar,N)
     !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!----    type(SXTAL_numor_type),  intent(out)  :: n
     !!----
     !!---- Subroutine to read a Numor of D9 Instrument at ILL
     !!----
@@ -3565,6 +3573,7 @@ Module CFML_ILL_Instrm_Data
           n%wave=rvalues(18)           ! Wavelength
           n%HMax=rvalues(22:24)        ! HKL max
           n%dh=rvalues(25:27)          ! Delta HKL
+          n%dist=rvalues(30)           ! distance
           n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
           n%preset=rvalues(39)         ! Preset
           n%cpl_fact=rvalues(43)       ! Coupling factor
@@ -3714,7 +3723,7 @@ Module CFML_ILL_Instrm_Data
           end if
           n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
           n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
           n%icalc=ivalues(9)
           n%nbdata=ivalues(24)            ! Number of Points
           n%icdesc(1:7)=ivalues(25:31)
@@ -3731,6 +3740,7 @@ Module CFML_ILL_Instrm_Data
           n%wave=rvalues(18)           ! Wavelength
           n%HMax=rvalues(22:24)        ! HKL max
           n%dh=rvalues(25:27)          ! Delta HKL
+          n%dist=rvalues(30)           ! distance
           n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
           n%preset=rvalues(39)         ! Preset
           n%cpl_fact=rvalues(43)       ! Coupling factor
@@ -3788,13 +3798,162 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D10
 
     !!----
+    !!---- Subroutine Read_Numor_D16(filevar,N)
+    !!----    character(len=*),        intent(in)   :: fileinfo
+    !!----    type(SXTAL_numor_type),  intent(out)  :: n
+    !!----
+    !!---- Subroutine to read a Numor of D16 Instrument at ILL
+    !!----
+    !!---- Counts: 320 x 320 = 102400 (Bidimensional)
+    !!----
+    !!---- Update: 04/04/2012
+    !!
+    Subroutine Read_Numor_D16(fileinfo,N)
+       !---- Arguments ----!
+       character(len=*),         intent(in)   :: fileinfo
+       type(SXTAL_numor_type),   intent(out)   :: n
+
+       !---- Local Variables ----!
+       character(len=80), dimension(:), allocatable :: filevar
+       character(len=80)                            :: line
+       character(len=5)                             :: car
+       integer                                      :: i,nlines
+       integer                                      :: numor,idum
+
+       err_illdata=.false.
+
+       ! Detecting numor
+       call Number_Lines(fileinfo,nlines)
+       if (nlines <=0) then
+          err_illdata=.true.
+          err_illdata_mess=' Problems trying to read the Numor for D16 Instrument in file '//trim(fileinfo)
+          return
+       end if
+
+       ! Allocating variables
+       if (allocated(filevar)) deallocate(filevar)
+       allocate(filevar(nlines))
+       call Reading_Lines(fileinfo,nlines,filevar)
+
+       ! Defining the different blocks and load information on nl_keytypes
+       call Number_KeyTypes_on_File(filevar,nlines)
+       call Set_KeyTypes_on_File(filevar,nlines)
+
+       ! Check format for D16
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (index(line(1:4),'D16') <= 0) then
+          err_illdata=.true.
+          err_illdata_mess='This numor does not correspond with D16 Format'
+          return
+       end if
+
+       ! Numor
+       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+       n%numor=numor
+
+       ! Instr/Experimental Name/ Date
+       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+       if (idum > 0) then
+          n%instrm=line(1:4)
+          n%header=line(5:14)//"   "//line(15:32)
+       end if
+
+       ! Title/Sample
+       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+       if (idum > 0) then
+          n%title=trim(line(1:60))
+          n%scantype=trim(line(73:))
+          if(len_trim(n%scantype) == 0) n%scantype='q-scan'
+       end if
+
+       ! Control Flags
+       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+       if (nval_i > 0) then
+          if (ivalues(2) /= 2) then
+             err_illdata=.true.
+             err_illdata_mess='This numor was made using Point detector in the D16 Instrument'
+             return
+          end if
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Number of Points
+          n%icdesc(1:7)=ivalues(25:31)
+       end if
+
+       ! Real values
+       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+       if (nval_f > 0) then
+          n%HMin=rvalues(1:3)          ! HKL min
+          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+          n%ub(1,:)=rvalues(9:11)      !
+          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
+          n%ub(3,:)=rvalues(15:17)     !
+          n%wave=rvalues(18)           ! Wavelength
+          n%HMax=rvalues(22:24)        ! HKL max
+          n%dh=rvalues(25:27)          ! Delta HKL
+          n%dist=rvalues(30)           ! distance
+          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+          n%preset=rvalues(39)         ! Preset
+          n%cpl_fact=rvalues(43)       ! Coupling factor
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       if(Instrm_Info_only) return
+
+       ! Allocating
+       if (allocated(n%counts)) deallocate(n%counts)
+       allocate(n%counts(n%nbdata,n%nframes))
+       n%counts=0.0
+
+       if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       n%tmc_ang=0.0
+
+       ! Loading Frames
+       do i=1,n%nframes
+
+          !Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
+             n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
+             n%tmc_ang(2:3,i)=rvalues(2:3)
+             n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+          else
+             write(unit=car,fmt='(i5)') i
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
+                               //' parameters in the Frame: '//trim(car)
+             return
+          end if
+
+          ! Counts
+          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          if (nval_i /= n%nbdata) then
+             write(unit=car,fmt='(i5)') i
+             car=adjustl(car)
+             err_illdata=.true.
+             err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
+             return
+          end if
+          if (nval_i > 0) then
+             n%counts(:,i)=ivalues(1:n%nbdata)
+          end if
+       end do
+
+       return
+    End Subroutine Read_Numor_D16
+
+    !!----
     !!---- Subroutine Read_Numor_D19(filevar,N)
     !!----    character(len=*),        intent(in)   :: fileinfo
     !!----    type(SXTAL_numor_type),  intent(out) :: n
     !!----
     !!---- Subroutine to read a Numor of D19 Instrument at ILL
     !!----
-    !!---- Counts: 640 x 256 = 1024
+    !!---- Counts: 640 x 256 = 163840
     !!----
     !!---- Update: 14/03/2011
     !!
@@ -3860,7 +4019,7 @@ Module CFML_ILL_Instrm_Data
        if (nval_i > 0) then
           n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
           n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Frames medidos. En general igual que los solicitados
+          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
           n%icalc=ivalues(9)
           n%nbdata=ivalues(24)            ! Number of Points
           n%icdesc(1:7)=ivalues(25:31)
@@ -3877,6 +4036,7 @@ Module CFML_ILL_Instrm_Data
           n%wave=rvalues(18)           ! Wavelength
           n%HMax=rvalues(22:24)        ! HKL max
           n%dh=rvalues(25:27)          ! Delta HKL
+          n%dist=rvalues(30)           ! distance
           n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
           n%preset=rvalues(39)         ! Preset
           n%cpl_fact=rvalues(43)       ! Coupling factor
@@ -4487,6 +4647,9 @@ Module CFML_ILL_Instrm_Data
           case ('D10')
              call Read_Numor_D10(trim(path)//trim(filename),Num)
 
+          case ('D16')
+             call Read_Numor_D16(trim(path)//trim(filename),Num)
+
           case ('D19')
              call Read_Numor_D19(trim(path)//trim(filename),Num)
 
@@ -4730,6 +4893,7 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
+       Current_Orient%orient_set=.true.
        Current_Orient%wave=wave
        Current_Orient%ub=mat
        Current_Orient%ubinv=Invert(mat)
