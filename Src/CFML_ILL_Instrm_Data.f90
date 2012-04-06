@@ -5166,7 +5166,7 @@ Module CFML_ILL_Instrm_Data
            if (.not. Instrm_Geometry_directory_set) then
               ERR_ILLData=.true.
               ERR_ILLData_Mess=&
-              "The INSTRM Geometry directory: '"//trim(Instrm_Geometry_Directory)//"' doesn't exist, currect directory assumed"
+              "The INSTRM Geometry directory doesn't exist, currect directory assumed"
               Instrm_Geometry_Directory = " "
            end if
        else
