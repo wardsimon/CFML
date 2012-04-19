@@ -22,8 +22,9 @@ get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # By default the build type is set to RELEASE.
-set(CMAKE_BUILD_TYPE Release)
-
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
 #################################
 # Includes section
 #################################
