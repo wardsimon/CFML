@@ -6,7 +6,8 @@
 !!----   INFO: Diffraction Patterns Information
 !!----
 !!---- HISTORY
-!!----    Update: 04/03/2011
+!!----    Created:
+!!----    Updated: 04/03/2011
 !!----
 !!---- DEPENDENCIES
 !!----    Use CFML_GlobalDeps,       only : cp
@@ -763,10 +764,12 @@
     !!----      "DATAS" -> x,y,sigma remain allocated            (purge ycalc,bgr,istat)
     !!----      "RIETV" -> x,y,sigma,ycalc,bgr remain allocated  (purge istat)
     !!----      "GRAPH" -> x,y,sigma,istat remain allocated      (purge ycalc, bgr)
-    !!----      "PRF  " -> x,y,ycalc,bgr,istat, remain allocated (purge sigma)
+    !!----      "PRF  " -> x,y,sigma,ycalc,bgr,istat, everything remains allocated (changed w.r.t. previous version)
+    !!----
     !!----
     !!----
     !!---- Update: December - 2005
+    !!---- Updated: December - 2005
     !!
     Subroutine Purge_Diffraction_Pattern(Pat,Mode)
        !---- Arguments ----!
@@ -819,9 +822,9 @@
 
          Case("PRF")
 
-            if (allocated(pat%sigma)) deallocate(pat%sigma)
-            pat%gsigma=.false.
-            pat%al_sigma=.false.
+            !if (allocated(pat%sigma)) deallocate(pat%sigma)
+            !pat%gsigma=.false.
+            !pat%al_sigma=.false.
 
        End Select
 
@@ -874,7 +877,7 @@
        do
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
-          if (len_trim(line) == 0) cycle    
+          if (len_trim(line) == 0) cycle
           if (index(line,"!") /= 0) cycle
           i=i+1
        end do
@@ -2821,7 +2824,7 @@
        !---- recherche du type de donnees et de divers parametres (step, 2theta_min ...) ----!
 
         DO
-           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line                      
+           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
 
            if (ier/=0) then
               Err_diffpatt=.true.
@@ -2837,8 +2840,8 @@
                Err_diffpatt=.true.
                ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                return
-              endif 
-             endif         
+              endif
+             endif
              EXIT
            ELSE IF (line(1:4)  =="_CPS") THEN
               string_CPS = .true.
@@ -2848,9 +2851,9 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif         
-              endif       
-              exit  
+               endif
+              endif
+              exit
            ELSE IF (line(1:13) =="_2THETACOUNTS") then
               string_2THETACOUNTS = .true.
               if(index(line,"=")/=0) then   ! TR : 29.03.12
@@ -2859,8 +2862,8 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif         
-              endif                    
+               endif
+              endif
               exit
            ELSE IF (line(1:10) == "_2THETACPS") THEN
               string_2THETACPS = .true.
@@ -2870,8 +2873,8 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif         
-              endif       
+               endif
+              endif
               EXIT
            ELSE IF (line(1:7) == "_2THETA" .or. line(1:6) == '_START') THEN
               i = INDEX(line,"=")
@@ -2917,7 +2920,7 @@
               end if
            END IF
         END DO
-        
+
         if (pat%npts <= 0) then
            ! _STEPCOUNT not given ... estimate the number of points for allocating the diffraction
            ! pattern by supposing the maximum angle equal to 160 degrees
@@ -2929,7 +2932,7 @@
              return
            end if
         end if
-      
+
         do    ! TR : 29.03.12
          if(len_trim(line) /=0) exit
          read(unit=i_dat, fmt="(a)", iostat=ier) line
@@ -2939,8 +2942,8 @@
            return
          endif
         end do
-        
-        
+
+
         if(string_2THETACOUNTS .or. string_COUNTS .or. string_2THETACPS) then   ! TR : 29.03.12
          if(index(line, '=') /=0) then
           do
@@ -2950,12 +2953,12 @@
              ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
              return
            endif
-           if(len_trim(line) == 0) cycle   
+           if(len_trim(line) == 0) cycle
            exit
           end do
          endif
         endif
-        
+
         call Allocate_Diffraction_Pattern(pat)
 
         !---- lecture de la premiere ligne de donnees pour determiner le
