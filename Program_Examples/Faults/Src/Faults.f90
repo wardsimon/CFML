@@ -304,6 +304,9 @@
                 shift(i) = v(i) - gen(i)
           end do
 
+          !--- to avoid warnings
+          if(present(g)) g=0.0
+
            !*******RESTRICTIONS*******
 
           do i = 1, numpar

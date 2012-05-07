@@ -43,15 +43,15 @@
 !   Utiliza las funciones: GLQ16(h, k, a, b, ok) externa  ,
 !   Utiliza las subrutinas:
 
-      INTEGER*4, INTENT(IN OUT)                :: h
-      INTEGER*4, INTENT(IN)                    :: k
-      REAL*8, INTENT(IN)                       :: a
-      REAL*8, INTENT(IN)                       :: b
-      LOGICAL, INTENT(IN OUT)                  :: ok
-      INTEGER*4  stp, n, n2
-      INTEGER*4, PARAMETER :: maxstk = 200
-      REAL*8 sum, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
-      REAL*8, PARAMETER :: epsilon = five * eps4
+      Integer,      Intent(In)  :: h
+      Integer,      Intent(In)  :: k
+      Real(Kind=8), Intent(In)  :: a
+      Real(Kind=8), Intent(In)  :: b
+      Logical,      Intent(Out) :: ok
+      Integer  :: stp, n, n2
+      Integer, Parameter :: maxstk = 200
+      Real(Kind=8)            :: sum, sum1, sum2, sum3,  epsilon2,  stk(maxstk), d1, d2, d3, x
+      Real(Kind=8), Parameter :: epsilon = five * eps4
 
 ! external function
       aglq16 = zero
@@ -70,9 +70,9 @@
       20 d2 = half * (d1 + d3)
       n = n + 2
       sum1 = glq16(h, k, d1, d2, ok)
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
       sum2 = glq16(h, k, d2, d3, ok)
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
       x = sum1 + sum2
 ! determine figure of merit
       epsilon2 = MAX(epsilon, ABS(x) * epsilon)
@@ -642,7 +642,7 @@
       201 FORMAT(1X, 2(a, f7.3), a)
       202 FORMAT(1X, 3A)
       203 FORMAT(1X, a, i6)
-      204 FORMAT(1X, a, f3.1)
+      204 FORMAT(1X, a, f4.1)
       205 FORMAT(1X, 'Diffraction point symmetry is found to be ''',a,'''')
       300 FORMAT(1X, 'Re-evaluating diffraction symmetry')
       END SUBROUTINE chk_sym
@@ -705,16 +705,16 @@
 !     Utiliza las funciones:   S(h,k,l)
 !     Utiliza las subrutinas:
 
-      INTEGER*4, INTENT(IN OUT)                :: h
-      INTEGER*4, INTENT(IN)                    :: k
-      REAL*8, INTENT(IN OUT)                   :: l0
-      REAL*8, INTENT(IN OUT)                   :: l1
-      REAL*8, INTENT(IN)                       :: x
-      INTEGER*4, INTENT(IN OUT)                :: m
-      INTEGER*4, INTENT(IN OUT)                :: max_indx
+      Integer,       Intent(In) :: h
+      Integer,       Intent(In) :: k
+      Real(Kind=8),  Intent(In) :: l0
+      Real(Kind=8),  Intent(In) :: l1
+      Real(Kind=8),  Intent(In) :: x
+      Integer,       Intent(In) :: m
+      Integer,       Intent(In) :: max_indx
 
-      INTEGER*4 n, p, i, indx
-      REAL*8 s, h_wdth, n_hw, d_hk, norm, l, scale, avg, xx, dx, tmp
+      Integer      :: n, p, i, indx
+      Real(Kind=8) :: s, h_wdth, n_hw, d_hk, norm, l, scale, avg, xx, dx, tmp
 
 ! indx indexes into the arrays spec and brd_spec
 ! n indexes into the array formfactor
@@ -3030,12 +3030,12 @@
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      INTEGER*4, INTENT(IN )                :: h
-      INTEGER*4, INTENT(IN OUT)                :: k
-      REAL*8, INTENT(IN OUT)                   :: l
+      Integer,       Intent(In) :: h
+      Integer,       Intent(In) :: k
+      Real(Kind=8),  Intent(In) :: l
 
-      REAL*8 dot, twopi_l, fatswaller
-      INTEGER*4 i, j
+      Real(Kind=8) :: dot, twopi_l, fatswaller
+      Integer      :: i, j
 
 ! set up matrix that represents the sequences
 ! Note: mat is in 'i,j' order.
@@ -3210,14 +3210,15 @@
 !     Utiliza las funciones:   GET_S, MAT2N externas
 !     Utiliza las subrutinas:
 
-      COMPLEX*16, INTENT(IN)                   :: f(max_l)
-      COMPLEX*16, INTENT(IN OUT)               :: s(max_l)
-      INTEGER*4, INTENT(IN)                    :: h
-      INTEGER*4, INTENT(IN OUT)                :: k
-      REAL*8, INTENT(IN OUT)                   :: l
-      LOGICAL :: ok
-      INTEGER*4 i, j
-      COMPLEX*16 ctmp, mat_n(max_l,max_l), tmp_mat(max_l,max_l)
+      Complex(Kind=8), Intent(In)      :: f(max_l)
+      Complex(Kind=8), Intent(In Out)  :: s(max_l)
+      Integer,         Intent(In)      :: h
+      Integer,         Intent(In)      :: k
+      Real(Kind=8),    Intent(In)      :: l
+
+      Logical         :: ok
+      Integer         ::  i, j
+      Complex(Kind=8) :: ctmp, mat_n(max_l,max_l), tmp_mat(max_l,max_l)
 ! external functions
       get_s2 = .false.
 
@@ -4515,11 +4516,11 @@
 !     Utiliza las funciones: GET_S, GET_S2         externas
 !     Utiliza las subrutinas: GET_MAT
 
-      COMPLEX*16, INTENT(IN)                   :: f(max_l)
-      INTEGER*4, INTENT(IN)                    :: h
-      INTEGER*4, INTENT(IN OUT)                :: k
-      REAL*8                                   :: l
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      Complex(Kind=8), Intent(In) :: f(max_l)
+      Integer,         Intent(In) :: h
+      Integer,         Intent(In) :: k
+      Real(Kind=8)                :: l
+      Logical,         Intent(Out):: ok
 
 
 
@@ -5668,7 +5669,7 @@
       202 FORMAT(1X, a)
       203 FORMAT(1X, 'Number of trials per symmetry element = ', i4)
       204 FORMAT(1X, 3A)
-      205 FORMAT(1X, a, f3.1)
+      205 FORMAT(1X, a, f4.1)
       206 FORMAT(1X, "Threshold intensity = ", g22.6)
       302 FORMAT(1X, 'SYMMETRY EVALUATIONS FOR DATA IN FILE ''', a, '''')
       303 FORMAT(1X, 'SYMMETRY EVALUATIONS FOR DATA IN FILE ', 3A)
@@ -6637,14 +6638,14 @@
 !     Utiliza las funciones:  pntint externas   ,  s(h,k,l)  ,angle(h,k,l) ,ll(theta,h,k)
 !     Utiliza las subrutinas: GET_F
 
-      INTEGER*4, INTENT(IN OUT)                :: h
-      INTEGER*4, INTENT(OUT)                   :: k
-      REAL*8, INTENT(IN OUT)                   :: d_l
+      Integer,      Intent(In)  :: h
+      Integer,      Intent(In)  :: k
+      Real(kind=8), Intent(In)  :: d_l
 
 
 
-      LOGICAL :: ok
-      REAL*8 s,  angle, ll, l, i1, i2, x, theta, l_next
+      Logical       :: ok
+      Real(kind=8)  :: s,  angle, ll, l, i1, i2, x, theta, l_next
 
 ! external subroutine (Some compilers need them declared external)
 !      external GET_F
@@ -7877,24 +7878,24 @@
 !        modifies:  hx_ky
 ! ______________________________________________________________________
 
-      SUBROUTINE xyphse(h, k)
+      Subroutine Xyphse(H, K)
 !     Utiliza las variables: par.f90, inc.f90' ,h,k, i, m
 !     Utiliza las funciones:
 !     Utiliza las subrutinas:
 
-      INTEGER*4, INTENT(IN )                :: h
-      INTEGER*4, INTENT(IN OUT)                :: k
+      Integer, Intent(In)  :: h
+      Integer, Intent(In)  :: k
 
-      INTEGER*4 i, m
+      Integer :: i, m
 
-      DO  m = 1, n_actual
-        DO  i = 1, l_n_atoms(m)
+      Do  m = 1, n_actual
+        Do  i = 1, l_n_atoms(m)
           hx_ky(i,m) = h*a_pos(1,i,m) + k*a_pos(2,i,m)
-        END DO
-      END DO
+        End Do
+      End Do
 
-      RETURN
-      END SUBROUTINE xyphse
+      Return
+      End Subroutine xyphse
 
 ! ______________________________________________________________________
 ! Title: YRDSTK
