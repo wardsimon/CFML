@@ -22,20 +22,31 @@ rem
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
-   lf95 -c Diffax_glb.f90   -tp -nomap -stchk -nchk -o1 -mod .;"%CRYSFML%"\Lahey\LibC
-   lf95 -c Faults_Read.f90  -tp -nomap -stchk -nchk -o1 -mod .;"%CRYSFML%"\lahey\LibC
-   lf95 -c Diffax_calc.f90  -tp -nomap -stchk -nchk -o1 -mod .;"%CRYSFML%"\lahey\LibC
-   lf95 -c Faults.f90       -tp -nomap -stchk -nchk -o1 -mod .;"%CRYSFML%"\lahey\LibC
-   lf95  *.obj -out Faults  -tp -nomap -stchk -nchk -o1 -lib   "%CRYSFML%"\lahey\LibC\CrysFML
+   lf95 -c Diffax_glb.f90  -g   -tp -nomap -stchk -chk -o1 -mod .;"%CRYSFML%"\Lahey\LibC
+   lf95 -c Faults_Read.f90 -g   -tp -nomap -stchk -chk -o1 -mod .;"%CRYSFML%"\lahey\LibC
+   lf95 -c Diffax_calc.f90 -g   -tp -nomap -stchk -chk -o1 -mod .;"%CRYSFML%"\lahey\LibC
+   lf95 -c Faults.f90      -g   -tp -nomap -stchk -chk -o1 -mod .;"%CRYSFML%"\lahey\LibC
+   lf95  *.obj -out Faults_lf   -tp -nomap -stchk -chk -o1 -lib   "%CRYSFML%"\lahey\LibC\CrysFML
+   upx Faults_lf.exe
+   if exist %FULLPROF% copy Faults_lf.exe %FULLPROF% > nul
    goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Diffax_glb.f90  /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
-   ifort /c Faults_Read.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
-   ifort /c Diffax_calc.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
-   ifort /c Faults.f90      /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
-   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
+echo on
+rem   ifort /c Diffax_glb.f90  /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+rem   ifort /c Faults_Read.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+rem   ifort /c Diffax_calc.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+rem   ifort /c Faults.f90      /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
+rem   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
+
+   ifort /c Diffax_glb.f90  /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Faults_Read.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Diffax_calc.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Faults.f90      /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort_debug\LibC\crysfml.lib
+   upx Faults.exe
+   if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
    goto END
 rem
 rem **---- G95 Compiler ----**
@@ -53,15 +64,15 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c -O3 -funroll-loops  -msse2   Faults_Read.f90   -I"%CRYSFML%"\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   Diffax_calc.f90   -I"%CRYSFML%"\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   Faults.f90        -I"%CRYSFML%"\GFortran\LibC
-   gfortran *.o -o Faults -O3  -funroll-loops  -msse2         -L"%CRYSFML%"\GFortran\LibC -lcrysfml
+   gfortran *.o -o Faults_gf -O3  -funroll-loops  -msse2         -L"%CRYSFML%"\GFortran\LibC -lcrysfml
+   upx Faults_gf.exe
+   if exist %FULLPROF% copy Faults_gf.exe %FULLPROF% > nul
    goto END
 rem
 :END
 rem
 rem Compress executable
 rem
-   upx Faults.exe
-   if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
    del *.obj *.mod *.o *.map *.bak > nul
    cd "%CRYSFML%"\Program_Examples\Faults\Scripts\Windows
 :FIN

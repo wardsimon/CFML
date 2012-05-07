@@ -1327,24 +1327,25 @@
 !     Utiliza las subrutinas:GETFNM
 
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
-      LOGICAL, INTENT(IN OUT)                  :: ok
+      CHARACTER (LEN=*), INTENT(IN) :: infile
+      LOGICAL, INTENT(OUT)          :: ok
 
-      REAL*8 scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
-      INTEGER*4 i, i2, j, n, TYPE, num_types, tot_types
-      INTEGER*4 print_width
-      CHARACTER (LEN=31) :: dmpfile
-      CHARACTER (LEN=80) :: list(5)
+      REAL(kind=8) :: scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
+      INTEGER :: i, i2, j, n, TYPE, num_types, tot_types
+      INTEGER :: print_width
+      CHARACTER(LEN=31) :: dmpfile
+      CHARACTER(LEN=80) :: list(5)
 
 ! external subroutine (Some compilers need them declared external)
 !      external GETFNM
 
       CALL getfnm(infile, dmpfile, '.dmp', ok)
-      IF(.NOT.ok) THEN
+      write(*,"(a)") " => Getting out of getfnm: infile="//trim(infile)//"  dmpfile="//trim(dmpfile)
+      IF(.NOT. ok) THEN
         WRITE(op,200) 'DUMP aborted'
         GO TO 999
       END IF
-      IF(dmp /= op) OPEN(UNIT = dmp , FILE = dmpfile, STATUS = 'new')
+      IF(dmp /= op) OPEN(UNIT = dmp , FILE = dmpfile, STATUS = 'replace')
 
       i2 = 0
       99 WRITE(op,200) 'Enter 1 for full atomic position dump: '
@@ -1363,9 +1364,9 @@
 
 ! in-plane layer widths
       if(finite_width) then
-        if(Wa.lt.inf_width) then
+        if(Wa < inf_width) then
           write(dmp,126) 'width along a', Wa
-            if (Wb.lt.inf_width) then
+            if (Wb < inf_width) then
               write(dmp,126) 'width along b', Wb
             end if
         else
@@ -2888,8 +2889,8 @@
 !     Utiliza las subrutinas: LUBKSB
 
       LOGICAL :: singular
-      INTEGER*4 i, j, cnt, INDEX(max_l)
-      REAL*8 sum, g_mat(max_l,max_l), det
+      INTEGER::  i, j, cnt, INDX(max_l)
+      REAL(kind=8) :: suma, g_mat(max_l,max_l), det
 
 ! external function
 
@@ -2902,14 +2903,14 @@
 
       DO  i = 1, n_layers - 1
         l_g(i) = zero
-        sum = zero
+        suma = zero
         DO  j = 1, n_layers
-          sum = sum + l_alpha(j,i)
+          suma = suma + l_alpha(j,i)
         END DO
-        sum = one / sum
-! sum should actually be ONE
+        suma = one / suma
+! suma should actually be ONE
         DO  j = 1, n_layers
-          g_mat(i,j) = sum * l_alpha(i,j)
+          g_mat(i,j) = suma * l_alpha(i,j)
         END DO
         g_mat(i,i) = g_mat(i,i) - one
       END DO
@@ -2945,8 +2946,8 @@
         END DO
       ELSE
 ! solve the matrix
-        IF(.NOT. ludcmp(g_mat,INDEX,n_layers,max_l,det)) GO TO 100
-        CALL lubksb(g_mat,l_g,INDEX,n_layers,max_l)
+        IF(.NOT. ludcmp(g_mat,INDX,n_layers,max_l,det)) GO TO 100
+        CALL lubksb(g_mat,l_g,INDX,n_layers,max_l)
       END IF
 
 

@@ -822,7 +822,7 @@
           Case (2) !SIMPLEX
 
               !Lectura del  pattern experimental y de los scattering factors:
-
+              write(*,"(a)") " => Reading Pattern file="//trim(dfile)
               call  read_pattern(dfile,difpat,fmode )
                 if(Err_diffpatt) then
                   print*, trim(err_diffpatt_mess)
@@ -836,6 +836,7 @@
                      d_theta = half * deg2rad * d_theta
                   end if
                 end if
+              write(*,"(a)") " => Reading Background file="//trim(background_file)
               call read_background_file(background_file, mode ,difpat)
                     if(Err_diffpatt) print*, trim(err_diffpatt_mess)
 
@@ -848,7 +849,7 @@
               check_sym = .false.
               IF(symgrpno == UNKNOWN) THEN
                 symgrpno = get_sym(ok)
-                IF(.NOT.ok) GO TO 999
+                IF(.NOT. ok) GO TO 999
                 WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
                 IF(symgrpno /= 1) THEN
                   WRITE(op,201) '  to within a tolerance of one part in ',  &
@@ -857,7 +858,7 @@
               ELSE
                 check_sym = .true.
                 CALL chk_sym(ok)
-                IF(.NOT.ok) GO TO 999
+                IF(.NOT. ok) GO TO 999
               END IF
 
               n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
@@ -868,8 +869,13 @@
               filenam = trim(infile(1:(index(infile,'.')-1)))
 
               gen(1:n_plex) = v_plex(1:n_plex)
+
+
               IF(ok) ok = get_g()
-              call dump (infile, p_ok)
+
+              write(*,"(a)") " => Calling dump file="//trim(infile)
+              call dump(infile, p_ok)
+
               call overlp()
               call nmcoor ()
 
