@@ -10,7 +10,7 @@ rem
    cls
    echo    MAKE_Faults: Make FAULTS Compilation
    echo    Syntax: make_Faults  [lf95/g95/gfortran/ifort]
-   goto END
+   goto FIN
 rem
 :CONT
    cd "%CRYSFML%"\Program_Examples\Faults\Src
@@ -18,7 +18,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
-   goto END
+   goto FIN
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
@@ -64,3 +64,4 @@ rem
    if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
    del *.obj *.mod *.o *.map *.bak > nul
    cd "%CRYSFML%"\Program_Examples\Faults\Scripts\Windows
+:FIN

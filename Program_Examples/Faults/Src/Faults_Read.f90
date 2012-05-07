@@ -1,15 +1,15 @@
     Module read_data
        use CFML_GlobalDeps,           only : sp , cp
        use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
-                                             err_string_mess, getnum, Ucase
-       use CFML_Optimization_General, only : Nelder_Mead_Simplex,  Opt_Conditions_Type
+                                             err_string_mess, getnum, Ucase, cutst
+       use CFML_Optimization_General, only : Opt_Conditions_Type
        use CFML_Simulated_Annealing
        use diffax_mod
        implicit none
 
        private
        !public subroutines
-       public:: read_structure_file, new_getfil , length, prune, rdrnge, choice
+       public:: read_structure_file, new_getfil , length, choice
 
 !      Declaration of diffraction_pattern_type
 
@@ -103,18 +103,44 @@
         write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
         read(unit= *,fmt="(a)") stfile
 
-        WRITE(op,*) " => Looking for scattering factor data file '",  sfname(:),"'"
+        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
         OPEN(UNIT = sf, FILE = sfname)
-        WRITE(op,*) " => Opening scattering factor data file '",  sfname(:),"'"
+        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
         call read_structure_file    (stfile, l_crys, l_opti, l_san,vecsan, olg)
-        if (err_crys) print*, trim(err_crys_mess)
-
+        if (err_crys) then
+          print*, trim(err_crys_mess)
+        else
+          write(op, fmt=*) "=> Structure input file read in"
+        end if
         return
     End subroutine
+!_____________________________________________________________________________________________________________
+
+        Subroutine read_fraction (line, n_comp, real_num)
+
+        character(len=*),dimension(:), intent(in out) :: line        !string of numbers to convert to real
+        integer,                       intent(in    ) :: n_comp      !number of components in line
+        real            ,dimension(:), intent(   out) :: real_num    ! string of real characters
+
+        integer                                       :: i, j
+        real                                          :: numerator, denominator
+
+        do i = 1, n_comp
+            j = index (line(i), '/')
+            if(j == 0) then                  !it was already a number
+              read ( line(i), fmt=*) real_num(i)
+            else         !it was expressed as a ratio. delete the slash, '/'.
+              line(i)(j:j) = ' '
+              read(unit =line(i),fmt = *) numerator, denominator  ! now contains two arguments, numerator and denominator.
+              real_num(i) = numerator/ denominator
+            end if
+        end do
+
+        End subroutine read_fraction
 !______________________________________________________________________________________________________
 
-      INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax_read
+      INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax
 
 
       IMPLICIT NONE
@@ -140,92 +166,7 @@
       END FUNCTION choice
 !______________________________________________________________________________________________________
 
-      LOGICAL FUNCTION rdrnge()      !from diffax_read
-
-      rdrnge = .false.
-
-      123 WRITE(op,"(a)") ' Enter angular range:'
-      WRITE(op,"(a)") '   2theta min, 2theta max, 2theta increment : '
-      READ(cntrl,*,ERR=123) th2_min, th2_max, d_theta
-      IF(cfile) WRITE(op,"(1X, g11.4, 2(3X, g11.4))") th2_min, th2_max, d_theta
-
-      IF(th2_min < zero) THEN
-        WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
-        RETURN
-      END IF
-
-      IF(th2_min >= one_eighty) THEN
-        WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
-        RETURN
-      END IF
-
-      IF(th2_max <= zero) THEN
-        WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
-        RETURN
-      END IF
-
-      IF(th2_max > one_eighty) THEN
-        WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
-        RETURN
-      END IF
-
-! if th2_max = 180, reduce it slightly to keep us out of trouble
-      IF(th2_max == one_eighty) th2_max = th2_max - eps4
-
-      IF(d_theta <= zero) THEN
-        WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
-        RETURN
-      END IF
-
-      IF(th2_min >= th2_max) THEN
-        WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
-        RETURN
-      END IF
-
-      IF((th2_max - th2_min) < d_theta) THEN
-        WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
-        RETURN
-      END IF
-
-      th2_min = th2_min * deg2rad
-      th2_max = th2_max * deg2rad
-      d_theta = half * deg2rad * d_theta
-
-      rdrnge = .true.
-      RETURN
-
-      END FUNCTION rdrnge
-
-!______________________________________________________________________________________________________
-
-      INTEGER*4 FUNCTION prune(line)          !from diffax_read
-
-
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: line
-
-
-      INTEGER*4 lin_len, i
-
-      prune = 0
-
-      lin_len = LEN(line)
-      i = lin_len
-      10 IF(i > 0) THEN
-        IF(line(i:i) == ' ') THEN
-          IF(i > 1) THEN
-            i = i - 1
-            GO TO 10
-          END IF
-        END IF
-      END IF
-
-      IF(i > 0) prune = i
-
-      RETURN
-      END FUNCTION prune
-!______________________________________________________________________________________________________
-
-     Function length(string) result(leng)    !from diffax_read
+     Function length(string) result(leng)    !from diffax
 
         character(len=*), intent(in) :: string
         integer :: leng
@@ -409,7 +350,7 @@
         allocate(crys%mult(nrp))
         crys%mult=0
 
-        yy = 0
+        yy = 0  !initialisation of the number of different atoms in a layer type
 
         inquire(file=namef,exist=esta)
         if( .not. esta) then
@@ -450,2400 +391,2331 @@
 
         Do l = 1, numberl
 
-             txt=adjustl(tfile(l))
+          txt=adjustl(tfile(l))
 
-               if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,"{") == 1 ) cycle   !skip comments and blank lines
+          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,"{") == 1 ) cycle   !skip comments and blank lines
 
-               if (INDEX(txt,'INSTRUMENTAL') ==1) then                                    !search for sections
+          if (INDEX(txt,'INSTRUMENTAL') ==1) then                                    !search for sections
+            z=l+1
+            DO
+              txt = adjustl (tfile (z))
+              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                z=z+1
+                cycle
+              else if (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+                       index(txt, 'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                exit
+              else                                              !read radiation type
+                if (index(txt , 'X-RAY')/=0 ) then
+                  crys%rad_type = 0
+                  z=z+1
+                elseif (index(txt , 'NEUTRON')/=0) then
+                  crys%rad_type = 1
+                  z=z+1
+                elseif (index(txt , 'ELECTRON')/=0) then
+                  crys%rad_type = 2
+                  z=z+1
+                else
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading radiation type"
+                  logi = .false.
+                  return
+                end if
 
-                    z=l+1
+                do                                                            !read lambda
+                  txt = adjustl(tfile(z))
 
-                  DO
-
-                    txt = adjustl (tfile (z))
-
-                    if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                      z=z+1
-                      cycle
-                    else if (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
-                             index(txt, 'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                      exit
-                    else                                              !read radiation type
-                      if (index(txt , 'X-RAY')/=0 ) then
-                          crys%rad_type = 0
-                          z=z+1
-                      elseif (index(txt , 'NEUTRON')/=0) then
-                          crys%rad_type = 1
-                          z=z+1
-                      elseif (index(txt , 'ELECTRON')/=0) then
-                          crys%rad_type = 2
-                          z=z+1
-                      else
+                  if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
+                    z=z+1
+                    cycle
+                  elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
+                          index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                          index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
+                    exit
+                  else
+                    call getword (txt, word, n_word)
+                    if (n_word == 3) then
+                      read (unit = txt, fmt = *, iostat = ier) crys%lambda, crys%lambda2, crys%ratio
+                      if (ier /= 0)then
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR reading lambda"
+                        logi = .false.
+                        return
+                      end if
+                      z = z + 1
+                    else
+                      read (unit = txt, fmt = *, iostat = ier) crys%lambda
+                      if (ier /= 0)then
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR reading lambda"
+                        logi = .false.
+                        return
+                      end if
+                      z = z + 1
+                    end if
+                    do
+                      txt = adjustl(tfile(z))
+                      if (INDEX (txt, 'NONE') /=0) then    !read instrumental data
+                        crys%broad = none
+                        z = z+1
+                      elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
+                              index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                              index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                        exit
+                      else if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
+                        z=z+1
+                        cycle
+                      else if (INDEX (txt, 'GAUSSIAN') /=0) then !we need to know number of parameters to distinguish them
+                        z = z+1
+                        if ((index(txt,'{') /= 0)) then
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
+                        end if
+                        if (iErr_fmt/=0) then
+                          Err_string=.true.
+                          Err_string_mess="Error reading number of words"
+                          logi = .false.
+                          return
+                        elseif (n_word == 2) then
+                          crys%broad = gauss
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%fwhm
+                            if ( crys%fwhm <= 0)  crys%broad = none            ! if 0, equivalent to NONE
+                            if ( crys%fwhm < 0) then
+                              Err_crys=.true.
+                              Err_crys_mess="ERROR :  fwhm cannot be negative"
+                              logi = .false.
+                              return
+                            end if
+                        elseif (n_word == 4) then
+                          crys%broad = pv_gss
+                          read(unit=txt ,fmt=*, iostat = ier) broad, crys%p_u,  crys%p_v,  crys%p_w
+                        elseif (n_word == 5) then
+                          crys%broad = pv_gss
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w, trima
+                          crys%trm = .true.
+                        else
                           Err_crys=.true.
-                          Err_crys_mess="ERROR reading radiation type"
+                          Err_crys_mess="ERROR reading instrumental broadening"
+                          logi = .false.
+                          return
+                        end if
+
+                      else if (INDEX (txt, 'LORENTZIAN') /=0) then
+                        z = z+1
+                        if ((index(txt,'{')/= 0)) then
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
+                        end if
+                        if (err_string) then
+                          Err_crys=.true.
+                          Err_crys_mess="ERROR reading number of words"
+                          logi = .false.
+                          return
+                        elseif (n_word == 2) then
+                          crys%broad = lorenz
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%fwhm
+                          if ( crys%fwhm <= eps )  crys%broad = none
+                          if ( crys%fwhm < 0) then
+                            Err_crys=.true.
+                            Err_crys_mess="ERROR :  fwhm cannot be negative"
+                            logi = .false.
+                            return
+                          end if
+                        elseif (n_word == 4) then
+                          crys%broad = pv_lrn
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w
+                        elseif (n_word == 5) then
+                          crys%broad = pv_lrn
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,trima
+                          crys%trm = .true.
+                        else
+                          Err_crys=.true.
+                          Err_crys_mess="ERROR reading instrumental broadening"
+                          logi = .false.
+                          return
+                        end if
+                      elseif (INDEX (txt, 'PSEUDO-VOIGT')/=0) then
+                        crys%broad = ps_vgt
+                        if ((index(txt,'{')/= 0)) then
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
+                        end if
+
+                        if (Err_string) then
+                           err_crys = .true.
+                           Err_crys_mess="ERROR reading number of words"
+                           logi = .false.
+                           return
+                        elseif (n_word == 7) then
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x  , &
+                                                               crys%p_dg, crys%p_dl
+                          z = z + 1
+                          do
+                            txt = adjustl(tfile (z))
+                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                              z = z +1
+                              cycle
+                            else if (index(txt,'STRUCTURAL')==1 .OR. index(txt,'LAYER')==1 .or. &
+                                     index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                                     index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                              exit
+                            else
+                              y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                              if (y /= 0 ) then
+                                q = index (txt, ')')
+                                txt (y:y) = ' '
+                                txt (q:q) = ' '
+                              end if
+                              if (index (txt, '{')/= 0) then        ! comments present
+                                j=index(txt,'{')-1
+                                if( j > 1) then
+                                  call getword (txt(1:j), word, n_word)
+                                else
+                                  n_word=0
+                                end if
+                              else
+                                call getword (txt, word, n_word)
+                              end if
+
+                              if (n_word == 6 ) then
+
+                                read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
+                                                           crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+
+                                if (crys%ref_p_u /= 0 .or. crys%ref_p_v /= 0 .or. crys%ref_p_w /= 0 &
+                                    .or. crys%ref_p_x /= 0 .or. crys%ref_p_dg /= 0   &
+                                    .or. crys%ref_p_dl /= 0  ) then
+                                  Err_crys=.true.
+                                  Err_crys_mess=&
+                                  "ERROR :  Range of refinement missing for pseudo_voigt parameters "
+                                  logi = .false.
+                                  return
+                                end if
+                                crys%rang_p_u= 0.0
+                                crys%rang_p_v= 0.0
+                                crys%rang_p_w= 0.0
+                                crys%rang_p_x= 0.0
+                                crys%rang_p_dg= 0.0
+                                crys%rang_p_dl= 0.0
+
+                                z = z +1
+
+                              elseif (n_word == 12) then
+                                read (unit = txt, fmt = *)crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,    &
+                                                          crys%ref_p_x, crys%ref_p_dg,  crys%ref_p_dl
+                                  if (crys%ref_p_u /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_u
+                                    write(unit=namepar(crys%npar),fmt="(a)")'u'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_u)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0*  &
+                                                        REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
+                                    crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
+                                    if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                    crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
+                                  end if
+                                  if (crys%ref_p_v /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_v
+                                    write(unit=namepar(crys%npar),fmt="(a)")'v'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_v)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0*  &
+                                    REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
+                                    crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
+                                    crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
+                                    if (crys%vlim2(crys%npar)  .GT. 0 ) crys%vlim2(crys%npar) = 0
+                                  end if
+                                  if (crys%ref_p_w /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_w
+                                    write(unit=namepar(crys%npar),fmt="(a)")'w'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_w)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
+                                    crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
+                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                    crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
+                                  end if
+                                  if (crys%ref_p_x /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_x
+                                    write(unit=namepar(crys%npar),fmt="(a)")'x'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_x)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
+                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
+                                    crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
+                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                    crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
+                                  end if
+                                  if (crys%ref_p_dg /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_dg
+                                    write(unit=namepar(crys%npar),fmt="(a)")'Dg'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_dg)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
+                                      REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
+                                    crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
+                                    if (crys%vlim1(crys%npar)   .LT. 0 ) then
+                                      crys%vlim1(crys%npar) = 0
+                                    end if
+                                    crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
+                                  end if
+                                  if (crys%ref_p_dl /= 0) then
+                                    crys%npar = crys%npar + 1        ! to count npar
+                                    crys%list (crys%npar) =crys%p_dl
+                                    write(unit=namepar(crys%npar),fmt="(a)")'Dl'
+                                    crys%cod(crys%npar) = 1
+                                    ab =  (abs(crys%ref_p_dl)/10.0)
+                                    crys%p(crys%npar)= int(ab)
+                                    crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
+                                      REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
+                                    crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
+                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                    crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
+                                  end if
+                                  if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
+                                  if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
+                                  if (crys%ref_p_w == 0) crys%rang_p_w = 0.0
+                                  if (crys%ref_p_x == 0) crys%rang_p_x = 0.0
+                                  if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
+                                  if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
+
+                                  z = z +1
+
+                              else
+                                Err_crys=.true.
+                                Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
+                                logi = .false.
+                                return
+                              end if
+                            end if
+
+                          end do
+
+                        elseif (n_word == 8) then
+                          read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x , &
+                                                              crys%p_dg, crys%p_dl  , trima
+                          crys%trm = .true.
+                          z = z + 1
+                          do
+                            txt = adjustl(tfile (z))
+                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                              z = z +1
+                              cycle
+                            else if (index(txt,'STRUCTURAL')==1 .or. index(txt,'LAYER')==1 .or. &
+                                     index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                                     index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                              exit
+                            else
+                              y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                              if (y /= 0 ) then
+                                q = index (txt, ')')
+                                txt (y:y) = ' '
+                                txt (q:q) = ' '
+                              end if
+                              if (index (txt, '{')/= 0) then        ! comments present
+                                j=index(txt,'{')-1
+                                if( j > 1) then
+                                   call getword (txt(1:j), word, n_word)
+                                else
+                                   n_word=0
+                                end if
+                              else
+                                call getword (txt, word, n_word)
+                              end if
+
+                              if (n_word == 6 ) then
+                                read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,  &
+                                                           crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+                                if (  crys%ref_p_u /= 0 .or. crys%ref_p_v /= 0 .or. crys%ref_p_w /= 0 &
+                                      .or. crys%ref_p_x /= 0 .or. crys%ref_p_dg /= 0 &
+                                      .or. crys%ref_p_dl /= 0  ) then
+                                  Err_crys=.true.
+                                  Err_crys_mess="ERROR :  Range of refinement missing for pseudo_voigt parameters "
+                                  logi = .false.
+                                  return
+                                end if
+                                crys%rang_p_u= 0.0
+                                crys%rang_p_v= 0.0
+                                crys%rang_p_w= 0.0
+                                crys%rang_p_x= 0.0
+                                crys%rang_p_dg= 0.0
+                                crys%rang_p_dl= 0.0
+
+                                z = z +1
+
+                              elseif (n_word == 12) then
+                                read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,  &
+                                                           crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl ,  crys%rang_p_u, &
+                                                           crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
+                                if (crys%ref_p_u /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_u
+                                  write(unit=namepar(crys%npar),fmt="(a)")'u'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_u)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
+                                  crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
+                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
+                                end if
+                                if (crys%ref_p_v /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_v
+                                  write(unit=namepar(crys%npar),fmt="(a)")'v'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_v)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
+                                  crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
+                                  if (crys%vlim1(crys%npar) .GT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
+                                end if
+                                if (crys%ref_p_w /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_w
+                                  write(unit=namepar(crys%npar),fmt="(a)")'w'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_w)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
+                                  crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
+                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
+                                end if
+                                if (crys%ref_p_x /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_x
+                                  write(unit=namepar(crys%npar),fmt="(a)")'x'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_x)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
+                                  crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
+                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
+                                end if
+                                if (crys%ref_p_dg /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_dg
+                                  write(unit=namepar(crys%npar),fmt="(a)")'Dg'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_dg)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
+                                  crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
+                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
+                                end if
+                                if (crys%ref_p_dl /= 0) then
+                                  crys%npar = crys%npar + 1        ! to count npar
+                                  crys%list (crys%npar) =crys%p_dl
+                                  write(unit=namepar(crys%npar),fmt="(a)")'Dl'
+                                  crys%cod(crys%npar) = 1
+                                  ab =  (abs(crys%ref_p_dl)/10.0)
+                                  crys%p(crys%npar)= int(ab)
+                                  crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
+                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
+                                  crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
+                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                  crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
+                                end if
+                                if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
+                                  if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
+                                  if (crys%ref_p_w == 0) crys%rang_p_w = 0.0
+                                  if (crys%ref_p_x == 0) crys%rang_p_x = 0.0
+                                  if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
+                                  if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
+                                  z = z +1
+                              else
+                                Err_crys=.true.
+                                Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
+                                logi = .false.
+                                return
+                              end if
+                            end if
+                          end do
+                        else
+                          Err_crys=.true.
+                          Err_crys_mess="ERROR reading instrumental broadening"
+                          logi = .false.
+                          return
+                        end if
+
+                      elseif( len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                         exit
+                      else
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR reading instrumental parameters"
+                        logi = .false.
+                        return
+                      end if
+                    end do
+                  end if
+                end do
+              end if
+            END DO
+
+          elseif (INDEX(txt,'STRUCTURAL') ==1 ) then      !structural section
+
+            z = l+1
+            do
+
+              txt = adjustl (tfile (z))
+
+              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                z=z+1
+                cycle
+              elseif ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                exit
+              else
+
+                read(unit=txt ,fmt=*, iostat = ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
+                if (ier /= 0)then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading cell parameters"
+                  logi = .false.
+                  return
+                end if
+                z = z +1
+                crys%cell_gamma = crys%cell_gamma * deg2rad
+
+                DO
+
+                  txt = adjustl (tfile (z))
+                  IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                        z=z+1
+                        cycle
+                  ELSEIF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
+                        .or. index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
+                        exit
+                  ELSE
+                    k = index (txt, '(')
+                    if (k /= 0 ) then              !eliminate parenthesis
+                       m = index (txt, ')')
+                       txt (k:k) = ' '
+                       txt (m:m) = ' '
+                    end if
+                    if (index (txt, '{')/= 0) then        ! comments present
+                      j=index(txt,'{')-1
+                      if( j > 1) then
+                        call getword (txt(1:j), word, n_word)
+                      else
+                        n_word=0
+                      end if
+                    else
+                      call getword (txt, word, n_word)
+                    end if
+
+                    if (n_word == 4 ) then
+                      read(unit=txt ,fmt=*, iostat = ier) crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
+                                                          crys%ref_cell_gamma   !read cell parameters
+                      if (crys%ref_cell_a /= 0.0 .or. crys%ref_cell_b /= 0.0 .or. crys%ref_cell_c /= 0.0   &
+                         .or. crys%ref_cell_gamma /= 0.0 )then
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR :  Range of refinement missing for cell parameters"
+                        logi = .false.
+                        return
+                      end if
+                      z = z +1
+                      crys%rang_cell_a = 0.0
+                      crys%rang_cell_b = 0.0
+                      crys%rang_cell_c = 0.0
+                      crys%rang_cell_gamma = 0.0
+
+                    elseif (n_word == 8) then
+
+                      read(unit=txt ,fmt=*, iostat = ier) crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
+                      crys%ref_cell_gamma, crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c, crys%rang_cell_gamma   !read cell parameters
+                      if (ier /= 0)then
+                          Err_crys=.true.
+                          Err_crys_mess="ERROR reading cell refinement parameters"
                           logi = .false.
                           return
                       end if
+                          z = z + 1
+
+
+                      if (crys%ref_cell_a /= 0 ) then
+                        crys%npar = crys%npar + 1       !to count npar
+                        crys%list (crys%npar) = crys%cell_a
+                        crys%cod(crys%npar) = 1
+                        ab =  (abs(crys%ref_cell_a)/10.0)
+                        crys%p(crys%npar)= INT(ab)
+                        crys%mult(crys%npar) = ((abs(crys%ref_cell_a))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_a))
+                        namepar(crys%npar) = 'cell_a'
+                        crys%vlim1 (crys%npar) = crys%cell_a - crys%rang_cell_a
+                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                        crys%vlim2 (crys%npar) = crys%cell_a + crys%rang_cell_a
+                      end if
+                      if (crys%ref_cell_b /= 0 ) then
+                        crys%npar = crys%npar + 1
+                        crys%list (crys%npar) = crys%cell_b
+                        namepar(crys%npar) = 'cell_b'
+                        crys%cod(crys%npar) = 1
+                        ab =  (abs(crys%ref_cell_b)/10.0)
+                        crys%p(crys%npar)= int(ab)
+                        crys%mult(crys%npar) = ((abs(crys%ref_cell_b))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_b))
+                        crys%vlim1 (crys%npar) = crys%cell_b - crys%rang_cell_b
+                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                        crys%vlim2 (crys%npar) = crys%cell_b + crys%rang_cell_b
+                      end if
+                      if (crys%ref_cell_c /= 0 ) then
+                        crys%npar = crys%npar + 1
+                        crys%list (crys%npar) = crys%cell_c
+                        namepar(crys%npar) = 'cell_c'
+                        crys%cod(crys%npar) =1
+                        ab =  (abs(crys%ref_cell_c)/10.0)
+                        crys%p(crys%npar)= int(ab)
+                        crys%mult(crys%npar) = ((abs(crys%ref_cell_c))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_c))
+                        crys%vlim1 (crys%npar) = crys%cell_c - crys%rang_cell_c
+                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                        crys%vlim2 (crys%npar) = crys%cell_c + crys%rang_cell_c
+                      end if
+                      if (crys%ref_cell_gamma /= 0 ) then
+                        crys%npar = crys%npar + 1
+                        crys%list (crys%npar) = crys%cell_gamma
+                        namepar(crys%npar) = 'cell_gamma'
+                        crys%cod(crys%npar) = 1
+                        ab =  (abs(crys%ref_cell_gamma)/10.0)
+                        crys%p(crys%npar)= int(ab)
+                        crys%mult(crys%npar) = ((abs(crys%ref_cell_gamma))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_gamma))
+                        crys%vlim1 (crys%npar) = (crys%cell_gamma)- (crys%rang_cell_gamma * deg2rad)
+                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                        crys%vlim2 (crys%npar) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
+                      end if
+
+                      if (crys%ref_cell_a == 0 ) crys%rang_cell_a = 0.0
+                      if (crys%ref_cell_b == 0 ) crys%rang_cell_b = 0.0
+                      if (crys%ref_cell_c == 0 ) crys%rang_cell_c = 0.0
+                      if (crys%ref_cell_gamma == 0 ) crys%rang_cell_gamma = 0.0
 
-                        do                                                            !read lambda
-                        txt = adjustl(tfile(z))
-
-                        if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                        elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
-                                index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
-                                exit
-                        else
-                                call getword (txt, word, n_word)
-                                 if (n_word == 3) then
-                                   read (unit = txt, fmt = *, iostat = ier) crys%lambda    , crys%lambda2, crys%ratio
-                                    if (ier /= 0)then
-                                        Err_crys=.true.
-                                        Err_crys_mess="ERROR reading lambda"
-                                        logi = .false.
-                                        return
-                                    end if
-                                      z = z + 1
-                                 else
-                                   read (unit = txt, fmt = *, iostat = ier) crys%lambda
-                                    if (ier /= 0)then
-                                        Err_crys=.true.
-                                        Err_crys_mess="ERROR reading lambda"
-                                        logi = .false.
-                                        return
-                                    end if
-                                      z = z + 1
-                                 end if
-                                do
-
-                                txt = adjustl(tfile(z))
-                                if (INDEX (txt, 'NONE') /=0) then    !read instrumental data
-                                       crys%broad = none
-                                        z = z+1
-                                elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
-                                        index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                        index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                    exit
-                                else if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
-                                    z=z+1
-                                    cycle
-                                else if (INDEX (txt, 'GAUSSIAN') /=0) then                     !we need to know number of parameters to distinguish them
-                                      z = z+1
-                                    if ((index(txt,'{') /= 0)) then
-                                       j=index(txt,'{')-1
-                                       if( j > 1) then
-                                         call getword (txt(1:j), word, n_word)
-                                       else
-                                         n_word=0
-                                       end if
-                                    else
-                                       call getword (txt, word, n_word)
-                                    end if
-                                    if (iErr_fmt/=0) then
-                                       Err_string=.true.
-                                       Err_string_mess="Error reading number of words"
-                                       logi = .false.
-                                       return
-                                    elseif (n_word == 2) then
-                                       crys%broad = pv_gss
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%fwhm
-                                               if ( crys%fwhm <= 0)  crys%broad = none            ! if 0, equivalent to NONE
-                                               if ( crys%fwhm < 0) then
-                                                  Err_crys=.true.
-                                                  Err_crys_mess="ERROR :  fwhm cannot be negative"
-                                                  logi = .false.
-                                                  return
-                                               end if
-
-                                    elseif (n_word == 4) then
-                                       crys%broad = gauss
-
-                                       read(unit=txt ,fmt=*, iostat = ier) broad, crys%p_u,  crys%p_v,  crys%p_w
-
-                                    elseif (n_word == 5) then
-                                       crys%broad = gauss
-
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w, trima
-                                       crys%trm = .true.
-
-                                    else
-                                       Err_crys=.true.
-                                       Err_crys_mess="ERROR reading instrumental broadening"
-                                       logi = .false.
-                                       return
-                                    end if
-                                else if (INDEX (txt, 'LORENTZIAN') /=0) then
-                                          z = z+1
-                                    if ((index(txt,'{')/= 0)) then
-                                       j=index(txt,'{')-1
-                                       if( j > 1) then
-                                         call getword (txt(1:j), word, n_word)
-                                       else
-                                         n_word=0
-                                       end if
-                                    else
-                                       call getword (txt, word, n_word)
-                                    end if
-                                    if (err_string) then
-                                       Err_crys=.true.
-                                       Err_crys_mess="ERROR reading number of words"
-                                       logi = .false.
-                                       return
-                                    elseif (n_word == 2) then
-                                       crys%broad = pv_lrn
-
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%fwhm
-                                       if ( crys%fwhm <= eps )  crys%broad = none
-                                       if ( crys%fwhm < 0) then
-                                              Err_crys=.true.
-                                              Err_crys_mess="ERROR :  fwhm cannot be negative"
-                                              logi = .false.
-                                              return
-                                       end if
-
-                                    elseif (n_word == 4) then
-                                       crys%broad = lorenz
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w
-
-                                    elseif (n_word == 5) then
-                                       crys%broad = lorenz
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,trima
-                                       crys%trm = .true.
-
-                                    else
-                                       Err_crys=.true.
-                                       Err_crys_mess="ERROR reading instrumental broadening"
-                                       logi = .false.
-                                       return
-                                    end if
-                                elseif (INDEX (txt, 'PSEUDO-VOIGT')/=0) then
-
-                                    crys%broad = ps_vgt
-                                    if ((index(txt,'{')/= 0)) then
-                                       j=index(txt,'{')-1
-                                       if( j > 1) then
-                                         call getword (txt(1:j), word, n_word)
-                                       else
-                                         n_word=0
-                                       end if
-                                    else
-                                       call getword (txt, word, n_word)
-                                    end if
-
-                                    if (Err_string) then
-                                       err_crys = .true.
-                                       Err_crys_mess="ERROR reading number of words"
-                                       logi = .false.
-                                       return
-                                    elseif (n_word == 7) then
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x  , &
-                                                                           crys%p_dg, crys%p_dl
-
-                                           z = z + 1
-
-                                             do
-                                                 txt = adjustl(tfile (z))
-
-                                                if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                                    z = z +1
-                                                     cycle
-
-                                                ELSE IF ( index(txt,'STRUCTURAL')==1 .OR. index(txt,'LAYER')==1 .or. &
-                                                          index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                                          index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                                     exit
-
-                                                else
-
-                                                  y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                    if (y /= 0 ) then
-                                                      q = index (txt, ')')
-                                                      txt (y:y) = ' '
-                                                      txt (q:q) = ' '
-                                                    end if
-                                                   if (index (txt, '{')/= 0) then        ! comments present
-                                                      j=index(txt,'{')-1
-                                                      if( j > 1) then
-                                                        call getword (txt(1:j), word, n_word)
-                                                      else
-                                                        n_word=0
-                                                      end if
-                                                   else
-                                                      call getword (txt, word, n_word)
-                                                   end if
-
-                                                   if (n_word == 6 ) then
-
-                                                        read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
-                                                                                   crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
-
-                                                        if (  crys%ref_p_u /= 0 .or. crys%ref_p_v /= 0 .or. crys%ref_p_w /= 0 &
-                                                              .or. crys%ref_p_x /= 0 .or. crys%ref_p_dg /= 0   &
-                                                              .or. crys%ref_p_dl /= 0  ) then
-
-                                                            Err_crys=.true.
-                                                            Err_crys_mess=&
-                                                            "ERROR :  Range of refinement missing for pseudo_voigt parameters "
-                                                            logi = .false.
-                                                            return
-                                                         end if
-                                                          crys%rang_p_u= 0.0
-                                                          crys%rang_p_v= 0.0
-                                                          crys%rang_p_w= 0.0
-                                                          crys%rang_p_x= 0.0
-                                                          crys%rang_p_dg= 0.0
-                                                          crys%rang_p_dl= 0.0
-
-                                                          z = z +1
-
-
-
-                                                   elseif (n_word == 12) then
-                                                      read (unit = txt, fmt = *)crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,    &
-                                                                                crys%ref_p_x, crys%ref_p_dg,  crys%ref_p_dl
-
-                                                      if (crys%ref_p_u /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_u
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'u'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_u)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0*  &
-                                                                             REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
-                                                         crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
-                                                      end if
-                                                      if (crys%ref_p_v /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_v
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'v'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_v)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0*  &
-                                                              REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
-                                                         crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
-                                                         crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
-                                                         if (crys%vlim2(crys%npar)  .GT. 0 ) crys%vlim2(crys%npar) = 0
-                                                      end if
-                                                      if (crys%ref_p_w /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_w
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'w'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_w)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
-                                                               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
-                                                         crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
-                                                         if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
-                                                      end if
-                                                      if (crys%ref_p_x /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_x
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'x'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_x)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
-                                                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
-                                                         crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
-                                                         if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-
-                                                         crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
-                                                      end if
-                                                      if (crys%ref_p_dg /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_dg
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'Dg'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_dg)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
-                                                         crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
-                                                         if (crys%vlim1(crys%npar)   .LT. 0 ) then
-                                                                crys%vlim1(crys%npar) = 0
-
-                                                         end if
-                                                         crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
-                                                      end if
-                                                      if (crys%ref_p_dl /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_dl
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'Dl'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_dl)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
-                                                         crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
-                                                         if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
-                                                      end if
-                                                     if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
-                                                     if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
-                                                     if (crys%ref_p_w == 0) crys%rang_p_w = 0.0
-                                                     if (crys%ref_p_x == 0) crys%rang_p_x = 0.0
-                                                     if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
-                                                     if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
-
-                                                      z = z +1
-
-
-                                                   else
-                                                      Err_crys=.true.
-                                                      Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
-                                                      logi = .false.
-                                                      return
-                                                   end if
-
-                                                end if
-
-
-                                            end do
-
-
-                                    elseif (n_word == 8) then
-                                       read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x , &
-                                                                           crys%p_dg, crys%p_dl  , trima
-
-                                       crys%trm = .true.
-                                        z = z + 1
-
-                                             do
-                                                 txt = adjustl(tfile (z))
-
-                                                if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                                    z = z +1
-                                                     cycle
-
-                                                ELSE IF ( index(txt,'STRUCTURAL')==1 .or. index(txt,'LAYER')==1 .or. &
-                                                          index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                                          index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                                     exit
-
-                                                else
-
-                                                  y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                    if (y /= 0 ) then
-                                                      q = index (txt, ')')
-                                                      txt (y:y) = ' '
-                                                      txt (q:q) = ' '
-                                                    end if
-                                                   if (index (txt, '{')/= 0) then        ! comments present
-                                                      j=index(txt,'{')-1
-                                                      if( j > 1) then
-                                                        call getword (txt(1:j), word, n_word)
-                                                      else
-                                                        n_word=0
-                                                      end if
-                                                    else
-                                                      call getword (txt, word, n_word)
-                                                   end if
-
-                                                   if (n_word == 6 ) then
-
-                                                        read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,  &
-                                                                                   crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
-
-                                                        if (  crys%ref_p_u /= 0 .or. crys%ref_p_v /= 0 .or. crys%ref_p_w /= 0 &
-                                                              .or. crys%ref_p_x /= 0 .or. crys%ref_p_dg /= 0 &
-                                                              .or. crys%ref_p_dl /= 0  ) then
-                                                            Err_crys=.true.
-                                                            Err_crys_mess=&
-                                                             "ERROR :  Range of refinement missing for pseudo_voigt parameters "
-                                                            logi = .false.
-                                                            return
-                                                         end if
-                                                          crys%rang_p_u= 0.0
-                                                          crys%rang_p_v= 0.0
-                                                          crys%rang_p_w= 0.0
-                                                          crys%rang_p_x= 0.0
-                                                          crys%rang_p_dg= 0.0
-                                                          crys%rang_p_dl= 0.0
-
-                                                          z = z +1
-
-                                                   elseif (n_word == 12) then
-                                                      read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,  &
-                                                      crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl ,  crys%rang_p_u, &
-                                                      crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
-
-
-                                                      if (crys%ref_p_u /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_u
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'u'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_u)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
-                                                         crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
-                                                      end if
-                                                      if (crys%ref_p_v /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_v
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'v'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_v)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
-                                                         crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
-                                                         if (crys%vlim1(crys%npar) .GT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
-                                                      end if
-                                                      if (crys%ref_p_w /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_w
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'w'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_w)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
-                                                         crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
-                                                      end if
-                                                      if (crys%ref_p_x /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_x
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'x'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_x)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
-                                                         crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
-                                                      end if
-                                                      if (crys%ref_p_dg /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_dg
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'Dg'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_dg)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
-                                                         crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
-                                                      end if
-                                                      if (crys%ref_p_dl /= 0) then
-                                                         crys%npar = crys%npar + 1        ! to count npar
-                                                         crys%list (crys%npar) =crys%p_dl
-                                                         write(unit=namepar(crys%npar),fmt="(a)")'Dl'
-                                                         crys%cod(crys%npar) = 1
-                                                         ab =  (abs(crys%ref_p_dl)/10.0)
-                                                         crys%p(crys%npar)= int(ab)
-                                                         crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
-                                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
-                                                         crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
-                                                         if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                         crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
-                                                      end if
-                                                     if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
-                                                     if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
-                                                     if (crys%ref_p_w == 0) crys%rang_p_w = 0.0
-                                                     if (crys%ref_p_x == 0) crys%rang_p_x = 0.0
-                                                     if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
-                                                     if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
-
-                                                      z = z +1
-
-
-                                                   else
-                                                      Err_crys=.true.
-                                                      Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
-                                                      logi = .false.
-                                                      return
-                                                   end if
-
-                                                end if
-
-
-                                            end do
-
-                                    else
-                                       Err_crys=.true.
-                                       Err_crys_mess="ERROR reading instrumental broadening"
-                                       logi = .false.
-                                       return
-                                    end if
-
-                                elseif( len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                       exit
-
-                                else
-                                    Err_crys=.true.
-                                    Err_crys_mess="ERROR reading instrumental parameters"
-                                    logi = .false.
-                                    return
-                                end if
-                                end do
-
-                        end if
-                        end do
-
-                    end if
-                  END DO
-
-
-               elseif (INDEX(txt,'STRUCTURAL') ==1 ) then      !structural section
-
-                  z = l+1
-                  do
-
-                    txt = adjustl (tfile (z))
-
-                    if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                    elseif ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                     index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                exit
                     else
+                      Err_crys=.true.
+                      Err_crys_mess="ERROR reading cell refinement parameters"
+                      logi = .false.
+                      return
+                    end if
 
-                      read(unit=txt ,fmt=*, iostat = ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
-                        if (ier /= 0)then
-                          Err_crys=.true.
-                          Err_crys_mess="ERROR reading cell parameters"
-                          logi = .false.
-                          return
+                    DO
+
+                      txt = adjustl (tfile (z))
+
+                      IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                        z=z+1
+                        cycle
+                      ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
+                               .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                        exit
+
+                      ELSE
+                        if (index (txt, '{')/= 0) then        ! comments present
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
                         end if
-                        z = z +1
-                        crys%cell_gamma = crys%cell_gamma * deg2rad
+                        if (n_word == 2) then
+                          read(unit=txt ,fmt=*, iostat = ier) crys%sym  , crys%tolerance           ! read symmetry
+                          if (ier /= 0)then
+                            Err_crys=.true.
+                            Err_crys_mess="ERROR reading symmetry"
+                            logi = .false.
+                            return
+                          end if
+                          z=z+1
+                        else
+                          read(unit=txt ,fmt=*, iostat = ier) crys%sym         ! read symmetry
+                          if (ier /= 0)then
+                            Err_crys=.true.
+                            Err_crys_mess="ERROR reading symmetry"
+                            logi = .false.
+                            return
+                          end if
+                          z=z+1
+                          crys%tolerance = 1
+                        end if
 
-                        DO
+                        list(1)  = '-1 '
+                        list(2)  = '2/M(1) '
+                        list(3)  = '2/M(2) '
+                        list(4)  = 'MMM '
+                        list(5)  = '-3 '
+                        list(6)  = '-3M '
+                        list(7)  = '4/M '
+                        list(8)  = '4/MMM '
+                        list(9)  = '6/M '
+                        list(10) = '6/MMM '
+                        list(11) = 'AXIAL '
+                        list(12) = 'UNKNOWN '
 
+                        iflag = choice(crys%sym, list, 12)
+                        crys%sym  = list(iflag)
+
+                        IF(iflag >= 1 .AND. iflag <= 11) THEN
+                             crys%symgrpno = iflag
+                        ELSE IF(iflag == 12) THEN
+                            ! a value of UNKNOWN = -1 alerts OPTIMZ that user entered 'UNKNOWN'
+                             crys%symgrpno = -1
+                        END IF
+
+                        crys%tolerance = crys%tolerance * eps2   ! convert from a percentage
+
+                        do
                           txt = adjustl (tfile (z))
+
                           IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                          ELSEIF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
-                                .or. index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
-                                exit
-
+                            z=z+1
+                            cycle
+                          ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+                                    index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
+                                    index(txt,'EXPERIMENTAL')==1) then
+                            exit
                           ELSE
-                            k = index (txt, '(')
-                            if (k /= 0 ) then              !eliminate parenthesis
-                               m = index (txt, ')')
-                               txt (k:k) = ' '
-                               txt (m:m) = ' '
+                            read(unit=txt ,fmt=*, iostat = ier) crys%n_typ                  !read number of  layers
+                            if (ier /= 0)then
+                              Err_crys=.true.
+                              Err_crys_mess="ERROR reading number of layers"
+                              logi = .false.
+                              return
                             end if
-                            if (index (txt, '{')/= 0) then        ! comments present
-                               j=index(txt,'{')-1
-                               if( j > 1) then
-                                 call getword (txt(1:j), word, n_word)
-                               else
-                                 n_word=0
-                               end if
-                            else
-                               call getword (txt, word, n_word)
-                            end if
-
-                            if (n_word == 4 ) then
-
-                               read(unit=txt ,fmt=*, iostat = ier) crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
-                                                                   crys%ref_cell_gamma   !read cell parameters
-
-                               if (crys%ref_cell_a /= 0.0 .or. crys%ref_cell_b /= 0.0 .or. crys%ref_cell_c /= 0.0   &
-                                   .or. crys%ref_cell_gamma /= 0.0 )then
-                                   Err_crys=.true.
-                                   Err_crys_mess="ERROR :  Range of refinement missing for cell parameters"
-                                   logi = .false.
-                                   return
-                               end if
-                                 z = z +1
-                               crys%rang_cell_a = 0.0
-                               crys%rang_cell_b = 0.0
-                               crys%rang_cell_c = 0.0
-                               crys%rang_cell_gamma = 0.0
-
-                            elseif (n_word == 8) then
-
-                              read(unit=txt ,fmt=*, iostat = ier) crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
-                              crys%ref_cell_gamma, crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c, crys%rang_cell_gamma   !read cell parameters
-                              if (ier /= 0)then
-                                  Err_crys=.true.
-                                  Err_crys_mess="ERROR reading cell refinement parameters"
-                                  logi = .false.
-                                  return
-                              end if
-                                 z = z + 1
-
-
-                              if (crys%ref_cell_a /= 0 ) then
-                                 crys%npar = crys%npar + 1       !to count npar
-                                 crys%list (crys%npar) = crys%cell_a
-                                 crys%cod(crys%npar) = 1
-                                 ab =  (abs(crys%ref_cell_a)/10.0)
-                                 crys%p(crys%npar)= INT(ab)
-                                 crys%mult(crys%npar) = ((abs(crys%ref_cell_a))-(10.0* &
-                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_a))
-                                 namepar(crys%npar) = 'cell_a'
-                                 crys%vlim1 (crys%npar) = crys%cell_a - crys%rang_cell_a
-                                 if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                 crys%vlim2 (crys%npar) = crys%cell_a + crys%rang_cell_a
-                              end if
-                              if (crys%ref_cell_b /= 0 ) then
-                                 crys%npar = crys%npar + 1
-                                 crys%list (crys%npar) = crys%cell_b
-                                 namepar(crys%npar) = 'cell_b'
-                                 crys%cod(crys%npar) = 1
-                                 ab =  (abs(crys%ref_cell_b)/10.0)
-                                 crys%p(crys%npar)= int(ab)
-                                 crys%mult(crys%npar) = ((abs(crys%ref_cell_b))-(10.0* &
-                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_b))
-                                 crys%vlim1 (crys%npar) = crys%cell_b - crys%rang_cell_b
-                                 if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                 crys%vlim2 (crys%npar) = crys%cell_b + crys%rang_cell_b
-                              end if
-                              if (crys%ref_cell_c /= 0 ) then
-                                 crys%npar = crys%npar + 1
-                                 crys%list (crys%npar) = crys%cell_c
-                                 namepar(crys%npar) = 'cell_c'
-                                 crys%cod(crys%npar) =1
-                                 ab =  (abs(crys%ref_cell_c)/10.0)
-                                 crys%p(crys%npar)= int(ab)
-                                 crys%mult(crys%npar) = ((abs(crys%ref_cell_c))-(10.0* &
-                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_c))
-                                 crys%vlim1 (crys%npar) = crys%cell_c - crys%rang_cell_c
-                                 if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                 crys%vlim2 (crys%npar) = crys%cell_c + crys%rang_cell_c
-                              end if
-                              if (crys%ref_cell_gamma /= 0 ) then
-                                 crys%npar = crys%npar + 1
-                                 crys%list (crys%npar) = crys%cell_gamma
-                                 namepar(crys%npar) = 'cell_gamma'
-                                 crys%cod(crys%npar) = 1
-                                 ab =  (abs(crys%ref_cell_gamma)/10.0)
-                                 crys%p(crys%npar)= int(ab)
-                                 crys%mult(crys%npar) = ((abs(crys%ref_cell_gamma))-(10.0* &
-                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_gamma))
-                                 crys%vlim1 (crys%npar) = (crys%cell_gamma)- (crys%rang_cell_gamma * deg2rad)
-                                 if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                 crys%vlim2 (crys%npar) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
-                              end if
-
-                              if (crys%ref_cell_a == 0 ) crys%rang_cell_a = 0.0
-                              if (crys%ref_cell_b == 0 ) crys%rang_cell_b = 0.0
-                              if (crys%ref_cell_c == 0 ) crys%rang_cell_c = 0.0
-                              if (crys%ref_cell_gamma == 0 ) crys%rang_cell_gamma = 0.0
-
-                            else
-                                Err_crys=.true.
-                                Err_crys_mess="ERROR reading cell refinement parameters"
-                                logi = .false.
-                                return
-                            end if
-
-                            DO
-
-                             txt = adjustl (tfile (z))
-
-                             IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                             ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
-                                  .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                exit
-
-                             ELSE
-
-                                if (index (txt, '{')/= 0) then        ! comments present
-                                   j=index(txt,'{')-1
-                                   if( j > 1) then
-                                     call getword (txt(1:j), word, n_word)
-                                   else
-                                     n_word=0
-                                   end if
-                                else
-                                   call getword (txt, word, n_word)
-                                end if
-                                if (n_word == 2) then
-                                   read(unit=txt ,fmt=*, iostat = ier) crys%sym  , crys%tolerance           ! read symmetry
-                                   if (ier /= 0)then
-                                      Err_crys=.true.
-                                      Err_crys_mess="ERROR reading symmetry"
-                                      logi = .false.
-                                      return
-                                   end if
-                                   z=z+1
-                                else
-
-                                   read(unit=txt ,fmt=*, iostat = ier) crys%sym         ! read symmetry
-                                   if (ier /= 0)then
-                                     Err_crys=.true.
-                                     Err_crys_mess="ERROR reading symmetry"
-                                     logi = .false.
-                                     return
-                                   end if
-                                   z=z+1
-                                   crys%tolerance = 1
-                                end if
-
-                                list(1)  = '-1 '
-                                list(2)  = '2/M(1) '
-                                list(3)  = '2/M(2) '
-                                list(4)  = 'MMM '
-                                list(5)  = '-3 '
-                                list(6)  = '-3M '
-                                list(7)  = '4/M '
-                                list(8)  = '4/MMM '
-                                list(9)  = '6/M '
-                                list(10) = '6/MMM '
-                                list(11) = 'AXIAL '
-                                list(12) = 'UNKNOWN '
-
-                                iflag = choice(crys%sym, list, 12)
-                                crys%sym  = list(iflag)
-
-                                IF(iflag >= 1 .AND. iflag <= 11) THEN
-                                     crys%symgrpno = iflag
-                                ELSE IF(iflag == 12) THEN
-                                    ! a value of UNKNOWN = -1 alerts OPTIMZ that user entered 'UNKNOWN'
-                                     crys%symgrpno = -1
-                                END IF
-
-                                crys%tolerance = crys%tolerance * eps2   ! convert from a percentage
-
-                                do
-                                  txt = adjustl (tfile (z))
-
-                                  IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                    z=z+1
-                                    cycle
-                                  ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
-                                            index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
-                                            index(txt,'EXPERIMENTAL')==1) then
-                                    exit
-
-                                  ELSE
-                                      read(unit=txt ,fmt=*, iostat = ier) crys%n_typ                  !read number of  layers
-                                         if (ier /= 0)then
-                                           Err_crys=.true.
-                                           Err_crys_mess="ERROR reading number of layers"
-                                           logi = .false.
-                                           return
-                                         end if
-                                         z = z + 1
-
-                                     DO  i = 1, crys%n_typ        ! initialization of upper and lower positions
-                                        crys%high_atom(i) = zero
-                                        crys%low_atom(i)  = zero
-                                     END DO
-
-                                     do
-                                         txt = adjustl (tfile (z))
-                                         IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                              z=z+1
-                                              cycle
-                                         ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
-                                                   index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
-                                                   index(txt,'EXPERIMENTAL')==1) then
-                                              exit
-
-                                         ELSE
-                                              if ((index(txt,'{')/= 0)) then                               !need to know number of words to distinguish between diameter of width along a
-                                                 j=index(txt,'{')-1
-                                                 if( j > 1) then
-                                                   call getword (txt(1:j), word, n_word)
-                                                 else
-                                                   n_word=0
-                                                 end if
-                                              else
-                                                 call getword (txt, word, n_word)
-                                              end if
-                                              if (iErr_fmt/=0) then
-                                                 Err_string=.true.
-                                                 Err_string_mess="Error reading number of words"
-                                                 logi = .false.
-                                                 return
-                                              elseif (n_word == 1) then
-                                                  if (INDEX (txt, 'INFINITE') /=0) then
-                                                          crys%finite_width = .false.
-                                                          z = z +1
-                                                  elseif ( INDEX (txt, 'LAYER') /=0) then            ! if next section, infinite is considered
-                                                          crys%finite_width = .false.
-                                                          backspace 0
-                                                  ! elseif (len_trim(txt) == 0 ) then
-                                                  !         crys%finite_width = .false.
-                                                  else
-                                                     crys%finite_width = .true.
-                                                     backspace 0
-                                                     read (unit =tfile, fmt = *, iostat = ier) crys%layer_a
-                                                     crys%layer_b = crys%layer_a
-                                                     z = z + 1
-
-                                                     do
-                                                        txt = adjustl(tfile (z))
-
-                                                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                                                            index(txt,"!") == 1) then
-                                                            z = z +1
-                                                             cycle
-
-                                                        ELSE IF ( index(txt,'LAYER')==1 .or. &
-                                                                  index(txt,'STACKING')==1 .or. &
-                                                                  index(txt,'TRANSITIONS')==1 .or. &
-                                                                  index(txt,'CALCULATION')==1 .or. &
-                                                                  index(txt,'EXPERIMENTAL')==1) then
-                                                             exit
-
-                                                        else
-
-                                                          y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                            if (y /= 0 ) then
-                                                              q = index (txt, ')')
-                                                              txt (y:y) = ' '
-                                                              txt (q:q) = ' '
-                                                           end if
-                                                           if (index (txt, '{')/= 0) then        ! comments present
-                                                             j=index(txt,'{')-1
-                                                             if( j > 1) then
-                                                               call getword (txt(1:j), word, n_word)
-                                                             else
-                                                               n_word=0
-                                                             end if
-                                                           else
-                                                              call getword (txt, word, n_word)
-                                                           end if
-
-                                                           if (n_word == 1 ) then
-
-                                                               read (unit = txt, fmt = *) crys%ref_layer_a
-                                                                       crys%ref_layer_b = crys%ref_layer_a
-                                                               if (  crys%ref_layer_a /= 0  ) then
-                                                                   Err_crys=.true.
-                                                                   Err_crys_mess=&
-                                                                   "ERROR :  Range of refinement missing for layer diameter "
-                                                                   logi = .false.
-                                                                   return
-                                                                end if
-                                                                 crys%rang_layer_a= 0.0
-                                                                 crys%rang_layer_b= 0.0
-                                                                 z = z +1
-                                                           elseif (n_word == 2) then
-                                                              read (unit = txt, fmt = *) crys%ref_layer_a,crys%rang_layer_a
-                                                               crys%ref_layer_b = crys%ref_layer_a
-                                                              if (crys%ref_layer_a /= 0) then
-                                                                 crys%npar = crys%npar + 1        ! to count npar
-                                                                 crys%list (crys%npar) =crys%layer_a
-                                                                 write(unit=namepar(crys%npar),fmt="(a)")'diameter_a'
-                                                                 crys%cod(crys%npar) = 1
-                                                                 ab =  (abs(crys%ref_layer_a)/10.0)
-                                                                 crys%p(crys%npar)= int(ab)
-                                                                 crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
-                                                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                                                 crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                                                 crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
-
-                                                                 crys%npar = crys%npar + 1
-                                                                 crys%list (crys%npar) =crys%layer_b
-                                                                 write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
-                                                                 crys%cod(crys%npar) = 1
-                                                                 ab =  (abs(crys%ref_layer_a)/10.0)
-                                                                 crys%p(crys%npar)= int(ab)
-                                                                 crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
-                                                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                                                 crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                                                 crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
-                                                             end if
-
-
-
-                                                             if (crys%ref_layer_a == 0) then
-                                                                    crys%rang_layer_a  = 0.0
-                                                                    crys%rang_layer_b  = 0.0
-                                                             end if
-
-                                                              z = z +1
-
-
-                                                           else
-                                                              Err_crys=.true.
-                                                             Err_crys_mess= &
-                                                              "ERROR reading layer diameter refinement parameters"
-                                                              logi = .false.
-                                                              return
-                                                           end if
-
-                                                        end if
-
-
-                                                     end do
-                                                  end if
-
-                                              elseif (n_word == 2) then
-                                                      crys%finite_width = .true.
-
-                                                      read(unit=txt ,fmt=*, iostat = ier) crys%layer_a, crys%layer_b
-
-                                                      if (ier /= 0 ) then
-                                                             Err_crys=.true.
-                                                             Err_crys_mess="ERROR reading a profile  file: end of file1"
-                                                             logi = .false.
-                                                             return
-                                                      end if
-                                                      z = z + 1
-
-!*******************************************************************************************************************
-                                                      do
-                                                          txt = adjustl(tfile (z))
-
-                                                         if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                                                             index(txt,"!") == 1) then
-                                                             z = z +1
-                                                              cycle
-
-                                                         ELSE IF ( index(txt,'LAYER')==1 .or. &
-                                                                   index(txt,'STACKING')==1 .or. &
-                                                                   index(txt,'TRANSITIONS')==1 .or. &
-                                                                   index(txt,'CALCULATION')==1 .or. &
-                                                                   index(txt,'EXPERIMENTAL')==1) then
-                                                              exit
-
-                                                         else
-
-                                                           y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                             if (y /= 0 ) then
-                                                               q = index (txt, ')')
-                                                               txt (y:y) = ' '
-                                                               txt (q:q) = ' '
-                                                             end if
-                                                            if (index (txt, '{')/= 0) then        ! comments present
-                                                              j=index(txt,'{')-1
-                                                              if( j > 1) then
-                                                                call getword (txt(1:j), word, n_word)
-                                                              else
-                                                                n_word=0
-                                                              end if
-                                                            else
-                                                               call getword (txt, word, n_word)
-                                                            end if
-
-                                                           if (n_word == 2 ) then
-
-                                                                read (unit = txt, fmt = *) crys%ref_layer_a , &
-                                                                                           crys%ref_layer_b
-
-                                                                if (  crys%ref_layer_a /= 0  ) then
-                                                                    Err_crys=.true.
-                                                                    Err_crys_mess= &
-                                                                     "ERROR :  Range of refinement missing for layer dimensions "
-                                                                    logi = .false.
-                                                                    return
-                                                                 end if
-                                                                  crys%rang_layer_a= 0.0
-                                                                  crys%rang_layer_b= 0.0
-                                                                  z = z +1
-                                                           else if (n_word == 4) then
-                                                             read (unit = txt, fmt = *) crys%ref_layer_a,&
-                                                             crys%ref_layer_b, crys%rang_layer_a , crys%rang_layer_b
-
-                                                             if (crys%ref_layer_a /= 0) then
-                                                               crys%npar = crys%npar + 1        ! to count npar
-                                                               crys%list (crys%npar) =crys%layer_a
-                                                               write(unit=namepar(crys%npar),fmt="(a)")'diameter_a'
-                                                               crys%cod(crys%npar) = 1
-                                                               ab =  (abs(crys%ref_layer_a)/10.0)
-                                                               crys%p(crys%npar)= int(ab)
-                                                               crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
-                                                                       REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                                               crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                                               crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
-                                                             end if
-                                                             if (crys%ref_layer_a /= 0) then
-                                                              crys%npar = crys%npar + 1
-                                                              crys%list (crys%npar) =crys%layer_b
-                                                              write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
-                                                              crys%cod(crys%npar) = 1
-                                                              ab =  (abs(crys%ref_layer_b)/10.0)
-                                                              crys%p(crys%npar)= int(ab)
-                                                              crys%mult(crys%npar) = ((abs(crys%ref_layer_b ))-(10.0* &
-                                                                     REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_b ))
-                                                              crys%vlim1 (crys%npar) = crys%layer_b - crys%rang_layer_b
-                                                              crys%vlim2 (crys%npar) = crys%layer_b + crys%rang_layer_b
-                                                             end if
-
-
-
-                                                             if (crys%ref_layer_a == 0) crys%rang_layer_a  = 0.0
-                                                             if (crys%ref_layer_b == 0) crys%rang_layer_b  = 0.0
-
-                                                                     z = z +1
-
-
-                                                           else
-                                                               Err_crys=.true.
-                                                               Err_crys_mess="ERROR reading layer dimensions refinement parameters"
-                                                               logi = .false.
-                                                               return
-                                                           end if
-                                                         end if
-
-
-                                                      end do
-!*************************************************************************************************************
-
-                                             else
-                                                      Err_crys=.true.
-                                                      Err_crys_mess="ERROR reading a profile  file: end of file2"
-                                                      logi = .false.
-                                                      return
-                                             end if
-
-                                         end if
-
-                                     end do
-
-                                  END IF
-                                end do
-                             END IF
-
+                            z = z + 1
+
+                            DO  i = 1, crys%n_typ        ! initialization of upper and lower positions
+                              crys%high_atom(i) = zero
+                              crys%low_atom(i)  = zero
                             END DO
 
-                          END IF
-
-                        END DO
-                    end if
-                  end do
-
-               elseif  (INDEX(txt,'LAYER') == 1 ) then      !Cannot be /=0 because layer can appear in comments!!
-                           k = 0
-                           m = 0
-                           r = 0      ! counts n_actual
-                           j = 0      ! counts l_actual
-                   do
-                         txt = adjustl(tfile(z))
-
-                         if (index(txt,'=') /= 0) then        ! search for '=' sign
-                            j = j+1
-                            z = z +1
-                            read (unit = txt, fmt =*, iostat = ier) layer, a1, layer, a2
-                            if (a2 > a1 .OR. a2 < 1) then
-                               write (*,*) "Layer", a1, " cannot be equal to layer" ,a2, "."
-                               logi = .false.
-                               return
-                            else
-                              crys%l_actual (j) = crys%l_actual (a2)
-                            end if
-                            cycle
-
-                         elseif (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                             z = z +1
-                             cycle
-
-                         elseif (index(txt, 'STRUCTURAL')== 1 .or.  index(txt,'STACKING')==1 .or. &
-                                 index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
-                                 index(txt,'EXPERIMENTAL')==1) then
-
-                             exit
-                         else
-                             if  (INDEX(txt,'LAYER') == 1 ) then
-                                        z = z + 1
-                                        cycle
-                             end if
-                             j = j+1
-                             r = r + 1
-                             crys%l_actual(j) = j
-                             crys%n_actual = r
-
-                             if    (INDEX(txt, 'CENTROSYMMETRIC') == 1) then
-                                crys%centro(r) = CENTRO
-                             else
-                                crys%centro(r) = NONE
-                             end if
-                             z = z +1
-                             yy=k
-                             k = 0      !to count  number atoms
-
-                             do
-
-                                txt = adjustl(tfile(z))
-
-                                if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                    z = z + 1
-                                    cycle
-                                elseif ( index (txt, '{') == 1 ) then
-                                    z = z + 1
-                                    cycle
-                                elseif (index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
-                                        index(txt,'STACKING')==1 .or. index(txt,'CALCULATION')==1  .or. &
-                                        index(txt,'TRANSITIONS')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                    exit
+                            do
+                              txt = adjustl (tfile (z))
+                              IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                                z=z+1
+                                cycle
+                              ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+                                        index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
+                                        index(txt,'EXPERIMENTAL')==1) then
+                                exit
+                              ELSE
+                                if ((index(txt,'{')/= 0)) then                               !need to know number of words to distinguish between diameter of width along a
+                                  j=index(txt,'{')-1
+                                  if( j > 1) then
+                                    call getword (txt(1:j), word, n_word)
+                                  else
+                                    n_word=0
+                                  end if
                                 else
-                                    if (index(txt,'{')/= 0) then         ! if line contents comments
-                                            k = k+1
-                                      read (unit = txt, fmt = '(a4i5)')   crys%a_name(k,j), crys%a_num(k,j)
-                                            pos1 = index(txt,'.')         ! localize real and/or fractional numbers
-                                            pos2 = index(txt,'/')
-
-                                      if (pos1 /= 0 .and. ( pos1<=pos2 .or. pos2 == 0 )) then    ! first number is decimal
-                                         i1= index(txt,'.')-1
-                                         i2= index(txt,'{')-1
-                                         if( i1 >= 1 .and. i2 >=1) then
-                                           call getword (txt(i1:i2), word, n_word)
-                                         else
-                                           n_word=0
-                                           word=txt
-                                         end if
-                                         call read_fraction (word,n_word, num_real)             ! we convert fractions to decimals using subroutine read_fraction
-
-                                            crys%a_pos(1, k,j)  = num_real(1)
-                                            crys%a_pos(2, k,j)  = num_real(2)
-                                            crys%a_pos(3, k,j)  = num_real(3)
-                                            crys%a_B (k,j)      = num_real(4)
-                                            crys%a_occup(k,j)   = num_real(5)
-                                            z = z + 1
-
-                                      else if ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0)) then  ! first number is fractional
-                                         i1= index(txt,'/')-1
-                                         i2= index(txt,'{')-1
-                                         if( i1 >= 1 .and. i2 >=1) then
-                                           call getword (txt(i1:i2), word, n_word)
-                                         else
-                                           n_word=0
-                                           word=txt
-                                         end if
-                                         call read_fraction (word,n_word, num_real)
-
-                                            crys%a_pos(1, k,j)  = num_real(1)
-                                            crys%a_pos(2, k,j)  = num_real(2)
-                                            crys%a_pos(3, k,j)  = num_real(3)
-                                            crys%a_B (k,j)      = num_real(4)
-                                            crys%a_occup(k,j)   = num_real(5)
-                                            z = z + 1
-
-                                      else
-                                         Err_crys=.true.
-                                         Err_crys_mess="ERROR :  Atomic positions must be real numbers"
-                                         logi = .false.
-                                         return
-                                      end if
-
-                                         tmp = crys%a_pos(3,k,j)                          !to asign lower and upper postions ****
-                                         IF(tmp > crys%high_atom(j)) crys%high_atom(j) = tmp
-                                         IF(tmp < crys%low_atom(j))   crys%low_atom(j) = tmp
-
-                                         do
-                                            txt = adjustl(tfile (z))
-
-                                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-
-
-                                                    z = z +1
-                                                   cycle
-
-                                            elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
-                                                     index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                                     index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                                exit
-
-                                            else
-
-                                               y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                               if (y /= 0 ) then
-                                                  q = index (txt, ')')
-                                                  txt (y:y) = ' '
-                                                  txt (q:q) = ' '
-                                               end if
-                                               if (index (txt, '{')/= 0) then        ! comments present
-                                                  j=index(txt,'{')-1
-                                                  if( j > 1) then
-                                                    call getword (txt(1:j), word, n_word)
-                                                  else
-                                                    n_word=0
-                                                  end if
-                                               else
-                                                  call getword (txt, word, n_word)
-                                               end if
-
-                                               if (n_word == 4 ) then
-
-                                                  read (unit = txt, fmt = *) crys%ref_a_pos(1, k,j),crys%ref_a_pos(2, k,j),&
-                                                                             crys%ref_a_pos(3, k,j) , crys%ref_a_B(k,j)
-                                                  if (  crys%ref_a_pos(1, k,j)/= 0 .or.  crys%ref_a_pos(2, k,j)/=0 .or.    &
-                                                        crys%ref_a_pos(3, k,j)/= 0 ) then
-                                                           Err_crys=.true.
-                                                           Err_crys_mess=&
-                                                           "ERROR :  Range of refinement missing for atomic positions "
-                                                           logi = .false.
-                                                           return
-                                                  end if
-                                                  crys%rang_a_pos(1, k,j)= 0.0
-                                                  crys%rang_a_pos(2, k,j)= 0.0
-                                                  crys%rang_a_pos(3, k,j)= 0.0
-                                                  crys%rang_a_B(k,j) = 0.0
-                                                  z = z +1
-                                                  exit
-                                               elseif (n_word == 8) then
-                                                  read (unit = txt, fmt = *) crys%ref_a_pos(1, k,j),crys%ref_a_pos(2, k,j),&
-                                                                             crys%ref_a_pos(3, k,j),crys%ref_a_B(k,j), &
-                                                                             crys%rang_a_pos(1, k,j), crys%rang_a_pos(2, k,j), &
-                                                                             crys%rang_a_pos(3, k,j) , crys%rang_a_B(k,j)
-
-                                                  if (crys%ref_a_pos(1, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1        ! to count npar
-                                                           crys%list (crys%npar) =crys%a_pos(1, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_x',k,j   !att: solo para i y j de 1 digito!!!!
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(1, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(1, k,j) - crys%rang_a_pos(1, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(1, k,j) + crys%rang_a_pos(1, k,j)
-                                                  end if
-                                                  if (crys%ref_a_pos(2, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) = crys%a_pos(2, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_y',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(2, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(2, k,j) - crys%rang_a_pos(2, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(2, k,j) + crys%rang_a_pos(2, k,j)
-                                                  end if
-                                                  if (crys%ref_a_pos(3, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) = crys%a_pos(3, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_z',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(3, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(3, k,j) - crys%rang_a_pos(3, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(3, k,j) + crys%rang_a_pos(3, k,j)
-                                                  end if
-                                                  if (crys%ref_a_B( k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) = crys%a_B( k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'Biso',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_B(k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_B( k,j) - crys%rang_a_B( k,j)
-                                                           if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                           crys%vlim2 (crys%npar) = crys%a_B( k,j) + crys%rang_a_B( k,j)
-                                                  end if
-
-                                                  if (crys%ref_a_pos(1, k,j)== 0) crys%rang_a_pos (1,k,j) = 0.0
-                                                  if (crys%ref_a_pos(2, k,j)== 0) crys%rang_a_pos (2,k,j) = 0.0
-                                                  if (crys%ref_a_pos(3, k,j)== 0) crys%rang_a_pos (3,k,j) = 0.0
-                                                  if (crys%ref_a_B( k,j)== 0) crys%rang_a_B (k,j) = 0.0
-                                                  z = z +1
-
-                                                  exit
-                                               elseif ( n_word == 7 ) then  ! if we are in the atomic positions line, exit loop
-
-                                                  exit
-
-                                               else
-                                                  Err_crys=.true.
-                                                  Err_crys_mess="ERROR reading atomic positions refinement parameters"
-                                                  logi = .false.
-                                                  return
-                                               end if
-                                            end if
-
-
-                                         end do
-
-
-                                    else             ! line doesn't contain comments
-                                            k = k+1
-                                       read (unit = txt, fmt = '(a4i5)')   crys%a_name(k,j), crys%a_num(k,j)
-
-                                            pos1 = index(txt,'.')
-                                            pos2 = index(txt,'/')
-
-                                       if (pos1 /= 0 .and. ( pos1<=pos2 .or. pos2 == 0 )) then
-                                         i1= index(txt,'.')-1
-                                         if( i1 >= 1 ) then
-                                           call getword (txt(i1:), word, n_word)
-                                         else
-                                           n_word=0
-                                           word=txt
-                                         end if
-
-                                         call read_fraction (word,n_word, num_real)
-
-                                            crys%a_pos(1, k,j)  = num_real(1)
-                                            crys%a_pos(2, k,j)  = num_real(2)
-                                            crys%a_pos(3, k,j)  = num_real(3)
-                                            crys%a_B (k,j)      = num_real(4)
-                                            crys%a_occup(k,j)   = num_real(5)
-                                            z = z + 1
-
-                                       elseif ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0))  then
-                                            i1= index(txt,'/')-1
-                                            if( i1 >= 1 ) then
-                                              call getword (txt(i1:), word, n_word)
-                                            else
-                                              n_word=0
-                                              word=txt
-                                            end if
-
-                                            call read_fraction (word,n_word, num_real)
-
-                                            crys%a_pos(1, k,j)  = num_real(1)
-                                            crys%a_pos(2, k,j)  = num_real(2)
-                                            crys%a_pos(3, k,j)  = num_real(3)
-                                            crys%a_B (k,j)      = num_real(4)
-                                            crys%a_occup(k,j)   = num_real(5)
-                                            z = z + 1
-
-                                       else
-
-                                         Err_crys=.true.
-                                         Err_crys_mess="ERROR :  Atomic positions must be real numbers"
-                                         logi = .false.
-                                         return
-
-                                       end if
-
-                                         tmp = crys%a_pos(3,k,j)                          !to asign lower and upper postions ***
-                                         IF(tmp > crys%high_atom(j)) crys%high_atom(j) = tmp
-                                         IF(tmp < crys%low_atom(j))   crys%low_atom(j) = tmp
-
-                                         do
-                                            txt = adjustl(tfile (z))
-                                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                                   z = z +1
-                                                   cycle
-
-                                            elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
-                                                     index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                                     index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                                exit
-
-                                            else
-                                                   y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                   if (y /= 0 ) then
-                                                        q = index (txt, ')')
-                                                        txt (y:y) = ' '
-                                                        txt (q:q) = ' '
-                                                   end if
-
-                                                   if (index (txt, '{')/= 0) then        ! comments present
-                                                         j=index(txt,'{')-1
-                                                         if( j > 1) then
-                                                           call getword (txt(1:j), word, n_word)
-                                                         else
-                                                           n_word=0
-                                                         end if
-                                                   else
-                                                        call getword (txt, word, n_word)
-                                                   end if
-                                                   if (n_word == 4 ) then
-
-                                                        read (unit = txt, fmt = *) crys%ref_a_pos(1, k,j),crys%ref_a_pos(2, k,j),&
-                                                                                   crys%ref_a_pos(3, k,j), crys%ref_a_B(k,j)
-                                                        if (  crys%ref_a_pos(1, k,j)/= 0 .or.  crys%ref_a_pos(2, k,j)/=0 .or.  &
-                                                              crys%ref_a_pos(3, k,j)/= 0 ) then
-                                                           Err_crys=.true.
-                                                           Err_crys_mess=&
-                                                           "ERROR :  Range of refinement missing for atomic positions "
-                                                           logi = .false.
-                                                           return
-                                                        end if
-                                                        crys%rang_a_pos(1, k,j)= 0.0
-                                                        crys%rang_a_pos(2, k,j)= 0.0
-                                                        crys%rang_a_pos(3, k,j)= 0.0
-                                                        crys%rang_a_B(k,j) = 0.0
-                                                        z = z + 1
-                                                        exit
-                                                   elseif (n_word == 8) then
-                                                        read (unit =txt,fmt=*) crys%ref_a_pos(1, k,j),crys%ref_a_pos(2, k,j),&
-                                                                               crys%ref_a_pos(3, k,j), crys%ref_a_B(k,j), &
-                                                                               crys%rang_a_pos(1, k,j), crys%rang_a_pos(2, k,j),&
-                                                                               crys%rang_a_pos(3, k,j), crys%rang_a_B(k,j)
-
-                                                        if (crys%ref_a_pos(1, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1        ! to count npar
-                                                           crys%list (crys%npar) =crys%a_pos(1, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_x',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(1, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(1, k,j) - crys%rang_a_pos(1, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(1, k,j) + crys%rang_a_pos(1, k,j)
-                                                        end if
-                                                        if (crys%ref_a_pos(2, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) =crys%a_pos(2, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_y',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(2, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(2, k,j) - crys%rang_a_pos(2, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(2, k,j) + crys%rang_a_pos(2, k,j)
-                                                        end if
-                                                        if (crys%ref_a_pos(3, k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) = crys%a_pos(3, k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_z',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_pos(3, k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_pos(3, k,j) - crys%rang_a_pos(3, k,j)
-                                                           crys%vlim2 (crys%npar) = crys%a_pos(3, k,j) + crys%rang_a_pos(3, k,j)
-                                                        end if
-                                                        if (crys%ref_a_B( k,j)/= 0) then
-                                                           crys%npar = crys%npar + 1
-                                                           crys%list (crys%npar) = crys%a_B( k,j)
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'Biso',k,j
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_a_B(k,j))/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,j)))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,j)))
-                                                           crys%vlim1 (crys%npar) = crys%a_B( k,j) - crys%rang_a_B( k,j)
-                                                           if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                           crys%vlim2 (crys%npar) = crys%a_B( k,j) + crys%rang_a_B( k,j)
-                                                        end if
-                                                        if (crys%ref_a_pos(1, k,j)== 0) crys%rang_a_pos (1,k,j) = 0.0
-                                                        if (crys%ref_a_pos(2, k,j)== 0) crys%rang_a_pos (2,k,j) = 0.0
-                                                        if (crys%ref_a_pos(3, k,j)== 0) crys%rang_a_pos (3,k,j) = 0.0
-                                                        if (crys%ref_a_B( k,j)== 0) crys%rang_a_B(k,j) = 0.0
-                                                        z = z + 1
-                                                        exit
-                                                   elseif ( n_word == 7 ) then
-                                                        exit
-
-
-                                                   else
-                                                        Err_crys=.true.
-                                                        Err_crys_mess="ERROR reading atomic positions refinement parameters"
-                                                        logi = .false.
-                                                        return
-                                                   end if
-
-
-                                            end if
-                                         end do
-                                    end if
+                                  call getword (txt, word, n_word)
                                 end if
-                                crys%l_n_atoms(j) = k
+                                if (iErr_fmt/=0) then
+                                  Err_string=.true.
+                                  Err_string_mess="Error reading number of words"
+                                  logi = .false.
+                                  return
+                                elseif (n_word == 1) then
+                                  if (INDEX (txt, 'INFINITE') /=0) then
+                                    crys%finite_width = .false.
+                                    z = z +1
+                                  elseif ( INDEX (txt, 'LAYER') /=0) then            ! if next section, infinite is considered
+                                    crys%finite_width = .false.
+                                    backspace 0
+                                  ! elseif (len_trim(txt) == 0 ) then
+                                  !         crys%finite_width = .false.
+                                  else
+                                    crys%finite_width = .true.
+                                    backspace 0
+                                    read (unit =txt, fmt = *, iostat = ier) crys%layer_a
+                                    z = z + 1
+                                    write(*,*) "wa, sb", crys%layer_a, crys%layer_b
+                                    do
+                                      txt = adjustl(tfile (z))
 
-                                if (k>yy) yy=k
-                             end do
-                         end if
-                   end do
+                                      if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
+                                        index(txt,"!") == 1) then
+                                        z = z +1
+                                        cycle
+
+                                      else if ( index(txt,'LAYER')==1 .or. &
+                                        index(txt,'STACKING')==1 .or. &
+                                        index(txt,'TRANSITIONS')==1 .or. &
+                                        index(txt,'CALCULATION')==1 .or. &
+                                        index(txt,'EXPERIMENTAL')==1) then
+                                        exit
+                                      else
+
+                                        y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                                        if (y /= 0 ) then
+                                          q = index (txt, ')')
+                                          txt (y:y) = ' '
+                                          txt (q:q) = ' '
+                                        end if
+                                        if (index (txt, '{')/= 0) then        ! comments present
+                                          j=index(txt,'{')-1
+                                          if( j > 1) then
+                                            call getword (txt(1:j), word, n_word)
+                                          else
+                                            n_word=0
+                                          end if
+                                        else
+                                          call getword (txt, word, n_word)
+                                        end if
+
+                                        if (n_word == 1 ) then
+                                          read (unit = txt, fmt = *) crys%ref_layer_a
+                                                                     crys%ref_layer_b = crys%ref_layer_a
+                                          if (  crys%ref_layer_a /= 0  ) then
+                                            Err_crys=.true.
+                                            Err_crys_mess=&
+                                            "ERROR :  Range of refinement missing for layer diameter "
+                                             logi = .false.
+                                            return
+                                          end if
+                                            crys%rang_layer_a= 0.0
+                                            crys%rang_layer_b= 0.0
+                                            z = z +1
+                                        elseif (n_word == 2) then
+                                          read (unit = txt, fmt = *) crys%ref_layer_a,crys%rang_layer_a
+                                          crys%ref_layer_b = crys%ref_layer_a
+                                          if (crys%ref_layer_a /= 0) then
+                                            crys%npar = crys%npar + 1        ! to count npar
+                                            crys%list (crys%npar) =crys%layer_a
+                                            write(unit=namepar(crys%npar),fmt="(a)")'diameter_a'
+                                            crys%cod(crys%npar) = 1
+                                            ab =  (abs(crys%ref_layer_a)/10.0)
+                                            crys%p(crys%npar)= int(ab)
+                                            crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
+                                              REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
+                                            crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
+                                            crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
+
+                                            crys%npar = crys%npar + 1
+                                            crys%list (crys%npar) =crys%layer_b
+                                            write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
+                                            crys%cod(crys%npar) = 1
+                                            ab =  (abs(crys%ref_layer_a)/10.0)
+                                            crys%p(crys%npar)= int(ab)
+                                            crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
+                                              REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
+                                            crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
+                                            crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
+                                          end if
+
+                                          if (crys%ref_layer_a == 0) then
+                                            crys%rang_layer_a  = 0.0
+                                            crys%rang_layer_b  = 0.0
+                                          end if
+
+                                          z = z +1
+
+                                        else
+                                          Err_crys=.true.
+                                          Err_crys_mess= &
+                                          "ERROR reading layer diameter refinement parameters"
+                                          logi = .false.
+                                          return
+                                        end if
+                                      end if
+                                    end do
+                                  end if
+                                elseif (n_word == 2) then
+                                  crys%finite_width = .true.
+                                  read(unit=txt ,fmt=*, iostat = ier) crys%layer_a, crys%layer_b
+                                  if (ier /= 0 ) then
+                                    Err_crys=.true.
+                                    Err_crys_mess="ERROR reading a profile  file: end of file1"
+                                    logi = .false.
+                                    return
+                                  end if
+                                  z = z + 1
+
+!*******************************************************************************************************************
+                                  do
+                                    txt = adjustl(tfile (z))
+                                    if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
+                                        index(txt,"!") == 1) then
+                                      z = z +1
+                                      cycle
+                                    else if ( index(txt,'LAYER')==1 .or. &
+                                              index(txt,'STACKING')==1 .or. &
+                                              index(txt,'TRANSITIONS')==1 .or. &
+                                              index(txt,'CALCULATION')==1 .or. &
+                                              index(txt,'EXPERIMENTAL')==1) then
+                                      exit
+                                    else
+                                      y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                                      if (y /= 0 ) then
+                                        q = index (txt, ')')
+                                        txt (y:y) = ' '
+                                        txt (q:q) = ' '
+                                      end if
+                                      if (index (txt, '{')/= 0) then        ! comments present
+                                        j=index(txt,'{')-1
+                                        if( j > 1) then
+                                          call getword (txt(1:j), word, n_word)
+                                        else
+                                          n_word=0
+                                        end if
+                                      else
+                                        call getword (txt, word, n_word)
+                                      end if
+                                      if (n_word == 2 ) then
+                                        read (unit = txt, fmt = *) crys%ref_layer_a , &
+                                                                      crys%ref_layer_b
+                                        if (  crys%ref_layer_a /= 0  ) then
+                                          Err_crys=.true.
+                                          Err_crys_mess= &
+                                          "ERROR :  Range of refinement missing for layer dimensions "
+                                          logi = .false.
+                                          return
+                                        end if
+                                        crys%rang_layer_a= 0.0
+                                        crys%rang_layer_b= 0.0
+                                        z = z +1
+                                      else if (n_word == 4) then
+                                        read (unit = txt, fmt = *) crys%ref_layer_a,&
+                                        crys%ref_layer_b, crys%rang_layer_a , crys%rang_layer_b
+                                        if (crys%ref_layer_a /= 0) then
+                                          crys%npar = crys%npar + 1        ! to count npar
+                                          crys%list (crys%npar) =crys%layer_a
+                                          write(unit=namepar(crys%npar),fmt="(a)")'diameter_a'
+                                          crys%cod(crys%npar) = 1
+                                          ab =  (abs(crys%ref_layer_a)/10.0)
+                                          crys%p(crys%npar)= int(ab)
+                                          crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
+                                            REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
+                                          crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
+                                          crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
+                                        end if
+                                        if (crys%ref_layer_a /= 0) then
+                                          crys%npar = crys%npar + 1
+                                          crys%list (crys%npar) =crys%layer_b
+                                          write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
+                                          crys%cod(crys%npar) = 1
+                                          ab =  (abs(crys%ref_layer_b)/10.0)
+                                          crys%p(crys%npar)= int(ab)
+                                          crys%mult(crys%npar) = ((abs(crys%ref_layer_b ))-(10.0* &
+                                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_b ))
+                                          crys%vlim1 (crys%npar) = crys%layer_b - crys%rang_layer_b
+                                          crys%vlim2 (crys%npar) = crys%layer_b + crys%rang_layer_b
+                                        end if
+
+                                        if (crys%ref_layer_a == 0) crys%rang_layer_a  = 0.0
+                                        if (crys%ref_layer_b == 0) crys%rang_layer_b  = 0.0
+                                        z = z +1
+                                      else
+                                        Err_crys=.true.
+                                        Err_crys_mess="ERROR reading layer dimensions refinement parameters"
+                                        logi = .false.
+                                        return
+                                      end if
+                                    end if
+                                  end do
+!*************************************************************************************************************
+                                else
+                                  Err_crys=.true.
+                                  Err_crys_mess="ERROR reading a profile  file: end of file2"
+                                  logi = .false.
+                                  return
+                                end if
+                              end if
+                            end do
+                          END IF
+                        end do
+                      END IF
+                    END DO
+                  END IF
+                END DO
+              end if
+            end do
+
+          elseif  (INDEX(txt,'LAYER') == 1 ) then      !Cannot be /=0 because layer can appear in comments!!
+            k = 0      !counts l_n_atoms
+           !m = 0
+            r = 0      ! counts n_actual
+            j = 0      ! counts n_layers
+            do
+              txt = adjustl(tfile(z))
+              if (index(txt,'=') /= 0) then        ! search for '=' sign
+                j = j+1
+                z = z +1
+                read (unit = txt, fmt =*, iostat = ier) layer, a1, layer, a2
+                if (a2 >= a1 .OR. a2 < 1) then
+                  write (*,*) "Layer", a1, " cannot be equal to layer" ,a2, "."
+                  logi = .false.
+                  return
+                else
+                  crys%l_actual (j) = crys%l_actual (a2)
+                end if
+                cycle
+              elseif (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                z = z +1
+                cycle
+              elseif (index(txt, 'STRUCTURAL')== 1 .or.  index(txt,'STACKING')==1 .or. &
+                      index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
+                      index(txt,'EXPERIMENTAL')==1) then
+
+                exit
+              else
+                if  (INDEX(txt,'LAYER') == 1 ) then
+                  z = z + 1
+                  cycle
+                end if
+                j = j+1
+                r = r + 1
+                crys%l_actual(j) = r
+               ! crys%n_actual = r
+
+                if    (INDEX(txt, 'CENTROSYMMETRIC') == 1) then
+                  crys%centro(r) = CENTRO
+                else
+                  crys%centro(r) = NONE
+                end if
+                z = z +1
+                yy=k
+                k = 0      !to count  number atoms
+
+                do
+
+                  txt = adjustl(tfile(z))
+
+                  if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                    z = z + 1
+                    cycle
+                  elseif ( index (txt, '{') == 1 ) then
+                    z = z + 1
+                    cycle
+                  elseif (index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+                           index(txt,'STACKING')==1 .or. index(txt,'CALCULATION')==1  .or. &
+                           index(txt,'TRANSITIONS')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                    exit
+                  else
+                    if (index(txt,'{')/= 0) then         ! if line contents comments
+                      k = k+1
+                      read (unit = txt, fmt = *)   crys%a_name(k,r), crys%a_num(k,r)
+                      pos1 = index(txt,'.')         ! localize real and/or fractional numbers
+                      pos2 = index(txt,'/')
+                      if (pos1 /= 0 .and. ( pos1<=pos2 .or. pos2 == 0 )) then    ! first number is decimal
+                        i1= index(txt,'.')-1
+                        i2= index(txt,'{')-1
+                        if( i1 >= 1 .and. i2 >=1) then
+                          call getword (txt(i1:i2), word, n_word)
+                        else
+                          n_word=0
+                          word=txt
+                        end if
+                        call read_fraction (word,n_word, num_real)             ! we convert fractions to decimals using subroutine read_fraction
+                          crys%a_pos(1, k,r)  = num_real(1)
+                          crys%a_pos(2, k,r)  = num_real(2)
+                          crys%a_pos(3, k,r)  = num_real(3)
+                          crys%a_B (k,r)      = num_real(4)
+                          crys%a_occup(k,r)   = num_real(5)
+                          z = z + 1
+                      else if ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0)) then  ! first number is fractional
+                        i1= index(txt,'/')-1
+                        i2= index(txt,'{')-1
+                        if( i1 >= 1 .and. i2 >=1) then
+                          call getword (txt(i1:i2), word, n_word)
+                        else
+                          n_word=0
+                          word=txt
+                        end if
+                        call read_fraction (word,n_word, num_real)
+                          crys%a_pos(1, k,r)  = num_real(1)
+                          crys%a_pos(2, k,r)  = num_real(2)
+                          crys%a_pos(3, k,r)  = num_real(3)
+                          crys%a_B (k,r)      = num_real(4)
+                          crys%a_occup(k,r)   = num_real(5)
+                          z = z + 1
+                      else
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR :  Atomic positions must be real numbers"
+                        logi = .false.
+                        return
+                      end if
+                      tmp = crys%a_pos(3,k,r)                          !to asign lower and upper postions ****
+                      IF(tmp > crys%high_atom(r)) crys%high_atom(r) = tmp
+                      IF(tmp < crys%low_atom(r))   crys%low_atom(r) = tmp
+
+                      do
+                        txt = adjustl(tfile (z))
+
+                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                          z = z +1
+                          cycle
+
+                        elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+                                  index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                                  index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                          exit
+                        else
+                          y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                          if (y /= 0 ) then
+                            q = index (txt, ')')
+                            txt (y:y) = ' '
+                            txt (q:q) = ' '
+                          end if
+                          if (index (txt, '{')/= 0) then        ! comments present
+                            j=index(txt,'{')-1
+                            if( j > 1) then
+                              call getword (txt(1:j), word, n_word)
+                            else
+                              n_word=0
+                            end if
+                          else
+                           call getword (txt, word, n_word)
+                          end if
+
+                          if (n_word == 4 ) then
+                            read (unit = txt, fmt = *) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
+                                                       crys%ref_a_pos(3, k,r) , crys%ref_a_B(k,r)
+                            if (  crys%ref_a_pos(1, k,r)/= 0 .or.  crys%ref_a_pos(2, k,r)/=0 .or.    &
+                                  crys%ref_a_pos(3, k,r)/= 0 ) then
+                              Err_crys=.true.
+                              Err_crys_mess=&
+                              "ERROR :  Range of refinement missing for atomic positions "
+                              logi = .false.
+                              return
+                            end if
+                            crys%rang_a_pos(1, k,r)= 0.0
+                            crys%rang_a_pos(2, k,r)= 0.0
+                            crys%rang_a_pos(3, k,r)= 0.0
+                            crys%rang_a_B(k,r) = 0.0
+                            z = z +1
+                            exit
+                          elseif (n_word == 8) then
+                            read (unit = txt, fmt = *) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
+                                                       crys%ref_a_pos(3, k,r),crys%ref_a_B(k,r), &
+                                                       crys%rang_a_pos(1, k,r), crys%rang_a_pos(2, k,r), &
+                                                       crys%rang_a_pos(3, k,r) , crys%rang_a_B(k,r)
+                            if (crys%ref_a_pos(1, k,r)/= 0) then
+                              crys%npar = crys%npar + 1        ! to count npar
+                              crys%list (crys%npar) =crys%a_pos(1, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_x',k,r   !att: solo para i y j de 1 digito!!!!
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(1, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,r)))-(10.0* &
+                              REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                            end if
+                            if (crys%ref_a_pos(2, k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) = crys%a_pos(2, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_y',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(2, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                            end if
+                            if (crys%ref_a_pos(3, k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) = crys%a_pos(3, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_z',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(3, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                            end if
+                            if (crys%ref_a_B( k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) = crys%a_B( k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'Biso',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_B(k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_B( k,r) - crys%rang_a_B( k,r)
+                              if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                              crys%vlim2 (crys%npar) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                            end if
+                            if (crys%ref_a_pos(1, k,r)== 0) crys%rang_a_pos (1,k,r) = 0.0
+                            if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
+                            if (crys%ref_a_pos(3, k,r)== 0) crys%rang_a_pos (3,k,r) = 0.0
+                            if (crys%ref_a_B( k,r)== 0) crys%rang_a_B (k,r) = 0.0
+                            z = z +1
+                            exit
+                          elseif ( n_word == 7 ) then  ! if we are in the atomic positions line, exit loop
+                            exit
+                          else
+                            Err_crys=.true.
+                            Err_crys_mess="ERROR reading atomic positions refinement parameters"
+                            logi = .false.
+                            return
+                          end if
+                        end if
+                      end do
+                    else          ! line doesn't contain comments
+                      k = k+1
+
+                      read (unit = txt,fmt = *)   crys%a_name(k,r),crys%a_num(k,r)
+                      pos1 = index(txt,'.')
+                      pos2 = index(txt,'/')
+                      if (pos1 /= 0 .and. ( pos1<=pos2 .or. pos2 == 0 )) then
+                        i1= index(txt,'.')-1
+                        if( i1 >= 1 ) then
+                          call getword (txt(i1:), word, n_word)
+                        else
+                          n_word=0
+                          word=txt
+                        end if
+                        call read_fraction (word,n_word, num_real)
+                        crys%a_pos(1, k,r)  = num_real(1)
+                        crys%a_pos(2, k,r)  = num_real(2)
+                        crys%a_pos(3, k,r)  = num_real(3)
+                        crys%a_B (k,r)      = num_real(4)
+                        crys%a_occup(k,r)   = num_real(5)
+                        z = z + 1
+                      elseif ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0))  then
+                        i1= index(txt,'/')-1
+                        if( i1 >= 1 ) then
+                          call getword (txt(i1:), word, n_word)
+                        else
+                          n_word=0
+                          word=txt
+                        end if
+                        call read_fraction (word,n_word, num_real)
+                        crys%a_pos(1, k,r)  = num_real(1)
+                        crys%a_pos(2, k,r)  = num_real(2)
+                        crys%a_pos(3, k,r)  = num_real(3)
+                        crys%a_B (k,r)      = num_real(4)
+                        crys%a_occup(k,r)   = num_real(5)
+                        z = z + 1
+                      else
+                        Err_crys=.true.
+                        Err_crys_mess="ERROR :  Atomic positions must be real numbers"
+                        logi = .false.
+                        return
+                      end if
+
+                      tmp = crys%a_pos(3,k,r)                          !to asign lower and upper postions ***
+                      IF(tmp > crys%high_atom(r)) crys%high_atom(r) = tmp
+                      IF(tmp < crys%low_atom(r))   crys%low_atom(r) = tmp
+                      do
+                        txt = adjustl(tfile (z))
+                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                          z = z +1
+                          cycle
+                        elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+                                 index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                                 index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                          exit
+                        else
+                          y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                          if (y /= 0 ) then
+                            q = index (txt, ')')
+                            txt (y:y) = ' '
+                            txt (q:q) = ' '
+                          end if
+                          if (index (txt, '{')/= 0) then        ! comments present
+                            j=index(txt,'{')-1
+                            if( j > 1) then
+                              call getword (txt(1:j), word, n_word)
+                            else
+                              n_word=0
+                            end if
+                          else
+                            call getword (txt, word, n_word)
+                          end if
+                          if (n_word == 4 ) then
+                            read (unit = txt, fmt = *) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
+                                                       crys%ref_a_pos(3, k,r), crys%ref_a_B(k,r)
+                            if ( crys%ref_a_pos(1, k,r)/= 0 .or.  crys%ref_a_pos(2, k,r)/=0 .or.  &
+                                 crys%ref_a_pos(3, k,r)/= 0 ) then
+                              Err_crys=.true.
+                              Err_crys_mess=&
+                              "ERROR :  Range of refinement missing for atomic positions "
+                              logi = .false.
+                              return
+                            end if
+                              crys%rang_a_pos(1, k,r)= 0.0
+                              crys%rang_a_pos(2, k,r)= 0.0
+                              crys%rang_a_pos(3, k,r)= 0.0
+                              crys%rang_a_B(k,r) = 0.0
+                              z = z + 1
+                              exit
+                          elseif (n_word == 8) then
+                            read (unit =txt,fmt=*) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
+                                                   crys%ref_a_pos(3, k,r), crys%ref_a_B(k,r), &
+                                                   crys%rang_a_pos(1, k,r), crys%rang_a_pos(2, k,r),&
+                                                   crys%rang_a_pos(3, k,r), crys%rang_a_B(k,r)
+
+                            if (crys%ref_a_pos(1, k,r)/= 0) then
+                              crys%npar = crys%npar + 1        ! to count npar
+                              crys%list (crys%npar) =crys%a_pos(1, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_x',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(1, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                            end if
+                            if (crys%ref_a_pos(2, k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) =crys%a_pos(2, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_y',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(2, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                            end if
+                            if (crys%ref_a_pos(3, k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) = crys%a_pos(3, k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'pos_z',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_pos(3, k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
+                              crys%vlim2 (crys%npar) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                            end if
+                            if (crys%ref_a_B( k,r)/= 0) then
+                              crys%npar = crys%npar + 1
+                              crys%list (crys%npar) = crys%a_B( k,r)
+                              write(unit=namepar(crys%npar),fmt="(a,2i1)")'Biso',k,r
+                              crys%cod(crys%npar) = 1
+                              ab =  (abs(crys%ref_a_B(k,r))/10.0)
+                              crys%p(crys%npar)= int(ab)
+                              crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,r)))-(10.0* &
+                                REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,r)))
+                              crys%vlim1 (crys%npar) = crys%a_B( k,r) - crys%rang_a_B( k,r)
+                              if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
+                              crys%vlim2 (crys%npar) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                            end if
+                            if (crys%ref_a_pos(1, k,r)== 0) crys%rang_a_pos (1,k,r) = 0.0
+                            if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
+                            if (crys%ref_a_pos(3, k,r)== 0) crys%rang_a_pos (3,k,r) = 0.0
+                            if (crys%ref_a_B( k,r)== 0) crys%rang_a_B(k,r) = 0.0
+                            z = z + 1
+                            exit
+                          elseif ( n_word == 7 ) then
+                            exit
+                          else
+                            Err_crys=.true.
+                            Err_crys_mess="ERROR reading atomic positions refinement parameters"
+                            logi = .false.
+                            return
+                          end if
+                        end if
+                      end do
+                    end if
+                  end if
+                    crys%l_n_atoms(r) = k
+                    if (k>yy) yy=k
+                end do
+                crys%n_actual = r
+              end if
+            end do
 !********************************************************************************************************************
 
 
 ! make sure we have genuine lowest and highest atoms in each layer.
-              DO  i = 1, crys%n_actual
-                  IF(l_symmetry(i) == centro) THEN
-                     IF(-crys%low_atom(i) > crys%high_atom(i)) THEN
-                         crys%high_atom(i) = -crys%low_atom(i)
-                     ELSE IF(-crys%low_atom(i) < crys%high_atom(i)) THEN
-                         crys%low_atom(i) = -crys%high_atom(i)
-                     END IF
-                  END IF
-              END DO
+            DO  i = 1, crys%n_actual
+              IF(l_symmetry(i) == centro) THEN
+                IF(-crys%low_atom(i) > crys%high_atom(i)) THEN
+                   crys%high_atom(i) = -crys%low_atom(i)
+                ELSE IF(-crys%low_atom(i) < crys%high_atom(i)) THEN
+                        crys%low_atom(i) = -crys%high_atom(i)
+                END IF
+              END IF
+            END DO
 
 !********************************************************************************************************************
 
-               elseif  (INDEX(txt,'STACKING') == 1 ) then        !stacking section
-
-
-                   z = z +1
-                 DO
-                    txt = adjustl (tfile (z))
-
-                    if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                    elseif ( index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1  ) then
-                                exit
-
-                    elseif (INDEX(txt , 'EXPLICIT')==1) then
-                            crys%xplcit = .true.
-                            z=z+1
-                            crys%l_cnt = 0
-                            DO
-
-                             txt = adjustl (tfile (z))
-                             if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                             elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
-                                      index(txt,'EXPERIMENTAL')==1 ) then
-                                exit
-                             elseif (index(txt , 'RANDOM')==1) then
-                                   read (unit = txt, fmt = *, iostat = ier) random, crys%l_cnt
-                                        if   (crys%l_cnt==0) then
-                                            Err_crys=.true.
-                                            Err_crys_mess="ERROR :  Number of layers is missing"
-                                            logi = .false.
-                                            return
-                                        end if
-                                   crys%inf_thick = .false.
-                                   rndm = .true.
-                                   z=z+1
-                             elseif (index(txt , 'SEMIRANDOM')==1) then
-                                   read (unit = txt, fmt = *, iostat = ier) semirandom, crys%l_cnt
-                                        if   (crys%l_cnt==0) then
-                                            Err_crys=.true.
-                                            Err_crys_mess="ERROR :  Number of layers is missing"
-                                            logi = .false.
-                                            return
-                                        end if
-                                   crys%inf_thick = .false.
-                                   rndm = .true.
-                                   z=z+1
-                                   do
-                                     txt = adjustl (tfile (z))
-                                     if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                        z=z+1
-                                        cycle
-                                     elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
-                                              index(txt,'EXPERIMENTAL')==1 ) then
-                                        if (crys%l_seq(1) == 0) then
-                                          write(*,*) "ERROR : Layer explicit sequences missing"
-                                          logi = .false.
-                                          return
-                                        else
-                                          exit
-                                        end if
-                                        elseif (index(txt , 'SEQ')==1) then
-                                        read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
-                                        j=j1
-                                        do
-                                          crys%l_seq(j)= l1
-                                          if (j==j2)then
-                                           exit
-                                          end if
-                                          j=j+1
-                                          crys%l_seq(j) = l2
-                                          if (j==j2)then
-                                           exit
-                                          end if
-                                          j=j+1
-                                        end do
-                                     end if
-                                        z=z+1
-                                        cycle
-                                   end do
-                             else
-                                  do
-                                   txt = adjustl (tfile (z))
-
-                                   if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                         z=z+1
-                                         cycle
-                                   elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
-                                            index(txt,'EXPERIMENTAL')==1 ) then
-                                         exit
-                                   else
-
-                                         crys%inf_thick = .false.
-                                         call getnum(txt, rel,inte, n_int)    ! to know number of integers per line
-                                         i1=crys%l_cnt+1
-                                         i2=crys%l_cnt+n_int
-                                         read(unit=txt,fmt=*, iostat=ier)(crys%l_seq(r), r=i1,i2)  ! to read stacking sequence
-                                         r= r-1
-                                         crys%l_cnt = r
-                                         z=z+1
-
-                                   end if
-                                  end do
-                              end if
-
-                            END DO
-
-                    elseif (INDEX(txt , 'RECURSIVE')==1) then
-
-                                crys%recrsv = .true.
-                                z=z+1
-                           DO
-
-                             txt = adjustl (tfile (z))
-
-                             if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                             elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
-                                      index(txt,'EXPERIMENTAL')==1) then
-                                exit
-                             elseif (index(txt , 'INFINITE')==1) then
-                                crys%inf_thick = .true.
-                                z=z+1
-                             else
-                                read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
-
-                                crys%inf_thick = .false.
-                                z=z+1
+          elseif  (INDEX(txt,'STACKING') == 1 ) then        !stacking section
+            z = z +1
+            DO
+              txt = adjustl (tfile (z))
+              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                z=z+1
+                cycle
+              elseif ( index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1  ) then
+                exit
+              elseif (INDEX(txt , 'EXPLICIT')==1) then
+                crys%xplcit = .true.
+                z=z+1
+                crys%l_cnt = 0
+                DO
+                  txt = adjustl (tfile (z))
+                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                    z=z+1
+                    cycle
+                  elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+                          index(txt,'EXPERIMENTAL')==1 ) then
+                    exit
+                  elseif (index(txt , 'RANDOM')==1) then
+                    read (unit = txt, fmt = *, iostat = ier) random, crys%l_cnt
+                    if   (crys%l_cnt==0) then
+                      Err_crys=.true.
+                      Err_crys_mess="ERROR :  Number of layers is missing"
+                      logi = .false.
+                      return
+                    end if
+                      crys%inf_thick = .false.
+                      rndm = .true.
+                      z=z+1
+                  elseif (index(txt , 'SEMIRANDOM')==1) then
+                    read (unit = txt, fmt = *, iostat = ier) semirandom, crys%l_cnt
+                    if   (crys%l_cnt==0) then
+                      Err_crys=.true.
+                      Err_crys_mess="ERROR :  Number of layers is missing"
+                      logi = .false.
+                      return
+                    end if
+                    crys%inf_thick = .false.
+                    rndm = .true.
+                    z=z+1
+                    do
+                      txt = adjustl (tfile (z))
+                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                        z=z+1
+                        cycle
+                      elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+                               index(txt,'EXPERIMENTAL')==1 ) then
+                        if (crys%l_seq(1) == 0) then
+                          write(*,*) "ERROR : Layer explicit sequences missing"
+                          logi = .false.
+                          return
+                        else
+                          exit
+                        end if
+                      elseif (index(txt , 'SEQ')==1) then
+                        read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
+                        j=j1
+                        do
+                          crys%l_seq(j)= l1
+                          if (j==j2)then
+                            exit
+                          end if
+                          j=j+1
+                          crys%l_seq(j) = l2
+                          if (j==j2)then
+                            exit
+                          end if
+                          j=j+1
+                        end do
+                      end if
+                        z=z+1
+                        cycle
+                    end do
+                  else
+                    do
+                      txt = adjustl (tfile (z))
+                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                        z=z+1
+                        cycle
+                      elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+                              index(txt,'EXPERIMENTAL')==1 ) then
+                        exit
+                      else
+                        crys%inf_thick = .false.
+                        call getnum(txt, rel,inte, n_int)    ! to know number of integers per line
+                        i1=crys%l_cnt+1
+                        i2=crys%l_cnt+n_int
+                        read(unit=txt,fmt=*, iostat=ier)(crys%l_seq(r), r=i1,i2)  ! to read stacking sequence
+                        r= r-1
+                        crys%l_cnt = r
+                        z=z+1
+                      end if
+                    end do
+                  end if
+                END DO
+              elseif (INDEX(txt , 'RECURSIVE')==1) then
+                crys%recrsv = .true.
+                z=z+1
+                DO
+                  txt = adjustl (tfile (z))
+                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
+                    z=z+1
+                    cycle
+                  elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+                           index(txt,'EXPERIMENTAL')==1) then
+                    exit
+                  elseif (index(txt , 'INFINITE')==1) then
+                    crys%inf_thick = .true.
+                    z=z+1
+                  else
+                    read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
+                    crys%inf_thick = .false.
+                    z=z+1
 !//////////////////////////////////////////////////////////////////////////////
-                                         do
-                                                   txt = adjustl(tfile (z))
+                    do
+                      txt = adjustl(tfile (z))
+                      if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
+                        index(txt,"!") == 1) then
+                        z = z +1
+                        cycle
+                      elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or. &
+                               index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+                               index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                        exit
 
-                                                  if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                                                      index(txt,"!") == 1) then
-                                                      z = z +1
-                                                       cycle
+                      else
+                        y = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                        if (y /= 0 ) then
+                          q = index (txt, ')')
+                          txt (y:y) = ' '
+                          txt (q:q) = ' '
+                        end if
+                        if (index (txt, '{')/= 0) then        ! comments present
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
+                        end if
+                        if (n_word == 1 ) then
+                          read (unit = txt, fmt = *) crys%ref_l_cnt
+                          if (  crys%ref_l_cnt/= 0 ) then
+                            Err_crys=.true.
+                            Err_crys_mess=&
+                            "ERROR :  Range of refinement missing for number of layers in crystal "
+                            logi = .false.
+                            return
+                          end if
+                          crys%rang_l_cnt= 0.0
+                          z = z + 1
+                        elseif (n_word == 2) then
+                          read (unit = txt, fmt = *) crys%ref_l_cnt, crys%rang_l_cnt
+                          if (crys%ref_l_cnt/= 0) then
+                            crys%npar = crys%npar + 1        ! to count npar
+                            crys%list (crys%npar) =crys%l_cnt
+                            write(unit=namepar(crys%npar),fmt="(a,2i1)")'num_layers'
+                            crys%cod(crys%npar) = 1
+                            ab =  (abs(crys%ref_l_cnt)/10.0)
+                            crys%p(crys%npar)= int(ab)
+                            crys%mult(crys%npar) = ((abs(crys%ref_l_cnt))-(10.0* &
+                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_cnt))
+                            crys%vlim1 (crys%npar) = crys%l_cnt - crys%rang_l_cnt
+                            crys%vlim2 (crys%npar) = crys%l_cnt + crys%rang_l_cnt
+                          end if
+                            if (crys%ref_l_cnt== 0) crys%rang_l_cnt = 0.0
+                            z = z + 1
+                        end if
+                      end if
+                    end do
+                  end if
+                END DO
+              else
+                Err_crys=.true.
+                Err_crys_mess="ERROR reading layer sequence"
+                logi = .false.
+                return
+              end if
+            end do
 
-                                                  elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or. &
-                                                           index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
-                                                           index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                                                       exit
+          elseif  (INDEX(txt,'TRANSITIONS') == 1 ) then         ! transitions section
+            z = z + 1
+            do
+              txt = adjustl (tfile (z))
+              if (len_trim (txt) == 0 .or. index(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
+                z = z+1
+                cycle
+              elseif (INDEX(txt,'CALCULATION') == 1 ) then
+                exit
+              else
+                i = 1
+                do
+                  txt = adjustl (tfile (z))
+                  if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1  ) then
+                    z=z+1
+                    cycle
+                  elseif (INDEX(txt,'CALCULATION') == 1 ) then
+                    exit
+                  else
+                    j=1
+                    do
+                      txt = adjustl (tfile (z))
+                      if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
+                        z=z+1
+                        cycle
+                      elseif (INDEX(txt,'CALCULATION') == 1 ) then
+                        exit
+                      elseif (j .GT. crys%n_typ ) then
+                        exit
+                      else
+                        k = index (txt,'(')             !  if Fats Waller parameters are present we eliminate parenthesis
+                        if (k /=  0) then
+                        txt (k:k) = ' '
+                        m = index (txt,')')
+                        txt (m:m) = ' '
+                        end if
+                        if (index (txt, '{')/= 0) then        ! comments present
+                          j=index(txt,'{')-1
+                          if( j > 1) then
+                            call getword (txt(1:j), word, n_word)
+                          else
+                            n_word=0
+                          end if
+                        else
+                          call getword (txt, word, n_word)
+                        end if
+                        if (n_word == 4) then               ! only probabilities and stacking vectors
+                          call read_fraction (word,n_word, num_real)
+                          crys%l_alpha (j,i) = num_real(1)
+                          crys%l_r (1,j,i)   = num_real(2)
+                          crys%l_r (2,j,i)   = num_real(3)
+                          crys%l_r (3,j,i)   = num_real(4)
 
-                                                  else
-                                                      y = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                      if (y /= 0 ) then
-                                                        q = index (txt, ')')
-                                                        txt (y:y) = ' '
-                                                        txt (q:q) = ' '
-                                                      end if
-                                                      if (index (txt, '{')/= 0) then        ! comments present
-                                                        j=index(txt,'{')-1
-                                                        if( j > 1) then
-                                                          call getword (txt(1:j), word, n_word)
-                                                        else
-                                                          n_word=0
-                                                        end if
-                                                      else
-                                                        call getword (txt, word, n_word)
-                                                      end if
-                                                      if (n_word == 1 ) then
+                          z=z+1
+                        elseif (n_word == 10) then                          ! Fats Waller present
+                          call read_fraction (word,n_word, num_real)
+                          crys%l_alpha (j,i) = num_real(1)
+                          crys%l_r (1,j,i)   = num_real(2)
+                          crys%l_r (2,j,i)   = num_real(3)
+                          crys%l_r (3,j,i)   = num_real(4)
+                          crys%r_b11 (j,i)        = num_real(5)
+                          crys%r_b22 (j,i)        = num_real(6)
+                          crys%r_b33 (j,i)        = num_real(7)
+                          crys%r_b12 (j,i)        = num_real(8)
+                          crys%r_b31 (j,i)        = num_real(9)
+                          crys%r_b23 (j,i)        = num_real(10)
 
-                                                        read (unit = txt, fmt = *) crys%ref_l_cnt
-                                                        if (  crys%ref_l_cnt/= 0 ) then
-                                                           Err_crys=.true.
-                                                           Err_crys_mess=&
-                                                           "ERROR :  Range of refinement missing for number of layers in crystal "
-                                                           logi = .false.
-                                                           return
-                                                        end if
-                                                        crys%rang_l_cnt= 0.0
-                                                        z = z + 1
-                                                      elseif (n_word == 2) then
-                                                        read (unit = txt, fmt = *) crys%ref_l_cnt, crys%rang_l_cnt
+                          z=z+1
 
-                                                        if (crys%ref_l_cnt/= 0) then
-                                                           crys%npar = crys%npar + 1        ! to count npar
-                                                           crys%list (crys%npar) =crys%l_cnt
-                                                           write(unit=namepar(crys%npar),fmt="(a,2i1)")'num_layers'
-                                                           crys%cod(crys%npar) = 1
-                                                           ab =  (abs(crys%ref_l_cnt)/10.0)
-                                                           crys%p(crys%npar)= int(ab)
-                                                           crys%mult(crys%npar) = ((abs(crys%ref_l_cnt))-(10.0* &
-                                                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_cnt))
-                                                           crys%vlim1 (crys%npar) = crys%l_cnt - crys%rang_l_cnt
-                                                           crys%vlim2 (crys%npar) = crys%l_cnt + crys%rang_l_cnt
-                                                        end if
-                                                        if (crys%ref_l_cnt== 0) crys%rang_l_cnt = 0.0
-                                                        z = z + 1
-                                                      end if
-                                                  end if
-
-                                          end do
-
-                             end if
-
-
-                           END DO
-
-                    else
-                         Err_crys=.true.
-                         Err_crys_mess="ERROR reading layer sequence"
+                        else
+                          Err_crys=.true.
+                          Err_crys_mess="ERROR reading layer transitions"
                          logi = .false.
                          return
-                    end if
+                        end if
 
-                    end do
-
-               elseif  (INDEX(txt,'TRANSITIONS') == 1 ) then         ! transitions section
-
-                      z = z + 1
-                      do
-                           txt = adjustl (tfile (z))
-                           if (len_trim (txt) == 0 .or. index(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                                z = z+1
-                                cycle
-                           elseif (INDEX(txt,'CALCULATION') == 1 ) then
-
-                                exit
-                           else
-                                i = 1
-                               do
-                                      txt = adjustl (tfile (z))
-                                  if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1  ) then
-                                        z=z+1
-                                        cycle
-                                  elseif (INDEX(txt,'CALCULATION') == 1 ) then
-                                        exit
-                                  else
-                                      j=1
-                                    do
-
-                                       txt = adjustl (tfile (z))
-
-                                       if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                                            z=z+1
-                                            cycle
-                                       elseif (INDEX(txt,'CALCULATION') == 1 ) then
-                                            exit
-                                       elseif (j .GT. crys%n_typ ) then
-                                            exit
-                                       else
-
-                                                   k = index (txt,'(')             !  if Fats Waller parameters are present we eliminate parenthesis
-
-                                                if (k /=  0) then
-                                                    txt (k:k) = ' '
-                                                    m = index (txt,')')
-                                                    txt (m:m) = ' '
-
-                                                end if
-
-                                                if (index (txt, '{')/= 0) then        ! comments present
-                                                   j=index(txt,'{')-1
-                                                   if( j > 1) then
-                                                     call getword (txt(1:j), word, n_word)
-                                                   else
-                                                     n_word=0
-                                                   end if
-                                                else
-                                                   call getword (txt, word, n_word)
-                                                end if
-
-
-                                                if (n_word == 4) then               ! only probabilities and stacking vectors
-
-                                                   call read_fraction (word,n_word, num_real)
-
-                                                   crys%l_alpha (j,i) = num_real(1)
-                                                   crys%l_r (1,j,i)   = num_real(2)
-                                                   crys%l_r (2,j,i)   = num_real(3)
-                                                   crys%l_r (3,j,i)   = num_real(4)
-
-                                                   z=z+1
-
-
-
-                                                 elseif (n_word == 10) then                          ! Fats Waller present
-
-                                                   call read_fraction (word,n_word, num_real)
-
-                                                   crys%l_alpha (j,i) = num_real(1)
-                                                   crys%l_r (1,j,i)   = num_real(2)
-                                                   crys%l_r (2,j,i)   = num_real(3)
-                                                   crys%l_r (3,j,i)   = num_real(4)
-                                                   crys%r_b11 (j,i)        = num_real(5)
-                                                   crys%r_b22 (j,i)        = num_real(6)
-                                                   crys%r_b33 (j,i)        = num_real(7)
-                                                   crys%r_b12 (j,i)        = num_real(8)
-                                                   crys%r_b31 (j,i)        = num_real(9)
-                                                   crys%r_b23 (j,i)        = num_real(10)
-
-                                                   z=z+1
-
-
-                                                else
-                                                   Err_crys=.true.
-                                                   Err_crys_mess="ERROR reading layer transitions"
-                                                   logi = .false.
-                                                   return
-                                                end if
-
-                                                  DO
-                                                    txt = adjustl (tfile (z))
-
-
-                                                      IF  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                                                                 z=z+1
-                                                                 cycle
-                                                      ELSEIF (INDEX(txt,'CALCULATION') == 1 ) then
-                                                                 exit
-
-                                                      ELSE
-
-                                                            txt = adjustl (tfile (z))
-                                                            k = index (txt, '(')    ! check if there are parenthesis and eliminate them
-                                                             if (k /= 0 ) then
-                                                               m = index (txt, ')')
-                                                               txt (k:k) = ' '
-                                                               txt (m:m) = ' '
-                                                             end if
-
-                                                             if (index (txt, '{')/= 0) then        ! comments present
-                                                             	 j=index(txt,'{')-1
-                                                             	 if( j > 1) then
-                                                                   call getword (txt(1:j), word, n_word)
-                                                                 else
-                                                                   n_word=0
-                                                                 end if
-                                                             else
-                                                                 call getword (txt, word, n_word)
-                                                             end if
-                                                             if (n_word == 4 ) then
-
-                                                              read (unit = txt, fmt = *) crys%ref_l_alpha (j,i), &
-                                                                crys%ref_l_r (1,j,i),crys%ref_l_r (2,j,i),crys%ref_l_r (3,j,i)
-                                                              if (crys%ref_l_alpha(j,i)/=0 .or. crys%ref_l_r(1,j,i)/=0 .or. &
-                                                                  crys%ref_l_r(2,j,i)/=0 .or. crys%ref_l_r(3,j,i)/=0) then
-                                                                  Err_crys=.true.
-                                                                  Err_crys_mess=&
-                                                                  "ERROR :  Range of refinement missing for transition parameters"
-                                                                  logi = .false.
-                                                                  return
-                                                              end if
-                                                              crys%rang_l_alpha (j,i)= 0.0
-                                                              crys%rang_l_r (1,j,i)  = 0.0
-                                                              crys%rang_l_r (2,j,i)  = 0.0
-                                                              crys%rang_l_r (3,j,i)  = 0.0
-                                                               z = z + 1
-
-                                                                 exit
-
-                                                             elseif (n_word == 8) then
-
-                                                              read (unit = txt, fmt = *) crys%ref_l_alpha (j,i), &
-                                                                crys%ref_l_r (1,j,i),crys%ref_l_r (2,j,i),         &
-                                                                crys%ref_l_r (3,j,i), crys%rang_l_alpha (j,i),     &
-                                                                crys%rang_l_r(1,j,i), crys%rang_l_r(2,j,i) ,&
-                                                                crys%rang_l_r(3,j,i)
-                                                                z = z + 1
-                                                              if (crys%ref_l_alpha (j,i) /= 0)  then
-                                                                crys%npar = crys%npar + 1    !to count npar
-                                                                crys%list (crys%npar) = crys%l_alpha (j,i)
-                                                                write(unit=namepar(crys%npar),fmt="(a,2i1)")'alpha',i,j
-                                                                crys%cod(crys%npar) = 1
-                                                                ab =  (abs(crys%ref_l_alpha (j,i))/10.0)
-                                                                crys%p(crys%npar)= int(ab)
-                                                                crys%mult(crys%npar) = ((abs(crys%ref_l_alpha (j,i)))-(10.0* &
-                                                                     REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_alpha (j,i)))
-                                                                crys%vlim1(crys%npar)=crys%l_alpha(j,i)- crys%rang_l_alpha (j,i)
-                                                                if (crys%vlim1(crys%npar)  .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                                                crys%vlim2(crys%npar) = crys%l_alpha(j,i)+crys%rang_l_alpha(j,i)
-                                                                if (crys%vlim2(crys%npar)  > 1 ) crys%vlim2(crys%npar) = 1
-
-                                                              end if
-                                                              if (crys%ref_l_r(1,j,i) /= 0 ) then
-                                                                  crys%npar = crys%npar + 1
-                                                                  crys%list (crys%npar) = crys%l_r(1,j,i)
-                                                                  write(unit=namepar(crys%npar),fmt="(a,2i1)")'tx',i,j
-                                                                  crys%cod(crys%npar) = 1
-                                                                  ab =  (abs(crys%ref_l_r(1,j,i))/10.0)
-                                                                  crys%p(crys%npar)= int(ab)
-                                                                  crys%mult(crys%npar) = ((abs(crys%ref_l_r(1,j,i)))-(10.0* &
-                                                                          REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(1,j,i)))
-                                                                  crys%vlim1(crys%npar) = crys%l_r (1,j,i) - crys%rang_l_r (1,j,i)
-                                                                  crys%vlim2(crys%npar) = crys%l_r (1,j,i) + crys%rang_l_r (1,j,i)
-                                                              end if
-                                                              if (crys%ref_l_r(2,j,i) /= 0 ) then
-                                                                  crys%npar = crys%npar + 1
-                                                                  crys%list (crys%npar) = crys%l_r(2,j,i)
-                                                                  write(unit=namepar(crys%npar),fmt="(a,2i1)")'ty',i,j
-                                                                  crys%cod(crys%npar) = 1
-                                                                  ab =  (abs(crys%ref_l_r(2,j,i))/10.0)
-                                                                  crys%p(crys%npar)= int(ab)
-                                                                  crys%mult(crys%npar) = ((abs(crys%ref_l_r(2,j,i)))-(10.0* &
-                                                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(2,j,i)))
-                                                                  crys%vlim1(crys%npar) = crys%l_r (2,j,i) - crys%rang_l_r (2,j,i)
-                                                                  crys%vlim2(crys%npar) = crys%l_r (2,j,i) + crys%rang_l_r (2,j,i)
-                                                              end if
-                                                              if (crys%ref_l_r(3,j,i) /= 0 )  then
-                                                                  crys%npar = crys%npar + 1
-                                                                  crys%list (crys%npar) = crys%l_r(3,j,i)
-                                                                  write(unit=namepar(crys%npar),fmt="(a,2i1)")'tz',i,j
-                                                                  crys%cod(crys%npar) = 1
-                                                                  ab =  (abs(crys%ref_l_r(3,j,i))/10.0)
-                                                                  crys%p(crys%npar)= int(ab)
-                                                                  crys%mult(crys%npar) = ((abs(crys%ref_l_r(3,j,i)))-(10.0* &
-                                                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(3,j,i)))
-                                                                  crys%vlim1(crys%npar) = crys%l_r (3,j,i) - crys%rang_l_r (3,j,i)
-                                                                  crys%vlim2(crys%npar) = crys%l_r (3,j,i) + crys%rang_l_r (3,j,i)
-                                                              end if
-
-                                                              if (crys%ref_l_alpha (j,i) == 0)  crys%rang_l_alpha(j,i) = 0.0
-                                                              if (crys%ref_l_r(1,j,i) == 0 )  crys%rang_l_r(1,j,i) = 0.0
-                                                              if (crys%ref_l_r(2,j,i) == 0 )  crys%rang_l_r(2,j,i) = 0.0
-                                                              if (crys%ref_l_r(3,j,i) == 0 )  crys%rang_l_r(3,j,i) = 0.0
-                                                              exit
-                                                             else
-                                                                Err_crys=.true.
-                                                                Err_crys_mess=&
-                                                                "ERROR reading stacking transitions refinement parameters"
-                                                                logi = .false.
-                                                                return
-                                                             end if
-
-
-                                                      END IF
-                                                  END DO
-
-
-                                                     txt = adjustl(tfile(z))
-
-                                       end if
-
-                                       j = j + 1
-
-                                    end do
-
-                                 end if
-                                     i = i+1
-                               end do
-
-                           end if
-                      end do
-
-                           DO  i = 1, crys%n_typ        !check if l_apha sums one for each layer
-                                sum = 0
-                                DO  j = 1, crys%n_typ
-
-                                    sum = sum + crys%l_alpha(j,i)
-                                END DO
-
-                                IF(ABS(sum - 1) > eps) THEN
-                                 write(op,*) "Stacking probabilities from LAYER ",i," do not sum to 1."
-                                 write (*,*)  'the sum is'  , sum
-                                 logi = .false.
-                                end if
-                           END DO
-
-                           do
-
-                            if (INDEX(txt,'CALCULATION') == 1 ) then
-
-                                exit
-                            else
-                               z = z +1
-                               txt = adjustl(tfile(z))
-
+                        DO
+                          txt = adjustl (tfile (z))
+                          IF  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
+                            z=z+1
+                            cycle
+                          ELSEIF (INDEX(txt,'CALCULATION') == 1 ) then
+                            exit
+                          ELSE
+                            txt = adjustl (tfile (z))
+                            k = index (txt, '(')    ! check if there are parenthesis and eliminate them
+                            if (k /= 0 ) then
+                              m = index (txt, ')')
+                              txt (k:k) = ' '
+                              txt (m:m) = ' '
                             end if
-                           end do
+                            if (index (txt, '{')/= 0) then        ! comments present
+                              j=index(txt,'{')-1
+                              if( j > 1) then
+                                call getword (txt(1:j), word, n_word)
+                              else
+                                n_word=0
+                              end if
+                            else
+                              call getword (txt, word, n_word)
+                            end if
+                            if (n_word == 4 ) then
+                              read (unit = txt, fmt = *) crys%ref_l_alpha (j,i), &
+                                                         crys%ref_l_r (1,j,i),crys%ref_l_r (2,j,i),crys%ref_l_r (3,j,i)
+                              if (crys%ref_l_alpha(j,i)/=0 .or. crys%ref_l_r(1,j,i)/=0 .or. &
+                                  crys%ref_l_r(2,j,i)/=0 .or. crys%ref_l_r(3,j,i)/=0) then
+                                Err_crys=.true.
+                                Err_crys_mess=&
+                                "ERROR :  Range of refinement missing for transition parameters"
+                                logi = .false.
+                                return
+                              end if
+                              crys%rang_l_alpha (j,i)= 0.0
+                              crys%rang_l_r (1,j,i)  = 0.0
+                              crys%rang_l_r (2,j,i)  = 0.0
+                              crys%rang_l_r (3,j,i)  = 0.0
+                              z = z + 1
+                              exit
+                            elseif (n_word == 8) then
+                              read (unit = txt, fmt = *) crys%ref_l_alpha (j,i), &
+                                    crys%ref_l_r (1,j,i),crys%ref_l_r (2,j,i),         &
+                                    crys%ref_l_r (3,j,i), crys%rang_l_alpha (j,i),     &
+                                    crys%rang_l_r(1,j,i), crys%rang_l_r(2,j,i) ,&
+                                    crys%rang_l_r(3,j,i)
+                              z = z + 1
+                              if (crys%ref_l_alpha (j,i) /= 0)  then
+                                crys%npar = crys%npar + 1    !to count npar
+                                crys%list (crys%npar) = crys%l_alpha (j,i)
+                                write(unit=namepar(crys%npar),fmt="(a,2i1)")'alpha',i,j
+                                crys%cod(crys%npar) = 1
+                                ab =  (abs(crys%ref_l_alpha (j,i))/10.0)
+                                crys%p(crys%npar)= int(ab)
+                                crys%mult(crys%npar) = ((abs(crys%ref_l_alpha (j,i)))-(10.0* &
+                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_alpha (j,i)))
+                                crys%vlim1(crys%npar)=crys%l_alpha(j,i)- crys%rang_l_alpha (j,i)
+                                if (crys%vlim1(crys%npar)  .LT. 0 ) crys%vlim1(crys%npar) = 0
+                                crys%vlim2(crys%npar) = crys%l_alpha(j,i)+crys%rang_l_alpha(j,i)
+                                if (crys%vlim2(crys%npar)  > 1 ) crys%vlim2(crys%npar) = 1
+                              end if
+                              if (crys%ref_l_r(1,j,i) /= 0 ) then
+                                crys%npar = crys%npar + 1
+                                crys%list (crys%npar) = crys%l_r(1,j,i)
+                                write(unit=namepar(crys%npar),fmt="(a,2i1)")'tx',i,j
+                                crys%cod(crys%npar) = 1
+                                ab =  (abs(crys%ref_l_r(1,j,i))/10.0)
+                                crys%p(crys%npar)= int(ab)
+                                crys%mult(crys%npar) = ((abs(crys%ref_l_r(1,j,i)))-(10.0* &
+                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(1,j,i)))
+                                crys%vlim1(crys%npar) = crys%l_r (1,j,i) - crys%rang_l_r (1,j,i)
+                                crys%vlim2(crys%npar) = crys%l_r (1,j,i) + crys%rang_l_r (1,j,i)
+                              end if
+                              if (crys%ref_l_r(2,j,i) /= 0 ) then
+                                crys%npar = crys%npar + 1
+                                crys%list (crys%npar) = crys%l_r(2,j,i)
+                                write(unit=namepar(crys%npar),fmt="(a,2i1)")'ty',i,j
+                                crys%cod(crys%npar) = 1
+                                ab =  (abs(crys%ref_l_r(2,j,i))/10.0)
+                                crys%p(crys%npar)= int(ab)
+                                crys%mult(crys%npar) = ((abs(crys%ref_l_r(2,j,i)))-(10.0* &
+                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(2,j,i)))
+                                crys%vlim1(crys%npar) = crys%l_r (2,j,i) - crys%rang_l_r (2,j,i)
+                                crys%vlim2(crys%npar) = crys%l_r (2,j,i) + crys%rang_l_r (2,j,i)
+                              end if
+                              if (crys%ref_l_r(3,j,i) /= 0 )  then
+                                crys%npar = crys%npar + 1
+                                crys%list (crys%npar) = crys%l_r(3,j,i)
+                                write(unit=namepar(crys%npar),fmt="(a,2i1)")'tz',i,j
+                                crys%cod(crys%npar) = 1
+                                ab =  (abs(crys%ref_l_r(3,j,i))/10.0)
+                                crys%p(crys%npar)= int(ab)
+                                crys%mult(crys%npar) = ((abs(crys%ref_l_r(3,j,i)))-(10.0* &
+                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(3,j,i)))
+                                crys%vlim1(crys%npar) = crys%l_r (3,j,i) - crys%rang_l_r (3,j,i)
+                                crys%vlim2(crys%npar) = crys%l_r (3,j,i) + crys%rang_l_r (3,j,i)
+                              end if
 
-               elseif  (INDEX(txt,'CALCULATION') == 1 ) then
+                              if (crys%ref_l_alpha (j,i) == 0)  crys%rang_l_alpha(j,i) = 0.0
+                              if (crys%ref_l_r(1,j,i) == 0 )  crys%rang_l_r(1,j,i) = 0.0
+                              if (crys%ref_l_r(2,j,i) == 0 )  crys%rang_l_r(2,j,i) = 0.0
+                              if (crys%ref_l_r(3,j,i) == 0 )  crys%rang_l_r(3,j,i) = 0.0
+                              exit
+                            else
+                              Err_crys=.true.
+                              Err_crys_mess=&
+                              "ERROR reading stacking transitions refinement parameters"
+                              logi = .false.
+                              return
+                            end if
+                          END IF
+                        END DO
+                        txt = adjustl(tfile(z))
+                      end if
+                      j = j + 1
+                    end do
+                  end if
+                  i = i+1
+                end do
+              end if
+            end do
 
-                        z=l+1
-                 do
+            DO  i = 1, crys%n_typ        !check if l_apha sums one for each layer
+              sum = 0
+              DO  j = 1, crys%n_typ
+                sum = sum + crys%l_alpha(j,i)
+              END DO
 
+              IF(ABS(sum - 1) > eps) THEN
+                write(op,*) "Stacking probabilities from LAYER ",i," do not sum to 1."
+                write (*,*)  'the sum is'  , sum
+                logi = .false.
+              end if
+            END DO
+
+            do
+              if (INDEX(txt,'CALCULATION') == 1 ) then
+                exit
+              else
+                z = z +1
+                txt = adjustl(tfile(z))
+              end if
+            end do
+
+          elseif  (INDEX(txt,'CALCULATION') == 1 ) then
+
+            z=l+1
+            do
+
+              txt = adjustl (tfile (z))
+
+              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                z = z+1
+                cycle
+              else if (index (txt, 'EXPERIMENTAL' ) == 1 .or. z > numberl) then
+                exit
+              else
+                read (unit = txt, fmt = *, iostat=ier) crys%calctype
+
+                select case (crys%calctype)
+
+                case ('SIMULATION')
+
+                  opt = 0
+                  z = z +1
+
+                  do
                     txt = adjustl (tfile (z))
 
                     if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
                       z = z+1
                       cycle
-                    else if (index (txt, 'EXPERIMENTAL' ) == 1 .or. z > numberl) then
-
+                    else if ( z > numberl ) then
                       exit
-
                     else
-                      read (unit = txt, fmt = *, iostat=ier) crys%calctype
+                      read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
+
+                      z = z +1
+                      IF(th2_min < zero) THEN
+                        WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
+                        logi = .false.
+                        RETURN
+                      END IF
+
+                      IF(th2_min >= one_eighty) THEN
+                        WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
+                        logi = .false.
+                        RETURN
+                      END IF
+
+                      IF(th2_max <= zero) THEN
+                          WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
+                          logi = .false.
+                          RETURN
+                      END IF
+
+                      IF(th2_max > one_eighty) THEN
+                          WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
+                          logi = .false.
+                          RETURN
+                      END IF
+
+                      ! if th2_max = 180, reduce it slightly to keep us out of trouble
+                      IF(th2_max == one_eighty) th2_max = th2_max - eps4
+
+                      IF(d_theta <= zero) THEN
+                        WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
+                        logi = .false.
+                        RETURN
+                      END IF
+
+                      IF(th2_min >= th2_max) THEN
+                          WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
+                          logi = .false.
+                          RETURN
+                      END IF
+
+                      IF((th2_max - th2_min) < d_theta) THEN
+                           WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
+                           logi = .false.
+                           RETURN
+                      END IF
+
+                      th2_min = th2_min * deg2rad
+                      th2_max = th2_max * deg2rad
+                      d_theta = half * deg2rad * d_theta
+
+                    end if
+                  end do
+
+                case ('SIMPLEX')
+                  opt = 2
+                  z = z +1
+                  opti%iquad = 1
+
+                  do
+
+                    txt = adjustl (tfile (z))
+
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                      z=z+1
+                      cycle
+                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      exit
+                    else
+                      read(unit = txt, fmt = *, iostat=ier) opti%mxfun
+                      z = z +1
+                      txt = adjustl (tfile (z))
+
+                      do
+
+                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
+                          z=z+1
+                          txt = adjustl (tfile (z))
+                          cycle
+                        else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          exit
+                        else
+                          read(unit = txt, fmt = *, iostat=ier) opti%eps
+                          z = z + 1
+                          txt = adjustl (tfile (z))
+                          do
+                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                              z=z+1
+                              txt = adjustl (tfile (z))
+                              cycle
+                            else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              exit
+                            else
+                              read(unit = txt, fmt = *, iostat=ier) opti%iout
+                              z = z + 1
+                              txt = adjustl (tfile (z))
+                              do
+                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                  z=z+1
+                                  txt = adjustl (tfile (z))
+                                  cycle
+                                else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  exit
+                                else
+                                  read(unit = txt, fmt = *, iostat=ier) opti%acc
+                                  z = z + 1
+                                  txt = adjustl (tfile (z))
+                                end if
+                              end do
+                            end if
+                          end do
+                        end if
+                      end do
+                    end if
+                  end do
 
 
-                    select case (crys%calctype)
 
-                      case ('SIMULATION')
+!/////////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
+
+                  vector(1:nrp)  = crys%list (1:nrp)
+                  !   code(1:nrp) = crys%cod(1:nrp)
+                          numpar = crys%npar
+                  !      nm_cycl  = crys%n_cycles
+!//////////////////////////////////////////////////////////////////////////////////////////////
+                  n_plex = maxval(crys%p)
+                  opti%loops = 2 * n_plex
+                  opti%iquad=1
 
 
-                        opt = 0
-                        z = z +1
+                  do i = 1, numpar
+                     label(crys%p(i)) = 0
+                  end do
+
+                  do i=1, numpar                    !construction of SIMPLEX 'in' vectors
+
+                    if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
+                       v_plex(crys%p(i)) = crys%list(i)
+                     !  nampar(pnum(i)) = namepar(i)
+                     !  vlim1(pnum(i)) = crys%vlim1(i)
+                     !  vlim2(pnum(i)) = crys%vlim2(i)
+                    end if
+                    label (crys%p(i)) = 1
+                  end do
+
+!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+                case ('LOCAL_OPTIMIZER')
+                  opt = 3
+                  z = z +1
+                  txt = adjustl (tfile (z))
+                  opti%iquad = 1
+
+                  do
+
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                      z=z+1
+                      txt = adjustl (tfile (z))
+                      cycle
+                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      exit
+                    else
+
+                      read(unit = txt, fmt = *, iostat=ier) opti%method
+                      z = z +1
+                      txt = adjustl (tfile (z))
+
+
+                      if (opti%method == "DFP_NO_DERIVATIVE" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
 
                         do
 
-                          txt = adjustl (tfile (z))
-
                           if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                  z = z+1
-                                  cycle
-                          else if ( z > numberl ) then
+                            z=z+1
+                            txt = adjustl (tfile (z))
+                            cycle
 
-                                  exit
+                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            exit
                           else
-
-                            read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
+                            read(unit = txt, fmt = *, iostat=ier) opti%mxfun
                             z = z +1
-                               IF(th2_min < zero) THEN
-                                   WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                               IF(th2_min >= one_eighty) THEN
-                                   WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                               IF(th2_max <= zero) THEN
-                                   WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                               IF(th2_max > one_eighty) THEN
-                                   WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                             ! if th2_max = 180, reduce it slightly to keep us out of trouble
-                               IF(th2_max == one_eighty) th2_max = th2_max - eps4
-
-                               IF(d_theta <= zero) THEN
-                                   WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                               IF(th2_min >= th2_max) THEN
-                                   WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
-                                   logi = .false.
-                                   RETURN
-                               END IF
-
-                               IF((th2_max - th2_min) < d_theta) THEN
-                                    WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
-                                    logi = .false.
-                                    RETURN
-                               END IF
-
-                              th2_min = th2_min * deg2rad
-                              th2_max = th2_max * deg2rad
-                              d_theta = half * deg2rad * d_theta
-
-                          end if
-                        end do
-
-
-                      case ('SIMPLEX')
-
-
-                        opt = 2
-                        z = z +1
-                        opti%iquad = 1
-
-                       do
-
-                         txt = adjustl (tfile (z))
-
-                         if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-
-                             z=z+1
-                             cycle
-                         else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                             exit
-                         else
-                             read(unit = txt, fmt = *, iostat=ier) opti%mxfun
-                             z = z +1
-                             txt = adjustl (tfile (z))
-
-                             do
-
-                                 if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                                   z=z+1
-                                   txt = adjustl (tfile (z))
-                                   cycle
-                                 else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                   exit
-                                 else
-                                   read(unit = txt, fmt = *, iostat=ier) opti%eps
-                                   z = z + 1
-                                   txt = adjustl (tfile (z))
-                                   do
-
-                                     if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                       z=z+1
-                                       txt = adjustl (tfile (z))
-                                       cycle
-                                     else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                       exit
-                                     else
-
-                                       read(unit = txt, fmt = *, iostat=ier) opti%iout
-                                       z = z + 1
-                                       txt = adjustl (tfile (z))
-
-                                       do
-
-                                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                              z=z+1
-                                              txt = adjustl (tfile (z))
-                                              cycle
-                                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                              exit
-                                          else
-
-                                              read(unit = txt, fmt = *, iostat=ier) opti%acc
-                                              z = z + 1
-                                              txt = adjustl (tfile (z))
-
-
-                                          end if
-                                       end do
-                                     end if
-                                   end do
-                                 end if
-                             end do
-                         end if
-                       end do
-
-
-
-!///////////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
-
-                    vector(1:nrp)  = crys%list (1:nrp)
-                    !   code(1:nrp) = crys%cod(1:nrp)
-                            numpar = crys%npar
-                    !      nm_cycl  = crys%n_cycles
-!////////////////////////////////////////////////////////////////////////////////////////////////
-                        n_plex = maxval(crys%p)
-                        opti%loops = 2 * n_plex
-                        opti%iquad=1
-
-
-                        do i = 1, numpar
-                           label(crys%p(i)) = 0
-                        end do
-
-                        do i=1, numpar                    !construction of SIMPLEX 'in' vectors
-
-                          if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
-                             v_plex(crys%p(i)) = crys%list(i)
-                           !  nampar(pnum(i)) = namepar(i)
-                           !  vlim1(pnum(i)) = crys%vlim1(i)
-                           !  vlim2(pnum(i)) = crys%vlim2(i)
-                          end if
-                          label (crys%p(i)) = 1
-                        end do
-
-                      case ('SAN')
-                       opt = 1
-                       z = z +1
-
-                       do
-
-                         txt = adjustl (tfile (z))
-
-                         if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-
-                             z=z+1
-                             cycle
-                         else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                             exit
-                         else
-
-                             read(unit = txt, fmt = *, iostat=ier) crys%n_cycles
-                             z = z +1
-                             txt = adjustl (tfile (z))
-
-                             do
-
-                                 if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                                   z=z+1
-                                   txt = adjustl (tfile (z))
-                                   cycle
-                                 else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                   exit
-                                 else
-                                   read(unit = txt, fmt = *, iostat=ier) crys%num_temp
-                                   z = z + 1
-                                   txt = adjustl (tfile (z))
-                                   do
-
-                                     if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                       z=z+1
-                                       txt = adjustl (tfile (z))
-                                       cycle
-                                     else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                       exit
-                                     else
-
-                                       read(unit = txt, fmt = *, iostat=ier) crys%t_ini
-                                       z = z + 1
-                                       txt = adjustl (tfile (z))
-                                       do
-
-                                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                              z=z+1
-                                              txt = adjustl (tfile (z))
-                                              cycle
-                                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                              exit
-                                          else
-
-                                              read(unit = txt, fmt = *, iostat=ier) crys%anneal
-                                              z = z + 1
-                                              txt = adjustl (tfile (z))
-                                              do
-
-                                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                                  z=z+1
-                                                  txt = adjustl (tfile (z))
-                                                  cycle
-                                                else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-                                                  exit
-                                                else
-
-                                                  read(unit = txt, fmt = *, iostat=ier) crys%accept
-                                                  z = z + 1
-                                                  txt = adjustl (tfile (z))
-                                                  do
-
-                                                     if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-
-                                                        z=z+1
-                                                        txt = adjustl (tfile (z))
-                                                        cycle
-                                                     else if ( index (txt, 'EXPERIMENTAL') == 1 ) then
-                                                        exit
-                                                     else
-
-                                                        read(unit = txt, fmt = *, iostat=ier) crys%init_config
-                                                        z = z + 1
-                                                        txt = adjustl (tfile (z))
-                                                     end if
-                                                  end do
-
-
-                                                end if
-                                             end do
-
-                                          end if
-                                       end do
-
-
-                                     end if
-                                   end do
-
-                                 end if
-                             end do
-
-                         end if
-                       end do
-
-                       opsan%num_therm = 0
-                       opsan%nalgor = 0
-                       sanvec%bound(1:crys%npar) = 0
-
-!///////////////////////CONVERSION TO SAN VARIABLES//////////////////////////
-                    sanvec%state(1:nrp)  = crys%list (1:nrp)
-                      sanvec%code(1:nrp) = crys%cod(1:nrp)
-                             sanvec%npar = crys%npar
-                        opsan%num_temps  = crys%num_temp
-                             opsan%t_ini = crys%t_ini
-                            opsan%anneal = crys%anneal
-                           opsan%accept  = crys%accept
-                        opsan%initconfig = crys%init_config
-                          opsan%nm_cycl  = crys%n_cycles
-
-!////////////////////////////////////////////////////////////////////////////////////////////////
-
-                         npar = maxval(crys%p)
-                         numpar = crys%npar
-                         label(crys%p(1:numpar)) = 0
-
-
-
-
-                        do i=1, numpar                    !construction of SAN 'in' vectors
-                          if(label (crys%p(i)) == 0 ) then   !not to overwrite in config
-                             sanvec%config(crys%p(i)) = crys%list(i)
-                             sanvec%nampar(crys%p(i)) = namepar(i)
-                             sanvec%low(crys%p(i)) = crys%vlim1(i)
-                             sanvec%high(crys%p(i)) = crys%vlim2(i)
-                          end if
-                          label (crys%p(i)) = 1
-                        end do
-
-                      case default
-                        write(op,*) 'calculation type not valid'
-                        logi = .false.
-                    end select
-
-                    end if
-                 end do
-
-               else if(INDEX(txt,'EXPERIMENTAL') == 1 ) then
-                 z=l+1
-                 do
-                    txt = adjustl (tfile (z))
-                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                      z = z+1
-                      cycle
-                    else if ( z > numberl) then
-                      exit
-                    else
-                      read (unit = txt, fmt = *, iostat=ier) dfile , th2_min, th2_max, d_theta
-                      z = z +1
-
-                      if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
-                        th2_min = th2_min * deg2rad
-                        th2_max = th2_max * deg2rad
-                        d_theta = half * deg2rad * d_theta
-                      end if
-
-                      do
-                         txt = adjustl (tfile (z))
-                         if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                           z = z+1
-                           cycle
-                         elseif ( z > numberl) then
-                           exit
-                         else
-                           read (unit = txt, fmt = *, iostat=ier) fmode
-                           z = z + 1
-                           do
-                             txt = adjustl (tfile (z))
-                             if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                   z = z+1
-                                   cycle
-                             elseif ( z > numberl) then
-                                   exit
-                             else
-                               read (unit = txt, fmt = *, iostat=ier)  background_file
-                               z = z +1
-                               do
-                                  txt = adjustl (tfile (z))
+                            txt = adjustl (tfile (z))
+
+                            do
+                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
+                                z=z+1
+                                txt = adjustl (tfile (z))
+                                cycle
+                              else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                exit
+                              else
+                                read(unit = txt, fmt = *, iostat=ier) opti%eps
+                                z = z + 1
+                                txt = adjustl (tfile (z))
+                                write(*,*) "eps", opti%eps
+                                do
                                   if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                    z = z+1
-                                     cycle
-                                  else if ( z > numberl) then
+                                    z=z+1
+                                    txt = adjustl (tfile (z))
+                                    cycle
+                                  else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
                                     exit
                                   else
-                                    read (unit = txt, fmt = *, iostat=ier) mode
+                                    read(unit = txt, fmt = *, iostat=ier) opti%iout
                                     z = z + 1
+                                    txt = adjustl (tfile (z))
+
+                                    do
+                                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                        z=z+1
+                                        txt = adjustl (tfile (z))
+                                        cycle
+                                      else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                        exit
+                                      else
+                                        read(unit = txt, fmt = *, iostat=ier) opti%acc
+                                        z = z + 1
+                                        txt = adjustl (tfile (z))
+                                        write(*,*) "acc", opti%acc, txt
+                                        exit
+                                      end if
+                                    end do
                                   end if
-                               end do
-                             end if
-                           end do
-                         end if
+                                end do
+                              end if
+                            end do
+                          end if
+                        end do
+
+
+                      else if (opti%method == "SIMPLEX") then
+
+                        read(unit = txt, fmt = *, iostat=ier) opti%mxfun
+                        z = z +1
+                        txt = adjustl (tfile (z))
+                        do
+                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
+                            z=z+1
+                            txt = adjustl (tfile (z))
+                            cycle
+                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            exit
+                          else
+                            read(unit = txt, fmt = *, iostat=ier) opti%eps
+                            z = z + 1
+                            txt = adjustl (tfile (z))
+                            do
+                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                z=z+1
+                                txt = adjustl (tfile (z))
+                                cycle
+                              else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                exit
+                              else
+                                read(unit = txt, fmt = *, iostat=ier) opti%iout
+                                z = z + 1
+                                txt = adjustl (tfile (z))
+                                do
+                                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                    z=z+1
+                                    txt = adjustl (tfile (z))
+                                    cycle
+                                  else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                    exit
+                                  else
+                                    read(unit = txt, fmt = *, iostat=ier) opti%acc
+                                    z = z + 1
+                                    txt = adjustl (tfile (z))
+                                  end if
+                                end do
+                              end if
+                            end do
+                          end if
+                        end do
+                      else
+                        z=z+1
+                        txt = adjustl (tfile (z))
+                        exit
+
+                      end if
+                    end if
+                  end do
+
+
+
+!/////////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
+
+                  vector(1:nrp)  = crys%list (1:nrp)
+                  !   code(1:nrp) = crys%cod(1:nrp)
+                          numpar = crys%npar
+                  !      nm_cycl  = crys%n_cycles
+!//////////////////////////////////////////////////////////////////////////////////////////////
+                  n_plex = maxval(crys%p)
+                  opti%loops = 2 * n_plex
+                  opti%iquad=1
+
+
+                  do i = 1, numpar
+                     label(crys%p(i)) = 0
+                  end do
+
+                  do i=1, numpar                    !construction of SIMPLEX 'in' vectors
+
+                    if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
+                       v_plex(crys%p(i)) = crys%list(i)
+                     !  nampar(pnum(i)) = namepar(i)
+                       sanvec%low(pnum(i)) = crys%vlim1(i)
+                       sanvec%high(pnum(i)) = crys%vlim2(i)
+                    end if
+                    label (crys%p(i)) = 1
+                  end do
+
+
+!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+                case ('SAN')
+                  opt = 1
+                  z = z +1
+                  do
+                    txt = adjustl (tfile (z))
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                      z=z+1
+                      cycle
+                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      exit
+                    else
+                      read(unit = txt, fmt = *, iostat=ier) crys%n_cycles
+                      z = z +1
+                     txt = adjustl (tfile (z))
+
+                      do
+                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
+                          z=z+1
+                          txt = adjustl (tfile (z))
+                          cycle
+                        else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          exit
+                        else
+                          read(unit = txt, fmt = *, iostat=ier) crys%num_temp
+                          z = z + 1
+                          txt = adjustl (tfile (z))
+                          do
+                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                              z=z+1
+                              txt = adjustl (tfile (z))
+                              cycle
+                            else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              exit
+                            else
+                              read(unit = txt, fmt = *, iostat=ier) crys%t_ini
+                              z = z + 1
+                              txt = adjustl (tfile (z))
+                              do
+                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                  z=z+1
+                                  txt = adjustl (tfile (z))
+                                  cycle
+                                else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  exit
+                                else
+                                  read(unit = txt, fmt = *, iostat=ier) crys%anneal
+                                  z = z + 1
+                                  txt = adjustl (tfile (z))
+                                  do
+                                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                      z=z+1
+                                      txt = adjustl (tfile (z))
+                                      cycle
+                                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                      exit
+                                    else
+                                      read(unit = txt, fmt = *, iostat=ier) crys%accept
+                                      z = z + 1
+                                      txt = adjustl (tfile (z))
+                                      do
+                                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                                          z=z+1
+                                          txt = adjustl (tfile (z))
+                                          cycle
+                                        else if ( index (txt, 'EXPERIMENTAL') == 1 ) then
+                                          exit
+                                        else
+                                          read(unit = txt, fmt = *, iostat=ier) crys%init_config
+                                          z = z + 1
+                                          txt = adjustl (tfile (z))
+                                        end if
+                                      end do
+                                    end if
+                                  end do
+                                end if
+                              end do
+                            end if
+                          end do
+                        end if
                       end do
                     end if
-                 end do
-               else
-                    if(index(txt,"!") == 1  .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
-               end if
+                  end do
+
+                  opsan%num_therm = 0
+                  opsan%nalgor = 0
+                  sanvec%bound(1:crys%npar) = 0
+
+!///////////////////////CONVERSION TO SAN VARIABLES//////////////////////////
+          sanvec%state(1:nrp)  = crys%list (1:nrp)
+            sanvec%code(1:nrp) = crys%cod(1:nrp)
+                   sanvec%npar = crys%npar
+              opsan%num_temps  = crys%num_temp
+                   opsan%t_ini = crys%t_ini
+                  opsan%anneal = crys%anneal
+                 opsan%accept  = crys%accept
+              opsan%initconfig = crys%init_config
+                opsan%nm_cycl  = crys%n_cycles
+
+!////////////////////////////////////////////////////////////////////////////////////////////////
+
+                  npar = maxval(crys%p)
+                  numpar = crys%npar
+                  label(crys%p(1:numpar)) = 0
+
+                  do i=1, numpar                    !construction of SAN 'in' vectors
+                    if(label (crys%p(i)) == 0 ) then   !not to overwrite in config
+                      sanvec%config(crys%p(i)) = crys%list(i)
+                      sanvec%nampar(crys%p(i)) = namepar(i)
+                      sanvec%low(crys%p(i)) = crys%vlim1(i)
+                      sanvec%high(crys%p(i)) = crys%vlim2(i)
+                    end if
+                    label (crys%p(i)) = 1
+                  end do
+
+                case default
+                  write(op,*) 'calculation type not valid'
+                  logi = .false.
+                  stop
+                end select
+              end if
+            end do
+
+          else if(INDEX(txt,'EXPERIMENTAL') == 1 ) then
+            z=l+1
+            do
+                txt = adjustl (tfile (z))
+              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                z = z+1
+                cycle
+              else if ( z > numberl) then
+                exit
+              else
+                read (unit = txt, fmt = *, iostat=ier) dfile , th2_min, th2_max, d_theta
+                z = z +1
+
+                if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
+                  th2_min = th2_min * deg2rad
+                  th2_max = th2_max * deg2rad
+                  d_theta = half * deg2rad * d_theta
+                end if
+
+                do
+                  txt = adjustl (tfile (z))
+                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                    z = z+1
+                    cycle
+                  elseif ( z > numberl) then
+                    exit
+                  else
+                    read (unit = txt, fmt = *, iostat=ier) fmode
+                    z = z + 1
+                    do
+                      txt = adjustl (tfile (z))
+                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                        z = z+1
+                        cycle
+                      elseif ( z > numberl) then
+                        exit
+                      else
+                        read (unit = txt, fmt = *, iostat=ier)  background_file
+                        z = z +1
+                        do
+                          txt = adjustl (tfile (z))
+                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
+                            z = z+1
+                            cycle
+                          else if ( z > numberl) then
+                            exit
+                          else
+                            read (unit = txt, fmt = *, iostat=ier) mode
+                            z = z + 1
+                          end if
+                        end do
+                      end if
+                    end do
+                  end if
+                end do
+              end if
+            end do
+          else
+            if(index(txt,"!") == 1  .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+          end if
         End do
 
 
@@ -2905,51 +2777,7 @@
 
 
 
-        open (unit=read_out, file='read.out', status='replace', action='write')
-        write(read_out, FMT = "(A30,1X,3(F15.4,1X))")   "lambda , lambda2 , ratio",  lambda , lambda2 , ratio
-        write(read_out, FMT = "(A30,1X, 6(F15.4,1X))")   "instrumental parameters", pv_u,  pv_v, pv_w,  pv_x , pv_dg, pv_dl
-        write(read_out, FMT = "(A30,1X,4(F15.6,1X))") "cell parameters", cell_a, cell_b, cell_c, cell_gamma
-        write(read_out, FMT = "(A30,1X,I4)") "number of layer types", n_layers
-        write(read_out, FMT = "(A30,1X,I4)") "number of unique layers", n_actual
-        write(read_out, FMT = "(20X,A70)") "layer number   Atom name   number   x      y      z         Biso      Occ "
-        write(read_out, FMT = "(20X,A70)") "-----------------------------------------------------------------------------"
-        do i=1, n_actual
-          do j=1,l_n_atoms(i)
-            write(*,*) "n_actual, l_n_atoms",i,j
-            write(read_out, FMT = "(25X, I4, 4X, A4, 4X, I4, 4X,3(F5.4, 4X), 2(F5.4, 4X))") i, a_name(i,j), a_number(i,j), a_pos(1:3,i,j), a_b(i,j), a_occup(i,j)
-          end do
-        end do
-        close (unit=read_out)
-        write(*,*) "n_actual",  n_actual
-        do i=1, n_layers
-          do j=1, n_layers
-             write(*,*) " i,j,l_alpha(i,j)" ,i,j,l_alpha(i,j)
-          end do
-        end do
         return
         End subroutine  read_structure_file
-!_____________________________________________________________________________________________________________
-
-        Subroutine read_fraction (line, n_comp, real_num)
-
-        character(len=*),dimension(:), intent(in out) :: line        !string of numbers to convert to real
-        integer,                       intent(in    ) :: n_comp      !number of components in line
-        real            ,dimension(:), intent(   out) :: real_num    ! string of real characters
-
-        integer                                       :: i, j
-        real                                          :: numerator, denominator
-
-        do i = 1, n_comp
-            j = index (line(i), '/')
-            if(j == 0) then                 !!it was already a number
-              read ( line(i), fmt=*) real_num(i)
-            else     !!it was expressed as a ratio. delete the slash, '/'.
-              line(i)(j:j) = ' '
-              read(unit =line(i),fmt = *) numerator, denominator  !! now contains two arguments, numerator and denominator.
-              real_num(i) = numerator/ denominator
-            end if
-        end do
-
-        End subroutine read_fraction
 
     End module read_data

@@ -92,7 +92,7 @@
      use CFML_Crystal_Metrics,       only : Set_Crystal_Cell, Crystal_Cell_Type
      use CFML_Diffraction_patterns , only : diffraction_pattern_type
      use diffax_mod
-     use read_data,                  only : crys_2d_type, read_structure_file, length, rdrnge, choice
+     use read_data,                  only : crys_2d_type, read_structure_file, length, choice
      use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                             gospec, gostrk, gointr,gosadp, getfnm, nmcoor
      use Diff_ref,                   only : scale_factor
@@ -102,8 +102,8 @@
 
     public  :: Cost3 , F_cost
 
-    type (State_Vector_Type), public  :: st
-    type (diffraction_pattern_type)   :: difpat
+    type (State_Vector_Type), public, save  :: st
+    type (diffraction_pattern_type),  save  :: difpat
 
     contains
 
@@ -462,10 +462,10 @@
      use CFML_Diffraction_patterns,    only : read_pattern , diffraction_pattern_type , err_diffpatt, err_diffpatt_mess,  &
                                               read_background_file
      use CFML_Simulated_Annealing
-     use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type
+     use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
      use diffax_mod
-     use read_data,                    only : crys_2d_type, new_getfil, read_structure_file, length , rdrnge, choice
+     use read_data,                    only : crys_2d_type, new_getfil, read_structure_file, length, choice
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor
@@ -479,7 +479,7 @@
      !type(State_Vector_Type)                                 :: sv
 
       real                                                    :: rpl,  theta ,thmin, thmax , thmin_o  , ymax, ymini , ymin ,deg
-      LOGICAL                                                 :: ok, ending , gol
+      LOGICAL                                                 :: ok, ending , gol, p_ok
       INTEGER*4                                               :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, p_resta
       character(len=100)                                      :: pfile, bfile , bmode
       character(len=100)                                      :: pmode, filenam
@@ -510,6 +510,7 @@
       else
         GO TO 999
       end if
+
 
       do i = 1, numpar              ! to avoid repetitions
              if (index (namepar(i) , 'pos' ) == 1 )  conv_a = 1
@@ -546,7 +547,6 @@
               n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
               call overlp()
-              call nmcoor ()
 
               if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
               allocate(difpat%ycalc(n_high))
@@ -569,6 +569,8 @@
                 n=3 !Powder pattern
              END IF
 
+             call dump (infile, p_ok)
+             call nmcoor ()
 ! Do what the user asked for.
              IF(ok) THEN
 
@@ -579,9 +581,8 @@
                 ELSE IF(n == 2) THEN
                    CALL gointr(ok)
                 ELSE IF(n == 3) THEN
-
+                   write(*,*) "calculating powder diffraction pattern"
                    CALL gospec(infile,outfile,ok)
-
                        n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
                      Do j = 1, n_high
@@ -599,7 +600,7 @@
 
                      OPEN(UNIT = out, FILE = outfile, STATUS = 'new')
                         write(unit = out,fmt = *)'!', outfile
-                        write(unit = out,fmt = '(3f12.2)')thmin, d_theta,thmax
+                        write(unit = out,fmt = '(3f12.4)')thmin, d_theta,thmax
                      !  theta = thmin +(j-1)*d_theta
                         write(unit = out,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
 
@@ -672,9 +673,12 @@
               gen(1:st%npar) = st%config(1:st%npar)
               difpat%step = difpat%step * 5.0    !we enlarge the step in order to accelerate the calculation of the theoretical pattern
               vector(1:numpar) = st%state(1:numpar)
+
+
+              IF(ok) ok = get_g()
+              call dump (infile, p_ok)
               call overlp()
               call nmcoor ()
-
               rpo = 1000                         !initialization of agreement factor
 
 
@@ -861,6 +865,8 @@
               filenam = trim(infile(1:(index(infile,'.')-1)))
 
               gen(1:n_plex) = v_plex(1:n_plex)
+              IF(ok) ok = get_g()
+              call dump (infile, p_ok)
               call overlp()
               call nmcoor ()
 
@@ -1003,15 +1009,209 @@
 
                 write(out,"(a)") "# END OF FILE "
                 close(unit=out)
+!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+          Case (3) !Local optimizer
+
+              !Lectura del  pattern experimental y de los scattering factors:
+
+              call  read_pattern(dfile,difpat,fmode )
+                if(Err_diffpatt) then
+                  print*, trim(err_diffpatt_mess)
+                else
+                  if (th2_min == 0 .and.  th2_max == 0  .and. d_theta == 0) then
+                     th2_min =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
+                     th2_max =  difpat%xmax
+                     d_theta =  difpat%step
+                     th2_min = th2_min * deg2rad
+                     th2_max = th2_max * deg2rad
+                     d_theta = half * deg2rad * d_theta
+                  end if
+                end if
+              call read_background_file(background_file, mode ,difpat)
+                    if(Err_diffpatt) print*, trim(err_diffpatt_mess)
+
+              !Fin de lectura
+
+              if(allocated (resta)) deallocate(resta)
+              allocate(resta(difpat%npts))
+
+              !Algunas operaciones antes de empezar:
+              check_sym = .false.
+              IF(symgrpno == UNKNOWN) THEN
+                symgrpno = get_sym(ok)
+                IF(.NOT.ok) GO TO 999
+                WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
+                IF(symgrpno /= 1) THEN
+                  WRITE(op,201) '  to within a tolerance of one part in ',  &
+                      nint(one / tolerance)
+                END IF
+              ELSE
+                check_sym = .true.
+                CALL chk_sym(ok)
+                IF(.NOT.ok) GO TO 999
+              END IF
+
+              n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
 
+              if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
+              allocate(difpat%ycalc(n_high))
+              filenam = trim(infile(1:(index(infile,'.')-1)))
+
+              gen(1:n_plex) = v_plex(1:n_plex)
+              IF(ok) ok = get_g()
+              call dump (infile, p_ok)
+              call overlp()
+              call nmcoor ()
+
+              rpo = 1000                         !initialization of agreement factor
+              rpl = 0
+
+              open (unit=23, file='local_optimizer.out', status='replace', action='write')
+              if (opt_c%method == "dfp_no-derivative" .or. opt_c%method == "local_random" .or. opt_c%method == "unirandom") then
+                call  Local_Optimize( F_cost,v_plex(1:n_plex) ,  rpl, opt_c, crys%vlim1(1:n_plex),crys%vlim2(1:n_plex),&
+                                    ipr=23  )
+              else
+                write(*,*) "simplex to be added"
+              end if
+              write(*,*)'Rp', rpo
+              write(*,*) '______________________________________'
+              write(*,'(3a)') ' Parameter     refined value     '
+              write(*,*) '______________________________________'
+              do i = 1, numpar
+                    write(*,*)  namepar(i)  ,statok(i)
+              end do
+
+              thmin=th2_min * rad2deg
+              thmax=th2_max * rad2deg
+              ymax = maxval(difpat%y)
+              ymini= -0.2 * ymax
+              ymin = ymini - 0.5* ymax
+              ymax = ymax + 0.5*ymax
+
+              CALL getfnm(filenam, outfile, '.pgf', ok)
+              if (ok) then
+                OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
+                call DATE_AND_TIME(date, time)
+
+                WRITE(out,'(a)')      '# .PGF (WinPLOTR Graphics file) created by FullProf:'
+                WRITE (out, '(12a)')  '# ' , date(7:8),'-',date(5:6),'-',date(1:4), '  at ',&
+                                            time(1:2),':',time(3:4),':',time(5:6)
+                WRITE(out,'(a)')      '#'
+                WRITE(out,'(a)') "# X SPACE:           1  0"
+                WRITE(out,'(a)') "# MAIN LEGEND TEXT:  "//trim(filenam)
+                WRITE(out,'(a)') "# X LEGEND TEXT   : 2Theta (degrees)"
+                WRITE(out,'(a)') "# Y LEGEND TEXT   : Diffracted-Intensity (arb.units)"
+                WRITE(out,'(a,4f14.6,2i4)') "# XMIN XMAX: " ,   thmin, thmax, thmin, thmax,1,1
+                WRITE(out,'(a,4f14.6,2i4)') "# YMIN YMAX: " ,  ymin ,ymax,ymin,ymax,1,1
+                WRITE(out,'(a)') "# X AND Y GRADUATIONS:   6  8  5  5"
+                WRITE(out,'(a)') "# WRITE TEXT (X grad., Y grad. , Yneg. grad. , file_name):   1  1  1  1"
+                WRITE(out,'(a)') "# GRID (X and Y):            0  0"
+                WRITE(out,'(a)') "# FRAME FEATURES:           0.70    3    3    1    4    3"
+                WRITE(out,'(a)') "# DRAW ERROR BARRS       :  N"
+                WRITE(out,'(a)') "# MAIN TITLE COLOR       :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# X LEGEND COLOR         :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# Y LEGEND COLOR         :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# X GRADUATIONS COLOR    :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# Y GRADUATIONS COLOR    :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# BACKGROUND SCREEN COLOR:  RGB(240,202,166)"
+                WRITE(out,'(a)') "# BACKGROUND TEXT COLOR  :  RGB(255,  0,  0)"
+                WRITE(out,'(a)') "# BACKGROUND PLOT COLOR  :  RGB(255,255,255)"
+                WRITE(out,'(a)') "# PLOT FRAME COLOR       :  RGB(  0,  0,  0)"
+                WRITE(out,'(a)') "# NUMBER OF PATTERNS:            4          "
+                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
+                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',1
+                write(out,'(a,a)')          '#        FILE NAME  : ', " Observed "
+                write(out,'(a,a)')          '#            TITLE  : ', " Yobs(res) "
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ',difpat%npts
+                write(out,'(a)')            '#            MARKER : 4'       !open circles
+                write(out,'(a,F6.1)')       '#              SIZE : 1.5'     !size 1
+                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  0,255)' !Red
+                write(out,'(a,i6)')         '#             STYLE : 0'       !Points non continuous line
+                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
+                write(out,'(a,i6)')         '#        DATA: X Y  '
+                do i=1,difpat%npts
+                  write(unit=out,fmt="(f10.6,3f14.6)") difpat%x(i), difpat%y(i)
+                end do
+                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
+                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',2
+                write(out,'(a,a)')          '#        FILE NAME  : ', " Calculated "
+                write(out,'(a,a)')          '#            TITLE  : ', " Ycal(res) "
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ', n_high
+                write(out,'(a)')            '#            MARKER : 4'       !open circles
+                write(out,'(a,F6.1)')       '#              SIZE : 0.0'     !size
+                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0, 0,0)' !Red
+                write(out,'(a,i6)')         '#             STYLE : 1'       !Continuous line
+                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
+                write(out,'(a,i6)')         '#        DATA: X Y  '
+                do i=1,n_high
+                  theta = thmin +(i-1)*d_theta *rad2deg * 2
+                  write(unit = out,fmt = "(f10.6,3f14.6)") theta,  ycalcdef(i)
+                end do
+                p_resta= n_high-1
+                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
+                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',3
+                write(out,'(a,a)')          '#        FILE NAME  : ', " Difference"
+                write(out,'(a,a)')          '#            TITLE  : ', " Yobs-Ycal "
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ', p_resta
+                write(out,'(a)')            '#            MARKER : 4'       !open circles
+                write(out,'(a,F6.1)')       '#              SIZE : 0.0'     !size 1
+                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  255,  0,0)' !?
+                write(out,'(a,i6)')         '#             STYLE : 1'       !Points non continuous line
+                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
+                        write(out,'(a,i6)')         '#        DATA: X Y  '
+                thmin_o = difpat%xmin * deg2rad      !rad
+
+                if    ( th2_min/= thmin_o ) then
+                  punts= INT(half*(th2_min-thmin_o)/d_theta)
+                end if
+
+                do i=1,n_high-1
+                     resta(i) =(difpat%y(i+punts) - difpat%ycalc(i))+ymini
+                     write(unit=out,fmt="(2f15.7)") difpat%x(i+punts) , resta(i)!, difpat%y(i+punts)    ,difpat%ycalc(i), punts, ymini
+                end do
+
+                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
+                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',4
+                write(out,'(a,a)')          '#        FILE NAME  : ', " Bragg_position "
+                write(out,'(a,a)')          '#            TITLE  : ', " Bragg_position "
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , d_punt
+                write(out,'(a)')            '#            MARKER : 8'       !open circles
+                write(out,'(a,F6.1)')       '#              SIZE : 3.0'     !size 0
+                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  128,  0) ' !black
+                write(out,'(a,i6)')         '#             STYLE : 0'       !Continuous line
+                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
+                write(out,'(a,i6)')         '#        DATA: X Y  '
+
+               else
+                write(*,*) 'The outfile cannot be created'
+               end if
+                     deg = ymini * 0.25
+                     aa=h_min
+                   Do a=h_min, h_max
+                      bb=k_min
+                     do b=k_min, k_max
+                        cc= zero
+                       do c=1, 30
+                         if (dos_theta(aa,bb,cc) /= zero) then
+                            write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(aa, bb, cc)  , deg,  "(", aa,bb,cc,")", 1
+                         end if
+                         cc=cc+1
+                       End do
+                        bb=bb+1
+                     End do
+                      aa=aa+1
+                  End do
+
+                write(out,"(a)") "# END OF FILE "
+!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
           Case default
 
                 print*,"problems reading mode "
 
 
           End select
-
 
 
       ending = .true.

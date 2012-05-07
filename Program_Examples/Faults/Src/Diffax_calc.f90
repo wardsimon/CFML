@@ -3,7 +3,7 @@
    use CFML_GlobalDeps,       only: sp
    use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
                                     iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
-   use read_data,             only: crys_2d_type, read_structure_file, length , rdrnge, choice
+   use read_data,             only: crys_2d_type, read_structure_file, length , choice
    use diffax_mod
 
    implicit none
@@ -581,8 +581,7 @@
 
       IF(symgrpno > 10) GO TO 500
 
-      900 WRITE(op,202) ' => The diffraction data fits the point group symmetry ''',  &
-          pnt_grp(1:length(pnt_grp)),''''
+      900 WRITE(op,*) '=> The diffraction data fits the point group symmetry ', pnt_grp(1:length(pnt_grp)),''''
       IF(max_var > eps6 .AND. max_var <= eps1) THEN
         WRITE(op,203) '   with a tolerance of one part in ', nint(one / max_var)
       ELSE IF(max_var > eps1) THEN
@@ -1340,7 +1339,7 @@
 ! external subroutine (Some compilers need them declared external)
 !      external GETFNM
 
-      CALL getfnm(infile, dmpfile, 'dmp', ok)
+      CALL getfnm(infile, dmpfile, '.dmp', ok)
       IF(.NOT.ok) THEN
         WRITE(op,200) 'DUMP aborted'
         GO TO 999
@@ -1360,30 +1359,29 @@
 ! cell dimensions
       WRITE(dmp,140) ' cell_a,      cell_b,      cell_c,      cell_gamma ',  &
           cell_a, cell_b, cell_c, rad2deg * cell_gamma
+
+
 ! in-plane layer widths
-      IF(finite_width) THEN
-        IF(wa < inf_width) THEN
-          WRITE(dmp,126) 'width along a', wa
-          WRITE(dmp,128) wa/cell_a
-        ELSE
-          WRITE(dmp,127) 'a'
-        END IF
-        IF(wb < inf_width) THEN
-          WRITE(dmp,126) 'width along b', wb
-          WRITE(dmp,128) wb/cell_b
-        ELSE
-          WRITE(dmp,127) 'b'
-        END IF
-      ELSE
-        WRITE(dmp,200) 'Layers are to be treated as having infinite lateral width.'
-      END IF
+      if(finite_width) then
+        if(Wa.lt.inf_width) then
+          write(dmp,126) 'width along a', Wa
+            if (Wb.lt.inf_width) then
+              write(dmp,126) 'width along b', Wb
+            end if
+        else
+          write(dmp,200) 'Layers are to be treated as having infinite lateral width.'
+        end if
+      else
+          return
+      end if
+
 ! radiation type
       list(1) = 'X-RAY '
       list(2) = 'NEUTRON '
       list(3) = 'ELECTRON '
       WRITE(dmp,100) 'radiation type = ', list(rad_type+1)
 ! wavelength
-      WRITE(dmp,170) 'Wavelength lambda = ', lambda
+      WRITE(dmp,170) 'Wavelength lambda = ', lambda, lambda2, ratio
 ! symmetry
       WRITE(dmp,100) 'Diffraction point group symmetry specified = ',pnt_grp
       IF(symgrpno == UNKNOWN) WRITE(dmp,175)  &
@@ -1403,8 +1401,8 @@
       IF(blurring == gauss .OR. blurring == lorenz) WRITE(dmp,170)  &
           'Full width half-maximum = ', fwhm
       IF(blurring == ps_vgt) THEN
-        WRITE(dmp,200) 'Pseudo-Voigt parameters:   u,       v,       w,     gamma'
-        WRITE(dmp,180) pv_u, pv_v, pv_w, pv_gamma
+        WRITE(dmp,200) 'Pseudo-Voigt parameters:   u,       v,       w,       x,      Dg,          Dl'
+        WRITE(dmp,180) pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
       END IF
       IF(blurring == pv_gss) THEN
         WRITE(dmp,200) 'Gaussian parameters:      u,       v,       w'
@@ -1563,7 +1561,6 @@
 
       WRITE(dmp,200) ' '   !Per deixar espai
       WRITE(dmp,200) ' '
-      WRITE(dmp,260)  'Number of cycles to be done:', n_cyc
 
       IF(dmp /= op) CLOSE(UNIT = dmp)
       999 RETURN
@@ -1583,9 +1580,9 @@
       140 FORMAT(1X, a, / 5G13.5, / 4G13.5, i4)
       150 FORMAT(1X, 2I3, ' |', 4(1X, g12.5))
       151 FORMAT(1X, 2I3, ' |', 6(1X, f8.3))
-      170 FORMAT(1X, a, g12.5)
+      170 FORMAT(1X, a, 3(g12.5))
       175 FORMAT(1X, a, g12.5, a)
-      180 FORMAT(21X, 4(2X, f7.3))
+      180 FORMAT(21X, 4(2X, f7.3), 2(4x, f9.3))
       185 FORMAT(21X, 3(2X, f7.3))
       200 FORMAT(1X, a)
       210 FORMAT(1X, 'Stacking is to be treated ', a, ' by DIFFaX.')
@@ -1664,21 +1661,14 @@
 ! ______________________________________________________________________
 ! ______________________________________________________________________
 ! Title: GETFNM
-! Author: MMJT
-! Date: 13 Oct 1988
+! Author: JRC
+! Date: 08 Sept 2010
 ! Description: This subroutine makes sure that we do not write over
 ! an existing file, and creates a suitable filename (name2). name2
 ! equals 'name1.append' append is supplied by the calling routine.
 ! If 'name1.append' is the name of an existing file, then append is
 ! set to 'append#' where #=1,2.
-! CLIP is the maximum length of the appendage. Thus if append
-! = 'fred', and CLIP is 3, then the appendages become 'fre',
-! 'fr1', 'fr2', ...'f10', 'f11' ... up to 'f99'.
-! If CLIP is greater than 10, there is no restriction.
-! NOTE: It is up to the user to ensure that filename lengths are
-! compatible with the operating system that DIFFaX is being run on.
-! 'CLIP' and 'MAX_NAM' are set in 'DIFFaX.par'
-
+!
 !      ARGUMENTS:
 !            name1   -  The name of the input data file. (input).
 !            name2   -  A derivative filename. (output).
@@ -1688,90 +1678,50 @@
 ! ______________________________________________________________________
 
       SUBROUTINE getfnm(name1,name2,APPEND,ok)
-!     save
-!     Utiliza las variables: DIFFaX.par , name1, name2, append , ok, fexist , appnd2
-!                            applen, i, myclip , LENGTH
-!     Utiliza las funciones:  LENGTH    externa
-!     Utiliza las subrutinas:  NAMER
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: name1
-      CHARACTER (LEN=*), INTENT(OUT)           :: name2
-      CHARACTER (LEN=*), INTENT(IN)            :: APPEND
-      LOGICAL, INTENT(IN OUT)                  :: ok
+        CHARACTER (LEN=*), INTENT(IN)        :: name1
+        CHARACTER (LEN=*), INTENT(OUT)       :: name2
+        CHARACTER (LEN=*), INTENT(IN)        :: APPEND
+        LOGICAL, INTENT(IN OUT)              :: ok
 
-      LOGICAL :: fexist
-      CHARACTER (LEN=31) :: appnd2
-      INTEGER*4 applen, i, myclip , nam
+        LOGICAL :: fexist
+        CHARACTER (LEN=len(name1)) :: bname
+        integer :: ln, i
 
-! external subroutine (Some compilers need them declared external)
-!      external NAMER
+        ok=.false.
+        i=index(name1,".",back=.true.)
+        if(i == 0) then
+           bname=name1
+        else
+           bname=name1(1:i-1)
+        end if
+        ln=len_trim(bname) + len_trim(APPEND) + 3
+        if(ln > length(name2) ) return
 
-      ok = .true.
-      fexist = .true.
-      appnd2 = APPEND
-      applen = length(APPEND)
-      myclip = clip
-      IF(myclip <= 0) THEN
-        WRITE(op,302) 'Illegal CLIP value ', clip
-        WRITE(op,300) 'Default CLIP value of 3 is being assumed'
-        myclip = 3
-      END IF
+        i=1
+        WRITE(name2,"(a,i1)") trim(bname),i
+        name2=trim(name2)//trim(append)
 
-      i = 1
-
-
-      10 CALL namer(name1,name2,appnd2)
-
-
-
-      nam = length(name1)
-      WRITE(name2(nam+1:nam+1),200) i
-      INQUIRE(FILE = name2, EXIST = fexist)
-      IF(fexist) THEN
-        i = i + 1
-        IF(i < 10) THEN
-          IF(myclip > 10) THEN
-            WRITE(name2(nam+1:nam+1),200) i
-          ELSE
-            WRITE(name2(myclip:myclip),200) i
-          END IF
-        ELSE IF(i >= 10 .AND. i < 100) THEN
-          IF(myclip > 10) THEN
-            WRITE(name2(nam+1:nam+2),201) i
-          ELSE IF(myclip > 1) THEN
-            WRITE(name2(myclip-1:myclip),201) i
-          ELSE
-            ok = .false.
-            GO TO 999
-          END IF
-        ELSE IF(i >= 100 .AND. i < 1000) THEN
-          IF(myclip > 10) THEN
-            WRITE(name2(nam+1:nam+3),202) i
-          ELSE IF(myclip > 2) THEN
-            WRITE(name2(myclip-2:myclip),202) i
-          ELSE
-            ok = .false.
-            GO TO 999
-          END IF
-        ELSE
-          ok = .false.
-          GO TO 999
-        END IF
-        GO TO 10
-      END IF
-
-      RETURN
-      999 WRITE(op,300) 'No new files can be created. . .'
-      WRITE(op,300) '      . . . some old files should be deleted.'
-      WRITE(op,301) 'Last file created was ''',name2(1:length(name2)),''''
-      RETURN
-      200 FORMAT(i1)
-      201 FORMAT(i2)
-      202 FORMAT(i3)
-      300 FORMAT(1X, a)
-      301 FORMAT(1X, 3A)
-      302 FORMAT(1X, a, i5)
+        do
+          INQUIRE(FILE = name2, EXIST = fexist)
+          if(fexist) then
+            i=i+1
+            name2=" "
+            Select Case (i)
+              Case(1:9)
+                  WRITE(name2,"(a,i1)") trim(bname),i
+              Case(10:99)
+                  WRITE(name2,"(a,i2)") trim(bname),i
+              Case(100:999)
+                  WRITE(name2,"(a,i3)") trim(bname),i
+            End Select
+            name2=trim(name2)//trim(append)
+          else
+            exit
+          end if
+        end do
+        ok=.true.
+        return
       END SUBROUTINE getfnm
-
 ! ______________________________________________________________________
 ! Title: GETLAY
 ! Author: MMJT
@@ -2417,10 +2367,11 @@
 
             CALL pre_mat(h, k)
 ! assign a corrected shape-broadening half-width
+
             IF(finite_width) THEN
               tmp2 = (h + k*COS(pi-cell_gamma))/(wa*SIN(pi-cell_gamma))
               tmp3 = k / wb
-              ffhkcnst = half*lambda*SQRT(a0*tmp2*tmp2 + b0*tmp3*tmp3)
+              ffhkcnst = quarter*lambda*SQRT(a0*tmp2*tmp2 + b0*tmp3*tmp3)
             END IF
 ! get starting value of l
             IF(l_axis) THEN
@@ -2504,6 +2455,7 @@
                 END IF
                 m = m + 1
               END DO
+
             ELSE
 ! line of sharp spots--detuned delta functions
 ! use knowledge of where spots are
@@ -2568,7 +2520,6 @@
           END IF
         END DO
       END DO
-
       getspc = .true.
       RETURN
       110 WRITE(op,300) 'GLQ16 returned error in GETSPC.'
@@ -2949,13 +2900,11 @@
 ! set up matrix that represents the probabilities
 ! only n-1 equations are independent
 
-      write(*,*) n_layers
       DO  i = 1, n_layers - 1
         l_g(i) = zero
         sum = zero
         DO  j = 1, n_layers
           sum = sum + l_alpha(j,i)
-        write(*,*) "sum, l_alpha(j, i), j, i", sum,  l_alpha(j, i), j, i
         END DO
         sum = one / sum
 ! sum should actually be ONE
@@ -2999,6 +2948,7 @@
         IF(.NOT. ludcmp(g_mat,INDEX,n_layers,max_l,det)) GO TO 100
         CALL lubksb(g_mat,l_g,INDEX,n_layers,max_l)
       END IF
+
 
 ! If we are here then all went well
       get_g = .true.
@@ -4095,14 +4045,6 @@
       INTEGER*4 io_err, i
       REAL*8   cut_off
 
-! external functions
-
-! external subroutines (Some compilers need them declared external)
-!      external GETFNM, PV, GAUSSN, LORNZN, WRTSPC
-
-      WRITE(op,100) ' '
-    !  WRITE(op,100) 'CALCULATING POWDER DIFFRACTION PATTERN. . .'
-
 ! get angular range and step
    !   ok = rdrnge()
    !   IF(.NOT.ok) GO TO 999
@@ -4110,7 +4052,7 @@
 ! create a new filename to save spectrum data to
    !   CALL getfnm(infile, outfile, 'spc', ok)
 
-      IF(.NOT.ok) GO TO 999
+    !  IF(.NOT.ok) GO TO 999
     !  IF(unit_sp /= op) OPEN(UNIT = unit_sp, FILE = outfile, STATUS = 'new',  &
     !      ERR = 990, IOSTAT = io_err)
       full_brd = 1
@@ -4127,6 +4069,8 @@
           END IF
 
       end if
+
+
 ! suppress the huge peak near the origin if required
           cut_off = zero
       IF(ok.AND.(th2_min == zero).AND.trim_origin) ok = trmspc(cut_off)
@@ -4755,6 +4699,7 @@
       INTEGER*4 i, i2, j, row
       REAL*8 sum
 
+
       i2 = 0
       DO  i = 1, n
         row = INDEX(i)
@@ -5310,9 +5255,9 @@
 !     Utiliza las funciones: LENGTH     externa
 !     Utiliza las subrutinas:
 
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: name1
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: name2
-      CHARACTER (LEN=*), INTENT(IN OUT)        :: APPEND
+      CHARACTER (LEN=*), INTENT(IN)        :: name1
+      CHARACTER (LEN=*), INTENT(IN OUT)    :: name2
+      CHARACTER (LEN=*), INTENT(IN OUT)    :: APPEND
 
 
       INTEGER*4 applen, namlen, i, idot
@@ -5663,11 +5608,10 @@
       CALL thresh(ok)
       IF(.NOT.ok) GO TO 999
 
-    ! IF(symgrpno == 11) THEN
-    !   WRITE(op,202) 'Axial integration only selected.'
-    ! ELSE
-    !   WRITE(op,202) 'Evaluating point group symmetry of diffraction data. . .'
-    ! END IF
+      IF(symgrpno == 11)   WRITE(op,202) 'Axial integration only selected.'
+
+
+
       IF(dosymdump) THEN
         CALL getfnm(rootnam, sym_fnam, 'sym', ok)
         IF(.NOT.ok) THEN
@@ -5681,8 +5625,6 @@
         WRITE(sy,203) no_trials
         WRITE(sy,206) tiny_inty
       END IF
-
-
 
 ! restore lambda.
       lambda = old_lambda
@@ -5776,7 +5718,7 @@
 ! external functions
      !EXTERNAL bounds
 
-      WRITE(op,400) ' => Checking for conflicts in atomic positions . . .'
+      WRITE(op,fmt="(a)") ' => Checking for conflicts in atomic positions . . .'
 
       err_no = 0
       DO  i = 1, n_layers
@@ -6493,7 +6435,7 @@
 
       WRITE(op,"(a)") ' ______________________________________________'
       WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)") '         _______ FAULTS 2004 _______           '
+      WRITE(op,"(a)") '         _______ FAULTS 2010 _______           '
       WRITE(op,"(a)") ' ______________________________________________'
       WRITE(op,"(a)") ' ______________________________________________'
       WRITE(op,"(a)") '                                               '
