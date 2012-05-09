@@ -46,7 +46,7 @@
        integer                                          :: n_cycles=0
        integer                                          :: n_actual                     !number of unique layers
        integer                                          :: npar = 0                     !total number of parameters to be refined
-       integer                                          :: num_temp=0                     ! maximum number of temperatures in SAN
+       integer                                          :: num_temp=0                   ! maximum number of temperatures in SAN
        integer                                          :: init_config                  ! flag to randomly initialaze SAN configuration if = 1.
        logical                                          :: recrsv                       !layer sequencing recursive
        logical                                          :: xplcit                       !layer sequencing explicit
@@ -2197,7 +2197,7 @@
               else
                 read (unit = txt, fmt = *, iostat=ier) crys%calctype
 
-                select case (crys%calctype)
+                select case (trim(crys%calctype))
 
                 case ('SIMULATION')
 
@@ -2332,7 +2332,7 @@
                   opti%loops = 2 * n_plex
                   opti%iquad=1
 
-                  opti%npar = crys%npar
+                  opti%npar = n_plex
 
                   do i = 1, numpar
                      label(crys%p(i)) = 0
@@ -2477,7 +2477,7 @@
                   opti%loops = 2 * n_plex
                   opti%iquad=1
 
-                  opti%npar = crys%npar
+                  opti%npar = n_plex
 
                   do i = 1, numpar
                      label(crys%p(i)) = 0
@@ -2604,7 +2604,7 @@
                   end do
 
                 case default
-                  write(op,*) 'calculation type not valid'
+                  write(op,"(a)") ' => Calculation type not valid: '//trim(crys%calctype)
                   logi = .false.
                   stop
                 end select

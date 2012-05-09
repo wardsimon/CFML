@@ -2790,10 +2790,11 @@
     !!----
     !!--<<    Interface
     !!----       Subroutine Model_Functn(n,p, func)                  ! name of the user's subroutine - arguments (P,FUNC)
-    !!----          use CFML_Math_General, only: cp                           ! which returns the function value for a given set of
+    !!----          use CFML_Math_General, only: cp                  ! which returns the function value for a given set of
     !!----          integer,                      intent(in)  :: n   ! Number of parameters
     !!----          real (kind=cp), dimension(:), intent(in)  :: p   ! parameter values in array P.
     !!----          real (kind=cp),               intent(out) :: func
+    !!----          real (kind=cp), dimension(:),optional, intent(out):: g
     !!----       End Subroutine Model_Functn
     !!-->>    End Interface
     !!----

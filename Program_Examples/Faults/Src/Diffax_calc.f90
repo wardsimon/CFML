@@ -4363,7 +4363,7 @@
         tmp = MIN(d_th, max_th-theta)
         l1 = ll(theta+tmp,h,k)
         x = fn(h,k,l0,l1,ok)
-        IF(.NOT.ok) GO TO 999
+        IF(.NOT. ok) GO TO 999
         IF(rad_type == x_ray) x = x * w4(theta + half*tmp)
         sum = sum + x
       END DO

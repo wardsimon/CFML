@@ -331,7 +331,7 @@
              end if
           end do
         !!!!!!!!!!!!!!!!!!!
-          do i=1, numpar                                                            !assignment of new values and more restrictions
+          do i=1, numpar                   !assignment of new values and more restrictions
 
             state(i) = vector(i) +  mult(i) * shift(pnum(i))
             write(*,*) "state(i), vector(i), mult(i), shift(pnum(i))", state(i), vector(i), mult(i), shift(pnum(i))
@@ -538,7 +538,7 @@
               check_sym = .false.
               IF(symgrpno == UNKNOWN) THEN
                 symgrpno = get_sym(ok)
-                IF(.NOT.ok) GO TO 999
+                IF(.NOT. ok) GO TO 999
                 WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
                 IF(symgrpno /= 1) THEN
                   WRITE(op,201) '  to within a tolerance of one part in ',  &
@@ -547,7 +547,7 @@
               ELSE
                 check_sym = .true.
                 CALL chk_sym(ok)
-                IF(.NOT.ok) GO TO 999
+                IF(.NOT. ok) GO TO 999
               END IF
 
               n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
@@ -562,7 +562,7 @@
               IF(ok) CALL sphcst()
 
               IF(ok) CALL detun()
-              IF(.NOT.ok) GO TO 999
+              IF(.NOT. ok) GO TO 999
 
 ! See if there are any optimizations we can do
               IF(ok) CALL optimz(infile, ok)
@@ -690,6 +690,8 @@
 
              !Call Set_SimAnn_StateV (sv%npar,Con,Bounds,namepar,sv%config,sv)
             !  Call SimAnneal_gen(san_out, cost3)
+    !!----    type(SimAnn_Conditions_type),intent(in out)  :: san
+    !!----    type(State_Vector_Type),     intent(in out)  :: st
               Call Simanneal_Gen(cost3,san,st,san_out)
 
 
