@@ -124,12 +124,12 @@
 
               case ("opti")    !Optimization
 
-              i=index(line,"f2obs-f2cal")
-              if(i == 0) then
+                 i=index(line,"f2obs-f2cal")
+                 if(i == 0) then
                    Icost(0)=0; wcost(0)=0.0
                  else
                    Icost(0)=1
-                   read(unit=line(i+9:),fmt=*,iostat=ier) w
+                   read(unit=line(i+11:),fmt=*,iostat=ier) w
                    if(ier /= 0) then
                       wcost(0)=1.0
                    else
@@ -137,8 +137,8 @@
                    end if
                  end if
 
-              i=index(line,"fobs-fcal")
-              if(i == 0) then
+                 i=index(line,"fobs-fcal")
+                 if(i == 0) then
                    Icost(1)=0; wcost(1)=0.0
                  else
                    Icost(1)=1

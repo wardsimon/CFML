@@ -471,7 +471,8 @@
      use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
      use diffax_mod
-     use read_data,                    only : crys_2d_type, new_getfil, read_structure_file, length, choice
+     use read_data,                    only : crys_2d_type, new_getfil, read_structure_file, length, choice, &
+                                              crys, opti, opsan
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor
@@ -479,10 +480,6 @@
 
      implicit none
 
-      type (crys_2d_type)                                     :: crys
-      type (Opt_Conditions_Type)                              :: opt_c
-      type (SimAnn_Conditions_type )                          :: san
-     !type(State_Vector_Type)                                 :: sv
 
       real                                                    :: rpl,  theta ,thmin, thmax , thmin_o  , ymax, ymini , ymin ,deg
       LOGICAL                                                 :: ok, ending , gol, p_ok
@@ -507,9 +504,9 @@
       sfname = 'data.sfc'
       cntrl=ip
 
-      call new_getfil(infile, crys, opt_c, san,st,   gol)                           ! parametros para calculo
-     ! write(*,*) "opt_c%npar", opt_c%npar, opt_c%
-      san%Cost_function_name="R-factor"
+      call new_getfil(infile, st,   gol)                           ! parametros para calculo
+     ! write(*,*) "opti%npar", opti%npar, opti%
+      opsan%Cost_function_name="R-factor"
 
       IF(gol) then
         ok = sfc()
@@ -692,7 +689,7 @@
             !  Call SimAnneal_gen(san_out, cost3)
     !!----    type(SimAnn_Conditions_type),intent(in out)  :: san
     !!----    type(State_Vector_Type),     intent(in out)  :: st
-              Call Simanneal_Gen(cost3,san,st,san_out)
+              Call Simanneal_Gen(cost3,opsan,st,san_out)
 
 
               write(unit=san_out,fmt="(/,a,/,f15.4)")  " => Final configuration (for file *.san).  Rp: ", rpo
@@ -889,9 +886,9 @@
                 steplex(i) = 0.05 * v_plex(i)
               end do
               open (unit=23, file='nelder_mess.out', status='replace', action='write')
-              !write(*,*) "npar", opt_c%npar, numpar
+              !write(*,*) "npar", opti%npar, numpar
               call  Nelder_Mead_Simplex( F_cost,n_plex ,v_plex(1:n_plex) , &
-                                         steplex(1:n_plex), var_plex(1:n_plex), rpl, opt_c, ipr=23)
+                                         steplex(1:n_plex), var_plex(1:n_plex), rpl, opti, ipr=23)
               write(*,*)'Rp', rpo
               write(*,*) '________________________________________________'
               write(*,'(3a)') ' Parameter     refined value     sigma'
@@ -1083,9 +1080,9 @@
               rpl = 0
 
               open (unit=23, file='local_optimizer.out', status='replace', action='write')
-              if (opt_c%method == "DFP_NO-DERIVATIVES" .or. opt_c%method == "LOCAL_RANDOM" .or. opt_c%method == "UNIRANDOM") then
-                call Lcase(opt_c%method )
-                call  Local_Optimize( F_cost,v_plex(1:n_plex) ,  rpl, opt_c, mini=crys%vlim1(1:n_plex),maxi=crys%vlim2(1:n_plex),&
+              if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
+                call Lcase(opti%method )
+                call  Local_Optimize( F_cost,v_plex(1:n_plex) ,  rpl, opti, mini=crys%vlim1(1:n_plex),maxi=crys%vlim2(1:n_plex),&
                                     ipr=23  )
               else
                 write(*,*) "simplex to be added"

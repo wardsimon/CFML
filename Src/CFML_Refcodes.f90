@@ -440,7 +440,7 @@
     !!---- V_LIST
     !!----    integer, public, dimension(:), allocatable :: V_List
     !!----
-    !!----    Vector of Index point the atom order
+    !!----    Vector of indices pointing to the parameter number
     !!----
     !!---- Update: March - 2005
     !!
@@ -4630,7 +4630,7 @@
           end if
        end if
 
-       !---- Set the rest elements in Contsraints ----!
+       !---- Set the rest elements in Constraints ----!
        n=1
        do
           n=n+1
@@ -7971,9 +7971,9 @@
     !!
     Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp,Mag_dom)
        !---- Arguments ----!
-       type(mAtom_List_Type),      intent(in out)           :: FmAtom
-       character(len=*), optional, intent(in)               :: Mode
-       type(MagSymm_k_Type), optional, intent(in)           :: MGp
+       type(mAtom_List_Type),                intent(in out) :: FmAtom
+       character(len=*),           optional, intent(in)     :: Mode
+       type(MagSymm_k_Type),       optional, intent(in)     :: MGp
        type(Magnetic_Domain_type), optional, intent(in out) :: Mag_dom
        !---- Local Variables ----!
        integer          :: i,j,l,ik,ich
@@ -8055,23 +8055,23 @@
              select case (car)
                 case ("v","V") ! Passing Value
                  if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1<=j.and.j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j.and.j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1<=j .and. j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j .and. j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
                  else
-                  if(1<=j.and.j<=3) FmAtom%atom(i)%SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1<=j .and. j<=3) FmAtom%atom(i)%SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  if(4<=j .and. j<=6) FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
                  end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1<=j.and.j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=FmAtom%atom(i)%Spher_SkR(j  ,ik)+ &
-                                                                   v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j.and.j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
-                                                                   v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1<=j .and. j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=FmAtom%atom(i)%Spher_SkR(j  ,ik)+ &
+                                                                     v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j .and. j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
+                                                                     v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
                  else
-                  if(1<=j.and.j<=3) FmAtom%atom(i)%SkR(j  ,ik)=FmAtom%atom(i)%SkR(j  ,ik)+ &
-                                                             v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j.and.j<=6) FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
+                  if(1<=j .and. j<=3) FmAtom%atom(i)%SkR(j  ,ik)=FmAtom%atom(i)%SkR(j  ,ik)+ &
+                                                               v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
+                  if(4<=j .and. j<=6) FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
                                                              v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
                  end if
              end select

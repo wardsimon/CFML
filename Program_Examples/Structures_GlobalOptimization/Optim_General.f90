@@ -51,7 +51,6 @@ Program Optimizing_structures
     narg=COMMAND_ARGUMENT_COUNT()
 
     if(narg > 0) then
-            !call getarg(1,filcod)
             call GET_COMMAND_ARGUMENT(1,filcod)
             arggiven=.true.
     end if

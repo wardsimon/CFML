@@ -86,130 +86,202 @@
        logical,            public, save                 :: Err_crys=.false.
        character(len=120), public, save                 :: Err_crys_mess=" "
 
+       character(len=132), dimension(:),allocatable     :: tfile     !List of lines of the input file (UPPER CASE)
+       Integer                                          :: numberl   !number of lines in the input file
+       Integer, dimension(7)                            :: sect_indx=0 !Indices (line numbers) of the sevent sections:
+                                                                       !1:INSTRUMENTAL, 2:STRUCTURAL, 3:LAYER
+                                                                       !4:STACKING , 5:TRANSITIONS, 6:CALCULATION,
+                                                                       !7:EXPERIMENTAL
+
+      type (crys_2d_type)            ,  public  :: crys
+      type (Opt_Conditions_Type)     ,  public  :: opti
+      type (SimAnn_Conditions_type ) ,  public  :: opsan
+
+      integer, parameter ::  nrp=80
+
    contains
 
+    Subroutine Set_TFile(namef,logi)
+      character(len=*),  intent(in)  :: namef
+      logical,           intent(out) :: logi
+      integer :: i
+      call number_lines(namef, numberl)                            ! count number of lines in file
 
-!_____________________________________________________________________________________________________
-    Subroutine new_getfil(stfile, l_crys, l_opti,l_san,vecsan, olg)
-
-
-       character(len=31) ,             intent (in out)      :: stfile
-       type (crys_2d_type),            intent (   out)      :: l_crys
-       type (Opt_Conditions_Type),     intent (   out)      :: l_opti
-       type (SimAnn_Conditions_type),  intent (   out)      :: l_san
-       type (State_Vector_Type),       intent (   out)      :: vecsan
-       logical                   ,     intent (   out)      :: olg
-
-        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
-        read(unit= *,fmt="(a)") stfile
-
-        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
-        OPEN(UNIT = sf, FILE = sfname)
-        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
-
-        call read_structure_file(stfile, l_crys, l_opti, l_san,vecsan, olg)
-        if (err_crys) then
-          print*, trim(err_crys_mess)
-        else
-          write(op, fmt=*) "=> Structure input file read in"
-        end if
+      logi=.true.
+      if (numberl == 0) then
+        err_crys=.true.
+        err_crys_mess="ERROR :  The file "//trim(namef)//" contains nothing"
+        logi=.false.
         return
-    End subroutine
-!_____________________________________________________________________________________________________________
+      else
+        if (allocated (tfile)) deallocate (tfile)
+        allocate (tfile(numberl))
+        tfile=" "
+        call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
+      end if
+      close(unit=i_data)
+      do i = 1, numberl                 ! To read in case insensitive mode
+        call Ucase(tfile(i))
+      end do
+      call Set_Sections_index()
+      return
+    End Subroutine Set_TFile
 
-        Subroutine read_fraction (line, n_comp, real_num)
+    Subroutine Set_Sections_index()
+      integer  :: k
+      character(len=132) :: txt
 
-        character(len=*),dimension(:), intent(in out) :: line        !string of numbers to convert to real
-        integer,                       intent(in    ) :: n_comp      !number of components in line
-        real            ,dimension(:), intent(   out) :: real_num    ! string of real characters
-
-        integer                                       :: i, j
-        real                                          :: numerator, denominator
-
-        do i = 1, n_comp
-            j = index (line(i), '/')
-            if(j == 0) then                  !it was already a number
-              read ( line(i), fmt=*) real_num(i)
-            else         !it was expressed as a ratio. delete the slash, '/'.
-              line(i)(j:j) = ' '
-              read(unit =line(i),fmt = *) numerator, denominator  ! now contains two arguments, numerator and denominator.
-              real_num(i) = numerator/ denominator
+      k=0
+      global:   do
+        k=k+1; if(k > numberl) exit
+        txt=adjustl(tfile(k))
+        if(txt(1:12) == "INSTRUMENTAL") then
+          sect_indx(1) = k
+          do
+            k=k+1; if(k > numberl) exit
+            txt=adjustl(tfile(k))
+            if(txt(1:10) == "STRUCTURAL") then
+              sect_indx(2) = k
+              do
+                k=k+1; if(k > numberl) exit
+                txt=adjustl(tfile(k))
+                if(txt(1:5) == "LAYER") then
+                  sect_indx(3) = k
+                  do
+                    k=k+1; if(k > numberl) exit
+                    txt=adjustl(tfile(k))
+                    if(txt(1:8) == "STACKING") then
+                       sect_indx(4) = k
+                       do
+                         k=k+1; if(k > numberl) exit
+                         txt=adjustl(tfile(k))
+                         if(txt(1:11) == "TRANSITIONS") then
+                            sect_indx(5) = k
+                            do
+                              k=k+1; if(k > numberl) exit
+                              txt=adjustl(tfile(k))
+                              if(txt(1:11) == "CALCULATION") then
+                                 sect_indx(6) = k
+                                 do
+                                   k=k+1; if(k > numberl) exit
+                                   txt=adjustl(tfile(k))
+                                   if(txt(1:12) == "EXPERIMENTAL") then
+                                      sect_indx(7) = k
+                                      exit global
+                                   end if
+                                 end do
+                              end if
+                            end do
+                         end if
+                       end do
+                    end if
+                  end do
+                end if
+              end do
             end if
-        end do
-
-        End subroutine read_fraction
-!______________________________________________________________________________________________________
-
-      INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax
-
-
-      IMPLICIT NONE
-      CHARACTER (LEN=*), INTENT(IN)        :: flag
-      CHARACTER (LEN=80), INTENT(IN)       :: list(n)
-      INTEGER*4, INTENT(IN)                :: n
-
-      INTEGER*4 i, j1, j2
-
-      i = 1
-      j1 = length(flag)
-
-      10 j2 = length(list(i))
-! see if the string contained in list(i) is identical to that in flag
-      IF(j1 == j2 .AND. INDEX(flag, list(i)(1:j2)) == 1) GO TO 20
-      i = i + 1
-      IF(i <= n) GO TO 10
-
-      20 IF(i > n) i = -1
-      choice = i
-
-      RETURN
-      END FUNCTION choice
-!______________________________________________________________________________________________________
-
-     Function length(string) result(leng)    !from diffax
-
-        character(len=*), intent(in) :: string
-        integer :: leng
-        integer :: i
-        i=index(string," ")
-        if( i==0) then
-          leng=len_trim(string)
-        else
-          leng=i-1
+          end do
         end if
-      End Function length
-!______________________________________________________________________________________________________
+      end do global
 
-        Subroutine read_structure_file (namef, crys, opti,opsan,sanvec, logi)
+      !write(*,"(a,7i6)") " Indices: ", sect_indx
 
-        character(len=*)    ,          intent(in    )     :: namef
-        type (crys_2d_type ),          intent(   out)     :: crys
-        type (Opt_Conditions_Type),    intent(   out)     :: opti
-        type (State_Vector_Type),      intent(   out)     :: sanvec
-        type (SimAnn_Conditions_type), intent(   out)     :: opsan
-        logical                   ,    intent(   out)     :: logi
+    End Subroutine Set_Sections_index
 
 
+ !1:INSTRUMENTAL, 2:STRUCTURAL, 3:LAYER
+ !4:STACKING , 5:TRANSITIONS, 6:CALCULATION,
+ !7:EXPERIMENTAL
+    Subroutine Read_INSTRUMENTAL(logi)
+      logical, intent(out) :: logi
+      integer :: i,i1,i2,k, ier
+      character(len=132) :: txt
+      character(len=25)  :: key
 
-        logical                                        :: esta
-        character (len=132)                            :: txt ,   broad , layer , random, semirandom, seq
-        integer                                        :: numberl, i1,i2    !number of lines
-        integer                                        :: ier,i, j,  a1, a2, k , l , z ,m ,r, pos1, pos2, iflag , &
-                                                          y, q, l1, l2, j1, j2, yy
-        integer,dimension(132)                         :: Inte    !  Vector of integer numbers
-        integer                                        :: n_int  !number of integers per line
-        real(kind=sp),      dimension(132)             :: rel !  Vector of integer numbers
-        real,               dimension(132)             :: num_real
-        character(len=132), dimension(:),allocatable   :: tfile
-        integer, parameter                             :: eps =1.0E-4 , nrp=80
-        integer, parameter                             :: read_out = 30
-        character(len=132), dimension(15)              :: word  = " "! Out -> Vector of Words
-        integer                                        :: n_word   ! Out -> Number of words
-        real                                           :: suma , tmp , ab
-        character (len = 4)                            :: trima
-        character (len = 80 )                          :: list (1:12)
-        real,               dimension(80)              :: label
+      logi=.true.
+      i1=sect_indx(1)
+      i2=sect_indx(2)-1
 
+      i=i1
+      do
+        i=i+1; if(i > i2) exit
+        txt=adjustl(tfile(i))
+        if(len_trim(txt) == 0 .or. txt(1:1)="!" .or. txt(1:1)="{") cycle
+        k=index(txt," ")
+        key=txt(1:k-1)
+        txt=txt(k+1:)
+
+        Select Case(key)
+          Case("RADIATION")
+
+               if (index(txt , 'X-RAY')/=0 ) then
+                  crys%rad_type = 0
+                else if (index(txt , 'NEUTRON')/=0) then
+                  crys%rad_type = 1
+                else if (index(txt , 'ELECTRON')/=0) then
+                  crys%rad_type = 2
+                else
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading radiation type"
+                  logi = .false.
+                  return
+                end if
+
+          Case("WAVELENGTH")
+
+             read(unit=txt,fmt=*, iostat=ier) crys%lambda, crys%lambda2, crys%ratio
+             if(ier /= 0 ) then
+                read(unit=txt,fmt=*, iostat=ier) crys%lambda
+                if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading wavelength instruction"
+                  logi=.false.
+                  return
+                end if
+             end if
+          Case("PSEUDO-VOIGT")
+
+             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%Dg, crys%Dl
+             if(ier /= 0 ) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading Pseudo-Voigt instruction"
+               logi=.false.
+               return
+             end if
+             i=i+1
+             txt=adjustl(tfile(i))
+             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
+                                              crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+             k=index(txt,"(")
+             read(unit=txt(k+1:),fmt=
+
+          Case("GAUSSIAN")
+          Case("LORENTZIAN")
+
+
+
+        End Select
+      end do
+    End Subroutine Read_INSTRUMENTAL
+
+    Subroutine Read_STRUCTURAL()
+    End Subroutine Read_STRUCTURAL
+
+    Subroutine Read_LAYER()
+    End Subroutine Read_LAYER
+
+    Subroutine Read_STACKING()
+    End Subroutine Read_STACKING
+
+    Subroutine Read_TRANSITIONS()
+    End Subroutine Read_TRANSITIONS
+
+    Subroutine Read_CALCULATION()
+    End Subroutine Read_CALCULATION
+
+    Subroutine Read_EXPERIMENTAL()
+    End Subroutine Read_EXPERIMENTAL
+
+    Subroutine Set_Crys()
 
         crys%trm = .false.
         crys%finite_width = .false.
@@ -349,6 +421,126 @@
         if(allocated (crys%mult)) deallocate(crys%mult)
         allocate(crys%mult(nrp))
         crys%mult=0
+    End Subroutine Set_Crys
+
+
+!_____________________________________________________________________________________________________
+    Subroutine new_getfil(stfile,vecsan, olg)
+
+
+       character(len=31) ,             intent (in out)      :: stfile
+       type (State_Vector_Type),       intent (   out)      :: vecsan
+       logical                   ,     intent (   out)      :: olg
+
+        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
+        read(unit= *,fmt="(a)") stfile
+
+        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
+        OPEN(UNIT = sf, FILE = sfname)
+        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
+
+        call read_structure_file(stfile, vecsan, olg)
+        if (err_crys) then
+          print*, trim(err_crys_mess)
+        else
+          write(op, fmt=*) "=> Structure input file read in"
+        end if
+        return
+    End subroutine
+!_____________________________________________________________________________________________________________
+
+        Subroutine read_fraction (line, n_comp, real_num)
+
+        character(len=*),dimension(:), intent(in out) :: line        !string of numbers to convert to real
+        integer,                       intent(in    ) :: n_comp      !number of components in line
+        real            ,dimension(:), intent(   out) :: real_num    ! string of real characters
+
+        integer                                       :: i, j
+        real                                          :: numerator, denominator
+
+        do i = 1, n_comp
+            j = index (line(i), '/')
+            if(j == 0) then                  !it was already a number
+              read ( line(i), fmt=*) real_num(i)
+            else         !it was expressed as a ratio. delete the slash, '/'.
+              line(i)(j:j) = ' '
+              read(unit =line(i),fmt = *) numerator, denominator  ! now contains two arguments, numerator and denominator.
+              real_num(i) = numerator/ denominator
+            end if
+        end do
+
+        End subroutine read_fraction
+!______________________________________________________________________________________________________
+
+      INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax
+
+
+      IMPLICIT NONE
+      CHARACTER (LEN=*), INTENT(IN)        :: flag
+      CHARACTER (LEN=80), INTENT(IN)       :: list(n)
+      INTEGER*4, INTENT(IN)                :: n
+
+      INTEGER*4 i, j1, j2
+
+      i = 1
+      j1 = length(flag)
+
+      10 j2 = length(list(i))
+! see if the string contained in list(i) is identical to that in flag
+      IF(j1 == j2 .AND. INDEX(flag, list(i)(1:j2)) == 1) GO TO 20
+      i = i + 1
+      IF(i <= n) GO TO 10
+
+      20 IF(i > n) i = -1
+      choice = i
+
+      RETURN
+      END FUNCTION choice
+!______________________________________________________________________________________________________
+
+     Function length(string) result(leng)    !from diffax
+
+        character(len=*), intent(in) :: string
+        integer :: leng
+        integer :: i
+        i=index(string," ")
+        if( i==0) then
+          leng=len_trim(string)
+        else
+          leng=i-1
+        end if
+      End Function length
+!______________________________________________________________________________________________________
+
+        Subroutine read_structure_file (namef, sanvec, logi)
+
+        character(len=*)    ,          intent(in    )     :: namef
+        type (State_Vector_Type),      intent(   out)     :: sanvec
+        logical                   ,    intent(   out)     :: logi
+
+
+
+        logical                                        :: esta
+        character (len=132)                            :: txt ,   broad , layer , random, semirandom, seq
+        integer                                        :: i1,i2    !number of lines
+        integer                                        :: ier,i, j,  a1, a2, k , l , z ,m ,r, pos1, pos2, iflag , &
+                                                          y, q, l1, l2, j1, j2, yy
+        integer,dimension(132)                         :: Inte    !  Vector of integer numbers
+        integer                                        :: n_int  !number of integers per line
+        real(kind=sp),      dimension(132)             :: rel !  Vector of integer numbers
+        real,               dimension(132)             :: num_real
+        integer, parameter                             :: eps =1.0E-4
+        integer, parameter                             :: read_out = 30
+        character(len=132), dimension(15)              :: word  = " "! Out -> Vector of Words
+        integer                                        :: n_word   ! Out -> Number of words
+        real                                           :: suma , tmp , ab
+        character (len = 4)                            :: trima
+        character (len = 80 )                          :: list (1:12)
+        real,               dimension(80)              :: label
+
+        logi = .true.
+
+        call Set_Crys()
 
         yy = 0  !initialisation of the number of different atoms in a layer type
 
@@ -356,38 +548,42 @@
         if( .not. esta) then
           Err_crys=.true.
           Err_crys_mess="ERROR :  The file "//trim(namef)//" doesn't exist"
-          logi = .false.
+          logi=.false.
           return
         else
           open(unit=i_data,file=trim(namef),status="old",action="read",position="rewind",iostat=ier)
           if(ier /= 0) then
             Err_crys=.true.
             Err_crys_mess="ERROR opening the file "//trim(namef)
-            logi = .false.
+            logi=.false.
             return
           end if
         end if
 
-        call number_lines(namef, numberl)                            ! count number of lines in file
-        if (numberl==0) then
-          err_crys=.true.
-          err_crys_mess="ERROR :  The file "//trim(namef)//" contains nothing"
-          logi = .false.
-          return
-        else
-         if (allocated (tfile)) deallocate (tfile)
-         allocate (tfile(numberl))
-         tfile=" "
-         call reading_lines(namef, numberl, tfile)                    ! we 'charge' the file in tfile  so we can close the unit
-        end if
-        close(unit=i_data)
+        call Set_TFile(namef,logi)
+        if(.not. logi) return
 
-        do i = 1, numberl                 ! To read in case insensitive mode
-          call Ucase(tfile(i))
-        end do
+        call Read_INSTRUMENTAL()
+        stop
+
+        !call number_lines(namef, numberl)                            ! count number of lines in file
+        !if (numberl==0) then
+        !  err_crys=.true.
+        !  err_crys_mess="ERROR :  The file "//trim(namef)//" contains nothing"
+        !  return
+        !else
+        ! if (allocated (tfile)) deallocate (tfile)
+        ! allocate (tfile(numberl))
+        ! tfile=" "
+        ! call reading_lines(namef, numberl, tfile)                    ! we 'charge' the file in tfile  so we can close the unit
+        !end if
+        !close(unit=i_data)
+        !
+        !do i = 1, numberl                 ! To read in case insensitive mode
+        !  call Ucase(tfile(i))
+        !end do
 
 !    begin to read
-        logi = .true.
 
         z=0
    main_loop: Do l = 1, numberl

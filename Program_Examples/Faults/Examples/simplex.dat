@@ -4,12 +4,12 @@
 
 INSTRUMENTAL  AND  SIZE  BROADENING
   !type of radiation
-   x-ray
+radiation   x-ray
    !lambda1   lambda2   ratio
-   1.5418  1.544430    0.5
+wavelength   1.5418  1.544430    0.5
   !instr. broadening  u         v           w          x       Dg         Dl
-    pseudo-voigt      0.003637  -0.003558   0.002274  0      10000      10000      trim
-                      0.0        0.0        0.0       0.0     0     0        (0.01   0.01   0.01   0.01   100.0  100.0  )
+pseudo-voigt      0.003637  -0.003558   0.002274       0      10000      10000      trim
+                      0.0        0.0        0.0       0.0      0            0     (0.01   0.01   0.01   0.01   100.0  100.0  )
 
 
 STRUCTURAL
@@ -62,7 +62,7 @@ TRANSITIONS
 
    !layer 1 to layer 1
    0.99  0.0      0.0       1.0
-   0.0     0.0      0         0        ( 0.3 0.1 0.1 0.1)
+   0.0   0.0      0         0          ( 0.3 0.1 0.1 0.1)
    !layer 1 to layer 2
    0.005  1/3      -1/3      1.0
    0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
@@ -125,7 +125,7 @@ CALCULATION
 
         40      {MXfun: max no of function evaluations.Recommended 20 * no of parameters to refine}
         0.005         {eps: stopping criterion}
-        1         {iout: Input, print control parameter                              }
+        1         {iout: Input, print control parameter                             }
                   {  < 0 No printing                                                }
                   {  = 0 Printing of parameter values and the function              }
                   {      value after initial evidence of convergence.               }
