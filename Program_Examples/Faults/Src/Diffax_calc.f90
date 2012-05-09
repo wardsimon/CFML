@@ -415,7 +415,7 @@
 !     Utiliza las funciones:  TST_ROT, TST_MIR, GET_SYM, LENGTH  todas externas
 !     Utiliza las subrutinas:
 
-      LOGICAL, INTENT(IN OUT)     :: ok
+      LOGICAL, INTENT(OUT)     :: ok
       LOGICAL :: diad, triad, tetrad
       LOGICAL :: cell90, cell120, eq_sides
       INTEGER*4  idum
@@ -1369,12 +1369,12 @@
             if (Wb < inf_width) then
               write(dmp,126) 'width along b', Wb
             end if
-        else
-          write(dmp,200) 'Layers are to be treated as having infinite lateral width.'
         end if
       else
-          return
+          write(*,*) 'Layers are to be treated as having infinite lateral width.'
+          write(dmp,200) 'Layers are to be treated as having infinite lateral width.'
       end if
+
 
 ! radiation type
       list(1) = 'X-RAY '
@@ -4691,10 +4691,10 @@
 
 
       REAL*8, INTENT(IN)                       :: a(max_n,max_n)
-      REAL*8, INTENT(IN OUT)                   :: b(max_n)
+      REAL*8, INTENT(OUT)                      :: b(max_n)
       INTEGER*4, INTENT(IN)                    :: INDEX(max_n)
       INTEGER*4, INTENT(IN)                    :: n
-      INTEGER*4, INTENT(IN)                :: max_n
+      INTEGER*4, INTENT(IN)                    :: max_n
 
 
 

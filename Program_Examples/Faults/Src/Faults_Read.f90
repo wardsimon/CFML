@@ -107,7 +107,7 @@
         OPEN(UNIT = sf, FILE = sfname)
         !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
-        call read_structure_file    (stfile, l_crys, l_opti, l_san,vecsan, olg)
+        call read_structure_file(stfile, l_crys, l_opti, l_san,vecsan, olg)
         if (err_crys) then
           print*, trim(err_crys_mess)
         else
@@ -205,10 +205,10 @@
         integer, parameter                             :: read_out = 30
         character(len=132), dimension(15)              :: word  = " "! Out -> Vector of Words
         integer                                        :: n_word   ! Out -> Number of words
-        real                                           :: sum , tmp , ab
+        real                                           :: suma , tmp , ab
         character (len = 4)                            :: trima
         character (len = 80 )                          :: list (1:12)
-        real              , dimension(80)              :: label
+        real,               dimension(80)              :: label
 
 
         crys%trm = .false.
@@ -378,7 +378,7 @@
          if (allocated (tfile)) deallocate (tfile)
          allocate (tfile(numberl))
          tfile=" "
-        call reading_lines(namef, numberl, tfile)                    ! we 'charge' the file in tfile  so we can close the unit
+         call reading_lines(namef, numberl, tfile)                    ! we 'charge' the file in tfile  so we can close the unit
         end if
         close(unit=i_data)
 
@@ -389,32 +389,32 @@
 !    begin to read
         logi = .true.
 
-        Do l = 1, numberl
+        z=0
+   main_loop: Do l = 1, numberl
 
-          txt=adjustl(tfile(l))
+          z=z+1; if(z > numberl) exit
+          txt=adjustl(tfile(z))
 
           if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,"{") == 1 ) cycle   !skip comments and blank lines
 
-          if (INDEX(txt,'INSTRUMENTAL') ==1) then                                    !search for sections
-            z=l+1
+          if (INDEX(txt,'INSTRUMENTAL') == 1) then                                    !search for sections
             DO
+              z=z+1; if(z > numberl) exit
+
               txt = adjustl (tfile (z))
-              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                z=z+1
-                cycle
-              else if (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
-                       index(txt, 'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                exit
+
+              if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+              if (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+                  index(txt, 'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                  z=z-1
+                  cycle main_loop
               else                                              !read radiation type
                 if (index(txt , 'X-RAY')/=0 ) then
                   crys%rad_type = 0
-                  z=z+1
                 elseif (index(txt , 'NEUTRON')/=0) then
                   crys%rad_type = 1
-                  z=z+1
                 elseif (index(txt , 'ELECTRON')/=0) then
                   crys%rad_type = 2
-                  z=z+1
                 else
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading radiation type"
@@ -422,16 +422,16 @@
                   return
                 end if
 
-                do                                                            !read lambda
+                do
+                  z=z+1; if(z > numberl) exit                                                           !read lambda
                   txt = adjustl(tfile(z))
 
-                  if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
-                    z=z+1
-                    cycle
-                  elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
+                  if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) cycle
+                  if (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
                           index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                           index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
-                    exit
+                          z=z-1
+                    cycle main_loop
                   else
                     call getword (txt, word, n_word)
                     if (n_word == 3) then
@@ -442,7 +442,6 @@
                         logi = .false.
                         return
                       end if
-                      z = z + 1
                     else
                       read (unit = txt, fmt = *, iostat = ier) crys%lambda
                       if (ier /= 0)then
@@ -451,22 +450,24 @@
                         logi = .false.
                         return
                       end if
-                      z = z + 1
                     end if
+
                     do
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl(tfile(z))
-                      if (INDEX (txt, 'NONE') /=0) then    !read instrumental data
+
+                      if( index(txt,'{') == 1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) cycle
+
+                      if (INDEX (txt, 'NONE') /= 0) then    !read instrumental data
                         crys%broad = none
-                        z = z+1
+
                       elseif (index(txt, 'STRUCTURAL')==1  .or. index(txt,'LAYER')==1 .or. &
                               index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                               index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                        exit
-                      else if( index(txt,'{')==1 .or. len_trim(txt) == 0 .or. index(txt,"!") == 1) then
-                        z=z+1
-                        cycle
-                      else if (INDEX (txt, 'GAUSSIAN') /=0) then !we need to know number of parameters to distinguish them
-                        z = z+1
+                              z=z-1
+                              cycle main_loop
+                      else if (INDEX (txt, 'GAUSSIAN') /= 0) then !we need to know number of parameters to distinguish them
+
                         if ((index(txt,'{') /= 0)) then
                           j=index(txt,'{')-1
                           if( j > 1) then
@@ -507,7 +508,7 @@
                         end if
 
                       else if (INDEX (txt, 'LORENTZIAN') /=0) then
-                        z = z+1
+
                         if ((index(txt,'{')/= 0)) then
                           j=index(txt,'{')-1
                           if( j > 1) then
@@ -546,7 +547,9 @@
                           logi = .false.
                           return
                         end if
+
                       elseif (INDEX (txt, 'PSEUDO-VOIGT')/=0) then
+
                         crys%broad = ps_vgt
                         if ((index(txt,'{')/= 0)) then
                           j=index(txt,'{')-1
@@ -567,16 +570,16 @@
                         elseif (n_word == 7) then
                           read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x  , &
                                                                crys%p_dg, crys%p_dl
-                          z = z + 1
                           do
+                            z = z+1; if(z > numberl) exit
                             txt = adjustl(tfile (z))
-                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                              z = z +1
-                              cycle
-                            else if (index(txt,'STRUCTURAL')==1 .OR. index(txt,'LAYER')==1 .or. &
+
+                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                            if (index(txt,'STRUCTURAL')==1 .OR. index(txt,'LAYER')==1 .or. &
                                      index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                                      index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                              exit
+                                      z=z-1
+                                      cycle main_loop
                             else
                               y = index (txt, '(')    ! check if there are parenthesis and eliminate them
                               if (y /= 0 ) then
@@ -616,9 +619,8 @@
                                 crys%rang_p_dg= 0.0
                                 crys%rang_p_dl= 0.0
 
-                                z = z +1
-
                               elseif (n_word == 12) then
+
                                 read (unit = txt, fmt = *)crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,    &
                                                           crys%ref_p_x, crys%ref_p_dg,  crys%ref_p_dl
                                   if (crys%ref_p_u /= 0) then
@@ -708,8 +710,6 @@
                                   if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
                                   if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
 
-                                  z = z +1
-
                               else
                                 Err_crys=.true.
                                 Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
@@ -721,19 +721,20 @@
                           end do
 
                         elseif (n_word == 8) then
+
                           read(unit=txt ,fmt=*, iostat = ier) broad,  crys%p_u,  crys%p_v,  crys%p_w,  crys%p_x , &
-                                                              crys%p_dg, crys%p_dl  , trima
+                                                              crys%p_dg, crys%p_dl, trima
                           crys%trm = .true.
-                          z = z + 1
                           do
+                            z = z+1; if(z > numberl) exit
                             txt = adjustl(tfile (z))
-                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                              z = z +1
-                              cycle
-                            else if (index(txt,'STRUCTURAL')==1 .or. index(txt,'LAYER')==1 .or. &
+
+                            if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                            if (index(txt,'STRUCTURAL')==1 .or. index(txt,'LAYER')==1 .or. &
                                      index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                                      index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                              exit
+                              z=z-1
+                              cycle main_loop
                             else
                               y = index (txt, '(')    ! check if there are parenthesis and eliminate them
                               if (y /= 0 ) then
@@ -769,8 +770,6 @@
                                 crys%rang_p_x= 0.0
                                 crys%rang_p_dg= 0.0
                                 crys%rang_p_dl= 0.0
-
-                                z = z +1
 
                               elseif (n_word == 12) then
                                 read (unit = txt, fmt = *) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w,  &
@@ -860,7 +859,7 @@
                                   if (crys%ref_p_x == 0) crys%rang_p_x = 0.0
                                   if (crys%ref_p_dg == 0) crys%rang_p_dg = 0.0
                                   if (crys%ref_p_dl == 0) crys%rang_p_dl = 0.0
-                                  z = z +1
+
                               else
                                 Err_crys=.true.
                                 Err_crys_mess="ERROR reading pseudo_voigt refinement parameters"
@@ -877,7 +876,7 @@
                         end if
 
                       elseif( len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                         exit
+                         cycle
                       else
                         Err_crys=.true.
                         Err_crys_mess="ERROR reading instrumental parameters"
@@ -890,19 +889,18 @@
               end if
             END DO
 
-          elseif (INDEX(txt,'STRUCTURAL') ==1 ) then      !structural section
+          elseif (INDEX(txt,'STRUCTURAL') == 1 ) then      !structural section
 
-            z = l+1
             do
 
+              z=z+1; if(z > numberl) exit
               txt = adjustl (tfile (z))
 
-              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                z=z+1
-                cycle
-              elseif ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
+              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+              if ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                 index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                exit
+                z=z-1
+                cycle main_loop
               else
 
                 read(unit=txt ,fmt=*, iostat = ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
@@ -912,18 +910,17 @@
                   logi = .false.
                   return
                 end if
-                z = z +1
                 crys%cell_gamma = crys%cell_gamma * deg2rad
 
                 DO
-
+                  z=z+1; if(z > numberl) exit
                   txt = adjustl (tfile (z))
-                  IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                        z=z+1
-                        cycle
-                  ELSEIF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
+
+                  IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                  IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
                         .or. index(txt,'CALCULATION')==1  .or. index(txt,'EXPERIMENTAL')==1) then
-                        exit
+                        z=z-1
+                        cycle main_loop
                   ELSE
                     k = index (txt, '(')
                     if (k /= 0 ) then              !eliminate parenthesis
@@ -952,7 +949,6 @@
                         logi = .false.
                         return
                       end if
-                      z = z +1
                       crys%rang_cell_a = 0.0
                       crys%rang_cell_b = 0.0
                       crys%rang_cell_c = 0.0
@@ -968,8 +964,6 @@
                           logi = .false.
                           return
                       end if
-                          z = z + 1
-
 
                       if (crys%ref_cell_a /= 0 ) then
                         crys%npar = crys%npar + 1       !to count npar
@@ -1037,15 +1031,14 @@
                     end if
 
                     DO
-
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl (tfile (z))
 
-                      IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                        z=z+1
-                        cycle
-                      ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
+                      IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                      IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 &
                                .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                        exit
+                        z=z-1
+                        cycle main_loop
 
                       ELSE
                         if (index (txt, '{')/= 0) then        ! comments present
@@ -1066,7 +1059,7 @@
                             logi = .false.
                             return
                           end if
-                          z=z+1
+
                         else
                           read(unit=txt ,fmt=*, iostat = ier) crys%sym         ! read symmetry
                           if (ier /= 0)then
@@ -1075,7 +1068,7 @@
                             logi = .false.
                             return
                           end if
-                          z=z+1
+
                           crys%tolerance = 1
                         end if
 
@@ -1105,15 +1098,15 @@
                         crys%tolerance = crys%tolerance * eps2   ! convert from a percentage
 
                         do
+                          z=z+1; if(z > numberl) exit
                           txt = adjustl (tfile (z))
 
-                          IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                            z=z+1
-                            cycle
-                          ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+                          IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                          IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
                                     index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
                                     index(txt,'EXPERIMENTAL')==1) then
-                            exit
+                            z=z-1
+                            cycle main_loop
                           ELSE
                             read(unit=txt ,fmt=*, iostat = ier) crys%n_typ                  !read number of  layers
                             if (ier /= 0)then
@@ -1122,7 +1115,6 @@
                               logi = .false.
                               return
                             end if
-                            z = z + 1
 
                             DO  i = 1, crys%n_typ        ! initialization of upper and lower positions
                               crys%high_atom(i) = zero
@@ -1130,14 +1122,15 @@
                             END DO
 
                             do
+                              z=z+1; if(z > numberl) exit
                               txt = adjustl (tfile (z))
-                              IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                                z=z+1
-                                cycle
-                              ELSE IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
+
+                              IF(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                              IF ( index(txt,'LAYER')==1 .or. index(txt,'STACKING')==1 .or. &
                                         index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
                                         index(txt,'EXPERIMENTAL')==1) then
-                                exit
+                                z=z-1
+                                cycle main_loop
                               ELSE
                                 if ((index(txt,'{')/= 0)) then                               !need to know number of words to distinguish between diameter of width along a
                                   j=index(txt,'{')-1
@@ -1157,32 +1150,31 @@
                                 elseif (n_word == 1) then
                                   if (INDEX (txt, 'INFINITE') /=0) then
                                     crys%finite_width = .false.
-                                    z = z +1
+
                                   elseif ( INDEX (txt, 'LAYER') /=0) then            ! if next section, infinite is considered
                                     crys%finite_width = .false.
-                                    backspace 0
+                                    !backspace 0
                                   ! elseif (len_trim(txt) == 0 ) then
                                   !         crys%finite_width = .false.
                                   else
                                     crys%finite_width = .true.
-                                    backspace 0
+                                    !backspace 0
                                     read (unit =txt, fmt = *, iostat = ier) crys%layer_a
-                                    z = z + 1
-                                    write(*,*) "wa, sb", crys%layer_a, crys%layer_b
+                                    crys%layer_b = crys%layer_a
                                     do
+                                      z = z+1; if(z > numberl) exit
                                       txt = adjustl(tfile (z))
 
                                       if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                                        index(txt,"!") == 1) then
-                                        z = z +1
-                                        cycle
+                                        index(txt,"!") == 1) cycle
 
-                                      else if ( index(txt,'LAYER')==1 .or. &
+                                      if ( index(txt,'LAYER')==1 .or. &
                                         index(txt,'STACKING')==1 .or. &
                                         index(txt,'TRANSITIONS')==1 .or. &
                                         index(txt,'CALCULATION')==1 .or. &
                                         index(txt,'EXPERIMENTAL')==1) then
-                                        exit
+                                        z=z-1
+                                        cycle main_loop
                                       else
 
                                         y = index (txt, '(')    ! check if there are parenthesis and eliminate them
@@ -1214,7 +1206,7 @@
                                           end if
                                             crys%rang_layer_a= 0.0
                                             crys%rang_layer_b= 0.0
-                                            z = z +1
+
                                         elseif (n_word == 2) then
                                           read (unit = txt, fmt = *) crys%ref_layer_a,crys%rang_layer_a
                                           crys%ref_layer_b = crys%ref_layer_a
@@ -1247,7 +1239,7 @@
                                             crys%rang_layer_b  = 0.0
                                           end if
 
-                                          z = z +1
+
 
                                         else
                                           Err_crys=.true.
@@ -1268,21 +1260,24 @@
                                     logi = .false.
                                     return
                                   end if
-                                  z = z + 1
+
 
 !*******************************************************************************************************************
                                   do
+                                    z = z+1; if(z > numberl) exit
                                     txt = adjustl(tfile (z))
+
                                     if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                                        index(txt,"!") == 1) then
-                                      z = z +1
-                                      cycle
-                                    else if ( index(txt,'LAYER')==1 .or. &
+                                        index(txt,"!") == 1) cycle
+
+
+                                    if ( index(txt,'LAYER')==1 .or. &
                                               index(txt,'STACKING')==1 .or. &
                                               index(txt,'TRANSITIONS')==1 .or. &
                                               index(txt,'CALCULATION')==1 .or. &
                                               index(txt,'EXPERIMENTAL')==1) then
-                                      exit
+                                      z=z-1
+                                      cycle main_loop
                                     else
                                       y = index (txt, '(')    ! check if there are parenthesis and eliminate them
                                       if (y /= 0 ) then
@@ -1312,7 +1307,7 @@
                                         end if
                                         crys%rang_layer_a= 0.0
                                         crys%rang_layer_b= 0.0
-                                        z = z +1
+
                                       else if (n_word == 4) then
                                         read (unit = txt, fmt = *) crys%ref_layer_a,&
                                         crys%ref_layer_b, crys%rang_layer_a , crys%rang_layer_b
@@ -1343,7 +1338,7 @@
 
                                         if (crys%ref_layer_a == 0) crys%rang_layer_a  = 0.0
                                         if (crys%ref_layer_b == 0) crys%rang_layer_b  = 0.0
-                                        z = z +1
+
                                       else
                                         Err_crys=.true.
                                         Err_crys_mess="ERROR reading layer dimensions refinement parameters"
@@ -1376,59 +1371,52 @@
             r = 0      ! counts n_actual
             j = 0      ! counts n_layers
             do
+              z = z+1; if(z > numberl) exit
               txt = adjustl(tfile(z))
+
               if (index(txt,'=') /= 0) then        ! search for '=' sign
                 j = j+1
-                z = z +1
                 read (unit = txt, fmt =*, iostat = ier) layer, a1, layer, a2
                 if (a2 >= a1 .OR. a2 < 1) then
                   write (*,*) "Layer", a1, " cannot be equal to layer" ,a2, "."
                   logi = .false.
                   return
                 else
-                  crys%l_actual (j) = crys%l_actual (a2)
+                  crys%l_actual(j) = crys%l_actual(a2)
                 end if
                 cycle
               elseif (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                z = z +1
                 cycle
               elseif (index(txt, 'STRUCTURAL')== 1 .or.  index(txt,'STACKING')==1 .or. &
-                      index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. &
+                      index(txt,'TRANSITIONS')== 1 .or. index(txt,'CALCULATION')==1 .or. &
                       index(txt,'EXPERIMENTAL')==1) then
-
+                z=z-1
                 exit
               else
-                if  (INDEX(txt,'LAYER') == 1 ) then
-                  z = z + 1
-                  cycle
-                end if
+                if(INDEX(txt,'LAYER') == 1 ) cycle
                 j = j+1
                 r = r + 1
                 crys%l_actual(j) = r
                ! crys%n_actual = r
 
-                if    (INDEX(txt, 'CENTROSYMMETRIC') == 1) then
+                if(INDEX(txt, 'CENTROSYMMETRIC') == 1) then
                   crys%centro(r) = CENTRO
                 else
                   crys%centro(r) = NONE
                 end if
-                z = z +1
+
                 yy=k
                 k = 0      !to count  number atoms
 
                 do
-
+                  z = z+1; if(z > numberl) exit
                   txt = adjustl(tfile(z))
 
-                  if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                    z = z + 1
-                    cycle
-                  elseif ( index (txt, '{') == 1 ) then
-                    z = z + 1
-                    cycle
-                  elseif (index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+                  if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                  if (index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
                            index(txt,'STACKING')==1 .or. index(txt,'CALCULATION')==1  .or. &
                            index(txt,'TRANSITIONS')==1 .or. index(txt,'EXPERIMENTAL')==1) then
+                    z=z-1
                     exit
                   else
                     if (index(txt,'{')/= 0) then         ! if line contents comments
@@ -1451,7 +1439,7 @@
                           crys%a_pos(3, k,r)  = num_real(3)
                           crys%a_B (k,r)      = num_real(4)
                           crys%a_occup(k,r)   = num_real(5)
-                          z = z + 1
+
                       else if ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0)) then  ! first number is fractional
                         i1= index(txt,'/')-1
                         i2= index(txt,'{')-1
@@ -1467,28 +1455,27 @@
                           crys%a_pos(3, k,r)  = num_real(3)
                           crys%a_B (k,r)      = num_real(4)
                           crys%a_occup(k,r)   = num_real(5)
-                          z = z + 1
+
                       else
                         Err_crys=.true.
                         Err_crys_mess="ERROR :  Atomic positions must be real numbers"
                         logi = .false.
                         return
                       end if
-                      tmp = crys%a_pos(3,k,r)                          !to asign lower and upper postions ****
+                      tmp = crys%a_pos(3,k,r)                          !to asign lower and upper positions ****
                       IF(tmp > crys%high_atom(r)) crys%high_atom(r) = tmp
                       IF(tmp < crys%low_atom(r))   crys%low_atom(r) = tmp
 
                       do
+                        z = z+1; if(z > numberl) exit
                         txt = adjustl(tfile (z))
 
-                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                          z = z +1
-                          cycle
-
-                        elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                        if ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
                                   index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                                   index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                          exit
+                          z=z-1
+                          cycle main_loop
                         else
                           y = index (txt, '(')    ! check if there are parenthesis and eliminate them
                           if (y /= 0 ) then
@@ -1522,8 +1509,9 @@
                             crys%rang_a_pos(2, k,r)= 0.0
                             crys%rang_a_pos(3, k,r)= 0.0
                             crys%rang_a_B(k,r) = 0.0
-                            z = z +1
+
                             exit
+
                           elseif (n_word == 8) then
                             read (unit = txt, fmt = *) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
                                                        crys%ref_a_pos(3, k,r),crys%ref_a_B(k,r), &
@@ -1582,10 +1570,11 @@
                             if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
                             if (crys%ref_a_pos(3, k,r)== 0) crys%rang_a_pos (3,k,r) = 0.0
                             if (crys%ref_a_B( k,r)== 0) crys%rang_a_B (k,r) = 0.0
-                            z = z +1
                             exit
+
                           elseif ( n_word == 7 ) then  ! if we are in the atomic positions line, exit loop
                             exit
+
                           else
                             Err_crys=.true.
                             Err_crys_mess="ERROR reading atomic positions refinement parameters"
@@ -1614,7 +1603,7 @@
                         crys%a_pos(3, k,r)  = num_real(3)
                         crys%a_B (k,r)      = num_real(4)
                         crys%a_occup(k,r)   = num_real(5)
-                        z = z + 1
+
                       elseif ((pos2 /= 0 .and. pos2<=pos1) .or. (pos1 == 0 .and. pos2/=0))  then
                         i1= index(txt,'/')-1
                         if( i1 >= 1 ) then
@@ -1629,7 +1618,7 @@
                         crys%a_pos(3, k,r)  = num_real(3)
                         crys%a_B (k,r)      = num_real(4)
                         crys%a_occup(k,r)   = num_real(5)
-                        z = z + 1
+
                       else
                         Err_crys=.true.
                         Err_crys_mess="ERROR :  Atomic positions must be real numbers"
@@ -1641,14 +1630,15 @@
                       IF(tmp > crys%high_atom(r)) crys%high_atom(r) = tmp
                       IF(tmp < crys%low_atom(r))   crys%low_atom(r) = tmp
                       do
+                        z = z+1; if(z > numberl) exit
                         txt = adjustl(tfile (z))
-                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                          z = z +1
-                          cycle
-                        elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
+
+                        if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                        if ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or.  &
                                  index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                                  index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                          exit
+                          z=z-1
+                          cycle main_loop
                         else
                           y = index (txt, '(')    ! check if there are parenthesis and eliminate them
                           if (y /= 0 ) then
@@ -1681,7 +1671,7 @@
                               crys%rang_a_pos(2, k,r)= 0.0
                               crys%rang_a_pos(3, k,r)= 0.0
                               crys%rang_a_B(k,r) = 0.0
-                              z = z + 1
+
                               exit
                           elseif (n_word == 8) then
                             read (unit =txt,fmt=*) crys%ref_a_pos(1, k,r),crys%ref_a_pos(2, k,r),&
@@ -1742,7 +1732,7 @@
                             if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
                             if (crys%ref_a_pos(3, k,r)== 0) crys%rang_a_pos (3,k,r) = 0.0
                             if (crys%ref_a_B( k,r)== 0) crys%rang_a_B(k,r) = 0.0
-                            z = z + 1
+
                             exit
                           elseif ( n_word == 7 ) then
                             exit
@@ -1779,26 +1769,26 @@
 !********************************************************************************************************************
 
           elseif  (INDEX(txt,'STACKING') == 1 ) then        !stacking section
-            z = z +1
+
             DO
+              z = z+1; if(z > numberl) exit
               txt = adjustl (tfile (z))
-              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                z=z+1
-                cycle
-              elseif ( index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1  ) then
-                exit
+
+              if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+              if ( index(txt,'TRANSITIONS')==1 .or. index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1  ) then
+                z=z-1
+                cycle main_loop
               elseif (INDEX(txt , 'EXPLICIT')==1) then
                 crys%xplcit = .true.
-                z=z+1
                 crys%l_cnt = 0
                 DO
+                  z = z+1; if(z > numberl) exit
                   txt = adjustl (tfile (z))
-                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                    z=z+1
-                    cycle
-                  elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                  if ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
                           index(txt,'EXPERIMENTAL')==1 ) then
-                    exit
+                    z=z-1
+                    cycle main_loop
                   elseif (index(txt , 'RANDOM')==1) then
                     read (unit = txt, fmt = *, iostat = ier) random, crys%l_cnt
                     if   (crys%l_cnt==0) then
@@ -1809,7 +1799,7 @@
                     end if
                       crys%inf_thick = .false.
                       rndm = .true.
-                      z=z+1
+
                   elseif (index(txt , 'SEMIRANDOM')==1) then
                     read (unit = txt, fmt = *, iostat = ier) semirandom, crys%l_cnt
                     if   (crys%l_cnt==0) then
@@ -1820,14 +1810,15 @@
                     end if
                     crys%inf_thick = .false.
                     rndm = .true.
-                    z=z+1
+
                     do
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl (tfile (z))
-                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                        z=z+1
-                        cycle
-                      elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+
+                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                      if ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
                                index(txt,'EXPERIMENTAL')==1 ) then
+                        z=z-1
                         if (crys%l_seq(1) == 0) then
                           write(*,*) "ERROR : Layer explicit sequences missing"
                           logi = .false.
@@ -1835,6 +1826,7 @@
                         else
                           exit
                         end if
+                        cycle main_loop
                       elseif (index(txt , 'SEQ')==1) then
                         read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
                         j=j1
@@ -1851,18 +1843,19 @@
                           j=j+1
                         end do
                       end if
-                        z=z+1
+
                         cycle
                     end do
                   else
                     do
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl (tfile (z))
-                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                        z=z+1
-                        cycle
-                      elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+
+                      if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                      if ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
                               index(txt,'EXPERIMENTAL')==1 ) then
-                        exit
+                        z=z-1
+                        cycle main_loop
                       else
                         crys%inf_thick = .false.
                         call getnum(txt, rel,inte, n_int)    ! to know number of integers per line
@@ -1871,40 +1864,42 @@
                         read(unit=txt,fmt=*, iostat=ier)(crys%l_seq(r), r=i1,i2)  ! to read stacking sequence
                         r= r-1
                         crys%l_cnt = r
-                        z=z+1
+
                       end if
                     end do
                   end if
                 END DO
               elseif (INDEX(txt , 'RECURSIVE')==1) then
                 crys%recrsv = .true.
-                z=z+1
+
                 DO
+                  z=z+1; if(z > numberl) exit
                   txt = adjustl (tfile (z))
-                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) then
-                    z=z+1
-                    cycle
-                  elseif ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
+
+                  if(len_trim(txt) == 0 .or. index(txt,'{')==1 .or. index(txt,"!") == 1) cycle
+                  if ( index(txt,'TRANSITIONS')/=0 .or. index(txt,'CALCULATION')==1 .or. &
                            index(txt,'EXPERIMENTAL')==1) then
-                    exit
+                    z=z-1
+                    cycle main_loop
                   elseif (index(txt , 'INFINITE')==1) then
                     crys%inf_thick = .true.
-                    z=z+1
+
                   else
                     read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
                     crys%inf_thick = .false.
-                    z=z+1
+
 !//////////////////////////////////////////////////////////////////////////////
                     do
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl(tfile (z))
+
                       if (len_trim(txt) == 0 .or. index(txt,'{')==1 .or. &
-                        index(txt,"!") == 1) then
-                        z = z +1
-                        cycle
-                      elseif ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or. &
+                        index(txt,"!") == 1) cycle
+                      if ( index(txt,'LAYER')==1 .or. index(txt, 'STRUCTURAL')== 1 .or. &
                                index(txt,'STACKING')==1 .or. index(txt,'TRANSITIONS')==1 .or. &
                                index(txt,'CALCULATION')==1 .or. index(txt,'EXPERIMENTAL')==1) then
-                        exit
+                        z=z-1
+                        cycle main_loop
 
                       else
                         y = index (txt, '(')    ! check if there are parenthesis and eliminate them
@@ -1933,7 +1928,7 @@
                             return
                           end if
                           crys%rang_l_cnt= 0.0
-                          z = z + 1
+
                         elseif (n_word == 2) then
                           read (unit = txt, fmt = *) crys%ref_l_cnt, crys%rang_l_cnt
                           if (crys%ref_l_cnt/= 0) then
@@ -1949,7 +1944,7 @@
                             crys%vlim2 (crys%npar) = crys%l_cnt + crys%rang_l_cnt
                           end if
                             if (crys%ref_l_cnt== 0) crys%rang_l_cnt = 0.0
-                            z = z + 1
+
                         end if
                       end if
                     end do
@@ -1964,33 +1959,38 @@
             end do
 
           elseif  (INDEX(txt,'TRANSITIONS') == 1 ) then         ! transitions section
-            z = z + 1
+
             do
+              z = z+1; if(z > numberl) exit
               txt = adjustl (tfile (z))
-              if (len_trim (txt) == 0 .or. index(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                z = z+1
-                cycle
-              elseif (INDEX(txt,'CALCULATION') == 1 ) then
-                exit
+
+              if (len_trim (txt) == 0 .or. index(txt,'{')==1 .or. INDEX(txt,'!')==1 ) cycle
+              if (INDEX(txt,'CALCULATION') == 1 ) then
+                z=z-1
+                cycle Main_Loop
               else
                 i = 1
+                z=z-1
                 do
+                  z=z+1; if(z > numberl) exit
                   txt = adjustl (tfile (z))
-                  if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1  ) then
-                    z=z+1
-                    cycle
-                  elseif (INDEX(txt,'CALCULATION') == 1 ) then
-                    exit
+
+                  if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1  ) cycle
+                  if (INDEX(txt,'CALCULATION') == 1 ) then
+                    z=z-1
+                    cycle Main_Loop
                   else
                     j=1
+                    z=z-1
                     do
+                      z=z+1; if(z > numberl) exit
                       txt = adjustl (tfile (z))
-                      if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                        z=z+1
-                        cycle
-                      elseif (INDEX(txt,'CALCULATION') == 1 ) then
-                        exit
-                      elseif (j .GT. crys%n_typ ) then
+                      if  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) cycle
+                      if (INDEX(txt,'CALCULATION') == 1 ) then
+                        z=z-1
+                        cycle Main_Loop
+                      elseif (j > crys%n_typ ) then
+                        z=z-1
                         exit
                       else
                         k = index (txt,'(')             !  if Fats Waller parameters are present we eliminate parenthesis
@@ -2016,7 +2016,6 @@
                           crys%l_r (2,j,i)   = num_real(3)
                           crys%l_r (3,j,i)   = num_real(4)
 
-                          z=z+1
                         elseif (n_word == 10) then                          ! Fats Waller present
                           call read_fraction (word,n_word, num_real)
                           crys%l_alpha (j,i) = num_real(1)
@@ -2030,8 +2029,6 @@
                           crys%r_b31 (j,i)        = num_real(9)
                           crys%r_b23 (j,i)        = num_real(10)
 
-                          z=z+1
-
                         else
                           Err_crys=.true.
                           Err_crys_mess="ERROR reading layer transitions"
@@ -2040,12 +2037,12 @@
                         end if
 
                         DO
+                          z=z+1; if(z > numberl) exit
                           txt = adjustl (tfile (z))
-                          IF  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) then
-                            z=z+1
-                            cycle
-                          ELSEIF (INDEX(txt,'CALCULATION') == 1 ) then
-                            exit
+                          IF  (len_trim (txt) == 0 .or. INDEX(txt,'{')==1 .or. INDEX(txt,'!')==1 ) cycle
+                          IF (INDEX(txt,'CALCULATION') == 1 ) then
+                            z=z-1
+                            cycle Main_Loop
                           ELSE
                             txt = adjustl (tfile (z))
                             k = index (txt, '(')    ! check if there are parenthesis and eliminate them
@@ -2079,7 +2076,7 @@
                               crys%rang_l_r (1,j,i)  = 0.0
                               crys%rang_l_r (2,j,i)  = 0.0
                               crys%rang_l_r (3,j,i)  = 0.0
-                              z = z + 1
+
                               exit
                             elseif (n_word == 8) then
                               read (unit = txt, fmt = *) crys%ref_l_alpha (j,i), &
@@ -2087,7 +2084,7 @@
                                     crys%ref_l_r (3,j,i), crys%rang_l_alpha (j,i),     &
                                     crys%rang_l_r(1,j,i), crys%rang_l_r(2,j,i) ,&
                                     crys%rang_l_r(3,j,i)
-                              z = z + 1
+
                               if (crys%ref_l_alpha (j,i) /= 0)  then
                                 crys%npar = crys%npar + 1    !to count npar
                                 crys%list (crys%npar) = crys%l_alpha (j,i)
@@ -2153,7 +2150,7 @@
                             end if
                           END IF
                         END DO
-                        txt = adjustl(tfile(z))
+
                       end if
                       j = j + 1
                     end do
@@ -2164,39 +2161,39 @@
             end do
 
             DO  i = 1, crys%n_typ        !check if l_apha sums one for each layer
-              sum = 0
+              suma = 0
               DO  j = 1, crys%n_typ
-                sum = sum + crys%l_alpha(j,i)
+                suma = suma + crys%l_alpha(j,i)
               END DO
 
-              IF(ABS(sum - 1) > eps) THEN
+              IF(ABS(suma - 1.0) > eps) THEN
                 write(op,*) "Stacking probabilities from LAYER ",i," do not sum to 1."
-                write (*,*)  'the sum is'  , sum
+                write (*,*)  'the sum is'  , suma
                 logi = .false.
               end if
             END DO
 
+            !do
+            !  if (INDEX(txt,'CALCULATION') == 1 ) then
+            !    exit
+            !  else
+            !    z = z+1; if(z > numberl) exit
+            !    txt = adjustl(tfile(z))
+            !  end if
+            !end do
+
+          else if  (INDEX(txt,'CALCULATION') == 1 ) then
+
+
             do
-              if (INDEX(txt,'CALCULATION') == 1 ) then
-                exit
-              else
-                z = z +1
-                txt = adjustl(tfile(z))
-              end if
-            end do
-
-          elseif  (INDEX(txt,'CALCULATION') == 1 ) then
-
-            z=l+1
-            do
-
+              z=z+1; if(z > numberl) exit
               txt = adjustl (tfile (z))
 
-              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                z = z+1
-                cycle
-              else if (index (txt, 'EXPERIMENTAL' ) == 1 .or. z > numberl) then
-                exit
+
+              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+              if (index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                z=z-1
+                cycle main_loop
               else
                 read (unit = txt, fmt = *, iostat=ier) crys%calctype
 
@@ -2205,20 +2202,18 @@
                 case ('SIMULATION')
 
                   opt = 0
-                  z = z +1
+
 
                   do
+                    z=z+1; if(z > numberl) exit
                     txt = adjustl (tfile (z))
 
-                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                      z = z+1
-                      cycle
-                    else if ( z > numberl ) then
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                    if ( z > numberl ) then
                       exit
                     else
                       read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
 
-                      z = z +1
                       IF(th2_min < zero) THEN
                         WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
                         logi = .false.
@@ -2273,57 +2268,48 @@
 
                 case ('SIMPLEX')
                   opt = 2
-                  z = z +1
+
                   opti%iquad = 1
 
                   do
-
+                    z = z+1; if(z > numberl) exit
                     txt = adjustl (tfile (z))
 
-                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                      z=z+1
-                      cycle
-                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                    if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      z=z-1
                       exit
                     else
                       read(unit = txt, fmt = *, iostat=ier) opti%mxfun
-                      z = z +1
-                      txt = adjustl (tfile (z))
 
                       do
+                        z = z+1; if(z > numberl) exit
+                        txt = adjustl (tfile (z))
 
-                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                          z=z+1
-                          txt = adjustl (tfile (z))
-                          cycle
-                        else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) cycle
+                        if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          z=z-1
                           exit
                         else
                           read(unit = txt, fmt = *, iostat=ier) opti%eps
-                          z = z + 1
-                          txt = adjustl (tfile (z))
                           do
-                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                              z=z+1
-                              txt = adjustl (tfile (z))
-                              cycle
-                            else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            z = z+1; if(z > numberl) exit
+                            txt = adjustl (tfile (z))
+                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                            if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              z=z-1
                               exit
                             else
                               read(unit = txt, fmt = *, iostat=ier) opti%iout
-                              z = z + 1
-                              txt = adjustl (tfile (z))
-                              do
-                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                  z=z+1
-                                  txt = adjustl (tfile (z))
-                                  cycle
-                                else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                               do
+                                z = z+1; if(z > numberl) exit
+                                txt = adjustl (tfile (z))
+                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  z=z-1
                                   exit
                                 else
                                   read(unit = txt, fmt = *, iostat=ier) opti%acc
-                                  z = z + 1
-                                  txt = adjustl (tfile (z))
                                 end if
                               end do
                             end if
@@ -2346,6 +2332,7 @@
                   opti%loops = 2 * n_plex
                   opti%iquad=1
 
+                  opti%npar = crys%npar
 
                   do i = 1, numpar
                      label(crys%p(i)) = 0
@@ -2366,77 +2353,63 @@
 
                 case ('LOCAL_OPTIMIZER')
                   opt = 3
-                  z = z +1
-                  txt = adjustl (tfile (z))
                   opti%iquad = 1
 
                   do
+                    z = z+1; if(z > numberl) exit
+                    txt = adjustl (tfile (z))
 
-                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                      z=z+1
-                      txt = adjustl (tfile (z))
-                      cycle
-                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                    if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      z=z-1
                       exit
+
                     else
 
                       read(unit = txt, fmt = *, iostat=ier) opti%method
-                      z = z +1
-                      txt = adjustl (tfile (z))
 
 
-                      if (opti%method == "DFP_NO_DERIVATIVE" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
+                      if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
 
                         do
+                          z = z+1; if(z > numberl) exit
+                          txt = adjustl (tfile (z))
 
-                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                            z=z+1
-                            txt = adjustl (tfile (z))
-                            cycle
-
-                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                          if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            z=z-1
                             exit
                           else
                             read(unit = txt, fmt = *, iostat=ier) opti%mxfun
-                            z = z +1
-                            txt = adjustl (tfile (z))
 
                             do
-                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                                z=z+1
-                                txt = adjustl (tfile (z))
-                                cycle
-                              else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              z = z+1; if(z > numberl) exit
+                              txt = adjustl (tfile (z))
+                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) cycle
+                              if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                z=z-1
                                 exit
                               else
                                 read(unit = txt, fmt = *, iostat=ier) opti%eps
-                                z = z + 1
-                                txt = adjustl (tfile (z))
-                                write(*,*) "eps", opti%eps
                                 do
-                                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                    z=z+1
-                                    txt = adjustl (tfile (z))
-                                    cycle
-                                  else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  z = z+1; if(z > numberl) exit
+                                  txt = adjustl (tfile (z))
+                                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                  if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                    z=z-1
                                     exit
                                   else
                                     read(unit = txt, fmt = *, iostat=ier) opti%iout
-                                    z = z + 1
-                                    txt = adjustl (tfile (z))
 
                                     do
-                                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                        z=z+1
-                                        txt = adjustl (tfile (z))
-                                        cycle
-                                      else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                      z = z+1; if(z > numberl) exit
+                                      txt = adjustl (tfile (z))
+                                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                      if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                        z=z-1
                                         exit
                                       else
                                         read(unit = txt, fmt = *, iostat=ier) opti%acc
-                                        z = z + 1
-                                        txt = adjustl (tfile (z))
-                                        write(*,*) "acc", opti%acc, txt
                                         exit
                                       end if
                                     end do
@@ -2451,41 +2424,33 @@
                       else if (opti%method == "SIMPLEX") then
 
                         read(unit = txt, fmt = *, iostat=ier) opti%mxfun
-                        z = z +1
-                        txt = adjustl (tfile (z))
                         do
-                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                            z=z+1
-                            txt = adjustl (tfile (z))
-                            cycle
-                          else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          z = z+1; if(z > numberl) exit
+                          txt = adjustl (tfile (z))
+                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) cycle
+                          if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            z=z-1
                             exit
                           else
                             read(unit = txt, fmt = *, iostat=ier) opti%eps
-                            z = z + 1
-                            txt = adjustl (tfile (z))
                             do
-                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                z=z+1
-                                txt = adjustl (tfile (z))
-                                cycle
-                              else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              z = z+1; if(z > numberl) exit
+                              txt = adjustl (tfile (z))
+                              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                              if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                z=z-1
                                 exit
                               else
                                 read(unit = txt, fmt = *, iostat=ier) opti%iout
-                                z = z + 1
-                                txt = adjustl (tfile (z))
                                 do
-                                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                    z=z+1
-                                    txt = adjustl (tfile (z))
-                                    cycle
-                                  else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  z = z+1; if(z > numberl) exit
+                                  txt = adjustl (tfile (z))
+                                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                  if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                    z=z-1
                                     exit
                                   else
                                     read(unit = txt, fmt = *, iostat=ier) opti%acc
-                                    z = z + 1
-                                    txt = adjustl (tfile (z))
                                   end if
                                 end do
                               end if
@@ -2493,8 +2458,6 @@
                           end if
                         end do
                       else
-                        z=z+1
-                        txt = adjustl (tfile (z))
                         exit
 
                       end if
@@ -2514,6 +2477,7 @@
                   opti%loops = 2 * n_plex
                   opti%iquad=1
 
+                  opti%npar = crys%npar
 
                   do i = 1, numpar
                      label(crys%p(i)) = 0
@@ -2523,9 +2487,12 @@
 
                     if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
                        v_plex(crys%p(i)) = crys%list(i)
+
                      !  nampar(pnum(i)) = namepar(i)
                        sanvec%low(pnum(i)) = crys%vlim1(i)
                        sanvec%high(pnum(i)) = crys%vlim2(i)
+                        write(*,*) "CRYS%VLIM", crys%vlim1(i)
+                        write(*,*) "NUMPAR case" , numpar,   crys%npar
                     end if
                     label (crys%p(i)) = 1
                   end do
@@ -2536,74 +2503,62 @@
 
                 case ('SAN')
                   opt = 1
-                  z = z +1
+
                   do
+                    z = z+1; if(z > numberl) exit
                     txt = adjustl (tfile (z))
-                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                      z=z+1
-                      cycle
-                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                    if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                      z=z-1
                       exit
                     else
                       read(unit = txt, fmt = *, iostat=ier) crys%n_cycles
-                      z = z +1
-                     txt = adjustl (tfile (z))
 
                       do
-                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) then
-                          z=z+1
-                          txt = adjustl (tfile (z))
-                          cycle
-                        else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                        z = z+1; if(z > numberl) exit
+                        txt = adjustl (tfile (z))
+                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) cycle
+                        if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                          z=z-1
                           exit
                         else
                           read(unit = txt, fmt = *, iostat=ier) crys%num_temp
-                          z = z + 1
-                          txt = adjustl (tfile (z))
                           do
-                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                              z=z+1
-                              txt = adjustl (tfile (z))
-                              cycle
-                            else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                            z = z+1; if(z > numberl) exit
+                            txt = adjustl (tfile (z))
+                            if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                            if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                              z=z-1
                               exit
                             else
                               read(unit = txt, fmt = *, iostat=ier) crys%t_ini
-                              z = z + 1
-                              txt = adjustl (tfile (z))
                               do
-                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                  z=z+1
-                                  txt = adjustl (tfile (z))
-                                  cycle
-                                else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                z = z+1; if(z > numberl) exit
+                                txt = adjustl (tfile (z))
+                                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                  z=z-1
                                   exit
                                 else
                                   read(unit = txt, fmt = *, iostat=ier) crys%anneal
-                                  z = z + 1
-                                  txt = adjustl (tfile (z))
                                   do
-                                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                      z=z+1
-                                      txt = adjustl (tfile (z))
-                                      cycle
-                                    else if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                    z = z+1; if(z > numberl) exit
+                                    txt = adjustl (tfile (z))
+                                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                    if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
+                                      z=z-1
                                       exit
                                     else
                                       read(unit = txt, fmt = *, iostat=ier) crys%accept
-                                      z = z + 1
-                                      txt = adjustl (tfile (z))
                                       do
-                                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                                          z=z+1
-                                          txt = adjustl (tfile (z))
-                                          cycle
-                                        else if ( index (txt, 'EXPERIMENTAL') == 1 ) then
+                                        z = z+1; if(z > numberl) exit
+                                        txt = adjustl (tfile (z))
+                                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                                        if ( index (txt, 'EXPERIMENTAL') == 1 ) then
+                                          z=z-1
                                           exit
                                         else
                                           read(unit = txt, fmt = *, iostat=ier) crys%init_config
-                                          z = z + 1
-                                          txt = adjustl (tfile (z))
                                         end if
                                       end do
                                     end if
@@ -2653,21 +2608,21 @@
                   logi = .false.
                   stop
                 end select
+
+
+
               end if
             end do
 
           else if(INDEX(txt,'EXPERIMENTAL') == 1 ) then
-            z=l+1
             do
-                txt = adjustl (tfile (z))
-              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                z = z+1
-                cycle
-              else if ( z > numberl) then
+              z=z+1; if(z > numberl) exit
+              txt = adjustl (tfile (z))
+              if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+              if ( z > numberl) then
                 exit
               else
                 read (unit = txt, fmt = *, iostat=ier) dfile , th2_min, th2_max, d_theta
-                z = z +1
 
                 if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
                   th2_min = th2_min * deg2rad
@@ -2676,38 +2631,26 @@
                 end if
 
                 do
+                  z=z+1; if(z > numberl) exit
                   txt = adjustl (tfile (z))
-                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                    z = z+1
-                    cycle
-                  elseif ( z > numberl) then
+                  if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                  if ( z > numberl) then
                     exit
                   else
                     read (unit = txt, fmt = *, iostat=ier) fmode
-                    z = z + 1
                     do
+                      z = z+1; if(z > numberl) exit
                       txt = adjustl (tfile (z))
-                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                        z = z+1
-                        cycle
-                      elseif ( z > numberl) then
-                        exit
-                      else
-                        read (unit = txt, fmt = *, iostat=ier)  background_file
-                        z = z +1
-                        do
-                          txt = adjustl (tfile (z))
-                          if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) then
-                            z = z+1
-                            cycle
-                          else if ( z > numberl) then
-                            exit
-                          else
-                            read (unit = txt, fmt = *, iostat=ier) mode
-                            z = z + 1
-                          end if
-                        end do
-                      end if
+                      if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                      read (unit = txt, fmt = *, iostat=ier)  background_file
+
+                      do
+                        z = z+1; if(z > numberl) exit
+                        txt = adjustl (tfile (z))
+                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
+                        read (unit = txt, fmt = *, iostat=ier) mode
+                      end do
+
                     end do
                   end if
                 end do
@@ -2716,7 +2659,8 @@
           else
             if(index(txt,"!") == 1  .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
           end if
-        End do
+
+        End do main_loop
 
 
 !        end  of reading section
@@ -2775,8 +2719,10 @@
                                   mult = crys%mult(1:numpar)
                               n_layers = crys%n_typ
 
-
-
+        write(*,*) "Wa, Wb", Wa, Wb
+        do i=1, numpar
+          write(*,*) "crys%vlim1,crys%vlim2", crys%vlim1(i),crys%vlim2(i)
+        end do
         return
         End subroutine  read_structure_file
 

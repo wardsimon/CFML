@@ -118,7 +118,7 @@
           character                              :: cons
 
 
-          do i= 1, npar                          !shift calculation
+          do i= 1, numpar                          !shift calculation
 
                 shift(i) = vref(i) - gen(i)
 
@@ -300,6 +300,8 @@
     real, dimension(80)     :: shift, state, menor=1, multi, tar
     character               :: cons
 
+          write(*,*)"--------FCOST-------"
+
           do i= 1, n_plex
                 shift(i) = v(i) - gen(i)
           end do
@@ -332,7 +334,7 @@
           do i=1, numpar                                                            !assignment of new values and more restrictions
 
             state(i) = vector(i) +  mult(i) * shift(pnum(i))
-           ! write(*,*) state(i), vector(i), mult(i), shift(pnum(i))
+            write(*,*) "state(i), vector(i), mult(i), shift(pnum(i))", state(i), vector(i), mult(i), shift(pnum(i))
             if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 )   state(i) = (-1.0) * state(i)  !Biso only >0
             if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 )   state(i) = (-1.0) * state(i)  !v only <0
             if (index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. &
@@ -451,6 +453,7 @@
             end do
           end if
           ok = .true.
+          write(*,*) "OK,state( 1:numpar)   ", ok , state( 1:numpar)
           IF(cfile) CLOSE(UNIT = cntrl)
           return
     End subroutine F_cost
@@ -461,7 +464,7 @@
 
      use CFML_GlobalDeps,              only : sp , cp
      use CFML_String_Utilities,        only : number_lines , reading_lines ,  init_findfmt, findfmt ,iErr_fmt, &
-                                              getword, err_string, err_string_mess, getnum, Ucase
+                                              getword, err_string, err_string_mess, getnum, Ucase, lcase
      use CFML_Diffraction_patterns,    only : read_pattern , diffraction_pattern_type , err_diffpatt, err_diffpatt_mess,  &
                                               read_background_file
      use CFML_Simulated_Annealing
@@ -483,7 +486,7 @@
 
       real                                                    :: rpl,  theta ,thmin, thmax , thmin_o  , ymax, ymini , ymin ,deg
       LOGICAL                                                 :: ok, ending , gol, p_ok
-      INTEGER*4                                               :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, p_resta
+      INTEGER*4                                               :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, p_resta ,e
       character(len=100)                                      :: pfile, bfile , bmode
       character(len=100)                                      :: pmode, filenam
       integer, parameter                                      :: out = 25
@@ -505,7 +508,7 @@
       cntrl=ip
 
       call new_getfil(infile, crys, opt_c, san,st,   gol)                           ! parametros para calculo
-
+     ! write(*,*) "opt_c%npar", opt_c%npar, opt_c%
       san%Cost_function_name="R-factor"
 
       IF(gol) then
@@ -872,7 +875,6 @@
 
 
               IF(ok) ok = get_g()
-
               write(*,"(a)") " => Calling dump file="//trim(infile)
               call dump(infile, p_ok)
 
@@ -885,6 +887,7 @@
                 steplex(i) = 0.05 * v_plex(i)
               end do
               open (unit=23, file='nelder_mess.out', status='replace', action='write')
+              !write(*,*) "npar", opt_c%npar, numpar
               call  Nelder_Mead_Simplex( F_cost,n_plex ,v_plex(1:n_plex) , &
                                          steplex(1:n_plex), var_plex(1:n_plex), rpl, opt_c, ipr=23)
               write(*,*)'Rp', rpo
@@ -1078,8 +1081,9 @@
               rpl = 0
 
               open (unit=23, file='local_optimizer.out', status='replace', action='write')
-              if (opt_c%method == "dfp_no-derivative" .or. opt_c%method == "local_random" .or. opt_c%method == "unirandom") then
-                call  Local_Optimize( F_cost,v_plex(1:n_plex) ,  rpl, opt_c, crys%vlim1(1:n_plex),crys%vlim2(1:n_plex),&
+              if (opt_c%method == "DFP_NO-DERIVATIVES" .or. opt_c%method == "LOCAL_RANDOM" .or. opt_c%method == "UNIRANDOM") then
+                call Lcase(opt_c%method )
+                call  Local_Optimize( F_cost,v_plex(1:n_plex) ,  rpl, opt_c, mini=crys%vlim1(1:n_plex),maxi=crys%vlim2(1:n_plex),&
                                     ipr=23  )
               else
                 write(*,*) "simplex to be added"
