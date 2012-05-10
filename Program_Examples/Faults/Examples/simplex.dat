@@ -8,7 +8,7 @@ radiation   x-ray
    !lambda1   lambda2   ratio
 wavelength   1.5418  1.544430    0.5
   !instr. broadening  u         v           w          x       Dg         Dl
-pseudo-voigt      0.003637  -0.003558   0.002274       0      10000      10000      trim
+pseudo-voigt        0.003637  -0.003558   0.002274       0      10000      10000      trim
                       0.0        0.0        0.0       0.0      0            0     (0.01   0.01   0.01   0.01   100.0  100.0  )
 
 

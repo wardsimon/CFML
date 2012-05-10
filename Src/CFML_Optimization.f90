@@ -2359,7 +2359,7 @@
        real(kind=cp)                      :: h, deltf, eps, a, f1,relcon, maxfn
        real(kind=cp), dimension(n)        :: x1
        real(kind=cp), dimension(100,n)    :: r
-       real(kind=cp), parameter           :: zero=0.0_cp, onen3=0.001_cp, half=0.5_cp, one=1.0_cp, two=2.0_cp
+       real(kind=cp), parameter           :: zero=0.0_cp, onen3=0.1_cp, half=0.5_cp, one=1.0_cp, two=2.0_cp
 
        h = onen3                   !First executable statement
        deltf = one                 !initial step length
@@ -2381,6 +2381,7 @@
                IF (irndm > 100) cycle do_outm
                a = zero                            !Select a random vector having norm
                DO  i=1,n                           !less or equal to 0.5
+                 !r(irndm,i) = r(irndm,i)-half
                  r(irndm,i) = r(irndm,i)-half
                  a = a+r(irndm,i)*r(irndm,i)
                END DO
@@ -2388,6 +2389,9 @@
                a = SQRT(a)
                IF (a > half) cycle do_intm
                r(irndm,1:n) = r(irndm,1:n)/a       !New trial point
+
+               r(irndm,1:n)=r(irndm,1:n)*(maxi(1:n)-mini(1:n))  !Scale with the box limits (not sure that it works)
+
                x1(1:n) = x(1:n)+h*r(irndm,1:n)
                call Put_In_Box(n,mini,maxi,x1)
                CALL Model_Functn(n, x1, f1)

@@ -77,9 +77,10 @@
        real,             dimension(:,:,:), allocatable  :: l_r                          !transitions vector
        real,             dimension(:,:,:), allocatable  :: rang_l_r                     !range of refinement of transitions vector
        real,             dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
-       real,             dimension(:)  ,   allocatable  ::  list                       !vector containing all the parameters to optimize
+       real,             dimension(:)  ,   allocatable  :: list                         !vector containing all the parameters to optimize
        real,             dimension(:),     allocatable  :: vlim1                        !Low-limit value of parameters
        real,             dimension(:),     allocatable  :: vlim2                        !Low-limit value of parameters
+       real,             dimension(:)  ,   allocatable  :: NP_refi                      !vector containing the free parameters to optimize (restrictions taken into account)
        end  type crys_2d_type
 
        integer, parameter ,private                      :: i_data=30
@@ -93,9 +94,9 @@
                                                                        !4:STACKING , 5:TRANSITIONS, 6:CALCULATION,
                                                                        !7:EXPERIMENTAL
 
-      type (crys_2d_type)            ,  public  :: crys
-      type (Opt_Conditions_Type)     ,  public  :: opti
-      type (SimAnn_Conditions_type ) ,  public  :: opsan
+      type (crys_2d_type),            save,  public  :: crys
+      type (Opt_Conditions_Type),     save,  public  :: opti
+      type (SimAnn_Conditions_type ), save,  public  :: opsan
 
       integer, parameter ::  nrp=80
 
@@ -193,24 +194,31 @@
  !7:EXPERIMENTAL
     Subroutine Read_INSTRUMENTAL(logi)
       logical, intent(out) :: logi
+
       integer :: i,i1,i2,k, ier
       character(len=132) :: txt
       character(len=25)  :: key
+      logical :: ok_rad, ok_wave, ok_uvw
 
       logi=.true.
       i1=sect_indx(1)
       i2=sect_indx(2)-1
 
       i=i1
+
+      ok_rad=.false.; ok_wave=.false.; ok_uvw=.false.
+
       do
+
         i=i+1; if(i > i2) exit
         txt=adjustl(tfile(i))
-        if(len_trim(txt) == 0 .or. txt(1:1)="!" .or. txt(1:1)="{") cycle
+        if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
         key=txt(1:k-1)
-        txt=txt(k+1:)
+        txt=adjustl(txt(k+1:))
 
         Select Case(key)
+
           Case("RADIATION")
 
                if (index(txt , 'X-RAY')/=0 ) then
@@ -225,6 +233,7 @@
                   logi = .false.
                   return
                 end if
+                ok_rad=.true.
 
           Case("WAVELENGTH")
 
@@ -238,32 +247,318 @@
                   return
                 end if
              end if
+             ok_wave=.true.
+
           Case("PSEUDO-VOIGT")
 
-             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%Dg, crys%Dl
+             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Pseudo-Voigt instruction"
                logi=.false.
                return
              end if
+
+             if(index(txt,"TRIM") /= 0) crys%trm=.true.
+
              i=i+1
              txt=adjustl(tfile(i))
+             !Reading refinement codes
              read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
                                               crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+             if(ier /= 0) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading the refinement codes of the Pseudo-Voigt instruction"
+               logi=.false.
+               return
+             end if
+
+             !Reading range of parameters
              k=index(txt,"(")
-             read(unit=txt(k+1:),fmt=
+             if(k /= 0) then
+                read(unit=txt(k+1:),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
+                                                       crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
+                if(ier /= 0) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading the ranges of the Pseudo-Voigt parameters"
+                  logi=.false.
+                  return
+                end if
 
-          Case("GAUSSIAN")
-          Case("LORENTZIAN")
+             else
+               Err_crys=.true.
+               Err_crys_mess="ERROR: No parameter ranges in the Pseudo-Voigt instruction: these must be given!"
+               logi=.false.
+               return
+             end if
 
+             ok_uvw=.true.
 
+          Case("GAUSSIAN","LORENTZIAN")
+
+             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w
+             if(ier /= 0 ) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
+               logi=.false.
+               return
+             end if
+
+             if(index(txt,"TRIM") /= 0) crys%trm=.true.
+
+             i=i+1
+             txt=adjustl(tfile(i))
+             !Reading refinement codes
+             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w
+             if(ier /= 0) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
+               logi=.false.
+               return
+             end if
+
+             !Reading range of parameters
+             k=index(txt,"(")
+             if(k /= 0) then
+                read(unit=txt(k+1:),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w
+
+                if(ier /= 0) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters"
+                  logi=.false.
+                  return
+                end if
+
+             else
+               Err_crys=.true.
+               Err_crys_mess="ERROR: No parameter ranges in the Gaussian/Lorentzian instruction: these must be given!"
+               logi=.false.
+               return
+             end if
+
+             ok_uvw=.true.
+
+          Case Default
+
+             cycle
 
         End Select
       end do
+
+      if(ok_rad .and. ok_wave .and. ok_uvw) then
+        return
+      else
+        Err_crys=.true.
+        Err_crys_mess="ERROR: Radiation type, wavelength or UVW parameters missing!"
+        logi=.false.
+      end if
+
     End Subroutine Read_INSTRUMENTAL
 
-    Subroutine Read_STRUCTURAL()
+    Subroutine Read_STRUCTURAL(logi)
+      logical, intent(out) :: logi
+
+      integer :: i,i1,i2,j,k, ier, iflag
+      character(len=132) :: txt
+      character(len=25)  :: key
+      logical :: ok_cell, ok_symm, ok_nlayers
+      character(len=*), dimension(12), parameter ::  list=(/'-1 ','2/M(1) ','2/M(2) ','MMM ','-3 ','-3M ','4/M ', &
+                                                            '4/MMM ','6/M ','6/MMM ','AXIAL ','UNKNOWN '/)
+
+      logi=.true.
+      i1=sect_indx(2)
+      i2=sect_indx(3)-1
+
+      i=i1
+
+      ok_cell=.false.; ok_symm=.false.; ok_nlayers=.false.
+
+      do
+
+        i=i+1; if(i > i2) exit
+        txt=adjustl(tfile(i))
+        if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
+        k=index(txt," ")
+        key=txt(1:k-1)
+        txt=adjustl(txt(k+1:))
+
+        Select Case(key)
+
+          Case("CELL")
+                read(unit=txt,fmt=*,iostat=ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
+                if (ier /= 0)then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading cell parameters"
+                  logi = .false.
+                  return
+                end if
+                crys%cell_gamma = crys%cell_gamma * deg2rad
+
+             i=i+1
+             txt=adjustl(tfile(i))
+             !Reading refinement codes
+             read(unit=txt,fmt=*, iostat=ier)  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
+                                               crys%ref_cell_gamma   !read refinement codes of cell parameters
+             if(ier /= 0) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading the refinement codes of the cell parameters"
+               logi=.false.
+               return
+             end if
+
+             !Reading range of parameters
+             k=index(txt,"(")
+             if(k /= 0) then
+                read(unit=txt(k+1:),fmt=*, iostat=ier) crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c, crys%rang_cell_gamma
+                if(ier /= 0) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading the ranges of the cell parameters"
+                  logi=.false.
+                  return
+                end if
+
+             else
+               Err_crys=.true.
+               Err_crys_mess="ERROR: No parameter ranges in the cell instruction: these must be given!"
+               logi=.false.
+               return
+             end if
+
+             ok_cell=.true.
+
+          Case("SYMM")
+
+             j=index(txt, " ")
+             if( j < 2) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading the SYMM instruction"
+               logi=.false.
+               return
+             end if
+             crys%sym=txt(1:j-1)
+
+             read(unit=txt(j:) ,fmt=*, iostat = ier) crys%tolerance
+             if(ier /= 0 ) crys%tolerance = 1
+
+             iflag = choice(crys%sym, list, 12)
+             crys%sym  = list(iflag)
+
+             If(iflag >= 1 .and. iflag <= 11) Then
+                  Crys%Symgrpno = iflag
+             Else If(iflag == 12) Then
+                 ! A Value Of Unknown = -1 Alerts Optimz That User Entered 'unknown'
+                  Crys%Symgrpno = -1
+             End If
+
+             crys%tolerance = crys%tolerance * eps2   ! convert from a percentage
+
+
+             ok_symm=.true.
+
+          !Case("NLAYERS")
+          !
+          !   read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
+          !   if(ier /= 0 ) then
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR reading Pseudo-Voigt instruction"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   if(index(txt,"TRIM") /= 0) crys%trm=.true.
+          !
+          !   i=i+1
+          !   txt=adjustl(tfile(i))
+          !   !Reading refinement codes
+          !   read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
+          !                                    crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+          !   if(ier /= 0) then
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR reading the refinement codes of the Pseudo-Voigt instruction"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   !Reading range of parameters
+          !   k=index(txt,"(")
+          !   if(k /= 0) then
+          !      read(unit=txt(k+1:),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
+          !                                             crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
+          !      if(ier /= 0) then
+          !        Err_crys=.true.
+          !        Err_crys_mess="ERROR reading the ranges of the Pseudo-Voigt parameters"
+          !        logi=.false.
+          !        return
+          !      end if
+          !
+          !   else
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR: No parameter ranges in the Pseudo-Voigt instruction: this must be given!"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   ok_uvw=.true.
+          !
+          !Case("GAUSSIAN","LORENTZIAN")
+          !
+          !   read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w
+          !   if(ier /= 0 ) then
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   if(index(txt,"TRIM") /= 0) crys%trm=.true.
+          !
+          !   i=i+1
+          !   txt=adjustl(tfile(i))
+          !   !Reading refinement codes
+          !   read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w
+          !   if(ier /= 0) then
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   !Reading range of parameters
+          !   k=index(txt,"(")
+          !   if(k /= 0) then
+          !      read(unit=txt(k+1:),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w
+          !
+          !      if(ier /= 0) then
+          !        Err_crys=.true.
+          !        Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters"
+          !        logi=.false.
+          !        return
+          !      end if
+          !
+          !   else
+          !     Err_crys=.true.
+          !     Err_crys_mess="ERROR: No parameter ranges in the Gaussian/Lorentzian instruction: this must be given!"
+          !     logi=.false.
+          !     return
+          !   end if
+          !
+          !   ok_uvw=.true.
+
+          Case Default
+
+             cycle
+
+        End Select
+      end do
+
+      !if(ok_rad .and. ok_wave .and. ok_uvw) then
+      !  return
+      !else
+      !  Err_crys=.true.
+      !  Err_crys_mess="ERROR: Radiation type, wavelength or UVW parameters missing!"
+      !  logi=.false.
+      !end if
+
     End Subroutine Read_STRUCTURAL
 
     Subroutine Read_LAYER()
@@ -421,6 +716,12 @@
         if(allocated (crys%mult)) deallocate(crys%mult)
         allocate(crys%mult(nrp))
         crys%mult=0
+
+        if(allocated (crys% NP_refi)) deallocate(crys% NP_refi)
+        allocate(crys% NP_refi(nrp))
+        crys% NP_refi=0
+
+        return
     End Subroutine Set_Crys
 
 
@@ -563,25 +864,21 @@
         call Set_TFile(namef,logi)
         if(.not. logi) return
 
-        call Read_INSTRUMENTAL()
-        stop
+       ! call Read_INSTRUMENTAL(logi)
+       ! if(.not. logi) then
+       !   write(*,"(a)")  " => "//Err_crys_mess
+       !   return
+       ! else
+       !   write(*,"(a,i2)")     " Radiation:            ", crys%rad_type
+       !   write(*,"(a,3f10.4)") " Lambda:               ", crys%lambda, crys%lambda2, crys%ratio
+       !   write(*,"(a,6f10.4)") " peak-width parameters:", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
+       !   write(*,"(a,6f10.2)") " peak-width codes:     ", crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
+       !                                                    crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+       !   write(*,"(a,6f10.2)") " peak-width ranges:    ", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
+       !                                                    crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
+       ! end if
+       ! stop
 
-        !call number_lines(namef, numberl)                            ! count number of lines in file
-        !if (numberl==0) then
-        !  err_crys=.true.
-        !  err_crys_mess="ERROR :  The file "//trim(namef)//" contains nothing"
-        !  return
-        !else
-        ! if (allocated (tfile)) deallocate (tfile)
-        ! allocate (tfile(numberl))
-        ! tfile=" "
-        ! call reading_lines(namef, numberl, tfile)                    ! we 'charge' the file in tfile  so we can close the unit
-        !end if
-        !close(unit=i_data)
-        !
-        !do i = 1, numberl                 ! To read in case insensitive mode
-        !  call Ucase(tfile(i))
-        !end do
 
 !    begin to read
 
@@ -828,9 +1125,11 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0*  &
                                                         REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
-                                    crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
-                                    if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                    crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_u- crys%rang_p_u
+                                    if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_u + crys%rang_p_u
+                                    crys%NP_refi(crys%p(crys%npar)) = crys%p_u
+
                                   end if
                                   if (crys%ref_p_v /= 0) then
                                     crys%npar = crys%npar + 1        ! to count npar
@@ -841,9 +1140,10 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0*  &
                                     REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
-                                    crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
-                                    crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
-                                    if (crys%vlim2(crys%npar)  .GT. 0 ) crys%vlim2(crys%npar) = 0
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_v- crys%rang_p_v
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_v + crys%rang_p_v
+                                    if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
+                                    crys%NP_refi(crys%p(crys%npar))=crys%p_v
                                   end if
                                   if (crys%ref_p_w /= 0) then
                                     crys%npar = crys%npar + 1        ! to count npar
@@ -854,9 +1154,10 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
-                                    crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
-                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                    crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_w- crys%rang_p_w
+                                    if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_w + crys%rang_p_w
+                                    crys%NP_refi(crys%p(crys%npar))= crys%p_w
                                   end if
                                   if (crys%ref_p_x /= 0) then
                                     crys%npar = crys%npar + 1        ! to count npar
@@ -867,9 +1168,10 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
                                            REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
-                                    crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
-                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                    crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_x- crys%rang_p_x
+                                    if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_x + crys%rang_p_x
+                                    crys%NP_refi(crys%p(crys%npar))=crys%p_x
                                   end if
                                   if (crys%ref_p_dg /= 0) then
                                     crys%npar = crys%npar + 1        ! to count npar
@@ -880,11 +1182,12 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
                                       REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
-                                    crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
-                                    if (crys%vlim1(crys%npar)   .LT. 0 ) then
-                                      crys%vlim1(crys%npar) = 0
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_dg- crys%rang_p_dg
+                                    if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) then
+                                      crys%vlim1(crys%p(crys%npar)) = 0
                                     end if
-                                    crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_dg + crys%rang_p_dg
+                                    crys%NP_refi(crys%p(crys%npar))=crys%p_dg
                                   end if
                                   if (crys%ref_p_dl /= 0) then
                                     crys%npar = crys%npar + 1        ! to count npar
@@ -895,9 +1198,10 @@
                                     crys%p(crys%npar)= int(ab)
                                     crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
                                       REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
-                                    crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
-                                    if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                    crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
+                                    crys%vlim1(crys%p(crys%npar)) = crys%p_dl - crys%rang_p_dl
+                                    if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                    crys%vlim2(crys%p(crys%npar)) = crys%p_dl + crys%rang_p_dl
+                                    crys%NP_refi(crys%p(crys%npar)) =crys%p_dl
                                   end if
                                   if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
                                   if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
@@ -980,9 +1284,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_u))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_u ))
-                                  crys%vlim1 (crys%npar) = crys%p_u- crys%rang_p_u
-                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_u + crys%rang_p_u
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_u- crys%rang_p_u
+                                  if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_u + crys%rang_p_u
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_u
                                 end if
                                 if (crys%ref_p_v /= 0) then
                                   crys%npar = crys%npar + 1        ! to count npar
@@ -993,9 +1298,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_v))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_v ))
-                                  crys%vlim1 (crys%npar) = crys%p_v- crys%rang_p_v
-                                  if (crys%vlim1(crys%npar) .GT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_v + crys%rang_p_v
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_v- crys%rang_p_v
+                                  if (crys%vlim1(crys%p(crys%npar)) .GT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_v + crys%rang_p_v
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_v
                                 end if
                                 if (crys%ref_p_w /= 0) then
                                   crys%npar = crys%npar + 1        ! to count npar
@@ -1006,9 +1312,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_w))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_w ))
-                                  crys%vlim1 (crys%npar) = crys%p_w- crys%rang_p_w
-                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_w + crys%rang_p_w
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_w- crys%rang_p_w
+                                  if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_w + crys%rang_p_w
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_w
                                 end if
                                 if (crys%ref_p_x /= 0) then
                                   crys%npar = crys%npar + 1        ! to count npar
@@ -1019,9 +1326,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_x))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_x ))
-                                  crys%vlim1 (crys%npar) = crys%p_x- crys%rang_p_x
-                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_x + crys%rang_p_x
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_x- crys%rang_p_x
+                                  if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_x + crys%rang_p_x
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_x
                                 end if
                                 if (crys%ref_p_dg /= 0) then
                                   crys%npar = crys%npar + 1        ! to count npar
@@ -1032,9 +1340,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_dg))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dg ))
-                                  crys%vlim1 (crys%npar) = crys%p_dg- crys%rang_p_dg
-                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_dg + crys%rang_p_dg
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_dg- crys%rang_p_dg
+                                  if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_dg + crys%rang_p_dg
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_dg
                                 end if
                                 if (crys%ref_p_dl /= 0) then
                                   crys%npar = crys%npar + 1        ! to count npar
@@ -1045,9 +1354,10 @@
                                   crys%p(crys%npar)= int(ab)
                                   crys%mult(crys%npar) = ((abs(crys%ref_p_dl))-(10.0* &
                                           REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_p_dl ))
-                                  crys%vlim1 (crys%npar) = crys%p_dl - crys%rang_p_dl
-                                  if (crys%vlim1(crys%npar) .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                  crys%vlim2 (crys%npar) = crys%p_dl + crys%rang_p_dl
+                                  crys%vlim1(crys%p(crys%npar)) = crys%p_dl - crys%rang_p_dl
+                                  if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                  crys%vlim2(crys%p(crys%npar)) = crys%p_dl + crys%rang_p_dl
+                                  crys%NP_refi(crys%p(crys%npar)) =crys%p_dl
                                 end if
                                 if (crys%ref_p_u == 0) crys%rang_p_u = 0.0
                                   if (crys%ref_p_v == 0) crys%rang_p_v = 0.0
@@ -1170,9 +1480,10 @@
                         crys%mult(crys%npar) = ((abs(crys%ref_cell_a))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_a))
                         namepar(crys%npar) = 'cell_a'
-                        crys%vlim1 (crys%npar) = crys%cell_a - crys%rang_cell_a
-                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                        crys%vlim2 (crys%npar) = crys%cell_a + crys%rang_cell_a
+                        crys%vlim1(crys%p(crys%npar)) = crys%cell_a - crys%rang_cell_a
+                        if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                        crys%vlim2(crys%p(crys%npar)) = crys%cell_a + crys%rang_cell_a
+                        crys%NP_refi(crys%p(crys%npar)) =crys%cell_a
                       end if
                       if (crys%ref_cell_b /= 0 ) then
                         crys%npar = crys%npar + 1
@@ -1183,9 +1494,10 @@
                         crys%p(crys%npar)= int(ab)
                         crys%mult(crys%npar) = ((abs(crys%ref_cell_b))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_b))
-                        crys%vlim1 (crys%npar) = crys%cell_b - crys%rang_cell_b
-                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                        crys%vlim2 (crys%npar) = crys%cell_b + crys%rang_cell_b
+                        crys%vlim1(crys%p(crys%npar)) = crys%cell_b - crys%rang_cell_b
+                        if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                        crys%vlim2(crys%p(crys%npar)) = crys%cell_b + crys%rang_cell_b
+                        crys%NP_refi(crys%p(crys%npar)) =crys%cell_b
                       end if
                       if (crys%ref_cell_c /= 0 ) then
                         crys%npar = crys%npar + 1
@@ -1196,9 +1508,10 @@
                         crys%p(crys%npar)= int(ab)
                         crys%mult(crys%npar) = ((abs(crys%ref_cell_c))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_c))
-                        crys%vlim1 (crys%npar) = crys%cell_c - crys%rang_cell_c
-                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                        crys%vlim2 (crys%npar) = crys%cell_c + crys%rang_cell_c
+                        crys%vlim1(crys%p(crys%npar)) = crys%cell_c - crys%rang_cell_c
+                        if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                        crys%vlim2(crys%p(crys%npar)) = crys%cell_c + crys%rang_cell_c
+                        crys%NP_refi(crys%p(crys%npar)) =crys%cell_c
                       end if
                       if (crys%ref_cell_gamma /= 0 ) then
                         crys%npar = crys%npar + 1
@@ -1209,9 +1522,10 @@
                         crys%p(crys%npar)= int(ab)
                         crys%mult(crys%npar) = ((abs(crys%ref_cell_gamma))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_cell_gamma))
-                        crys%vlim1 (crys%npar) = (crys%cell_gamma)- (crys%rang_cell_gamma * deg2rad)
-                        if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                        crys%vlim2 (crys%npar) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
+                        crys%vlim1(crys%p(crys%npar)) = (crys%cell_gamma)- (crys%rang_cell_gamma * deg2rad)
+                        if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                        crys%vlim2(crys%p(crys%npar)) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
+                        crys%NP_refi(crys%p(crys%npar)) =crys%cell_gamma
                       end if
 
                       if (crys%ref_cell_a == 0 ) crys%rang_cell_a = 0.0
@@ -1415,19 +1729,20 @@
                                             crys%p(crys%npar)= int(ab)
                                             crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
                                               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                            crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                            crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
-
+                                            crys%vlim1(crys%p(crys%npar)) = crys%layer_a - crys%rang_layer_a
+                                            crys%vlim2(crys%p(crys%npar)) = crys%layer_a + crys%rang_layer_a
                                             crys%npar = crys%npar + 1
                                             crys%list (crys%npar) =crys%layer_b
+                                            crys%NP_refi(crys%p(crys%npar)) =crys%layer_a
                                             write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
                                             crys%cod(crys%npar) = 1
                                             ab =  (abs(crys%ref_layer_a)/10.0)
                                             crys%p(crys%npar)= int(ab)
                                             crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
                                               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                            crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                            crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
+                                            crys%vlim1(crys%p(crys%npar)) = crys%layer_a - crys%rang_layer_a
+                                            crys%vlim2(crys%p(crys%npar)) = crys%layer_a + crys%rang_layer_a
+                                            crys%NP_refi(crys%p(crys%npar)) =crys%layer_b
                                           end if
 
                                           if (crys%ref_layer_a == 0) then
@@ -1516,8 +1831,9 @@
                                           crys%p(crys%npar)= int(ab)
                                           crys%mult(crys%npar) = ((abs(crys%ref_layer_a ))-(10.0* &
                                             REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
-                                          crys%vlim1 (crys%npar) = crys%layer_a - crys%rang_layer_a
-                                          crys%vlim2 (crys%npar) = crys%layer_a + crys%rang_layer_a
+                                          crys%vlim1(crys%p(crys%npar)) = crys%layer_a - crys%rang_layer_a
+                                          crys%vlim2(crys%p(crys%npar)) = crys%layer_a + crys%rang_layer_a
+                                          crys%NP_refi(crys%p(crys%npar)) =crys%layer_a
                                         end if
                                         if (crys%ref_layer_a /= 0) then
                                           crys%npar = crys%npar + 1
@@ -1528,8 +1844,9 @@
                                           crys%p(crys%npar)= int(ab)
                                           crys%mult(crys%npar) = ((abs(crys%ref_layer_b ))-(10.0* &
                                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_b ))
-                                          crys%vlim1 (crys%npar) = crys%layer_b - crys%rang_layer_b
-                                          crys%vlim2 (crys%npar) = crys%layer_b + crys%rang_layer_b
+                                          crys%vlim1(crys%p(crys%npar)) = crys%layer_b - crys%rang_layer_b
+                                          crys%vlim2(crys%p(crys%npar)) = crys%layer_b + crys%rang_layer_b
+                                          crys%NP_refi(crys%p(crys%npar)) =crys%layer_b
                                         end if
 
                                         if (crys%ref_layer_a == 0) crys%rang_layer_a  = 0.0
@@ -1722,8 +2039,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,r)))-(10.0* &
                               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(1, k,r)
                             end if
                             if (crys%ref_a_pos(2, k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1734,8 +2052,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(2, k,r)
                             end if
                             if (crys%ref_a_pos(3, k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1746,8 +2065,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(3, k,r)
                             end if
                             if (crys%ref_a_B( k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1758,9 +2078,10 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_B( k,r) - crys%rang_a_B( k,r)
-                              if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                              crys%vlim2 (crys%npar) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_B( k,r) - crys%rang_a_B( k,r)
+                              if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_B( k,r)
                             end if
                             if (crys%ref_a_pos(1, k,r)== 0) crys%rang_a_pos (1,k,r) = 0.0
                             if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
@@ -1884,8 +2205,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(1, k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(1, k,r) - crys%rang_a_pos(1, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(1, k,r) + crys%rang_a_pos(1, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(1, k,r)
                             end if
                             if (crys%ref_a_pos(2, k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1896,8 +2218,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(2, k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(2, k,r) - crys%rang_a_pos(2, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(2, k,r) + crys%rang_a_pos(2, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(2, k,r)
                             end if
                             if (crys%ref_a_pos(3, k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1908,8 +2231,9 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_pos(3, k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
-                              crys%vlim2 (crys%npar) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_pos(3, k,r) - crys%rang_a_pos(3, k,r)
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_pos(3, k,r) + crys%rang_a_pos(3, k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(3, k,r)
                             end if
                             if (crys%ref_a_B( k,r)/= 0) then
                               crys%npar = crys%npar + 1
@@ -1920,9 +2244,10 @@
                               crys%p(crys%npar)= int(ab)
                               crys%mult(crys%npar) = ((abs(crys%ref_a_B( k,r)))-(10.0* &
                                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_B( k,r)))
-                              crys%vlim1 (crys%npar) = crys%a_B( k,r) - crys%rang_a_B( k,r)
-                              if (crys%vlim1(crys%npar)   .LT. 0 ) crys%vlim1(crys%npar) = 0
-                              crys%vlim2 (crys%npar) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                              crys%vlim1(crys%p(crys%npar)) = crys%a_B( k,r) - crys%rang_a_B( k,r)
+                              if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                              crys%vlim2(crys%p(crys%npar)) = crys%a_B( k,r) + crys%rang_a_B( k,r)
+                              crys%NP_refi(crys%p(crys%npar)) =crys%a_B( k,r)
                             end if
                             if (crys%ref_a_pos(1, k,r)== 0) crys%rang_a_pos (1,k,r) = 0.0
                             if (crys%ref_a_pos(2, k,r)== 0) crys%rang_a_pos (2,k,r) = 0.0
@@ -2136,8 +2461,9 @@
                             crys%p(crys%npar)= int(ab)
                             crys%mult(crys%npar) = ((abs(crys%ref_l_cnt))-(10.0* &
                                  REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_cnt))
-                            crys%vlim1 (crys%npar) = crys%l_cnt - crys%rang_l_cnt
-                            crys%vlim2 (crys%npar) = crys%l_cnt + crys%rang_l_cnt
+                            crys%vlim1(crys%p(crys%npar)) = crys%l_cnt - crys%rang_l_cnt
+                            crys%vlim2(crys%p(crys%npar)) = crys%l_cnt + crys%rang_l_cnt
+                            crys%NP_refi(crys%p(crys%npar)) = crys%l_cnt
                           end if
                             if (crys%ref_l_cnt== 0) crys%rang_l_cnt = 0.0
 
@@ -2290,10 +2616,11 @@
                                 crys%p(crys%npar)= int(ab)
                                 crys%mult(crys%npar) = ((abs(crys%ref_l_alpha (j,i)))-(10.0* &
                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_alpha (j,i)))
-                                crys%vlim1(crys%npar)=crys%l_alpha(j,i)- crys%rang_l_alpha (j,i)
-                                if (crys%vlim1(crys%npar)  .LT. 0 ) crys%vlim1(crys%npar) = 0
-                                crys%vlim2(crys%npar) = crys%l_alpha(j,i)+crys%rang_l_alpha(j,i)
-                                if (crys%vlim2(crys%npar)  > 1 ) crys%vlim2(crys%npar) = 1
+                                crys%vlim1(crys%p(crys%npar))=crys%l_alpha(j,i)- crys%rang_l_alpha (j,i)
+                                if (crys%vlim1(crys%p(crys%npar))  .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+                                crys%vlim2(crys%p(crys%npar)) = crys%l_alpha(j,i)+crys%rang_l_alpha(j,i)
+                                if (crys%vlim2(crys%p(crys%npar))  > 1 ) crys%vlim2(crys%p(crys%npar)) = 1
+                                crys%NP_refi(crys%p(crys%npar)) = crys%l_alpha (j,i)
                               end if
                               if (crys%ref_l_r(1,j,i) /= 0 ) then
                                 crys%npar = crys%npar + 1
@@ -2304,8 +2631,9 @@
                                 crys%p(crys%npar)= int(ab)
                                 crys%mult(crys%npar) = ((abs(crys%ref_l_r(1,j,i)))-(10.0* &
                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(1,j,i)))
-                                crys%vlim1(crys%npar) = crys%l_r (1,j,i) - crys%rang_l_r (1,j,i)
-                                crys%vlim2(crys%npar) = crys%l_r (1,j,i) + crys%rang_l_r (1,j,i)
+                                crys%vlim1(crys%p(crys%npar)) = crys%l_r (1,j,i) - crys%rang_l_r (1,j,i)
+                                crys%vlim2(crys%p(crys%npar)) = crys%l_r (1,j,i) + crys%rang_l_r (1,j,i)
+                                crys%NP_refi(crys%p(crys%npar)) = crys%l_r(1,j,i)
                               end if
                               if (crys%ref_l_r(2,j,i) /= 0 ) then
                                 crys%npar = crys%npar + 1
@@ -2316,8 +2644,9 @@
                                 crys%p(crys%npar)= int(ab)
                                 crys%mult(crys%npar) = ((abs(crys%ref_l_r(2,j,i)))-(10.0* &
                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(2,j,i)))
-                                crys%vlim1(crys%npar) = crys%l_r (2,j,i) - crys%rang_l_r (2,j,i)
-                                crys%vlim2(crys%npar) = crys%l_r (2,j,i) + crys%rang_l_r (2,j,i)
+                                crys%vlim1(crys%p(crys%npar)) = crys%l_r (2,j,i) - crys%rang_l_r (2,j,i)
+                                crys%vlim2(crys%p(crys%npar)) = crys%l_r (2,j,i) + crys%rang_l_r (2,j,i)
+                                crys%NP_refi(crys%p(crys%npar)) = crys%l_r(2,j,i)
                               end if
                               if (crys%ref_l_r(3,j,i) /= 0 )  then
                                 crys%npar = crys%npar + 1
@@ -2328,8 +2657,9 @@
                                 crys%p(crys%npar)= int(ab)
                                 crys%mult(crys%npar) = ((abs(crys%ref_l_r(3,j,i)))-(10.0* &
                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(3,j,i)))
-                                crys%vlim1(crys%npar) = crys%l_r (3,j,i) - crys%rang_l_r (3,j,i)
-                                crys%vlim2(crys%npar) = crys%l_r (3,j,i) + crys%rang_l_r (3,j,i)
+                                crys%vlim1(crys%p(crys%npar)) = crys%l_r (3,j,i) - crys%rang_l_r (3,j,i)
+                                crys%vlim2(crys%p(crys%npar)) = crys%l_r (3,j,i) + crys%rang_l_r (3,j,i)
+                                crys%NP_refi(crys%p(crys%npar)) = crys%l_r(3,j,i)
                               end if
 
                               if (crys%ref_l_alpha (j,i) == 0)  crys%rang_l_alpha(j,i) = 0.0
@@ -2519,7 +2849,7 @@
 
 !/////////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
 
-                  vector(1:nrp)  = crys%list (1:nrp)
+                  !vector(1:nrp)  = crys%list (1:nrp)
                   !   code(1:nrp) = crys%cod(1:nrp)
                           numpar = crys%npar
                   !      nm_cycl  = crys%n_cycles
@@ -2537,7 +2867,7 @@
                   do i=1, numpar                    !construction of SIMPLEX 'in' vectors
 
                     if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
-                       v_plex(crys%p(i)) = crys%list(i)
+                     !  v_plex(crys%p(i)) = crys%NP_refi(i)
                      !  nampar(pnum(i)) = namepar(i)
                      !  vlim1(pnum(i)) = crys%vlim1(i)
                      !  vlim2(pnum(i)) = crys%vlim2(i)
@@ -2664,7 +2994,7 @@
 
 !/////////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
 
-                  vector(1:nrp)  = crys%list (1:nrp)
+                  !vector(1:nrp)  = crys%list (1:nrp)
                   !   code(1:nrp) = crys%cod(1:nrp)
                           numpar = crys%npar
                   !      nm_cycl  = crys%n_cycles
@@ -2682,13 +3012,12 @@
                   do i=1, numpar                    !construction of SIMPLEX 'in' vectors
 
                     if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
-                       v_plex(crys%p(i)) = crys%list(i)
+                     !  v_plex(crys%p(i)) = crys%NP_refi(i)
 
                      !  nampar(pnum(i)) = namepar(i)
                        sanvec%low(pnum(i)) = crys%vlim1(i)
                        sanvec%high(pnum(i)) = crys%vlim2(i)
-                        write(*,*) "CRYS%VLIM", crys%vlim1(i)
-                        write(*,*) "NUMPAR case" , numpar,   crys%npar
+
                     end if
                     label (crys%p(i)) = 1
                   end do
@@ -2915,10 +3244,8 @@
                                   mult = crys%mult(1:numpar)
                               n_layers = crys%n_typ
 
-        write(*,*) "Wa, Wb", Wa, Wb
-        do i=1, numpar
-          write(*,*) "crys%vlim1,crys%vlim2", crys%vlim1(i),crys%vlim2(i)
-        end do
+
+
         return
         End subroutine  read_structure_file
 
