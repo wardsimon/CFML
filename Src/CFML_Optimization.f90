@@ -2290,8 +2290,8 @@
 
        real(kind=cp), dimension(N)     :: mmin
        real(kind=cp), dimension(N)     :: mmax
-       integer                         :: maxfn, nfev, i
-       real(kind=cp)                   :: eps
+       real(kind=cp), dimension(N)     :: Xn
+       integer                         :: nfev, i
 
        do i = 1, n
           if (mini(i) == maxi(i)) then
@@ -2302,12 +2302,11 @@
           end if
           mmax(i) = (maxi(i)-mini(i)) * 0.5
           mmin(i) = mini(i) + maxi(i)
+          Xn(i) = (X(i) - mmin(i)) / mmax(i)
        end do
-       eps=C%eps
-       Maxfn=C%mxfun
-       call Local_DFP (N,Eps,Maxfn,X,F,Nfev,Mmin,Mmax, Model_Functn)
+       call Local_DFP (N,C%eps,C%mxfun,Xn,F,Nfev,Mmin,Mmax, Model_Functn)
        c%ifun=Nfev
-       x(1:n)=x(1:n)*Mmax(1:n) + Mmin(1:n)
+       X(1:n)=Xn(1:n)*Mmax(1:n) + Mmin(1:n)
        return
     End Subroutine Local_Min_DFP
 
@@ -2336,6 +2335,72 @@
     !!---- Update: February - 2005
     !!
     Subroutine Local_Min_Rand(Model_Functn,N,X,F,C,Mini,Maxi)
+       !---- Arguments ----!
+       integer,                               intent(in)      :: n
+       real(kind=cp), dimension(:),           intent(in out)  :: x
+       real(kind=cp),                         intent(out)     :: f
+       type(Opt_conditions_Type),             intent(in out)  :: C
+       real(kind=cp), dimension(:), optional, intent(in)      :: mini
+       real(kind=cp), dimension(:), optional, intent(in)      :: maxi
+
+       Interface
+          Subroutine Model_Functn(n,x,f,g)
+             use CFML_GlobalDeps,  only: cp
+             integer,                             intent(in) :: n
+             real(kind=cp),dimension(:),          intent(in) :: x
+             real(kind=cp),                       intent(out):: f
+             real(kind=cp),dimension(:),optional, intent(out):: g
+          End Subroutine Model_Functn
+       End Interface
+
+       !---- Local variables ----!
+       real(kind=cp), dimension(N)     :: mmin
+       real(kind=cp), dimension(N)     :: mmax
+       real(kind=cp), dimension(N)     :: Xn
+       integer                         :: nfev, i
+
+       do i = 1, n
+          if (mini(i) == maxi(i)) then
+             Err_Optim=.true.
+             write(unit=ERR_Optim_Mess,fmt="(a,i3)")"  ERROR: Minimum=Maximum, for parameter #",i
+             return
+          end if
+          mmax(i) = (maxi(i)-mini(i)) * 0.5
+          mmin(i) = mini(i) + maxi(i)
+          Xn(i) = (X(i) - mmin(i)) / mmax(i)
+       end do
+       call Local_Rand(N, c%eps, C%mxfun, Xn, F, Nfev, mmin, mmax,Model_Functn)
+       c%ifun=Nfev
+       x(1:n)=Xn(1:n)*Mmax(1:n) + Mmin(1:n)
+
+       return
+    End Subroutine Local_Min_Rand
+
+    !!----
+    !!---- Subroutine Local_Min_Rando(Model_Functn,N,X,F,C,Mini,Maxi)
+    !!----    integer,                               intent(in)      :: N
+    !!----    real(kind=cp), dimension(:),           intent(in out)  :: X
+    !!----    real(kind=cp),                         intent(out)     :: F
+    !!----    type(Opt_conditions_Type),             intent(in out)  :: C
+    !!----    real(kind=cp), dimension(:), optional, intent(in)      :: Mini
+    !!----    real(kind=cp), dimension(:), optional, intent(in)      :: Maxi
+    !!----
+    !!--<<    Interface
+    !!----       Subroutine Model_Functn(n,x,f,g)
+    !!----          use CFML_GlobalDeps, only:cp
+    !!----          integer,                             intent(in) :: N
+    !!----          real(kind=cp),dimension(:),          intent(in) :: X
+    !!----          real(kind=cp),                       intent(out):: F
+    !!----          real(kind=cp),dimension(:),optional, intent(out):: G
+    !!----       End Subroutine Model_Functn
+    !!-->>    End Interface
+    !!----
+    !!---- Adapted by J. Rodriguez-Carvajal to F90
+    !!---- Original comments (slightly modified) follow
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Subroutine Local_Min_Rando(Model_Functn,N,X,F,C,Mini,Maxi)
        !---- Arguments ----!
        integer,                               intent(in)      :: n
        real(kind=cp), dimension(:),           intent(in out)  :: x
@@ -2498,7 +2563,7 @@
        end if  !present(mini)
        c%ifun=nfev
        return
-    End Subroutine Local_Min_Rand
+    End Subroutine Local_Min_Rando
 
     !!----
     !!---- Subroutine Local_Optimize(Model_Functn,X,F,C,G,mini,maxi,v,Ipr)
