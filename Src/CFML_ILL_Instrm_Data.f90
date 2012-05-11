@@ -681,14 +681,14 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- CURRENT_ORIENT
-   !!----    type(SXTAL_Orient_type), public :: Current_Orient
+   !!----    type(SXTAL_Orient_type), public, save :: Current_Orient
    !!----
    !!----    Define the Current Orientation variable
    !!----    from the instrument
    !!----
    !!---- Update: April - 2008
    !!
-   type(SXTAL_Orient_type), public :: Current_Orient
+   type(SXTAL_Orient_type), public, save :: Current_Orient
 
    !!----
    !!---- CYCLE_NUMBER
