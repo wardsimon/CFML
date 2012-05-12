@@ -2329,10 +2329,14 @@
     !!----       End Subroutine Model_Functn
     !!-->>    End Interface
     !!----
-    !!---- Adapted by J. Rodriguez-Carvajal to F90
-    !!---- Original comments (slightly modified) follow
+    !!----  Wrapper for Local_Rand, that uses normalised parameters. This
+    !!----  allows to optimise a Model_Funct using user parameters in their
+    !!----  own units and box interval.
+    !!----  J. Rodriguez-Carvajal
     !!----
-    !!---- Update: February - 2005
+    !!----
+    !!---- Created: February - 2005
+    !!---- Updated: May - 2012
     !!
     Subroutine Local_Min_Rand(Model_Functn,N,X,F,C,Mini,Maxi)
        !---- Arguments ----!
@@ -2369,201 +2373,13 @@
           mmin(i) = mini(i) + maxi(i)
           Xn(i) = (X(i) - mmin(i)) / mmax(i)
        end do
-       call Local_Rand(N, c%eps, C%mxfun, Xn, F, Nfev, mmin, mmax,Model_Functn)
+       call Local_Rand(N, c%eps, C%mxfun, Xn, F, Nfev, mmin, mmax, Model_Functn)
        c%ifun=Nfev
        x(1:n)=Xn(1:n)*Mmax(1:n) + Mmin(1:n)
 
        return
     End Subroutine Local_Min_Rand
 
-    !!----
-    !!---- Subroutine Local_Min_Rando(Model_Functn,N,X,F,C,Mini,Maxi)
-    !!----    integer,                               intent(in)      :: N
-    !!----    real(kind=cp), dimension(:),           intent(in out)  :: X
-    !!----    real(kind=cp),                         intent(out)     :: F
-    !!----    type(Opt_conditions_Type),             intent(in out)  :: C
-    !!----    real(kind=cp), dimension(:), optional, intent(in)      :: Mini
-    !!----    real(kind=cp), dimension(:), optional, intent(in)      :: Maxi
-    !!----
-    !!--<<    Interface
-    !!----       Subroutine Model_Functn(n,x,f,g)
-    !!----          use CFML_GlobalDeps, only:cp
-    !!----          integer,                             intent(in) :: N
-    !!----          real(kind=cp),dimension(:),          intent(in) :: X
-    !!----          real(kind=cp),                       intent(out):: F
-    !!----          real(kind=cp),dimension(:),optional, intent(out):: G
-    !!----       End Subroutine Model_Functn
-    !!-->>    End Interface
-    !!----
-    !!---- Adapted by J. Rodriguez-Carvajal to F90
-    !!---- Original comments (slightly modified) follow
-    !!----
-    !!---- Update: February - 2005
-    !!
-    Subroutine Local_Min_Rando(Model_Functn,N,X,F,C,Mini,Maxi)
-       !---- Arguments ----!
-       integer,                               intent(in)      :: n
-       real(kind=cp), dimension(:),           intent(in out)  :: x
-       real(kind=cp),                         intent(out)     :: f
-       type(Opt_conditions_Type),             intent(in out)  :: C
-       real(kind=cp), dimension(:), optional, intent(in)      :: mini
-       real(kind=cp), dimension(:), optional, intent(in)      :: maxi
-
-       Interface
-          Subroutine Model_Functn(n,x,f,g)
-             use CFML_GlobalDeps,  only: cp
-             integer,                             intent(in) :: n
-             real(kind=cp),dimension(:),          intent(in) :: x
-             real(kind=cp),                       intent(out):: f
-             real(kind=cp),dimension(:),optional, intent(out):: g
-          End Subroutine Model_Functn
-       End Interface
-
-       !---- Local variables ----!
-       integer                            :: i,itest, irndm, nfev
-       real(kind=cp)                      :: h, deltf, eps, a, f1,relcon, maxfn
-       real(kind=cp), dimension(n)        :: x1
-       real(kind=cp), dimension(100,n)    :: r
-       real(kind=cp), parameter           :: zero=0.0_cp, onen3=0.1_cp, half=0.5_cp, one=1.0_cp, two=2.0_cp
-
-       h = onen3                   !First executable statement
-       deltf = one                 !initial step length
-       itest = 0
-       nfev = 0
-       relcon=c%eps
-       eps = c%eps
-       maxfn=c%mxfun
-       CALL Model_Functn(n, x, f) !starting value of the function
-
-       if(present(mini)) then !Box constraint applied
-
-          do_outm: do
-             call random_number(r)              !  Evaluate 100 random vectors r(100,n)
-             irndm = 0
-             do_intm: do
-               irndm = irndm+1
-
-               IF (irndm > 100) cycle do_outm
-               a = zero                            !Select a random vector having norm
-               DO  i=1,n                           !less or equal to 0.5
-                 !r(irndm,i) = r(irndm,i)-half
-                 r(irndm,i) = r(irndm,i)-half
-                 a = a+r(irndm,i)*r(irndm,i)
-               END DO
-               IF (a <= zero) cycle do_intm
-               a = SQRT(a)
-               IF (a > half) cycle do_intm
-               r(irndm,1:n) = r(irndm,1:n)/a       !New trial point
-
-               r(irndm,1:n)=r(irndm,1:n)*(maxi(1:n)-mini(1:n))  !Scale with the box limits (not sure that it works)
-
-               x1(1:n) = x(1:n)+h*r(irndm,1:n)
-               call Put_In_Box(n,mini,maxi,x1)
-               CALL Model_Functn(n, x1, f1)
-               nfev = nfev+1
-               IF (f1 >= f) then
-                  IF (nfev > maxfn) exit do_outm
-                  h = -h                           !Step in the opposite direction
-                  x1(1:n) = x(1:n)+h*r(irndm,1:n)
-                  call Put_In_Box(n,mini,maxi,x1)
-                  CALL Model_Functn(n, x1, f1)
-                  nfev = nfev+1
-
-                  IF (f1 >= f) then
-                     IF (nfev > maxfn) exit do_outm
-                     itest = itest+1
-                     IF (itest < 2) cycle do_intm
-                     h = h*half                    !Decrease step length
-                     itest = 0
-                     IF (deltf < eps) exit do_outm !Relative convergence test for the
-                                                   !objective function
-                     IF (ABS(h)-relcon < 0.0) THEN !Convergence test for the step length
-                       exit  do_outm
-                     ELSE
-                       cycle do_intm
-                     END IF
-                  END IF
-               END IF
-
-               do
-                  x(1:n) = x1(1:n)
-                  deltf = (f-f1)/ABS(f1)
-                  f = f1
-                  h = h*two                   ! Increase step length
-                  x1(1:n) = x(1:n)+h*r(irndm,1:n)
-                  call Put_In_Box(n,mini,maxi,x1)
-                  CALL Model_Functn(n, x1, f1)
-                  nfev = nfev+1
-                  IF (f1 >= f) exit
-               end do
-               IF (nfev > maxfn) exit do_outm  ! Check tolerance maxfn
-               h = ABS(h*half)                ! Decrease step length
-             End do do_intm
-          End do do_outm
-
-       else   !no box constraint
-
-          do_out: do
-             call random_number(r)              !  Evaluate 100 random vectors r(100,n)
-             irndm = 0
-             do_int: do
-               irndm = irndm+1
-
-               IF (irndm > 100) cycle do_out
-               a = zero                            !Select a random vector having norm
-               DO  i=1,n                           !less or equal to 0.5
-                 r(irndm,i) = r(irndm,i)-half
-                 a = a+r(irndm,i)*r(irndm,i)
-               END DO
-               IF (a <= zero) cycle do_int
-               a = SQRT(a)
-               IF (a > half) cycle do_int
-               r(irndm,1:n) = r(irndm,1:n)/a       !New trial point
-               x1(1:n) = x(1:n)+h*r(irndm,1:n)
-               CALL Model_Functn(n, x1, f1)
-               nfev = nfev+1
-               IF (f1 >= f) then
-                  IF (nfev > maxfn) exit do_out
-                  h = -h                           !Step in the opposite direction
-                  x1(1:n) = x(1:n)+h*r(irndm,1:n)
-                  CALL Model_Functn(n, x1, f1)
-                  nfev = nfev+1
-
-                  IF (f1 >= f) then
-                     IF (nfev > maxfn) exit do_out
-                     itest = itest+1
-                     IF (itest < 2) cycle do_int
-                     h = h*half                    !Decrease step length
-                     itest = 0
-                     IF (deltf < eps) exit do_out  !Relative convergence test for the
-                                                   !objective function
-                     IF (ABS(h)-relcon < 0.0) THEN !Convergence test for the step length
-                       exit  do_out
-                     ELSE
-                       cycle do_int
-                     END IF
-                  END IF
-               END IF
-
-               do
-                  x(1:n) = x1(1:n)
-                  deltf = (f-f1)/ABS(f1)
-                  f = f1
-                  h = h*two                   ! Increase step length
-                  x1(1:n) = x(1:n)+h*r(irndm,1:n)
-                  CALL Model_Functn(n, x1, f1)
-                  nfev = nfev+1
-                  IF (f1 >= f) exit
-               end do
-               IF (nfev > maxfn) exit do_out  ! Check tolerance maxfn
-               h = ABS(h*half)                ! Decrease step length
-             End do do_int
-          End do do_out
-
-       end if  !present(mini)
-       c%ifun=nfev
-       return
-    End Subroutine Local_Min_Rando
 
     !!----
     !!---- Subroutine Local_Optimize(Model_Functn,X,F,C,G,mini,maxi,v,Ipr)
@@ -2685,7 +2501,7 @@
     !!----    integer,            intent(in)   :: n       ! the number of unknown parameters
     !!----    real,               intent(in)   :: relcon  ! convergence criterion.
     !!----    integer,            intent(in)   :: maxfn   ! maximum number of function evaluations allowed
-    !!----    real, dimension(:), intent(out)  :: x       ! vector of length n containing parameter values
+    !!----    real, dimension(:), intent(out)  :: x       ! Normalized vector of dimension n containing parameter values
     !!----    real,               intent(out)  :: f       ! value at the final parameter estimates
     !!----    integer,            intent(out)  :: nfev    ! number of function evaluations
     !!----    real, dimension(:), intent(in)   :: mini    ! scaling factors supplied by the global routine
