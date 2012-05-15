@@ -4,6 +4,17 @@
 
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
+# Set the a verbose make.
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
+IF(DEFINED CMAKE_BUILD_TYPE)
+  message(STATUS "Setting build type as ${CMAKE_BUILD_TYPE}")
+  SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+ELSE()
+  message(STATUS "Setting build type as 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
+ENDIF()
+
 # By default the built is in CONSOLE mode.
 option(GUI "Build crysfml and wcrysfml library" OFF)
 
@@ -11,9 +22,6 @@ option(GUI "Build crysfml and wcrysfml library" OFF)
 project(libcrysfml Fortran)
 
 get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
-
-# Set the a verbose make.
-set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (NOT CRYSFML_PREFIX)
     # Set the default name for crysfml library within the install prefix.
@@ -25,10 +33,6 @@ if (NOT WCRYSFML_PREFIX)
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
 
-# By default the build type is set to RELEASE.
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
 #################################
 # Includes section
 #################################
