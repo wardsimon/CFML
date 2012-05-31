@@ -225,7 +225,7 @@ Module CFML_ILL_Instrm_Data
              Read_A_Keytype,Read_F_Keytype,Read_I_Keytype,Read_J_Keytype,Read_R_Keytype,         &
              Read_S_Keytype,Read_V_Keytype,Set_Keytypes_On_File, Read_Powder_Numor,              &
              Read_SXTAL_Numor, Read_Numor_Generic, Read_Numor_D1B, Read_Numor_D20,Read_Numor_D9, &
-             Read_Numor_D16, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,               &
+             Read_Numor_D16, Read_Numor_D19, Write_POWDER_Numor, Write_SXTAL_Numor,              &
              Write_HeaderInfo_POWDER_Numor, Write_HeaderInfo_SXTAL_Numor, Read_Numor_D2B,        &
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
              Read_Numor_D10, Init_Powder_Numor, Init_SXTAL_Numor, Read_Calibration_File_D1A,     &
@@ -606,32 +606,36 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2008
    !!
    Type, public :: SXTAL_Numor_type
-      integer                                    :: numor       ! Numor
-      integer                                    :: manip       ! principle scan angle
-      integer                                    :: icalc       ! angle calculation type
-      character(len=32)                          :: header      ! User, local contact, date
-      character(len=4)                           :: Instrm      ! Instrument name
-      character(len=32)                          :: title       !
-      character(len=8)                           :: Scantype    ! omega, phi, etc...
-      real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
-      real(kind=cp), dimension(3)                :: hmax        !
-      real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
-      real(kind=cp), dimension(3,3)              :: UB          ! UB-matrix
-      real(kind=cp), dimension(3)                :: dh          ! delta_h, delta_k, delta_l
-      real(kind=cp), dimension(3)                :: scans       ! scan start, scan step, scan width
-      real(kind=cp)                              :: preset      !
-      real(kind=cp)                              :: wave        ! wavelength
-      real(kind=cp)                              :: dist        ! distance sample-detector (it may be different from that of the instrument file)
-      real(kind=cp)                              :: cpl_fact    ! Coupling Factor
-      real(kind=cp), dimension(5)                :: conditions  ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
-      integer                                    :: nbdata      ! Total number of pixels nx*ny = np_vert*np_horiz
-      integer                                    :: nframes     ! Total number of frames
-      integer                                    :: nbang       ! Total number of angles moved during scan
-      integer, dimension(11)                     :: icdesc      ! Integer values
-      real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang     ! time,monitor,total counts, angles*1000
-                                                                ! To be allocated as tmc_ang(nbang,nframes)
-      real(kind=cp),allocatable,dimension(:,:)   :: counts      ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
-                                                                ! To be allocated as counts(nbdata,nframes)
+      character(len=512)                         :: filename        ! The numor filename
+      integer                                    :: numor           ! Numor
+      integer                                    :: manip           ! principle scan angle
+      integer                                    :: icalc           ! angle calculation type
+      character(len=32)                          :: header          ! User, local contact, date
+      character(len=4)                           :: Instrm          ! Instrument name
+      character(len=32)                          :: title           ! The title of the experiment
+      character(len=8)                           :: Scantype        ! omega, phi, etc...
+      real(kind=cp), dimension(3)                :: hmin            ! The hkls min
+      real(kind=cp), dimension(3)                :: hmax            ! The hkls max
+      real(kind=cp), dimension(5)                :: angles          ! Angles: phi, chi, omega, 2theta(gamma), psi
+      real(kind=cp), dimension(3,3)              :: UB              ! UB-matrix
+      real(kind=cp), dimension(3)                :: dh              ! delta_h, delta_k, delta_l
+      real(kind=cp), dimension(3)                :: scans           ! scan start, scan step, scan width
+      real(kind=cp)                              :: preset          !
+      real(kind=cp)                              :: wave            ! wavelength
+      real(kind=cp)                              :: dist            ! distance sample-detector (it may be different from that of the instrument file)
+      real(kind=cp)                              :: cpl_fact        ! Coupling Factor
+      real(kind=cp), dimension(5)                :: conditions      ! Temp-s.pt,Temp-Regul,Temp-sample,Voltmeter,Mag.field
+      integer                                    :: nbdata          ! Total number of pixels nx*ny = np_vert*np_horiz
+      integer                                    :: nframes         ! Total number of frames
+      integer                                    :: nbang           ! Total number of angles moved during scan
+      integer, dimension(11)                     :: icdesc          ! Integer values
+      integer                                    :: header_size     ! The number of lines of the header block
+      integer                                    :: frame_size      ! The number of lines of a frame block
+      integer, dimension(:), allocatable         :: selected_frames ! The frames that will be stored in the structure.
+      real(kind=cp),allocatable,dimension(:,:)   :: tmc_ang         ! time,monitor,total counts, angles*1000
+                                                                    ! To be allocated as tmc_ang(nbang,nframes)
+      real(kind=cp),allocatable,dimension(:,:)   :: counts          ! Counts array to be reshaped (np_vert,np_horiz,nframes) in case of 2D detectors
+                                                                    ! To be allocated as counts(nbdata,nframes)
    End type SXTAL_Numor_type
 
    !!----
@@ -1621,6 +1625,105 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Allocate_SXTAL_Numors
 
     !!----
+    !!---- Subroutine Define_Numor_Header_Frame_Size(filename,header_size,frame_size)
+    !!----    character(len=*)    , intent(in)  :: filename    ! The input numor
+    !!----    integer             , intent(out) :: header_size ! The number of lines of the header block
+    !!----    integer             , intent(out) :: frame_size  ! The number of lines of the frame block
+    !!----
+    !!---- Routine that returns the number of lines of the header and frame blocks of a
+    !!---- given numor.
+    !!----
+    !!---- Update:  June - 2012
+    !!
+    Subroutine Define_Numor_Header_Frame_Size(filename,header_size,frame_size)
+       !---- Argument ----!
+       character(len=*), intent(in)  :: filename
+       integer         , intent(out) :: header_size
+       integer         , intent(out) :: frame_size
+
+       !---- Loval variables ----!
+       character(len=80) :: line
+       integer           :: ier, i, lun
+       logical           :: info
+
+       ! The error flags are initialized.
+       call init_err_illdata()
+
+       ! The header and frame counters are initialized.
+       header_size = 0
+       frame_size  = 1
+
+       ! Flag used for inquiring the input file.
+       info=.false.
+
+       ! Check first that the input file exists.
+       inquire (file=filename,exist=info)
+
+       ! If the input file does not exist, stop here.
+       if (.not. info) then
+           err_illdata = .true.
+           err_illdata_mess = " The file "//trim(filename)//" does not exist."
+           return
+       endif
+
+       ! Check whether the input file is opned or not.
+       inquire (file=filename,opened=info)
+
+       ! If the input file is opened, get its logical unit and rewind the file.
+       if (info) then
+          inquire(file=filename,number=lun)
+          rewind(unit=lun)
+       ! If the input file is not opened, open it.
+       else
+          call get_logunit(lun)
+          open(unit=lun,file=filename, status="old",action="read", position="rewind")
+       endif
+
+       ! Loop used to determine the number of lines of the header block.
+       do
+          ! Read a new line.
+          read(lun,'(a)',iostat=ier) line
+          ! If the line is a SSSSS line then it is the beginning of a frame block.
+          if (line(1:10) == repeat('S',10) .or. ier < 0) exit
+          ! Increment the header block counter.
+          header_size = header_size + 1
+       enddo
+
+       ! If the header block is empty, stops here. A numor must have a header.
+       if (header_size == 0) then
+           err_illdata = .true.
+           err_illdata_mess = " "//trim(filename)//" has no header."
+           return
+       endif
+
+       ! Loop used to determine the number of lines of the first frame block (all the frames have the same size).
+       do
+          ! Read a new line.
+          read(lun,'(a)', iostat=ier) line
+
+          ! If we are at the eof, the numor contains just one frame.
+          if (ier < 0) exit
+
+          ! If the line is a SSSSS line then it is the beginning of the next frame block.
+          if (line(1:10) == repeat('S',10)) exit
+
+          ! Increment the frame block counter.
+          frame_size = frame_size + 1
+       enddo
+
+       ! If the frame block is empty, stops here. A numor must have at least one frame.
+       if (frame_size == 1) then
+           err_illdata = .true.
+           err_illdata_mess = " "//trim(filename)//" has no frame."
+           return
+       endif
+
+       ! Rewind the opened numor.
+       rewind(lun)
+
+    End Subroutine Define_Numor_Header_Frame_Size
+
+    !!----
     !!---- Subroutine Define_Uncompress_Program(ProgName)
     !!----    character(len=*), intent(in) :: ProgName
     !!----
@@ -2037,6 +2140,9 @@ Module CFML_ILL_Instrm_Data
         integer, optional,       intent(in)  :: NFrames
 
         !---- Local Variables ----!
+        Numor%filename = ""
+        Numor%header_size = 0
+        Numor%frame_size = 0
         Numor%numor=0
         Numor%manip=0
         Numor%icalc=0
@@ -2065,6 +2171,7 @@ Module CFML_ILL_Instrm_Data
         if (present(nbdata))  Numor%nbdata=nbdata
         if (present(nbang))   Numor%nbang=nbang
 
+        if (allocated(Numor%selected_frames)) deallocate(Numor%selected_frames)
         if (allocated(Numor%tmc_ang)) deallocate(Numor%tmc_ang)
         if (allocated(Numor%counts)) deallocate(Numor%counts)
 
@@ -3949,9 +4056,10 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D16
 
     !!----
-    !!---- Subroutine Read_Numor_D19(filevar,N)
-    !!----    character(len=*),        intent(in)   :: fileinfo
-    !!----    type(SXTAL_numor_type),  intent(out) :: n
+    !!---- Subroutine Read_Numor_D19(filename,n,frames)
+    !!----    character(len=*)               , intent(in)    :: filename ! The input numor
+    !!----    type(SXTAL_numor_type)         , intent(inout) :: n        ! The output numor structure
+    !!----    integer, optional, dimension(:), intent(in)    :: frames   ! The frames to include in the numor structure
     !!----
     !!---- Subroutine to read a Numor of D19 Instrument at ILL
     !!----
@@ -3959,114 +4067,246 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 14/03/2011
     !!
-    Subroutine Read_Numor_D19(fileinfo,N)
+    Subroutine Read_Numor_D19(filename,n,frames)
        !---- Arguments ----!
-       character(len=*),         intent(in)   :: fileinfo
-       type(SXTAL_numor_type),   intent(out)   :: n
+       character(len=*)               , intent(in)    :: filename
+       type(SXTAL_numor_type)         , intent(inout) :: n
+       integer, optional, dimension(:), intent(in)    :: frames
 
        !---- Local Variables ----!
        character(len=80), dimension(:), allocatable :: filevar
+       integer, dimension(:), allocatable           :: temp_frames
        character(len=80)                            :: line
        character(len=5)                             :: car
-       integer                                      :: i,nlines
+       integer                                      :: i, j, n_skip, lun, previous_frame, n_selected_frames, comp
        integer                                      :: numor,idum
+       logical                                      :: info
 
-       err_illdata=.false.
+       ! The error flags are initialized.
+       call init_err_illdata()
 
-       ! Detecting numor
-       call Number_Lines(fileinfo,nlines)
-       if (nlines <=0) then
-          err_illdata=.true.
-          err_illdata_mess=' Problems trying to read the Numor for D19 Instrument in file '//trim(fileinfo)
-          return
-       end if
+       ! Flag used for inquiring the input file.
+       info=.false.
 
-       ! Allocating variables
-       if (allocated(filevar)) deallocate(filevar)
-       allocate(filevar(nlines))
-       call Reading_Lines(fileinfo,nlines,filevar)
+       ! Check first that the input file exists.
+       inquire (file=filename,exist=info)
 
-       ! Defining the different blocks and load information on nl_keytypes
-       call Number_KeyTypes_on_File(filevar,nlines)
-       call Set_KeyTypes_on_File(filevar,nlines)
+       ! If the input file does not exist, stop here.
+       if (.not. info) then
+           err_illdata = .true.
+           err_illdata_mess = " The file "//trim(filename)//" does not exist."
+           return
+       endif
 
-       ! Check format for D19
-       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
-       if (index(line(1:4),'D19') <= 0) then
-          err_illdata=.true.
-          err_illdata_mess='This numor does not correspond with D19 Format'
-          return
-       end if
+       ! Check whether the input file is opned or not.
+       inquire (file=filename,opened=info)
 
-       ! Numor
-       call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
-       n%numor=numor
+       ! If the input file is opened, get its logical unit.
+       if (info) then
+          inquire(file=filename,number=lun)
+       ! If the input file is not opened, open it.
+       else
+          call get_logunit(lun)
+          open(unit=lun,file=filename,status="old",action="read",position="rewind")
+       endif
 
-       ! Instr/Experimental Name/ Date
-       call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
-       if (idum > 0) then
-          n%instrm=line(1:4)
-          n%header=line(5:14)//"   "//line(15:32)
-       end if
+       ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
+       if (trim(filename) /= trim(n%filename)) then
 
-       ! Title/Sample
-       call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
-       if (idum > 0) then
-          n%title=trim(line(1:60))
-          n%scantype=trim(line(73:))
-       end if
+          ! Intiliaze the numor.
+          call init_sxtal_numor(n)
 
-       ! Control Flags
-       call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
-       if (nval_i > 0) then
-          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
-          n%nbang=ivalues(5)              ! Total number of angles moved during scan
-          n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
-          n%icalc=ivalues(9)
-          n%nbdata=ivalues(24)            ! Number of Points
-          n%icdesc(1:7)=ivalues(25:31)
-       end if
+          ! Store the input numor filename in the numor structure.
+          n%filename = trim(filename)
 
-       ! Real values
-       call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
-       if (nval_f > 0) then
-          n%HMin=rvalues(1:3)          ! HKL min
-          n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
-          n%ub(1,:)=rvalues(9:11)      !
-          n%ub(2,:)=rvalues(12:14)     ! UB Matrix
-          n%ub(3,:)=rvalues(15:17)     !
-          n%wave=rvalues(18)           ! Wavelength
-          n%HMax=rvalues(22:24)        ! HKL max
-          n%dh=rvalues(25:27)          ! Delta HKL
-          n%dist=rvalues(30)           ! distance
-          n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
-          n%preset=rvalues(39)         ! Preset
-          n%cpl_fact=rvalues(43)       ! Coupling factor
-          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
-       end if
+          ! Define the number of lines of the header and frame blocks.
+          call define_numor_header_frame_size(trim(filename),n%header_size,n%frame_size)
 
+          ! If an error occured, stop here.
+          if (err_illdata) return
+
+          ! Allocating a character array for storing the header block line by line.
+          if (allocated(filevar)) deallocate(filevar)
+          allocate(filevar(n%header_size))
+
+          ! Read the header and put it in the array.
+          do i = 1, n%header_size
+             read(lun,'(a)') filevar(i)
+          enddo
+
+          ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the header is made of.
+          call Number_KeyTypes_on_File(filevar,n%header_size)
+
+          ! Load information on nl_keytypes
+          call Set_KeyTypes_on_File(filevar,n%header_size)
+
+          ! Check format for D19
+          call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+
+          ! If the numor is not a D19 numor, stop here.
+          if (index(line(1:4),'D19') <= 0) then
+             err_illdata=.true.
+             err_illdata_mess='This numor does not match with D19 Format'
+             return
+          end if
+
+          ! Get the numor id.
+          call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
+          n%numor=numor
+
+          ! Instr/Experimental Name/ Date
+          call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
+          if (idum > 0) then
+             n%instrm=line(1:4)
+             n%header=line(5:14)//"   "//line(15:32)
+          end if
+
+          ! Title/Sample
+          call read_A_keyType(filevar,nl_keytypes(2,2,1),nl_keytypes(2,2,2),idum,line)
+          if (idum > 0) then
+             n%title=trim(line(1:60))
+             n%scantype=trim(line(73:))
+          end if
+
+          ! Control Flags
+          call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+          if (nval_i > 0) then
+             n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+             n%nbang=ivalues(5)              ! Total number of angles moved during scan
+             n%nframes=ivalues(7)            ! Measured Frames. In general equal to those prescripted
+             n% icalc=ivalues(9)
+             n%nbdata=ivalues(24)            ! Number of Points
+             n%icdesc(1:7)=ivalues(25:31)
+          end if
+
+          ! Real values
+          call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+          if (nval_f > 0) then
+             n%HMin=rvalues(1:3)          ! HKL min
+             n%angles=rvalues(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
+             n%ub(1,:)=rvalues(9:11)      !
+             n%ub(2,:)=rvalues(12:14)     ! UB Matrix
+             n%ub(3,:)=rvalues(15:17)     !
+             n%wave=rvalues(18)           ! Wavelength
+             n%HMax=rvalues(22:24)        ! HKL max
+             n%dh=rvalues(25:27)          ! Delta HKL
+             n%dist=rvalues(30)           ! distance
+             n%scans=rvalues(36:38)       ! Scan start, Scan step, Scan width
+             n%preset=rvalues(39)         ! Preset
+             n%cpl_fact=rvalues(43)       ! Coupling factor
+             n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+          end if
+
+       endif
+
+       ! If the numor was only opened for reading the header, stops here.
        if(Instrm_Info_only) return
 
-       ! Allocating
+       if (allocated(n%selected_frames)) deallocate(n%selected_frames)
+
+       ! Case where the user only wants a subset of frames to be included in the numor structure.
+       if (present(frames)) then
+          ! This temporary array will store only those of the selected frames that are in [1,nframes].
+          allocate(temp_frames(n%nframes))
+          n_selected_frames = 0
+          do i = 1, size(frames)
+             if (frames(i) < 1 .or. frames(i) > n%nframes) cycle
+             n_selected_frames = n_selected_frames + 1
+             temp_frames(n_selected_frames) = frames(i)
+          enddo
+
+          ! If none of the selected frame fall in [1,nframes], stops here.
+          if (n_selected_frames <= 0) then
+             err_illdata = .true.
+             err_illdata_mess = " Invalid frames selection."
+             return
+          endif
+
+          ! Sets the selected_frames field of the numor structure with the selected frames within [1,nframes].
+          allocate(n%selected_frames(n_selected_frames))
+          n%selected_frames(1:n_selected_frames) = temp_frames
+          deallocate(temp_frames)
+       ! Case where no frame selection was provided by the user. All the frames will be included in the numor structure.
+       else
+          allocate(n%selected_frames(n%nframes))
+          n%selected_frames = (/(i, i=1,n%nframes)/)
+          n_selected_frames = n%nframes
+       endif
+
+       ! At this point, we should normally be at the beginning of a frame block.
+       read(lun,'(a)') line
+
+       ! If so, read the line just after the SSSSSS line to get the id of the frame the file pointer is locaed on.
+       if (line(1:10) /= repeat('S',10)) then
+          ! The frame id is read.
+          read(lun,*) previous_frame
+          ! The file pointer is replaced just before the beginning of the corresponding frame block.
+          backspace(lun)
+          backspace(lun)
+       ! If not so, the file pointer is replaced just before the beginning of the first frame block.
+       else
+          rewind(lun)
+          do i = 1, n%header_size
+             read(lun,'(a)') line
+          enddo
+          previous_frame = 1
+       endif
+
+       ! Allocate the count array.
        if (allocated(n%counts)) deallocate(n%counts)
-       allocate(n%counts(n%nbdata,n%nframes))
+       allocate(n%counts(n%nbdata,n_selected_frames))
        n%counts=0.0
 
+       ! Allocate the motor angles array.
        if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-       allocate(n%tmc_ang(n%nbang+3,n%nframes))
+       allocate(n%tmc_ang(n%nbang+3,n_selected_frames))
        n%tmc_ang=0.0
 
-       ! Loading Frames
-       do i=1,n%nframes
+       ! Loop over the selected frames.
+       do i=1,n_selected_frames
 
-          !Time/Monitor/Counts/Angles
-          call read_F_keyType(filevar,nl_keytypes(4,i+1,1),nl_keytypes(4,i+1,2))
+          ! This gives the number of frame block to skip to arrive just before the frame to read.
+          n_skip = abs(n%selected_frames(i) - previous_frame - 1)
+
+          ! Case where the frame to read is after the previous one.
+          if (n%selected_frames(i) > previous_frame) then
+             do j = 1, n_skip*n%frame_size
+                read(lun,*) line
+             end do
+          ! Case where the frame to read is before the previous one.
+          elseif (n%selected_frames(i) < previous_frame) then
+             do j = 1, n_skip*n%frame_size
+                backspace(lun)
+             end do
+          endif
+
+          ! Allocating a character array for storing the frame block line by line.
+          if (allocated(filevar)) deallocate(filevar)
+          allocate(filevar(n%frame_size))
+
+          ! Read the frame and put it in the array.
+          do j = 1, n%frame_size
+             read(lun,'(a)') filevar(j)
+          enddo
+
+          ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the frame is made of.
+          call Number_KeyTypes_on_File(filevar,n%frame_size)
+
+          ! Load information on nl_keytypes
+          call Set_KeyTypes_on_File(filevar,n%frame_size)
+
+          ! Time/Monitor/Counts/Angles
+          call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
+
+          ! Check that the number of motors angles is correct.
           if (nval_f > 0 .and. nval_f == (n%nbang+3)) then
              n%tmc_ang(1,i)=rvalues(1)*0.001 ! Time (s)
              n%tmc_ang(2:3,i)=rvalues(2:3)
              n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angle
+
+          ! Case where the number of motors angles is incorrect. Stops here.
           else
-             write(unit=car,fmt='(i5)') i
+             write(unit=car,fmt='(i5)') n%selected_frames(i)
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
@@ -4074,21 +4314,27 @@ Module CFML_ILL_Instrm_Data
              return
           end if
 
-          ! Counts
-          call read_I_keyType(filevar,nl_keytypes(5,i+1,1),nl_keytypes(5,i+1,2))
+          ! Reads the count matrix.
+          call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
+
+          ! Case of a mismatch between the number of elements of the matrix and its size indicated in the numor, stops here.
           if (nval_i /= n%nbdata) then
-             write(unit=car,fmt='(i5)') i
+             write(unit=car,fmt='(i5)') n%selected_frames(i)
              car=adjustl(car)
              err_illdata=.true.
              err_illdata_mess='Problem reading Counts in the Frame: '//trim(car)
              return
           end if
-          if (nval_i > 0) then
-             n%counts(:,i)=ivalues(1:n%nbdata)
-          end if
+
+          if (nval_i > 0) n%counts(:,i)=ivalues(1:n%nbdata)
+
+          ! The id of frame just processed is set as the previous one.
+          previous_frame = n%selected_frames(i)
+
        end do
 
        return
+
     End Subroutine Read_Numor_D19
 
     !!----
@@ -4596,17 +4842,16 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 29/04/2011
     !!
-    Subroutine Read_SXTAL_Numor(PathNumor,Instrument,Num,inf)
+    Subroutine Read_SXTAL_Numor(filename,instrument,num,inf,frames)
        !---- Arguments ----!
-       character(len=*),           intent(in)    :: PathNumor
-       character(len=*),           intent(in)    :: Instrument
-       type(SXTAL_Numor_Type),     intent(out)   :: Num
-       logical, optional,          intent(in)    :: inf
+       character(len=*)               , intent(in)    :: filename
+       character(len=*)               , intent(in)    :: Instrument
+       type(SXTAL_Numor_Type)         , intent(inout) :: Num
+       logical, optional              , intent(in)    :: inf
+       integer, optional, dimension(:), intent(in)    :: frames
 
        !---- Local variables ----!
-       character(len=512)     :: Path
-       character(len=80)      :: Filename
-       character(len=4)       :: Instr
+       character(len=4)       :: instr
        integer                :: n
 
        ! Initialize
@@ -4614,21 +4859,11 @@ Module CFML_ILL_Instrm_Data
        ERR_ILLData_Mess= ' '
 
        ! Check
-       if (len_trim(PathNumor) <= 0 .or. len_trim(Instrument) <=0 ) return
-       instr=u_case(adjustl(Instrument))
-
-       ! Path + Numor
-       n=index(pathnumor,ops_sep, back=.true.)
-       if (n > 0) then
-          path=pathnumor(:n)
-          filename=pathnumor(n+1:)
-       else
-          path=' '
-          filename=trim(pathnumor)
-       end if
+       if (len_trim(filename) <= 0 .or. len_trim(instrument) <=0 ) return
+       instr=u_case(adjustl(instrument))
 
        ! Compressed Numor
-       n=index(filename,'.Z')
+       n = index(filename,'.Z',back=.true.)
        if (n > 0) then
           ERR_ILLData=.true.
           ERR_ILLData_Mess= " Numor file is compressed. Please uncompress the numor before to use this routine"
@@ -4644,16 +4879,16 @@ Module CFML_ILL_Instrm_Data
 
        select case (trim(Instr))
           case ('D9')
-             call Read_Numor_D9(trim(path)//trim(filename),Num)
+             call Read_Numor_D9(trim(filename),num)
 
           case ('D10')
-             call Read_Numor_D10(trim(path)//trim(filename),Num)
+             call Read_Numor_D10(trim(filename),num)
 
           case ('D16')
-             call Read_Numor_D16(trim(path)//trim(filename),Num)
+             call Read_Numor_D16(trim(filename),num)
 
           case ('D19')
-             call Read_Numor_D19(trim(path)//trim(filename),Num)
+             call Read_Numor_D19(trim(filename),num,frames)
 
           case default
              ERR_ILLData=.true.
