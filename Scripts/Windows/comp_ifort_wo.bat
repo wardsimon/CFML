@@ -5,7 +5,7 @@ rem
    cd %CRYSFML%\Src
 rem
    echo **---- Level 0 ----**
-   echo .... Mathematical,String_Utilities, Messages, Profile Functions
+   echo .... Mathematical(I), String_Utilities, Messages, Profile Functions
 rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /O2 /nologo /Qvec-report0
 rem
@@ -21,7 +21,7 @@ rem
    ifort /c CFML_Profile_Functs.f90   /O2 /nologo /Qvec-report0
 rem
    echo **---- Level 1 ----**
-   echo .... Mathematical, Optimization, Tables, Patterns
+   echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
    ifort /c CFML_math_3D.f90          /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization.f90     /O2 /nologo /Qvec-report0

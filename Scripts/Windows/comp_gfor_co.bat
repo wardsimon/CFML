@@ -88,7 +88,7 @@ rem
 rem
    echo **---- GFortran Directory ----**
 rem
-   if not exist ..\GFortran mkdir ..\GFortran
+   if not exist ..\GFortran  mkdir ..\GFortran
    if exist ..\GFortran\LibC rmdir ..\GFortran\LibC /S /Q
    mkdir ..\GFortran\LibC
 rem

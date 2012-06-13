@@ -65,8 +65,9 @@ rem
    ifort /c CFML_form_cif.f90         /O2 /nologo /Qvec-report0
    ifort /c CFML_Export_Vtk.f90       /O2 /nologo /Qvec-report0
 rem
-echo **---- Level 7 ----**
-echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
+   echo **---- Level 7 ----**
+   echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
+rem
    ifort /c CFML_magsymm.f90          /O2 /nologo /Qvec-report0
    ifort /c CFML_optimization_san.f90 /O2 /nologo /Qvec-report0
    ifort /c CFML_refcodes.f90         /O2 /nologo /Qvec-report0
@@ -81,7 +82,6 @@ rem
    echo **---- Crysfml Library: Console version ----**
 rem
    lib /out:crysfml.lib *.obj
-rem
 rem
    echo **---- ifort Directory ----**
 rem
