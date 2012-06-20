@@ -1547,19 +1547,22 @@
                                  MGp%nbas(i),"  Indicators for real(0)/imaginary(1): ", MGp%icomp(1:abs(MGp%nbas(i)),i)
           end do
        end if
-       if (MGp%Centred == 2) then
-          write(unit=ipr,fmt="(a)")    " => The crystallographic structure is centric (-1 at origin) "
-       else
-          write(unit=ipr,fmt="(a)")    " => The crystallographic structure is acentric  "
-       End if
-       if (MGp%MCentred == 2) then
-          write(unit=ipr,fmt="(a)")    " => The magnetic structure is centric "
-       else
-          if (MGp%Centred == 2) then
-             write(unit=ipr,fmt="(a)")    " => The magnetic structure is anti-centric  "
-          else
-             write(unit=ipr,fmt="(a)")    " => The magnetic structure is acentric  "
-          end if
+
+       If(Am%Natoms > 0) then
+         If (MGp%Centred == 2) then
+            write(unit=ipr,fmt="(a)")    " => The crystallographic structure is centric (-1 at origin) "
+         else
+            write(unit=ipr,fmt="(a)")    " => The crystallographic structure is acentric  "
+         End if
+         if (MGp%MCentred == 2) then
+            write(unit=ipr,fmt="(a)")    " => The magnetic structure is centric "
+         else
+            if (MGp%Centred == 2) then
+               write(unit=ipr,fmt="(a)")    " => The magnetic structure is anti-centric  "
+            else
+               write(unit=ipr,fmt="(a)")    " => The magnetic structure is acentric  "
+            end if
+         End if
        End if
        write(unit=ipr,fmt="(a,i2)") " => Number of propagation vectors: ",MGp%nkv
        do i=1,MGp%nkv
@@ -1582,128 +1585,134 @@
              write(unit=ipr,fmt="(a)") texto(i)
           end do
        end if
-       write(unit=ipr,fmt="(/,a,/)")        " => List of all Symmetry Operators and Symmetry Symbols"
 
-       do i=1,MGp%Numops
-          texto(1)=" "
-          call Symmetry_Symbol(MGp%SymopSymb(i),texto(1))
-          write(unit=ipr,fmt="(a,i3,2a,t50,2a)") " => SYMM(",i,"): ",trim(MGp%SymopSymb(i)), &
-                                                          "Symbol: ",trim(texto(1))
-          if (MGp%nirreps == 0) then
-             do j=1,MGp%NMSym
-                write(unit=ipr,fmt="(a,2(i2,a))")      "    MSYMM(",i,",",j,"): "//trim(MGp%MSymopSymb(i,j))
-             end do
-          else
-             do j=1,MGp%nirreps
-                write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASR(",i,",",j,"): ",real(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
-                if (MGp%nbas(j) < 0) &
-                write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASI(",i,",",j,"): ",AIMAG(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
-             end do
-          end if
-       end do
+       If(MGp%Numops > 0) then
+         write(unit=ipr,fmt="(/,a,/)")        " => List of all Symmetry Operators and Symmetry Symbols"
 
-       Write(unit=ipr,fmt="(/,a)")  "===================================="
-       Write(unit=ipr,fmt="(  a)")  "== Magnetic Structure Information =="
-       Write(unit=ipr,fmt="(a,/)")  "===================================="
+         do i=1,MGp%Numops
+            texto(1)=" "
+            call Symmetry_Symbol(MGp%SymopSymb(i),texto(1))
+            write(unit=ipr,fmt="(a,i3,2a,t50,2a)") " => SYMM(",i,"): ",trim(MGp%SymopSymb(i)), &
+                                                            "Symbol: ",trim(texto(1))
+            if (MGp%nirreps == 0) then
+               do j=1,MGp%NMSym
+                  write(unit=ipr,fmt="(a,2(i2,a))")      "    MSYMM(",i,",",j,"): "//trim(MGp%MSymopSymb(i,j))
+               end do
+            else
+               do j=1,MGp%nirreps
+                  write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASR(",i,",",j,"): ",real(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
+                  if (MGp%nbas(j) < 0) &
+                  write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASI(",i,",",j,"): ",AIMAG(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
+               end do
+            end if
+         end do
+       End if  !MGp%Numops > 0
 
-       Write(unit=ipr,fmt="(a)")    " "
-       Write(unit=ipr,fmt="(  a)")  "== Magnetic Asymmetric Unit Data =="
-       Write(unit=ipr,fmt="(a,/)")  " "
+       If(Am%Natoms > 0) then
+         Write(unit=ipr,fmt="(/,a)")  "===================================="
+         Write(unit=ipr,fmt="(  a)")  "== Magnetic Structure Information =="
+         Write(unit=ipr,fmt="(a,/)")  "===================================="
 
-       if (MGp%nirreps == 0) then
-          Write(unit=ipr,fmt="(a)")  &
-          "  The Fourier coefficients are of the form: Sk(j) = 1/2 { Rk(j) + i Ik(j) } exp {-2pi i Mphask(j)}"
-          Write(unit=ipr,fmt="(a)")  &
-          "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz) + i ( Ix Iy Iz)} exp {-2pi i Mphask} -> MagMatrix # imat"
-          Write(unit=ipr,fmt="(a)")  "  In case of k=2H (H reciprocal lattice vector) Sk(j)= (Rx Ry Rz)"
+         Write(unit=ipr,fmt="(a)")    " "
+         Write(unit=ipr,fmt="(  a)")  "== Magnetic Asymmetric Unit Data =="
+         Write(unit=ipr,fmt="(a,/)")  " "
 
-          do i=1,Am%Natoms
-             Write(unit=ipr,fmt="(a,a,5f10.5)")  &
-               "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
-             do j=1,Am%Atom(i)%nvk
-                if (K_Equiv_Minus_K(MGp%kvec(:,j),MGp%latt)) then
-                   Write(unit=ipr,fmt="(a,i2,a,3f10.5,a,i4)")  &
-                   "     Sk(",j,") =  (", Am%Atom(i)%Skr(:,j),")  -> MagMatrix #", Am%Atom(i)%imat(j)
-                else
-                   Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a,i4)")  &
-                   "     Sk(",j,") = 1/2 {(", Am%Atom(i)%Skr(:,j),") + i (",Am%Atom(i)%Ski(:,j),")}  exp { -2pi i ",&
-                   Am%Atom(i)%MPhas(j),"}  -> MagMatrix #", Am%Atom(i)%imat(j)
-                end if
-             end do
-          end do
+         if (MGp%nirreps == 0) then
+            Write(unit=ipr,fmt="(a)")  &
+            "  The Fourier coefficients are of the form: Sk(j) = 1/2 { Rk(j) + i Ik(j) } exp {-2pi i Mphask(j)}"
+            Write(unit=ipr,fmt="(a)")  &
+            "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz) + i ( Ix Iy Iz)} exp {-2pi i Mphask} -> MagMatrix # imat"
+            Write(unit=ipr,fmt="(a)")  "  In case of k=2H (H reciprocal lattice vector) Sk(j)= (Rx Ry Rz)"
 
-       else
+            do i=1,Am%Natoms
+               Write(unit=ipr,fmt="(a,a,5f10.5)")  &
+                 "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
+               do j=1,Am%Atom(i)%nvk
+                  if (K_Equiv_Minus_K(MGp%kvec(:,j),MGp%latt)) then
+                     Write(unit=ipr,fmt="(a,i2,a,3f10.5,a,i4)")  &
+                     "     Sk(",j,") =  (", Am%Atom(i)%Skr(:,j),")  -> MagMatrix #", Am%Atom(i)%imat(j)
+                  else
+                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a,i4)")  &
+                     "     Sk(",j,") = 1/2 {(", Am%Atom(i)%Skr(:,j),") + i (",Am%Atom(i)%Ski(:,j),")}  exp { -2pi i ",&
+                     Am%Atom(i)%MPhas(j),"}  -> MagMatrix #", Am%Atom(i)%imat(j)
+                  end if
+               end do
+            end do
 
-          Write(unit=ipr,fmt="(a)")  &
-          "  The Fourier coefficients are of the form: Sk(j) = 1/2 Sum(i){Ci* Basf(i,imat)} exp {-2pi i Mphask(j)}"
-          Write(unit=ipr,fmt="(a)")  &
-          "  Where Ci are coefficients given below, Basf are the basis functions given above -> Irrep# imat"
+         else
 
-          do i=1,Am%Natoms
-             Write(unit=ipr,fmt="(a,a,5f10.5)")  &
-               "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
-             do j=1,Am%Atom(i)%nvk
-                m=Am%Atom(i)%imat(j)
-                n=abs(MGp%nbas(m))
-                !1234567890123456789012345678
-                aux="(a,i2,a,  f10.5,a,f9.5,a,i4)"
-                write(unit=aux(9:10),fmt="(i2)") n
-                Write(unit=ipr,fmt=aux)  &
-                   "  Coef_BasF(",j,") = 1/2 {(", Am%Atom(i)%cbas(1:n,j),")}  exp { -2pi i ",&
-                Am%Atom(i)%MPhas(j),"}  -> Irrep #", m
-             end do
-          end do
-       end if
+            Write(unit=ipr,fmt="(a)")  &
+            "  The Fourier coefficients are of the form: Sk(j) = 1/2 Sum(i){Ci* Basf(i,imat)} exp {-2pi i Mphask(j)}"
+            Write(unit=ipr,fmt="(a)")  &
+            "  Where Ci are coefficients given below, Basf are the basis functions given above -> Irrep# imat"
 
-       ! Complete list of all atoms per primitive cell
-       Write(unit=ipr,fmt="(/,a)")  " "
-       Write(unit=ipr,fmt="(  a)")  "== List of all atoms and Fourier coefficients in the primitive cell =="
-       Write(unit=ipr,fmt="(a,/)")  " "
+            do i=1,Am%Natoms
+               Write(unit=ipr,fmt="(a,a,5f10.5)")  &
+                 "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
+               do j=1,Am%Atom(i)%nvk
+                  m=Am%Atom(i)%imat(j)
+                  n=abs(MGp%nbas(m))
+                  !1234567890123456789012345678
+                  aux="(a,i2,a,  f10.5,a,f9.5,a,i4)"
+                  write(unit=aux(9:10),fmt="(i2)") n
+                  Write(unit=ipr,fmt=aux)  &
+                     "  Coef_BasF(",j,") = 1/2 {(", Am%Atom(i)%cbas(1:n,j),")}  exp { -2pi i ",&
+                  Am%Atom(i)%MPhas(j),"}  -> Irrep #", m
+               end do
+            end do
+         end if
 
-       ! Construct the Fourier coefficients in case of Irreps
-       if (MGp%nirreps /= 0 ) then
-          do i=1,Am%natoms
-             xo=Am%Atom(i)%x
-             do k=1,MGp%NumOps
-                xp=ApplySO(MGp%SymOp(k),xo)
-                Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
-                do j=1,Am%Atom(i)%nvk
-                   m=Am%Atom(i)%imat(j)
-                   n=abs(MGp%nbas(m))
-                   Sk(:) = cmplx(0.0,0.0)
-                   do l=1,n !cannot be greater than 12 at present
-                      x=real(MGp%icomp(l,m))
-                      ci=cmplx(1.0-x,x)
-                      Sk(:)=Sk(:)+ Am%atom(i)%cbas(l,m)*ci* MGp%basf(:,l,k,m)
-                   end do
-                   x=-tpi*Am%atom(i)%mphas(j)
-                   Sk=Sk*cmplx(cos(x),sin(x))
-                   Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
-                    "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
-                end do
-             end do  !Ops
-             Write(unit=ipr,fmt="(a)") "  "
-          end do  !atoms
+         ! Complete list of all atoms per primitive cell
+         Write(unit=ipr,fmt="(/,a)")  " "
+         Write(unit=ipr,fmt="(  a)")  "== List of all atoms and Fourier coefficients in the primitive cell =="
+         Write(unit=ipr,fmt="(a,/)")  " "
 
-       else
-          do i=1,Am%natoms
-             xo=Am%Atom(i)%x
-             do k=1,MGp%NumOps
-                xp=ApplySO(MGp%SymOp(k),xo)
-                Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
-                do j=1,Am%Atom(i)%nvk
-                   m=Am%Atom(i)%imat(j)
-                   n=abs(MGp%nbas(m))
-                   x=-tpi*Am%atom(i)%mphas(j)
-                   Sk=cmplx(Am%Atom(i)%Skr(:,j),Am%Atom(i)%Ski(:,j))
-                   Sk= ApplyMSO(MGp%MSymOp(k,j),Sk)*cmplx(cos(x),sin(x))
-                   Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
-                    "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
-                end do
-             end do  !Ops
-             Write(unit=ipr,fmt="(a)") "  "
-          end do  !atoms
-       end if
+         ! Construct the Fourier coefficients in case of Irreps
+         if (MGp%nirreps /= 0 ) then
+            do i=1,Am%natoms
+               xo=Am%Atom(i)%x
+               do k=1,MGp%NumOps
+                  xp=ApplySO(MGp%SymOp(k),xo)
+                  Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
+                  do j=1,Am%Atom(i)%nvk
+                     m=Am%Atom(i)%imat(j)
+                     n=abs(MGp%nbas(m))
+                     Sk(:) = cmplx(0.0,0.0)
+                     do l=1,n !cannot be greater than 12 at present
+                        x=real(MGp%icomp(l,m))
+                        ci=cmplx(1.0-x,x)
+                        Sk(:)=Sk(:)+ Am%atom(i)%cbas(l,m)*ci* MGp%basf(:,l,k,m)
+                     end do
+                     x=-tpi*Am%atom(i)%mphas(j)
+                     Sk=Sk*cmplx(cos(x),sin(x))
+                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
+                      "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
+                  end do
+               end do  !Ops
+               Write(unit=ipr,fmt="(a)") "  "
+            end do  !atoms
+
+         else
+            do i=1,Am%natoms
+               xo=Am%Atom(i)%x
+               do k=1,MGp%NumOps
+                  xp=ApplySO(MGp%SymOp(k),xo)
+                  Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
+                  do j=1,Am%Atom(i)%nvk
+                     m=Am%Atom(i)%imat(j)
+                     n=abs(MGp%nbas(m))
+                     x=-tpi*Am%atom(i)%mphas(j)
+                     Sk=cmplx(Am%Atom(i)%Skr(:,j),Am%Atom(i)%Ski(:,j))
+                     Sk= ApplyMSO(MGp%MSymOp(k,j),Sk)*cmplx(cos(x),sin(x))
+                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
+                      "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
+                  end do
+               end do  !Ops
+               Write(unit=ipr,fmt="(a)") "  "
+            end do  !atoms
+         end if
+
+       End If !Am%Natoms > 0
 
        ! Writing information about domains (like in FullProf)
        if (present(Mag_Dom)) then

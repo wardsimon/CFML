@@ -5732,13 +5732,15 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Update_Current_Instrm_UB
 
     !!----
-    !!---- Subroutine Write_Current_Instrm_data(lun)
-    !!----    integer, optional, intent(in) :: lun
+    !!---- Subroutine Write_Current_Instrm_data(lun,fil)
+    !!----    integer,         optional, intent(in) :: lun
+    !!----    character(len=*),optional, intent(in) :: fil
     !!----
     !!----    Writes the characteristics of the Current Instrument
     !!----    in the file of logical unit 'lun'
     !!----    If the subroutine is invoked without argument the subroutine
     !!----    outputs the information on the standard output (screen)
+    !!----    If the second argument (fil) is provided
     !!----
     !!---- Update: March - 2005
     !!
