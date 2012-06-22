@@ -23,6 +23,10 @@ project(libcrysfml Fortran)
 
 get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
+if (NOT CRYSFML_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/${COMPILER_NAME})
+endif()
+
 if (NOT CRYSFML_PREFIX)
     # Set the default name for crysfml library within the install prefix.
     set(CRYSFML_PREFIX LibC CACHE STRING "The name of crysfml library within library directory")
