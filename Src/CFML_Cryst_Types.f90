@@ -387,8 +387,19 @@
     !!----    real(kind=cp) dimension(3)                :: vc       ! Out ->
     !!----
     !!----    Convert a vector in crystal space to cartesian components
+    !!----    The value of code has been extended to use also the Busing-Levy
+    !!----    Cartesian system as reference also for direct and reciprocal space.
+    !!----    Codes:
+    !!----    The Cartesian frame is that defined by the setting of the "Celda" object
+    !!----         D: The components are given with respect to basis (a,b,c)
+    !!----         R: The components are given with respect to basis (a*,b*,c*)
+    !!----        BL: The components are given with respect to basis (a*,b*,c*) but
+    !!----            the Cartesian frame is that defined by Busing and Levy
+    !!----       BLD: The components are given with respect to basis (a,b,c) but
+    !!----            the Cartesian frame is that defined by Busing and Levy
     !!----
-    !!---- Update: February - 2005
+    !!----
+    !!---- Updated: June - 2012
     !!
     Function Cart_Vector(Code,V,Celda) Result(Vc)
        !---- Arguments ----!
@@ -397,13 +408,21 @@
        type (Crystal_Cell_Type),    intent(in) :: Celda
        real(kind=cp), dimension(3)             :: vc
 
-       select case (code(1:1))
+       select case (trim(code))
           case("d","D")
-             vc = matmul(celda%Cr_Orth_cel,v)
+             vc = matmul(celda%Cr_Orth_cel,v)  !Direct conversion to Cartesian frame
 
           case ("r","R")
-             vc = matmul(celda%GR,v)
-             vc = matmul(celda%Cr_Orth_cel,vc)
+             vc = matmul(celda%GR,v)            !Converts to direct space
+             vc = matmul(celda%Cr_Orth_cel,vc)  !Converts to Cartesian frame
+
+          case ("bl","BL")
+             vc = matmul(celda%BL_M,vc) !Direct conversion to BL Cartesian frame
+
+          case ("bld","BLD")
+             vc = matmul(celda%GD,v)   !Converts to reciprocal space
+             vc = matmul(celda%BL_M,vc)!Converts to BL Cartesian frame
+
        end select
 
        return
@@ -1622,7 +1641,7 @@
     !!--++    b = (         0         ,     b sinalpha      , b cosalpha)
     !!--++    c = (         0         ,         0           , c         )
     !!--++
-    !!--++    If CartType = 'A', the the cartesian system is defined as:
+    !!--++    If CartType = 'A', the Cartesian system is defined as:
     !!--++         x // a; y is in the ab-plane; z is x ^ z
     !!--++    a = (       a   ,         0           ,       0             )
     !!--++    b = ( b cosgamma,    b singamma       ,       0             )

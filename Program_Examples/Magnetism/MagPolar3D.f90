@@ -37,6 +37,8 @@ Program MagPolar3D
 
       if(narg > 0) then
               call GET_COMMAND_ARGUMENT(1,filcod)
+              i=index(filcod,".cfl")
+              if( i /= 0 ) filcod=filcod(1:i-1)
               arggiven=.true.
       end if
 
@@ -98,7 +100,7 @@ Program MagPolar3D
 
        n_ini=1
        n_end=fich_cfl%nlines
-       call Readn_Set_Magnetic_Structure(fich_cfl,n_ini,n_end,MGp,Am,Mag_dom=Mag_dom)
+       call Readn_Set_Magnetic_Structure(fich_cfl,n_ini,n_end,MGp,Am,Mag_dom=Mag_dom,cell=cell)
        if(err_MagSym) then
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          stop
@@ -118,7 +120,7 @@ Program MagPolar3D
       do
 
          write(unit=*,fmt="(/a,i2,a)",advance="no") &
-                            " => Enter a magnetic reflections as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
+                            " => Enter a magnetic reflection as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
          read(unit=*,fmt=*) ih,ik,il,m
          if( m == 0) exit
          !construct partially the object Mh
@@ -133,7 +135,7 @@ Program MagPolar3D
          Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
 
          !Calculate magnetic structure factor and magnetic interaction vector
-         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh)
+         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh,"Car")
 
          write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
          write(unit=lun,fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
@@ -145,12 +147,12 @@ Program MagPolar3D
               write(unit=lun,fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
               write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MsF(:,ich,nd)),") "
-              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
+              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiV(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiV(:,ich,nd)),") "
               write(unit=*,  fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
               write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MsF(:,ich,nd)),") "
-              write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
+              write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiV(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiV(:,ich,nd)),") "
            end do
          end do
