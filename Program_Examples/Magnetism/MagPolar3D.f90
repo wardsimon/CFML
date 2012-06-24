@@ -21,7 +21,7 @@ Program MagPolar3D
  type (Magnetic_domain_type) :: Mag_Dom
  Type (Polar_calc_type)      :: polari
 
- character(len=256)          :: filcod     !Name of the input file
+ character(len=256)          :: filcod,line     !Name of the input file
  character(len=1)            :: sig
  real                        :: sn,sf2
  real, dimension(3)          :: vpl
@@ -30,7 +30,8 @@ Program MagPolar3D
  complex                     :: fc
 
  integer                     :: narg,iargc
- Logical                     :: esta, arggiven=.false.
+ Logical                     :: esta, arggiven=.false., ub_given=.false., uvw_given=.false., &
+                                plane_given=.false.
 
       !---- Arguments on the command line ----!
       narg=COMMAND_ARGUMENT_COUNT()
@@ -62,13 +63,15 @@ Program MagPolar3D
      open(unit=lun,file=trim(filcod)//".cal", status="replace",action="write")
      write(unit=lun,fmt="(/,/,8(a,/))")                                                &
            "              ------ P r o g r a m   M a g P o l a r  (DOMAINS) ------"  , &
-           "                    ---- Version 0.1 November-2006 ----"                 , &
+           "                    ---- Version 0.2 June-2012 ----"                 , &
            "    ******************************************************************"  , &
            "    * Calculates magnetic structure factors, and magnetic interaction*"  , &
            "    * vectors from magnetic structures by reading a *.CFL file       *"  , &
+           "    * The polarisation matrix is also calculated when the orientation*"  , &
+           "    * is provided either in the CFL-file or interactively.           *"  , &
            "    * Magnetic S-domains and chirality domains are considered        *"  , &
            "    ******************************************************************"  , &
-           "                    (JRC- November 2006, testing stage )"
+           "                 (JRC- November 2006, updated: June 2012 )"
 
      inquire(file=trim(filcod)//".cfl",exist=esta)
      if( .not. esta) then
@@ -105,6 +108,9 @@ Program MagPolar3D
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          stop
        end if
+       do i=1,n_end
+           line=adjustl(fich_cfl%line(i))
+       end do
        if(Mag_dom%nd == 0) then
           Mag_dom%nd=1
           Mag_Dom%chir=.false.
@@ -135,7 +141,7 @@ Program MagPolar3D
          Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
 
          !Calculate magnetic structure factor and magnetic interaction vector
-         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh,"Car")
+         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh)
 
          write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
          write(unit=lun,fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
@@ -147,26 +153,33 @@ Program MagPolar3D
               write(unit=lun,fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
               write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MsF(:,ich,nd)),") "
-              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiV(:,ich,nd)),")+i(",&
+              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiV(:,ich,nd)),") "
-              write(unit=*,  fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
-              write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
+              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiVC(:,ich,nd)),")+i(",&
+                                                      aimag(Mh%MiVC(:,ich,nd)),") "
+
+              write(unit=*,fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
+              write(unit=*,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MsF(:,ich,nd)),") "
-              write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiV(:,ich,nd)),")+i(",&
+              write(unit=*,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiV(:,ich,nd)),") "
-           end do
+              write(unit=*,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiVC(:,ich,nd)),")+i(",&
+                                                      aimag(Mh%MiVC(:,ich,nd)),") "
+            end do
          end do
 
-         write(unit=lun,fmt="(/a,2(3f8.4,a))") "  Average Magnetic Interaction Vector : (",real(Mh%AMiV(:)),")+i(",&
+         write(unit=lun,fmt="(/a,2(3f8.4,a))") "  Average Magnetic Interaction Vector (Cartesian): (",real(Mh%AMiV(:)),")+i(",&
                                                   aimag(Mh%AMiV(:)),") "
          write(unit=lun,fmt="(a,f12.5 )")      "  Square of Average Mag. int.  Vector : ",Mh%sqAMiV
          write(unit=lun,fmt="(a,f12.5 )")      "  Average Square of Mag. int.  Vectors: ",Mh%sqMiV
-         write(unit=*,  fmt="(/a,2(3f8.4,a))") "  Average Magnetic Interaction Vector : (",real(Mh%AMiV(:)),")+i(",&
+
+         write(unit=*,  fmt="(/a,2(3f8.4,a))") "  Average Magnetic Interaction Vector (Cartesian): (",real(Mh%AMiV(:)),")+i(",&
                                                   aimag(Mh%AMiV(:)),") "
          write(unit=*,  fmt="(a,f12.5 )")      "  Square of Average Mag. int.  Vector : ",Mh%sqAMiV
          write(unit=*,  fmt="(a,f12.5 )")      "  Average Square of Mag. int.  Vectors: ",Mh%sqMiV
+
+         write(unit=*,  fmt="(/a)") "    Polarisation Matrix calculation: "
          do
-          write(unit=*,  fmt="(/a)") "    Polarisation Matrix calculation: "
           write(unit=*,  fmt="( a)",advance="no") " => Enter another reciprocal lattice vector in the horizontal plane: "
           read(unit=*,fmt=*,iostat=ier) vpl
           if(ier /= 0) vpl=(/0.0,0.0,0.0/)

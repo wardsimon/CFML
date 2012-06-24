@@ -1,4 +1,4 @@
-Module prep_input
+ Module prep_input
  !---- Use Modules ----!
  use CFML_GlobalDeps,             only: sp, cp, eps
  use CFML_Atom_TypeDef,           only: mAtom_list_Type, allocate_mAtom_list
@@ -19,7 +19,7 @@ Module prep_input
 
  integer, save               :: lun=1,lan=2,lin=3
  integer, save               :: Nobs,Nset,Nref,Nf2,Npol
- real, public                :: Scale,cost,costPol,costF2
+ real, public                :: Scalef,cost,costPol,costF2
 
    !---- OLD types are declared below the NEW types
    !---- NEW types
@@ -650,11 +650,11 @@ contains
 
        end do !end loop over reflections
 
-!---     Cost_sqMiV(cost,Scale)
+!---     Cost_sqMiV(cost,Scalef)
        if (present(lun)) then
-          Scale=sum( [(MhMultilist%MhList(iset)%Mh(j)%sqMiV*Oblist%Ob(j)%Gobs *Oblist%Ob(j)%wGobs,j=1,Nf2)])/ &
-                sum( [(MhMultilist%MhList(iset)%Mh(j)%sqMiV**2 *Oblist%Ob(j)%wGobs,j=1,Nf2)] )
-         cost=sum( ([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scale*MhMultilist%MhList(iset)%Mh(j)%sqMiV)**2, &
+          Scalef=sum( [(MhMultilist%MhList(iset)%Mh(j)%sqMiV*Oblist%Ob(j)%Gobs *Oblist%Ob(j)%wGobs,j=1,Nf2)])/ &
+                 sum( [(MhMultilist%MhList(iset)%Mh(j)%sqMiV**2 *Oblist%Ob(j)%wGobs,j=1,Nf2)] )
+         cost=sum( ([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scalef*MhMultilist%MhList(iset)%Mh(j)%sqMiV)**2, &
                                                                                  j=1,Nf2)]) ) /Nf2 !-NP_Refi)
 
          write(unit=lun,fmt="(/,a)")    "================================================================================"
@@ -677,24 +677,24 @@ contains
 !******************************************!
     Subroutine Calc_Polar_Dom_Data(iset,lun)
 !******************************************!
-! gets polarization matrices from Calc_Polar_Dom (via nc, mxyz,tc), domains are considered in Calc_Polar_Dom
-! lun is used only at 0-cycle !!
-       !---- Argument ----!
-       integer, optional,           intent(in) :: iset,lun
+    ! gets polarization matrices from Calc_Polar_Dom (via nc, mxyz,tc), domains are considered in Calc_Polar_Dom
+    ! lun is used only at 0-cycle !!
+      !---- Argument ----!
+      integer, optional, intent(in) :: iset,lun
 
-       !---- Local variables ----!
-       integer                     :: j,ich,nch,nd
-       real(kind=cp)               :: Pin
-       real(kind=cp),dimension(3)  :: SPV
+      !---- Local variables ----!
+      integer                     :: j,ich,nch,nd
+      real(kind=cp)               :: Pin
+      real(kind=cp),dimension(3)  :: SPV
 
-        Npol=Multidata%Nobs(iset)
-        Mag_dom=Multidata%MagDom(iset)
+      Npol=Multidata%Nobs(iset)
+      Mag_dom=Multidata%MagDom(iset)
 
-        if(allocated(PolariMultilist%Polarilist(iset)%Polari)) deallocate(PolariMultilist%Polarilist(iset)%Polari)
-        allocate(PolariMultilist%Polarilist(iset)%Polari(Npol))
-        PolariMultilist%Polarilist(iset)%Nref= Npol
+      if(allocated(PolariMultilist%Polarilist(iset)%Polari)) deallocate(PolariMultilist%Polarilist(iset)%Polari)
+      allocate(PolariMultilist%Polarilist(iset)%Polari(Npol))
+      PolariMultilist%Polarilist(iset)%Nref= Npol
 
-     do j=1,Npol ! Loop over hkl observations
+      do j=1,Npol ! Loop over hkl observations
          SPV=PolaroMultilist%Polarolist(iset)%Polaro(j)%SPV
          Pin=PolaroMultilist%Polarolist(iset)%Polaro(j)%P
 
@@ -704,21 +704,21 @@ contains
          Mh=MhMultilist%MhList(iset)%Mh(j)
          call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac
          call Calc_Polar_Dom(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,PolariMultilist%Polarilist(iset)%Polari(j)) !CFML_Polar
-!----    without components with respect to direct cell system {e1,e2,e3}
-!----    with components with respect to the cartesian frame
+         !without components with respect to direct cell system {e1,e2,e3}
+         !with components with respect to the cartesian frame
          MhMultilist%MhList(iset)%Mh(j)%sqMiV=Mh%sqMiV
 
-     end do !end loop over hkl observations
+      end do !end loop over hkl observations
 
-!---     Cost_cryopad(cost)
-       if (present(lun)) then
+      !---     Cost_cryopad(cost)
+      if (present(lun)) then
 
         cost=0.0
         do j=1,MultiData%Nobs(iset) !loop over observations
           cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(j)%woPij * &
                  ( (PolariMultilist%Polarilist(iset)%Polari(j)%Pij - &
                     PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij)**2))
-        enddo !end loop over observations
+        end do !end loop over observations
 
         cost=cost/(9*MultiData%Nobs(iset)) !-NP_Refi)
 
@@ -729,119 +729,117 @@ contains
         write(lun,'(a)') '    Pobs                   Pcalc'
 
         do j=1,MultiData%Nobs(iset) !loop over observations
-         write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
-         PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,1)
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
-         PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,2)
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,3), &
-         PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,3)
-        enddo !end loop over observations
+          write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
+          write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
+          PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,1)
+          write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
+          PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,2)
+          write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,3), &
+          PolariMultilist%Polarilist(iset)%Polari(j)%Pij(:,3)
+        end do !end loop over observations
 
-       end if
+      end if
 
     End Subroutine Calc_Polar_Dom_Data
 
 !******************************************!
     Subroutine Calc_Polar_CrSec_Data(iset,lun)
 !******************************************!
-! gets polarized cross sections from Calc_Polar_CrSec (via sVs)
-!
-       !---- Argument ----!
-       integer, optional,           intent(in) :: iset,lun
+      ! gets polarized cross sections from Calc_Polar_CrSec (via sVs)
+      !
+      !---- Argument ----!
+      integer, optional,           intent(in) :: iset,lun
 
-       !---- Local variables ----!
-       integer                     :: i,j,iobs,nd,ich,nch
-       real(kind=cp)               :: Pin
-       real(kind=cp),dimension(3)  :: SPV
-       real(kind=cp),dimension(3,3):: Ipp,Ipm,Imp,Imm
+      !---- Local variables ----!
+      integer                     :: i,j,iobs,nd,ich,nch
+      real(kind=cp)               :: Pin
+      real(kind=cp),dimension(3)  :: SPV
+      real(kind=cp),dimension(3,3):: Ipp,Ipm,Imp,Imm
 
-        Npol=Multidata%Nobs(iset)
-        Mag_dom=Multidata%MagDom(iset)
+      Npol=Multidata%Nobs(iset)
+      Mag_dom=Multidata%MagDom(iset)
 
-        if(allocated(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)) deallocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)
-        allocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs(Npol))
-        PolariMultisVslist%PolarisVslist(iset)%Nref= Npol
+      if(allocated(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)) deallocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs)
+      allocate(PolariMultisVslist%PolarisVslist(iset)%PolarisVs(Npol))
+      PolariMultisVslist%PolarisVslist(iset)%Nref= Npol
 
-     do iobs=1,Npol ! Loop over hkl observations
-         SPV=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%SPV
-         Pin=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%P
-         nch=1
-         if(Mag_Dom%chir) nch=2
+      do iobs=1,Npol ! Loop over hkl observations
+        SPV=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%SPV
+        Pin=PolaroMultilist%Polarolist(iset)%Polaro(iobs)%P
+        nch=1
+        if(Mag_Dom%chir) nch=2
 
-      do nd=1,Mag_Dom%nd !loop over S-domains
-       do ich=1,nch !loop over chiral domains
+        do nd=1,Mag_Dom%nd !loop over S-domains
+          do ich=1,nch !loop over chiral domains
+            !Calculate magnetic structure factor and magnetic interaction vector
+            ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
+            Mh=MhMultilist%MhList(iset)%Mh(iobs)
+            call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac
+            call Calc_Polar_CrSec(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,Ipp,Ipm,Imp,Imm) !CFML_Polar
+            !without components with respect to direct cell system {e1,e2,e3}
+            !with components with respect to the cartesian frame
+            MhMultilist%MhList(iset)%Mh(iobs)%sqMiV=Mh%sqMiV
+          end do !loop over chiral domains
+        end do !loop over S-domains
 
-         !Calculate magnetic structure factor and magnetic interaction vector
-         ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
-         Mh=MhMultilist%MhList(iset)%Mh(iobs)
-         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac
-         call Calc_Polar_CrSec(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,Ipp,Ipm,Imp,Imm) !CFML_Polar
-!----    without components with respect to direct cell system {e1,e2,e3}
-!----    with components with respect to the cartesian frame
-         MhMultilist%MhList(iset)%Mh(iobs)%sqMiV=Mh%sqMiV
-        end do !loop over chiral domains
-      end do !loop over S-domains
+        if(Pin > 0.d0) then
+          do i=1,3
+            do j=1,3
+              if((Ipp(i,j)+Imp(i,j)).le.eps) then
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
+              else
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = & ! calculate using the same structure parameters AND
+                            (Ipp(i,j)-Imp(i,j))/(Ipp(i,j)+Imp(i,j))    ! the set of populations for the iset-th dataset
+              end if
+            end do
+          end do
+        end if
 
-       if(Pin.gt.0.d0) then
-        do i=1,3
-         do j=1,3
-          if((Ipp(i,j)+Imp(i,j)).le.eps) then
-           PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
-          else
-           PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = & ! calculate using the same structure parameters AND
-                        (Ipp(i,j)-Imp(i,j))/(Ipp(i,j)+Imp(i,j))    ! the set of populations for the iset-th dataset
-          endif
-         enddo
-        enddo
-       endif
+        if(Pin < 0.d0) then
+          do i=1,3
+            do j=1,3
+              if((Imm(i,j)+Ipm(i,j)).le.eps) then
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
+              else
+                PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = &
+                              -(Imm(i,j)-Ipm(i,j))/(Imm(i,j)+Ipm(i,j))
+              end if
+            end do
+          end do
+        end if
 
-       if(Pin.lt.0.d0) then
-        do i=1,3
-         do j=1,3
-          if((Imm(i,j)+Ipm(i,j)).le.eps) then
-           PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = 0.d0
-          else
-           PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(i,j) = &
-                          -(Imm(i,j)-Ipm(i,j))/(Imm(i,j)+Ipm(i,j))
-          endif
-         enddo
-        enddo
-       endif
+      end do !end loop over hkl observations
 
-     end do !end loop over hkl observations
+      !---   Cost_mupad(cost)
+      if (present(lun)) then
 
-!---   Cost_mupad(cost)
-       if (present(lun)) then
+        cost=0.0
+        do j=1,MultiData%Nobs(iset) !loop over observations
+          cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(j)%woPij * &
+                  ( (PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij - &
+                     PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij)**2))
+        end do !end loop over observations
+        cost=cost/(9*MultiData%Nobs(iset)) !-NP_Refi)
 
-       cost=0.0
-       do j=1,MultiData%Nobs(iset) !loop over observations
-         cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(j)%woPij * &
-                 ( (PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij - &
-                    PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij)**2))
-       enddo !end loop over observations
-       cost=cost/(9*MultiData%Nobs(iset)) !-NP_Refi)
+        write(unit=lun,fmt="(/,a)")    "==========================================================================="
+        write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(mupad): Sum(|PObs-PCalc|^2) / Sum(sigma^2) ) / Nobs =',cost
+        write(unit=lun,fmt="(a,/)")    "==========================================================================="
+        write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
+        write(lun,'(a)') '    Pobs                   Pcalc'
 
-       write(unit=lun,fmt="(/,a)")    "==========================================================================="
-       write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(mupad): Sum(|PObs-PCalc|^2) / Sum(sigma^2) ) / Nobs =',cost
-       write(unit=lun,fmt="(a,/)")    "==========================================================================="
-       write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-       write(lun,'(a)') '    Pobs                   Pcalc'
+        do j=1,MultiData%Nobs(iset) !loop over observations
 
-     do j=1,MultiData%Nobs(iset) !loop over observations
+            write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
+            write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
+            PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij(:,1)
+            write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
+            PolariMultisVslist%Polarisvslist(iset)%PolarisVs(j)%Pij(:,2)
+            write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,3), &
+            PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij(:,3)
 
-         write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(j)%H
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,1), &
-         PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij(:,1)
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,2), &
-         PolariMultisVslist%Polarisvslist(iset)%PolarisVs(j)%Pij(:,2)
-         write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(j)%oPij(:,3), &
-         PolariMultisVslist%PolarisVslist(iset)%PolarisVs(j)%Pij(:,3)
+        end do !end loop over observations
 
-     enddo !end loop over observations
-
-
-       end if
+      end if
 
     End Subroutine Calc_Polar_CrSec_Data
 
@@ -904,29 +902,29 @@ contains
     Subroutine Write_ObsCalc(file_cfl)
 !******************************************!
 
-       !---- Arguments ----!
-       type(file_list_type),                intent (in)     :: file_cfl
-       !---- Local variables ----!
-       character(len=132)   :: line
-       integer              :: i,j,n,iset,iobs,i1,i2,i3,i4
+      !---- Arguments ----!
+      type(file_list_type),     intent (in)     :: file_cfl
+      !---- Local variables ----!
+      character(len=132)   :: line
+      integer              :: i,j,n,iset,iobs,i1,i2,i3,i4
 
-        i=0
-        do j=1,file_cfl%nlines
-          line=adjustl(file_cfl%line(j))
-          line=l_case(line)
-          if (line(1:1) ==" ") cycle
-          if (line(1:1) =="!") cycle
-          i=index(line,"!")
+      i=0
+      do j=1,file_cfl%nlines
+        line=adjustl(file_cfl%line(j))
+        line=l_case(line)
+        if (line(1:1) ==" ") cycle
+        if (line(1:1) =="!") cycle
+        i=index(line,"!")
 
-          if( i /= 0) line=trim(line(1:i-1))
+        if( i /= 0) line=trim(line(1:i-1))
 
-          select case (line(1:4))
-          case ("opti")    !Optimization
+        select case (line(1:4))
+        case ("opti")    !Optimization
 
-          i=index(line,"f2mag")
-           if(i /= 0) then
-             i3=index(line,"f2mag_cryopad")
-             if(i3 /= 0) then
+        i=index(line,"f2mag")
+         if(i /= 0) then
+           i3=index(line,"f2mag_cryopad")
+           if(i3 /= 0) then
              do iset=1,MultiData%Nset
                 write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
                 if(Multidata%SNP(iset)) then
@@ -943,18 +941,18 @@ contains
 
                   end do !end loop over observations
                 else
-                 write(lun,'(a)') '     h      k       l          Imag        sImag      Icalc'
-                 Nf2=MhMultilist%MhList(iset)%Nref
-                 do n=1,Nf2 ! This is loop over reflections with Int
-                  write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(n)%Hd(:,1),Oblist%Ob(n)%Gobs, &
-                                    Oblist%Ob(n)%SGobs,Scale*MhMultilist%MhList(iset)%Mh(n)%sqMiV
-                 end do
+                  write(lun,'(a)') '     h      k       l          Imag        sImag      Icalc'
+                  Nf2=MhMultilist%MhList(iset)%Nref
+                  do n=1,Nf2 ! This is loop over reflections with Int
+                    write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(n)%Hd(:,1),Oblist%Ob(n)%Gobs, &
+                                     Oblist%Ob(n)%SGobs,Scalef*MhMultilist%MhList(iset)%Mh(n)%sqMiV
+                  end do
                 end if
              end do
-             end if
+           end if
 
-             i4=index(line,"f2mag_mupad")
-             if(i4 /= 0) then
+           i4=index(line,"f2mag_mupad")
+           if(i4 /= 0) then
              do iset=1,MultiData%Nset
                 write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
                 if(Multidata%SNP(iset)) then
@@ -975,28 +973,28 @@ contains
                  Nf2=MhMultilist%MhList(iset)%Nref
                  do n=1,Nf2 ! This is loop over reflections with Int
                   write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(n)%Hd(:,1),Oblist%Ob(n)%Gobs, &
-                                    Oblist%Ob(n)%SGobs,Scale*MhMultilist%MhList(iset)%Mh(n)%sqMiV
+                                    Oblist%Ob(n)%SGobs,Scalef*MhMultilist%MhList(iset)%Mh(n)%sqMiV
                  end do
                 end if
              end do
-             end if
+           end if
 
-             if(i3 == 0 .and. i4 == 0) then !f2mag pure case
+           if(i3 == 0 .and. i4 == 0) then !f2mag pure case
              do iset=1,MultiData%Nset
                write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
                write(lun,'(a)') '     h      k       l          Imag        sImag      Icalc'
                Nf2=MhMultilist%MhList(iset)%Nref
                do n=1,Nf2 ! This is loop over reflections with Int
-                write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(n)%Hd(:,1),Oblist%Ob(n)%Gobs, &
-                                    Oblist%Ob(n)%SGobs,Scale*MhMultilist%MhList(iset)%Mh(n)%sqMiV
+                 write(unit=lun,fmt="(3f8.4, 3f12.4)") Oblist%Ob(n)%Hd(:,1),Oblist%Ob(n)%Gobs, &
+                                    Oblist%Ob(n)%SGobs,Scalef*MhMultilist%MhList(iset)%Mh(n)%sqMiV
                end do
              end do
-             end if
+           end if
 
-           else
+         else
 
-             i1=index(line,"cryopad")
-             if(i1 /= 0) then
+           i1=index(line,"cryopad")
+           if(i1 /= 0) then
              do iset=1,MultiData%Nset
                 if(Multidata%SNP(iset)) then
                   write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
@@ -1014,104 +1012,104 @@ contains
                   end do !end loop over observations
                 end if
              end do
-             end if
-
-             i2=index(line,"mupad")
-             if(i2 /= 0) then
-             do iset=1,MultiData%Nset
-                if(Multidata%SNP(iset)) then
-                  write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
-                  write(lun,'(a)') '    Pobs                   Pcalc'
-                  do iobs=1,MultiData%Nobs(iset) !loop over observations
-
-                    write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
-                    write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
-                    PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,1)
-                    write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &
-                    PolariMultisVslist%Polarisvslist(iset)%PolarisVs(iobs)%Pij(:,2)
-                    write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,3), &
-                    PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,3)
-
-                  end do !end loop over observations
-                end if
-             end do
-             end if
            end if
 
-          end select
-        enddo
+           i2=index(line,"mupad")
+           if(i2 /= 0) then
+           do iset=1,MultiData%Nset
+              if(Multidata%SNP(iset)) then
+                write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
+                write(lun,'(a)') '    Pobs                   Pcalc'
+                do iobs=1,MultiData%Nobs(iset) !loop over observations
+
+                  write(unit=lun,fmt='(3(f10.6))')    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H
+                  write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,1), &
+                  PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,1)
+                  write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,2), &
+                  PolariMultisVslist%Polarisvslist(iset)%PolarisVs(iobs)%Pij(:,2)
+                  write(unit=lun,fmt='(2(1x,3f8.4))') PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij(:,3), &
+                  PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij(:,3)
+
+                end do !end loop over observations
+              end if
+           end do
+           end if
+         end if
+
+        end select
+      end do
 
    End Subroutine Write_ObsCalc
 
 !******************************************!
-    Subroutine MagDom_to_Dataset(Mag_Dom)
+   Subroutine MagDom_to_Dataset(Mag_Dom)
 !******************************************!
     !!--++ writes Mag_Dom (read from *cfl file or updated by VState_to_AtomsPar after the SA cycle)
     !!--++ into Multidata%MagDom(iset)
     !!--++ Created: February - 2012
     !!--++ Works when both chiral domains given
 
-       !---- Arguments ----!
-       Type(Magnetic_Domain_type),   intent(in out)  :: Mag_Dom
+     !---- Arguments ----!
+     Type(Magnetic_Domain_type),   intent(in out)  :: Mag_Dom
 
-       !---- Local variables ----!
-       integer              :: iset,i1,j1,i2,j2,idom,dpast,ndomset
-       integer              :: place(2)
-       real                 :: domsum
-       character(len=10)    :: lab
+     !---- Local variables ----!
+     integer              :: iset,i1,j1,i2,j2,idom,dpast,ndomset
+     integer              :: place(2)
+     real                 :: domsum
+     character(len=10)    :: lab
 
-       !----If not all domains are given
-        if(Sum(Multidata%MagDom(1:Nset)%nd) /= Mag_dom%nd) then
-           write(unit=*,fmt="(a)") " => Mismatch between domains in Mag_Structure and Mag_data! "
-           stop
-        end if
+     !----If not all domains are given
+      if(Sum(Multidata%MagDom(1:Nset)%nd) /= Mag_dom%nd) then
+         write(unit=*,fmt="(a)") " => Mismatch between domains in Mag_Structure and Mag_data! "
+         stop
+      end if
 
-       do iset=1,Nset
+     do iset=1,Nset
 
-        do i1=1,Mag_Dom%nd
+       do i1=1,Mag_Dom%nd
          do j1=1,2 !ich1
-          lab=Mag_dom%lab(j1,i1)
-          idom = 0
+           lab=Mag_dom%lab(j1,i1)
+           idom = 0
 
-          dom:do i2=1,Multidata%MagDom(iset)%nd
-           do j2=1,2 !ich2
-            if(Multidata%MagDom(iset)%lab(j2,i2) == lab) then
-             idom=1
-             place=[j2,i2]
-             exit dom
-            end if
-           end do
-          end do dom
+           dom:do i2=1,Multidata%MagDom(iset)%nd
+             do j2=1,2 !ich2
+               if(Multidata%MagDom(iset)%lab(j2,i2) == lab) then
+                 idom=1
+                 place=[j2,i2]
+                 exit dom
+               end if
+             end do
+           end do dom
 
-          if (idom == 1) then
-            j2=place(1); i2=place(2)
-            Multidata%MagDom(iset)%DMat(:,:,i2)=Mag_dom%DMat(:,:,i1)
-            Multidata%MagDom(iset)%Chir=Mag_dom%Chir
-            Multidata%MagDom(iset)%pop(j2,i2) =Mag_dom%pop(j1,i1)
-            Multidata%MagDom(iset)%Mpop(j2,i2)=Mag_dom%Mpop(j1,i1)
-            Multidata%MagDom(iset)%Lpop(j2,i2)=Mag_dom%Lpop(j1,i1)
-          endif
+           if (idom == 1) then
+             j2=place(1); i2=place(2)
+             Multidata%MagDom(iset)%DMat(:,:,i2)=Mag_dom%DMat(:,:,i1)
+             Multidata%MagDom(iset)%Chir=Mag_dom%Chir
+             Multidata%MagDom(iset)%pop(j2,i2) =Mag_dom%pop(j1,i1)
+             Multidata%MagDom(iset)%Mpop(j2,i2)=Mag_dom%Mpop(j1,i1)
+             Multidata%MagDom(iset)%Lpop(j2,i2)=Mag_dom%Lpop(j1,i1)
+           endif
 
          end do
-        end do
+       end do
 
-       end do !on iset
+     end do !on iset
 
-       !---- Normalization to Sum_of_domains_onedataset=1
-       dpast=0
-       do iset=1,Nset
-        ndomset=Multidata%MagDom(iset)%nd
-        domsum=sum(Multidata%MagDom(iset)%pop)
+     !---- Normalization to Sum_of_domains_onedataset=1
+     dpast=0
+     do iset=1,Nset
+       ndomset=Multidata%MagDom(iset)%nd
+       domsum=sum(Multidata%MagDom(iset)%pop)
 
-        do i1=1,ndomset
+       do i1=1,ndomset
          do j1=1,2 !ich1
-          Multidata%MagDom(iset)%pop(j1,i1)=Multidata%MagDom(iset)%pop(j1,i1)/domsum
-          Mag_dom%pop(j1,(i1+dpast))=Multidata%MagDom(iset)%pop(j1,i1)
+           Multidata%MagDom(iset)%pop(j1,i1)=Multidata%MagDom(iset)%pop(j1,i1)/domsum
+           Mag_dom%pop(j1,(i1+dpast))=Multidata%MagDom(iset)%pop(j1,i1)
          end do
-        end do
-        dpast=dpast+ndomset
-       end do !on iset
+       end do
+       dpast=dpast+ndomset
+     end do !on iset
 
    End Subroutine MagDom_to_Dataset
 
-end module prep_input
+ End module prep_input

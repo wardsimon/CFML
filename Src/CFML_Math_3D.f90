@@ -20,6 +20,8 @@
 !!---- PROCEDURES
 !!----    Functions:
 !!----       CROSS_PRODUCT
+!!--++       CROSS_PRODUCT_CMPL_dp     [Overloaded]
+!!--++       CROSS_PRODUCT_CMPL_sp     [Overloaded]
 !!--++       CROSS_PRODUCT_dp          [Overloaded]
 !!--++       CROSS_PRODUCT_in          [Overloaded]
 !!--++       CROSS_PRODUCT_sp          [Overloaded]
@@ -32,10 +34,22 @@
 !!----       INVERT_A
 !!--++       INVERT_DP                 [Overloaded]
 !!--++       INVERT_SP                 [Overloaded]
+!!----       MAT_CROSS
+!!--++       MAT_CROSS_CMPL_dp     [Overloaded]
+!!--++       MAT_CROSS_CMPL_sp     [Overloaded]
+!!--++       MAT_CROSS_dp          [Overloaded]
+!!--++       MAT_CROSS_in          [Overloaded]
+!!--++       MAT_CROSS_sp          [Overloaded]
 !!----       POLYHEDRON_VOLUME
 !!----       ROTATE_OX
 !!----       ROTATE_OY
 !!----       ROTATE_OZ
+!!----       TENSOR_PRODUCT
+!!--++       TENSOR_PRODUCT_CMPL_dp     [Overloaded]
+!!--++       TENSOR_PRODUCT_CMPL_sp     [Overloaded]
+!!--++       TENSOR_PRODUCT_dp          [Overloaded]
+!!--++       TENSOR_PRODUCT_in          [Overloaded]
+!!--++       TENSOR_PRODUCT_sp          [Overloaded]
 !!----       VECLENGTH
 !!----
 !!----    Subroutines:
@@ -82,7 +96,7 @@
     public :: Polyhedron_Volume, Rotate_OX, Rotate_OY, Rotate_OZ, Veclength
 
     !---- List of public overloaded procedures: functions ----!
-    public :: Cross_Product, Determ_A, Determ_V, Invert_A
+    public :: Cross_Product, Determ_A, Determ_V, Invert_A, Mat_Cross, Tensor_Product
 
     !---- List of public subroutines ----!
     public :: Init_Err_Math3D, Set_Eps, Set_Eps_Default, Matrix_DiagEigen, Matrix_Inverse, &
@@ -93,11 +107,14 @@
     public :: Get_Cart_From_Cylin, Get_Cylindr_Coord, Get_Cart_From_Spher, Get_Spheric_Coord
 
     !----  Make private the overloaded procedures ----!
-    private :: Cross_Product_dp, Cross_Product_sp, Determ_A_I, Determ_A_R, Determ_V_I,  &
-               Determ_V_R, Invert_dp, Invert_sp, Get_Cart_From_Cylin_dp,                &
-               Get_Cart_From_Cylin_sp, Get_Cylindr_Coord_dp, Get_Cylindr_Coord_sp,      &
-               Get_Cart_From_Spher_dp, Get_Cart_From_Spher_sp, Get_Spheric_Coord_dp,    &
-               Get_Spheric_Coord_sp
+    private :: Cross_Product_dp, Cross_Product_sp, Determ_A_I, Determ_A_R, Determ_V_I,    &
+               Determ_V_R, Invert_dp, Invert_sp, Get_Cart_From_Cylin_dp,                  &
+               Get_Cart_From_Cylin_sp, Get_Cylindr_Coord_dp, Get_Cylindr_Coord_sp,        &
+               Get_Cart_From_Spher_dp, Get_Cart_From_Spher_sp, Get_Spheric_Coord_dp,      &
+               Get_Spheric_Coord_sp, Cross_Product_cmpl_dp, Cross_Product_cmpl_sp,        &
+               Mat_Cross_dp,Mat_Cross_sp,Mat_Cross_in,Mat_Cross_cmpl_dp,Mat_Cross_cmpl_sp,&
+               Tensor_Product_dp,Tensor_Product_sp,Tensor_Product_in,                     &
+               Tensor_Product_cmpl_dp,Tensor_Product_cmpl_sp
 
     !---- Definitions ----!
     !!--++
@@ -136,6 +153,8 @@
        Module Procedure Cross_product_sp
        Module Procedure Cross_product_dp
        Module Procedure Cross_product_in
+       Module Procedure Cross_product_cmpl_sp
+       Module Procedure Cross_product_cmpl_dp
     End Interface
 
     Interface  Determ_A
@@ -173,6 +192,22 @@
        Module Procedure Get_Spheric_Coord_sp
     End Interface
 
+    Interface  Mat_Cross
+       Module Procedure Mat_Cross_sp
+       Module Procedure Mat_Cross_dp
+       Module Procedure Mat_Cross_in
+       Module Procedure Mat_Cross_cmpl_sp
+       Module Procedure Mat_Cross_cmpl_dp
+    End Interface
+
+    Interface  Tensor_Product
+       Module Procedure Tensor_product_sp
+       Module Procedure Tensor_product_dp
+       Module Procedure Tensor_product_in
+       Module Procedure Tensor_product_cmpl_sp
+       Module Procedure Tensor_product_cmpl_dp
+    End Interface
+
  Contains
 
     !!----
@@ -186,6 +221,42 @@
     !!----
     !!---- Update: February - 2005
     !!
+
+    !!--++
+    !!--++ Function  Cross_Product_cmpl_dp(U,V) Result(W)
+    !!--++    complex(kind=dp/sp), dimension(3), intent( in) :: u   !  In -> Vector 1
+    !!--++    complex(kind=dp/sp), dimension(3), intent( in) :: v   !  In -> Vector 2
+    !!--++    complex(kind=dp/sp), dimension(3)              :: w   ! Out -> Vector 1 x vector 2
+    !!--++
+    !!--++    (OVERLOADED)
+    !!--++    Calculates the cross product of the complex vectors u and v
+    !!--++    Vectors, w = u x v, are given in cartesian components.
+    !!--++
+    !!--++ Update: June - 2012
+    !!
+    Function Cross_Product_cmpl_dp(u,v) Result(w)
+       !---- Argument ----!
+       complex(kind=dp), dimension(3), intent( in) :: u,v
+       complex(kind=dp), dimension(3)              :: w
+
+       w(1)=u(2)*v(3)-u(3)*v(2)
+       w(2)=u(3)*v(1)-u(1)*v(3)
+       w(3)=u(1)*v(2)-u(2)*v(1)
+
+       return
+    End Function Cross_Product_cmpl_dp
+
+    Function Cross_Product_cmpl_sp(u,v) Result(w)
+       !---- Argument ----!
+       complex(kind=sp), dimension(3), intent( in) :: u,v
+       complex(kind=sp), dimension(3)              :: w
+
+       w(1)=u(2)*v(3)-u(3)*v(2)
+       w(2)=u(3)*v(1)-u(1)*v(3)
+       w(3)=u(1)*v(2)-u(2)*v(1)
+
+       return
+    End Function Cross_Product_cmpl_sp
 
     !!--++
     !!--++ Function  Cross_Product_dp(U,V) Result(W)
@@ -462,6 +533,74 @@
     End Function Invert_Sp
 
     !!----
+    !!---- Function  Mat_Cross(U) Result(M)
+    !!----    real/complex(kind=sp/dp)/integer, dimension(3), intent( in) :: u   !  In -> Vector 1
+    !!----    real/complex(kind=sp/dp)/integer, dimension(3,3)            :: M   ! Out -> Matrix [u]cross
+    !!----
+    !!----    Calculates the matrix corresponding to the operator u x
+    !!----    Antisymmetric matrix of the form:
+    !!----                /  0   -u(3)  u(2)\
+    !!----    M=[u]cross=|  u(3)   0   -u(1) |
+    !!----                \-u(2)  u(1)   0  /
+    !!----
+    !!----  Updated: June - 2012
+    !!
+    Function Mat_Cross_cmpl_dp(u) Result(M)
+       !---- Argument ----!
+       complex(kind=dp), dimension(3), intent( in) :: u
+       complex(kind=dp), dimension(3,3)            :: M
+
+       M = reshape( (/  (0.0_dp,0.0_dp),   -u(3),         u(2),  &
+                            u(3),   (0.0_dp,0.0_dp),     -u(1),  &
+                           -u(2),           u(1),   (0.0_dp,0.0_dp)/),(/3,3/))
+       return
+    End Function Mat_Cross_cmpl_dp
+
+    Function Mat_Cross_cmpl_sp(u) Result(M)
+       !---- Argument ----!
+       complex(kind=sp), dimension(3), intent( in) :: u
+       complex(kind=sp), dimension(3,3)            :: M
+
+       M = reshape( (/  (0.0_sp,0.0_sp),   -u(3),         u(2),  &
+                            u(3),   (0.0_sp,0.0_sp),     -u(1),  &
+                           -u(2),           u(1),   (0.0_sp,0.0_sp)/),(/3,3/))
+       return
+    End Function Mat_Cross_cmpl_sp
+
+    Function Mat_Cross_dp(u) Result(M)
+       !---- Argument ----!
+       real(kind=dp), dimension(3), intent( in) :: u
+       real(kind=dp), dimension(3,3)            :: M
+
+       M = reshape( (/ 0.0_dp,   -u(3),     u(2),  &
+                        u(3),    0.0_dp,   -u(1),  &
+                       -u(2),     u(1),    0.0_dp/),(/3,3/))
+       return
+    End Function Mat_Cross_dp
+
+    Function Mat_Cross_in(u) Result(M)
+       !---- Argument ----!
+       integer, dimension(3), intent( in) :: u
+       integer, dimension(3,3)            :: M
+
+       M = reshape( (/   0,    -u(3),    u(2),  &
+                        u(3),    0,     -u(1),  &
+                       -u(2),   u(1),     0 /),(/3,3/))
+       return
+    End Function Mat_Cross_in
+
+    Function Mat_Cross_sp(u) Result(M)
+       !---- Argument ----!
+       real(kind=sp), dimension(3), intent( in) :: u
+       real(kind=sp), dimension(3,3)            :: M
+
+       M = reshape( (/ 0.0_sp, -u(3),    u(2),  &
+                        u(3),  0.0_sp,  -u(1),  &
+                       -u(2),   u(1),   0.0_sp/),(/3,3/))
+       return
+    End Function Mat_Cross_sp
+
+    !!----
     !!---- Function Polyhedron_Volume(Nv,Vert,Cent) Result(vol)
     !!----    integer,                       intent(in) :: Nv       ! Vertices Number
     !!----    real(kind=cp), dimension(:,:), intent(in) :: Vert     ! Cartesian coordinates of vertices
@@ -653,6 +792,80 @@
        return
     End Function Rotate_OZ
 
+    !!----
+    !!---- Function  Tensor_Product(U,V) Result(W)
+    !!----    complex/real(kind=sp/dp)/integer, dimension(3), intent( in) :: u   !  In -> Vector 1
+    !!----    complex/real(kind=sp/dp)/integer, dimension(3), intent( in) :: v   !  In -> Vector 2
+    !!----    complex/real(kind=sp/dp)/integer, dimension(3,3)            :: w   ! Out -> Tensor product Vector1 (o) Vector2
+    !!----
+    !!----    Calculates the tensor product of vectors u and v
+    !!----
+    !!---- Updated: June - 2012
+    !!
+    Function Tensor_Product_cmpl_dp(u,v) Result(w)
+       !---- Argument ----!
+       complex(kind=dp), dimension(3), intent( in) :: u,v
+       complex(kind=dp), dimension(3,3)            :: w
+       !
+       complex(kind=dp), dimension(3,3)            :: mu,mv
+       mu=0.0_dp;  mv=0.0_dp
+       mu(:,1)=u
+       mv(1,:)=v
+       w=matmul(mu,mv)
+       return
+    End Function Tensor_Product_cmpl_dp
+
+    Function Tensor_Product_cmpl_sp(u,v) Result(w)
+       !---- Argument ----!
+       complex(kind=sp), dimension(3), intent( in) :: u,v
+       complex(kind=sp), dimension(3,3)            :: w
+       !
+       complex(kind=sp), dimension(3,3)            :: mu,mv
+       mu=0.0_sp;  mv=0.0_sp
+       mu(:,1)=u
+       mv(1,:)=v
+       w=matmul(mu,mv)
+       return
+    End Function Tensor_Product_cmpl_sp
+
+    Function Tensor_Product_dp(u,v) Result(w)
+       !---- Argument ----!
+       real(kind=dp), dimension(3), intent( in) :: u,v
+       real(kind=dp), dimension(3,3)            :: w
+       !
+       real(kind=dp), dimension(3,3)            :: mu,mv
+       mu=0.0_dp;  mv=0.0_dp
+       mu(:,1)=u
+       mv(1,:)=v
+       w=matmul(mu,mv)
+       return
+    End Function Tensor_Product_dp
+
+    Function Tensor_Product_in(u,v) Result(w)
+       !---- Argument ----!
+       integer, dimension(3), intent( in) :: u,v
+       integer, dimension(3,3)            :: w
+       !
+       integer, dimension(3,3)            :: mu,mv
+       mu=0;  mv=0
+       mu(:,1)=u
+       mv(1,:)=v
+       w=matmul(mu,mv)
+       return
+    End Function Tensor_Product_in
+
+    Function Tensor_Product_sp(u,v) Result(w)
+       !---- Argument ----!
+       real(kind=sp), dimension(3), intent( in) :: u,v
+       real(kind=sp), dimension(3,3)            :: w
+       !
+       real(kind=sp), dimension(3,3)            :: mu,mv
+       mu=0.0_sp;  mv=0.0_sp
+       mu(:,1)=u
+       mv(1,:)=v
+       w=matmul(mu,mv)
+       return
+    End Function Tensor_Product_sp
     !!----
     !!---- Function Veclength(A,B) Result(c)
     !!----    real(kind=cp), dimension(3,3), intent(in)  :: a

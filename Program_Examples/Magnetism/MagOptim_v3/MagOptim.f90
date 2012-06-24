@@ -19,7 +19,7 @@ Program Optimizing_MagStructure
                                              Sann_Opt_MultiConf
    use cost_magfunctions
    use prep_input
-   
+
    !---- Local Variables ----!
    implicit none
 
@@ -29,7 +29,7 @@ Program Optimizing_MagStructure
    type (state_Vector_Type),save      :: vs
    type (Multistate_Vector_Type)      :: mvs
    type (Atom_list_Type)              :: A
-   
+
    character(len=256)                 :: filcod     !Name of the input file
    character(len=256)                 :: filhkl     !Name of the hkl-file
    character(len=256)                 :: filrest    !Name of restraints file
@@ -95,10 +95,10 @@ Program Optimizing_MagStructure
 
      n_ini=1
      n_end=file_cfl%nlines
-     
+
      !--- Read observations (needed before location of domains, scales)
      call Readn_Set_Data(file_cfl)
-     !--- Read magnetic structure 
+     !--- Read magnetic structure
      call Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,mA,Mag_dom=AllMag_dom,Cell=Cell) !Cell is needed for Spherical components
        if(err_MagSym) then
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
@@ -130,8 +130,8 @@ Program Optimizing_MagStructure
      end if
      call Write_CostFunctPars(lun)
 
-      write(unit=*,fmt="(a)") " Normal End of Routine: Read_Cfl"
-      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
+     write(unit=*,fmt="(a)") " Normal End at reading the CFL-file"
+     write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
 
      !--- Read job and subjob (Opti, f2mag)
      call Readn_Set_Job(file_cfl)
@@ -153,8 +153,11 @@ Program Optimizing_MagStructure
             stop
           end if
          call Write_SimAnn_StateV(lun,vs,"INITIAL STATE")
+
         !--- Here Simulated Annealing is performed
          call Simanneal_Gen(General_Cost_function,c,vs,lun)
+        !--- Here the optimization procedure is finished
+
          call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
         !---Write a CFL file
          write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
@@ -177,8 +180,11 @@ Program Optimizing_MagStructure
             stop
           end if
          call Write_SimAnn_MStateV(lun,mvs,"INITIAL STATE")
+
         !--- Here Simulated Annealing is performed
          call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun)
+        !--- Here the optimization procedure is finished
+
          call Write_SimAnn_MStateV(lun,mvs,"FINAL STATE",1)
          !Write CFL files
          call MagDom_to_Dataset(AllMag_Dom) !to normalize domains of each dataset
@@ -204,7 +210,7 @@ Program Optimizing_MagStructure
 
      !--- Here results are written
      call Write_ObsCalc(file_cfl)
-     
+
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING magnetic STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
      call cpu_time(fin)

@@ -117,7 +117,6 @@
     !!---- TYPE :: MAGH_TYPE
     !!--..
     !!----    Type, Public  :: MagH_Type
-    !!----       character(len=3)               :: mode  != Cry -> Cryst. Frame for MiV, Car -> Cryst. Frame for MiV
     !!----       logical                        :: keqv_minus  !True if k equivalent to -k
     !!----       integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
     !!----       integer                        :: num_k       !number of the propagation vector vk
@@ -127,6 +126,7 @@
     !!----       real(kind=cp), dimension(3)    :: H           ! H +/- k
     !!----       complex(kind=cp), dimension(3) :: MsF         !magnetic structure factor
     !!----       complex(kind=cp), dimension(3) :: MiV         !magnetic interaction vector
+    !!----       complex(kind=cp), dimension(3) :: MiVC        !magnetic interaction vector in Cartesian components
     !!----    End Type  MagH_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
@@ -135,7 +135,6 @@
     !!---- Updated: April-2005, June - 2012
     !!
     Type, Public  :: MagH_Type
-       character(len=3)               :: mode  != Cry -> Cryst. Frame for MiV, Car -> Cryst. Frame for MiV
        logical                        :: keqv_minus  !True if k equivalent to -k
        integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
        integer                        :: num_k       !number of the propagation vector vk
@@ -143,8 +142,9 @@
        real(kind=cp)                  :: s           !sinTheta/Lambda
        real(kind=cp)                  :: sqMiV       !Square of the Magnetic Interaction vector
        real(kind=cp), dimension(3)    :: H           ! H +/- k
-       complex(kind=cp), dimension(3) :: MsF         !Magnetic structure factor
-       complex(kind=cp), dimension(3) :: MiV         !Magnetic interaction vector
+       complex(kind=cp), dimension(3) :: MsF         !Magnetic structure factor w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3) :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3) :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
     End Type  MagH_Type
 
     !!----
@@ -170,7 +170,6 @@
     !!----  TYPE :: MAGHD_TYPE
     !!--..
     !!----     Type, Public  :: MagHD_Type
-    !!----        character(len=3)                   :: mode  != Cry -> Cryst. Frame for MiV, Car -> Cryst. Frame for MiV
     !!----        logical                            :: keqv_minus  !True if k equivalent to -k
     !!----        integer                            :: num_k       !number of the propagation vector vk
     !!----        real(kind=cp)                      :: signp       !+1 for -vk   and -1 for +vk
@@ -180,17 +179,17 @@
     !!----        real(kind=cp),   dimension(3)      :: H           ! H +/- k
     !!----        complex(kind=cp),dimension(3,2,24) :: MsF         !Magnetic structure factors of each domain (second dimension for chirality domains)
     !!----        complex(kind=cp),dimension(3,2,24) :: MiV         !Magnetic interaction vector of each domain
-    !!----        complex(kind=cp),dimension(3)      :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
+    !!----        complex(kind=cp),dimension(3,2,24) :: MiVC        !Magnetic interaction vector of each domain w.r.t. to Cartesian Crystal Frame
+    !!----        complex(kind=cp),dimension(3)      :: AMiV        !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)} in Cartesian Frame
     !!----     End Type  MagHD_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
-    !!----    Includes the average magnetic interaction vector AMiV(:) = 1/nd Sum[i]{ pop(i) Miv(:,i)}
+    !!----    Includes the average magnetic interaction vector AMiV(:) = 1/nd Sum[i]{ pop(i) MiVC(:,i)}
     !!----    This type should be used whenever magnetic domains are present (single crystal work)
     !!----
-    !!---- Updated: November - 2006, June 2012
+    !!---- Updated: November - 2006, June 2012 (JRC)
     !!
     Type, Public  :: MagHD_Type
-       character(len=3)                   :: mode  != Cry -> Cryst. Frame for MiV, Car -> Cryst. Frame for MiV
        logical                            :: keqv_minus
        integer                            :: num_k     !number of the propagation vector vk
        real(kind=cp)                      :: signp     !+1 for -vk   and -1 for +vk
@@ -200,6 +199,7 @@
        real(kind=cp),   dimension(3)      :: H         ! H +/- k
        complex(kind=cp),dimension(3,2,24) :: MsF       !Magnetic structure factors of each domain (second dimension for chirality domains)
        complex(kind=cp),dimension(3,2,24) :: MiV       !Magnetic interaction vector of each domain
+       complex(kind=cp),dimension(3,2,24) :: MiVC      !Magnetic interaction vector of each domain in Cartesian Crystal space
        complex(kind=cp),dimension(3)      :: AMiV      !Average Magnetic interaction vector = 1/nd Sum{ pop(i) Miv(:,i)}
     End Type  MagHD_Type
 
@@ -377,85 +377,66 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Calc_Mag_Interaction_Vector(Reflex,Cell,Mode)
+    !!---- Subroutine Calc_Mag_Interaction_Vector(Reflex,Cell)
     !!----    type(MagH_List_Type),     intent(in out) :: Reflex
     !!----    type(Crystal_Cell_type),  intent(in)     :: Cell
-    !!----    character(len=*),optional,intent(in)     :: mode
     !!----
     !!----    Calculate the Magnetic Interaction vector from Magnetic
     !!----    Structure factors, reflections and cell parameters.
     !!----    The components are given with respect to the crystallographic
-    !!----    unitary direct cell system: {e1,e2,e3}. If Mode is given the
-    !!----    components are with respect to the cartesian frame defined in
-    !!----    Cell.
+    !!----    unitary direct cell system: {e1,e2,e3} and with respect to
+    !!----    the Cartesian frame defined in Cell.
     !!----
-    !!---- Update: April - 2005
+    !!---- Updated: April - 2005, June-2012 (JRC,"mode" removed)
     !!
-    Subroutine Calc_Mag_Interaction_Vector(Reflex,Cell,mode)
+    Subroutine Calc_Mag_Interaction_Vector(Reflex,Cell)
        !---- Argument ----!
        type(MagH_List_Type),     intent(in out) :: Reflex
        type(Crystal_Cell_type),  intent(in)     :: Cell
-       character(len=*),optional,intent(in)     :: mode
 
        !---- Local variables ----!
        integer                       :: j
        real(kind=cp)                 :: s
        real(kind=cp),dimension(3)    :: ed,er
-       complex(kind=cp),dimension(3) :: M, MiV
+       complex(kind=cp),dimension(3) :: M, MiV,MiVC
 
-       !---- Calculation of the Magnetic Interaction vector ----!
-       if (present(mode)) then    !MiV w.r.t. cartesian crystallographic frame
-          do j=1,reflex%nref
-             s  = 2.0*reflex%Mh(j)%s  !1/d=r*          M = M// + Mp   => Mp = M - M// = M - (M.e)e
-             er = reflex%Mh(j)%h/s    !unitary vector referred to the reciprocal basis
-             ed = matmul(cell%GR,er)  !  "        "       "             direct    "
-             M  = reflex%Mh(j)%MsF / Cell%cell    !Magnetic structure factor in basis {a,b,c}
-             MiV = M - dot_product(er,M) * ed     !Magnetic interaction vector in basis {a,b,c}
-             MiV  = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
-             reflex%Mh(j)%MiV =  MiV
-             reflex%Mh(j)%sqMiV= dot_product(reflex%Mh(j)%MiV, reflex%Mh(j)%MiV)
-             reflex%Mh(j)%mode= "Car"
-          end do
-       else
-          do j=1,reflex%nref
-             s  = 2.0*reflex%Mh(j)%s  !1/d=r*          M = M// + Mp   => Mp = M - M// = M - (M.e)e
-             er = reflex%Mh(j)%h/s    !unitary vector referred to the reciprocal basis
-             ed = matmul(cell%GR,er)  !  "        "       "             direct    "
-             M  = reflex%Mh(j)%MsF / Cell%cell    !Magnetic structure factor in basis {a,b,c}
-             MiV = M - dot_product(er,M) * ed     !Magnetic interaction vector in basis {a,b,c}
-             reflex%Mh(j)%MiV =  MiV * Cell%cell  !Magnetic interaction vector in basis {e1,e2,e3}
-             reflex%Mh(j)%sqMiV= dot_product(reflex%Mh(j)%MiV, reflex%Mh(j)%MiV)
-             reflex%Mh(j)%mode= "Cry"
-          end do
-       end if
+       !---- Calculation of the Magnetic Interaction vector (in unitary and Cartesian Crystal Frames)----!
+       do j=1,reflex%nref
+          s  = 2.0*reflex%Mh(j)%s  !1/d=r*, M = M// + Mp   => Mp = M - M// = M - (M.e)e
+          er = reflex%Mh(j)%h/s    !unitary vector referred to the reciprocal basis
+          ed = matmul(cell%GR,er)  !  "        "       "             direct    "
+          M  = reflex%Mh(j)%MsF / Cell%cell    !Magnetic structure factor in basis {a,b,c}
+          MiV = M - dot_product(er,M) * ed     !Magnetic interaction vector in basis {a,b,c}
+          reflex%Mh(j)%MiV =  MiV * Cell%cell  !Magnetic interaction vector in basis {e1,e2,e3}
+          MiVC  = matmul(Cell%Cr_Orth_cel,MiV) !Magnetic interaction vector in Cartesian components
+          reflex%Mh(j)%MiVC =  MiVC
+          reflex%Mh(j)%sqMiV= dot_product(MiVC, MiVC)
+       end do
 
        return
     End Subroutine Calc_Mag_Interaction_Vector
 
     !!----
-    !!---- Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh,Mode)
+    !!---- Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh)
     !!----    type(Crystal_Cell_type),  intent(in)     :: Cell
     !!----    type(MagSymm_k_Type),     intent(in)     :: MGp
     !!----    type(Matom_list_type),    intent(in)     :: Atm
     !!----    type(MagH_Type),          intent(in out) :: Mh
-    !!----    character(len=*),optional,intent(in)     :: mode
     !!----
     !!----    Calculate the Magnetic Interaction vector from Magnetic
     !!----    Structure factors, reflections and cell parameters.
     !!----    The components are given with respect to the crystallographic
-    !!----    unitary direct cell system: {e1,e2,e3}. If Mode is given the
-    !!----    components are with respect to the cartesian frame defined in
-    !!----    Cell.
+    !!----    unitary direct cell system: {e1,e2,e3} and with respect to the
+    !!----    Cartesian frame defined in Cell.
     !!----
-    !!---- Update: April - 2005
+    !!---- Updated: April - 2005, June 2012
     !!
-    Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh,Mode)
+    Subroutine Calc_Magnetic_Strf_Miv(Cell,Mgp,Atm,Mh)
        !---- Arguments ----!
        type(Crystal_Cell_type),  intent(in)     :: Cell
        type(MagSymm_k_Type),     intent(in)     :: MGp
        type(Matom_list_type),    intent(in)     :: Atm
        type(MagH_Type),          intent(in out) :: Mh
-       character(len=*),optional,intent(in)     :: mode
 
        !---- Local Variables ----!
        integer                            :: i,j,k,nvk,m, n
@@ -557,54 +538,44 @@
              Mh%MsF(:)=Mh%MsF(:) + tho*onh*GMh(:)
           end do ! Atoms
        end if
-       if(present(mode)) then
-         Mh%mode="Car"
-       else
-         Mh%mode="Cry"
-       end if
        !---- Calculation of the Magnetic Interaction vector ----!
-       s  = 2.0*Mh%s            !1/d=r*          M = M// + Mp   => Mp = M - M// = M - (M.e)e
+       s  = 2.0*Mh%s            !1/d=r*, M = M// + Mp   => Mp = M - M// = M - (M.e)e
        er = Mh%h/s              !unitary vector referred to the reciprocal basis
        ed = matmul(cell%GR,er)  !  "        "       "             direct    "
-       Mc  = Mh%MsF / Cell%cell              !Magnetic structure factor in basis {a,b,c}
-       MiV = Mc - dot_product(er,Mc) * ed    !Magnetic interaction vector in basis {a,b,c}
-       if (present(mode)) then    !MiV w.r.t. cartesian crystallographic frame
-           Mh%MiV  = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
-       else
-           Mh%MiV =  MiV * Cell%cell  !Magnetic interaction vector in basis {e1,e2,e3}
-       end if
-       Mh%sqMiV= dot_product(Mh%MiV, Mh%MiV)
+       Mc  = Mh%MsF / Cell%cell                !Magnetic structure factor in basis {a,b,c}
+       MiV = Mc - dot_product(er,Mc) * ed      !Magnetic interaction vector in basis {a,b,c}
+       Mh%MiV  =  MiV * Cell%cell              !Magnetic interaction vector in basis {e1,e2,e3}
+       Mh%MiVC = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
+       Mh%sqMiV= dot_product(Mh%MiVC, Mh%MiVC)
 
        return
     End Subroutine Calc_Magnetic_StrF_MiV
 
     !!----
-    !!---- Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh,Mode)
+    !!---- Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
     !!----    type(Crystal_Cell_type),   intent(in)     :: Cell
     !!----    type(MagSymm_k_Type),      intent(in)     :: MGp
     !!----    type(Matom_list_type),     intent(in)     :: Atm
     !!----    type(Magnetic_Domain_type),intent(in)     :: Mag_Dom
     !!----    type(MagHD_Type),          intent(in out) :: Mh
-    !!----    character(len=*),optional, intent(in)     :: mode
     !!----
     !!----    Calculate the Magnetic Interaction vector from Magnetic
     !!----    Structure factors, reflections and cell parameters.
     !!----    The components are given with respect to the crystallographic
-    !!----    unitary direct cell system: {e1,e2,e3}. If Mode is given the
-    !!----    components are with respect to the cartesian frame defined in
-    !!----    Cell. In this subroutine the presence of magnetic domains is
+    !!----    unitary direct cell system: {e1,e2,e3} and with respect to
+    !!----    Cartesian frame defined in Cell.
+    !!----    In this subroutine the presence of magnetic domains is
     !!----    taken into account
     !!----
-    !!---- Updated: September - 2010, June-2012
+    !!---- Updated: September - 2010, June-2012 (JRC)
     !!
-    Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh,Mode)
+    Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
        !---- Arguments ----!
        type(Crystal_Cell_type),   intent(in)      :: Cell
        type(MagSymm_k_Type),      intent(in)      :: MGp
        type(Matom_list_type),     intent(in)      :: Atm
        type(Magnetic_Domain_type),intent(in)      :: Mag_Dom
        type(MagHD_Type),          intent(in out)  :: Mh
-       character(len=*),optional, intent(in)      :: mode
 
        !---- Local Variables ----!
        integer                            :: i,j,k,nvk,m, n, nd, ich, nch
@@ -728,13 +699,9 @@
              end do ! Chirality Domains
           end do ! Domains
        end if
-       if(present(mode)) then
-         Mh%mode="Car"
-       else
-         Mh%mode="Cry"
-       end if
+
        !---- Calculation of the Magnetic Interaction vectors ----!
-       s  = 2.0*Mh%s            !1/d=r*          M = M// + Mp   => Mp = M - M// = M - (M.e)e
+       s  = 2.0*Mh%s            !1/d=r*  M = M// + Mp   => Mp = M - M// = M - (M.e)e
        er = Mh%h/s              !unitary vector referred to the reciprocal basis
        ed = matmul(cell%GR,er)  !  "        "       "             direct    "
        Mh%AMiV(:) = cmplx(0.0,0.0)
@@ -743,13 +710,10 @@
           do ich=1,nch
              Mc  = Mh%MsF(:,ich,nd) / Cell%cell    !Magnetic structure factor in basis {a,b,c}
              MiV = Mc - dot_product(er,Mc) * ed    !Magnetic interaction vector in basis {a,b,c}
-             if (present(mode)) then    !MiV w.r.t. cartesian crystallographic frame
-                Mh%MiV(:,ich,nd)  = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
-             else
-                Mh%MiV(:,ich,nd) =  MiV * Cell%cell  !Magnetic interaction vector in basis {e1,e2,e3}
-             end if
-             Mh%AMiV(:)=Mh%AMiV(:)+ Mh%MiV(:,ich,nd) * Mag_Dom%Pop(ich,nd)
-             Mh%sqMiV = Mh%sqMiV + dot_product(Mh%MiV(:,ich,nd), Mh%MiV(:,ich,nd))* Mag_Dom%Pop(ich,nd)
+             Mh%MiVC(:,ich,nd)  = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
+             Mh%MiV(:,ich,nd) =  MiV * Cell%cell  !Magnetic interaction vector in basis {e1,e2,e3}
+             Mh%AMiV(:)=Mh%AMiV(:)+ Mh%MiVC(:,ich,nd) * Mag_Dom%Pop(ich,nd)
+             Mh%sqMiV = Mh%sqMiV + dot_product(Mh%MiVC(:,ich,nd), Mh%MiVC(:,ich,nd))* Mag_Dom%Pop(ich,nd)
           end do ! Chirality Domains
        end do ! Domains
        Mh%sqAMiV= dot_product(Mh%AMiV, Mh%AMiV)
