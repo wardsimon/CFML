@@ -642,7 +642,7 @@ contains
          ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
 
          Mh=MhMultilist%MhList(iset)%Mh(j)
-         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac, sums domains
+         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac, sums domains
 
 !----    without components with respect to direct cell system {e1,e2,e3}
 !----    with components with respect to the cartesian frame
@@ -702,7 +702,7 @@ contains
          ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
 
          Mh=MhMultilist%MhList(iset)%Mh(j)
-         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac
+         call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac
          call Calc_Polar_Dom(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,PolariMultilist%Polarilist(iset)%Polari(j)) !CFML_Polar
          !without components with respect to direct cell system {e1,e2,e3}
          !with components with respect to the cartesian frame
@@ -774,7 +774,7 @@ contains
             !Calculate magnetic structure factor and magnetic interaction vector
             ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
             Mh=MhMultilist%MhList(iset)%Mh(iobs)
-            call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh,mode="Car") !CFML_Msfac
+            call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac
             call Calc_Polar_CrSec(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,Ipp,Ipm,Imp,Imm) !CFML_Polar
             !without components with respect to direct cell system {e1,e2,e3}
             !with components with respect to the cartesian frame

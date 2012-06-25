@@ -323,7 +323,7 @@
        Complex, dimension(3), intent( in)  :: MiV_PF
        real(kind=cp)                       :: I_NM_Y
 
-       I_NM_Y = Aimag(NSF * Conjg(MiV_PF(2)) - Conjg(NSF) * MiV_PF(2))
+       I_NM_Y = -Aimag(NSF * Conjg(MiV_PF(2)) - Conjg(NSF) * MiV_PF(2))
 
        return
     End Function  Im_Nm_Y
@@ -348,7 +348,7 @@
 
        !---- Local variables ----!
 
-       I_NM_Z = Aimag(NSF * Conjg(MiV_PF(3)) - Conjg(NSF) * MiV_PF(3))
+       I_NM_Z = -Aimag(NSF * Conjg(MiV_PF(3)) - Conjg(NSF) * MiV_PF(3))
 
        return
     End Function  Im_Nm_Z
@@ -586,7 +586,7 @@
 
        !---- Local variables ----!
 
-       TC = - Aimag(MiV_PF(2) * Conjg(MiV_PF(3)) - Conjg(MiV_PF(2)) * MiV_PF(3))
+       TC = Aimag(MiV_PF(2) * Conjg(MiV_PF(3)) - Conjg(MiV_PF(2)) * MiV_PF(3))
 
        return
     End Function  Tchiral
@@ -659,9 +659,7 @@
        ok=.true.
        z1=Matmul(UB,Mh%h)
        ubinv=invert_A(UB)
-       h=matmul(ubinv,(/2.11,-3.88,0.0/)) !Testing
        call Get_Angs_NB(wave,z1,gamma,omega,nu,ierr)
-       write(*,*) "  gamma, omega, nu: ", gamma,omega,nu
        if(ierr /= 0) then
          if(present(mess)) mess="Error calculating the normal beam angles"
          ok=.false.
@@ -697,22 +695,15 @@
        Inuc=real(Conjg(NSF)*NSF)
        do nd=1,Mag_Dom%nd
          do ich=1,nch
-          !Convert the MiVC to the frame BM or BL
-          MiV=Matmul(Rot,Mh%MiVC(:,ich,nd))
-          !W=Magn_Inter_Vec_Pf(Mh%MiVC(:,ich,nd),Mh%h,h, Cell) !The calculation is OK
-          !write(*,*) " MiV-Rot: ",MiV
-          !write(*,*) " MiV    : ",W
-          Imag=dot_Product(Conjg(MiV),MiV)
+          MiV=Matmul(Rot,Mh%MiVC(:,ich,nd))  !Convert the MiVC to the frame BM or BL
+          Imag=dot_Product(MiV,MiV)          ! dot_product => MiV*.MiV
           T=-aimag(Cross_Product(Conjg(MiV),MiV)) !Chiral Vector
           W=2.0*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
           Wr=real(W); Wi=aimag(W)  !Real and Imaginary parts
-          !I = Inuc + Imag + Wr.Pi - T.Pi   (Total cross section)
           I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pin)-dot_product(T,Pin))
-          ! Pf.I = (Inuc - Imag) Pi + (Pi.M*) M + (Pi.M) M* - Wi x Pi +
-          !         + N.M* + N*.M + T
-          Pf=Pf+ I_inv * Mag_Dom%Pop(ich,nd)*( (Inuc-Imag)*Pin +                      &
-                dot_product(Pin,MiV)*Conjg(MiV) + dot_product(Pin,Conjg(MiV))* MiV +   &
-                T + Wr - Cross_Product(Wi,Pin) )
+          Pf=Pf+ I_inv * Mag_Dom%Pop(ich,nd)*( (Inuc-Imag)*Pin +                  &
+             dot_product(Pin,MiV)*Conjg(MiV) + dot_product(Pin,Conjg(MiV))* MiV + &
+             T + Wr - Cross_Product(Wi,Pin) )
          end do !loop over chiral domains
        end do !loop over S-domains
 
@@ -793,9 +784,8 @@
        Inuc=real(Conjg(NSF)*NSF)
        do nd=1,Mag_Dom%nd
          do ich=1,nch
-          !Convert the MiVC to the frame BM
-          MiV=Matmul(Rot,Mh%MiVC(:,ich,nd))
-          Imag=dot_Product(Conjg(MiV),MiV)
+          MiV=Matmul(Rot,Mh%MiVC(:,ich,nd)) !Convert the MiVC to the frame BM
+          Imag=dot_Product(MiV,MiV)
           T=-aimag(Cross_Product(Conjg(MiV),MiV)) !Chiral Vector
           W=2.0*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
           Wr=real(W); Wi=aimag(W)  !Real and Imaginary parts

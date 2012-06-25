@@ -192,7 +192,7 @@ Program MagPolar3D
          write(unit=*,fmt="(/a,i2,a)",advance="no") &
                             " => Enter a magnetic reflection as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
          read(unit=*,fmt=*) ih,ik,il,m
-         if( ih==0 .and. ik==0 .and. il==0 .and. m == 0) exit
+         if( m == 0) exit
          !construct partially the object Mh
          j=sign(1,m)
          sig="+"
@@ -210,7 +210,7 @@ Program MagPolar3D
          call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh)
 
          NSF=(0.0,0.0)
-         if( m == 0) then !Possible nuclear contribution
+         if( sum(abs(MGp%kvec(:,iv))) <= 0.001) then !Possible nuclear contribution
            call Calc_hkl_StrFactor(mode="SXtal",rad="Neutrons",hn=nint(Mh%h),sn=sn,Atm=A,Grp=SpG,sf2=sf2,fc=NSF)
          end if
          write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
@@ -295,7 +295,19 @@ Program MagPolar3D
               write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
            end if
 
-         end if
+           call Get_Pol_Tensor_Pc(wave,Cell,UB,Pin, NSF, Mag_dom, Mh, Polar_tensor, Created_Pol,ok,line)
+
+           if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(line)
+           else
+              write(unit=lun,fmt="(2(a,3f9.5))") " => Polar Tensor: ",polar_tensor(1,:)," Created Polar: ",Created_Pol
+              write(unit=lun,fmt="(a,3f9.5)")    "                  ",polar_tensor(2,:)
+              write(unit=lun,fmt="(a,3f9.5)")    "                  ",polar_tensor(3,:)
+              write(unit=*,fmt="(2(a,3f9.5))") " => Polar Tensor: ",polar_tensor(1,:)," Created Polar: ",Created_Pol
+              write(unit=*,fmt="(a,3f9.5)")    "                  ",polar_tensor(2,:)
+              write(unit=*,fmt="(a,3f9.5)")    "                  ",polar_tensor(3,:)
+           end if
+        end if
 
        end do
 
@@ -320,7 +332,7 @@ Program MagPolar3D
        character(len=*),        intent(out)   :: mess
        ! Local variables
        integer                     :: ierr
-       real                        :: theta1,theta2,alpha,del_omega,d1s,d2s,beta
+       real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
        real, dimension(3)          :: h2,ho1,ho2,s1,s2
        real, dimension(3,3)        :: Rot
 
@@ -357,13 +369,6 @@ Program MagPolar3D
        s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)
        call Phi_mat(omega+del_omega,Rot)
        ho2=matmul(transpose(rot),s2)
-       write(*,*) "  s1=",s1
-       write(*,*) "  s2=",s2
-       write(*,*) "  s1=",ho1
-       write(*,*) "  s2=",ho2
-       ! Test angle between ho1 and ho2
-       beta=acosd(dot_product(ho1,ho2)/d1s/d2s)
-       write(*,*) "  Alpha and Beta: ",alpha,beta
        !
        ! Generate UB-matrix
        !
