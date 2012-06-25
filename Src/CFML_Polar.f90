@@ -64,13 +64,14 @@
 !!----       WRITE_POLAR_LINE
 !!----       Calc_Polar_Dom_Efficiency
 !!----       Calc_Polar_CrSec
-!!----
+!!----       Calc_Polar
+!!----       Get_Pol_Tensor_Pc
 !!
  Module CFML_Polarimetry
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,                 only: cp, tpi
     Use CFML_Crystal_Metrics,            only: Set_Crystal_Cell, Crystal_Cell_type, Cart_Vector
-    Use CFML_Math_3D,                    only: Cross_Product,Tensor_Product,Mat_Cross
+    Use CFML_Math_3D,                    only: Cross_Product,Tensor_Product,Mat_Cross,Invert_A
     use CFML_Magnetic_Structure_Factors, only: MagHD_Type
     use CFML_Magnetic_Symmetry,          only: Magnetic_domain_type
     use CFML_Geometry_SXTAL,             only: Phi_mat,Get_Angs_NB
@@ -86,7 +87,7 @@
 
     !---- List of public subroutines ----!
     public  :: Calc_Polar_Dom, Set_Polar_Info, Write_Polar_Info, Write_Polar_line, &
-               Calc_Polar_Dom_Efficiency, Calc_Polar_CrSec
+               Calc_Polar_Dom_Efficiency, Calc_Polar_CrSec, Calc_Polar, Get_Pol_Tensor_Pc
 
     !---- List of private Operators ----!
 
@@ -451,7 +452,6 @@
        !---- Local variables ----!
        real(kind=cp), dimension (3)            :: QSV,Q,SV,X,Y,Z
        real(kind=cp), dimension (3,3)          :: M
-       integer                                 :: i
 
        Q = Cart_Vector("R",H,Cell)             !Here Q is the crystallographic Q=-Q(Blume)
        SV = Cart_Vector("R",SPV,Cell)
@@ -461,12 +461,12 @@
        Z = QSV / sqrt(dot_product(QSV,QSV))    !default (set in Cell) frame
        Y = Cross_Product(Z,X)
 
-       Do i = 1,3
-          M(1,i) = 0.0    ! X-Component of Magnetic Interaction Vector is always equal to ZERO because
-                          ! of MRI = Q x (M(Q) x Q); where M(Q) is the Fourier Transform of Magnetic Density of the sample
-          M(2,i) = Y(i)
-          M(3,i) = Z(i)
-       End Do
+
+       M(1,:) = 0.0    ! X-Component of Magnetic Interaction Vector is always equal to ZERO because
+                       ! of MRI = Q x (M(Q) x Q); where M(Q) is the Fourier Transform of Magnetic Density of the sample
+       M(2,:) = Y
+       M(3,:) = Z
+
 
        MiV_PF = Matmul(M, MiVC) !conversion of MiVC to Blume frame
 
@@ -596,12 +596,12 @@
     !---------------------!
 
     !!----
-    !!---- Subroutine Calc_Polar(frame,wave,Cell, UB, Pi, NSF, Mag_dom, Mh, Pf,ok,mess)
+    !!---- Subroutine Calc_Polar(frame,wave,Cell, UB, Pin, NSF, Mag_dom, Mh, Pf,ok,mess)
     !!----    real(kind=cp),                intent(in) :: wave    ! In -> Cell variable
     !!----    character(len=2),             intent(in) :: frame   ! In -> Scattering vector as (hkl)
     !!----    type (Crystal_Cell_Type),     intent(in) :: Cell    ! In -> Busing-Levy UB-matrix
     !!----    Real(kind=cp), dimension(3,3),intent(in) :: UB      ! In -> Nuclear Structure Factor
-    !!----    Real(kind=cp), dimension(3),  intent(in) :: Pi      ! In -> Incident polarisation
+    !!----    Real(kind=cp), dimension(3),  intent(in) :: Pin     ! In -> Incident polarisation
     !!----    complex,                      intent(in) :: NSF     ! In -> Nuclear Structure Factor
     !!----    type(Magnetic_Domain_type),   intent(in) :: Mag_Dom ! In -> Magnetic domains information
     !!----    type(MagHD_Type),             intent(in) :: Mh      ! In -> Contains Magnetic structure factor, MiV, domain info, ...
@@ -634,13 +634,13 @@
     !!----
     !!---- Created: June - 2012 JRC
     !!
-    Subroutine Calc_Polar(frame,wave,Cell,UB, Pi, NSF, Mag_dom, Mh, Pf,ok,mess)
+    Subroutine Calc_Polar(frame,wave,Cell,UB, Pin, NSF, Mag_dom, Mh, Pf,ok,mess)
        !---- Arguments ----!
        real(kind=cp),                intent(in)    :: wave
        character(len=2),             intent(in)    :: frame
        type (Crystal_Cell_Type),     intent(in)    :: Cell
        Real(kind=cp), dimension(3,3),intent(in)    :: UB
-       Real(kind=cp), dimension(3),  intent(in)    :: Pi
+       Real(kind=cp), dimension(3),  intent(in)    :: Pin
        complex,                      intent(in)    :: NSF
        type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
        type(MagHD_Type),             intent(in out):: Mh
@@ -654,11 +654,14 @@
        complex, dimension (3)         :: MiV, W     !MiV for one domain and in polarisation frame
        integer                        :: nd,ich,nch, ierr
        Real(kind=cp), dimension(3)    :: z1,z4, h, Pic,T,Wr,Wi
-       Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega
+       Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,ubinv
 
        ok=.true.
        z1=Matmul(UB,Mh%h)
+       ubinv=invert_A(UB)
+       h=matmul(ubinv,(/2.11,-3.88,0.0/)) !Testing
        call Get_Angs_NB(wave,z1,gamma,omega,nu,ierr)
+       write(*,*) "  gamma, omega, nu: ", gamma,omega,nu
        if(ierr /= 0) then
          if(present(mess)) mess="Error calculating the normal beam angles"
          ok=.false.
@@ -670,9 +673,10 @@
          end if
        end if
        call Phi_mat(omega,Rot_omega)  !Rotation of the omega motor to put reflection in diffraction position
-       z4=matmul(Rot_omega,z1) !Crystallographic scattering vector in Lab-system when
-                               !the reflection is in diffraction position.
+       z4=matmul(Rot_omega,z1)        !Crystallographic scattering vector in Lab-system when
+                                      !the reflection is in diffraction position.
        Rot=Matmul(UB,Matmul(Cell%GD,Cell%Orth_Cr_cel)) !Conversion to BL (in diffraction position) from Crystal Cartesian
+
        Rot=Matmul(Rot_omega,Rot) !Rotation matrix putting the MiVC in the BL frame
 
        if(frame == "BM" )  then  !Crystallographic Blume-Maleyev frame
@@ -695,29 +699,32 @@
          do ich=1,nch
           !Convert the MiVC to the frame BM or BL
           MiV=Matmul(Rot,Mh%MiVC(:,ich,nd))
+          !W=Magn_Inter_Vec_Pf(Mh%MiVC(:,ich,nd),Mh%h,h, Cell) !The calculation is OK
+          !write(*,*) " MiV-Rot: ",MiV
+          !write(*,*) " MiV    : ",W
           Imag=dot_Product(Conjg(MiV),MiV)
           T=-aimag(Cross_Product(Conjg(MiV),MiV)) !Chiral Vector
           W=2.0*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
           Wr=real(W); Wi=aimag(W)  !Real and Imaginary parts
           !I = Inuc + Imag + Wr.Pi - T.Pi   (Total cross section)
-          I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pi)-dot_product(T,Pi))
+          I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pin)-dot_product(T,Pin))
           ! Pf.I = (Inuc - Imag) Pi + (Pi.M*) M + (Pi.M) M* - Wi x Pi +
           !         + N.M* + N*.M + T
-          Pf=Pf+ I_inv * Mag_Dom%Pop(ich,nd)*( (Inuc-Imag)*Pi +                   &
-                dot_product(Pi,MiV)*Conjg(MiV) + dot_product(Pi,Conjg(MiV))* MiV +   &
-                T + Wr - Cross_Product(Wi,Pi) )
+          Pf=Pf+ I_inv * Mag_Dom%Pop(ich,nd)*( (Inuc-Imag)*Pin +                      &
+                dot_product(Pin,MiV)*Conjg(MiV) + dot_product(Pin,Conjg(MiV))* MiV +   &
+                T + Wr - Cross_Product(Wi,Pin) )
          end do !loop over chiral domains
        end do !loop over S-domains
 
        return
     End Subroutine Calc_Polar
 
-    !!---- Subroutine Get_Pol_Tensor_Pc(wave,Cell,UB,Pi, NSF, Mag_dom, Mh, Pol_tens, Pc)
+    !!---- Subroutine Get_Pol_Tensor_Pc(wave,Cell,UB,Pin, NSF, Mag_dom, Mh, Pol_tens, Pc)
     !!----    real(kind=cp),                intent(in)    :: wave
     !!----    character(len=2),             intent(in)    :: frame
     !!----    type (Crystal_Cell_Type),     intent(in)    :: Cell
     !!----    Real(kind=cp), dimension(3,3),intent(in)    :: UB
-    !!----    Real(kind=cp), dimension(3),  intent(in)    :: Pi
+    !!----    Real(kind=cp), dimension(3),  intent(in)    :: Pin
     !!----    complex,                      intent(in)    :: NSF
     !!----    type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
     !!----    type(MagHD_Type),             intent(in)    :: Mh
@@ -733,11 +740,11 @@
     !!----      [S] =  [M o M* + M* o M]  -> o indicates tensorial product
     !!----      [A] =  [+i(N.M* - N*.M)]cross = [-Wi]cross
     !!----
-    Subroutine Get_Pol_Tensor_Pc(wave,Cell,UB,Pi, NSF, Mag_dom, Mh, Pol_tens, Pc,ok,mess)
+    Subroutine Get_Pol_Tensor_Pc(wave,Cell,UB,Pin, NSF, Mag_dom, Mh, Pol_tens, Pc,ok,mess)
        real(kind=cp),                intent(in)    :: wave
        type (Crystal_Cell_Type),     intent(in)    :: Cell
        Real(kind=cp), dimension(3,3),intent(in)    :: UB
-       Real(kind=cp), dimension(3),  intent(in)    :: Pi
+       Real(kind=cp), dimension(3),  intent(in)    :: Pin
        complex,                      intent(in)    :: NSF
        type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
        type(MagHD_Type),             intent(in)    :: Mh
@@ -792,7 +799,7 @@
           T=-aimag(Cross_Product(Conjg(MiV),MiV)) !Chiral Vector
           W=2.0*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
           Wr=real(W); Wi=aimag(W)  !Real and Imaginary parts
-          I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pi)-dot_product(T,Pi))
+          I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pin)-dot_product(T,Pin))
           DD=(Inuc-Imag)*Identity
           SS=real(Tensor_Product(MiV,Conjg(MiV))+Tensor_Product(Conjg(MiV),MiV))
           AA=-Mat_Cross(Wi)

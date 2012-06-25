@@ -1,10 +1,14 @@
 Program MagPolar3D
  use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
  use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List, MAtom_list_Type
- use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
+ use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell, Get_basis_from_uvw,Zone_Axis_Type
  use CFML_Reflections_Utilities,    only: Hkl_s
+ use CFML_String_Utilities,         only: l_case
  use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
  use CFML_Propagation_vectors,      only: K_Equiv_Minus_K
+ use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat
+ use CFML_Structure_Factors,        only: Calc_hkl_StrFactor
+ use CFML_Math_General,             only: asind, acosd,cosd,sind,co_linear
  use CFML_Magnetic_Symmetry
  use CFML_Magnetic_Structure_Factors
  use CFML_Polarimetry
@@ -20,18 +24,20 @@ Program MagPolar3D
  type (MagHD_Type)           :: Mh
  type (Magnetic_domain_type) :: Mag_Dom
  Type (Polar_calc_type)      :: polari
+ Type (Zone_Axis_Type)       :: zone_axis
 
  character(len=256)          :: filcod,line     !Name of the input file
  character(len=1)            :: sig
- real                        :: sn,sf2
- real, dimension(3)          :: vpl
+ real                        :: sn,sf2,omega, wave
+ real, dimension(3)          :: vpl,uvw, created_pol,pin,pf
+ real, dimension(3,3)        :: UB, polar_tensor
  integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end, &
                                 ich, nd, nch
- complex                     :: fc
+ complex                     :: NSF
 
  integer                     :: narg,iargc
  Logical                     :: esta, arggiven=.false., ub_given=.false., uvw_given=.false., &
-                                plane_given=.false.
+                                addref_given=.false., wave_given=.false., ok
 
       !---- Arguments on the command line ----!
       narg=COMMAND_ARGUMENT_COUNT()
@@ -108,9 +114,67 @@ Program MagPolar3D
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          stop
        end if
+       !---- looking for orientation information and wavelength
        do i=1,n_end
-           line=adjustl(fich_cfl%line(i))
+           line=l_case(adjustl(fich_cfl%line(i)))
+           if(line(1:6) == "lambda") then
+             read(unit=fich_cfl%line(i)(7:),fmt=*,iostat=ier) wave
+             if(ier /= 0) then
+                write(unit=*,fmt="(a,i3)") " => Error reading the wavelength at line: ",i
+                stop
+             end if
+             wave_given=.true.
+           end if
+           if(line(1:5) == "ubmat") then
+             m=0
+             do j=i+1,i+3
+                m=m+1
+                read(unit=fich_cfl%line(j),fmt=*,iostat=ier) UB(m,:)
+                if(ier /= 0) then
+                   write(unit=*,fmt="(a,i3)") " => Error reading the UB-matrix at line: ",j
+                   stop
+                end if
+             end do
+             ub_given=.true.
+           end if
+           if(line(1:15) == "zone_axis_omega") then
+             read(unit=fich_cfl%line(i)(16:),fmt=*,iostat=ier) Zone_axis%uvw,vpl,omega
+             if(ier /= 0) then
+                write(unit=*,fmt="(a,i3)") " => Error reading the zone axis uvw, reflection hkl and omega at line: ",i
+                stop
+             end if
+             uvw_given=.true.
+           end if
+           if(line(1:14) == "add_reflection") then
+             read(unit=fich_cfl%line(i)(15:),fmt=*,iostat=ier) vpl
+             if(ier /= 0) then
+                write(unit=*,fmt="(a,i3)") " => Error reading additional reflection at line: ",i
+                stop
+             end if
+             if(dot_product(vpl,vpl) < 0.00001) then
+              write(unit=*,  fmt="(a)") "    The given vector has module = 0, please provide a non-zero vector!"
+              stop
+             end if
+             addref_given=.true.
+           end if
+           if(wave_given .and. (addref_given .or. uvw_given .or. ub_given)) exit
        end do
+
+       if(uvw_given .and. wave_given) then !Calculate UB matrix from the given information and a reflection of the horizontal plane
+         addref_given=.true.
+         Call Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,vpl,omega,UB,ok,line)
+         if(.not. ok) then
+            write(unit=*,fmt="(a)") " => "//trim(line)
+            stop
+         end if
+         UB_given=.true.
+         write(unit=*,fmt="(2(a,3i4),a,f8.4)") " => UB-Matrix, deduced from [uvw]= ",Zone_axis%uvw,&
+                                               " (hkl)= ",nint(vpl)," and omega=",omega
+         write(unit=*,fmt="(tr6,3f10.5)") ub(1,:)
+         write(unit=*,fmt="(tr6,3f10.5)") ub(2,:)
+         write(unit=*,fmt="(tr6,3f10.5)") ub(3,:)
+       end if
+
        if(Mag_dom%nd == 0) then
           Mag_dom%nd=1
           Mag_Dom%chir=.false.
@@ -128,7 +192,7 @@ Program MagPolar3D
          write(unit=*,fmt="(/a,i2,a)",advance="no") &
                             " => Enter a magnetic reflection as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
          read(unit=*,fmt=*) ih,ik,il,m
-         if( m == 0) exit
+         if( ih==0 .and. ik==0 .and. il==0 .and. m == 0) exit
          !construct partially the object Mh
          j=sign(1,m)
          sig="+"
@@ -137,23 +201,31 @@ Program MagPolar3D
          iv=abs(m)
          Mh%num_k=iv
          Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
-         Mh%s = hkl_s(Mh%h,Cell)
+         Mh%s = hkl_s(Mh%h,Cell) !SinTheta/Lambda
+         sn=Mh%s*Mh%s            !(SinTheta/Lambda)**2
          Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
+
 
          !Calculate magnetic structure factor and magnetic interaction vector
          call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,Am,Mag_Dom,Mh)
 
+         NSF=(0.0,0.0)
+         if( m == 0) then !Possible nuclear contribution
+           call Calc_hkl_StrFactor(mode="SXtal",rad="Neutrons",hn=nint(Mh%h),sn=sn,Atm=A,Grp=SpG,sf2=sf2,fc=NSF)
+         end if
          write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
          write(unit=lun,fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
+         write(unit=lun,fmt="(2(a,f9.5),a)")       "  Nuclear Structure Factor: (", real(NSF)," + i ",aimag(NSF),")"
          write(unit=*,  fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
          write(unit=*,  fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
+         write(unit=*,  fmt="(2(a,f9.5),a)")       "  Nuclear Structure Factor: (", real(NSF)," + i ",aimag(NSF),")"
 
          do nd=1,Mag_Dom%nd
            do ich=1,nch
               write(unit=lun,fmt="(/2(a,i3))")      "  => Magnetic Domain #",nd,"  Chirality Domain #",ich
-              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
+              write(unit=lun,fmt="(a,2(3f9.5,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MsF(:,ich,nd)),") "
-              write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
+              write(unit=lun,fmt="(a,2(3f9.5,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiV(:,ich,nd)),") "
               write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector in Cartesian Coordinates: (",real(Mh%MiVC(:,ich,nd)),")+i(",&
                                                       aimag(Mh%MiVC(:,ich,nd)),") "
@@ -179,19 +251,52 @@ Program MagPolar3D
          write(unit=*,  fmt="(a,f12.5 )")      "  Average Square of Mag. int.  Vectors: ",Mh%sqMiV
 
          write(unit=*,  fmt="(/a)") "    Polarisation Matrix calculation: "
-         do
-          write(unit=*,  fmt="( a)",advance="no") " => Enter another reciprocal lattice vector in the horizontal plane: "
-          read(unit=*,fmt=*,iostat=ier) vpl
-          if(ier /= 0) vpl=(/0.0,0.0,0.0/)
-          if(dot_product(vpl,vpl) < 0.00001) then
-            write(unit=*,  fmt="(a)") "    The given vector has module = 0, please provide a non-zero vector!"
-            cycle
-          end if
-          exit
-         end do
-         call Calc_Polar_Dom(Cell, Mh%h, vpl, 1.0, cmplx(0.0,0.0), Mag_dom, Mh, Polari)
+
+         if(.not. addref_given) then
+           do
+            write(unit=*,  fmt="( a)",advance="no") " => Enter another reciprocal lattice vector in the horizontal plane: "
+            read(unit=*,fmt=*,iostat=ier) vpl
+            if(ier /= 0) vpl=(/0.0,0.0,0.0/)
+            if(dot_product(vpl,vpl) < 0.00001) then
+              write(unit=*,  fmt="(a)") "    The given vector has module = 0, please provide a non-zero vector!"
+              cycle
+            end if
+            exit
+           end do
+         end if
+
+         call Calc_Polar_Dom(Cell, Mh%h, vpl, 1.0, NSF, Mag_dom, Mh, Polari)
          call Write_Polar_Info(Polari, Mag_Dom, info="p")
          call Write_Polar_line(Polari)
+
+         if(wave_given .and. ub_given) then
+           pin=(/1.0,0.0,0.0/)
+           call Calc_Polar("BM",wave,Cell,UB, Pin, NSF, Mag_dom, Mh, Pf,ok,line)
+           if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(line)
+           else
+              write(unit=lun,fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+              write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+           end if
+           pin=(/0.0,1.0,0.0/)
+           call Calc_Polar("BM",wave,Cell,UB, Pin, NSF, Mag_dom, Mh, Pf,ok,line)
+           if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(line)
+           else
+              write(unit=lun,fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+              write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+           end if
+           pin=(/0.0,0.0,1.0/)
+           call Calc_Polar("BM",wave,Cell,UB, Pin, NSF, Mag_dom, Mh, Pf,ok,line)
+           if(.not. ok) then
+              write(unit=*,fmt="(a)") " => "//trim(line)
+           else
+              write(unit=lun,fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+              write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
+           end if
+
+         end if
+
        end do
 
 
@@ -201,4 +306,73 @@ Program MagPolar3D
 
      close(unit=lun)
      stop
+
+   contains
+
+     Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
+       real,                    intent(in)    :: wave
+       type (Crystal_Cell_Type),intent(in)    :: Cell
+       Type (Zone_Axis_type),   intent(in out):: Zone_Axis
+       real, dimension(3),      intent(in)    :: h1
+       real,                    intent(in)    :: omega
+       real, dimension(3,3),    intent(out)   :: UB
+       logical,                 intent(out)   :: ok
+       character(len=*),        intent(out)   :: mess
+       ! Local variables
+       integer                     :: ierr
+       real                        :: theta1,theta2,alpha,del_omega,d1s,d2s,beta
+       real, dimension(3)          :: h2,ho1,ho2,s1,s2
+       real, dimension(3,3)        :: Rot
+
+       ok=.true.
+       mess= " "
+       !First check that the provided reflection is perpendicular to uvw
+       if(dot_product(real(Zone_Axis%uvw),h1) > 0.01) then
+         ok=.false.
+         write(unit=mess,fmt="(2(a,f8.3))") "The given reflection: ",h1," is not perpendicular to: ",real(Zone_Axis%uvw)
+         return
+       end if
+       call Get_basis_from_uvw(1.0,Zone_Axis%uvw,Cell,zone_axis,ok) !Here we use a dmin=1.0 angstrom
+       if(.not. ok) then
+         mess = "Error in the calculation of reflection plane "
+         return
+       end if
+       h2=real(zone_axis%rx)       !Second reflection in the plane
+       if(Co_linear(h1,h2,3)) h2=real(zone_axis%ry)
+       !
+       !Determination of the Bragg angles of two reflections in the scattering plane
+       !
+       d1s=sqrt(dot_product(h1,matmul(Cell%GR,h1))) !d1*
+       d2s=sqrt(dot_product(h2,matmul(Cell%GR,h2))) !d2*
+       theta1=asind(0.5*wave*d1s)
+       theta2=asind(0.5*wave*d2s)
+       alpha=acosd(dot_product(h1,matmul(Cell%GR,h2))/d1s/d2s) !Angle between reciprocal vectors
+       del_omega=theta2-theta1+alpha
+       !
+       !Calculation of the Cartesian components of the two reflections in the scattering plane
+       !
+       s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)
+       call Phi_Mat(omega,Rot)
+       ho1=matmul(transpose(rot),s1)
+       s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)
+       call Phi_mat(omega+del_omega,Rot)
+       ho2=matmul(transpose(rot),s2)
+       write(*,*) "  s1=",s1
+       write(*,*) "  s2=",s2
+       write(*,*) "  s1=",ho1
+       write(*,*) "  s2=",ho2
+       ! Test angle between ho1 and ho2
+       beta=acosd(dot_product(ho1,ho2)/d1s/d2s)
+       write(*,*) "  Alpha and Beta: ",alpha,beta
+       !
+       ! Generate UB-matrix
+       !
+       call GenUB(Cell%BL_M,h1,h2,ho1,ho2,UB, ierr)
+       if(ierr /= 0) then
+         ok=.false.
+         mess = "Error in the calculation of UB-matrix "
+       end if
+       return
+     End Subroutine Get_UB_from_uvw_hkl_omega
+
 End Program MagPolar3D
