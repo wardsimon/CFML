@@ -161,6 +161,7 @@
 !!----       GET_ANGS_NB
 !!----       GET_DSPACING_THETA
 !!----       GET_GAOMNU_FRCHIPHI
+!!----       GET_UB_FROM_UVW_HKL_OMEGA
 !!----       GET_WAVEGANU_FRZ4
 !!----       GET_Z1_D9ANGLS
 !!----       GET_Z1_FROM_PIXEL
@@ -189,9 +190,9 @@
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
     Use CFML_GlobalDeps,        Only: Cp,To_Deg,To_Rad
-    Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand
+    Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand,co_linear
     Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
-    Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type
+    Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type, Zone_Axis_type, Get_basis_from_uvw
     Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
 
     !---- Variables ----!
@@ -206,7 +207,7 @@
               s4cnb, snb4c, Flat_Cone_vertDet, Get_WaveGaNu_frZ4, normal, refvec, sxdpsd,       &
               triple, z3frz1, z2frz1, z1frfc, z1frnb, z1frmd, z1frz4, z1frz3, z1frz2, z4frgn,   &
               z4frz1, calang, genb, genub, cell_fr_UB, set_psd, get_z1_from_pixel,              &
-              Get_z1_D9angls, psd_convert
+              Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega
 
     !---- Definitions ----!
 
@@ -1395,6 +1396,81 @@
 
        Return
     End Subroutine Get_GaOmNu_frChiPhi
+
+    !!---- Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
+    !!----   real,                    intent(in)    :: wave      !Vavelength
+    !!----   type (Crystal_Cell_Type),intent(in)    :: Cell      !Unit cell object
+    !!----   Type (Zone_Axis_type),   intent(in out):: Zone_Axis !Zone axis (See CFML_Crystal_Metrics module)
+    !!----   real, dimension(3),      intent(in)    :: h1        !Indices of the known reflection in plane
+    !!----   real,                    intent(in)    :: omega     !Value of the omega motor (vertical spindle)
+    !!----   real, dimension(3,3),    intent(out)   :: UB        !Generated Busing-Levy UB-matrix
+    !!----   logical,                 intent(out)   :: ok        !If .true. everything has gone well
+    !!----   character(len=*),        intent(out)   :: mess      !Error message in case ok=.false.
+    !!----
+    !!----   This subroutine generates a UB matrix when the vertical zone axis of the crystal
+    !!----   is known and a reflection in the horizonal plane has been measured with known
+    !!----   indices an value of the omega angle.
+    !!----
+    !!----   Updated: June-2012 (JRC)
+    !!----
+    Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
+      real,                    intent(in)    :: wave
+      type (Crystal_Cell_Type),intent(in)    :: Cell
+      Type (Zone_Axis_type),   intent(in out):: Zone_Axis
+      real, dimension(3),      intent(in)    :: h1
+      real,                    intent(in)    :: omega
+      real, dimension(3,3),    intent(out)   :: UB
+      logical,                 intent(out)   :: ok
+      character(len=*),        intent(out)   :: mess
+      ! Local variables
+      integer                     :: ierr
+      real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
+      real, dimension(3)          :: h2,ho1,ho2,s1,s2
+      real, dimension(3,3)        :: Rot
+
+      ok=.true.
+      mess= " "
+      !First check that the provided reflection is perpendicular to uvw
+      if(dot_product(real(Zone_Axis%uvw),h1) > 0.01) then
+        ok=.false.
+        write(unit=mess,fmt="(2(a,f8.3))") "The given reflection: ",h1," is not perpendicular to: ",real(Zone_Axis%uvw)
+        return
+      end if
+      call Get_basis_from_uvw(1.0,Zone_Axis%uvw,Cell,zone_axis,ok) !Here we use a dmin=1.0 angstrom
+      if(.not. ok) then
+        mess = "Error in the calculation of reflection plane "
+        return
+      end if
+      h2=real(zone_axis%rx)       !Second reflection in the plane
+      if(Co_linear(h1,h2,3)) h2=real(zone_axis%ry)
+      !
+      !Determination of the Bragg angles of two reflections in the scattering plane
+      !
+      d1s=sqrt(dot_product(h1,matmul(Cell%GR,h1))) !d1*
+      d2s=sqrt(dot_product(h2,matmul(Cell%GR,h2))) !d2*
+      theta1=asind(0.5*wave*d1s)
+      theta2=asind(0.5*wave*d2s)
+      alpha=acosd(dot_product(h1,matmul(Cell%GR,h2))/d1s/d2s) !Angle between reciprocal vectors
+      del_omega=theta2-theta1+alpha  !Variation in omega to put the second reflection in diffraction position
+      !
+      !Calculation of the Cartesian components of the two reflections in the scattering plane
+      !
+      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)
+      call Phi_Mat(omega,Rot)
+      ho1=matmul(transpose(rot),s1)
+      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)
+      call Phi_mat(omega+del_omega,Rot)
+      ho2=matmul(transpose(rot),s2)
+      !
+      ! Generate UB-matrix
+      !
+      call GenUB(Cell%BL_M,h1,h2,ho1,ho2,UB, ierr)
+      if(ierr /= 0) then
+        ok=.false.
+        mess = "Error in the calculation of UB-matrix "
+      end if
+      return
+    End Subroutine Get_UB_from_uvw_hkl_omega
 
     !!----
     !!---- Subroutine Get_WaveGaNu_frZ4(z4,wave,ga,nu,ierr)

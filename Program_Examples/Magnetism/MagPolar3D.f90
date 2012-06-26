@@ -6,7 +6,7 @@ Program MagPolar3D
  use CFML_String_Utilities,         only: l_case
  use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
  use CFML_Propagation_vectors,      only: K_Equiv_Minus_K
- use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat
+ use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat, Get_UB_from_uvw_hkl_omega
  use CFML_Structure_Factors,        only: Calc_hkl_StrFactor
  use CFML_Math_General,             only: asind, acosd,cosd,sind,co_linear
  use CFML_Magnetic_Symmetry
@@ -318,66 +318,5 @@ Program MagPolar3D
 
      close(unit=lun)
      stop
-
-   contains
-
-     Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
-       real,                    intent(in)    :: wave
-       type (Crystal_Cell_Type),intent(in)    :: Cell
-       Type (Zone_Axis_type),   intent(in out):: Zone_Axis
-       real, dimension(3),      intent(in)    :: h1
-       real,                    intent(in)    :: omega
-       real, dimension(3,3),    intent(out)   :: UB
-       logical,                 intent(out)   :: ok
-       character(len=*),        intent(out)   :: mess
-       ! Local variables
-       integer                     :: ierr
-       real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
-       real, dimension(3)          :: h2,ho1,ho2,s1,s2
-       real, dimension(3,3)        :: Rot
-
-       ok=.true.
-       mess= " "
-       !First check that the provided reflection is perpendicular to uvw
-       if(dot_product(real(Zone_Axis%uvw),h1) > 0.01) then
-         ok=.false.
-         write(unit=mess,fmt="(2(a,f8.3))") "The given reflection: ",h1," is not perpendicular to: ",real(Zone_Axis%uvw)
-         return
-       end if
-       call Get_basis_from_uvw(1.0,Zone_Axis%uvw,Cell,zone_axis,ok) !Here we use a dmin=1.0 angstrom
-       if(.not. ok) then
-         mess = "Error in the calculation of reflection plane "
-         return
-       end if
-       h2=real(zone_axis%rx)       !Second reflection in the plane
-       if(Co_linear(h1,h2,3)) h2=real(zone_axis%ry)
-       !
-       !Determination of the Bragg angles of two reflections in the scattering plane
-       !
-       d1s=sqrt(dot_product(h1,matmul(Cell%GR,h1))) !d1*
-       d2s=sqrt(dot_product(h2,matmul(Cell%GR,h2))) !d2*
-       theta1=asind(0.5*wave*d1s)
-       theta2=asind(0.5*wave*d2s)
-       alpha=acosd(dot_product(h1,matmul(Cell%GR,h2))/d1s/d2s) !Angle between reciprocal vectors
-       del_omega=theta2-theta1+alpha
-       !
-       !Calculation of the Cartesian components of the two reflections in the scattering plane
-       !
-       s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)
-       call Phi_Mat(omega,Rot)
-       ho1=matmul(transpose(rot),s1)
-       s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)
-       call Phi_mat(omega+del_omega,Rot)
-       ho2=matmul(transpose(rot),s2)
-       !
-       ! Generate UB-matrix
-       !
-       call GenUB(Cell%BL_M,h1,h2,ho1,ho2,UB, ierr)
-       if(ierr /= 0) then
-         ok=.false.
-         mess = "Error in the calculation of UB-matrix "
-       end if
-       return
-     End Subroutine Get_UB_from_uvw_hkl_omega
 
 End Program MagPolar3D
