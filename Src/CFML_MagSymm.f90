@@ -1595,15 +1595,15 @@
             write(unit=ipr,fmt="(a,i3,2a,t50,2a)") " => SYMM(",i,"): ",trim(MGp%SymopSymb(i)), &
                                                             "Symbol: ",trim(texto(1))
             if (MGp%nirreps == 0) then
-               do j=1,MGp%NMSym
-                  write(unit=ipr,fmt="(a,2(i2,a))")      "    MSYMM(",i,",",j,"): "//trim(MGp%MSymopSymb(i,j))
-               end do
+              do j=1,MGp%NMSym
+                 write(unit=ipr,fmt="(a,2(i2,a))")      "    MSYMM(",i,",",j,"): "//trim(MGp%MSymopSymb(i,j))
+              end do
             else
-               do j=1,MGp%nirreps
-                  write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASR(",i,",",j,"): ",real(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
-                  if (MGp%nbas(j) < 0) &
-                  write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))") "    BASI(",i,",",j,"): ",AIMAG(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
-               end do
+              do j=1,MGp%nirreps
+                write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))")"    BASR(",i,",",j,"): ",real(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
+                if (MGp%nbas(j) < 0) &
+                write(unit=ipr,fmt="(a,2(i2,a),12(3f9.4,tr2))")"    BASI(",i,",",j,"): ",AIMAG(MGp%Basf(:,1:abs(MGp%nbas(j)),i,j))
+              end do
             end if
          end do
        End if  !MGp%Numops > 0
