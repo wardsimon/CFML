@@ -7,13 +7,13 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 # Set the a verbose make.
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-IF(DEFINED CMAKE_BUILD_TYPE)
+if(DEFINED CMAKE_BUILD_TYPE)
   message(STATUS "Setting build type as ${CMAKE_BUILD_TYPE}")
   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
-ELSE()
+else()
   message(STATUS "Setting build type as 'Release' as none was specified.")
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
-ENDIF()
+endif()
 
 # By default the built is in CONSOLE mode.
 option(GUI "Build crysfml and wcrysfml library" OFF)
@@ -23,17 +23,23 @@ project(libcrysfml Fortran)
 
 get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
-if (NOT CRYSFML_INSTALL_PREFIX)
-    set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/${COMPILER_NAME})
+if(DEFINED CRYSFML_INSTALL_PREFIX)
+  SET(CRYSFML_INSTALL_PREFIX ${CRYSFML_INSTALL_PREFIX} CACHE STRING "Library installation base path." FORCE)
+else()
+  SET(CRYSFML_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/${COMPILER_NAME}_${CMAKE_BUILD_TYPE} CACHE STRING "Library installation base path." FORCE)
 endif()
 
-if (NOT CRYSFML_PREFIX)
+if (DEFINED CRYSFML_PREFIX)
     # Set the default name for crysfml library within the install prefix.
+    set(CRYSFML_PREFIX ${CRYSFML_PREFIX} CACHE STRING "The name of wcrysfml library within library directory")
+else()
     set(CRYSFML_PREFIX LibC CACHE STRING "The name of crysfml library within library directory")
 endif()
 
-if (NOT WCRYSFML_PREFIX)
+if (DEFINED WCRYSFML_PREFIX)
     # Set the default name for wcrysfml library within the install prefix.
+    set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX} CACHE STRING "The name of wcrysfml library within library directory")
+else()
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
 
