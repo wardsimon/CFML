@@ -50,13 +50,13 @@ Program Optimizing_MagStructure
     end if
 
     write (unit=*,fmt="(/,/,6(a,/))")                                                  &
-            "            ------ PROGRAM FOR OPTIMIZING Magnetic STRUCTURE ------"            , &
-            "                    ---- Version 1.1 February-2012 ----"                        , &
+            "            ------ PROGRAM for OPTIMIZING Magnetic STRUCTURES ------"            , &
+            "                     ---- Version 1.2 June-2012 ----"                        , &
             "    *******************************************************************************"  , &
-            "    * Optimizes a magnetic structure given in *.CFL file                           "  , &
-            "    * against polarisation matrices and magnetic intensities                       "  , &
+            "    * This program optimizes a the magnetic structure given in a *.CFL file        "  , &
+            "    * against 3D polarisation matrices and magnetic integrated intensities         "  , &
             "    *******************************************************************************"  , &
-            "                             OZ-February-2012"
+            "                           (OZ-JRC)-June-2012"
    write (unit=*,fmt=*) " "
 
    if(.not. arggiven) then
@@ -67,13 +67,13 @@ Program Optimizing_MagStructure
 
    open(unit=lun,file=trim(filcod)//".out", status="replace",action="write")
    write(unit=lun,fmt="(/,/,6(a,/))")                                                  &
-            "            ------ PROGRAM FOR OPTIMIZING Magnetic STRUCTURE ------"            , &
-            "                    ---- Version 1.1 February-2012 ----"                        , &
+            "            ------ PROGRAM for OPTIMIZING Magnetic STRUCTURES ------"            , &
+            "                     ---- Version 1.2 June-2012 ----"                        , &
             "    *******************************************************************************"  , &
-            "    * Optimizes a magnetic structure given in *.CFL file                           "  , &
-            "    * against polarisation matrices and magnetic intensities                       "  , &
+            "    * This program optimizes a the magnetic structure given in a *.CFL file        "  , &
+            "    * against 3D polarisation matrices and magnetic integrated intensities         "  , &
             "    *******************************************************************************"  , &
-            "                             OZ-February-2012"
+            "                           (OZ-JRC)-June-2012"
 
    inquire(file=trim(filcod)//".cfl",exist=esta)
    if( .not. esta) then
@@ -280,7 +280,7 @@ Subroutine Write_FST(fst_file,v,cost) ! Is not used here, needed for CFML_optimi
          write(unit=lun,fmt="(a)") trim(cmds(i))
       end do
       write(unit=lun,fmt="(a)") "!"
-      call flush(lun)
+      flush(lun)
       !flush(lun)
       close(unit=lun)
    end if

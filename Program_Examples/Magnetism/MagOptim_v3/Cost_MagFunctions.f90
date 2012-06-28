@@ -126,21 +126,21 @@
 
               case (0)    !Optimization "f2mag"
                  Write(unit=lun,fmt="(a,f6.2)") &
-                 " => Cost(F2mag): Optimization of Sum(|Obs-Scale*Calc|^2) / Sum (sigma^2)) / (Nobs-Nref), with weight: ",wcost(0)
+                 " => Cost(F2mag): Optimization of Sum(|(Obs-Scale*Calc)/sigma|^2) ) / (Nobs-Nref), with weight: ",wcost(0)
               case (1)    !Optimization "cryopad"
                  Write(unit=lun,fmt="(a,f6.2)") &
-                 " => Cost(cryopad): Optimization of Sum(|Obs-Calc|^2) / Sum (sigma^2)) / (Nobs-Nref), with weight: ",wcost(1)
+                 " => Cost(cryopad): Optimization of Sum(|(Obs-Calc)/sigma|^2) ) / (Nobs-Nref), with weight: ",wcost(1)
               case (2)    !Optimization "mupad"
                  Write(unit=lun,fmt="(a,f6.2)") &
-                 " => Cost(mupad): Optimization of Sum(|Obs-Calc|^2) / Sum (sigma^2)) / (Nobs-Nref), with weight: ",wcost(2)
+                 " => Cost(mupad): Optimization of Sum(|(Obs-Calc)/sigma|^2) ) / (Nobs-Nref), with weight: ",wcost(2)
               case (3)    !Optimization "f2mag-cryopad"
                  Write(unit=lun,fmt="(a)") &
-                 " => Optimization of Sum(|Obs-Scale*Calc|^2) / Sum (sigma^2)) / (Nobs-Nref)"
+                 " => Optimization of Sum(|(Obs-Scale*Calc)/sigma|^2) ) / (Nobs-Nref)"
                  Write(unit=lun,fmt="(2(a,f6.2))") &
                  " => Cost(F2mag): with weight: ",wcost(0)," Cost(cryopad): with weight: ",wcost(3)
               case (4)    !Optimization "f2mag-mupad"
                  Write(unit=lun,fmt="(a)") &
-                 " => Optimization of Sum(|Obs-Scale*Calc|^2) / Sum (sigma^2)) / (Nobs-Nref)"
+                 " => Optimization of Sum(|(Obs-Scale*Calc)/sigma|^2) ) / (Nobs-Nref)"
                  Write(unit=lun,fmt="(2(a,f6.2))") &
                  " =>  Cost(F2mag): with weight: ",wcost(0), " Cost(mupad): with weight: ",wcost(4)
 
@@ -254,56 +254,59 @@
             Select Case(ic)
 
                case(0)      !F2mag
-                     iset=1
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     cost=cost+ Pcost(iset)* WCost(0)/(MultiData%Nobs(1)-NP_Refi)
+                    iset=1
+                    call Calc_sqMiV_Data(iset)
+                    call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                    cost=cost+ Pcost(iset)* WCost(0)/(MultiData%Nobs(iset)-NP_Refi)
 
                case(1)      !cryopad
                     do iset=1,Nset
-                     call Calc_Polar_Dom_Data(iset)
-                     call Cost_Pol(iset,Pcost(iset))
-                     cost=cost+ Pcost(iset)* WCost(1)
-                   enddo
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
+                      call Calc_Polar_Dom_Data(iset)
+                      call Cost_Pol(iset,Pcost(iset))
+                      cost=cost+ Pcost(iset)* WCost(1)
+                    end do
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
 !                   cost=cost/(9*sum([(MultiData%Nobs(iset),iset=1,Nset)])-NP_Refi) !normalized cost
 
                case(2)      !mupad
                     do iset=1,Nset
-                     call Calc_Polar_CrSec_Data(iset)
-                     call Cost_Pol_sVs(iset,Pcost(iset))
-                     cost=cost+ Pcost(iset)* WCost(2)
-                    enddo
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
+                      call Calc_Polar_CrSec_Data(iset)
+                      call Cost_Pol_sVs(iset,Pcost(iset))
+                      cost=cost+ Pcost(iset)* WCost(2)
+                    end do
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
                case(3)      !F2mag+cryopad
                     do iset=1,Nset
-                    if(Multidata%SNP(iset)) then
-                     call Calc_Polar_Dom_Data(iset)
-                     call Cost_Pol(iset,Pcost(iset))
-                     costPol=costPol+ Pcost(iset)* WCost(3)
-                    else
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     costF2=costF2+ Pcost(iset)* WCost(0)
-                    endif
-                    enddo
-                    cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                      if(Multidata%SNP(iset)) then
+                        call Calc_Polar_Dom_Data(iset)
+                        call Cost_Pol(iset,Pcost(iset))
+                        costPol=costPol+ Pcost(iset)* WCost(3)
+                      else
+                        call Calc_sqMiV_Data(iset)
+                        call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                        costF2=costF2+ Pcost(iset)* WCost(0)
+                      end if
+                    end do
+                    !cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                    cost=(costPol+costF2)/(9*Nobs+Nf2-NP_Refi)
 
                case(4)      !F2mag+mupad
                     do iset=1,Nset
-                    if(Multidata%SNP(iset)) then
-                     call Calc_Polar_CrSec_Data(iset)
-                     call Cost_Pol_sVs(iset,Pcost(iset))
-                     costPol=costPol+ Pcost(iset)* WCost(4)
-                   else
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     costF2=costF2+ Pcost(iset)* WCost(0)
-                    endif
-                    enddo
-                    cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                      if(Multidata%SNP(iset)) then
+                        call Calc_Polar_CrSec_Data(iset)
+                        call Cost_Pol_sVs(iset,Pcost(iset))
+                        costPol=costPol+ Pcost(iset)* WCost(4)
+                      else
+                        call Calc_sqMiV_Data(iset)
+                        call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                        costF2=costF2+ Pcost(iset)* WCost(0)
+                      end if
+                    end do
+                    !cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                    cost=(costPol+costF2)/(9*Nobs+Nf2-NP_Refi)
+
 
             End Select
          end do
@@ -311,7 +314,7 @@
       else            !New configuration
 
          call VState_to_AtomsPar(mA,mode="V",MGp=MGp,Mag_dom=AllMag_dom)   !Update Atomic parameters with the proper constraints
-         call MagDom_to_Dataset(AllMag_dom)   !Puts new AllMag_Dom into Multidata%MagDom
+         call MagDom_to_Dataset(AllMag_dom)                   !Puts new AllMag_Dom into Multidata%MagDom
 
          do ic=0,N_costf
 
@@ -320,54 +323,58 @@
             Select Case(ic)
 
                case(0)      !F2mag
-                     iset=1
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     cost=cost+ Pcost(iset)* WCost(0)/(MultiData%Nobs(1)-NP_Refi)
+                    iset=1
+                    call Calc_sqMiV_Data(iset)
+                    call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                    cost=cost+ Pcost(iset)* WCost(0)/(MultiData%Nobs(iset)-NP_Refi)
+                    !cost=cost+ Pcost(iset)* WCost(0)
 
                case(1)      !cryopad
                     do iset=1,Nset
-                     call Calc_Polar_Dom_Data(iset)
-                     call Cost_Pol(iset,Pcost(iset))
-                     cost=cost+ Pcost(iset)* WCost(1)
-                   enddo
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
+                      call Calc_Polar_Dom_Data(iset)
+                      call Cost_Pol(iset,Pcost(iset))
+                      cost=cost+ Pcost(iset)* WCost(1)
+                    end do
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
                case(2)      !mupad
                     do iset=1,Nset
-                     call Calc_Polar_CrSec_Data(iset)
-                     call Cost_Pol_sVs(iset,Pcost(iset))
-                     cost=cost+ Pcost(iset)* WCost(2)
-                    enddo
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
+                      call Calc_Polar_CrSec_Data(iset)
+                      call Cost_Pol_sVs(iset,Pcost(iset))
+                      cost=cost+ Pcost(iset)* WCost(2)
+                    end do
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
+
 
                case(3)      !F2mag+cryopad
                     do iset=1,Nset
-                    if(Multidata%SNP(iset)) then
-                     call Calc_Polar_Dom_Data(iset)
-                     call Cost_Pol(iset,Pcost(iset))
-                     costPol=costPol+ Pcost(iset)* WCost(3)
-                    else
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     costF2=costF2+ Pcost(iset)* WCost(0)
-                    endif
-                    enddo
+                      if(Multidata%SNP(iset)) then
+                        call Calc_Polar_Dom_Data(iset)
+                        call Cost_Pol(iset,Pcost(iset))
+                        costPol=costPol+ Pcost(iset)* WCost(3)
+                      else
+                        call Calc_sqMiV_Data(iset)
+                        call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                        costF2=costF2+ Pcost(iset)* WCost(0)
+                      end if
+                    end do
                     cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                    !cost=(costPol+costF2)
 
                case(4)      !F2mag+mupad
                     do iset=1,Nset
-                    if(Multidata%SNP(iset)) then
-                     call Calc_Polar_CrSec_Data(iset)
-                     call Cost_Pol_sVs(iset,Pcost(iset))
-                     costPol=costPol+ Pcost(iset)* WCost(4)
-                   else
-                     call Calc_sqMiV_Data(iset)
-                     call Cost_sqMiV(iset,Pcost(iset),Scalef)
-                     costF2=costF2+ Pcost(iset)* WCost(0)
-                    endif
-                    enddo
+                      if(Multidata%SNP(iset)) then
+                        call Calc_Polar_CrSec_Data(iset)
+                        call Cost_Pol_sVs(iset,Pcost(iset))
+                        costPol=costPol+ Pcost(iset)* WCost(4)
+                      else
+                        call Calc_sqMiV_Data(iset)
+                        call Cost_sqMiV(iset,Pcost(iset),Scalef)
+                        costF2=costF2+ Pcost(iset)* WCost(0)
+                      end if
+                    end do
                     cost=(costPol+costF2)/(9*(Nobs-Nf2)+Nf2-NP_Refi)
+                    !cost=(costPol+costF2)
 
             End Select
          end do
@@ -379,9 +386,9 @@
 !******************************************!
     Subroutine Cost_sqMiV(iset,cost,Scalef)
 !******************************************!
-       integer,               intent(in):: iset
-       real,                 intent(out):: cost
-       real,              intent(in out):: Scalef
+       integer,      intent(in):: iset
+       real,        intent(out):: cost
+       real,     intent(in out):: Scalef
 
        !---- Local variables ----!
        integer              :: j,n
@@ -389,18 +396,45 @@
        !---- Here Cost is not normalised to Nobs,Npar
        n=Oblist%Nobs
 
-       Scalef=sum( [(MhMultilist%Mhlist(iset)%Mh(j)%sqMiV*Oblist%Ob(j)%Gobs*Oblist%Ob(j)%wGobs,j=1,n)])/ &
-              sum( [(MhMultilist%Mhlist(iset)%Mh(j)%sqMiV**2 * Oblist%Ob(j)%wGobs,j=1,n)] )
-       cost=sum(([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scalef*MhMultilist%Mhlist(iset)%Mh(j)%sqMiV)**2, &
-                                                                     j=1,n)]))
+       !Scalef=sum( [(MhMultilist%Mhlist(iset)%Mh(j)%sqMiV * Oblist%Ob(j)%Gobs*Oblist%Ob(j)%wGobs,j=1,n)])/ &
+       !       sum( [(MhMultilist%Mhlist(iset)%Mh(j)%sqMiV**2  * Oblist%Ob(j)%wGobs,j=1,n)] )
+       !cost=sum(([(Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scalef*MhMultilist%Mhlist(iset)%Mh(j)%sqMiV)**2, &
+       !                                                              j=1,n)]))
+       Scalef=sum(Oblist%Ob(1:n)%Gobs)/max(1.0,sum(MhMultilist%Mhlist(iset)%Mh(1:n)%sqMiV))
+       !Write(*,*) "Scalef",Scalef
+       cost=0.0
+       do j=1,n
+         cost=cost+Oblist%Ob(j)%wGobs* (Oblist%Ob(j)%Gobs-Scalef*MhMultilist%Mhlist(iset)%Mh(j)%sqMiV)**2
+       !  write(*,*) "j,w_obs,obs,calc", j, Oblist%Ob(j)%wGobs, Oblist%Ob(j)%Gobs, MhMultilist%Mhlist(iset)%Mh(j)%sqMiV
+       end do
        return
     End Subroutine Cost_sqMiV
 
 !******************************************!
     Subroutine Cost_Pol(iset,cost)
 !******************************************!
-       integer,               intent(in):: iset
-       real,                 intent(out):: cost
+       integer,   intent(in) :: iset
+       real,      intent(out):: cost
+
+       !---- Local variables ----!
+       integer              :: iobs
+
+       !---- Here Cost is not normalised to Nobs,Npar
+        cost=0.0
+
+         do iobs=1,MultiData%Nobs(iset) !loop over Polar observations
+           cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij * &
+                  ( (PolariMultilist%Polarilist(iset)%Polari(iobs)%Pij - &
+                     PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij)**2))
+         end do !end loop over observations
+       return
+    End Subroutine Cost_Pol
+
+!******************************************!
+    Subroutine Cost_Pol_sVs(iset,cost)
+!******************************************!
+       integer,    intent(in):: iset
+       real,      intent(out):: cost
 
        !---- Local variables ----!
        integer              :: iobs
@@ -410,29 +444,9 @@
 
          do iobs=1,MultiData%Nobs(iset) !loop over Polar observations
           cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij * &
-                 ( (PolariMultilist%Polarilist(iset)%Polari(iobs)%Pij - &
-                    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij)**2))
-         enddo !end loop over observations
-       return
-    End Subroutine Cost_Pol
-
-!******************************************!
-    Subroutine Cost_Pol_sVs(iset,cost)
-!******************************************!
-       integer,               intent(in):: iset
-       real,                 intent(out):: cost
-
-       !---- Local variables ----!
-       integer              :: iobs
-
-       !---- Here Cost is not normalised to Nobs,Npar
-        cost=0.0
-
-         do iobs=1,MultiData%Nobs(iset) !loop over Polar observations
-         cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij * &
-                 ( (PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij - &
-                    PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij)**2))
-         enddo !end loop over Polar observations
+                  ( (PolariMultisVslist%PolarisVslist(iset)%PolarisVs(iobs)%Pij - &
+                     PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij)**2))
+         end do !end loop over Polar observations
 
        return
     End Subroutine Cost_Pol_sVs
@@ -479,34 +493,34 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
       i=0
 
       do
-      i=i+1
-      if(i >= file_cfl%nlines) exit
+        i=i+1
+        if(i >= file_cfl%nlines) exit
 
-       lowline=l_case(adjustl(file_cfl%line(i)))
+        lowline=l_case(adjustl(file_cfl%line(i)))
 
-       if(lowline(1:6) == "magdom".and.magdom_begin) then
-        num_dom=num_dom+1
-        ip=index(lowline,":")
-        write(unit=file_cfl%line(i),fmt="(a,2f7.4)") lowline(1:ip),Mag_Dom%Pop(1:2,num_dom)
-        write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
-        do
-         i=i+1
-         lowline=adjustl(l_case(file_cfl%line(i)))
-         if(lowline(1:6) == "magdom") then
+        if(lowline(1:6) == "magdom".and.magdom_begin) then
           num_dom=num_dom+1
           ip=index(lowline,":")
           write(unit=file_cfl%line(i),fmt="(a,2f7.4)") lowline(1:ip),Mag_Dom%Pop(1:2,num_dom)
           write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
-         else
-          i=i-1
-          magdom_begin=.false.
-          exit
-         endif
-        enddo
-       cycle
-       endif! end magdom
+          do
+            i=i+1
+            lowline=adjustl(l_case(file_cfl%line(i)))
+            if(lowline(1:6) == "magdom") then
+              num_dom=num_dom+1
+              ip=index(lowline,":")
+              write(unit=file_cfl%line(i),fmt="(a,2f7.4)") lowline(1:ip),Mag_Dom%Pop(1:2,num_dom)
+              write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
+            else
+              i=i-1
+              magdom_begin=.false.
+              exit
+            end if
+          end do
+          cycle
+        end if! end magdom
 
-       if(lowline(1:5) == "matom") then
+        if(lowline(1:5) == "matom") then
           num_matom=num_matom+1 !max NMatom=mA%natoms
           num_skp=0
           skp_begin=.true.
@@ -514,81 +528,81 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
           write(unit=file_cfl%line(i),fmt="(a)") trim(file_cfl%line(i))
           write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
           cycle
-       endif
+        end if
 
-       if(lowline(1:3) == "skp".and.skp_begin) then
-        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
-        read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
-        if(MGp%Sk_type == "Spherical_Frame") then
-         Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
-         Isk(:)=mA%atom(num_matom)%Spher_Ski(:,ik)
-         Ph=mA%atom(num_matom)%mphas(ik)
-        else
-         Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
-         Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-         Ph=mA%atom(num_matom)%mphas(ik)
-        endif
-
-        write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
-        do
-         i=i+1
-         lowline=adjustl(l_case(file_cfl%line(i)))
-         if(lowline(1:3) == "skp") then
-          num_skp=num_skp+1
+        if(lowline(1:3) == "skp".and.skp_begin) then
+          num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
           read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
           if(MGp%Sk_type == "Spherical_Frame") then
-           Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
-           Isk(:)=mA%atom(num_matom)%Spher_Ski(:,ik)
-           Ph=mA%atom(num_matom)%mphas(ik)
+            Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
+            Isk(:)=mA%atom(num_matom)%Spher_Ski(:,ik)
+            Ph=mA%atom(num_matom)%mphas(ik)
           else
-           Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
-           Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-           Ph=mA%atom(num_matom)%mphas(ik)
+            Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
+            Isk(:)=mA%atom(num_matom)%Ski(:,ik)
+            Ph=mA%atom(num_matom)%mphas(ik)
           endif
+
           write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
-         else
-          i=i-1
-          skp_begin=.false.
-          exit
-         endif
-        enddo
+          do
+            i=i+1
+            lowline=adjustl(l_case(file_cfl%line(i)))
+            if(lowline(1:3) == "skp") then
+              num_skp=num_skp+1
+              read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
+              if(MGp%Sk_type == "Spherical_Frame") then
+               Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
+               Isk(:)=mA%atom(num_matom)%Spher_Ski(:,ik)
+               Ph=mA%atom(num_matom)%mphas(ik)
+              else
+               Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
+               Isk(:)=mA%atom(num_matom)%Ski(:,ik)
+               Ph=mA%atom(num_matom)%mphas(ik)
+              endif
+              write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
+            else
+              i=i-1
+              skp_begin=.false.
+              exit
+            end if
+          end do
 
-       endif! end Rsk,Isk,Ph
+        end if! end Rsk,Isk,Ph
 
-       forma="(a6,i8,i3,  f8.3)"
+        forma="(a6,i8,i3,  f8.3)"
 
-       if(lowline(1:6) == "bfcoef".and.bfcoef_begin) then
-        num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
-        read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
-        n=abs(MGp%nbas(im))
-
-        write(unit=forma(11:12),fmt="(i2)") n+1
-        read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
-        coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
-        Ph=mA%atom(num_matom)%mphas(ik)
-        write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph
-
-        do
-         i=i+1
-         lowline=adjustl(l_case(file_cfl%line(i)))
-         if(lowline(1:6) == "bfcoef") then
-          num_skp=num_skp+1
+        if(lowline(1:6) == "bfcoef".and.bfcoef_begin) then
+          num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
           read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
           n=abs(MGp%nbas(im))
+
           write(unit=forma(11:12),fmt="(i2)") n+1
           read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
           coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
           Ph=mA%atom(num_matom)%mphas(ik)
-          write(unit=file_cfl%line(i),fmt="(a,i8,i3,4f8.3)") 'bfcoef',ik,im,coef(1:n),Ph
-         else
-          i=i-1
-          bfcoef_begin=.false.
-          exit
-        endif
-        enddo
-       endif! end bfcoef
+          write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph
 
-       write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
+          do
+            i=i+1
+            lowline=adjustl(l_case(file_cfl%line(i)))
+            if(lowline(1:6) == "bfcoef") then
+              num_skp=num_skp+1
+              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
+              n=abs(MGp%nbas(im))
+              write(unit=forma(11:12),fmt="(i2)") n+1
+              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
+              coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
+              Ph=mA%atom(num_matom)%mphas(ik)
+              write(unit=file_cfl%line(i),fmt="(a,i8,i3,4f8.3)") 'bfcoef',ik,im,coef(1:n),Ph
+            else
+              i=i-1
+              bfcoef_begin=.false.
+              exit
+            end if
+          end do
+        end if! end bfcoef
+
+        write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
 
       end do
 

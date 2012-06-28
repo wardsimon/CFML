@@ -879,8 +879,8 @@
        ! Loop over domains
        do nd=1,Mag_Dom%nd
         do ich=1,nch
-         !MiV=Mh%MiVC(:,ich,nd)      !Use the Cartesian components
-         MiV=Mh%MiV(:,ich,nd)      !do not use the Cartesian components, as in the previous version
+         MiV=Mh%MiVC(:,ich,nd)      !Use the Cartesian components
+         !MiV=Mh%MiV(:,ich,nd)      !do not use the Cartesian components, as in the previous version
          !magnetic interaction in polarisation frame
          MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell)
          Polari%MiV(:,ich,nd) = MiV_PF

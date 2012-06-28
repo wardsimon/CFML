@@ -17,9 +17,9 @@
    !---- List of public subroutines ----!
  public :: Readn_Set_Data, Readn_Set_Job, Copy_mAtom_List, Copy_MagDom_List, Write_ObsCalc, MagDom_to_Dataset
 
- integer, save               :: lun=1,lan=2,lin=3
- integer, save               :: Nobs,Nset,Nref,Nf2,Npol
- real, public                :: Scalef,cost,costPol,costF2
+ integer, save   :: lun=1,lan=2,lin=3
+ integer, save   :: Nobs,Nset,Nref,Nf2,Npol
+ real, public    :: Scalef,cost,costPol,costF2
 
    !---- OLD types are declared below the NEW types
    !---- NEW types
@@ -81,7 +81,7 @@
        integer                                              :: Nset      ! Number of Datasets
        integer,allocatable, dimension(:)                    :: Nobs      ! Number of Observations in the Dataset
        character(len=128),allocatable, dimension(:)         :: Datfile   ! Name of the File with the Dataset
-       logical,allocatable, dimension(:)                    :: SNP       ! True if the polarisation Dataset Blume-Maleev type
+       logical,allocatable, dimension(:)                    :: SNP       ! True if the polarisation Dataset Blume-Maleyev type
        type(Magnetic_Domain_type),allocatable, dimension(:) :: MagDom    ! Domains for the Dataset
     End Type Multidata_type
 
@@ -126,321 +126,322 @@ contains
 !******************************************!
     Subroutine Readn_Set_Data(file_cfl)
 !******************************************!
-!    Analyses and Reads observations given in different files
-!    Nobs - total number of reflections
+!     Analyses and Reads observations given in different files
+!     Nobs - total number of reflections
 
-       !---- Arguments ----!
-       type(file_list_type),                intent (in)     :: file_cfl
+      !---- Arguments ----!
+      type(file_list_type),   intent(in) :: file_cfl
 
-       !---- Local variables ----!
-       character(len=50), dimension(25) :: label
-       character(len=256)          :: title,formt
-       character(len=256)          :: lowline
-       character(len=1)            :: sig
-       integer                     :: ier,ic,num_k,m,ih,ik,il,ncont,iv,i,j,ityp,ipow,ip,iset,iobs,ind,nd
-       integer                     :: n_ini, n_end
-       real,   dimension(3)        :: vk,v_k
-       real                        :: Gobs,SGobs,lambda
-       logical                     :: kvect_begin=.true.
+      !---- Local variables ----!
+      character(len=50), dimension(25):: label
+      character(len=256)              :: title,formt
+      character(len=256)              :: lowline
+      character(len=1)                :: sig
+      integer                         :: ier,ic,num_k,m,ih,ik,il,ncont,iv,i,j,ityp,ipow,ip,iset,&
+                                         iobs,ind,nd
+      integer                         :: n_ini, n_end
+      real,   dimension(3)            :: vk,v_k
+      real                            :: Gobs,SGobs,lambda
+      logical                         :: kvect_begin=.true.
 
-     Nset=0
-     Npol=0
+      Nset=0
+      Npol=0
 
-!---
-!--- Read the wave vector as in Readn_Set_Magnetic_Structure
-!---
-          do i=1,file_cfl%nlines
-            lowline=l_case(adjustl(file_cfl%line(i)))
-          if (lowline(1:13) == "mag_structure") then
-             n_ini=i
+      !---
+      !--- Read the wave vector as in Readn_Set_Magnetic_Structure
+      !---
+      do i=1,file_cfl%nlines
+        lowline=l_case(adjustl(file_cfl%line(i)))
+        if (lowline(1:13) == "mag_structure") then
+           n_ini=i
+        end if
+        if (lowline(1:7) =="end_mag" ) then
+           n_end=i
+           exit
+        end if
+      end do
+
+      num_k=0
+      i=n_ini
+      do
+        i=i+1
+        if(i >= n_end) exit
+        lowline=l_case(adjustl(file_cfl%line(i)))
+        ! Read propagation vectors
+        if (lowline(1:5) == "kvect" .and. kvect_begin) then
+          num_k=num_k+1
+          read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
+          if (ier /= 0) then
+             err_magsym=.true.
+             ERR_MagSym_Mess=" Error reading propagation vectors"
+             return
           end if
-          if (lowline(1:7) =="end_mag" ) then
-             n_end=i
-             exit
-          end if
-         end do
-
-       num_k=0
-       i=n_ini
-       do
-          i=i+1
-          if(i >= n_end) exit
-            lowline=l_case(adjustl(file_cfl%line(i)))
-           ! Read propagation vectors
-           if (lowline(1:5) == "kvect" .and. kvect_begin) then
-             num_k=num_k+1
-             read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
-             if (ier /= 0) then
-                err_magsym=.true.
-                ERR_MagSym_Mess=" Error reading propagation vectors"
-                return
-             end if
-             do !repeat reading until continuous KVECT lines are exhausted
-                i=i+1
-                lowline=adjustl(l_case(file_cfl%line(i)))
-                if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
-                if (lowline(1:5) == "kvect") then
-                   num_k=num_k+1
-                   read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
-                   if (ier /= 0) then
-                      err_magsym=.true.
-                      ERR_MagSym_Mess=" Error reading propagation vectors"
-                      return
-                   end if
-                else
-                   i=i-1
-                   kvect_begin=.false.
-                   exit
+          do !repeat reading until continuous KVECT lines are exhausted
+             i=i+1
+             lowline=adjustl(l_case(file_cfl%line(i)))
+             if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
+             if (lowline(1:5) == "kvect") then
+                num_k=num_k+1
+                read(unit=lowline(6:),fmt=*,iostat=ier) MGp%kvec(:,num_k)
+                if (ier /= 0) then
+                   err_magsym=.true.
+                   ERR_MagSym_Mess=" Error reading propagation vectors"
+                   return
                 end if
-             end do
-             cycle
-           end if
-       end do
-       MGp%nkv   =num_k
+             else
+                i=i-1
+                kvect_begin=.false.
+                exit
+             end if
+          end do
+          cycle
+        end if
+      end do
+      MGp%nkv   =num_k
 
-!---
-!--- Analyse how many data are provided in cfl file
-!---
-          do i=1,file_cfl%nlines
-            lowline=l_case(adjustl(file_cfl%line(i)))
-            if(lowline(1:10) == "f2mag_data") then
-             Nset=Nset+1
+      !---
+      !--- Analyse how many data are provided in cfl file
+      !---
+      do i=1,file_cfl%nlines
+        lowline=l_case(adjustl(file_cfl%line(i)))
+        if(lowline(1:10) == "f2mag_data") then
+         Nset=Nset+1
+        end if
+
+        if(lowline(1:12) == "cryopad_data") then
+         Nset=Nset+1
+         Npol=Npol+1
+        endif
+
+        if(lowline(1:10) == "mupad_data") then
+         Nset=Nset+1
+         Npol=Npol+1
+        endif
+      end do
+
+      if(allocated(Multidata%datfile)) deallocate(Multidata%datfile)
+      allocate(Multidata%datfile(Nset))
+      Multidata%Nset= Nset
+
+      if(allocated(Multidata%MagDom)) deallocate(Multidata%MagDom)
+      allocate(Multidata%MagDom(Nset))
+      if(allocated(Multidata%Nobs)) deallocate(Multidata%Nobs)
+      allocate(Multidata%Nobs(Nset))
+      if(allocated(Multidata%SNP)) deallocate(Multidata%SNP)
+      allocate(Multidata%SNP(Nset))
+
+      if(allocated(PolaroMultilist%Polarolist)) deallocate(PolaroMultilist%Polarolist)
+      allocate(PolaroMultilist%Polarolist(Npol))
+
+      if(allocated(MhMultilist%Mhlist)) deallocate(MhMultilist%Mhlist)
+      allocate(MhMultilist%Mhlist(Nset))
+      MhMultilist%Nset= Nset
+
+      Nset=0
+      !---
+      !--- Write Multidata%datfile,Multidata%MagDom,etc
+      !---
+      do i=1,file_cfl%nlines
+        lowline=l_case(adjustl(file_cfl%line(i)))
+
+        if(lowline(1:10) == "f2mag_data") then
+          Nset=Nset+1
+          lowline=adjustl(lowline(12:))
+          call getword(lowline,label,ic)
+          Multidata%datfile(Nset)=l_case(label(1))
+          nd=ic-1 !number of domains read from f2mag_data line
+
+          !--- Here I assume that two chiral domains are given in Mag_data
+          if(nd >= 2 .and. modulo(nd,2) == 0) then
+            Multidata%MagDom(Nset)%nd=nd/2
+            ind=1
+            do j=2,nd,2
+              Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
+              Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
+              ind=ind+1
+            end do
+          else
+            write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
+            stop
+          end if
+
+          call Countref_Int_file(Multidata%datfile(Nset),Nf2)
+          Multidata%Nset=Nset
+          Multidata%Nobs(Nset)=Nf2
+          Multidata%SNP(Nset)=.false.
+        end if
+
+        if(lowline(1:12) == "cryopad_data") then
+          Nset=Nset+1
+          lowline=adjustl(lowline(14:))
+          call getword(lowline,label,ic)
+          Multidata%datfile(Nset)=label(1)
+          nd=ic-1 !number of domains read from cryopad_data line
+
+          !--- Here I assume that two chiral domains are given in Mag_data
+          if(nd >= 2 .and. modulo(nd,2) ==0) then
+            Multidata%MagDom(Nset)%nd=nd/2
+            ind=1
+            do j=2,nd,2
+              Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
+              Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
+              ind=ind+1
+            end do
+          else
+           write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
+           stop
+          end if
+
+          call Countref_Pol_file(Multidata%datfile(Nset),Npol)
+          Multidata%Nset=Nset
+          Multidata%Nobs(Nset)=Npol
+          Multidata%SNP(Nset)=.true.
+        end if
+
+        if(lowline(1:10) == "mupad_data") then
+          Nset=Nset+1
+          lowline=adjustl(lowline(12:))
+          call getword(lowline,label,ic)
+          Multidata%datfile(Nset)=label(1)
+          nd=ic-1 !number of domains read from mupad_data line
+
+          !--- Here I assume that two chiral domains are given in Mag_data
+          if(nd >= 2 .and. modulo(nd,2) == 0) then
+            Multidata%MagDom(Nset)%nd=nd/2
+            ind=1
+            do j=2,nd,2
+              Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
+              Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
+              ind=ind+1
+            end do
+          else
+            write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
+            stop
+          end if
+          call Countref_Pol_file(Multidata%datfile(Nset),Npol)
+          Multidata%Nset=Nset
+          Multidata%Nobs(Nset)=Npol
+          Multidata%SNP(Nset)=.true.
+        end if
+
+      end do
+
+      do iset=1,Nset !Loop on all data
+
+        if(Multidata%SNP(iset)) then
+          !---
+          !--- Polarisation data
+          !---
+
+          PolaroMultilist%Nset= iset
+          open(unit=lan,file=trim(Multidata%datfile(iset)),status="old",action="read")
+
+          Npol=Multidata%Nobs(iset)
+          if(allocated(PolaroMultilist%Polarolist(iset)%Polaro)) deallocate(PolaroMultilist%Polarolist(iset)%Polaro)
+          allocate(PolaroMultilist%Polarolist(iset)%Polaro(Npol))
+          PolaroMultilist%Polarolist(iset)%Nref= Npol
+
+          if(allocated(MhMultilist%Mhlist(iset)%Mh)) deallocate(MhMultilist%Mhlist(iset)%Mh)
+          allocate(MhMultilist%Mhlist(iset)%Mh(Npol))
+          MhMultilist%Mhlist(iset)%Nref= Npol
+
+          do iobs=1,Npol !Loop on polarised observations
+            read(unit=lan,fmt=*,iostat=ier) ih,ik,il,m,PolaroMultilist%Polarolist(iset)%Polaro(iobs)%SPV, &
+                     PolaroMultilist%Polarolist(iset)%Polaro(iobs)%P  !2 vectors in scattering plane, Pin
+            if(ier /= 0) exit
+            read(unit=lan,fmt=*) PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij
+            read(unit=lan,fmt=*) PolaroMultilist%Polarolist(iset)%Polaro(iobs)%soPij
+
+            ! calculate weight Polarolist%Polaro(i)%woPij 1/sigma**2
+            PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij= 1.d0 / max(eps, &
+            PolaroMultilist%Polarolist(iset)%Polaro(iobs)%soPij**2)
+
+            !construct partially the object Mh
+            j=sign(1,m)
+            sig="+"
+            if( j == -1) sig="-"
+            Mh%signp=real(-j)  ! sign "+" for H-k and "-" for H+k
+            iv=abs(m)
+
+            Mh%num_k=iv
+            Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
+            Mh%s = hkl_s(Mh%h,Cell)
+            Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
+            MhMultilist%Mhlist(iset)%Mh(iobs)=Mh
+
+            PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H=MhMultilist%Mhlist(iset)%Mh(iobs)%h
+          end do !Loop on observations
+
+          close(lan)
+
+        else
+
+          !---
+          ! Integrated intensity data
+          !---
+
+          open(unit=lin,file=trim(Multidata%datfile(iset)),status="old",action="read")
+          Nf2=Multidata%Nobs(iset)
+
+           ! temporarily programmed for the special case k,-k
+          read(unit=lin,fmt=*) title
+          read(unit=lin,fmt=*) formt
+          read(unit=lin,fmt=*) lambda,ityp,ipow
+          read(unit=lin,fmt=*) num_k
+
+          do i=1,num_k
+            if(i.eq.1) then
+              read(unit=lin,fmt=*) m,vk
+            else
+              read(unit=lin,fmt=*) m,v_k
             end if
+          end do
 
-            if(lowline(1:12) == "cryopad_data") then
-             Nset=Nset+1
-             Npol=Npol+1
+          if(allocated(Oblist%Ob)) deallocate(Oblist%Ob)
+          allocate(Oblist%Ob(Nf2))
+
+          ! temporarily programmed for ncont=1
+          do iobs=1,Nf2
+            allocate(Oblist%Ob(iobs)%Hd(1:3,1))
+          end do
+          Oblist%Nobs= Nf2
+
+          !Multidata%Nobs(iset) should be the same as Oblist%Nobs
+          if(allocated(MhMultilist%Mhlist(iset)%Mh)) deallocate(MhMultilist%Mhlist(iset)%Mh)
+          allocate(MhMultilist%Mhlist(iset)%Mh(Nf2))
+          MhMultilist%Mhlist(iset)%Nref= Nf2
+
+          do iobs=1,Nf2
+            read(unit=lin,fmt=*,end=3) ih,ik,il,m,Oblist%Ob(iobs)%Gobs,Oblist%Ob(iobs)%SGobs,ncont
+
+            if(m == 1) then
+              Oblist%Ob(iobs)%Hd(:,1)=real((/ih,ik,il/)) + vk(:)
+              j=1; sig="+"
             endif
-
-            if(lowline(1:10) == "mupad_data") then
-             Nset=Nset+1
-             Npol=Npol+1
+            if(m == 2) then
+              Oblist%Ob(iobs)%Hd(:,1)=real((/ih,ik,il/)) + v_k(:)
+              j=-1; sig="-"
             endif
-           end do
+            !construct partially the object Mh
+            Mh%signp=real(-j)  ! sign "+" for H-k and "-" for H+k
+            iv=abs(j)
+            MGp%kvec(:,iv)=vk(:)
+            Mh%num_k=iv
+            Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
+            Mh%s = hkl_s(Mh%h,Cell)
+            Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
+            MhMultilist%Mhlist(iset)%Mh(iobs)=Mh
 
-     if(allocated(Multidata%datfile)) deallocate(Multidata%datfile)
-     allocate(Multidata%datfile(Nset))
-     Multidata%Nset= Nset
+          end do
 
-     if(allocated(Multidata%MagDom)) deallocate(Multidata%MagDom)
-     allocate(Multidata%MagDom(Nset))
-     if(allocated(Multidata%Nobs)) deallocate(Multidata%Nobs)
-     allocate(Multidata%Nobs(Nset))
-     if(allocated(Multidata%SNP)) deallocate(Multidata%SNP)
-     allocate(Multidata%SNP(Nset))
+!         calculate weight Oblist%Ob(i)%wGobs 1/sGobs
+          Oblist%Ob(:)%wGobs=1.d0/max([(Oblist%Ob(i)%sGobs**2,i=1,Oblist%Nobs)],eps)
 
-     if(allocated(PolaroMultilist%Polarolist)) deallocate(PolaroMultilist%Polarolist)
-     allocate(PolaroMultilist%Polarolist(Npol))
+           3    close(lin)
+        end if !if .not. SNP(iset)
+      end do !Loop on all data
 
-     if(allocated(MhMultilist%Mhlist)) deallocate(MhMultilist%Mhlist)
-     allocate(MhMultilist%Mhlist(Nset))
-     MhMultilist%Nset= Nset
-
-     Nset=0
-!---
-!--- Write Multidata%datfile,Multidata%MagDom,etc
-!---
-          do i=1,file_cfl%nlines
-            lowline=l_case(adjustl(file_cfl%line(i)))
-
-            if(lowline(1:10) == "f2mag_data") then
-             Nset=Nset+1
-             lowline=adjustl(lowline(12:))
-             call getword(lowline,label,ic)
-             Multidata%datfile(Nset)=l_case(label(1))
-             nd=ic-1 !number of domains read from f2mag_data line
-
-!--- Here I assume that two chiral domains are given in Mag_data
-             if(nd >= 2 .and. modulo(nd,2) == 0) then
-             Multidata%MagDom(Nset)%nd=nd/2
-             ind=1
-              do j=2,nd,2
-               Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
-               Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
-               ind=ind+1
-              end do
-             else
-              write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
-              stop
-             end if
-
-             call Countref_Int_file(Multidata%datfile(Nset),Nf2)
-              Multidata%Nset=Nset
-              Multidata%Nobs(Nset)=Nf2
-              Multidata%SNP(Nset)=.false.
-            end if
-
-            if(lowline(1:12) == "cryopad_data") then
-             Nset=Nset+1
-             lowline=adjustl(lowline(14:))
-             call getword(lowline,label,ic)
-             Multidata%datfile(Nset)=label(1)
-             nd=ic-1 !number of domains read from cryopad_data line
-
-!--- Here I assume that two chiral domains are given in Mag_data
-             if(nd >= 2 .and. modulo(nd,2) ==0) then
-             Multidata%MagDom(Nset)%nd=nd/2
-             ind=1
-              do j=2,nd,2
-               Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
-               Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
-               ind=ind+1
-              end do
-             else
-              write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
-              stop
-             end if
-
-             call Countref_Pol_file(Multidata%datfile(Nset),Npol)
-              Multidata%Nset=Nset
-              Multidata%Nobs(Nset)=Npol
-              Multidata%SNP(Nset)=.true.
-            endif
-
-            if(lowline(1:10) == "mupad_data") then
-             Nset=Nset+1
-             lowline=adjustl(lowline(12:))
-             call getword(lowline,label,ic)
-             Multidata%datfile(Nset)=label(1)
-             nd=ic-1 !number of domains read from mupad_data line
-
-!--- Here I assume that two chiral domains are given in Mag_data
-             if(nd.ge.2 .and. modulo(nd,2) ==0) then
-             Multidata%MagDom(Nset)%nd=nd/2
-             ind=1
-              do j=2,nd,2
-               Multidata%MagDom(Nset)%Lab(1,ind)=l_case(label(j))
-               Multidata%MagDom(Nset)%Lab(2,ind)=l_case(label(j+1))
-               ind=ind+1
-              end do
-             else
-              write(unit=*,fmt="(a)") " => All domains should be given in magdom and _data! "
-              stop
-             end if
-             call Countref_Pol_file(Multidata%datfile(Nset),Npol)
-              Multidata%Nset=Nset
-              Multidata%Nobs(Nset)=Npol
-              Multidata%SNP(Nset)=.true.
-            endif
-
-           end do
-
-    do iset=1,Nset !Loop on all data
-
-    if(Multidata%SNP(iset)) then
-!---
-!--- Polarisation data
-!---
-
-     PolaroMultilist%Nset= iset
-     open(unit=lan,file=trim(Multidata%datfile(iset)),status="old",action="read")
-
-     Npol=Multidata%Nobs(iset)
-     if(allocated(PolaroMultilist%Polarolist(iset)%Polaro)) deallocate(PolaroMultilist%Polarolist(iset)%Polaro)
-     allocate(PolaroMultilist%Polarolist(iset)%Polaro(Npol))
-     PolaroMultilist%Polarolist(iset)%Nref= Npol
-
-     if(allocated(MhMultilist%Mhlist(iset)%Mh)) deallocate(MhMultilist%Mhlist(iset)%Mh)
-     allocate(MhMultilist%Mhlist(iset)%Mh(Npol))
-     MhMultilist%Mhlist(iset)%Nref= Npol
-
-     do iobs=1,Npol !Loop on polarised observations
-      read(unit=lan,fmt=*,iostat=ier) ih,ik,il,m,PolaroMultilist%Polarolist(iset)%Polaro(iobs)%SPV, &
-               PolaroMultilist%Polarolist(iset)%Polaro(iobs)%P  !2 vectors in scattering plane, Pin
-      if(ier /= 0) exit
-      read(unit=lan,fmt=*) PolaroMultilist%Polarolist(iset)%Polaro(iobs)%oPij
-      read(unit=lan,fmt=*) PolaroMultilist%Polarolist(iset)%Polaro(iobs)%soPij
-
-   ! calculate weight Polarolist%Polaro(i)%woPij 1/sigma**2
-      PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij= 1.d0 / max(eps, &
-      PolaroMultilist%Polarolist(iset)%Polaro(iobs)%soPij**2)
-
-     !construct partially the object Mh
-         j=sign(1,m)
-         sig="+"
-         if( j == -1) sig="-"
-         Mh%signp=real(-j)  ! sign "+" for H-k and "-" for H+k
-         iv=abs(m)
-
-         Mh%num_k=iv
-         Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
-         Mh%s = hkl_s(Mh%h,Cell)
-         Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
-         MhMultilist%Mhlist(iset)%Mh(iobs)=Mh
-
-         PolaroMultilist%Polarolist(iset)%Polaro(iobs)%H=MhMultilist%Mhlist(iset)%Mh(iobs)%h
-     end do !Loop on observations
-
-     close(lan)
-
-    else
-
-!---
-! Integrated intensity data
-!---
-
-     open(unit=lin,file=trim(Multidata%datfile(iset)),status="old",action="read")
-     Nf2=Multidata%Nobs(iset)
-
- ! temporarily programmed for the special case k,-k
-     read(unit=lin,fmt=*) title
-     read(unit=lin,fmt=*) formt
-     read(unit=lin,fmt=*) lambda,ityp,ipow
-     read(unit=lin,fmt=*) num_k
-
-     do i=1,num_k
-      if(i.eq.1) then
-       read(unit=lin,fmt=*) m,vk
-      else
-       read(unit=lin,fmt=*) m,v_k
-      endif
-     enddo
-
-     if(allocated(Oblist%Ob)) deallocate(Oblist%Ob)
-     allocate(Oblist%Ob(Nf2))
-
-! temporarily programmed for ncont=1
-     do iobs=1,Nf2
-      allocate(Oblist%Ob(iobs)%Hd(1:3,1))
-     enddo
-     Oblist%Nobs= Nf2
-
-     !Multidata%Nobs(iset) should be the same as Oblist%Nobs
-     if(allocated(MhMultilist%Mhlist(iset)%Mh)) deallocate(MhMultilist%Mhlist(iset)%Mh)
-     allocate(MhMultilist%Mhlist(iset)%Mh(Nf2))
-     MhMultilist%Mhlist(iset)%Nref= Nf2
-
-     do iobs=1,Nf2
-      read(unit=lin,fmt=*,end=3) ih,ik,il,m,Oblist%Ob(iobs)%Gobs,Oblist%Ob(iobs)%SGobs,ncont
-
-      if(m==1) then
-       Oblist%Ob(iobs)%Hd(:,1)=real((/ih,ik,il/)) + vk(:)
-       j=1; sig="+"
-      endif
-      if(m==2) then
-       Oblist%Ob(iobs)%Hd(:,1)=real((/ih,ik,il/)) + v_k(:)
-       j=-1; sig="-"
-      endif
-      !construct partially the object Mh
-         Mh%signp=real(-j)  ! sign "+" for H-k and "-" for H+k
-         iv=abs(j)
-         MGp%kvec(:,iv)=vk(:)
-         Mh%num_k=iv
-         Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
-         Mh%s = hkl_s(Mh%h,Cell)
-         Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
-         MhMultilist%Mhlist(iset)%Mh(iobs)=Mh
-
-     enddo
-
-!    calculate weight Oblist%Ob(i)%wGobs 1/sGobs
-     Oblist%Ob(:)%wGobs=1.d0/max([(Oblist%Ob(i)%sGobs**2,i=1,Oblist%Nobs)],eps)
-
-3    close(lin)
-    endif !if .not.SNP(iset)
-    enddo !Loop on all data
-
-     Nobs=sum(MultiData%Nobs(1:Nset))
+      Nobs=sum(MultiData%Nobs(1:Nset))
 
     End Subroutine Readn_Set_Data
 
@@ -578,13 +579,13 @@ contains
               i4=index(line,"f2mag_mupad")
                if(i4 /= 0) then
                 do iset=1,Nset
-                if(Multidata%SNP(iset)) then
-                  if(allocated(PolariMultisVslist%PolarisVslist)) deallocate(PolariMultisVslist%PolarisVslist)
-                  allocate(PolariMultisVslist%PolarisVslist(iset))
-                 call Calc_Polar_CrSec_Data(iset,lun)
-                else
-                 call Calc_sqMiV_Data(iset,lun)
-                end if
+                  if(Multidata%SNP(iset)) then
+                    if(allocated(PolariMultisVslist%PolarisVslist)) deallocate(PolariMultisVslist%PolarisVslist)
+                    allocate(PolariMultisVslist%PolarisVslist(iset))
+                    call Calc_Polar_CrSec_Data(iset,lun)
+                  else
+                    call Calc_sqMiV_Data(iset,lun)
+                  end if
                 end do
                end if
 
@@ -597,22 +598,22 @@ contains
               i1=index(line,"cryopad")
               if(i1 /= 0) then
                do iset=1,Nset
-               if(Multidata%SNP(iset)) then
-                if(allocated(PolariMultilist%Polarilist)) deallocate(PolariMultilist%Polarilist)
-                allocate(PolariMultilist%Polarilist(iset))
-                call Calc_Polar_Dom_Data(iset,lun)
-               end if
+                 if(Multidata%SNP(iset)) then
+                   if(allocated(PolariMultilist%Polarilist)) deallocate(PolariMultilist%Polarilist)
+                   allocate(PolariMultilist%Polarilist(iset))
+                   call Calc_Polar_Dom_Data(iset,lun)
+                 end if
                end do
               end if
 
               i2=index(line,"mupad")
               if(i2 /= 0) then
                do iset=1,Nset
-               if(Multidata%SNP(iset)) then
-                if(allocated(PolariMultisVslist%PolarisVslist)) deallocate(PolariMultisVslist%PolarisVslist)
-                allocate(PolariMultisVslist%PolarisVslist(iset))
-                call Calc_Polar_CrSec_Data(iset,lun)
-               end if
+                 if(Multidata%SNP(iset)) then
+                    if(allocated(PolariMultisVslist%PolarisVslist)) deallocate(PolariMultisVslist%PolarisVslist)
+                    allocate(PolariMultisVslist%PolarisVslist(iset))
+                    call Calc_Polar_CrSec_Data(iset,lun)
+                 end if
                end do
               end if
 
@@ -635,7 +636,7 @@ contains
 
        Nf2=MhMultilist%MhList(iset)%Nref
        Mag_Dom=Multidata%MagDom(iset)
-
+       !write(*,*) " Mag_Dom - Occ:", Mag_Dom%MPop(1:2,1)
        do j=1,Nf2 ! This is loop over reflections with Int
 
          !Calculate magnetic structure factor and magnetic interaction vector
@@ -646,6 +647,7 @@ contains
 
 !----    without components with respect to direct cell system {e1,e2,e3}
 !----    with components with respect to the cartesian frame
+         !write(*,*) "  h k l   M^2 ",Mh%h,Mh%sqMiV
          MhMultilist%MhList(iset)%Mh(j)%sqMiV=Mh%sqMiV
 
        end do !end loop over reflections
@@ -658,7 +660,7 @@ contains
                                                                                  j=1,Nf2)]) ) /Nf2 !-NP_Refi)
 
          write(unit=lun,fmt="(/,a)")    "================================================================================"
-         write(unit=lun,fmt="(a,f12.0)") 'Initial partial Cost(F2mag): Sum(|IObs-Scale*ICalc|^2) / Sum(sigma^2) ) / Nobs =',cost
+         write(unit=lun,fmt="(a,f12.0)") 'Initial partial Cost(F2mag): Sum({|IObs-Scale*ICalc|/Sigma}^2)) / Nobs =',cost
          write(unit=lun,fmt="(a,/)")    "================================================================================"
          write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
          write(lun,'(a)') '     h      k       l          Imag        sImag      Icalc'
@@ -703,6 +705,7 @@ contains
 
          Mh=MhMultilist%MhList(iset)%Mh(j)
          call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac
+         !call Calc_Polar_Dom(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,PolariMultilist%Polarilist(iset)%Polari(j),B_Q="BM") !CFML_Polar
          call Calc_Polar_Dom(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,PolariMultilist%Polarilist(iset)%Polari(j)) !CFML_Polar
          !without components with respect to direct cell system {e1,e2,e3}
          !with components with respect to the cartesian frame
@@ -723,7 +726,7 @@ contains
         cost=cost/(9*MultiData%Nobs(iset)) !-NP_Refi)
 
         write(unit=lun,fmt="(/,a)")    "==========================================================================="
-        write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(cryopad): Sum(|PObs-PCalc|^2) / Sum(sigma^2) ) / Nobs =',cost
+        write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(cryopad): Sum({|PObs-PCalc|/sigma}^2) / Nobs =',cost
         write(unit=lun,fmt="(a,/)")    "==========================================================================="
         write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
         write(lun,'(a)') '    Pobs                   Pcalc'
@@ -772,10 +775,11 @@ contains
         do nd=1,Mag_Dom%nd !loop over S-domains
           do ich=1,nch !loop over chiral domains
             !Calculate magnetic structure factor and magnetic interaction vector
-            ! as mode='Car' MiV w.r.t. cartesian crystallographic frame
+
             Mh=MhMultilist%MhList(iset)%Mh(iobs)
             call Calc_Magnetic_StrF_MiV_Dom(Cell,MGp,mA,Mag_Dom,Mh) !CFML_Msfac
             call Calc_Polar_CrSec(Cell,Mh%h,SPV,Pin,cmplx(0.0,0.0),Mag_Dom,Mh,Ipp,Ipm,Imp,Imm) !CFML_Polar
+            !write(*,*) Mh%h
             !without components with respect to direct cell system {e1,e2,e3}
             !with components with respect to the cartesian frame
             MhMultilist%MhList(iset)%Mh(iobs)%sqMiV=Mh%sqMiV
@@ -822,7 +826,7 @@ contains
         cost=cost/(9*MultiData%Nobs(iset)) !-NP_Refi)
 
         write(unit=lun,fmt="(/,a)")    "==========================================================================="
-        write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(mupad): Sum(|PObs-PCalc|^2) / Sum(sigma^2) ) / Nobs =',cost
+        write(unit=lun,fmt="(a,f12.0)") 'Initial partial-Cost(mupad): Sum({|PObs-PCalc|/sigma}^2) / Nobs =',cost
         write(unit=lun,fmt="(a,/)")    "==========================================================================="
         write(lun,'(a,i2,1x,a)') 'iset= ',iset, MultiData%datfile(iset)
         write(lun,'(a)') '    Pobs                   Pcalc'

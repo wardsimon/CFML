@@ -408,7 +408,7 @@
 
        if (n_ini == 0 .or. n_end == 0) then
           err_magsym=.true.
-          ERR_MagSym_Mess=" No magnetig phase found in file!"
+          ERR_MagSym_Mess=" No magnetic phase found in file!"
           return
        end if
 
@@ -546,7 +546,11 @@
                 ip=index(lowline,":")
                 msyr=lowline(8:ip-1)
                 call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
-                if (ph > 0.001) Mag_Dom%chir=.true.
+                if (ph > 0.001) then
+                  Mag_Dom%chir=.true.
+                else
+                  Mag_Dom%chir=.false.
+                end if
                  if (Mag_Dom%chir) then
                    read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1:2,num_dom)
                    write(chardom,"(i2.2)") num_defdom
@@ -577,7 +581,11 @@
                       ip=index(lowline,":")
                       msyr=lowline(8:ip-1)
                       call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
-                      if (ph > 0.001) Mag_Dom%chir=.true.
+                      if (ph > 0.001) then
+                        Mag_Dom%chir=.true.
+                      else
+                         Mag_Dom%chir=.false.
+                      end if
                       if (Mag_Dom%chir) then
                          read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1:2,num_dom) !, Mag_Dom%MPop(1:2,num_dom)
                          write(chardom,"(i2.2)") num_defdom
@@ -585,10 +593,9 @@
                          num_defdom=num_defdom+1
                          write(chardom,"(i2.2)") num_defdom
                          Mag_Dom%Lab(2,num_dom)="magdom"//chardom
-                         num_defdom=num_defdom+1
                       else
                          read(unit=lowline(ip+1:),fmt=*, iostat=ier) Mag_Dom%Pop(1,num_dom) !, Mag_Dom%MPop(1,num_dom)
-                         write(chardom,"(i2.2)") num_dom
+                         write(chardom,"(i2.2)") num_defdom
                          Mag_Dom%Lab(1,num_dom)="magdom"//chardom
                       end if
                       if (ier /= 0) then
