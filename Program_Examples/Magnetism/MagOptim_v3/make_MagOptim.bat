@@ -34,11 +34,10 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Prep_Input.f90              /O3 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c Cost_MagFunctions.f90       /O3 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c MagOptim.f90                /O3 /nologo /IC:\CrysFML\ifort\LibC
-   rem ifort /exe:Optim_General_if *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:64000000
-   link /subsystem:console /stack:64000000 /out:MagOptim_if.exe *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib
+   ifort /c Prep_Input.f90              /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c Cost_MagFunctions.f90       /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c MagOptim.f90                /O2 /nologo /IC:\CrysFML\ifort\LibC
+   link /subsystem:console /stack:64000000 /out:MagOptim.exe *.obj  C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**
