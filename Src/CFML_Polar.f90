@@ -878,63 +878,62 @@
        !Calculate the rest and also store it in Polari
        ! Loop over domains
        do nd=1,Mag_Dom%nd
-        do ich=1,nch
-         MiV=Mh%MiVC(:,ich,nd)      !Use the Cartesian components
-         !MiV=Mh%MiV(:,ich,nd)      !do not use the Cartesian components, as in the previous version
-         !magnetic interaction in polarisation frame
-         MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell)
-         Polari%MiV(:,ich,nd) = MiV_PF
+         do ich=1,nch
+           MiV=Mh%MiVC(:,ich,nd)      !Use the Cartesian components before calling Magn_Inter_Vec_PF
+           !magnetic interaction in polarisation frame
+           MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell)
+           Polari%MiV(:,ich,nd) = MiV_PF
 
-         !the different contributions to the scattering cross-section
-         nc = nuc_contr(NSF)
-         Polari%NC = A * nc
+           !the different contributions to the scattering cross-section
+           nc = nuc_contr(NSF)
+           Polari%NC = A * nc
 
-         my = mag_y(MiV_PF)
-         Polari%MY(ich,nd) = A * my
+           my = mag_y(MiV_PF)
+           Polari%MY(ich,nd) = A * my
 
-         mz = mag_z(MiV_PF)
-         Polari%MZ(ich,nd) = A * mz
+           mz = mag_z(MiV_PF)
+           Polari%MZ(ich,nd) = A * mz
 
-         rnmy = real_nm_y(NSF, MiV_PF)
-         Polari%RY(ich,nd) = A * rnmy
+           rnmy = real_nm_y(NSF, MiV_PF)
+           Polari%RY(ich,nd) = A * rnmy
 
-         rnmz = real_nm_z(NSF, MiV_PF)
-         Polari%RZ(ich,nd) = A * rnmz
+           rnmz = real_nm_z(NSF, MiV_PF)
+           Polari%RZ(ich,nd) = A * rnmz
 
 
-         if(present(B_Q)) then
-           inmy = im_nm_y(NSF, MiV_PF,"B_Q")
-           inmz = im_nm_z(NSF, MiV_PF,"B_Q")
-           tc   = tchiral(MiV_PF,"B_Q")
-         else
-           inmy = im_nm_y(NSF, MiV_PF)
-           inmz = im_nm_z(NSF, MiV_PF)
-           tc   = tchiral(MiV_PF)
-         end if
+           if(present(B_Q)) then
+             inmy = im_nm_y(NSF, MiV_PF,"B_Q")
+             inmz = im_nm_z(NSF, MiV_PF,"B_Q")
+             tc   = tchiral(MiV_PF,"B_Q")
+           else
+             inmy = im_nm_y(NSF, MiV_PF)
+             inmz = im_nm_z(NSF, MiV_PF)
+             tc   = tchiral(MiV_PF)
+           end if
 
-         Polari%IY(ich,nd) = A * inmy
-         Polari%IZ(ich,nd) = A * inmz
-         Polari%TC(ich,nd) = tc
+           Polari%IY(ich,nd) = A * inmy
+           Polari%IZ(ich,nd) = A * inmz
+           Polari%TC(ich,nd) = tc
 
-         mmc = mm(MiV_PF)
-         Polari%MM(ich,nd) = A * mmc
+           mmc = mm(MiV_PF)
+           Polari%MM(ich,nd) = A * mmc
 
-         !scattering cross-section for the different initial polarisation vectors
-         sigma = (/ nc + my + mz - Pin * tc, nc + my + mz + Pin * rnmy, nc + my + mz + Pin * rnmz /)
-         Polari%CS(:,ich,nd) = sigma
+           !scattering cross-section for the different initial polarisation vectors
+           sigma = (/ nc + my + mz - Pin * tc, nc + my + mz + Pin * rnmy, nc + my + mz + Pin * rnmz /)
+           Polari%CS(:,ich,nd) = sigma
 
-         !summing of the polarisation matrix
-         Polari%Pij(1,1) = Polari%Pij(1,1) + Mag_Dom%Pop(ich,nd)*((nc - my - mz)* Pin + tc)/sigma(1)
-         Polari%Pij(1,2) = Polari%Pij(1,2) + Mag_Dom%Pop(ich,nd)*(inmz * Pin + tc)/sigma(2)
-         Polari%Pij(1,3) = Polari%Pij(1,3) + Mag_Dom%Pop(ich,nd)*(-inmy * Pin + tc)/sigma(3)
-         Polari%Pij(2,1) = Polari%Pij(2,1) + Mag_Dom%Pop(ich,nd)*(-inmz * Pin + rnmy)/sigma(1)
-         Polari%Pij(2,2) = Polari%Pij(2,2) + Mag_Dom%Pop(ich,nd)*((nc + my - mz) * Pin + rnmy)/sigma(2)
-         Polari%Pij(2,3) = Polari%Pij(2,3) + Mag_Dom%Pop(ich,nd)*(mmc * Pin + rnmy)/sigma(3)
-         Polari%Pij(3,1) = Polari%Pij(3,1) + Mag_Dom%Pop(ich,nd)*(inmy * Pin + rnmz)/sigma(1)
-         Polari%Pij(3,2) = Polari%Pij(3,2) + Mag_Dom%Pop(ich,nd)*(mmc * Pin + rnmz)/sigma(2)
-         Polari%Pij(3,3) = Polari%Pij(3,3) + Mag_Dom%Pop(ich,nd)*((nc - my + mz) * Pin + rnmz)/sigma(3)
+           !summing of the polarisation matrix
+           Polari%Pij(1,1) = Polari%Pij(1,1) + Mag_Dom%Pop(ich,nd)*((nc - my - mz)* Pin + tc)/sigma(1)
+           Polari%Pij(1,2) = Polari%Pij(1,2) + Mag_Dom%Pop(ich,nd)*(inmz * Pin + tc)/sigma(2)
+           Polari%Pij(1,3) = Polari%Pij(1,3) + Mag_Dom%Pop(ich,nd)*(-inmy * Pin + tc)/sigma(3)
+           Polari%Pij(2,1) = Polari%Pij(2,1) + Mag_Dom%Pop(ich,nd)*(-inmz * Pin + rnmy)/sigma(1)
+           Polari%Pij(2,2) = Polari%Pij(2,2) + Mag_Dom%Pop(ich,nd)*((nc + my - mz) * Pin + rnmy)/sigma(2)
+           Polari%Pij(2,3) = Polari%Pij(2,3) + Mag_Dom%Pop(ich,nd)*(mmc * Pin + rnmy)/sigma(3)
+           Polari%Pij(3,1) = Polari%Pij(3,1) + Mag_Dom%Pop(ich,nd)*(inmy * Pin + rnmz)/sigma(1)
+           Polari%Pij(3,2) = Polari%Pij(3,2) + Mag_Dom%Pop(ich,nd)*(mmc * Pin + rnmz)/sigma(2)
+           Polari%Pij(3,3) = Polari%Pij(3,3) + Mag_Dom%Pop(ich,nd)*((nc - my + mz) * Pin + rnmz)/sigma(3)
 
-        end do !loop over chiral domains
+         end do !loop over chiral domains
        end do !loop over S-domains
 
        return
@@ -985,7 +984,7 @@
        !Calculate the rest and also store it in Polari
 
        !magnetic interaction in polarisation frame
-       MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell)
+       MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell) !It is assumed that MiV is provided in Cartesian components
        Polari%MiV = MiV_PF
 
        !the different contributions to the scattering cross-section
@@ -1413,8 +1412,8 @@
        if(Mag_Dom%chir) nch=2
        do nd=1,Mag_Dom%nd
          do ich=1,nch
-           !MiV=Mh%MiVC(:,ich,nd) !use Cartesian components
-           MiV=Mh%MiV(:,ich,nd) !do not use Cartesian components as was in the original sulbroutine
+           MiV=Mh%MiVC(:,ich,nd) !use Cartesian components
+           ! MiV=Mh%MiV(:,ich,nd) !this does not use Cartesian components as was in the original sulbroutine
            ! Magnetic Interaction Vector in polarisation frame
            MiV_PF = Magn_Inter_Vec_PF(MiV,H,SPV, Cell)
            ! Partial Scattering Amplitudes
