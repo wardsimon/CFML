@@ -226,7 +226,7 @@ End Module Ref_Gen
 Program Sxtal_Ref_Gen
  !use F2KCLI  !Only for Lahey compiler
  Use CFML_Math_general,             only: sort
- use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
+ use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup, Set_SpaceGroup
  use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List,MAtom_list_Type
  use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
  use CFML_Reflections_Utilities,    only: Reflection_List_Type, Hkl_Uni, Hkl_Gen_Sxtal, get_maxnumref, Hkl_Equiv_List
@@ -245,7 +245,7 @@ Program Sxtal_Ref_Gen
  implicit none
 
  type (file_list_type)               :: fich_cfl
- type (space_group_type)             :: SpG
+ type (space_group_type)             :: SpG,SpGT
  type (Atom_list_Type)               :: A
  type (Crystal_Cell_Type)            :: Cell
  type (Reflection_List_Type)         :: hkl
@@ -283,6 +283,8 @@ Program Sxtal_Ref_Gen
       if(narg > 0) then
               call GET_COMMAND_ARGUMENT(1,filcod)
               arggiven=.true.
+              i=index(filcod,'.cfl',back=.true.)
+              if( i /= 0) filcod=filcod(1:i-1)
       end if
       if(narg > 1) then
               call GET_COMMAND_ARGUMENT(2,sinthlamb)
@@ -360,10 +362,10 @@ Program Sxtal_Ref_Gen
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          mag_structure=.false.
        else
-         if(Am%natoms > 0) then
-          mag_structure=.true.
+         mag_structure=.true.
+         !if(Am%natoms > 0) then
           call Write_Magnetic_Structure(lun,MGp,Am)
-         end if
+         !end if
        end if
 
        !re-read the input file searching for INSTRM, UBM, GEOM, WAVE, ORDER, SPHER items
@@ -528,16 +530,29 @@ Program Sxtal_Ref_Gen
        ! Generation of magnetic satellites if needed
 
        if(mag_structure) then
+          !First generate the full set of reflections according to the lattice of the
+          !space group.
+          comment=SpG%SPG_lat//" -1"
+          call Set_SpaceGroup(comment,SpGT)
+          if(lim) then
+             call Hkl_gen_sxtal(cell,SpGT,stlmin,stlmax,MaxNumRef,hkl,ord,hlim)
+          else
+             call Hkl_gen_sxtal(cell,SpGT,stlmin,stlmax,MaxNumRef,hkl,ord)
+          end if
           open(unit=i_hkl, file=trim(filcod)//".mhkl", status="replace",action="write")
           call Gen_Satellites(Cell,MGp,stlmax,Mhkl,hkl=hkl)  !Mhkl magnetic satellites
           write(unit=lun,fmt="(/,/,a)") " "
-          call Init_Mag_Structure_Factors(Mhkl,Am,MGp,lun)
-          if(err_msfac) then
-            write(unit=*,fmt="(a)")  "  "//err_msfac_mess
-            stop
+
+          if(Am%natoms > 0) then
+             call Init_Mag_Structure_Factors(Mhkl,Am,MGp,lun)
+             if(err_msfac) then
+               write(unit=*,fmt="(a)")  "  "//err_msfac_mess
+               stop
+             end if
+             call Mag_Structure_Factors(Am,MGp,Mhkl)
+             call Calc_Mag_Interaction_Vector(Mhkl,Cell)  !in {e1,e2,e3} basis (complete Mhkl)
           end if
-          call Mag_Structure_Factors(Am,MGp,Mhkl)
-          call Calc_Mag_Interaction_Vector(Mhkl,Cell)  !in {e1,e2,e3} basis (complete Mhkl)
+
           nm=Mhkl%nref
           if(allocated(angles)) deallocate (angles)
           allocate(angles(4,nm))
@@ -635,4 +650,6 @@ Program Sxtal_Ref_Gen
 
      close(unit=lun)
 End Program Sxtal_Ref_Gen
+
+
 
