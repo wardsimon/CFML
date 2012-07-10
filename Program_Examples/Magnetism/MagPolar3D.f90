@@ -6,7 +6,8 @@ Program MagPolar3D
  use CFML_String_Utilities,         only: l_case
  use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
  use CFML_Propagation_vectors,      only: K_Equiv_Minus_K
- use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat, Get_UB_from_uvw_hkl_omega
+ use CFML_Geometry_SXTAL,           only: GenUB, Phi_mat, Get_UB_from_uvw_hkl_omega, &
+                                          Get_UB_from_hkl_hkl_omega
  use CFML_Structure_Factors,        only: Calc_hkl_StrFactor
  use CFML_Math_General,             only: asind, acosd,cosd,sind,co_linear
  use CFML_Magnetic_Symmetry
@@ -29,7 +30,7 @@ Program MagPolar3D
  character(len=256)          :: filcod,line     !Name of the input file
  character(len=1)            :: sig
  real                        :: sn,sf2,omega, wave
- real, dimension(3)          :: vpl,uvw, created_pol,pin,pf
+ real, dimension(3)          :: vpl,uvw, created_pol,pin,pf,h1,h2
  real, dimension(3,3)        :: UB, polar_tensor
  integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end, &
                                 ich, nd, nch
@@ -37,7 +38,7 @@ Program MagPolar3D
 
  integer                     :: narg,iargc
  Logical                     :: esta, arggiven=.false., ub_given=.false., uvw_given=.false., &
-                                addref_given=.false., wave_given=.false., ok
+                                addref_given=.false., wave_given=.false., ok ,hklp_given=.false.
 
       !---- Arguments on the command line ----!
       narg=COMMAND_ARGUMENT_COUNT()
@@ -145,6 +146,15 @@ Program MagPolar3D
              end if
              uvw_given=.true.
            end if
+           if(line(1:15) == "hkl_plane_omega") then
+             read(unit=fich_cfl%line(i)(16:),fmt=*,iostat=ier) h1,h2,omega
+             if(ier /= 0) then
+                write(unit=*,fmt="(a,i3)") " => Error reading the hkl_plane_omega instruction: reflections hkl-1 hkl-2 and omega-2 at line: ",i
+                stop
+             end if
+             vpl=h1
+             hklp_given=.true.
+           end if
            if(line(1:14) == "add_reflection") then
              read(unit=fich_cfl%line(i)(15:),fmt=*,iostat=ier) vpl
              if(ier /= 0) then
@@ -170,6 +180,21 @@ Program MagPolar3D
          UB_given=.true.
          write(unit=*,fmt="(2(a,3i4),a,f8.4)") " => UB-Matrix, deduced from [uvw]= ",Zone_axis%uvw,&
                                                " (hkl)= ",nint(vpl)," and omega=",omega
+         write(unit=*,fmt="(tr6,3f10.5)") ub(1,:)
+         write(unit=*,fmt="(tr6,3f10.5)") ub(2,:)
+         write(unit=*,fmt="(tr6,3f10.5)") ub(3,:)
+       end if
+
+       if(hklp_given .and. wave_given) then !Calculate UB matrix from two reflections in the horizontal plane
+         addref_given=.true.
+         Call Get_UB_from_hkl_hkl_omega(wave,Cell,h1,h2,omega,UB,ok,line)
+         if(.not. ok) then
+            write(unit=*,fmt="(a)") " => "//trim(line)
+            stop
+         end if
+         UB_given=.true.
+         write(unit=*,fmt="(2(a,3i4),a,f8.4)") " => UB-Matrix, deduced from (hkl)-1= ",nint(h1),&
+                                               " (hkl)-2= ",nint(h2)," and omega-2=",omega
          write(unit=*,fmt="(tr6,3f10.5)") ub(1,:)
          write(unit=*,fmt="(tr6,3f10.5)") ub(2,:)
          write(unit=*,fmt="(tr6,3f10.5)") ub(3,:)
@@ -295,7 +320,7 @@ Program MagPolar3D
               write(unit=*,  fmt="(a,2(3f9.5,tr4))") " => Incident & final polarisation in Blume-Maleyev frame: ",pin,pf
            end if
 
-           call Get_Pol_Tensor_Pc(wave,Cell,UB,Pin, NSF, Mag_dom, Mh, Polar_tensor, Created_Pol,ok,line)
+           call Get_Pol_Tensor_Pc("BM",wave,Cell,UB,Pin, NSF, Mag_dom, Mh, Polar_tensor, Created_Pol,ok,line)
 
            if(.not. ok) then
               write(unit=*,fmt="(a)") " => "//trim(line)

@@ -28,9 +28,9 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c MagPolar3D.f90 /O2 /nologo /I. /IC:\CrysFML\ifort\LibC
-rem   ifort /c MagPolar3D.f90  /debug:full /check /traceback /nologo  /I. /IC:\CrysFML\ifort\LibC
+rem ifort /c MagPolar3D.f90  /debug:full /check /traceback /nologo  /I. /IC:\CrysFML\ifort\LibC
 rem ifort /exe:MagPolar3D_if *.obj C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:102400000
-   link /subsystem:console /stack:102400000 /out:MagPolar3D_if.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   link /subsystem:console /stack:102400000 /out:MagPolar3D.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

@@ -161,6 +161,7 @@
 !!----       GET_ANGS_NB
 !!----       GET_DSPACING_THETA
 !!----       GET_GAOMNU_FRCHIPHI
+!!----       GET_UB_FROM_HKL_HKL_OMEGA
 !!----       GET_UB_FROM_UVW_HKL_OMEGA
 !!----       GET_WAVEGANU_FRZ4
 !!----       GET_Z1_D9ANGLS
@@ -207,7 +208,7 @@
               s4cnb, snb4c, Flat_Cone_vertDet, Get_WaveGaNu_frZ4, normal, refvec, sxdpsd,       &
               triple, z3frz1, z2frz1, z1frfc, z1frnb, z1frmd, z1frz4, z1frz3, z1frz2, z4frgn,   &
               z4frz1, calang, genb, genub, cell_fr_UB, set_psd, get_z1_from_pixel,              &
-              Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega
+              Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega, Get_UB_from_hkl_hkl_omega
 
     !---- Definitions ----!
 
@@ -1396,6 +1397,73 @@
 
        Return
     End Subroutine Get_GaOmNu_frChiPhi
+
+    !!---- Subroutine Get_UB_from_hkl_hkl_omega(wave,Cell,h1,h2,omega,UB,ok,mess)
+    !!----   real,                    intent(in)    :: wave      !Vavelength
+    !!----   type (Crystal_Cell_Type),intent(in)    :: Cell      !Unit cell object
+    !!----   real, dimension(3),      intent(in)    :: h1        !Indices of the known first reflection in plane
+    !!----   real, dimension(3),      intent(in)    :: h2        !Indices of the known second reflection in plane
+    !!----   real,                    intent(in)    :: omega     !Value of the omega motor for the second reflection (vertical spindle)
+    !!----   real, dimension(3,3),    intent(out)   :: UB        !Generated Busing-Levy UB-matrix
+    !!----   logical,                 intent(out)   :: ok        !If .true. everything has gone well
+    !!----   character(len=*),        intent(out)   :: mess      !Error message in case ok=.false.
+    !!----
+    !!----   This subroutine generates a UB matrix when two reflections in the horizontal plane
+    !!----   are known (indices hkl and h'h'l') and the second reflection has been measured and
+    !!----   its omega angle is known.
+    !!----
+    !!----   Updated: June-2012 (JRC)
+    !!----
+    Subroutine Get_UB_from_hkl_hkl_omega(wave,Cell,h1,h2,omega,UB,ok,mess)
+      real,                    intent(in)    :: wave
+      type (Crystal_Cell_Type),intent(in)    :: Cell
+      real, dimension(3),      intent(in)    :: h1
+      real, dimension(3),      intent(in)    :: h2
+      real,                    intent(in)    :: omega
+      real, dimension(3,3),    intent(out)   :: UB
+      logical,                 intent(out)   :: ok
+      character(len=*),        intent(out)   :: mess
+      ! Local variables
+      integer                     :: ierr
+      real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
+      real, dimension(3)          :: ho1,ho2,s1,s2
+      real, dimension(3,3)        :: Rot
+
+      ok=.true.
+      mess= " "
+      if(Co_linear(h1,h2,3)) then
+        ok=.false.
+        mess="The two provided reflections are co-linear, no UB-matrix can be calculated"
+        return
+      end if
+      !
+      !Determination of the Bragg angles of two reflections in the scattering plane
+      !
+      d1s=sqrt(dot_product(h1,matmul(Cell%GR,h1))) !d1*
+      d2s=sqrt(dot_product(h2,matmul(Cell%GR,h2))) !d2*
+      theta1=asind(0.5*wave*d1s)
+      theta2=asind(0.5*wave*d2s)
+      alpha=acosd(dot_product(h1,matmul(Cell%GR,h2))/d1s/d2s) !Angle between the two reciprocal vectors
+      del_omega=theta1-theta2+alpha  !Variation in omega to put the first reflection in diffraction position
+      !
+      !Calculation of the Cartesian components of the two reflections in the scattering plane
+      !
+      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)   !z4   diffraction position
+      call Phi_Mat(omega,Rot)
+      ho2=matmul(transpose(rot),s2)               !z1   zero motor angles
+      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)   !z4   diffraction position
+      call Phi_mat(omega+del_omega,Rot)
+      ho1=matmul(transpose(rot),s1)               !z1   zero motor angles
+      !
+      ! Generate UB-matrix
+      !
+      call GenUB(Cell%BL_M,h1,h2,ho1,ho2,UB, ierr)
+      if(ierr /= 0) then
+        ok=.false.
+        mess = "Error in the calculation of UB-matrix "
+      end if
+      return
+    End Subroutine Get_UB_from_hkl_hkl_omega
 
     !!---- Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
     !!----   real,                    intent(in)    :: wave      !Vavelength

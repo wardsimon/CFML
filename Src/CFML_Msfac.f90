@@ -567,7 +567,7 @@
     !!----    In this subroutine the presence of magnetic domains is
     !!----    taken into account
     !!----
-    !!---- Updated: September - 2010, June-2012 (JRC)
+    !!---- Updated: September - 2010, July-2012 (JRC)
     !!
     Subroutine Calc_Magnetic_Strf_Miv_Dom(Cell,Mgp,Atm,Mag_Dom,Mh)
        !---- Arguments ----!
@@ -580,7 +580,7 @@
        !---- Local Variables ----!
        integer                            :: i,j,k,nvk,m, n, nd, ich, nch
        real(kind=cp)                      :: arg,anis,onh,ph,s,b,ht,mFF,tho, isig, x
-       real(kind=cp),    dimension(3)     :: h,ed,er
+       real(kind=cp),    dimension(3)     :: h,ed,er,h_dom,xpos
        real(kind=cp),    dimension(6)     :: beta
        real(kind=cp),    dimension(3,3)   :: Mcos,Msin
        real(kind=cp),    dimension(3)     :: ar,ai,br,bi,Ajh,Bjh,aa,bb,Skr,Ski
@@ -607,13 +607,21 @@
              Mh%MsF(:,:,nd)=cmplx(0.0,0.0)
              do ich=1,nch
                 aa=0.0; bb=0.0
-
+                if(Mag_Dom%twin) then
+                  h_dom=matmul(Mh%h,real(Mag_Dom%Dmat(:,:,nd)))
+                else
+                  h_dom=Mh%h
+                end if
                 do i=1,Atm%natoms
                    m= Atm%Atom(i)%imat(nvk)
                    if (m == 0) cycle  !Calculate only with contributing atoms
-                   Skr= matmul(Mag_Dom%Dmat(:,:,nd),Atm%atom(i)%SkR(:,nvk))
-                   Ski= matmul(Mag_Dom%Dmat(:,:,nd),ch(ich)*Atm%atom(i)%SkI(:,nvk))
-
+                   if(Mag_Dom%twin) then
+                     Skr=Atm%atom(i)%SkR(:,nvk)
+                     Ski=Atm%atom(i)%SkI(:,nvk)
+                   else
+                     Skr= matmul(Mag_Dom%Dmat(:,:,nd),Atm%atom(i)%SkR(:,nvk))
+                     Ski= matmul(Mag_Dom%Dmat(:,:,nd),ch(ich)*Atm%atom(i)%SkI(:,nvk))
+                   end if
                    !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
                    b=atm%atom(i)%biso
                    j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
@@ -622,12 +630,14 @@
 
                    Mcos=0.0
                    Msin=0.0
+                   xpos=Atm%atom(i)%x
+                   if(Mag_Dom%trans) xpos=matmul(Mag_Dom%Dmat(:,:,nd),xpos) + Mag_Dom%Dt(:,nd)
 
                    do k=1,MGp%NumOps
-                      h=Hkl_R(Mh%h,MGp%symop(k))
-                      ht=dot_product(Mh%h,MGp%SymOp(k)%Tr)
+                      h=Hkl_R(h_dom,MGp%symop(k))
+                      ht=dot_product(h_dom,MGp%SymOp(k)%Tr)
                       ph= isig * (Atm%atom(i)%Mphas(m) + MGp%MSymOp(k,m)%Phas)
-                      arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht + ph)
+                      arg=tpi*(dot_product(h,xpos)+ht + ph)
                       anis=1.0
                       if (Atm%atom(i)%thtype == "aniso") then
                          beta=Atm%atom(i)%u(1:6)
@@ -660,9 +670,17 @@
              Mh%MsF(:,:,nd)=cmplx(0.0,0.0)
              do ich=1,nch
                 aa=0.0; bb=0.0
+                if(Mag_Dom%twin) then
+                  h_dom=matmul(Mh%h,real(Mag_Dom%Dmat(:,:,nd)))
+                else
+                  h_dom=Mh%h
+                end if
+
                 do i=1,Atm%natoms
                    m= Atm%Atom(i)%imat(nvk)
                    if (m == 0) cycle  !Calculate only with contributing atoms
+                   xpos=Atm%atom(i)%x
+                   if(Mag_Dom%trans) xpos=matmul(Mag_Dom%Dmat(:,:,nd),xpos) + Mag_Dom%Dt(:,nd)
 
                    !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
                    b=atm%atom(i)%biso
@@ -673,10 +691,10 @@
                    GMh(:)=cmplx(0.0,0.0)
 
                    do k=1,MGp%NumOps
-                      h=Hkl_R(Mh%h,MGp%symop(k))
-                      ht=dot_product(Mh%h,MGp%SymOp(k)%Tr)
+                      h=Hkl_R(h_dom,MGp%symop(k))
+                      ht=dot_product(h_dom,MGp%SymOp(k)%Tr)
                       ph= isig*Atm%atom(i)%Mphas(m)
-                      arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht + ph)
+                      arg=tpi*(dot_product(h,xpos)+ht + ph)
                       anis=1.0
                       if (Atm%atom(i)%thtype == "aniso") then
                          beta=Atm%atom(i)%u(1:6)
@@ -691,7 +709,9 @@
                          Sk(:)=Sk(:)+ Atm%atom(i)%cbas(n,nvk)*ci* cmplx(Real(MGp%basf(:,n,k,m)), -isig*aimag(MGp%basf(:,n,k,m)))
                       end do
                       Sk(:) = cmplx (real(Sk),ch(ich)*aimag(Sk))
-                      Sk(:)=matmul(Mag_Dom%Dmat(:,:,nd),Sk(:))
+                      if(.not. Mag_Dom%twin) then
+                        Sk(:)=matmul(real(Mag_Dom%Dmat(:,:,nd)),Sk(:))
+                      end if
                       GMh(:)=GMh(:) + anis*Sk(:)*CMPLX(COS(arg),SIN(arg))  !Atomic contribution to geometric Magnetic Structure Factor
                    end do ! symmetry
                    Mh%MsF(:,ich,nd)=Mh%MsF(:,ich,nd) + tho*onh*GMh(:)

@@ -19,7 +19,7 @@
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
 !!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
 !!--++                                              err_symm,err_symm_mess
-!!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
+!!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos
 !!--++    Use CFML_IO_Formats,                only: file_list_type
 !!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
@@ -57,7 +57,7 @@
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
                                               Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
                                               err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO
-    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig
+    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos
     Use CFML_IO_Formats,                only: file_list_type
     Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -103,7 +103,10 @@
     !!---- Type, public :: Magnetic_Domain_type
     !!----    integer                           :: nd=0          !Number of rotational domains (not counting chiral domains)
     !!----    logical                           :: Chir=.false.  !True if chirality domains exist
+    !!----    logical                           :: trans=.false. !True if translations are associated to matrix domains
+    !!----    logical                           :: Twin=.false.  !True if domains are to be interpreted as twins
     !!----    integer,dimension(3,3,24)         :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
+    !!----    real(kind=cp), dimension (2,24)   :: Dt=0.0        !Translations associated to rotation matrices
     !!----    real(kind=cp), dimension (2,24)   :: pop=0.0       !Populations of domains (sum=1,
     !!----                                                       !the second value is /=0 for chir=.true.)
     !!----    integer,dimension (2,24)          :: Lpop=0        !Number of the refined parameter
@@ -122,17 +125,20 @@
     !!----  domains exist.
     !!-->>
     !!----
-    !!---- Update: October - 2006
+    !!---- Updated: October - 2006, July-2012 (JRC, more type of domains)
     !!
     Type, public :: Magnetic_Domain_type
-       integer                                  :: nd=0          !Number of rotational domains (not counting chiral domains)
-       logical                                  :: Chir=.false.  !True if chirality domains exist
-       integer,dimension(3,3,24)                :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
-       real(kind=cp), dimension (2,24)          :: pop=0.0       !Populations of domains (sum=1,
-                                                                 !the second value is /=0 for chir=.true.)
-       integer      , dimension (2,24)          :: Lpop=0        !Number of the refined parameter
-       real(kind=cp), dimension (2,24)          :: Mpop=0.0      !Multipliers for population
-       character(len=10),dimension (2,24)       :: Lab           !Label of domain
+       integer                           :: nd=0          !Number of rotational domains (not counting chiral domains)
+       logical                           :: Chir=.false.  !True if chirality domains exist
+       logical                           :: trans=.false. !True if translations are associated to matrix domains
+       logical                           :: Twin=.false.  !True if domains are to be interpreted as twins
+       integer,dimension(3,3,24)         :: DMat=0        !Domain matrices to be applied to Fourier Coefficients
+       real(kind=cp), dimension (3,24)   :: Dt=0.0        !Translations associated to rotation matrices
+       real(kind=cp), dimension (2,24)   :: pop=0.0       !Populations of domains (sum=1,
+                                                          !the second value is /=0 for chir=.true.)
+       integer      , dimension (2,24)   :: Lpop=0        !Number of the refined parameter
+       real(kind=cp), dimension (2,24)   :: Mpop=0.0      !Multipliers for population
+       character(len=10),dimension (2,24):: Lab           !Label of domain
     End type Magnetic_Domain_type
 
     !!----
@@ -348,7 +354,7 @@
     !!----    separately for further use.
     !!----    Magnetic S-domains are also read in case of providing the optional variable Mag_dom.
     !!----
-    !!---- Updates: November 2006, December 2011
+    !!---- Updates: November-2006, December-2011, July-2012 (JRC)
     !!
     Subroutine Readn_Set_Magnetic_Structure(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
        !---- Arguments ----!
@@ -362,7 +368,8 @@
 
        !---- Local Variables ----!
        integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, num_defdom, &
-                  num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip
+                  num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip, ncar
+       integer,      dimension(5)    :: pos
        real(kind=cp)                 :: ph
        real(kind=cp),dimension(3)    :: rsk,isk,car,side
        real(kind=cp),dimension(3,12) :: br,bi
@@ -439,10 +446,13 @@
        if (present(mag_dom)) then  !Initialise Mag_dom
           Mag_dom%nd=1
           Mag_dom%Chir=.false.
+          Mag_dom%Twin=.false.
+          Mag_dom%trans=.false.
           Mag_dom%DMat=0
           do j=1,3
            Mag_dom%DMat(j,j,1)=1
           end do
+          Mag_dom%Dt=0.0
           Mag_dom%pop=0.0
           Mag_dom%pop(1,1)=1.0 !one domain is always present
           Mag_dom%Lab=" "
@@ -543,9 +553,27 @@
              if (lowline(1:6) == "magdom" .and. magdom_begin) then
                 num_dom=num_dom+1
                 num_defdom=num_defdom+1
+                if(index(lowline,"twin") /= 0) Mag_Dom%twin=.true.
                 ip=index(lowline,":")
-                msyr=lowline(8:ip-1)
-                call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
+                if(index(lowline,"magdomt") == 0) then
+                  msyr=lowline(8:ip-1)
+                  call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
+                  Mag_Dom%Dt(:,num_dom)=0.0
+                  Mag_Dom%trans=.false.
+                else
+                  msyr=lowline(9:ip-1)
+                  Call Get_Separator_Pos(msyr,",",pos,ncar)
+                  if(ncar == 3) then
+                    read(unit=msyr(pos(3)+1:),fmt=*,iostat=ier) ph
+                    if(ier /= 0) ph=0.0
+                    msyr=msyr(1:pos(3)-1)
+                  else
+                    ph=0.0
+                  end if
+                  call read_xsym(msyr,1,Mag_Dom%Dmat(:,:,num_dom),Mag_Dom%Dt(:,num_dom))
+                  Mag_Dom%Dt(:,num_dom)=0.0
+                  Mag_Dom%trans=.true.
+                end if
                 if (ph > 0.001) then
                   Mag_Dom%chir=.true.
                 else
@@ -576,11 +604,29 @@
                    ! write(unit=*,fmt="(i6,a)") i,"  -> "//trim(lowline)
                    if (lowline(1:1) == "!" .or. lowline(1:1) == "#") cycle
                    if (lowline(1:6) == "magdom") then
+                      if(index(lowline,"twin") /= 0) Mag_Dom%twin=.true.
                       num_dom=num_dom+1
                       num_defdom=num_defdom+1
                       ip=index(lowline,":")
-                      msyr=lowline(8:ip-1)
-                      call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
+                      if(index(lowline,"magdomt") == 0) then
+                        msyr=lowline(8:ip-1)
+                        call read_msymm(msyr,Mag_Dom%Dmat(:,:,num_dom),ph)
+                        Mag_Dom%Dt(:,num_dom)=0.0
+                        Mag_Dom%trans=.false.
+                      else
+                        msyr=lowline(9:ip-1)
+                        Call Get_Separator_Pos(msyr,",",pos,ncar)
+                        if(ncar == 3) then
+                          read(unit=msyr(pos(3)+1:),fmt=*,iostat=ier) ph
+                          if(ier /= 0) ph=0.0
+                          msyr=msyr(1:pos(3)-1)
+                        else
+                          ph=0.0
+                        end if
+                        call read_xsym(msyr,1,Mag_Dom%Dmat(:,:,num_dom),Mag_Dom%Dt(:,num_dom))
+                        Mag_Dom%Dt(:,num_dom)=0.0
+                        Mag_Dom%trans=.true.
+                      end if
                       if (ph > 0.001) then
                         Mag_Dom%chir=.true.
                       else

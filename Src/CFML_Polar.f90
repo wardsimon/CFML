@@ -758,7 +758,7 @@
 
        !At the end of the calculation Pf is in Cartesian components with respect to
        !BM or BL system depending if the user wants to get the angles of the scattered
-       !beam nutator and rotation we have to pass first to the Cartesian coordinates
+       !beam nutator and precesion we have to pass first to the Cartesian coordinates
        !in the scattered beam system. Otherwise the calculated Pf is returned as is.
        if(frame == "BLS") then   !put polarisation in scattered beam system
          call Phi_mat(gamma,Rot)
@@ -911,7 +911,7 @@
     !!----
     !!----    Calculates Polarization matrix for domain case
     !!----
-    !!---- Created: March - 2009 OZ
+    !!---- Created: March - 2009 OZ, Updated: June-2012 (JRC)
     !!
     Subroutine Calc_Polar_Dom(Cell, H, SPV, Pin, NSF, Mag_dom, Mh, Polari,B_Q)
        !---- Arguments ----!
@@ -1023,7 +1023,7 @@
     !!----
     !!----    Initializes the polarisation info type
     !!----
-    !!---- Update: April - 2008
+    !!---- Updated: April - 2008, June-2012 (JRC)
     !!
     Subroutine Set_Polar_Info(Cell, H, Spv, Pin, Nsf, MiV, Polari,B_Q)
        !---- Arguments ----!
