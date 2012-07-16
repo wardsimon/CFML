@@ -9,7 +9,7 @@
                                     Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
    use CFML_Math_3D,          only: Determ_V,invert_a, determ_a, Cross_Product
-   use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector
+   use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector, acosd
    use CFML_String_Utilities, only: L_Case, pack_string, Get_Mat_From_Symb, Err_String, ERR_String_Mess
 
 
@@ -346,7 +346,7 @@
              if(angle > 1.0) angle=1.0
              if(angle < -1.0) angle=-1.0
              angle=acosd(angle)
-             write(unit=*,fmt="(a)")              "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
+             write(unit=*,fmt="(a)")   "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "     First:",h,hc,hd
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "    Second:",k,kc,kd
              write(unit=*,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or  180-Angle: ",180.0-Angle
@@ -418,7 +418,7 @@
              if(angle > 1.0) angle=1.0
              if(angle < -1.0) angle=-1.0
              angle=acosd(angle)
-             write(unit=*,fmt="(a)")              "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
+             write(unit=*,fmt="(a)")  "             Reciprocal space[A*]      Cartesian components[e]     Direct Components[A]"
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "  h- First:",h,hc,hd
              write(unit=*,fmt="(a,3(3f8.4,tr2))") "  u-Second:",ur,uc,u
              write(unit=*,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or 180-Angle:",180.0-angle
