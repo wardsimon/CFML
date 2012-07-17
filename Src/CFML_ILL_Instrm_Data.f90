@@ -3435,8 +3435,8 @@ Module CFML_ILL_Instrm_Data
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
-             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                               //' parameters in Frame: '//trim(car)
+             write(unit=err_illdata_mess,fmt="(a,i6.6)") 'Problem reading Time, Monitor, Counts, Angles' &
+                               //' parameters in Frame: '//trim(car)//" Numor:",n%numor
              return
           end if
 
@@ -3717,18 +3717,18 @@ Module CFML_ILL_Instrm_Data
                    n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
                    n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle (gamma omega?)
 
-                case (8)
+                case (6:)
                    n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
                    n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
-                   n%tmc_ang(4:8,i)=rvalues(4:8)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
+                   n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
                    check_qscan=.true.
 
                 case default
                    write(unit=car,fmt='(i5)') i
                    car=adjustl(car)
                    err_illdata=.true.
-                   err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                                    //' parameters in the Frame: '//trim(car)
+                   write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
+                                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
                    return
              end select
           end if
@@ -3775,6 +3775,7 @@ Module CFML_ILL_Instrm_Data
        character(len=5)                             :: car
        integer                                      :: i,nlines
        integer                                      :: numor,idum
+       logical                                      :: check_qscan
 
        err_illdata=.false.
 
@@ -3795,7 +3796,7 @@ Module CFML_ILL_Instrm_Data
        call Number_KeyTypes_on_File(filevar,nlines)
        call Set_KeyTypes_on_File(filevar,nlines)
 
-       ! Check format for D9
+       ! Check format for D10
        call read_A_keyType(filevar,nl_keytypes(2,1,1),nl_keytypes(2,1,2),idum,line)
        if (index(line(1:4),'D10') <= 0) then
           err_illdata=.true.
@@ -3821,6 +3822,7 @@ Module CFML_ILL_Instrm_Data
           n%scantype=trim(line(73:))
           if(len_trim(n%scantype) == 0) n%scantype='q-scan'
        end if
+       check_qscan=.false.
 
        ! Control Flags
        call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
@@ -3879,12 +3881,23 @@ Module CFML_ILL_Instrm_Data
                    n%tmc_ang(2:3,i)=rvalues(2:3)
                    n%tmc_ang(4,i)=rvalues(4)*0.001  ! Angle
 
+                case (5)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
+                   n%tmc_ang(4:5,i)=rvalues(4:5)*0.001  ! Angle (gamma omega?)
+
+                case (6:)
+                   n%tmc_ang(1,i)=rvalues(1)*0.001      ! Time (s)
+                   n%tmc_ang(2:3,i)=rvalues(2:3)        ! Monitor and total counts
+                   n%tmc_ang(4:nval_f,i)=rvalues(4:nval_f)*0.001  ! Angles: gamma, omega, Chi,phi, psi?
+                   check_qscan=.true.
+
                 case default
                    write(unit=car,fmt='(i5)') i
                    car=adjustl(car)
                    err_illdata=.true.
-                   err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                                    //' parameters in the Frame: '//trim(car)
+                   write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
+                                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
                    return
              end select
           end if
@@ -3902,6 +3915,9 @@ Module CFML_ILL_Instrm_Data
              n%counts(:,i)=ivalues(1:n%nbdata)
           end if
        end do
+       if(check_qscan) then
+         n%scantype='q-scan'
+       end if
 
        return
     End Subroutine Read_Numor_D10
@@ -4033,8 +4049,8 @@ Module CFML_ILL_Instrm_Data
              write(unit=car,fmt='(i5)') i
              car=adjustl(car)
              err_illdata=.true.
-             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                               //' parameters in the Frame: '//trim(car)
+             write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
+                                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
              return
           end if
 
@@ -4309,8 +4325,8 @@ Module CFML_ILL_Instrm_Data
              write(unit=car,fmt='(i5)') n%selected_frames(i)
              car=adjustl(car)
              err_illdata=.true.
-             err_illdata_mess='Problem reading Time, Monitor, Counts, Angles' &
-                               //' parameters in the Frame: '//trim(car)
+             write(unit=err_illdata_mess,fmt="(a,i6.6)")'Problem reading Time, Monitor, Counts, Angles' &
+                    //' parameters in the Frame: '//trim(car)//", Numor:",n%numor
              return
           end if
 
