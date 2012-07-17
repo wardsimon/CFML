@@ -1456,14 +1456,14 @@
        ! Neutron spin states
        coef=1.0_cp/sqrt(2.0_cp)
 
-       Spin_Px(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)] !up
-       Spin_Px(2,:)=[coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)] !down
+       Spin_Px(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)/) !up
+       Spin_Px(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)/) !down
 
-       Spin_Py(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)] !up
-       Spin_Py(2,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)] !down
+       Spin_Py(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)/) !up
+       Spin_Py(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)/) !down
 
-       Spin_Pz(1,:)=[(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)] !up
-       Spin_Pz(2,:)=[(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)] !down
+       Spin_Pz(1,:)=(/(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)/) !up
+       Spin_Pz(2,:)=(/(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)/) !down
 
        !A = tpi**3/Cell%CellVol   !not used here
        !First store given info in Polari
@@ -1625,14 +1625,14 @@
       ! Neutron spin states
       coef=1.0_cp/sqrt(2.0_cp)
 
-      Spin_Px(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)] !up
-      Spin_Px(2,:)=[coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)] !down
+      Spin_Px(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 1.0_cp, 0.0_cp)/) !up
+      Spin_Px(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*(-1.0_cp, 0.0_cp)/) !down
 
-      Spin_Py(1,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)] !up
-      Spin_Py(2,:)=[coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)] !down
+      Spin_Py(1,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp, 1.0_cp)/) !up
+      Spin_Py(2,:)=(/coef*(1.0_cp, 0.0_cp),coef*( 0.0_cp,-1.0_cp)/) !down
 
-      Spin_Pz(1,:)=[(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)] !up
-      Spin_Pz(2,:)=[(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)] !down
+      Spin_Pz(1,:)=(/(1.0_cp, 0.0_cp),( 0.0_cp, 0.0_cp)/) !up
+      Spin_Pz(2,:)=(/(0.0_cp, 0.0_cp),(-1.0_cp, 0.0_cp)/) !down
 
       !A = tpi**3/Cell%CellVol   !not used here
 
