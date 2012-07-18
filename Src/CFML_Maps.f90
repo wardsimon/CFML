@@ -351,7 +351,7 @@
     !!----     Return the relative position point from (i,j,k) of V1
     !!----     Given a binary dataset, linear interpolation is not needed to
     !!----     extract isosurfaces, When a cell edge in a binary dataset has
-    !!----     both on and off coners, the midpoint of the edge is the
+    !!----     both on and off corners, the midpoint of the edge is the
     !!----     intersection being looked for.
     !!----
     !!---- Update: February - 2005
@@ -367,7 +367,7 @@
     !!--++     Return the relative position point from (i,j,k) of V1
     !!--++     Given a binary dataset, linear interpolation is not needed to
     !!--++     extract isosurfaces, When a cell edge in a binary dataset has
-    !!--++     both on and off coners, the midpoint of the edge is the
+    !!--++     both on and off corners, the midpoint of the edge is the
     !!--++     intersection being looked for.
     !!--++
     !!--++ Update: February - 2005
@@ -1103,7 +1103,6 @@
        integer, dimension(8)          :: iv
        integer, dimension(10)         :: icode
        integer, dimension(3)          :: istep
-       !integer                       :: itype
        real(kind=cp)                  :: dx,dy,dz,dxs,dys,dzs
        real(kind=cp)                  :: den1,den2,den3,den4,den5,den6,den7,den8
        real(kind=cp)                  :: xmax,xmin,ymax,ymin,zmin,zmax
@@ -1515,7 +1514,7 @@
                       yy2=jj1*dy
                       if (abs(yy1-yval) <= eps) then
                          exit
-                      elseif (yval > yy1 .and. yval <= yy2) then
+                      else if (yval > yy1 .and. yval <= yy2) then
                          exit
                       end if
                    end do
@@ -1527,7 +1526,7 @@
                       zz2=kk1*dz
                       if (abs(zz1-zval) <= eps) then
                          exit
-                      elseif (zval > zz1 .and. zval <= zz2) then
+                      else if (zval > zz1 .and. zval <= zz2) then
                          exit
                       end if
                    end do
@@ -1732,8 +1731,7 @@
     !!--++    real(kind=cp), dimension(:,:), intent(in out) :: Peaks    ! List of Peaks
     !!--++
     !!--++    (Private)
-    !!--++    Add a new peak position on the list if there aren't
-    !!--++    a closed peak (< 0.25).
+    !!--++    Add a new peak position on the list if there is no close peak (< 0.25).
     !!--++
     !!--++ Update: February - 2005
     !!
