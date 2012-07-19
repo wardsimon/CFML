@@ -3584,18 +3584,23 @@
     End Subroutine Write_Pattern_FreeFormat
 
     !!----
-    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat)
+    !!---- Subroutine Write_Pattern_INSTRM5(Filename,Pat,var)
     !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!----    character (len=*), optional,     intent(in) :: var
     !!----
     !!----    Write a pattern in 2-axis format with fixed step (Instrm=5)
+    !!----    If var is present the standard deviations are also provided,
+    !!----    otherwise they are calculated from the number of counts and the
+    !!----    values of the normalisation monitor and the used monitor.
     !!----
-    !!---- Update: 29/04/2011
+    !!---- Updated: 29/04/2011, 18/07/2012 (JRC)
     !!
-    Subroutine Write_Pattern_INSTRM5(Filename,Pat)
+    Subroutine Write_Pattern_INSTRM5(Filename,Pat,var)
        !---- Arguments ----!
        character (len=*),               intent(in) :: Filename
        type (diffraction_pattern_type), intent(in) :: Pat
+       character (len=*), optional,     intent(in) :: var
 
        !---- Local Variables ----!
        integer   :: np,ier,i_dat
@@ -3618,10 +3623,16 @@
          Err_diffpatt=.true.
          ERR_DiffPatt_Mess=" Too high counts ... format error in the file: "//trim(filename)//" at writing!"
        end if
-       Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  Pat%npts, Pat%tsamp,Pat%tset, 0,&
+       if(present(var)) then
+          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  Pat%npts, Pat%tsamp,Pat%tset, 1,&
                                                           Pat%Norm_Mon, Pat%Monitor
+       else
+          Write(unit=i_dat,fmt="(i6,tr1,2F10.3,i5,2f18.1)")  Pat%npts, Pat%tsamp,Pat%tset, 0,&
+                                                          Pat%Norm_Mon, Pat%Monitor
+       end if
        Write(unit=i_dat,fmt="(3F12.5)")  Pat%xmin,Pat%step,Pat%xmax
        Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(1:np)
+       if(present(var)) Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(1:np))
        close(unit=i_dat)
        return
     End Subroutine Write_Pattern_INSTRM5
