@@ -24,7 +24,7 @@
                                          linum, nfiles
     integer,          dimension(maxp) :: ncl
     real                              :: ang, rint1,rint2,det,rinn
-    character(len=20),dimension(maxp) :: argv
+    character(len=60),dimension(maxp) :: argv
     logical :: buffer_given=.false., angles=.false.
 
     linum=0; nfiles=0
@@ -75,6 +75,10 @@
          dfile=argv(1); fmode=argv(2)
          nzone=narg-2
          call Check_cells()
+         do i=1,nzone
+           argv(i)=argv(i+2)
+           !write(unit=*,fmt="(i8,a)") i,"     "//trim(argv(i))
+         end do
        end if
        !Check if fmode contains a number or a keyword
        read(unit=fmode,fmt=*,iostat=ier) instr
@@ -108,7 +112,6 @@
          do i=1,nzone
            read(unit=argv(i),fmt=*) ang
            ncl(i)=locate(diffpat%x,diffpat%npts,ang)+1
-           !write(*,*) ncl(i),ang
          end do
        else
          do i=1,nzone
