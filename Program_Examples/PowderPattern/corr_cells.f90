@@ -135,10 +135,13 @@
          call Random_Poisson(rin, Genpoi)
          diffpat%y(j)=real(genpoi)/det
        end do
-       line="corr_"//trim(dfile)
+       if(dfile(1:5) == "corr_") then
+          line=trim(dfile)
+       else
+          line="corr_"//trim(dfile)
+       end if
        write(unit=*,fmt="(a,50i5)") " => Corrected Cells: ",ncl(1:nzone)
        write(unit=*,fmt="(a)") " => Writing corrected file: "//trim(line)
-       !call Write_Pattern_INSTRM5(line,diffpat,"var")
        call Write_Pattern_XYSig(line,diffpat)
        if(buffer_given) cycle
        exit
