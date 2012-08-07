@@ -166,6 +166,7 @@ rem ---------------------------
 rem
 :GFOR_ZONE
    if x%2 == xdeb goto GFOR_CD
+   if x%2 == xwin goto GFOR_WINTER
 rem
 rem CONSOLE + OPTIMIZATION
 rem
@@ -176,6 +177,20 @@ rem CONSOLE + DEBUG
 rem
 :GFOR_CD
    call comp_gfor_cd
+   goto FIN
+rem
+:GFOR_WINTER
+   if x%3 == xdeb goto GFOR_WD
+rem
+rem WINTERACTER + OPTIMIZATION
+rem
+   call comp_gfor_wo
+   goto FIN
+rem
+rem WINTERACTER + DEBUG
+rem
+:GFOR_WD
+   call comp_gfor_wd
    goto FIN
 rem
 rem >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
