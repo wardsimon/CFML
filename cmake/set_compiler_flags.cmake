@@ -2,11 +2,11 @@ macro(set_compiler_flags)
 
     # Nullify all the Fortran flags.
     set(CMAKE_Fortran_FLAGS "")
-    
+
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
-    
+
     if(COMPILER_NAME STREQUAL ifort)
-    
+
         if(WIN32)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(CMAKE_Fortran_FLAGS_DEBUG "-debug:full /check /traceback /nologo")
@@ -36,7 +36,7 @@ macro(set_compiler_flags)
                 set(CMAKE_Fortran_FLAGS_RELEASE "-warn -vec-report0")
                 set(OPT_FLAGS "-O")
                 set(OPT_FLAGS1 "-O0")
-            endif()    
+            endif()
         endif()
 
     elseif(COMPILER_NAME STREQUAL g95)
@@ -60,7 +60,7 @@ macro(set_compiler_flags)
                 set(CMAKE_Fortran_FLAGS_RELEASE "-Wall")
                 set(OPT_FLAGS "-O")
                 set(OPT_FLAGS1 "-O0")
-            endif()    
+            endif()
         else()
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(CMAKE_Fortran_FLAGS_DEBUG "-Wall")
@@ -70,14 +70,14 @@ macro(set_compiler_flags)
                 set(CMAKE_Fortran_FLAGS_RELEASE "-Wall")
                 set(OPT_FLAGS "-O")
                 set(OPT_FLAGS1 "-O0")
-            endif()    
+            endif()
         endif()
 
     elseif(COMPILER_NAME STREQUAL gfortran)
 
         if(WIN32)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set(CMAKE_Fortran_FLAGS_DEBUG "-ftrace=full")
+                set(CMAKE_Fortran_FLAGS_DEBUG "-fbacktrace")
                 set(OPT_FLAGS "-O0")
                 set(OPT_FLAGS1 "-O0")
             elseif(CMAKE_BUILD_TYPE STREQUAL Release)
@@ -94,7 +94,7 @@ macro(set_compiler_flags)
                 set(CMAKE_Fortran_FLAGS_RELEASE "-m32")
                 set(OPT_FLAGS "-O0")
                 set(OPT_FLAGS1 "-O0")
-            endif()    
+            endif()
         else()
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(CMAKE_Fortran_FLAGS_DEBUG "-Wall")
@@ -104,9 +104,9 @@ macro(set_compiler_flags)
                 set(CMAKE_Fortran_FLAGS_RELEASE "-Wall")
                 set(OPT_FLAGS "-O0")
                 set(OPT_FLAGS1 "-O0")
-            endif()    
+            endif()
         endif()
-    
+
     endif()
-        
+
 endmacro()
