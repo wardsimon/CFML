@@ -1243,7 +1243,7 @@
 
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,tor
+          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
           return
        end if
        j=0
@@ -1458,7 +1458,7 @@
        infout=" "
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
-          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,tor
+          write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
           Return
        End if
        j=0
