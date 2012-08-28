@@ -3,7 +3,7 @@
    use CFML_GlobalDeps,       only: sp
    use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
                                     iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
-   use read_data,             only: crys_2d_type, read_structure_file, length , choice
+   use read_data,             only: crys_2d_type, read_structure_file, length 
    use diffax_mod
 
    implicit none
@@ -2311,7 +2311,6 @@
     !  IF(cfile) WRITE(op,400) full_shrp
 
        full_shrp = 1
-
 ! zero out spectra
       DO  i = 1, max_sp
         spec(i) = zero
@@ -2363,9 +2362,7 @@
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
 ! set up the phases in the structure factors and stacking vectors
 ! which depend on h and k only
-
             CALL xyphse(h, k)
-
             CALL pre_mat(h, k)
 ! assign a corrected shape-broadening half-width
 
@@ -2397,7 +2394,6 @@
             END IF
 ! m indexes into the array spec
             m = INT((tmp - min_th) / d_theta) + 1
-
    !**********************************************************************
            l_comp = zero      !calculation of 2theta where there is a peak
 
@@ -2420,11 +2416,9 @@
                 l1 = ll(theta+tmp2, h, k)
 ! sharp spots; do not use knowledge of where they are
                 IF(shrp) THEN
-
-
                   x = aglq16(h, k, l0, l1, ok)
                 ELSE
-! broad streaks
+! broad streaks  
                   x = fn(h, k, l0, l1, ok)
                 END IF
 
@@ -2456,7 +2450,6 @@
                 END IF
                 m = m + 1
               END DO
-
             ELSE
 ! line of sharp spots--detuned delta functions
 ! use knowledge of where spots are
@@ -2521,6 +2514,7 @@
           END IF
         END DO
       END DO
+      
       getspc = .true.
       RETURN
       110 WRITE(op,300) 'GLQ16 returned error in GETSPC.'
@@ -4064,7 +4058,7 @@
 
           full_brd = 1
       if (conv_g == 1 .or. numcal == 0 ) then
-          IF(full_brd == 1) THEN
+          IF(full_brd == 1) THEN 
            ok = getspc(aglq16, infile)
           ELSE
             ok = getspc(glq16, infile)
@@ -4077,7 +4071,7 @@
           cut_off = zero
       IF(ok.AND.(th2_min == zero).AND.trim_origin) ok = trmspc(cut_off)
 
-
+    
       IF(ok) THEN
         IF(blurring == gauss) THEN
           WRITE(op,104) 'Gaussian'
@@ -4207,24 +4201,21 @@
 
 ! HKLUP returns the maximum value of h, k or l given 'max_angle'
       hklup(y) =  INT(two * SIN(half*max_angle) / (lambda*SQRT(y)))
-
 ! define upper h, k, l values consistent with max_angle
       1 h_bnd = hklup(a0)
       k_bnd = hklup(b0)
      l_bnd = hklup(c0)
-
+!write(*,*) "hkl_lim2", lambda, h_bnd, k_bnd
 ! make sure bounds are not too small. This could occur for a small
 ! unit cell, a small value of max_angle, or a long wavelength.
       IF(h_bnd < 2 .OR. k_bnd < 2) THEN
         lambda = half * lambda
         GO TO 1
       END IF
-
 ! Make sure bounds are not too large either
       IF(h_bnd > 10) h_bnd = 10
       IF(k_bnd > 10) k_bnd = 10
       IF(l_bnd > 10) l_bnd = 10
-
       RETURN
       END SUBROUTINE hkl_lim
 
@@ -5569,7 +5560,6 @@
 
 ! Pre-compute a pseudo-Lorentzian form factor for lateral
 ! planar widths.
-
       IF(finite_width) THEN
 ! ideally, FFACT_SIZE is odd
         m = ffact_size/2
@@ -5598,7 +5588,6 @@
         tmp = wa*SIN(pi-cell_gamma)
         ffwdth = SQRT(one/(tmp*tmp) + one/(wb*wb))
       END IF
-
 ! get diffraction symmetry
 
 ! establish some bounds
@@ -5606,14 +5595,11 @@
       max_var = zero
 ! save lambda, HKL_LIM (called by THRESH), may change it.
       old_lambda = lambda
-
       CALL thresh(ok)
       IF(.NOT.ok) GO TO 999
 
       IF(symgrpno == 11)   WRITE(op,202) 'Axial integration only selected.'
-
-
-
+    
       IF(dosymdump) THEN
         CALL getfnm(rootnam, sym_fnam, 'sym', ok)
         IF(.NOT.ok) THEN
@@ -6281,7 +6267,7 @@
         speci = spec(i)
 
        if (lambda2 /= 0 ) then
-
+       
         DO  j = n_low - i, n_high - i
           th_rng = tmp * j*j
           th_rng2 =  (((2*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
@@ -6992,12 +6978,11 @@
 
 ! external functions
 
-
+      
 ! statement functions
 ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-
 ! initialize random numbers in RAN3
       idum = -1
 
@@ -7006,7 +6991,6 @@
 ! in GET_SYM and CHK_SYM.
       max_angle = quarter * pi
       CALL hkl_lim()
-
 ! Sample the typical intensities that are out there
       tot_int = zero
       DO  i = 1, no_trials
@@ -7075,6 +7059,7 @@
       20 i = i + 1
       IF(i >= i_max+1) THEN
         WRITE(op,100) 'No peaks were found in spectrum.'
+        write(*,*) th2_max, th2_min, d_theta
         GO TO 900
       END IF
 ! locate the first minimum after the huge peak at the origin

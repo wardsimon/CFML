@@ -93,7 +93,7 @@
      use CFML_Crystal_Metrics,       only : Set_Crystal_Cell, Crystal_Cell_Type
      use CFML_Diffraction_patterns , only : diffraction_pattern_type
      use diffax_mod
-     use read_data,                  only : crys, read_structure_file, length, choice, opti
+     use read_data,                  only : crys, read_structure_file, length,   opti
      use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                             gospec, gostrk, gointr,gosadp, getfnm, nmcoor
      use Diff_ref,                   only : scale_factor
@@ -308,7 +308,7 @@
 
           do i= 1, opti%npar
                 shift(i) = v(i) - vector(i)
-                write(*,*)"v(i) ", v(i)
+                !write(*,*)"v(i) ", v(i)
           end do
 
           do i = 1, crys%npar
@@ -421,19 +421,23 @@
           !//////////////////////////////////////////////////////////////////////////////////////
 
           ok = .true.
-          if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g()
-          if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
-          if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst()
-          if ( numcal == 0 .and. ok ) CALL detun()
+          if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g() 
+          if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay() 
+          if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst() 
+          if ( numcal == 0 .and. ok ) CALL detun() 
           if ((conv_b == 1 .or. conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
               numcal == 0 .or. conv_f==1)  .and. ok ) CALL optimz(infile, ok)
 
           IF(.NOT. ok) then
             IF(cfile) CLOSE(UNIT = cntrl)
             return
-          END IF
-          CALL gospec(infile,outfile,ok)
-          call scale_factor(difpat,rplex)
+          END IF 
+          CALL gospec(infile,outfile,ok) 
+          if(ok==.false.) then
+            print*, "Error calculating spectrum, please check input parameters"          
+          else
+            call scale_factor(difpat,rplex)
+          end if  
           numcal = numcal + 1
           write(*,*) ' => Calculated Rp    :   ' , rplex
           write(*,*) ' => Best Rp up to now:   ' , rpo
@@ -452,7 +456,7 @@
             end do
           end if
           ok = .true.
-          write(*,*) "OK,state( 1:numpar)   ", ok , state( 1:crys%npar)
+          
           IF(cfile) CLOSE(UNIT = cntrl)
           return
     End subroutine F_cost
@@ -470,7 +474,7 @@
      use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
      use diffax_mod
-     use read_data,                    only : new_getfil, read_structure_file, length, choice, &
+     use read_data,                    only : new_getfil, read_structure_file, length,   &
                                               crys, opti, opsan
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
@@ -506,7 +510,7 @@
       call new_getfil(infile, st,   gol)                           ! parametros para calculo
      ! write(*,*) "opti%npar", opti%npar, opti%
       opsan%Cost_function_name="R-factor"
-
+      
       IF(gol) then
         ok = sfc()
       else
@@ -555,13 +559,11 @@
 
               IF(ok) ok = get_g()
               IF(ok .AND. rndm) ok = getlay()
-              IF(ok) CALL sphcst()
-
+              IF(ok) CALL sphcst() 
               IF(ok) CALL detun()
-              IF(.NOT. ok) GO TO 999
-
+              IF(.NOT. ok) GO TO 999 
 ! See if there are any optimizations we can do
-              IF(ok) CALL optimz(infile, ok)
+              IF(ok) CALL optimz(infile, ok) 
 
 ! What type of intensity output does the user want?
            10  IF(ok) THEN
@@ -586,9 +588,10 @@
                    write(*,*) "calculating powder diffraction pattern"
                    CALL gospec(infile,outfile,ok)
                        n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
+                        
                      Do j = 1, n_high
                          ycalcdef(j) = brd_spc(j)
+                         !write(*,*) ycalcdef(j)
                      end do
 
                      thmax=th2_max * rad2deg
@@ -1074,7 +1077,9 @@
               IF(ok) ok = get_g()
               call dump (infile, p_ok)
               call overlp()
+              write(*,*) "overlp"
               call nmcoor ()
+              write(*,*) "opti%npar", opti%npar
 
               rpo = 1000                         !initialization of agreement factor
               rpl = 0
@@ -1086,6 +1091,7 @@
               open (unit=23, file='local_optimizer.out', status='replace', action='write')
               if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
                 call Lcase(opti%method )
+                write(*,*) "calling F_cost"
                 call Local_Optimize( F_cost,crys%NP_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),maxi=crys%vlim2(1:opti%npar),&
                                     ipr=23  )
               else
