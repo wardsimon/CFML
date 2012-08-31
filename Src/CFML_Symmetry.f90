@@ -2880,7 +2880,7 @@
        if(present(prim)) laty=Spg%spg_lat
        mult=1
        orb(:,1)=x(:)
-
+       if(present(ptr)) ptr(mult) = 1
        ext: do j=2,Spg%multip
           xx=ApplySO(Spg%SymOp(j),x)
           xx=modulo_lat(xx)
