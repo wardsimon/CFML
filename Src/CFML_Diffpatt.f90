@@ -95,7 +95,7 @@
     !!---- Type, public :: Diffraction_Pattern_Type
     !!----    character(len=180)                          :: Title         !Identification of the pattern
     !!----    character(len=20)                           :: diff_kind     !type of radiation
-    !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
+    !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, Lambda, Energy, Temperature, etc
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
     !!----    real(kind=cp)                               :: xmin
@@ -2216,10 +2216,12 @@
              if(Err_diffpatt) return
              dif_pat%diff_kind = "unknown"
              dif_pat%instr  = " 10  - "//mode
-             if(dif_pat%x(dif_pat%npts) > 180.0 ) then
-                 dif_pat%scat_var =  "TOF"
-             else
-                 dif_pat%scat_var =  "2theta"
+             if(len_trim(dif_pat%scat_var) == 0) then
+               if(dif_pat%x(dif_pat%npts) > 180.0) then
+                   dif_pat%scat_var =  "TOF"
+               else
+                   dif_pat%scat_var =  "2theta"
+               end if
              end if
 
           case ("GSAS")
@@ -3242,6 +3244,7 @@
        pat%tset=0.0
        pat%scal=0.0
        pat%monitor=0.0
+       pat%scat_var= " "
 
        do
           read(unit=i_dat,fmt="(a)", iostat=ier) txt1
@@ -3269,8 +3272,16 @@
                  return
               end if
               txt1=adjustl(txt1)
+              j= index(txt1,"TITLE")
+              if ( j /= 0 ) then !Title given
+                pat%title=adjustl(txt1(j+5:))
+              end if
+              i=index(txt1,"Scattering variable:")
+              if(i /= 0) then
+                 pat%scat_var=adjustl(txt1(i+20:))
+              end if
               if(txt1(1:1) == "!" .or. txt1(1:1) == "#") cycle
-              read(unit=txt1, fmt=*, iostat=ier) yp1,ypn
+              read(unit=txt1, fmt=*, iostat=ier) yp1,ypn !This is to detect the beginning of numerical values
               if( ier /= 0) cycle
               backspace (unit=i_dat)
               call init_findfmt(line_da)
@@ -3287,9 +3298,16 @@
               end if
 
               line_da=line_da+1
-              if (txt1(1:5) == "TITLE") then !Title given
-                pat%title=txt1(7:)
+              j= index(txt1,"TITLE")
+              if ( j /= 0 ) then !Title given
+                pat%title=adjustl(txt1(j+5:))
               end if
+
+              j=index(txt1,"Scattering variable:")
+              if(j /= 0) then
+                 pat%scat_var=adjustl(txt1(j+20:))
+              end if
+
               if (txt1(1:5) == "INTER") then !Interpolation possible!
                  backspace (unit=i_dat)
                  line_da=line_da-2
