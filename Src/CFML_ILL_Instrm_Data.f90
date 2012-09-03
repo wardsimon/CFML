@@ -1643,7 +1643,7 @@ Module CFML_ILL_Instrm_Data
 
        !---- Loval variables ----!
        character(len=80) :: line
-       integer           :: ier, i, lun
+       integer           :: ier, lun
        logical           :: info
 
        ! The error flags are initialized.
@@ -4094,7 +4094,7 @@ Module CFML_ILL_Instrm_Data
        integer, dimension(:), allocatable           :: temp_frames
        character(len=80)                            :: line
        character(len=5)                             :: car
-       integer                                      :: i, j, n_skip, lun, previous_frame, n_selected_frames, comp
+       integer                                      :: i, j, n_skip, lun, previous_frame, n_selected_frames
        integer                                      :: numor,idum
        logical                                      :: info
 

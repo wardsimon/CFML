@@ -683,7 +683,7 @@
        real(kind=cp)                  :: pol,ptheta,pchi   ! Module of the incident pol. and angles of nutator + rotation
        complex, dimension (3)         :: MiV, W            ! MiV for one domain and in polarisation frame,Nuclear-Magnetic interference
        integer                        :: nd,ich,nch, ierr
-       Real(kind=cp), dimension(3)    :: z1,z4, h, Pic,T,Wr,Wi
+       Real(kind=cp), dimension(3)    :: z1,z4, Pic,T,Wr,Wi
        Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,ubinv,r_pth,r_chi,BL2BM
 
        ok=.true.
@@ -829,7 +829,7 @@
        real(kind=cp)                  :: pol,ptheta,pchi   ! Incident polarisation
        complex, dimension (3)         :: MiV, W     !MiV for one domain and in polarisation frame
        integer                        :: nd,ich,nch, ierr
-       Real(kind=cp), dimension(3)    :: z1,z4, h, Pic,T,Wr,Wi
+       Real(kind=cp), dimension(3)    :: z1,z4, Pic,T,Wr,Wi
        Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,DD,AA,SS,r_pth,r_chi,BL2BM
        Real(kind=cp), dimension(3,3), parameter  :: Identity= reshape ( (/1.0,0.0,0.0, &
                                                                           0.0,1.0,0.0, &
