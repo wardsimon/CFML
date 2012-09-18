@@ -177,7 +177,7 @@
                 lun=6
              case ('F')
                 lun=1
-                open(unit=1,file="symoper.dat",status="replace",action="write")
+                open(unit=lun,file="symoper.dat",status="replace",action="write")
           end select
 
           write(unit=lun,fmt='(a)') " Full list of Symmetry Operators for space group: "//trim(grp_espacial%SPG_Symb)
@@ -975,6 +975,7 @@
        type(wyck_pos_type)               :: wyckpos
 
        iunit=3
+       open(unit=iunit,file="Wyckoff_Positions.inf",status="replace",action="write")
        num_orbita=0
        wyck1=wyckoff_Type(0,wyck_pos_type(0,' ',0,' ',' '))
 
@@ -1285,7 +1286,7 @@
          call Write_Wyckoff(grp%wyckoff,Grp%SPG_Symb,iunit)
          call Write_Wyckoff(Wyck1,Grp%SPG_Symb,iunit)
       end if
-
+      close(unit=iunit)
 
       return
    end subroutine Get_Wyckoff

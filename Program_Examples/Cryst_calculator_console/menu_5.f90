@@ -60,6 +60,7 @@
           write(unit=*,fmt="(a)") "  [9] Zone axis: list of zone planes and angles,... special angles"
           write(unit=*,fmt="(a)") " [10] Indexing edges of a trapezoidal plane"
           write(unit=*,fmt="(a)") " [11] List of planes intersecting a given one at a particular Zone Axis"
+          write(unit=*,fmt="(a)") " [12] Enter Euler Angles Chi, Phi, Theta of frame [u,v,w]"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
@@ -102,6 +103,9 @@
 
              case ('11')
                 call Menu_Geom_11()
+             case ('12')
+
+                call Menu_Geom_12()
 
           end select
        end do
@@ -1074,7 +1078,119 @@
      angle=acosd(angle)
     End Function Angle_val
 
+    !!----
+    !!---- Subroutine Menu_Geom_12
+    !!----
+    !!
     Subroutine Menu_Geom_12()
+       !---- Local Variables ----!
+       character(len=80)      :: line
+       real,    dimension(3)  :: u,v,w, h,c
+       real                   :: angu,angv,angw,Chi,Phi,Theta,mc
+
+       do
+          call system('cls')
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "           Enter Euler angles to get new Cartesian system u,v,w"
+          write(unit=*,fmt="(a)") "    Calculate the angles of u,v,w with a direct and a reciprocal directions"
+          write(unit=*,fmt="(a)") "    ======================================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+
+          write(unit=*,fmt="(a)",advance="no") " => Enter the Angles Chi, Phi, Theta (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          read(unit=line,fmt=*,iostat=ierr) Chi, Phi, Theta
+          if(ierr /= 0) then
+              write(unit=*,fmt="(a)") " -> Error in the angles ... retry!"
+              call system("pause ")
+              cycle
+          end if
+          ! Calculate the unitary vectors of the Cartesian system
+           u(1)=cosd(phi)*cosd(Theta)*cosd(Chi)-sind(Phi)*sind(chi)
+           u(2)=sind(phi)*cosd(Theta)*cosd(Chi)+cosd(Phi)*sind(chi)
+           u(3)=-sind(Theta)*cosd(Chi)
+           v(1)=-cosd(phi)*cosd(Theta)*sind(Chi)-sind(Phi)*cosd(chi)
+           v(2)=-sind(phi)*cosd(Theta)*sind(Chi)+cosd(Phi)*cosd(chi)
+           v(3)= sind(Theta)*sind(Chi)
+           w=(/ cosd(Phi)*sind(Theta), sind(Phi)*sind(Theta),  cosd(Theta) /)
+          Write(unit=*,fmt="(a)") " => The unit vectors of the reference system (u,v,w),"
+          Write(unit=*,fmt="(a)") "    given in the Standard Cartesian system, are:"
+          Write(unit=*,fmt="(a,3f10.5,a)") " => u =(",u,")"
+          Write(unit=*,fmt="(a,3f10.5,a)") " => v =(",v,")"
+          Write(unit=*,fmt="(a,3f10.5,a)") " => w =(",w,")"
+
+          !Calculate the angles with a direct space direction
+
+          write(unit=*,fmt="(a)",advance="no") " => Enter the components of a direct space vector (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          do
+            read(unit=line,fmt=*,iostat=ierr) h
+            if(ierr /= 0) then
+                write(unit=*,fmt="(a)") " -> Error in the components ... retry!"
+                call system("pause ")
+                cycle
+            else
+                exit
+            end if
+          end do
+          c=Cart_Vector("D",h,Celda)
+          mc=sqrt(dot_Product(c,c))
+          c=c/mc !Now I have a unitary vector
+          angu=dot_product(c,u); if(angu > 1.0) angu=1.0; if(angu < -1.0) angu=-1.0
+          angu=acosd(angu)
+          angv=dot_product(c,v); if(angv > 1.0) angv=1.0; if(angv < -1.0) angv=-1.0
+          angv=acosd(angv)
+          angw=dot_product(c,w); if(angw > 1.0) angw=1.0; if(angw < -1.0) angw=-1.0
+          angw=acosd(angw)
+          write(unit=*,fmt="(a,3f10.5,a)") " => The angles of the direction [",h,"] with vectors u,v & w are:"
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(u,h) =",angu," Complementary:",180.0-angu
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
+
+          !Calculate the angles with a reciprocal space direction
+          write(unit=*,fmt="(a)",advance="no") " => Enter the components of a reciprocal space vector (<cr> for exit): "
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+          line=adjustl(line)
+          do
+            read(unit=line,fmt=*,iostat=ierr) h
+            if(ierr /= 0) then
+                write(unit=*,fmt="(a)") " -> Error in the components ... retry!"
+                call system("pause ")
+                cycle
+            else
+                exit
+            end if
+          end do
+
+          c=Cart_Vector("R",h,Celda)
+          mc=sqrt(dot_Product(c,c))
+          c=c/mc !Now I have a unitary vector
+          angu=dot_product(c,u); if(angu > 1.0) angu=1.0; if(angu < -1.0) angu=-1.0
+          angu=acosd(angu)
+          angv=dot_product(c,v); if(angv > 1.0) angv=1.0; if(angv < -1.0) angv=-1.0
+          angv=acosd(angv)
+          angw=dot_product(c,w); if(angw > 1.0) angw=1.0; if(angw < -1.0) angw=-1.0
+          angw=acosd(angw)
+          write(unit=*,fmt="(a,3f10.5,a)") " => The angles of the direction [",h,"]* with vectors u,v & w are:"
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(u,h) =",angu," Complementary:",180.0-angu
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
+          Write(unit=*,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
+          write(unit=*,fmt=*) " "
+          call system("pause ")
+       end do
+
+    End Subroutine Menu_Geom_12
+
+
+
+    Subroutine Menu_Geom_12a()
        !---- Local Variables ----!
        character(len=80)      :: line
        real,    dimension(3)  :: uc,vc
@@ -1295,7 +1411,7 @@
           write(unit=*,fmt=*) " "
           call system("pause ")
        end do
-    End Subroutine Menu_Geom_12
+    End Subroutine Menu_Geom_12a
 
 
    !!----  Get_Zone_Planes(u1,u2,dmin,Cell,Zone_Planes,Mode)
