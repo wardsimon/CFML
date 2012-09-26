@@ -1,6 +1,36 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project.
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Copyleft(C) 1999-2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, write to the
+!!---- Free Software Foundation, Inc.,
+!!---- 51 Franklin Street, Fifth Floor, Boston,
+!!---- MA  02110-1301  USA
+!!----
 !!----
 !!---- MODULE: CFML_String_Utilities
 !!----   INFO: Manipulation of strings with alfanumeric characters
@@ -1223,7 +1253,7 @@
 
     !!----
     !!---- Subroutine Get_Fraction_1Dig(V,Fracc)
-    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real(kind=sp) number
+    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real number
     !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
     !!----
     !!----    Get a string with the most simple fraction that uses single digits
@@ -1273,7 +1303,7 @@
 
     !!----
     !!---- Subroutine Get_Fraction_2Dig(V,Fracc)
-    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real(kind=sp) number
+    !!----    real(kind=cp),      intent( in) :: V       !  In -> Input real number
     !!----    character (len=*),  intent(out) :: Fracc   ! Out -> Fracction in character form
     !!----
     !!----    Get a string with the most simple fraction that uses up to two
@@ -1696,7 +1726,7 @@
     !!----
     !!---- Subroutine Getnum_Std(Line, Value, Std, Ic)
     !!----    character(len=*),            intent( in) :: Line    !  In -> Input String
-    !!----    real(kind=cp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real(kind=sp) numbers
+    !!----    real(kind=cp), dimension(:), intent(out) :: Value   ! Out -> Vector of values with real numbers
     !!----    real(kind=cp), dimension(:), intent(out) :: Std     ! Out -> Vector of standard deviation values
     !!----    integer,                     intent(out) :: Ic      ! Out -> Number of components of vector Value
     !!----
@@ -2232,7 +2262,7 @@
     !!----    integer,                                intent(in)      :: Nline_End    !  In -> Pointer to final position to search
     !!----    character(len=*),                       intent(in)      :: Keyword      !  In -> Word to search
     !!----    character(len=*),                       intent(out)     :: String       ! Out -> Rest of the input string
-    !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real numbers
     !!----    integer,dimension(:),         optional  intent(out)     :: Ivet         ! Out -> Vector for integer numbers
     !!----    integer,                      optional, intent(out)     :: Iv           ! Out -> Number of numbers
     !!----
@@ -2310,7 +2340,7 @@
     !!----                                                                  ! Out -> Pointer to final position in search
     !!----    integer,                       intent(in)      :: Nline_End   !  In -> Pointer to final position to search
     !!----    character(len=*),              intent(in)      :: Keyword     !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real numbers
     !!----    integer,dimension(:),          intent(out)     :: Ivet        ! Out -> Vector for integer numbers
     !!----    integer,                       intent(out)     :: Iv          ! Out -> Number of components
     !!----
@@ -2367,7 +2397,7 @@
     !!----                                                                   ! Out -> Pointer to final position in search
     !!----    integer,                        intent(in)     :: Nline_End    !  In -> Pointer to final position to search
     !!----    character(len=*),               intent(in)     :: Keyword      !  In -> Word to search
-    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real(kind=sp) numbers
+    !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet1         ! Out -> Vector of real numbers
     !!----    real(kind=cp),dimension(:),     intent(out)    :: Vet2         ! Out -> Vector of standard deviations
     !!----    integer,                        intent(out)    :: Iv           ! Out -> Number of components
     !!----
@@ -2481,8 +2511,8 @@
     !!----    real(kind=cp),            intent(in)  :: Std
     !!----    character(len=*),intent (out):: Line
     !!----
-    !!----    String with real(kind=sp) value and standar deviation
-    !!----    between parenthesis
+    !!----    String with real value and standard deviation
+    !!----    quoted in parenthesis
     !!----
     !!---- Update: February - 2005
     !!

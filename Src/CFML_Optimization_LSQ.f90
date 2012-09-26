@@ -1,6 +1,36 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project.
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Copyleft(C) 1999-2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, write to the
+!!---- Free Software Foundation, Inc.,
+!!---- 51 Franklin Street, Fifth Floor, Boston,
+!!---- MA  02110-1301  USA
+!!----
 !!----
 !!----
 !!---- MODULE: CFML_Optimization_LSQ
@@ -477,11 +507,11 @@
     !!--++     real(kind=cp),    dimension(:),      intent(in out)  :: w     !weight of observations
     !!--++     integer,                             intent(in)      :: nobs  !number of observations
     !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
-    !!--++     real(kind=sp),dimension(:),          intent(in out)  :: a     !vector of parameter
-    !!--++     real(kind=sp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
-    !!--++     real(kind=sp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=sp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=sp),                       intent(out)     :: chir
+    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: a     !vector of parameter
+    !!--++     real(kind=cp),dimension(:),          intent(in out)  :: sa    !estimated standard deviations
+    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
+    !!--++     real(kind=cp),                       intent(out)     :: chir
     !!--++     integer,                    intent(out)     :: ifail
     !!--++
     !!--++     Interface
@@ -654,9 +684,9 @@
     !!--++     Type(LSQ_Data_type)                  intent(in out)  :: d     !Data
     !!--++     Type(LSQ_Conditions_type),           intent(in)      :: c     !conditions for refinement
     !!--++     Type(LSQ_State_Vector_type),         intent(in out)  :: vs    !State Vector with model parameters
-    !!--++     real(kind=sp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
-    !!--++     real(kind=sp),dimension(:),          intent(out)     :: yc    !Calculated
-    !!--++     real(kind=sp),                       intent(out)     :: chir
+    !!--++     real(kind=cp),                       intent(in out)  :: fl    !Marquardt LAMBDA value
+    !!--++     real(kind=cp),dimension(:),          intent(out)     :: yc    !Calculated
+    !!--++     real(kind=cp),                       intent(out)     :: chir
     !!--++     integer,                    intent(out)     :: ifail
     !!--++
     !!--++     Interface

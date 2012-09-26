@@ -1,6 +1,36 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project.
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Copyleft(C) 1999-2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, write to the
+!!---- Free Software Foundation, Inc.,
+!!---- 51 Franklin Street, Fifth Floor, Boston,
+!!---- MA  02110-1301  USA
+!!----
 !!----
 !!---- MODULE: CFML_Math_General
 !!----   INFO: Mathematic general utilities for use in Crystallography and
@@ -1044,8 +1074,8 @@
 
     !!----
     !!---- Function BessJ(n,x) Result (bessj)
-    !!----    real(kind=sp), intent(in) : x
-    !!----    real(kind=sp)             : bessj
+    !!----    real(kind=cp), intent(in) : x
+    !!----    real(kind=cp)             : bessj
     !!----
     !!----    Bessel Fuction Jn(x)
     !!----    Returns the Bessel function Jn(x) for any real x and n >= 2.
@@ -1157,7 +1187,7 @@
     !!---- Elemental Function Negligible(v)
     !!----    complex/real(kind=sp),    intent( in) :: v
     !!----
-    !!----    Provides the value .TRUE. if the real(kind=sp)/complex
+    !!----    Provides the value .TRUE. if the real/complex
     !!----    number V is less than EPS
     !!----
     !!---- Update: February - 2005
@@ -1186,7 +1216,7 @@
 
     !!--++
     !!--++ Elemental Function Negligibler(v)
-    !!--++    real(kind=sp), intent( in) :: v
+    !!--++    real(kind=cp), intent( in) :: v
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Determines if a real number is negligible (abs < EPSS)
@@ -1435,7 +1465,7 @@
 
        !---- Local variables ----!
        integer       :: i,ia,ib
-       real(kind=sp) :: c
+       real(kind=cp) :: c
 
        co_linear=.true.
        do i=1,n
@@ -1473,7 +1503,7 @@
     !!--++    integer,                     intent(in)  :: n
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Determines if two real(kind=sp) vectors are co-linear
+    !!--++    Determines if two real vectors are co-linear
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -1485,7 +1515,7 @@
 
        !---- Local variables ----!
        integer       :: i,ia,ib
-       real(kind=sp) :: c
+       real(kind=cp) :: c
 
        co_linear=.true.
        do i=1,n
@@ -2428,10 +2458,10 @@
 
     !!--++
     !!--++ Function Trace_R(A)
-    !!--++    real(kind=sp), dimension(:,:), intent(in)  :: a
+    !!--++    real(kind=cp), dimension(:,:), intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculates the trace of a real(kind=sp) 3x3 array
+    !!--++    Calculates the trace of a real 3x3 array
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -2460,7 +2490,7 @@
     !!----                      or
     !!----    real(kind=cp),                   intent( in) :: v
     !!----
-    !!----    Provides the value .TRUE. if the real(kind=sp) number (or array) V is close enough
+    !!----    Provides the value .TRUE. if the real number (or array) V is close enough
     !!----    (whithin EPS) to an integer.
     !!----
     !!---- Update: February - 2005
@@ -2468,10 +2498,10 @@
 
     !!--++
     !!--++ Logical Function ZbelongM(V)
-    !!--++    real(kind=sp),   dimension(:,:), intent( in) :: v
+    !!--++    real(kind=cp),   dimension(:,:), intent( in) :: v
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Determines if a real(kind=sp) array is an Integer matrix
+    !!--++    Determines if a real array is an Integer matrix
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -2494,7 +2524,7 @@
     !!--++    real(kind=cp),  intent(in)  :: a
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Determines if a real(kind=sp) number is an Integer
+    !!--++    Determines if a real number is an Integer
     !!--++
     !!--++ Update: February - 2005
    !!
@@ -2515,7 +2545,7 @@
     !!--++    real(kind=sp),   dimension(:), intent( in) :: v
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Determines if a real(kind=sp) vector is an Integer vector
+    !!--++    Determines if a real vector is an Integer vector
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -2760,7 +2790,7 @@
     !!----    real(kind=sp),                    intent(out) :: determ !det(A) if real
     !!----                                                             det(AR)^2 + det(AI)^2 if complex
     !!----
-    !!----    Calculates the determinant of a real(kind=sp) square matrix.
+    !!----    Calculates the determinant of a real square matrix.
     !!----    Calculates the pseudo-determinant of a complex square matrix.
     !!----    The calculated value is only useful for linear dependency purposes.
     !!----    It tell us if the complex matrix is singular or not.
@@ -2779,11 +2809,11 @@
     !!--++ Subroutine Determinant_C(A,n,determ)
     !!--++    complex,          dimension(:,:), intent( in) :: A      !input square matrix (n,n)
     !!--++    integer,                          intent( in) :: n      !actual dimension of A
-    !!--++    real(kind=sp),                    intent(out) :: determ !det(A) if real
+    !!--++    real(kind=cp),                    intent(out) :: determ !det(A) if real
     !!--++                                                             det(AR)^2 + det(AI)^2 if complex
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculates the determinant of a real(kind=sp) square matrix.
+    !!--++    Calculates the determinant of a real square matrix.
     !!--++    Calculates the pseudo-determinant of a complex square matrix.
     !!--++    The calculated value is only useful for linear dependency purposes.
     !!--++    It tell us if the complex matrix is singular or not.
@@ -2799,7 +2829,7 @@
        real(kind=cp),           intent(out) :: determ
 
        !---- local variables ----!
-       real(kind=cp),    dimension(2*n,2*n) :: AC   !real(kind=sp) square matrix
+       real(kind=cp),    dimension(2*n,2*n) :: AC   !real square matrix
        real(kind=cp)                        :: d
        integer                              :: i,nn
        logical                              :: singular
@@ -2833,7 +2863,7 @@
     !!--++    real(kind=cp),                intent(out) :: determ  (determinant )
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Calculates the determinant of a real(kind=sp) square matrix.
+    !!--++    Calculates the determinant of a real square matrix.
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -4931,7 +4961,7 @@
 
     !!--++
     !!--++ Subroutine Swap_R(A,B)
-    !!--++    real(kind=sp) , intent(in out) :: a,b
+    !!--++    real(kind=cp) , intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4944,7 +4974,7 @@
        real(kind=cp), intent(in out) :: b
 
        !---- Local variables ----!
-       real(kind=sp) :: dum
+       real(kind=cp) :: dum
 
        dum=a
        a=b
@@ -4955,7 +4985,7 @@
 
     !!--++
     !!--++ Subroutine Swap_Rm(A,B)
-    !!--++    real(kind=sp), dimension(:,:), intent(in out) :: a,b
+    !!--++    real(kind=cp), dimension(:,:), intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -4979,7 +5009,7 @@
 
     !!--++
     !!--++ Subroutine Swap_Rv(A,B)
-    !!--++    real(kind=sp), dimension(:), intent(in out) :: a,b
+    !!--++    real(kind=cp), dimension(:), intent(in out) :: a,b
     !!--++
     !!--++    (OVERLOADED)
     !!--++    Swap the contents of a and b
@@ -5003,7 +5033,7 @@
 
     !!--++
     !!--++ Subroutine Masked_Swap_R(A,B,Mask)
-    !!--++    real(kind=sp), intent(in out) :: a,b
+    !!--++    real(kind=cp), intent(in out) :: a,b
     !!--++    logical,           intent(in) :: mask
     !!--++
     !!--++    (OVERLOADED)
@@ -5093,8 +5123,8 @@
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
-    !!--++    and eigenvectors of a real(kind=sp) tridiagonal symmetric matrix, or of
-    !!--++    a real(kind=sp) symmetric matrix previously reduced by tred. D is a vector
+    !!--++    and eigenvectors of a real tridiagonal symmetric matrix, or of
+    !!--++    a real symmetric matrix previously reduced by tred. D is a vector
     !!--++    with the diagonal elements of the tridiagonal matrix. on output
     !!--++    it returns the eigenvalues. the vector e inputs the subdiagonal
     !!--++    elements of the tridiagonal matrix, with E(1) arbitrary. on
@@ -5184,8 +5214,8 @@
     !!--++
     !!--++    (PRIVATE)
     !!--++    QL-algorithm with implicit shifts, to determine the eigenvalues
-    !!--++    and eigenvectors of a real(kind=sp) tridiagonal symmetric matrix, or of
-    !!--++    a real(kind=sp) symmetric matrix previously reduced by tred. D is a vector
+    !!--++    and eigenvectors of a real tridiagonal symmetric matrix, or of
+    !!--++    a real symmetric matrix previously reduced by tred. D is a vector
     !!--++    with the diagonal elements of the tridiagonal matrix. on output
     !!--++    it returns the eigenvalues. the vector e inputs the subdiagonal
     !!--++    elements of the tridiagonal matrix, with E(1) arbitrary. on
@@ -5290,7 +5320,7 @@
     !!--++
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find only eigenvalues
-    !!--++    Householder reduction of a real(kind=sp) symetric nxn matrix A.
+    !!--++    Householder reduction of a real symetric nxn matrix A.
     !!--++    On output A is replaced by the orthogonal matrix Q effecting
     !!--++    the transformation. D returns the diagonal elements of the tri-
     !!--++    diagonal matrix and E the off-diagonal elements with E(1)=0.
@@ -5375,7 +5405,7 @@
     !!--++    (PRIVATE)
     !!--++    Subroutine for preparing the matrix to find the complete set
     !!--++    of eigenvectors.
-    !!--++    Householder reduction of a real(kind=sp) symetric nxn matrix A.
+    !!--++    Householder reduction of a real symetric nxn matrix A.
     !!--++    On output A is replaced by the orthogonal matrix Q effecting
     !!--++    the transformation. D returns the diagonal elements of the tri-
     !!--++    diagonal matrix and E the off-diagonal elements with E(1)=0.

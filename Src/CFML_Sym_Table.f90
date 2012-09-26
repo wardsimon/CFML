@@ -1,6 +1,36 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project.
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Copyleft(C) 1999-2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, write to the
+!!---- Free Software Foundation, Inc.,
+!!---- 51 Franklin Street, Fifth Floor, Boston,
+!!---- MA  02110-1301  USA
+!!----
 !!----
 !!---- MODULE: CFML_Symmetry_Tables
 !!----   INFO: Tabulated information on Crystallographic Symmetry
@@ -276,7 +306,7 @@
 
     !!----
     !!---- LTR_A
-    !!----    real(kind=sp), dimension(3,2), parameter, public :: Ltr_A
+    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_A
     !!----
     !!----    Lattice Traslations of type A
     !!----
@@ -286,7 +316,7 @@
 
     !!----
     !!---- LTR_B
-    !!----    real(kind=sp), dimension(3,2), parameter, public :: Ltr_B
+    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_B
     !!----
     !!----    Lattice Traslations of type B
     !!----
@@ -296,7 +326,7 @@
 
     !!----
     !!---- LTR_C
-    !!----    real(kind=sp), dimension(3,2), parameter, public :: Ltr_C
+    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_C
     !!----
     !!----    Lattice Traslations of type C
     !!----
@@ -306,7 +336,7 @@
 
     !!----
     !!---- LTR_F
-    !!----    real(kind=sp), dimension(3,4), parameter, public
+    !!----    real(kind=cp), dimension(3,4), parameter, public
     !!----
     !!----    Lattice Traslations of type F
     !!----
@@ -317,7 +347,7 @@
 
     !!----
     !!---- LTR_I
-    !!----    real(kind=sp), dimension(3,2), parameter, public :: Ltr_I
+    !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_I
     !!----
     !!----    Lattice Traslations of type I
     !!----
@@ -327,7 +357,7 @@
 
     !!----
     !!---- LTR_R
-    !!----    real(kind=sp), dimension(3,3), parameter, public :: Ltr_R
+    !!----    real(kind=cp), dimension(3,3), parameter, public :: Ltr_R
     !!----
     !!----    Lattice Traslations of type R
     !!----
