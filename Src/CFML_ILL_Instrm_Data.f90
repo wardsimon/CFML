@@ -26,10 +26,7 @@
 !!---- Lesser General Public License for more details.
 !!----
 !!---- You should have received a copy of the GNU Lesser General Public
-!!---- License along with this library; if not, write to the
-!!---- Free Software Foundation, Inc.,
-!!---- 51 Franklin Street, Fifth Floor, Boston,
-!!---- MA  02110-1301  USA
+!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
 !!---- MODULE: CFML_ILL_Instrm_Data
@@ -3498,8 +3495,8 @@ Module CFML_ILL_Instrm_Data
     !!---- Subroutine to read a Numor of D4 Instrument at ILL
     !!----
     !!---- 9 Detectors x 64 cells
-    !!----   Each cell every 0.125º  (Total 8º by detector)
-    !!----   Angular space between detectors is 7º
+    !!----   Each cell every 0.125ï¿½  (Total 8ï¿½ by detector)
+    !!----   Angular space between detectors is 7ï¿½
     !!----
     !!---- Update: 18/03/2011
     !!
@@ -5339,9 +5336,9 @@ Module CFML_ILL_Instrm_Data
     !!----    Assign the global public variable: Instrm_directory
     !!----    It is assumed that the subroutine Set_ILL_data_directory has already been called.
     !!----
-    !!----    1º Look at the working_dir to define Instrm_directory
-    !!----    2º Arguments instrm, iyear and icycle is used with ILL_Data_Directory
-    !!----    3º If not year and cycle then use "data"
+    !!----    1ï¿½ Look at the working_dir to define Instrm_directory
+    !!----    2ï¿½ Arguments instrm, iyear and icycle is used with ILL_Data_Directory
+    !!----    3ï¿½ If not year and cycle then use "data"
     !!----    If the directory doesn't exist the subroutine rises an error condition
     !!----    by putting ERR_ILLData=.true. and filling the error message
     !!----    variable ERR_ILLData_Mess.

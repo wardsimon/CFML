@@ -26,10 +26,7 @@
 !!---- Lesser General Public License for more details.
 !!----
 !!---- You should have received a copy of the GNU Lesser General Public
-!!---- License along with this library; if not, write to the
-!!---- Free Software Foundation, Inc.,
-!!---- 51 Franklin Street, Fifth Floor, Boston,
-!!---- MA  02110-1301  USA
+!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
 !!---- MODULE: CFML_Diffraction_Patterns
@@ -276,7 +273,7 @@
        if (present(rlim)) then
           nlim=nint(rlim/difx)
        else
-          nlim=nint(0.5/difx)     ! 0.5º
+          nlim=nint(0.5/difx)     ! 0.5ï¿½
        end if
 
        ! Locating the index that X(i1) <= x < X(i1+1)
@@ -521,7 +518,7 @@
     !!----    real(kind=cp), optional,        intent(in)     :: Xmax
     !!----
     !!----    Calculate a Background using an iterative process according
-    !!----    to Brückner, S. (2000). J. Appl. Cryst., 33, 977-979.
+    !!----    to Brï¿½ckner, S. (2000). J. Appl. Cryst., 33, 977-979.
     !!----
     !!----
     !!---- Update: December - 2008

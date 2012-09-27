@@ -26,10 +26,7 @@
 !!---- Lesser General Public License for more details.
 !!----
 !!---- You should have received a copy of the GNU Lesser General Public
-!!---- License along with this library; if not, write to the
-!!---- Free Software Foundation, Inc.,
-!!---- 51 Franklin Street, Fifth Floor, Boston,
-!!---- MA  02110-1301  USA
+!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
 !!----
 !!----
 !!---- MODULE: CFML_Math_General
@@ -3466,7 +3463,7 @@
     !!----    real(kind=cp),    dimension(:),  intent(in out) :: b
     !!--<<
     !!----    Adapted from Numerical Recipes.
-    !!----    Solves the set of N linear equations A · X = B. Here the N × N matrix A is input,
+    !!----    Solves the set of N linear equations A ï¿½ X = B. Here the N ï¿½ N matrix A is input,
     !!----    not as the original matrix A, but rather as its LU decomposition, determined
     !!----    by the routine LU_DECOMP. INDX is input as the permutation vector of length N
     !!----    returned by LU_DECOMP. B is input as the right-hand-side vector B,
@@ -4397,9 +4394,9 @@
     !!----    real(sp/dp),dimension(:),  intent(   out) :: w  !W(n)
     !!----    real(sp/dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--<<
-    !!----    Given an M×N matrix A ,this routine computes its singular value decomposition,
-    !!----    A = U ·W ·VT . The matrix U replaces A on output. The diagonal matrix of
-    !!----    singular values W is output as the N-dimensional vector w. The N×N matrix V
+    !!----    Given an Mï¿½N matrix A ,this routine computes its singular value decomposition,
+    !!----    A = U ï¿½W ï¿½VT . The matrix U replaces A on output. The diagonal matrix of
+    !!----    singular values W is output as the N-dimensional vector w. The Nï¿½N matrix V
     !!----    (not the transpose VT )is output as v .
     !!----    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!-->>
@@ -4414,9 +4411,9 @@
     !!--++    real(dp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Given an M ×N matrix A ,this routine computes its singular value decomposition,
-    !!--++    A = U ·W ·VT . The matrix U replaces A on output. The diagonal matrix of
-    !!--++    singular values W is output as the N-dimensional vector w. The N×N matrix V
+    !!--++    Given an M ï¿½N matrix A ,this routine computes its singular value decomposition,
+    !!--++    A = U ï¿½W ï¿½VT . The matrix U replaces A on output. The diagonal matrix of
+    !!--++    singular values W is output as the N-dimensional vector w. The Nï¿½N matrix V
     !!--++    (not the transpose VT )is output as v .
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
@@ -4606,9 +4603,9 @@
     !!--++    real(sp),dimension(:,:),intent(   out) :: v  !V(n,n)
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Given an M ×N matrix A ,this routine computes its singular value decomposition,
-    !!--++    A = U ·W ·VT . The matrix U replaces A on output. The diagonal matrix of
-    !!--++    singular values W is output as the N-dimensional vector w. The N×N matrix V
+    !!--++    Given an M ï¿½N matrix A ,this routine computes its singular value decomposition,
+    !!--++    A = U ï¿½W ï¿½VT . The matrix U replaces A on output. The diagonal matrix of
+    !!--++    singular values W is output as the N-dimensional vector w. The Nï¿½N matrix V
     !!--++    (not the transpose VT )is output as v .
     !!--++    Adapted from Numerical Recipes. Valid for arbitrary real matrices
     !!--++
