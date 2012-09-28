@@ -1,7 +1,10 @@
 !!-------------------------------------------------------
 !!---- Crystallographic Fortran Modules Library (CrysFML)
 !!-------------------------------------------------------
-!!---- The CrysFML project.
+!!---- The CrysFML project is distributed under LGPL. In agreement with the
+!!---- Intergovernmental Convention of the ILL, this software cannot be used
+!!---- in military applications.
+!!----
 !!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
