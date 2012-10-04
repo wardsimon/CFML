@@ -320,7 +320,7 @@ Module CFML_ILL_Instrm_Data
    !!---- TYPE :: CALIBRATION_DETECTOR_TYPE
    !!--..
    !!---- Type, public :: Calibration_Detector_Type
-   !!----   character(len=4)                             :: Name_Instrm       ! Instrument Name
+   !!----   character(len=12)                            :: Name_Instrm       ! Instrument Name
    !!----   integer                                      :: NDet              ! Number of Detectors
    !!----   integer                                      :: NPointsDet        ! Number of Points by Detector
    !!----   real(kind=cp), dimension(:), allocatable     :: PosX              ! Relative Positions of each Detector
@@ -331,7 +331,7 @@ Module CFML_ILL_Instrm_Data
    !!---- Update: April - 2009
    !!
    Type, public :: Calibration_Detector_Type
-      character(len=4)                             :: Name_Instrm      ! Instrument Name
+      character(len=12)                            :: Name_Instrm      ! Instrument Name
       integer                                      :: NDet             ! Number of Detectors
       integer                                      :: NPointsDet       ! Number of Points per Detector
       real(kind=cp), dimension(:), allocatable     :: PosX             ! Relative Positions of each Detector
@@ -344,7 +344,7 @@ Module CFML_ILL_Instrm_Data
    !!--..
    !!---- Type, public :: diffractometer_type
    !!----    character(len=80)                         :: info                 !information about the instrument
-   !!----    character(len=10)                         :: name_inst            !Short name of the instrument
+   !!----    character(len=12)                         :: name_inst            !Short name of the instrument
    !!----    character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
    !!----    character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
    !!----    character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
@@ -381,7 +381,7 @@ Module CFML_ILL_Instrm_Data
    !!
    Type, public :: diffractometer_type
       character(len=80)                         :: info                 !information about the instrument
-      character(len=10)                         :: name_inst            !Short name of the instrument
+      character(len=12)                         :: name_inst            !Short name of the instrument
       character(len=15)                         :: geom                 !"Eulerian_4C","Kappa_4C","Lifting_arm","Powder","Laue"
       character(len=6)                          :: BL_frame             !Kind of BL-frame: "z-up" or "z-down"
       character(len=4)                          :: dist_units           !distance units: "mm  ","cm  ","inch"
@@ -552,7 +552,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: manip       ! principle scan angle
    !!----    integer                                    :: icalc       ! angle calculation type
    !!----    character(len=32)                          :: header      ! User, local contact, date
-   !!----    character(len=4)                           :: Instrm      ! Instrument name
+   !!----    character(len=12)                          :: Instrm      ! Instrument name
    !!----    character(len=32)                          :: title       !
    !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
    !!----    real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
@@ -580,7 +580,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: manip       ! principle scan angle
       integer                                    :: icalc       ! angle calculation type
       character(len=32)                          :: header      ! User, local contact, date
-      character(len=4)                           :: Instrm      ! Instrument name
+      character(len=12)                          :: Instrm      ! Instrument name
       character(len=32)                          :: title       !
       character(len=8)                           :: Scantype    ! omega, phi, etc...
       real(kind=cp), dimension(5)                :: angles      ! Angles: phi, chi, omega, 2theta(gamma), psi
@@ -607,7 +607,7 @@ Module CFML_ILL_Instrm_Data
    !!----    integer                                    :: manip       ! principle scan angle
    !!----    integer                                    :: icalc       ! angle calculation type
    !!----    character(len=32)                          :: header      ! User, local contact, date
-   !!----    character(len=4)                           :: Instrm      ! Instrument name
+   !!----    character(len=12)                          :: Instrm      ! Instrument name
    !!----    character(len=32)                          :: title       !
    !!----    character(len=8)                           :: Scantype    ! omega, phi, etc...
    !!----    real(kind=cp), dimension(3)                :: hmin        ! or h,k,l for omega-scans
@@ -641,7 +641,7 @@ Module CFML_ILL_Instrm_Data
       integer                                    :: manip           ! principle scan angle
       integer                                    :: icalc           ! angle calculation type
       character(len=32)                          :: header          ! User, local contact, date
-      character(len=4)                           :: Instrm          ! Instrument name
+      character(len=12)                          :: Instrm          ! Instrument name
       character(len=32)                          :: title           ! The title of the experiment
       character(len=8)                           :: Scantype        ! omega, phi, etc...
       real(kind=cp), dimension(3)                :: hmin            ! The hkls min
@@ -870,13 +870,13 @@ Module CFML_ILL_Instrm_Data
 
    !!----
    !!---- MACHINE_NAME
-   !!----    character(len=8), public :: machine_name
+   !!----    character(len=12), public :: machine_name
    !!----
    !!----    String containing information about the Instrument name
    !!----
-   !!---- Update: April - 2008
+   !!---- Updates: April - 2008, October 2012
    !!
-   character(len=8),   public  ::  machine_name
+   character(len=12),   public  ::  machine_name
 
    !!--++
    !!--++ N_KEYTYPES
@@ -1820,7 +1820,7 @@ Module CFML_ILL_Instrm_Data
        character(len=*),parameter :: Extension = '.Z'
 
        character(len=6) :: numstr
-       character(len=4) :: inst
+       character(len=8) :: inst
        character(len=5) :: yearcycle
        character(len=7) :: subdir
        logical          :: exists

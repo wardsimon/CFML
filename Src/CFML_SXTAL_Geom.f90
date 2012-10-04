@@ -266,7 +266,7 @@
     !!---- TYPE :: PSD_VAL_TYPE
     !!--..
     !!---- Type, public :: Psd_Val_Type       !Set of caracteristic parameters of the PSD
-    !!----    Character(len=10) :: name_inst  ! Short name of the instrument
+    !!----    Character(len=12) :: name_inst  ! Name of the instrument
     !!----    real(kind=cp)     :: xoff       !
     !!----    real(kind=cp)     :: zoff       !
     !!----    real(kind=cp)     :: radius     !
@@ -281,7 +281,7 @@
     !!---- Update: July - 2010
     !!
     Type, Public :: Psd_Val_Type
-       Character(len=10) :: name_inst ! Short name of the instrument
+       Character(len=12) :: name_inst ! Name of the instrument
        real(kind=cp)     :: xoff
        real(kind=cp)     :: zoff
        real(kind=cp)     :: radius
