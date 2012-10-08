@@ -320,7 +320,8 @@
           do i = 1, crys%npar
              if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
                     write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
-                    write(*,*) "alpha before" , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,crys%vlim2(crys%p(i))
+                    write(*,*) "alpha before" , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
+                                crys%vlim2(crys%p(i))
                     shift(crys%p(i)) = shift(crys%p(i))/2
                     state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
                     write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
@@ -421,23 +422,23 @@
           !//////////////////////////////////////////////////////////////////////////////////////
 
           ok = .true.
-          if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g() 
-          if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay() 
-          if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst() 
-          if ( numcal == 0 .and. ok ) CALL detun() 
+          if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g()
+          if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
+          if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst()
+          if ( numcal == 0 .and. ok ) CALL detun()
           if ((conv_b == 1 .or. conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
               numcal == 0 .or. conv_f==1)  .and. ok ) CALL optimz(infile, ok)
 
           IF(.NOT. ok) then
             IF(cfile) CLOSE(UNIT = cntrl)
             return
-          END IF 
-          CALL gospec(infile,outfile,ok) 
-          if(ok==.false.) then
-            print*, "Error calculating spectrum, please check input parameters"          
+          END IF
+          CALL gospec(infile,outfile,ok)
+          if(.not. ok) then
+            print*, "Error calculating spectrum, please check input parameters"
           else
             call scale_factor(difpat,rplex)
-          end if  
+          end if
           numcal = numcal + 1
           write(*,*) ' => Calculated Rp    :   ' , rplex
           write(*,*) ' => Best Rp up to now:   ' , rpo
@@ -456,7 +457,7 @@
             end do
           end if
           ok = .true.
-          
+
           IF(cfile) CLOSE(UNIT = cntrl)
           return
     End subroutine F_cost
@@ -510,7 +511,7 @@
       call new_getfil(infile, st,   gol)                           ! parametros para calculo
      ! write(*,*) "opti%npar", opti%npar, opti%
       opsan%Cost_function_name="R-factor"
-      
+
       IF(gol) then
         ok = sfc()
       else
@@ -559,11 +560,11 @@
 
               IF(ok) ok = get_g()
               IF(ok .AND. rndm) ok = getlay()
-              IF(ok) CALL sphcst() 
+              IF(ok) CALL sphcst()
               IF(ok) CALL detun()
-              IF(.NOT. ok) GO TO 999 
+              IF(.NOT. ok) GO TO 999
 ! See if there are any optimizations we can do
-              IF(ok) CALL optimz(infile, ok) 
+              IF(ok) CALL optimz(infile, ok)
 
 ! What type of intensity output does the user want?
            10  IF(ok) THEN
@@ -587,8 +588,9 @@
                 ELSE IF(n == 3) THEN
                    write(*,*) "calculating powder diffraction pattern"
                    CALL gospec(infile,outfile,ok)
-                       n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-                        
+
+                     n_high = nINT(half*(th2_max-th2_min)/d_theta + 1.0)
+
                      Do j = 1, n_high
                          ycalcdef(j) = brd_spc(j)
                          !write(*,*) ycalcdef(j)
@@ -993,7 +995,7 @@
                 WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',4
                 write(out,'(a,a)')          '#        FILE NAME  : ', " Bragg_position "
                 write(out,'(a,a)')          '#            TITLE  : ', " Bragg_position "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , d_punt
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , n_hkl
                 write(out,'(a)')            '#            MARKER : 8'       !open circles
                 write(out,'(a,F6.1)')       '#              SIZE : 3.0'     !size 0
                 write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  128,  0) ' !black
@@ -1004,22 +1006,13 @@
                else
                 write(*,*) 'The outfile cannot be created'
                end if
-                     deg = ymini * 0.25
-                     aa=h_min
-                   Do a=h_min, h_max
-                      bb=k_min
-                     do b=k_min, k_max
-                        cc= zero
-                       do c=1, 30
-                         if (dos_theta(aa,bb,cc) /= zero) then
-                            write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(aa, bb, cc)  , deg,  "(", aa,bb,cc,")", 1
-                         end if
-                         cc=cc+1
-                       End do
-                        bb=bb+1
-                     End do
-                      aa=aa+1
-                  End do
+
+               deg = ymini * 0.25
+
+               do i=1,n_hkl
+                 write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(i), deg,  "(", hkl_list(:,i),")", 1
+               end do
+
 
                 write(out,"(a)") "# END OF FILE "
                 close(unit=out)
@@ -1092,8 +1085,8 @@
               if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
                 call Lcase(opti%method )
                 write(*,*) "calling F_cost"
-                call Local_Optimize( F_cost,crys%NP_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),maxi=crys%vlim2(1:opti%npar),&
-                                    ipr=23  )
+                call Local_Optimize( F_cost,crys%NP_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
+                                    maxi=crys%vlim2(1:opti%npar),ipr=23  )
               else
                 write(*,*) "simplex to be added"
               end if
@@ -1198,7 +1191,7 @@
                 WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',4
                 write(out,'(a,a)')          '#        FILE NAME  : ', " Bragg_position "
                 write(out,'(a,a)')          '#            TITLE  : ', " Bragg_position "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , d_punt
+                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , n_hkl
                 write(out,'(a)')            '#            MARKER : 8'       !open circles
                 write(out,'(a,F6.1)')       '#              SIZE : 3.0'     !size 0
                 write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  128,  0) ' !black
@@ -1209,22 +1202,11 @@
                else
                 write(*,*) 'The outfile cannot be created'
                end if
-                     deg = ymini * 0.25
-                     aa=h_min
-                   Do a=h_min, h_max
-                      bb=k_min
-                     do b=k_min, k_max
-                        cc= zero
-                       do c=1, 30
-                         if (dos_theta(aa,bb,cc) /= zero) then
-                            write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(aa, bb, cc)  , deg,  "(", aa,bb,cc,")", 1
-                         end if
-                         cc=cc+1
-                       End do
-                        bb=bb+1
-                     End do
-                      aa=aa+1
-                  End do
+
+               deg = ymini * 0.25
+               do i=1,n_hkl
+                 write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(i), deg,  "(", hkl_list(:,i),")", 1
+               end do
 
                 write(out,"(a)") "# END OF FILE "
 !$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

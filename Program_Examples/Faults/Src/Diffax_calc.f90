@@ -3,7 +3,7 @@
    use CFML_GlobalDeps,       only: sp
    use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
                                     iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
-   use read_data,             only: crys_2d_type, read_structure_file, length 
+   use read_data,             only: crys_2d_type, read_structure_file, length
    use diffax_mod
 
    implicit none
@@ -1098,7 +1098,7 @@
 !     Utiliza las funciones:  ICAMAX  externa,  cabs1(zdum)
 !     Utiliza las subrutinas: CSCAL, CAXPY
       IMPLICIT NONE
-      COMPLEX*16, INTENT(IN OUT)               :: a(lda,1)
+      COMPLEX*16, INTENT(IN OUT)               :: a(lda,n)
       INTEGER, INTENT(IN)                      :: lda
       INTEGER, INTENT(IN OUT)                  :: n
       INTEGER, INTENT(IN OUT)                  :: ipvt(:) !ipvt(1)
@@ -1209,7 +1209,7 @@
 !     Utiliza las subrutinas:
       IMPLICIT NONE
       INTEGER                                  :: n
-      COMPLEX*16, INTENT(IN OUT)               :: cx(1)
+      COMPLEX*16, INTENT(IN)                   :: cx(1)
       INTEGER                                  :: incx
       REAL*8 smax
       INTEGER :: i,ix
@@ -1223,7 +1223,7 @@
       IF( n < 1 ) RETURN
       icamax = 1
       IF(n == 1)RETURN
-      IF(incx == 1)GO TO 20
+      IF(incx == 1) GO TO 20
 
 !        code for increment not equal to 1
 
@@ -1231,10 +1231,11 @@
       smax = cabs1(cx(1))
       ix = ix + incx
       DO  i = 2,n
-        IF(cabs1(cx(ix)) <= smax) GO TO 5
-        icamax = i
-        smax = cabs1(cx(ix))
-        5    ix = ix + incx
+        IF(cabs1(cx(ix)) > smax) then
+          icamax = i
+          smax = cabs1(cx(ix))
+        end if
+        ix = ix + incx
       END DO
       RETURN
 !        code for increment equal to 1
@@ -2342,7 +2343,15 @@
       k_max = k_upper
 
 
-       d_punt = -1
+      n_hkl=(h_upper -h_lower+1)* (k_upper -k_lower+1)* 80  !
+      if(allocated(dos_theta))   deallocate(dos_theta)
+      allocate(dos_theta(n_hkl))
+      dos_theta=0.0
+      if(allocated(hkl_list))   deallocate(hkl_list)
+      allocate(hkl_list(3,n_hkl))
+      hkl_list=0
+      n_hkl=0
+
 ! scan along h-axis from h_lower to h_upper
       DO  h = h_lower, h_upper
 ! determine limits along k for a given h
@@ -2398,11 +2407,12 @@
            l_comp = zero      !calculation of 2theta where there is a peak
 
             do ela = 1, nint(ll(theta,h,k))+1
-           !do ela = 1, ll(theta,h,k)+1
-              dos_theta(h,k,nint(l_comp)) = angle(h,k,l_comp) * rad2deg *2
-
+                 !do ela = 1, ll(theta,h,k)+1
+                 !dos_theta(h,k,nint(l_comp)) = angle(h,k,l_comp) * rad2deg *2
+              n_hkl=n_hkl+1
+              dos_theta(n_hkl)= angle(h,k,l_comp) * rad2deg *2
+              hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
               l_comp = l_comp +1
-              d_punt = d_punt +1
            end do
             !***********************************************************************
             IF(.NOT.shrp .OR. full_shrp == 1) THEN
@@ -2418,7 +2428,7 @@
                 IF(shrp) THEN
                   x = aglq16(h, k, l0, l1, ok)
                 ELSE
-! broad streaks  
+! broad streaks
                   x = fn(h, k, l0, l1, ok)
                 END IF
 
@@ -2514,7 +2524,7 @@
           END IF
         END DO
       END DO
-      
+
       getspc = .true.
       RETURN
       110 WRITE(op,300) 'GLQ16 returned error in GETSPC.'
@@ -4058,7 +4068,7 @@
 
           full_brd = 1
       if (conv_g == 1 .or. numcal == 0 ) then
-          IF(full_brd == 1) THEN 
+          IF(full_brd == 1) THEN
            ok = getspc(aglq16, infile)
           ELSE
             ok = getspc(glq16, infile)
@@ -4071,7 +4081,7 @@
           cut_off = zero
       IF(ok.AND.(th2_min == zero).AND.trim_origin) ok = trmspc(cut_off)
 
-    
+
       IF(ok) THEN
         IF(blurring == gauss) THEN
           WRITE(op,104) 'Gaussian'
@@ -5599,7 +5609,7 @@
       IF(.NOT.ok) GO TO 999
 
       IF(symgrpno == 11)   WRITE(op,202) 'Axial integration only selected.'
-    
+
       IF(dosymdump) THEN
         CALL getfnm(rootnam, sym_fnam, 'sym', ok)
         IF(.NOT.ok) THEN
@@ -6267,7 +6277,7 @@
         speci = spec(i)
 
        if (lambda2 /= 0 ) then
-       
+
         DO  j = n_low - i, n_high - i
           th_rng = tmp * j*j
           th_rng2 =  (((2*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
@@ -6978,7 +6988,7 @@
 
 ! external functions
 
-      
+
 ! statement functions
 ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0

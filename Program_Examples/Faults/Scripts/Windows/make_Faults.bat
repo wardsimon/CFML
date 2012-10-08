@@ -60,11 +60,17 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c -O3 -funroll-loops  -msse2   Diffax_glb.f90    -I"%CRYSFML%"\GFortran\LibC
-   gfortran -c -O3 -funroll-loops  -msse2   Faults_Read.f90   -I"%CRYSFML%"\GFortran\LibC
-   gfortran -c -O3 -funroll-loops  -msse2   Diffax_calc.f90   -I"%CRYSFML%"\GFortran\LibC
-   gfortran -c -O3 -funroll-loops  -msse2   Faults.f90        -I"%CRYSFML%"\GFortran\LibC
-   gfortran *.o -o Faults_gf -O3  -funroll-loops  -msse2         -L"%CRYSFML%"\GFortran\LibC -lcrysfml
+rem     gfortran -c -O3 -funroll-loops  -msse2   Diffax_glb.f90    -I"%CRYSFML%"\GFortran\LibC
+rem     gfortran -c -O3 -funroll-loops  -msse2   Faults_Read.f90   -I"%CRYSFML%"\GFortran\LibC
+rem     gfortran -c -O3 -funroll-loops  -msse2   Diffax_calc.f90   -I"%CRYSFML%"\GFortran\LibC
+rem     gfortran -c -O3 -funroll-loops  -msse2   Faults.f90        -I"%CRYSFML%"\GFortran\LibC
+rem     gfortran *.o -o Faults_gf -O3  -funroll-loops  -msse2      -L"%CRYSFML%"\GFortran\LibC -lcrysfml
+
+   gfortran -c -O0 -g -fbounds-check  -fbacktrace    Diffax_glb.f90    -I"%CRYSFML%"\GFortran\LibC
+   gfortran -c -O0 -g -fbounds-check  -fbacktrace    Faults_Read.f90   -I"%CRYSFML%"\GFortran\LibC
+   gfortran -c -O0 -g  -fbacktrace  -legacy  Diffax_calc.f90   -I"%CRYSFML%"\GFortran\LibC
+   gfortran -c -O0 -g -fbounds-check  -fbacktrace    Faults.f90        -I"%CRYSFML%"\GFortran\LibC
+   gfortran *.o -o Faults_gf     -L"%CRYSFML%"\GFortran\LibC -lcrysfml
    upx Faults_gf.exe
    if exist %FULLPROF% copy Faults_gf.exe %FULLPROF% > nul
    goto END

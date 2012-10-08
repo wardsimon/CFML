@@ -600,7 +600,10 @@
 
  REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: a_pos     !d->  x,y,z relative coordinates of each atom in each layer.
 
- real(kind=sp), dimension (80,80,80)     :: dos_theta
+ real(kind=sp), dimension (:), allocatable     :: dos_theta
+ integer, dimension(:,:), allocatable          :: hkl_list
+ integer                                       :: n_hkl
+
  REAL(kind=dp), dimension(3,MAX_A,MAX_L) :: l_r       !d->   Array of layer stacking vectors. The order is (column, row).
 
  REAL(kind=dp), dimension(MAX_SP)        :: brd_spc   ! Array holding the powder diffraction data
