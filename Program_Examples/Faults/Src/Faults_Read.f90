@@ -3,6 +3,7 @@
        use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
                                              err_string_mess, getnum, Ucase, cutst
        use CFML_Optimization_General, only : Opt_Conditions_Type
+       use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
        use CFML_Simulated_Annealing
        use diffax_mod
        implicit none
@@ -58,7 +59,7 @@
        logical                                          :: inf_thick                    !infinit stacking
        logical                                          :: trm                          !trim keyword: to supress peak at origin >trim_origin
        character(len=4), dimension(:,:),   allocatable  :: a_name                       !atom name (4characters wide)>atom_l o a_name?
-       integer,          dimension(:),     allocatable  :: centro                       !layer simetry : none or centrosymmetric  >only_real
+       integer,          dimension(:),     allocatable  :: centro                       !layer symmetry : none or centrosymmetric  >only_real
        integer,          dimension(:),     allocatable  :: cod
        integer,          dimension(:,:),   allocatable  :: a_num                        !atom number  > a_number
        real,             dimension(:,:,:), allocatable  :: ref_a_pos
@@ -101,6 +102,8 @@
       type (crys_2d_type),            save,  public  :: crys
       type (Opt_Conditions_Type),     save,  public  :: opti
       type (SimAnn_Conditions_type ), save,  public  :: opsan
+      type (LSQ_Conditions_type),     save,  public  :: cond
+      type (LSQ_State_Vector_Type),   save,  public  :: Vs
 
       !integer, parameter ::  nrp=80
 
@@ -1541,10 +1544,10 @@
     Subroutine Read_CALCULATION(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier
+      integer :: i,i1,i2,k, ier,n, j
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun
+      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lmq, ok_boxp, ok_maxfun, ok_corrmax, ok_tol
 
       logi=.true.
       i1=sect_indx(6)
@@ -1557,13 +1560,16 @@
       i=i1
 
       ok_sim=.false.; ok_opt=.false.; ok_eps=.false.; ok_acc=.false.; ok_iout=.false.; ok_mxfun=.false.
+      ok_lmq=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false.
 
       do
         i=i+1; if(i > i2) exit
         txt=adjustl(tfile(i))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
+        write(*,*) "do txt", txt
         k=index(txt," ")
         key=txt(1:k-1)
+
         Select Case(key)
 
           Case ('SIMULATION')
@@ -1617,6 +1623,159 @@
                   END IF
                   ok_sim = .true.
 
+          Case ("LMQ")
+            opt=4
+            txt=adjustl(txt(k+1:))
+            Cond%constr=.false.
+            Cond%reached=.false.
+            Cond%corrmax=50.0
+            Cond%nfev=0
+            Cond%njev=0
+            Cond%icyc=0
+            Cond%npvar=0
+            Cond%iw=0
+            Cond%tol=1.0e-5
+            Cond%percent=0.0
+
+          Case ("BOXP")
+            txt=adjustl(txt(k+1:))
+
+            read(unit=txt,fmt=*, iostat=ier) Cond%percent
+              if(ier /= 0 ) then
+                Err_crys=.true.
+                Err_crys_mess="ERROR reading boxp parameter"
+                logi=.false.
+                return
+              end if
+              if( Cond%percent <= 0.0 .or. Cond%percent >= 300.0)  then
+                Cond%constr=.false.
+              else
+                Cond%constr=.true.
+              end if
+            ok_boxp=.true.
+          Case ("CORRMAX")
+            txt=adjustl(txt(k+1:))
+            read(unit=txt,fmt=*, iostat=ier) Cond%corrmax
+            if(ier /= 0 ) then
+              Err_crys=.true.
+              Err_crys_mess="ERROR reading corrmax"
+              logi=.false.
+              return
+            end if
+            ok_corrmax=.true.
+          Case ("MAXFUN")
+            txt=adjustl(txt(k+1:))
+            read(unit=txt,fmt=*, iostat=ier) Cond%icyc
+            if(ier /= 0 ) then
+              Err_crys=.true.
+              Err_crys_mess="ERROR reading maxfun"
+              logi=.false.
+              return
+            end if
+            ok_maxfun=.true.
+          Case ("TOL")
+             txt=adjustl(txt(k+1:))
+             read(unit=txt,fmt=*, iostat=ier) Cond%tol
+             if(ier /= 0 ) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading tolerance"
+               logi=.false.
+               return
+             end if
+             ok_tol=.true.
+
+
+
+    !       do j=1,4   !Reading corrmax, icyc, tol, percent
+    !         txt=adjustl(tfile(i))
+    !         i=i+1; if(i > i2) exit
+    !         write(*,*) "LMQ", txt
+    !         n=index(txt,"boxp")
+    !         if(n /= 0) then
+    !           read(unit=txt,fmt=*, iostat=ier) Cond%percent
+    !           if(ier /= 0 ) then
+    !             Err_crys=.true.
+    !             Err_crys_mess="ERROR reading boxp parameter"
+    !             logi=.false.
+    !             return
+    !           end if
+    !           if( Cond%percent <= 0.0 .or. Cond%percent >= 300.0)  then
+    !             Cond%constr=.false.
+    !           else
+    !             Cond%constr=.true.
+    !           end if
+    !           cycle
+    !         end if
+    !
+    !         n=index(txt,"corrmax")
+    !         if(n /= 0) then
+    !           read(unit=txt(n+7:),fmt=*,iostat=ier) Cond%Corrmax
+    !           write(*,*) " Cond%Corrmax  ", Cond%Corrmax
+    !           if(ier /= 0 ) then
+    !             Err_crys=.true.
+    !             Err_crys_mess="ERROR reading corrmax"
+    !             logi=.false.
+    !             return
+    !           end if
+    !           cycle
+    !         end if
+    !         n=index(txt,"maxfun")
+    !         if(n /= 0) then
+    !           read(unit=txt(n+6:),fmt=*,iostat=ier)  Cond%icyc
+    !           write(*,*) "Cond%icyc   ", Cond%icyc
+    !           if(ier /= 0 ) then
+    !             Err_crys=.true.
+    !             Err_crys_mess="ERROR reading maxfun"
+    !             logi=.false.
+    !             return
+    !           end if
+    !           cycle
+    !         end if
+    !         n=index(txt,"tol")
+    !         if(n /= 0) then
+    !           read(unit=txt(n+3:),fmt=*,iostat=ier) Cond%tol
+    !           write(*,*) "Cond%tol", Cond%tol
+    !           if(ier /= 0 ) then
+    !             Err_crys=.true.
+    !             Err_crys_mess="ERROR reading tol"
+    !             logi=.false.
+    !             return
+    !           end if
+    !           cycle
+    !         end if
+    !       end do
+
+      !Initialise codes to zero
+            vs%code=0
+            write(*,*) "Cond%constr ,ok_corrmax , ok_tol , ok_maxfun", Cond%constr ,ok_corrmax , ok_tol , ok_maxfun
+            if (Cond%constr .and. ok_corrmax .and. ok_tol .and. ok_maxfun) then
+              ok_lmq=.true.
+            elseif(ok_corrmax .and. ok_tol .and. ok_maxfun .and. .not. Cond%constr ) then
+              ok_lmq=.true.
+            end if
+
+   !!----  Type, public :: LSQ_State_Vector_Type
+   !!integer                                    :: np         !total number of model parameters <= Max_Free_Par
+   !!   real(kind=cp),     dimension(Max_Free_Par) :: pv         !Vector of parameters
+   !!----     real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
+   !!----     real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
+   !!   integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
+   !!----     character(len=40), dimension(Max_Free_Par) :: nampar     !Names of parameters
+   !!----  End Type LSQ_State_Vector_Type
+
+
+   !!----  Type, public :: LSQ_Conditions_type
+   !! logical          :: constr          ! if true box constraint of percent% are applied to parameters
+   !!----     logical          :: reached         ! if true convergence was reached in the algorithm
+   !!integer          :: corrmax         ! value of correlation in % to output
+   !!----     integer          :: nfev            ! number of function evaluations (output component, useful for assessing LM algorithm)
+   !!----     integer          :: njev            ! number of Jacobian evaluations                 "
+   !!integer          :: icyc            ! number of cycles of refinement or maximum number of function evaluations in LM
+   !!----                                         ! In LM procedures the default value is icyc = maxfev = 100(npvar+1)
+   !!integer          :: npvar           ! number of effective free parameters of the model
+   !!----     integer          :: iw              ! indicator for weighting scheme (if iw=1 => w=1/yc)
+   !!real(kind=cp)    :: tol             ! tolerance value for applying stopping criterion in LM algorithm
+   !!real(kind=cp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
           Case ('LOCAL_OPTIMIZER')
             opt = 3
             opti%iquad = 1
@@ -1755,6 +1914,8 @@
      if(ok_sim) then
        return
      else if (ok_opt .and. ok_acc .and. ok_mxfun .and. ok_eps .and. ok_iout) then
+       return
+     else if (ok_lmq) then
        return
      else
         Err_crys=.true.
@@ -2240,7 +2401,7 @@
           return
         else
 
-          if (opt==3) then        !construction of some optimization variables
+          if (opt==3) then        !construction of some optimization variables(DFP)
             numpar = crys%npar
             n_plex = maxval(crys%p)
             opti%loops = 2 * n_plex
@@ -2251,14 +2412,25 @@
               sanvec%high(crys%p(i)) = crys%vlim2(i)
             end do
           end if
+          if (opt==4) then         !construction of some optimization variables  (LMQ)
+            vs%pv= crys%NP_refi
+            vs%code = crys%p
+            Cond%npvar=crys%npar
+            vs%np=maxval(crys%p)
+            vs%nampar=namepar(crys%npar)
+          end if
 
-          write(*,"(a,i2)") " Type of calculation (0=simulation, 3=local_optimizer): ",  opt
-          if (opt /=0) then
+
+          write(*,"(a,i2)") " Type of calculation (0=simulation, 3=local_optimizer, 4=LMQ): ",  opt
+          if (opt == 3) then
             write(*,"(2a)") " Method of calculation: ", opti%method
             write(*,"(a,i4 )") " Maximum number of function evaluations: ", opti%mxfun
             write(*,"(a,f5.2 )") "Stopping criterion: ", opti%eps
             write(*,"(a,i2 )") "Output file indicator: ", opti%iout
             write(*,"(a,f12.9 )") "Accuracy: ", opti%acc
+          elseif (opt == 4) then
+            write(*,"(2a)") " Method of calculation: ", opti%method
+            write(*,"(a,f5.2, 2i4, f5.2)") "percent, corrmax, maxfun, tol: ", Cond%percent, Cond%corrmax, Cond%icyc, cond%tol
           else
             write(*,"(a,3f7.2 )") "2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
             th2_min = th2_min * deg2rad

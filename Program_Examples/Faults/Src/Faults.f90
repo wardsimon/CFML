@@ -174,6 +174,8 @@
      use CFML_Simulated_Annealing
      use CFML_Crystal_Metrics,       only : Set_Crystal_Cell, Crystal_Cell_Type
      use CFML_Diffraction_patterns , only : diffraction_pattern_type
+     use CFML_Optimization_LSQ,      only : Levenberg_Marquardt_Fit
+     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
      use read_data,                  only : crys, read_structure_file, length,   opti
      use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
@@ -184,8 +186,10 @@
     implicit none
 
     public  :: F_cost!, Cost3
-    type (diffraction_pattern_type),  save  :: difpat
-    type (State_Vector_Type), public, save  :: st
+    type (diffraction_pattern_type),  save         :: difpat
+    type (State_Vector_Type), public, save         :: st
+    type (LSQ_Conditions_type),     save,  public  :: cond
+    type (LSQ_State_Vector_Type),   save,  public  :: Vs
     contains
 
 
@@ -347,6 +351,175 @@
 !         return
 !   End subroutine Cost3
 
+!! Subroutine Levenberg_Marquard_Fit(Model_Functn, m, c, Vs, chi2, infout,residuals)      Cost_LMQ, Nop, Cond, Vs, chi2, texte
+!!--..            Integer,                     Intent(In)      :: m        !Number of observations
+!!--..            type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
+!!--..            type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
+!!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
+!!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
+!!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+!!--..         End Subroutine
+
+!!Interface No_Fderivatives
+!!--..           Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
+!!--..             Use CFML_GlobalDeps, Only: cp
+!!--..             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
+!!--..             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
+!!--..             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
+!!--..             Integer,                       Intent(In Out):: iflag   !If iflag=1 calculate only fvec without changing fjac
+!!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
+!!--..         End Interface No_Fderivatives
+
+      Subroutine Cost_LMQ(m,npar,v,fvec,iflag)   !Levenberg Marquardt
+      Integer,                       Intent(In)    :: m !is the number of observations (Num_spots)
+      Integer,                       Intent(In)    :: npar !is the number of free parameters
+      Real (Kind=cp),Dimension(:),   Intent(In)    :: v !List of free parameters values
+      Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec   !Residuals Num_spots
+      Integer,                       Intent(In Out):: iflag
+
+      !local variables
+      logical                 :: ok
+      integer                 :: j ,i, k, a, b
+      real, dimension(300)     :: shift, state
+
+      write(*,*)"--------FCOST-------"
+
+          do i= 1, vs%np
+                shift(i) = v(i) - vector(i)
+                write(*,*)"v(i) ", v(i), i
+          end do
+
+          do i = 1, Cond%npvar
+             state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+             write(*,*)"state(i)", state(i), i
+          end do
+
+
+          !******* state(i) corrections *******
+
+          do i = 1, Cond%npvar
+             if (index (vs%nampar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
+                    write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
+                    write(*,*) "alpha before" , vs%nampar(i), state(i), shift(vs%code(i)) , crys%vlim1(crys%p(i)) ,&
+                                crys%vlim2(vs%code(i))
+                    shift(crys%p(i)) = shift(crys%p(i))/2
+                    state(i) = crys%list(i) +  mult(i) * shift(vs%code(i))
+                    write(*,*) "alpha after" , vs%nampar(i), state(i), shift(vs%code(i))
+                    do j=1,crys%npar
+                      write(*,*) "j", j, vs%nampar(j)
+                      if (index (vs%nampar(j) , 'alpha' ) == 1 .and.  vs%code(i) == vs%code(j)) &
+                          state(j) = crys%list(j) +  mult(j) * shift(vs%code(i))
+                      write(*,*) "other alpha" , vs%nampar(j), state(j), shift(vs%code(i))
+                    end do
+
+                    if (state(i) < zero .or. state(i) > zero) then
+                      shift(vs%code(i)) = - shift (vs%code(i))
+                      state(i) = crys%list(i) +  mult(i) * shift(vs%code(i))
+                      write(*,*) "alpha again" , vs%nampar(i), state(i), shift(vs%code(i))
+                    end if
+             else if (index (vs%nampar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
+                      state(i) = (-1.0) * state(i)  !Biso only >0
+             else if (index (vs%nampar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
+                      state(i) = (-1.0) * state(i)  !v only <0
+             else if (index (vs%nampar(i),'Dg') == 1 .or. index (vs%nampar(i), 'Dl') == 1 .or. index (vs%nampar(i),'u')  == 1 .or. &
+                      index (vs%nampar(i), 'w') == 1  .or. index (vs%nampar(i), 'x') == 1 ) then  !only >0
+                       state(i) = (-1.0) * state(i)
+             else
+                cycle
+             end if
+          End do
+
+          !update
+
+          crys%list(:) = state(:)
+
+          do i=1, vs%np
+                 vector(i) = v(i)
+          end do
+
+          do i=1, Cond%npvar
+            write(*,*)  vs%nampar(i), state(i)
+          end do
+
+
+          !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
+
+          do i=1, crys%npar
+
+            if (vs%nampar(i) ==  'u')    pv_u  = state(i)
+            if (vs%nampar(i) ==  'v')    pv_v  = state(i)
+            if (vs%nampar(i) ==  'w')    pv_w  = state(i)
+            if (vs%nampar(i) ==  'x')    pv_x  = state(i)
+            if (vs%nampar(i) ==  'Dg')   pv_dg = state(i)
+            if (vs%nampar(i) ==  'Dl')   pv_dl = state(i)
+            if (vs%nampar(i) ==  'cell_a')    cell_a = state(i)
+            if (vs%nampar(i) ==  'cell_b')    cell_b = state(i)
+            if (vs%nampar(i) ==  'cell_c')    cell_c = state(i)
+            if (vs%nampar(i) ==  'num_layers')  l_cnt = state(i)
+            if (index( vs%nampar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
+
+            do j=1, n_layers
+              do k=1, n_atoms
+                if (index (vs%nampar(i) , 'pos_x' )== 1)     then
+                    read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
+                    a_pos(1,a,b)  = state(i) * pi2
+                end if
+                if (index (vs%nampar(i) ,'pos_y' )== 1)    then
+                    read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
+                    a_pos(2,a,b)  = state(i) * pi2
+                end if
+                if (index (vs%nampar(i), 'pos_z' ) == 1 )   then
+                    read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
+                    a_pos(3,a,b)  = state(i) * pi2
+                end if
+                if (index (vs%nampar(i),'Biso')==1) then
+                    read (unit = vs%nampar(i)(5:6), fmt = "(2i1)" ) a,b
+                    a_b(a,b)  = state(i)
+
+                end if
+                if (index( vs%nampar(i) ,  'alpha' ) == 1)    then
+                    read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) b,a
+                    l_alpha(a,b)  = state(i)
+
+                end if
+                if (index (vs%nampar(i), 'tx' )== 1 )    then
+                    read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
+                    l_r(1,a,b)  = state(i)
+                end if
+                if (index (vs%nampar(i), 'ty' )== 1 )    then
+                    read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
+                    l_r(2,a,b)  = state(i)
+                end if
+                if (index (vs%nampar(i), 'tz' ) == 1)     then
+                    read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
+                    l_r(3,a,b)  = state(i)
+                end if
+              end do
+            end do
+          end do
+
+          ok = .true.
+          if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g()
+          if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
+          if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst()
+          if ( numcal == 0 .and. ok ) CALL detun()
+          if ((conv_b == 1 .or. conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
+              numcal == 0 .or. conv_f==1)  .and. ok ) CALL optimz(infile, ok)
+
+          IF(.NOT. ok) then
+            IF(cfile) CLOSE(UNIT = cntrl)
+            return
+          END IF
+          write(*,*)
+          CALL gospec(infile,outfile,ok)
+
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+      End subroutine Cost_LMQ
 !--------------------------------------------------------------------------------------------------------------------------------------------------
 
   ! Subroutine Nelder_Mead_Simplex(Model_Functn, Nop, P, Step, Var, Func, C, Ipr)
@@ -556,13 +729,15 @@
      use CFML_Simulated_Annealing
      use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
+     use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit
+     use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
      use read_data,                    only : new_getfil, read_structure_file, length,   &
-                                              crys, opti, opsan
+                                              crys, opti, opsan, cond, Vs
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor, Write_Prf
-     use dif_ref,                      only :  difpat , F_cost, st !, cost3
+     use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ !, cost3
 
      implicit none
 
@@ -575,6 +750,9 @@
       integer, parameter                                      :: out = 25
       real, dimension (:), allocatable                        :: resta
       character(len=10)                                       :: time, date
+      Real (Kind=cp)                                          :: chi2     !final Chi2
+      character(len=3000)                                     :: infout   !Information about the refinement (min length 256)
+
 
       pi = four * ATAN(one)
       pi2 = two * pi
@@ -984,120 +1162,14 @@
                     write(*,*)  namepar(i)  ,statok(i)
               end do
 
-              thmin=th2_min * rad2deg
-              thmax=th2_max * rad2deg
-              ymax = maxval(difpat%y)
-              ymini= -0.2 * ymax
-              ymin = ymini - 0.5* ymax
-              ymax = ymax + 0.5*ymax
 
-              CALL getfnm(filenam, outfile, '.pgf', ok)
+              CALL getfnm(filenam, outfile, '.prf', ok)
               if (ok) then
                 OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
-                call DATE_AND_TIME(date, time)
-
-                WRITE(out,'(a)')     '# .PGF (WinPLOTR Graphics file) created by FullProf:'
-                WRITE(out, '(12a)')  '# ' , date(7:8),'-',date(5:6),'-',date(1:4), '  at ',&
-                                            time(1:2),':',time(3:4),':',time(5:6)
-                WRITE(out,'(a)')      '#'
-                WRITE(out,'(a)') "# X SPACE:           1  0"
-                WRITE(out,'(a)') "# MAIN LEGEND TEXT:  "//trim(filenam)
-                WRITE(out,'(a)') "# X LEGEND TEXT   : 2Theta (degrees)"
-                WRITE(out,'(a)') "# Y LEGEND TEXT   : Diffracted-Intensity (arb.units)"
-                WRITE(out,'(a,4f14.6,2i4)') "# XMIN XMAX: " ,   thmin, thmax, thmin, thmax,1,1
-                WRITE(out,'(a,4f14.6,2i4)') "# YMIN YMAX: " ,  ymin ,ymax,ymin,ymax,1,1
-                WRITE(out,'(a)') "# X AND Y GRADUATIONS:   6  8  5  5"
-                WRITE(out,'(a)') "# WRITE TEXT (X grad., Y grad. , Yneg. grad. , file_name):   1  1  1  1"
-                WRITE(out,'(a)') "# GRID (X and Y):            0  0"
-                WRITE(out,'(a)') "# FRAME FEATURES:           0.70    3    3    1    4    3"
-                WRITE(out,'(a)') "# DRAW ERROR BARRS       :  N"
-                WRITE(out,'(a)') "# MAIN TITLE COLOR       :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# X LEGEND COLOR         :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# Y LEGEND COLOR         :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# X GRADUATIONS COLOR    :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# Y GRADUATIONS COLOR    :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# BACKGROUND SCREEN COLOR:  RGB(240,202,166)"
-                WRITE(out,'(a)') "# BACKGROUND TEXT COLOR  :  RGB(255,  0,  0)"
-                WRITE(out,'(a)') "# BACKGROUND PLOT COLOR  :  RGB(255,255,255)"
-                WRITE(out,'(a)') "# PLOT FRAME COLOR       :  RGB(  0,  0,  0)"
-                WRITE(out,'(a)') "# NUMBER OF PATTERNS:            4          "
-                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
-                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',1
-                write(out,'(a,a)')          '#        FILE NAME  : ', " Observed "
-                write(out,'(a,a)')          '#            TITLE  : ', " Yobs(res) "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ',difpat%npts
-                write(out,'(a)')            '#            MARKER : 4'       !open circles
-                write(out,'(a,F6.1)')       '#              SIZE : 1.5'     !size 1
-                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  0,255)' !Red
-                write(out,'(a,i6)')         '#             STYLE : 0'       !Points non continuous line
-                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
-                write(out,'(a,i6)')         '#        DATA: X Y  '
-                do i=1,difpat%npts
-                  write(unit=out,fmt="(f10.6,3f14.6)") difpat%x(i), difpat%y(i)
-                end do
-                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
-                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',2
-                write(out,'(a,a)')          '#        FILE NAME  : ', " Calculated "
-                write(out,'(a,a)')          '#            TITLE  : ', " Ycal(res) "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ', n_high
-                write(out,'(a)')            '#            MARKER : 4'       !open circles
-                write(out,'(a,F6.1)')       '#              SIZE : 0.0'     !size
-                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0, 0,0)' !Red
-                write(out,'(a,i6)')         '#             STYLE : 1'       !Continuous line
-                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
-                write(out,'(a,i6)')         '#        DATA: X Y  '
-                do i=1,n_high
-                  theta = thmin +(i-1)*d_theta *rad2deg * 2
-                  write(unit = out,fmt = "(f10.6,3f14.6)") theta,  ycalcdef(i)
-                end do
-                p_resta= n_high-1
-                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
-                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',3
-                write(out,'(a,a)')          '#        FILE NAME  : ', " Difference"
-                write(out,'(a,a)')          '#            TITLE  : ', " Yobs-Ycal "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : ', p_resta
-                write(out,'(a)')            '#            MARKER : 4'       !open circles
-                write(out,'(a,F6.1)')       '#              SIZE : 0.0'     !size 1
-                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  255,  0,0)' !?
-                write(out,'(a,i6)')         '#             STYLE : 1'       !Points non continuous line
-                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
-                write(out,'(a,i6)')         '#        DATA: X Y  '
-                thmin_o = difpat%xmin * deg2rad      !rad
-
-                if    ( th2_min/= thmin_o ) then
-                  punts= INT(half*(th2_min-thmin_o)/d_theta)
-                end if
-
-                do i=1,n_high-1
-                     resta(i) =(difpat%y(i+punts) - difpat%ycalc(i))+ymini
-                     write(unit=out,fmt="(2f15.7)") difpat%x(i+punts) , resta(i)!, difpat%y(i+punts)    ,difpat%ycalc(i), punts, ymini
-                end do
-
-                WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
-                WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',4
-                write(out,'(a,a)')          '#        FILE NAME  : ', " Bragg_position "
-                write(out,'(a,a)')          '#            TITLE  : ', " Bragg_position "
-                write(out,'(a,i10)')        '#  NUMBER OF POINTS : '  , n_hkl
-                write(out,'(a)')            '#            MARKER : 8'       !open circles
-                write(out,'(a,F6.1)')       '#              SIZE : 3.0'     !size 0
-                write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  0,  128,  0) ' !black
-                write(out,'(a,i6)')         '#             STYLE : 0'       !Continuous line
-                write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
-                write(out,'(a,i6)')         '#        DATA: X Y  '
-
-               else
+                call Write_Prf(difpat,out)
+              else
                 write(*,*) 'The outfile cannot be created'
-               end if
-
-               deg = ymini * 0.25
-
-               do i=1,n_hkl
-                 write(unit= out,fmt = "(2F15.7, 5x, a, 3i3, a, i3)") dos_theta(i), deg,  "(", hkl_list(:,i),")", 1
-               end do
-
-
-                write(out,"(a)") "# END OF FILE "
-                close(unit=out)
+              end if
 !$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
           Case (3) !Local optimizer
@@ -1188,7 +1260,96 @@
                 write(*,*) 'The outfile cannot be created'
               end if
 !$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-          Case default
+          Case (4) !LMQ
+
+            !Lectura del  pattern experimental y de los scattering factors:
+            write(*,"(a)") " => Reading Pattern file="//trim(dfile)
+            call  read_pattern(dfile,difpat,fmode )
+              if(Err_diffpatt) then
+                print*, trim(err_diffpatt_mess)
+              else
+                if (th2_min == 0 .and.  th2_max == 0  .and. d_theta == 0) then
+                   th2_min =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
+                   th2_max =  difpat%xmax
+                   d_theta =  difpat%step
+                   th2_min = th2_min * deg2rad
+                   th2_max = th2_max * deg2rad
+                   d_theta = half * deg2rad * d_theta
+                end if
+              end if
+            write(*,"(a)") " => Reading Background file="//trim(background_file)
+            call read_background_file(background_file, mode ,difpat)
+                  if(Err_diffpatt) print*, trim(err_diffpatt_mess)
+
+            !Fin de lectura
+
+            if(allocated (resta)) deallocate(resta)
+            allocate(resta(difpat%npts))
+
+            !Algunas operaciones antes de empezar:
+            check_sym = .false.
+            IF(symgrpno == UNKNOWN) THEN
+              symgrpno = get_sym(ok)
+              IF(.NOT. ok) GO TO 999
+              WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
+              IF(symgrpno /= 1) THEN
+                WRITE(op,201) '  to within a tolerance of one part in ',  &
+                    nint(one / tolerance)
+              END IF
+            ELSE
+              check_sym = .true.
+              CALL chk_sym(ok)
+              IF(.NOT. ok) GO TO 999
+            END IF
+
+            n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
+
+
+            if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
+            allocate(difpat%ycalc(n_high))
+            filenam = trim(infile(1:(index(infile,'.')-1)))
+
+           ! gen(1:n_plex) = v_plex(1:n_plex)
+
+
+            IF(ok) ok = get_g()
+            write(*,"(a)") " => Calling dump file="//trim(infile)
+            call dump(infile, p_ok)
+
+            call overlp()
+            call nmcoor ()
+
+
+!----------------------------------------------------------------------------------------------------------------------------
+            rpo = 1000                         !initialization of agreement factor
+            rpl = 0
+            do i=1, opti%npar                       !creation of the step sizes
+              steplex(i) = 0.2 * crys%NP_refi(i)
+              vector(i) = crys%NP_refi(i)
+            end do
+            open (unit=23, file='nelder_mess.out', status='replace', action='write')
+
+            call Levenberg_Marquardt_Fit(cost_LMQ, opti%npar, cond, Vs, chi2, infout)
+
+            write(*,*)'Rp', rpo
+            write(*,*) '_____________________________________'
+            write(*,'(3a)') ' Parameter     refined value    '
+            write(*,*) '_____________________________________'
+            do i = 1, numpar
+                  write(*,*)  namepar(i)  ,statok(i)
+            end do
+
+            CALL getfnm(filenam, outfile, '.prf', ok)
+              if (ok) then
+                OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
+                call Write_Prf(difpat,out)
+              else
+                write(*,*) 'The outfile cannot be created'
+              end if
+
+!-------------------------------------------------------------------------------------------------------------------------------
+
+            Case default
 
                 print*,"problems reading mode "
 
