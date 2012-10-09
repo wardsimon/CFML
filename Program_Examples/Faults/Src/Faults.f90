@@ -60,7 +60,7 @@
           !write(unit=cell_sp_string,fmt="(a,3f10.5,3f10.4,a)")"  CELL: ",cellp(1)%cell(:),cellp(1)%ang(:),"   SPGR: "//symb(1)
           write(i_prf,'(A)') trim(diff_pat%title)
 
-          write(i_prf,'(I7,5f12.5,i5)') 1,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
+          write(i_prf,'(i3,i7,5f12.5,i5)') 1,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
 
           nvk=0
           WRITE(i_prf,'(17I5)') n_hkl, nvk , nexcrg

@@ -23,6 +23,9 @@
        real                                             :: cell_gamma                   !gamma   >cell_gamma
        real                                             :: layer_a = 0.0, layer_b = 0.0 !layer characteristic widths (optional)
        real                                             :: ref_layer_a, ref_layer_b, rang_layer_a, rang_layer_b
+       real                                             :: zero_shift = 0.0
+       real                                             :: SyCos = 0.0
+       real                                             :: SySin = 0.0
        real                                             :: p_u = 0.0                    !u  > pv_u
        real                                             :: p_v = 0.0                    !v  > pv_v
        real                                             :: p_w = 0.0                    !w  > pv_w

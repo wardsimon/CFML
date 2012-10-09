@@ -2257,10 +2257,10 @@
       CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
 
       LOGICAL :: ok,  on_bndry, l_axis, shrp
-      INTEGER*4 h, k, h_lower, h_upper, k_lower, k_upper,ela
+      INTEGER*4 h, k, h_lower, h_upper, k_lower, k_upper
       INTEGER*4 m, i, max_indx
       REAL*8 s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val, tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
-      REAL*8  :: hkangl, ll, angle , angles , l_comp
+      REAL*8  :: hkangl, ll, angle , angles
       REAL*8 l, hk_th, x,  l_max, min_th, max_th
       REAL*8 w1, l1, l0, d_l,   w2, w3, l00
       COMPLEX*16 f(max_l)
@@ -2386,12 +2386,6 @@
               IF(tmp < min_th) tmp = min_th
               l1 = ll(tmp, h, k)
               shrp = any_sharp
-              ela=nint(l1)
-              if(ela /= 0) then
-                n_hkl=n_hkl+1
-                dos_theta(n_hkl)= angle(h,k,ela) * rad2deg *2
-                hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
-              end if
 
             ELSE
 
@@ -2408,12 +2402,10 @@
               ELSE
                 shrp = any_sharp
               END IF
-              ela=nint(l1)
-              n_hkl=n_hkl+1
-              dos_theta(n_hkl)= angle(h,k,ela) * rad2deg *2
-              hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
 
             END IF
+            call update_reflections(h,k,l1)
+
 ! m indexes into the array spec
             m = INT((tmp - min_th) / d_theta) + 1
             IF(.NOT. shrp .OR. full_shrp == 1) THEN
@@ -2454,6 +2446,9 @@
 ! if on boundary, apply appropriate weighting (mirror vs rotation only)
                   IF(on_bndry) x = x * bnds_wt
                 END IF
+
+                call update_reflections(h,k,l1)
+
                 IF(finite_width) THEN
                   CALL chwdth(h,k,l0,l1,x,m,max_indx)
                 ELSE
@@ -2461,6 +2456,7 @@
                 END IF
                 m = m + 1
               END DO
+
             ELSE
 ! line of sharp spots--detuned delta functions
 ! use knowledge of where spots are
@@ -2484,11 +2480,11 @@
                 tmp = intens(f, h, k, l, ok) * eps8
 ! find width of peak
                 x = eps10
-                80  IF(.NOT.ok) GO TO 120
+                80  IF(.NOT. ok) GO TO 120
                 x = two * x
                 CALL get_f(f, s(h,k,l+x), l+x)
                 IF(intens(f, h, k, l+x, ok) > tmp .AND. x <= eps2*d_l) GO TO 80
-                IF(.NOT.ok) GO TO 120
+                IF(.NOT. ok) GO TO 120
                 l0 = MAX(l - x, zero)
                 l1 = MIN(l + x, l_max)
                 x = aglq16(h, k, l0, l1, ok)
@@ -2507,7 +2503,7 @@
                 END IF
 
 ! see if not on l-axis
-                IF(.NOT.l_axis) THEN
+                IF(.NOT. l_axis) THEN
 ! apply multiplicity factor
                   x = x * mltplcty
 
@@ -2515,6 +2511,9 @@
                   IF(on_bndry) x = x * bnds_wt
                 END IF
                 m = INT(theta / d_theta) + 1
+
+                call update_reflections(h,k,l)
+
                 IF(finite_width) THEN
                   CALL chwdth(h,k,l0,l1,x,m,max_indx)
                 ELSE
@@ -2542,6 +2541,38 @@
       300 FORMAT(1X, a)
       400 FORMAT(1X, i3)
       END FUNCTION getspc
+
+      Subroutine update_reflections(h,k,l)
+        integer,       intent(in) :: h,k
+        real (kind=8), intent(in) :: l
+        real (kind=8) :: delta, ela, s, angle
+        integer :: j
+        integer, dimension(3) :: hkl
+        logical :: esta
+        ! S is the value of 1/d**2 at hkl
+        s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
+        ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+        angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
+
+        delta=abs(real(nint(l),kind=8) - l)
+        if( delta < eps2 ) then
+          ela=nint(l)
+          hkl=(/ h, k, nint(ela) /)
+          esta=.false.
+          do j=1,n_hkl
+            if(hkl(1) == hkl_list(1,j)  .and. hkl(2) == hkl_list(2,j) .and. hkl(3) == hkl_list(3,j)) then
+              esta=.true.
+              exit
+            end if
+          end do
+          if(.not. esta) then
+            n_hkl=n_hkl+1
+            dos_theta(n_hkl)= angle(h,k,ela) * rad2deg *2
+            hkl_list(:,n_hkl)= hkl
+          end if
+        end if
+        return
+      End Subroutine update_reflections
 
 !!S GETfiles2
 ! ______________________________________________________________________
