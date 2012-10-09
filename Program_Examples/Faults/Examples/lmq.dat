@@ -1,0 +1,145 @@
+{Ni(OH)2 with deformation and growth faults}
+{Correct values: Dg=490.76, Dl=459.63}
+
+
+
+INSTRUMENTAL  AND  SIZE  BROADENING
+  !type of radiation
+radiation   x-ray
+   !lambda1   lambda2   ratio
+wavelength   1.5406
+  !instr. broadening  u         v           w          x       Dg         Dl
+pseudo-voigt        0.003637  -0.003558   0.2274  0  490      459      trim
+                      0.0        0.0        0.0       0.0      0            0     (0.01   0.01   0.01   0.01   100.0  100.0  )
+
+STRUCTURAL
+   !a            b            c          gamma
+CELL   3.12864828   3.12864828   4.610875607   120.0
+   31.0           31.0          11.0          0.0     ( 0.1 0.1 0.1 0.1 )
+   !Laue simmetry
+SYMM   -3m
+   !number of layer types
+NLAYERS   4
+LWIDTH infinite
+
+
+
+LAYER 1       {ab}
+   !Layer simmetry
+LSYM   centrosymmetric
+   !Atom name   number   x      y      z         Biso      Occ
+ATOM    Ni2+        1        0.67 0.33         0      1.06197   0.5
+                         0.0    0.0    0.0       0.0               ( 0.1 0.1 0.1  0.1)
+   !Atom name   number   x      y      z         Biso      Occ
+ATOM    O2-        2        0.33     0.67   0.202022   0.75961   1.0
+                         0.0    0.0    21.0       0.0               ( 0.1 0.1 0.1  0.1)
+
+
+LAYER 2 = 1   {ca}
+
+LAYER 3 = 1   {ca}
+
+LAYER 4      {cb}
+!Layer simmetry
+LSYM   centrosymmetric
+   !Atom name   number   x      y      z         Biso      Occ
+ATOM   Ni2+         3       0.0    0.0    0.0       1.06197   0.5
+                         0.0    0.0    0.0       0.0            ( 0.1 0.1 0.1  0.1)
+   !Atom name   number   x      y      z         Biso      Occ
+ATOM     O2-         4      0.33 0.67     0.20022   0.75961   1.0
+                        0.0   0.0     21.0        0.0           ( 0.1 0.1 0.1  0.1)
+
+
+STACKING
+   !stacking type
+   recursive
+   !number of layers
+   infinite
+
+
+TRANSITIONS
+
+   !layer 1 to layer 1
+LT   0.99  0.0      0.0       1.0
+   0.0     0.0      0         0        ( 0.3 0.1 0.1 0.1)
+FW 0.0 0 0 0 0 0
+   !layer 1 to layer 2
+LT   0.005  0.333      0.66667     1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 1 to layer 3
+LT   0.0     0.0      0.0       0.0
+   0       0        0         0        ( 0.1 0.1 0.1 0.1)
+   !layer 1 to layer 4
+LT   0.005  0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+
+
+
+   !layer 2 to layer 1
+LT   0.00     0.0      0.0      0.0
+   0       0        0         0        ( 0.1 0.1 0.1 0.1)
+   !layer 2 to layer 2
+LT   0.99  0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 2 to layer 3
+LT   0.01  0.333      0.66667     1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 2 to layer 4
+LT   0.00    0.0      0.0       0.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+
+
+
+   !layer 3 to layer 1
+LT   0.01    0.333      0.66667      1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 3 to layer 2
+LT   0.0     0.0      0.0       0.0
+   0       0        0         0        ( 0.1 0.1 0.1 0.1)
+   !layer 3 to layer 3
+ LT  0.99   0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 3 to layer 4
+LT   0.0     0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+
+
+
+
+   !layer 4 to layer 1
+LT  0.01    0        0         1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 4 to layer 2
+ LT  0.00    0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 4 to layer 3
+LT   0.00    0.0      0.0       0.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+   !layer 4 to layer 4
+LT   0.99    0.0      0.0       1.0
+   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+
+
+CALCULATION
+  LMQ {type of optimization}
+  boxp    99
+  corrmax  1         ! value of correlation in % to output
+  maxfun  100        ! number of cycles of refinement or maximum number of function evaluations in LM. In LM procedures the default value is icyc = maxfev = 100(npvar+1)
+  tol     10-2       ! tolerance value for applying stopping criterion in LM algorithm
+
+
+EXPERIMENTAL
+
+        !filename    2thetamin  2thetamax  stepsize
+ FILE      simulation3.dat
+
+  EXCLUDED_REGIONS 2
+    0.0  15.0
+    60.0  180
+
+        ! file format
+ FFORMAT       free
+        !background filename
+ BGR       sim.bgr
+        !background calculation
+ BCALC       interpolation
