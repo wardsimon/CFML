@@ -2274,7 +2274,7 @@
 ! statement functions
 ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! LL is the maximum allowable l value for a given h,k and theta
+! LL is the maximum allowable l-value for a given h,k and theta
       ll(theta,h,k) = SQRT((fact * (SIN(theta))**2 - h*h*a0 - k*k*b0 - h*k*d0)/ c0)
 ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
@@ -2319,7 +2319,7 @@
 ! See if there is a chance of any sharp peaks.
 ! If so, an appropriate step along l is found, and any_sharp is .true.
       d_l = l_step(ok)
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
 ! If no sharp peaks were unambiguously detected, override user.
       IF(d_l == zero) full_shrp = 1
 ! determine extreme values of h
@@ -2360,12 +2360,12 @@
           IF(s(h,k,zero) > q*q) CYCLE
           l_axis = h == 0 .AND. k == 0
           hk_th = theta1
-          IF(.NOT.l_axis) hk_th = hkangl(DBLE(k), DBLE(h))
+          IF(.NOT. l_axis) hk_th = hkangl(DBLE(k), DBLE(h))
 ! see if in wedge to be scanned
           IF((theta1-hk_th)*(theta2-hk_th) <= eps3 .OR. symgrpno == 1) THEN
 ! if rotational symmetry only, do not take points on upper wedge plane
             IF(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
-            IF(symgrpno == 11 .AND. .NOT.l_axis) CYCLE
+            IF(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
          !   WRITE(op,200) 'Integrating along l at ',h,k,  &
          !       '''',infile(1:length(infile)),''''
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
@@ -2381,12 +2381,20 @@
               ffhkcnst = quarter*lambda*SQRT(a0*tmp2*tmp2 + b0*tmp3*tmp3)
             END IF
 ! get starting value of l
-            IF(l_axis) THEN
+            IF(l_axis) THEN   ! h==0 and k==0
               tmp = MIN(d_theta, max_th)
               IF(tmp < min_th) tmp = min_th
               l1 = ll(tmp, h, k)
               shrp = any_sharp
+              ela=nint(l1)
+              if(ela /= 0) then
+                n_hkl=n_hkl+1
+                dos_theta(n_hkl)= angle(h,k,ela) * rad2deg *2
+                hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
+              end if
+
             ELSE
+
               tmp = angle(h, k, zero)
               IF(tmp < min_th) THEN
                 l1 = ll(min_th,h,k)
@@ -2396,26 +2404,19 @@
               END IF
               IF(any_sharp .AND. full_shrp /= 1) THEN
                 shrp = sharp(h, k, d_l)
-                IF(.NOT.ok) GO TO 999
+                IF(.NOT. ok) GO TO 999
               ELSE
                 shrp = any_sharp
               END IF
+              ela=nint(l1)
+              n_hkl=n_hkl+1
+              dos_theta(n_hkl)= angle(h,k,ela) * rad2deg *2
+              hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
+
             END IF
 ! m indexes into the array spec
             m = INT((tmp - min_th) / d_theta) + 1
-   !**********************************************************************
-           l_comp = zero      !calculation of 2theta where there is a peak
-
-            do ela = 1, nint(ll(theta,h,k))+1
-                 !do ela = 1, ll(theta,h,k)+1
-                 !dos_theta(h,k,nint(l_comp)) = angle(h,k,l_comp) * rad2deg *2
-              n_hkl=n_hkl+1
-              dos_theta(n_hkl)= angle(h,k,l_comp) * rad2deg *2
-              hkl_list(:,n_hkl)= (/ h, k, nint(l_comp) /)
-              l_comp = l_comp +1
-           end do
-            !***********************************************************************
-            IF(.NOT.shrp .OR. full_shrp == 1) THEN
+            IF(.NOT. shrp .OR. full_shrp == 1) THEN
 ! broad streak or full adaptive integration over sharp spots
              ! IF(full_shrp == 1 .OR. full_brd == 1)  &
                !   WRITE(op,300) 'Full adaptive integration'
@@ -2432,7 +2433,7 @@
                   x = fn(h, k, l0, l1, ok)
                 END IF
 
-                IF(.NOT.ok) GO TO 110
+                IF(.NOT. ok) GO TO 110
 
 ! include weighting factors for radiation type
                 IF(rad_type == x_ray) THEN
@@ -2447,7 +2448,7 @@
                 END IF
 
 ! see if not on l-axis
-                IF(.NOT.l_axis) THEN
+                IF(.NOT. l_axis) THEN
 ! apply multiplicity factor
                   x = x * mltplcty
 ! if on boundary, apply appropriate weighting (mirror vs rotation only)
@@ -4079,7 +4080,7 @@
 
 ! suppress the huge peak near the origin if required
           cut_off = zero
-      IF(ok.AND.(th2_min == zero).AND.trim_origin) ok = trmspc(cut_off)
+      IF(ok .AND. (th2_min == zero) .AND. trim_origin) ok = trmspc(cut_off)
 
 
       IF(ok) THEN
@@ -4902,7 +4903,7 @@
             decided = .true.
             tmp = l_r(3,i1,i1)
             resonant = resonant .AND. yrdstk(z_step, tmp, ok)
-            IF(.NOT.ok) GO TO 990
+            IF(.NOT. ok) GO TO 990
           END IF
         END IF
       END DO
@@ -4913,11 +4914,11 @@
         DO  i1 = 1, n_layers
           DO  i2 = i1 + 1, n_layers
             IF(resonant) THEN
-              IF(there(i2,i1).AND.there(i1,i2)) THEN
+              IF(there(i2,i1) .AND. there(i1,i2)) THEN
                 decided = .true.
                 tmp = l_r(3,i2,i1) + l_r(3,i1,i2)
-                resonant = resonant.AND.yrdstk(z_step, tmp, ok)
-                IF(.NOT.ok) GO TO 991
+                resonant = resonant .AND. yrdstk(z_step, tmp, ok)
+                IF(.NOT. ok) GO TO 991
               END IF
             END IF
           END DO
@@ -4926,7 +4927,7 @@
 
 ! No Rij + Rji sequences occur.
 ! Check z-components of Rij + Rjk + Rki sequences (where i.ne.j.ne.k).
-      IF((n_layers > 2) .AND. .NOT.decided) THEN
+      IF((n_layers > 2) .AND. .NOT. decided) THEN
         DO  i1 = 1, n_layers
           DO  i2 = i1 + 1, n_layers
             DO  i3 = i2 + 1, n_layers
@@ -4937,14 +4938,14 @@
                   decided = .true.
                   tmp = l_r(3,i2,i1) + l_r(3,i3,i2) + l_r(3,i1,i3)
                   resonant = resonant .AND. yrdstk(z_step, tmp, ok)
-                  IF(.NOT.ok) GO TO 992
+                  IF(.NOT. ok) GO TO 992
                 END IF
                 IF(there(i3,i1).AND. there(i2,i3).AND.  &
-                      there(i1,i2).AND.resonant) THEN
+                      there(i1,i2) .AND. resonant) THEN
                   decided = .true.
                   tmp = l_r(3,i3,i1) + l_r(3,i2,i3) + l_r(3,i1,i2)
                   resonant = resonant .AND. yrdstk(z_step, tmp, ok)
-                  IF(.NOT.ok) GO TO 993
+                  IF(.NOT. ok) GO TO 993
                 END IF
               END IF
             END DO
@@ -4967,41 +4968,41 @@
                     decided = .true.
                     tmp = l_r(3,i2,i1) + l_r(3,i3,i2) + l_r(3,i4,i3) + l_r(3,i1,i4)
                     resonant = resonant.AND.yrdstk(z_step,tmp,ok)
-                    IF(.NOT.ok) GO TO 994
+                    IF(.NOT. ok) GO TO 994
                   END IF
                   IF(there(i2,i1).AND. there(i4,i2).AND.  &
-                        there(i3,i4).AND. there(i1,i3).AND.resonant) THEN
+                        there(i3,i4).AND. there(i1,i3) .AND. resonant) THEN
                     decided = .true.
                     tmp = l_r(3,i2,i1) + l_r(3,i4,i2) + l_r(3,i3,i4) + l_r(3,i1,i3)
-                    resonant = resonant.AND.yrdstk(z_step,tmp,ok)
-                    IF(.NOT.ok) GO TO 995
+                    resonant = resonant .AND. yrdstk(z_step,tmp,ok)
+                    IF(.NOT. ok) GO TO 995
                   END IF
                   IF(there(i3,i1).AND. there(i2,i3).AND.  &
-                        there(i4,i2).AND. there(i1,i4).AND.resonant) THEN
+                        there(i4,i2).AND. there(i1,i4) .AND. resonant) THEN
                     decided = .true.
                     tmp = l_r(3,i3,i1) + l_r(3,i2,i3) + l_r(3,i4,i2) + l_r(3,i1,i4)
-                    resonant = resonant.AND.yrdstk(z_step,tmp,ok)
-                    IF(.NOT.ok) GO TO 996
+                    resonant = resonant .AND. yrdstk(z_step,tmp,ok)
+                    IF(.NOT. ok) GO TO 996
                   END IF
                   IF(there(i3,i1).AND. there(i4,i3).AND.  &
-                        there(i2,i4).AND. there(i1,i2).AND.resonant) THEN
+                        there(i2,i4).AND. there(i1,i2) .AND. resonant) THEN
                     decided = .true.
                     tmp = l_r(3,i3,i1) + l_r(3,i4,i3) + l_r(3,i2,i4) + l_r(3,i1,i2)
-                    resonant = resonant.AND.yrdstk(z_step,tmp,ok)
-                    IF(.NOT.ok) GO TO 997
+                    resonant = resonant .AND. yrdstk(z_step,tmp,ok)
+                    IF(.NOT. ok) GO TO 997
                   END IF
                   IF(there(i4,i1).AND. there(i2,i4).AND.  &
-                        there(i3,i2).AND. there(i1,i3).AND.resonant) THEN
+                        there(i3,i2).AND. there(i1,i3) .AND. resonant) THEN
                     decided = .true.
                     tmp = l_r(3,i4,i1) + l_r(3,i2,i4) + l_r(3,i3,i2) + l_r(3,i1,i3)
-                    resonant = resonant.AND.yrdstk(z_step,tmp,ok)
-                    IF(.NOT.ok) GO TO 998
+                    resonant = resonant .AND. yrdstk(z_step,tmp,ok)
+                    IF(.NOT. ok) GO TO 998
                   END IF
                   IF(there(i4,i1).AND. there(i3,i4).AND.  &
                         there(i2,i3).AND. there(i1,i2).AND.resonant) THEN
                     decided = .true.
                     tmp = l_r(3,i4,i1) + l_r(3,i3,i4) + l_r(3,i2,i3) + l_r(3,i1,i2)
-                    resonant = resonant.AND.yrdstk(z_step,tmp,ok)
+                    resonant = resonant .AND. yrdstk(z_step,tmp,ok)
                     IF(.NOT.ok) GO TO 999
                   END IF
                 END IF
@@ -5016,7 +5017,7 @@
 ! structure is sufficiently complicated that we may be better
 ! off doing adaptive integration anyway. (d_l still equals 0.0.)
 
-      IF(decided.AND.resonant .AND. (tmp /= zero)) THEN
+      IF(decided .AND. resonant .AND. (tmp /= zero)) THEN
         l_step = one / tmp
         any_sharp = .true.
       ELSE

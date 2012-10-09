@@ -26,7 +26,7 @@
           !-----------------------------------------------
           !   L o c a l   V a r i a b l e s
           !-----------------------------------------------
-          integer ::  i, j, iposr
+          integer ::  i, j, iposr, ihkl, irc, nvk
 
           real :: twtet, dd, scl,yymi,yyma
           character (len=1)   :: tb
@@ -59,9 +59,9 @@
           !cell_sp_string=" "
           !write(unit=cell_sp_string,fmt="(a,3f10.5,3f10.4,a)")"  CELL: ",cellp(1)%cell(:),cellp(1)%ang(:),"   SPGR: "//symb(1)
           write(i_prf,'(A)') trim(diff_pat%title)
-          nphase=1
-          write(i_prf,'(I3,I7,5f12.5,i5)') nphase,diff_pat%npts,lamda,lamda2,0.0,0.0,0.0,0
-!              glb(1),glb(2),glb(3),0
+
+          write(i_prf,'(I7,5f12.5,i5)') 1,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
+
           nvk=0
           WRITE(i_prf,'(17I5)') n_hkl, nvk , nexcrg
 
@@ -106,7 +106,7 @@
          a=0
          punts=0
          do_a: Do j = 1, pat%npts
-           do i=,nexcrg
+           do i=1,nexcrg
             if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
            end do
             punts=punts+1
@@ -116,7 +116,7 @@
 
          c=0
          do_c:Do  j = 1, pat%npts
-           do i=,nexcrg
+           do i=1,nexcrg
             if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_c
            end do
            c = c + (pat%y(j) - pat%bgr(j))
@@ -145,7 +145,7 @@
       a=0.0
       b=0.0
       do_a: do j=1, pat%npts
-        do i=,nexcrg
+        do i=1,nexcrg
          if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
         end do
         a= a + pat%y(j)
@@ -155,7 +155,7 @@
       r =  b/a *100.0
       c=0.0
       do_c: do j=1, pat%npts
-        do i=,nexcrg
+        do i=1,nexcrg
          if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_c
         end do
         c = c + ((pat%y(j) - pat%ycalc(j))/pat%sigma(j))**2
@@ -178,7 +178,7 @@
      use read_data,                  only : crys, read_structure_file, length,   opti
      use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                             gospec, gostrk, gointr,gosadp, getfnm, nmcoor
-     use Diff_ref,                   only : scale_factor
+     use Diff_ref,                   only : scale_factor, Write_Prf
 
 
     implicit none
@@ -380,7 +380,7 @@
 
     logical                 :: ok
     integer                 :: j ,i, k, a, b
-    real, dimension(80)     :: shift, state
+    real, dimension(300)     :: shift, state
 
 
           write(*,*)"--------FCOST-------"
@@ -561,7 +561,7 @@
                                               crys, opti, opsan
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Diff_ref ,                    only : scale_factor
+     use Diff_ref ,                    only : scale_factor, Write_Prf
      use dif_ref,                      only :  difpat , F_cost, st !, cost3
 
      implicit none

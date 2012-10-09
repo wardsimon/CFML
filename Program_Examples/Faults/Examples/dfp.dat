@@ -133,6 +133,11 @@ EXPERIMENTAL
 
         !filename    2thetamin  2thetamax  stepsize
   FILE      simulation3.dat
+
+  EXCLUDED_REGIONS 2
+    0.0  15.0
+    60.0  180
+
         ! file format
  FFORMAT       free
         !background filename

@@ -129,6 +129,40 @@
       return
     End Subroutine Set_TFile
 
+    Subroutine read_fraction (line, real_num)
+
+        character(len=20), intent(in)  :: line        !string of numbers to convert to real
+        real              ,intent(out) :: real_num    ! string of real characters
+
+        integer                                       ::  j , ierr
+        real                                          :: numerator, denominator
+
+        j=0
+        j=index(line,"/")
+        if(j == 0) then                  !it is a real number
+          read ( line, fmt=*,iostat=ierr) real_num
+          if(ierr /= 0) then
+            ERR_String= .true.
+            ERR_String_Mess=" Error reading a real number! "
+            return
+          end if
+        else         !it was expressed as a ratio. delete the slash, '/'.
+          read(unit =line(1:j-1),fmt = *,iostat=ierr) numerator
+          if(ierr /= 0) then
+            ERR_String= .true.
+            ERR_String_Mess=" Error reading the numerator of a fraction! -> "//line(1:j-1)
+            return
+          end if
+          read(unit =line(j+1:),fmt = *,iostat=ierr) denominator  ! now contains two arguments, numerator and denominator.
+          if(ierr /= 0) then
+            ERR_String= .true.
+            ERR_String_Mess=" Error reading the denominator of a fraction! -> "//trim(line(j+1:))
+            return
+          end if
+          real_num = numerator/ denominator
+        end if
+    End subroutine read_fraction
+
     Subroutine Set_Sections_index()
       integer  :: k, l
       character(len=132) :: txt
@@ -912,9 +946,11 @@
     Subroutine Read_LAYER(logi)
       logical, intent(out) :: logi
 
-      integer :: i,i1,i2,i3, k, ier, a, a1, a2, r, tmp, j, m, l
+      integer :: i,i1,i2,i3, k, ier, a, a1, a2, r, tmp, j, m, l, nitem
+      character(len=20), dimension(30) :: citem
       character(len=132) :: txt, layer
       character(len=25)  :: key
+
       logical :: ok_lsym, ok_atom
       integer,          dimension(:),     allocatable  :: d !counts nº of atoms in unique layer
       real  :: ab
@@ -938,7 +974,7 @@
        !yy=0       ! counts nº of atoms in layer type
        j=0
        l=0
-
+       m=0
       do
         i=i+1; if(i > i2) exit
         txt=adjustl(tfile(i))
@@ -998,20 +1034,35 @@
 
             d(r)=d(r)+1
 
-            read (unit = txt, fmt =*, iostat=ier) crys%a_name(d(r),r), crys%a_num(d(r),r), crys%a_pos(1, d(r),r), &
-                                crys%a_pos(2,d(r),r), crys%a_pos(3,d(r),r), crys%a_B (d(r),r), crys%a_occup(d(r),r)
-              if(ier /= 0) then
-                   Err_crys=.true.
-                   Err_crys_mess="ERROR reading atomic parameters"
-                   logi=.false.
-                   return
+            call getword(txt, citem, nitem)
+            do m=1, 3
+              write(*,*) citem(2+m)
+              call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
+              if(ERR_String) then
+                write(unit=*,fmt="(a)") trim(ERR_String_Mess)
+                logi=.false.
+                return
+              end if
+            end do
+            crys%a_name(d(r),r)=citem(1)
+            read(unit=citem(2),fmt=*,iostat=ier) crys%a_num (d(r),r)
+            read(unit=citem(6),fmt=*,iostat=ier) crys%a_B (d(r),r)
+            read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
+
+            if(ier /= 0) then
+              Err_crys=.true.
+              Err_crys_mess="ERROR reading atomic parameters"
+              logi=.false.
+              return
             end if
+
             tmp = crys%a_pos(3,a,r)                          !to asign lower and upper positions ****
             IF(tmp > crys%high_atom(r)) crys%high_atom(r) = tmp
             IF(tmp < crys%low_atom(r))   crys%low_atom(r) = tmp
 
             i=i+1
             txt=adjustl(tfile(i))
+
             !reading refinement codes
             read (unit = txt, fmt =*, iostat=ier) crys%ref_a_pos(1, d(r),r), crys%ref_a_pos(2, d(r),r), &
                                                   crys%ref_a_pos(3, d(r),r), crys%ref_a_B(d(r),r)
@@ -1317,9 +1368,10 @@
 
     Subroutine Read_TRANSITIONS(logi)
       logical, intent(out) :: logi
-      integer :: i,i1,i2, k, ier, j, l
+      integer :: i,i1,i2, k, ier, j, l, nitem, m
       integer, parameter :: eps =1.0E-4
       real  :: ab, suma
+      character(len=20), dimension(30) :: citem
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_lt
@@ -1332,6 +1384,7 @@
       i=i1+1
       l=1
       j=0
+      m=0
 
         do
           if(i > i2) exit
@@ -1348,15 +1401,25 @@
 
           CASE ("LT")
             j=j+1
-            read (unit = txt, fmt =*, iostat = ier)  crys%l_alpha (j,l), &
-                               crys%l_r (1,j,l),crys%l_r (2,j,l),         &
-                               crys%l_r (3,j,l)
+
+            call getword(txt, citem, nitem)
+            do m=1, 3
+              call read_fraction(citem(1+m), crys%l_r (m,j,l))
+              if(ERR_String) then
+                write(unit=*,fmt="(a)") trim(ERR_String_Mess)
+                logi=.false.
+                return
+              end if
+            end do
+
+            read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
             if(ier /= 0) then
-              Err_crys=.true.
-              Err_crys_mess="ERROR reading layer stacking vectors"
-              logi=.false.
-              return
+                   Err_crys=.true.
+                   Err_crys_mess="ERROR reading atomic parameters"
+                   logi=.false.
+                   return
             end if
+
             i=i+1
             txt=adjustl(tfile(i))
 
@@ -1725,28 +1788,10 @@
 
         Select Case(key)
 
-        Case("EXCLUDED_REGIONS")
-           read(unit=txt,fmt=*, iostat=ier) nexcrg
-              if(ier /= 0 ) then
-                  Err_crys=.true.
-                  Err_crys_mess="ERROR reading number of excluded region"
-                  logi=.false.
-                  return
-              end if
-            do j=1,nexcrg
-               i=i+1; if(i > i2) exit
-               txt=adjustl(tfile(i))
-               read(unit=txt,fmt=*, iostat=ier)   alow(j),ahigh(j)
-               if(ier /= 0 ) then
-                   Err_crys=.true.
-                   write(unit=Err_crys_mess,fmt="(a,i3)")="ERROR reading the excluded region number ",j
-                   logi=.false.
-                   return
-               end if
-            end do
+
         Case("FILE")
 
-            read(unit=txt,fmt=*, iostat=ier)   dfile , th2_min, th2_max, d_theta
+            read(unit=txt,fmt=*, iostat=ier)   dfile !, th2_min, th2_max, d_theta
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
@@ -1759,6 +1804,26 @@
                 d_theta = half * deg2rad * d_theta
               end if
               ok_file=.true.
+
+          Case("EXCLUDED_REGIONS")
+            read(unit=txt,fmt=*, iostat=ier) nexcrg
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading number of excluded region"
+                  logi=.false.
+                  return
+              end if
+            do j=1,nexcrg
+               i=i+1; if(i > i2) exit
+               txt=adjustl(tfile(i))
+               read(unit=txt,fmt=*, iostat=ier)   alow(j),ahigh(j)
+               if(ier /= 0 ) then
+                   Err_crys=.true.
+                   write(unit=Err_crys_mess,fmt="(a,i3)"),"ERROR reading the excluded region number ",j
+                   logi=.false.
+                   return
+               end if
+            end do
 
           Case("FFORMAT")
             read(unit=txt,fmt=*,iostat=ier) fmode
@@ -1791,7 +1856,7 @@
               ok_bcalc=.true.
 
 
-           Case Default
+          Case Default
 
              cycle
 
@@ -1981,29 +2046,7 @@
         end if
         return
     End subroutine
-!_____________________________________________________________________________________________________________
 
- !      Subroutine read_fraction (line, n_comp, real_num)
- !
- !      character(len=*),dimension(:), intent(in out) :: line        !string of numbers to convert to real
- !      integer,                       intent(in    ) :: n_comp      !number of components in line
- !      real            ,dimension(:), intent(   out) :: real_num    ! string of real characters
- !
- !      integer                                       :: i, j
- !      real                                          :: numerator, denominator
- !
- !      do i = 1, n_comp
- !          j = index (line(i), '/')
- !          if(j == 0) then                  !it was already a number
- !            read ( line(i), fmt=*) real_num(i)
- !          else         !it was expressed as a ratio. delete the slash, '/'.
- !            line(i)(j:j) = ' '
- !            read(unit =line(i),fmt = *) numerator, denominator  ! now contains two arguments, numerator and denominator.
- !            real_num(i) = numerator/ denominator
- !          end if
- !      end do
- !
- !      End subroutine read_fraction
 !______________________________________________________________________________________________________
 
  !    INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax
