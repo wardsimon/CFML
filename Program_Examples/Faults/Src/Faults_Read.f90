@@ -64,7 +64,7 @@
        integer,          dimension(:)  ,   allocatable  :: l_n_atoms                    !number of atoms in each layer
        integer,          dimension(:),     allocatable  :: p                            ! refinable parameter index
        real,             dimension(:),     allocatable  :: mult                         ! refinable parameter multiplicator
-       real,             dimension(:,:),   allocatable  :: ref_l_alpha                  !index of refinement of l_alpha
+       real,             dimension(:,:),   allocatable  :: ref_l_alpha                  ! index of refinement of l_alpha
        real,             dimension(:,:,:), allocatable  :: ref_l_r                      ! refinement index of transitions vector
        real,             dimension(:,:,:), allocatable  :: rang_a_pos
        real,             dimension(:,:,:), allocatable  :: a_pos                        ! xyz coordinates of the atoms   >a_pos
@@ -99,7 +99,7 @@
       type (Opt_Conditions_Type),     save,  public  :: opti
       type (SimAnn_Conditions_type ), save,  public  :: opsan
 
-      integer, parameter ::  nrp=80
+      !integer, parameter ::  nrp=80
 
    contains
 
@@ -1701,7 +1701,7 @@
     Subroutine Read_EXPERIMENTAL(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k, ier
+      integer :: i,i1,i2,k,j, ier
       character(len=132) :: txt
       character(len=25)  :: key
       logical :: ok_file, ok_fformat, ok_bgr, ok_bcalc
@@ -1725,21 +1725,38 @@
 
         Select Case(key)
 
+        Case("EXCLUDED_REGIONS")
+           read(unit=txt,fmt=*, iostat=ier) nexcrg
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading number of excluded region"
+                  logi=.false.
+                  return
+              end if
+            do j=1,nexcrg
+               i=i+1; if(i > i2) exit
+               txt=adjustl(tfile(i))
+               read(unit=txt,fmt=*, iostat=ier)   alow(j),ahigh(j)
+               if(ier /= 0 ) then
+                   Err_crys=.true.
+                   write(unit=Err_crys_mess,fmt="(a,i3)")="ERROR reading the excluded region number ",j
+                   logi=.false.
+                   return
+               end if
+            end do
         Case("FILE")
 
             read(unit=txt,fmt=*, iostat=ier)   dfile , th2_min, th2_max, d_theta
-              if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
-                th2_min = th2_min * deg2rad
-                th2_max = th2_max * deg2rad
-                d_theta = half * deg2rad * d_theta
-              else                  ! no values are given for th2_min, th2_max, d_theta and will be obtained from the file
-                ier = 0
-              end if
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
                   logi=.false.
                   return
+              end if
+              if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
+                th2_min = th2_min * deg2rad
+                th2_max = th2_max * deg2rad
+                d_theta = half * deg2rad * d_theta
               end if
               ok_file=.true.
 
@@ -1909,31 +1926,31 @@
         crys%r_b31=0
 
         if(allocated (crys%vlim1)) deallocate(crys%vlim1)
-        allocate(crys%vlim1(nrp))
+        allocate(crys%vlim1(max_npar))
         crys%vlim1=0
 
         if(allocated (crys%vlim2)) deallocate(crys%vlim2)
-        allocate(crys%vlim2(nrp))
+        allocate(crys%vlim2(max_npar))
         crys%vlim2=0
 
         if(allocated (crys%list)) deallocate(crys%list)
-        allocate(crys%list(nrp))
+        allocate(crys%list(max_npar))
         crys%list=0
 
         if(allocated (crys%cod)) deallocate(crys%cod)
-        allocate(crys%cod(nrp))
+        allocate(crys%cod(max_npar))
         crys%cod=0
 
         if(allocated (crys%p)) deallocate(crys%p)
-        allocate(crys%p(nrp))
+        allocate(crys%p(max_npar))
         crys%p=0
 
         if(allocated (crys%mult)) deallocate(crys%mult)
-        allocate(crys%mult(nrp))
+        allocate(crys%mult(max_npar))
         crys%mult=0
 
         if(allocated (crys% NP_refi)) deallocate(crys% NP_refi)
-        allocate(crys% NP_refi(nrp))
+        allocate(crys% NP_refi(max_npar))
         crys% NP_refi=0
 
         return

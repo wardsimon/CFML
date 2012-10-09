@@ -278,7 +278,7 @@
                               max_ta=20,&    !MAX_TA -  the maximum number of different atom types
                               max_sp=200001,& !MAX_SP -  the maximum number of points in the spectrum
                               max_cyc=20,&   !MAX_CYC-  the maximum number of iteration cycles
- !                            max_npar= 30000, &      ! maximum number of parameters to refine
+                              max_npar= 300, &      ! maximum number of parameters to refine
                               sadsize=256    !SADSIZE - the array size for the selected area diffraction pattern
 
       INTEGER, PARAMETER :: xp_max=5000, &   !XP_MAX   -  the maximum number of layers that can be
@@ -366,11 +366,11 @@
 
  CHARACTER (LEN=31)    :: infile, outfile
 
- character (len=15), dimension(80):: namepar
- character (len = 20)                            :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
- character (len = 20)                             :: background_file  !name of backfround file
- character (len=20)                               :: mode             ! calculation for background: polynomial or interpolation
- character (len=20)                               ::  lstype !type of explicit stacking
+ character (len=15), dimension(max_npar):: namepar
+ character (len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
+ character (len = 20)                   :: background_file  !name of backfround file
+ character (len=20)                     :: mode             ! calculation for background: polynomial or interpolation
+ character (len=20)                     :: lstype !type of explicit stacking
 !
 !**********************     logical variables
 !
@@ -474,7 +474,7 @@
 
   INTEGER  :: PV_LRN = 5   !  numeric constant (= 5) indicating user wishes to simulate Lorentzian
                            !  instrumental broadening, with a variable half width
-  integer, dimension(80)      :: pnum
+  integer, dimension(max_npar)      :: pnum !refinable parameter index
   INTEGER  ::  maxsad    !  Maximum intensity of sadp patterns.
 
   INTEGER  ::  n_actual  ! Number of unique layers ( <= n_layers).
@@ -564,7 +564,7 @@
                         !    necessary to integrate over, as determined by
                         !    the diffraction point group symmetry.
 
- real(kind=sp), dimension(80)    :: mult,  gen
+ real(kind=sp), dimension(max_npar)    :: mult,  gen
  REAL(kind=dp)  :: PI          !    The value of pi, 3.141592653589793.....
  REAL(kind=dp)  :: PI2         !    The value of 2*pi
  REAL(kind=sp)  :: pv_gamma    !d-> Pseudo-Voigt gamma parameter.
@@ -613,7 +613,7 @@
 
  REAL(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
 
- real(kind=sp), dimension (80)           :: vector      !vector containing all the parameters to optimize
+ real(kind=sp), dimension (max_npar)     :: vector      !vector containing all the parameters to optimize
 
  REAL(kind=dp), dimension(MAX_A,MAX_L)  :: detune
    ! detune -  Array of small positive numbers whose purpose is to prevent the determinant of the
@@ -652,11 +652,11 @@
 
  REAL(kind=dp), dimension(9,MAX_TA) :: x_sf !s-> X-ray scattering factors.
 
- real(kind=sp),dimension (max_sp)   :: ycalcdef
- real(kind=sp),dimension(80)        :: statok
- real(kind=cp),dimension(80)        :: v_plex  ! vector of refinable parameters in simplex
- real(kind=cp),dimension(80)        :: steplex
- real(kind=cp),dimension(80)        :: var_plex !diagonal elements of the of the inverse of the information matrix.
+ real(kind=sp),dimension (max_sp)  :: ycalcdef
+ real(kind=sp),dimension(max_npar) :: statok
+ real(kind=cp),dimension(max_npar) :: v_plex  ! vector of refinable parameters in simplex
+ real(kind=cp),dimension(max_npar) :: steplex
+ real(kind=cp),dimension(max_npar) :: var_plex !diagonal elements of the of the inverse of the information matrix.
 
 !********************     complex*16 variables
 
@@ -668,6 +668,10 @@
 
   COMPLEX(kind=dp) :: wavefn   !  Coherent wavefunction calculated for an
                                !  explicitly defined sequence of layers (if requested)
+
+ integer, parameter        :: max_excl=100 !Maximum number of excluded regions
+ integer                   :: nexcrg       !Number of excluded regions
+ real, dimension(max_excl) :: alow, ahigh  !Excluded regions
 
  End Module diffax_mod
 !----------------------------------------------------------------------------------------------------
