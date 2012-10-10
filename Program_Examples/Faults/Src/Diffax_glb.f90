@@ -272,8 +272,8 @@
 !*****************      Declaration of parameters      *****************
 !***********************************************************************
 
-      IMPLICIT NONE
-      INTEGER, PARAMETER ::   max_l=20, &    !MAX_L  -  the maximum number of layer types allowed
+      Implicit None
+      Integer, Parameter ::   max_l=20, &    !MAX_L  -  the maximum number of layer types allowed
                               max_a=200,&    !MAX_A  -  the maximum number of atoms per layer
                               max_ta=20,&    !MAX_TA -  the maximum number of different atom types
                               max_sp=200001,& !MAX_SP -  the maximum number of points in the spectrum
@@ -281,7 +281,7 @@
                               max_npar= 300, &      ! maximum number of parameters to refine
                               sadsize=256    !SADSIZE - the array size for the selected area diffraction pattern
 
-      INTEGER, PARAMETER :: xp_max=5000, &   !XP_MAX   -  the maximum number of layers that can be
+      Integer, Parameter :: xp_max=5000, &   !XP_MAX   -  the maximum number of layers that can be
                                              !            explicitly sequenced non-recursively.
                               rcsv_max=1022,&!RCSV_MAX -  the maximum number of layers that can be
                                              !            explicitly sequenced recursively. RCSV_MAX should
@@ -290,14 +290,14 @@
                               max_bin=10     !MAX_BIN   -  Maximum number of 'bits' to be used in binary
                                              !             representation of RCRSV_MAX+2
 
-      INTEGER, PARAMETER :: ffact_size=201,&   !FFACT_SIZE-  Array size for pre-computed Lorentzian used for
+      Integer, Parameter :: ffact_size=201,&   !FFACT_SIZE-  Array size for pre-computed Lorentzian used for
                                                !             computing the lateral (a-b) size broadening.
                               n_sigmas=7       !N_SIGMAS  -  Number of half-widths to compute Lorentzian. The
                                                !             remainder of the array goes linearly to zero.
 
-      REAL(kind=dp),    PARAMETER :: inf_width=1.0D4  !inf_width -  Layer width in Angstroms that DIFFaX considers to
+      Real(kind=dp),    Parameter :: inf_width=1.0D4  !inf_width -  Layer width in Angstroms that DIFFaX considers to
                                                !             be infinite, with no detectable size broadening
-      INTEGER, PARAMETER :: ip=5, &     !ip  -  standard input device number
+      Integer, Parameter :: ip=5, &     !ip  -  standard input device number
                               op=6, &   !op  -  standard output device number
                               df=2, &   !df  -  unit that the structure data file will be read from
                               sf=4, &   !sf  -  unit that the standard scattering factor data will be read from
