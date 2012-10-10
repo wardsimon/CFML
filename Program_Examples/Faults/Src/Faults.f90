@@ -12,7 +12,7 @@
         private
 
         !public subroutines
-        public :: scale_factor, Write_Prf
+        public :: scale_factor, scale_factor_lmq, Write_Prf
 
         contains
 !________________________________________________________________________________________________________________________
@@ -94,10 +94,90 @@
 
           RETURN
         End Subroutine Write_Prf
+       Subroutine scale_factor_lmq(pat, fvec, chi2)
+         type (diffraction_pattern_type)  , intent (in out) :: pat
+         Real (Kind=cp),Dimension(:),         Intent(   Out):: fvec
+         real                                  ,Intent( out):: chi2
+         real                                               :: a ,  c, r
+         real                                               :: thmin, thmax  , thmin_o
+         integer                                            :: n_high, punts=0
+         integer                                            :: i,j
 
-       Subroutine scale_factor (pat,r)
+
+
+
+
+         a=0
+         punts=0
+         do_a: Do j = 1, pat%npts
+           do i=1,nexcrg
+            if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
+           end do
+            punts=punts+1
+            pat%ycalc(j)  = brd_spc(j)
+            a = a + pat%ycalc(j)
+         End do do_a
+
+         c=0
+         do_c:Do  j = 1, pat%npts
+           do i=1,nexcrg
+            if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_c
+           end do
+           c = c + (pat%y(j) - pat%bgr(j))
+         End do do_c
+
+         pat%scal = c/a
+
+         Do j = 1, pat%npts
+          pat%ycalc(j) = pat%scal * pat%ycalc(j)+ pat%bgr(j)
+         End do
+
+
+
+         call calc_par_lmq(pat, punts, r,fvec, chi2)
+         return
+       End subroutine scale_factor_lmq
+
+       Subroutine calc_par_lmq (pat, punts, r, fvec, chi2)
+       type (diffraction_pattern_type), intent(in    ) :: pat
+       integer                        , intent(in    ) :: punts
+       real                           , intent(   out) :: r
+       Real (Kind=cp),Dimension(:),        Intent( out):: fvec
+       real                               ,Intent( out):: chi2
+       real                                            :: a,b,c
+       integer                                         :: j,i
+
+       a=0.0
+       b=0.0
+       do_a: do j=1, pat%npts
+         do i=1,nexcrg
+          if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
+         end do
+         a= a + pat%y(j)
+         b= b + abs(pat%y(j) - pat%ycalc(j))
+       end do do_a
+
+       r =  b/a *100.0
+       c=0.0
+       do_c: do j=1, pat%npts
+         do i=1,nexcrg
+          if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_c
+         end do
+         fvec(j)=  (pat%y(j) - pat%ycalc(j))/sqrt(pat%sigma(j))
+         c = c + fvec(j)*fvec(j)
+       end do do_c
+       chi2= c/(punts-opti%npar)
+
+
+
+       write (*,*) r, chi2 , punts-opti%npar
+       return
+       End subroutine calc_par_lmq
+
+       Subroutine scale_factor (pat,r, chi2)
          type (diffraction_pattern_type)  , intent (in out) :: pat
          real                             , intent (   out) :: r
+         real                             , intent (   out) :: chi2
          real                                               :: a ,  c
          real                                               :: thmin, thmax  , thmin_o
          integer                                            :: n_high, punts=0
@@ -128,17 +208,17 @@
           pat%ycalc(j) = pat%scal * pat%ycalc(j)+ pat%bgr(j)
          End do
 
-         call calc_par(pat, punts, r)
+         call calc_par(pat, punts, r, chi2)
          return
       End subroutine scale_factor
 
 !____________________________________________________________________________________________________________________________
 
-    Subroutine calc_par (pat, punts, r)
+    Subroutine calc_par (pat, punts, r, chi2)
       type (diffraction_pattern_type), intent(in    ) :: pat
       integer                        , intent(in    ) :: punts
       real                           , intent(   out) :: r
-      real                                            :: chi2
+      real                           , intent(   out) :: chi2
       real                                            :: a,b,c
       integer                                         :: j,i
 
@@ -158,7 +238,7 @@
         do i=1,nexcrg
          if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_c
         end do
-        c = c + ((pat%y(j) - pat%ycalc(j))/pat%sigma(j))**2
+        c = c + ((pat%y(j) - pat%ycalc(j))**2/pat%sigma(j))
       end do do_c
       chi2= c/(punts-opti%npar)
       write (*,*) r, chi2 , punts-opti%npar
@@ -177,19 +257,17 @@
      use CFML_Optimization_LSQ,      only : Levenberg_Marquardt_Fit
      use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
-     use read_data,                  only : crys, read_structure_file, length,   opti
+     use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
      use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                             gospec, gostrk, gointr,gosadp, getfnm, nmcoor
-     use Diff_ref,                   only : scale_factor, Write_Prf
+     use Diff_ref,                   only : scale_factor, scale_factor_lmq, Write_Prf
 
 
     implicit none
 
-    public  :: F_cost!, Cost3
+    public  :: F_cost, Cost_LMQ !Cost3
     type (diffraction_pattern_type),  save         :: difpat
     type (State_Vector_Type), public, save         :: st
-    type (LSQ_Conditions_type),     save,  public  :: cond
-    type (LSQ_State_Vector_Type),   save,  public  :: Vs
     contains
 
 
@@ -380,24 +458,25 @@
       !local variables
       logical                 :: ok
       integer                 :: j ,i, k, a, b
-      real, dimension(300)     :: shift, state
+      real, dimension(300)    :: shift, state
+      real                    :: chi2
 
+      fvec=0.0
+      !chi2=chi2o
       write(*,*)"--------FCOST-------"
 
-          do i= 1, vs%np
+          do i= 1, opti%npar
                 shift(i) = v(i) - vector(i)
-                write(*,*)"v(i) ", v(i), i
           end do
 
-          do i = 1, Cond%npvar
+          do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             write(*,*)"state(i)", state(i), i
           end do
 
 
           !******* state(i) corrections *******
 
-          do i = 1, Cond%npvar
+          do i = 1, crys%npar
              if (index (vs%nampar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
                     write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
                     write(*,*) "alpha before" , vs%nampar(i), state(i), shift(vs%code(i)) , crys%vlim1(crys%p(i)) ,&
@@ -433,11 +512,11 @@
 
           crys%list(:) = state(:)
 
-          do i=1, vs%np
+          do i=1, opti%npar                 !vector upload
                  vector(i) = v(i)
           end do
 
-          do i=1, Cond%npvar
+          do i=1, crys%npar
             write(*,*)  vs%nampar(i), state(i)
           end do
 
@@ -445,7 +524,6 @@
           !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
 
           do i=1, crys%npar
-
             if (vs%nampar(i) ==  'u')    pv_u  = state(i)
             if (vs%nampar(i) ==  'v')    pv_v  = state(i)
             if (vs%nampar(i) ==  'w')    pv_w  = state(i)
@@ -510,13 +588,35 @@
             IF(cfile) CLOSE(UNIT = cntrl)
             return
           END IF
-          write(*,*)
           CALL gospec(infile,outfile,ok)
 
-          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+          if(.not. ok) then
+            print*, "Error calculating spectrum, please check input parameters"
+          else
+            call scale_factor_lmq(difpat,fvec, chi2)
+          end if
+          numcal = numcal + 1
+          write(*,*) ' => Calculated Chi2    :   ' , chi2
+          write(*,*) ' => Best Chi2 up to now:   ' , chi2o
+      !    write(*,*) var_plex(:)
 
+          if (chi2 < chi2o ) then                  !To keep calculated intensity for the best value of rplex
+            chi2o = chi2
+            statok(1:crys%npar) = state( 1:crys%npar)
 
+            write(*,*)  ' => Writing the best calculated pattern up to now. Chi2 : ', chi2o
+            do j = 1, n_high
+              ycalcdef(j) = difpat%ycalc(j)
+            end do
+            do j=1, l_cnt
+              l_seqdef(j) = l_seq(j)
+            end do
+          end if
+          ok = .true.
+
+          IF(cfile) CLOSE(UNIT = cntrl)
+          return
 
 
       End subroutine Cost_LMQ
@@ -553,17 +653,15 @@
 
     logical                 :: ok
     integer                 :: j ,i, k, a, b
-    real, dimension(300)     :: shift, state
-
+    real, dimension(300)    :: shift, state
+    real                    :: chi2
 
           write(*,*)"--------FCOST-------"
 
            !--- to avoid warnings
           if(present(g)) g=0.0
-
           do i= 1, opti%npar
                 shift(i) = v(i) - vector(i)
-                !write(*,*)"v(i) ", v(i)
           end do
 
           do i = 1, crys%npar
@@ -692,7 +790,7 @@
           if(.not. ok) then
             print*, "Error calculating spectrum, please check input parameters"
           else
-            call scale_factor(difpat,rplex)
+            call scale_factor(difpat,rplex, chi2)
           end if
           numcal = numcal + 1
           write(*,*) ' => Calculated Rp    :   ' , rplex
@@ -736,7 +834,7 @@
                                               crys, opti, opsan, cond, Vs
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Diff_ref ,                    only : scale_factor, Write_Prf
+     use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf
      use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ !, cost3
 
      implicit none
@@ -753,7 +851,6 @@
       Real (Kind=cp)                                          :: chi2     !final Chi2
       character(len=3000)                                     :: infout   !Information about the refinement (min length 256)
 
-
       pi = four * ATAN(one)
       pi2 = two * pi
       deg2rad = pi / one_eighty
@@ -769,7 +866,6 @@
       cntrl=ip
 
       call new_getfil(infile, st,   gol)                           ! parametros para calculo
-     ! write(*,*) "opti%npar", opti%npar, opti%
       opsan%Cost_function_name="R-factor"
 
       IF(gol) then
@@ -1145,7 +1241,7 @@
               call nmcoor ()
 
               rpo = 1000                         !initialization of agreement factor
-              rpl = 0
+             ! rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
                 steplex(i) = 0.2 * crys%NP_refi(i)
                 vector(i) = crys%NP_refi(i)
@@ -1228,8 +1324,8 @@
               call nmcoor ()
               write(*,*) "opti%npar", opti%npar
 
-              rpo = 1000                         !initialization of agreement factor
-              rpl = 0
+              chi2o = 1000                         !initialization of agreement factor
+            !  rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
                 vector(i) = crys%NP_refi(i)
                 write(*,*) "crys%vlim1(i)", crys%vlim1(i)
@@ -1238,7 +1334,8 @@
               open (unit=23, file='local_optimizer.out', status='replace', action='write')
               if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
                 call Lcase(opti%method )
-                write(*,*) "calling F_cost"
+
+
                 call Local_Optimize( F_cost,crys%NP_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
                                     maxi=crys%vlim2(1:opti%npar),ipr=23  )
               else
@@ -1319,19 +1416,17 @@
             call overlp()
             call nmcoor ()
 
-
-!----------------------------------------------------------------------------------------------------------------------------
-            rpo = 1000                         !initialization of agreement factor
-            rpl = 0
+            chi2o = 1.0E10                         !initialization of agreement factor
+          !  rpl = 0
             do i=1, opti%npar                       !creation of the step sizes
               steplex(i) = 0.2 * crys%NP_refi(i)
               vector(i) = crys%NP_refi(i)
             end do
             open (unit=23, file='nelder_mess.out', status='replace', action='write')
 
-            call Levenberg_Marquardt_Fit(cost_LMQ, opti%npar, cond, Vs, chi2, infout)
-
-            write(*,*)'Rp', rpo
+            call Levenberg_Marquardt_Fit(cost_LMQ, difpat%npts, cond, Vs, chi2, infout)
+            write(*,*) "infout" // trim(infout)
+            !write(*,*)'Rp', rpo
             write(*,*) '_____________________________________'
             write(*,'(3a)') ' Parameter     refined value    '
             write(*,*) '_____________________________________'

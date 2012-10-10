@@ -14,7 +14,7 @@ pseudo-voigt        0.003637  -0.003558   0.2274  0  490      459      trim
 
 STRUCTURAL
    !a            b            c          gamma
-CELL   3.12864828   3.12864828   4.610875607   120.0
+CELL   3.10864828   3.10864828   4.610875607   120.0
    31.0           31.0          11.0          0.0     ( 0.1 0.1 0.1 0.1 )
    !Laue simmetry
 SYMM   -3m
@@ -46,8 +46,8 @@ LSYM   centrosymmetric
 ATOM   Ni2+         3       0.0    0.0    0.0       1.06197   0.5
                          0.0    0.0    0.0       0.0            ( 0.1 0.1 0.1  0.1)
    !Atom name   number   x      y      z         Biso      Occ
-ATOM     O2-         4      0.33 0.67     0.20022   0.75961   1.0
-                        0.0   0.0     21.0        0.0           ( 0.1 0.1 0.1  0.1)
+ATOM     O2-         4      0.33 0.67     0.22022   0.75961   1.0
+                        0.0   0.0     0.0        0.0           ( 0.1 0.1 0.1  0.1)
 
 
 STACKING
@@ -119,27 +119,25 @@ LT   0.00    0.0      0.0       0.0
 LT   0.99    0.0      0.0       1.0
    0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
 
-
 CALCULATION
   LMQ {type of optimization}
-  boxp    99
+  !boxp    99
   corrmax  1         ! value of correlation in % to output
   maxfun  100        ! number of cycles of refinement or maximum number of function evaluations in LM. In LM procedures the default value is icyc = maxfev = 100(npvar+1)
-  tol     10-2       ! tolerance value for applying stopping criterion in LM algorithm
-
+  tol     10-8       ! tolerance value for applying stopping criterion in LM algorithm
 
 EXPERIMENTAL
 
-        !filename    2thetamin  2thetamax  stepsize
- FILE      simulation3.dat
+        !filename
+ FILE      simulation4.dat
 
   EXCLUDED_REGIONS 2
     0.0  15.0
-    60.0  180
-
-        ! file format
+ 65 100
+   ! file format
  FFORMAT       free
         !background filename
  BGR       sim.bgr
         !background calculation
  BCALC       interpolation
+

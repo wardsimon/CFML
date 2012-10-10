@@ -278,7 +278,7 @@
                               max_ta=20,&    !MAX_TA -  the maximum number of different atom types
                               max_sp=200001,& !MAX_SP -  the maximum number of points in the spectrum
                               max_cyc=20,&   !MAX_CYC-  the maximum number of iteration cycles
-                              max_npar= 809, &      ! maximum number of parameters to refine
+                              max_npar= 300, &      ! maximum number of parameters to refine
                               sadsize=256    !SADSIZE - the array size for the selected area diffraction pattern
 
       INTEGER, PARAMETER :: xp_max=5000, &   !XP_MAX   -  the maximum number of layers that can be
@@ -591,6 +591,7 @@
                         !    a-direction. Wx and Wy in Angstroms.
 
  real(kind=sp)    :: rpo         !lowest rp
+ real(kind=sp)    :: chi2o       !lowest chi2
  REAL(kind=dp) ,dimension(max_bckg_points)   ::  bckg_p ,bckg_v    ! background position and background value
 
  REAL(kind=dp), dimension(MAX_A,MAX_L)   :: a_B       !d-> isotropic Debye-Waller factor for each atom in each layer

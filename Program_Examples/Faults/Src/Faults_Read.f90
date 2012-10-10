@@ -253,7 +253,7 @@
       i=i1
 
       ok_rad=.false.; ok_wave=.false.; ok_uvw=.false.
-
+      vs%np = 0
       do
 
         i=i+1; if(i > i2) exit
@@ -318,7 +318,7 @@
                logi=.false.
                return
              end if
-
+             vs%np = vs%np + 6
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -460,7 +460,7 @@
                logi=.false.
                return
              end if
-
+             vs%np = vs%np + 3
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -556,7 +556,7 @@
                logi=.false.
                return
              end if
-
+             vs%np = vs%np + 3
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -694,7 +694,7 @@
                logi=.false.
                return
              end if
-
+             vs%np = vs%np + 4
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -871,11 +871,11 @@
                      logi=.false.
                      return
                    end if
-
+                   vs%np = vs%np + 2
                    ! Reading range of parameters
                    if(k /= 0) then
                      read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_layer_a, crys%rang_layer_b
-                     write(*,*) crys%rang_layer_a, crys%rang_layer_b
+
                      if (abs(crys%ref_layer_b) > 0.0) then
                        crys%rang_layer_b = crys%rang_layer_a
                        ier=0
@@ -1042,7 +1042,7 @@
 
             call getword(txt, citem, nitem)
             do m=1, 3
-              write(*,*) citem(2+m)
+
               call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
               if(ERR_String) then
                 write(unit=*,fmt="(a)") trim(ERR_String_Mess)
@@ -1078,7 +1078,7 @@
                    logi=.false.
                    return
             end if
-
+            vs%np = vs%np + 4
             !reading range of atomic parameters
             k=index(txt,"(")
             l=index(txt,")")
@@ -1322,6 +1322,7 @@
                 logi=.false.
                 return
               end if
+              vs%np = vs%np + 1
               !Reading range of parameters
               k=index(txt,"(")
               l=index(txt,")")
@@ -1435,6 +1436,7 @@
                                 crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) ,&
                                 crys%rang_l_r(3,j,l)
 
+            vs%np = vs%np + 4
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
               crys%npar = crys%npar + 1    !to count npar
               crys%list (crys%npar) = crys%l_alpha (j,l)
@@ -1513,7 +1515,7 @@
               return
             end if
             i=i+1
-
+            vs%np = vs%np + 6
           CASE DEFAULT
             cycle
           end select
@@ -1566,7 +1568,7 @@
         i=i+1; if(i > i2) exit
         txt=adjustl(tfile(i))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
-        write(*,*) "do txt", txt
+
         k=index(txt," ")
         key=txt(1:k-1)
 
@@ -1747,7 +1749,7 @@
 
       !Initialise codes to zero
             vs%code=0
-            write(*,*) "Cond%constr ,ok_corrmax , ok_tol , ok_maxfun", Cond%constr ,ok_corrmax , ok_tol , ok_maxfun
+
             if (Cond%constr .and. ok_corrmax .and. ok_tol .and. ok_maxfun) then
               ok_lmq=.true.
             elseif(ok_corrmax .and. ok_tol .and. ok_maxfun .and. .not. Cond%constr ) then
@@ -2323,9 +2325,9 @@
           write(*,"(a,6f10.2)") " layer width codes:     ", crys%ref_layer_a, crys%ref_layer_b
           write(*,"(a,6f10.2)") " layer width ranges:    ", crys%rang_layer_a, crys%rang_layer_b
         end if
-        !write(*,*) crys%a_name (1,1), crys%a_num(1,1)
+
         call Read_LAYER(logi)
-        write(*,*) crys%a_num(1,1)
+
         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
@@ -2413,11 +2415,12 @@
             end do
           end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
-            vs%pv= crys%NP_refi
-            vs%code = crys%p
-            Cond%npvar=crys%npar
-            vs%np=maxval(crys%p)
-            vs%nampar=namepar(crys%npar)
+            vs%pv(1:crys%npar)= crys%NP_refi(1:crys%npar)
+            vs%code(1:crys%npar) = crys%p(1:crys%npar)
+            opti%npar =maxval(crys%p)
+            Cond%npvar=opti%npar
+            numpar = crys%npar
+            vs%nampar(1:crys%npar) =namepar(1:crys%npar)
           end if
 
 
@@ -2429,8 +2432,7 @@
             write(*,"(a,i2 )") "Output file indicator: ", opti%iout
             write(*,"(a,f12.9 )") "Accuracy: ", opti%acc
           elseif (opt == 4) then
-            write(*,"(2a)") " Method of calculation: ", opti%method
-            write(*,"(a,f5.2, 2i4, f5.2)") "percent, corrmax, maxfun, tol: ", Cond%percent, Cond%corrmax, Cond%icyc, cond%tol
+            write(*,"(a,f5.2, 2i4, f12.9)") "percent, corrmax, maxfun, tol: ", Cond%percent, Cond%corrmax, Cond%icyc, cond%tol
           else
             write(*,"(a,3f7.2 )") "2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
             th2_min = th2_min * deg2rad
@@ -2509,9 +2511,7 @@
                              tolerance = crys%tolerance
                         pnum(1:numpar) = crys%p(1:numpar)
                         mult(1:numpar) = crys%mult(1:numpar)
-
                               n_layers = crys%n_typ
-
 
         return
         End subroutine  read_structure_file
