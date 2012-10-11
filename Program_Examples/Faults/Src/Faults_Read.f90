@@ -517,6 +517,7 @@
                crys%vlim2(crys%p(np)) = crys%p_dl + crys%rang_p_dl
                crys%Pv_refi(crys%p(np)) =crys%p_dl
              end if
+
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
              if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
              if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
@@ -530,8 +531,8 @@
 
              crys%broad= pv_gss
 
-             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w
-
+             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dg
+             crys%p_dl=100000
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
@@ -544,7 +545,7 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w
+             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dg
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
@@ -556,7 +557,7 @@
              k=index(txt,"(")
              l=index(txt,")")
              if(k /= 0) then
-                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w
+                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_dg
 
                 if(ier /= 0) then
                   Err_crys=.true.
@@ -614,11 +615,27 @@
                crys%vlim2(crys%p(np)) = crys%p_w + crys%rang_p_w
                crys%Pv_refi(crys%p(np))= crys%p_w
              end if
+             if (abs(crys%ref_p_dg) > 0.0) then
+               np = np + 1        ! to count npar
+               crys%list (np) =crys%p_dg
+               write(unit=namepar(np),fmt="(a)")'Dg'
+               crys%cod(np) = 1
+               ab =  (abs(crys%ref_p_dg)/10.0)
+               crys%p(np)= int(ab)
+               crys%mult(np) = ((abs(crys%ref_p_dg))-(10.0* &
+                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dg ))
+               crys%vlim1(crys%p(np)) = crys%p_dg- crys%rang_p_dg
+               if (crys%vlim1(crys%p(np))   .LT. 0 ) then
+                 crys%vlim1(crys%p(np)) = 0
+               end if
+               crys%vlim2(crys%p(np)) = crys%p_dg + crys%rang_p_dg
+               crys%Pv_refi(crys%p(np))=crys%p_dg
+             end if
 
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
              if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
              if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
-
+             if (abs(crys%ref_p_dg) > 0.0) crys%rang_p_dg = 0.0
 
 
              ok_uvw=.true.
@@ -627,7 +644,8 @@
 
              crys%broad= pv_lrn
 
-             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w
+             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dl
+             crys%p_dg=100000
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
@@ -640,7 +658,7 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w
+             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dl
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
@@ -652,7 +670,7 @@
              k=index(txt,"(")
              l=index(txt,")")
              if(k /= 0) then
-                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w
+                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w , crys%ref_p_dl
 
                 if(ier /= 0) then
                   Err_crys=.true.
@@ -710,10 +728,25 @@
                crys%vlim2(crys%p(np)) = crys%p_w + crys%rang_p_w
                crys%Pv_refi(crys%p(np))= crys%p_w
              end if
+             if (abs(crys%ref_p_dl) > 0.0) then
+               np = np + 1        ! to count npar
+               crys%list (np) =crys%p_dl
+               write(unit=namepar(np),fmt="(a)")'Dl'
+               crys%cod(np) = 1
+               ab =  (abs(crys%ref_p_dl)/10.0)
+               crys%p(np)= int(ab)
+               crys%mult(np) = ((abs(crys%ref_p_dl))-(10.0* &
+                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dl ))
+               crys%vlim1(crys%p(np)) = crys%p_dl - crys%rang_p_dl
+               if (crys%vlim1(crys%p(np))   .LT. 0 ) crys%vlim1(crys%p(np)) = 0
+               crys%vlim2(crys%p(np)) = crys%p_dl + crys%rang_p_dl
+               crys%Pv_refi(crys%p(np)) =crys%p_dl
+             end if
 
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
              if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
              if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
+             if (abs(crys%ref_p_dl) > 0.0) crys%rang_p_dl = 0.0
 
              ok_uvw=.true.
 
