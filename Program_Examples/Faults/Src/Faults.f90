@@ -163,7 +163,8 @@
            c = c + fvec(j)*fvec(j)
          end do do_c
          chi2= c/(punts-opti%npar)
-         write (*,*) r, chi2 , punts-opti%npar
+         !write (*,*) "r, chi2 , punts, c,  opti%npar", r, chi2 , c,  punts, opti%npar, pat%npts
+          write (*,*) "Rp=", r, "chi2=", chi2
          return
        End subroutine calc_par_lmq
 
@@ -1183,12 +1184,12 @@
               rpo = 1000                         !initialization of agreement factor
              ! rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
-                steplex(i) = 0.2 * crys%NP_refi(i)
-                vector(i) = crys%NP_refi(i)
+                steplex(i) = 0.2 * crys%Pv_refi(i)
+                vector(i) = crys%Pv_refi(i)
               end do
               open (unit=23, file='nelder_mess.out', status='replace', action='write')
               !write(*,*) "npar", opti%npar, numpar
-              call  Nelder_Mead_Simplex( F_cost,opti%npar  ,crys%NP_refi(1:opti%npar) , &
+              call  Nelder_Mead_Simplex( F_cost,opti%npar  ,crys%Pv_refi(1:opti%npar) , &
                                          steplex(1:opti%npar), var_plex(1:opti%npar), rpl, opti, ipr=23)
               write(*,*)'Rp', rpo
               write(*,*) '_____________________________________'
@@ -1267,7 +1268,7 @@
               chi2o = 1000                         !initialization of agreement factor
             !  rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
-                vector(i) = crys%NP_refi(i)
+                vector(i) = crys%Pv_refi(i)
                 write(*,*) "crys%vlim1(i)", crys%vlim1(i)
               end do
 
@@ -1275,7 +1276,7 @@
               if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
                 call Lcase(opti%method )
 
-                call Local_Optimize( F_cost,crys%NP_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
+                call Local_Optimize( F_cost,crys%Pv_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
                                     maxi=crys%vlim2(1:opti%npar),ipr=23  )
               else
                 write(*,*) "simplex to be added"
@@ -1358,7 +1359,7 @@
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
             do i=1, opti%npar                       !creation of the step sizes
-              vector(i) = crys%NP_refi(i)
+              vector(i) = crys%Pv_refi(i)
             end do
             open (unit=23, file='nelder_mess.out', status='replace', action='write')
 

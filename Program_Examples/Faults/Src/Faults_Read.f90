@@ -87,7 +87,7 @@
        real,             dimension(:)  ,   allocatable  :: list                         !vector containing all the parameters to optimize
        real,             dimension(:),     allocatable  :: vlim1                        !Low-limit value of parameters
        real,             dimension(:),     allocatable  :: vlim2                        !Low-limit value of parameters
-       real,             dimension(:)  ,   allocatable  :: NP_refi                      !vector containing the free parameters to optimize (restrictions taken into account)
+       real,             dimension(:)  ,   allocatable  :: Pv_refi                      !vector containing the free parameters to optimize (restrictions taken into account)
        end  type crys_2d_type
 
        integer, parameter ,private                      :: i_data=30
@@ -318,7 +318,7 @@
                logi=.false.
                return
              end if
-             vs%np = vs%np + 3
+
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -349,7 +349,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%zero_shift- crys%rang_zero_shift
                if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%zero_shift + crys%rang_zero_shift
-               crys%NP_refi(crys%p(crys%npar)) = crys%zero_shift
+               crys%Pv_refi(crys%p(crys%npar)) = crys%zero_shift
 
              end if
              if (abs(crys%ref_sycos) > 0.0) then
@@ -364,7 +364,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%sycos- crys%rang_sycos
                crys%vlim2(crys%p(crys%npar)) = crys%sycos + crys%rang_sycos
                if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
-               crys%NP_refi(crys%p(crys%npar))=crys%sycos
+               crys%Pv_refi(crys%p(crys%npar))=crys%sycos
              end if
              if (abs(crys%ref_sysin) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -378,7 +378,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%sysin- crys%rang_sysin
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%sysin + crys%rang_sysin
-               crys%NP_refi(crys%p(crys%npar))= crys%sysin
+               crys%Pv_refi(crys%p(crys%npar))= crys%sysin
              end if
 
              ok_abe=.true.
@@ -407,7 +407,7 @@
                logi=.false.
                return
              end if
-             vs%np = vs%np + 6
+
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -440,7 +440,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_u- crys%rang_p_u
                if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_u + crys%rang_p_u
-               crys%NP_refi(crys%p(crys%npar)) = crys%p_u
+               crys%Pv_refi(crys%p(crys%npar)) = crys%p_u
 
              end if
              if (abs(crys%ref_p_v) > 0.0) then
@@ -455,7 +455,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_v- crys%rang_p_v
                crys%vlim2(crys%p(crys%npar)) = crys%p_v + crys%rang_p_v
                if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
-               crys%NP_refi(crys%p(crys%npar))=crys%p_v
+               crys%Pv_refi(crys%p(crys%npar))=crys%p_v
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -469,7 +469,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_w- crys%rang_p_w
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_w + crys%rang_p_w
-               crys%NP_refi(crys%p(crys%npar))= crys%p_w
+               crys%Pv_refi(crys%p(crys%npar))= crys%p_w
              end if
              if (abs(crys%ref_p_x) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -483,7 +483,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_x- crys%rang_p_x
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_x + crys%rang_p_x
-               crys%NP_refi(crys%p(crys%npar))=crys%p_x
+               crys%Pv_refi(crys%p(crys%npar))=crys%p_x
              end if
              if (abs(crys%ref_p_dg) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -499,7 +499,7 @@
                  crys%vlim1(crys%p(crys%npar)) = 0
                end if
                crys%vlim2(crys%p(crys%npar)) = crys%p_dg + crys%rang_p_dg
-               crys%NP_refi(crys%p(crys%npar))=crys%p_dg
+               crys%Pv_refi(crys%p(crys%npar))=crys%p_dg
              end if
              if (abs(crys%ref_p_dl) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -513,7 +513,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_dl - crys%rang_p_dl
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_dl + crys%rang_p_dl
-               crys%NP_refi(crys%p(crys%npar)) =crys%p_dl
+               crys%Pv_refi(crys%p(crys%npar)) =crys%p_dl
              end if
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
              if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
@@ -549,7 +549,7 @@
                logi=.false.
                return
              end if
-             vs%np = vs%np + 3
+
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -581,7 +581,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_u- crys%rang_p_u
                if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_u + crys%rang_p_u
-               crys%NP_refi(crys%p(crys%npar)) = crys%p_u
+               crys%Pv_refi(crys%p(crys%npar)) = crys%p_u
 
              end if
              if (abs(crys%ref_p_v) > 0.0) then
@@ -596,7 +596,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_v- crys%rang_p_v
                crys%vlim2(crys%p(crys%npar)) = crys%p_v + crys%rang_p_v
                if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
-               crys%NP_refi(crys%p(crys%npar))=crys%p_v
+               crys%Pv_refi(crys%p(crys%npar))=crys%p_v
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -610,7 +610,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_w- crys%rang_p_w
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_w + crys%rang_p_w
-               crys%NP_refi(crys%p(crys%npar))= crys%p_w
+               crys%Pv_refi(crys%p(crys%npar))= crys%p_w
              end if
 
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
@@ -645,7 +645,7 @@
                logi=.false.
                return
              end if
-             vs%np = vs%np + 3
+
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -677,7 +677,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_u- crys%rang_p_u
                if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_u + crys%rang_p_u
-               crys%NP_refi(crys%p(crys%npar)) = crys%p_u
+               crys%Pv_refi(crys%p(crys%npar)) = crys%p_u
 
              end if
              if (abs(crys%ref_p_v) > 0.0) then
@@ -692,7 +692,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_v- crys%rang_p_v
                crys%vlim2(crys%p(crys%npar)) = crys%p_v + crys%rang_p_v
                if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
-               crys%NP_refi(crys%p(crys%npar))=crys%p_v
+               crys%Pv_refi(crys%p(crys%npar))=crys%p_v
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                crys%npar = crys%npar + 1        ! to count npar
@@ -706,7 +706,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%p_w- crys%rang_p_w
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%p_w + crys%rang_p_w
-               crys%NP_refi(crys%p(crys%npar))= crys%p_w
+               crys%Pv_refi(crys%p(crys%npar))= crys%p_w
              end if
 
              if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
@@ -783,7 +783,7 @@
                logi=.false.
                return
              end if
-             vs%np = vs%np + 4
+
              !Reading range of parameters
              k=index(txt,"(")
              l=index(txt,")")
@@ -815,7 +815,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%cell_a - crys%rang_cell_a
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%cell_a + crys%rang_cell_a
-               crys%NP_refi(crys%p(crys%npar)) =crys%cell_a
+               crys%Pv_refi(crys%p(crys%npar)) =crys%cell_a
              end if
              if (abs(crys%ref_cell_b) > 0.0 ) then
                crys%npar = crys%npar + 1
@@ -829,7 +829,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%cell_b - crys%rang_cell_b
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%cell_b + crys%rang_cell_b
-               crys%NP_refi(crys%p(crys%npar)) =crys%cell_b
+               crys%Pv_refi(crys%p(crys%npar)) =crys%cell_b
              end if
              if (abs(crys%ref_cell_c) > 0.0 ) then
                crys%npar = crys%npar + 1
@@ -843,7 +843,7 @@
                crys%vlim1(crys%p(crys%npar)) = crys%cell_c - crys%rang_cell_c
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%cell_c + crys%rang_cell_c
-               crys%NP_refi(crys%p(crys%npar)) =crys%cell_c
+               crys%Pv_refi(crys%p(crys%npar)) =crys%cell_c
              end if
              if (abs(crys%ref_cell_gamma) > 0.0 ) then
                crys%npar = crys%npar + 1
@@ -857,7 +857,7 @@
                crys%vlim1(crys%p(crys%npar)) = (crys%cell_gamma)- (crys%rang_cell_gamma * deg2rad)
                if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
                crys%vlim2(crys%p(crys%npar)) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
-               crys%NP_refi(crys%p(crys%npar)) =crys%cell_gamma
+               crys%Pv_refi(crys%p(crys%npar)) =crys%cell_gamma
              end if
 
              if (abs(crys%ref_cell_a) > 0.0 ) crys%rang_cell_a = 0.0
@@ -960,7 +960,7 @@
                      logi=.false.
                      return
                    end if
-                   vs%np = vs%np + 2
+
                    ! Reading range of parameters
                    if(k /= 0) then
                      read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_layer_a, crys%rang_layer_b
@@ -996,7 +996,7 @@
                      crys%vlim2(crys%p(crys%npar)) = crys%layer_a + crys%rang_layer_a
                      crys%npar = crys%npar + 1
                      crys%list (crys%npar) =crys%layer_b
-                     crys%NP_refi(crys%p(crys%npar)) =crys%layer_a
+                     crys%Pv_refi(crys%p(crys%npar)) =crys%layer_a
                      write(unit=namepar(crys%npar),fmt="(a)")'diameter_b'
                      crys%cod(crys%npar) = 1
                      ab =  (abs(crys%ref_layer_a)/10.0)
@@ -1005,7 +1005,7 @@
                        REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_layer_a ))
                      crys%vlim1(crys%p(crys%npar)) = crys%layer_a - crys%rang_layer_a
                      crys%vlim2(crys%p(crys%npar)) = crys%layer_a + crys%rang_layer_a
-                     crys%NP_refi(crys%p(crys%npar)) =crys%layer_b
+                     crys%Pv_refi(crys%p(crys%npar)) =crys%layer_b
                    end if
 
                    if (abs(crys%ref_layer_a) > 0.0) then
@@ -1167,7 +1167,7 @@
                    logi=.false.
                    return
             end if
-            vs%np = vs%np + 4
+
             !reading range of atomic parameters
             k=index(txt,"(")
             l=index(txt,")")
@@ -1198,7 +1198,7 @@
               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(1,d(r),r)))
               crys%vlim1(crys%p(crys%npar)) = crys%a_pos(1, d(r),r) - crys%rang_a_pos(1, d(r),r)
               crys%vlim2(crys%p(crys%npar)) = crys%a_pos(1, d(r),r) + crys%rang_a_pos(1, d(r),r)
-              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(1, d(r),r)
+              crys%Pv_refi(crys%p(crys%npar)) =crys%a_pos(1, d(r),r)
             end if
             if (abs(crys%ref_a_pos(2,d(r),r)) > 0.0) then
               crys%npar = crys%npar + 1
@@ -1211,7 +1211,7 @@
                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(2, d(r),r)))
               crys%vlim1(crys%p(crys%npar)) = crys%a_pos(2, d(r),r) - crys%rang_a_pos(2, d(r),r)
               crys%vlim2(crys%p(crys%npar)) = crys%a_pos(2, d(r),r) + crys%rang_a_pos(2, d(r),r)
-              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(2, d(r),r)
+              crys%Pv_refi(crys%p(crys%npar)) =crys%a_pos(2, d(r),r)
             end if
             if (abs(crys%ref_a_pos(3, d(r),r)) > 0.0) then
               crys%npar = crys%npar + 1
@@ -1224,7 +1224,7 @@
                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
               crys%vlim1(crys%p(crys%npar)) = crys%a_pos(3, d(r),r) - crys%rang_a_pos(3, d(r),r)
               crys%vlim2(crys%p(crys%npar)) = crys%a_pos(3, d(r),r) + crys%rang_a_pos(3, d(r),r)
-              crys%NP_refi(crys%p(crys%npar)) =crys%a_pos(3, d(r),r)
+              crys%Pv_refi(crys%p(crys%npar)) =crys%a_pos(3, d(r),r)
             end if
             if (abs(crys%ref_a_B( d(r),r)) > 0.0) then
               crys%npar = crys%npar + 1
@@ -1238,7 +1238,7 @@
               crys%vlim1(crys%p(crys%npar)) = crys%a_B( d(r),r) - crys%rang_a_B( d(r),r)
               if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
               crys%vlim2(crys%p(crys%npar)) = crys%a_B( d(r),r) + crys%rang_a_B( d(r),r)
-              crys%NP_refi(crys%p(crys%npar)) =crys%a_B( d(r),r)
+              crys%Pv_refi(crys%p(crys%npar)) =crys%a_B( d(r),r)
             end if
             if (abs(crys%ref_a_pos(1, d(r),r)) > 0.0) crys%rang_a_pos (1,d(r),r) = 0.0
             if (abs(crys%ref_a_pos(2, d(r),r)) > 0.0) crys%rang_a_pos (2,d(r),r) = 0.0
@@ -1411,7 +1411,7 @@
                 logi=.false.
                 return
               end if
-              vs%np = vs%np + 1
+
               !Reading range of parameters
               k=index(txt,"(")
               l=index(txt,")")
@@ -1441,7 +1441,7 @@
                      REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_cnt))
                 crys%vlim1(crys%p(crys%npar)) = crys%l_cnt - crys%rang_l_cnt
                 crys%vlim2(crys%p(crys%npar)) = crys%l_cnt + crys%rang_l_cnt
-                crys%NP_refi(crys%p(crys%npar)) = crys%l_cnt
+                crys%Pv_refi(crys%p(crys%npar)) = crys%l_cnt
               end if
               if (abs(crys%ref_l_cnt) > 0.0) crys%rang_l_cnt = 0.0
             end if
@@ -1525,7 +1525,7 @@
                                 crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) ,&
                                 crys%rang_l_r(3,j,l)
 
-            vs%np = vs%np + 4
+
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
               crys%npar = crys%npar + 1    !to count npar
               crys%list (crys%npar) = crys%l_alpha (j,l)
@@ -1539,7 +1539,7 @@
               if (crys%vlim1(crys%p(crys%npar))  .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
               crys%vlim2(crys%p(crys%npar)) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
               if (crys%vlim2(crys%p(crys%npar))  > 1 ) crys%vlim2(crys%p(crys%npar)) = 1
-              crys%NP_refi(crys%p(crys%npar)) = crys%l_alpha (j,l)
+              crys%Pv_refi(crys%p(crys%npar)) = crys%l_alpha (j,l)
             end if
             if (abs(crys%ref_l_r(1,j,l)) > 0.0 ) then
               crys%npar = crys%npar + 1
@@ -1552,7 +1552,7 @@
                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(1,j,l)))
               crys%vlim1(crys%p(crys%npar)) = crys%l_r (1,j,l) - crys%rang_l_r (1,j,l)
               crys%vlim2(crys%p(crys%npar)) = crys%l_r (1,j,l) + crys%rang_l_r (1,j,l)
-              crys%NP_refi(crys%p(crys%npar)) = crys%l_r(1,j,l)
+              crys%Pv_refi(crys%p(crys%npar)) = crys%l_r(1,j,l)
             end if
             if (abs(crys%ref_l_r(2,j,l)) > 0.0 ) then
               crys%npar = crys%npar + 1
@@ -1565,7 +1565,7 @@
                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(2,j,l)))
               crys%vlim1(crys%p(crys%npar)) = crys%l_r (2,j,l) - crys%rang_l_r (2,j,l)
               crys%vlim2(crys%p(crys%npar)) = crys%l_r (2,j,l) + crys%rang_l_r (2,j,l)
-              crys%NP_refi(crys%p(crys%npar)) = crys%l_r(2,j,l)
+              crys%Pv_refi(crys%p(crys%npar)) = crys%l_r(2,j,l)
             end if
             if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  then
               crys%npar = crys%npar + 1
@@ -1578,7 +1578,7 @@
                 REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_l_r(3,j,l)))
               crys%vlim1(crys%p(crys%npar)) = crys%l_r (3,j,l) - crys%rang_l_r (3,j,l)
               crys%vlim2(crys%p(crys%npar)) = crys%l_r (3,j,l) + crys%rang_l_r (3,j,l)
-              crys%NP_refi(crys%p(crys%npar)) = crys%l_r(3,j,l)
+              crys%Pv_refi(crys%p(crys%npar)) = crys%l_r(3,j,l)
             end if
 
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  crys%rang_l_alpha(j,l) = 0.0
@@ -1604,7 +1604,7 @@
               return
             end if
             i=i+1
-            vs%np = vs%np + 6
+
           CASE DEFAULT
             cycle
           end select
@@ -1776,66 +1776,6 @@
              ok_tol=.true.
 
 
-
-    !       do j=1,4   !Reading corrmax, icyc, tol, percent
-    !         txt=adjustl(tfile(i))
-    !         i=i+1; if(i > i2) exit
-    !         write(*,*) "LMQ", txt
-    !         n=index(txt,"boxp")
-    !         if(n /= 0) then
-    !           read(unit=txt,fmt=*, iostat=ier) Cond%percent
-    !           if(ier /= 0 ) then
-    !             Err_crys=.true.
-    !             Err_crys_mess="ERROR reading boxp parameter"
-    !             logi=.false.
-    !             return
-    !           end if
-    !           if( Cond%percent <= 0.0 .or. Cond%percent >= 300.0)  then
-    !             Cond%constr=.false.
-    !           else
-    !             Cond%constr=.true.
-    !           end if
-    !           cycle
-    !         end if
-    !
-    !         n=index(txt,"corrmax")
-    !         if(n /= 0) then
-    !           read(unit=txt(n+7:),fmt=*,iostat=ier) Cond%Corrmax
-    !           write(*,*) " Cond%Corrmax  ", Cond%Corrmax
-    !           if(ier /= 0 ) then
-    !             Err_crys=.true.
-    !             Err_crys_mess="ERROR reading corrmax"
-    !             logi=.false.
-    !             return
-    !           end if
-    !           cycle
-    !         end if
-    !         n=index(txt,"maxfun")
-    !         if(n /= 0) then
-    !           read(unit=txt(n+6:),fmt=*,iostat=ier)  Cond%icyc
-    !           write(*,*) "Cond%icyc   ", Cond%icyc
-    !           if(ier /= 0 ) then
-    !             Err_crys=.true.
-    !             Err_crys_mess="ERROR reading maxfun"
-    !             logi=.false.
-    !             return
-    !           end if
-    !           cycle
-    !         end if
-    !         n=index(txt,"tol")
-    !         if(n /= 0) then
-    !           read(unit=txt(n+3:),fmt=*,iostat=ier) Cond%tol
-    !           write(*,*) "Cond%tol", Cond%tol
-    !           if(ier /= 0 ) then
-    !             Err_crys=.true.
-    !             Err_crys_mess="ERROR reading tol"
-    !             logi=.false.
-    !             return
-    !           end if
-    !           cycle
-    !         end if
-    !       end do
-
       !Initialise codes to zero
             vs%code=0
 
@@ -1845,28 +1785,7 @@
               ok_lmq=.true.
             end if
 
-   !!----  Type, public :: LSQ_State_Vector_Type
-   !!integer                                    :: np         !total number of model parameters <= Max_Free_Par
-   !!   real(kind=cp),     dimension(Max_Free_Par) :: pv         !Vector of parameters
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: spv        !Vector of standard deviations
-   !!----     real(kind=cp),     dimension(Max_Free_Par) :: dpv        !Vector of derivatives at a particular point
-   !!   integer,           dimension(Max_Free_Par) :: code       !pointer for selecting variable parameters
-   !!----     character(len=40), dimension(Max_Free_Par) :: nampar     !Names of parameters
-   !!----  End Type LSQ_State_Vector_Type
 
-
-   !!----  Type, public :: LSQ_Conditions_type
-   !! logical          :: constr          ! if true box constraint of percent% are applied to parameters
-   !!----     logical          :: reached         ! if true convergence was reached in the algorithm
-   !!integer          :: corrmax         ! value of correlation in % to output
-   !!----     integer          :: nfev            ! number of function evaluations (output component, useful for assessing LM algorithm)
-   !!----     integer          :: njev            ! number of Jacobian evaluations                 "
-   !!integer          :: icyc            ! number of cycles of refinement or maximum number of function evaluations in LM
-   !!----                                         ! In LM procedures the default value is icyc = maxfev = 100(npvar+1)
-   !!integer          :: npvar           ! number of effective free parameters of the model
-   !!----     integer          :: iw              ! indicator for weighting scheme (if iw=1 => w=1/yc)
-   !!real(kind=cp)    :: tol             ! tolerance value for applying stopping criterion in LM algorithm
-   !!real(kind=cp)    :: percent         ! %value of maximum variation of a parameter w.r.t.
           Case ('LOCAL_OPTIMIZER')
             opt = 3
             opti%iquad = 1
@@ -1986,7 +1905,7 @@
      !            do i=1, numpar                    !construction of SIMPLEX 'in' vectors
      !
      !              if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
-     !               !  v_plex(crys%p(i)) = crys%NP_refi(i)
+     !               !  v_plex(crys%p(i)) = crys%Pv_refi(i)
      !
      !               !  nampar(pnum(i)) = namepar(i)
      !                 sanvec%low(pnum(i)) = crys%vlim1(i)
@@ -2269,9 +2188,9 @@
         allocate(crys%mult(max_npar))
         crys%mult=0
 
-        if(allocated (crys% NP_refi)) deallocate(crys% NP_refi)
-        allocate(crys% NP_refi(max_npar))
-        crys% NP_refi=0
+        if(allocated (crys% Pv_refi)) deallocate(crys% Pv_refi)
+        allocate(crys% Pv_refi(max_npar))
+        crys% Pv_refi=0
 
         return
     End Subroutine Set_Crys
@@ -2504,12 +2423,13 @@
             end do
           end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
-            vs%pv(1:crys%npar)= crys%NP_refi(1:crys%npar)
-            vs%code(1:crys%npar) = crys%p(1:crys%npar)
+
             opti%npar =maxval(crys%p)
             Cond%npvar=opti%npar
             numpar = crys%npar
-            vs%nampar(1:crys%npar) =namepar(1:crys%npar)
+            vs%pv(1:opti%npar)= crys%Pv_refi(1:opti%npar)
+            vs%code(1:opti%npar) = 1
+            vs%np= opti%npar
           end if
 
 
