@@ -446,7 +446,7 @@
                                            ! If all layers are unique, l_actual(i) = i; else, l_actual(i) <= i
 
   REAL(kind=sp)  ::  l_cnt        ! Number of layers in explicit sequence. This is
-                           ! tallied by DIFFaX, by counting the layers.
+                                  ! tallied by DIFFaX, by counting the layers.
   INTEGER, dimension(MAX_L)  :: l_n_atoms   ! number of atoms in each layer
 
   INTEGER, dimension(MAX_L)  :: l_symmetry  !d->  symmetry of layer (NONE or CENTRO)

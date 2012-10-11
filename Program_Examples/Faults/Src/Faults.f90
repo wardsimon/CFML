@@ -442,7 +442,7 @@
 !!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
 !!--..         End Interface No_Fderivatives
 
-    Subroutine Cost_LMQ(m,npar,v,fvec,iflag)   !Levenberg Marquardt
+    Subroutine Cost_LMQ(m,npar,v,fvec,iflag)            !Levenberg Marquardt
       Integer,                       Intent(In)    :: m !is the number of observations (Num_spots)
       Integer,                       Intent(In)    :: npar !is the number of free parameters
       Real (Kind=cp),Dimension(:),   Intent(In)    :: v !List of free parameters values
@@ -453,7 +453,7 @@
       logical                  :: ok
       integer                  :: j ,i, k, a, b
       real, dimension(max_npar):: shift, state
-      real                     :: chi2
+      real, save               :: chi2
       integer, save            :: iter=0
 
       fvec=0.0
@@ -472,36 +472,37 @@
       !******* state(i) corrections *******
 
       do i = 1, crys%npar
-         if (index (vs%nampar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
+         if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
                 write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
-                write(*,*) "alpha before" , vs%nampar(i), state(i), shift(vs%code(i)) , crys%vlim1(crys%p(i)) ,&
-                            crys%vlim2(vs%code(i))
+                write(*,*) "alpha before" , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
+                            crys%vlim2(crys%p(i))
                 shift(crys%p(i)) = shift(crys%p(i))/2
-                state(i) = crys%list(i) +  mult(i) * shift(vs%code(i))
-                write(*,*) "alpha after" , vs%nampar(i), state(i), shift(vs%code(i))
+                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+                write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
                 do j=1,crys%npar
-                  write(*,*) "j", j, vs%nampar(j)
-                  if (index (vs%nampar(j) , 'alpha' ) == 1 .and.  vs%code(i) == vs%code(j)) &
-                      state(j) = crys%list(j) +  mult(j) * shift(vs%code(i))
-                  write(*,*) "other alpha" , vs%nampar(j), state(j), shift(vs%code(i))
+                  write(*,*) "j", j, namepar(j)
+                  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
+                      state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+                  write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
                 end do
 
                 if (state(i) < zero .or. state(i) > zero) then
-                  shift(vs%code(i)) = - shift (vs%code(i))
-                  state(i) = crys%list(i) +  mult(i) * shift(vs%code(i))
-                  write(*,*) "alpha again" , vs%nampar(i), state(i), shift(vs%code(i))
+                  shift(crys%p(i)) = - shift (crys%p(i))
+                  state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+                  write(*,*) "alpha again" , namepar(i), state(i), shift(crys%p(i))
                 end if
-         else if (index (vs%nampar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
+         else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
                   state(i) = (-1.0) * state(i)  !Biso only >0
-         else if (index (vs%nampar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
+         else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
                   state(i) = (-1.0) * state(i)  !v only <0
-         else if (index (vs%nampar(i),'Dg') == 1 .or. index (vs%nampar(i), 'Dl') == 1 .or. index (vs%nampar(i),'u')  == 1 .or. &
-                  index (vs%nampar(i), 'w') == 1 .or. index (vs%nampar(i), 'x') == 1 ) then  !only >0
+         else if (index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
+                  index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1 ) then  !only >0
                    state(i) = (-1.0) * state(i)
          else
             cycle
          end if
       End do
+
 
       !update  (only if iflag = 1)
       if(iflag == 1) then
@@ -511,90 +512,25 @@
          end do
       end if
 
-      !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
-
-      do i=1, crys%npar
-        if (vs%nampar(i) ==  'u')    pv_u  = state(i)
-        if (vs%nampar(i) ==  'v')    pv_v  = state(i)
-        if (vs%nampar(i) ==  'w')    pv_w  = state(i)
-        if (vs%nampar(i) ==  'x')    pv_x  = state(i)
-        if (vs%nampar(i) ==  'Dg')   pv_dg = state(i)
-        if (vs%nampar(i) ==  'Dl')   pv_dl = state(i)
-        if (vs%nampar(i) ==  'cell_a')    cell_a = state(i)
-        if (vs%nampar(i) ==  'cell_b')    cell_b = state(i)
-        if (vs%nampar(i) ==  'cell_c')    cell_c = state(i)
-        if (vs%nampar(i) ==  'num_layers')  l_cnt = state(i)
-        if (index( vs%nampar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
-
-        do j=1, n_layers
-          do k=1, n_atoms
-            if (index (vs%nampar(i) , 'pos_x' )== 1)     then
-                read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(1,a,b)  = state(i) * pi2
-            end if
-            if (index (vs%nampar(i) ,'pos_y' )== 1)    then
-                read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(2,a,b)  = state(i) * pi2
-            end if
-            if (index (vs%nampar(i), 'pos_z' ) == 1 )   then
-                read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(3,a,b)  = state(i) * pi2
-            end if
-            if (index (vs%nampar(i),'Biso')==1) then
-                read (unit = vs%nampar(i)(5:6), fmt = "(2i1)" ) a,b
-                a_b(a,b)  = state(i)
-
-            end if
-            if (index( vs%nampar(i) ,  'alpha' ) == 1)    then
-                read (unit = vs%nampar(i)(6:7), fmt = "(2i1)" ) b,a
-                l_alpha(a,b)  = state(i)
-
-            end if
-            if (index (vs%nampar(i), 'tx' )== 1 )    then
-                read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(1,a,b)  = state(i)
-            end if
-            if (index (vs%nampar(i), 'ty' )== 1 )    then
-                read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(2,a,b)  = state(i)
-            end if
-            if (index (vs%nampar(i), 'tz' ) == 1)     then
-                read (unit = vs%nampar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(3,a,b)  = state(i)
-            end if
-          end do
-        end do
-      end do
-
-      ok = .true.
-      if ((conv_d == 1 .or.  numcal == 0) .and. ok ) ok = get_g()
-      if ((conv_d == 1 .or.  numcal == 0  .or.  conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
-      if ((conv_c == 1 .or.  numcal == 0) .and. ok ) CALL sphcst()
-      if ( numcal == 0 .and. ok ) CALL detun()
-      if ((conv_b == 1 .or.  conv_c == 1  .or. conv_d == 1 .or. conv_e==1   .or. &
-           numcal == 0 .or.  conv_f ==1)  .and. ok ) CALL optimz(infile, ok)
-
-      IF(.NOT. ok) then
-        IF(cfile) CLOSE(UNIT = cntrl)
-        return
-      END IF
-      CALL gospec(infile,outfile,ok)
+      call Pattern_Calculation(state,ok)
 
       if(.not. ok) then
         print*, "Error calculating spectrum, please check input parameters"
       else
         call scale_factor_lmq(difpat,fvec, chi2)
       end if
+
       numcal = numcal + 1
 
       if(iflag == 0) then
         iter = iter + cond%nprint
         write(*,"(a,i4)")  " => Iteration number ",iter
         do i=1, crys%npar
-          write(*,"(a,f14.5)")  "  ->  "//vs%nampar(i), state(i)
+          write(*,"(a,f14.5)")  "  ->  "//namepar(i), state(i)
         end do
         write(*,*) ' => Calculated Chi2    :   ' , chi2
         write(*,*) ' => Best Chi2 up to now:   ' , chi2o
+        return
       end if
 
 
@@ -615,6 +551,86 @@
       return
 
     End subroutine Cost_LMQ
+
+    Subroutine Pattern_Calculation(state,ok)
+      real, dimension(:), intent(in) :: state
+      logical,            intent(out):: ok
+      !---- Local variables
+      integer :: i,j,k,a,b
+      !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
+
+      do i=1, crys%npar
+
+        if (namepar(i) ==  'u')          pv_u   = state(i)
+        if (namepar(i) ==  'v')          pv_v   = state(i)
+        if (namepar(i) ==  'w')          pv_w   = state(i)
+        if (namepar(i) ==  'x')          pv_x   = state(i)
+        if (namepar(i) ==  'Dg')         pv_dg  = state(i)
+        if (namepar(i) ==  'Dl')         pv_dl  = state(i)
+        if (namepar(i) ==  'cell_a')     cell_a = state(i)
+        if (namepar(i) ==  'cell_b')     cell_b = state(i)
+        if (namepar(i) ==  'cell_c')     cell_c = state(i)
+        if (namepar(i) ==  'num_layers') l_cnt  = state(i)
+        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
+
+        do j=1, n_layers
+          do k=1, n_atoms
+            if (index (namepar(i) , 'pos_x' )== 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(1,a,b)  = state(i) * pi2
+            end if
+            if (index (namepar(i) ,'pos_y' )== 1)    then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(2,a,b)  = state(i) * pi2
+            end if
+            if (index (namepar(i), 'pos_z' ) == 1 )   then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(3,a,b)  = state(i) * pi2
+            end if
+            if (index (namepar(i),'Biso')==1) then
+                read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
+                a_b(a,b)  = state(i)
+
+            end if
+            if (index( namepar(i) ,  'alpha' ) == 1)    then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                l_alpha(a,b)  = state(i)
+
+            end if
+            if (index (namepar(i), 'tx' )== 1 )    then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(1,a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'ty' )== 1 )    then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(2,a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'tz' ) == 1)     then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(3,a,b)  = state(i)
+            end if
+          end do
+        end do
+      end do
+
+
+      !//////////////////////////////////////////////////////////////////////////////////////
+
+      ok = .true.
+      if ((conv_d == 1 .or.  numcal== 0) .and. ok ) ok = get_g()
+      if ((conv_d == 1 .or.  numcal== 0  .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
+      if ((conv_c == 1 .or.  numcal== 0) .and. ok ) CALL sphcst()
+      if ( numcal == 0 .and. ok ) CALL detun()
+      if ((conv_b == 1 .or.  conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
+           numcal == 0 .or.  conv_f==1)  .and. ok ) CALL optimz(infile, ok)
+
+      IF(.NOT. ok) then
+        IF(cfile) CLOSE(UNIT = cntrl)
+        return
+      END IF
+      CALL gospec(infile,outfile,ok)
+      return
+    End Subroutine Pattern_Calculation
 !--------------------------------------------------------------------------------------------------------------------------------------------------
 
   ! Subroutine Nelder_Mead_Simplex(Model_Functn, Nop, P, Step, Var, Func, C, Ipr)
@@ -709,79 +725,8 @@
         write(*,*)  namepar(i), state(i)
       end do
 
+      call Pattern_Calculation(state,ok)
 
-      !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
-
-      do i=1, crys%npar
-
-        if (namepar(i) ==  'u')    pv_u  = state(i)
-        if (namepar(i) ==  'v')    pv_v  = state(i)
-        if (namepar(i) ==  'w')    pv_w  = state(i)
-        if (namepar(i) ==  'x')    pv_x  = state(i)
-        if (namepar(i) ==  'Dg')   pv_dg = state(i)
-        if (namepar(i) ==  'Dl')   pv_dl = state(i)
-        if (namepar(i) ==  'cell_a')    cell_a = state(i)
-        if (namepar(i) ==  'cell_b')    cell_b = state(i)
-        if (namepar(i) ==  'cell_c')    cell_c = state(i)
-        if (namepar(i) ==  'num_layers')  l_cnt = state(i)
-        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
-
-        do j=1, n_layers
-          do k=1, n_atoms
-            if (index (namepar(i) , 'pos_x' )== 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(1,a,b)  = state(i) * pi2
-            end if
-            if (index (namepar(i) ,'pos_y' )== 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(2,a,b)  = state(i) * pi2
-            end if
-            if (index (namepar(i), 'pos_z' ) == 1 )   then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(3,a,b)  = state(i) * pi2
-            end if
-            if (index (namepar(i),'Biso')==1) then
-                read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
-                a_b(a,b)  = state(i)
-
-            end if
-            if (index( namepar(i) ,  'alpha' ) == 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
-                l_alpha(a,b)  = state(i)
-
-            end if
-            if (index (namepar(i), 'tx' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(1,a,b)  = state(i)
-            end if
-            if (index (namepar(i), 'ty' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(2,a,b)  = state(i)
-            end if
-            if (index (namepar(i), 'tz' ) == 1)     then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(3,a,b)  = state(i)
-            end if
-          end do
-        end do
-      end do
-
-
-      !//////////////////////////////////////////////////////////////////////////////////////
-
-      ok = .true.
-      if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g()
-      if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
-      if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst()
-      if ( numcal == 0 .and. ok ) CALL detun()
-      if ((conv_b == 1 .or. conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
-          numcal == 0 .or. conv_f==1)  .and. ok ) CALL optimz(infile, ok)
-
-      IF(.NOT. ok) then
-        IF(cfile) CLOSE(UNIT = cntrl)
-        return
-      END IF
-      CALL gospec(infile,outfile,ok)
       if(.not. ok) then
         print*, "Error calculating spectrum, please check input parameters"
       else
