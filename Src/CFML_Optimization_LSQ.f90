@@ -2064,13 +2064,14 @@
     End Subroutine lmder
 
     !!--++
-    !!--++   Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, info, ipvt)
+    !!--++   Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, nprint, info, ipvt)
     !!--++     Integer,                        Intent(In)      :: m
     !!--++     Integer,                        Intent(In)      :: n
     !!--++     Real (Kind=cp),Dimension(:),    Intent(In Out)  :: x
     !!--++     Real (Kind=cp),Dimension(:),    Intent(Out)     :: fvec
     !!--++     Real (Kind=cp),Dimension(:,:),  Intent(In Out)  :: fjac
     !!--++     Real (Kind=cp),                 Intent(In)      :: tol
+    !!--++     Integer,                        Intent(In)      :: nprint
     !!--++     Integer,                        Intent(Out)     :: info
     !!--++     Integer,Dimension(:),           Intent(In Out)  :: ipvt
     !!--++     !--- Local Variables ---!
@@ -2095,7 +2096,7 @@
     !!--..
     !!--..     The subroutine statement is
     !!--..
-    !!--..         subroutine lmder1(fcn, m, n, x, fvec, fjac, tol, info, ipvt)
+    !!--..         subroutine lmder1(fcn, m, n, x, fvec, fjac, tol, nprint, info, ipvt)
     !!--..
     !!--..     where
     !!--..
@@ -2192,7 +2193,7 @@
     !!--++
     !!--++ Update: February - 2009
     !!
-    Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, info, ipvt)
+    Subroutine lmder1(Model_Functn, m, n, x, fvec, fjac, tol, nprint, info, ipvt)
        !---- Arguments ----!
        Integer,                        Intent(In)      :: m
        Integer,                        Intent(In)      :: n
@@ -2200,6 +2201,7 @@
        Real (Kind=cp),Dimension(:),    Intent(Out)     :: fvec
        Real (Kind=cp),Dimension(:,:),  Intent(In Out)  :: fjac
        Real (Kind=cp),                 Intent(In)      :: tol
+       Integer,                        Intent(in)      :: nprint
        Integer,                        Intent(Out)     :: info
        Integer,Dimension(:),           Intent(In Out)  :: ipvt
 
@@ -2215,7 +2217,7 @@
        End Interface
 
        !--- Local Variables ---!
-       Integer                   :: maxfev, mode, nfev, njev, nprint
+       Integer                   :: maxfev, mode, nfev, njev
        Real (Kind=cp)            :: ftol, gtol, xtol
        Real (Kind=cp), Parameter :: factor = 100.0_CP, zero = 0.0_CP
 
@@ -2227,7 +2229,6 @@
        xtol = tol
        gtol = zero
        mode = 1
-       nprint = c%nprint
        Call lmder(Model_Functn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev,  &
                   mode, factor, nprint, info, nfev, njev, ipvt)
        If (info == 8) info = 4
@@ -2676,12 +2677,13 @@
     End Subroutine lmdif
 
     !!--++
-    !!--++  Subroutine lmdif1(fcn, m, n, x, fvec, tol, info, iwa)
+    !!--++  Subroutine lmdif1(fcn, m, n, x, fvec, tol, nprint, info, iwa)
     !!--++     Integer,                     Intent(In)      :: m
     !!--++     Integer,                     Intent(In)      :: n
     !!--++     Real (Kind=cp),Dimension(:), Intent(In Out)  :: x
     !!--++     Real (Kind=cp),Dimension(:), Intent(Out)     :: fvec
     !!--++     Real (Kind=cp),              Intent(In)      :: tol
+    !!--++     Integer,                     Intent(In)      :: nprint
     !!--++     Integer,                     Intent(Out)     :: info
     !!--++     Integer,Dimension(:),        Intent(Out)     :: iwa
     !!--++
@@ -2705,7 +2707,7 @@
     !!--..
     !!--..  The subroutine statement is
     !!--..
-    !!--..      subroutine lmdif1(fcn, m, n, x, fvec, tol, info, iwa)
+    !!--..      subroutine lmdif1(fcn, m, n, x, fvec, tol, nprint, info, iwa)
     !!--..
     !!--..  where
     !!--..
@@ -2779,13 +2781,14 @@
     !!--++
     !!--++ Update: February - 2009
     !!
-    Subroutine lmdif1(Model_Functn, m, n, x, fvec, tol, info, iwa)
+    Subroutine lmdif1(Model_Functn, m, n, x, fvec, tol, nprint, info, iwa)
        !---- Argument ----!
        Integer,                     Intent(In)      :: m
        Integer,                     Intent(In)      :: n
        Real (Kind=cp),Dimension(:), Intent(In Out)  :: x
        Real (Kind=cp),Dimension(:), Intent(Out)     :: fvec
        Real (Kind=cp),              Intent(In)      :: tol
+       Integer,                     Intent(In)      :: nprint
        Integer,                     Intent(Out)     :: info
        Integer,Dimension(:),        Intent(Out)     :: iwa
 
@@ -2800,7 +2803,7 @@
        End Interface
 
        !--- Local Variables ---!
-       Integer                       :: maxfev, mode, nfev, nprint
+       Integer                       :: maxfev, mode, nfev
        Real (Kind=cp)                :: epsfcn, ftol, gtol, xtol
        Real (Kind=cp),Dimension(m,n) :: fjac
        Real (Kind=cp), Parameter     :: factor = 100.0_CP, zero = 0.0_CP
@@ -2815,7 +2818,7 @@
        gtol = zero
        epsfcn = zero
        mode = 1
-       nprint = c%nprint
+
        Call lmdif(Model_Functn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn,   &
                   mode, factor, nprint, info, nfev, fjac, iwa)
        If (info == 8) info = 4
