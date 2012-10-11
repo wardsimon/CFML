@@ -447,13 +447,14 @@
       Integer,                       Intent(In)    :: npar !is the number of free parameters
       Real (Kind=cp),Dimension(:),   Intent(In)    :: v !List of free parameters values
       Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec   !Residuals Num_spots
-      Integer,                       Intent(In Out):: iflag
-
+      Integer,                       Intent(In Out):: iflag  !=0 for printing, 1: Full calculation, 2: Calculation of derivatives
+                                                             ! If modified to a negative number the algorithm stops.
       !local variables
       logical                  :: ok
       integer                  :: j ,i, k, a, b
       real, dimension(max_npar):: shift, state
       real                     :: chi2
+      integer, save            :: iter=0
 
       fvec=0.0
       !chi2=chi2o
@@ -495,25 +496,20 @@
          else if (index (vs%nampar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
                   state(i) = (-1.0) * state(i)  !v only <0
          else if (index (vs%nampar(i),'Dg') == 1 .or. index (vs%nampar(i), 'Dl') == 1 .or. index (vs%nampar(i),'u')  == 1 .or. &
-                  index (vs%nampar(i), 'w') == 1  .or. index (vs%nampar(i), 'x') == 1 ) then  !only >0
+                  index (vs%nampar(i), 'w') == 1 .or. index (vs%nampar(i), 'x') == 1 ) then  !only >0
                    state(i) = (-1.0) * state(i)
          else
             cycle
          end if
       End do
 
-      !update
-
-      crys%list(:) = state(:)
-
-      do i=1, opti%npar                 !vector upload
-        vector(i) = v(i)
-      end do
-
-      do i=1, crys%npar
-        write(*,*)  vs%nampar(i), state(i)
-      end do
-
+      !update  (only if iflag = 1)
+      if(iflag == 1) then
+         crys%list(:) = state(:)
+         do i=1, opti%npar                 !vector upload
+           vector(i) = v(i)
+         end do
+      end if
 
       !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
 
@@ -571,12 +567,12 @@
       end do
 
       ok = .true.
-      if ((conv_d == 1 .or. numcal== 0) .and. ok ) ok = get_g()
-      if ((conv_d == 1  .or.  numcal== 0 .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
-      if ((conv_c == 1 .or. numcal== 0) .and. ok ) CALL sphcst()
+      if ((conv_d == 1 .or.  numcal == 0) .and. ok ) ok = get_g()
+      if ((conv_d == 1 .or.  numcal == 0  .or.  conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
+      if ((conv_c == 1 .or.  numcal == 0) .and. ok ) CALL sphcst()
       if ( numcal == 0 .and. ok ) CALL detun()
-      if ((conv_b == 1 .or. conv_c == 1 .or. conv_d == 1 .or. conv_e==1   .or. &
-          numcal == 0 .or. conv_f==1)  .and. ok ) CALL optimz(infile, ok)
+      if ((conv_b == 1 .or.  conv_c == 1  .or. conv_d == 1 .or. conv_e==1   .or. &
+           numcal == 0 .or.  conv_f ==1)  .and. ok ) CALL optimz(infile, ok)
 
       IF(.NOT. ok) then
         IF(cfile) CLOSE(UNIT = cntrl)
@@ -590,14 +586,21 @@
         call scale_factor_lmq(difpat,fvec, chi2)
       end if
       numcal = numcal + 1
-      write(*,*) ' => Calculated Chi2    :   ' , chi2
-      write(*,*) ' => Best Chi2 up to now:   ' , chi2o
-      write(*,*) var_plex(:)
+
+      if(iflag == 0) then
+        iter = iter + opti%nprint
+        write(*,"(a,i4)")  " => Iteration number ",iter
+        do i=1, crys%npar
+          write(*,"(a,f14.5)")  "  ->  "//vs%nampar(i), state(i)
+        end do
+        write(*,*) ' => Calculated Chi2    :   ' , chi2
+        write(*,*) ' => Best Chi2 up to now:   ' , chi2o
+      end if
+
 
       if (chi2 < chi2o ) then                  !To keep calculated intensity for the best value of rplex
         chi2o = chi2
         statok(1:crys%npar) = state( 1:crys%npar)
-
         write(*,*)  ' => Writing the best calculated pattern up to now. Chi2 : ', chi2o
         do j = 1, n_high
           ycalcdef(j) = difpat%ycalc(j)
@@ -1410,7 +1413,6 @@
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
             do i=1, opti%npar                       !creation of the step sizes
-              steplex(i) = 0.2 * crys%NP_refi(i)
               vector(i) = crys%NP_refi(i)
             end do
             open (unit=23, file='nelder_mess.out', status='replace', action='write')

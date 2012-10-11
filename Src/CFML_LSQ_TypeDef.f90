@@ -101,6 +101,7 @@ Module CFML_LSQ_TypeDef
                                           ! In LM procedures the default value is icyc = maxfev = 100(npvar+1)
       integer          :: npvar=0         ! number of effective free parameters of the model
       integer          :: iw=0            ! indicator for weighting scheme (if iw=1 => w=1/yc)
+      integer          :: nprint=0        ! indicator for printing during iterations, if nprint > 0 printing each nprint iterations
       real(kind=cp)    :: tol=0.0         ! tolerance value for applying stopping criterion in LM algorithm
       real(kind=cp)    :: percent=0.0     ! %value of maximum variation of a parameter w.r.t.
                                           ! the intial value before fixing it

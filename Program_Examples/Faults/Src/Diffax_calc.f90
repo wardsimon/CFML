@@ -5638,13 +5638,13 @@
 ! save lambda, HKL_LIM (called by THRESH), may change it.
       old_lambda = lambda
       CALL thresh(ok)
-      IF(.NOT.ok) GO TO 999
+      IF(.NOT. ok) GO TO 999
 
       IF(symgrpno == 11)   WRITE(op,202) 'Axial integration only selected.'
 
       IF(dosymdump) THEN
         CALL getfnm(rootnam, sym_fnam, 'sym', ok)
-        IF(.NOT.ok) THEN
+        IF(.NOT. ok) THEN
           WRITE(op,202) 'OPTIMZ: ERROR in creating symmetry dumpfile.'
           GO TO 999
         END IF

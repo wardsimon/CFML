@@ -614,9 +614,9 @@
 
  REAL(kind=dp), dimension(MAX_TA)        :: n_sf      !s->  Neutron scattering factors.
 
- real(kind=sp), dimension (max_npar)     :: vector      !vector containing all the parameters to optimize
+ real(kind=sp), dimension (max_npar)     :: vector    !vector containing all the parameters to optimize
 
- REAL(kind=dp), dimension(MAX_A,MAX_L)  :: detune
+ REAL(kind=dp), dimension(MAX_A,MAX_L)   :: detune
    ! detune -  Array of small positive numbers whose purpose is to prevent the determinant of the
    !           recursion array 'mat' from becoming zero at the sharp peaks. This produces a singularity which
    !           is hard to integrate accurately over. In essence, the 'detune' parameters are small stacking

@@ -1302,7 +1302,7 @@
        xtol = c%tol
        gtol = zero
        mode = 1
-       nprint = 0
+       nprint = c%nprint
 
        ! Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
        Call lmder(Model_Functn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev,  &
@@ -1517,7 +1517,7 @@
        gtol = zero
        epsfcn = zero
        mode = 1
-       nprint = 0
+       nprint = c%nprint
 
        ! Call to the core procedure of the MINPACK implementation of the Levenberg-Marquardt algorithm
        Call lmdif(Model_Functn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn,   &
@@ -2227,7 +2227,7 @@
        xtol = tol
        gtol = zero
        mode = 1
-       nprint = 0
+       nprint = c%nprint
        Call lmder(Model_Functn, m, n, x, fvec, fjac, ftol, xtol, gtol, maxfev,  &
                   mode, factor, nprint, info, nfev, njev, ipvt)
        If (info == 8) info = 4
@@ -2815,7 +2815,7 @@
        gtol = zero
        epsfcn = zero
        mode = 1
-       nprint = 0
+       nprint = c%nprint
        Call lmdif(Model_Functn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn,   &
                   mode, factor, nprint, info, nfev, fjac, iwa)
        If (info == 8) info = 4

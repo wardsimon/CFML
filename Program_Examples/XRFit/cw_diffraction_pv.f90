@@ -93,7 +93,7 @@
         integer                     :: i,j,no
         real                        :: xval,yval
         type(LSQ_State_Vector_type) :: lvs
-        Real (Kind=cp),Dimension(n) :: der
+
         lvs=vs                 !Set the local state vector
         no=0
         do i=1,lvs%np
