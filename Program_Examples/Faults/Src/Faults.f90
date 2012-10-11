@@ -5,17 +5,110 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use read_data,                  only : opti
+      use read_data,                  only : opti, crys_2d_type
 
       implicit none
 
       private
 
       !public subroutines
-      public :: scale_factor, scale_factor_lmq, Write_Prf
+      public :: scale_factor, scale_factor_lmq, Write_Prf,Write_ftls
 
       contains
 !________________________________________________________________________________________________________________________
+
+
+       Subroutine Write_ftls(crys,i_ftls)
+          !-----------------------------------------------
+          !   D u m m y   A r g u m e n t s
+          !-----------------------------------------------
+          Type(crys_2d_type),     intent(in) :: crys
+          integer,                intent(in) :: i_ftls
+
+
+          integer                            :: a,b
+
+          write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
+          if (crys%rad_type == 0 ) then
+            write(i_ftls,"(2a)")     " Radiation            ", "X-ray"
+          elseif (crys%rad_type == 1 ) then
+            write(i_ftls,"(2a)")     " Radiation            ", "neutron"
+          else
+            write(i_ftls,"(2a)")     " Radiation            ", "electron"
+          end if
+          write(i_ftls,"(a,3f10.4)") " Lambda                ", crys%lambda , crys%lambda2 , crys%ratio
+
+          if (crys%broad==ps_vgt .and. crys%trm .eqv. .true.) then
+            write(i_ftls,"(a,6f10.2, a)") " Pseudo-voigt", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl, "TRIM"
+            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dg, crys%rang_p_dl,")"
+          elseif (crys%broad==ps_vgt .and. crys%trm .eqv..false.) then
+            write(i_ftls,"(a,6f10.2)") " Pseudo-voigt", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
+            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dg, crys%rang_p_dl,")"
+          elseif (crys%broad==pv_gss .and. crys%trm .eqv. .true.) then
+            write(i_ftls,"(a,5f10.2, a)") " Gaussian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, "TRIM"
+            write(i_ftls,"(5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dg ,")"
+          elseif (crys%broad==pv_gss .and. crys%trm .eqv..false.) then
+            write(i_ftls,"(a,5f10.2, a)") " Gaussian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg
+            write(i_ftls,"(5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dg ,")"
+          elseif (crys%broad==pv_lrn .and. crys%trm .eqv. .true.) then
+            write(i_ftls,"(a,5f10.2, a)") " Lorentzian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dl, "TRIM"
+            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dl,")"
+          elseif   (crys%broad==pv_lrn .and. crys%trm .eqv. .false.) then
+            write(i_ftls,"(a,5f10.2)") " Lorentzian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dl
+            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+                                        crys%rang_p_dl,")"
+          else
+            write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
+            return
+          end if
+          write(i_ftls,"(a,3f10.4)") " Aberrations", crys%zero_shift, crys%sycos, crys%sysin
+          write(i_ftls,"(3f10.2,a,3f10.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "(", &
+                                       crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin, ")"
+
+
+          write(i_ftls,"(a)")          "STRUCTURAL  "
+          write(i_ftls,"(a,4f10.4)") " CELL"  , crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma
+          write(i_ftls,"(4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
+                                               "(", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
+          write(i_ftls,*)            " SYMM", crys%sym
+          write(i_ftls,*)            " NLAYERS", n_layers
+          if (crys%finite_width .eqv. .true.) then
+            write(i_ftls,"(2f10.2)") ,  crys%layer_a, crys%layer_b
+            write(i_ftls,"(a,2f10.2,a,2f10.2,a)") ,  crys%ref_layer_a, crys%ref_layer_b , "(", crys%rang_layer_a, &
+                                                     crys%rang_layer_b, ")"
+          else
+            write(i_ftls,"(a)")        "INFINITE"
+          end if
+
+          b=1
+          a=1
+          do b=1, n_layers
+            write(i_ftls,"(a, i2)")  "LAYER", b
+            write(i_ftls,"(a)")      " LSYM", crys%centro(b)
+            do a=1, crys%l_n_atoms(b)
+              write(i_ftls,"(2a,i4, 5f10.2)") "ATOM ", crys%a_name(a,b), crys%a_num(a,b), crys%a_pos(1, a,b), &
+                                         crys%a_pos(2, a,b), crys%a_pos(3, a,b), crys%a_B (a,b), crys%a_occup(a,b)
+              write(i_ftls,"(a,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
+                                                  crys%ref_a_pos(3, a,b), crys%ref_a_B(a,b), "(", crys%rang_a_pos(1, a,b),&
+                                                  crys%rang_a_pos(2, a,b), crys%rang_a_pos(3, a,b), crys%rang_a_B(a,b)
+            end do
+          end do
+
+        !----------unfinished------------------------------------------------------
+          return
+
+       End Subroutine Write_ftls
 
        Subroutine Write_Prf(diff_pat,i_prf)
           !-----------------------------------------------
@@ -163,7 +256,7 @@
            c = c + fvec(j)*fvec(j)
          end do do_c
          chi2= c/(punts-opti%npar)
-          write(*,*) "fvec(Pat%npts)", fvec(Pat%npts) , pat%y(pat%npts), pat%ycalc(pat%npts)
+         ! write(*,*) "fvec(Pat%npts)", fvec(Pat%npts) , pat%y(pat%npts), pat%ycalc(pat%npts)
          !write (*,*) "r, chi2 , punts, c,  opti%npar", r, chi2 , c,  punts, opti%npar, pat%npts
           write (*,*) "Rp=", r, "chi2=", chi2
          return
@@ -462,49 +555,62 @@
       !chi2=chi2o
       write(*,*)"--------FCOST-------"
 
+
       do i= 1, opti%npar
          shift(i) = v(i) - vector(i)
       end do
 
-      do i = 1, crys%npar
-         state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+      do i = 1, crys%npar           !NOT CORRECT
+        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+        !write(*,*) state(i)
+        if (state(i) < crys%vlim1(crys%p(i)) .or. state(i) > crys%vlim2(crys%p(i))) then
+            write(*,*) "State corrections in", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
+            state(i) =  crys%vlim1(crys%p(i))+ (crys%vlim2(crys%p(i)) - crys%vlim1(crys%p(i))) / 2
+            write(*,*) "State corrections out", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
+        else
+            cycle
+        end if
       end do
 
 
-      !******* state(i) corrections *******
+      !******* state(i) corrections *******        attention: vlim not used
 
-      do i = 1, crys%npar
-         if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
-                write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
-                write(*,*) "alpha before" , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
-                            crys%vlim2(crys%p(i))
-                shift(crys%p(i)) = shift(crys%p(i))/2
-                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-                write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
-                do j=1,crys%npar
-                  write(*,*) "j", j, namepar(j)
-                  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
-                      state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
-                  write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
-                end do
-
-                if (state(i) < zero .or. state(i) > zero) then
-                  shift(crys%p(i)) = - shift (crys%p(i))
-                  state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-                  write(*,*) "alpha again" , namepar(i), state(i), shift(crys%p(i))
-                end if
-         else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
-                  state(i) = (-1.0) * state(i)  !Biso only >0
-         else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
-                  state(i) = (-1.0) * state(i)  !v only <0
-         else if (index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
-                  index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1 ) then  !only >0
-                   state(i) = (-1.0) * state(i)
-         else
-            cycle
-         end if
-      End do
-
+ !    do i = 1, crys%npar
+ !       write(*,*)  "namepar(i)", namepar(i), state(i)
+ !       if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
+ !              write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
+ !              write(*,*) "alpha before" , namepar(i), state(i)
+ !              shift(crys%p(i)) = shift(crys%p(i))/2
+ !              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+ !              write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
+ !              do j=1,crys%npar
+ !                if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
+ !                    state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+ !                write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
+ !              end do
+ !
+ !              if (state(i) < zero .or. state(i) > zero) then
+ !                shift(crys%p(i)) = - shift (crys%p(i))
+ !                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+ !                write(*,*) "alpha again" , namepar(i), state(i), shift(crys%p(i))
+ !                do j=1,crys%npar
+ !                  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
+ !                    state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+ !                  write(*,*) "other alpha again" , namepar(j), state(j), shift(crys%p(i))
+ !                end do
+ !              end if
+ !       else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
+ !                state(i) = (-1.0) * state(i)  !Biso only >0
+ !       else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
+ !                state(i) = (-1.0) * state(i)  !v only <0
+ !       else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
+ !                index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1 ) .and. state(i) .lt. zero ) then  !only >0
+ !                state(i) = (-1.0) * state(i)
+ !                write(*,*) "Attention, shift was higher/lower than accepted values for ", namepar(i),  "new shift applied"
+ !       else
+ !          cycle
+ !       end if
+ !    End do
 
       !update  (only if iflag = 1)
       if(iflag == 1) then
@@ -707,8 +813,8 @@
                   state(i) = (-1.0) * state(i)  !Biso only >0
          else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
                   state(i) = (-1.0) * state(i)  !v only <0
-         else if (index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
-                  index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1 ) then  !only >0
+         else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
+                  index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1) .and. state(i) .lt. 0 ) then  !only >0
                    state(i) = (-1.0) * state(i)
          else
             cycle
@@ -737,7 +843,7 @@
       numcal = numcal + 1
       write(*,*) ' => Calculated Rp    :   ' , rplex
       write(*,*) ' => Best Rp up to now:   ' , rpo
-      write(*,*) var_plex(:)
+
 
       if (rplex < rpo ) then                  !To keep calculated intensity for the best value of rplex
         rpo = rplex
@@ -776,7 +882,7 @@
                                               crys, opti, opsan, cond, Vs
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf
+     use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf, write_ftls
      use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ !, cost3
 
      implicit none
@@ -1379,8 +1485,16 @@
                 OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
                 call Write_Prf(difpat,out)
               else
-                write(*,*) 'The outfile cannot be created'
+                write(*,*) 'The outfile .prf cannot be created'
               end if
+           CALL getfnm(filenam, outfile, '.ftls', ok)
+             if (ok) then
+               OPEN(UNIT = out, FILE = outfile, STATUS = 'new')
+               call Write_ftls(crys,out)
+             else
+               write(*,*) 'The outfile .ftls cannot be created'
+             end if
+
 
 !-------------------------------------------------------------------------------------------------------------------------------
 

@@ -670,7 +670,7 @@
              k=index(txt,"(")
              l=index(txt,")")
              if(k /= 0) then
-                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w , crys%ref_p_dl
+                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_p_u,crys%rang_p_v, crys%rang_p_w , crys%rang_p_dl
 
                 if(ier /= 0) then
                   Err_crys=.true.
@@ -737,6 +737,7 @@
                crys%p(np)= int(ab)
                crys%mult(np) = ((abs(crys%ref_p_dl))-(10.0* &
                  REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dl ))
+               write(*,*)  crys%p(np) , crys%p_dl ,   crys%rang_p_dl
                crys%vlim1(crys%p(np)) = crys%p_dl - crys%rang_p_dl
                if (crys%vlim1(crys%p(np))   .LT. 0 ) crys%vlim1(crys%p(np)) = 0
                crys%vlim2(crys%p(np)) = crys%p_dl + crys%rang_p_dl
@@ -1554,13 +1555,15 @@
             i=i+1
             txt=adjustl(tfile(i))
 
-            read (unit = txt, fmt =*, iostat = ier) crys%ref_l_alpha (j,l), &
-                                crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l),         &
-                                crys%ref_l_r (3,j,l), crys%rang_l_alpha (j,l),     &
-                                crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) ,&
-                                crys%rang_l_r(3,j,l)
+            read (unit = txt, fmt =*, iostat = ier) crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l), &
+                                                    crys%ref_l_r (2,j,l), crys%ref_l_r (3,j,l)
 
-
+            k=index(txt,"(")
+            m=index(txt,")")
+            if(k /= 0) then
+              read(unit=txt(k+1:m-1),fmt=*, iostat=ier) crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), &
+                                                        crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l)
+            end if
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
               np = np + 1    !to count npar
               crys%list (np) = crys%l_alpha (j,l)
