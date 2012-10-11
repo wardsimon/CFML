@@ -3590,7 +3590,7 @@
 ! th2_low is the angle relative to th2_min
 ! 2*d_theta is the angular step size
       n_low  = INT(half*th2_low/d_theta) + 1
-    !  n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
+      n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
       const = two * rad2deg * d_theta
       k1 = const / (SQRT(pi2) * std_dev)

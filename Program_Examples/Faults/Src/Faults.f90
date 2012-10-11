@@ -163,6 +163,7 @@
            c = c + fvec(j)*fvec(j)
          end do do_c
          chi2= c/(punts-opti%npar)
+          write(*,*) "fvec(Pat%npts)", fvec(Pat%npts) , pat%y(pat%npts), pat%ycalc(pat%npts)
          !write (*,*) "r, chi2 , punts, c,  opti%npar", r, chi2 , c,  punts, opti%npar, pat%npts
           write (*,*) "Rp=", r, "chi2=", chi2
          return
