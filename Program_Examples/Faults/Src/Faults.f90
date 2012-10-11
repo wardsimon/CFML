@@ -588,7 +588,7 @@
       numcal = numcal + 1
 
       if(iflag == 0) then
-        iter = iter + opti%nprint
+        iter = iter + cond%nprint
         write(*,"(a,i4)")  " => Iteration number ",iter
         do i=1, crys%npar
           write(*,"(a,f14.5)")  "  ->  "//vs%nampar(i), state(i)

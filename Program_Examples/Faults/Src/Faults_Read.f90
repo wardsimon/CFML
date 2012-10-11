@@ -25,8 +25,8 @@
        real                                             :: layer_a = 0.0, layer_b = 0.0 !layer characteristic widths (optional)
        real                                             :: ref_layer_a, ref_layer_b, rang_layer_a, rang_layer_b
        real                                             :: zero_shift = 0.0
-       real                                             :: SyCos = 0.0
-       real                                             :: SySin = 0.0
+       real                                             :: sycos = 0.0
+       real                                             :: sysin = 0.0
        real                                             :: p_u = 0.0                    !u  > pv_u
        real                                             :: p_v = 0.0                    !v  > pv_v
        real                                             :: p_w = 0.0                    !w  > pv_w
@@ -35,7 +35,9 @@
        real                                             :: p_x                          ! x > pv_x
        real                                             :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
        real                                             :: ref_p_u, ref_p_v, ref_p_w, ref_p_x, ref_p_dg, ref_p_dl
+       real                                             :: ref_zero_shift, ref_sycos, ref_sysin
        real                                             :: rang_p_v, rang_p_u, rang_p_w, rang_p_x, rang_p_dg, rang_p_dl
+       real                                             :: rang_zero_shift, rang_sycos, rang_sysin
        real                                             :: tolerance                    !d-> Maximum deviation that intensities can have
        real                                             :: rang_cell_a ,rang_cell_b,rang_cell_c,rang_cell_gamma
        real                                             :: t_ini=0.0, anneal, accept        ! In SAN: initial temperature, kirkpatrick factor of annealing, minimum number of accepted configurations
@@ -243,7 +245,7 @@
       integer :: i,i1,i2,k, ier, l
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_rad, ok_wave, ok_uvw
+      logical :: ok_rad, ok_wave, ok_uvw, ok_abe
       real  :: ab
 
       logi=.true.
@@ -252,7 +254,7 @@
 
       i=i1
 
-      ok_rad=.false.; ok_wave=.false.; ok_uvw=.false.
+      ok_rad=.false.; ok_wave=.false.; ok_uvw=.false. ; ok_abe=.true.
       vs%np = 0
       do
 
@@ -294,6 +296,93 @@
                 end if
              end if
              ok_wave=.true.
+
+          Case("ABERRATIONS")
+
+             read(unit=txt,fmt=*, iostat=ier) crys%zero_shift, crys%sycos, crys%sysin
+
+             if(ier /= 0 ) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading instrumental aberrations"
+               logi=.false.
+               return
+             end if
+
+             i=i+1
+             txt=adjustl(tfile(i))
+             !Reading refinement codes
+             read(unit=txt,fmt=*, iostat=ier) crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin
+             if(ier /= 0) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading the refinement codes of the instrumental aberrations"
+               logi=.false.
+               return
+             end if
+             vs%np = vs%np + 3
+             !Reading range of parameters
+             k=index(txt,"(")
+             l=index(txt,")")
+             if(k /= 0) then
+                read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin
+                if(ier /= 0) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading the ranges of the instrumental aberrations"
+                  logi=.false.
+                  return
+                end if
+             else
+               Err_crys=.true.
+               Err_crys_mess="ERROR: No parameter ranges in the instrumental aberrations: these must be given!"
+               logi=.false.
+               return
+             end if
+             !Creating refinement vectors
+             if (abs(crys%ref_zero_shift) > 0.0) then
+               crys%npar = crys%npar + 1        ! to count npar
+               crys%list (crys%npar) =crys%zero_shift
+               write(unit=namepar(crys%npar),fmt="(a)")'zero_shift'
+               crys%cod(crys%npar) = 1
+               ab =  (abs(crys%ref_zero_shift)/10.0)
+               crys%p(crys%npar)= int(ab)
+               crys%mult(crys%npar) = ((abs(crys%ref_zero_shift))-(10.0*  &
+                                   REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_zero_shift ))
+               crys%vlim1(crys%p(crys%npar)) = crys%zero_shift- crys%rang_zero_shift
+               if (crys%vlim1(crys%p(crys%npar)) .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+               crys%vlim2(crys%p(crys%npar)) = crys%zero_shift + crys%rang_zero_shift
+               crys%NP_refi(crys%p(crys%npar)) = crys%zero_shift
+
+             end if
+             if (abs(crys%ref_sycos) > 0.0) then
+               crys%npar = crys%npar + 1        ! to count npar
+               crys%list (crys%npar) =crys%sycos
+               write(unit=namepar(crys%npar),fmt="(a)")'sycos'
+               crys%cod(crys%npar) = 1
+               ab =  (abs(crys%ref_sycos)/10.0)
+               crys%p(crys%npar)= int(ab)
+               crys%mult(crys%npar) = ((abs(crys%ref_sycos))-(10.0*  &
+               REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_sycos ))
+               crys%vlim1(crys%p(crys%npar)) = crys%sycos- crys%rang_sycos
+               crys%vlim2(crys%p(crys%npar)) = crys%sycos + crys%rang_sycos
+               if (crys%vlim2(crys%p(crys%npar))  .GT. 0 ) crys%vlim2(crys%p(crys%npar)) = 0
+               crys%NP_refi(crys%p(crys%npar))=crys%sycos
+             end if
+             if (abs(crys%ref_sysin) > 0.0) then
+               crys%npar = crys%npar + 1        ! to count npar
+               crys%list (crys%npar) =crys%sysin
+               write(unit=namepar(crys%npar),fmt="(a)")'sysin'
+               crys%cod(crys%npar) = 1
+               ab =  (abs(crys%ref_sysin)/10.0)
+               crys%p(crys%npar)= int(ab)
+               crys%mult(crys%npar) = ((abs(crys%ref_sysin))-(10.0* &
+                     REAL(crys%p(crys%npar))))*SIGN(1.0,(crys%ref_sysin ))
+               crys%vlim1(crys%p(crys%npar)) = crys%sysin- crys%rang_sysin
+               if (crys%vlim1(crys%p(crys%npar))   .LT. 0 ) crys%vlim1(crys%p(crys%npar)) = 0
+               crys%vlim2(crys%p(crys%npar)) = crys%sysin + crys%rang_sysin
+               crys%NP_refi(crys%p(crys%npar))= crys%sysin
+             end if
+
+             ok_abe=.true.
+
 
           Case("PSEUDO-VOIGT")
              crys%broad=ps_vgt
@@ -633,7 +722,7 @@
         End Select
       end do
 
-      if(ok_rad .and. ok_wave .and. ok_uvw) then
+      if(ok_rad .and. ok_wave .and. ok_uvw .and. ok_abe) then
         return
       else
         Err_crys=.true.
