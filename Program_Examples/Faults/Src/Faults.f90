@@ -5,14 +5,14 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use read_data,                  only : opti, crys_2d_type
+      use read_data,                  only : opti, crys_2d_type, crys
 
       implicit none
 
       private
 
       !public subroutines
-      public :: scale_factor, scale_factor_lmq, Write_Prf,Write_ftls
+      public :: scale_factor, scale_factor_lmq, Write_Prf, Write_ftls
 
       contains
 !________________________________________________________________________________________________________________________
@@ -30,62 +30,62 @@
 
           write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
           if (crys%rad_type == 0 ) then
-            write(i_ftls,"(2a)")     " Radiation            ", "X-ray"
+            write(i_ftls,"(a)")     " Radiation            X-ray"
           elseif (crys%rad_type == 1 ) then
-            write(i_ftls,"(2a)")     " Radiation            ", "neutron"
+            write(i_ftls,"(a)")     " Radiation            neutron"
           else
-            write(i_ftls,"(2a)")     " Radiation            ", "electron"
+            write(i_ftls,"(a)")     " Radiation            electron"
           end if
           write(i_ftls,"(a,3f10.4)") " Lambda                ", crys%lambda , crys%lambda2 , crys%ratio
 
-          if (crys%broad==ps_vgt .and. crys%trm .eqv. .true.) then
-            write(i_ftls,"(a,6f10.2, a)") " Pseudo-voigt", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl, "TRIM"
-            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+          if (crys%broad == ps_vgt .and. crys%trm) then
+            write(i_ftls,"(a,6f10.2, a)") " Pseudo-voigt", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl, " TRIM"
+            write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg, crys%rang_p_dl,")"
-          elseif (crys%broad==ps_vgt .and. crys%trm .eqv..false.) then
+          elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
             write(i_ftls,"(a,6f10.2)") " Pseudo-voigt", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
-            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+            write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg, crys%rang_p_dl,")"
-          elseif (crys%broad==pv_gss .and. crys%trm .eqv. .true.) then
+          elseif (crys%broad == pv_gss .and. crys%trm) then
             write(i_ftls,"(a,5f10.2, a)") " Gaussian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, "TRIM"
-            write(i_ftls,"(5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg ,")"
-          elseif (crys%broad==pv_gss .and. crys%trm .eqv..false.) then
-            write(i_ftls,"(a,5f10.2, a)") " Gaussian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg
-            write(i_ftls,"(5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+          elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
+            write(i_ftls,"(a,5f10.2)") " Gaussian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg
+            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg ,")"
-          elseif (crys%broad==pv_lrn .and. crys%trm .eqv. .true.) then
+          elseif (crys%broad == pv_lrn .and. crys%trm ) then
             write(i_ftls,"(a,5f10.2, a)") " Lorentzian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dl, "TRIM"
-            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dl,")"
-          elseif   (crys%broad==pv_lrn .and. crys%trm .eqv. .false.) then
+          elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
             write(i_ftls,"(a,5f10.2)") " Lorentzian", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dl
-            write(i_ftls,"(6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl, "(", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
+            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dl,")"
           else
             write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
             return
           end if
           write(i_ftls,"(a,3f10.4)") " Aberrations", crys%zero_shift, crys%sycos, crys%sysin
-          write(i_ftls,"(3f10.2,a,3f10.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "(", &
+          write(i_ftls,"(tr11,3f10.2,a,3f10.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "  (", &
                                        crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin, ")"
 
 
           write(i_ftls,"(a)")          "STRUCTURAL  "
-          write(i_ftls,"(a,4f10.4)") " CELL"  , crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma
-          write(i_ftls,"(4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
-                                               "(", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
+          write(i_ftls,"(a,4f10.4)") " CELL", crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma
+          write(i_ftls,"(tr4,4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
+                                               "  (", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
           write(i_ftls,*)            " SYMM", crys%sym
           write(i_ftls,*)            " NLAYERS", n_layers
-          if (crys%finite_width .eqv. .true.) then
-            write(i_ftls,"(2f10.2)") ,  crys%layer_a, crys%layer_b
-            write(i_ftls,"(a,2f10.2,a,2f10.2,a)") ,  crys%ref_layer_a, crys%ref_layer_b , "(", crys%rang_layer_a, &
+          if (crys%finite_width) then
+            write(i_ftls,"(2f10.2)")    crys%layer_a, crys%layer_b
+            write(i_ftls,"(2f10.2,a,2f10.2,a)")    crys%ref_layer_a, crys%ref_layer_b , "  (", crys%rang_layer_a, &
                                                      crys%rang_layer_b, ")"
           else
             write(i_ftls,"(a)")        "INFINITE"
@@ -97,10 +97,10 @@
             write(i_ftls,"(a, i2)")  "LAYER", b
             write(i_ftls,"(a)")      " LSYM", crys%centro(b)
             do a=1, crys%l_n_atoms(b)
-              write(i_ftls,"(2a,i4, 5f10.2)") "ATOM ", crys%a_name(a,b), crys%a_num(a,b), crys%a_pos(1, a,b), &
+              write(i_ftls,"(2a,i4, 5f10.5)") "ATOM ", crys%a_name(a,b), crys%a_num(a,b), crys%a_pos(1, a,b), &
                                          crys%a_pos(2, a,b), crys%a_pos(3, a,b), crys%a_B (a,b), crys%a_occup(a,b)
-              write(i_ftls,"(a,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
-                                                  crys%ref_a_pos(3, a,b), crys%ref_a_B(a,b), "(", crys%rang_a_pos(1, a,b),&
+              write(i_ftls,"(tr13,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
+                                                  crys%ref_a_pos(3, a,b), crys%ref_a_B(a,b), "  (", crys%rang_a_pos(1, a,b),&
                                                   crys%rang_a_pos(2, a,b), crys%rang_a_pos(3, a,b), crys%rang_a_B(a,b)
             end do
           end do
@@ -136,7 +136,7 @@
                write (i_ftls, "(a)") "INFINITE"
              else
                write (i_ftls, "( f5.2)") crys%l_cnt
-               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "(", crys%rang_l_cnt, ")"
+               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "  (", crys%rang_l_cnt, ")"
              end if
            end if
 
@@ -146,13 +146,13 @@
           do l=1, n_layers
             do j=1, n_layers
               write(i_ftls, "(a,i2, a, i2)") "!layer ", l, " to layer ", j
-              write(i_ftls, "(a, 4f10.2)")  "LT",  crys%l_alpha (j,l), crys%l_r (1,j,l), crys%l_r (2,j,l), crys%l_r (3,j,l)
+              write(i_ftls, "(a, 4f10.4)")  "LT ",  crys%l_alpha (j,l), crys%l_r (1,j,l), crys%l_r (2,j,l), crys%l_r (3,j,l)
 
 
-              write(i_ftls, "(4f10.2,a,4f10.2,a)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
-                                                      crys%ref_l_r (3,j,l), "(" ,  crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), &
+              write(i_ftls, "(tr3,4f10.2,a,4f10.2,a)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+                                                      crys%ref_l_r (3,j,l), "  (" ,  crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), &
                                                       crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l), ")"
-              write(i_ftls, "(a, 6f10.2)") "FT",crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
+              write(i_ftls, "(a, 6f10.2)") "FT ",crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
                                       crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
             end do
           end do
@@ -245,8 +245,7 @@
          Real (Kind=cp),Dimension(:),         Intent(   Out):: fvec
          real                                  ,Intent( out):: chi2
          real                                               :: a ,  c, r
-         real                                               :: thmin, thmax  , thmin_o
-         integer                                            :: n_high, punts=0
+         integer                                            :: punts=0
          integer                                            :: i,j
 
          a=0
@@ -319,8 +318,7 @@
          real                             , intent (   out) :: r
          real                             , intent (   out) :: chi2
          real                                               :: a ,  c
-         real                                               :: thmin, thmax  , thmin_o
-         integer                                            :: n_high, punts=0
+         integer                                            :: punts=0
          integer                                            :: i,j
 
          a=0
@@ -397,6 +395,7 @@
     use CFML_Diffraction_patterns , only : diffraction_pattern_type
     use CFML_Optimization_LSQ,      only : Levenberg_Marquardt_Fit
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
+    use CFML_Math_General,          only : spline, splint, sind, cosd
     use diffax_mod
     use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
@@ -405,7 +404,7 @@
 
     implicit none
 
-    public  :: F_cost, Cost_LMQ !Cost3
+    public  :: F_cost, Cost_LMQ, apply_aberrations !Cost3
     type (diffraction_pattern_type),  save         :: difpat
     type (State_Vector_Type), public, save         :: st
 
@@ -731,6 +730,9 @@
         if (namepar(i) ==  'cell_b')     cell_b = state(i)
         if (namepar(i) ==  'cell_c')     cell_c = state(i)
         if (namepar(i) ==  'num_layers') l_cnt  = state(i)
+        if (namepar(i) ==  'zero_shift') crys%zero_shift  = state(i)
+        if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
+        if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
         if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
 
         do j=1, n_layers
@@ -795,43 +797,32 @@
 
     End Subroutine Pattern_Calculation
 
-    Subroutine Apply_Aberrations(n_high)
+    Subroutine Apply_Aberrations()
       !--- Modifies brd_spc by spline interpolation after applying zero-shift
       !--- displacement and transparency (Bragg-Brentano)
       real(kind=cp), dimension(n_high) :: true_2th, broad_spect, der2v
-      integer       :: i,j,k
-      real(kind=cp) :: aux,tt,shift,ycal
+      integer       :: i
+      real(kind=cp) :: aux,tt,shift,ycal,t
 
       do i=1,n_high
          true_2th(i)=thmin+real(i-1,kind=cp)*step_2th
          broad_spect(i) = brd_spc(i)  !needed because brd_spc is double precision
       end do
       aux=1.0e+35
+
       call spline(true_2th,broad_spect,n_high,aux,aux,der2v)
 
-      Select Case(i_geom)
-
-        ! Shift(2Theta) = zero + SyCos * cos(Theta) + SySin * sin(2Theta)
-        Case (0) !Bragg Brentano (SyCos: displacement, Sysin: transparency)
-          do i=1,difpat%npts
-            tt=difpat%x(i)
-            shift=zero_diff + sycos * cosd(0.5*tt) + sysin * sind(tt)
-            tt=tt-shift
-            call splint(pat%x,broad_spect,der2v,pat%npts,tt,ycal)
-            difpat%ycalc(i)=ycal
-          end do
-
-        ! Shift(2Theta) = zero + SyCos * cos(2Theta) + SySin * sin(2Theta)
-        Case (1) ! Debye-Scherrer (neutrons, capillary ...) (SyCos,SySin: displacements)
-          do i=1,difpat%npts
-            tt=difpat%x(i)
-            shift=zero_diff + sycos * cosd(tt) + sysin * sind(tt)
-            tt=tt-shift
-            call splint(pat%x,broad_spect,der2v,pat%npts,tt,ycal)
-            difpat%ycalc(i)=ycal
-          end do
-
-      End Select
+      ! Shift(2Theta) = zero + SyCos * cos(Theta) + SySin * sin(2Theta)     !Bragg-Brentano
+      ! Shift(2Theta) = zero + SyCos * cos(2Theta) + SySin * sin(2Theta)    ! Debye-Scherrer
+      do i=1,difpat%npts
+        tt=difpat%x(i)
+        t=tt
+        if(i_geom == 0) t=t*0.5 !Bragg Brentano (SyCos: displacement, Sysin: transparency)
+        shift=crys%zero_shift + crys%sycos * cosd(t) + crys%sysin * sind(tt)
+        tt=tt-shift
+        call splint(difpat%x,broad_spect,der2v,difpat%npts,tt,ycal)
+        difpat%ycalc(i)=ycal
+      end do
       return
     End Subroutine Apply_Aberrations
 !--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -974,25 +965,24 @@
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
      use read_data,                    only : new_getfil, read_structure_file, length,   &
-                                              crys, opti, opsan, cond, Vs
+                                              crys, opti, opsan, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf, write_ftls
-     use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ !, cost3
+     use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ, apply_aberrations !, cost3
 
      implicit none
 
 
-      real                                                    :: rpl,  theta ,thmin, thmax , thmin_o  , ymax, ymini , ymin ,deg
-      LOGICAL                                                 :: ok, ending , gol, p_ok
-      INTEGER*4                                               :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, p_resta ,e
-      character(len=100)                                      :: pfile, bfile , bmode
-      character(len=100)                                      :: pmode, filenam
-      integer, parameter                                      :: out = 25
-      real, dimension (:), allocatable                        :: resta
-      character(len=10)                                       :: time, date
-      Real (Kind=cp)                                          :: chi2     !final Chi2
-      character(len=3000)                                     :: infout   !Information about the refinement (min length 256)
+      real                    :: rpl,  theta , ymax, ymini , ymin ,deg
+      LOGICAL                 :: ok, ending , gol, p_ok, arggiven=.false.
+      INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
+      character(len=100)      :: pfile, bfile , bmode
+      character(len=100)      :: pmode, filenam
+      integer, parameter      :: out = 25
+      character(len=10)       :: time, date
+      Real (Kind=cp)          :: chi2     !final Chi2
+      character(len=3000)     :: infout   !Information about the refinement (min length 256)
 
       pi = four * ATAN(one)
       pi2 = two * pi
@@ -1001,14 +991,38 @@
 
       ending = .false.
       ok = .true.
-
-      CALL salute()
-
-
       sfname = 'data.sfc'
       cntrl=ip
 
-      call new_getfil(infile, st,   gol)                           ! parametros para calculo
+      CALL salute()
+
+      !---- Arguments on the command line ----!
+      narg=command_argument_count()
+
+      if (narg > 0) then
+         call get_command_argument(1,infile)
+         arggiven=.true.
+      end if
+
+      if(.not. arggiven) then
+        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
+        read(unit= *,fmt="(a)") infile
+      end if
+      !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
+      OPEN(UNIT = sf, FILE = sfname)
+      !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
+
+      !call read_structure_file(infile, st, gol)
+      call read_structure_file(infile, gol)  !new way
+
+      if (err_crys) then
+        write(unit=*,fmt="(a)") " ERROR in "//trim(infile)//": "//trim(err_crys_mess)
+        stop
+      else
+        write(op, fmt=*) "=> Structure input file read in"
+      end if
+
+      !call new_getfil(infile, st,   gol)    ! Reading input control file
       opsan%Cost_function_name="R-factor"
 
       IF(gol) then
@@ -1026,46 +1040,68 @@
              if (index (namepar(i) , 'num' ) == 1) conv_e = 1
              if (index (namepar(i) , 'Biso')==1) conv_f=1
              if (index (namepar(i) , 't' ) == 1 .or. index (namepar(i) , 'alpha' ) == 1  .or. &
-              index (namepar(i) , 'num' ) == 1 .or. index (namepar(i) , 'Biso')==1 .or.       &
-              index (namepar(i) , 'pos')==1 .or. index (namepar(i) , 'cell')==1 ) conv_g = 1 !used in diffax_calc not to recalculate the whole spectra if only instrumental parameters are refined
+                 index (namepar(i) , 'num' ) == 1 .or. index (namepar(i) , 'Biso')==1 .or.       &
+                 index (namepar(i) , 'pos')==1 .or. index (namepar(i) , 'cell')==1 ) conv_g = 1 !used in diffax_calc not to recalculate the whole spectra if only instrumental parameters are refined
       end do
+
       !Simulation or optimization
+
+      if(opt /= 0) then
+         !Reading experimental pattern and scattering factors:
+         write(*,"(a)") " => Reading Pattern file="//trim(dfile)
+         call  read_pattern(dfile,difpat,fmode )
+           if(Err_diffpatt) then
+             print*, trim(err_diffpatt_mess)
+           else
+             if (th2_min <= 0.0000001 .and.  th2_max <= 0.0000001  .and. d_theta <= 0.0000001) then
+                thmin    =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
+                thmax    =  difpat%xmax
+                step_2th =  difpat%step
+                n_high = nint((thmax-thmin)/step_2th+1.0_cp)
+                th2_min = thmin * deg2rad
+                th2_max = thmax * deg2rad
+                d_theta = half * deg2rad * step_2th
+             end if
+           end if
+         write(*,"(a)") " => Reading Background file="//trim(background_file)
+         call read_background_file(background_file, mode ,difpat)
+               if(Err_diffpatt) print*, trim(err_diffpatt_mess)
+
+      end if
+
+      !Operations before starting :
+      check_sym = .false.
+      IF(symgrpno == UNKNOWN) THEN
+        symgrpno = get_sym(ok)
+        IF(.NOT. ok) GO TO 999
+        WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
+        IF(symgrpno /= 1) THEN
+          WRITE(op,201) '  to within a tolerance of one part in ',  &
+              nint(one / tolerance)
+        END IF
+      ELSE
+        check_sym = .true.
+        CALL chk_sym(ok)
+        IF(.NOT. ok) GO TO 999
+      END IF
+      filenam = trim(infile(1:(index(infile,'.')-1)))
+      IF(ok) ok = get_g()
+      IF(ok .AND. rndm) ok = getlay()
+      IF(ok) CALL sphcst()
+      IF(ok) CALL detun()
+      IF(.NOT. ok) GO TO 999
+      ! See if there are any optimizations we can do
+      IF(ok) CALL optimz(infile, ok)
+      write(*,"(a)") " => Calling dump file: "//trim(filenam)//".dmp"
+      call dump(infile, p_ok)
+      call overlp()
+      call nmcoor ()
 
        Select  case (opt)
 
           Case (0)
-              !Algunas operaciones antes de empezar:
-              check_sym = .false.
-              IF(symgrpno == UNKNOWN) THEN
-                symgrpno = get_sym(ok)
-                IF(.NOT. ok) GO TO 999
-                WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
-                IF(symgrpno /= 1) THEN
-                  WRITE(op,201) '  to within a tolerance of one part in ',  &
-                      nint(one / tolerance)
-                END IF
-              ELSE
-                check_sym = .true.
-                CALL chk_sym(ok)
-                IF(.NOT. ok) GO TO 999
-              END IF
 
-              n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
-              call overlp()
-
-              if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
-              allocate(difpat%ycalc(n_high))
-
-              IF(ok) ok = get_g()
-              IF(ok .AND. rndm) ok = getlay()
-              IF(ok) CALL sphcst()
-              IF(ok) CALL detun()
-              IF(.NOT. ok) GO TO 999
-! See if there are any optimizations we can do
-              IF(ok) CALL optimz(infile, ok)
-
-! What type of intensity output does the user want?
+          ! What type of intensity output does the user want?
            10  IF(ok) THEN
               ! WRITE(op,100) 'Enter function number: '
               ! WRITE(op,100) '0 POINT, 1 STREAK, 2 INTEGRATE, 3 POWDER PATTERN, 4 SADP : '
@@ -1073,9 +1109,7 @@
                 n=3 !Powder pattern
              END IF
 
-             call dump (infile, p_ok)
-             call nmcoor ()
-! Do what the user asked for.
+            ! Do what the user asked for.
              IF(ok) THEN
 
                 IF(n == 0) THEN
@@ -1088,25 +1122,17 @@
                    write(*,*) "calculating powder diffraction pattern"
                    CALL gospec(infile,outfile,ok)
 
-                     n_high = nINT(half*(th2_max-th2_min)/d_theta + 1.0)
-
                      Do j = 1, n_high
                          ycalcdef(j) = brd_spc(j)
                          !write(*,*) ycalcdef(j)
                      end do
 
-                     thmax=th2_max * rad2deg
-                     thmin=th2_min * rad2deg
-                     d_theta = rad2deg * 2 *d_theta
-
-                     filenam = trim(infile(1:(index(infile,'.')-1)))
-                   !  write(*,*) filenam
                      CALL getfnm(filenam, outfile, '.dat', ok)
                 !        write(*,*) outfile
 
                      OPEN(UNIT = out, FILE = outfile, STATUS = 'new')
                         write(unit = out,fmt = *)'!', outfile
-                        write(unit = out,fmt = '(3f12.4)')thmin, d_theta,thmax
+                        write(unit = out,fmt = '(3f12.4)')thmin, step_2th,thmax
                      !  theta = thmin +(j-1)*d_theta
                         write(unit = out,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
 
@@ -1149,8 +1175,6 @@
 !!!                 if(Err_diffpatt) print*, trim(err_diffpatt_mess)
 !!!
 !!!           !Fin de lectura
-!!!           if(allocated (resta)) deallocate(resta)
-!!!           allocate(resta(difpat%npts))
 !!!           !Algunas operaciones antes de empezar:
 !!!           check_sym = .false.
 !!!           IF(symgrpno == UNKNOWN) THEN
@@ -1167,12 +1191,6 @@
 !!!             IF(.NOT.ok) GO TO 999
 !!!           END IF
 !!!
-!!!           n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-!!!
-!!!
-!!!           if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
-!!!           allocate(difpat%ycalc(n_high))
-!!!           filenam = trim(infile(1:(index(infile,'.')-1)))
 !!!
 !!!           open(unit=san_out,file=trim(filenam)//".out", status="replace",action="write")
 !!!
@@ -1267,28 +1285,17 @@
 !!!               theta = thmin +(i-1)*d_theta*rad2deg * 2
 !!!               write(unit = out,fmt = "(f10.6,3f14.6)") theta,  ycalcdef(i)
 !!!             end do
-!!!             p_resta= n_high-1
 !!!             WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
 !!!             WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',3
 !!!             write(out,'(a,a)')          '#        FILE NAME  : ', " Difference"
 !!!             write(out,'(a,a)')          '#            TITLE  : ', " Yobs-Ycal "
-!!!             write(out,'(a,i10)')        '#  NUMBER OF POINTS : ', p_resta
 !!!             write(out,'(a)')            '#            MARKER : 4'       !open circles
 !!!             write(out,'(a,F6.1)')       '#              SIZE : 0.0'     !size 1
 !!!             write(out,'(a,a16)')        '#          RGBCOLOR : RGB(  255,  0,0)' !?
 !!!             write(out,'(a,i6)')         '#             STYLE : 1'       !Points non continuous line
 !!!             write(out,'(a,i6)')         '#         PEN WIDTH : 1'       !current_pen_width
 !!!                     write(out,'(a,i6)')         '#        DATA: X Y  '
-!!!             thmin_o = difpat%xmin * deg2rad      !rad
 !!!
-!!!             if    ( th2_min/= thmin_o ) then
-!!!               punts= INT(half*(th2_min-thmin_o)/d_theta)
-!!!             end if
-!!!
-!!!             do i=1,n_high-1
-!!!                  resta(i) =(difpat%y(i+punts) - ycalcdef(i)) + ymini
-!!!                  write(unit=out,fmt="(2f15.7)") difpat%x(i+punts) , resta(i)
-!!!             end do
 !!!             WRITE(out,'(a1,128a1)')     '#',('-',i=1,128)
 !!!             WRITE(out,'(a,i6)')         '# >>>>>>>> PATTERN #: ',4
 !!!             write(out,'(a,a)')          '#        FILE NAME  : ', " Bragg_position "
@@ -1326,63 +1333,6 @@
 
           Case (2) !SIMPLEX
 
-              !Lectura del  pattern experimental y de los scattering factors:
-              write(*,"(a)") " => Reading Pattern file="//trim(dfile)
-              call  read_pattern(dfile,difpat,fmode )
-                if(Err_diffpatt) then
-                  print*, trim(err_diffpatt_mess)
-                else
-                  if (th2_min == 0 .and.  th2_max == 0  .and. d_theta == 0) then
-                     th2_min =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
-                     th2_max =  difpat%xmax
-                     d_theta =  difpat%step
-                     th2_min = th2_min * deg2rad
-                     th2_max = th2_max * deg2rad
-                     d_theta = half * deg2rad * d_theta
-                  end if
-                end if
-              write(*,"(a)") " => Reading Background file="//trim(background_file)
-              call read_background_file(background_file, mode ,difpat)
-                    if(Err_diffpatt) print*, trim(err_diffpatt_mess)
-
-              !Fin de lectura
-
-              if(allocated (resta)) deallocate(resta)
-              allocate(resta(difpat%npts))
-
-              !Algunas operaciones antes de empezar:
-              check_sym = .false.
-              IF(symgrpno == UNKNOWN) THEN
-                symgrpno = get_sym(ok)
-                IF(.NOT. ok) GO TO 999
-                WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
-                IF(symgrpno /= 1) THEN
-                  WRITE(op,201) '  to within a tolerance of one part in ',  &
-                      nint(one / tolerance)
-                END IF
-              ELSE
-                check_sym = .true.
-                CALL chk_sym(ok)
-                IF(.NOT. ok) GO TO 999
-              END IF
-
-              n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
-
-              if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
-              allocate(difpat%ycalc(n_high))
-              filenam = trim(infile(1:(index(infile,'.')-1)))
-
-             ! gen(1:n_plex) = v_plex(1:n_plex)
-
-
-              IF(ok) ok = get_g()
-              write(*,"(a)") " => Calling dump file="//trim(infile)
-              call dump(infile, p_ok)
-
-              call overlp()
-              call nmcoor ()
-
               rpo = 1000                         !initialization of agreement factor
              ! rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
@@ -1413,59 +1363,6 @@
 
           Case (3) !Local optimizer
 
-              !Lectura del  pattern experimental y de los scattering factors:
-
-              call  read_pattern(dfile,difpat,fmode )
-                if(Err_diffpatt) then
-                  print*, trim(err_diffpatt_mess)
-                else
-                  if (th2_min == 0 .and.  th2_max == 0  .and. d_theta == 0) then
-                     th2_min =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
-                     th2_max =  difpat%xmax
-                     d_theta =  difpat%step
-                     th2_min = th2_min * deg2rad
-                     th2_max = th2_max * deg2rad
-                     d_theta = half * deg2rad * d_theta
-                  end if
-                end if
-              call read_background_file(background_file, mode ,difpat)
-                    if(Err_diffpatt) print*, trim(err_diffpatt_mess)
-
-              !Fin de lectura
-
-              if(allocated (resta)) deallocate(resta)
-              allocate(resta(difpat%npts))
-
-              !Algunas operaciones antes de empezar:
-              check_sym = .false.
-              IF(symgrpno == UNKNOWN) THEN
-                symgrpno = get_sym(ok)
-                IF(.NOT.ok) GO TO 999
-                WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
-                IF(symgrpno /= 1) THEN
-                  WRITE(op,201) '  to within a tolerance of one part in ',  &
-                      nint(one / tolerance)
-                END IF
-              ELSE
-                check_sym = .true.
-                CALL chk_sym(ok)
-                IF(.NOT.ok) GO TO 999
-              END IF
-
-              n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
-
-              if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
-              allocate(difpat%ycalc(n_high))
-              filenam = trim(infile(1:(index(infile,'.')-1)))
-
-             ! gen(1:n_plex) = v_plex(1:n_plex)
-              IF(ok) ok = get_g()
-              call dump (infile, p_ok)
-              call overlp()
-              write(*,*) "overlp"
-              call nmcoor ()
-              write(*,*) "opti%npar", opti%npar
 
               chi2o = 1000                         !initialization of agreement factor
             !  rpl = 0
@@ -1498,65 +1395,8 @@
               else
                 write(*,*) 'The outfile cannot be created'
               end if
-!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
           Case (4) !LMQ
-
-            !Lectura del  pattern experimental y de los scattering factors:
-            write(*,"(a)") " => Reading Pattern file="//trim(dfile)
-            call  read_pattern(dfile,difpat,fmode )
-              if(Err_diffpatt) then
-                print*, trim(err_diffpatt_mess)
-              else
-                if (th2_min == 0 .and.  th2_max == 0  .and. d_theta == 0) then
-                   th2_min =  difpat%xmin    ! if not specified in input file, take the values from the observed pattern
-                   th2_max =  difpat%xmax
-                   d_theta =  difpat%step
-                   th2_min = th2_min * deg2rad
-                   th2_max = th2_max * deg2rad
-                   d_theta = half * deg2rad * d_theta
-                end if
-              end if
-            write(*,"(a)") " => Reading Background file="//trim(background_file)
-            call read_background_file(background_file, mode ,difpat)
-                  if(Err_diffpatt) print*, trim(err_diffpatt_mess)
-
-            !Fin de lectura
-
-            if(allocated (resta)) deallocate(resta)
-            allocate(resta(difpat%npts))
-
-            !Algunas operaciones antes de empezar:
-            check_sym = .false.
-            IF(symgrpno == UNKNOWN) THEN
-              symgrpno = get_sym(ok)
-              IF(.NOT. ok) GO TO 999
-              WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
-              IF(symgrpno /= 1) THEN
-                WRITE(op,201) '  to within a tolerance of one part in ',  &
-                    nint(one / tolerance)
-              END IF
-            ELSE
-              check_sym = .true.
-              CALL chk_sym(ok)
-              IF(.NOT. ok) GO TO 999
-            END IF
-
-            n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
-
-            if(allocated(difpat%ycalc) ) deallocate(difpat%ycalc)
-            allocate(difpat%ycalc(n_high))
-            filenam = trim(infile(1:(index(infile,'.')-1)))
-
-           ! gen(1:n_plex) = v_plex(1:n_plex)
-
-
-            IF(ok) ok = get_g()
-            write(*,"(a)") " => Calling dump file="//trim(infile)
-            call dump(infile, p_ok)
-
-            call overlp()
-            call nmcoor ()
 
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
@@ -1582,10 +1422,10 @@
               else
                 write(*,*) 'The outfile .prf cannot be created'
               end if
-           CALL getfnm(filenam, outfile, '.ftls', ok)
+              !CALL getfnm(trim(filenam)//"_new", outfile, '.ftls', ok)
              if (ok) then
-               OPEN(UNIT = out, FILE = outfile, STATUS = 'new')
-               call Write_ftls(crys,out)
+               OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
+               call Write_ftls(crys,i_flts)
              else
                write(*,*) 'The outfile .ftls cannot be created'
              end if

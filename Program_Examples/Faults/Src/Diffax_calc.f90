@@ -1348,10 +1348,10 @@
       END IF
       IF(dmp /= op) OPEN(UNIT = dmp , FILE = dmpfile, STATUS = 'replace')
 
-      i2 = 0
-      99 WRITE(op,200) 'Enter 1 for full atomic position dump: '
-      READ(cntrl,*,ERR=99,END=9999) i2
-      IF(cfile) WRITE(op,'(1x,i3)') i2
+      i2 = 1
+      !WRITE(op,200) 'Enter 1 for full atomic position dump: '
+      !READ(cntrl,*,ERR=99,END=9999) i2
+      !IF(cfile) WRITE(op,'(1x,i3)') i2
       WRITE(op,300) 'Writing data dump to file ''',  &
           dmpfile(1:length(dmpfile)),'''. . .'
 ! sundry details about layers
@@ -3574,7 +3574,7 @@
 
       REAL*8, INTENT(IN OUT)                       :: th2_low
 
-      INTEGER*4 i, j, n_low,  m !, n_high
+      INTEGER*4 i, j, n_low,  m
       REAL*8 k1, k2, k3, const, gss, std_dev, tmp, tmp1, tmp2
 
       IF(fwhm <= zero) GO TO 999
@@ -3590,7 +3590,6 @@
 ! th2_low is the angle relative to th2_min
 ! 2*d_theta is the angular step size
       n_low  = INT(half*th2_low/d_theta) + 1
-      n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
       const = two * rad2deg * d_theta
       k1 = const / (SQRT(pi2) * std_dev)
@@ -4641,7 +4640,7 @@
       REAL*8, INTENT(IN OUT)                       :: th2_low
 
 
-      INTEGER*4 i, j, n_low !, n_high
+      INTEGER*4 i, j, n_low
       REAL*8 k1, k2, k3, const, lrnz, tmp, tmp1, tmp2
 
       IF(fwhm <= zero) GO TO 999
@@ -4655,7 +4654,6 @@
 ! th2_low is the angle relative to th2_min
 ! 2*d_theta is the angular step size
       n_low  = INT(half*th2_low/d_theta) + 1
-     ! n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
 
       const = two * rad2deg * d_theta
       k1 = const * two / (pi * fwhm)
@@ -6247,7 +6245,7 @@
       REAL*8, INTENT(IN OUT)    :: th2_low
 
 
-      INTEGER*4 i, j, n_low,  indx !, n_high
+      INTEGER*4 i, j, n_low,  indx
       REAL      ::th_rng,th_rng2, tn_th, c00, hk_inv, th0 , temp1, temp2, temp3, temp4, delta_lambda
       real(kind = sp ) ::  pv_hg, pv_hl, tmp
       REAL      :: k1, k2, k3, k4, k5, pvoigt, const, speci
@@ -6276,7 +6274,6 @@
 ! th2_low is the angle relative to th2_min
 ! 2*d_theta is the angular step size
       n_low  = INT(half*th2_low/d_theta) + 1
-    !  n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
       delta_lambda = lambda2 - lambda
       if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
       c00 = four * LOG(two)
@@ -7843,12 +7840,10 @@
       CHARACTER (LEN=*), INTENT(IN OUT)        :: spcfile
       LOGICAL, INTENT(IN OUT)                  :: ok
       CHARACTER (LEN=1) :: tab
-      INTEGER*4 i, n_low !, n_high
+      INTEGER*4 i, n_low
       REAL*8 theta
 
       n_low  = 1
-    !  n_high = INT(half*(th2_max-th2_min)/d_theta) + 1
-
       tab = CHAR(9)
       theta = th2_min * rad2deg
       WRITE(op,200) 'Writing spectrum data to file ''',      spcfile(1:length(spcfile)), '''. . .'

@@ -11,6 +11,8 @@ wavelength   1.5406
   !instr. broadening  u         v           w          x       Dg         Dl
 pseudo-voigt        0.003637  -0.003558   0.2274  0  490      459      trim
                       0.0        0.0        0.0       0.0      0            0     (0.01   0.01   0.01   0.01   100.0  100.0  )
+instrumental_aberrations  0.0  0.0   0.0
+                          0.0  0.0   0.0   ( 0.01   0.01   0.01 )
 
 STRUCTURAL
    !a            b            c          gamma
@@ -121,6 +123,6 @@ LT   0.99    0.0      0.0       1.0
 
 
 
-CALCULATION
-  simulation 15.0 60.0 0.05
+CALCULATION    15.0 70.0 0.05
+  simulation
 

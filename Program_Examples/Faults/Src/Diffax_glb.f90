@@ -306,9 +306,9 @@
                               unit_sp=12,&   !sk  -  unit that the streak data will be written to.
                               sk=13,&   !sp  -  unit that the spectrum data will be written to.
                               sa=14 ,&     !sa  -  unit that the 8-bit binary formatted selected area diffraction pattern data will be written to.
-                              san_out = 17,&  ! output device number for SAN
-                              simplex_out = 26 ! output device number for simplex
-
+                              san_out = 17,&   ! output device number for SAN
+                              simplex_out = 26, & ! output device number for simplex
+                              i_flts = 27
 
       INTEGER, PARAMETER :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
 
@@ -576,8 +576,14 @@
  REAL(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
  REAL(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
                         !    the selected area diffraction patterns.
- REAL(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum.
- REAL(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum.
+ REAL(kind=dp)  :: th2_max     !d-> Upper bound of angle in PXD spectrum in radians.
+ REAL(kind=dp)  :: th2_min     !d-> Lower bound of angle in PXD spectrum in radians.
+
+ REAL(kind=cp)  :: thmax=0.0    !  Upper bound of angle in PXD spectrum in degrees.
+ REAL(kind=cp)  :: thmin=0.0    !  Lower bound of angle in PXD spectrum in degrees.
+ REAL(kind=cp)  :: step_2th=0.0 !  Step in 2theta (in degrees) for calculating the PDP
+ integer        :: i_geom=0     ! =0 for Bragg-Brentano, =1 for Debye-Scherrer
+
  REAL(kind=dp)  :: theta1      !    angle relative to (1,0,0) of lower wedge bound
  REAL(kind=dp)  :: theta2      !    angle relative to (1,0,0) of upper wedge bound
  REAL(kind=dp)  :: tolerance   !d-> Maximum deviation that intensities can have

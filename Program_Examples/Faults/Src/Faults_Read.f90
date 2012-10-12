@@ -343,7 +343,7 @@
              if (abs(crys%ref_zero_shift) > 0.0) then
                np = np + 1        ! to count npar
                crys%list (np) =crys%zero_shift
-               write(unit=namepar(np),fmt="(a)")'zero_shift'
+               namepar(np)='zero_shift'
                crys%cod(np) = 1
                ab =  (abs(crys%ref_zero_shift)/10.0)
                crys%p(np)= int(ab)
@@ -1679,7 +1679,8 @@
       integer :: i,i1,i2,k, ier,n, j
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lmq, ok_boxp, ok_maxfun, ok_corrmax, ok_tol, ok_nprint
+      logical :: ok_sim, ok_opt, ok_eps, ok_acc, ok_iout, ok_mxfun, ok_lmq, ok_boxp, ok_maxfun, &
+                 ok_range, ok_corrmax, ok_tol, ok_nprint
 
       logi=.true.
       i1=sect_indx(6)
@@ -1693,6 +1694,74 @@
 
       ok_sim=.false.; ok_opt=.false.; ok_eps=.false.; ok_acc=.false.; ok_iout=.false.; ok_mxfun=.false.
       ok_lmq=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false. ; ok_nprint=.false.
+      ok_range=.false.
+
+      txt=adjustl(tfile(i)) !CALCULATION LINE containing eventually range 2theta_max, 2theta_min, step
+      txt=txt(12:)
+      k=index(txt,"{")
+      if( k /= 0) txt=txt(:k-1)
+      k=index(txt,"!")
+      if( k /= 0) txt=txt(:k-1)
+
+      if(len_trim(txt) /= 0) then ! Reading range
+        read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
+        if(ier /= 0 ) then
+          Err_crys=.true.
+          Err_crys_mess="ERROR reading 2theta ranges"
+          logi=.false.
+          return
+        end if
+
+        IF(th2_min < zero) THEN
+          WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
+          logi = .false.
+          RETURN
+        END IF
+        IF(th2_min >= one_eighty) THEN
+          WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
+          logi = .false.
+          RETURN
+        END IF
+        IF(th2_max <= zero) THEN
+            WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
+            logi = .false.
+            RETURN
+        END IF
+        IF(th2_max > one_eighty) THEN
+            WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
+            logi = .false.
+            RETURN
+        END IF
+        ! if th2_max = 180, reduce it slightly to keep us out of trouble
+        IF(th2_max == one_eighty) th2_max = th2_max - eps4
+        IF(d_theta <= zero) THEN
+          WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
+          logi = .false.
+          RETURN
+        END IF
+        IF(th2_min >= th2_max) THEN
+            WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
+            logi = .false.
+            RETURN
+        END IF
+        IF((th2_max - th2_min) < d_theta) THEN
+             WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
+             logi = .false.
+             RETURN
+        END IF
+
+        !--- Calculation of n_high (maximum index of the array for pattern calculation)
+        thmin=th2_min
+        thmax=th2_max
+        step_2th=d_theta
+        n_high = nint((th2_max-th2_min)/d_theta+1.0_dp)
+        !th2_min = th2_min * deg2rad
+        !th2_max = th2_max * deg2rad
+        !d_theta = half * deg2rad * d_theta
+        ok_range=.true.
+
+      end if
+
 
       do
         i=i+1; if(i > i2) exit
@@ -1705,54 +1774,12 @@
         Select Case(key)
 
           Case ('SIMULATION')
-
-                  opt = 0
-                  txt=adjustl(txt(k+1:))
-                  read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
-                  if(ier /= 0 ) then
-                    Err_crys=.true.
-                    Err_crys_mess="ERROR reading 2theta ranges"
-                    logi=.false.
-                    return
+                  if(.not. ok_range) then
+                     WRITE(op,"(a)") ' ERROR: No 2theta range has been provided in CALCULATION instruction.'
+                     logi = .false.
+                     RETURN
                   end if
-
-                  IF(th2_min < zero) THEN
-                    WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
-                    logi = .false.
-                    RETURN
-                  END IF
-                  IF(th2_min >= one_eighty) THEN
-                    WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
-                    logi = .false.
-                    RETURN
-                  END IF
-                  IF(th2_max <= zero) THEN
-                      WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
-                      logi = .false.
-                      RETURN
-                  END IF
-                  IF(th2_max > one_eighty) THEN
-                      WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
-                      logi = .false.
-                      RETURN
-                  END IF
-                  ! if th2_max = 180, reduce it slightly to keep us out of trouble
-                  IF(th2_max == one_eighty) th2_max = th2_max - eps4
-                  IF(d_theta <= zero) THEN
-                    WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
-                    logi = .false.
-                    RETURN
-                  END IF
-                  IF(th2_min >= th2_max) THEN
-                      WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
-                      logi = .false.
-                      RETURN
-                  END IF
-                  IF((th2_max - th2_min) < d_theta) THEN
-                       WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
-                       logi = .false.
-                       RETURN
-                  END IF
+                  opt = 0
                   ok_sim = .true.
 
           Case ("LMQ")
@@ -1785,6 +1812,7 @@
                 Cond%constr=.true.
               end if
             ok_boxp=.true.
+
           Case ("CORRMAX")
             txt=adjustl(txt(k+1:))
             read(unit=txt,fmt=*, iostat=ier) Cond%corrmax
@@ -1795,6 +1823,7 @@
               return
             end if
             ok_corrmax=.true.
+
           Case ("MAXFUN")
             txt=adjustl(txt(k+1:))
             read(unit=txt,fmt=*, iostat=ier) Cond%icyc
@@ -1805,6 +1834,7 @@
               return
             end if
             ok_maxfun=.true.
+
           Case ("TOL")
              txt=adjustl(txt(k+1:))
              read(unit=txt,fmt=*, iostat=ier) Cond%tol
@@ -1815,6 +1845,7 @@
                return
              end if
              ok_tol=.true.
+
           Case ("NPRINT")
              txt=adjustl(txt(k+1:))
              read(unit=txt,fmt=*, iostat=ier) Cond%nprint
@@ -1847,6 +1878,7 @@
                 return
               end if
               ok_opt=.true.
+
           Case ("MXFUN")
             txt=adjustl(txt(k+1:))
             read(unit = txt, fmt = *, iostat=ier) opti%mxfun
@@ -1857,6 +1889,7 @@
                 return
             end if
             ok_mxfun=.true.
+
           Case ("EPS")
             txt=adjustl(txt(k+1:))
             read(unit = txt, fmt = *, iostat=ier) opti%eps
@@ -1867,6 +1900,7 @@
                 return
             end if
             ok_eps=.true.
+
           Case ("IOUT")
             txt=adjustl(txt(k+1:))
             read(unit = txt, fmt = *, iostat=ier) opti%iout
@@ -1877,6 +1911,7 @@
                 return
             end if
             ok_iout=.true.
+
           Case ("ACC")
             txt=adjustl(txt(k+1:))
             read(unit = txt, fmt = *, iostat=ier) opti%acc
@@ -1982,6 +2017,7 @@
         logi=.false.
      end if
 
+
     End Subroutine Read_CALCULATION
 
     Subroutine Read_EXPERIMENTAL(logi)
@@ -2014,18 +2050,14 @@
 
         Case("FILE")
 
-            read(unit=txt,fmt=*, iostat=ier)   dfile !, th2_min, th2_max, d_theta
+            read(unit=txt,fmt=*, iostat=ier)   dfile
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
                   logi=.false.
                   return
               end if
-              if (th2_min /= 0 .and.  th2_max /= 0  .and. d_theta /= 0) then
-                th2_min = th2_min * deg2rad
-                th2_max = th2_max * deg2rad
-                d_theta = half * deg2rad * d_theta
-              end if
+
               ok_file=.true.
 
           Case("EXCLUDED_REGIONS")
@@ -2260,7 +2292,7 @@
         OPEN(UNIT = sf, FILE = sfname)
         !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
-        call read_structure_file(stfile, vecsan, olg)
+        call read_structure_file(stfile, olg)
 
         if (err_crys) then
           print*, trim(err_crys_mess)
@@ -2312,10 +2344,9 @@
       End Function length
 !______________________________________________________________________________________________________
 
-        Subroutine read_structure_file (namef, sanvec, logi)
+        Subroutine read_structure_file (namef,  logi)
 
         character(len=*)    ,          intent(in    )     :: namef
-        type (State_Vector_Type),      intent(   out)     :: sanvec
         logical                   ,    intent(   out)     :: logi
 
 
@@ -2469,10 +2500,6 @@
             opti%loops = 2 * n_plex
             opti%iquad=1
             opti%npar = n_plex
-            do i = 1, numpar
-              sanvec%low(crys%p(i)) = crys%vlim1(i)
-              sanvec%high(crys%p(i)) = crys%vlim2(i)
-            end do
           end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
 
