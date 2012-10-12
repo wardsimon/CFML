@@ -26,7 +26,7 @@
           integer,                intent(in) :: i_ftls
 
 
-          integer                            :: a,b
+          integer                            :: a,b, j, l,i
 
           write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
           if (crys%rad_type == 0 ) then
@@ -102,6 +102,58 @@
               write(i_ftls,"(a,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
                                                   crys%ref_a_pos(3, a,b), crys%ref_a_B(a,b), "(", crys%rang_a_pos(1, a,b),&
                                                   crys%rang_a_pos(2, a,b), crys%rang_a_pos(3, a,b), crys%rang_a_B(a,b)
+            end do
+          end do
+
+          write(i_ftls,"(a)")          "STACKING"
+          if (crys%xplcit) then
+            write(i_ftls, "(a)") "EXPLICIT "
+            if (rndm) then
+               write(i_ftls, " (f5.2)")   crys%l_cnt
+            else
+               write(i_ftls,"(a)") lstype
+               if (index(lstype, 'SEMIRANDOM')/=0) then
+                 i=1
+                 do i=1,crys%n_seq
+                   write(i_ftls,"(a)") "SEQ"             !----------------TO BE FINISHED
+                 end do
+               elseif(index(lstype, 'SPECIFIC')/=0) then
+                 write(i_ftls,"(a)") "SPECIFIC"
+                 write(i_ftls, *) crys%l_seq(1:crys%l_cnt)
+               else
+                 write(i_ftls,"(a)") "RANDOM"
+               end if
+            end if
+            !a = 1
+            !do a=1, int(crys%l_cnt)                                   !_______________________________
+            !    if (crys%l_seq(a) /=0) then
+            !      write(i_ftls,*)  crys%l_seq(1:crys%l_cnt)            !_______________________________
+            !    end if
+            !end do                                      !_______________________________
+          else
+             write(i_ftls, "(a)") "RECURSIVE"
+             if (crys%inf_thick) then
+               write (i_ftls, "(a)") "INFINITE"
+             else
+               write (i_ftls, "( f5.2)") crys%l_cnt
+               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "(", crys%rang_l_cnt, ")"
+             end if
+           end if
+
+          write(i_ftls,"(a)")          "TRANSITIONS"
+          l=1
+          j=1
+          do l=1, n_layers
+            do j=1, n_layers
+              write(i_ftls, "(a,i2, a, i2)") "!layer ", l, " to layer ", j
+              write(i_ftls, "(a, 4f10.2)")  "LT",  crys%l_alpha (j,l), crys%l_r (1,j,l), crys%l_r (2,j,l), crys%l_r (3,j,l)
+
+
+              write(i_ftls, "(4f10.2,a,4f10.2,a)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+                                                      crys%ref_l_r (3,j,l), "(" ,  crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), &
+                                                      crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l), ")"
+              write(i_ftls, "(a, 6f10.2)") "FT",crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
+                                      crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
             end do
           end do
 
@@ -738,7 +790,50 @@
       END IF
       CALL gospec(infile,outfile,ok)
       return
+
+      call Apply_Aberrations()
+
     End Subroutine Pattern_Calculation
+
+    Subroutine Apply_Aberrations(n_high)
+      !--- Modifies brd_spc by spline interpolation after applying zero-shift
+      !--- displacement and transparency (Bragg-Brentano)
+      real(kind=cp), dimension(n_high) :: true_2th, broad_spect, der2v
+      integer       :: i,j,k
+      real(kind=cp) :: aux,tt,shift,ycal
+
+      do i=1,n_high
+         true_2th(i)=thmin+real(i-1,kind=cp)*step_2th
+         broad_spect(i) = brd_spc(i)  !needed because brd_spc is double precision
+      end do
+      aux=1.0e+35
+      call spline(true_2th,broad_spect,n_high,aux,aux,der2v)
+
+      Select Case(i_geom)
+
+        ! Shift(2Theta) = zero + SyCos * cos(Theta) + SySin * sin(2Theta)
+        Case (0) !Bragg Brentano (SyCos: displacement, Sysin: transparency)
+          do i=1,difpat%npts
+            tt=difpat%x(i)
+            shift=zero_diff + sycos * cosd(0.5*tt) + sysin * sind(tt)
+            tt=tt-shift
+            call splint(pat%x,broad_spect,der2v,pat%npts,tt,ycal)
+            difpat%ycalc(i)=ycal
+          end do
+
+        ! Shift(2Theta) = zero + SyCos * cos(2Theta) + SySin * sin(2Theta)
+        Case (1) ! Debye-Scherrer (neutrons, capillary ...) (SyCos,SySin: displacements)
+          do i=1,difpat%npts
+            tt=difpat%x(i)
+            shift=zero_diff + sycos * cosd(tt) + sysin * sind(tt)
+            tt=tt-shift
+            call splint(pat%x,broad_spect,der2v,pat%npts,tt,ycal)
+            difpat%ycalc(i)=ycal
+          end do
+
+      End Select
+      return
+    End Subroutine Apply_Aberrations
 !--------------------------------------------------------------------------------------------------------------------------------------------------
 
   ! Subroutine Nelder_Mead_Simplex(Model_Functn, Nop, P, Step, Var, Func, C, Ipr)

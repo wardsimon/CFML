@@ -55,6 +55,7 @@
        integer                                          :: num_temp=0                   ! maximum number of temperatures in SAN
        integer                                          :: init_config                  ! flag to randomly initialaze SAN configuration if = 1.
        integer                                          :: yy                           !max number of atoms per layer
+       integer                                          :: n_seq                        !number of semirandom sequences
        logical                                          :: recrsv                       !layer sequencing recursive
        logical                                          :: xplcit                       !layer sequencing explicit
        logical                                          :: finite_width                 !layer width in plane ab
@@ -1393,11 +1394,13 @@
                 end if
                 crys%inf_thick = .false.
                 rndm = .true.
+                crys%n_seq=0
                 i=i+1
                 txt=adjustl(tfile(i))
                 if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
                 if (index(txt , 'SEQ')==1) then
                   read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
+                  crys%n_seq=crys%n_seq+1
                   j=j1
                   do
                     crys%l_seq(j)= l1
