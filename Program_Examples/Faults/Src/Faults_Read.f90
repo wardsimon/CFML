@@ -1,7 +1,7 @@
     Module read_data
        use CFML_GlobalDeps,           only : sp , cp
        use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
-                                             err_string_mess, getnum, Ucase, cutst
+                                             err_string_mess, getnum, Ucase, cutst, U_Case
        use CFML_Optimization_General, only : Opt_Conditions_Type
        use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
        use CFML_Simulated_Annealing
@@ -10,7 +10,7 @@
 
        private
        !public subroutines
-       public:: read_structure_file, new_getfil , length
+       public:: read_structure_file  !, new_getfil
 
 !      Declaration of diffraction_pattern_type
 
@@ -117,6 +117,7 @@
       character(len=*),  intent(in)  :: namef
       logical,           intent(out) :: logi
       integer :: i
+      character(len=160) :: line
       call number_lines(namef, numberl)                            ! count number of lines in file
 
       logi=.true.
@@ -132,8 +133,19 @@
         call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
       end if
       close(unit=i_data)
-      do i = 1, numberl                 ! To read in case insensitive mode
-        call Ucase(tfile(i))
+      do i = 1, numberl                 ! To read in case insensitive mode (First preserve the Title as input)
+        line=U_case(adjustl(tfile(i)))
+        if(line(1:5) == "TITLE") then
+          title=tfile(i)(6:)  !Setting the title
+          line="TITLE "//trim(title)
+        end if
+        if(line(1:4) == "FILE") then  !Preserving the case of the input data file (compatibility with Unix-like OPS)
+          line="FILE "//tfile(i)(6:)
+        end if
+        if(line(1:3) == "BGR") then  !Preserving the case of the background file (compatibility with Unix-like OPS)
+          line="BGR "//tfile(i)(5:)
+        end if
+        tfile(i)=line
       end do
       call Set_Sections_index()
       return
@@ -2278,29 +2290,28 @@
 
 
 !_____________________________________________________________________________________________________
-    Subroutine new_getfil(stfile,vecsan, olg)
-
-
-       character(len=31) ,             intent (in out)      :: stfile
-       type (State_Vector_Type),       intent (   out)      :: vecsan
-       logical                   ,     intent (   out)      :: olg
-
-        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
-        read(unit= *,fmt="(a)") stfile
-
-        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
-        OPEN(UNIT = sf, FILE = sfname)
-        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
-
-        call read_structure_file(stfile, olg)
-
-        if (err_crys) then
-          print*, trim(err_crys_mess)
-        else
-          write(op, fmt=*) "=> Structure input file read in"
-        end if
-        return
-    End subroutine
+    !Subroutine new_getfil(stfile, olg)
+    !
+    !
+    !   character(len=31) ,             intent (in out)      :: stfile
+    !   logical                   ,     intent (   out)      :: olg
+    !
+    !    write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
+    !    read(unit= *,fmt="(a)") stfile
+    !
+    !    !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
+    !    OPEN(UNIT = sf, FILE = sfname)
+    !    !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
+    !
+    !    call read_structure_file(stfile, olg)
+    !
+    !    if (err_crys) then
+    !      print*, trim(err_crys_mess)
+    !    else
+    !      write(op, fmt=*) "=> Structure input file read in"
+    !    end if
+    !    return
+    !End subroutine
 
 !______________________________________________________________________________________________________
 
@@ -2315,9 +2326,9 @@
  !    INTEGER*4 i, j1, j2
  !
  !    i = 1
- !    j1 = length(flag)
+ !    j1 = len_trim(flag)
  !
- !    10 j2 = length(list(i))
+ !    10 j2 = len_trim(list(i))
 !!see if the string contained in list(i) is identical to that in flag
  !    IF(j1 == j2 .AND. INDEX(flag, list(i)(1:j2)) == 1) GO TO 20
  !    i = i + 1
@@ -2329,21 +2340,6 @@
  !    RETURN
  !    END FUNCTION choice
 !______________________________________________________________________________________________________
-
-     Function length(string) result(leng)    !from diffax
-
-        character(len=*), intent(in) :: string
-        integer :: leng
-        integer :: i
-        i=index(string," ")
-        if( i==0) then
-          leng=len_trim(string)
-        else
-          leng=i-1
-        end if
-      End Function length
-!______________________________________________________________________________________________________
-
         Subroutine read_structure_file (namef,  logi)
 
         character(len=*)    ,          intent(in    )     :: namef
@@ -2381,6 +2377,7 @@
         end if
 
         call Set_TFile(namef,logi)
+
         if(.not. logi) return
 
         call Read_INSTRUMENTAL(logi)

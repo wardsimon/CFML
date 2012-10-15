@@ -273,6 +273,7 @@
 !***********************************************************************
 
       Implicit None
+      Character(len=132) ::   Title=" "      !Title of the Job to be read in the input control file
       Integer, Parameter ::   max_l=20, &    !MAX_L  -  the maximum number of layer types allowed
                               max_a=200,&    !MAX_A  -  the maximum number of atoms per layer
                               max_ta=20,&    !MAX_TA -  the maximum number of different atom types

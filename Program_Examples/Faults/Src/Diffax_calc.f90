@@ -3,7 +3,7 @@
    use CFML_GlobalDeps,       only: sp
    use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
                                     iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
-   use read_data,             only: crys_2d_type, read_structure_file, length
+   use read_data,             only: crys_2d_type, read_structure_file
    use diffax_mod
 
    implicit none
@@ -272,11 +272,9 @@
       CLOSE(UNIT = sf, ERR = 600)
 
       999 RETURN
-      500 WRITE(op,220) 'Unable to backspace scattering factor file ''',  &
-          sfname(1:length(sfname)), '''.'
+      500 WRITE(op,220) 'Unable to backspace scattering factor file ''', trim(sfname), '''.'
       RETURN
-      600 WRITE(op,220) 'Unable to close scattering factor file ''',  &
-          sfname(1:length(sfname)), '''.'
+      600 WRITE(op,220) 'Unable to close scattering factor file ''',  trim(sfname), '''.'
       RETURN
       200 FORMAT(1X, a)
       210 FORMAT(2X, a)
@@ -581,7 +579,7 @@
 
       IF(symgrpno > 10) GO TO 500
 
-      900 WRITE(op,*) '=> The diffraction data fits the point group symmetry ', pnt_grp(1:length(pnt_grp)),''''
+      900 WRITE(op,*) '=> The diffraction data fits the point group symmetry ', trim(pnt_grp),''''
       IF(max_var > eps6 .AND. max_var <= eps1) THEN
         WRITE(op,203) '   with a tolerance of one part in ', nint(one / max_var)
       ELSE IF(max_var > eps1) THEN
@@ -595,13 +593,12 @@
 ! The user's guess is inconsistent with cell_gamma.
 ! Override the user.
       910 WRITE(op,200) 'The cell angle of',cell_gamma * rad2deg, ' degrees,'
-      WRITE(op,202) ' is inconsistent with point group symmetry ''',  &
-          pnt_grp(1:length(pnt_grp)),''''
+      WRITE(op,202) ' is inconsistent with point group symmetry ''',  trim(pnt_grp),''''
       WRITE(op,300)
       check_sym = .false.
       symgrpno = get_sym(ok)
       IF(.NOT.ok) GO TO 999
-      WRITE(op,205) pnt_grp(1:length(pnt_grp))
+      WRITE(op,205) trim(pnt_grp)
       IF(tolerance > eps6 .AND. tolerance <= eps1) THEN
         WRITE(op,203) '  with a tolerance of one part in ', nint(one / tolerance)
       ELSE IF(tolerance > eps1) THEN
@@ -615,15 +612,14 @@
 ! Override the user.
       920 WRITE(op,201) 'The cell a and b dimensions, ',  &
           cell_a,' Angstroms by ',cell_b,' Angstroms,'
-      WRITE(op,202) '   are inconsistent with point group symmetry ''',  &
-          pnt_grp(1:length(pnt_grp)),''''
+      WRITE(op,202) '   are inconsistent with point group symmetry ''', trim(pnt_grp),''''
       WRITE(op,300)
 ! reset check_sym flag, since we are now evaluating from scratch
       check_sym = .false.
       max_var = zero
       symgrpno = get_sym(ok)
-      IF(.NOT.ok) GO TO 999
-      WRITE(op,205) pnt_grp(1:length(pnt_grp))
+      IF(.NOT. ok) GO TO 999
+      WRITE(op,205) trim(pnt_grp)
 
       IF(tolerance > eps6 .AND. tolerance <= eps1) THEN
         WRITE(op,203) '  with a tolerance of one part in ', nint(one / tolerance)
@@ -1352,8 +1348,7 @@
       !WRITE(op,200) 'Enter 1 for full atomic position dump: '
       !READ(cntrl,*,ERR=99,END=9999) i2
       !IF(cfile) WRITE(op,'(1x,i3)') i2
-      WRITE(op,300) 'Writing data dump to file ''',  &
-          dmpfile(1:length(dmpfile)),'''. . .'
+      WRITE(op,300) 'Writing data dump to file ''', trim(dmpfile),'''. . .'
 ! sundry details about layers
       WRITE(dmp,125) 'Number of layers = ', n_layers
       WRITE(dmp,125) 'Number of unique layers = ', n_actual
@@ -1697,7 +1692,7 @@
            bname=name1(1:i-1)
         end if
         ln=len_trim(bname) + len_trim(APPEND) + 3
-        if(ln > length(name2) ) return
+        if(ln > len_trim(name2) ) return
 
         i=1
         WRITE(name2,"(a,i1)") trim(bname),i
@@ -2068,7 +2063,7 @@
         END IF
 
 ! write progress to screen
-        WRITE(op,102) h, k, infile(1:length(infile))
+        WRITE(op,102) h, k, trim(infile)
 
         CALL xyphse(h, k)
 
@@ -2367,7 +2362,7 @@
             IF(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
             IF(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
          !   WRITE(op,200) 'Integrating along l at ',h,k,  &
-         !       '''',infile(1:length(infile)),''''
+         !       '''',trim(infile),''''
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
 ! set up the phases in the structure factors and stacking vectors
 ! which depend on h and k only
@@ -5299,7 +5294,7 @@
 ! get length of the string holding the filename
       namlen = LEN(name1)
       name2  = ' '
-      applen = length(APPEND)
+      applen = len_trim(APPEND)
 
       idot = INDEX(name1,'.')
 
@@ -5647,9 +5642,8 @@
           GO TO 999
         END IF
         IF(sy /= op) OPEN(UNIT = sy, FILE = sym_fnam, STATUS = 'new')
-        WRITE(op,204) 'Writing symmetry data to file ''',  &
-            sym_fnam(1:length(sym_fnam)),'''. . .'
-        WRITE(sy,303) '''', rootnam(1:length(rootnam)),''''
+        WRITE(op,204) 'Writing symmetry data to file ''', trim(sym_fnam),'''. . .'
+        WRITE(sy,303) '''', trim(rootnam),''''
         WRITE(sy,203) no_trials
         WRITE(sy,206) tiny_inty
       END IF
@@ -5662,8 +5656,7 @@
 
       IF(dosymdump) THEN
         WRITE(sy,202) ' '
-        WRITE(sy,204) 'The diffraction data fits the point group symmetry ''',  &
-            pnt_grp(1:length(pnt_grp)),''''
+        WRITE(sy,204) 'The diffraction data fits the point group symmetry ''', trim(pnt_grp),''''
         IF(symgrpno /= 1 .AND. symgrpno /= 11) THEN
           IF(max_var > eps6 .AND. max_var <= eps1) THEN
             WRITE(sy,201) '  with a tolerance of one part in ', nint(one / max_var)
@@ -6517,8 +6510,7 @@
 ! external subroutine (Some compilers need them declared external)
 !      external ATOMS
 
-      WRITE(op,301) ' => Reading scattering factor datafile''',  &
-          sfname(1:length(sfname)),'''. . .'
+      WRITE(op,301) ' => Reading scattering factor datafile''', trim(sfname),'''. . .'
 
       sfc = .false.
       DO  i = 1, max_ta
@@ -6593,7 +6585,7 @@
         IF(.NOT.list(i)) THEN
           ok = .false.
           WRITE(op,330) 'ERROR: Data for atom ''', atom_l(i),  &
-              ''' NOT FOUND IN FILE ''', sfname(1:length(sfname)), ''''
+              ''' NOT FOUND IN FILE ''', trim(sfname), ''''
           CALL atoms()
         END IF
       END DO
@@ -6602,8 +6594,7 @@
         WRITE(op,400) ' => Scattering factor data read in.'
       END IF
       RETURN
-      200 WRITE(op,301) ' => Scattering factor file ''',  &
-          sfname(1:length(sfname)), ''' DEFECTIVE.'
+      200 WRITE(op,301) ' => Scattering factor file ''', trim(sfname), ''' DEFECTIVE.'
       CLOSE(sf,ERR=240)
       RETURN
       210 WRITE(op,400) ' => ERROR reading scattering factor data.'
@@ -6616,8 +6607,7 @@
       END DO
       WRITE(op,402) ' => Maximum number of types allowed is ', max_ta
       RETURN
-      240 WRITE(op,301) ' => Unable to close scattering factor file ''',  &
-          sfname(1:length(sfname)), '''.'
+      240 WRITE(op,301) ' => Unable to close scattering factor file ''', trim(sfname), '''.'
       RETURN
       300 FORMAT(a)
       301 FORMAT(1X, 3A)
@@ -6923,8 +6913,7 @@
         GO TO 10
       END IF
 
-      WRITE(op,404) 'Writing streak data to file ''',  &
-          strkfile(1:length(strkfile)),'''. . .'
+      WRITE(op,404) 'Writing streak data to file ''', trim(strkfile),'''. . .'
 
       CALL xyphse(h, k)
 
@@ -6950,15 +6939,12 @@
         30   WRITE(sk,406,ERR=100) l, CHAR(9), x
       END DO
       IF(sk /= op) CLOSE(sk,ERR=110)
-      WRITE(op,404) 'Streak data file, ''',  &
-          strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
+      WRITE(op,404) 'Streak data file, ''', trim(strkfile),''' WRITTEN TO DISK.'
       RETURN
-      100 WRITE(op,404) 'ERROR writing to streak data file ''',  &
-          strkfile(1:length(strkfile)),''''
+      100 WRITE(op,404) 'ERROR writing to streak data file ''', trim(strkfile),''''
       IF(sk /= op) CLOSE(sk,ERR=110)
       RETURN
-      110 WRITE(op,404) 'Unable to close streak data file ''',  &
-          strkfile(1:length(strkfile)),''''
+      110 WRITE(op,404) 'Unable to close streak data file ''', trim(strkfile),''''
       RETURN
       999 WRITE(op,405) 'ERROR encountered in streak integration at l = ',l
       RETURN
@@ -7690,8 +7676,7 @@
 ! external subroutine (Some compilers need them declared external)
 !      external SMUDGE
 
-      WRITE(op,102) 'Writing SADP data to file ''',  &
-          outfile(1:length(outfile)), '''. . .'
+      WRITE(op,102) 'Writing SADP data to file ''', trim(outfile), '''. . .'
 
 ! set standard deviation
       sigma = zero
@@ -7846,7 +7831,7 @@
       n_low  = 1
       tab = CHAR(9)
       theta = th2_min * rad2deg
-      WRITE(op,200) 'Writing spectrum data to file ''',      spcfile(1:length(spcfile)), '''. . .'
+      WRITE(op,200) 'Writing spectrum data to file ''', trim(spcfile), '''. . .'
 !      do 10 i = int(HALF*th2_min / d_theta) + 1,
 !     |                  int(HALF*th2_max / d_theta) + 1
       IF(blurring == NONE) THEN

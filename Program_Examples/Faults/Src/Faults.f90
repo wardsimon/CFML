@@ -29,7 +29,9 @@
           integer                            :: a,b, j, l,i
           CHARACTER(LEN=80)                  :: list(2)
 
-          write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
+          write(i_ftls,"(a)")          "{Input control file for FAULTS program}"
+          write(i_ftls,"(/a/)")          "TITLE "//trim(title)
+          write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING  {Description of radiation, intrument broadening and aberrations}"
           if (crys%rad_type == 0 ) then
             write(i_ftls,"(a)")     " Radiation            X-RAY"
           elseif (crys%rad_type == 1 ) then
@@ -40,32 +42,32 @@
           write(i_ftls,"(a,3f10.4)") " Lambda                ", crys%lambda , crys%lambda2 , crys%ratio
 
           if (crys%broad == ps_vgt .and. crys%trm) then
-            write(i_ftls,"(a,6f10.4, a)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
+            write(i_ftls,"(a,6f10.4, a)") " Pseudo-Voigt", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
             write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg, crys%rang_p_dl,")"
           elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
-            write(i_ftls,"(a,6f10.2)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
+            write(i_ftls,"(a,6f10.2)") " Pseudo-Voigt", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
             write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg, crys%rang_p_dl,")"
           elseif (crys%broad == pv_gss .and. crys%trm) then
-            write(i_ftls,"(a,5f10.2, a)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
+            write(i_ftls,"(a,5f10.2, a)") " Gaussian", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
             write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg ,")"
           elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
-            write(i_ftls,"(a,5f10.2)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg
+            write(i_ftls,"(a,5f10.2)") " Gaussian", pv_u, pv_v, pv_w, pv_x, pv_dg
             write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dg ,")"
           elseif (crys%broad == pv_lrn .and. crys%trm ) then
-            write(i_ftls,"(a,5f10.2, a)") "LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
+            write(i_ftls,"(a,5f10.2, a)") "Lorentzian", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
             write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dl,")"
           elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
-            write(i_ftls,"(a,5f10.2)") " LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl
+            write(i_ftls,"(a,5f10.2)") " Lorentzian", pv_u, pv_v, pv_w, pv_x, pv_dl
             write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
                                         crys%rang_p_dl,")"
@@ -79,11 +81,11 @@
 
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          " STRUCTURAL  "
-          write(i_ftls,"(a,4f10.4)")   " CELL  ", cell_a, cell_b, cell_c, cell_gamma
+          write(i_ftls,"(a,4f10.4)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma
           write(i_ftls,"(tr4,4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
                                                "  (", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
           write(i_ftls,*)            " SYMM", crys%sym
-          write(i_ftls,*)            " NLAYERS", n_layers
+          write(i_ftls,*)            " Nlayers", n_layers
           if (crys%finite_width) then
             write(i_ftls,"(2f10.2)")    Wa, Wb
             write(i_ftls,"(2f10.2,a,2f10.2,a)")    crys%ref_layer_a, crys%ref_layer_b , "  (", crys%rang_layer_a, &
@@ -161,23 +163,23 @@
                                       r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
             end do
           end do
-          write(i_ftls,"(a)")              "  "
-          write(i_ftls,"(a, 3f10.4)")     " CALCULATION  ", th2_min, th2_max, d_theta
+          write(i_ftls,"(a)")          "  "
+          write(i_ftls,"(a, 3f10.4, a)")  " CALCULATION  ", thmin, thmax, step_2th, "  {2theta range and step for calculating the pattern}"
           if (opt == 0) then
-            write(i_ftls,"(a)")          " SIMULATION"
+            write(i_ftls,"(a)")        " SIMULATION"
           elseif (opt == 3) then
-            write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
-            write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
-            write(i_ftls,"(a,f10.4)")          " EPS  ", opti%eps
-            write(i_ftls,"(a, i2)")          " IOUT  ", opti%iout
-            write(i_ftls,"(a,f10.9)")          " ACC  ", opti%acc
+            write(i_ftls,"(a)")          " LOCAL_OPTIMIZER   "//trim(opti%method)//"       {Local optimization method}"
+            write(i_ftls,"(a,i9,a)")     " Mxfun", opti%mxfun,"    {Maximum number of function evaluations}"
+            write(i_ftls,"(a,g9.2,a)")   " Eps  ", opti%eps,  "    {Tolerance for convergence condition}"
+            write(i_ftls,"(a,i9,a)")     " Iout ", opti%iout, "    {Output refinement information if IOUT/=0 }"
+            write(i_ftls,"(a,g9.2,a)")   " Acc  ", opti%acc,  "    {Minimum Percentage of accepted configurations}"
           elseif (opt == 4) then
-            write(i_ftls,"(a)")          " LMQ"
-            if (Cond%constr) write(i_ftls,"(a)")          " BOXP    " , Cond%percent
-            write(i_ftls,"(a,i4)")    " CORRMAX    ", cond%corrmax
-            write(i_ftls,"(a,i4)")    " MAXFUN     ", cond%icyc
-            write(i_ftls,"(a,f10.4)")    " TOL     ", cond%tol
-            write(i_ftls,"(a,i2)")    " Nprint     ", cond%nprint
+            write(i_ftls,"(a)")          " LMQ                 {Levenberg-Marquardt Least Squares refinement}"
+            if (Cond%constr) write(i_ftls,"(a,f10.4)")          " BOXP    " , Cond%percent
+            write(i_ftls,"(a,i9,a)")    " Corrmax", cond%corrmax,"    {Correlations above CORRMAX (in %) are output}"
+            write(i_ftls,"(a,i9,a)")    " Maxfun ", cond%icyc,   "    {Maximum number of function evaluations}"
+            write(i_ftls,"(a,g9.2,a)")  " Tol    ", cond%tol,    "    {Tolerance for convergence condition}"
+            write(i_ftls,"(a,i9,a)")    " Nprint ", cond%nprint, "    {Output refinement information each Nprint iterations}"
           else
             write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
             return
@@ -186,17 +188,18 @@
           if(opt == 3 .or. opt == 4) then
             write(i_ftls,"(a)")              "  "
             write(i_ftls,"(a)")          " EXPERIMENTAL"
-            write(i_ftls,"(2a)")         " FILE  ", dfile
+            write(i_ftls,"(a)")          " FILE  "//trim(dfile)
             if (nexcrg /= 0) then
-              write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
+              write(i_ftls,"(a, i3,a)")    " EXCLUDED_REGIONS  ",  nexcrg, "    {Number of Excluded regions}"
+              write(i_ftls,"(a)")    "!  2Theta_Low  2Theta_High  "
               do i=1,nexcrg
-                write(i_ftls,"(2f10.4)")  alow(i),ahigh(i)
+                write(i_ftls,"(2f13.4)")  alow(i),ahigh(i)
               end do
 
             end if
-            write(i_ftls,"(2a)")         " FFORMAT  ",fmode
-            write(i_ftls,"(2a)")         " BGR  ",background_file
-            write(i_ftls,"(2a)")         " BCALC  ",mode
+            write(i_ftls,"(a)")         " FFORMAT  "//trim(fmode)
+            write(i_ftls,"(a)")         " BGR      "//trim(background_file)
+            write(i_ftls,"(a)")         " BCALC    "//trim(mode)
           end if
 
           return
@@ -438,7 +441,7 @@
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
     use CFML_Math_General,          only : spline, splint, sind, cosd
     use diffax_mod
-    use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
+    use read_data,                  only : crys, read_structure_file, opti , cond, vs
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                            gospec, gostrk, gointr,gosadp, getfnm, nmcoor
     use Diff_ref,                   only : scale_factor, scale_factor_lmq, Write_Prf
@@ -447,7 +450,6 @@
 
     public  :: F_cost, Cost_LMQ, apply_aberrations !Cost3
     type (diffraction_pattern_type),  save         :: difpat
-    type (State_Vector_Type), public, save         :: st
 
     contains
 
@@ -1007,12 +1009,12 @@
      use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
-     use read_data,                    only : new_getfil, read_structure_file, length,   &
+     use read_data,                    only : read_structure_file,  &
                                               crys, opti, opsan, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf, write_ftls
-     use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ, apply_aberrations !, cost3
+     use dif_ref,                      only :  difpat , F_cost,  cost_LMQ, apply_aberrations !, cost3
 
      implicit none
 
@@ -1055,7 +1057,6 @@
       OPEN(UNIT = sf, FILE = sfname)
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
-      !call read_structure_file(infile, st, gol)
       call read_structure_file(infile, gol)  !new way
 
       if (err_crys) then
@@ -1065,7 +1066,6 @@
         write(op, fmt=*) "=> Structure input file read in"
       end if
 
-      !call new_getfil(infile, st,   gol)    ! Reading input control file
       opsan%Cost_function_name="R-factor"
 
       IF(gol) then
