@@ -1141,36 +1141,41 @@
     End Subroutine Calc_Dist_Angle
 
     !!----
-    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
-    !!----    real(kind=cp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
-    !!----    real(kind=cp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
-    !!----    type (Crystal_cell_type), intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
-    !!----    type (Space_Group_type),  intent(in)   :: SpG      !  In -> Object of Space_Group_Type
-    !!----    type (atom_list_type),    intent(in)   :: A        !  In -> Object of atom_list_type
-    !!----    integer, optional,        intent(in)   :: lun      !  In -> Logical Unit for writing
-    !!----    integer, optional,        intent(in)   :: lun_cons !  In -> Logical unit for writing restraints
-    !!----    integer, optional,        intent(in)   :: lun_cif  !  In -> Logical unit for writing CIF file with distances and angles
+    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filen)
+    !!----    real(kind=cp),             intent(in)   :: dmax     !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),             intent(in)   :: dangl    !  In -> Max. distance for angle calculations
+    !!----    type (Crystal_cell_type),  intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
+    !!----    type (Space_Group_type),   intent(in)   :: SpG      !  In -> Object of Space_Group_Type
+    !!----    type (atom_list_type),     intent(in)   :: A        !  In -> Object of atom_list_type
+    !!----    integer, optional,         intent(in)   :: lun      !  In -> Logical Unit for writing
+    !!----    integer, optional,         intent(in)   :: lun_cons !  In -> Logical unit for writing restraints
+    !!----    integer, optional,         intent(in)   :: lun_cif  !  In -> Logical unit for writing CIF file with distances and angles
+    !!----    character(len=*), optional,intent(in)   :: filrest  !  In -> Name of file for writing restraints
     !!----
     !!----    Subroutine to calculate distances and angles, below the prescribed distances
     !!----    "dmax" and "dangl" (angles of triplets at distance below "dangl" to an atom),
     !!----    with standard deviations. If dangl=0.0, no angle calculations are done.
     !!----    Needs as input the objects Cell (of type Crystal_cell), SpG (of type Space_Group)
     !!----    and A (or type atom_list, that should be allocated in the calling program).
-    !!----    Writes results in file (unit=lun) if iprin=.true.
+    !!----    Writes results in file (unit=lun) if the argument lun is present. In case
+    !!----    lun_cif is provided, the program writes in the already opened CIF file (in
+    !!----    the calling program) the items related to distances. If lun_cons is provided
+    !!----    the program writes items containing restraints to the file CFML_restraints.tpcr
+    !!----    or to file "filrest" if provided as argument.
     !!----    Control for error is present.
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
+    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filrest)
        !---- Arguments ----!
-       real(kind=cp),            intent(in)   :: dmax, dangl
-       type (Crystal_cell_Type), intent(in)   :: Cell
-       type (Space_Group_Type),  intent(in)   :: SpG
-       type (Atom_list_type),    intent(in)   :: A
-       integer, optional,        intent(in)   :: lun
-       integer, optional,        intent(in)   :: lun_cons
-       integer, optional,        intent(in)   :: lun_cif
-
+       real(kind=cp),             intent(in)   :: dmax, dangl
+       type (Crystal_cell_Type),  intent(in)   :: Cell
+       type (Space_Group_Type),   intent(in)   :: SpG
+       type (Atom_list_type),     intent(in)   :: A
+       integer, optional,         intent(in)   :: lun
+       integer, optional,         intent(in)   :: lun_cons
+       integer, optional,         intent(in)   :: lun_cif
+       character(len=*), optional,intent(in)   :: filrest
        !---- Local Variables ----!
        logical                            :: iprin
        integer,parameter                  :: nconst=500
@@ -1237,7 +1242,11 @@
        if (present(lun_cons)) then
           num_angc=0
           num_const=0
-          open (unit=lun_cons, file="CFML_Restraints.tpcr", status="unknown")
+          if(present(filrest)) then
+            open (unit=lun_cons, file=trim(filrest), status="replace", action="write")
+          else
+            open (unit=lun_cons, file="CFML_Restraints.tpcr", status="replace", action="write")
+          end if
           write(unit=lun_cons,fmt="(a)") " FILE with lines for soft distance and angle constraints (restraints)."
           write(unit=lun_cons,fmt="(a)") " It is intended to help editing PCR files with restraints by pasting, "
           write(unit=lun_cons,fmt="(a)") " after correcting the values as wished, to the appropriate lines.  "
