@@ -34,7 +34,7 @@
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") " [1] Space Groups"
        write(unit=*,fmt="(a)") " [2] Reflections"
-       write(unit=*,fmt="(a)") " [3] Atoms Calculations"
+       write(unit=*,fmt="(a)") " [3] Atomistics Calculations"
        write(unit=*,fmt="(a)") " [4] Chemical Information"
        write(unit=*,fmt="(a)") " [5] Geometry calculations"
        write(unit=*,fmt="(a)") " "

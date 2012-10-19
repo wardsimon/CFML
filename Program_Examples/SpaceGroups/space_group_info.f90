@@ -9,10 +9,10 @@ Program SPG_Info
    !---- Use Modules ----!
    use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
                                              Write_SpaceGroup
-                                          
-   !---- Variables ----!                                       
+
+   !---- Variables ----!
    implicit none
-   
+
    character(len=20)      :: spgr
    type(Space_Group_type) :: grp_espacial
 
@@ -22,12 +22,12 @@ Program SPG_Info
       write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall symbol or number): "
       read(unit=*,fmt="(a)") spgr
       if (len_trim(spgr)==0) exit
-   
-      !> Set the Space Group Information   
+
+      !> Setting the Space Group Information
       call set_spacegroup(spgr,grp_espacial)
-      
-      !> Wrtting the SpaceGroup Information
+
+      !> Writing the SpaceGroup Information
       call Write_SpaceGroup(grp_espacial, full=.true.)
    end do
-   
+
 End Program SPG_Info

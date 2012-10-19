@@ -8942,7 +8942,7 @@
        !---- Arguments ----!
        type(wyckoff_type), intent(in) :: wyckoff
        character(len=*),   intent(in) :: Spg
-       integer,optional,   intent(in) :: Lun
+       integer, optional,  intent(in) :: Lun
        logical, optional,  intent(in) :: Sorting
 
        !---- Local variables ----!
