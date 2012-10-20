@@ -44,7 +44,7 @@
           write(unit=*,fmt="(a)") " [1] Multiplicity of an atom position"
           write(unit=*,fmt="(a)") " [2] Read a CFL or CIF file to load a crystal structure"
           write(unit=*,fmt="(a)") " [3] Show current structure information"
-          write(unit=*,fmt="(a)") " [4] Calculate polarisation in e.A per unit cell"
+          write(unit=*,fmt="(a)") " [4] Calculate Ionic Dipolar moment & polarisation"
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
@@ -237,7 +237,7 @@
        character(len=20)     :: line
        integer               :: i,j,Mult
        real                  :: q, qp,qm,pol,ang
-       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol,u_pol, fr_pol
+       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol,u_pol, rt,vc
        real, dimension(3,192):: orb
        logical               :: calc_possible=.true.
 
@@ -246,7 +246,7 @@
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     Atomistic Calculations "
        write(unit=*,fmt="(a)") " ================================"
-       write(unit=*,fmt="(a)") " Calculating the polarisation per unit cell ..."
+       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
        write(unit=*,fmt="(a)") " "
        do i=1,A%natoms
          if(abs(A%atom(i)%charge) <= 0.001)  then
@@ -259,14 +259,30 @@
          call system('pause')
          return
        end if
+       !if(SpG%Centred /= 1) then
+       !  write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
+       !  call system('pause')
+       !  return
+       !end if
        r_plus=0.0; r_minus=0.0
        qp=0.0; qm=0.0
+       vc=[0.5,0.5,0.5] !Centre of the unit cell with respet to which we take the vector positions
+       if(SpG%Centred == 1) vc=0.0
+       write(unit=*,fmt="(a,3f7.2,a)") " => Origin of vector positions taken at: (",vc," )"
+
        do i=1,A%natoms
           pos=A%atom(i)%x
           q=A%atom(i)%charge
-          call Orbit(pos,SpG,Mult,orb)
+          call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
+          rt=0.0
           do j=1,Mult
-            pos=orb(:,j)
+            rt=rt + orb(:,j)-vc
+          end do
+          if (.not. Lattice_trans(rt,Spg%spg_lat)) rt=0.0 !If non-centrosymmetric no problem
+          orb(:,mult)= orb(:,mult)-rt  !Apply a lattice translation to have vector sum = 0
+          write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
+          do j=1,Mult
+            pos=orb(:,j)-vc  !calculate positions w.r.t. centre of the cell
             cpos=Cart_Vector("D",pos,Cell)
             if( q > 0.0) then
                qp=qp+q
@@ -275,16 +291,24 @@
                qm=qm+abs(q)
                r_minus=r_minus+cpos*abs(q)
             end if
+            write(unit=*,fmt="(a,i3,a,3f9.5,3f11.4)") "   ",j,": ",pos,cpos
           end do
        end do
+       if(abs(qp-qm) > eps) then
+         write(unit=*,fmt="(a,2f10.2)") " => Warning! The crystal is NOT NEUTRAL! -> Q+, Q-: ",qp,qm
+       end if
        r_plus=r_plus/qp     !Cartesian vectors giving the c.o.g of charges
        r_minus=r_minus/qm
-       r_pol=r_plus-r_minus  !Polarisation vector
+       r_pol=qp*(r_plus-r_minus)  !Dipole moment vector
        pol=sqrt(dot_product(r_pol,r_pol))
-       !fr_pol = matmul(cell%Orth_Cr_cel,r_pol)
 
-       write(unit=*,fmt="(a,f14.5)")     " => Polarisation (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,3f14.5,a)")  " => Cartesian Polarisation vector: (",r_pol," )"
+       write(unit=*,fmt="(a,3f12.5,a)")  " => Q+ charge centre : (",r_plus," )"
+       write(unit=*,fmt="(a,3f12.5,a)")  " => Q- charge centre : (",r_minus," )"
+
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
+       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
          ang=Angle_Vect(cpos, r_pol)
@@ -299,38 +323,6 @@
        call system('pause')
 
     End Subroutine Menu_Atom_4
-
-    Subroutine Orbit(x,Spg,Mult,orb)
-       !---- Arguments ----!
-       real, dimension(3),    intent (in) :: x
-       type(Space_Group_type),intent (in) :: spg
-       integer,               intent(out) :: mult
-       real,dimension(:,:),   intent(out) :: orb
-
-       !---- Local variables ----!
-       integer            :: j, nt
-       real, dimension(3) :: xx,v
-       character(len=1)   :: laty
-
-       laty="P"
-       mult=1
-       orb(:,1)=x(:)
-       ext: do j=2,Spg%multip
-          xx=ApplySO(Spg%SymOp(j),x)
-          do nt=1,mult
-             v=orb(:,nt)-xx(:)
-             if (Lattice_trans(v,Spg%spg_lat)) then
-               if (.not. Lattice_trans(v,laty)) cycle  !Count in orbit the centred related atoms
-               cycle ext
-             end if
-          end do
-          mult=mult+1
-          orb(:,mult)=xx(:)
-       end do ext
-
-       return
-    End Subroutine Orbit
-
 
 
     Function Angle_vect(u,v) Result(angle)
@@ -348,6 +340,7 @@
       if(angle > 1.0) angle=1.0
       if(angle < -1.0) angle=-1.0
       angle=acosd(angle)
-
+      return
     End Function Angle_vect
+
 end module Menu_3
