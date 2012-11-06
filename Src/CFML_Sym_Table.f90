@@ -305,6 +305,75 @@
        "-3m1 ","-31m ","6/m  ","6/mmm","m-3  ","m-3m ","m3   ","m3m  "/)
 
     !!----
+    !!---- Litvin_point_op_label
+    !!----    character(len=*), dimension(48), parameter, public :: Litvin_point_op_label
+    !!----
+    !!----    Symbols of point operators as given by Litvin (Non-hexagonal)
+    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
+    !!----
+    !!---- Update: November - 2012
+    !!
+    character(len=*), dimension(48), parameter, public :: Litvin_point_op_label=(/ &
+       "1       ","4x      ","4x-1    ","4y      ","4y-1    ","4z      ","4z-1    ","2x      ", &
+       "2y      ","2z      ","2xy     ","2-xy    ","2yz     ","2-yz    ","2xz     ","2-xz    ", &
+       "3xyz    ","3xyz-1  ","3-xyz   ","3-xyz-1 ","3x-yz   ","3x-yz-1 ","3xy-z   ","3xy-z-1 ", &
+       "-1      ","-4x     ","-4x-1   ","-4y     ","-4y-1   ","-4z     ","-4z-1   ","mx      ", &
+       "my      ","mz      ","mxy     ","m-xy    ","myz     ","m-yz    ","mxz     ","m-xz    ", &
+       "-3xyz   ","-3xyz-1 ","-3-xyz  ","-3-xyz-1","-3x-yz  ","-3x-yz-1","-3xy-z  ","-3xy-z-1"/)
+
+    !!----
+    !!---- Litvin_point_op
+    !!----    character(len=*), dimension(48), parameter, public :: Litvin_point_op
+    !!----
+    !!----    Jones Faithful symbols of point operators as given by Litvin (Non-hexagonal)
+    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
+    !!----
+    !!---- Update: November - 2012
+    !!
+
+    character(len=*), dimension(48), parameter, public :: Litvin_point_op=(/ &
+       "x,y,z   ", "x,-z,y  ", "x,z,-y  ", "z,y,-x  ", "-z,y,x  ",           &
+       "-y,x,z  ", "y,-x,z  ", "x,-y,-z ", "-x,y,-z ", "-x,-y,z ",           &
+       "y,x,-z  ", "-y,-x,-z", "-x,z,y  ", "-x,-z,-y", "z,-y,x  ",           &
+       "-z,-y,-x", "z,x,y   ", "y,z,x   ", "-y,z,-x ", "-z,-x,y ",           &
+       "-y,-z,x ", "z,-x,-y ", "y,-z,-x ", "-z,x,-y ", "-x,-y,-z",           &
+       "-x,z,-y ", "-x,-z,y ", "-z,-y,x ", "z,-y,-x ", "y,-x,-z ",           &
+       "-y,x,-z ", "-x,y,z  ", "x,-y,z  ", "x,y,-z  ", "-y,-x,z ",           &
+       "y,x,z   ", "x,-z,-y ", "x,z,y   ", "-z,y,-x ", "z,y,x   ",           &
+       "-z,-x,-y", "-y,-z,-x", "y,-z,x  ", "z,x,-y  ", "y,z,-x  ",           &
+       "-z,x,y  ", "-y,z,x  ", "z,-x,y  "/)
+
+    !!----
+    !!---- Litvin_point_op_hex_label
+    !!----    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex_label
+    !!----
+    !!----    Symbols of point operators as given by Litvin (Hexagonal)
+    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
+    !!----
+    !!---- Update: November - 2012
+    !!
+    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex_label=(/ &
+       "1    ","6z   ","3z   ","2z   ","3z-1 ","6z-1 ","2x   ","2xy  ",                &
+       "2y   ","21   ","22   ","23   ","-1   ","-6z  ","-3z  ","mz   ",                &
+       "-3z-1","-6z-1","mx   ","mxy  ","my   ","m1   ","m2   ","m3   "/)
+
+    !!----
+    !!---- Litvin_point_op_hex
+    !!----    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex
+    !!----
+    !!----    Jones Faithful symbols of point operators as given by Litvin (Hexagonal)
+    !!----    The order corresponds to the Table given by Harold T. Stokes and Branton J. Campbell
+    !!----
+    !!---- Update: November - 2012
+    !!
+
+    character(len=*), dimension(24), parameter, public :: Litvin_point_op_hex=(/      &
+       "x,y,z     ","x-y,x,z   ","-y,x-y,z  ","-x,-y,z   ","-x+y,-x,z ","y,-x+y,z  ", &
+       "x-y,-y,-z ","y,x,-z    ","-x,-x+y,-z","x,x-y,-z  ","-x+y,y,-z ","-y,-x,-z  ", &
+       "-x,-y,-z  ","-x+y,-x,-z","y,-x+y,-z ","x,y,-z    ","x-y,x,-z  ","-y,x-y,-z ", &
+       "-x+y,y,z  ","-y,-x,z   ","x,x-y,z   ","-x,-x+y,z ","x-y,-y,z  ","y,x,z     "/)
+
+    !!----
     !!---- LTR_A
     !!----    real(kind=cp), dimension(3,2), parameter, public :: Ltr_A
     !!----

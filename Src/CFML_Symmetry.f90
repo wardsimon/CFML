@@ -115,7 +115,9 @@
 !!----       GET_ORBIT
 !!----       GET_POINTGROUP_STR
 !!--++       GET_SEITZ                 [Private]
+!!--++       GET_SEITZ_SYMBOL
 !!--++       GET_SETTING_INFO          [Private]
+!!----       GET_SHUBNIKOV_OPERATOR_SYMBOL
 !!----       GET_SO_FROM_FIX
 !!----       GET_SO_FROM_GENER
 !!----       GET_SO_FROM_HALL
@@ -129,6 +131,8 @@
 !!--++       GET_SYMSYMBI              [Overloaded]
 !!--++       GET_SYMSYMBR              [Overloaded]
 !!----       GET_T_SUBGROUPS
+!!----       GET_TRASFM_SYMBOL
+!!----       GET_TRANSL_SYMBOL
 !!----       INIT_ERR_SYMM
 !!----       INVERSE_SYMM
 !!----       LATSYM
@@ -193,8 +197,10 @@
                Get_Stabilizer,Get_String_Resolv,Get_SubOrbits,Get_Symel, Get_Symkov, Get_SymSymb, &
                Init_Err_Symm, Inverse_Symm, Latsym, Read_Msymm, Read_Xsym, Searchop,              &
                Set_Spacegroup, Setting_Change, Sym_B_Relations, Sym_Prod_St, Symmetry_Symbol,     &
-               Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,            &
-               Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table
+               Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,        &
+               Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,    &
+               Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                 &
+               Get_Transl_Symbol
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -3006,6 +3012,51 @@
        return
     End Subroutine Get_Seitz
 
+    !!----
+    !!---- Subroutine Get_Seitz_Symbol(iop,itim,tr,Seitz_symb)
+    !!----    integer,                 intent(in) :: iop,itim      !  In -> Number of the rotational matrix, time inversion
+    !!----    real,    dimension(3),   intent(in) :: tr            !  In -> Translation part
+    !!----    character(len=*),        intent(out):: Seitz_symb    ! Out -> Seitz Symbol
+    !!----
+    !!----    Provide the Seitz symbol of a symmetry operator. It uses the Litvin notation and
+    !!----    the ordering is that of Table given by Harold T. Stokes and Branton J. Campbell.
+    !!----    Hexa should be defined before using this subroutine. This subroutine is intended
+    !!----    to be used with the reading of Magnetic Space Groups (see CFML_Magnetic_Symmetry)
+    !!----
+    !!---- Update: November 2012
+    !!
+    Subroutine Get_Seitz_Symbol(iop,itim,tr,Seitz_symb)
+      integer,                 intent(in) :: iop,itim
+      real,    dimension(3),   intent(in) :: tr
+      character(len=*),        intent(out):: Seitz_symb
+      !---- Local variables ----!
+      integer :: i
+      character(len=25) :: transl
+      character(len=8)  :: operator_symb
+      character(len=6)  :: Fracc
+
+      if(hexa) then
+        Operator_symb=Litvin_point_op_hex_label(iop)
+      else
+        Operator_symb=Litvin_point_op_label(iop)
+      end if
+      transl=" "
+      do i=1,3
+        call Get_Fraction_2Dig(tr(i),Fracc)
+        transl=trim(transl)//trim(Fracc)//","
+      end do
+      i=len_trim(transl)
+      transl(i:i)=" "
+      do i=1,len_trim(transl)
+        if(transl(i:i) == "+") transl(i:i)=" "
+      end do
+      Seitz_symb="("//trim(operator_symb)//" | "//trim(transl)//")"
+      Seitz_symb=Pack_String(Seitz_symb)
+      if(itim == -1)  Seitz_symb=trim(Seitz_symb)//"'"
+      return
+    End Subroutine Get_Seitz_Symbol
+
+
     !!--++
     !!--++ Subroutine Get_Setting_Info(Mat,orig,setting,matkind)
     !!--++    real(kind=cp), dimension (3,3),intent( in)    :: Mat     ! Matrix transforming the basis
@@ -3064,6 +3115,58 @@
 
        return
     End Subroutine Get_Setting_Info
+
+    !!----
+    !!---- Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb)
+    !!----   integer, dimension(3,3), intent(in) :: Mat,Rot     ! Symmetry operators for positions and magnetic moments
+    !!----   real,    dimension(3),   intent(in) :: tr          ! Translation associated to the symmetry operator
+    !!----   character(len=*),        intent(out):: ShOp_symb   ! String with the Shubnikov operator symbol
+    !!----
+    !!---- Subroutine to construct a string with the Shubnikov operator
+    !!---- in the following form: (-x,y+1/2,-z; u,-v,w)
+    !!---- It also working for Wyckoff positions, when the matrices Mat and Rot
+    !!---- are not symmetry operators (det=0). It is extensively used when reading
+    !!---- the database containing the Magnetic Space Groups provided by
+    !!---- < Harold T. Stokes and Branton J. Campbell
+    !!----   Brigham Young University, Provo, Utah, USA
+    !!----   June 2010 >
+    !!----
+    !!---- Updated: November 2012
+    !!----
+    Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb)
+      integer, dimension(3,3), intent(in) :: Mat,Rot
+      real,    dimension(3),   intent(in) :: tr
+      character(len=*),        intent(out):: ShOp_symb
+      !---- Local variables ----!
+      integer :: i,i1,i2
+      character(len=25)  :: xyz_op, uvw_op
+
+      call Get_SymSymb(Mat,tr,xyz_op)
+      call Get_SymSymb(Rot,[0.0,0.0,0.0],uvw_op)
+
+      do i=1,len_trim(uvw_op)
+        if(uvw_op(i:i) == "x")  uvw_op(i:i)="u"
+        if(uvw_op(i:i) == "y")  uvw_op(i:i)="v"
+        if(uvw_op(i:i) == "z")  uvw_op(i:i)="w"
+      end do
+      i1=index(xyz_op,",")
+      if(i1 == 1) xyz_op="0"//trim(xyz_op)
+      i2=index(xyz_op,",",back=.true.)
+      if(i2 == len_trim(xyz_op)) xyz_op=trim(xyz_op)//"0"
+      i1=index(xyz_op,",,")
+      if(i1 /= 0) xyz_op=xyz_op(1:i1)//"0"//xyz_op(i1+1:)
+
+      i1=index(uvw_op,",")
+      if(i1 == 1) uvw_op="0"//trim(uvw_op)
+      i2=index(uvw_op,",",back=.true.)
+      if(i2 == len_trim(uvw_op)) uvw_op=trim(uvw_op)//"0"
+      i1=index(uvw_op,",,")
+      if(i1 /= 0) uvw_op=uvw_op(1:i1)//"0"//uvw_op(i1+1:)
+      xyz_op=Pack_string(xyz_op)
+      uvw_op=Pack_string(uvw_op)
+      ShOp_symb="("//trim(xyz_op)//"; "//trim(uvw_op)//")"
+      return
+    End Subroutine Get_Shubnikov_Operator_Symbol
 
     !!----
     !!---- Subroutine Get_So_From_Fix(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,Spacegen)
@@ -6081,6 +6184,86 @@
     End Subroutine Get_T_SubGroups
 
     !!----
+    !!---- Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb)
+    !!----    integer, dimension(3,3), intent(in) :: Mat
+    !!----    real,    dimension(3),   intent(in) :: tr
+    !!----    character(len=*),        intent(out):: abc_symb
+    !!----
+    !!----    Provides the short symbol for a setting change defined by
+    !!----    the transfomation matrix Mat and origin given by the translation
+    !!----    vector tr. For instance given the matrix:
+    !!----
+    !!----     1  0 -1                      a'=a-c
+    !!----     0  2  0   corresponding to   b'=2b
+    !!----     1  0  1                      c'=a+c
+    !!----     And the change of origin given by (0.5,0.0,0.5)
+    !!----     The subroutine provide the symbol:
+    !!----      (1/2,0,1/2; a-c,2b,a+c)
+    !!----
+    !!---- Update: November - 2012
+    !!
+    Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb)
+      integer, dimension(3,3), intent(in) :: Mat
+      real,    dimension(3),   intent(in) :: tr
+      character(len=*),        intent(out):: abc_symb
+      !---- Local variables ----!
+      integer :: i
+      character(len=25) :: xyz_op, transl
+      character(len=6)  :: Fracc
+      call Get_SymSymb(Mat,[0.0,0.0,0.0],xyz_op)
+      do i=1,len_trim(xyz_op)
+        if(xyz_op(i:i) == "x")  xyz_op(i:i)="a"
+        if(xyz_op(i:i) == "y")  xyz_op(i:i)="b"
+        if(xyz_op(i:i) == "z")  xyz_op(i:i)="c"
+      end do
+      transl=" "
+      do i=1,3
+        call Get_Fraction_2Dig(tr(i),Fracc)
+        transl=trim(transl)//trim(Fracc)//","
+      end do
+      i=len_trim(transl)
+      transl(i:i)=";"
+      do i=1,len_trim(transl)-2
+        if(transl(i:i) == "+") transl(i:i)=" "
+      end do
+      transl=Pack_string(transl)
+      abc_symb="("//trim(transl)//" "//trim(xyz_op)//")"
+      return
+    End Subroutine Get_Trasfm_Symbol
+
+    !!----
+    !!---- Subroutine Get_Transl_Symbol(tr,Transl_symb)
+    !!----   real,    dimension(3),   intent(in) :: tr
+    !!----   character(len=*),        intent(out):: Transl_symb
+    !!----
+    !!----    Provides the short symbol for a translation vector
+    !!----    for which the coordinates are given as fractional symbols
+    !!----
+    !!---- Update: November - 2012
+    !!
+    Subroutine Get_Transl_Symbol(tr,Transl_symb)
+      real,    dimension(3),   intent(in) :: tr
+      character(len=*),        intent(out):: Transl_symb
+      !---- Local variables ----!
+      integer :: i
+      character(len=25) :: transl
+      character(len=6)  :: Fracc
+
+      transl=" "
+      do i=1,3
+        call Get_Fraction_2Dig(tr(i),Fracc)
+        transl=trim(transl)//trim(Fracc)//","
+      end do
+      i=len_trim(transl)
+      transl(i:i)=" "
+      do i=1,len_trim(transl)
+        if(transl(i:i) == "+") transl(i:i)=" "
+      end do
+      Transl_symb="("//trim(transl)//")"
+      return
+    End Subroutine Get_Transl_Symbol
+
+    !!----
     !!---- Subroutine Init_Err_Symm()
     !!----
     !!----    Initialize the errors flags in this Module
@@ -6380,27 +6563,32 @@
     End Subroutine Mod_Trans
 
     !!----
-    !!---- Subroutine Read_Msymm(Info,Sim,P_Mag)
+    !!---- Subroutine Read_Msymm(Info,Sim,P_Mag,ctrl)
     !!----    character (len=*),       intent( in) :: Info   !  In -> Input string with S.Op.
     !!----                                                            in the form: MSYM  u,w,w,p_mag
     !!----    integer, dimension(3,3), intent(out) :: sim    ! Out -> Rotation matrix
     !!----    real(kind=cp),           intent(out) :: p_mag  ! Out -> magnetic phase
-    !!----
+    !!----    logical, optional,       intent(in)  :: ctrl   ! in  -> If provided and .true. an error condition
+    !!----                                                            is raised if the det(Sim)=0
     !!----    Read magnetic symmetry operators in the form U,V,W, etc...
     !!----    Provides the magnetic rotational matrix and phase associated to a MSYM symbol
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Msymm(Info,Sim,P_Mag)
+    Subroutine Read_Msymm(Info,Sim,P_Mag,ctrl)
        !---- Arguments ----!
        character (len=*),       intent( in) :: Info
        integer, dimension(3,3), intent(out) :: sim
        real(kind=cp),           intent(out) :: p_mag
+       logical, optional,       intent(in)  :: ctrl
 
        !---- Local variables ----!
        integer ::  i,imax,nop,s,ifound,j,ioerr,istart,mod_istart
        character(len=len(info)) :: aux
+       logical :: control
 
+       control=.false.
+       if(present(ctrl)) control=ctrl
        call init_err_symm()
        do j=len(Info),1,-1
           if (info(j:j) == ",") exit
@@ -6461,7 +6649,7 @@
           end if
        end do    !End external loop over the three expected items
 
-       if (determ_A(sim) == 0) then      !Verify it is a suitable s.o.
+       if (determ_A(sim) == 0 .and. control) then      !Verify it is a suitable s.o.
           err_symm=.true.
           ERR_Symm_Mess=" The above operator is wrong "//info
           return
