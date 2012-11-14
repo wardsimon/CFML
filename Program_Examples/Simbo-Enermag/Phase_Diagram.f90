@@ -333,7 +333,7 @@
       integer,dimension (9) :: lugar  ! Codes for reading
       integer :: jlist=0              ! Control of directive for list information
       integer :: npeaks_to_find=0     ! Number of peaks to search
-      real    :: dist1=2.0,dist2=2.0  ! distance between peaks
+      real    :: dist1=2.0,dist2=2.0,dist3=3.0  ! distance between peaks
       real :: xinc                    ! Increment on X
       real :: yinc                    ! Increment on Y
       real :: zinc                    ! Increment on Z
@@ -362,7 +362,7 @@
       write (jfilbin) spgr,grp_espacial
       write (jfilbin) natom
       write (jfilbin) (atomos(i),i=1,natom)
-      write (jfilbin) fildat,filbin,filhkl,filatm,lugar,jlist,dist1,dist2
+      write (jfilbin) fildat,filbin,filhkl,filatm,lugar,jlist,dist1,dist2,dist3
       write (jfilbin) f000,f000s,ntype,smin,smax,sigm,npeaks_to_find
       write (jfilbin) ngrid,denmin,denmax,xlim,ylim,zlim,xinc,yinc,zinc
       write (jfilbin) denave,densigma

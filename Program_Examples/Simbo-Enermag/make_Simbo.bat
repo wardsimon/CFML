@@ -57,7 +57,7 @@ rem
 rem  Comment the following lines if upx or %FULLPROF% are not available
 rem  or if you want to conserve the object files
 rem  Compression of executable
-        upx Simbo.exe
+rem        upx Simbo.exe
 rem  Move the excutable to a directory in the Path
         if exist %FULLPROF% move Simbo.exe %FULLPROF% > nul
 rem  Remove unnecessary files
