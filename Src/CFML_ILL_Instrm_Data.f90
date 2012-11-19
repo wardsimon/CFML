@@ -3265,8 +3265,10 @@ Module CFML_ILL_Instrm_Data
        character(len=80)                            :: line
        integer                                      :: nlines
        integer                                      :: numor,idum
+       logical                                      :: new_form
 
        err_illdata=.false.
+       new_form = .false.
 
        ! Detecting numor
        call Number_Lines(fileinfo,nlines)
@@ -3284,9 +3286,12 @@ Module CFML_ILL_Instrm_Data
        ! Check format for D1B
        call Number_KeyTypes_on_File(filevar,nlines)
        if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
+         new_form = .true.
+         if(.not. equal_vector(n_keytypes,(/1,2,1,2,2,0,0/),7)) then
           err_illdata=.true.
           err_illdata_mess='This numor does not correspond with D1B Format'
           return
+         end if
        end if
 
        ! Defining the different blocks and load information on nl_keytypes
@@ -3323,30 +3328,89 @@ Module CFML_ILL_Instrm_Data
 
        ! Control Flags
        call read_I_keyType(filevar,nl_keytypes(5,1,1),nl_keytypes(5,1,2))
-       if (nval_i > 0) then
+       if (nval_i > 0 .and. .not. new_form) then
           n%icdesc(1)=ivalues(8)    ! 0:Monitor ; 1:Time
+       end if
+       if (nval_i > 0 .and. new_form) then  !Like D2B
+          n%manip=ivalues(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
+          n%nbang=ivalues(5)              ! Total number of angles moved during scan
+          n%icalc=ivalues(9)
+          n%nbdata=ivalues(24)            ! Total number of points per frame: D2B-> 128x128=16384
+          n%icdesc(1:7)=ivalues(25:31)
        end if
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
-       if (nval_f > 0) then
+       if (nval_f > 0 .and. .not. new_form) then
           n%wave=rvalues(18)
           n%conditions(1:3)=rvalues(46:48)  ! Temp-s, Temp-r, Temp-sample
        end if
 
-       ! Counts
-       if (allocated(n%counts)) deallocate(n%counts)
-       call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
-       if (nval_i > 0) then
-          n%nbdata=nval_i-3
-          n%monitor=real(ivalues(1))
-          n%time=real(ivalues(2))*0.001
-          n%scans(1)=real(ivalues(3))*0.001
-          if(Instrm_Info_only) return    !This is placed here waiting for a proper database
-          if (n%nbdata > 0) then
-             allocate(n%counts(n%nbdata,1))
-             n%counts(:,1)=real(ivalues(4:nval_i))
-          end if
+       if (nval_f > 0 .and. new_form) then
+          n%wave=rvalues(18)           ! Wavelength
+          n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+       end if
+
+       if(new_form) then
+
+
+         ! Allocating
+         if (allocated(n%counts)) deallocate(n%counts)
+         allocate(n%counts(n%nbdata,n%nframes))
+         n%counts=0.0
+
+         if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
+         allocate(n%tmc_ang(n%nbang+4,n%nframes))
+         n%tmc_ang=0.0
+
+         ! Loading Frames
+         n%monitor=0.0
+         n%time=0.0
+
+         !Time/Monitor/Counts/Angles
+         call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
+         if (nval_f > 0 ) then
+            n%tmc_ang(1,1)=rvalues(1)*0.001 ! Time (s)
+            n%tmc_ang(2:3,1)=rvalues(2:3)   ! Monitor and Total Counts
+            n%tmc_ang(4:nval_f,1)=rvalues(4:nval_f)*0.001  ! Angles in degrees
+            n%time=n%tmc_ang(1,1)
+            n%monitor=n%tmc_ang(2,1)
+         else
+            err_illdata=.true.
+            write(unit=err_illdata_mess,fmt="(a,i6.6)") 'Problem reading Time, Monitor, Counts, Angles' &
+                              //' parameters in Numor:',n%numor
+            return
+         end if
+
+         if(Instrm_Info_only) return
+
+         ! Counts
+         call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
+         if (nval_i /= n%nbdata) then
+            err_illdata=.true.
+            write(unit=err_illdata_mess,fmt="(a,i6.6)") 'Problem reading Counts in in Numor:',n%numor
+            return
+         end if
+         if (nval_i > 0) then
+            n%counts(:,1)=ivalues(1:n%nbdata)
+         end if
+
+       Else  !Below old format
+
+         ! Counts
+         if (allocated(n%counts)) deallocate(n%counts)
+         call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
+         if (nval_i > 0) then
+            n%nbdata=nval_i-3
+            n%monitor=real(ivalues(1))
+            n%time=real(ivalues(2))*0.001
+            n%scans(1)=real(ivalues(3))*0.001
+            if(Instrm_Info_only) return    !This is placed here waiting for a proper database
+            if (n%nbdata > 0) then
+               allocate(n%counts(n%nbdata,1))
+               n%counts(:,1)=real(ivalues(4:nval_i))
+            end if
+         end if
        end if
 
        return
@@ -5339,9 +5403,9 @@ Module CFML_ILL_Instrm_Data
     !!----    Assign the global public variable: Instrm_directory
     !!----    It is assumed that the subroutine Set_ILL_data_directory has already been called.
     !!----
-    !!----    1� Look at the working_dir to define Instrm_directory
-    !!----    2� Arguments instrm, iyear and icycle is used with ILL_Data_Directory
-    !!----    3� If not year and cycle then use "data"
+    !!----    1- Look at the working_dir to define Instrm_directory
+    !!----    2- Arguments instrm, iyear and icycle is used with ILL_Data_Directory
+    !!----    3- If not year and cycle then use "data"
     !!----    If the directory doesn't exist the subroutine rises an error condition
     !!----    by putting ERR_ILLData=.true. and filling the error message
     !!----    variable ERR_ILLData_Mess.

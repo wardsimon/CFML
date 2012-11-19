@@ -3123,7 +3123,7 @@
     !!----   character(len=*),        intent(out):: ShOp_symb   ! String with the Shubnikov operator symbol
     !!----
     !!---- Subroutine to construct a string with the Shubnikov operator
-    !!---- in the following form: (-x,y+1/2,-z; u,-v,w)
+    !!---- in the following form: (-x,y+1/2,-z;u,-v,w)
     !!---- It also working for Wyckoff positions, when the matrices Mat and Rot
     !!---- are not symmetry operators (det=0). It is extensively used when reading
     !!---- the database containing the Magnetic Space Groups provided by
@@ -3164,7 +3164,7 @@
       if(i1 /= 0) uvw_op=uvw_op(1:i1)//"0"//uvw_op(i1+1:)
       xyz_op=Pack_string(xyz_op)
       uvw_op=Pack_string(uvw_op)
-      ShOp_symb="("//trim(xyz_op)//"; "//trim(uvw_op)//")"
+      ShOp_symb="("//trim(xyz_op)//";"//trim(uvw_op)//")"
       return
     End Subroutine Get_Shubnikov_Operator_Symbol
 
