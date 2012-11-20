@@ -3142,7 +3142,7 @@
       character(len=25)  :: xyz_op, uvw_op
 
       call Get_SymSymb(Mat,tr,xyz_op)
-      call Get_SymSymb(Rot,[0.0,0.0,0.0],uvw_op)
+      call Get_SymSymb(Rot,(/0.0,0.0,0.0/),uvw_op)
 
       do i=1,len_trim(uvw_op)
         if(uvw_op(i:i) == "x")  uvw_op(i:i)="u"
@@ -6210,7 +6210,7 @@
       integer :: i
       character(len=25) :: xyz_op, transl
       character(len=6)  :: Fracc
-      call Get_SymSymb(Mat,[0.0,0.0,0.0],xyz_op)
+      call Get_SymSymb(Mat,(/0.0,0.0,0.0/),xyz_op)
       do i=1,len_trim(xyz_op)
         if(xyz_op(i:i) == "x")  xyz_op(i:i)="a"
         if(xyz_op(i:i) == "y")  xyz_op(i:i)="b"
