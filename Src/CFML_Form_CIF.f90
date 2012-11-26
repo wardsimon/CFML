@@ -235,14 +235,14 @@
     !!--..
     !!---- Type,public :: File_List_Type
     !!----    integer                                       :: nlines ! Number of lines in the file
-    !!----    character(len=132), allocatable, dimension(:) :: line   ! Content of the lines
+    !!----    character(len=256), allocatable, dimension(:) :: line   ! Content of the lines
     !!---- End Type file_list_type
     !!----
-    !!---- Update: February - 2005
+    !!---- Updated: February - 2005, November 2012
     !!
     Type,public :: File_List_Type
        integer                                       :: nlines
-       character(len=132), allocatable, dimension(:) :: line
+       character(len=256), allocatable, dimension(:) :: line
     End Type File_List_Type
 
 
