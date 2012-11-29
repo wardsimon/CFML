@@ -1,45 +1,61 @@
 #################################
-# Project section
+# Commad line arguments section
 #################################
 
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
-# Set the a verbose make.
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
-if(DEFINED CMAKE_BUILD_TYPE)
-  message(STATUS "Setting build type as ${CMAKE_BUILD_TYPE}")
-  SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
-else()
-  message(STATUS "Setting build type as 'Release' as none was specified.")
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
-endif()
-
 # By default the built is in CONSOLE mode.
 option(GUI "Build crysfml and wcrysfml library" OFF)
+
+if(DEFINED CMAKE_Fortran_COMPILER)
+  set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
+else()
+  set(CMAKE_Fortran_COMPILER ifort CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
+endif()
+message(STATUS "Setting compiler to ${CMAKE_Fortran_COMPILER}")
+
+if(DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "The build type. One of 'Release' or 'Debug'.")
+else()
+  set(CMAKE_BUILD_TYPE Release CACHE INTERNAL "The build type. One of 'Release' or 'Debug'.")
+endif()
+message(STATUS "Setting build type to ${CMAKE_BUILD_TYPE}")
+
+get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
+
+if (DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "The installation path.")
+else()
+  set(CMAKE_INSTALL_PREFIX $ENV{SXTALSOFT}/${COMPILER_NAME} CACHE PATH "The installation path.")
+endif()
+message(STATUS "CrysFML installation path set to ${CMAKE_INSTALL_PREFIX}")
+
+if (DEFINED CRYSFML_PREFIX)
+  set(CRYSFML_PREFIX ${CRYSFML_PREFIX} CACHE PATH "The crysfml installation prefix.")
+else()
+  set(CRYSFML_PREFIX LibC CACHE PATH "The crysfml installation prefix.")
+endif()
+message(STATUS "CrysFML installation prefix set to ${CRYSFML_PREFIX}")
+
+if (DEFINED WCRYSFML_PREFIX)
+  set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX} CACHE PATH "The wcrysfml installation prefix.")
+else()
+  set(WCRYSFML_PREFIX LibW CACHE PATH "The wcrysfml installation prefix.")
+endif()
+message(STATUS "WCrysFML installation prefix set to ${WCRYSFML_PREFIX}")
+
+#################################
+# Project section
+#################################
 
 # The project is declared. It is a Fortran project.
 project(libcrysfml Fortran)
 
-get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
+# Set the a verbose make.
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-if(DEFINED CRYSFML_INSTALL_PREFIX)
-  SET(CRYSFML_INSTALL_PREFIX ${CRYSFML_INSTALL_PREFIX} CACHE STRING "Library installation base path." FORCE)
-else()
-  SET(CRYSFML_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/${COMPILER_NAME}_${CMAKE_BUILD_TYPE} CACHE STRING "Library installation base path." FORCE)
-endif()
-
-if (DEFINED CRYSFML_PREFIX)
-    # Set the default name for crysfml library within the install prefix.
-    set(CRYSFML_PREFIX ${CRYSFML_PREFIX} CACHE STRING "The name of wcrysfml library within library directory")
-else()
-    set(CRYSFML_PREFIX LibC CACHE STRING "The name of crysfml library within library directory")
-endif()
-
-if (DEFINED WCRYSFML_PREFIX)
+if (NOT WCRYSFML_PREFIX)
     # Set the default name for wcrysfml library within the install prefix.
-    set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX} CACHE STRING "The name of wcrysfml library within library directory")
-else()
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
 
