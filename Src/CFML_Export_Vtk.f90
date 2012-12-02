@@ -222,7 +222,7 @@ write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE3", cell% Orth_Cr_cel(:,3
 ! Loop on atoms
 g=0
 allocate(xtemp(3,spaceg%multip))
-write(*,*) atom_list%natoms
+
 do i=1, atom_list%natoms
     L=1
     xtemp(:,1)=modulo_lat(atom_list%atom(i)%x)
