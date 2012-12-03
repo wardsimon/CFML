@@ -238,7 +238,8 @@ do i=1, atom_list%natoms
       end do do_eq
       do j=1,L
         g=g+1
-        write(unit=pdb_id,fmt='(A6,I5,A5,14X,3F8.3,2F6.2,10X,A2)') "ATOM  ", g ,trim(atom_list%atom(i)%ChemSymb),matmul(cell%Cr_Orth_cel,xtemp(:,j)), 1.0, 0.0,atom_list%atom(i)%ChemSymb
+        write(unit=pdb_id,fmt='(A6,I5,A5,14X,3F8.3,2F6.2,10X,A2)') "ATOM  ", g ,trim(atom_list%atom(i)%ChemSymb), &
+                                        matmul(cell%Cr_Orth_cel,xtemp(:,j)), 1.0, 0.0,atom_list%atom(i)%ChemSymb
       end do
 end do ! loop on atoms
 close(unit=pdb_id)
