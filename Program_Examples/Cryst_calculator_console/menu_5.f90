@@ -9,7 +9,7 @@
                                     Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
    use CFML_Math_3D,          only: Determ_V,invert_a, determ_a, Cross_Product
-   use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector, acosd
+   use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector, acosd, sind, asind
    use CFML_String_Utilities, only: L_Case, pack_string, Get_Mat_From_Symb, Err_String, ERR_String_Mess
 
 

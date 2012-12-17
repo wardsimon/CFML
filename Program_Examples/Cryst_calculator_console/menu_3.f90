@@ -8,6 +8,7 @@
     use CFML_Crystallographic_Symmetry
     use CFML_Atom_TypeDef
     use CFML_string_utilities, only: getnum
+    use CFML_Math_General,     only: cosd, acosd, sind, asind
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Write_Crystal_Cell, Cart_Vector
     use CFML_IO_Formats,       only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
     use Menu_1,                only: Get_Wyckoff
