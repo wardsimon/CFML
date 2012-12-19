@@ -91,6 +91,7 @@
 !!----       FRAC_TRANS_2DIG
 !!----       GET_BASENAME
 !!----       GET_DIRNAME
+!!----       GET_EXTENSION
 !!----       GET_FRACTION_1DIG
 !!----       GET_FRACTION_2DIG
 !!----       GET_LOGUNIT
@@ -135,7 +136,8 @@
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
-              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, Get_Mat_From_Symb
+              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, &
+              Get_Extension, Get_Mat_From_Symb
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err, Get_Num_String,Read_Fract
@@ -1250,6 +1252,50 @@
 
        Return
     End Subroutine Get_Dirname
+
+    !!----
+    !!---- Subroutine Get_Extension(filename, extension, dotted)
+    !!----    character(len=*), intent( in) :: filename   !  In -> The input filename
+    !!----    character(len=*), intent(out) :: extension  ! Out -> The directory corresponding to the filename
+    !!----    logical, intent(in), optional :: dotted     !  In -> If True, the extension will be returned with a dot
+    !!----
+    !!----
+    !!---- Written: December - 2012
+    !!
+    Subroutine Get_Extension(filename, extension, dotted)
+
+       character(len=*), intent(in)  :: filename
+       character(len=*), intent(out) :: extension
+       logical, intent(in), optional :: dotted
+
+       integer :: idx
+       logical :: dot
+
+       ! Search for the last dot.
+       idx = index(filename, '.', back=.true.)
+
+       ! If no dot was found in the filename, then the file has no extension.
+       if (idx == 0) then
+           extension = ""
+       else
+
+           ! Handle the optional dotted argument.
+           if (present(dotted)) then
+               dot = dotted
+           else
+               dot = .true.
+           endif
+
+           if (.not. dot) idx = idx + 1
+
+           ! The extension is set.
+           extension = filename(idx:)
+
+       endif
+
+       return
+
+    End Subroutine Get_Extension
 
     !!----
     !!---- Subroutine Get_Fraction_1Dig(V,Fracc)
