@@ -266,6 +266,8 @@
        end do
      end if
      if(ans == "f") write(unit=*,fmt="(a)") " => Normal End of the program, results in file: conventional_cells.out"
+     write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
+     read(unit=*,fmt="(a)") ans
      stop
 
   Contains
