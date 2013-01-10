@@ -5,8 +5,11 @@
 !!
  Module Menu_4
    !---- Use File ----!
+   use Menu_0
    use CFML_scattering_chemical_tables
    use CFML_string_utilities
+   use CFML_IO_Messages, only: Wait_Message
+
 
    !---- Variables ----!
    implicit none
@@ -22,7 +25,7 @@
        character(len=2)  :: car
 
        do
-          call system('cls')
+          call system(clear_string)
 
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -73,7 +76,7 @@
        call Set_Chem_Info()
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt=*) "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) "     International Chemical Table "
@@ -139,7 +142,7 @@
 
           end if
 
-          call system('pause')
+          call Wait_Message(" => Press <enter> to continue ...")
 
        end do
     End Subroutine Menu_Chem_1

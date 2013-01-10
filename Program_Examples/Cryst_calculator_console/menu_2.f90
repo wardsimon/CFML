@@ -5,10 +5,12 @@
 !!
  Module Menu_2
    !---- Use File ----!
+   use Menu_0
    use CFML_Crystallographic_Symmetry
    use CFML_Reflections_Utilities
    use CFML_Crystal_Metrics, only: Crystal_Cell_Type, Write_Crystal_Cell, &
                                    Set_Crystal_Cell
+   use CFML_IO_Messages,     only: Wait_Message
 
    !---- Variables ----!
    implicit none
@@ -24,7 +26,7 @@
        character(len=2)  :: car
 
        do
-          call system('cls')
+          call system(clear_string)
 
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -87,7 +89,7 @@
        type (Space_Group_type) :: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Asymmetric Unit in Reciprocal Space"
@@ -102,12 +104,12 @@
           call set_spacegroup(spgr,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           call write_asu(grp_espacial)
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
           do
              write(unit=*,fmt="(a)",advance="no") " Enter a reflection [3 integers] <cr> -> stops: "
              read(unit=*,fmt='(a)') line
@@ -141,7 +143,7 @@
        num=0
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -158,7 +160,7 @@
              call set_spacegroup(line,grp_espacial)
              if(Err_Symm) then
                write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              info=.false.
@@ -197,7 +199,7 @@
           end do
 
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Refl_2
@@ -220,7 +222,7 @@
        info=.true.
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -238,7 +240,7 @@
              call set_spacegroup(line,grp_espacial)
              if(Err_Symm) then
                write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              info=.false.
@@ -256,7 +258,7 @@
              write(unit=*,fmt="(a)") " This reflexion IS NOT a Systematic Absence"
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Refl_3
@@ -282,7 +284,7 @@
        num=0
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -300,7 +302,7 @@
              call set_spacegroup(line,grp_espacial)
              if(Err_Symm) then
                write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              info=.false.
@@ -342,13 +344,13 @@
              j=mod(j,12)
              if (j==0) then
                 write(unit=*,fmt=*) " "
-                call system("pause ")
+                call Wait_Message(" => Press <enter> to continue ...")
                 write(unit=*,fmt=*) " "
              end if
           end do
 
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Refl_4
@@ -377,7 +379,7 @@
        num=0
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "         GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -395,7 +397,7 @@
              call set_spacegroup(line,grp_espacial)
              if(Err_Symm) then
                write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " Unit Cell Parameters ( a b c alpha beta gamma): "
@@ -450,7 +452,7 @@
        info=.true.
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -468,7 +470,7 @@
              call set_spacegroup(line,grp_espacial)
              if(Err_Symm) then
                write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              info=.false.
@@ -483,7 +485,7 @@
           mul=hkl_mult(h,grp_espacial,.true.)
           write(*,'(6x,a,3i4,a,i6)') "Multiplicity of reflection: ",h," : ",mul
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Refl_6

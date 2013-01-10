@@ -27,6 +27,7 @@ rem ****---- Absoft Compiler ----****
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
+   lf95 -c menu_0.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\Lahey\LibC"
    lf95 -c menu_1.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\Lahey\LibC"
    lf95 -c menu_2.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
    lf95 -c menu_3.f90  -tp -nomap -stchk -nchk -o1 -mod ".;..\..\lahey\LibC"
@@ -38,6 +39,7 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
+   ifort /c menu_0.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c menu_1.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c menu_2.f90 /O2 /nologo /I..\..\ifort\LibC
    ifort /c menu_3.f90 /O2 /nologo /I..\..\ifort\LibC
@@ -48,6 +50,7 @@ rem ****---- Intel Compiler ----****
    link /subsystem:console /out:CrysCalc.exe *.obj ..\..\ifort\LibC\crysfml.lib
    goto END
 :IFORTD
+   ifort /c menu_0.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    ifort /c menu_1.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    ifort /c menu_2.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
    ifort /c menu_3.f90 /debug:full /check /traceback /nologo /I..\..\ifort_debug\LibC
@@ -60,6 +63,7 @@ rem ****---- Intel Compiler ----****
 rem
 rem **---- G95 Compiler ----**
 :G95
+   g95 -c -O3 -funroll-loops  -msse2   menu_0.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   menu_1.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   menu_2.f90     -I..\..\G95\LibC
    g95 -c -O3 -funroll-loops  -msse2   menu_3.f90     -I..\..\G95\LibC
@@ -71,6 +75,7 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
+   gfortran -c -O3 -funroll-loops  -msse2   menu_0.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_1.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_2.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   menu_3.f90     -I..\..\GFortran\LibC

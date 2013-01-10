@@ -102,8 +102,8 @@ in
       LIBDYNAMIC="-lcrysfml"
      ;;
    'ifort')
-      INC="-I../../Intel/LibC"
-      LIB="-L../../Intel/LibC"
+      INC="-I../../ifort/LibC"
+      LIB="-L../../ifort/LibC"
       LIBDYNAMIC="-lcrysfml"
       LIBSTATIC="-lcrysfml"
      ;;
@@ -117,6 +117,7 @@ esac
 #
 # Compilation Process
 #
+$COMP $OPT1 menu_0.f90    $INC
 $COMP $OPT1 menu_1.f90    $INC
 $COMP $OPT1 menu_2.f90    $INC
 $COMP $OPT1 menu_3.f90    $INC

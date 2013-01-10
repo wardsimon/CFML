@@ -9,20 +9,23 @@
 !!
  Program Calsym
     !---- Use files ----!
+    use Menu_0
     use Menu_1
     use Menu_2
     use Menu_3
     use Menu_4
     use Menu_5
-
+    use CFML_IO_Messages,  only: Wait_Message
     !---- Variables ----!
     implicit none
 
     character (len=2):: car
 
+    if(OPS == 1) clear_string="cls" !Change for Windows
+
     !---- Menu Principal ----!
     do
-       call system("cls")
+       call system(clear_string)
 
        write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
@@ -64,8 +67,8 @@
 
        end select
     end do
-
-    call system("cls")
+    call Wait_Message(" => Press <enter> to close the program ...")
+    call system(clear_string)
 
  End Program Calsym
 

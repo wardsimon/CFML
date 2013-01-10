@@ -5,8 +5,10 @@
 !!
  Module Menu_3
     !---- Use File ----!
+    use Menu_0
     use CFML_Crystallographic_Symmetry
     use CFML_Atom_TypeDef
+    use CFML_IO_Messages,      only: Wait_Message
     use CFML_string_utilities, only: getnum
     use CFML_Math_General,     only: cosd, acosd, sind, asind
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Write_Crystal_Cell, Cart_Vector
@@ -32,7 +34,7 @@
        character(len=2)  :: car
 
        do
-          call system('cls')
+          call system(clear_string)
 
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -86,7 +88,7 @@
        type (Space_Group_type)    :: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information "
@@ -101,11 +103,11 @@
           call set_spacegroup(line,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           do
-             call system('cls')
+             call system(clear_string)
              write(unit=*,fmt="(a)") "       GENERAL CRYSTALLOGRAPHY CALCULATOR "
              write(unit=*,fmt="(a)") " "
              write(unit=*,fmt="(a)") "     Multiplicity and Occupancy of Position "
@@ -124,7 +126,7 @@
                 occ=real(mlt)/real(grp_espacial%Multip)
                 write(unit=*,fmt=*) " "
                 write(*,'(a,i4,a,f3.6)') " Multiplicity: ",mlt, "     Occupancy(SHELX/FullProf) proportional to: ",occ
-                call system('pause')
+                call Wait_Message(" => Press <enter> to continue ...")
              end if
           end do
        end do
@@ -142,7 +144,7 @@
 
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -162,7 +164,7 @@
                 call Readn_set_Xtal_Structure(trim(line),Cell,SpG,A,Mode="CIF")
              else
                 write(unit=*,fmt="(a)") " => File: "//trim(line)//"  does not exist!"
-                call system('pause')
+                call Wait_Message(" => Press <enter> to continue ...")
                 cycle
              end if
           else
@@ -173,12 +175,12 @@
                   call Readn_set_Xtal_Structure(trim(line),Cell,SpG,A,Mode="CFL")
                else
                   write(unit=*,fmt="(a)") " => File: "//trim(line)//"  does not exist!"
-                  call system('pause')
+                  call Wait_Message(" => Press <enter> to continue ...")
                   cycle
                end if
             else
                write(unit=*,fmt="(a)") " => Illegal File name: "//trim(line)
-               call system('pause')
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
             end if
           end if
@@ -187,7 +189,7 @@
           else
              write(unit=*,fmt="(a)") " => File: "//trim(line)//" successfully read!"
              structure_read=.true.
-             call system('pause')
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
 
@@ -204,7 +206,7 @@
        character(len=20)     :: line
        integer               :: i
 
-       call system('cls')
+       call system(clear_string)
        write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -213,23 +215,23 @@
        write(unit=*,fmt="(a)") " "
        if(.not. structure_read) then
          write(unit=*,fmt="(/a/)") " => A CIF or CFL file must read before using this option! "
-         call system('pause')
+         call Wait_Message(" => Press <enter> to continue ...")
          return
        end if
        write(unit=*,fmt="(/a/)") " => UNIT CELL information: "
 
        call Write_Crystal_Cell(Cell)
-       call system('pause')
+       call Wait_Message(" => Press <enter> to continue ...")
 
-       call system('cls')
+       call system(clear_string)
        write(unit=*,fmt="(/a/)") " => SPACE GROUP information: "
        call Write_SpaceGroup(SpG,Full=.true.)
-       call system('pause')
+       call Wait_Message(" => Press <enter> to continue ...")
 
-       call system('cls')
+       call system(clear_string)
        write(unit=*,fmt="(/a/)") " => ATOMS information: "
        call Write_Atom_List(A,level=1)
-       call system('pause')
+       call Wait_Message(" => Press <enter> to continue ...")
 
     End Subroutine Menu_Atom_3
 
@@ -242,7 +244,7 @@
        real, dimension(3,192):: orb
        logical               :: calc_possible=.true.
 
-       call system('cls')
+       call system(clear_string)
        write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
        write(unit=*,fmt="(a)") "     Atomistic Calculations "
@@ -257,12 +259,12 @@
        end do
        if( .not. calc_possible) then
          write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided! "
-         call system('pause')
+         call Wait_Message(" => Press <enter> to continue ...")
          return
        end if
        !if(SpG%Centred /= 1) then
        !  write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
-       !  call system('pause')
+       !  call Wait_Message(" => Press <enter> to continue ...")
        !  return
        !end if
        r_plus=0.0; r_minus=0.0
@@ -321,7 +323,7 @@
          ang=Angle_Vect(cpos, r_pol)
          write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
        end if
-       call system('pause')
+       call Wait_Message(" => Press <enter> to continue ...")
 
     End Subroutine Menu_Atom_4
 
@@ -334,7 +336,7 @@
       mv=sqrt(dot_Product(v,v))
       if(mu < eps .or. mv < eps) then
           write(unit=*,fmt="(a)") " -> One of the directions is [0 0 0] ... retry!"
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
           return
       end if
       angle=dot_Product(u,v)/mu/mv

@@ -191,7 +191,7 @@
        write(unit=*,fmt="(a)") " "
        if (present(mess)) write(unit=*,fmt="(a)", advance="no") mess
        read(unit=*,fmt="(a)") car
-       if( car == " ") return
+       if( len_trim(car) == 0) return
 
        return
     End Subroutine Wait_Message

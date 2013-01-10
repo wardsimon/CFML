@@ -5,11 +5,13 @@
 !!
  Module Menu_1
     !---- Use File ----!
+    use Menu_0
     use CFML_Symmetry_Tables
     use CFML_Crystallographic_Symmetry
     use CFML_String_Utilities,          only: u_case, ucase, getnum
     use CFML_Math_General,              only: equal_vector
     use CFML_Math_3D,                   only: resolv_sist_3x3
+    use CFML_IO_Messages,               only: Wait_Message
 
     !---- Variables ----!
     implicit none
@@ -25,7 +27,7 @@
        character(len=2)  :: car
 
        do
-          call system('cls')
+          call system(clear_string)
 
           write(unit=*,fmt="(a)") "     CRYSTRALLOGRAPHIC CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -102,7 +104,7 @@
        type (Space_Group_Type):: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Groups Information (Complete information on the Screen)"
@@ -118,12 +120,12 @@
           call set_spacegroup(line,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           call write_spacegroup(grp_espacial,full=.true.)
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
 
        end do
     End Subroutine Menu_Spgr_1
@@ -146,7 +148,7 @@
        type (Space_Group_type)          :: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "              GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     List of the full list of Symmetry Operators (File/Screen) "
@@ -162,7 +164,7 @@
           call set_spacegroup(line,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
 
@@ -206,7 +208,7 @@
           if (lun == 1) then
              close(1)
           else
-             call system("pause")
+             call Wait_Message(" => Press <enter> to continue ...")
           end if
 
           exit
@@ -235,7 +237,7 @@
 
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Space Group from Generators (Jones Faithful representation)"
@@ -253,7 +255,7 @@
              if(err_symtab) then
                write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                write(*,*) " "
-               call system("pause")
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
               ng=0
@@ -294,12 +296,12 @@
           call set_spacegroup(spgr,grp_espacial,gen,ng,mode='gen')
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           call write_spacegroup(grp_espacial,full=.true.)
           write(*,*)" "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           exit
        end do
@@ -322,7 +324,7 @@
        type (Space_Group_type)           :: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Hall Symbol from a set of Generators"
@@ -339,7 +341,7 @@
              if(err_symtab) then
                write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                write(*,*) " "
-               call system("pause")
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
 
@@ -378,14 +380,14 @@
           call set_spacegroup(spgr,grp_espacial,gen,ng,'gen')
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           call Get_HallSymb_from_Gener(grp_espacial,hall)
           write(unit=*,fmt=*)  " "
           write(unit=*,fmt=*)  "  Calculated Hall Symbol : "//hall
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           exit
        end do
@@ -415,7 +417,7 @@
        type (Space_Group_type)           :: grp_espacial1, grp_espacial2
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "       Comparison of Two Space Groups"
@@ -443,7 +445,7 @@
                    if(err_symtab) then
                      write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                      write(*,*) " "
-                     call system("pause")
+                     call Wait_Message(" => Press <enter> to continue ...")
                      cycle
                    end if
                    ng=0
@@ -481,7 +483,7 @@
                 call set_spacegroup(spgr,grp_espacial1,gen,ng,mode='gen ')
                 if(Err_Symm) then
                   write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-                  call system('pause')
+                  call Wait_Message(" => Press <enter> to continue ...")
                   cycle
                 end if
 
@@ -496,7 +498,7 @@
                    if(err_symtab) then
                      write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                      write(*,*) " "
-                     call system("pause")
+                     call Wait_Message(" => Press <enter> to continue ...")
                      cycle
                    end if
                    ng=0
@@ -544,7 +546,7 @@
                    if(err_symtab) then
                      write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                      write(*,*) " "
-                     call system("pause")
+                     call Wait_Message(" => Press <enter> to continue ...")
                      cycle
                    end if
                    ng=0
@@ -636,7 +638,7 @@
              write(unit=*,fmt=*) "  These Space Groups are NOT EQUAL"
           end if
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
        end do
 
@@ -653,7 +655,7 @@
        type (Space_Group_type)    :: grp_espacial
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Determination of the Laue class and Point Group "
@@ -669,7 +671,7 @@
           call set_spacegroup(spgr,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
 
@@ -684,7 +686,7 @@
           write(*,'(6x,a5,10x,a5,13x,a5,10x,a5)') grp_espacial%laue,grp_espacial%pg, &
                                                  laue_car,point_car
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
        end do
 
@@ -708,7 +710,7 @@
        real, dimension(3,24)             :: ts
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Derivation symbols for symmetry operations"
@@ -725,7 +727,7 @@
              if(err_symtab) then
                write(unit=*,fmt="(a)") " => "//ERR_SymTab_Mess
                write(*,*) " "
-               call system("pause")
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              ng=0
@@ -771,7 +773,7 @@
              write(unit=*,fmt='(a,6x,a)')    "    Symbol: ",trim(simbolo)//"   "//trim(symb)
           end do
           write(*,*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Spgr_7
@@ -789,7 +791,7 @@
        call Set_Spgr_Info()
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "     Conversion of Symmetry Operators of Space Groups"
@@ -806,14 +808,14 @@
           call set_spacegroup(spgr,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
 
           !---- Systematic Conversions ----!
           call write_spacegroup(grp_espacial)
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) " IT -> ML"
@@ -823,7 +825,7 @@
           write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) " IT -> KO"
@@ -833,7 +835,7 @@
           write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) " IT -> ZA"
@@ -843,7 +845,7 @@
           write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           write(unit=*,fmt=*) " "
           write(unit=*,fmt=*) " IT -> BC"
@@ -853,7 +855,7 @@
           write(unit=*,fmt=*) " Inverse of Applied Transformation: ",IAppl_trs
           call write_spacegroup(grp_modified)
           write(unit=*,fmt=*) " "
-          call system("pause")
+          call Wait_Message(" => Press <enter> to continue ...")
 
           exit
 
@@ -875,7 +877,7 @@
        call Set_Spgr_Info()
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "             Wyckoff Information "
@@ -891,12 +893,12 @@
           call set_spacegroup(line,grp_espacial)
           if(Err_Symm) then
             write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
-            call system('pause')
+            call Wait_Message(" => Press <enter> to continue ...")
             cycle
           end if
           call Get_Wyckoff(grp_espacial)
            write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
           exit
        end do
 
@@ -917,7 +919,7 @@
        call Set_Spgr_Info()
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "             Wyckoff Information "
@@ -947,7 +949,7 @@
 
           close(unit=1)
            write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
           exit
        end do
 

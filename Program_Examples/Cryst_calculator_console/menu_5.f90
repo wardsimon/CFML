@@ -5,12 +5,14 @@
 !!
  Module Menu_5
    !---- Use File ----!
+   use Menu_0
    use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Set_Crystal_Cell, Write_Crystal_Cell, &
                                     Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
    use CFML_Math_3D,          only: Determ_V,invert_a, determ_a, Cross_Product
    use CFML_Math_General,     only: cosd, norm, scalar,co_prime,co_Linear,equal_vector, acosd, sind, asind
    use CFML_String_Utilities, only: L_Case, pack_string, Get_Mat_From_Symb, Err_String, ERR_String_Mess
+   use CFML_IO_Messages,      only: Wait_Message
 
 
    !---- Variables ----!
@@ -39,7 +41,7 @@
        character(len=2)  :: car
 
        do
-          call system('cls')
+          call system(clear_string)
 
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -124,7 +126,7 @@
        real, dimension(3)       :: Cellv,Angl
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") " [0] Back..."
@@ -155,7 +157,7 @@
                read(unit=line,fmt=*,iostat=ierr) Cellv,Angl
                if(ierr /= 0) then
                   write(unit=*,fmt="(a)") " -> Error in the unit cell parameters ... retry!"
-                  call system("pause ")
+                  call Wait_Message(" => Press <enter> to continue ...")
                   cycle
                end if
                call Set_Crystal_Cell(Cellv,Angl,Celda,Cartype=Cart_Type)
@@ -169,7 +171,7 @@
                end if
           End Select
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_1
     !!----
@@ -182,7 +184,7 @@
        integer, dimension(3)  :: h1,h2,u
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -198,7 +200,7 @@
           read(unit=line,fmt=*,iostat=ierr) h1
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
           write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second plane (<cr> for exit): "
@@ -208,7 +210,7 @@
           read(unit=line,fmt=*,iostat=ierr) h2
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
           u=Cross_Product(h1,h2)
@@ -216,7 +218,7 @@
           write(unit=*,fmt="(a)")  "    ==============  ==============    ============ "
           write(unit=*,fmt="(3(tr4,3i4))") h1,h2,u
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_2
@@ -231,7 +233,7 @@
        real                   :: angle,mu,mv
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -248,7 +250,7 @@
              read(unit=line,fmt=*,iostat=ierr) u
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second direction (<cr> for exit): "
@@ -258,7 +260,7 @@
              read(unit=line,fmt=*,iostat=ierr) v
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              uc=Cart_Vector("D",u,Celda)
@@ -269,7 +271,7 @@
              mv=sqrt(dot_Product(vc,vc))
              if(mu < eps .or. mv < eps) then
                  write(unit=*,fmt="(a)") " -> One of the directions is [0 0 0] ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              angle=dot_Product(uc,vc)/mu/mv
@@ -282,11 +284,11 @@
              write(unit=*,fmt="(2(a, f10.5))")     "     Angle:",angle, " degrees  or  180-Angle:",180.0-angle
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_3
@@ -302,7 +304,7 @@
        real                   :: angle,mh,mk
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -319,7 +321,7 @@
              read(unit=line,fmt=*,iostat=ierr) h
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the second direction (<cr> for exit): "
@@ -329,7 +331,7 @@
              read(unit=line,fmt=*,iostat=ierr) k
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -343,7 +345,7 @@
              mk=sqrt(dot_Product(kc,kc))
              if(mh < eps .or. mk < eps) then
                  write(unit=*,fmt="(a)") " -> One of the directions is [0 0 0] ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              angle=dot_Product(hc,kc)/mh/mk
@@ -356,11 +358,11 @@
              write(unit=*,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or  180-Angle: ",180.0-Angle
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_4
@@ -376,7 +378,7 @@
        real                   :: angle,mh,mu
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -393,7 +395,7 @@
              read(unit=line,fmt=*,iostat=ierr) h
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " => Enter the indices of the direct direction (<cr> for exit): "
@@ -403,7 +405,7 @@
              read(unit=line,fmt=*,iostat=ierr) u
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -415,7 +417,7 @@
              mu=sqrt(dot_Product(uc,uc))
              if(mh < eps .or. mu < eps) then
                  write(unit=*,fmt="(a)") " -> One of the directions is [0 0 0] ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              angle=dot_Product(h,u)/mh/mu
@@ -428,11 +430,11 @@
              write(unit=*,fmt="(2(a,f10.5))")     "     Angle:",angle, " degrees  or 180-Angle:",180.0-angle
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_5
@@ -448,7 +450,7 @@
        real                   :: mu,mv
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -465,7 +467,7 @@
              read(unit=line,fmt=*,iostat=ierr) u
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -476,7 +478,7 @@
              mv=sqrt(dot_Product(vc,vc))
              if(mu < eps) then
                  write(unit=*,fmt="(a)") " -> The directions is [0 0 0] ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              uc=uc/mu
@@ -487,11 +489,11 @@
 
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
 
@@ -508,7 +510,7 @@
        real                   :: mu,mv
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -525,7 +527,7 @@
              read(unit=line,fmt=*,iostat=ierr) u
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -536,7 +538,7 @@
              mv=sqrt(dot_Product(vc,vc))
              if(mu < eps) then
                  write(unit=*,fmt="(a)") " -> The directions is [0 0 0] ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              uc=uc/mu
@@ -547,11 +549,11 @@
 
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_7
 
@@ -567,7 +569,7 @@
        integer                  :: i
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -585,7 +587,7 @@
              call Get_Mat_From_Symb(Symb,Mat,(/"a","b","c"/))
              if(Err_String) then
                write(unit=*,fmt="(a)") " => "//trim(Err_String_Mess)
-               call system("pause ")
+               call Wait_Message(" => Press <enter> to continue ...")
                cycle
              end if
              write(unit=*,fmt="(a)") " => Matrix corresponding to trasformation: "//trim(Symb)
@@ -599,11 +601,11 @@
              call Write_Crystal_Cell(Celln)
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_8
 
@@ -623,7 +625,7 @@
        Logical                :: ok
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -640,14 +642,14 @@
              read(unit=line,fmt=*,iostat=ierr) u
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " => Enter the number of special inter-face angles to match (<cr> for exit): "
              read(*,*,iostat=ierr) n_angles
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in n_angles ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              if(n_angles > 0) then
@@ -669,7 +671,7 @@
              read(unit=line,fmt=*,iostat=ierr) dmin
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in dmin ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -725,11 +727,11 @@
              end if
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_9
 
@@ -750,7 +752,7 @@
        Logical                :: ok,v21,v41,v22,v42,vv
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -767,7 +769,7 @@
              read(unit=line,fmt=*,iostat=ierr) h
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              nedges=4
@@ -785,7 +787,7 @@
              read(unit=line,fmt=*,iostat=ierr) n_max
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in n_max ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -957,16 +959,16 @@
                 end do
               else
                 write(unit=*,fmt="(a)") " => NO solution! ... increase tolerance?"
-                call system("pause ")
+                call Wait_Message(" => Press <enter> to continue ...")
                 cycle
               end if
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_10
 
@@ -983,7 +985,7 @@
        real                   :: ang,ang1,ang2,mc1,mc2,dmin
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -1000,7 +1002,7 @@
           read(unit=line,fmt=*,iostat=ierr) h1
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
           write(unit=*,fmt="(a)",advance="no") " => Enter the indices [uvw] of the Zone Axis (<cr> for exit): "
@@ -1010,7 +1012,7 @@
           read(unit=line,fmt=*,iostat=ierr) u
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
 
@@ -1021,7 +1023,7 @@
           read(unit=line,fmt=*,iostat=ierr) ang1,ang2
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in ang1-ang2 ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
 
@@ -1032,7 +1034,7 @@
           read(unit=line,fmt=*,iostat=ierr) dmin
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in dmin ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
           hmax=nint(Celda%cell(1)/dmin+1.0)
@@ -1063,7 +1065,7 @@
             end do
           end do
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_11
@@ -1089,7 +1091,7 @@
        real                   :: angu,angv,angw,Chi,Phi,Theta,mc
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -1106,7 +1108,7 @@
           read(unit=line,fmt=*,iostat=ierr) Chi, Phi, Theta
           if(ierr /= 0) then
               write(unit=*,fmt="(a)") " -> Error in the angles ... retry!"
-              call system("pause ")
+              call Wait_Message(" => Press <enter> to continue ...")
               cycle
           end if
           ! Calculate the unitary vectors of the Cartesian system
@@ -1133,7 +1135,7 @@
             read(unit=line,fmt=*,iostat=ierr) h
             if(ierr /= 0) then
                 write(unit=*,fmt="(a)") " -> Error in the components ... retry!"
-                call system("pause ")
+                call Wait_Message(" => Press <enter> to continue ...")
                 cycle
             else
                 exit
@@ -1162,7 +1164,7 @@
             read(unit=line,fmt=*,iostat=ierr) h
             if(ierr /= 0) then
                 write(unit=*,fmt="(a)") " -> Error in the components ... retry!"
-                call system("pause ")
+                call Wait_Message(" => Press <enter> to continue ...")
                 cycle
             else
                 exit
@@ -1183,7 +1185,7 @@
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(v,h) =",angv," Complementary:",180.0-angv
           Write(unit=*,fmt="(2(a,f10.5))") "    Angle(w,h) =",angw," Complementary:",180.0-angw
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
 
     End Subroutine Menu_Geom_12
@@ -1205,7 +1207,7 @@
        Logical                :: ok,cond,v13,v14,v23,v24
 
        do
-          call system('cls')
+          call system(clear_string)
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)") "        GENERAL CRYSTALLOGRAPHY CALCULATOR "
           write(unit=*,fmt="(a)") " "
@@ -1222,14 +1224,14 @@
              read(unit=line,fmt=*,iostat=ierr) h
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in the indices ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              write(unit=*,fmt="(a)",advance="no") " => Enter the number of edges (<cr> for exit): "
              read(*,*,iostat=ierr) nedges
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in nedges ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
              if(allocated(angs)) deallocate(angs)
@@ -1250,7 +1252,7 @@
              read(unit=line,fmt=*,iostat=ierr) n_max
              if(ierr /= 0) then
                  write(unit=*,fmt="(a)") " -> Error in n_max ... retry!"
-                 call system("pause ")
+                 call Wait_Message(" => Press <enter> to continue ...")
                  cycle
              end if
 
@@ -1405,11 +1407,11 @@
              end do
           else
              write(unit=*,fmt="(a)") " -> The unit cell must be given first !"
-             call system("pause ")
+             call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
           write(unit=*,fmt=*) " "
-          call system("pause ")
+          call Wait_Message(" => Press <enter> to continue ...")
        end do
     End Subroutine Menu_Geom_12a
 
