@@ -22,6 +22,8 @@
     type (Atom_list_Type)       :: A
     type (Crystal_Cell_Type)    :: Cell
     real, parameter :: eps=0.00001
+    real            :: qcellp=0.0 , qcellm=0.0
+    logical         :: neutral=.true.
 
  Contains
 
@@ -142,7 +144,6 @@
        integer               :: i
        logical               :: esta
 
-
        do
           call system(clear_string)
           write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
@@ -189,6 +190,16 @@
           else
              write(unit=*,fmt="(a)") " => File: "//trim(line)//" successfully read!"
              structure_read=.true.
+             qcellp=0.0
+             qcellm=0.0
+             do i=1,A%natoms
+               if(A%atom(i)%charge > 0.01)  then
+                 qcellp=qcellp+A%atom(i)%Mult*A%atom(i)%charge
+               else
+                 qcellm=qcellm+A%atom(i)%Mult*abs(A%atom(i)%charge)
+               end if
+             end do
+             if(abs(qcellp-qcellm) > eps) neutral=.false.
              call Wait_Message(" => Press <enter> to continue ...")
              exit
           end if
@@ -231,6 +242,8 @@
        call system(clear_string)
        write(unit=*,fmt="(/a/)") " => ATOMS information: "
        call Write_Atom_List(A,level=1)
+       write(unit=*,fmt="(/a,f8.4)") " => Total positive charge per unit cell: ",qcellp
+       write(unit=*,fmt="(a,f8.4/)") " => Total negative charge per unit cell: ",-qcellm
        call Wait_Message(" => Press <enter> to continue ...")
 
     End Subroutine Menu_Atom_3
@@ -238,9 +251,185 @@
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
        character(len=20)     :: line
+       integer               :: i,j,Mult,la,lb,lc,lam,lbm,lcm
+       real                  :: q, pol,ang,ncells
+       real, dimension(3)    :: pos,r_frac, r_pol
+       real, dimension(3,192):: orb
+       logical               :: calc_possible=.true.
+
+       call system(clear_string)
+       write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") "     Atomistic Calculations "
+       write(unit=*,fmt="(a)") " ================================"
+       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
+       write(unit=*,fmt="(a)") " "
+
+       do i=1,A%natoms
+         if(abs(A%atom(i)%charge) <= 0.001)  then
+           calc_possible=.false.
+           exit
+         end if
+       end do
+       if( .not. calc_possible .or. .not. neutral) then
+         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided or the crystal is not neutral! "
+         call Wait_Message(" => Press <enter> to continue ...")
+         return
+       end if
+       if(SpG%Centred /= 1) then
+         write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
+         call Wait_Message(" => Press <enter> to continue ...")
+         return
+       end if
+       write(unit=*,fmt="(a)",advance="no") " => Enter the extend in unit cells (lam,lbm,lcm): "
+       read(unit=*,fmt=*) lam,lbm,lcm
+       r_frac=0.0
+       ncells=(2*lam+1)*(2*lbm+1)*(2*lcm+1)
+       do i=1,A%natoms
+         pos=A%atom(i)%x
+         q=A%atom(i)%charge
+         call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
+         write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
+         do j=1,Mult
+           do la=-lam,lam
+             do lb=-lbm,lbm
+               do lc=-lcm,lcm
+                 pos=orb(:,j)+real((/la,lb,lc/))
+                 r_frac=r_frac+pos*q
+               end do
+             end do
+           end do
+         end do
+       end do
+       r_frac=r_frac/ncells
+       r_pol=Cart_Vector("D",r_frac,Cell)
+       pol=sqrt(dot_product(r_pol,r_pol))
+
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
+       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       if(pol > eps) then
+         cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+       end if
+       call Wait_Message(" => Press <enter> to continue ...")
+
+    End Subroutine Menu_Atom_4
+
+    Subroutine Menu_Atom_4s()
+       !---- Local Variables ----!
+       character(len=20)     :: line
+       integer               :: i,j,Mult,la,lb,lc
+       real                  :: q, qp,qm,pol,ang
+       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol, u_plus, u_minus, rt,vc
+       real, dimension(3,192):: orb
+       logical               :: calc_possible=.true.
+
+       call system(clear_string)
+       write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+       write(unit=*,fmt="(a)") " "
+       write(unit=*,fmt="(a)") "     Atomistic Calculations "
+       write(unit=*,fmt="(a)") " ================================"
+       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
+       write(unit=*,fmt="(a)") " "
+
+       do i=1,A%natoms
+         if(abs(A%atom(i)%charge) <= 0.001)  then
+           calc_possible=.false.
+           exit
+         end if
+       end do
+       if( .not. calc_possible .or. .not. neutral) then
+         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided or the crystal is not neutral! "
+         call Wait_Message(" => Press <enter> to continue ...")
+         return
+       end if
+       if(SpG%Centred /= 1) then
+         write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
+         call Wait_Message(" => Press <enter> to continue ...")
+         return
+       end if
+       r_plus=0.0; r_minus=0.0
+
+
+       do i=1,A%natoms
+          pos=A%atom(i)%x
+          q=A%atom(i)%charge
+          call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
+          write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
+          if( q > 0.0) then
+             u_plus=0.0
+             do j=1,Mult
+               do la=-2,2
+                 do lb=-2,2
+                   do lc=-2,2
+                     pos=orb(:,j)+real((/la,lb,lc/))
+                     cpos=Cart_Vector("D",pos,Cell)
+                     u_plus=u_plus+cpos
+                   end do
+                 end do
+               end do
+             end do
+             r_plus=r_plus+u_plus/real(Mult*125)   !*q
+          else
+             u_minus=0.0
+             do j=1,Mult
+               do la=-2,2
+                 do lb=-2,2
+                   do lc=-2,2
+                     pos=orb(:,j)+real((/la,lb,lc/))
+                     cpos=Cart_Vector("D",pos,Cell)
+                     u_minus=u_minus+cpos
+                   end do
+                 end do
+               end do
+             end do
+             r_minus=r_minus+u_minus/real(Mult*125)   !*q
+          end if
+       end do
+       !r_plus=r_plus/qp     !Cartesian vectors giving the c.o.g of charges
+       !r_minus=r_minus/qm
+       u_plus=r_plus/Cell%Cell
+       u_minus=r_minus/Cell%Cell
+       r_pol=qcellp*(r_plus-r_minus)  !Dipole moment vector
+       pol=sqrt(dot_product(r_pol,r_pol))
+
+       write(unit=*,fmt="(a,2(3f12.5,a))")  " => Q+ charge centre. Cartesian Coordinates: (",r_plus, " ). Fractional Coordinates (",u_plus, " )"
+       write(unit=*,fmt="(a,2(3f12.5,a))")  " => Q- charge centre. Cartesian Coordinates: (",r_minus," ). Fractional Coordinates (",u_minus, " )"
+
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
+       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
+       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       if(pol > eps) then
+         cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
+         ang=Angle_Vect(cpos, r_pol)
+         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+       end if
+       call Wait_Message(" => Press <enter> to continue ...")
+
+    End Subroutine Menu_Atom_4s
+
+    Subroutine Menu_Atom_4old()
+       !---- Local Variables ----!
+       character(len=20)     :: line
        integer               :: i,j,Mult
        real                  :: q, qp,qm,pol,ang
-       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol,u_pol, rt,vc
+       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol, rt,vc
        real, dimension(3,192):: orb
        logical               :: calc_possible=.true.
 
@@ -325,8 +514,7 @@
        end if
        call Wait_Message(" => Press <enter> to continue ...")
 
-    End Subroutine Menu_Atom_4
-
+    End Subroutine Menu_Atom_4old
 
     Function Angle_vect(u,v) Result(angle)
       real, dimension(:), intent(in) :: u,v

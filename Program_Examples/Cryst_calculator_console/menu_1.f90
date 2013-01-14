@@ -45,7 +45,7 @@
           write(unit=*,fmt="(a)") " [ 6] Determination of the Laue class and Point Group"
           write(unit=*,fmt="(a)") " [ 7] Determination of the Symbol for Symmetry Operators"
           write(unit=*,fmt="(a)") " [ 8] Conversions: IT -> Kovalev, Miller&Love, Zack, etc..."
-          write(unit=*,fmt="(a)") " [ 9] Wyckoff Positions (Testing...)"
+          !write(unit=*,fmt="(a)") " [ 9] Wyckoff Positions (Testing...)"
           !write(unit=*,fmt="(a)") " [10] Wyckoff for all Groups (Testing...)"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
@@ -81,8 +81,8 @@
              case ('8 ')
                 call Menu_SPGR_8()
 
-             case ('9 ','10')
-                call Menu_SPGR_9()
+             !case ('9 ')
+             !   call Menu_SPGR_9()
 
              !case ('10')
              !   call Menu_SPGR_10()
