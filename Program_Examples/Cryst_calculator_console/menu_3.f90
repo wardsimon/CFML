@@ -49,7 +49,7 @@
           write(unit=*,fmt="(a)") " [1] Multiplicity of an atom position"
           write(unit=*,fmt="(a)") " [2] Read a CFL or CIF file to load a crystal structure"
           write(unit=*,fmt="(a)") " [3] Show current structure information"
-          write(unit=*,fmt="(a)") " [4] Calculate Ionic Dipolar moment & polarisation"
+          write(unit=*,fmt="(a)") " [4] Calculate Ionic Dipolar moment & polarisation of a symmetrized single unit cell"
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
           if (len_trim(car) == 0) exit
@@ -251,57 +251,116 @@
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
        character(len=20)     :: line
-       integer               :: i,j,Mult,la,lb,lc,lam,lbm,lcm
-       real                  :: q, pol,ang,ncells
-       real, dimension(3)    :: pos,r_frac, r_pol
-       real, dimension(3,192):: orb
+       integer               :: i,j,Mult,m
+       real                  :: q, qp,pol,ang
+       real, dimension(3)    :: pos,cpos,r_frac, r_pol
+       real, dimension(3,384):: orb !increased to take into account the surface atoms
+       real, dimension(  384):: qat !New charges
        logical               :: calc_possible=.true.
 
        call system(clear_string)
-       write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
+       write(unit=*,fmt="(a)") "               GENERAL CRYSTALLOGRAPHY CALCULATOR "
        write(unit=*,fmt="(a)") " "
-       write(unit=*,fmt="(a)") "     Atomistic Calculations "
-       write(unit=*,fmt="(a)") " ================================"
-       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
+       write(unit=*,fmt="(a)") "                     Atomistic Calculations "
+       write(unit=*,fmt="(a)") " ======================================================================="
+       write(unit=*,fmt="(a)") " Calculating the ionic polarisation of a single symmetrized unit cell..."
        write(unit=*,fmt="(a)") " "
-
        do i=1,A%natoms
          if(abs(A%atom(i)%charge) <= 0.001)  then
            calc_possible=.false.
            exit
          end if
        end do
-       if( .not. calc_possible .or. .not. neutral) then
-         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided or the crystal is not neutral! "
+       if( .not. calc_possible) then
+         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided! "
          call Wait_Message(" => Press <enter> to continue ...")
          return
        end if
-       if(SpG%Centred /= 1) then
-         write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
-         call Wait_Message(" => Press <enter> to continue ...")
-         return
-       end if
-       write(unit=*,fmt="(a)",advance="no") " => Enter the extend in unit cells (lam,lbm,lcm): "
-       read(unit=*,fmt=*) lam,lbm,lcm
-       r_frac=0.0
-       ncells=(2*lam+1)*(2*lbm+1)*(2*lcm+1)
+       !if(SpG%Centred /= 1) then
+       !  write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
+       !  call Wait_Message(" => Press <enter> to continue ...")
+       !  return
+       !end if
        do i=1,A%natoms
-         pos=A%atom(i)%x
-         q=A%atom(i)%charge
-         call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
-         write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
-         do j=1,Mult
-           do la=-lam,lam
-             do lb=-lbm,lbm
-               do lc=-lcm,lcm
-                 pos=orb(:,j)+real((/la,lb,lc/))
-                 r_frac=r_frac+pos*q
-               end do
-             end do
-           end do
-         end do
+          pos=A%atom(i)%x
+          q=A%atom(i)%charge
+          call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
+          !Treatment of atoms at origin, edges and faces
+          m=0; qat=0.0
+          do j=1,Mult
+            !Testing 0,0,0
+            if(abs(orb(1,j)) < eps .and. abs(orb(2,j)) < eps  .and. abs(orb(3,j)) < eps  ) Then !atom at the origin
+              qp=0.125*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = [1.0,0.0,0.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [0.0,1.0,0.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [0.0,0.0,1.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [1.0,1.0,0.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [1.0,0.0,1.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [0.0,1.0,1.0] ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = [1.0,1.0,1.0] ; qat(Mult+m)=qp
+            else if(abs(orb(1,j)) < eps .and. abs(orb(2,j)) < eps  ) Then !atom in z-edge
+              qp=0.25*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [1.0,1.0,0.0]  ; qat(Mult+m)=qp
+            else if(abs(orb(1,j)) < eps .and. abs(orb(3,j)) < eps  ) Then !atom in y-edge
+              qp=0.25*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,1.0]  ; qat(Mult+m)=qp
+            else if(abs(orb(2,j)) < eps .and. abs(orb(3,j)) < eps ) Then !atom in x-edge
+              qp=0.25*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,1.0]  ; qat(Mult+m)=qp
+            else if(abs(orb(1,j)) < eps ) Then !atom in yz-plane
+              qp=0.5*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+            else if(abs(orb(2,j)) < eps ) Then !atom in xz-plane
+              qp=0.5*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+            else if(abs(orb(3,j)) < eps ) Then !atom in xy-plane
+              qp=0.5*q
+              qat(j)=qp
+              m=m+1
+              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+            end if
+          end do
+          Mult=Mult+m
+          write(unit=*,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge,"     Modified Multiplicity:",mult
+          cpos=0.0
+          do j=1,Mult
+            r_frac=r_frac+(orb(:,j)-[0.5,0.5,0.5])*qat(j)
+            cpos=cpos+(orb(:,j)-[0.5,0.5,0.5])
+          end do
+         cpos=cpos/real(mult)
+         write(unit=*,fmt="(a,3f10.5,a)") "    Average of vector positions: (",cpos," )"
        end do
-       r_frac=r_frac/ncells
+
        r_pol=Cart_Vector("D",r_frac,Cell)
        pol=sqrt(dot_product(r_pol,r_pol))
 
@@ -323,198 +382,6 @@
        call Wait_Message(" => Press <enter> to continue ...")
 
     End Subroutine Menu_Atom_4
-
-    Subroutine Menu_Atom_4s()
-       !---- Local Variables ----!
-       character(len=20)     :: line
-       integer               :: i,j,Mult,la,lb,lc
-       real                  :: q, qp,qm,pol,ang
-       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol, u_plus, u_minus, rt,vc
-       real, dimension(3,192):: orb
-       logical               :: calc_possible=.true.
-
-       call system(clear_string)
-       write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
-       write(unit=*,fmt="(a)") " "
-       write(unit=*,fmt="(a)") "     Atomistic Calculations "
-       write(unit=*,fmt="(a)") " ================================"
-       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
-       write(unit=*,fmt="(a)") " "
-
-       do i=1,A%natoms
-         if(abs(A%atom(i)%charge) <= 0.001)  then
-           calc_possible=.false.
-           exit
-         end if
-       end do
-       if( .not. calc_possible .or. .not. neutral) then
-         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided or the crystal is not neutral! "
-         call Wait_Message(" => Press <enter> to continue ...")
-         return
-       end if
-       if(SpG%Centred /= 1) then
-         write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
-         call Wait_Message(" => Press <enter> to continue ...")
-         return
-       end if
-       r_plus=0.0; r_minus=0.0
-
-
-       do i=1,A%natoms
-          pos=A%atom(i)%x
-          q=A%atom(i)%charge
-          call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
-          write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
-          if( q > 0.0) then
-             u_plus=0.0
-             do j=1,Mult
-               do la=-2,2
-                 do lb=-2,2
-                   do lc=-2,2
-                     pos=orb(:,j)+real((/la,lb,lc/))
-                     cpos=Cart_Vector("D",pos,Cell)
-                     u_plus=u_plus+cpos
-                   end do
-                 end do
-               end do
-             end do
-             r_plus=r_plus+u_plus/real(Mult*125)   !*q
-          else
-             u_minus=0.0
-             do j=1,Mult
-               do la=-2,2
-                 do lb=-2,2
-                   do lc=-2,2
-                     pos=orb(:,j)+real((/la,lb,lc/))
-                     cpos=Cart_Vector("D",pos,Cell)
-                     u_minus=u_minus+cpos
-                   end do
-                 end do
-               end do
-             end do
-             r_minus=r_minus+u_minus/real(Mult*125)   !*q
-          end if
-       end do
-       !r_plus=r_plus/qp     !Cartesian vectors giving the c.o.g of charges
-       !r_minus=r_minus/qm
-       u_plus=r_plus/Cell%Cell
-       u_minus=r_minus/Cell%Cell
-       r_pol=qcellp*(r_plus-r_minus)  !Dipole moment vector
-       pol=sqrt(dot_product(r_pol,r_pol))
-
-       write(unit=*,fmt="(a,2(3f12.5,a))")  " => Q+ charge centre. Cartesian Coordinates: (",r_plus, " ). Fractional Coordinates (",u_plus, " )"
-       write(unit=*,fmt="(a,2(3f12.5,a))")  " => Q- charge centre. Cartesian Coordinates: (",r_minus," ). Fractional Coordinates (",u_minus, " )"
-
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
-       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
-       if(pol > eps) then
-         cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
-       end if
-       call Wait_Message(" => Press <enter> to continue ...")
-
-    End Subroutine Menu_Atom_4s
-
-    Subroutine Menu_Atom_4old()
-       !---- Local Variables ----!
-       character(len=20)     :: line
-       integer               :: i,j,Mult
-       real                  :: q, qp,qm,pol,ang
-       real, dimension(3)    :: pos,cpos,r_plus, r_minus, r_pol, rt,vc
-       real, dimension(3,192):: orb
-       logical               :: calc_possible=.true.
-
-       call system(clear_string)
-       write(unit=*,fmt="(a)") "     GENERAL CRYSTALLOGRAPHY CALCULATOR "
-       write(unit=*,fmt="(a)") " "
-       write(unit=*,fmt="(a)") "     Atomistic Calculations "
-       write(unit=*,fmt="(a)") " ================================"
-       write(unit=*,fmt="(a)") " Calculating the ionic polarisation ..."
-       write(unit=*,fmt="(a)") " "
-       do i=1,A%natoms
-         if(abs(A%atom(i)%charge) <= 0.001)  then
-           calc_possible=.false.
-           exit
-         end if
-       end do
-       if( .not. calc_possible) then
-         write(unit=*,fmt="(a)") " => Calculation of P impossible. No charges have been provided! "
-         call Wait_Message(" => Press <enter> to continue ...")
-         return
-       end if
-       !if(SpG%Centred /= 1) then
-       !  write(unit=*,fmt="(a)") " => Polarisation = 0.0 Centrosymmetric Crystal! "
-       !  call Wait_Message(" => Press <enter> to continue ...")
-       !  return
-       !end if
-       r_plus=0.0; r_minus=0.0
-       qp=0.0; qm=0.0
-       vc=[0.5,0.5,0.5] !Centre of the unit cell with respet to which we take the vector positions
-       if(SpG%Centred == 1) vc=0.0
-       write(unit=*,fmt="(a,3f7.2,a)") " => Origin of vector positions taken at: (",vc," )"
-
-       do i=1,A%natoms
-          pos=A%atom(i)%x
-          q=A%atom(i)%charge
-          call Get_Orbit(pos,SpG,Mult,orb) !here the orbit has always positive coordinates
-          rt=0.0
-          do j=1,Mult
-            rt=rt + orb(:,j)-vc
-          end do
-          if (.not. Lattice_trans(rt,Spg%spg_lat)) rt=0.0 !If non-centrosymmetric no problem
-          orb(:,mult)= orb(:,mult)-rt  !Apply a lattice translation to have vector sum = 0
-          write(unit=*,fmt="(a,f8.2,a,3f10.5)") " => Atom: "//trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge
-          do j=1,Mult
-            pos=orb(:,j)-vc  !calculate positions w.r.t. centre of the cell
-            cpos=Cart_Vector("D",pos,Cell)
-            if( q > 0.0) then
-               qp=qp+q
-               r_plus=r_plus+cpos*q
-            else
-               qm=qm+abs(q)
-               r_minus=r_minus+cpos*abs(q)
-            end if
-            write(unit=*,fmt="(a,i3,a,3f9.5,3f11.4)") "   ",j,": ",pos,cpos
-          end do
-       end do
-       if(abs(qp-qm) > eps) then
-         write(unit=*,fmt="(a,2f10.2)") " => Warning! The crystal is NOT NEUTRAL! -> Q+, Q-: ",qp,qm
-       end if
-       r_plus=r_plus/qp     !Cartesian vectors giving the c.o.g of charges
-       r_minus=r_minus/qm
-       r_pol=qp*(r_plus-r_minus)  !Dipole moment vector
-       pol=sqrt(dot_product(r_pol,r_pol))
-
-       write(unit=*,fmt="(a,3f12.5,a)")  " => Q+ charge centre : (",r_plus," )"
-       write(unit=*,fmt="(a,3f12.5,a)")  " => Q- charge centre : (",r_minus," )"
-
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
-       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
-       if(pol > eps) then
-         cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
-         ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
-       end if
-       call Wait_Message(" => Press <enter> to continue ...")
-
-    End Subroutine Menu_Atom_4old
 
     Function Angle_vect(u,v) Result(angle)
       real, dimension(:), intent(in) :: u,v

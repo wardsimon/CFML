@@ -2885,20 +2885,21 @@
     End Subroutine Get_Laue_Str
 
     !!----
-    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim)
+    !!----  Subroutine Get_Orbit(X,Spg,Mult,orb,ptr,prim,symm)
     !!----    real(kind=cp), dimension(3),  intent (in) :: x     !  In -> Position vector
     !!----    type(Space_Group_type),       intent (in) :: spgr  !  In -> Space Group
     !!----    integer,                      intent(out) :: mult  !  Out -> Multiplicity
     !!----    real(kind=cp), dimension(:,:),intent(out) :: orb   !  Out -> List of equivalent positions
     !!----    integer,dimension(:),optional,intent(out) :: ptr   !  Out -> Pointer to the symmetry elements
     !!----    character(len=*),    optional,intent( in) :: prim  !  In  -> If given, only the primitive cell is considered
+    !!----    character(len=*),    optional,intent( in) :: symm  !  In  -> If given, the coordinates are normalized as to be -1/2 <= x <1/2
     !!----
     !!----    Obtain the multiplicity and list of equivalent positions
-    !!----    (including centring!) modulo integer lattice translations.
+    !!----    (including centring!) modulo integer lattice translations or within the range [-1/2,1/2) if symm is given.
     !!----
     !!---- Update: June - 2011 (JRC - removing pointer to stabilizer)
     !!
-    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,prim)
+    Subroutine Get_Orbit(x,Spg,Mult,orb,ptr,prim,symm)
        !---- Arguments ----!
        real(kind=cp), dimension(3),  intent (in) :: x
        type(Space_Group_type),       intent (in) :: spg
@@ -2906,6 +2907,7 @@
        real(kind=cp),dimension(:,:), intent(out) :: orb
        integer,dimension(:),optional,intent(out) :: ptr
        character(len=*),    optional,intent( in) :: prim
+       character(len=*),    optional,intent( in) :: symm
 
        !---- Local variables ----!
        integer                                :: j, nt
@@ -2931,6 +2933,15 @@
           orb(:,mult)=xx(:)
           if(present(ptr)) ptr(mult) = j   !Effective symop
        end do ext
+
+       if(present(symm)) then
+         !Normalize the coordinates to be -1/2 <= x < 1/2
+         do j=1,Mult
+           do nt=1,3
+              if(Orb(nt,j) >= 0.5) Orb(nt,j)= Orb(nt,j) - 1.0
+           end do
+         end do
+       end if
 
        return
     End Subroutine Get_Orbit
