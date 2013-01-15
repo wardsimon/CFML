@@ -3,7 +3,7 @@
   !!----  Author: Juan Rodriguez-Carvajal, ILL (2008)
   !!----
   !!---- This program needs as input unit cell parameters and provides the conventional
-  !!---- unit cell parameters and the trasformation matrix between the input cell and
+  !!---- unit cell parameters and the transformation matrix between the input cell and
   !!---- the conventional cell(s). The program is similar to REDUC from Yvon Le Page but
   !!---- it has been developed from the scratch using new procedures that are in CrysFML.
   !!---- These procedures are based on well known articles of the literature about
