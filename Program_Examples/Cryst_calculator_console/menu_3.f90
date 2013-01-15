@@ -251,9 +251,9 @@
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
        character(len=20)     :: line
-       integer               :: i,j,Mult,m
-       real                  :: q, qp,pol,ang
-       real, dimension(3)    :: pos,cpos,r_frac, r_pol
+       integer               :: i,j,Mult,m ,la,lb,lc,lam,lbm,lcm,np,nm
+       real                  :: q, qp,pol,ang,ncell,dist
+       real, dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus
        real, dimension(3,384):: orb !increased to take into account the surface atoms
        real, dimension(  384):: qat !New charges
        logical               :: calc_possible=.true.
@@ -281,6 +281,12 @@
        !  call Wait_Message(" => Press <enter> to continue ...")
        !  return
        !end if
+      ! write(unit=*,fmt="(a)",advance="no")  " => Enter supercell extend (la,lb,lcm): "
+      ! read(unit=*,fmt=*) lam,lbm,lcm
+       lam=0; lbm=0; lcm=0
+       ncell=(2*lam+1)*(2*lbm+1)*(2*lcm+1)
+       !write(unit=*,fmt="(a,i10,a)")  " => Calculation for: ",nint(ncell)," unit cells"
+       r_plus=0.0; r_minus=0.0 ; np=0; nm=0
        do i=1,A%natoms
           pos=A%atom(i)%x
           q=A%atom(i)%charge
@@ -348,36 +354,59 @@
               qat(j)=qp
               m=m+1
               orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+            else
+              qat(j)=q
             end if
           end do
           Mult=Mult+m
           write(unit=*,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge,"     Modified Multiplicity:",mult
           cpos=0.0
           do j=1,Mult
-            r_frac=r_frac+(orb(:,j)-[0.5,0.5,0.5])*qat(j)
-            cpos=cpos+(orb(:,j)-[0.5,0.5,0.5])
+            write(unit=*,fmt="(a,3f9.5,a,f9.5)") " => (x,y,z): ",orb(:,j),"  Qeff=",qat(j)
+            !do la=-lam,lam
+            !  do lb=-lbm,lbm
+            !    do lc=-lcm,lcm
+                  pos=orb(:,j)-[0.5,0.5,0.5]+[la,lb,lc]
+                  r_frac=r_frac+ pos*qat(j)
+                  cpos=cpos+pos
+                  if(qat(j) > eps) then
+                    np=np+1
+                    r_plus=r_plus+orb(:,j)
+                  else
+                    nm=nm+1
+                    r_minus=r_minus+orb(:,j)
+                  end if
+            !    end do
+            !  end do
+            !end do
           end do
-         cpos=cpos/real(mult)
-         write(unit=*,fmt="(a,3f10.5,a)") "    Average of vector positions: (",cpos," )"
+         cpos=cpos/(ncell * real(mult))
+         write(unit=*,fmt="(a,3f10.5,a)") "    Average of vector positions w.r.to (1/2,1/2,1/2): (",cpos," )"
        end do
-
+       r_plus=r_plus/np
+       r_minus=r_minus/nm
+       r_frac=r_frac/ncell
        r_pol=Cart_Vector("D",r_frac,Cell)
        pol=sqrt(dot_product(r_pol,r_pol))
-
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
-       write(unit=*,fmt="(a,g12.5)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
-       write(unit=*,fmt="(a,3f12.5,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.5)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       cpos=Cart_Vector("D",r_plus-r_minus,Cell)
+       dist=sqrt(dot_product(cpos,cpos))
+       write(unit=*,fmt="(/,a,3f12.4,a)")" => Geometric centre of Q+ (fract. coordinates): (",r_plus," )"
+       write(unit=*,fmt="(a,3f12.4,a)")  " => Geometric centre of Q- (fract. coordinates): (",r_minus," )"
+       write(unit=*,fmt="(a,f12.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
+       write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
+       write(unit=*,fmt="(a,3f12.4,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
          cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
          cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
          ang=Angle_Vect(cpos, r_pol)
-         write(unit=*,fmt="(a,f14.5,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
+         write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
        end if
        call Wait_Message(" => Press <enter> to continue ...")
 
