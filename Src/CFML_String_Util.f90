@@ -2258,26 +2258,31 @@
     !!----    integer,                       intent(in)      :: Nline_End    !  In -> Pointer to final position to search
     !!----    character(len=*),              intent(in)      :: Keyword      !  In -> Word to search
     !!----    character(len=*),              intent(out)     :: String       ! Out -> Rest of the input string
+    !!----    character(len=1), optional,    intent(in)      :: comment      !  In -> Character that define a comment line
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end".
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_Str(filevar,nline_ini,nline_end,keyword,string)
+    Subroutine Read_Key_Str(filevar,nline_ini,nline_end,keyword,string,comment)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in)      :: filevar
        integer,                        intent(in out)  :: nline_ini
        integer,                        intent(in)      :: nline_end
        character(len=*),               intent(in)      :: keyword
        character(len=*),               intent(out)     :: string
+       character(len=1), optional,     intent(in)      :: comment
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line,linec
        character(len=len(keyword))    :: key
+       character(len=1)               :: cc
        integer                        :: i,np,nt
 
        !---- Initial value ----!
+       cc=' '
+       if (present(comment)) cc=comment
        nt=min(size(filevar),nline_end)
        string=" "
        key =adjustl(keyword)
@@ -2285,7 +2290,7 @@
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
-          if (len_trim(line) == 0 .or. line(1:1) == "!") cycle
+          if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1) ==cc) cycle
           linec=line
           call lcase(line)
           np=index(line,key)
@@ -2301,7 +2306,7 @@
     End Subroutine Read_Key_Str
 
     !!----
-    !!---- Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv)
+    !!---- Subroutine Read_Key_Strval(Filevar,Nline_Ini,Nline_End,Keyword,String,Vet,Ivet,Iv,comment)
     !!----    character(len=*),dimension(:),          intent(in)      :: Filevar      !  In -> Input vector of String
     !!----    integer,                                intent(in out)  :: Nline_Ini    !  In -> Pointer to initial position to search
     !!----                                                                            ! Out -> Pointer to final position in search
@@ -2311,6 +2316,7 @@
     !!----    real(kind=cp),dimension(:),   optional, intent(out)     :: Vet          ! Out -> Vector for real numbers
     !!----    integer,dimension(:),         optional  intent(out)     :: Ivet         ! Out -> Vector for integer numbers
     !!----    integer,                      optional, intent(out)     :: Iv           ! Out -> Number of numbers
+    !!----    character(len=1),             optional, intent(in)      :: comment
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet". The variable
@@ -2318,7 +2324,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_StrVal(filevar,nline_ini,nline_end,keyword,string,vet,ivet,iv)
+    Subroutine Read_Key_StrVal(filevar,nline_ini,nline_end,keyword,string,vet,ivet,iv,comment)
        !---- Arguments ----!
        character(len=*), dimension(:),           intent(in)      :: filevar
        integer,                                  intent(in out)  :: nline_ini
@@ -2328,14 +2334,19 @@
        real(kind=cp),dimension(:),     optional, intent(out)     :: vet
        integer,dimension(:),           optional, intent(out)     :: ivet
        integer,                        optional, intent(out)     :: iv
+       character(len=1),               optional, intent(in)      :: comment
 
        !---- Local Variable ----!
        logical                        :: sval
        character(len=len(filevar(1))) :: line,linec
        character(len=len(keyword))    :: key
+       character(len=1)               :: cc
        integer                        :: i,np,nt
 
        !---- Initial value ----!
+       cc=' '
+       if (present(comment)) cc=comment
+
        nt=min(size(filevar),nline_end)
        string=" "
        key =adjustl(keyword)
@@ -2350,7 +2361,7 @@
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
-          if (len_trim(line) == 0) cycle
+          if (len_trim(line) == 0 .or. line(1:1)==cc) cycle
           linec=line
           call lcase(line)
           np=index(line,key)
@@ -2380,7 +2391,7 @@
     End Subroutine Read_Key_StrVal
 
     !!----
-    !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv)
+    !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment)
     !!----    character(len=*),dimension(:), intent(in)      :: Filevar     !  In -> Input vector of String
     !!----    integer,                       intent(in out)  :: Nline_Ini   !  In -> Pointer to initial position to search
     !!----                                                                  ! Out -> Pointer to final position in search
@@ -2395,7 +2406,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv)
+    Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in)     :: filevar
        integer,                        intent(in out) :: nline_ini
@@ -2404,13 +2415,18 @@
        real(kind=cp),dimension(:),     intent(out)    :: vet
        integer,dimension(:),           intent(out)    :: ivet
        integer,                        intent(out)    :: iv
+       character(len=1),     optional, intent(in)     :: comment
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
        character(len=len(keyword))    :: key
+       character(len=1)               :: cc
        integer                        :: i,np,nt
 
        !---- Initial value ----!
+       cc=' '
+       if (present(comment)) cc=comment
+
        nt=min(size(filevar),nline_end)
        iv  = 0
        vet = 0.0
@@ -2421,7 +2437,7 @@
        do i=nline_ini,nt
           np=0
           line=adjustl(filevar(i))
-          if (len_trim(line) == 0 .or. line(1:1) == "!") cycle
+          if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)==cc) cycle
           call lcase(line)
           np=index(line,key)
           if (np == 0) cycle
@@ -2437,7 +2453,7 @@
     End Subroutine Read_Key_Value
 
     !!----
-    !!---- Subroutine Read_Key_Valuest(Filevar,Nline_Ini,Nline_End,Keyword,Vet1,Vet2,Iv)
+    !!---- Subroutine Read_Key_Valuest(Filevar,Nline_Ini,Nline_End,Keyword,Vet1,Vet2,Iv,comment)
     !!----    character(len=*),dimension(:),  intent(in)     :: Filevar      !  In -> Input vector of String
     !!----    integer,                        intent(in out) :: Nline_Ini    !  In -> Pointer to initial position to search
     !!----                                                                   ! Out -> Pointer to final position in search
@@ -2452,7 +2468,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv)
+    Subroutine Read_Key_ValueSTD(filevar,nline_ini,nline_end,keyword,vet1,vet2,iv,comment)
        !---- Arguments ----!
        character(len=*), dimension(:),  intent(in)     :: filevar
        integer,                         intent(in out) :: nline_ini
@@ -2461,13 +2477,17 @@
        real(kind=cp),dimension(:),      intent(out)    :: vet1
        real(kind=cp),dimension(:),      intent(out)    :: vet2
        integer,                         intent(out)    :: iv
+       character(len=1),      optional, intent(in)     :: comment
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
        character(len=len(keyword))    :: key
+       character(len=1)               :: cc
        integer                        :: i,np,nt
 
        !---- Initial value ----!
+       cc=' '
+       if (present(comment)) cc=comment
        nt=min(size(filevar),nline_end)
        iv  = 0
        vet1 = 0.0
@@ -2477,7 +2497,7 @@
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
-          if (len_trim(line) == 0 .or. line(1:1) == "!") cycle
+          if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)==cc) cycle
           call lcase(line)
           np=index(line,key)
           if (np == 0) cycle
