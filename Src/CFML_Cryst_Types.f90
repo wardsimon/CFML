@@ -140,6 +140,7 @@
 !!----    Functions:
 !!----       CART_U_VECTOR
 !!----       CART_VECTOR
+!!----       CELL_VOLUME_SIGMA
 !!----       CONVERT_B_BETAS
 !!----       CONVERT_B_U
 !!----       CONVERT_BETAS_B
@@ -175,7 +176,7 @@
  Module CFML_Crystal_Metrics
 
     !---- Use files ----!
-    Use CFML_GlobalDeps,   only : Cp, Eps, Pi
+    Use CFML_GlobalDeps,   only : Cp, Eps, Pi, TO_RAD
     Use CFML_Math_General, only : Cosd, Sind, Acosd, Co_Prime, swap, Sort, atand, Co_Linear
     Use CFML_Math_3D,      only : Matrix_Inverse, determ_A, determ_V, Cross_Product
 
@@ -188,7 +189,7 @@
     !---- List of public functions ----!
     public :: Cart_u_vector, Cart_vector, Convert_B_Betas, Convert_B_U, &
               Convert_Betas_B, Convert_Betas_U, Convert_U_B,            &
-              Convert_U_Betas, Rot_matrix, U_Equiv
+              Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma
 
     !---- List of public overloaded procedures: functions ----!
 
@@ -456,6 +457,50 @@
 
        return
     End Function Cart_Vector
+
+    !!----
+    !!---- Function Cell_Volume_Sigma(Cell) result(sigma)
+    !!----   type(Crystal_Cell_Type), intent(in) :: Cell   !  In  ->  Cell variable
+    !!----   real(kind=cp)                       :: sigma  !  Out ->  Sigma of voume
+    !!----
+    !!----    Calculates the standard deviation of the unit cell volume
+    !!----    from the standard deviations of cell parameters. The input
+    !!----    variable is of type Crytal_Cell_Type, if the standard deviations of
+    !!----    of both cell axes and cell angles are zero the result is sigma=0.0,
+    !!----    otherwise the calculation is performed
+    !!----    It is assumed that there is no correlation (covariance terms) between
+    !!----    the standard deviations of the different cell parameters.
+    !!----
+    !!---- Updated: January - 2013 (JRC)
+    !!
+    Function Cell_Volume_Sigma(Cell) result(sigma)
+      type(Crystal_Cell_Type), intent(in) :: Cell
+      real(kind=cp)                       :: sigma
+      !--- Local variables ---!
+      integer                     :: i
+      real(kind=cp)               :: q,ca,cb,cc,vc,sa,sb,sc
+      real(kind=cp), dimension(3) :: var_ang
+
+      sigma=0.0
+      if(sum(abs(Cell%cell_std)) < eps .and. sum(abs(Cell%ang_std)) < eps ) return
+      vc=0.0
+      DO i=1,3
+        q=Cell%cell_std(i)/Cell%cell(i)
+        vc=vc+q*q
+      END DO
+      if(sum(abs(Cell%ang_std)) > eps) then
+        ca=cosd(Cell%ang(1)) ;  sa=sind(Cell%ang(1))
+        cb=cosd(Cell%ang(2)) ;  sb=sind(Cell%ang(2))
+        cc=cosd(Cell%ang(3)) ;  sc=sind(Cell%ang(3))
+        q=1.0-ca*ca-cb*cb-cc*cc+2.0*ca*cb*cc
+        var_ang = (Cell%ang_std * TO_RAD)**2/q
+        vc=vc+ (ca-cb*cc)*(ca-cb*cc)*sa*sa * var_ang(1)
+        vc=vc+ (cb-ca*cc)*(cb-ca*cc)*sb*sb * var_ang(2)
+        vc=vc+ (cc-ca*cb)*(cc-ca*cb)*sc*sc * var_ang(3)
+      end if
+      sigma=Cell%Cellvol*sqrt(vc)
+      return
+    End Function Cell_Volume_Sigma
 
     !!--..
     !!--.. Betas are defined by the following expression of the temperature factor:
