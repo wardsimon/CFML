@@ -170,6 +170,7 @@
 !!--++       NIGGLI_CELL_VECT            [Private]
 !!--++       RECIP                       [Private]
 !!----       SET_CRYSTAL_CELL
+!!----       VOLUME_SIGMA_FROM_CELL
 !!----       WRITE_CRYSTAL_CELL
 !!----
 !!
@@ -197,7 +198,7 @@
     public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,          &
               Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,    &
               Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,  &
-              Get_Transfm_Matrix, Get_basis_from_uvw
+              Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell
 
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -461,7 +462,7 @@
     !!----
     !!---- Function Cell_Volume_Sigma(Cell) result(sigma)
     !!----   type(Crystal_Cell_Type), intent(in) :: Cell   !  In  ->  Cell variable
-    !!----   real(kind=cp)                       :: sigma  !  Out ->  Sigma of voume
+    !!----   real(kind=cp)                       :: sigma  !  Out ->  Sigma of volume
     !!----
     !!----    Calculates the standard deviation of the unit cell volume
     !!----    from the standard deviations of cell parameters. The input
@@ -474,32 +475,38 @@
     !!---- Updated: January - 2013 (JRC)
     !!
     Function Cell_Volume_Sigma(Cell) result(sigma)
-      type(Crystal_Cell_Type), intent(in) :: Cell
-      real(kind=cp)                       :: sigma
-      !--- Local variables ---!
-      integer                     :: i
-      real(kind=cp)               :: q,ca,cb,cc,vc,sa,sb,sc
-      real(kind=cp), dimension(3) :: var_ang
+       !---- Arguments ----!
+       type(Crystal_Cell_Type), intent(in) :: Cell
+       real(kind=cp)                       :: sigma
 
-      sigma=0.0
-      if(sum(abs(Cell%cell_std)) < eps .and. sum(abs(Cell%ang_std)) < eps ) return
-      vc=0.0
-      DO i=1,3
-        q=Cell%cell_std(i)/Cell%cell(i)
-        vc=vc+q*q
-      END DO
-      if(sum(abs(Cell%ang_std)) > eps) then
-        ca=cosd(Cell%ang(1)) ;  sa=sind(Cell%ang(1))
-        cb=cosd(Cell%ang(2)) ;  sb=sind(Cell%ang(2))
-        cc=cosd(Cell%ang(3)) ;  sc=sind(Cell%ang(3))
-        q=1.0-ca*ca-cb*cb-cc*cc+2.0*ca*cb*cc
-        var_ang = (Cell%ang_std * TO_RAD)**2/q
-        vc=vc+ (ca-cb*cc)*(ca-cb*cc)*sa*sa * var_ang(1)
-        vc=vc+ (cb-ca*cc)*(cb-ca*cc)*sb*sb * var_ang(2)
-        vc=vc+ (cc-ca*cb)*(cc-ca*cb)*sc*sc * var_ang(3)
-      end if
-      sigma=Cell%Cellvol*sqrt(vc)
-      return
+       !--- Local variables ---!
+       integer                     :: i
+       real(kind=cp)               :: q,ca,cb,cc,vc,sa,sb,sc
+       real(kind=cp), dimension(3) :: var_ang
+
+       !> Check
+       sigma=0.0
+       if(sum(abs(Cell%cell_std)) < eps .and. sum(abs(Cell%ang_std)) < eps ) return
+
+       vc=0.0
+       do i=1,3
+          q=Cell%cell_std(i)/Cell%cell(i)
+          vc=vc+q*q
+       end do
+       if (sum(abs(Cell%ang_std)) > eps) then
+          ca=cosd(Cell%ang(1)) ;  sa=sind(Cell%ang(1))
+          cb=cosd(Cell%ang(2)) ;  sb=sind(Cell%ang(2))
+          cc=cosd(Cell%ang(3)) ;  sc=sind(Cell%ang(3))
+          q=1.0-ca*ca-cb*cb-cc*cc+2.0*ca*cb*cc
+          var_ang = (Cell%ang_std * TO_RAD)**2/q
+          vc=vc+ (ca-cb*cc)*(ca-cb*cc)*sa*sa * var_ang(1)
+          vc=vc+ (cb-ca*cc)*(cb-ca*cc)*sb*sb * var_ang(2)
+          vc=vc+ (cc-ca*cb)*(cc-ca*cb)*sc*sc * var_ang(3)
+       end if
+
+       sigma=Cell%Cellvol*sqrt(vc)
+
+       return
     End Function Cell_Volume_Sigma
 
     !!--..
@@ -2773,6 +2780,66 @@
 
        return
     End Subroutine Set_Crystal_Cell
+
+    !!----
+    !!---- Subroutine Volume_Sigma_from_Cell(cell,ang,sigc,siga,volume,sigv)
+    !!----    real(kind=cp), dimension(3),  intent(in) :: Cell   !  In  ->  a,b,c parameters
+    !!----    real(kind=cp), dimension(3),  intent(in) :: Ang    !  In  -> alpha, beta, gamma
+    !!----    real(kind=cp), dimension(3),  intent(in) :: SigC   !  In  -> sigmas for a ,b and c
+    !!----    real(kind=cp), dimension(3),  intent(in) :: SigA   !  In  -> sigmas for angles
+    !!----    real(kind=cp),                intent(out):: Volume ! Out  -> Volume from cell parameters
+    !!----    real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
+    !!----
+    !!----    Calculates the volume and their standard deviation from unit cell
+    !!----    parameters. If the standard deviations of cell parameters are zero
+    !!----    the result is sigma=0.0, otherwise the calculation is performed.
+    !!----    It is assumed that there is no correlation (covariance terms) between
+    !!----    the standard deviations of the different cell parameters.
+    !!----
+    !!---- Updated: January - 2013 (JGP)
+    !!
+    Subroutine Volume_Sigma_from_Cell(cell,ang,sigc,siga,volume,sigv)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3),  intent(in) :: Cell   !  In  ->  a,b,c parameters
+       real(kind=cp), dimension(3),  intent(in) :: Ang    !  In  -> alpha, beta, gamma
+       real(kind=cp), dimension(3),  intent(in) :: SigC   !  In  -> sigmas for a ,b and c
+       real(kind=cp), dimension(3),  intent(in) :: SigA   !  In  -> sigmas for angles
+       real(kind=cp),                intent(out):: Volume ! Out  -> Volume from cell parameters
+       real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
+
+       !---- Local Variables ----!
+       real(kind=cp) :: t, dvda, dvdb, dvdc, dvdalpha, dvdbeta, dvdgamma
+
+       !> Init
+       volume=0.0
+       sigv=0.0
+
+       t=1.0 - cosd(ang(1))**2 - cosd(ang(2))**2 - cosd(ang(3))**2 + &
+         2.0 * cosd(ang(1)) * cosd(ang(2))**2 *cosd(ang(3))**2
+
+       volume=cell(1)*cell(2)*cell(3)*sqrt(t)
+
+       if(sum(abs(sigc)) < eps .and. sum(abs(siga)) < eps ) return
+
+       dvda=cell(2)*cell(3)*sqrt(t)
+       dvdb=cell(1)*cell(3)*sqrt(t)
+       dvdc=cell(1)*cell(2)*sqrt(t)
+
+       dvdalpha=cell(1)*cell(2)*cell(3)*( (sind(ang(1))/sqrt(t)) * &
+                (cosd(ang(1))-cosd(ang(2))*cosd(ang(3))) )
+       dvdbeta=cell(1)*cell(2)*cell(3)*( (sind(ang(2))/sqrt(t)) * &
+                (cosd(ang(2))-cosd(ang(1))*cosd(ang(3))) )
+       dvdgamma=cell(1)*cell(2)*cell(3)*( (sind(ang(3))/sqrt(t)) * &
+                (cosd(ang(3))-cosd(ang(1))*cosd(ang(2))) )
+
+       sigv= (dvda * sigc(1))**2 + (dvdb * sigc(2))**2 + (dvdc *sigc(3))**2 + &
+             (dvdalpha * siga(1)*to_rad)**2 + (dvdbeta *siga(2)*to_rad)**2 +  &
+             (dvdgamma * siga(3)*to_rad)
+
+       sigv=sqrt(sigv)
+
+       return
+    End Subroutine Volume_Sigma_from_Cell
 
     !!----
     !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
