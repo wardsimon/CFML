@@ -2808,33 +2808,40 @@
        real(kind=cp),                intent(out):: SigV   ! Out  -> Sigma for Volume
 
        !---- Local Variables ----!
+       real(kind=cp) :: a,b,c,ca,cb,cg,sa,sb,sg
        real(kind=cp) :: t, dvda, dvdb, dvdc, dvdalpha, dvdbeta, dvdgamma
 
        !> Init
        volume=0.0
        sigv=0.0
 
-       t=1.0 - cosd(ang(1))**2 - cosd(ang(2))**2 - cosd(ang(3))**2 + &
-         2.0 * cosd(ang(1)) * cosd(ang(2))**2 *cosd(ang(3))**2
+       a=cell(1)
+       b=cell(2)
+       c=cell(3)
+       ca=cosd(ang(1))
+       cb=cosd(ang(2))
+       cg=cosd(ang(3))
+       sa=sind(ang(1))
+       sb=sind(ang(2))
+       sg=sind(ang(3))
 
-       volume=cell(1)*cell(2)*cell(3)*sqrt(t)
+       t=sqrt(1.0 - ca**2 - cb**2 - cg**2 + 2.0*ca*cb*cg)
+
+       volume=a*b*c*t
 
        if(sum(abs(sigc)) < eps .and. sum(abs(siga)) < eps ) return
 
-       dvda=cell(2)*cell(3)*sqrt(t)
-       dvdb=cell(1)*cell(3)*sqrt(t)
-       dvdc=cell(1)*cell(2)*sqrt(t)
+       dvda=b*c*t
+       dvdb=a*c*t
+       dvdc=a*b*t
 
-       dvdalpha=cell(1)*cell(2)*cell(3)*( (sind(ang(1))/sqrt(t)) * &
-                (cosd(ang(1))-cosd(ang(2))*cosd(ang(3))) )
-       dvdbeta=cell(1)*cell(2)*cell(3)*( (sind(ang(2))/sqrt(t)) * &
-                (cosd(ang(2))-cosd(ang(1))*cosd(ang(3))) )
-       dvdgamma=cell(1)*cell(2)*cell(3)*( (sind(ang(3))/sqrt(t)) * &
-                (cosd(ang(3))-cosd(ang(1))*cosd(ang(2))) )
+       dvdalpha=(a*b*c)*( (sa/t)*(ca-cb*cg) )
+       dvdbeta= (a*b*c)*( (sb/t)*(cb-ca*cg) )
+       dvdgamma=(a*b*c)*( (sg/t)*(cg-ca*cb) )
 
-       sigv= (dvda * sigc(1))**2 + (dvdb * sigc(2))**2 + (dvdc *sigc(3))**2 + &
-             (dvdalpha * siga(1)*to_rad)**2 + (dvdbeta *siga(2)*to_rad)**2 +  &
-             (dvdgamma * siga(3)*to_rad)
+       sigv= (dvda*sigc(1))**2 + (dvdb*sigc(2))**2 + (dvdc*sigc(3))**2 +  &
+             (dvdalpha*siga(1)*to_rad)**2 + (dvdbeta*siga(2)*to_rad)**2 + &
+             (dvdgamma*siga(3)*to_rad)**2
 
        sigv=sqrt(sigv)
 
