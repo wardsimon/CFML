@@ -1,4 +1,3 @@
-<<<<<<< .mine
 !!----
 !!---- Copyleft(C) 1999-2011,              Version: 5.0
 !!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
