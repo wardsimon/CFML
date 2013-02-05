@@ -1680,7 +1680,7 @@
                    case (3)
                       !---- Cubic ----!
                       Car_Family="Cubic"
-                      Car_Symbol ="o"
+                      Car_Symbol ="c"
                       Car_System ="Cubic"
                 end select
 
