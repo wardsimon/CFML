@@ -1,6 +1,36 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project is distributed under LGPL. In agreement with the
+!!---- Intergovernmental Convention of the ILL, this software cannot be used
+!!---- in military applications.
 !!----
-!!---- Copyleft(C) 1999-2011,              Version: 5.0
-!!---- Juan Rodriguez-Carvajal & Javier Gonzalez-Platas
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
+!!----
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
+!!----
 !!----
 !!---- MODULE: CFML_Geometry_Calc
 !!----   INFO: Routines for Geometry Calculations
@@ -953,10 +983,8 @@
        character(len=  5)                 :: nam,nam1,nam2
        character(len= 16)                 :: transla
        character(len=160)                 :: form3
-       !character(len= 90)                 :: form2= &
-       !                                      "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
        character(len= 90)                 :: form2= &   ! TR 4 fev. 2013
-                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"	   
+                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
        integer, dimension(3)              :: ic1,ic2
        real(kind=cp),    dimension(3)     :: xx,x1,xo,Tn,xr, QD
        real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
@@ -1017,9 +1045,7 @@
              write(unit=lun,fmt="(a,f8.4,a,a,3f8.4)")   &
                        "    Distances less than",dmax,"  to atom: ",nam, xo
              write(unit=lun,fmt="(a,/,/)")"    -------------------------------------------------------------------"
-             !write(unit=lun,fmt="(/,/,a,/,/)") &
-             !          " Orig. extr. p.equiv.           Distance     tx   ty   tz       x_ext   y_ext   z_ext"
-             write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013			   
+             write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013
 					    " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
           end if
           Coord_Info%Coord_Num(i)=0
@@ -1063,8 +1089,7 @@
                             Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
-                               !write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,transla,x1(:)
-							   write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013					 
+                               write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
                             end if
                          end do do_jl
                       end do !i3
@@ -1116,35 +1141,41 @@
     End Subroutine Calc_Dist_Angle
 
     !!----
-    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
-    !!----    real(kind=cp),            intent(in)   :: dmax     !  In -> Max. Distance to calculate
-    !!----    real(kind=cp),            intent(in)   :: dangl    !  In -> Max. distance for angle calculations
-    !!----    type (Crystal_cell_type), intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
-    !!----    type (Space_Group_type),  intent(in)   :: SpG      !  In -> Object of Space_Group_Type
-    !!----    type (atom_list_type),    intent(in)   :: A        !  In -> Object of atom_list_type
-    !!----    integer, optional,        intent(in)   :: lun      !  In -> Logical Unit for writing
-    !!----    integer, optional,        intent(in)   :: lun_cons !  In -> Logical unit for writing restraints
-    !!----    integer, optional,        intent(in)   :: lun_cif  !  In -> Logical unit for writing CIF file with distances and angles
+    !!---- Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filen)
+    !!----    real(kind=cp),             intent(in)   :: dmax     !  In -> Max. Distance to calculate
+    !!----    real(kind=cp),             intent(in)   :: dangl    !  In -> Max. distance for angle calculations
+    !!----    type (Crystal_cell_type),  intent(in)   :: Cell     !  In -> Object of Crytal_Cell_Type
+    !!----    type (Space_Group_type),   intent(in)   :: SpG      !  In -> Object of Space_Group_Type
+    !!----    type (atom_list_type),     intent(in)   :: A        !  In -> Object of atom_list_type
+    !!----    integer, optional,         intent(in)   :: lun      !  In -> Logical Unit for writing
+    !!----    integer, optional,         intent(in)   :: lun_cons !  In -> Logical unit for writing restraints
+    !!----    integer, optional,         intent(in)   :: lun_cif  !  In -> Logical unit for writing CIF file with distances and angles
+    !!----    character(len=*), optional,intent(in)   :: filrest  !  In -> Name of file for writing restraints
     !!----
     !!----    Subroutine to calculate distances and angles, below the prescribed distances
     !!----    "dmax" and "dangl" (angles of triplets at distance below "dangl" to an atom),
     !!----    with standard deviations. If dangl=0.0, no angle calculations are done.
     !!----    Needs as input the objects Cell (of type Crystal_cell), SpG (of type Space_Group)
     !!----    and A (or type atom_list, that should be allocated in the calling program).
-    !!----    Writes results in file (unit=lun) if iprin=.true.
+    !!----    Writes results in file (unit=lun) if the argument lun is present. In case
+    !!----    lun_cif is provided, the program writes in the already opened CIF file (in
+    !!----    the calling program) the items related to distances. If lun_cons is provided
+    !!----    the program writes items containing restraints to the file CFML_restraints.tpcr
+    !!----    or to file "filrest" if provided as argument.
     !!----    Control for error is present.
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif)
+    Subroutine Calc_Dist_Angle_Sigma(Dmax, Dangl, Cell, Spg, A, Lun, Lun_cons, Lun_cif,filrest)
        !---- Arguments ----!
-       real(kind=cp),            intent(in)   :: dmax, dangl
-       type (Crystal_cell_Type), intent(in)   :: Cell
-       type (Space_Group_Type),  intent(in)   :: SpG
-       type (Atom_list_type),    intent(in)   :: A
-       integer, optional,        intent(in)   :: lun
-       integer, optional,        intent(in)   :: lun_cons
-       integer, optional,        intent(in)   :: lun_cif
+       real(kind=cp),             intent(in)   :: dmax, dangl
+       type (Crystal_cell_Type),  intent(in)   :: Cell
+       type (Space_Group_Type),   intent(in)   :: SpG
+       type (Atom_list_type),     intent(in)   :: A
+       integer, optional,         intent(in)   :: lun
+       integer, optional,         intent(in)   :: lun_cons
+       integer, optional,         intent(in)   :: lun_cif
+       character(len=*), optional,intent(in)   :: filrest
 
        !---- Local Variables ----!
        logical                            :: iprin
@@ -1156,10 +1187,8 @@
        character(len= 20)                 :: text,tex,texton
        character(len=132)                 :: line
        character(len=160)                 :: form3
-       !character(len= 90)                 :: form2= &
-       !                                      "("" "",3I4,""  ("",a ,"")-("",a ,""):"",a12,""   "",a,""  "",3F9.5)"
-	   character(len= 90)                 :: form2= &   ! TR 4 fev. 2013
-                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"	   
+       character(len= 90)                 :: form2= &   ! TR 4 fev. 2013
+                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
        integer, dimension(3)              :: ic1,ic2
        integer, dimension(192)            :: itnum
        real(kind=cp),dimension(3,3,6)     :: DerM
@@ -1214,7 +1243,11 @@
        if (present(lun_cons)) then
           num_angc=0
           num_const=0
-          open (unit=lun_cons, file="CFML_Restraints.tpcr", status="unknown")
+          if(present(filrest)) then
+            open (unit=lun_cons, file=trim(filrest), status="replace", action="write")
+          else
+            open (unit=lun_cons, file="CFML_Restraints.tpcr", status="replace", action="write")
+          end if
           write(unit=lun_cons,fmt="(a)") " FILE with lines for soft distance and angle constraints (restraints)."
           write(unit=lun_cons,fmt="(a)") " It is intended to help editing PCR files with restraints by pasting, "
           write(unit=lun_cons,fmt="(a)") " after correcting the values as wished, to the appropriate lines.  "
@@ -1303,10 +1336,8 @@
              write(unit=lun,fmt="(a,f8.4,a,a,3f8.4)")   &
                        "    Distances less than",dmax,"  to atom: ",nam, xo
              write(unit=lun,fmt="(a,/,/)")"    -------------------------------------------------------------------"
-             !write(unit=lun,fmt="(/,/,a,/,/)") &
-             !     " Orig. extr. p.equiv.           Distance       tx   ty   tz        x_ext    y_ext    z_ext"
-			 write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013			   
-					    " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
+             write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013
+                  " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
           end if
           Coord_Info%Coord_Num(i)=0
           do k=1,a%natoms
@@ -1360,8 +1391,7 @@
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                call setnum_std(dd,sdd,text)
-                               !write(unit=lun,fmt=form2) i,k,j,nam,nam1,text,transla,x1(:)
-							   write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013					 
+                               write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
                             end if
 
                             if(present(lun_cons)) then
@@ -2071,7 +2101,7 @@
        character(len=6 )                      :: nam,nam1
        character(len=16)                      :: transla
        character(len=90)                      :: form1,form2= &
-                       "("" "",2I4,""   ("",a,"")-("",a,""):"",f10.4,""   "",a,""  "",3F8.4)"	   
+                       "("" "",2I4,""   ("",a,"")-("",a,""):"",f10.4,""   "",a,""  "",3F8.4)"
        integer                                :: i,k,lk,i1,i2,i3,jl,nn,L,inew,ne,id
        integer, dimension(3)                  :: ic1,ic2
        integer, dimension(Ac%nat,Ac%nat)      :: mn  !neighbouring matrix
@@ -2129,7 +2159,7 @@
                          lk=lk+1
                          u(:,lk)=x1(:)
                          call Frac_Trans_1Dig(tn,transla)
-                         if (iprint) write(unit=lun,fmt=form2)i,k,nam,nam1,dd,transla,x1(:)						 
+                         if (iprint) write(unit=lun,fmt=form2)i,k,nam,nam1,dd,transla,x1(:)
                          mn(i,k)=mn(i,k)+1
                          ne=ne+1
                          IF (ne > id) THEN
@@ -2270,7 +2300,7 @@
                             lk=lk+1
                             uu(:,lk)=x1(:)
                             call Frac_Trans_1Dig(tn,transla)
-                            write(unit=lun,fmt=form2)i,k,j,nam ,nam1,dd,transla,x1(:)							
+                            write(unit=lun,fmt=form2)i,k,j,nam ,nam1,dd,transla,x1(:)
                          end do do_jl
                       end do !i3
                    end do !i2
