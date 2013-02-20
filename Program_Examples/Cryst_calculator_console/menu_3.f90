@@ -367,7 +367,7 @@
             !do la=-lam,lam
             !  do lb=-lbm,lbm
             !    do lc=-lcm,lcm
-                  pos=orb(:,j)-[0.5,0.5,0.5]+[la,lb,lc]
+                  pos=orb(:,j)-[0.5,0.5,0.5]   !+[la,lb,lc]
                   r_frac=r_frac+ pos*qat(j)
                   cpos=cpos+pos
                   if(qat(j) > eps) then
@@ -386,7 +386,8 @@
        end do
        r_plus=r_plus/np
        r_minus=r_minus/nm
-       r_frac=r_frac/ncell
+       !r_frac=r_frac/real(ncell)
+       r_frac=(r_plus-r_minus) * qcellp
        r_pol=Cart_Vector("D",r_frac,Cell)
        pol=sqrt(dot_product(r_pol,r_pol))
        cpos=Cart_Vector("D",r_plus-r_minus,Cell)
@@ -396,8 +397,9 @@
        write(unit=*,fmt="(a,f12.4)")     " => Distance between  Q+  and  Q- (Angstrom): ",dist
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Dipolar Moment (electron.Angstrom): ",pol
        write(unit=*,fmt="(a,g12.4)")     " => Ionic Dipolar Moment (Coulomb.Metre): ",1.60217646e-29*pol
-       write(unit=*,fmt="(a,3f12.4,a)")  " => Cartesian Dipolar Moment vector :(",r_pol," )"
-       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2): ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=*,fmt="(a,3f12.4,a)")  " => Cartesian Dipolar Moment vector   :(",r_pol," )"
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
+       write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.17646*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
          cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
          ang=Angle_Vect(cpos, r_pol)
