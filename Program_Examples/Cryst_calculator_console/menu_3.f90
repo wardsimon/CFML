@@ -359,7 +359,8 @@
             end if
           end do
           Mult=Mult+m
-          write(unit=*,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge,"     Modified Multiplicity:",mult
+          write(unit=*,fmt="(a,a15,f8.2,a,i3)") " => Atom: ",trim(A%Atom(i)%Lab)//",  Charge: ", A%Atom(i)%Charge, &
+                                                "     Modified Multiplicity:",mult
           cpos=0.0
           do j=1,Mult
             write(unit=*,fmt="(a,3f9.5,a,f9.5)") " => (x,y,z): ",orb(:,j),"  Qeff=",qat(j)
