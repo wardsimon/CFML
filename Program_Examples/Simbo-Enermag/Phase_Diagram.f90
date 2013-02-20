@@ -329,7 +329,7 @@
       character (len=150) :: filbin   ! Fourier binary file
       character (len=150) :: filhkl   ! Reflections file
       character (len=150) :: filatm   ! Atom file
-      character(len=5)    :: version= "04.06"
+      character(len=4)    :: version= "4.06"
       integer,dimension (9) :: lugar  ! Codes for reading
       integer :: jlist=0              ! Control of directive for list information
       integer :: npeaks_to_find=0     ! Number of peaks to search
