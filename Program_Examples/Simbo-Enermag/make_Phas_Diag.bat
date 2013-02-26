@@ -51,7 +51,7 @@ rem **---- GFORTRAN Compiler ----**
 :GFOR
    gfortran -c Sup_Exc.f90  -I../../GFortran/LibC
    gfortran -c Phase_Diagram.f90    -I../../GFortran/LibC
-   gfortran *.o -o Phase_Diagram    -L../../GFortran/LibC   -lcrysfml
+   gfortran *.o -o Phase_Diagram_gf    -L../../GFortran/LibC   -lcrysfml
    goto END
 rem
 :END
@@ -62,6 +62,7 @@ rem  Compression of executable
 rem        upx Phase_Diagram.exe
 rem  Move the excutable to a directory in the Path
         if exist %FULLPROF% move Phase_Diagram.exe %FULLPROF% > nul
+rem        if exist %FULLPROF% move Phase_Diagram_gf.exe %FULLPROF% > nul
 rem  Remove unnecessary files
         del *.obj *.mod *.o *.map *.bak > nul
 :FIN

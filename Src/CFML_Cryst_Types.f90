@@ -168,9 +168,11 @@
 !!--++       NIGGLI_CELL_PARAMS          [Private]
 !!--++       NIGGLI_CELL_TYPE            [Private]
 !!--++       NIGGLI_CELL_VECT            [Private]
+!!----       READ_BIN_CRYSTAL_CELL
 !!--++       RECIP                       [Private]
 !!----       SET_CRYSTAL_CELL
 !!----       VOLUME_SIGMA_FROM_CELL
+!!----       WRITE_BIN_CRYSTAL_CELL
 !!----       WRITE_CRYSTAL_CELL
 !!----
 !!
@@ -195,10 +197,11 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,          &
-              Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,    &
-              Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,  &
-              Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell
+    public :: Init_Err_Crys, Change_Setting_Cell,Set_Crystal_Cell,           &
+              Get_Cryst_Family, Write_Crystal_Cell, Get_Deriv_Orth_Cell,     &
+              Get_Primitive_Cell, Get_TwoFold_Axes, Get_Conventional_Cell,   &
+              Get_Transfm_Matrix, Get_basis_from_uvw, Volume_Sigma_from_Cell,&
+              Read_Bin_Crystal_Cell,Write_Bin_Crystal_Cell
 
 
     !---- List of public overloaded procedures: subroutines ----!
@@ -2648,6 +2651,45 @@
        return
     End Subroutine Niggli_Cell_Vect
 
+    !!----
+    !!---- Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
+    !!----    Type (Crystal_Cell_Type),  intent(out) :: Celda   ! Out -> Cell variable
+    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
+    !!----    logical,                   intent(out) :: ok
+    !!----
+    !!----    Reads the cell characteristics in a binary file associated to the
+    !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
+    !!----    access="stream" or equivalent
+    !!----
+    !!----    Updated: February - 2013
+    !!
+    Subroutine Read_Bin_Crystal_Cell(Celda,Lun,ok)
+       !---- Arguments ----!
+       Type (Crystal_Cell_Type),  intent(out) :: Celda
+       Integer,                   intent(in)  :: Lun
+       logical,                   intent(out) :: ok
+       integer :: ier
+       ok=.true.
+       read(unit=lun,iostat=ier)             &
+                       Celda%cell,           &
+                       Celda%ang,            &
+                       Celda%cell_std,       &
+                       Celda%ang_std,        &
+                       Celda%rcell,          &
+                       Celda%rang,           &
+                       Celda%GD,Celda%GR,    &
+                       Celda%Cr_Orth_cel,    &
+                       Celda%Orth_Cr_cel,    &
+                       Celda%BL_M,           &
+                       Celda%BL_Minv,        &
+                       Celda%CellVol,        &
+                       Celda%RCellVol,       &
+                       Celda%CartType
+       if( ier /= 0) ok=.false.
+       return
+    End Subroutine Read_Bin_Crystal_Cell
+
+
     !!--++
     !!--++ Subroutine Recip(A,Ang,Ar,Angr,Vol,Volr)
     !!--++    real(kind=cp), dimension(3), intent(in ) :: a        !  In -> a,b,c
@@ -2847,6 +2889,38 @@
 
        return
     End Subroutine Volume_Sigma_from_Cell
+
+    !!----
+    !!---- Subroutine Write_Crystal_Cell(Celda,Lun)
+    !!----    Type (Crystal_Cell_Type),  intent(in)  :: Celda   !  In -> Cell variable
+    !!----    Integer,                   intent(in)  :: lun     !  In -> Unit to write
+    !!----
+    !!----    Writes the cell characteristics in a binary file associated to the
+    !!----    logical unit lun. The file is supposed to be opened with form="unformatted",
+    !!----    access="stream" or equivalent
+    !!----
+    !!---- Update: February - 2013
+    !!
+    Subroutine Write_Bin_Crystal_Cell(Celda,Lun)
+       !---- Arguments ----!
+       Type (Crystal_Cell_Type),  intent(in) :: Celda
+       Integer,                   intent(in) :: Lun
+       write(unit=lun) Celda%cell,           &
+                       Celda%ang,            &
+                       Celda%cell_std,       &
+                       Celda%ang_std,        &
+                       Celda%rcell,          &
+                       Celda%rang,           &
+                       Celda%GD,Celda%GR,    &
+                       Celda%Cr_Orth_cel,    &
+                       Celda%Orth_Cr_cel,    &
+                       Celda%BL_M,           &
+                       Celda%BL_Minv,        &
+                       Celda%CellVol,        &
+                       Celda%RCellVol,       &
+                       Celda%CartType
+       return
+    End Subroutine Write_Bin_Crystal_Cell
 
     !!----
     !!---- Subroutine Write_Crystal_Cell(Celda,Lun)

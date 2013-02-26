@@ -138,6 +138,7 @@
 !!----       LATSYM
 !!--++       MAX_CONV_LATTICE_TYPE     [Private]
 !!--++       MOD_TRANS                 [Private]
+!!----       READ_BIN_SPACEGROUP
 !!----       READ_MSYMM
 !!----       READ_SYMTRANS_CODE
 !!----       READ_XSYM
@@ -154,6 +155,7 @@
 !!--++       SYMMETRY_SYMBOL_OP        [Overloaded]
 !!--++       SYMMETRY_SYMBOL_STR       [Overloaded]
 !!--++       SYMMETRY_SYMBOL_XYZ       [Overloaded]
+!!----       WRITE_BIN_SPACEGROUP
 !!----       WRITE_SPACEGROUP
 !!----       WRITE_SYM
 !!----       WRITE_SYMTRANS_CODE
@@ -200,7 +202,7 @@
                Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,        &
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,    &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                 &
-               Get_Transl_Symbol
+               Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -498,7 +500,7 @@
        type(Sym_Oper_Type), dimension(192)  :: SymOp            ! Symmetry operators
        character(len=40), dimension(192)    :: SymopSymb        ! Strings form of symmetry operators
        type(Wyckoff_Type)                   :: Wyckoff          ! Wyckoff Information
-       real(kind=cp),dimension(3,2)         :: R_Asym_Unit      ! Asymmetric unit in real(kind=cp) space
+       real(kind=cp),dimension(3,2)         :: R_Asym_Unit      ! Asymmetric unit in real space
     End Type Space_Group_Type
 
     !!----
@@ -6574,6 +6576,86 @@
     End Subroutine Mod_Trans
 
     !!----
+    !!---- Subroutine Read_Bin_Spacegroup(SpG,Lun,ok)
+    !!----    type (Space_Group),  intent(out) :: SpG   !  Out -> SpaceGroup Variable
+    !!----    integer,             intent(in)  :: Lun   !  In -> Logical unit of the file
+    !!----    logical,             intent(out) :: ok    !  .true. if everything is OK
+    !!----
+    !!----    Reading in file of logical unit "lun" the full structure of Space_Group_Type, SpG
+    !!----    The file should have been opened with the access="stream" attribute. The procedure
+    !!----    reads in the given order a series of bytes corresponding to the components of the
+    !!----    type SpG.
+    !!----
+    !!---- Update: February - 2013
+    !!
+    Subroutine Read_Bin_SpaceGroup(SpG,lun,ok)
+       !---- Arguments ----!
+       type (Space_Group_Type),intent(out) :: SpG
+       integer,                intent(in)  :: lun
+       logical,                intent(out) :: ok
+
+       !---- Local variables ----!
+       integer                           :: i,j,ier
+
+       ok=.true.
+       read(unit=Lun,iostat=ier) SpG%NumSpg,        &   ! Number of the Space Group
+                                 SpG%SPG_Symb,      &   ! Hermann-Mauguin Symbol
+                                 SpG%Hall,          &   ! Hall symbol
+                                 SpG%CrystalSys,    &   ! Crystal system
+                                 SpG%Laue,          &   ! Laue Class
+                                 SpG%PG,            &   ! Point group
+                                 SpG%Info,          &   ! Extra information
+                                 SpG%SG_setting,    &   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+                                 SpG%Hexa,          &   !
+                                 SpG%SPG_lat,       &   ! Lattice type
+                                 SpG%SPG_latsy,     &   ! Lattice type Symbol
+                                 SpG%NumLat,        &   ! Number of lattice points in a cell
+                                 SpG%Latt_trans,    &   ! Lattice translations
+                                 SpG%Bravais,       &   ! String with Bravais symbol + translations
+                                 SpG%Centre,        &   ! Alphanumeric information about the center of symmetry
+                                 SpG%Centred,       &   ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+                                 SpG%Centre_coord,  &   ! Fractional coordinates of the inversion centre
+                                 SpG%NumOps,        &   ! Number of reduced set of S.O.
+                                 SpG%Multip,        &   ! Multiplicity of the general position
+                                 SpG%Num_gen          ! Minimum number of operators to generate the Group
+       if(ier /= 0) then
+        ok=.false.
+        return
+       end if
+       do i=1,SpG%Multip
+         read(unit=Lun,iostat=ier) SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr, & ! Symmetry operators
+                                   SpG%SymopSymb(i)                    ! Strings form of symmetry operators
+         if(ier /= 0) then
+          ok=.false.
+          return
+         end if
+       end do
+       read(unit=Lun,iostat=ier) SpG%R_Asym_Unit      ! Asymmetric unit in real space
+       if(ier /= 0) then
+         ok=.false.
+         return
+       end if
+       read(unit=Lun,iostat=ier) SpG%Wyckoff%num_orbit              ! Wyckoff Information
+       if(ier /= 0) then
+        ok=.false.
+        return
+       end if
+       if (SpG%Wyckoff%num_orbit == 0) return
+       do i=1,SpG%Wyckoff%num_orbit
+         read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%norb
+         read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_Orig
+         do j=1,SpG%Wyckoff%orbit(i)%norb
+           read(unit=Lun,iostat=ier) SpG%Wyckoff%orbit(i)%str_orbit(j)
+         end do
+         if(ier /= 0) then
+          ok=.false.
+          return
+         end if
+       end do
+       return
+    End Subroutine Read_Bin_SpaceGroup
+
+    !!----
     !!---- Subroutine Read_Msymm(Info,Sim,P_Mag,ctrl)
     !!----    character (len=*),       intent( in) :: Info   !  In -> Input string with S.Op.
     !!----                                                            in the form: MSYM  u,w,w,p_mag
@@ -8877,6 +8959,64 @@
 
        return
     End Subroutine Symmetry_Symbol_Xyz
+
+    !!----
+    !!---- Subroutine Write_Bin_Spacegroup(SpG,Lun)
+    !!----    type (Space_Group),  intent(in)  :: SpG   !  In -> SpaceGroup Variable
+    !!----    integer,             intent(in)  :: Lun   !  In -> Logical unit of the file
+    !!----
+    !!----    Writing in file of logical unit "lun" the full structure of Space_Group_Type, SpG
+    !!----    The file should have been opened with the access="stream" attribute. The procedure
+    !!----    writes in the given order a series of bytes corresponding to the components of the
+    !!----    type SpG. For reading back a Space Group structure from a binary file the subroutine
+    !!----    Read_Bin_Spacegroup has to be used.
+    !!----
+    !!---- Update: February - 2013
+    !!
+    Subroutine Write_Bin_SpaceGroup(SpG,lun)
+       !---- Arguments ----!
+       type (Space_Group_Type),intent(in) :: SpG
+       integer,                intent(in) :: lun
+
+       !---- Local variables ----!
+       integer                           :: i,j,k
+
+       !---- Writing variables ----!
+       write(unit=Lun) SpG%NumSpg,        &   ! Number of the Space Group
+                       SpG%SPG_Symb,      &   ! Hermann-Mauguin Symbol
+                       SpG%Hall,          &   ! Hall symbol
+                       SpG%CrystalSys,    &   ! Crystal system
+                       SpG%Laue,          &   ! Laue Class
+                       SpG%PG,            &   ! Point group
+                       SpG%Info,          &   ! Extra information
+                       SpG%SG_setting,    &   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+                       SpG%Hexa,          &   !
+                       SpG%SPG_lat,       &   ! Lattice type
+                       SpG%SPG_latsy,     &   ! Lattice type Symbol
+                       SpG%NumLat,        &   ! Number of lattice points in a cell
+                       SpG%Latt_trans,    &   ! Lattice translations
+                       SpG%Bravais,       &   ! String with Bravais symbol + translations
+                       SpG%Centre,        &   ! Alphanumeric information about the center of symmetry
+                       SpG%Centred,       &   ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+                       SpG%Centre_coord,  &   ! Fractional coordinates of the inversion centre
+                       SpG%NumOps,        &   ! Number of reduced set of S.O.
+                       SpG%Multip,        &   ! Multiplicity of the general position
+                       SpG%Num_gen            ! Minimum number of operators to generate the Group
+       do i=1,SpG%Multip
+         write(unit=Lun) SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr ! Symmetry operators
+         write(unit=Lun) SpG%SymopSymb(i)                 ! Strings form of symmetry operators
+       end do
+       write(unit=Lun) SpG%R_Asym_Unit                    ! Asymmetric unit in real space
+       write(unit=Lun) SpG%Wyckoff%num_orbit              ! Wyckoff Information
+       do i=1,SpG%Wyckoff%num_orbit
+         write(unit=Lun) SpG%Wyckoff%orbit(i)%norb
+         write(unit=Lun) SpG%Wyckoff%orbit(i)%str_Orig
+         do j=1,SpG%Wyckoff%orbit(i)%norb
+           write(unit=Lun) SpG%Wyckoff%orbit(i)%str_orbit(j)
+         end do
+       end do
+       return
+    End Subroutine Write_Bin_SpaceGroup
 
     !!----
     !!---- Subroutine Write_Spacegroup(Spacegroup,Iunit,Full)

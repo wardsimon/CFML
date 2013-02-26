@@ -3349,6 +3349,7 @@ Module CFML_ILL_Instrm_Data
        if (nval_f > 0 .and. new_form) then
           n%wave=rvalues(18)           ! Wavelength
           n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
+          n%scans(1)=rvalues(7)        ! Initial 2theta
        end if
 
        if(new_form) then

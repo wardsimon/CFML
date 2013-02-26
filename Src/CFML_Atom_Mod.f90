@@ -83,8 +83,10 @@
 !!----       INIT_ERR_ATMD
 !!----       MERGE_ATOMS_PEAKS
 !!----       MULTI
+!!----       READ_BIN_ATOM_LIST
 !!----       WRITE_ATOM_LIST
 !!----       WRITE_ATOMS_CFL
+!!----       WRITE_BIN_ATOM_LIST
 !!----       WRITE_CFL
 !!----
 !!
@@ -116,7 +118,7 @@
               Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,            &
               Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,               &
               Write_Atoms_CFL, Write_CFL, Allocate_mAtom_list, Deallocate_mAtom_list, &
-              Init_mAtom_Type
+              Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List
 
     !---- Definitions ----!
 
@@ -929,7 +931,7 @@
        A%Ind      =0
        A%NVar     =0
        A%VarF     =0.0
-       A%AtmInfo  =" "
+       A%AtmInfo  ="None"
        return
     End Subroutine Init_Atom_Type
 
@@ -1231,6 +1233,82 @@
     End Subroutine Multi
 
     !!----
+    !!---- Subroutine Read_Bin_Atom_List(Ats,Lun,ok)
+    !!----    Type (atom_list_type),dimension(:),  intent(in out) :: Ats     !  In out -> Atom List
+    !!----    integer,                             intent(in)     :: lun     !  In -> Unit to write
+    !!----    logical,                             intent(out)    :: ok      ! True is everything is OK!
+    !!----
+    !!----    Reads the atoms in the asymmetric unit in a binary file of logical unit Lun.
+    !!----    The file should have been opened with the access="stream" attribute. The procedure
+    !!----    reads in the given order a series of bytes corresponding to the components of the
+    !!----    type Ats. The full structure is re-allocated inside the procedure before reading the
+    !!----    components. The number of atoms is the first element read in the file.
+    !!----
+    !!---- Update: February - 2013
+    !!
+    Subroutine Read_Bin_Atom_List(Ats,Lun,ok)
+       !---- Arguments ----!
+       type (atom_list_type),            intent(in out) :: Ats
+       integer,                          intent(in)     :: Lun
+       logical,                          intent(out)    :: ok
+       !---- Local Variables ----!
+       integer                        :: i,ier
+       logical                        :: Fail
+
+       ok=.true.
+       read(unit=lun,iostat=ier) Ats%natoms    !Number of atoms in the list
+       if(ier /= 0) then
+         ok=.false.
+         return
+       end if
+       if( Ats%natoms == 0) return
+       call Allocate_Atom_List(ats%natoms,Ats,Fail)
+       if(Fail) then
+        ok=.false.
+        return
+       end if
+       do i=1,ats%natoms
+         read(unit=lun,iostat=ier)     &
+           Ats%atom(i)%Lab,            &
+           Ats%atom(i)%ChemSymb,       &
+           Ats%atom(i)%SfacSymb,       &
+           Ats%atom(i)%Active,         &
+           Ats%atom(i)%Z,              &
+           Ats%atom(i)%Mult,           &
+           Ats%atom(i)%X,              &
+           Ats%atom(i)%X_Std,          &
+           Ats%atom(i)%MX,             &
+           Ats%atom(i)%LX,             &
+           Ats%atom(i)%Occ,            &
+           Ats%atom(i)%Occ_Std,        &
+           Ats%atom(i)%MOcc,           &
+           Ats%atom(i)%LOcc,           &
+           Ats%atom(i)%Biso,           &
+           Ats%atom(i)%Biso_std,       &
+           Ats%atom(i)%MBiso,          &
+           Ats%atom(i)%LBiso,          &
+           Ats%atom(i)%Utype,          &
+           Ats%atom(i)%ThType,         &
+           Ats%atom(i)%U,              &
+           Ats%atom(i)%U_std,          &
+           Ats%atom(i)%Ueq,            &
+           Ats%atom(i)%MU,             &
+           Ats%atom(i)%LU,             &
+           Ats%atom(i)%Charge,         &
+           Ats%atom(i)%Moment,         &
+           Ats%atom(i)%Ind,            &
+           Ats%atom(i)%NVar,           &
+           Ats%atom(i)%VarF,           &
+           Ats%atom(i)%AtmInfo
+           if(ier /= 0) then
+             ok=.false.
+             return
+           end if
+       end do
+       return
+    End Subroutine Read_Bin_atom_list
+
+    !!----
     !!---- Subroutine Write_Atom_List(Ats,Level,Lun,Cell)
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: Level   !  In -> Level of printed information
@@ -1451,6 +1529,64 @@
 
        return
     End Subroutine Write_Atoms_CFL
+
+    !!----
+    !!---- Subroutine Write_Bin_Atom_List(Ats,Lun)
+    !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
+    !!----    integer,                             intent(in) :: lun     !  In -> Unit to write
+    !!----
+    !!----    Write the atoms in the asymmetric unit in a binary file of logical unit Lun.
+    !!----    The file should have been opened with the access="stream" attribute. The procedure
+    !!----    writes in the given order a series of bytes corresponding to the components of the
+    !!----    type Ats. For reading back an atom list from a binary file the subroutine Read_Bin_Atom_List
+    !!----    has to be used.
+    !!----
+    !!---- Update: February - 2013
+    !!
+    Subroutine Write_Bin_Atom_List(Ats,Lun)
+       !---- Arguments ----!
+       type (atom_list_type),            intent(in) :: Ats
+       integer,                          intent(in) :: Lun
+       !---- Local Variables ----!
+       integer                        :: i
+
+       write(unit=lun) ats%natoms    !Number of atoms in the list
+       do i=1,ats%natoms
+         write(unit=lun)               &
+           ats%atom(i)%Lab,            &
+           ats%atom(i)%ChemSymb,       &
+           ats%atom(i)%SfacSymb,       &
+           ats%atom(i)%Active,         &
+           ats%atom(i)%Z,              &
+           ats%atom(i)%Mult,           &
+           ats%atom(i)%X,              &
+           ats%atom(i)%X_Std,          &
+           ats%atom(i)%MX,             &
+           ats%atom(i)%LX,             &
+           ats%atom(i)%Occ,            &
+           ats%atom(i)%Occ_Std,        &
+           ats%atom(i)%MOcc,           &
+           ats%atom(i)%LOcc,           &
+           ats%atom(i)%Biso,           &
+           ats%atom(i)%Biso_std,       &
+           ats%atom(i)%MBiso,          &
+           ats%atom(i)%LBiso,          &
+           ats%atom(i)%Utype,          &
+           ats%atom(i)%ThType,         &
+           ats%atom(i)%U,              &
+           ats%atom(i)%U_std,          &
+           ats%atom(i)%Ueq,            &
+           ats%atom(i)%MU,             &
+           ats%atom(i)%LU,             &
+           ats%atom(i)%Charge,         &
+           ats%atom(i)%Moment,         &
+           ats%atom(i)%Ind,            &
+           ats%atom(i)%NVar,           &
+           ats%atom(i)%VarF,           &
+           ats%atom(i)%AtmInfo
+       end do
+       return
+    End Subroutine Write_Bin_atom_list
 
     !!----
     !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
