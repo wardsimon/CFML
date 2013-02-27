@@ -91,20 +91,19 @@
       real, dimension (2)   :: ylim=(/0.0,1.0/)   ! ymin,ymax
       real, dimension (2)   :: zlim=(/0.0,1.0/)   ! zmin,zmax
       real, dimension (3)   :: cel,celang
-      type (atom_type), dimension (2) :: atomos
+      type (atom_list_type) :: atomos
       spgr='P -1'                 !Artificial values, just for generating a pseudo-density map
       cel=(/5.0,5.0,5.0/)
       celang=(/90.0,90.0,90.0/)
       call Set_Crystal_Cell(cel,celang,celda)
       call Set_SpaceGroup(spgr,grp_espacial)
-      call Init_Atom_type(atomos(1))
-      call Init_Atom_type(atomos(2))
-      atomos(1)%lab='Fe'
-      atomos(1)%x=(/0.5,0.5,0.5/)
-      atomos(1)%occ=1.0
-      atomos(2)%lab='Co'
-      atomos(2)%x=(/0.0,0.0,0.0/)
-      atomos(2)%occ=1.0
+      call Allocate_Atom_List(2,atomos)
+      atomos%atom(1)%lab='Fe'
+      atomos%atom(1)%x=(/0.5,0.5,0.5/)
+      atomos%atom(1)%occ=1.0
+      atomos%atom(2)%lab='Co'
+      atomos%atom(2)%x=(/0.0,0.0,0.0/)
+      atomos%atom(2)%occ=1.0
 
 
       jdomin =  100000.0
@@ -358,10 +357,13 @@
       !---- Writting the information ----!
       write (jfilbin) titulo
       write (jfilbin) version
-      write (jfilbin) celda
-      write (jfilbin) spgr,grp_espacial
-      write (jfilbin) natom
-      write (jfilbin) (atomos(i),i=1,natom)
+      call Write_Bin_Crystal_Cell(celda,jfilbin)
+      call Write_Bin_SpaceGroup(grp_espacial,jfilbin)
+      call Write_Bin_Atom_List(Atomos,jfilbin)
+      !write (jfilbin) celda
+      !write (jfilbin) grp_espacial
+      !write (jfilbin) natom
+      !write (jfilbin) (atomos(i),i=1,natom)
       write (jfilbin) fildat,filbin,filhkl,filatm,lugar,jlist,dist1,dist2,dist3
       write (jfilbin) f000,f000s,ntype,smin,smax,sigm,npeaks_to_find
       write (jfilbin) ngrid,denmin,denmax,xlim,ylim,zlim,xinc,yinc,zinc
