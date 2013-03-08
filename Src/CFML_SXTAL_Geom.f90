@@ -221,15 +221,21 @@
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
     Use CFML_GlobalDeps,        Only: Cp,To_Deg,To_Rad
-    Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand,co_linear
+    Use CFML_Math_General,      Only: cosd,sind,atan2d,acosd,asind,tand,co_linear,in_limits
     Use CFML_Math_3D,           Only: Cross_Product, invert => invert_A
-    Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type, Zone_Axis_type, Get_basis_from_uvw
+    Use CFML_Crystal_Metrics,   Only: Crystal_Cell_Type, Zone_Axis_type, Get_basis_from_uvw, &
+                                      Rot_Matrix
+    Use CFML_Geometry_Calc,     Only: Get_OmegaChiPhi, Get_Matrix_moving_v_to_u,ERR_Geom_Mess,&
+                                      ERR_Geom
     Use CFML_ILL_Instrm_data,   Only: Current_Orient, Current_Instrm, SXTAL_Numor_type
 
     !---- Variables ----!
     Implicit None
 
     Private
+
+    !---- List of public functions ----!
+    Public :: Chkin180
 
     !---- List of public subroutines ----!
     Public :: Angs_4C_bisecting, Equatorial_Chi_Phi, Get_dspacing_theta,                        &
@@ -238,7 +244,8 @@
               s4cnb, snb4c, Flat_Cone_vertDet, Get_WaveGaNu_frZ4, normal, refvec, sxdpsd,       &
               triple, z3frz1, z2frz1, z1frfc, z1frnb, z1frmd, z1frz4, z1frz3, z1frz2, z4frgn,   &
               z4frz1, calang, genb, genub, cell_fr_UB, set_psd, get_z1_from_pixel,              &
-              Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega, Get_UB_from_hkl_hkl_omega
+              Get_z1_D9angls, psd_convert, Get_UB_from_uvw_hkl_omega, Get_UB_from_hkl_hkl_omega,&
+              Get_FlatCone_Angles_D10
 
     !---- Definitions ----!
 
@@ -356,6 +363,32 @@
     Type(Sxd_Val_Type), Public :: sxd
 
  Contains
+
+    !!---- Elemental Function chkin180(angle) result(angle_in)
+    !!----   real(kind=cp), intent(in) :: angle
+    !!----   real(kind=cp)             :: angle_in
+    !!----
+    !!----  Elemental function (can be used with arrays) putting the
+    !!----  input angle (in degrees) into the interval (-180,180)
+    !!----
+    !!----  Created: March 2013 (JRC)
+    !!----
+    Elemental Function chkin180(angle) result(angle_in)
+      real(kind=cp), intent(in) :: angle
+      real(kind=cp)             :: angle_in
+
+      angle_in=angle
+      do
+        if(angle_in > 180.0_cp) then
+          angle_in=angle_in-360.0_cp
+        else if(angle_in < -180.0_cp) then
+          angle_in=angle_in+360.0_cp
+        else
+          exit
+        end if
+      end do
+      return
+    End Function chkin180
 
     !!----
     !!---- Subroutine Angs_4c_bisecting(wave,z1,tth,om,ch,ph,ierr)
@@ -1393,6 +1426,81 @@
 
        Return
     End Subroutine Get_dspacing_theta
+
+
+    !!---- Subroutine Get_FlatCone_Angles_D10(z,mu_fc,psi1,psi2,n_ang,limits,psi,omega,chi,phi,inlim,Rot_base)
+    !!----   real(kind=cp), dimension(3),             intent(in)  :: z
+    !!----   real(kind=cp),                           intent(in)  :: mu_fc,psi1,psi2
+    !!----   integer,                                 intent(in)  :: n_ang
+    !!----   real(kind=cp), dimension(:,:),           intent(in)  :: limits
+    !!----   real(kind=cp), dimension(:),             intent(out) :: psi,omega,chi,phi
+    !!----   logical,       dimension(:),             intent(out) :: inlim
+    !!----   real(kind=cp), dimension(3,3), optional, intent(out) :: Rot_base
+    !!----
+    !!----  Subroutine for getting all accessible angles for making a flat-cone data collection with
+    !!----  a geometry like D10
+    !!----
+    !!----
+    !!----
+    !!----  Created: March 2013 (JRC)
+    !!----
+    Subroutine Get_FlatCone_Angles_D10(z,mu_fc,psi1,psi2,n_ang,limits,psi,omega,chi,phi,inlim,Rot_base)
+      real(kind=cp), dimension(3),             intent(in)  :: z
+      real(kind=cp),                           intent(in)  :: mu_fc,psi1,psi2
+      integer,                                 intent(in)  :: n_ang
+      real(kind=cp), dimension(:,:),           intent(in)  :: limits
+      real(kind=cp), dimension(:),             intent(out) :: psi,omega,chi,phi
+      logical,       dimension(:),             intent(out) :: inlim
+      real(kind=cp), dimension(3,3), optional, intent(out) :: Rot_base
+
+      !--- Local variables ---!
+      real(kind=cp),dimension(3)    :: dL,angl
+      real(kind=cp),dimension(3,3)  :: Rot,R_psi,Rt
+      real(kind=cp)                 :: ps,om,ch,ph,oms,chs,phs,step
+      integer                       :: i
+      logical                       :: ok
+
+      !Initializing all output arrays
+      inlim=.false.; psi=0.0_cp; omega=0.0_cp; chi=0.0_cp; phi=0.0_cp
+
+      step=(psi2-psi1)/real(n_ang-1,kind=cp)
+      dL=(/0.0_cp, sind(mu_fc), cosd(mu_fc)/)    !unitary vector normal to detector plane in L-system for D10 z-down
+      call Get_Matrix_moving_v_to_u(z,dL,Rt)     !One of the infinite matrices
+
+      !Saving the base rotation matrix corresponding to psi=0.0 if needed
+      if(present(Rot_base))   Rot_base=Rt
+
+      ok=.false.
+      do i=1,n_ang
+        ps=psi1+real(i-1,kind=cp)*step
+        R_psi= Rot_Matrix(dL,ps)
+        Rot=Matmul(R_psi,Rt)   !Full rotation matrix
+
+        !Get the Euler angles corresponding to matrix Rot
+        Call Get_OmegaChiPhi(Rot,om,ch,ph,"D")
+        if(ERR_Geom) then
+            write(*,"(a)") trim(ERR_Geom_Mess)
+        else
+            angl=(/om,ch,ph/)
+            if(in_limits(3,limits,angl)) then
+              omega(i)=om; chi(i)=ch; phi(i)=ph; psi(i)=ps
+              inlim(i)=.true.
+              cycle
+            end if
+            oms=om+180.0_cp
+            chs=-ch
+            phs=ph+180_cp
+            angl=Chkin180((/oms,chs,phs/))
+            if(in_limits(3,limits,angl)) then
+              omega(i)=oms; chi(i)=chs; phi(i)=phs; psi(i)=ps
+              inlim(i)=.true.
+              cycle
+            end if
+            omega(i)=om; chi(i)=ch; phi(i)=ph
+        end if
+      end do
+      return
+    End Subroutine Get_FlatCone_Angles_D10
 
     !!----
     !!---- Subroutine Get_GaOmNu_frChiPhi(wave,z1,ch,ph,ga,om,nu,ierr)

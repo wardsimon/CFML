@@ -19,8 +19,8 @@ HKL-OBS  mfe.hkl
 MIN-DSPACING   1.5
 RADIATION  neutrons
 FST_CMD  conn P O 0.0 1.8  ; conn FE O 0.0 2.3 ; poly P
-
-OPTIMIZE     Fobs-Fcal 1.0
+            !Fobs-Fcal 1.0
+OPTIMIZE    dis-restr 1
 
 !Total number of independent distance restraints:    28
 
@@ -58,13 +58,13 @@ SIM_ANN
 LOCAL_OPTIMIZATION
 
 !       Name of the cost function
-CostNam  General_Cost
+CostNam  Distance-Restraints
 
 !         T_ini     anneal     num_temps
 TemParM     8.0       0.95       80
 
 !         Nalgor  Nconf nm_cycl   num_therm   accept
-Algor_T     0       5    150         0         0.5
+Algor_T     0       1    150         0         0.5
 
 !         Value of Seed (if SeedVAL = 0, random seed)
 SeedVAL     0

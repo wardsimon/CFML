@@ -85,6 +85,8 @@
 !!----       DISTANCE_AND_SIGMA
 !!----       GET_ANGLEN_AXIS_FROM_ROTMAT
 !!----       GET_EULER_FROM_FRACT
+!!----       GET_MATRIX_MOVING_V_TO_U
+!!----       GET_OMEGACHIPHI
 !!----       GET_PHITHECHI
 !!----       GET_TRANSF_LIST
 !!----       INIT_ERR_GEOM
@@ -102,7 +104,7 @@
     use CFML_Math_General,               only: acosd, cosd, sind, Modulo_Lat
     use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
-    use CFML_Crystal_Metrics,            only: Crystal_Cell_Type, Get_Deriv_Orth_Cell
+    use CFML_Crystal_Metrics,            only: Crystal_Cell_Type, Get_Deriv_Orth_Cell,Rot_Matrix
     use CFML_Atom_TypeDef,               only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
                                                searchop, Read_SymTrans_Code, Write_SymTrans_Code
@@ -121,7 +123,8 @@
     public :: Allocate_Coordination_Type, Allocate_Point_List, Calc_Dist_Angle, Calc_Dist_Angle_Sigma, &
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
-              Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat
+              Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u, &
+              Get_OmegaChiPhi
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -1892,6 +1895,152 @@
 
        return
     End Subroutine Get_Euler_From_Fract
+
+    !!---- Subroutine Get_Matrix_moving_v_to_u(v,u,R,w,ang)
+    !!----   real, dimension(3),           intent(in)  :: v,u   !Starting and final vectors
+    !!----   real, dimension(3,3),         intent(out) :: R     !Rotation matrix moving v to u:  u=Rv
+    !!----   real, optional,               intent(out) :: ang   !angle between the two vectors
+    !!----   real, optional,dimension(3),  intent(out) :: w     !axis normal to plane of the two vectors
+    !!----
+    !!----   Subroutine to get the orthogonal matrix that rotates a vector v
+    !!----   to orient it along the vector u. Makes use of Cross_Product and
+    !!----   Rot_matrix (Gibbs matrix)
+    !!----
+    !!----    Created: February 2010 (JRC)
+    !!----    Updated: March 2013 (JRC)
+    !!----
+    !!
+    Subroutine Get_Matrix_moving_v_to_u(v,u,R,w,ang)
+      real, dimension(3),           intent(in)  :: v,u
+      real, dimension(3,3),         intent(out) :: R
+      real, optional,               intent(out) :: ang
+      real, optional,dimension(3),  intent(out) :: w
+      !--- Local variables ---!
+      integer                        :: i,iu,iv
+      real, parameter                :: ep=1.0e-5
+      real                           :: mv,mu,mvu,phi,c
+      logical                        :: co_linear
+      real, dimension(3)             :: vu
+      integer, dimension(1)          :: im
+      real, parameter, dimension(3,3):: ident=reshape((/1.0,0.0,0.0, &
+                                                        0.0,1.0,0.0, &
+                                                        0.0,0.0,1.0/),(/3,3/))
+
+      if(present(ang)) ang=0.0
+      if(present(w))   w=0.0
+      !First determine if the two input vectors are co-linear
+      im=maxloc(abs(v))
+      iv=im(1)
+      im=maxloc(abs(u))
+      iu=im(1)
+      co_linear=.true.
+      if(iu == iv) then ! may be co-linear
+        if(abs(u(iu)) > ep) then
+          c=v(iv)/u(iu)
+          do i=1,3
+            if(abs( v(i)-c*u(i) ) > ep ) then
+               co_linear=.false.
+               exit
+            end if
+          end do
+        end if
+      else
+        co_linear=.false.
+      end if
+      if(co_linear) then
+        mvu=v(iv)*u(iu)
+        if(mvu < 0.0) then   !opposed vectors
+          R=-ident
+        else                 !parallel vectors
+          R=ident
+        end if
+      else
+        ! non co-linear
+        vu=Cross_Product(v,u)      !Rotation axis
+        mv=sqrt(dot_product(v,v))
+        mu=sqrt(dot_product(u,u))
+        phi=dot_product(u,v)/mv/mu
+        phi=acosd(phi)        !Angle between the two input vectors
+        R=Rot_matrix(vu,phi)  !Gibbs matrix
+        if(present(ang)) ang=phi
+        if(present(w)) w=vu
+      end if
+      return
+    End Subroutine Get_Matrix_moving_v_to_u
+
+    !!----
+    !!---- Subroutine Get_OmegaChiPhi(Mt,Omega,Chi,Phi,Code)
+    !!----    real(kind=cp), dimension(3,3),intent(in)  :: Mt
+    !!----    real(kind=cp),                intent(out) :: Omega
+    !!----    real(kind=cp),                intent(out) :: Chi
+    !!----    real(kind=cp),                intent(out) :: Phi
+    !!----    character(len=*), optional,   intent(in)  :: Code
+    !!----
+    !!----    Calculate the Euler Angles corresponding to an orthogonal matrix
+    !!----    The definition of the Euler angles in this case correspond to the
+    !!----    rotation matrix of Busing and Levy for diffractormetry obtained from
+    !!----    the composition of a rotation around z of angle Phi, followed by a
+    !!----    rotation of angle Chi around the y-axis and a subsequent rotation of angle
+    !!----    Omega around z.
+    !!----    The matrix is supposed to be of the form: M = Rz(Omega).Ry(Chi).Rz(Phi)
+    !!----    If Code =="R" or not present then the output angles are provided in radians.
+    !!----    If Code =="D" then the output angles are provided in degrees.
+    !!----    A checking of the input matrix is given before calculating the angles.
+    !!----    The user must check the logical variable "ERR_RotMat" after calling this
+    !!----    subroutine. If ERR_RotMat=.true. it means that the input matrix is not orthogonal.
+    !!----    The obtained rotations should be interpreted as changes of reference systems, the
+    !!----    angles correspond to the motor settings to put a reciprocal vector in Cartesian
+    !!----    coordinates w.r.t. the L-sysmem (all angles equal to zero) in the position given
+    !!----    by the active rotation matrix Mt:  z4= Mt z1.
+    !!----
+    !!---- Updated: March - 2013
+    !!
+    Subroutine Get_OmegaChiPhi(Mt,Omega,Chi,Phi,Code)  !Conventional Euler angles of diffractometry
+       !---- Arguments ----!
+       real(kind=cp), dimension(3,3),intent(in)  :: Mt
+       real(kind=cp),                intent(out) :: Omega
+       real(kind=cp),                intent(out) :: Chi
+       real(kind=cp),                intent(out) :: Phi
+       character(len=*), optional,   intent(in)  :: Code
+
+       !---- Local Variables ----!
+       real(kind=cp), dimension(3,3):: MTT
+       real(kind=cp), parameter, dimension(3,3) :: &
+                      identity = reshape ( (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/),(/3,3/))
+
+       MTT=transpose(Mt)
+       MTT=matmul(MTT,Mt)-identity
+       if (sum(abs(MTT)) > 5.0*eps) then
+          ERR_Geom=.true.
+          ERR_Geom_Mess=" Error in Get_OmegaChiPhi ... the input matrix is not orthogonal! "
+          return
+       end if
+       if (abs(Mt(3,3)-1.0) < eps) then  !M(3,3)=cos(Chi)=1
+          Chi=0.0
+          Omega=0.0                       ! Omega and Phi have the same axis, we select Omega=0
+          !Phi=acos(Mt(1,1))              ! M(1,1)=cos(Omega)cos(Chi)cos(Phi)-sin(Omega)sin(Phi)
+          Phi=atan2(Mt(1,2),Mt(1,1))      ! M(1,2)=cos(Omega)cos(Chi)sin(Phi)+sin(Omega)cos(Phi)
+       else if(abs(Mt(3,3)+1.0) < eps) then  !M(3,3)=cos(Chi)=-1
+          Chi=pi
+          Omega=0.0                       ! Omega and Phi have the same axis, we select Omega=0
+          !Phi=acos(-Mt(1,1))             ! We use also the elements (11) and (12)
+          Phi=atan2(-Mt(1,2),Mt(1,1))
+       else
+          !Chi=acos(Mt(3,3))  !Better use the relation below (In BL there is an error in eqn 48 for omega)
+          Omega=atan2(-Mt(2,3),Mt(1,3))       !M(1,3)=  cos(Omega)sin(Chi)   M(2,3)= -sin(Omega)sin(Chi)
+          Phi=atan2(-Mt(3,2),-Mt(3,1))        !M(3,1)= -sin(Chi)cos(Phi)     M(3,2)= -sin(Chi)sin(Phi)
+          Chi=atan2( Sqrt(Mt(3,1)*Mt(3,1)+Mt(3,2)*Mt(3,2)), Mt(3,3) )
+       end if
+       if (present(Code)) then
+          if (code(1:1)=="D" .or. code(1:1)=="d") then
+             Phi=Phi*to_deg
+             Omega=Omega*to_deg
+             Chi=Chi*to_deg
+          end if
+       end if
+
+       return
+    End Subroutine Get_OmegaChiPhi
 
     !!----
     !!---- Subroutine Get_PhiTheChi(Mt,Phi,Theta,Chi,Code)

@@ -217,7 +217,7 @@
     !---- List of public overloaded procedures: functions ----!
     public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
               Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,    &
-              Zbelong, Imaxloc, Iminloc, Norm, Scalar
+              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -227,7 +227,8 @@
                Equal_Matrix_R, Equal_Vector_I, Equal_Vector_R, Locate_I, Locate_R, &
                Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
                ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
-               Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb
+               Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb,           &
+               In_limits_dp, In_limits_sp, In_Limits_int
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
@@ -246,6 +247,7 @@
                Svdcmp_sp, Swap_C, Swap_Cm, Swap_Cv, Swap_I, Swap_Im, Swap_Iv,     &
                Swap_R, Swap_Rm, Swap_Rv, Masked_Swap_R, Masked_Swap_Rm,           &
                Masked_Swap_Rv, Tqli1, Tqli2, Tred1, Tred2, Partition
+
 
     !---- Definitions ----!
 
@@ -521,6 +523,12 @@
     Interface  Diagonalize_SH
        Module Procedure Diagonalize_HERM
        Module Procedure Diagonalize_SYMM
+    End Interface
+
+    Interface In_Limits
+       Module Procedure In_Limits_int
+       Module Procedure In_Limits_dp
+       Module Procedure In_Limits_sp
     End Interface
 
     Interface  Linear_Dependent
@@ -1968,6 +1976,99 @@
 
        return
     End Function Iminloc_R
+
+    !!----
+    !!---- Function in_limits(n,limits,vect) result(ok)
+    !!----   integer,                      intent(in) :: n
+    !!----   integer/real, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+    !!----   integer/real, dimension(n),   intent(in) :: vect
+    !!----   logical                                  :: ok
+    !!----
+    !!----   Logical function that is true if all the components of the vector vect
+    !!----   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
+    !!----
+    !!----   Updated: March - 2013
+    !!
+    !!--++
+    !!--++ Function in_limits_int(n,limits,vect) result(ok)
+    !!--++   integer,                 intent(in) :: n
+    !!--++   integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+    !!--++   integer, dimension(n),   intent(in) :: vect
+    !!--++   logical                              :: ok
+    !!--++
+    !!--++   Logical function that is true if all the components of the vector vect
+    !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
+    !!--++
+    !!--++   Updated: March - 2013
+    !!
+    Function in_limits_int(n,limits,vect) result(ok)
+      integer,                 intent(in) :: n
+      integer, dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+      integer, dimension(n),   intent(in) :: vect
+      logical :: ok
+      integer :: i
+      ok=.true.
+      do i=1,n
+        if(vect(i) >= limits(1,i) .and. vect(i) <= limits(2,i)) cycle
+        ok=.false.
+        exit
+      end do
+      return
+    End Function in_limits_int
+
+    !!--++
+    !!--++ Function in_limits_dp(n,limits,vect) result(ok)
+    !!--++   integer,                       intent(in) :: n
+    !!--++   real(kind=dp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+    !!--++   real(kind=dp), dimension(n),   intent(in) :: vect
+    !!--++   logical                                   :: ok
+    !!--++
+    !!--++   Logical function that is true if all the components of the vector vect
+    !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
+    !!--++
+    !!--++   Updated: March - 2013
+    !!
+    Function in_limits_dp(n,limits,vect) result(ok)
+      integer,                       intent(in) :: n
+      real(kind=dp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+      real(kind=dp), dimension(n),   intent(in) :: vect
+      logical :: ok
+      integer :: i
+      ok=.true.
+      do i=1,n
+        if(vect(i) >= limits(1,i) .and. vect(i) <= limits(2,i)) cycle
+        ok=.false.
+        exit
+      end do
+      return
+    End Function in_limits_dp
+
+    !!--++
+    !!--++ Function in_limits_sp(n,limits,vect) result(ok)
+    !!--++   integer,                       intent(in) :: n
+    !!--++   real(kind=sp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+    !!--++   real(kind=sp), dimension(n),   intent(in) :: vect
+    !!--++   logical                                   :: ok
+    !!--++
+    !!--++   Logical function that is true if all the components of the vector vect
+    !!--++   are within the limits:   limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
+    !!--++
+    !!--++   Updated: March - 2013
+    !!
+    Function in_limits_sp(n,limits,vect) result(ok)
+      integer,                       intent(in) :: n
+      real(kind=sp), dimension(:,:), intent(in) :: limits   ! Normally (2,n)
+      real(kind=sp), dimension(n),   intent(in) :: vect
+      logical :: ok
+      integer :: i
+      ok=.true.
+      do i=1,n
+        if(vect(i) >= limits(1,i) .and. vect(i) <= limits(2,i)) cycle
+        ok=.false.
+        exit
+      end do
+      return
+    End Function in_limits_sp
 
     !!----
     !!---- Function Locate(xx, n, x) Result(j)
