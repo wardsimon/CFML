@@ -93,6 +93,7 @@
 !!----       P1_DIST
 !!----       PRINT_DISTANCES
 !!----       SET_ORBITS_INLIST
+!!----       SET_ROTATION_MATRIX
 !!----       SET_TDIST_COORDINATION
 !!----       SET_TDIST_PARTIAL_COORDINATION
 !!----
@@ -124,7 +125,7 @@
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
               Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u, &
-              Get_OmegaChiPhi
+              Get_OmegaChiPhi, Set_Rotation_Matrix
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -2503,6 +2504,31 @@
 
        return
     End Subroutine Set_Orbits_Inlist
+
+    !!---- Subroutine Set_Rotation_Matrix(ang,Rot)
+    !!----   real(kind=cp), dimension(3),   intent( in) :: ang
+    !!----   real(kind=cp), dimension(3,3), intent(out) :: Rot
+    !!----
+    !!----  Subroutine calculating the rotation matrix Rot corresponding to
+    !!----  the application (active rotations) of the following succesive rotations:
+    !!----
+    !!----  Rot = Rx(ang(3)) . Ry(ang(2)) . Rz(ang(1))
+    !!----
+    !!----    Created: October 2009  (JRC)
+    !!----    Updated: March 2013 (JRC)
+    !!----
+
+    Subroutine Set_Rotation_Matrix(ang,Rot)
+      real(kind=cp), dimension(3),   intent( in) :: ang
+      real(kind=cp), dimension(3,3), intent(out) :: Rot
+      !Local variables
+      real(kind=cp), dimension(3,3) :: Rx,Ry,Rz
+      Rx=Matrix_Rx(ang(1),"D")
+      Ry=Matrix_Ry(ang(2),"D")
+      Rz=Matrix_Rz(ang(3),"D")
+      Rot=Matmul(Rx,matmul(Ry,Rz))
+      return
+    End Subroutine Set_Rotation_Matrix
 
     !!----
     !!---- Subroutine Set_TDist_Coordination(Max_coor,Dmax, Cell, Spg, A)
