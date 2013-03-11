@@ -99,7 +99,7 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Get_Atomic_Mass, Get_ChemSymb, Get_Covalent_radius, Get_Fermi_Length, Get_Ionic_radius
+    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Fermi_Length, Get_Ionic_radius
     public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
     public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
 
@@ -409,6 +409,39 @@
 
        return
     End Subroutine Get_Atomic_Mass
+    
+    !!----
+    !!---- Subroutine Get_Atomic_Vol(Atm,Vol)
+    !!----    character(len=2), intent(in)  :: Atm
+    !!----    real(kind=cp),    intent(out) :: Vol
+    !!----
+    !!----    Provides the atomic volume given the chemical symbol of the element
+    !!----    In case of problems the returned Volume is ZERO.
+    !!----
+    !!---- Update: March- 2013
+    !!
+    Subroutine Get_Atomic_Vol(atm,vol)
+       !---- Arguments ----!
+       character(len=2), intent (in) :: atm
+       real(kind=cp),    intent(out) :: Vol
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer :: i
+
+       vol=0.0
+       atm_car=u_case(atm)
+       if (.not. allocated(chem_info) ) call set_chem_info()
+
+       do i=1,Num_Chem_Info
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             vol=chem_info(i)%VAtm
+             exit
+          end if
+       end do
+
+       return
+    End Subroutine Get_Atomic_Vol
 
     !!----
     !!---- Subroutine Get_ChemSymb(Label, ChemSymb, Z)
