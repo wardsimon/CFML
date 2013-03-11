@@ -8979,7 +8979,7 @@
        integer,                intent(in) :: lun
 
        !---- Local variables ----!
-       integer                           :: i,j,k
+       integer                           :: i,j
 
        !---- Writing variables ----!
        write(unit=Lun) SpG%NumSpg,        &   ! Number of the Space Group
