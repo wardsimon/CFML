@@ -9,7 +9,7 @@ rem
 rem
    gfortran -c CFML_GlobalDeps_Windows.f90         -O0 -fbacktrace  -std=f2003
 rem
-   gfortran -c CFML_math_gen.f90         -O0 -fbacktrace  -std=f2003  
+   gfortran -c CFML_math_gen.f90         -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_LSQ_TypeDef.f90      -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_spher_harm.f90       -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_random.f90           -O0 -fbacktrace  -std=f2003
@@ -18,7 +18,7 @@ rem
    gfortran -c CFML_io_messwin.f90       -O0 -fbacktrace  -std=f2003   -I"%winter%\lib.gnu"
 rem -std=f2003 removed in TOF because probably there is a conflict of names
 rem  is erfc an intrinsic function in  F2003?
-   gfortran -c CFML_Profile_TOF.f90      -O0 -fbacktrace  -std=gnu          
+   gfortran -c CFML_Profile_TOF.f90      -O0 -fbacktrace  -std=gnu
    gfortran -c CFML_Profile_Finger.f90   -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_Profile_Functs.f90   -O0 -fbacktrace  -std=f2003
 rem
@@ -38,20 +38,20 @@ rem
    gfortran -c CFML_bonds_table.f90      -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_cryst_types.f90      -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_symmetry.f90         -O0 -fbacktrace  -std=f2003
-   gfortran -c CFML_ILL_Instrm_data.f90  -O0 -fbacktrace  -std=gnu  
+   gfortran -c CFML_ILL_Instrm_data.f90  -O0 -fbacktrace  -std=gnu
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, SXTAL geometry
+   echo .... Reflections, Atoms
 rem
    gfortran -c CFML_reflct_util.f90      -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_atom_mod.f90         -O0 -fbacktrace  -std=f2003
-   gfortran -c CFML_SXTAL_geom.f90       -O0 -fbacktrace  -std=f2003
 rem
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, Propag Vectors
+   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
 rem
    gfortran -c CFML_sfac.f90             -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_geom_calc.f90        -O0 -fbacktrace  -std=f2003
+   gfortran -c CFML_SXTAL_geom.f90       -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_propagk.f90          -O0 -fbacktrace  -std=f2003
 rem
    echo **---- Level 5 ----**
@@ -60,13 +60,13 @@ rem
    gfortran -c CFML_maps.f90             -O0 -fbacktrace  -std=f2003
    gfortran -c CFML_molecules.f90        -O0 -fbacktrace  -std=f2003
 rem -std=f2003 removed because calls to flush subroutine
-   gfortran -c CFML_conf_calc.f90        -O0 -fbacktrace            
+   gfortran -c CFML_conf_calc.f90        -O0 -fbacktrace
 rem
    echo **---- Level 6 ----**
    echo .... Formats
 rem
    gfortran -c CFML_form_cif.f90         -O0 -fbacktrace  -std=f2003
-   gfortran -c CFML_Export_Vtk.f90       -O0 -fbacktrace  -std=gnu  
+   gfortran -c CFML_Export_Vtk.f90       -O0 -fbacktrace  -std=gnu
 rem
    echo **---- Level 7 ----**
    echo .... Keywords Parser, Simulated Annealing, Magnetic Symmetry

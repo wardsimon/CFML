@@ -41,17 +41,17 @@ rem
    gfortran -c CFML_ILL_Instrm_data.f90  -O3  -std=gnu    -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, SXTAL geometry
+   echo .... Reflections, Atoms
 rem
    gfortran -c CFML_reflct_util.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_atom_mod.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
-   gfortran -c CFML_SXTAL_geom.f90       -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, Propag Vectors
+   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
 rem
    gfortran -c CFML_sfac.f90             -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_geom_calc.f90        -O3  -std=f2003  -funroll-loops  -msse2  >> out
+   gfortran -c CFML_SXTAL_geom.f90       -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_propagk.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem
    echo **---- Level 5 ----**

@@ -39,17 +39,17 @@ rem
    ifort /c CFML_ILL_Instrm_data.f90  /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, SXTAL geometry
+   echo .... Reflections, Atoms
 rem
    ifort /c CFML_reflct_util.f90      /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_atom_mod.f90         /debug:full /check /traceback /CB /nologo /Qvec-report0
-   ifort /c CFML_SXTAL_Geom.f90       /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, Propag Vectors
+   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
 rem
    ifort /c CFML_sfac.f90             /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_geom_calc.f90        /debug:full /check /traceback /CB /nologo /Qvec-report0
+   ifort /c CFML_SXTAL_Geom.f90       /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_propagk.f90          /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 5 ----**

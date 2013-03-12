@@ -39,17 +39,17 @@ rem
    rem f95 -c -O3 -w CFML_ILL_Instrm_data.f90    >> out
 rem
    echo **---- Level 3 ----**
-   echo .... Reflections, Atoms, SXTAL geometry
+   echo .... Reflections, Atoms
 rem
    f95 -c -O3 -w CFML_reflct_util.f90        >> out
    f95 -c -O3 -w CFML_atom_mod.f90           >> out
-   rem f95 -c -O3 -w CFML_SXTAL_geom.f90         >> out
 rem
    echo **---- Level 4 ----**
-   echo .... Structure Factors, Geometry Calculations, Propag Vectors
+   echo .... Structure Factors, Geometry Calculations, SXTAL geometry, Propag Vectors
 rem
    f95 -c -O3 -w CFML_sfac.f90               >> out
    f95 -c -O3 -w CFML_geom_calc.f90          >> out
+   rem f95 -c -O3 -w CFML_SXTAL_geom.f90         >> out
    f95 -c -O3 -w CFML_propagk.f90            >> out
 rem
    echo **---- Level 5 ----**
