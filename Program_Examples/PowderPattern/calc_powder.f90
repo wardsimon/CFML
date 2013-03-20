@@ -288,6 +288,8 @@
      if (narg > 0) then
         call get_command_argument(1,filcod)
         arggiven=.true.
+        i=index(filcod,".",back=.true.)
+        if(i /= 0) filcod=filcod(1:i-1)
      end if
 
 
@@ -304,6 +306,8 @@
         write(unit=*,fmt="(a)", advance='no') " => Code of the file xx.cif(cfl) (give xx): "
         read(unit=*,fmt="(a)") filcod
         if(len_trim(filcod) == 0) stop
+        i=index(filcod,".",back=.true.)
+        if(i /= 0) filcod=filcod(1:i-1)
      end if
 
 
@@ -523,7 +527,7 @@
        call cpu_time(tfin)
        tim=tim+ tfin-tini
        call factim(tfin-tini,time)
-       write(*,"(2(a,i8))") "  => Total number of generated reflections is ",hkl%nref, "  Estimated: ",MaxNumRef
+       write(*,"(2(a,i8))") "  => Total number of effectively generated reflections is ",hkl%nref, "  Starting estimate was: ",MaxNumRef
        write(*,*) " => CPU-time used for Hkl_Uni: ",(tfin-tini)*ftim,units
        write(unit=lun,fmt="(a,i9)") " => Total number of generated reflections is ",hkl%nref
        write(unit=lun,fmt="(a,f15.3,a)") " => CPU-time used for Hkl_Uni: ",(tfin-tini)*ftim,units
@@ -602,9 +606,9 @@
       write(unit=lp,fmt="(8f16.4)") Pat%ycalc+PPC%bkg
       ! Alternative two-column output (comment two previous lines and uncomment the following ones)
       !write(unit=lp,fmt="(a)") "! twotheta  countrate "
-      !do i=1,Pat%npts 
+      !do i=1,Pat%npts
       !    write(unit=lp,fmt="(2f16.4)") Pat%xmin+i*Pat%step,Pat%ycalc(i)+PPC%bkg
-      !end do 
+      !end do
       close(unit=lun)
       stop
 
