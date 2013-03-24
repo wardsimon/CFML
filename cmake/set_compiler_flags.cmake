@@ -9,7 +9,7 @@ macro(set_compiler_flags)
 
         if(WIN32)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set(CMAKE_Fortran_FLAGS_DEBUG "-debug:full /check /traceback /nologo")
+                set(CMAKE_Fortran_FLAGS_DEBUG "-debug:full /traceback /nologo")
                 set(OPT_FLAGS "/Od")
                 set(OPT_FLAGS1 "/Od")
             elseif(CMAKE_BUILD_TYPE STREQUAL Release)
