@@ -1438,11 +1438,11 @@
                                call setnum_std(dd,sdd,text)
                                n_cif_dist_text = n_cif_dist_text + 1
 
-                               if(i1==0 .and. i2==0 .and. i3==0 .and. j==1) then
-                                write(unit=CIF_bond_site_symm_2, fmt='(a)') "       . ?"
-                               else
+                               !if(i1==0 .and. i2==0 .and. i3==0 .and. j==1) then
+                               ! write(unit=CIF_bond_site_symm_2, fmt='(a)') "       . ?"
+                               !else
                                 write(unit=CIF_bond_site_symm_2, fmt='(a,i3, a, 3i1,a)') " ", j, "_", nint(tn+5.0), " ?"
-                               end if
+                               !end if
 
                                write(unit=CIF_dist_text(n_cif_dist_text), fmt='(6a)') &
                                      A%atom(i)%lab(1:4), "  ", A%atom(k)%lab(1:4), " ", text(1:12), CIF_bond_site_symm_2
@@ -1633,14 +1633,19 @@
 
                 end if !present(lun_cons)
 
-                if (present(lun_cif) .and. n_cif_angl_text < max_cif_angl_text) then
-                   ! j: indice de l'operateur de symetrie pour atome 1
-                   ! k: indice de l'operateur de symetrie pour atome 2
+                if (present(lun_cif) .and. n_cif_angl_text < max_cif_angl_text .and. ang12 > 45.0) then
+                   !--- Change: I have included the condition ang12 > 45 for selecting the angle to write in
+                   !            the CIF file, normally the angles below that value are irrelevant from the
+                   !            chemical point of view.
+                   ! j: indice de l'operateur de symetrie pour atome 1 ----! No!, Now j and k correspond to indices
+                   ! k: indice de l'operateur de symetrie pour atome 2 ----!      running on coordination around atom i!
                    ! tr1: translation associee a op_j ----No!      =>  trcoo(:,j)!
                    ! tr2: translation associee a op_k ?  ----No!   =>  trcoo(:,k)!
                    n_cif_angl_text = n_cif_angl_text + 1
 
                    !  The commented lines correspond to wrong selections of translations!!!!!!!
+                   !  Moreover the indices j and k were taken as the ordinal numbers of the
+                   !  symmetry operators and that's not true!
                    !if (j==1 .and. nint(tr1(1))==0 .and. nint(tr1(2))==0 .and. nint(tr1(3))==0) then
                    !   write(unit=CIF_angle_site_symm_1, fmt='(a)') "       ."
                    !else
@@ -1654,19 +1659,13 @@
                    !         nint(tr2(1)+5.0), nint(tr2(2)+5.0), nint(tr2(3)+5.0), " ?"
                    !end if
 
-                   if (j==1 .and. nint(trcoo(1,j))==0 .and. nint(trcoo(2,j))==0 .and. nint(trcoo(3,j))==0) then
-                      write(unit=CIF_angle_site_symm_1, fmt='(a)') "       ."
-                   else
-                      write(unit=CIF_angle_site_symm_1, fmt='(a,i3, a, 3I1)') " ", j, "_", nint(trcoo(:,j)+5.0), " ?"
-                   end if
-                   if (k==1 .and. nint(trcoo(1,k))==0 .and. nint(trcoo(2,k))==0 .and. nint(trcoo(3,k))==0) then
-                      write(unit=CIF_angle_site_symm_3, fmt='(a)') "  .  ?"
-                   else
-                      write(unit=CIF_angle_site_symm_3, fmt='(a,i3, a, 3I1,a)') " ", k, "_", nint(trcoo(:,k)+5.0), " ?"
-                   end if
+                   write(unit=CIF_angle_site_symm_1, fmt='(a,i3, a, 3I1)') " ", &
+                         Coord_Info%N_sym(i,j), "_", nint(trcoo(:,j)+5.0)
+                   write(unit=CIF_angle_site_symm_3, fmt='(a,i3, a, 3I1,a)') " ", &
+                         Coord_Info%N_sym(i,k), "_", nint(trcoo(:,k)+5.0), " ?"
 
-                   write(unit=CIF_angl_text(n_cif_angl_text), fmt='(10a)')             &
-                         nam1(1:4)," ", nam(1:4), " ",nam2, tex(1:12), " ",            &
+                   write(unit=CIF_angl_text(n_cif_angl_text), fmt='(10a)')        &
+                         nam1(1:4)," ", nam(1:4), " ",nam2, tex(1:12), " ",       &
                          trim(CIF_angle_site_symm_1), " ", trim(CIF_angle_site_symm_3)
 
                 end if
