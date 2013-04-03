@@ -31,17 +31,18 @@ Module Ref_Gen
         integer, optional,      intent(out)    :: iop_ord
         !---- Local variables ----!
         character(len=132)   :: line, file_inst
-        real                 :: wave,wav
+        real                 :: wave,wav,tmin,tmax
         real, dimension(3,3) :: ub
         real, dimension(6)   :: dcel,incel
         integer              :: i,ier,j, n, lun, i_def
-        logical              :: esta, ub_read, wave_read, inst_read
+        logical              :: esta, ub_read, wave_read, inst_read, trang_read
 
         ok=.false.
         ub_read=.false.
         wave_read=.false.
         inst_read=.false.
         spher=.false.
+        trang_read=.false.
         mess= " "
         ord=(/3,2,1/)
         incel(1:3)=cell%cell
@@ -70,11 +71,26 @@ Module Ref_Gen
                         end if
                     end if
 
+                case("trang")
+                    if(present(sgiven) .and. present(smin) .and. present(smax) .and. wave_read) then
+                        read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) tmin,tmax
+                        if(ier /= 0) then
+                            mess="Error reading 2theta_min and 2Theta_max in CFL file: "//trim(file_inst)
+                            sgiven=.false.
+                            return
+                        else
+                            smin=sind(0.5*tmin)/wave
+                            smax=sind(0.5*tmax)/wave
+                            sgiven=.true.
+                            trang_read=.true.
+                        end if
+                    end if
+
                 case("hlim ")
                     ! hmin hmax  kmin kmax  lmin lmax
                     read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) ((hlim(i,n),n=1,2),i=1,3)
                     if(ier /= 0 ) then
-                        mess="Error reading the orientation matrix in CFL file: "//trim(file_inst)
+                        mess="Error reading hkl-limits in CFL file: "//trim(file_inst)
                         return
                     end if
 
@@ -145,8 +161,9 @@ Module Ref_Gen
         end do
 
         inquire(file="ubfrom.raf",exist=esta)  !checking if "ubfrom.raf" is present in the current directory
-
-        if(.not. ub_read  .or. esta) then   !Try to read UB-matrix from MAD file ubfrom.raf
+                                               !If present, its content is prioritary w.r.t. the provided values
+                                               !in the CFL file or instrument file.
+        if(.not. ub_read  .or. esta) then      !Read UB-matrix from file ubfrom.raf
             if(.not. esta) then
                mess="No UB-matrix in instrument/CFL files, no ubfrom.raf available!  "
                return
@@ -162,20 +179,24 @@ Module Ref_Gen
               end if
             end do
             ub_read=.true.
-            read(unit=i_def,fmt=*,iostat=ier) wav
+            read(unit=i_def,fmt=*,iostat=ier) wav  !Read wavelength from file ubfrom.raf
             if(ier == 0 ) then
               wave=wav
               wave_read=.true.
             end if
-            read(unit=i_def,fmt=*,iostat=ier) dcel
+            read(unit=i_def,fmt=*,iostat=ier) dcel !Read unit cell from file ubfrom.raf
             if(ier == 0 ) then
-              if(sum(abs(dcel-incel)) > 0.001) then
-                incel=dcel
+              if(sum(abs(dcel-incel)) > 0.001) then  !Output information is the unit cell in ubfrom.raf
+                incel=dcel                           !is different from the values provided in CFL file
                 !Reconstruct the unit cell type
                 call Set_Crystal_Cell(incel(1:3),incel(4:6),Cell,"A")
                 write(unit=ipr,fmt="(/,/,a/)")  "  => New unit cell read from ubfrom.raf !"
                 call Write_Crystal_Cell(Cell,ipr)
               end if
+            end if
+            if(trang_read) then !re-calculate smin,smax for the new wavelength is 2theta-range has been provided
+               smin=sind(0.5*tmin)/wave
+               smax=sind(0.5*tmax)/wave
             end if
             close(unit=i_def)
         end if
@@ -514,7 +535,7 @@ Program Sxtal_Ref_Gen
 
                 Select Case (Current_Instrm%igeom)
 
-                    Case(1,2)
+                    Case(1,2,4)
                         write(unit=lun,fmt="(3i4,3f12.5,4f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
                                                                         ang,trim(comment)
 
@@ -688,7 +709,7 @@ Program Sxtal_Ref_Gen
         end if
 
         write(unit=*,fmt="(a)")    " Normal End of: PROGRAM SXTAL_REFGEN "
-        write(unit=*,fmt="(a,i5)") " Number of accesible nuclear  reflections: ",n
+        write(unit=*,fmt="(a,i5)") " Number of accesible nuclear reflections: ",n
         write(unit=*,fmt="(a,i5)") " Number of accesible magnetic reflections: ",nm
         write(unit=*,fmt="(a)")                      " Results in Files: "//trim(filcod)//".sfa  and "//trim(filcod)//".hkl"
         if(mag_structure) write(unit=*,fmt="(a)")    " Magnetic Satellites in: "//trim(filcod)//".mhkl"

@@ -5948,7 +5948,7 @@ Module CFML_ILL_Instrm_Data
           if(index(Current_Instrm%geom,"Laue") == 0) then
             write(unit=ipr,fmt="(a)") "UBMAT"
             do i=1,3
-               write(unit=ipr,fmt="(3f12.7)") Current_Orient%ub(i,:)
+               write(unit=ipr,fmt="(3f14.9)") Current_Orient%ub(i,:)
             end do
           End If
           write(unit=ipr,fmt="(a,9f6.1)") "SETTING ",Current_Instrm%e1, Current_Instrm%e2, Current_Instrm%e3
