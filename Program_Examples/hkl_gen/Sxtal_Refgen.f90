@@ -177,40 +177,45 @@ Module Ref_Gen
                                                !in the CFL file or instrument file.
         if(.not. ub_read  .or. esta) then      !Read UB-matrix from file ubfrom.raf
             if(.not. esta) then
-               mess="No UB-matrix in instrument/CFL files, no ubfrom.raf available!  "
-               return
+               if(inst_read) then
+                 ub=Current_Orient%ub
+               else
+                 mess="No UB-matrix in instrument/CFL files, no ubfrom.raf available!  "
+                 return
+               end if
+            else  !Read everything from ubfrom.raf
+               call get_logunit(i_def)
+               open(unit=i_def, file="ubfrom.raf", status="old",action="read",position="rewind")
+               do i=1,3
+                 read(unit=i_def,fmt="(a)",iostat=ier) line
+                 read(unit=line(1:50),fmt=*,iostat=ier) ub(i,:)
+                 if(ier /= 0 ) then
+                     mess="Error reading the orientation matrix in file: ubfrom.raf "
+                     return
+                 end if
+               end do
+               ub_read=.true.
+               read(unit=i_def,fmt=*,iostat=ier) wav  !Read wavelength from file ubfrom.raf
+               if(ier == 0 ) then
+                 wave=wav
+                 wave_read=.true.
+               end if
+               read(unit=i_def,fmt=*,iostat=ier) dcel !Read unit cell from file ubfrom.raf
+               if(ier == 0 ) then
+                 if(sum(abs(dcel-incel)) > 0.001) then  !Output information is the unit cell in ubfrom.raf
+                   incel=dcel                           !is different from the values provided in CFL file
+                   !Reconstruct the unit cell type
+                   call Set_Crystal_Cell(incel(1:3),incel(4:6),Cell,"A")
+                   write(unit=ipr,fmt="(/,/,a/)")  "  => New unit cell read from ubfrom.raf !"
+                   call Write_Crystal_Cell(Cell,ipr)
+                 end if
+               end if
+               if(trang_read) then !re-calculate smin,smax for the new wavelength is 2theta-range has been provided
+                  smin=sind(0.5*tmin)/wave
+                  smax=sind(0.5*tmax)/wave
+               end if
+               close(unit=i_def)
             end if
-            call get_logunit(i_def)
-            open(unit=i_def, file="ubfrom.raf", status="old",action="read",position="rewind")
-            do i=1,3
-              read(unit=i_def,fmt="(a)",iostat=ier) line
-              read(unit=line(1:50),fmt=*,iostat=ier) ub(i,:)
-              if(ier /= 0 ) then
-                  mess="Error reading the orientation matrix in file: ubfrom.raf "
-                  return
-              end if
-            end do
-            ub_read=.true.
-            read(unit=i_def,fmt=*,iostat=ier) wav  !Read wavelength from file ubfrom.raf
-            if(ier == 0 ) then
-              wave=wav
-              wave_read=.true.
-            end if
-            read(unit=i_def,fmt=*,iostat=ier) dcel !Read unit cell from file ubfrom.raf
-            if(ier == 0 ) then
-              if(sum(abs(dcel-incel)) > 0.001) then  !Output information is the unit cell in ubfrom.raf
-                incel=dcel                           !is different from the values provided in CFL file
-                !Reconstruct the unit cell type
-                call Set_Crystal_Cell(incel(1:3),incel(4:6),Cell,"A")
-                write(unit=ipr,fmt="(/,/,a/)")  "  => New unit cell read from ubfrom.raf !"
-                call Write_Crystal_Cell(Cell,ipr)
-              end if
-            end if
-            if(trang_read) then !re-calculate smin,smax for the new wavelength is 2theta-range has been provided
-               smin=sind(0.5*tmin)/wave
-               smax=sind(0.5*tmax)/wave
-            end if
-            close(unit=i_def)
         end if
 
         if(.not. inst_read ) then
@@ -392,13 +397,13 @@ Program Sxtal_Ref_Gen
     end if
 
     write(unit=*,fmt="(/,/,7(a,/))")                                                  &
-          "               ------ PROGRAM SXTAL_REFGEN ------"                        , &
-          "               ---- Version 0.2 December-2007----"                        , &
+          "                      ------ PROGRAM SXTAL_REFGEN ------"                 , &
+          "                      ---- Version  0.3 April-2013  ----"                 , &
           "    *******************************************************************"  , &
-          "    * Generates single crystal reflections and structure factors      *"  , &
+          "    * Generates single crystal reflections and nuc. structure factors *"  , &
           "    * (if atoms are given ) reading a *.CFL file (4C & NB geometries) *"  , &
           "    *******************************************************************"  , &
-          "              (JRC- April-2007, updated December 2011 )"
+          "                     (JRC- April-2007, updated April 2013 )"
     write(unit=*,fmt=*) " "
 
     if(.not. arggiven) then
@@ -410,13 +415,13 @@ Program Sxtal_Ref_Gen
     open(unit=lun,file=trim(filcod)//".sfa", status="replace",action="write")
 
     write(unit=lun,fmt="(/,/,7(a,/))")                                                &
-          "               ------ PROGRAM SXTAL_REFGEN ------"                        , &
-          "                ---- Version 0.1 April-2007----"                          , &
+          "                      ------ PROGRAM SXTAL_REFGEN ------"                 , &
+          "                      ---- Version  0.3 April-2013  ----"                 , &
           "    *******************************************************************"  , &
           "    * Generates single crystal reflections and nuc. structure factors *"  , &
           "    * (if atoms are given ) reading a *.CFL file (4C & NB geometries) *"  , &
           "    *******************************************************************"  , &
-          "                        (JRC- April-2007 )"
+          "                     (JRC- April-2007, updated April 2013 )"
 
     inquire(file=trim(filcod)//".cfl",exist=esta)
     if( .not. esta) then
@@ -517,7 +522,7 @@ Program Sxtal_Ref_Gen
         ind=(/(i,i=1,n)/)
 
         sig=1
-        if(Current_instrm%BL_frame == "z-down" .or. Current_instrm%ang_limits(1,2) < 0.0) sig=-1
+        if(Current_instrm%BL_frame == "z-down") sig=-1
 
         open(unit=i_hkl, file=trim(filcod)//".hkl", status="replace",action="write")
         call Write_Current_Instrm_data(lun)
@@ -534,6 +539,10 @@ Program Sxtal_Ref_Gen
             if(ier /= 0) iop=0
         end if
         n=0
+
+        write(unit=lun,fmt="(/,a,2f8.5,a/)")" => Reflection generation between sinTheta/Lambda min and max: ", &
+                                                 stlmin,stlmax, " angstroms^-1"
+
         if(Current_instrm%igeom == 3 .or. Current_instrm%igeom == -3) then
             write(unit=lun,fmt="(/,/,a)")"----------------------------------------------------------------------------"
             write(unit=lun,fmt="(a)")    "   h   k   l       F2        Re(F)       Im(F)     Gamma     Omega      Nu  "
@@ -612,7 +621,7 @@ Program Sxtal_Ref_Gen
         close(unit=i_hkl)
 
         ! Generation of magnetic satellites if needed
-
+        nm=0
         if(mag_structure) then
             !First generate the full set of reflections according to the lattice of the
             !space group.
@@ -725,8 +734,8 @@ Program Sxtal_Ref_Gen
         end if
 
         write(unit=*,fmt="(a)")    " Normal End of: PROGRAM SXTAL_REFGEN "
-        write(unit=*,fmt="(a,i5)") " Number of accesible nuclear reflections: ",n
-        write(unit=*,fmt="(a,i5)") " Number of accesible magnetic reflections: ",nm
+        write(unit=*,fmt="(a,i5)") " Number of accessible nuclear  reflections: ",n
+        if(mag_structure) write(unit=*,fmt="(a,i5)") " Number of accessible magnetic reflections: ",nm
         write(unit=*,fmt="(a)")                      " Results in Files: "//trim(filcod)//".sfa  and "//trim(filcod)//".hkl"
         if(mag_structure) write(unit=*,fmt="(a)")    " Magnetic Satellites in: "//trim(filcod)//".mhkl"
     end if
