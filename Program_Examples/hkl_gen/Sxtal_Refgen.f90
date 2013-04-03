@@ -254,7 +254,7 @@ Module Ref_Gen
 
         Select Case (geom)
 
-            Case(1,2)
+            Case(1,2,4)
                 call calang(hr,tteta,om,ch,ph,ierr)
                 if(ierr /= 0) comment="Outside 2Theta limits"
                 ang= (/tteta,om,ch,ph/)
@@ -263,8 +263,12 @@ Module Ref_Gen
                 if(.not. ok_ch)    comment="Outside Chi limits"
                 if(.not. ok_ph)    comment="Outside Phi limits"
 
-            Case(3)
-                call Normal_Beam_angles(Current_Orient%wave,Current_Orient%ub,hr,sig,ang,ierr)
+            Case(3,-3)
+                if(geom == 3) then
+                    call Normal_Beam_angles(Current_Orient%wave,Current_Orient%ub,hr,sig,ang,ierr)
+                else
+                    call Normal_Beam_angles(Current_Orient%wave,Current_Orient%ub,hr,sig,ang,ierr,nusign=-1)
+                end if
                 if(ierr /= 0) then
                     if(ierr == 1) comment="Outside resolution sphere"
                     if(ierr == 2) comment="Blind zone for Nu"
@@ -539,7 +543,7 @@ Program Sxtal_Ref_Gen
                         write(unit=lun,fmt="(3i4,3f12.5,4f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
                                                                         ang,trim(comment)
 
-                    Case(3)
+                    Case(3,-3)
                         write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
                                                                         ang(1:3),trim(comment)
 
@@ -566,10 +570,10 @@ Program Sxtal_Ref_Gen
                     call calc_angles(Current_Instrm%igeom,sig,hr,ang,comment)
 
                     Select Case (Current_Instrm%igeom)
-                        Case(1,2)
+                        Case(1,2,4)
                             write(unit=lun,fmt="(3i4,3f12.5,4f10.3,tr2,a)") hlist(:,j),hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
                                                                             ang,trim(comment)
-                        Case(3)
+                        Case(3,-3)
                             write(unit=lun,fmt="(3i4,3f12.5,3f10.3,tr2,a)") hkl%Ref(i)%h,hkl%ref(i)%Fc,hkl%ref(i)%A,hkl%ref(i)%B,&
                                                                             ang(1:3),trim(comment)
                     End Select
@@ -681,11 +685,11 @@ Program Sxtal_Ref_Gen
                 call calc_angles(Current_Instrm%igeom,sig,hr,ang,comment)
 
                 Select Case (Current_Instrm%igeom)
-                    Case(1,2)
+                    Case(1,2,4)
                         write(unit=lun,fmt="(3f8.3,tr2,3i4,i5,i6,f9.4,f13.5,12f9.4,4f10.3,tr2,a)") hr,h, -sig*nv, mul, dspc,sqMiV, &
                         real(Mhkl%Mh(i)%MsF),aimag(Mhkl%Mh(i)%MsF), real(Mhkl%Mh(i)%MiV),aimag(Mhkl%Mh(i)%MiV), &
                         ang,trim(comment)
-                    Case(3)
+                    Case(3,-3)
                         write(unit=lun,fmt="(3f8.3,tr2,3i4,i5,i6,f9.4,f13.5,12f9.4,3f10.3,tr2,a)") hr,h, -sig*nv, mul, dspc,sqMiV, &
                         real(Mhkl%Mh(i)%MsF),aimag(Mhkl%Mh(i)%MsF), real(Mhkl%Mh(i)%MiV),aimag(Mhkl%Mh(i)%MiV), &
                         ang(1:3),trim(comment)

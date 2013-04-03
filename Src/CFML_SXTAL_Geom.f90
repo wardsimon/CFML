@@ -491,6 +491,7 @@
           igeom= Current_Instrm%igeom
           chmax= Current_Instrm%Ang_Limits(3,2)
        end if
+       if(present(geom)) igeom=geom
        ierr=0
 
        z1=Matmul(ub,h)
@@ -1842,7 +1843,7 @@
     End Subroutine normal
 
     !!----
-    !!---- Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer)
+    !!---- Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer,nusign)
     !!----    real(kind=cp),                 Intent(In)         :: wav    ! Wavelength
     !!----    real(kind=cp), dimension(3,3), Intent(In)         :: ub     ! [UB] matrix
     !!----    real(kind=cp), dimension(3),   Intent(In)         :: h      ! Miller indices of reflection h
@@ -1850,6 +1851,7 @@
     !!----    real(kind=cp), dimension(:),   Intent(Out)        :: anbcal ! Normal beam angles
     !!----    Integer,                       Intent(In Out)     :: ier    ! Zero correction on input, Error flag on output
     !!----    real(kind=cp), dimension(3),   Intent(In),optional:: zer    ! zero corrections of NB angles in degrees
+    !!----    integer,                       Intent(In),optional:: nusign ! Sign of the nu-angle (=-1 if nu is positive when elevation towards z < 0)
     !!----
     !!--<<    Based on the subroutine CANNB from  A.FILHOL 01-Avr-1981 & 08-Aou-1984
     !!----    Calculation of the normal-beam diffraction angles for reflection h()
@@ -1868,9 +1870,9 @@
     !!----             : 3   reflection dans zone aveugle  ==> angle "GAMMA"
     !!-->>             : 4   H,K,L tous les trois nuls
     !!----
-    !!---- Update: April 2008
+    !!---- Created: April 2008, Updated: April 2013 (JRC)
     !!
-    Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer)
+    Subroutine Normal_Beam_Angles(wav,ub,h,sig,anbcal,ier,zer,nusign)
        !---- Arguments ----!
        real(kind=cp),                 Intent(In)          :: wav
        real(kind=cp), dimension(3,3), Intent(In)          :: ub
@@ -1879,13 +1881,16 @@
        real(kind=cp), dimension(:),   Intent(Out)         :: anbcal
        Integer,                       Intent(Out)         :: ier
        real(kind=cp), dimension(3),   Intent(In),optional :: zer
+       integer,                       Intent(In),optional :: nusign
 
        !---- Local Variables ----!
        real(kind=cp), Dimension(3) ::  z1,zo1
-       real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2
+       real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2,sn
 
        ier=0
        anbcal(:)=0.0
+       sn=1.0
+       if(present(nusign)) sn=real(nusign)
 
        wav2=wav*wav
        If(sig == 0) sig=1
@@ -1914,7 +1919,7 @@
        thc = real(sig)*thc
 
        !-- NU   (Elevation angle of detector)
-       snu=wav*z1(3)         !Sin(nu)
+       snu=sn*wav*z1(3)         !Sin(nu) sn=1 for nu > 0 when elevation w.r.t. positive z-axis
        If (Abs(snu) > 1.0  .or. dpl < 0.00001) Then
           ier=2
           Return
