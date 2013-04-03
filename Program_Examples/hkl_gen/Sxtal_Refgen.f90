@@ -34,7 +34,7 @@ Module Ref_Gen
         real                 :: wave,wav,tmin,tmax
         real, dimension(3,3) :: ub
         real, dimension(6)   :: dcel,incel
-        integer              :: i,ier,j, n, lun, i_def
+        integer              :: i,ier,j, n, lun, i_def, igeom
         logical              :: esta, ub_read, wave_read, inst_read, trang_read
 
         ok=.false.
@@ -43,6 +43,7 @@ Module Ref_Gen
         inst_read=.false.
         spher=.false.
         trang_read=.false.
+        igeom=0
         mess= " "
         ord=(/3,2,1/)
         incel(1:3)=cell%cell
@@ -56,12 +57,14 @@ Module Ref_Gen
             line=l_case(line)
             if (line(1:1) ==" ") cycle
             if (line(1:1) =="!") cycle
+            i=index(line,"!")
+            if( i /= 0) line=line(1:i-1)
 
             select case (line(1:5))
 
                 case("srang")
                     if(present(sgiven) .and. present(smin) .and. present(smax)) then
-                        read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) smin,smax
+                        read(unit=line(6:),fmt=*,iostat=ier) smin,smax
                         if(ier /= 0) then
                             mess="Error reading Smin and Smax in CFL file: "//trim(file_inst)
                             sgiven=.false.
@@ -73,7 +76,7 @@ Module Ref_Gen
 
                 case("trang")
                     if(present(sgiven) .and. present(smin) .and. present(smax) .and. wave_read) then
-                        read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) tmin,tmax
+                        read(unit=line(6:),fmt=*,iostat=ier) tmin,tmax
                         if(ier /= 0) then
                             mess="Error reading 2theta_min and 2Theta_max in CFL file: "//trim(file_inst)
                             sgiven=.false.
@@ -88,7 +91,7 @@ Module Ref_Gen
 
                 case("hlim ")
                     ! hmin hmax  kmin kmax  lmin lmax
-                    read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) ((hlim(i,n),n=1,2),i=1,3)
+                    read(unit=line(6:),fmt=*,iostat=ier) ((hlim(i,n),n=1,2),i=1,3)
                     if(ier /= 0 ) then
                         mess="Error reading hkl-limits in CFL file: "//trim(file_inst)
                         return
@@ -119,8 +122,15 @@ Module Ref_Gen
                     end do
                     ub_read=.true.
 
+                case("geom ")
+                    read(unit=line(6:),fmt=*,iostat=ier) igeom
+                    if(ier /= 0 ) then
+                        mess="Error reading the diffraction geometry in CFL file: "//trim(file_inst)
+                        return
+                    end if
+
                 case("wave ")
-                    read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) wave
+                    read(unit=line(6:),fmt=*,iostat=ier) wave
                     if(ier /= 0 ) then
                         mess="Error reading the wavelength in CFL file: "//trim(file_inst)
                         return
@@ -128,7 +138,7 @@ Module Ref_Gen
                     wave_read=.true.
 
                 case("order")
-                    read(unit=file_dat%line(j)(6:),fmt=*,iostat=ier) ord
+                    read(unit=line(6:),fmt=*,iostat=ier) ord
                     if(ier /= 0 ) then
                         mess="Error reading hkl-ordering in CFL file: "//trim(file_inst)
                         return
@@ -159,6 +169,8 @@ Module Ref_Gen
                     spher=.true.
             end select
         end do
+
+        if(igeom /= 0 .and. inst_read) Current_Instrm%igeom=igeom !overrides the instrument geometry
 
         inquire(file="ubfrom.raf",exist=esta)  !checking if "ubfrom.raf" is present in the current directory
                                                !If present, its content is prioritary w.r.t. the provided values
@@ -522,7 +534,7 @@ Program Sxtal_Ref_Gen
             if(ier /= 0) iop=0
         end if
         n=0
-        if(Current_instrm%igeom == 3) then
+        if(Current_instrm%igeom == 3 .or. Current_instrm%igeom == -3) then
             write(unit=lun,fmt="(/,/,a)")"----------------------------------------------------------------------------"
             write(unit=lun,fmt="(a)")    "   h   k   l       F2        Re(F)       Im(F)     Gamma     Omega      Nu  "
             write(unit=lun,fmt="(a)")    "----------------------------------------------------------------------------"
@@ -648,7 +660,7 @@ Program Sxtal_Ref_Gen
                 write(unit=lun,fmt="(a,i2,a,3f8.4,a)") " => Propagation vectors #",i," = (",MGp%kvec(:,i)," )"
             end do
 
-            if(Current_instrm%igeom == 3) then
+            if(Current_instrm%igeom == 3 .or. Current_instrm%igeom == -3) then
                 write(unit=lun,fmt="(/,/,a)")"-------------------------------------------------------------------------"// &
                                              "-------------------------------------------------------------------------"//&
                                              "-------------------------------------------------------------------------"
