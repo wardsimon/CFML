@@ -75,9 +75,11 @@
 !!----
 !!----    Subroutines:
 !!----       GET_ATOMIC_MASS
+!!----       GET_ATOMIC_VOL
 !!----       GET_CHEMSYMB
 !!----       GET_COVALENT_RADIUS
 !!----       GET_FERMI_LENGTH
+!!----       GET_ABS_XS
 !!----       GET_IONIC_RADIUS
 !!----       REMOVE_CHEM_INFO
 !!----       REMOVE_DELTA_FP_FPP
@@ -554,6 +556,40 @@
        return
     End Subroutine Get_Fermi_Length
 
+    !!----
+    !!---- Subroutine Get_Abs_Xs(nam,u)
+    !!----    character(len=*), intent (in) :: nam
+    !!----    real(kind=cp),    intent(out) :: u
+    !!----    
+    !!----    Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
+    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0. 
+    !!----    
+    !!----
+    !!---- Update: April - 2013
+    !!
+
+    Subroutine Get_Abs_Xs(nam,u)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: nam
+       real(kind=cp),    intent(out) :: u
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       u=0.0
+       atm_car=u_case(nam(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+       if (.not. allocated(chem_info) ) call set_chem_info()
+       do i=1,Num_Chem_Info
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             u=chem_info(i)%Sea
+             exit
+          end if
+       end do
+
+       return
+    End Subroutine Get_Abs_Xs
     !!----
     !!---- Subroutine Get_Ionic_Radius(nam,valence,rad)
     !!----    character(len=*), intent (in) :: nam
