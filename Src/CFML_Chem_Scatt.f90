@@ -101,7 +101,7 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Fermi_Length, Get_Ionic_radius
+    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Fermi_Length, Get_Abs_Xs, Get_Ionic_radius
     public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
     public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
 
@@ -411,7 +411,7 @@
 
        return
     End Subroutine Get_Atomic_Mass
-    
+
     !!----
     !!---- Subroutine Get_Atomic_Vol(Atm,Vol)
     !!----    character(len=2), intent(in)  :: Atm
@@ -560,10 +560,10 @@
     !!---- Subroutine Get_Abs_Xs(nam,u)
     !!----    character(len=*), intent (in) :: nam
     !!----    real(kind=cp),    intent(out) :: u
-    !!----    
+    !!----
     !!----    Provides the absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
-    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0. 
-    !!----    
+    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
+    !!----
     !!----
     !!---- Update: April - 2013
     !!
