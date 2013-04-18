@@ -4,6 +4,8 @@ rem
    @echo off
    cd %CRYSFML%\Src
 rem
+   if %TARGET_ARCH% == ia32 (set LIBFOR=lib.if8) else (set LIBFOR=lib.i64)
+rem
    echo **---- Level 0 ----**
    echo .... Mathematical,String_Utilities, Messages, Profile Functions
 rem
@@ -15,7 +17,7 @@ rem
    ifort /c CFML_random.f90           /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_ffts.f90             /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_string_util.f90      /debug:full /check /traceback /CB /nologo /Qvec-report0
-   ifort /c CFML_io_messwin.f90       /debug:full /check /traceback /CB /nologo /Qvec-report0 /Ic:\wint\lib.if8
+   ifort /c CFML_io_messwin.f90       /debug:full /check /traceback /CB /nologo /Qvec-report0 /I%WINTER%\%LIBFOR%
    ifort /c CFML_Profile_TOF.f90      /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_Profile_Finger.f90   /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_Profile_Functs.f90   /debug:full /check /traceback /CB /nologo /Qvec-report0
@@ -69,7 +71,7 @@ rem
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
    ifort /c CFML_magsymm.f90          /debug:full /check /traceback /CB /nologo /Qvec-report0
-   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /CB /nologo /Qvec-report0 /Ic:\wint\lib.if8
+   ifort /c CFML_optimization_san.f90 /debug:full /check /traceback /CB /nologo /Qvec-report0 /I%WINTER%\%LIBFOR%
    ifort /c CFML_refcodes.f90         /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
    echo **---- Level 8 ----**
@@ -85,12 +87,14 @@ rem
 rem
    echo **---- ifort Directory ----**
 rem
-   if not exist ..\ifort_debug mkdir ..\ifort_debug
-   if exist ..\ifort_debug\LibW rmdir ..\ifort_debug\LibW /S /Q
-   mkdir ..\ifort_debug\LibW
+   if %TARGET_ARCH% == ia32 (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
 rem
-   copy *.mod ..\ifort_debug\LibW > nul
-   move *.lib ..\ifort_debug\LibW > nul
+   if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
+   if exist ..\%DIRECTORY%\LibW rmdir ..\%DIRECTORY%\LibW /S /Q
+   mkdir ..\%DIRECTORY%\LibW
+rem
+   copy *.mod ..\%DIRECTORY%\LibW > nul
+   move *.lib ..\%DIRECTORY%\LibW > nul
    del *.obj *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows

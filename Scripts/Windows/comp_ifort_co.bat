@@ -85,12 +85,14 @@ rem
 rem
    echo **---- ifort Directory ----**
 rem
-   if not exist ..\ifort mkdir ..\ifort
-   if exist ..\ifort\LibC rmdir ..\ifort\LibC /S /Q
-   mkdir ..\ifort\LibC
+   if %TARGET_ARCH% == ia32 (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
 rem
-   copy *.mod ..\ifort\LibC > nul
-   move *.lib ..\ifort\LibC > nul
+   if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
+   if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
+   mkdir ..\%DIRECTORY%\LibC
+rem
+   copy *.mod ..\%DIRECTORY%\LibC > nul
+   move *.lib ..\%DIRECTORY%\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows

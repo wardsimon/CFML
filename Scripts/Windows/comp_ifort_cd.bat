@@ -86,12 +86,14 @@ rem
 rem
    echo **---- Intel Directory ----**
 rem
-   if not exist ..\ifort_debug mkdir ..\ifort_debug
-   if exist ..\ifort_debug\LibC rmdir ..\ifort_debug\LibC /S /Q
-   mkdir ..\ifort_debug\LibC
+   if %TARGET_ARCH% == ia32 (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
 rem
-   copy *.mod ..\ifort_debug\LibC > nul
-   move *.lib ..\ifort_debug\LibC > nul
+   if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
+   if exist ..\%DIRECTORY%\LibC rmdir ..\%DIRECTORY%\LibC /S /Q
+   mkdir ..\%DIRECTORY%\LibC
+rem
+   copy *.mod ..\%DIRECTORY%\LibC > nul
+   move *.lib ..\%DIRECTORY%\LibC > nul
    del *.obj *.mod *.lst *.bak > nul
 rem
    cd %CRYSFML%\Scripts\Windows
