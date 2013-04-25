@@ -1480,26 +1480,32 @@
        integer, dimension(3)                  :: k
        integer                                :: i,j,ng
        integer, dimension(3,SpaceGroup%numops):: klist
-
+       
        ng=SpaceGroup%numops
        n=1
-       klist(:,1)=h(:)
-       do i=2,ng
-          k = hkl_r(h,SpaceGroup%SymOp(i))
-          esta=.false.
-          do j=1,n
-             if (hkl_equal(k,klist(:,j)) .or. hkl_equal(-k,klist(:,j))) then
-                esta=.true.
-                exit
-             end if
-          end do
-          if (esta) cycle
-          n=n+1
-          klist(:,n) = k
-       end do
+       
+       !if NG = 0 (strange case), skip it, fix by Petr
+       if (ng > 1) then    
+           klist(:,1)=h(:)
 
-       if (Friedel .or. SpaceGroup%centred == 2) n=n*2
-
+           do i=2,ng
+              k = hkl_r(h,SpaceGroup%SymOp(i))
+              esta=.false.
+              do j=1,n
+                 if (hkl_equal(k,klist(:,j)) .or. hkl_equal(-k,klist(:,j))) then
+                    esta=.true.
+                    exit
+                 end if
+              end do
+              if (esta) cycle
+              n=n+1
+              klist(:,n) = k
+           end do
+       end if
+       if (Friedel .or. SpaceGroup%centred == 2) then 
+           n=n*2
+       end if
+       
        return
     End Function Hkl_MultI
 
@@ -2981,9 +2987,11 @@
                    num_ref=maxref
                    exit ext_do
                 end if
+                
                 tmp_reflex(num_ref)%h    = hh
                 tmp_reflex(num_ref)%mult = hkl_mult(hh,SpaceGroup,.false.)
                 tmp_reflex(num_ref)%S    = sval
+                
              end do
           end do
        end do ext_do
