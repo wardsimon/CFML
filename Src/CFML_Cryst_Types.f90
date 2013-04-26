@@ -147,6 +147,7 @@
 !!----       CONVERT_BETAS_U
 !!----       CONVERT_U_B
 !!----       CONVERT_U_BETAS
+!!----       GET_BETAS_FROM_BISO
 !!--++       METRICS                     [Private]
 !!----       ROT_MATRIX
 !!----       U_EQUIV
@@ -192,7 +193,8 @@
     !---- List of public functions ----!
     public :: Cart_u_vector, Cart_vector, Convert_B_Betas, Convert_B_U, &
               Convert_Betas_B, Convert_Betas_U, Convert_U_B,            &
-              Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma
+              Convert_U_Betas, Rot_matrix, U_Equiv, Cell_Volume_Sigma,  &
+              Get_Betas_From_Biso
 
     !---- List of public overloaded procedures: functions ----!
 
@@ -663,6 +665,47 @@
 
        return
     End Function Convert_U_Betas
+
+    !!----
+    !!---- Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+    !!----    real(kind=cp),             intent(in)  :: Biso
+    !!----    type (Crystal_cell_Type),  intent(in)  :: Cell
+    !!----    real(kind=cp),dimension(6)             :: Betas
+    !!----
+    !!----    Get Betas from Biso
+    !!----
+    !!---- Update: April - 2013
+    !!
+    Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+       !--- Argument ----!
+       real(kind=cp),             intent(in)  :: Biso
+       type (Crystal_cell_Type),  intent(in)  :: Cell
+       real(kind=cp),dimension(6)             :: Betas
+
+       !---- Local variables ----!
+       real(kind=cp), dimension (3,3) :: L,LT,U,bet
+       integer                        :: i
+
+       betas=0.0
+
+       l=Cell%Orth_Cr_cel
+       lt=Transpose(l)
+       u = 0.0
+       do i=1,3
+          u(i,i) = 0.25*biso
+       end do
+       bet= matmul (l,lt)
+       bet= matmul (bet,u)
+       do i=1,3
+          betas(i) = bet(i,i)
+       end do
+
+       betas(4) = bet(1,2)
+       betas(5) = bet(1,3)
+       betas(6) = bet(2,3)
+
+       return
+    End Function Get_Betas_from_Biso
 
     !!--++
     !!--++ Function Metrics(A,B) Result(G)
