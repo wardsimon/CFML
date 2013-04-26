@@ -80,6 +80,7 @@
 !!----       GET_COVALENT_RADIUS
 !!----       GET_FERMI_LENGTH
 !!----       GET_ABS_XS
+!!----       GET_INC_XS
 !!----       GET_IONIC_RADIUS
 !!----       REMOVE_CHEM_INFO
 !!----       REMOVE_DELTA_FP_FPP
@@ -101,7 +102,8 @@
     private
 
     !---- List of public subroutines ----!
-    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Fermi_Length, Get_Abs_Xs, Get_Ionic_radius
+    public :: Get_Atomic_Mass, Get_Atomic_Vol, Get_ChemSymb, Get_Covalent_radius, Get_Ionic_radius
+    public :: Get_Fermi_Length, Get_Abs_Xs, Get_Inc_Xs
     public :: Remove_Chem_Info, Remove_Delta_Fp_Fpp, Remove_Magnetic_Form, Remove_Xray_Form
     public :: Set_Chem_Info, Set_Delta_Fp_Fpp, Set_Magnetic_Form, Set_Xray_Form
 
@@ -557,6 +559,41 @@
     End Subroutine Get_Fermi_Length
 
     !!----
+    !!---- Subroutine Get_Inc_Xs(nam,u)
+    !!----    character(len=*), intent (in) :: nam
+    !!----    real(kind=cp),    intent(out) :: u
+    !!----
+    !!----    Provides incoherent scattering neutron cross-section (barns -> [10**(-24) cm**2] )
+    !!----    for given chemical symbol of the element. In case of problems the returned value is 0.0.
+    !!----
+    !!----
+    !!---- Update: Mai - 2013
+    !!
+
+    Subroutine Get_Inc_Xs(nam,u)
+       !---- Arguments ----!
+       character(len=*), intent (in) :: nam
+       real(kind=cp),    intent(out) :: u
+
+       !---- Local variables ----!
+       character(len=2) :: atm_car
+       integer          :: i
+
+       u=0.0
+       atm_car=u_case(nam(1:2))
+       if (atm_car(2:2) > "Z" .or. atm_car(2:2) < "A") atm_car(2:2)=" "
+       if (.not. allocated(chem_info) ) call set_chem_info()
+       do i=1,Num_Chem_Info
+          if (index(atm_car,chem_info(i)%Symb) /=0) then
+             u=chem_info(i)%SedInc
+             exit
+          end if
+       end do
+
+       return
+    End Subroutine Get_Inc_Xs
+
+    !!----
     !!---- Subroutine Get_Abs_Xs(nam,u)
     !!----    character(len=*), intent (in) :: nam
     !!----    real(kind=cp),    intent(out) :: u
@@ -590,6 +627,7 @@
 
        return
     End Subroutine Get_Abs_Xs
+
     !!----
     !!---- Subroutine Get_Ionic_Radius(nam,valence,rad)
     !!----    character(len=*), intent (in) :: nam
@@ -760,7 +798,7 @@
        chem_info(21:30) = (/  &
                           chem_info_type("SC","Scandium    ", 21, 44.95590, 1.440, 2.54, 15.0, (/ 3, 0, 0, 0, 0/)  ,  &
                                                            (/ 0.81, 0.00, 0.00, 0.00, 0.00/), 1.2290, 4.5000, 27.500      ) ,  &
-                          chem_info_type("TI","Titanium    ", 22, 47.90000, 1.320, 2.57, 10.6, (/ 2, 4, 0, 0, 0/)  ,  &
+                          chem_info_type("TI","Titanium    ", 22, 47.8670, 1.320, 2.57, 10.6, (/ 2, 4, 0, 0, 0/)  ,  &
                                                            (/ 0.90, 0.68, 0.00, 0.00, 0.00/),-0.3438, 2.8700,  6.090      ) ,  &
                           chem_info_type("V ","Vanadium    ", 23, 50.94140, 1.320, 2.43,  8.3, (/ 2, 3, 4, 5, 0/)  ,  &
                                                            (/ 0.00, 0.74, 0.00, 0.59, 0.00/),-0.0382, 5.0800,  5.080      ) ,  &
