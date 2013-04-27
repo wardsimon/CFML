@@ -35,6 +35,7 @@ fi
 #
 # Console version
 #
+#
 ../Scripts/Linux/make_crysfml $1
 #
 # Winteracter version
