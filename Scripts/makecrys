@@ -39,6 +39,7 @@ fi
 #
 # Winteracter version
 #
+#
 if [ a$2 = "aall" ]
 then
    ./Linux/make_crysfml $1 win
