@@ -202,7 +202,7 @@
      end do
      if(.not. ok)  write(unit=*,fmt="(a)")  " => Reciprocal plane not accessible!"
      if(nref > 0) then
-       write(unit=*,fmt="(/,a)")        " => List of accessible reflections:"
+       write(unit=*,fmt="(/,a,3i4,a,i3)")        " => List of accessible reflections around zone axis [",i_uvw,"] level number ",n
        write(unit=*,fmt="(a,f8.4,a)")   " => The mu-angle  is: ",mu," degrees"
        write(unit=*,fmt="(/,a)") " Nref             H   K   L    h.uvw        Omega     Chi     Phi      Pixel       F^2"
        if(Atm%Natoms > 0) then
