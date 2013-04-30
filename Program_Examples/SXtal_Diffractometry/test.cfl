@@ -1,12 +1,17 @@
 ! Example of CFL file for working with Flat Cone on D10
 
-Cell   5.467  5.555  7.4321  90 90 90
-Lambda 1.3432
-Orient  11.0 41.0 85.0     ! Crystal oriented as to coincide the internal Cartesian frame with Laboratory frame
+Cell   4.755321   4.755321  12.995529  90.000000  90.000000 120.000000
+Spgr  R -3 c
+atom Al   AL      0.00000  0.00000  0.35223  0.39703   2.00000
+atom O    O       0.69373  0.00000  0.25000  0.96309   3.00000
+
+
+Lambda 2.36
+Orient  0.0 0.0 0.0     ! Crystal oriented as to coincide the internal Cartesian frame with Laboratory frame
 
 
 omega_limits   -150 150    !Limits for D10 -15 58
-chi_limits     -25 25      !Limits for D10 -15 26
+chi_limits     -25 90      !Limits for D10 -15 26
 mu_limits        0 70      !Limits for D10 -26 26
-
+psi_range   0 360  720
 
