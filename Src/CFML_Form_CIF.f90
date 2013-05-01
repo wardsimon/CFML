@@ -2893,40 +2893,86 @@
        Integer,             optional,intent(in)   :: Nphase
 
        !---- Local Variables ----!
-       logical                           :: is_codewords
+       logical                           :: multi,ask_phase,is_codewords
        character(len=132)                :: line
        character(len= 20)                :: Spp, label
-       integer                           :: i,j, iv, nauas, ndata, iph, n_ini,n_end, nlong1
+       integer                           :: i,j, k,iv, nauas, ndata, iph, n_ini,n_end, nlong1
        integer, parameter                :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph)         :: ip
-       integer, dimension(10)            :: ivet
+       integer, dimension(30)            :: ivet
 
-       real(kind=cp),dimension(10)       :: vet
+       real(kind=cp),dimension(30)       :: vet
 
        ip=nlines
        ip(1)=1
 
-       !---- First determine if there is more than one structure ----!
-       iph=0
+       !> Simple / Multi format
+       multi=.false.
        do i=1,nlines
           line=adjustl(file_dat(i))
-          if (index(line,'PHASE number:') /= 0) then
-             iph=iph+1
-             if (iph > maxph-1) then
-                err_form=.true.
-                ERR_Form_Mess=" => Too many phases in this file "
-                return
-             end if
-             ip(iph)=i !Pointer to the number of the line starting a single phase
-          end if
+          if (line(1:1) =='!' .or. line(1:1)==' ') cycle
+          if (index(line,'NPATT ') <=0) cycle
+          multi=.true.
        end do
+
+       !> Number of Phases
+       if (.not. multi) then
+          do i=2,nlines
+             line=adjustl(file_dat(i))
+             if (line(1:1) =='!' .or. line(1:1)==' ') cycle
+             call getnum(line,vet,ivet,iv)
+             if (iv > 3) then
+                iph=ivet(3)
+                exit
+             end if
+          end do
+
+       else
+          do i=1,nlines
+             line=adjustl(file_dat(i))
+             if (line(1:4) /='!Nph') cycle
+
+             line=adjustl(file_dat(i+1))
+             call getnum(line,vet,ivet,iv)
+             if (iv > 1) then
+                iph=ivet(1)
+                exit
+             end if
+          end do
+       end if
        if (iph == 0) then
           err_form=.true.
-          ERR_Form_Mess=" => No Phase information was found! "
+          ERR_Form_Mess=" No Phase information was found in this PCR file. Please, check it! "
           return
        end if
 
-       ! Select the Phase
+       !> Locate where begin each Phase
+       k=0
+       ask_phase=.true.
+
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (ask_phase) then
+             if (index(line,'Data for PHASE') <= 0) cycle
+          else
+             if (line(1:1) /='!') then
+                k=k+1
+                ip(k)=i
+                if (k == iph) exit
+
+                ask_phase=.true.
+             end if
+             cycle
+          end if
+          ask_phase=.false.
+       end do
+       if (iph /= k) then
+          err_form=.true.
+          ERR_Form_Mess=" Locating Phases failed in this PCR. Please, check it!"
+          return
+       end if
+
+       !> Select the Phase
        iph=1
        if (present(nphase)) iph=nphase
        n_ini=ip(iph)
