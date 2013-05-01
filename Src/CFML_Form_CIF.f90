@@ -53,6 +53,9 @@
 !!----    Subroutines:
 !!----       FILE_TO_FILELIST
 !!----       GET_JOB_INFO
+!!----       GET_PHASES_FILE
+!!--++       GET_NPHASES_CIFFILE
+!!--++       GET_NPHASES_PCRFILE
 !!----       INIT_ERR_FORM
 !!----       READ_ATOM
 !!----       READ_CELL
@@ -126,7 +129,7 @@
               Read_File_Transf, Read_Shx_Atom, Read_Shx_Cell, Read_Shx_Cont, Read_Shx_Fvar,      &
               Read_Shx_Latt, Read_Shx_Symm, Read_Shx_Titl, Read_Uvals, Write_Cif_Powder_Profile, &
               Write_Cif_Template, Write_Shx_Template, Read_File_rngSINTL, Read_File_Lambda,      &
-              Get_job_info, File_To_FileList
+              Get_job_info, File_To_FileList, Get_Phases_File
 
     !---- List of public overloaded procedures: subroutines ----!
     public :: Read_File_Cell, Readn_Set_Xtal_Structure
@@ -137,7 +140,7 @@
     private:: Read_File_Cellc, Read_File_Cellt, Read_File_Atomlist,Read_File_Pointlist,             &
               Readn_Set_Xtal_CFL, Readn_Set_Xtal_CIF, Readn_Set_Xtal_PCR,Readn_Set_Xtal_SHX,        &
               Readn_Set_Xtal_CFL_Molec, Readn_Set_Xtal_Structure_Split,                             &
-              Readn_Set_Xtal_Structure_Molcr
+              Readn_Set_Xtal_Structure_Molcr, Get_NPhases_CIFFile,Get_NPHases_PCRFile
 
     !---- Definitions ----!
 
@@ -4424,6 +4427,258 @@
 
        return
     End Subroutine Write_Shx_Template
+
+    !!----
+    !!---- Subroutine Get_Phases_File(filecode, Nphas, PhasesName,ILines)
+    !!----    character(len=*),                intent(in)   :: filecode
+    !!----    Integer,                         intent(out)  :: Nphas
+    !!----    Character(len=80), dimension(:), intent(out)  :: PhasesName
+    !!----    Integer,dimension(2,:),          intent(out)  :: ILines
+    !!----
+    !!---- Determine how many phases there are in a CIF or PCR file and
+    !!---- give the lines to locate
+    !!----
+    !!---- Update: 01/05/2013
+    !!
+    Subroutine Get_Phases_File(filecode, NPhas, PhasesName,ILines)
+       !---- Arguments ----!
+       character(len=*),             intent(in)   :: filecode
+       integer,                      intent(out)  :: Nphas
+       character(len=*),dimension(:),intent(out)  :: PhasesName
+       integer,dimension(:,:),       intent(out)  :: ILines
+
+       !---- Local Variables ----!
+       character(len=3) :: ext
+       integer          :: npos
+
+       !> Error
+       call init_err_form()
+
+       !> Init
+       Nphas=0
+       PhasesName=' '
+       Ilines=0
+
+       !> PCR or CIF file
+       npos=index(filecode,'.',back=.true.)
+       if (npos <=0) then
+          err_form=.true.
+          err_form_mess='No extension was found in the name of the file!'
+          return
+       end if
+
+       ext=filecode(npos+1:)
+       ext=u_case(ext)
+       select case (ext)
+          case ('CIF')
+             call get_nphases_ciffile(filecode, NPhas, PhasesName,ILines)
+          case ('PCR')
+             call get_nphases_pcrfile(filecode, NPhas, PhasesName,ILines)
+          case default
+             err_form=.true.
+             err_form_mess='Extension for this file not valid!'
+       end select
+
+       return
+    End Subroutine Get_Phases_File
+
+    !!--++
+    !!--++ Subroutine Get_NPhases_CIFFile(Filecode,NPhas,PhasesName,ILines)
+    !!--++    character(len=*),                 intent(in)  :: Filecode    ! Filename
+    !!--++    integer,                          intent(out) :: NPhas       ! Number of Phases in the file
+    !!--++    character(len=*), dimension(:),   intent(out) :: PhasesName     ! Name of Phases in the file
+    !!--++    integer,          dimension(:,:), intent(out) :: ILines        ! Index for lines for each Phase
+    !!--++
+    !!--++ Determine the number of phases are included into the file
+    !!--++
+    !!--++ Date: 01/05/2013
+    !!
+    Subroutine Get_NPhases_CIFFile(Filecode,NPhas,PhasesName,ILines)
+       !---- Arguments ----!
+       character(len=*),                 intent(in)  :: Filecode    ! Filename
+       integer,                          intent(out) :: NPhas       ! Number of Phases in the file
+       character(len=*), dimension(:),   intent(out) :: PhasesName     ! Name of Phases in the file
+       integer,          dimension(:,:), intent(out) :: ILines        ! Index for lines for each Phase
+
+       !---- Local Variables ----!
+       character(len=150), dimension(:), allocatable :: filen
+       character(len=150)                            :: line
+       integer                                       :: i,j,n_ini,n_end,nl
+
+       !> Error
+       call init_err_form()
+
+       !> Initialize
+       NPhas=0
+       PhasesName=' '
+       ILines=0
+
+       !> Reading file
+       nl=0
+       call number_lines(trim(filecode),nl)
+       if (nl <=0) then
+          err_form=.true.
+          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          return
+       end if
+       allocate(filen(nl))
+       call reading_lines(trim(filecode),nl,filen)
+
+       !> Number of Phases
+       do i=1,nl
+          line=adjustl(filen(i))
+
+          !> empty line
+          if (len_trim(line) <= 0) cycle
+
+          !> comment line
+          if (line(1:1) =='#') cycle
+
+          !> No data_global
+          j=index(line,'data_global')
+          if (j > 0) cycle
+
+          !> Just only lines beginning with data...
+          j=index(line,'data_')
+          if (j /= 1) cycle
+
+          nphas=nphas+1
+          ILines(1,Nphas)=i
+          PhasesName(nphas)=trim(line(j+5:))
+          if (nphas > 1) ILines(2,nphas-1)=i-1
+       end do
+       if (nphas > 0 .and. ILines(2,nphas)==0) ILines(2,nphas)=nl
+
+       if (allocated(filen)) deallocate(filen)
+
+       return
+    End Subroutine  Get_NPhases_CIFFile
+
+    !!--++
+    !!--++ Subroutine Get_NPhases_PCRFile(filecode, Nphas,PhasesName,ILines)
+    !!--++    character(len=*),                intent(in)   :: filecode
+    !!--++    Integer,                         intent(out)  :: Nphas
+    !!--++    Character(len=80), dimension(:), intent(out)  :: PhasesName
+    !!--++    Integer,dimension(2,:),          intent(out)  :: ILines
+    !!--++
+    !!--++ Determine how many phases and where there in a PCR file
+    !!--++
+    !!--++ Update: 01/05/2013
+    !!
+    Subroutine Get_NPhases_PCRFile(filecode, NPhas, PhasesName,ILines)
+       !---- Arguments ----!
+       character(len=*),             intent(in)   :: filecode
+       integer,                      intent(out)  :: Nphas
+       character(len=*),dimension(:),intent(out)  :: PhasesName
+       integer,dimension(:,:),       intent(out)  :: ILines
+
+       !---- Local Variables ----!
+       logical                                      :: multi, ask_phase
+       character(len=80), dimension(:), allocatable :: file_dat
+       character(len=80)                            :: line
+       integer                                      :: i,k,iv,nlines
+       integer, dimension(30)                       :: ivet
+       real, dimension(30)                          :: vet
+
+       !> Err
+       call init_err_form()
+
+       !> Init
+       NPhas=0
+       PhasesName=' '
+       ILines=0
+
+       !> Reading file
+       nlines=0
+       call number_lines(trim(filecode),nlines)
+       if (nlines <=0) then
+          err_form=.true.
+          err_form_mess='No lines were readen for '//trim(filecode)//' !!'
+          return
+       end if
+       allocate(file_dat(nlines))
+       call reading_lines(trim(filecode),nlines,file_dat)
+
+       ILines(1,:)=1
+       ILines(2,:)=nlines
+
+       !> Simple / Multi format
+       multi=.false.
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (line(1:1) =='!' .or. line(1:1)==' ') cycle
+          if (index(line,'NPATT ') <=0) cycle
+          multi=.true.
+       end do
+
+       !> Number of Phases
+       if (.not. multi) then
+          do i=2,nlines
+             line=adjustl(file_dat(i))
+             if (line(1:1) =='!' .or. line(1:1)==' ') cycle
+             call getnum(line,vet,ivet,iv)
+             if (iv > 3) then
+                NPhas=ivet(3)
+                exit
+             end if
+          end do
+
+       else
+          do i=1,nlines
+             line=adjustl(file_dat(i))
+             if (line(1:4) /='!Nph') cycle
+
+             line=adjustl(file_dat(i+1))
+             call getnum(line,vet,ivet,iv)
+             if (iv > 1) then
+                NPhas=ivet(1)
+                exit
+             end if
+          end do
+       end if
+
+       if (NPhas == 0) then
+          err_form=.true.
+          err_form_mess=" No Phase information was found in this PCR file. Please, check it! "
+          return
+       end if
+
+       !> Locate where begin each Phase
+       k=0
+       ask_phase=.true.
+
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (ask_phase) then
+             if (index(line,'Data for PHASE') <= 0) cycle
+          else
+             if (line(1:1) /='!') then
+                k=k+1
+                ILines(1,k)=i
+                PhasesName(k)=trim(adjustl(line))
+                if (k == NPhas) exit
+
+                ask_phase=.true.
+             end if
+             cycle
+          end if
+          ask_phase=.false.
+       end do
+
+       if (NPhas /= k) then
+          err_form=.true.
+          err_form_mess=" Locating Phases failed in this PCR. Please, check it!"
+          return
+       end if
+
+       do i=1,Nphas
+          if (nphas > 1) then
+             ilines(2,i)=ilines(1,i+1)-1
+          end if
+       end do
+
+       return
+    End Subroutine Get_NPhases_PCRFile
 
  End Module CFML_IO_Formats
 
