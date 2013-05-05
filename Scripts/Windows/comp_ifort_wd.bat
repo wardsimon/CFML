@@ -87,6 +87,7 @@ rem
 rem
    echo **---- ifort Directory ----**
 rem
+   if "%TARGET_ARCH%"==""    set TARGET_ARCH=ia32
    if %TARGET_ARCH% == ia32 (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
 rem
    if not exist ..\%DIRECTORY% mkdir ..\%DIRECTORY%
