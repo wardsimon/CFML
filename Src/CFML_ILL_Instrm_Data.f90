@@ -1044,7 +1044,6 @@ Module CFML_ILL_Instrm_Data
         integer                             :: i,j,k,kk,nn,nc,num
         integer                             :: ndet, npoints
         integer, dimension(:), allocatable  :: ind
-
         real, dimension(:,:,:), allocatable :: x,y,d2y
         real                                :: fac,x1,x2,xmin,xmax,step,yfc,cnorm,tim
 
@@ -1389,7 +1388,6 @@ Module CFML_ILL_Instrm_Data
         integer                             :: np         ! Ptos final
         integer                             :: i,j,k,kk,nn,nc,num
         integer, dimension(:), allocatable  :: ncc,ind
-
         real, dimension(:,:,:), allocatable :: x,y,xx,yy,d2y
         real                                :: fac,x1,x2,xmin,xmax,step,yfc, cnorm, tim
 
@@ -2486,7 +2484,9 @@ Module CFML_ILL_Instrm_Data
 
        !---- Local Variables ----!
        character(len=4)        :: inst
+       character(len=50)       :: textnum
        integer                 :: i,num
+       integer, dimension(N)   :: ind
        type(POWDER_Numor_type) :: PPNum
 
        !> Initialize
@@ -2506,11 +2506,14 @@ Module CFML_ILL_Instrm_Data
           return
        end if
 
+       num=0
+       ind=0
        do i=1,n
           if (.not. actlist(i) ) cycle
-          inst=PNumors(i)%Instrm
-          exit
+          num=num+1
+          ind(num)=i
        end do
+       nst=PNumors(ind(1))%Instrm
        inst=u_case(adjustl(inst))
        if (len_trim(inst) <=0) then
           err_illdata=.true.
@@ -2583,7 +2586,9 @@ Module CFML_ILL_Instrm_Data
              end if
 
        end select
-
+       !Completing the title of the powder pattern including the sumed numors
+       write(unit=textnum,fmt="(2(a,i7))") " Numors added from ",PNumors(ind(1))%numor, " to ",PNumors(ind(num))%numor
+       Pat%title=trim(Pat%Title)//" "//trim(textnum)
        return
     End Subroutine PowderNumors_To_DiffPattern
 
