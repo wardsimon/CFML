@@ -2513,7 +2513,7 @@ Module CFML_ILL_Instrm_Data
           num=num+1
           ind(num)=i
        end do
-       nst=PNumors(ind(1))%Instrm
+       inst=PNumors(ind(1))%Instrm
        inst=u_case(adjustl(inst))
        if (len_trim(inst) <=0) then
           err_illdata=.true.
