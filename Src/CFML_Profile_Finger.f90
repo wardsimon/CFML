@@ -1383,17 +1383,16 @@
       Logical,save       :: s_eq_d
 
       ! Variables not conserving their value between calls
-      Integer       :: side, k, i
+      Integer       :: side, k
       real(kind=cp) :: tmp , tmp1 , tmp2  ! intermediate values
       real(kind=cp) :: delta              ! Angle of integration for comvolution
-      real(kind=cp) :: ddeltada           ! derivative of DELTA wrt A (S/L)
       real(kind=cp) :: sindelta           ! sine of DELTA
       real(kind=cp) :: cosdelta           ! cosine of DELTA
       real(kind=cp) :: rcosdelta          ! 1/cos(DELTA)
       real(kind=cp) :: f,g
       real(kind=cp) :: sumwg, sumwrg, sumwrdgda ,sumwdgdb , sumwrdgdb
       real(kind=cp) :: sumwgdrdg, sumwgdrde, sumwgdrd2t
-      real(kind=cp) :: sumwx, dprda, dprdb
+      real(kind=cp) :: sumwx
       logical       :: re_calculate
 
       ! First simple calculation of Pseudo-Voigt if asymmetry is not used

@@ -4503,7 +4503,7 @@
        !---- Local Variables ----!
        character(len=150), dimension(:), allocatable :: filen
        character(len=150)                            :: line
-       integer                                       :: i,j,n_ini,n_end,nl
+       integer                                       :: i,j,nl
 
        !> Error
        call init_err_form()
