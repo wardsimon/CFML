@@ -2061,13 +2061,13 @@
     !!---- Subroutine Number_Lines(Filename,n, input_string)
     !!----    character(len=*), intent(in) :: Filename     !  In -> Name of the file
     !!----    integer        , intent(out) :: N            ! Out -> Number of lines in the file
-	!!----    character(len=*), optional,intent(in) :: input_string   ! In -> String to exit
+    !!----    character(len=*), optional,intent(in) :: input_string   ! In -> String to exit
     !!----
     !!----    Return the number of lines contained in a file. If the file is
     !!----    open, a rewind procedure is made.
-	!!----    If 'input_string' is present, return the number of lines until 'input_string' is founded
-	!!----    as first string in the line
-	!!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
+    !!----    If 'input_string' is present, return the number of lines until 'input_string' is founded
+    !!----    as first string in the line
+    !!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
     !!----
     !!---- Update: February - 2005
     !!
@@ -2075,21 +2075,21 @@
        !---- Arguments ----!
        character(len=*), intent(in)  :: filename
        integer,          intent(out) :: n
-	   character(len=*), optional, intent(in) :: input_string       ! TR may 2013
+       character(len=*), optional, intent(in) :: input_string       ! TR may 2013
 
        !---- Local Variables ----!
        logical            :: info
        integer            :: lun,cond
-	   character (len=256):: read_line                             ! TR may 2013
-	   integer            :: long                                  ! TR may 2013
+       character (len=256):: read_line                             ! TR may 2013
+       integer            :: long                                  ! TR may 2013
 
        !---- Init ----!
        info=.false.
        call get_logunit(lun)
        n=0
        cond=0
-	   
-	   if(present(input_string)) long = len_trim(input_string)    ! TR may 2013
+
+       if(present(input_string)) long = len_trim(input_string)    ! TR may 2013
 
        !---- Exist filename ? ----!
        inquire (file=filename,exist=info)
@@ -2108,11 +2108,11 @@
        do
           read(unit=lun,fmt="(a)",iostat=cond) read_line
           if (cond /= 0) exit
-		  read_line=adjustl(read_line)	
+          read_line=adjustl(read_line)
           if(present(input_string)) then                                         ! TR may 2013
- 		   if(u_case(read_line(1:long)) == u_case(input_string(1:long))) exit   
-		  end if 
-		  n=n+1
+            if(u_case(read_line(1:long)) == u_case(input_string(1:long))) exit
+          end if
+          n=n+1
        end do
 
        !---- Was Opened? ----!

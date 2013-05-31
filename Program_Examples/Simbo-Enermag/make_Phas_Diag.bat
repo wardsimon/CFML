@@ -61,8 +61,8 @@ rem  or if you want to conserve the object files
 rem  Compression of executable
 rem        upx Phase_Diagram.exe
 rem  Move the excutable to a directory in the Path
-        if exist %FULLPROF% move Phase_Diagram.exe %FULLPROF% > nul
-rem        if exist %FULLPROF% move Phase_Diagram_gf.exe %FULLPROF% > nul
+rem        if exist %FULLPROF% move Phase_Diagram.exe %FULLPROF% > nul
+        if exist %FULLPROF% move Phase_Diagram_gf.exe %FULLPROF% > nul
 rem  Remove unnecessary files
         del *.obj *.mod *.o *.map *.bak > nul
 :FIN

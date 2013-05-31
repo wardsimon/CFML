@@ -1,7 +1,7 @@
      Module Input_output_data_mod
       use CW_diffraction_PV, only: rla,ngl,n_ba,bac_pos, jobtyp, inter, vs, c,  &
                                    icont, rla1,rla2, filedat, NPEAKX,title, eta1,eta2, &
-                                   fwhm1,fwhm2, filecode, use_asymm
+                                   fwhm1,fwhm2, filecode, use_asymm,use_hps
       use CFML_LSQ_TypeDef
       use CFML_Optimization_LSQ
       use CFML_Diffraction_Patterns
@@ -338,6 +338,10 @@
       END IF
 
       if(vs%pv(2)+vs%pv(3) >= 0.00001) use_asymm=.true.
+      if(vs%pv(3) <= 0.00001) then
+        use_hps=.true.
+        vs%pv(3)=0.0
+      end if
 
      !save input data
       j = 0

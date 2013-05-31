@@ -25,7 +25,7 @@
        character (len=80),public         :: filecode,filedat !codes of input data files
        real,public                       :: hg, hl, h, eta
        integer, private                  :: jstart
-       logical, public                   :: use_asymm=.false.
+       logical, public                   :: use_asymm=.false., use_hps=.false.
 
 
        Type(LSQ_State_Vector_type),    public :: vs  !State vector containing pv, code, vs%nampar,etc..
@@ -307,8 +307,9 @@
         ss1=0.0
         ss2=0.0
         IF (abs(v1) < 80.0) then
-    !!---- Subroutine Prof_Val(Eta,Gamma,S_L,D_L,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym )
-           call prof_val( eta,gamma1,Vsa%pv(2),Vsa%pv(3),tth ,Vsa%pv(j),dprdt, dprdg,dprde,dprds,dprdd,profil,use_asymm )
+    !!---- Subroutine Prof_Val(Eta,Gamma,S_L,D_L,Twoth,Twoth0,Dprdt,Dprdg,Dprde,Dprds,Dprdd,Profval,Use_Asym,use_hps)
+           call prof_val( eta,gamma1,Vsa%pv(2),Vsa%pv(3),tth ,Vsa%pv(j), &
+                          dprdt, dprdg,dprde,dprds,dprdd,profil,use_asymm,use_hps)
            ss1=ri1(l)*profil
            if (present(CalDer)) then
               Vsa%dpv(j)=ri1(l)*dprdt           !Derivative w.r.t. 2theta = p(j)
@@ -333,7 +334,8 @@
            v2=2.0*del2/gamma2
            eta=eta2(l)
            IF (abs(v2) <= 80.0) then
-              call prof_val( eta,gamma2,Vsa%pv(2),Vsa%pv(3),tth ,t2(l),dprdt,dprdg,dprde,dprds,dprdd,profil,use_asymm )
+              call prof_val( eta,gamma2,Vsa%pv(2),Vsa%pv(3),tth ,t2(l),&
+                            dprdt,dprdg,dprde,dprds,dprdd,profil,use_asymm,use_hps)
               ss2=ri2(l)*profil
               if (present(Calder)) then
                  Vsa%dpv(j)=Vsa%dpv(j)+ri2(l)*dprdt*dt2(l)  !Derivative w.r.t. 2theta = p(j)
@@ -426,7 +428,7 @@
            v1=2.0*del1/gamma1
            IF(abs(v1) < 25.0) then
              call prof_val( eta,gamma1,Vsa%Pv(2),Vsa%Pv(3),tth ,Vsa%Pv(j),      &
-                          dprdt, dprdg,dprde,dprds,dprdd,profil,use_asymm )
+                          dprdt, dprdg,dprde,dprds,dprdd,profil,use_asymm,use_hps)
              ss1=ri1(l)*profil
            END IF
 
@@ -438,7 +440,7 @@
             v2=2.0*del2/gamma2
             IF(abs(v2) < 25.0) then
                 call prof_val( eta,gamma2,Vsa%Pv(2),Vsa%Pv(3),tth ,t2(l),      &
-                               dprdt,dprdg,dprde,dprds,dprdd,profil,use_asymm )
+                               dprdt,dprdg,dprde,dprds,dprdd,profil,use_asymm,use_hps)
                 ss2=ri2(l)*profil
             end if
            end if
