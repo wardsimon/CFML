@@ -168,7 +168,7 @@
           case(1)
             modem="D1AOLD"
           case(2)
-            modem="D1B"
+            modem="D1BOLD"
           case(3)
             modem="D1B"
           case(4)
@@ -229,6 +229,8 @@
       narg=COMMAND_ARGUMENT_COUNT()
       if(narg > 0) then
               call GET_COMMAND_ARGUMENT(1,filecode)
+              i=index(filecode,".pik")
+              if(i /= 0) filecode=filecode(1:i-1)
               ln=len_trim(filecode)
               filedat=trim(filecode)//".dat"
               lr=ln+4
@@ -348,8 +350,7 @@
       do i=1,vs%np
        if (vs%code(i) /=0) j = j + 1
       end do
-      c%npvar  = j    ! nombre de parametres affines
-
+      c%npvar  = j    ! number of refined parameters
 
       write(unit=7,fmt="(/,a)")          " => Global parameters                 Flag"
       write(unit=7,fmt="(a,f14.6,i3)")   " => Kalph2/Kalph1 ratio :", vs%pv(1),vs%code(1)
