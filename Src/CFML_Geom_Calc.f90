@@ -1049,8 +1049,8 @@
              write(unit=lun,fmt="(a,f8.4,a,a,3f8.4)")   &
                        "    Distances less than",dmax,"  to atom: ",nam, xo
              write(unit=lun,fmt="(a,/,/)")"    -------------------------------------------------------------------"
-             write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013
-					    " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
+             write(unit=lun,fmt="(/,/,a,/,/)") & ! TR 4 fev. 2013
+             " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
           end if
           Coord_Info%Coord_Num(i)=0
           do k=1,a%natoms
