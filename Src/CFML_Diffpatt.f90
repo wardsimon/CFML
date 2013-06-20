@@ -1077,9 +1077,9 @@
        pat%npts=j
        pat%xmax = pat%xmin+(pat%npts-1)*pat%step
        do i=1,pat%npts
-          if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+          !if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
           if (iww(i) == 0) iww(i) = 1
-          pat%sigma(i) = cnorm*pat%y(i)/real(iww(i))
+          pat%sigma(i) = cnorm*abs(pat%y(i))/real(iww(i))
           pat%x(i)= pat%xmin+(i-1)*pat%step
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
@@ -1139,9 +1139,9 @@
        end if
 
        do i=1,pat%npts
-          if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+          !if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
           if (iww(i) == 0) iww(i) = 1
-          pat%sigma(i) = pat%y(i)/real(iww(i))
+          pat%sigma(i) = abs(pat%y(i))/real(iww(i))
           pat%x(i)= pat%xmin+(i-1)*pat%step
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
@@ -1226,9 +1226,9 @@
       end if
 
        do i=1,pat%npts
-          if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+          !if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
           if (iww(i) <= 0) iww(i) = 1
-          pat%sigma(i) = pat%y(i)/REAL(iww(i))
+          pat%sigma(i) = abs(pat%y(i))/REAL(iww(i))
           pat%x(i)= pat%xmin+(i-1)*pat%step
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
@@ -1545,7 +1545,7 @@
           end if
           cnorm=0.0
           do i=1,pat%npts
-             IF (pat%y(i) < 0.0001) pat%y(i)=0.0001
+             !IF (pat%y(i) < 0.0001) pat%y(i)=0.0001
              pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
              IF (pat%sigma(i) < 0.000001) pat%sigma(i)=1.0
              pat%x(i)= pat%xmin+(i-1)*pat%step
@@ -1717,9 +1717,9 @@
               end if
             end if
             do i=1,pat%npts
-               if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
+               !if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
                if (iww(i) == 0) iww(i) = 1
-               pat%sigma(i) = pat%y(i)/real(iww(i))
+               pat%sigma(i) = abs(pat%y(i))/real(iww(i))
                pat%x(i)=pat%xmin+(i-1)*pat%step
             end do
             cnorm=1.0
@@ -2126,7 +2126,7 @@
        pat%x(1)=pat%xmin
 
        do i=2,pat%npts
-          if (  pat%y(i) < 0.00001) pat%y(i) = pat%y(i-1)
+          !if (  pat%y(i) < 0.00001) pat%y(i) = pat%y(i-1)
           if (pat%sigma(i) < 0.00001) pat%sigma(i) = 1.0
           pat%sigma(i) = pat%sigma(i)**2
           pat%x(i)= pat%xmin+(i-1)*pat%step
@@ -2404,8 +2404,7 @@
              read(unit=line(j+1:),fmt=*,IOSTAT=ier) pat%y(i)
           end if
           if (ier /=0) exit
-          pat%sigma(i) = pat%y(i)
-          if (pat%sigma(i)   <= 0.00001) pat%sigma(i) = 1.0
+          pat%sigma(i) = abs(pat%y(i))
        end do
 
        pat%npts = i
@@ -2541,8 +2540,7 @@
        end do ! File
 
        do i=1,pat%npts
-          pat%sigma(i) = pat%y(i)
-          if (pat%sigma(i)   <= 0.00001) pat%sigma(i) = 1.0
+          pat%sigma(i) = abs(pat%y(i))
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
@@ -2647,8 +2645,7 @@
 
        do i=1,pat%npts
           pat%x(i)=pat%xmin+real(i-1)*pat%step
-          pat%sigma(i) = pat%y(i)
-          if (pat%sigma(i)   <= 0.00001) pat%sigma(i) = 1.0
+          pat%sigma(i) = abs(pat%y(i))
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
@@ -2803,8 +2800,7 @@
        end if
        do i=1,pat%npts
           pat%x(i)=pat%xmin+real(i-1)*pat%step
-          pat%sigma(i) = pat%y(i)
-          IF (pat%sigma(i)   <= 0.00001) pat%sigma(i) = 1.0
+          pat%sigma(i) = abs(pat%y(i))
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
@@ -3118,10 +3114,8 @@
         if (string_COUNTS .or. string_2THETACOUNTS ) then
            pat%sigma(1:n ) = pat%Y(1:n )
         else  ! data in CPS
-           pat%sigma(1:n ) = pat%Y(1:n )/ step_time
+           pat%sigma(1:n ) = abs(pat%Y(1:n ))/ step_time
         endif
-
-        where (pat%sigma(:) <= 0.00001) pat%sigma(:) = 1.0
 
         do i=1,pat%npts
            pat%x(i)= pat%xmin+(i-1)*pat%step
