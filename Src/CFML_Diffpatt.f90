@@ -1912,11 +1912,11 @@
                 pat(n_pat)%sigma(i)=pat(n_pat)%sigma(i)*pat(n_pat)%sigma(i)
                 sumavar=sumavar+pat(n_pat)%sigma(i)
                 if (pat(n_pat)%sigma(i) < eps1) pat(n_pat)%sigma(i) =fac_y
-                if (pat(n_pat)%y(i) < eps1) then
-                   pat(n_pat)%y(i)   = eps1
-                   pat(n_pat)%sigma(i) = fac_y
-                end if
-                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001_cp)
+                !if (pat(n_pat)%y(i) < eps1) then
+                !   pat(n_pat)%y(i)   = eps1
+                !   pat(n_pat)%sigma(i) = fac_y
+                !end if
+                cnorm=cnorm+pat(n_pat)%sigma(i)/max(abs(pat(n_pat)%y(i)),0.001_cp)
                 if (i > 1) then
                    pat(n_pat)%step=pat(n_pat)%step+pat(n_pat)%x(i)-pat(n_pat)%x(i-1)
                    ntt=ntt+1
@@ -1949,11 +1949,11 @@
                 pat(n_pat)%sigma(i)=pat(n_pat)%sigma(i)*pat(n_pat)%sigma(i)
                 sumavar=sumavar+pat(n_pat)%sigma(i)
                 if (pat(n_pat)%sigma(i) < eps1) pat(n_pat)%sigma(i) =fac_y
-                if (pat(n_pat)%y(i) < eps1) then
-                   pat(n_pat)%y(i)   = eps1
-                   pat(n_pat)%sigma(i) = fac_y
-                end if
-                cnorm=cnorm+pat(n_pat)%sigma(i)/max(pat(n_pat)%y(i),0.001_cp)
+                !if (pat(n_pat)%y(i) < eps1) then
+                !   pat(n_pat)%y(i)   = eps1
+                !   pat(n_pat)%sigma(i) = fac_y
+                !end if
+                cnorm=cnorm+pat(n_pat)%sigma(i)/max(abs(pat(n_pat)%y(i)),0.001_cp)
                 if (i > 1) then
                    pat(n_pat)%step=pat(n_pat)%step+pat(n_pat)%x(i)-pat(n_pat)%x(i-1)
                    ntt=ntt+1
@@ -1968,7 +1968,7 @@
           pat(n_pat)%step=pat(n_pat)%step/real(ntt)
           if (sumavar < eps1) then
              do i=1,pat(n_pat)%npts
-                pat(n_pat)%sigma(i)=pat(n_pat)%y(i)
+                pat(n_pat)%sigma(i)=abs(pat(n_pat)%y(i))
              end do
              cnorm=1.0
           end if
@@ -3399,11 +3399,11 @@
           pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
           sumavar=sumavar+pat%sigma(i)
           if(pat%sigma(i) < eps1) pat%sigma(i) =1.0_cp
-          if(pat%y(i) < eps1) then
-             pat%y(i)   = eps1
-             pat%sigma(i) =1.0
-          end if
-          cnorm=cnorm+pat%sigma(i)/MAX(pat%y(i),0.001_cp)
+          !if(pat%y(i) < eps1) then
+          !   pat%y(i)   = eps1
+          !   pat%sigma(i) =1.0
+          !end if
+          cnorm=cnorm+pat%sigma(i)/MAX(abs(pat%y(i)),0.001_cp)
           if(i > 1) then
             pat%step=pat%step+pat%x(i)-pat%x(i-1)
           end if
@@ -3415,7 +3415,7 @@
        cnorm=cnorm/REAL(ntt)
        if (sumavar < eps1) then
           do i=1,ntt
-             pat%sigma(i)=pat%y(i)
+             pat%sigma(i)=abs(pat%y(i))
           end do
           cnorm=1.0
        end if
@@ -3448,7 +3448,7 @@
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*pat%step
              call splint(pat%x(:),pat%y(:),bk(:),ntt,xt,ycor)
-             yc(i)=max(1.0_cp,ycor)
+             yc(i)=ycor !max(1.0_cp,ycor)
           end do
           do i=1,pat%npts
              pat%y(i)=yc(i)
@@ -3461,10 +3461,10 @@
           do i=1,pat%npts
              xt=pat%x(1)+(i-1)*pat%step
              call splint(pat%x(:),pat%sigma(:),bk(:),ntt,xt,ycor)
-             yc(i)=max(1.0_cp,ycor)
+             yc(i)=ycor !max(1.0_cp,ycor)
           end do
           do i=1,pat%npts
-             pat%sigma(i)=yc(i)
+             pat%sigma(i)=abs(yc(i))
              yc(i)=0.0
              bk(i)=0.0
           end do
