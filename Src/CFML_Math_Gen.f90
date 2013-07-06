@@ -2822,64 +2822,45 @@
     !!----     Calculates the co-prime vector (cop) parallel to the input vector (v)
     !!----     It uses the list of the first thousand prime numbers.
     !!----
-    !!---- Updated: January - 2011
+    !!----   Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in July 2013 (JRC)
     !!----
-    Subroutine Co_Prime_Vector(V,Cop,F)
+    Subroutine Co_Prime_Vector(V,Cop,f)
        !---- Arguments ----!
        integer, dimension(:), intent(in)  :: v
        integer, dimension(:), intent(out) :: cop
        integer,  optional,    intent(out) :: f
 
        !---- Local variables ----!
-       integer                     :: i,j,im,k,dimv,fi,imax,mav,miv
-       integer, dimension(size(v)) :: av
-       logical                     :: done
+       integer                     :: i,j,max_ind,k,im,dimv,n
 
        cop=v
-       fi=1
+       n=1
        if (present(f)) f=1
-
-       !---- If the maximum value of the indices is 1 they are not coprimes
-       av=abs(v)
-       mav=-1;miv=99999999
+       max_ind=maxval(abs(cop))
+       !---- If the maximum value of the indices is 1 they are already coprimes
+       if (max_ind <= 1) return
+       !---- Indices greater than 1
        dimv=size(v)
-       do i=1,dimv
-          if (av(i) == 0) cycle
-          if (av(i) > mav) mav = av(i)
-          if (av(i) < miv) miv = av(i)
-       end do
-       if ( mav == 1) return
-       if ( mav == 0) return
-
-       !---- Search the maximum prime number to be tested
-       imax=miv
-       if (imax > 7919) then
-          im=1000
-       else
-          do i=1,1000
-             if (imax > primes(i)) cycle
+       im=0
+       do i=1,size(primes)
+          if(primes(i) > max_ind) then  !primes is an array within this module
              im=i
              exit
-          end do
-       end if
-
-       !---- Indices greater than 1
-       do i=1,im
-          k=primes(i)
-          do
-             done=.true.
-             do j=1,dimv
-                if ( mod(cop(j),k) /= 0) then
-                   done=.false.
-                   exit
-                end if
-             end do
-             if (.not. done) exit
-             cop=cop/k
-             fi=fi*k
-          end do
+          end if
        end do
-       if (present(f)) f=fi
+       if(im == 0) return
+       do_p: do i=1,im
+         k=primes(i)
+         do
+           do j=1,dimv
+              if( mod(cop(j),k) /= 0) cycle do_p
+           end do
+           n=n*k
+           cop=cop/k
+         end do
+       end do do_p
+
+       if (present(f)) f=n
 
        return
     End Subroutine Co_Prime_vector
