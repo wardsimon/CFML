@@ -126,7 +126,7 @@
     !!----    character(len=180)                          :: Title         !Identification of the pattern
     !!----    character(len=20)                           :: diff_kind     !type of radiation
     !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, Lambda, Energy, Temperature, etc
-    !!----    character(len=30)                           :: yax_text       !y-axis legend, eg. "Intensity (arb. units)"
+    !!----    character(len=30)                           :: yax_text      !y-axis legend, eg. "Intensity (arb. units)"
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
     !!----    real(kind=cp)                               :: xmin
