@@ -3176,7 +3176,7 @@
        do i=1,n
          if (i /= n) then
            step = x(i+1)-x(i)
-         endif
+         end if
          x0 = x(i) - step/2.0
          call splint(x,y, d2y, n, x0, y0)
          y1 = y0

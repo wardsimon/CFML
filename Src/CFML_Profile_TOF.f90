@@ -433,7 +433,7 @@ Module CFML_PowderProfiles_TOF
        else
           omg_u=exp(g_u*udiv-y_u**2)/(sqrt(2/two_over_pi)*y_u)* &
           (1-1.0/(2.0*y_u**2)+3.0/(2.0*y_u**2)**2+15.0/(2.0*y_u**2)**3)
-       endif
+       end if
 
        if (y_v < 27.0_dp) then
           omg_v=expv*erfv
@@ -443,7 +443,7 @@ Module CFML_PowderProfiles_TOF
        else
           omg_v=exp(g_v*vdiv-y_v**2)/(sqrt(2/two_over_pi)*y_v)* &
           (1-1.0/(2.0*y_v**2)+3.0/(2.0*y_v**2)**2+15.0/(2.0*y_v**2)**3)
-       endif
+       end if
 
        if (y_s < 27.0_dp) then
           omg_s=exps*erfs
@@ -453,7 +453,7 @@ Module CFML_PowderProfiles_TOF
        else
           omg_s=exp(g_s*sdiv-y_s**2)/(sqrt(2.0/two_over_pi)*y_s)* &
           (1.0-1.0/(2.0*y_s**2)+3.0/(2.0*y_s**2)**2+15.0/(2.0*y_s**2)**3)
-       endif
+       end if
 
        if (y_r < 27.0_dp) then
           omg_r=expr*erfr
@@ -463,7 +463,7 @@ Module CFML_PowderProfiles_TOF
        else
           omg_r=exp(g_r*rdiv-y_r**2)/(sqrt(2.0/two_over_pi)*y_r)* &
           (1.0-1.0/(2.0*y_r**2)+3.0/(2.0*y_r**2)**2+15.0/(2.0*y_r**2)**3)
-       endif
+       end if
 
        omg=(Nu*omg_u+Nv*omg_v+Ns*omg_s+Nr*omg_r) ! End of gaussian part of the function
 

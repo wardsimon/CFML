@@ -1515,7 +1515,7 @@
                !  dcang122=(1.0/da1-cang12/da2)**2
                !  dcang1212=(da12/da2/da1)**2
                !  sang12=sqrt((dcang121*sda1**2+dcang122*sda2**2+dcang1212*sda12**2)/(1.0-cang12**2))*to_deg
-               ! endif
+               ! end if
                ! if(abs(abs(cang1)-1.0) < 0.0001) then
                !   sang1=0.0
                ! else
@@ -1523,7 +1523,7 @@
                !  dcang12=(1.0/da12-cang1/da2)**2
                !  dcang11=(da1/da2/da12)**2
                !  sang1=sqrt((dcang11*sda1**2+dcang12*sda2**2+dcang112*sda12**2)/(1.0-cang1**2))*to_deg
-               ! endif
+               ! end if
                ! sang2=sqrt(sang1**2+sang12**2)
 
 

@@ -1692,7 +1692,7 @@ Module CFML_ILL_Instrm_Data
            err_illdata = .true.
            err_illdata_mess = " The file "//trim(filename)//" does not exist."
            return
-       endif
+       end if
 
        ! Check whether the input file is opned or not.
        inquire (file=filename,opened=info)
@@ -1705,7 +1705,7 @@ Module CFML_ILL_Instrm_Data
        else
           call get_logunit(lun)
           open(unit=lun,file=filename, status="old",action="read", position="rewind")
-       endif
+       end if
 
        ! Loop used to determine the number of lines of the header block.
        do
@@ -1715,14 +1715,14 @@ Module CFML_ILL_Instrm_Data
           if (line(1:10) == repeat('S',10) .or. ier < 0) exit
           ! Increment the header block counter.
           header_size = header_size + 1
-       enddo
+       end do
 
        ! If the header block is empty, stops here. A numor must have a header.
        if (header_size == 0) then
            err_illdata = .true.
            err_illdata_mess = " "//trim(filename)//" has no header."
            return
-       endif
+       end if
 
        ! Loop used to determine the number of lines of the first frame block (all the frames have the same size).
        do
@@ -1737,14 +1737,14 @@ Module CFML_ILL_Instrm_Data
 
           ! Increment the frame block counter.
           frame_size = frame_size + 1
-       enddo
+       end do
 
        ! If the frame block is empty, stops here. A numor must have at least one frame.
        if (frame_size == 1) then
            err_illdata = .true.
            err_illdata_mess = " "//trim(filename)//" has no frame."
            return
-       endif
+       end if
 
        ! Rewind the opened numor.
        rewind(lun)
@@ -4212,7 +4212,7 @@ Module CFML_ILL_Instrm_Data
            err_illdata = .true.
            err_illdata_mess = " The file "//trim(filename)//" does not exist."
            return
-       endif
+       end if
 
        ! Check whether the input file is opned or not.
        inquire (file=filename,opened=info)
@@ -4224,7 +4224,7 @@ Module CFML_ILL_Instrm_Data
        else
           call get_logunit(lun)
           open(unit=lun,file=filename,status="old",action="read",position="rewind")
-       endif
+       end if
 
        ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
        if (trim(filename) /= trim(n%filename)) then
@@ -4248,7 +4248,7 @@ Module CFML_ILL_Instrm_Data
           ! Read the header and put it in the array.
           do i = 1, n%header_size
              read(lun,'(a)') filevar(i)
-          enddo
+          end do
 
           ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the header is made of.
           call Number_KeyTypes_on_File(filevar,n%header_size)
@@ -4313,7 +4313,7 @@ Module CFML_ILL_Instrm_Data
              n%conditions=rvalues(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
           end if
 
-       endif
+       end if
 
        ! If the numor was only opened for reading the header, stops here.
        if(Instrm_Info_only) return
@@ -4329,14 +4329,14 @@ Module CFML_ILL_Instrm_Data
              if (frames(i) < 1 .or. frames(i) > n%nframes) cycle
              n_selected_frames = n_selected_frames + 1
              temp_frames(n_selected_frames) = frames(i)
-          enddo
+          end do
 
           ! If none of the selected frame fall in [1,nframes], stops here.
           if (n_selected_frames <= 0) then
              err_illdata = .true.
              err_illdata_mess = " Invalid frames selection."
              return
-          endif
+          end if
 
           ! Sets the selected_frames field of the numor structure with the selected frames within [1,nframes].
           allocate(n%selected_frames(n_selected_frames))
@@ -4347,7 +4347,7 @@ Module CFML_ILL_Instrm_Data
           allocate(n%selected_frames(n%nframes))
           n%selected_frames = (/(i, i=1,n%nframes)/)
           n_selected_frames = n%nframes
-       endif
+       end if
 
        ! At this point, we should normally be at the beginning of a frame block.
        read(lun,'(a)') line
@@ -4364,9 +4364,9 @@ Module CFML_ILL_Instrm_Data
           rewind(lun)
           do i = 1, n%header_size
              read(lun,'(a)') line
-          enddo
+          end do
           previous_frame = 1
-       endif
+       end if
 
        ! Allocate the count array.
        if (allocated(n%counts)) deallocate(n%counts)
@@ -4394,7 +4394,7 @@ Module CFML_ILL_Instrm_Data
              do j = 1, n_skip*n%frame_size
                 backspace(lun)
              end do
-          endif
+          end if
 
           ! Allocating a character array for storing the frame block line by line.
           if (allocated(filevar)) deallocate(filevar)
@@ -4403,7 +4403,7 @@ Module CFML_ILL_Instrm_Data
           ! Read the frame and put it in the array.
           do j = 1, n%frame_size
              read(lun,'(a)') filevar(j)
-          enddo
+          end do
 
           ! Define the different blocks (i.e. RRRRRRR, IIIIIII ...) the frame is made of.
           call Number_KeyTypes_on_File(filevar,n%frame_size)

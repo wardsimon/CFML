@@ -2652,7 +2652,7 @@
 
              if (np /= 0) then
                 read(unit=i_dat, fmt = "(7(f8.0,tr1),F8.0)") (pat%y(i), i=n+1, pat%npts)
-             endif
+             end if
              exit
 
           end if
@@ -2883,8 +2883,8 @@
                Err_diffpatt=.true.
                ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                return
-              endif
-             endif
+              end if
+             end if
              EXIT
            ELSE IF (line(1:4)  =="_CPS") THEN
               string_CPS = .true.
@@ -2894,8 +2894,8 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif
-              endif
+               end if
+              end if
               exit
            ELSE IF (line(1:13) =="_2THETACOUNTS") then
               string_2THETACOUNTS = .true.
@@ -2905,8 +2905,8 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif
-              endif
+               end if
+              end if
               exit
            ELSE IF (line(1:10) == "_2THETACPS") THEN
               string_2THETACPS = .true.
@@ -2916,8 +2916,8 @@
                 Err_diffpatt=.true.
                 ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your mode parameter!"
                 return
-               endif
-              endif
+               end if
+              end if
               EXIT
            ELSE IF (line(1:7) == "_2THETA" .or. line(1:6) == '_START') THEN
               i = INDEX(line,"=")
@@ -2983,7 +2983,7 @@
            Err_diffpatt=.true.
            ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
            return
-         endif
+         end if
         end do
 
 
@@ -2995,12 +2995,12 @@
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" Error on Socabim UXD Intensity file, check your instr parameter!"
              return
-           endif
+           end if
            if(len_trim(line) == 0) cycle
            exit
           end do
-         endif
-        endif
+         end if
+        end if
 
         call Allocate_Diffraction_Pattern(pat)
 
@@ -3130,7 +3130,7 @@
            pat%sigma(1:n ) = pat%Y(1:n )
         else  ! data in CPS
            pat%sigma(1:n ) = abs(pat%Y(1:n ))/ step_time
-        endif
+        end if
 
         do i=1,pat%npts
            pat%x(i)= pat%xmin+(i-1)*pat%step

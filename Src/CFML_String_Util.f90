@@ -1284,14 +1284,14 @@
                dot = dotted
            else
                dot = .true.
-           endif
+           end if
 
            if (.not. dot) idx = idx + 1
 
            ! The extension is set.
            extension = filename(idx:)
 
-       endif
+       end if
 
        return
 
@@ -1575,7 +1575,7 @@
             call Read_Fract(string(j(3)+1:j(1)-1), v(1))
           end if
 
-        endif
+        end if
 
       else if(j(3) == 0) then
 

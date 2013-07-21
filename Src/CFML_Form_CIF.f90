@@ -970,7 +970,7 @@
           if ("_atom_site_aniso" == string(1:16) ) then
              j=j+1
              cycle
-          endif
+          end if
 
           nline=i
           exit
