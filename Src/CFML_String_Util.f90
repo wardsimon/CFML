@@ -2374,7 +2374,7 @@
 
        do i=nline_ini,nt
           line=adjustl(filevar(i))
-          if (len_trim(line) == 0 .or. line(1:1)==cc) cycle
+          if (len_trim(line) == 0 .or. line(1:1)=="!" .or. line(1:1)==cc) cycle
           linec=line
           call lcase(line)
           np=index(line,key)
