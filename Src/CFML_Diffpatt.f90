@@ -90,7 +90,7 @@
 !!
  Module CFML_Diffraction_Patterns
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,       only : cp
+    Use CFML_GlobalDeps,       only : cp,ops_sep
     Use CFML_Math_General,     only : spline, splint, locate,second_derivative
     use CFML_String_Utilities, only : FindFmt,  Init_FindFmt , ierr_fmt, &
                                       get_logunit, u_case, getword, getnum
@@ -129,6 +129,7 @@
     !!----    character(len=30)                           :: yax_text      !y-axis legend, eg. "Intensity (arb. units)"
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
+    !!----    character(len=512)                          :: filepath      !file name
     !!----    real(kind=cp)                               :: xmin
     !!----    real(kind=cp)                               :: xmax
     !!----    real(kind=cp)                               :: ymin
@@ -172,6 +173,7 @@
        character(len=30)                           :: yax_text         !y-axis legend, eg. "Intensity (arb. units)"
        character(len=20)                           :: instr=" "        !file type
        character(len=512)                          :: filename=" "     !file name
+       character(len=512)                          :: filepath=" "     !file path
        real(kind=cp)                               :: xmin=0.0
        real(kind=cp)                               :: xmax=0.0
        real(kind=cp)                               :: ymin=0.0
@@ -2002,7 +2004,7 @@
 
        !---- Local variables ----!
        logical :: esta
-       integer :: i_dat, ier
+       integer :: i_dat, ier,i
 
        call init_err_diffpatt()
 
@@ -2019,7 +2021,14 @@
              ERR_DiffPatt_Mess=" Error opening the file "//trim(filename)
              return
           end if
-          dif_pat%filename=trim(filename)
+          i=index(filename,OPS_SEP,back=.true.)
+          If( i /= 0) then
+            dif_pat%filename=trim(filename(i+1:))
+            dif_pat%filepath=filename(1:i) 
+          Else
+            dif_pat%filename=trim(filename)
+            dif_pat%filepath="."//OPS_SEP 
+          End if
        end if
 
        if (present(mode)) then
@@ -2177,7 +2186,14 @@
              ERR_DiffPatt_Mess=" Error opening the file: "//trim(filename)
              return
           end if
-          dif_pat%filename=trim(filename)
+          i=index(filename,OPS_SEP,back=.true.)
+          If( i /= 0) then
+            dif_pat%filename=trim(filename(i+1:))
+            dif_pat%filepath=filename(1:i) 
+          Else
+            dif_pat%filename=trim(filename)
+            dif_pat%filepath="."//OPS_SEP 
+          End if
        end if
 
        if (present(mode)) then
