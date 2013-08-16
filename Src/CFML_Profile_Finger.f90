@@ -35,7 +35,8 @@
 !!---- MODULE: CFML_PowderProfiles_Finger
 !!----   INFO: Asymmetry due to axial divergence using the method of Finger, Cox and
 !!----         Jephcoat, J. Appl. Cryst. 27, 892, 1992.
-!!----         Implementation base in the paper by James Hester, J. App. Cryst. 2013.
+!!----         Implementation based in the paper by James Hester, 
+!!----         J. Applied Crystallography 46, 1219-1220(2013).
 !!----
 !!---- HISTORY
 !!----    Update:  28/05/2013

@@ -4962,7 +4962,7 @@ Module CFML_ILL_Instrm_Data
        !---- Arguments ----!
        character(len=*)               , intent(in)    :: filename
        character(len=*)               , intent(in)    :: Instrument
-       type(SXTAL_Numor_Type)         , intent(inout) :: Num
+       type(SXTAL_Numor_Type)         , intent(in out):: Num
        logical, optional              , intent(in)    :: inf
        integer, optional, dimension(:), intent(in)    :: frames
 
