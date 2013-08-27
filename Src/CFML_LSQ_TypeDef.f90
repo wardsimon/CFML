@@ -61,12 +61,12 @@ Module CFML_LSQ_TypeDef
    !!---- MAX_FREE_PAR
    !!----    integer, parameter, public  :: Max_Free_Par
    !!----
-   !!----    Maximum number of free parameters (809)
+   !!----    Maximum number of free parameters (1500)
    !!----    (it may be changed at will!)
    !!----
    !!---- Update: August - 2010
    !!
-   integer, parameter, public   :: Max_Free_Par=809   !Maximum number of free parameters
+   integer, parameter, public   :: Max_Free_Par=1500   !Maximum number of free parameters
 
 
    !!----
