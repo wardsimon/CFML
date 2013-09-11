@@ -126,7 +126,7 @@
     !!---- TYPE :: ATOM_TYPE
     !!--..
     !!---- Type, public :: Atom_Type
-    !!----    character(len=10)                       :: Lab           ! Label
+    !!----    character(len=20)                       :: Lab           ! Label
     !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
     !!----    character(len=4)                        :: SfacSymb      ! Chemical Symbol for SF
     !!----    logical                                 :: active        ! Control for different purposes
@@ -162,7 +162,7 @@
     !!---- Update: May - 2009
     !!
     Type, public :: Atom_Type
-       character(len=10)                        :: Lab
+       character(len=20)                        :: Lab
        character(len=2)                         :: ChemSymb
        character(len=4)                         :: SfacSymb
        logical                                  :: Active
