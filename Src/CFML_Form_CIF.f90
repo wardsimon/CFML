@@ -611,9 +611,9 @@
        call cutst(line,nlong1,label)
        n=index(digpm,label(2:2))
        if (n /=0) then
-         atomo%chemsymb=label(1:1)
+         atomo%chemsymb=U_case(label(1:1))
        else
-         atomo%chemsymb=label(1:2)
+         atomo%chemsymb=U_case(label(1:1))//L_case(label(2:2))
        end if
        atomo%SfacSymb=label(1:4)
 
@@ -863,9 +863,9 @@
           if (lugar(2) /= 0) then
              atm%atom(n_atom)%SfacSymb=label(lugar(2))(1:4)
              if(index("1234567890+-",label(lugar(2))(2:2)) /= 0 ) then
-                atm%atom(n_atom)%chemSymb=label(lugar(2))(1:1)
+                atm%atom(n_atom)%chemSymb=U_case(label(lugar(2))(1:1))
              else
-                atm%atom(n_atom)%chemSymb=label(lugar(2))(1:2)
+                atm%atom(n_atom)%chemSymb=U_case(label(lugar(2))(1:1))//L_case(label(lugar(2))(2:2))
              end if
            !  call getnum(label(lugar(2))(2:2),vet1,ivet,iv)
            !  if (iv <= 0) then
@@ -875,9 +875,9 @@
            !  end if
           else
              if(index("1234567890+-",label(lugar(1))(2:2)) /= 0 ) then
-                atm%atom(n_atom)%chemSymb=label(lugar(1))(1:1)
+                atm%atom(n_atom)%chemSymb=U_case(label(lugar(1))(1:1))
              else
-                atm%atom(n_atom)%chemSymb=label(lugar(1))(1:2)
+                atm%atom(n_atom)%chemSymb=U_case(label(lugar(1))(1:1))//L_case(label(lugar(1))(2:2))
              end if
              atm%atom(n_atom)%SfacSymb=atm%atom(n_atom)%chemSymb
 
@@ -1599,7 +1599,7 @@
     !!--++    integer,                       intent(in)       :: nline_ini   !  In -> Line to start the search
     !!--++                                                                     Out -> Actual line on Filevar
     !!--++    integer,                       intent(in)       :: nline_end   !  In -> Line to finish the search
-    !!--++    type (atom_list_type),        intent(out)      :: Atomos      ! Out -> Atom list
+    !!--++    type (atom_list_type),        intent(out)       :: Atomos      ! Out -> Atom list
     !!--++
     !!--++     Subroutine to read an atom list from a file. Atomos should be previously allocated.
     !!--++     Control of error is present
@@ -1611,7 +1611,7 @@
        character(len=*), dimension(:),   intent(in)      :: filevar
        integer,                          intent(in out)  :: nline_ini
        integer,                          intent(in)      :: nline_end
-       type (atom_list_type),           intent(in out)  :: Atomos
+       type (atom_list_type),            intent(in out)  :: Atomos
 
        !---- Local variables -----!
        character(len=len(filevar(1))) :: line
@@ -2046,6 +2046,7 @@
        !---- Local Variables ----!
        character(len=80)               :: string
        character(len=30),dimension(15) :: label
+       character(len=2)                :: el
        integer                         :: i, nc, iv
        integer                         :: j, n_atom
        integer, dimension(15)          :: ivet
@@ -2074,7 +2075,8 @@
                 n_atom=n_atom+1
                 atm%atom(n_atom)%lab=label(1)(1:4)
                 call getnum(label(2),vet,ivet,iv)
-                atm%atom(n_atom)%chemSymb=elem_type(ivet(1))
+                el=elem_type(ivet(1))
+                atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
                 call getnum(label(3),vet,ivet,iv)
                 atm%atom(n_atom)%x(1)=vet(1)
                 call getnum(label(4),vet,ivet,iv)
@@ -2098,7 +2100,8 @@
                 n_atom=n_atom+1
                 atm%atom(n_atom)%lab=label(1)(1:4)
                 call getnum(label(2),vet,ivet,iv)
-                atm%atom(n_atom)%chemSymb=elem_type(ivet(1))
+                el=elem_type(ivet(1))
+                atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
                 call getnum(label(3),vet,ivet,iv)
                 atm%atom(n_atom)%x(1)=vet(1)
                 call getnum(label(4),vet,ivet,iv)
@@ -2126,7 +2129,8 @@
                 n_atom=n_atom+1
                 atm%atom(n_atom)%lab=label(1)(1:4)
                 call getnum(label(2),vet,ivet,iv)
-                atm%atom(n_atom)%chemSymb=elem_type(ivet(1))
+                el=elem_type(ivet(1))
+                atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
                 call getnum(label(3),vet,ivet,iv)
                 atm%atom(n_atom)%x(1)=vet(1)
                 call getnum(label(4),vet,ivet,iv)
@@ -2161,7 +2165,8 @@
                 n_atom=n_atom+1
                 atm%atom(n_atom)%lab=label(1)(1:4)
                 call getnum(label(2),vet,ivet,iv)
-                atm%atom(n_atom)%chemSymb=elem_type(ivet(1))
+                el=elem_type(ivet(1))
+                atm%atom(n_atom)%chemSymb=U_case(el(1:1))//L_case(el(2:2))
                 call getnum(label(3),vet,ivet,iv)
                 atm%atom(n_atom)%x(1)=vet(1)
                 call getnum(label(4),vet,ivet,iv)
@@ -3067,7 +3072,7 @@
 
                 ! Atom Type
                 call cutst(line,nlong1,label)
-                A%Atom(nauas)%chemsymb=trim(label)
+                A%Atom(nauas)%chemsymb=U_case(label(1:1))//L_case(label(2:2))
 
                 ! Atom Coordinates,Biso and Occ
                 call getnum(line,vet,ivet,iv)

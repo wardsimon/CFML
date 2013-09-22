@@ -1463,7 +1463,8 @@
 
        !---- Local Variables ----!
        character(len=30),dimension(6) :: text
-       integer                        :: i, j, iunit
+       character(len=36)              :: forma,fom
+       integer                        :: i, j, iunit, leng, maxl,ish
        real(kind=cp), dimension(6)    :: u,bet,sb
 
        iunit=6
@@ -1473,10 +1474,30 @@
          write (unit=iunit,fmt="(a)") "!  No atoms ..."
          return
        end if
-
-       write (unit=iunit,fmt="(a)") &
-   "!      Atom    Type         x/a           y/b           z/c           Biso          Occ          Spin    Charge    Info"
-
+       !Determine the maximum length of the atom labels
+       maxl=0
+       do i=1,ats%natoms
+         leng=len_trim(ats%atom(i)%lab)
+         if(leng > maxl) maxl=leng
+       end do
+       maxl=max(maxl,4)+1
+       ish=maxl-4
+       fom   ="(a,tr  ,a)"
+       Select Case(ish)
+          Case(:9)
+            write(unit=fom(6:6),fmt="(i1)") ish
+          Case(10:)
+            write(unit=fom(6:7),fmt="(i2)") ish
+       End Select
+       forma="(a,a  ,tr2,a,tr3,5a14,2f8.2,tr3,a)"
+       Select Case(maxl)
+         Case(:9)
+             write(unit=forma(5:5),fmt="(i1)") maxl
+         Case(10:)
+             write(unit=forma(5:6),fmt="(i2)") maxl
+       End Select
+       write (unit=iunit,fmt=fom) "!     ", &
+             "Atom  Type     x/a           y/b           z/c           Biso          Occ           Spin    Charge    Info"
        do i=1,ats%natoms
 
           do j=1,3
@@ -1485,8 +1506,8 @@
           call SetNum_Std(ats%atom(i)%Biso, ats%atom(i)%Biso_std, text(4))
           call SetNum_Std(ats%atom(i)%Occ, ats%atom(i)%Occ_std, text(5))
 
-          write (unit=iunit,fmt="(3a,tr5,5a14,2f8.2,tr3,a)") &
-                "Atom   ",ats%atom(i)%lab,ats%atom(i)%chemsymb, (text(j),j=1,5), &
+          write (unit=iunit,fmt=forma) &
+                "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
                  ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
 
           if (ats%atom(i)%thtype == "aniso") then
