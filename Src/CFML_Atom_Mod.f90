@@ -200,7 +200,7 @@
     !!--..
     !!---- Type, public :: atoms_cell_type
     !!----    integer                                      :: nat         ! -> Total number of atoms
-    !!----    character(len=10), dimension(:), allocatable :: noms        ! -> Name of atoms   (nat)
+    !!----    character(len=20), dimension(:), allocatable :: noms        ! -> Name of atoms   (nat)
     !!----    real(kind=cp),   dimension(:,:), allocatable :: xyz         ! -> Fractional coordinates (3,nat)
     !!----    real(kind=cp),     dimension(:), allocatable :: charge
     !!----    real(kind=cp),     dimension(:), allocatable :: moment
@@ -222,7 +222,7 @@
     !!
     Type, public :: atoms_cell_type
        integer                                            :: nat
-       character (len=10),      dimension(:), allocatable :: noms
+       character (len=20),      dimension(:), allocatable :: noms
        real(kind=cp),         dimension(:,:), allocatable :: xyz
        real(kind=cp),           dimension(:), allocatable :: charge
        real(kind=cp),           dimension(:), allocatable :: moment

@@ -929,7 +929,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Allocate_Point_List(N,Pl,Ier)
+    Subroutine Allocate_Point_List(n,Pl,Ier)
        !---- Arguments ----!
        integer,               intent(in)     :: n
        type(point_list_type), intent(in out) :: pl
@@ -1063,9 +1063,7 @@
                    do i2=ic1(2),ic2(2)
                       do i3=ic1(3),ic2(3)
                          do_jl:do jl=1,Spg%NumLat
-                            Tn(1)=real(i1)+Spg%Latt_trans(1,jl)
-                            Tn(2)=real(i2)+Spg%Latt_trans(2,jl)
-                            Tn(3)=real(i3)+Spg%Latt_trans(3,jl)
+                            Tn(:)=real((/i1,i2,i3/))+Spg%Latt_trans(:,jl)
                             x1(:)=xx(:)+tn(:)
                             do l=1,3
                                t=abs(x1(l)-xo(l))*qd(l)
@@ -2303,9 +2301,7 @@
                 do i2=ic1(2),ic2(2)
                    do i3=ic1(3),ic2(3)
                       do_jl:do jl=1,Spg%NumLat
-                         Tn(1)=real(i1)+Spg%Latt_trans(1,jl)
-                         Tn(2)=real(i2)+Spg%Latt_trans(2,jl)
-                         Tn(3)=real(i3)+Spg%Latt_trans(3,jl)
+                         Tn(:)=(/real(i1),real(i2),real(i3)/)+Spg%Latt_trans(:,jl)
                          x1(:)=xx(:)+tn(:)
                          do l=1,3
                             t=abs(x1(l)-xo(l))*qd(l)
@@ -2444,9 +2440,7 @@
                    do i2=ic1(2),ic2(2)
                       do i3=ic1(3),ic2(3)
                          do_jl:do jl=1,Spg%NumLat
-                            Tn(1)=real(i1)+Spg%Latt_trans(1,jl)
-                            Tn(2)=real(i2)+Spg%Latt_trans(2,jl)
-                            Tn(3)=real(i3)+Spg%Latt_trans(3,jl)
+                            Tn(:)=real((/i1,i2,i3/))+Spg%Latt_trans(:,jl)
                             x1(:)=xx(:)+tn(:)
                             do l=1,3
                                t=abs(x1(l)-xo(l))*qd(l)
@@ -2689,7 +2683,7 @@
              do i1=ic1(1),ic2(1)
                 do i2=ic1(2),ic2(2)
                    do_i3:do i3=ic1(3),ic2(3)
-                         Tn(1)=real(i1); Tn(2)=real(i2); Tn(3)=real(i3)
+                         Tn(:)=real((/i1,i2,i3/))
                          x1(:)=xx(:)+tn(:)
                          do l=1,3
                             t=abs(x1(l)-xo(l))*qd(l)
@@ -2740,15 +2734,15 @@
                xx=ApplySO(Spg%SymOp(j),a%atom(k)%x)
                do i1=ic1(1),ic2(1)
                   do i2=ic1(2),ic2(2)
-                     do_i33:do i3=ic1(3),ic2(3)
-                           Tn(1)=real(i1); Tn(2)=real(i2); Tn(3)=real(i3)
+                     do_inter:do i3=ic1(3),ic2(3)
+                           Tn(:)=real((/i1,i2,i3/))
                            x1(:)=xx(:)+tn(:)
                            do l=1,3
                               t=abs(x1(l)-xo(l))*qd(l)
-                              if (t > dmax) cycle  do_i33
+                              if (t > dmax) cycle  do_inter
                            end do
                            do nn=1,lk
-                              if (sum(abs(uu(:,nn)-x1(:)))  <= epsi) cycle  do_i33
+                              if (sum(abs(uu(:,nn)-x1(:)))  <= epsi) cycle  do_inter
                            end do
                            xr = matmul(cell%cr_orth_cel,x1-xo)
                            dd=sqrt(dot_product(xr,xr))
@@ -2759,7 +2753,7 @@
                            Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
                            Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
                            Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
-                     end do do_i33 !i3
+                     end do do_inter !i3
                   end do !i2
                end do !i1
             end do !j
