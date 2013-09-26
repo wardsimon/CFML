@@ -478,23 +478,23 @@
                   "    -------------------------------------------------------------------"
           end if
           do j=1,icm
-             k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
-             q2=A%Atom(coord_info%n_cooatm(i,j))%charge
+             k=A%Atom(coord_info%n_cooatm(j,i))%ind(1)
+             q2=A%Atom(coord_info%n_cooatm(j,i))%charge
              sig2= SIGN(1.0_cp,q2)
              if (sig1 == sig2) cycle
-             dd=coord_info%dist(i,j)
+             dd=coord_info%dist(j,i)
              if (dd > (A%Radius(l)+A%Radius(k))*(1.0+tol)) cycle
              icn=icn+1
-             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1) !/A%Atom(i)%VarF(1)
+             efcn=efcn+A%Atom(coord_info%n_cooatm(j,i))%VarF(1) !/A%Atom(i)%VarF(1)
              kk=k
              d2=d2+dd*dd
-             s0=coord_info%s_dist(i,j)
+             s0=coord_info%s_dist(j,i)
              dav=dav+dd
              sdav=sdav+s0*s0
-             rnatom=A%atom(coord_info%n_cooatm(i,j))%lab
+             rnatom=A%atom(coord_info%n_cooatm(j,i))%lab
              call Bond_valence(Table_d0(l,k),Table_b(l,k),dd,s0,str,sstr)
-             str=str*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)             !/A%Atom(i)%VarF(1)
-             sstr=sstr*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)           !/A%Atom(i)%VarF(1)
+             str=str*A%Atom(coord_info%n_cooatm(j,i))%VarF(1)             !/A%Atom(i)%VarF(1)
+             sstr=sstr*A%Atom(coord_info%n_cooatm(j,i))%VarF(1)           !/A%Atom(i)%VarF(1)
              sums=sums+str
              str2=str2+str*str
              sigtot=sigtot+sstr*sstr
@@ -875,19 +875,19 @@
           sums=0.0
           efcn=0.0
           do j=1,icm
-             k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
-             q2=A%Atom(coord_info%n_cooatm(i,j))%charge
+             k=A%Atom(coord_info%n_cooatm(j,i))%ind(1)
+             q2=A%Atom(coord_info%n_cooatm(j,i))%charge
              sig2= SIGN(1.0_cp,q2)
              sig=A%radius(l)+A%radius(k)
-             dd=coord_info%dist(i,j)
+             dd=coord_info%dist(j,i)
              if (sig1 == sig2) then
                 rep=rep + (0.8*sig/dd)**18
                 cycle
              end if
              if (dd > sig*(1.0+tol)) cycle
-             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
+             efcn=efcn+A%Atom(coord_info%n_cooatm(j,i))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
-             bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1) !Occupacy
+             bv=bv*A%Atom(coord_info%n_cooatm(j,i))%VarF(1) !Occupacy
              sums=sums+bv
           end do
           A%Atom(i)%varF(3)=efcn
@@ -960,19 +960,19 @@
           sums=0.0
           efcn=0.0
           do j=1,icm
-             k=A%Atom(coord_info%n_cooatm(i,j))%ind(1)
-             q2=A%Atom(coord_info%n_cooatm(i,j))%charge
+             k=A%Atom(coord_info%n_cooatm(j,i))%ind(1)
+             q2=A%Atom(coord_info%n_cooatm(j,i))%charge
              sig2= SIGN(1.0_cp,q2)
-             dd=coord_info%dist(i,j)
+             dd=coord_info%dist(j,i)
              sig=A%radius(l)+A%radius(k) !sum of ionic radii of the current pair
              if (sig1 == sig2) then
                 Erep=Erep+ q1*q2/dd + (sig/dd)**18  !Coulomb potential + soft sphere repulsion (avoid short distances)
                 cycle
              end if
              if (dd > sig*(1.0+tol)) cycle
-             efcn=efcn+A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
+             efcn=efcn+A%Atom(coord_info%n_cooatm(j,i))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
-             bv=bv*A%Atom(coord_info%n_cooatm(i,j))%VarF(1)
+             bv=bv*A%Atom(coord_info%n_cooatm(j,i))%VarF(1)
              sums=sums+bv
           end do
 

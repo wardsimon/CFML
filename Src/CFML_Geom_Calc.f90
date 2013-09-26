@@ -903,11 +903,11 @@
        Coord_Info%Max_Coor= max_coor
 
        allocate (Coord_Info%Coord_Num(nasu))
-       allocate (Coord_Info%N_Cooatm(nasu,max_coor))
-       allocate (Coord_Info%N_Sym(nasu,max_coor))
-       allocate (Coord_Info%Dist(nasu,max_coor))
-       allocate (Coord_Info%S_Dist(nasu,max_coor))
-       allocate (Coord_Info%Tr_Coo(3,nasu,max_coor))
+       allocate (Coord_Info%N_Cooatm(max_coor,nasu))
+       allocate (Coord_Info%N_Sym(max_coor,nasu))
+       allocate (Coord_Info%Dist(max_coor,nasu))
+       allocate (Coord_Info%S_Dist(max_coor,nasu))
+       allocate (Coord_Info%Tr_Coo(3,max_coor,nasu))
 
        Coord_Info%Coord_Num=0
        Coord_Info%N_Cooatm =0
@@ -1085,10 +1085,10 @@
 
                             lk=lk+1
                             uu(:,lk)=x1(:)
-                            Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
-                            Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
+                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
+                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
                             bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
-                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
+                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
@@ -1110,14 +1110,14 @@
                 write(unit=lun,fmt="(a,/)")         "   -------------------------------------------------------"
           end if
           do j=1,Coord_Info%Coord_Num(i)
-             if (Coord_Info%dist(i,j) < epsi .or. Coord_Info%dist(i,j) > dangl) cycle
-             da1=Coord_Info%dist(i,j)
-             i1=Coord_Info%N_Cooatm(i,j)
+             if (Coord_Info%dist(j,i) < epsi .or. Coord_Info%dist(j,i) > dangl) cycle
+             da1=Coord_Info%dist(j,i)
+             i1=Coord_Info%N_Cooatm(j,i)
              nam1=a%atom(i1)%lab
              do k=j+1,Coord_Info%Coord_Num(i)
-                if (Coord_Info%dist(i,k) < epsi .OR. Coord_Info%dist(i,k) > dangl) cycle
-                da2=Coord_Info%dist(i,k)
-                i2=Coord_Info%N_Cooatm(i,k)
+                if (Coord_Info%dist(k,i) < epsi .OR. Coord_Info%dist(k,i) > dangl) cycle
+                da2=Coord_Info%dist(k,i)
+                i2=Coord_Info%N_Cooatm(k,i)
                 nam2=a%atom(i2)%lab
                 xx(:)=bcoo(:,k)-bcoo(:,j)
                 xr = matmul(Cell%Cr_Orth_cel,xx)
@@ -1360,9 +1360,7 @@
                    do i2=ic1(2),ic2(2)
                       do_i3:do i3=ic1(3),ic2(3)
 
-                            Tn(1)=real(i1)
-                            Tn(2)=real(i2)
-                            Tn(3)=real(i3)
+                            Tn(:)=real((/i1,i2,i3/))
                             x1(:)=xx(:)+tn(:)
                             do l=1,3
                                t=abs(x1(l)-xo(l))*qd(l)
@@ -1382,11 +1380,11 @@
                             lk=lk+1
                             uu(:,lk)=x1(:)
 
-                            Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
-                            Coord_Info%S_Dist(i,Coord_Info%Coord_Num(i))=sdd
-                            Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
-                            Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
-                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
+                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
+                            Coord_Info%S_Dist(Coord_Info%Coord_Num(i),i)=sdd
+                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
+                            Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
+                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
 
                             bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
                             sbcoo(:,Coord_Info%Coord_Num(i))=ss(:)
@@ -1462,10 +1460,10 @@
              write(unit=lun,fmt="(a,/)")         "   -------------------------------------------------------"
           end if
           do j=1,Coord_Info%Coord_Num(i)
-             if (Coord_Info%Dist(i,j) < epsi .or. Coord_Info%Dist(i,j) > dangl) cycle
-             da1=Coord_Info%Dist(i,j)
-             sda1=Coord_Info%S_Dist(i,j)
-             i1=Coord_Info%N_Cooatm(i,j)
+             if (Coord_Info%Dist(j,i) < epsi .or. Coord_Info%Dist(j,i) > dangl) cycle
+             da1=Coord_Info%Dist(j,i)
+             sda1=Coord_Info%S_Dist(j,i)
+             i1=Coord_Info%N_Cooatm(j,i)
              nam1=a%atom(i1)%lab
              Select Case (len_trim(nam1))
                case(1)
@@ -1474,14 +1472,14 @@
                   nam1=" "//trim(nam1)
              End Select
              if (present(lun_cons)) then
-               itnum1=itnum(Coord_Info%N_sym(i,j))
-               tr1(:)=trcoo(:,j)+SpG%Symop(Coord_Info%N_sym(i,j))%tr(:)
+               itnum1=itnum(Coord_Info%N_sym(j,i))
+               tr1(:)=trcoo(:,j)+SpG%Symop(Coord_Info%N_sym(j,i))%tr(:)
              end if
              do k=j+1,Coord_Info%Coord_Num(i)
-                if (Coord_Info%Dist(i,k) < epsi .OR. Coord_Info%Dist(i,k) > dangl) cycle
-                da2=Coord_Info%Dist(i,k)
-                sda2=Coord_Info%S_Dist(i,k)
-                i2=Coord_Info%N_Cooatm(i,k)
+                if (Coord_Info%Dist(k,i) < epsi .OR. Coord_Info%Dist(k,i) > dangl) cycle
+                da2=Coord_Info%Dist(k,i)
+                sda2=Coord_Info%S_Dist(k,i)
+                i2=Coord_Info%N_Cooatm(k,i)
                 nam2=a%atom(i2)%lab
                 Select Case (len_trim(nam2))
                   case(1)
@@ -1490,8 +1488,8 @@
                      nam2=" "//trim(nam2)
                 End Select
                 if (present(lun_cons)) then
-                  itnum2=itnum(Coord_Info%N_sym(i,k))
-                  tr2(:)=trcoo(:,k)+SpG%Symop(Coord_Info%N_sym(i,k))%tr(:)
+                  itnum2=itnum(Coord_Info%N_sym(k,i))
+                  tr2(:)=trcoo(:,k)+SpG%Symop(Coord_Info%N_sym(k,i))%tr(:)
                 end if
                 x1(:)=bcoo(:,k)
                 x2(:)=bcoo(:,j)
@@ -1560,9 +1558,9 @@
                     line=" "
                     write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
                                                        "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
                     line=trim(line)//trim(codesym)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
                     angl_text(1)=line(1:132)
 
@@ -1571,9 +1569,9 @@
                     line=" "
                     write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
                                                        "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
                     line=trim(line)//trim(codesym)
                     angl_text(num_angc)=line(1:132)
 
@@ -1582,9 +1580,9 @@
                     line=" "
                     write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang2,sang2,&
                                                        "  "//trim(A%atom(i)%lab)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
                     line=trim(line)//trim(codesym)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)
 
                     esta=.false.
@@ -1606,9 +1604,9 @@
                     line=" "
                     write(unit=line,fmt="(a,2f9.3,a)") "AFIX ",ang1,sang1,&
                                                        "  "//trim(A%atom(i)%lab)//" "//trim(nam2)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,k),trcoo(:,k),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(k,i),trcoo(:,k),codesym)
                     line=trim(line)//trim(codesym)//" "//trim(nam1)
-                    call Write_SymTrans_Code(Coord_Info%N_sym(i,j),trcoo(:,j),codesym)
+                    call Write_SymTrans_Code(Coord_Info%N_sym(j,i),trcoo(:,j),codesym)
                     line=trim(line)//trim(codesym)
 
                     esta=.false.
@@ -1658,9 +1656,9 @@
                    !end if
 
                    write(unit=CIF_angle_site_symm_1, fmt='(a,i3, a, 3I1)') " ", &
-                         Coord_Info%N_sym(i,j), "_", nint(trcoo(:,j)+5.0)
+                         Coord_Info%N_sym(j,i), "_", nint(trcoo(:,j)+5.0)
                    write(unit=CIF_angle_site_symm_3, fmt='(a,i3, a, 3I1,a)') " ", &
-                         Coord_Info%N_sym(i,k), "_", nint(trcoo(:,k)+5.0), " ?"
+                         Coord_Info%N_sym(k,i), "_", nint(trcoo(:,k)+5.0), " ?"
 
                    write(unit=CIF_angl_text(n_cif_angl_text), fmt='(10a)')        &
                          nam1(1:4)," ", nam(1:4), " ",nam2, tex(1:12), " ",       &
@@ -2547,7 +2545,7 @@
     !!----    Subroutine to calculate distances, below the prescribed distance "dmax"
     !!----    Sets up the coordination type: Coord_Info for each atom in the asymmetric unit
     !!----    Needs as input the objects Cell (of type Crystal_cell), SpG (of type Space_Group)
-    !!----    and A (or type atom_list, that should be allocated in the calling program).
+    !!----    and A (of type atom_list, that should be allocated in the calling program).
     !!----    The input argument Max_Coor is obtained, before calling the present procedure,
     !!----    by a call to Allocate_Coordination_Type with arguments:(A%natoms,Spg%Multip,Dmax,max_coor)
     !!----    Further calls to this routine do not need a previous call to Allocate_Coordination_Type.
@@ -2607,12 +2605,12 @@
                            !end if
                             lk=lk+1
                             uu(:,lk)=x1(:)
-                            Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
-                            Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
-                            Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
+                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
+                            Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
 
                             ! Added by JGP
-                            Coord_Info%Tr_Coo(:,i,Coord_Info%Coord_Num(i))=tn
+                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
                       end do do_i3 !i3
                    end do !i2
                 end do !i1
@@ -2665,7 +2663,7 @@
        po(List)=1 !This atom has a modified coordination sphere
        ic=Coord_Info%Coord_Num(List)
        do i=1,ic
-         po(Coord_Info%N_Cooatm(List,i))=1  !This atom has a modified coordination sphere
+         po(Coord_Info%N_Cooatm(i,List))=1  !This atom has a modified coordination sphere
        end do
 
        qd(:)=1.0/cell%rcell(:)
@@ -2698,9 +2696,9 @@
                          Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
                          lk=lk+1
                          uu(:,lk)=x1(:)
-                         Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
-                         Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
-                         Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                         Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
+                         Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
+                         Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
                    end do do_i3 !i3
                 end do !i2
              end do !i1
@@ -2712,7 +2710,7 @@
 
        ic=Coord_Info%Coord_Num(List)    !New coordination number of atom List
        do i=1,ic
-         pn(Coord_Info%N_Cooatm(List,i))=1  !This atom has now a newly modified coordination sphere
+         pn(Coord_Info%N_Cooatm(i,List))=1  !This atom has now a newly modified coordination sphere
        end do
        !Look now the changed coordinaion spheres
        do i=1,a%natoms
@@ -2720,7 +2718,7 @@
          !if(po(i) == 1 .and. pn(i) == 1) then !the atom remains in the coordination sphere, only recalculation of distance is needed
          !  ic=Coord_Info%Coord_Num(i)
          !  do k=1,ic
-         !   if(List == Coord_Info%N_Cooatm(i,k)) then
+         !   if(List == Coord_Info%N_Cooatm(k,i)) then
          !   end if
          !  end do
          !end if
@@ -2750,9 +2748,9 @@
                            Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
                            lk=lk+1
                            uu(:,lk)=x1(:)
-                           Coord_Info%Dist(i,Coord_Info%Coord_Num(i))=dd
-                           Coord_Info%N_Cooatm(i,Coord_Info%Coord_Num(i))=k
-                           Coord_Info%N_sym(i,Coord_Info%Coord_Num(i))=j
+                           Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
+                           Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
+                           Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
                      end do do_inter !i3
                   end do !i2
                end do !i1
