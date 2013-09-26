@@ -211,7 +211,7 @@
     !!----    real(kind=cp),dimension(:, :,:), allocatable :: trans       ! -> Lattice translations   (3,nat,idp)
     !!----    integer                                      :: ndist       ! -> Number of distinct distances
     !!----    real(kind=cp),     dimension(:), allocatable :: ddist       ! -> List of distinct distances(nat*idp)
-    !!----    character (len=8), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
+    !!----    character (len=20), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
     !!---- End Type atoms_cell_type
     !!----
     !!---- This type is mostly used for distance-angle and Bond-valence calculations.
@@ -233,7 +233,7 @@
        real(kind=cp),      dimension(:, :,:), allocatable :: trans
        integer                                            :: ndist
        real(kind=cp),           dimension(:), allocatable :: ddist
-       character (len=8),       dimension(:), allocatable :: ddlab
+       character (len=20),      dimension(:), allocatable :: ddlab
     End Type atoms_cell_type
 
     !!----
@@ -532,9 +532,9 @@
        if (.not. allocated(Ac%moment      ))   allocate (Ac%moment        (natcel))
        if (.not. allocated(Ac%var_free    ))   allocate (Ac%var_free   (10,natcel))
        if (.not. allocated(Ac%neighb      ))   allocate (Ac%neighb        (natcel))
-       if (.not. allocated(Ac%neighb_atom ))   allocate (Ac%neighb_atom(natcel,id))
-       if (.not. allocated(Ac%distance    ))   allocate (Ac%distance   (natcel,id))
-       if (.not. allocated(Ac%trans       ))   allocate (Ac%trans    (3,natcel,id))
+       if (.not. allocated(Ac%neighb_atom ))   allocate (Ac%neighb_atom(id,natcel))
+       if (.not. allocated(Ac%distance    ))   allocate (Ac%distance   (id,natcel))
+       if (.not. allocated(Ac%trans       ))   allocate (Ac%trans    (3,id,natcel))
        if (.not. allocated(Ac%ddist       ))   allocate (Ac%ddist      (natcel*id))
        if (.not. allocated(Ac%ddlab       ))   allocate (Ac%ddlab      (natcel*id))
 

@@ -6,6 +6,7 @@
  Module Menu_5
    !---- Use File ----!
    use Menu_0
+   use Menu_3, only:structure_read, SpG,A,Cell
    use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Set_Crystal_Cell, Write_Crystal_Cell, &
                                     Zone_Axis_Type, Cart_Vector, Change_Setting_Cell, Get_Basis_From_UVW
    use CFML_GlobalDeps,       only: cp, Pi, Eps
@@ -165,6 +166,10 @@
                cell_given=.true.
             Case("2")
                if(cell_given) then
+                 call Write_Crystal_Cell(Celda)
+               else if (structure_read) then
+                 celda=cell
+                 cell_given=.true.
                  call Write_Crystal_Cell(Celda)
                else
                   write(unit=*,fmt="(a)") " -> You have to provide first the cell parameters!"

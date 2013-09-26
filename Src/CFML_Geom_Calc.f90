@@ -982,7 +982,7 @@
 
        !---- Local Variables ----!
        logical                            :: iprin
-       integer                            :: i,j,k,lk,i1,i2,i3,jl,npeq,nn,L,nlines, max_coor
+       integer                            :: i,j,k,lk,i1,i2,i3,jl,npeq,nn,L,nlines, max_coor,ico
        character(len= 80), dimension(12)  :: texto = " "
        character(len=  5)                 :: nam,nam1,nam2
        character(len= 16)                 :: transla
@@ -1053,6 +1053,7 @@
              " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
           end if
           Coord_Info%Coord_Num(i)=0
+          ico=0
           do k=1,a%natoms
              lk=1
              uu(:,lk)=xo(:)
@@ -1075,7 +1076,7 @@
                             xr = matmul(cell%cr_orth_cel,x1-xo)
                             dd=sqrt(dot_product(xr,xr))
                             if (dd > dmax .or. dd < 0.001) cycle
-                            Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                            ico=ico+1
 
                             if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                                err_geom=.true.
@@ -1085,10 +1086,10 @@
 
                             lk=lk+1
                             uu(:,lk)=x1(:)
-                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
-                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
-                            bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
-                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
+                            Coord_Info%Dist(ico,i)=dd
+                            Coord_Info%N_Cooatm(ico,i)=k
+                            bcoo(:,ico)=x1(:)
+                            Coord_Info%Tr_Coo(:,ico,i)=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
@@ -1100,6 +1101,7 @@
              end do !j
           end do !k
 
+          Coord_Info%Coord_Num(i)=ico
           if (dangl <= epsi) cycle     !loop on "i" still running
 
           !---- Angle calculations for bonded atoms at distance lower than DANGL
@@ -1183,7 +1185,7 @@
        logical                            :: iprin
        integer,parameter                  :: nconst=500
        integer                            :: i,j,k,lk,i1,i2,i3,jl,nn,L,&
-                                             itnum1,itnum2,num_const, max_coor,num_angc
+                                             itnum1,itnum2,num_const, max_coor,num_angc,ico
        character(len=  5)                 :: nam,nam1,nam2
        character(len= 16)                 :: transla
        character(len= 20)                 :: text,tex,texton
@@ -1341,7 +1343,8 @@
              write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013
                   " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
           end if
-          Coord_Info%Coord_Num(i)=0
+
+          ico=0
           do k=1,a%natoms
              lk=1
              uu(:,lk)=xo(:)
@@ -1371,7 +1374,7 @@
                             end do
                             call distance_and_sigma(Cell,DerM,xo,x1,so,ss,dd,sdd)
                             if (dd > dmax .or. dd < 0.001) cycle
-                            Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                            ico=ico+1
                             if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                                err_geom=.true.
                                ERR_Geom_Mess=" => Too many distances around atom: "//nam
@@ -1380,15 +1383,15 @@
                             lk=lk+1
                             uu(:,lk)=x1(:)
 
-                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
-                            Coord_Info%S_Dist(Coord_Info%Coord_Num(i),i)=sdd
-                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
-                            Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
-                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
+                            Coord_Info%Dist(ico,i)=dd
+                            Coord_Info%S_Dist(ico,i)=sdd
+                            Coord_Info%N_Cooatm(ico,i)=k
+                            Coord_Info%N_sym(ico,i)=j
+                            Coord_Info%Tr_Coo(:,ico,i)=tn
 
-                            bcoo(:,Coord_Info%Coord_Num(i))=x1(:)
-                            sbcoo(:,Coord_Info%Coord_Num(i))=ss(:)
-                            trcoo(:,Coord_Info%Coord_Num(i))=Tn(:)
+                            bcoo(:,ico)=x1(:)
+                            sbcoo(:,ico)=ss(:)
+                            trcoo(:,ico)=Tn(:)
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                call setnum_std(dd,sdd,text)
@@ -1449,6 +1452,7 @@
              end do !j
           end do !k
 
+          Coord_Info%Coord_Num(i)=ico
           if (dangl <= epsi) cycle     !loop on "i" still running
 
           !---- Angle calculations for bonded atoms at distance lower than DANGL
@@ -2322,9 +2326,9 @@
                             ERR_Geom_Mess="Too many connected atoms! in sub. P1_dist"
                             return
                          END IF
-                         Ac%neighb_atom(i,ne)=k    !Pointer to the number of atom connected to i
-                         Ac%distance   (i,ne)=dd   !Corresponding distance
-                         Ac%trans(:,i,ne)=tn(:)    !corresponding lattice translation
+                         Ac%neighb_atom(ne,i)=k    !Pointer to the number of atom connected to i
+                         Ac%distance   (ne,i)=dd   !Corresponding distance
+                         Ac%trans(:,ne,i)=tn(:)    !corresponding lattice translation
                          do nn=1,inew
                             if (abs(dd-Ac%ddist(nn)) <= epsi) then
                                if (equiv_atm(nam,nam1,Ac%ddlab(nn)))  cycle do_jl
@@ -2561,7 +2565,7 @@
        type (atom_list_type),    intent(in)   :: A
 
        !---- Local Variables ----!
-       integer                              :: i,j,k,lk,i1,i2,i3,nn,L
+       integer                              :: i,j,k,lk,i1,i2,i3,nn,L,ico
        integer,       dimension(3)          :: ic1,ic2
        real(kind=cp), dimension(3)          :: xx,x1,xo,Tn,xr, QD
        real(kind=cp)                        :: T,dd
@@ -2575,7 +2579,8 @@
        ic1(:)=-ic2(:)
        do i=1,a%natoms
           xo(:)=a%atom(i)%x(:)
-          Coord_Info%Coord_Num(i)=0
+
+          ico=0
           do k=1,a%natoms
              lk=1
              uu(:,lk)=xo(:)
@@ -2596,7 +2601,7 @@
                             xr = matmul(cell%cr_orth_cel,x1-xo)
                             dd=sqrt(dot_product(xr,xr))
                             if (dd > dmax .or. dd < 0.001) cycle
-                            Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                            ico=ico+1
                            ! Control not performed ... it is supposed that max_coor is large enough
                            !if (Coord_Info%Coord_Num(i) > Coord_Info%Max_Coor) then
                            !   err_geom=.true.
@@ -2605,17 +2610,18 @@
                            !end if
                             lk=lk+1
                             uu(:,lk)=x1(:)
-                            Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
-                            Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
-                            Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
+                            Coord_Info%Dist(ico,i)=dd
+                            Coord_Info%N_Cooatm(ico,i)=k
+                            Coord_Info%N_sym(ico,i)=j
 
                             ! Added by JGP
-                            Coord_Info%Tr_Coo(:,Coord_Info%Coord_Num(i),i)=tn
+                            Coord_Info%Tr_Coo(:,ico,i)=tn
                       end do do_i3 !i3
                    end do !i2
                 end do !i1
              end do !j
           end do !k
+          Coord_Info%Coord_Num(i)=ico
        end do !i
 
        return
@@ -2650,7 +2656,7 @@
        type (atom_list_type),    intent(in)   :: A
 
        !---- Local Variables ----!
-       integer                              :: i,j,k,lk,i1,i2,i3,nn,L,ic
+       integer                              :: i,j,k,lk,i1,i2,i3,nn,L,ic,ico
        integer,       dimension(3)          :: ic1,ic2
        integer,       dimension(A%natoms)   :: po,pn
        real(kind=cp), dimension(3)          :: xx,x1,xo,Tn,xr, QD
@@ -2672,7 +2678,8 @@
        !Determine the new coordination sphere of the changed atom
        i=List
        xo(:)=a%atom(i)%x(:)
-       Coord_Info%Coord_Num(i)=0
+
+       ico=0
        do k=1,a%natoms
           lk=1
           uu(:,lk)=xo(:)
@@ -2693,18 +2700,18 @@
                          xr = matmul(cell%cr_orth_cel,x1-xo)
                          dd=sqrt(dot_product(xr,xr))
                          if (dd > dmax .or. dd < 0.001) cycle
-                         Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                         ico=ico+1
                          lk=lk+1
                          uu(:,lk)=x1(:)
-                         Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
-                         Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
-                         Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
+                         Coord_Info%Dist(ico,i)=dd
+                         Coord_Info%N_Cooatm(ico,i)=k
+                         Coord_Info%N_sym(ico,i)=j
                    end do do_i3 !i3
                 end do !i2
              end do !i1
           end do !j
        end do !k
-
+       Coord_Info%Coord_Num(i)=ico
        pn(list)=0
        po(list)=0
 
@@ -2724,7 +2731,8 @@
          !end if
          !DO ALL WAITING FOR A MORE EFFICIENT ALGORITHM
          xo(:)=a%atom(i)%x(:)
-         Coord_Info%Coord_Num(i)=0
+
+         ico=0
          do k=1,a%natoms
             lk=1
             uu(:,lk)=xo(:)
@@ -2745,17 +2753,18 @@
                            xr = matmul(cell%cr_orth_cel,x1-xo)
                            dd=sqrt(dot_product(xr,xr))
                            if (dd > dmax .or. dd < 0.001) cycle
-                           Coord_Info%Coord_Num(i)=Coord_Info%Coord_Num(i)+1
+                           ico=ico+1
                            lk=lk+1
                            uu(:,lk)=x1(:)
-                           Coord_Info%Dist(Coord_Info%Coord_Num(i),i)=dd
-                           Coord_Info%N_Cooatm(Coord_Info%Coord_Num(i),i)=k
-                           Coord_Info%N_sym(Coord_Info%Coord_Num(i),i)=j
+                           Coord_Info%Dist(ico,i)=dd
+                           Coord_Info%N_Cooatm(ico,i)=k
+                           Coord_Info%N_sym(ico,i)=j
                      end do do_inter !i3
                   end do !i2
                end do !i1
             end do !j
          end do !k
+         Coord_Info%Coord_Num(i)=ico
        end do !i
 
        return

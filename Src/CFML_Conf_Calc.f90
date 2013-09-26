@@ -369,7 +369,7 @@
     !!----
     !!----    Subroutine to calculate Bond-Valence sums.
     !!----    Before calling this subroutine it is the responsibility of the calling
-    !!----    program to make a previous call to "Calc_Distance_Angles_Sigma" in order
+    !!----    program to make a previous call to "Calc_Dist_Angle_Sigma" in order
     !!----    to update the internal private variables related to distance/angle calculations.
     !!----    Needs as input the object A (of type atom_Conf_list_type, that
     !!----    should be allocated in the calling program).

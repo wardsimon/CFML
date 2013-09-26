@@ -43,49 +43,49 @@
 
     !      end subroutine read_exchange
     !----------------------------------------------------------------------------------------------
-      SUBROUTINE j_k(rk,exchk,iex)
-      real,    INTENT(IN)     , dimension(3)       :: rk    !propagation vector
-      COMPLEX, INTENT(OUT)    , dimension(nat,nat) :: exchk !J(k)
-      integer, INTENT(OUT)                         :: iex   !=0 if real J(k)
+      Subroutine j_k(rk,exchk,iex)
+      real,    intent(in)     , dimension(3)       :: rk    !propagation vector
+      complex, intent(out)    , dimension(nat,nat) :: exchk !J(k)
+      integer, intent(out)                         :: iex   !=0 if real J(k)
       integer :: i,j,k,n
       real :: arg
 
       iex=0             !Imaginary part equal to zero
-      DO i=1,natcel
-        DO j=1,natcel
+      Do i=1,natcel
+        Do j=1,natcel
           exchk(i,j)=cmplx(0.0,0.0)
-          DO n=1,nterm(i,j)
+          Do n=1,nterm(i,j)
             arg=0.0
-            DO k=1,3
+            Do k=1,3
               arg=arg+rk(k)*trans(k,i,j,n)
-            END DO
+            End Do
             exchk(i,j)=exchk(i,j)-valj(nvalj(i,j,n))*cmplx( cos2p(-arg),sin2p(-arg)) ! -J(k) to minimize!!!
-          END DO
+          End Do
           exchk(i,j)=exchk(i,j)*s(i)*s(j)       !Spin values absorbed in the Energy
           IF(ABS(aimag(exchk(i,j))) > 1.e-04) iex=1
-        END DO
-      END DO
-      RETURN
-      END SUBROUTINE j_k
+        End Do
+      End Do
+      Return
+      End Subroutine j_k
       !-----------------------------------------------------------------------
-      FUNCTION cos2p(x) result(f_val)
+      function cos2p(x) result(f_val)
        real, intent (in) :: x
        real :: f_val
-       f_val=COS(6.283185307*x)
-       RETURN
-      END FUNCTION cos2p
-      FUNCTION sin2p(x)  result(f_val)
+       f_val=cos(6.283185307*x)
+       return
+      end function cos2p
+      function sin2p(x)  result(f_val)
        real, intent (in) :: x
        real :: f_val
-       f_val=SIN(6.283185307*x)
-       RETURN
-      END FUNCTION sin2p
+       f_val=sin(6.283185307*x)
+       return
+      end function sin2p
       !-----------------------------------------------------------------------
-      SUBROUTINE spin_confc(lun,rk,energy,d)
-      integer, INTENT(IN)               :: lun
-      real, INTENT(IN),dimension(3)     :: rk
-      real, INTENT(IN)                  :: energy
-      complex, INTENT(IN),dimension(nat):: d
+      subroutine spin_confc(lun,rk,energy,d)
+      integer, intent(in)               :: lun
+      real, intent(in),dimension(3)     :: rk
+      real, intent(in)                  :: energy
+      complex, intent(in),dimension(nat):: d
       real, dimension(nat)              :: rmo, phas
       integer :: i,j
       write(unit=lun,fmt="(/,a,f12.4,/,a,3f8.4,/,a,/)")  &
@@ -93,37 +93,37 @@
           "    And propagation vector       : ",(rk(i),i=1,3),  &
           "    can be obtained from the following expressions:"
 
-      DO i=1,natcel
+      do i=1,natcel
         rmo(i)=abs(d(i))
-        IF(rmo(i) > 1.e-15) THEN
-          phas(i)=ATAN2(aimag(d(i)),real(d(i)))/6.2831853
-        ELSE
+        if(rmo(i) > 1.e-15) then
+          phas(i)=atan2(aimag(d(i)),real(d(i)))/6.2831853
+        else
           phas(i)=0.0
-        END IF
-      END DO
-      DO i=1,natcel
+        end if
+      end do
+      do i=1,natcel
         write(unit=lun,fmt="(i4,a,a6,4f9.5)")i,"  ",rnam(i),(xyz(j,i),j=1,3),s(i)
-        IF(rmo(i) > 1.e-15) THEN
+        if(rmo(i) > 1.e-15) then
           if(phas(i) < 0.0 ) then
-           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2pi(k*Rn",phas(i),")}"
-           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               mx =  cx . cos{2pi(k*rn",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               my =  cy . sin{2pi(k*rn",phas(i),")}"
           else
-           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2pi(k*Rn +",phas(i),")}"
-           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn +",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               mx =  cx . cos{2pi(k*rn +",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               my =  cy . sin{2pi(k*rn +",phas(i),")}"
           end if
-           write(unit=lun,fmt="(a)")       "               Mz =  0"
-        ELSE
-           write(unit=lun,fmt="(a)")       "               M =  0    <--- Atom with zero moment"
-        END IF
-      END DO
-      RETURN
-      END SUBROUTINE spin_confc
+           write(unit=lun,fmt="(a)")       "               mz =  0"
+        else
+           write(unit=lun,fmt="(a)")       "               m =  0    <--- atom with zero moment"
+        end if
+      end do
+      return
+      end subroutine spin_confc
 
-      SUBROUTINE spin_confr(lun,rk,energy,d)
-      integer, INTENT(IN)               :: lun
-      real, INTENT(IN),dimension(3)     :: rk
-      real, INTENT(IN)                  :: energy
-      real, INTENT(IN),dimension(nat)   :: d
+      subroutine spin_confr(lun,rk,energy,d)
+      integer, intent(in)               :: lun
+      real, intent(in),dimension(3)     :: rk
+      real, intent(in)                  :: energy
+      real, intent(in),dimension(nat)   :: d
       real, dimension(nat)              :: rmo, phas
       integer :: i,j
       write(unit=lun,fmt="(/,a,f12.4,/,a,3f8.4,/,a,/)")  &
@@ -131,18 +131,18 @@
           "    And propagation vector       : ",(rk(i),i=1,3),  &
           "    can be obtained from the following expressions:"
 
-        DO i=1,natcel
-          IF(real(d(i)) >= 0.0) THEN
+        do i=1,natcel
+          if(real(d(i)) >= 0.0) then
             phas(i)=0.0
             rmo(i)=d(i)
-          ELSE
+          else
             phas(i)=0.5
             rmo(i)=-d(i)
-          END IF
-        END DO
-      DO i=1,natcel
+          end if
+        end do
+      do i=1,natcel
         write(unit=lun,fmt="(i4,a,a6,4f9.5)")i,"  ",rnam(i),(xyz(j,i),j=1,3),s(i)
-        IF(rmo(i) > 1.e-15) THEN
+        if(rmo(i) > 1.e-15) then
           if(phas(i) < 0.0 ) then
            write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2pi(k*Rn",phas(i),")}"
            write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn",phas(i),")}"
@@ -151,60 +151,60 @@
            write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn +",phas(i),")}"
           end if
            write(unit=lun,fmt="(a)")       "               Mz =  0"
-        ELSE
-           write(unit=lun,fmt="(a)")       "               M =  0    <--- Atom with zero moment"
-        END IF
-      END DO
-      RETURN
-      END SUBROUTINE spin_confr
+        else
+           write(unit=lun,fmt="(a)")       "               m =  0    <--- atom with zero moment"
+        end if
+      end do
+      return
+      end subroutine spin_confr
       !-----------------------------------------------------------------------
 
-      SUBROUTINE genj(nojvar,njotas,rang1,rang2,npoi,valjj)
-      integer, INTENT(IN)                     :: nojvar
-      integer, INTENT(OUT)                    :: njotas
-      real,    INTENT(IN) , dimension(ijo)    :: rang1
-      real,    INTENT(IN) , dimension(ijo)    :: rang2
-      integer, INTENT(IN) , dimension(ijo)    :: npoi
-      real,    INTENT(OUT), dimension(ijo,njo):: valjj
+      Subroutine genj(nojvar,njotas,rang1,rang2,npoi,valjj)
+      integer, intent(in)                     :: nojvar
+      integer, intent(out)                    :: njotas
+      real,    intent(in) , dimension(ijo)    :: rang1
+      real,    intent(in) , dimension(ijo)    :: rang2
+      integer, intent(in) , dimension(ijo)    :: npoi
+      real,    intent(out), dimension(ijo,njo):: valjj
 
       integer, dimension(ijo) ::  nj
       real,    dimension(ijo) ::  step
       integer :: i,i1,i2,i3,i4,i5, jj
 
-      DO i=1,nojvar
+      do i=1,nojvar
         if(npoi(i) == 1) then
           step(i) = 0.0
         else
           step(i)=(rang2(i)-rang1(i))/real(npoi(i)-1)
         end if
-      END DO
+      end do
       valjj(1:nojvar,1:njo)=0.0
       jj=0
-      DO i1=1,npoi(1)
+      do i1=1,npoi(1)
         nj(1)=i1
-        DO i2=1,npoi(2)
+        do i2=1,npoi(2)
           nj(2)=i2
-          DO i3=1,npoi(3)
+          do i3=1,npoi(3)
             nj(3)=i3
-            DO i4=1,npoi(4)
+            do i4=1,npoi(4)
               nj(4)=i4
-              DO i5=1,npoi(5)
+              do i5=1,npoi(5)
                 nj(5)=i5          !Increase the number of loops if ijo>5
                 jj=jj+1
-                DO i=1,nojvar
+                do i=1,nojvar
                   valjj(i,jj)=rang1(i)+real(nj(i)-1)*step(i)
-                END DO
-              END DO
-            END DO
-          END DO
-        END DO
-      END DO
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
       njotas=jj
-      RETURN
-      END SUBROUTINE genj
+      return
+      End Subroutine genj
       !-----------------------------------------------------------------------
 
-      SUBROUTINE genk(lun,ln,infil,nvk,vk,iprint)
+      Subroutine genk(lun,ln,infil,nvk,vk,iprint)
       integer, intent(in)                      :: lun, ln
       character (len=256), intent(in out)      :: infil
       integer, intent(out)                     :: nvk
@@ -275,11 +275,11 @@
       Case (0)
         iprint=1
         nvk=n_sk
-        DO i=1,n_sk
-          DO j=1,3
+        do i=1,n_sk
+          do j=1,3
             vk(j,i)=sk(j,i)
-          END DO
-        END DO
+          end do
+        end do
         write(unit=lun,fmt="(/,a)") " => Only special k-vectors stored in the program will be tested"
         write(unit=lun,fmt="( a)") "    These vectors are:"
          do i=1,n_sk,4
@@ -291,29 +291,29 @@
         write(unit=*,fmt="(a,a,a)")  &
             " => Interactive (i) or read from ",infil(1:ln),".kve file (k): "
         read(unit=*,fmt="(a)") ans
-        IF(ans == "k" .OR. ans == "K") THEN
+        if(ans == "K" .or. ans == "k") then
           open(unit=20,file=infil(1:ln)//".kve",status="replace",action="write")
           read(unit=20,fmt=*) nvk
-          DO j=1,nvk
+          do j=1,nvk
             read(unit=20,fmt=*) (vk(i,j),i=1,3)
-          END DO
+          end do
           close(unit=20)
-        ELSE
+        else
          do
           write(unit=*,fmt="(a,i6,a)",advance="no")" => Number of k-vectors (<",nv,"): "
           read(unit=*,fmt=*,iostat=ier) nvk
           if(ier /=0) cycle
           exit
          end do
-          DO j=1,nvk
+          do j=1,nvk
            do
             write(unit=*,fmt="(a,i2,a)",advance="no")" => K-vector No ",j,": "
             read(unit=*,fmt=*,iostat=ier) (vk(i,j),i=1,3)
             if(ier /=0) cycle
             exit
            end do
-          END DO
-        END IF
+          end do
+        end if
 
         write(unit=lun,fmt="(/,a)",advance="no") " => Selected set of k-vectors given interactively/in a file "
         write(unit=lun,fmt="(  a)") "    These vectors are:"
@@ -331,14 +331,14 @@
          end do
         write(unit=*,fmt="(a)")" => Origin and extreme of the line (in r.l.u.): "
         read(unit=*,fmt=*) (x1(j),j=1,3),(x2(k),k=1,3)
-        DO i=1,3
+        do i=1,3
           x3(i)=(x2(i)-x1(i))/real(nvk-1)
-        END DO
-        DO j=1,nvk
-          DO i=1,3
+        end do
+        do j=1,nvk
+          do i=1,3
             vk(i,j)=x1(i)+real(j-1)*x3(i)
-          END DO
-        END DO
+          end do
+        end do
 
         write(unit=lun,fmt="(/,a)")      " => Test of k-vectors along a line "
         write(unit=lun,fmt="( a,3f8.4)") "    These vectors are between:",(x1(j),j=1,3)
@@ -357,23 +357,23 @@
         write(unit=*,fmt="(a)")  " => Plane defined by K=m1*U+m2*V  "
         write(unit=*,fmt="(a)")  "    Give the two vectors U,V (in r.l.u.) defining the plane: "
         read(unit=*,fmt=*) (x1(j),j=1,3),(x2(k),k=1,3)
-        DO i=1,3
+        do i=1,3
           x1(i)=x1(i)/real(n-1)
           x2(i)=x2(i)/real(n-1)
-        END DO
+        end do
         nvk=0
-        DO i1=1,n
-          DO i2=1,n
-            DO i=1,3
+        do i1=1,n
+          do i2=1,n
+            do i=1,3
               x3(i)=real(i1-1)*x1(i)+real(i2-1)*x2(i)
-              IF(ABS(x3(i)) > 1.0) x3(i)=SIGN(1.0,x3(i))
-            END DO
+              if(abs(x3(i)) > 1.0) x3(i)=sign(1.0,x3(i))
+            end do
             nvk=nvk+1
-            DO i=1,3
+            do i=1,3
               vk(i,nvk)=x3(i)
-            END DO
-          END DO
-        END DO
+            end do
+          end do
+        end do
 
         write(unit=lun,fmt="(/,a)")      " => Test of k-vectors within a plane defined by K=m1*U+m2*V  "
         write(unit=lun,fmt="( a,3f8.4)") "     The vectors U and V are :",(x1(j),j=1,3)
@@ -400,24 +400,24 @@
              i1=i
           end if
         end do
-        DO i=1,n_sk
-          DO j=1,3
+        do i=1,n_sk
+          do j=1,3
             vk(j,i)=sk(j,i)
-          END DO
-        END DO
+          end do
+        end do
         i2=n_sk
         if(double_k) then
-          DO i=2,n_sk
+          do i=2,n_sk
             i2=i2+1
             vk(:,i2)=sk(:,i)
             vk(i1,i2)=-vk(i1,i2)
-          END DO
+          end do
         end if
 
-        DO j=i2+1,nvk
+        do j=i2+1,nvk
             call random_number(xran)
             vk(:,j)=x1(:)+(x2(:)-x1(:))*xran(:)
-        END DO
+        end do
 
         write(unit=lun,fmt="(/,a)")      " => k-vectors generated at random in the region:   "
         write(unit=lun,fmt="( a,2f8.4)") "    Kx :",x1(1),x2(1)
@@ -449,17 +449,17 @@
 
          dk(:)=(x2(:)-x1(:))/ngrid(:)  !steps in k-space
          nvk=0
-         DO i=0,ngrid(1)
+         do i=0,ngrid(1)
            fs(1)=real(i)
-           DO j=0,ngrid(2)
+           do j=0,ngrid(2)
              fs(2)=real(j)
-            DO k=0,ngrid(3)
+            do k=0,ngrid(3)
               fs(3)=real(k)
                nvk=nvk+1
                vk(:,nvk)=x1(:)+fs(:)*dk(:)       !k-vector components
-            END DO
-           END DO
-         END DO
+            end do
+           end do
+         end do
 
         write(unit=*,fmt="( a,i6)") " =>  Total number of k_vectors :", nvk
         write(unit=lun,fmt="(/,a)")       " => k-vectors generated in the region:   "
@@ -469,16 +469,14 @@
         write(unit=lun,fmt="( a,i6   )") "    Total number of k-vectors:",nvk
 
       Case default
-        nvk=1
-        DO i=1,3
-          vk(i,1)=0.0
-        END DO
+          nvk=1
+          vk(:,1)=0.0
       End Select
      ! if(iprint == 1) then
      !   open(unit=11,file=infil(1:ln)//".val",status="replace",action="write")
      ! end if
-      RETURN
-      END SUBROUTINE genk
+      return
+      End Subroutine genk
   !------------------------------------------------------------------------
   End Module J_k_exchange
   !----------------------------------------------------------------------------

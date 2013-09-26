@@ -132,7 +132,7 @@
        vm=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,i))   !cartesian coordinates of atom i (M)
 
        do j=1,Ac%neighb(i)                       !loop over the neighbours of atom i
-        k=Ac%neighb_atom(i,j)                    !k is the index in Ac of the j neighbour of i
+        k=Ac%neighb_atom(j,i)                    !k is the index in Ac of the j neighbour of i
         if(Ac%moment(k) < 0.01) cycle            !Select magnetic atom k (M') connected to i (M)
         !now k is a magnetic atom
         !Determine the number of the magnetic atom
@@ -141,18 +141,18 @@
         end do
 
         !We will construct the matrix element (im,km) with all superexchange paths
-        vmp=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,k)+Ac%trans(:,i,j))   !cartesian coordinates of atom j (M')
+        vmp=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,k)+Ac%trans(:,j,i))   !cartesian coordinates of atom j (M')
         vmmp=vmp-vm                    !interatomic vector between magnetic atoms in cartesian components
-        call Frac_Trans_1Dig(Ac%trans(:,i,j),translat)
+        call Frac_Trans_1Dig(Ac%trans(:,j,i),translat)
         !translation of the atom "k" w.r.t to that situated within the reference cell
         translat=Pack_String(translat)
 
 
         !look for non-magnetic atoms connected to i and k
          do ji=1,Ac%neighb(i)
-           ki=Ac%neighb_atom(i,ji)    !non-magnetic atom (anion A) connected to i (M)
+           ki=Ac%neighb_atom(ji,i)    !non-magnetic atom (anion A) connected to i (M)
            if(Ac%moment(ki)> 0.01 .or. Ac%charge(ki) > 0.0 ) cycle    !discard cations
-           va=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,ki)+Ac%trans(:,i,ji))  !Cartesian coordinates of anion A
+           va=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,ki)+Ac%trans(:,ji,i))  !Cartesian coordinates of anion A
            vma=va-vm     !interatomic vector MA
                          !                              A--->A'
                          !discard paths with atoms: vma |    |
@@ -167,13 +167,13 @@
 
           !In the analysis of the atoms connected to k one has to take into account that
           !the construction of neighbouring atoms has been made using the atoms inside
-          !the unit cell, so a translation Ac%trans(:,i,j) (translation of connected k-atom to i
+          !the unit cell, so a translation Ac%trans(:,j,i) (translation of connected k-atom to i
           !w.r.t. the original) must be added.
           !
           do jk=1,Ac%neighb(k)
-            kk=Ac%neighb_atom(k,jk)   !non-magnetic atom (anion A') connected to k (M')
+            kk=Ac%neighb_atom(jk,k)   !non-magnetic atom (anion A') connected to k (M')
             if(Ac%moment(kk)> 0.01 .or. Ac%charge(kk) > 0.0 ) cycle   !discard cations
-            vap=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,kk)+Ac%trans(:,k,jk)+Ac%trans(:,i,j))
+            vap=MATMUL(Cell%Cr_Orth_cel,Ac%xyz(:,kk)+Ac%trans(:,jk,k)+Ac%trans(:,j,i))
             vmpap=vap-vmp !interatomic vector M'A'
                           !                             A<---A'
                           !discard paths with atoms:    |    | vmpap
@@ -208,13 +208,13 @@
               spaths(im,km)%SE(spaths(im,km)%ns)%nam2=trim(Ac%noms(ki))
               spaths(im,km)%SE(spaths(im,km)%ns)%nam3=trim(Ac%noms(k))
               spaths(im,km)%SE(spaths(im,km)%ns)%nam=trim(tangl)//trim(translat)
-              spaths(im,km)%SE(spaths(im,km)%ns)%geom(1)=Ac%distance(i,ji)
-              spaths(im,km)%SE(spaths(im,km)%ns)%geom(2)=Ac%distance(k,jk)
+              spaths(im,km)%SE(spaths(im,km)%ns)%geom(1)=Ac%distance(ji,i)
+              spaths(im,km)%SE(spaths(im,km)%ns)%geom(2)=Ac%distance(jk,k)
               spaths(im,km)%SE(spaths(im,km)%ns)%geom(3)=ang
-              spaths(im,km)%SE(spaths(im,km)%ns)%geom(4)=Ac%distance(i,j)
+              spaths(im,km)%SE(spaths(im,km)%ns)%geom(4)=Ac%distance(j,i)
               spaths(im,km)%SE(spaths(im,km)%ns)%coord(:,1)=Ac%xyz(:,i)
-              spaths(im,km)%SE(spaths(im,km)%ns)%coord(:,2)=Ac%xyz(:,ki)+Ac%trans(:,i,ji)
-              spaths(im,km)%SE(spaths(im,km)%ns)%coord(:,3)=Ac%xyz(:,k) +Ac%trans(:,i,j)
+              spaths(im,km)%SE(spaths(im,km)%ns)%coord(:,2)=Ac%xyz(:,ki)+Ac%trans(:,ji,i)
+              spaths(im,km)%SE(spaths(im,km)%ns)%coord(:,3)=Ac%xyz(:,k) +Ac%trans(:,j,i)
               spaths(im,km)%SE(spaths(im,km)%ns)%carte(:,1)=vm(:)
               spaths(im,km)%SE(spaths(im,km)%ns)%carte(:,2)=va(:)
               spaths(im,km)%SE(spaths(im,km)%ns)%carte(:,3)=vmp(:)
@@ -276,17 +276,17 @@
               spaths(im,km)%SSE(spaths(im,km)%nss)%nam3=trim(Ac%noms(kk))
               spaths(im,km)%SSE(spaths(im,km)%nss)%nam4=trim(Ac%noms(k))
               spaths(im,km)%SSE(spaths(im,km)%nss)%nam=trim(tangl)//trim(translat)
-              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(1)=Ac%distance(i,ji)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(1)=Ac%distance(ji,i)
               spaths(im,km)%SSE(spaths(im,km)%nss)%geom(2)=dis
-              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(3)=Ac%distance(k,jk)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(3)=Ac%distance(jk,k)
               spaths(im,km)%SSE(spaths(im,km)%nss)%geom(4)=ang1
               spaths(im,km)%SSE(spaths(im,km)%nss)%geom(5)=ang2
               spaths(im,km)%SSE(spaths(im,km)%nss)%geom(6)=ang3
-              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(7)=Ac%distance(i,j)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%geom(7)=Ac%distance(j,i)
               spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,1)=Ac%xyz(:,i)
-              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,2)=Ac%xyz(:,ki)+Ac%trans(:,i,ji)
-              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,3)=Ac%xyz(:,kk)+Ac%trans(:,k,jk)+Ac%trans(:,i,j)
-              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,4)=Ac%xyz(:,k)+Ac%trans(:,i,j)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,2)=Ac%xyz(:,ki)+Ac%trans(:,ji,i)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,3)=Ac%xyz(:,kk)+Ac%trans(:,jk,k)+Ac%trans(:,j,i)
+              spaths(im,km)%SSE(spaths(im,km)%nss)%coord(:,4)=Ac%xyz(:,k)+Ac%trans(:,j,i)
               spaths(im,km)%SSE(spaths(im,km)%nss)%carte(:,1)=vm(:)
               spaths(im,km)%SSE(spaths(im,km)%nss)%carte(:,2)=va(:)
               spaths(im,km)%SSE(spaths(im,km)%nss)%carte(:,3)=vap(:)
@@ -307,7 +307,7 @@
               spaths(im,km)%DE(spaths(im,km)%nd)%nam2=trim(Ac%noms(k))
               spaths(im,km)%DE(spaths(im,km)%nd)%nam=trim(tangl)//trim(translat)
               spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,1)=Ac%xyz(:,i)
-              spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,2)=Ac%xyz(:,k)+Ac%trans(:,i,j)
+              spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,2)=Ac%xyz(:,k)+Ac%trans(:,j,i)
               spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,1)=vm(:)
               spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,2)=vmp(:)
               spaths(im,km)%DE(spaths(im,km)%nd)%dist=sqrt(dis)

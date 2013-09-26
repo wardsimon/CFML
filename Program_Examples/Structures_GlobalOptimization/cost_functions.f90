@@ -779,11 +779,11 @@
           icm=coord_info%coord_num(i)
           ch1=Ac%Atom(i)%ChemSymb
           do j=1,icm
-             ch2=A%Atom(coord_info%n_cooatm(i,j))%ChemSymb
+             ch2=A%Atom(coord_info%n_cooatm(j,i))%ChemSymb
              do k=1,anti_bump%nrel
                 if( ( ch1 == anti_bump%sp1(k) .or. ch1 == anti_bump%sp2(k)) .and. &
                     ( ch2 == anti_bump%sp1(k) .or. ch2 == anti_bump%sp2(k)) ) then
-                     d = coord_info%dist(i,j)
+                     d = coord_info%dist(j,i)
                   cost = cost + (anti_bump%damin(k)/d)**anti_bump%power(k)
                 end if
              end do
