@@ -2024,10 +2024,10 @@
           i=index(filename,OPS_SEP,back=.true.)
           If( i /= 0) then
             dif_pat%filename=trim(filename(i+1:))
-            dif_pat%filepath=filename(1:i) 
+            dif_pat%filepath=filename(1:i)
           Else
             dif_pat%filename=trim(filename)
-            dif_pat%filepath="."//OPS_SEP 
+            dif_pat%filepath="."//OPS_SEP
           End if
        end if
 
@@ -2189,10 +2189,10 @@
           i=index(filename,OPS_SEP,back=.true.)
           If( i /= 0) then
             dif_pat%filename=trim(filename(i+1:))
-            dif_pat%filepath=filename(1:i) 
+            dif_pat%filepath=filename(1:i)
           Else
             dif_pat%filename=trim(filename)
-            dif_pat%filepath="."//OPS_SEP 
+            dif_pat%filepath="."//OPS_SEP
           End if
        end if
 
@@ -2269,7 +2269,6 @@
 
           case ("XYSIGMA")            !XYSIGMA  data file
              call  Read_Pattern_xysigma(i_dat, dif_pat)
-             if(Err_diffpatt) return
              dif_pat%diff_kind = "unknown"
              dif_pat%instr  = " 10  - "//mode
              if(len_trim(dif_pat%scat_var) == 0) then
@@ -3330,18 +3329,22 @@
               j= index(txt1,"TITLE")
               if ( j /= 0 ) then !Title given
                 pat%title=adjustl(txt1(j+5:))
+                cycle
               end if
               i=index(txt1,"Scattering variable:")
               if(i /= 0) then
                  pat%scat_var=adjustl(txt1(i+20:))
+                 cycle
               end if
               i=index(txt1,"Legend_X")
               if(i /= 0) then
                  pat%scat_var=adjustl(txt1(i+8:))
+                 cycle
               end if
               i=index(txt1,"Legend_Y")
               if(i /= 0) then
                  pat%yax_text=adjustl(txt1(i+8:))
+                 cycle
               end if
 
               if(txt1(1:1) == "!" .or. txt1(1:1) == "#") cycle
