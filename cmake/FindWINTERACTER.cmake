@@ -7,7 +7,7 @@ set(WINTER "$ENV{WINTER}")
 set(WINT "$ENV{WINT}")
 
 if (WIN32)
-        
+
     string(REGEX REPLACE "\\\\" "/" WINTERACTER "${WINTERACTER}")
     string(REGEX REPLACE "\\\\" "/" WINTER "${WINTER}")
     string(REGEX REPLACE "\\\\" "/" WINT "${WINT}")
@@ -18,21 +18,26 @@ if (WIN32)
 
     if(COMPILER_NAME STREQUAL ifort)
 
-        find_path(WINTERACTER_MOD_DIR
-                  NAMES winteracter.mod
-                  PATHS ${WINTERACTER}/lib.i64
-                        ${WINTERACTER}/lib.if8
-                        ${WINTER}/lib.i64
-                        ${WINTER}/lib.if8
-                        ${WINT}/lib.i64
-                        ${WINT}/lib.if8
-                        ${USERPROFILE}/wint/lib.i64
-                        ${USERPROFILE}/wint/lib.if8
-                        ${HOMEDRIVE}/wint/lib.i64
-                        ${HOMEDRIVE}/wint/lib.if8
-                        ${SYSTEMDRIVE}/wint/lib.i64
-                        ${SYSTEMDRIVE}/wint/lib.if8)
-    
+        if(${ARCH32})
+            find_path(WINTERACTER_MOD_DIR
+                      NAMES winteracter.mod
+                      PATHS ${WINTERACTER}/lib.if8
+                            ${WINTER}/lib.if8
+                            ${WINT}/lib.if8
+                            ${USERPROFILE}/wint/lib.if8
+                            ${HOMEDRIVE}/wint/lib.if8
+                            ${SYSTEMDRIVE}/wint/lib.if8)
+        else(${ARCH32})
+            find_path(WINTERACTER_MOD_DIR
+                      NAMES winteracter.mod
+                      PATHS ${WINTERACTER}/lib.i64
+                            ${WINTER}/lib.i64
+                            ${WINT}/lib.i64
+                            ${USERPROFILE}/wint/lib.i64
+                            ${HOMEDRIVE}/wint/lib.i64
+                            ${SYSTEMDRIVE}/wint/lib.i64)
+        endif(${ARCH32})
+
     elseif(COMPILER_NAME STREQUAL g95)
 
         find_path(WINTERACTER_MOD_DIR
@@ -43,7 +48,7 @@ if (WIN32)
                         ${USERPROFILE}/wint/lib.g95
                         ${HOMEDRIVE}/wint/lib.g95
                         ${SYSTEMDRIVE}/wint/lib.g95)
-    
+
     endif()
 
     libfind_library(USER32 user32)
@@ -58,7 +63,7 @@ if (WIN32)
     find_library(WINTERACTER_LIBRARY
                  NAMES winter wint
                  PATHS ${WINTERACTER_MOD_DIR})
-     
+
     set(WINTERACTER_PROCESS_LIBS WINTERACTER_LIBRARY
                                  USER32_LIBRARY
                                  GDI32_LIBRARY
@@ -68,30 +73,35 @@ if (WIN32)
                                  SHELL32_LIBRARY
                                  ADVAPI32_LIBRARY
                                  HTMLHELP_LIBRARY)
-    
+
 else(WIN32)
 
     if(COMPILER_NAME STREQUAL ifort)
 
-        find_path(WINTERACTER_MOD_DIR
-                  NAMES winteracter.mod
-                  PATHS ${WINTERACTER}/lib.i64
-                        ${WINTERACTER}/lib.if8                  
-                        ${WINTER}/lib.i64
-                        ${WINTER}/lib.if8
-                        ${WINT}/lib.i64
-                        ${WINT}/lib.if8
-                        ${HOME}/wint/lib.i64
-                        ${HOME}/wint/lib.if8
-                        ${HOME}/lib.i64
-                        ${HOME}/lib.if8
-                        /usr/local/lib/wint/lib.i64
-                        /usr/local/lib/wint/lib.if8
-                        /usr/lib/wint/lib.i64
-                        /usr/lib/wint/lib.if8
-                        /opt/lib/wint/lib.i64
-                        /opt/lib/wint/lib.if8)
-
+        if(${ARCH32})
+            find_path(WINTERACTER_MOD_DIR
+                      NAMES winteracter.mod
+                      PATHS ${WINTERACTER}/lib.if8
+                            ${WINTER}/lib.if8
+                            ${WINT}/lib.if8
+                            ${HOME}/wint/lib.if8
+                            ${HOME}/lib.if8
+                            /usr/local/lib/wint/lib.if8
+                            /usr/lib/wint/lib.if8
+                            /opt/lib/wint/lib.if8)
+        else(${ARCH32})
+	        find_path(WINTERACTER_MOD_DIR
+                       NAMES winteracter.mod
+                       PATHS ${WINTERACTER}/lib.i64
+                             ${WINTER}/lib.i64
+                             ${WINT}/lib.i64
+                             ${HOME}/wint/lib.i64
+                             ${HOME}/lib.i64
+                             /usr/local/lib/wint/lib.i64
+                             /usr/lib/wint/lib.i64
+                             /opt/lib/wint/lib.i64)
+        endif(${ARCH32})
+		
     elseif(COMPILER_NAME STREQUAL g95)
 
         find_path(WINTERACTER_MOD_DIR
@@ -104,7 +114,7 @@ else(WIN32)
                         /usr/local/lib/wint/lib.g95
                         /usr/lib/wint/lib.g95
                         /opt/lib/wint/lib.g95)
-    
+
     endif()
 
     libfind_library(XM Xm)

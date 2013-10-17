@@ -4,8 +4,9 @@
 
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
-# By default the built is in CONSOLE mode.
+# By default the built is in CONSOLE mode and 32 bits.
 option(GUI "Build crysfml and wcrysfml library" OFF)
+option(ARCH32 "32 or 64 bit architecture" ON)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
@@ -28,13 +29,15 @@ if (DEFINED CMAKE_INSTALL_PREFIX)
 else()
     set(CMAKE_INSTALL_PREFIX ${CMAKE_HOME_DIRECTORY}/${COMPILER_NAME} CACHE PATH "The installation path.")
 endif()
+message(STATUS "Setting CMAKE_INSTALL_PREFIX to ${CMAKE_INSTALL_PREFIX}")
+
 
 if (DEFINED CRYSFML_PREFIX)
     set(CRYSFML_PREFIX ${CRYSFML_PREFIX} CACHE PATH "The crysfml installation prefix.")
 else()
     set(CRYSFML_PREFIX LibC CACHE PATH "The crysfml installation prefix.")
 endif()
-message(STATUS "CrysFML installation path set to ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX}")
+message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
 if (GUI)
     if (DEFINED WCRYSFML_PREFIX)
@@ -42,7 +45,7 @@ if (GUI)
     else()
         set(WCRYSFML_PREFIX LibW CACHE PATH "The wcrysfml installation prefix.")
     endif()
-    message(STATUS "WCrysFML installation path set to ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX}")
+    message(STATUS "WCrysFML installation path set to ${WCRYSFML_PREFIX}")
 endif()
 
 #################################
@@ -59,6 +62,7 @@ if (NOT WCRYSFML_PREFIX)
     # Set the default name for wcrysfml library within the install prefix.
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
+
 
 #################################
 # Includes section
