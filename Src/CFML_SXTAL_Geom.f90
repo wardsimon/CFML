@@ -1122,10 +1122,10 @@
        End If
 
        If (ierr /= 0) Then
-          ch=0.0
-          ph=0.0
-          ga=0.0
-          om=0.0
+          ch=0.0_cp
+          ph=0.0_cp
+          ga=0.0_cp
+          om=0.0_cp
        End If
 
        Return
@@ -1169,29 +1169,29 @@
        If (ierr == 0) Then
           !---- Pstar is the reciprocal spacing of this layer
           pstar= Dot_Product(z1,v1)
-          If (pstar < 0.0) Then
+          If (pstar < 0.0_cp) Then
              v1=-v1
              vrho=-vrho
              pstar=-pstar
           End If
 
           !---- Get GA (=MU) for this flat-cone, then NU.
-          !---- Choose 0.0 <= GA <=180.0 and 0.0 <= NU <=90.0  (GA,NU = 180.0+GA,180.0-NU)
+          !---- Choose 0.0_cp <= GA <=180.0_cp and 0.0_cp <= NU <=90.0_cp  (GA,NU = 180.0_cp+GA,180.0_cp-NU)
           Call Get_dspacing_theta(wave,z1,duf,theta,ierr)
           If (ierr == 0) Then
              sinmu=wave*pstar
-             If (sinmu > 1.0) Then
+             If (sinmu > 1.0_cp) Then
                 ierr=-1
              Else
                 ga=asind(sinmu)
-                !---- TH > 45.0 is equivalent to PSTAR > (SQRT(2.0))/WAVE
-                If (Abs(theta) > 45.0) ga=180.0-ga
+                !---- TH > 45.0_cp is equivalent to PSTAR > (SQRT(2.0_cp))/WAVE
+                If (Abs(theta) > 45.0_cp) ga=180.0_cp-ga
                 !---- TH = 45.0 is equivalent to MU=90.0, and NU is indeterminate.
-                If (sinmu >= 1.0) Then
-                   nu=0.0
+                If (sinmu >= 1.0_cp) Then
+                   nu=0.0_cp
                 Else
-                   cosnu=cosd(2.0*theta)/cosd(ga)
-                   If (Abs(cosnu) > 1.0) Then
+                   cosnu=cosd(2.0_cp*theta)/cosd(ga)
+                   If (Abs(cosnu) > 1.0_cp) Then
                       ierr=-2
                    Else
                       nu=acosd(cosnu)
@@ -1224,12 +1224,12 @@
           End If
        End If
        If (ierr /= 0) Then
-          rho=0.0
-          ch=0.0
-          ph=0.0
-          ga=0.0
-          om=0.0
-          nu=0.0
+          rho=0.0_cp
+          ch=0.0_cp
+          ph=0.0_cp
+          ga=0.0_cp
+          om=0.0_cp
+          nu=0.0_cp
        End If
 
        Return
@@ -1260,10 +1260,10 @@
        b(1,3)=c%rcell(3)*cosd(c%rang(2))
        b(2,2)=c%rcell(2)*sind(c%rang(3))
        b(2,3)=-(c%rcell(3)*sind(c%rang(2))*cosd(c%ang(1)))
-       b(3,3)=1.0/c%cell(3)
-       b(2,1)=0.0
-       b(3,1)=0.0
-       b(3,2)=0.0
+       b(3,3)=1.0_cp/c%cell(3)
+       b(2,1)=0.0_cp
+       b(3,1)=0.0_cp
+       b(3,2)=0.0_cp
 
        Return
     End Subroutine genb
@@ -1308,12 +1308,12 @@
        v2=h2o
        Call triple(h1c,h2c,trpc,ierr) !Orthonormal frame attached to h1c,h2c
        If (ierr /= 0) Then
-          ub=0.0
+          ub=0.0_cp
           Return
        End If
        Call triple(v1,v2,trpo,ierr) !Orthonormal frame attached to h1o,h2o
        If (ierr /= 0) Then
-          ub=0.0
+          ub=0.0_cp
           Return
        End If
        !..... MATRIX [U]  *** Equation 27 (B-L)
@@ -1350,18 +1350,18 @@
        real(kind=cp)                 :: theta,d,a,sint,b
 
        Call Get_dspacing_theta(wave,z1,d,theta,ierr)
-       ga=0.0
-       om=0.0
-       nu=0.0
+       ga=0.0_cp
+       om=0.0_cp
+       nu=0.0_cp
        If (ierr == 0) Then
           a=Sqrt(z1(1)*z1(1)+z1(2)*z1(2))
-          If (a <= 1.0e-10) Then
+          If (a <= 1.0e-10_cp) Then
              !---- Anything on the omega axis is blind
              ierr=-1
           Else
              sint=sind(theta)
-             b=2.0*sint*sint/(wave*a)
-             If (b > 1.0) Then
+             b=2.0_cp*sint*sint/(wave*a)
+             If (b > 1.0_cp) Then
                 ierr=-2
              Else
                 a=-atan2d(z1(2),-z1(1))
@@ -1369,12 +1369,12 @@
                 om=a+b
                 Call Phi_mat(om,dum)
                 znew=Matmul(dum,z1)
-                If (znew(1) <= 0.0) Then
+                If (znew(1) <= 0.0_cp) Then
                    om=om-2.0_cp*atan2d(-znew(1),-znew(2))
                 End If
                 om=om-360.0_cp*Int((Sign(180.0_cp,om)+om)/360.0_cp)
                 nu=asind(wave*z1(3))
-                ga=acosd(cosd(2.0*theta)/cosd(nu))
+                ga=acosd(cosd(2.0_cp*theta)/cosd(nu))
              End If
           End If
        End If
@@ -1410,19 +1410,19 @@
 
        ierr=0
        dstar=Sqrt(Dot_Product(z1,z1))
-       If (dstar > 0.0001) Then
+       If (dstar > 0.0001_cp) Then
           ds=1.0/dstar
-          sint=wave*dstar/2.0
-          If (Abs(sint) <= 1.0) Then
+          sint=wave*dstar/2.0_cp
+          If (Abs(sint) <= 1.0_cp) Then
              th=asind(sint)
           Else
              ierr=2
-             th=0.0
+             th=0.0_cp
           End If
        Else
           ierr=1
-          ds=0.0
-          th=0.0
+          ds=0.0_cp
+          th=0.0_cp
        End If
 
        Return
@@ -1538,14 +1538,14 @@
     End Subroutine Get_GaOmNu_frChiPhi
 
     !!---- Subroutine Get_UB_from_hkl_hkl_omega(wave,Cell,h1,h2,omega,UB,ok,mess)
-    !!----   real,                    intent(in)    :: wave      !Vavelength
-    !!----   type (Crystal_Cell_Type),intent(in)    :: Cell      !Unit cell object
-    !!----   real, dimension(3),      intent(in)    :: h1        !Indices of the known first reflection in plane
-    !!----   real, dimension(3),      intent(in)    :: h2        !Indices of the known second reflection in plane
-    !!----   real,                    intent(in)    :: omega     !Value of the omega motor for the second reflection (vertical spindle)
-    !!----   real, dimension(3,3),    intent(out)   :: UB        !Generated Busing-Levy UB-matrix
-    !!----   logical,                 intent(out)   :: ok        !If .true. everything has gone well
-    !!----   character(len=*),        intent(out)   :: mess      !Error message in case ok=.false.
+    !!----   real(kind=cp),                 intent(in)    :: wave  !Vavelength
+    !!----   type (Crystal_Cell_Type),      intent(in)    :: Cell  !Unit cell object
+    !!----   real(kind=cp), dimension(3),   intent(in)    :: h1    !Indices of the known first reflection in plane
+    !!----   real(kind=cp), dimension(3),   intent(in)    :: h2    !Indices of the known second reflection in plane
+    !!----   real(kind=cp),                 intent(in)    :: omega !Value of the omega motor for the second reflection (vertical spindle)
+    !!----   real(kind=cp), dimension(3,3), intent(out)   :: UB    !Generated Busing-Levy UB-matrix
+    !!----   logical,                       intent(out)   :: ok    !If .true. everything has gone well
+    !!----   character(len=*),              intent(out)   :: mess  !Error message in case ok=.false.
     !!----
     !!----   This subroutine generates a UB matrix when two reflections in the horizontal plane
     !!----   are known (indices hkl and h'h'l') and the second reflection has been measured and
@@ -1554,19 +1554,19 @@
     !!----   Updated: June-2012 (JRC)
     !!----
     Subroutine Get_UB_from_hkl_hkl_omega(wave,Cell,h1,h2,omega,UB,ok,mess)
-      real,                    intent(in)    :: wave
-      type (Crystal_Cell_Type),intent(in)    :: Cell
-      real, dimension(3),      intent(in)    :: h1
-      real, dimension(3),      intent(in)    :: h2
-      real,                    intent(in)    :: omega
-      real, dimension(3,3),    intent(out)   :: UB
-      logical,                 intent(out)   :: ok
-      character(len=*),        intent(out)   :: mess
+      real(kind=cp),                 intent(in)    :: wave
+      type (Crystal_Cell_Type),      intent(in)    :: Cell
+      real(kind=cp), dimension(3),   intent(in)    :: h1
+      real(kind=cp), dimension(3),   intent(in)    :: h2
+      real(kind=cp),                 intent(in)    :: omega
+      real(kind=cp), dimension(3,3), intent(out)   :: UB
+      logical,                       intent(out)   :: ok
+      character(len=*),              intent(out)   :: mess
       ! Local variables
-      integer                     :: ierr
-      real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
-      real, dimension(3)          :: ho1,ho2,s1,s2
-      real, dimension(3,3)        :: Rot
+      integer                       :: ierr
+      real(kind=cp)                 :: theta1,theta2,alpha,del_omega,d1s,d2s
+      real(kind=cp), dimension(3)   :: ho1,ho2,s1,s2
+      real(kind=cp), dimension(3,3) :: Rot
 
       ok=.true.
       mess= " "
@@ -1587,10 +1587,10 @@
       !
       !Calculation of the Cartesian components of the two reflections in the scattering plane
       !
-      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)   !z4   diffraction position
+      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0_cp/)   !z4   diffraction position
       call Phi_Mat(omega,Rot)
       ho2=matmul(transpose(rot),s2)               !z1   zero motor angles
-      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)   !z4   diffraction position
+      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0_cp/)   !z4   diffraction position
       call Phi_mat(omega+del_omega,Rot)
       ho1=matmul(transpose(rot),s1)               !z1   zero motor angles
       !
@@ -1605,14 +1605,14 @@
     End Subroutine Get_UB_from_hkl_hkl_omega
 
     !!---- Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
-    !!----   real,                    intent(in)    :: wave      !Vavelength
-    !!----   type (Crystal_Cell_Type),intent(in)    :: Cell      !Unit cell object
-    !!----   Type (Zone_Axis_type),   intent(in out):: Zone_Axis !Zone axis (See CFML_Crystal_Metrics module)
-    !!----   real, dimension(3),      intent(in)    :: h1        !Indices of the known reflection in plane
-    !!----   real,                    intent(in)    :: omega     !Value of the omega motor (vertical spindle)
-    !!----   real, dimension(3,3),    intent(out)   :: UB        !Generated Busing-Levy UB-matrix
-    !!----   logical,                 intent(out)   :: ok        !If .true. everything has gone well
-    !!----   character(len=*),        intent(out)   :: mess      !Error message in case ok=.false.
+    !!----   real(kind=cp),                 intent(in)    :: wave      !Vavelength
+    !!----   type (Crystal_Cell_Type),      intent(in)    :: Cell      !Unit cell object
+    !!----   Type (Zone_Axis_type),         intent(in out):: Zone_Axis !Zone axis (See CFML_Crystal_Metrics module)
+    !!----   real(kind=cp), dimension(3),   intent(in)    :: h1        !Indices of the known reflection in plane
+    !!----   real(kind=cp),                 intent(in)    :: omega     !Value of the omega motor (vertical spindle)
+    !!----   real(kind=cp), dimension(3,3), intent(out)   :: UB        !Generated Busing-Levy UB-matrix
+    !!----   logical,                       intent(out)   :: ok        !If .true. everything has gone well
+    !!----   character(len=*),              intent(out)   :: mess      !Error message in case ok=.false.
     !!----
     !!----   This subroutine generates a UB matrix when the vertical zone axis of the crystal
     !!----   is known and a reflection in the horizonal plane has been measured with known
@@ -1621,29 +1621,29 @@
     !!----   Updated: June-2012 (JRC)
     !!----
     Subroutine Get_UB_from_uvw_hkl_omega(wave,Cell,Zone_Axis,h1,omega,UB,ok,mess)
-      real,                    intent(in)    :: wave
-      type (Crystal_Cell_Type),intent(in)    :: Cell
-      Type (Zone_Axis_type),   intent(in out):: Zone_Axis
-      real, dimension(3),      intent(in)    :: h1
-      real,                    intent(in)    :: omega
-      real, dimension(3,3),    intent(out)   :: UB
-      logical,                 intent(out)   :: ok
-      character(len=*),        intent(out)   :: mess
+      real(kind=cp),                 intent(in)    :: wave
+      type (Crystal_Cell_Type),      intent(in)    :: Cell
+      Type (Zone_Axis_type),         intent(in out):: Zone_Axis
+      real(kind=cp), dimension(3),   intent(in)    :: h1
+      real(kind=cp),                 intent(in)    :: omega
+      real(kind=cp), dimension(3,3), intent(out)   :: UB
+      logical,                       intent(out)   :: ok
+      character(len=*),              intent(out)   :: mess
       ! Local variables
-      integer                     :: ierr
-      real                        :: theta1,theta2,alpha,del_omega,d1s,d2s
-      real, dimension(3)          :: h2,ho1,ho2,s1,s2
-      real, dimension(3,3)        :: Rot
+      integer                        :: ierr
+      real(kind=cp)                  :: theta1,theta2,alpha,del_omega,d1s,d2s
+      real(kind=cp), dimension(3)    :: h2,ho1,ho2,s1,s2
+      real(kind=cp), dimension(3,3)  :: Rot
 
       ok=.true.
       mess= " "
       !First check that the provided reflection is perpendicular to uvw
-      if(dot_product(real(Zone_Axis%uvw),h1) > 0.01) then
+      if(dot_product(real(Zone_Axis%uvw),h1) > 0.01_cp) then
         ok=.false.
         write(unit=mess,fmt="(2(a,f8.3))") "The given reflection: ",h1," is not perpendicular to: ",real(Zone_Axis%uvw)
         return
       end if
-      call Get_basis_from_uvw(1.0,Zone_Axis%uvw,Cell,zone_axis,ok) !Here we use a dmin=1.0 angstrom
+      call Get_basis_from_uvw(1.0_cp,Zone_Axis%uvw,Cell,zone_axis,ok) !Here we use a dmin=1.0 angstrom
       if(.not. ok) then
         mess = "Error in the calculation of reflection plane "
         return
@@ -1662,10 +1662,10 @@
       !
       !Calculation of the Cartesian components of the two reflections in the scattering plane
       !
-      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0/)
+      s1=d1s*(/cosd(Theta1),-sind(Theta1),0.0_cp/)
       call Phi_Mat(omega,Rot)
       ho1=matmul(transpose(rot),s1)
-      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0/)
+      s2=d2s*(/cosd(Theta2),-sind(Theta2),0.0_cp/)
       call Phi_mat(omega+del_omega,Rot)
       ho2=matmul(transpose(rot),s2)
       !
@@ -1699,36 +1699,36 @@
        !--- Local Variables ---!
        real(kind=cp) :: a,b,sinnu, cosnu,cosga, singa
 
-       a=-2.0*z4(2)
+       a=-2.0_cp*z4(2)
        b=Dot_Product(z4,z4)
-       If (.Not. (a <= 0.0 .or. b <= 0.0) ) Then
+       If (.Not. (a <= 0.0_cp .or. b <= 0.0_cp) ) Then
           wave=a/b
           sinnu=wave*z4(3)
-          If (Abs(sinnu) > 1.0) Then
+          If (Abs(sinnu) > 1.0_cp) Then
              ierr=1
-             nu=0.0
-             ga=0.0
-          Else If(Abs(sinnu) < 1.0) Then
+             nu=0.0_cp
+             ga=0.0_cp
+          Else If(Abs(sinnu) < 1.0_cp) Then
              nu=asind(sinnu)
-             cosnu=Sqrt(1.0 - sinnu*sinnu)
+             cosnu=Sqrt(1.0_cp - sinnu*sinnu)
              singa=wave*z4(1)/cosnu
-             If (Abs(singa) > 1.0) Then
+             If (Abs(singa) > 1.0_cp) Then
                 ierr=1
-                nu=0.0
-                ga=0.0
+                nu=0.0_cp
+                ga=0.0_cp
                 Return
              End If
-             cosga=(wave*z4(2)+1.0)/cosnu
+             cosga=(wave*z4(2)+1.0_cp)/cosnu
              ga=atan2d(singa,cosga)
           Else
-             nu=90.0
-             ga=0.0
+             nu=90.0_cp
+             ga=0.0_cp
           End If
        Else
-          wave=0.0
+          wave=0.0_cp
           ierr=1
-          nu=0.0
-          ga=0.0
+          nu=0.0_cp
+          ga=0.0_cp
        End If
 
        Return
@@ -1749,8 +1749,8 @@
        !--- Local Variables ---!
        real(kind=cp) :: th,dsp,ome,cosom,coski,cosfi,sinom,sinfi
 
-       th=ttheta*0.5
-       dsp= 2.0*sind(th)/wave
+       th=ttheta*0.5_cp
+       dsp= 2.0_cp*sind(th)/wave
        ome=om-th
        cosom=cosd(ome)
        sinom=sind(ome)
@@ -1831,7 +1831,7 @@
        real(kind=cp) :: d
 
        d=Dot_Product(v,v)
-       If (d <= 0.0) Then
+       If (d <= 0.0_cp) Then
           ierr=-1
        Else
           ierr=0
@@ -1888,8 +1888,8 @@
        real(kind=cp)               ::  ds,dpl, thc, sthc,snu,cnu,cga,sga,oma,omb,tom1,tom2,ome,wav2,sn
 
        ier=0
-       anbcal(:)=0.0
-       sn=1.0
+       anbcal(:)=0.0_cp
+       sn=1.0_cp
        if(present(nusign)) sn=real(nusign)
 
        wav2=wav*wav
@@ -1902,14 +1902,14 @@
        zo1=z1/ds                      ! unit vector along z1
        dpl= z1(1)*z1(1) + z1(2)*z1(2) ! Projection of z1 on equatorial plane
 
-       If (ds < 0.000001) Then
+       If (ds < 0.000001_cp) Then
           ier=4
           Return
        End If
 
        !---- test limit Ewald sphere
-       sthc = ds*wav*0.5
-       If(Abs(sthc) > 1.0) Then
+       sthc = ds*wav*0.5_cp
+       If(Abs(sthc) > 1.0_cp) Then
          ier=1
          Return
        End If
@@ -1920,24 +1920,24 @@
 
        !-- NU   (Elevation angle of detector)
        snu=sn*wav*z1(3)         !Sin(nu) sn=1 for nu > 0 when elevation w.r.t. positive z-axis
-       If (Abs(snu) > 1.0  .or. dpl < 0.00001) Then
+       If (Abs(snu) > 1.0_cp  .or. dpl < 0.00001_cp) Then
           ier=2
           Return
        End If
-       cnu=Sqrt(1.0-snu*snu)   !Cos(nu)
+       cnu=Sqrt(1.0_cp-snu*snu)   !Cos(nu)
 
        !-- GAM    (Projection of 2THETA on the equatorial plane)
-       cga=((1.0+cnu*cnu)-wav2*dpl)
-       cga=cga/(2.0*cnu)
-       If (Abs(cga) > 1.0) Then
+       cga=((1.0_cp+cnu*cnu)-wav2*dpl)
+       cga=cga/(2.0_cp*cnu)
+       If (Abs(cga) > 1.0_cp) Then
           ier=3
           Return
        End If
-       sga=sig*Sqrt(1.0-cga*cga)
+       sga=sig*Sqrt(1.0_cp-cga*cga)
 
        !-- OME(NB)   (Rotation angle of the sample)
        oma=sig*cnu*sga
-       omb=1.0-cnu*cga
+       omb=1.0_cp-cnu*cga
        tom1=omb*z1(1)+oma*z1(2)
        tom2=oma*z1(1)-omb*z1(2)
        ome=Atan2d(sig*tom1,tom2)
@@ -1969,12 +1969,12 @@
        real(kind=cp), Intent(In)                 :: phi
        real(kind=cp), Intent(Out), Dimension(3,3):: dum
 
-       dum=0.0
+       dum=0.0_cp
        dum(1,1)= cosd(phi)
        dum(1,2)= sind(phi)
        dum(2,1)=-dum(1,2)
        dum(2,2)= dum(1,1)
-       dum(3,3)= 1.0
+       dum(3,3)= 1.0_cp
 
        Return
     End Subroutine Phi_mat
@@ -1994,8 +1994,8 @@
        real(kind=cp), Intent(In)                 :: psi
        real(kind=cp), Intent(Out), Dimension(3,3):: dum
 
-       dum=0.0
-       dum(1,1)=1.0
+       dum=0.0_cp
+       dum(1,1)=1.0_cp
        dum(2,2)= cosd(psi)
        dum(2,3)=-sind(psi)
        dum(3,2)=-dum(2,3)
@@ -2031,20 +2031,20 @@
 
        !--- Local Variables ---!
        real(kind=cp),Dimension(3) :: hn,h0
-       real(kind=cp),Dimension(3) :: h1=(/0.0,0.0,1.0/),h2=(/0.0,1.0,0.0/),v0=(/0.0,0.0,1.0/)
+       real(kind=cp),Dimension(3) :: h1=(/0.0_cp,0.0_cp,1.0_cp/),h2=(/0.0_cp,1.0_cp,0.0_cp/),v0=(/0.0_cp,0.0_cp,1.0_cp/)
 
        !---- Test if VHKL is parallel to H1
        hn=vhkl
        !Call normal(hn,ierr)  Not needed at all => misleading because vhkl is in reciprocal lattice
        !Check that the vector is non-null
-       if(sum(abs(hn)) < 0.0001) then
+       if(sum(abs(hn)) < 0.0001_cp) then
          ierr=-1
          return
        else
          ierr=0
        end if
        h0=Cross_Product(hn,h1)
-       If (Sum(Abs(h0)) > 0.0001) Then
+       If (Sum(Abs(h0)) > 0.0001_cp) Then
           h0=h1         !vhkl IS NOT parallel to c*(=h1), so h1 can be used as reference
        Else
           h0=h2         !vhkl IS parallel to c*(=h1), so h2=b* is used as reference
@@ -2083,17 +2083,17 @@
        !--- Local variables ---!
        real(kind=cp) :: si, sint, sint2, sinnu, phi
 
-       si=1.0
+       si=1.0_cp
        ierr=0
 
        !angl_4C=(/ 2Theta, Omega, Chi, Phi /)
        !angl_NB=(/ Gamma, Omega_nb, nu /)
 
        !.....NU NB
-       sint=Sind(angl_4C(1)/2.0)
+       sint=Sind(angl_4C(1)/2.0_cp)
        sint2=sint*sint
-       angl_NB(3)=2.0*Sind(angl_4C(3)) * sint
-       If (Abs(angl_NB(3)) > 1.0 ) Then
+       angl_NB(3)=2.0_cp*Sind(angl_4C(3)) * sint
+       If (Abs(angl_NB(3)) > 1.0_cp ) Then
           ierr=1
           return
        End If
@@ -2103,7 +2103,7 @@
 
        !.....GAMMA NB
        angl_NB(1)=Cosd(angl_4C(1))/Cosd(angl_NB(3))
-       If (Abs(angl_NB(1)) > 1.0 ) Then
+       If (Abs(angl_NB(1)) > 1.0_cp ) Then
           ierr=2
           Return
        End If
@@ -2111,12 +2111,12 @@
        angl_NB(1)=angl_NB(1)*Sign(si,angl_4C(1))
 
        !.....OMEGA NB
-       phi=2.0*sint2/Sqrt(4.0*sint2-sinnu**2)
-       If (Abs(phi) > 1.0 ) Then
+       phi=2.0_cp*sint2/Sqrt(4.0_cp*sint2-sinnu**2)
+       If (Abs(phi) > 1.0_cp ) Then
           ierr=3
           Return
        End If
-       phi=Acosd(phi)-90.0
+       phi=Acosd(phi)-90.0_cp
        phi=phi*Sign(si,angl_4C(1))
        angl_NB(2)=angl_4C(4)-phi
 
@@ -2129,12 +2129,12 @@
     !!---- Update: July 2008
     !!
     Subroutine Set_PSD(dist,cg,ag,nh,nv,ip)
-       real,   optional, intent(in) :: dist,cg,ag
-       integer,optional, intent(in) :: nh,nv,ip
+       real(kind=cp), optional, intent(in) :: dist,cg,ag
+       integer,       optional, intent(in) :: nh,nv,ip
 
        if(present(dist) .and. present(cg) .and. present(ag) .and. present(nh) &
                         .and. present(nv) .and. present(ip)) then
-          psd%xoff   = 0.0; psd%yoff=0.0; psd%zoff=0.0
+          psd%xoff   = 0.0_cp; psd%yoff=0.0_cp; psd%zoff=0.0_cp
           psd%radius = dist
           psd%cgap   = cg
           psd%agap   = ag
@@ -2178,26 +2178,26 @@
        !--- Local variables ---!
        real(kind=cp) :: si, sint, sint2, sinnu, phi
 
-       si=1.0
+       si=1.0_cp
        !.....2THETA 4C
        angl_4C(1)=Acosd(Cosd(angl_NB(1))*Cosd(angl_NB(3)))
        angl_4C(1)=angl_4C(1)*Sign(si,angl_NB(1))
 
        !.....OMEGA 4C
-       angl_4C(2)=angl_4C(1)/2.0
+       angl_4C(2)=angl_4C(1)/2.0_cp
 
        !.....CHI 4C
        sint=Sind(angl_4C(2))
        sint2=sint*sint
        sinnu=Sind(angl_NB(3))
-       angl_4C(3)=Asind(sinnu/(2.0* sint))
+       angl_4C(3)=Asind(sinnu/(2.0_cp* sint))
 
        ! ***** On D15, both NU & 2-THETA might be positive or negative
        angl_4C(3)= Abs(angl_4C(3)) *Sign(si,angl_NB(3))
 
        !.....PHI 4C
-       phi=2.0*sint2/Sqrt(4.0*sint2-sinnu**2)
-       phi=Acosd(phi)-90.0
+       phi=2.0_cp*sint2/Sqrt(4.0_cp*sint2-sinnu**2)
+       phi=Acosd(phi)-90.0_cp
        phi=phi*Sign(si,angl_NB(1))
        angl_4C(4)=angl_NB(2)+phi
 

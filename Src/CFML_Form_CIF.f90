@@ -4583,7 +4583,7 @@
        character(len=80)                            :: line
        integer                                      :: i,k,iv,nlines
        integer, dimension(30)                       :: ivet
-       real, dimension(30)                          :: vet
+       real(kind=cp), dimension(30)                 :: vet
 
        !> Err
        call init_err_form()

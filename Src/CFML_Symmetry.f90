@@ -3039,9 +3039,9 @@
     !!---- Update: November 2012
     !!
     Subroutine Get_Seitz_Symbol(iop,itim,tr,Seitz_symb)
-      integer,                 intent(in) :: iop,itim
-      real,    dimension(3),   intent(in) :: tr
-      character(len=*),        intent(out):: Seitz_symb
+      integer,                     intent(in) :: iop,itim
+      real(kind=cp), dimension(3), intent(in) :: tr
+      character(len=*),            intent(out):: Seitz_symb
       !---- Local variables ----!
       integer :: i
       character(len=25) :: transl
@@ -3147,15 +3147,15 @@
     !!---- Updated: November 2012
     !!----
     Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb)
-      integer, dimension(3,3), intent(in) :: Mat,Rot
-      real,    dimension(3),   intent(in) :: tr
-      character(len=*),        intent(out):: ShOp_symb
+      integer,       dimension(3,3), intent(in) :: Mat,Rot
+      real(kind=cp), dimension(3),   intent(in) :: tr
+      character(len=*),             intent(out):: ShOp_symb
       !---- Local variables ----!
       integer :: i,i1,i2
       character(len=25)  :: xyz_op, uvw_op
 
       call Get_SymSymb(Mat,tr,xyz_op)
-      call Get_SymSymb(Rot,(/0.0,0.0,0.0/),uvw_op)
+      call Get_SymSymb(Rot,(/0.0_cp,0.0_cp,0.0_cp/),uvw_op)
 
       do i=1,len_trim(uvw_op)
         if(uvw_op(i:i) == "x")  uvw_op(i:i)="u"
@@ -6216,14 +6216,14 @@
     !!---- Update: November - 2012
     !!
     Subroutine Get_Trasfm_Symbol(Mat,tr,abc_symb)
-      integer, dimension(3,3), intent(in) :: Mat
-      real,    dimension(3),   intent(in) :: tr
-      character(len=*),        intent(out):: abc_symb
+      integer,       dimension(3,3), intent(in) :: Mat
+      real(kind=cp), dimension(3),   intent(in) :: tr
+      character(len=*),              intent(out):: abc_symb
       !---- Local variables ----!
       integer :: i
       character(len=25) :: xyz_op, transl
       character(len=6)  :: Fracc
-      call Get_SymSymb(Mat,(/0.0,0.0,0.0/),xyz_op)
+      call Get_SymSymb(Mat,(/0.0_cp,0.0_cp,0.0_cp/),xyz_op)
       do i=1,len_trim(xyz_op)
         if(xyz_op(i:i) == "x")  xyz_op(i:i)="a"
         if(xyz_op(i:i) == "y")  xyz_op(i:i)="b"
@@ -6255,8 +6255,8 @@
     !!---- Update: November - 2012
     !!
     Subroutine Get_Transl_Symbol(tr,Transl_symb)
-      real,    dimension(3),   intent(in) :: tr
-      character(len=*),        intent(out):: Transl_symb
+      real(kind=cp), dimension(3),   intent(in) :: tr
+      character(len=*),              intent(out):: Transl_symb
       !---- Local variables ----!
       integer :: i
       character(len=25) :: transl

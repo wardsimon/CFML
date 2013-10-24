@@ -341,7 +341,7 @@
     !!----    integer,                                     intent(in)  :: N
     !!----    logical, dimension(:),                       intent(in)  :: Active
     !!----    type(Diffraction_Pattern_Type),              intent(out) :: Pat
-    !!----    real, optional                               intent(in)  :: VNorm
+    !!----    real(kind=cp), optional                      intent(in)  :: VNorm
     !!----
     !!---- Add Patterns
     !!----
@@ -353,12 +353,12 @@
         integer,                                     intent(in)  :: N
         logical, dimension(:),                       intent(in)  :: Active
         type(Diffraction_Pattern_Type),              intent(out) :: Pat
-        real, optional,                              intent(in)  :: VNorm
+        real(kind=cp), optional,                     intent(in)  :: VNorm
 
         !---- Local Variables ----!
         integer                           :: i,j,k,npts,nc,np
-        real                              :: xmin,xmax,step,x1,x2,y,cnorm,fac
-        real, dimension(:,:), allocatable :: d2y
+        real(kind=cp)                     :: xmin,xmax,step,x1,x2,y,cnorm,fac
+        real(kind=cp), dimension(:,:), allocatable :: d2y
 
         ! Init
         call Init_Err_DiffPatt()
@@ -674,12 +674,12 @@
         logical, optional,              intent(in)     :: FileInfo
 
         !---- Local Variables ----!
-        logical                         :: info
-        integer                         :: i,j,nomo1,nomo2,lun
-        real, dimension(5)              :: cc
-        real                            :: suma,sc,dif1,dif2
-        real                            :: ci2,ci1,c,cd1,cd2,cn
-        real, dimension(:), allocatable :: yc
+        logical                                  :: info
+        integer                                  :: i,j,nomo1,nomo2,lun
+        real(kind=cp), dimension(5)              :: cc
+        real(kind=cp)                            :: suma,sc,dif1,dif2
+        real(kind=cp)                            :: ci2,ci1,c,cd1,cd2,cn
+        real(kind=cp), dimension(:), allocatable :: yc
 
         !> Initializing errors
         call init_err_diffpatt()
@@ -1342,7 +1342,7 @@
        integer, dimension(3)                        :: ivet
        character(len=180)                           :: aline
        character(len=20), dimension(10)             :: dire
-       real, dimension(3)                           :: vet
+       real(kind=cp), dimension(3)                  :: vet
        logical                                      :: title_given
 
        call init_err_diffpatt()
@@ -3549,8 +3549,8 @@
        integer,                        intent(in    ) :: n
 
        !---- Local variables ----!
-       integer                                        :: nbx, nbac1 , i , j  , nxx
-       real                                           :: difl, difr , thx , delt, slope, bstep,p
+       integer        :: nbx, nbac1 , i , j  , nxx
+       real(kind=cp)  :: difl, difr , thx , delt, slope, bstep,p
 
        nbx=1
        nbac1=n

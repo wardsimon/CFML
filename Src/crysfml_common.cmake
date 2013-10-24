@@ -7,7 +7,11 @@
 if(WIN32)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
-        set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel.f90)
+       if(ARCH32)
+           set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel.f90)
+       else()
+           set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel64.f90)
+       endif()
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Windows.f90)
     endif()

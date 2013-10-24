@@ -28,7 +28,7 @@ include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 # The crysfml library is the CONSOLE version of the library.
 add_library(${LIBRARY_NAME} STATIC ${SOURCES} ${CRYSFML_COMMON_OBJECTS})
 
-# Add a dependencie to crysfml_common to keep sure that the crysfml_common library will be built first.
+# Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 # The directory where the crysfml specific module files will be stored.

@@ -137,23 +137,23 @@
     !!---- TYPE :: Polar_calc_type
     !!--..
     !!---- Type, public :: Polar_calc_type
-    !!----     real(kind=cp), dimension (3)      :: H     ! Scattering vector in hkl
-    !!----     real(kind=cp), dimension (3)      :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
-    !!----     Type(Crystal_Cell_Type)           :: Cell  ! Unit Cell of Crystal
-    !!----     real(kind=cp)                     :: P     ! magnitude of initial polarisation vector
-    !!----     complex, dimension (3,2,24)       :: MiV   ! magnetic interaction vector
-    !!----     complex                           :: NSF   ! nuclear structure factor
-    !!----     real(kind=cp)                     :: NC    ! nuclear scattering contribution
-    !!----     real(kind=cp), dimension (2,24)   :: MY    ! magnetic contribution along y
-    !!----     real(kind=cp), dimension (2,24)   :: MZ    ! magnetic contribution along z
-    !!----     real(kind=cp), dimension (2,24)   :: RY    ! real part of nuclear magnetic interference term along y
-    !!----     real(kind=cp), dimension (2,24)   :: RZ    ! real part of nuclear magnetic interference term along z
-    !!----     real(kind=cp), dimension (2,24)   :: IY    ! imaginary part of nuclear magnetic interference term along y
-    !!----     real(kind=cp), dimension (2,24)   :: IZ    ! imaginary part of nuclear magnetic interference term along y
-    !!----     real(kind=cp), dimension (2,24)   :: TC    ! chiral contribution
-    !!----     real(kind=cp), dimension (2,24)   :: MM    ! magnetic-magnetic interference term
-    !!----     real(kind=cp), dimension (3,2,24) :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
-    !!----     real(kind=cp), dimension (3,3)    :: Pij   ! the polarisation tensor
+    !!----     real(kind=cp), dimension (3)        :: H     ! Scattering vector in hkl
+    !!----     real(kind=cp), dimension (3)        :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
+    !!----     Type(Crystal_Cell_Type)             :: Cell  ! Unit Cell of Crystal
+    !!----     real(kind=cp)                       :: P     ! magnitude of initial polarisation vector
+    !!----     complex(kind=cp), dimension (3,2,24):: MiV   ! magnetic interaction vector
+    !!----     complex(kind=cp)                    :: NSF   ! nuclear structure factor
+    !!----     real(kind=cp)                       :: NC    ! nuclear scattering contribution
+    !!----     real(kind=cp), dimension (2,24)     :: MY    ! magnetic contribution along y
+    !!----     real(kind=cp), dimension (2,24)     :: MZ    ! magnetic contribution along z
+    !!----     real(kind=cp), dimension (2,24)     :: RY    ! real part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)     :: RZ    ! real part of nuclear magnetic interference term along z
+    !!----     real(kind=cp), dimension (2,24)     :: IY    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)     :: IZ    ! imaginary part of nuclear magnetic interference term along y
+    !!----     real(kind=cp), dimension (2,24)     :: TC    ! chiral contribution
+    !!----     real(kind=cp), dimension (2,24)     :: MM    ! magnetic-magnetic interference term
+    !!----     real(kind=cp), dimension (3,2,24)   :: CS    ! the three different elastic cross-sections depending on the direction of the initial polar vector
+    !!----     real(kind=cp), dimension (3,3)      :: Pij   ! the polarisation tensor
     !!---- End Type Polar_calc_type
     !!----
     !!---- Update: February 2009 (OZ)
@@ -212,8 +212,8 @@
     !!----     real(kind=cp), dimension (3)    :: SPV   ! Second vector in Scattering plane apart of scattering vector to define plane
     !!----     type(crystal_cell_type)         :: Cell  ! Unit Cell of Crystal
     !!----     real(kind=cp)                   :: P     ! magnitude of initial polarisation vector
-    !!----     complex, dimension (3)          :: MiV   ! magnetic interaction vector
-    !!----     complex                         :: NSF   ! nuclear structure factor
+    !!----     complex(kind=cp), dimension (3) :: MiV   ! magnetic interaction vector
+    !!----     complex(kind=cp)                :: NSF   ! nuclear structure factor
     !!----     real(kind=cp)                   :: NC    ! nuclear scattering contribution
     !!----     real(kind=cp)                   :: MY    ! magnetic contribution along y
     !!----     real(kind=cp)                   :: MZ    ! magnetic contribution along z
@@ -340,10 +340,10 @@
 
     !!--++
     !!--++ Function Im_Nm_Y(Nsf, MiV_Pf) Result(I_Nm_Y,B_Q)
-    !!--++    Complex,                   intent(in) :: NSF      !  In  -> Nuclear Structure Factor
-    !!--++    Complex, dimension(3),     intent(in) :: MiV_PF   !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    character(len=*),optional, intent(in) :: B_Q      !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
-    !!--++    real(kind=cp)                         :: I_NM_Y   !  Out -> Imaginary part of nuclear-magnetic interference contribution along Y
+    !!--++    complex(kind=cp),               intent(in) :: NSF      !  In  -> Nuclear Structure Factor
+    !!--++    complex(kind=cp), dimension(3), intent(in) :: MiV_PF   !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    character(len=*),optional,      intent(in) :: B_Q      !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
+    !!--++    real(kind=cp)                              :: I_NM_Y   !  Out -> Imaginary part of nuclear-magnetic interference contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the imaginary part of the nuclear-magnetic interference contribution along Y
@@ -353,10 +353,10 @@
     !!
     Function Im_Nm_Y(Nsf, MiV_Pf,B_Q) Result(I_Nm_Y)
        !---- Argument ----!
-       Complex,                   intent( in)  :: NSF
-       Complex, dimension(3),     intent( in)  :: MiV_PF
-       character(len=*),optional, intent(in)   :: B_Q
-       real(kind=cp)                           :: I_Nm_Y
+       complex(kind=cp),               intent( in)  :: NSF
+       complex(kind=cp), dimension(3), intent( in)  :: MiV_PF
+       character(len=*),optional,      intent(in)   :: B_Q
+       real(kind=cp)                                :: I_Nm_Y
        !---- Local variables ----!
        real(kind=cp) :: s
 
@@ -369,10 +369,10 @@
 
     !!--++
     !!--++ Real Function Im_Nm_Z(Nsf, MiV_Pf,B_Q) Result(I_Nm_Z)
-    !!--++    Complex,                   intent(in) :: NSF     !  In -> Nuclear Structure Factor
-    !!--++    Complex, dimension(3),     intent(in) :: MiV_PF  !  In -> Magnetic Interaction Vector in polarisation frame
-    !!--++    character(len=*),optional, intent(in) :: B_Q     !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
-    !!--++    real(kind=cp)                         :: I_NM_Z  !  Out-> Imaginary part of nuclear magnetic interference contribution along Z
+    !!--++    complex(kind=cp),              intent(in) :: NSF     !  In -> Nuclear Structure Factor
+    !!--++    complex(kind=cp), dimension(3),intent(in) :: MiV_PF  !  In -> Magnetic Interaction Vector in polarisation frame
+    !!--++    character(len=*),optional,     intent(in) :: B_Q     !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
+    !!--++    real(kind=cp)                             :: I_NM_Z  !  Out-> Imaginary part of nuclear magnetic interference contribution along Z
     !!--++
     !!--++    (Private)
     !!--++    Calculates the imaginary part of the nuclear magnetic interference contribution along Z
@@ -382,10 +382,10 @@
     !!
     Function Im_Nm_Z(Nsf, MiV_Pf,B_Q) Result(I_Nm_Z)
        !---- Argument ----!
-       Complex,                   intent(in) :: NSF
-       Complex, dimension(3),     intent(in) :: MiV_PF
-       character(len=*),optional, intent(in) :: B_Q
-       real(kind=cp)                         :: I_NM_Z
+       complex(kind=cp),              intent(in) :: NSF
+       complex(kind=cp), dimension(3),intent(in) :: MiV_PF
+       character(len=*),optional,     intent(in) :: B_Q
+       real(kind=cp)                             :: I_NM_Z
        !---- Local variables ----!
        real(kind=cp) :: s
 
@@ -399,8 +399,8 @@
 
     !!--++
     !!--++ Function Mag_Y(MiV_Pf) Result(My)
-    !!--++    Complex, dimension(3), intent( in) :: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    real(kind=cp)                      :: MY     !  Out -> Magnetic contribution along Y
+    !!--++    complex(kind=cp), dimension(3), intent( in) :: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    real(kind=cp)                               :: MY     !  Out -> Magnetic contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic contribution along Y to scattering in the polarisation
@@ -410,8 +410,8 @@
     !!
     Function Mag_Y(MiV_Pf) Result(My)
        !---- Argument ----!
-       Complex, dimension(3), intent( in)  :: MiV_PF
-       real(kind=cp)                       :: MY
+       complex(kind=cp), dimension(3), intent( in)  :: MiV_PF
+       real(kind=cp)                                :: MY
 
        !---- Local variables ----!
 
@@ -422,7 +422,7 @@
 
     !!--++
     !!--++ Function Mag_Z(MiV_Pf) Result(Mz)
-    !!--++    Complex, dimension(3), intent( in):: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    complex(kind=cp), dimension(3), intent( in):: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
     !!--++    real(kind=cp)                     :: MZ      !  Out -> Magnetic contribution along Z
     !!--++
     !!--++    (Private)
@@ -433,8 +433,8 @@
     !!
     Function Mag_Z(MiV_Pf) Result(Mz)
        !---- Argument ----!
-       Complex, dimension(3), intent( in)       :: MiV_PF
-       real(kind=cp)                            :: MZ
+       complex(kind=cp), dimension(3), intent( in) :: MiV_PF
+       real(kind=cp)                               :: MZ
 
        !---- Local variables ----!
 
@@ -445,11 +445,11 @@
 
     !!--++
     !!--++ Function Magn_Inter_Vec_Pf(MiV,H,Spv, Cell) Result(MiV_Pf)
-    !!--++    Complex,       dimension(3), intent( in) :: MiV            !  In -> Magnetic Interaction Vector in Crystal Cartesian Coordinates
-    !!--++    real(kind=cp), dimension(3), intent( in) :: H              !  In -> Scattering Vector in hkl
-    !!--++    real(kind=cp), dimension(3), intent( in) :: SPV            !  In -> Second Scattering plane vector in hkl
-    !!--++    Type (Crystal_Cell_Type),  intent(in)    :: Cell           !  In -> Cell variable which holds transformation matrices
-    !!--++    Complex, dimension(3)                    :: MiV_PF         !  Out -> Magnetic Interaction Vector in polarisation coordinate frame
+    !!--++    complex(kind=cp),dimension(3), intent( in) :: MiV            !  In -> Magnetic Interaction Vector in Crystal Cartesian Coordinates
+    !!--++    real(kind=cp),   dimension(3), intent( in) :: H              !  In -> Scattering Vector in hkl
+    !!--++    real(kind=cp),   dimension(3), intent( in) :: SPV            !  In -> Second Scattering plane vector in hkl
+    !!--++    Type (Crystal_Cell_Type),      intent(in)  :: Cell           !  In -> Cell variable which holds transformation matrices
+    !!--++    complex(kind=cp), dimension(3)             :: MiV_PF         !  Out -> Magnetic Interaction Vector in polarisation coordinate frame
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic interaction vector in the polarisation coordinate frame according to the Blume equations
@@ -487,11 +487,11 @@
     !!
     Function Magn_Inter_Vec_Pf(MiVC,H,Spv, Cell) Result(MiV_Pf)
        !---- Argument ----!
-       Complex, dimension(3),       intent(in) :: MiVC   !Must be provided in Crystallographic
-       real(kind=cp), dimension(3), intent(in) :: H      !Cartesian frame
-       real(kind=cp), dimension(3), intent(in) :: SPV
-       Type (Crystal_Cell_Type),    intent(in) :: Cell
-       Complex, dimension(3)                   :: MiV_PF
+       complex(kind=cp), dimension(3), intent(in) :: MiVC   !Must be provided in Crystallographic
+       real(kind=cp),    dimension(3), intent(in) :: H      !Cartesian frame
+       real(kind=cp),    dimension(3), intent(in) :: SPV
+       Type (Crystal_Cell_Type),       intent(in) :: Cell
+       complex(kind=cp), dimension(3)             :: MiV_PF
 
        !---- Local variables ----!
        real(kind=cp), dimension (3)            :: QSV,Q,SV,X,Y,Z
@@ -519,8 +519,8 @@
 
     !!--++
     !!--++ Function Mm(Nsf, MiV_Pf) Result(Mmc)
-    !!--++    Complex, dimension(3), intent( in) :: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    real(kind=cp)                      :: MMC    !  Out -> magnetic-magnetic interference term
+    !!--++    complex(kind=cp), dimension(3), intent( in) :: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    real(kind=cp)                               :: MMC    !  Out -> magnetic-magnetic interference term
     !!--++
     !!--++    (Private)
     !!--++    Calculates the magnetic-magnetic interference contribution to scattering in the
@@ -530,8 +530,8 @@
     !!
     Function Mm(MiV_PF) Result(Mmc)
        !---- Argument ----!
-       Complex, dimension(3), intent( in) :: MiV_PF
-       real(kind=cp)                      :: MMC
+       complex(kind=cp), dimension(3), intent( in) :: MiV_PF
+       real(kind=cp)                               :: MMC
 
        !---- Local variables ----!
 
@@ -542,9 +542,9 @@
 
     !!--++
     !!--++ Function Nuc_Contr(Nsf, MiV_Pf) Result(Nsc)
-    !!--++    Complex,               intent( in):: NSF     !  In  -> Nuclear Structure Factor
-    !!--++    Complex, dimension(3), intent( in):: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    real(kind=cp)                     :: NSC     !  Out -> nuclear scattering contribution
+    !!--++    complex(kind=cp),               intent( in):: NSF     !  In  -> Nuclear Structure Factor
+    !!--++    complex(kind=cp), dimension(3), intent( in):: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    real(kind=cp)                              :: NSC     !  Out -> nuclear scattering contribution
     !!--++
     !!--++    (Private)
     !!--++    Calculates the nuclear contribution to scattering in the polarisation coordinate frame according to the Blume equations
@@ -553,8 +553,8 @@
     !!
     Function Nuc_Contr(Nsf) Result(Nsc)
        !---- Argument ----!
-       Complex, intent( in)                     :: NSF
-       real(kind=cp)                            :: NSC
+       complex(kind=cp), intent( in)   :: NSF
+       real(kind=cp)                   :: NSC
 
        !---- Local variables ----!
 
@@ -565,9 +565,9 @@
 
     !!--++
     !!--++ Function Real_Nm_Y(Nsf, MiV_Pf) Result(R_Nm_Y)
-    !!--++    Complex,               intent(in)  :: NSF     !  In  -> Nuclear Structure Factor
-    !!--++    Complex, dimension(3), intent(in)  :: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    real(kind=cp)                      :: R_NM_Y  !  Out -> real part of nuclear magnetic interference contribution along Y
+    !!--++    complex(kind=cp),               intent(in)  :: NSF     !  In  -> Nuclear Structure Factor
+    !!--++    complex(kind=cp), dimension(3), intent(in)  :: MiV_PF  !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    real(kind=cp)                               :: R_NM_Y  !  Out -> real part of nuclear magnetic interference contribution along Y
     !!--++
     !!--++    (Private)
     !!--++    Calculates the real part of the nuclear-magnetic interference contribution along Y to scattering in the polarisation coordinate frame according to the Blume equations
@@ -576,9 +576,9 @@
     !!
     Function Real_Nm_Y(Nsf, MiV_Pf) Result(R_Nm_Y)
        !---- Argument ----!
-       Complex,               intent(in)  :: NSF
-       Complex, dimension(3), intent(in)  :: MiV_PF
-       real(kind=cp)                      :: R_Nm_Y
+       complex(kind=cp),               intent(in)  :: NSF
+       complex(kind=cp), dimension(3), intent(in)  :: MiV_PF
+       real(kind=cp)                               :: R_Nm_Y
 
        !---- Local variables ----!
 
@@ -589,9 +589,9 @@
 
     !!--++
     !!--++ Function Real_Nm_Z(Nsf, MiV_Pf) Result(R_Nm_Z)
-    !!--++    Complex, intent( in)               :: NSF            !  In  -> Nuclear Structure Factor
-    !!--++    Complex, dimension(3), intent( in) :: MiV_PF         !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    real(kind=cp)                      :: R_NM_Z         !  Out -> nuclear real part of magnetic interference contribution along Z
+    !!--++    complex(kind=cp), intent( in)               :: NSF            !  In  -> Nuclear Structure Factor
+    !!--++    complex(kind=cp), dimension(3), intent( in) :: MiV_PF         !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    real(kind=cp)                               :: R_NM_Z         !  Out -> nuclear real part of magnetic interference contribution along Z
     !!--++
     !!--++    (Private)
     !!--++    Calculates the real part of the nuclear-magnetic interference contribution along Z
@@ -601,9 +601,9 @@
     !!
     Function Real_Nm_Z(Nsf, MiV_Pf) Result(R_Nm_Z)
        !---- Argument ----!
-       Complex, intent( in)                     :: NSF
-       Complex, dimension(3), intent( in)       :: MiV_PF
-       real(kind=cp)                            :: R_Nm_Z
+       complex(kind=cp),               intent( in) :: NSF
+       complex(kind=cp), dimension(3), intent( in) :: MiV_PF
+       real(kind=cp)                               :: R_Nm_Z
 
        !---- Local variables ----!
 
@@ -614,9 +614,9 @@
 
     !!--++
     !!--++ Function Tchiral(MiV_Pf,B_Q) Result(Tc)
-    !!--++    Complex, dimension(3), intent( in)    :: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
-    !!--++    character(len=*),optional, intent(in) :: B_Q    !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
-    !!--++    real(kind=cp)                         :: TC     !  Out -> chiral contribution
+    !!--++    complex(kind=cp), dimension(3), intent( in):: MiV_PF !  In  -> Magnetic Interaction Vector in polarisation frame
+    !!--++    character(len=*),optional,      intent(in) :: B_Q    !  In  -> The calculation is done with original Blume equation Q_B= -Q_cryst
+    !!--++    real(kind=cp)                              :: TC     !  Out -> chiral contribution
     !!--++
     !!--++    (Private)
     !!--++    Calculates the chiral contribution to scattering in the polarisation coordinate frame
@@ -626,9 +626,9 @@
     !!
     Function Tchiral(MiV_Pf,B_Q) Result(Tc)
        !---- Argument ----!
-       Complex, dimension(3),    intent( in) :: MiV_PF
-       character(len=*),optional, intent(in) :: B_Q
-       real(kind=cp)                         :: TC
+       complex(kind=cp), dimension(3), intent(in) :: MiV_PF
+       character(len=*),optional,      intent(in) :: B_Q
+       real(kind=cp)                              :: TC
        !---- Local variables ----!
        real(kind=cp) :: s
 
@@ -651,7 +651,7 @@
     !!----    type (Crystal_Cell_Type),     intent(in) :: Cell    ! In -> Busing-Levy UB-matrix
     !!----    Real(kind=cp), dimension(3,3),intent(in) :: UB      ! In -> Nuclear Structure Factor
     !!----    Real(kind=cp), dimension(3),  intent(in) :: Pin     ! In -> Incident polarisation (Cartesian or spherical)
-    !!----    complex,                      intent(in) :: NSF     ! In -> Nuclear Structure Factor
+    !!----    complex(kind=cp),             intent(in) :: NSF     ! In -> Nuclear Structure Factor
     !!----    type(Magnetic_Domain_type),   intent(in) :: Mag_Dom ! In -> Magnetic domains information
     !!----    type(MagHD_Type),             intent(in) :: Mh      ! In -> Contains Magnetic structure factor, MiV, domain info, ...
     !!----    Real(kind=cp), dimension(3),  intent(out):: Pf      ! Out ->Final polarisation in frame given by "frame"
@@ -700,7 +700,7 @@
        type (Crystal_Cell_Type),     intent(in)    :: Cell
        Real(kind=cp), dimension(3,3),intent(in)    :: UB
        Real(kind=cp), dimension(3),  intent(in)    :: Pin
-       complex,                      intent(in)    :: NSF
+       complex(kind=cp),             intent(in)    :: NSF
        type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
        type(MagHD_Type),             intent(in out):: Mh
        Real(kind=cp), dimension(3),  intent(   out):: Pf
@@ -713,7 +713,7 @@
        real(kind=cp)                  :: I_inv,Inuc,Imag   ! Inverse of elastic cross section
        real(kind=cp)                  :: gamma,omega,nu    ! Normal beam angles
        real(kind=cp)                  :: pol,ptheta,pchi   ! Module of the incident pol. and angles of nutator + rotation
-       complex, dimension (3)         :: MiV, W            ! MiV for one domain and in polarisation frame,Nuclear-Magnetic interference
+       complex(kind=cp), dimension (3):: MiV, W            ! MiV for one domain and in polarisation frame,Nuclear-Magnetic interference
        integer                        :: nd,ich,nch, ierr
        Real(kind=cp), dimension(3)    :: z1,z4, Pic,T,Wr,Wi
        Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,ubinv,r_pth,r_chi,BL2BM
@@ -746,8 +746,8 @@
        if(frame(1:2) == "BM" .or. frame(1:3) == "MAD")  then  !Crystallographic Blume-Maleyev frame
          z4 = z4 / sqrt(dot_product(z4,z4)) !Unit vector along Q in BL system
          Um(1,:) = 0.0
-         Um(2,:) = Cross_Product((/0.0,0.0,1.0/),z4)
-         Um(3,:) = (/0.0,0.0,1.0/)
+         Um(2,:) = Cross_Product((/0.0_cp,0.0_cp,1.0_cp/),z4)
+         Um(3,:) = (/0.0_cp,0.0_cp,1.0_cp/)
          Rot=Matmul(Um,Rot)
        else if(frame(1:2) /= "BL" .and. frame(1:3) /= "MAD") then
          ok=.false.
@@ -761,7 +761,7 @@
          call chi_mat(ptheta,R_pth) !This is clockwise (c 0 s|0 1 0|-s 0 c)
          call psi_mat(pchi,R_chi)   !This is counter-clockwise (1 0 0|0 c -s|0 s c)
          R_Chi=transpose(R_Chi)     !Put chi clockwise
-         Pic=matmul(R_chi,matmul(R_pth,(/0.0,0.0,pol/))) !BL-system incident polarisation
+         Pic=matmul(R_chi,matmul(R_pth,(/0.0_cp,0.0_cp,pol/))) !BL-system incident polarisation
          if(frame == "BMS" .or. frame == "MAD") then     !Transform to BM system
            call Phi_mat(gamma*0.5+90.0,BL2BM) !Active
            Pic=matmul(transpose(BL2BM),Pic)      !Incident polarisation in BM system
@@ -821,11 +821,11 @@
     !!----    type (Crystal_Cell_Type),     intent(in)    :: Cell
     !!----    Real(kind=cp), dimension(3,3),intent(in)    :: UB
     !!----    Real(kind=cp), dimension(3),  intent(in)    :: Pin
-    !!----    complex,                      intent(in)    :: NSF
+    !!----    complex(kind=cp),             intent(in)    :: NSF
     !!----    type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
     !!----    type(MagHD_Type),             intent(in)    :: Mh
-    !!----    real, dimension(3,3),         intent(out)   :: Pol_tens
-    !!----    real, dimension(3),           intent(out)   :: Pc
+    !!----    real(kind=cp), dimension(3,3),intent(out)   :: Pol_tens
+    !!----    real(kind=cp), dimension(3),  intent(out)   :: Pc
     !!----    character(len=*), optional,   intent(in)    :: B_Q  !Original Blume equations are used Q=Q_BM
     !!----
     !!----    This subroutine provides the tensor [P] and vector Pc
@@ -846,11 +846,11 @@
        type (Crystal_Cell_Type),     intent(in)    :: Cell
        Real(kind=cp), dimension(3,3),intent(in)    :: UB
        Real(kind=cp), dimension(3),  intent(in)    :: Pin
-       complex,                      intent(in)    :: NSF
+       complex(kind=cp),             intent(in)    :: NSF
        type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
        type(MagHD_Type),             intent(in)    :: Mh
-       real, dimension(3,3),         intent(out)   :: Pol_tens
-       real, dimension(3),           intent(out)   :: Pc
+       real(kind=cp), dimension(3,3),intent(out)   :: Pol_tens
+       real(kind=cp), dimension(3),  intent(out)   :: Pc
        logical,                      intent(   out):: ok
        Character(len=*), optional,   intent(   out):: mess
        Character(len=*), optional,   intent(in)    :: B_Q  !Original Blume equations are used Q=Q_BM
@@ -859,7 +859,7 @@
        real(kind=cp)                  :: I_inv,Inuc,Imag   ! inverse of elastic cross section
        real(kind=cp)                  :: gamma,omega,nu    ! Normal beam angles
        real(kind=cp)                  :: pol,ptheta,pchi   ! Incident polarisation
-       complex, dimension (3)         :: MiV, W     !MiV for one domain and in polarisation frame
+       complex(kind=cp), dimension (3):: MiV, W     !MiV for one domain and in polarisation frame
        integer                        :: nd,ich,nch, ierr
        Real(kind=cp), dimension(3)    :: z1,z4, Pic,T,Wr,Wi
        Real(kind=cp), dimension(3,3)  :: Um,Rot,Rot_omega,DD,AA,SS,r_pth,r_chi,BL2BM
@@ -887,9 +887,9 @@
        Rot=Matmul(UB,Matmul(Cell%GD,Cell%Orth_Cr_cel)) !Conversion to BL (in diffraction position) from Crystal Cartesian
        Rot=Matmul(Rot_omega,Rot) !Rotation matrix putting the MiVC in the BL frame
        z4 = z4 / sqrt(dot_product(z4,z4))
-       Um(1,:) = 0.0
-       Um(2,:) = Cross_Product((/0.0,0.0,1.0/),z4)
-       Um(3,:) = (/0.0,0.0,1.0/)
+       Um(1,:) = 0.0_cp
+       Um(2,:) = Cross_Product((/0.0_cp,0.0_cp,1.0_cp/),z4)
+       Um(3,:) = (/0.0_cp,0.0_cp,1.0_cp/)
        Rot=Matmul(Um,Rot)
        !Put now the incident polarisation in Cartesian coordinates w.r.t. BM frame
        !if angular data have been provided.
@@ -898,8 +898,8 @@
          call chi_mat(ptheta,R_pth) !This is clockwise (c 0 s|0 1 0|-s 0 c)
          call psi_mat(pchi,R_chi)   !This is counter-clockwise (1 0 0|0 c -s|0 s c)
          R_Chi=transpose(R_Chi)     !Put chi clockwise
-         Pic=matmul(R_chi,matmul(R_pth,(/0.0,0.0,pol/))) !BL-system incident polarisation
-         call Phi_mat(gamma*0.5+90.0,BL2BM) !Active
+         Pic=matmul(R_chi,matmul(R_pth,(/0.0_cp,0.0_cp,pol/))) !BL-system incident polarisation
+         call Phi_mat(gamma*0.5_cp+90.0_cp,BL2BM) !Active
          Pic=matmul(transpose(BL2BM),Pic)   !Incident polarisation in BM system
        else
          Pic=Pin
@@ -907,17 +907,17 @@
        nch=1
        if(Mag_Dom%chir) nch=2
        ! Loop over domains
-       Pol_tens = 0.0
-       Pc       = 0.0
+       Pol_tens = 0.0_cp
+       Pc       = 0.0_cp
        Inuc=real(Conjg(NSF)*NSF)
        do nd=1,Mag_Dom%nd
          do ich=1,nch
           MiV=Matmul(Rot,Mh%MiVC(:,ich,nd)) !Convert the MiVC to the frame BM
           Imag=dot_Product(MiV,MiV)
           T=-s*aimag(Cross_Product(Conjg(MiV),MiV)) !Chiral Vector
-          W=2.0*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
+          W=2.0_cp*NSF*Conjg(MiV)     !Nuclear-Magnetic Interaction vector
           Wr=real(W); Wi=s*aimag(W)  !Real and Imaginary parts
-          I_inv=1.0/(Inuc+Imag+dot_product(Wr,Pic)-dot_product(T,Pic))
+          I_inv=1.0_cp/(Inuc+Imag+dot_product(Wr,Pic)-dot_product(T,Pic))
           DD=(Inuc-Imag)*Identity
           SS=real(Tensor_Product(MiV,Conjg(MiV))+Tensor_Product(Conjg(MiV),MiV))
           AA=-Mat_Cross(Wi)
@@ -934,7 +934,7 @@
     !!----    real(kind=cp), dimension (3),intent(in)    :: H     !  In -> Scattering vector in hkl
     !!----    real(kind=cp), dimension(3), intent(in)    :: SPV   !  In -> Second Scattering plane vector in hkl
     !!----    real(kind=cp), intent( in)                 :: Pin   !  In -> magnitude of initial polarisation
-    !!----    complex, intent( in)                       :: NSF   !  In -> Nuclear Scattering Factor
+    !!----    complex(kind=cp), intent( in)              :: NSF   !  In -> Nuclear Scattering Factor
     !!----    Type(Magnetic_Domain_type),  intent(in)    :: Mag_Dom
     !!----    Type(MagHD_Type),            intent(in out):: Mh
     !!----    Type (Polar_calc_type),      intent( out)  :: Polari !  Out ->type with all information about polarisation in
@@ -951,7 +951,7 @@
        real(kind=cp), dimension (3),intent(in)       :: H
        real(kind=cp), dimension(3), intent(in)       :: SPV
        real(kind=cp),               intent(in)       :: Pin
-       complex,                     intent(in)       :: NSF
+       complex(kind=cp),            intent(in)       :: NSF
        type(Magnetic_Domain_type),  intent(in)       :: Mag_Dom
        type(MagHD_Type),            intent(in out)   :: Mh
        type(Polar_calc_type),       intent(out)      :: Polari
@@ -960,7 +960,7 @@
        !---- Local variables ----!
        real(kind=cp), dimension (3)   :: sigma        ! elastic cross for different incident polarisation directions
        real(kind=cp)                  :: nc,my,mz,rnmy,rnmz,inmy,inmz,tc,mmc,a !the different contribution to cross-section
-       complex, dimension (3)         :: MiV, MiV_PF       !MiV for one domain and in polarisation frame
+       complex(kind=cp), dimension (3):: MiV, MiV_PF       !MiV for one domain and in polarisation frame
        integer                        :: nd,ich,nch
 
 
@@ -1071,7 +1071,7 @@
        !---- Local variables ----!
        real(kind=cp), DIMENSION (3)     :: sigma        ! elastic cross for different inicdent polarisation directions
        real(kind=cp)                    :: nc, my, mz, rnmy, rnmz, inmy, inmz, tc, mmc, A !the different contribution to cross-section
-       COMPLEX, DIMENSION (3)           :: MiV_PF       !MiV in polarisation frame
+       complex(kind=cp), DIMENSION (3)  :: MiV_PF       !MiV in polarisation frame
 
 
        A = tpi**3/Cell%CellVol
@@ -1450,8 +1450,8 @@
     !!----      type (Crystal_Cell_Type),    intent(in)     :: Cell
     !!----      REAL(kind=cp), DIMENSION (3),intent(in)     :: H
     !!----      Real(kind=cp), dimension(3), intent(in)     :: SPV
-    !!----      Real(kind=cp), intent(in)                   :: Pin
-    !!----      Complex,                     intent(in)     :: NSF
+    !!----      Real(kind=cp),               intent(in)     :: Pin
+    !!----      complex(kind=cp),            intent(in)     :: NSF
     !!----      type(Magnetic_Domain_type),  intent(in)     :: Mag_Dom
     !!----      type(MagHD_Type),            intent(in out) :: Mh
     !!----      type(Polar_calc_type),       intent(out)    :: Polari
@@ -1467,21 +1467,21 @@
       Real(kind=cp), dimension (3),intent(in)    :: H
       Real(kind=cp), dimension(3), intent(in)    :: SPV
       Real(kind=cp),               intent(in)    :: Pin
-      Complex,                     intent(in)    :: NSF
+      complex(kind=cp),            intent(in)    :: NSF
       Type(Magnetic_Domain_type),  intent(in)    :: Mag_Dom
       Type(MagHD_Type),            intent(in out):: Mh
       Type(Polar_calc_type),       intent(out)   :: Polari
 
     !!---- Local variables ----!
-      integer                         :: nd,ich,nch,i,j
-      Complex, dimension(2,2)         :: ScatAmp
-      Complex, dimension(2,2)         :: Spin_Px,Spin_Py,Spin_Pz
-      Real(kind=cp)                   :: coef, Pinm, Pf !, A
-      Complex, dimension(3)           :: MiV, MiV_PF  !MiV for one domain and in polarisation frame
-      Complex, dimension(3,3,4)       :: sVs          ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
-      Real(kind=cp), dimension(3,3,4) :: CrSec
-      Real(kind=cp), dimension(3,3)   :: Ipp,Ipm,Imp,Imm
-      real(kind=cp), parameter        :: eps=0.00001_cp
+      integer                           :: nd,ich,nch,i,j
+      complex(kind=cp), dimension(2,2)  :: ScatAmp
+      complex(kind=cp), dimension(2,2)  :: Spin_Px,Spin_Py,Spin_Pz
+      Real(kind=cp)                     :: coef, Pinm, Pf !, A
+      complex(kind=cp), dimension(3)    :: MiV, MiV_PF  !MiV for one domain and in polarisation frame
+      complex(kind=cp), dimension(3,3,4):: sVs          ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
+      Real(kind=cp), dimension(3,3,4)   :: CrSec
+      Real(kind=cp), dimension(3,3)     :: Ipp,Ipm,Imp,Imm
+      real(kind=cp), parameter          :: eps=0.00001_cp
 
        ! Shortcut for TASP as two benders have same efficiency
        Pf=Pin
@@ -1623,7 +1623,7 @@
     !!----  Real(kind=cp), dimension (3), intent(in)    :: H
     !!----  Real(kind=cp), dimension(3),  intent(in)    :: SPV
     !!----  Real(kind=cp),                intent(in)    :: Pin
-    !!----  Complex,                      intent(in)    :: NSF
+    !!----  complex(kind=cp),             intent(in)    :: NSF
     !!----  Type(Magnetic_Domain_type),   intent(in)    :: Mag_Dom
     !!----  Type(MagHD_Type),             intent(in out):: Mh
     !!----  Real(kind=cp), dimension(3,3),intent(out)   :: Ipp,Ipm,Imp,Imm
@@ -1638,19 +1638,19 @@
       Real(Kind=Cp), dimension (3), intent(in)     :: H
       Real(kind=cp), dimension(3),  intent(in)     :: SPV
       Real(kind=cp),                intent(in)     :: Pin
-      Complex,                      intent(in)     :: NSF
+      complex(kind=cp),             intent(in)     :: NSF
       Type(Magnetic_Domain_type),   intent(in)     :: Mag_Dom
       Type(MagHD_Type),             intent(in out) :: Mh
       Real(kind=cp), dimension(3,3),intent(out)    :: Ipp,Ipm,Imp,Imm
 
     !!---- Local variables ----!
-      integer                        :: nd,ich,nch,i,j
-      Complex, dimension(2,2)        :: ScatAmp
-      Complex, dimension(2,2)        :: Spin_Px,Spin_Py,Spin_Pz
-      Real(kind=cp)                  :: coef, Pinm, Pf !, A
-      Complex, dimension(3)          :: MiV, MiV_PF   !MiV for one domain and in polarisation frame
-      Complex, dimension(3,3,4)      :: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
-      Real(kind=cp), dimension(3,3,4):: CrSec
+      integer                           :: nd,ich,nch,i,j
+      complex(kind=cp), dimension(2,2)  :: ScatAmp
+      complex(kind=cp), dimension(2,2)  :: Spin_Px,Spin_Py,Spin_Pz
+      Real(kind=cp)                     :: coef, Pinm, Pf !, A
+      complex(kind=cp), dimension(3)    :: MiV, MiV_PF   !MiV for one domain and in polarisation frame
+      complex(kind=cp), dimension(3,3,4):: sVs ! 1dim in x,y,z 2dim out x,y,z 3dim sign 1++ 2+- 3-+ 4--
+      Real(kind=cp), dimension(3,3,4)   :: CrSec
 
       ! shortcut for TASP as two benders have same efficiency
       Pf=Pin

@@ -885,7 +885,7 @@
        integer,      intent(out) :: Max_Coor
 
        !---- local variables ----!
-       real, parameter :: r_atom=0.4 !Radius of a typical atom
+       real(kind=cp), parameter :: r_atom=0.4_cp !Radius of a typical atom
 
        if (allocated(Coord_Info%Coord_Num)) deallocate(Coord_Info%Coord_Num)
        if (allocated(Coord_Info%N_Cooatm))  deallocate(Coord_Info%N_Cooatm)
@@ -1817,9 +1817,9 @@
 
     !!----
     !!----  Subroutine Get_Anglen_Axis_From_RotMat(R,axis,angle)
-    !!----    Real, dimension(3,3), intent(in) :: R             !Input orthogonal matrix
-    !!----    Real, dimension(3),   intent(out):: axis          !Non normalized rotation axis
-    !!----    Real,                 intent(out):: angle         !Angle of rotation
+    !!----    real(kind=cp), dimension(3,3), intent(in) :: R             !Input orthogonal matrix
+    !!----    real(kind=cp), dimension(3),   intent(out):: axis          !Non normalized rotation axis
+    !!----    real(kind=cp),                 intent(out):: angle         !Angle of rotation
     !!----
     !!----  Subroutine to obtain the axis and angle of rotation corresponding to
     !!----  an input orthogonal matrix. A Cartesian frame is assumed
@@ -1909,10 +1909,10 @@
     End Subroutine Get_Euler_From_Fract
 
     !!---- Subroutine Get_Matrix_moving_v_to_u(v,u,R,w,ang)
-    !!----   real, dimension(3),           intent(in)  :: v,u   !Starting and final vectors
-    !!----   real, dimension(3,3),         intent(out) :: R     !Rotation matrix moving v to u:  u=Rv
-    !!----   real, optional,               intent(out) :: ang   !angle between the two vectors
-    !!----   real, optional,dimension(3),  intent(out) :: w     !axis normal to plane of the two vectors
+    !!----   real(kind=cp), dimension(3),           intent(in)  :: v,u   !Starting and final vectors
+    !!----   real(kind=cp), dimension(3,3),         intent(out) :: R     !Rotation matrix moving v to u:  u=Rv
+    !!----   real(kind=cp), optional,               intent(out) :: ang   !angle between the two vectors
+    !!----   real(kind=cp), optional,dimension(3),  intent(out) :: w     !axis normal to plane of the two vectors
     !!----
     !!----   Subroutine to get the orthogonal matrix that rotates a vector v
     !!----   to orient it along the vector u. Makes use of Cross_Product and
@@ -1923,20 +1923,20 @@
     !!----
     !!
     Subroutine Get_Matrix_moving_v_to_u(v,u,R,w,ang)
-      real, dimension(3),           intent(in)  :: v,u
-      real, dimension(3,3),         intent(out) :: R
-      real, optional,               intent(out) :: ang
-      real, optional,dimension(3),  intent(out) :: w
+      real(kind=cp), dimension(3),           intent(in)  :: v,u
+      real(kind=cp), dimension(3,3),         intent(out) :: R
+      real(kind=cp), optional,               intent(out) :: ang
+      real(kind=cp), optional,dimension(3),  intent(out) :: w
       !--- Local variables ---!
       integer                        :: i,iu,iv
-      real, parameter                :: ep=1.0e-5
-      real                           :: mv,mu,mvu,phi,c
+      real(kind=cp), parameter       :: ep=1.0e-5_cp
+      real(kind=cp)                  :: mv,mu,mvu,phi,c
       logical                        :: co_linear
-      real, dimension(3)             :: vu
+      real(kind=cp), dimension(3)    :: vu
       integer, dimension(1)          :: im
-      real, parameter, dimension(3,3):: ident=reshape((/1.0,0.0,0.0, &
-                                                        0.0,1.0,0.0, &
-                                                        0.0,0.0,1.0/),(/3,3/))
+      real(kind=cp), parameter, dimension(3,3):: ident=reshape((/1.0_cp,0.0_cp,0.0_cp, &
+                                                                 0.0_cp,1.0_cp,0.0_cp, &
+                                                                 0.0_cp,0.0_cp,1.0_cp/),(/3,3/))
 
       if(present(ang)) ang=0.0
       if(present(w))   w=0.0

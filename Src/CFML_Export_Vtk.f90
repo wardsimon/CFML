@@ -194,7 +194,7 @@ Module CFML_Export_VTK
     Logical :: i_error
     !real(kind=cp), dimension(3,3) :: ort_mat
     real(kind=cp), dimension(3)   :: xx, v
-    real, dimension(:,:), allocatable :: xtemp
+    real(kind=cp), dimension(:,:), allocatable :: xtemp
 
     open(unit=pdb_id,file=trim(filename)//'.pdb', status='REPLACE',  iostat=ier)
     if (ier/=0) i_error=.true.

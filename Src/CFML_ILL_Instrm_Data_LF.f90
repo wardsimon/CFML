@@ -1011,7 +1011,7 @@ Module CFML_ILL_Instrm_Data
     !!--++    integer,                                   intent(in)  :: N          ! Number of Numors
     !!--++    logical, dimension(:),                     intent(in)  :: ActList    ! Active List to considering if Add
     !!--++    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-    !!--++    real,                            optional, intent(in)  :: VNorm      ! Normalization value
+    !!--++    real(kind=cp),                   optional, intent(in)  :: VNorm      ! Normalization value
     !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
     !!--++
     !!--++ Adding Numors from D1A Instrument and Passing to DiffPattern
@@ -1024,7 +1024,7 @@ Module CFML_ILL_Instrm_Data
         integer,                                   intent(in)  :: N          ! Number of Numors
         logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
         type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-        real, optional,                            intent(in)  :: VNorm      ! Normalization value
+        real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
         type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
         !---- Local Variables ----!
@@ -1034,8 +1034,8 @@ Module CFML_ILL_Instrm_Data
         integer                             :: ndet, npoints
         integer, dimension(:), allocatable  :: ind
 
-        real, dimension(:,:,:), allocatable :: x,y,d2y
-        real                                :: fac,x1,x2,xmin,xmax,step,yfc,cnorm,tim
+        real(kind=cp), dimension(:,:,:), allocatable :: x,y,d2y
+        real(kind=cp)  :: fac,x1,x2,xmin,xmax,step,yfc,cnorm,tim
 
 
         !> Init
@@ -1348,7 +1348,7 @@ Module CFML_ILL_Instrm_Data
     !!--++    integer,                                   intent(in) :: N          ! Number of Numors
     !!--++    logical, dimension(:),                     intent(in) :: ActList    ! Active List to considering if Add
     !!--++    type (Diffraction_Pattern_Type),           intent(out):: Pat        ! Pattern Diffraction
-    !!--++    real,                            optional, intent(in) :: VNorm      ! Normalization value
+    !!--++    real(kind=cp),                   optional, intent(in) :: VNorm      ! Normalization value
     !!--++    integer,                         optional, intent(in) :: Detect     ! Selected Detector
     !!--++    type(calibration_detector_type), optional, intent(in) :: Cal        ! Calibration Information
     !!--++
@@ -1362,7 +1362,7 @@ Module CFML_ILL_Instrm_Data
         integer,                                   intent(in)  :: N          ! Number of Numors
         logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
         type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-        real, optional,                            intent(in)  :: VNorm      ! Normalization value
+        real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
         integer, optional,                         intent(in)  :: Detect     ! Save scan for a particular Detector
         type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
@@ -1374,8 +1374,8 @@ Module CFML_ILL_Instrm_Data
         integer                             :: i,j,k,kk,nn,nc,num
         integer, dimension(:), allocatable  :: ncc,ind
 
-        real, dimension(:,:,:), allocatable :: x,y,xx,yy,d2y
-        real                                :: fac,x1,x2,xmin,xmax,step,yfc, cnorm, tim
+        real(kind=cp), dimension(:,:,:), allocatable :: x,y,xx,yy,d2y
+        real(kind=cp)  :: fac,x1,x2,xmin,xmax,step,yfc, cnorm, tim
 
         !> Init
         call init_err_illdata()
@@ -2281,7 +2281,7 @@ Module CFML_ILL_Instrm_Data
     !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm)
     !!--++    type(powder_numor_type),                   intent(in)  :: N
     !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
-    !!--++    real,  optional,                           intent(in)  :: VNorm
+    !!--++    real(kind=cp),  optional,                  intent(in)  :: VNorm
     !!--++
     !!--++ Pass the information from D1B/D20 Numor to DiffPat object
     !!--++
@@ -2292,7 +2292,7 @@ Module CFML_ILL_Instrm_Data
        !---- Arguments ----!
        type(powder_numor_type),                   intent(in)  :: N
        type(diffraction_pattern_type),            intent(out) :: Pat
-       real,  optional,                           intent(in)  :: VNorm
+       real(kind=cp),  optional,                  intent(in)  :: VNorm
 
        !---- Local Variables ----!
        integer                           :: i
@@ -2346,7 +2346,7 @@ Module CFML_ILL_Instrm_Data
     !!----    integer,                                   intent(in)  :: N          ! Number of Numors
     !!----    logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
     !!----    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-    !!----    real, optional,                            intent(in)  :: VNorm      ! Normalization value
+    !!----    real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
     !!----    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
     !!----
     !!---- Pass the information from Powder_Numor_Type to Diffraction_Pattern_type
@@ -2360,7 +2360,7 @@ Module CFML_ILL_Instrm_Data
        integer,                                   intent(in)  :: N          ! Number of Numors
        logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
        type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
-       real, optional,                            intent(in)  :: VNorm      ! Normalization value
+       real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
        integer, optional ,                        intent(in)  :: Detect     ! Select a particular detector (for D4)
        type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
 
@@ -2798,10 +2798,10 @@ Module CFML_ILL_Instrm_Data
        integer,                        intent(in)  :: n_end
 
        !---- Local Variables ----!
-       character(len=80)      :: line
-       integer                :: i,j,k,nl
-       integer, dimension(10) :: ivet
-       real, dimension(5)     :: vet
+       character(len=80)           :: line
+       integer                     :: i,j,k,nl
+       integer, dimension(10)      :: ivet
+       real(kind=cp), dimension(5) :: vet
 
        ! Init output values
        err_illdata=.false.
@@ -4742,8 +4742,8 @@ Module CFML_ILL_Instrm_Data
 
     !!----
     !!---- Subroutine Set_Default_Instrument(typ,wav)
-    !!----    Character(len=*),   optional, intent(in) :: typ  !"Laue" for a Laue diffractometer
-    !!----    real, dimension(2), optional, intent(in) :: wav  ! Lambda min and Lambda max
+    !!----    Character(len=*),            optional, intent(in) :: typ  !"Laue" for a Laue diffractometer
+    !!----    real(kind=cp), dimension(2), optional, intent(in) :: wav  ! Lambda min and Lambda max
     !!----
     !!----    Construct the Current_Instrument as a default 4C diffractometer
     !!----    (or a Laue diffractometer if Typ and wav are provided)
@@ -4754,8 +4754,8 @@ Module CFML_ILL_Instrm_Data
     !!---- Update: May - 2007
     !!
     Subroutine Set_Default_Instrument(typ,wav)
-       Character(len=*),   optional, intent(in) :: typ
-       real, dimension(2), optional, intent(in) :: wav
+       Character(len=*),            optional, intent(in) :: typ
+       real(kind=cp), dimension(2), optional, intent(in) :: wav
        !---- Local Variables ----!
        real(kind=cp)                 :: wave
        integer                       :: npx, npz
