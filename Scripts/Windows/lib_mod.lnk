@@ -19,6 +19,7 @@ CrysFML
 +CFML_diffpatt&
 +CFML_bonds_table&
 +CFML_symmetry&
++CFML_EoS&
 +CFML_reflct_util&
 +CFML_atom_mod&
 +CFML_sfac&

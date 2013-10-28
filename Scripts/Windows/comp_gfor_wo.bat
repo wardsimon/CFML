@@ -43,6 +43,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
+   gfortran -c CFML_Eos_Mod.f90          -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_reflct_util.f90      -O3  -std=f2003  -funroll-loops  -msse2  >> out
    gfortran -c CFML_atom_mod.f90         -O3  -std=f2003  -funroll-loops  -msse2  >> out
 rem

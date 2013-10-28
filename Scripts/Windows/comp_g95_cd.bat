@@ -41,6 +41,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
+   g95 -c CFML_Eos_Mod.f90          -O0 -ftrace=full  -std=f2003    >> out
    g95 -c CFML_reflct_util.f90      -O0 -ftrace=full  -std=f2003    >> out
    g95 -c CFML_atom_mod.f90         -O0 -ftrace=full  -std=f2003    >> out
 rem

@@ -43,6 +43,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
+   lf95 -c CFML_Eos_Mod.f90          -o1 -nchk   >> out
    lf95 -c CFML_reflct_util.f90      -o1 -nchk   >> out
    lf95 -c CFML_atom_mod.f90         -o1 -nchk   >> out
 rem

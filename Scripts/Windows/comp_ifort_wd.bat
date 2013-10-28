@@ -43,6 +43,7 @@ rem
    echo **---- Level 3 ----**
    echo .... Reflections, Atoms
 rem
+   ifort /c CFML_Eos_Mod.f90          /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_reflct_util.f90      /debug:full /check /traceback /CB /nologo /Qvec-report0
    ifort /c CFML_atom_mod.f90         /debug:full /check /traceback /CB /nologo /Qvec-report0
 rem
