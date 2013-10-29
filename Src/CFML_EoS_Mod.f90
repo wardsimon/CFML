@@ -2542,7 +2542,7 @@ Contains
          if (index(U_case(clin(1:3)),'LIN') > 0) Eospar%linear=.true.
       end if
 
-      Eospar%IModel  =1
+      Eospar%IModel  =0
       Eospar%IOrder  =3
 
       eospar%ParName=' '
