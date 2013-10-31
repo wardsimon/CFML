@@ -1398,19 +1398,31 @@
 
     !!--++
     !!--++ Subroutine Fill_RefCodes_FAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FAtom,Spg)
-    !!--++    integer,                       intent(in)     :: Key
-    !!--++    character(len=*),              intent(in)     :: Dire
-    !!--++    integer,                       intent(in)     :: Na
-    !!--++    integer,                       intent(in)     :: Nb
-    !!--++    real(kind=cp),                 intent(in)     :: Xl
-    !!--++    real(kind=cp),                 intent(in)     :: Xu
-    !!--++    real(kind=cp),                 intent(in)     :: Xs
-    !!--++    integer,                       intent(in)     :: Ic
+    !!--++    integer,                       intent(in)     :: Key  !0=> nb as below,
+    !!--++    character(len=*),              intent(in)     :: Dire !Var of Fix
+    !!--++    integer,                       intent(in)     :: Na   !Number of the atom in the asymmetric unit
+    !!--++    integer,                       intent(in)     :: Nb   !Type of individual parameter x=1,y=2,z=3,biso=4, etc
+    !!--++    real(kind=cp),                 intent(in)     :: Xl   !Lower bound of parameter
+    !!--++    real(kind=cp),                 intent(in)     :: Xu   !Upper bound of parameter
+    !!--++    real(kind=cp),                 intent(in)     :: Xs   !Step of parameter
+    !!--++    integer,                       intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
     !!--++    type(Atom_List_Type),          intent(in out) :: FAtom
     !!--++    type(space_group_type),        intent(in)     :: Spg
     !!--++
     !!--++ Overloaded
     !!--++ Write on Vectors the Information for Free Atoms
+    !!--++  Key=0 -> Provide information on individual parameter for atom na (nb should be given)
+    !!--++  Key=1  XYZ -> fix or vary all coordinates of atom na
+    !!--++  Key=2  OCC -> fix or vary occupation factor of atom na
+    !!--++  Key=3  BIS -> fix or vary isotropic temperature factor of atom na
+    !!--++  Key=4  BAN -> fix or vary anisotropic temperature factors of atom na
+    !!--++  Key=5  ALL -> fix or vary all parameters of atom na
+    !!--++
+    !!--++  nb=1:3   X_ Y_ Z_
+    !!--++  nb=4     Biso_
+    !!--++  nb=5     Occ_
+    !!--++  nb=6:11  B11_  B22_  B33_  B12_  B13_  B23_
+    !!--++  nb=12    Bns_ (all Bij ...)
     !!--++
     !!--++ Update: March - 2005
     !!
@@ -1428,7 +1440,7 @@
        type(space_group_type),        intent(in)     :: Spg
 
        !---- Local variables ----!
-       integer           :: j,nc
+       integer           :: j,nc,np_ini
 
        call init_err_refcodes()
        if (Na <= 0) then
@@ -1479,7 +1491,7 @@
                          end if
 
                       case (12)
-                         !---- Banis_ ----!
+                         !---- Banis_ or Bns_ ----!
                          do j=1,6
                             if (FAtom%atom(na)%lu(j) /=0) then
                                nc=FAtom%atom(na)%lu(j)
@@ -1637,12 +1649,16 @@
 
                       case (12)
                          !---- Banis_ ----!
+                         np_ini=np_refi
+                         FAtom%atom(na)%mu(:)=1.0
+                         call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
+                                              np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
+                         !write(*,"(a,2i4,3x,6i4)")"BANIS: np_ini,np_refi,LU",np_ini,np_refi,FAtom%atom(na)%lu
+                         np_refi=np_ini
                          do j=1,6
-                            if (FAtom%atom(na)%lu(j) ==0) then
-                               FAtom%atom(na)%mu(j)=1.0
-                               call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
-                                                    np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
-                               if (FAtom%atom(na)%lu(j) == np_refi) then
+                            if (FAtom%atom(na)%lu(j) > np_refi) then
+                               np_refi=np_refi+1
+                               FAtom%atom(na)%lu(j)=np_refi
                                   V_Vec(np_refi)=FAtom%atom(na)%u(j)
                                   V_Name(np_refi)=trim(code_nam(5+j))//trim(FAtom%atom(na)%lab)
                                   V_Bounds(1,np_refi)=xl
@@ -1650,9 +1666,6 @@
                                   V_Bounds(3,np_refi)=xs
                                   V_BCon(np_refi)=ic
                                   V_list(np_refi)=na
-                               else
-                                  np_refi=np_refi-1
-                               end if
                             end if
                          end do
 
@@ -1716,12 +1729,15 @@
 
                 case (4)
                    !---- BAN ----!
+                   np_ini=np_refi
+                   FAtom%atom(na)%mu(:)=1.0
+                   call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
+                                        np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
+                   np_refi=np_ini
                    do j=1,6
-                      if (FAtom%atom(na)%lu(j) ==0) then
-                         FAtom%atom(na)%mu(j)=1.0
-                         call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
-                                              np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
-                         if (FAtom%atom(na)%lu(j) == np_refi) then
+                      if (FAtom%atom(na)%lu(j) > np_refi) then
+                         np_refi=np_refi+1
+                         FAtom%atom(na)%lu(j)=np_refi
                             V_Vec(np_refi)=FAtom%atom(na)%u(j)
                             V_Name(np_refi)=trim(code_nam(5+j))//trim(FAtom%atom(na)%lab)
                             V_Bounds(1,np_refi)=xl
@@ -1729,9 +1745,6 @@
                             V_Bounds(3,np_refi)=xs
                             V_BCon(np_refi)=ic
                             V_list(np_refi)=na
-                         else
-                            np_refi=np_refi-1
-                         end if
                       end if
                    end do
 
@@ -1758,7 +1771,7 @@
                    if (FAtom%atom(na)%locc ==0) then
                       np_refi=np_refi+1
                       V_Vec(np_refi)=FAtom%atom(na)%occ
-                      V_Name(np_refi)=trim(mcode_nam(5))//trim(FAtom%atom(na)%lab)
+                      V_Name(np_refi)=trim(code_nam(5))//trim(FAtom%atom(na)%lab)
                       FAtom%atom(na)%mocc=1.0
                       FAtom%atom(na)%locc=np_refi
                       V_Bounds(1,np_refi)=xl
@@ -1770,7 +1783,7 @@
                    if (FAtom%atom(na)%lbiso ==0) then
                       np_refi=np_refi+1
                       V_Vec(np_refi)=FAtom%atom(na)%biso
-                      V_Name(np_refi)=trim(mcode_nam(4))//trim(FAtom%atom(na)%lab)
+                      V_Name(np_refi)=trim(code_nam(4))//trim(FAtom%atom(na)%lab)
                       FAtom%atom(na)%mbiso=1.0
                       FAtom%atom(na)%lbiso=np_refi
                       V_Bounds(1,np_refi)=xl
@@ -1779,24 +1792,25 @@
                       V_BCon(np_refi)=ic
                       V_list(np_refi)=na
                    end if
+                   np_ini=np_refi
+                   FAtom%atom(na)%mu(:)=1.0
+                   call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
+                                        np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
+                   np_refi=np_ini
                    do j=1,6
-                      if (FAtom%atom(na)%lu(j) ==0) then
-                         FAtom%atom(na)%mu(j)=1.0
-                         call get_atombet_ctr(FAtom%atom(na)%x,FAtom%atom(na)%u,Spg, &
-                                              np_refi,FAtom%atom(na)%lu,FAtom%atom(na)%mu)
-                         if (FAtom%atom(na)%lu(j) == np_refi) then
+                      if (FAtom%atom(na)%lu(j) > np_refi) then
+                         np_refi=np_refi+1
+                         FAtom%atom(na)%lu(j)=np_refi
                             V_Vec(np_refi)=FAtom%atom(na)%u(j)
-                            V_Name(np_refi)=trim(mcode_nam(5+j))//trim(FAtom%atom(na)%lab)
+                            V_Name(np_refi)=trim(code_nam(5+j))//trim(FAtom%atom(na)%lab)
                             V_Bounds(1,np_refi)=xl
                             V_Bounds(2,np_refi)=xu
                             V_Bounds(3,np_refi)=xs
                             V_BCon(np_refi)=ic
                             V_list(np_refi)=na
-                         else
-                            np_refi=np_refi-1
-                         end if
                       end if
                    end do
+
 
                 case(6:)
                    err_refcodes=.true.
@@ -8646,7 +8660,7 @@
                                       "========================================================="
           do i=1,FAtom%natoms
              do j=1,3
-                if (FAtom%atom(i)%lx(j) /= 0) then
+                if (FAtom%atom(i)%lx(j) > 0) then
                    na=FAtom%atom(i)%lx(j)
                    mu=FAtom%atom(i)%mx(j)
                    car=trim(code_nam(j))//trim(FAtom%atom(i)%lab)
@@ -8655,7 +8669,7 @@
                 end if
              end do
 
-             if (FAtom%atom(i)%locc /=0) then
+             if (FAtom%atom(i)%locc > 0) then
                 na=FAtom%atom(i)%locc
                 mu=FAtom%atom(i)%mocc
                 car=trim(code_nam(5))//trim(FAtom%atom(i)%lab)
@@ -8663,7 +8677,7 @@
                      trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
              end if
 
-             if (FAtom%atom(i)%lbiso /=0) then
+             if (FAtom%atom(i)%lbiso > 0) then
                 na=FAtom%atom(i)%lbiso
                 mu=FAtom%atom(i)%mbiso
                 car=trim(code_nam(4))//trim(FAtom%atom(i)%lab)
@@ -8672,7 +8686,7 @@
              end if
 
              do j=1,6
-                if (FAtom%atom(i)%lu(j) /=0) then
+                if (FAtom%atom(i)%lu(j) > 0) then
                    na=FAtom%atom(i)%lu(j)
                    mu=FAtom%atom(i)%mu(j)
                    car=trim(code_nam(5+j))//trim(FAtom%atom(i)%lab)

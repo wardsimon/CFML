@@ -166,7 +166,7 @@
 !!--..         Interface  FDerivatives
 !!--..           Subroutine Model_Functn(m, n, x, fvec, fjac, iflag)       !Model Function subroutine
 !!--..             Use CFML_GlobalDeps, Only: cp
-!!--..             Integer,                       Intent(In)    :: m, n    !Number of obserations and free parameters
+!!--..             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
 !!--..             Real (Kind=cp),Dimension(:),   Intent(In)    :: x       !Array with the values of free parameters: x(1:n)
 !!--..             Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec    !Array of residuals fvec=(y-yc)/sig : fvec(1:m)
 !!--..             Real (Kind=cp),Dimension(:,:), Intent(Out)   :: fjac    !Jacobian Dfvec/Dx(i,j) = [ dfvec(i)/dx(j) ] : fjac(1:m,1:n)
