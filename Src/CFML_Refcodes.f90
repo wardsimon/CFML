@@ -40,16 +40,16 @@
 !!----   indicating that it may be refined in an optimization procedure with an associated
 !!----   multiplier. In this module we associate a name to the particular parameter and we
 !!----   add the parameter value, the code, the multiplier, the name, the range, step and
-!!----   boundary conditions to general arrays of this module called V_vec,V_name,V_list,
-!!----   V_bounds and V_shift. The code of each derived type points to a particular element
-!!----   of the V-arrays. The last refined parameter corresponds to the global variable
+!!----   boundary conditions to general arrays of this module called V_vec, V_vec_std, V_name,
+!!----   V_list, V_bounds and V_shift. The code of each derived type points to a particular
+!!----   element of the V-arrays. The last refined parameter corresponds to the global variable
 !!----   NP_refi that is updated each time a VARY or GVARY directive is processed.
 !!----   There are procedures for deleting refined parameters by processing FIX or GFIX
 !!----   instruction in the input CFL file.
 !!----   For non-atomic parameters there are no specific derived types in CrysFML. In this
 !!----   module we provide a simple derived type called "NonAtomic_Parameter_Type" containing
-!!----   a real value, an integer code, a multiplier and a name. We provide also a derived
-!!----   type "NonAtomic_Parameter_List_Type" containing an allocatable array of objects without
+!!----   two real values, an integer code, a multiplier and a name. We provide also a derived
+!!----   type "NonAtomic_Parameter_List_Type" containing an allocatable array of objects with
 !!----   "NonAtomic_Parameter_Type", "par" and an integer "npar" with the effective number
 !!----   of allocated elements. It is responsibility of the user of this module to allocate
 !!----   an fill up an object of derived type "NonAtomic_Parameter_List_Type", before use of
@@ -8260,7 +8260,7 @@
 
           select case (l_case(line(1:5)))
 
-             !---- Main Directive: FIX ----!
+             !---- Main Directive: GFIX ----!
              case ("gfix ")
                 call cutst(line,nlong)
                 call split_operations(line,nop_in_line,dire)
