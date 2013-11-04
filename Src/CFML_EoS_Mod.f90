@@ -1904,7 +1904,8 @@ Contains
             if (eospar%iorder > 2)then
                da= k0*ev(4)/(1.0_cp +ev(3)+k0*ev(4))**2.0_cp      ! da/dKp
                db= 1.0_cp/k0 + ev(4)/(1.0_cp+ev(3))**2.0_cp       ! db/dKp
-               dc= 1.0_cp/(ev(3)*ev(3) + ev(3) -k0*ev(4)) - ((1.0_cp)+ev(3)+k0*ev(4))*(2.0_cp*ev(3) +1.0_cp)/(ev(3)*ev(3) + ev(3) -k0*ev(4))**2.0_cp
+               dc= 1.0_cp/(ev(3)*ev(3) + ev(3) -k0*ev(4)) - ((1.0_cp)+ev(3)+ &
+                   k0*ev(4))*(2.0_cp*ev(3) +1.0_cp)/(ev(3)*ev(3) + ev(3) -k0*ev(4))**2.0_cp
 
                vterm = (vv0/abc(1) + 1.0_cp - 1.0_cp/abc(1))**(-1.0_cp/abc(3))
                term1=-1.0_cp/abc(2)/abc(2) * db * vterm
@@ -2484,7 +2485,7 @@ Contains
 
          case(4)
             eospar%tmodel     = 'Kroll'
-            eospar%parname(10:11) = (/'alph0','Th_E'/)
+            eospar%parname(10:11) = (/'alph0','Th_E '/)
             eospar%comment(10) = 'Constant of thermal expansion at Tref x10^5 K^-1'
             eospar%comment(11) = 'Einstein temperature in K'
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
@@ -2495,7 +2496,7 @@ Contains
 
          case(5)
             eospar%tmodel     = 'Salje low-T'
-            eospar%parname(10:11) = (/'p1','T_sat'/)
+            eospar%parname(10:11) = (/'p1   ','T_sat'/)
             eospar%comment(10) = 'Approx 3x highT thermal expansion x10^5 K^-1'
             eospar%comment(11) = 'Saturation temperature in K'
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
@@ -2506,7 +2507,7 @@ Contains
 
          case(6)
             eospar%tmodel     = 'HP Thermal Pressure'
-            eospar%parname(10:11) = (/'alph0','Th_E'/)
+            eospar%parname(10:11) = (/'alph0','Th_E '/)
             eospar%comment(10) = 'Constant of thermal expansion at Tref x10^5 K^-1'
             eospar%comment(11) = 'Einstein temperature in K'
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
@@ -3041,7 +3042,7 @@ Contains
       !eospar%ParName=' '
       !eospar%comment=' '
       if (.not. eospar%linear) then
-         eospar%ParName(1:5) =(/'V0','K0','Kp','Kpp','dK/dT'/)
+         eospar%ParName(1:5) =(/'V0   ','K0   ','Kp   ','Kpp  ','dK/dT'/)
 
          eospar%comment(1) = 'Zero pressure volume: units as volume data'
          eospar%comment(2) = 'Bulk modulus: same units as pressure data'
@@ -3049,7 +3050,7 @@ Contains
          eospar%comment(4) = 'd2K/dP2 inverse pressure units'
          eospar%comment(5) = 'dK/dT: units are P units/K'
       else
-         eospar%ParName(1:5) =(/'a0','M0','Mp','Mpp','dM/dT'/)
+         eospar%ParName(1:5) =(/'a0   ','M0   ','Mp   ','Mpp  ','dM/dT'/)
 
          eospar%comment(1) = 'Zero pressure length: units as cell parameters'
          eospar%comment(2) = 'Linear modulus: same units as pressure data'

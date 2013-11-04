@@ -291,24 +291,30 @@
     !!----                           ===================
     !!----    integer                                 :: nvk           ! Number of propagation vectors (excluding -k)
     !!----    integer,      dimension(12)             :: imat          ! Number of the magnetic matrices/irrep set to be applied
-
     !!----    real(kind=cp),dimension(3,12)           :: SkR           ! Real part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: SkR_std       ! Standard deviations of the Real part of Fourier Coefficient
     !!----    real(kind=cp),dimension(3,12)           :: Spher_SkR     ! Real part of Fourier Coefficient in spherical components
+    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkR_std ! Standard deviations of Real part of Fourier Coefficient in spherical components
     !!----    real(kind=cp),dimension(3,12)           :: mSkR          ! Multipliers for the real part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lskr          ! Numbers in the list of LSQ parameters
     !!----    real(kind=cp),dimension(3,12)           :: SkI           ! Imaginary part of Fourier Coefficient
+    !!----    real(kind=cp),dimension(3,12)           :: SkI_std       ! Standard deviations of Imaginary part of Fourier Coefficient
     !!----    real(kind=cp),dimension(3,12)           :: Spher_SkI     ! Imaginary part of Fourier Coefficient in spherical components
+    !!----    real(kind=cp),dimension(3,12)           :: Spher_SkI_std ! Standard deviations of Imaginary part of Fourier Coefficient in spherical components
     !!----    real(kind=cp),dimension(3,12)           :: mSki          ! Multipliers for the imaginary part of Fourier coefficients
     !!----    integer,      dimension(3,12)           :: lski          ! Numbers in the list of LSQ parameters
     !!----    real(kind=cp),dimension(12)             :: mphas         ! Magnetic Phase in fractions of 2pi
+    !!----    real(kind=cp),dimension(12)             :: mphas_std     ! Standard deviations of Magnetic Phase in fractions of 2pi
     !!----    real(kind=cp),dimension(12)             :: mmphas        ! Multiplier for the magnetic phase
     !!----    integer,dimension(12)                   :: lmphas        ! Number in the list of LSQ parameters
     !!----    real(kind=cp),dimension(12,12)          :: cbas          ! Coefficients of the basis functions of irreps, the second index is 1:nvk
+    !!----    real(kind=cp),dimension(12,12)          :: cbas_std      ! Standard deviations of Coefficients of the basis functions of irreps, the second index is 1:nvk
     !!----    real(kind=cp),dimension(12,12)          :: mbas          ! multiplier for the coefficients of the basis functions of irreps
     !!----    integer,dimension(12,12)                :: lbas          ! Numbers in the list of LSQ parameters
     !!---- End Type mAtom_Type
     !!----
-    !!---- Update:April - 2005
+    !!---- Updated: April - 2005
+    !!---- Updated: November 3, 2013 (include standar deviations of magnetic parameters,JRC)
     !!
     Type, public :: mAtom_Type
        character(len=10)                        :: Lab
@@ -347,20 +353,26 @@
        integer,      dimension(12)             :: imat
 
        real(kind=cp),dimension(3,12)           :: SkR
+       real(kind=cp),dimension(3,12)           :: SkR_std
        real(kind=cp),dimension(3,12)           :: Spher_SkR
+       real(kind=cp),dimension(3,12)           :: Spher_SkR_std
        real(kind=cp),dimension(3,12)           :: mSkR
        integer,      dimension(3,12)           :: lskr
 
        real(kind=cp),dimension(3,12)           :: SkI
+       real(kind=cp),dimension(3,12)           :: SkI_std
        real(kind=cp),dimension(3,12)           :: Spher_SkI
+       real(kind=cp),dimension(3,12)           :: Spher_SkI_std
        real(kind=cp),dimension(3,12)           :: mSki
        integer,      dimension(3,12)           :: lski
 
        real(kind=cp),dimension(12)             :: mphas
+       real(kind=cp),dimension(12)             :: mphas_std
        real(kind=cp),dimension(12)             :: mmphas
        integer,dimension(12)                   :: lmphas
 
        real(kind=cp),dimension(12,12)          :: cbas
+       real(kind=cp),dimension(12,12)          :: cbas_std
        real(kind=cp),dimension(12,12)          :: mbas
        integer,dimension(12,12)                :: lbas
 
@@ -941,7 +953,7 @@
     !!----
     !!----    Initialize mAtom_Type
     !!----
-    !!---- Update: April - 2005
+    !!---- Updated: November 3 - 2013
     !!
     Subroutine Init_mAtom_Type(A)
        !---- Arguments ----!
@@ -951,49 +963,24 @@
        A%ChemSymb =" "
        A%SfacSymb =" "
        A%Active   =.true.
-       A%Z        =0
-       A%Mult     =1
-       A%X        =0.0
-       A%X_Std    =0.0
-       A%MX       =0.0
-       A%LX       =0
-       A%Occ      =0.0
-       A%Occ_Std  =0.0
-       A%MOcc     =0.0
-       A%LOcc     =0
-       A%Biso     =0.0
-       A%Biso_std =0.0
-       A%MBiso    =0.0
-       A%LBiso    =0
+       A%Z =0; A%Mult=1
+       A%X=0.0; A%X_Std=0.0; A%MX=0.0; A%LX=0
+       A%Occ=0.0; A%Occ_Std=0.0; A%MOcc=0.0; A%LOcc=0
+       A%Biso=0.0; A%Biso_std=0.0; A%MBiso=0.0; A%LBiso=0
        A%Utype    ="none"
        A%ThType   ="isotr"
-       A%U        =0.0
-       A%U_std    =0.0
-       A%Ueq      =0.0
-       A%MU       =0.0
-       A%LU       =0
-       A%Charge   =0.0
-       A%Moment   =0.0
-       A%Ind      =0
-       A%NVar     =0
-       A%VarF     =0.0
+       A%U=0.0; A%U_std=0.0; A%Ueq=0.0; A%MU=0.0; A%LU=0
+       A%Charge=0.0; A%Moment=0.0
+       A%Ind=0
+       A%NVar=0; A%VarF=0.0
        A%AtmInfo  =" "
-       A%nvk      =0
-       A%imat     =0
-       A%SkR      =0.0
-       A%Spher_SkR=0.0
-       A%mSkR     =0.0
-       A%lSkR     =0
-       A%SkI      =0.0
-       A%Spher_SkI=0.0
-       A%mSkI     =0.0
-       A%lSkI     =0
-       A%mphas    =0.0
-       A%mmphas   =0.0
-       A%lmphas   =0
-       A%cbas     =0.0
-       A%mbas     =0.0
-       A%lbas     =0
+       !Magnetic parameters
+       A%nvk =0
+       A%imat=0
+       A%SkR=0.0; A%SkR_std=0.0; A%Spher_SkR=0.0; A%Spher_SkR_std=0.0; A%mSkR=0.0; A%lSkR=0
+       A%SkI=0.0; A%SkI_std=0.0; A%Spher_SkI=0.0; A%Spher_SkI_std=0.0; A%mSkI=0.0; A%lSkI=0
+       A%mphas=0.0; A%mphas_std=0.0; A%mmphas=0.0; A%lmphas=0
+       A%cbas=0.0; A%cbas_std=0.0; A%mbas=0.0; A%lbas=0
 
        return
     End Subroutine Init_mAtom_Type

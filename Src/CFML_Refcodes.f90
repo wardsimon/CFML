@@ -34,11 +34,36 @@
 !!----
 !!---- MODULE: CFML_Keywords_Code_Parser
 !!----   INFO: Refinable Codes for Parameters
+!!----   The procedures gathered in this module have as purpose the control of refinable
+!!----   parameters in optimization techniques (least squares, simulated annealing, etc).
+!!----   Many derived types in CrysFML have as component the code of a particular parameter
+!!----   indicating that it may be refined in an optimization procedure with an associated
+!!----   multiplier. In this module we associate a name to the particular parameter and we
+!!----   add the parameter value, the code, the multiplier, the name, the range, step and
+!!----   boundary conditions to general arrays of this module called V_vec,V_name,V_list,
+!!----   V_bounds and V_shift. The code of each derived type points to a particular element
+!!----   of the V-arrays. The last refined parameter corresponds to the global variable
+!!----   NP_refi that is updated each time a VARY or GVARY directive is processed.
+!!----   There are procedures for deleting refined parameters by processing FIX or GFIX
+!!----   instruction in the input CFL file.
+!!----   For non-atomic parameters there are no specific derived types in CrysFML. In this
+!!----   module we provide a simple derived type called "NonAtomic_Parameter_Type" containing
+!!----   a real value, an integer code, a multiplier and a name. We provide also a derived
+!!----   type "NonAtomic_Parameter_List_Type" containing an allocatable array of objects without
+!!----   "NonAtomic_Parameter_Type", "par" and an integer "npar" with the effective number
+!!----   of allocated elements. It is responsibility of the user of this module to allocate
+!!----   an fill up an object of derived type "NonAtomic_Parameter_List_Type", before use of
+!!----   the procedures of the present module. A call to Allocate_VParam with the maximum number
+!!----   of expected refinable parameters is needed before the interpretation of VARY/GVARY (or
+!!----   FIX/GFIX) instructions if the input CFL file(s)
+!!----
 !!----
 !!---- HISTORY
 !!----    Update: 07/03/2011
 !!----    Modifications: 12/2011
 !!----    Modifications: 02/2012
+!!----    Modifications: 10/2013 (Introduction of non-atomic parameters, correction of bugs,
+!!----                            and merging of some procedures, JRC)
 !!----
 !!----
 !!---- DEPENDENCIES
@@ -48,6 +73,8 @@
 !!--..    Types
 !!----    ANGLE_RESTRAINT_TYPE
 !!----    DISTANCE_RESTRAINT_TYPE
+!!----    NONATOMIC_PARAMETER_TYPE
+!!----    NONATOMIC_PARAMETER_LIST_TYPE
 !!----    TORSION_RESTRAINT_TYPE
 !!--..
 !!----    ANG_REST
@@ -74,6 +101,7 @@
 !!----    V_LIST
 !!----    V_NAME
 !!----    V_VEC
+!!----    V_VEC_STD                    !NEW 11/13 (JRC)
 !!----    V_SHIFT
 !!----
 !!---- PUBLIC PROCEDURES
@@ -82,6 +110,7 @@
 !!----    Subroutines:
 !!----       ALLOCATE_RESTPARAM
 !!----       ALLOCATE_VPARAM
+!!----       DELETE_ELEMENT_IN_VARRAYS   [Private]    !NEW 11/13
 !!--++       DELETE_REFCODES             [Private]
 !!--++       DELETE_REFCODES_FATOM       [Overloaded]
 !!--++       DELETE_REFCODES_FmATOM      [Overloaded] !NEW 12/11
@@ -94,6 +123,7 @@
 !!--++       FILL_REFCODES_MOLCRYS       [Overloaded]
 !!--++       FILL_REFCODES_MOLEC         [Overloaded]
 !!--++       FILL_REFCODES_MAGDOM                     !NEW 02/12
+!!--++       FILL_REFGCODES              [Private]    !NEW 11/13
 !!--++       GET_ATOMBET_CTR             [Private]
 !!--++       GET_ATOMPOS_CTR             [Private]
 !!--++       GET_CONCODES_LINE           [Private]
@@ -108,22 +138,19 @@
 !!--++       GET_REFCODES_LINE_MOLCRYS   [Overloaded]
 !!--++       GET_REFCODES_LINE_MOLEC     [Overloaded]
 !!--++       GET_REFCODES_LINE_MAGDOM                 !NEW 02/12
+!!--++       GET_REFGCODES_LINE          [Private]    !NEW 11/13
 !!----       GET_RESTANG_LINE
 !!----       GET_RESTDIS_LINE
 !!----       GET_RESTTOR_LINE
 !!----       INIT_ERR_REFCODES
-!!----       INIT_REFCODES
-!!--++       INIT_REFCODES_FATOM         [Overloaded]
-!!--++       INIT_REFCODES_FmATOM        [Overloaded] !NEW 12/11
-!!--++       INIT_REFCODES_MOLCRYS       [Overloaded]
-!!--++       INIT_REFCODES_MOLEC         [Overloaded]
-!!--++       INIT_REFCODES_MAGDOM                     !NEW 02/12
+!!----       INIT_REFCODES                            !NEW 11/13 (merged with optional arguments, JRC)
 !!----       READ_REFCODES_FILE
 !!--++       READ_REFCODES_FILE_FATOM    [Overloaded]
 !!--++       READ_REFCODES_FILE_FmATOM   [Overloaded] !NEW 12/11 !replaced 02/12
 !!--++       READ_REFCODES_FILE_MagStr                !NEW 02/12
 !!--++       READ_REFCODES_FILE_MOLCRYS  [Overloaded]
 !!--++       READ_REFCODES_FILE_MOLEC    [Overloaded]
+!!----       READ_REFGCODES_FILE                      !NEW 11/13 (JRC, non atomic parameters)
 !!--++       SPLIT_OPERATIONS            [Private]
 !!--++       SPLIT_mOPERATIONS           [Private]    !NEW 12/11
 !!----       VSTATE_TO_ATOMSPAR
@@ -131,12 +158,14 @@
 !!--++       VSTATE_TO_ATOMSPAR_FmATOM   [Overloaded] !NEW 12/11 !modified 02/12 to include MagDom
 !!--++       VSTATE_TO_ATOMSPAR_MOLCRYS  [Overloaded]
 !!--++       VSTATE_TO_ATOMSPAR_MOLEC    [Overloaded]
+!!----       VSTATE_TO_MODELPAR                       !NEW 11/13
 !!----       WRITE_INFO_REFCODES
 !!--++       WRITE_INFO_REFCODES_FATOM   [Overloaded]
 !!--++       WRITE_INFO_REFCODES_FmATOM  [Overloaded] !NEW 12/11 !replaced 02/12
 !!--++       WRITE_INFO_REFCODES_Magstr               !NEW 02/12
 !!--++       WRITE_INFO_REFCODES_MOLCRYS [Overloaded]
 !!--++       WRITE_INFO_REFCODES_MOLEC   [Overloaded]
+!!----       WRITE_INFO_REFGCODES                     !NEW 11/13
 !!----       WRITE_INFO_REFPARAMS
 !!----       WRITE_RESTRAINTS_OBSCALC
 !!----
@@ -165,7 +194,8 @@
     public :: Allocate_VParam, Init_RefCodes, Read_RefCodes_File, VState_to_AtomsPar,  &
               Write_Info_RefCodes, Get_RestAng_Line, Get_RestDis_Line, Get_RestTor_Line, &
               Allocate_RestParam, Write_Restraints_ObsCalc, Init_Err_RefCodes, &
-              Write_Info_RefParams
+              Write_Info_RefParams, Read_RefGCodes_File, Write_Info_RefGCodes, &
+              VState_to_ModelPar
 
     !---- List of private functions ----!
 
@@ -173,18 +203,16 @@
     private :: Delete_RefCodes,   &
                Delete_RefCodes_FAtom, Delete_RefCodes_FmAtom, Delete_RefCodes_Molcrys,          &
                Delete_RefCodes_Molec, Delete_RefCodes_Magdom, &
-               Fill_RefCodes,     &
+               Fill_RefCodes,Fill_RefGCodes,     &
                Fill_RefCodes_FAtom, Fill_RefCodes_FmAtom, Fill_RefCodes_Molcrys,                &
                Fill_RefCodes_Molec, Fill_RefCodes_Magdom,  &
                Get_AtomBet_Ctr, Get_Atompos_Ctr,                                                &
                Get_ConCodes_Line, &
                Get_ConCodes_Line_FAtom, Get_ConCodes_Line_FmAtom, Get_ConCodes_Line_Molcrys,    &
                Get_ConCodes_Line_Molec, Get_ConCodes_Line_Magdom, &
-               Get_RefCodes_Line, &
+               Get_RefCodes_Line,Get_RefGCodes_Line, &
                Get_RefCodes_Line_FAtom, Get_RefCodes_Line_FmAtom, Get_RefCodes_Line_Molcrys,    &
                Get_RefCodes_Line_Molec, Get_RefCodes_Line_Magdom, &
-               Init_RefCodes_FAtom, Init_RefCodes_FmAtom, Init_RefCodes_Molcrys,                &
-               Init_RefCodes_Molec, Init_RefCodes_Magdom, &
                Read_RefCodes_File_FAtom, Read_RefCodes_File_MagStr, Read_RefCodes_File_Molcrys, &
                Read_RefCodes_File_Molec, &
                Split_Operations, Split_mOperations, &
@@ -236,6 +264,46 @@
       integer,dimension(2) :: P
       character(len=8)     :: STCode
     End Type Distance_Restraint_Type
+
+    !!----
+    !!---- TYPE :: NONATOMIC_PARAMETER_TYPE
+    !!--..
+    !!---- Type, public :: Nonatomic_Parameter_Type
+    !!----    real(kind=cp)        :: Value
+    !!----    real(kind=cp)        :: Sigma
+    !!----    integer              :: Lcode
+    !!----    real(kind=cp)        :: multip
+    !!----    character(len=20)    :: Nam
+    !!---- End Type Nonatomic_Parameter_Type
+    !!----
+    !!---- Update: November 1 - 2013
+    !!
+    Type, public :: Nonatomic_Parameter_Type
+       real(kind=cp)        :: Value
+       real(kind=cp)        :: Sigma
+       integer              :: Lcode
+       real(kind=cp)        :: multip
+       character(len=20)    :: Nam
+    End Type Nonatomic_Parameter_Type
+
+    !!----
+    !!---- TYPE :: NONATOMIC_PARAMETER_LIST_TYPE
+    !!--..
+    !!---- Type, public :: Nonatomic_Parameter_List_Type
+    !!----    Integer                                                       :: npar
+    !!----    Type(Nonatomic_Parameter_Type),dimension(:),allocatable :: par
+    !!---- End Type Nonatomic_Parameter_List_Type
+    !!----
+    !!---- The user of this derived type must allocate an fill a type of this kind for his(her) own
+    !!---- his(her) own problem. An object of this type is needed to fill the V_vec and
+    !!---- accompanying arrays.
+    !!----
+    !!---- Update: November 1 - 2013
+    !!
+    Type, public :: Nonatomic_Parameter_List_Type
+       Integer                                                 :: npar
+       Type(Nonatomic_Parameter_Type),dimension(:),allocatable :: par
+    End Type Nonatomic_Parameter_List_Type
 
     !!----
     !!---- TYPE :: TORSION_RESTRAINT_TYPE
@@ -294,6 +362,54 @@
                                                                          "Xc_   ","Yc_   ","Zc_   ",       &
                                                                          "Theta_","Phi_  ","Chi_  ",       &
                                                                          "Th_L_ ","Th_T_ ","Th_S_ "/)
+    !!--++
+    !!--++ NCODE
+    !!--++    integer, private :: NGCode
+    !!--++
+    !!--++    Number of Codes for non atomic variables
+    !!--++
+    !!--++ Update: November - 2013
+    !!
+    integer, private, parameter :: NGCode=85
+
+    !!----
+    !!---- GCODE_NAM
+    !!----    character(len=*), dimension(NGCode), public, parameter :: GCode_Nam
+    !!----
+    !!----    Variable for treatement of GCodes
+    !!--..
+    !!----
+    !!---- Update: November - 2013
+    !!
+    character(len=*), dimension(NGCode), public, parameter :: &
+                      GCode_Nam=(/"Scalef ","a      ","b      ", &
+                                  "c      ","alpha  ","beta   ", &
+                                  "gamma  ","cell   ","Up     ","Vp     ", &
+                                  "Wp     ","Xp     ","Yp     ", &
+                                  "Size   ","Gsize  ","Strain ", &
+                                  "LStrain","Qbroad ","Qdamp  ", &
+                                  "delta1 ","delta2 ","Lratio ", &
+                                  "Sratio ","Zero   ","Diff1  ", &
+                                  "Diff2  ","eta    ","sig_2  ", &
+                                  "sig1   ","sig0   ","gamm2  ", &
+                                  "gamm1  ","gamm0  ","alph0  ", &
+                                  "alph1  ","beta0  ","beta1  ", &
+                                  "kappa  ","Bover  ","Abs1   ", &
+                                  "Abs2   ","Extinct","BCExt1 ", &
+                                  "BCExt2 ","Ext11  ","Ext22  ", &
+                                  "Ext33  ","Ext12  ","Ext13  ", &
+                                  "Ext23  ","S400   ","S040   ", &
+                                  "S004   ","S220   ","S202   ", &
+                                  "S022   ","S211   ","S121   ", &
+                                  "S112   ","S310   ","S301   ", &
+                                  "S130   ","S103   ","S013   ", &
+                                  "S031   ","Sizh2  ","Sizk2  ", &
+                                  "Sizl2  ","Siz2hk ","Siz2hl ", &
+                                  "Siz2kl ","kx     ","ky     ", &
+                                  "kz     ","bkg    ","bkg_   ", &
+                                  "kx_    ","ky_    ","kz_    ", &
+                                  "Sc_    ","sycos  ","sysin  ", &
+                                  "Dom_   ","sycos_ ","sysin_ "/)
     integer, private, parameter :: mNCode=25
 
     !!----
@@ -343,6 +459,7 @@
     !!---- Update: March - 2005
     !!
     character(len=150), public :: ERR_RefCodes_Mess = " "
+
 
     !!--++
     !!--++ NKEY
@@ -490,11 +607,21 @@
     !!---- V_VEC
     !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec
     !!----
-    !!----    Vector of  Parameters
+    !!----    Vector of Parameters
     !!----
     !!---- Update: March - 2005
     !!
+
     real(kind=cp), public, dimension(:),    allocatable :: V_Vec
+    !!----
+    !!---- V_VEC_std
+    !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec_std
+    !!----
+    !!----    Standard deviations of the parameters
+    !!----
+    !!---- Update: November - 2013 (JRC)
+    !!
+    real(kind=cp), public, dimension(:),    allocatable :: V_Vec_std
 
     !!----
     !!---- V_SHIFT
@@ -537,14 +664,6 @@
        Module Procedure Get_RefCodes_Line_Molcrys
        Module Procedure Get_RefCodes_Line_Molec
        Module Procedure Get_RefCodes_Line_Magdom
-    End Interface
-
-    Interface Init_RefCodes
-       Module Procedure Init_RefCodes_FAtom
-       Module Procedure Init_RefCodes_FmAtom
-       Module Procedure Init_RefCodes_Molcrys
-       Module Procedure Init_RefCodes_Molec
-       Module Procedure Init_RefCodes_Magdom
     End Interface
 
     Interface Read_RefCodes_File
@@ -672,6 +791,7 @@
        integer, intent(in) :: N
 
        if (allocated(V_Vec))    deallocate(V_Vec)
+       if (allocated(V_Vec_Std))deallocate(V_Vec_Std)
        if (allocated(V_Name))   deallocate(V_Name)
        if (allocated(V_Bounds)) deallocate(V_Bounds)
        if (allocated(V_BCon))   deallocate(V_BCon)
@@ -681,6 +801,8 @@
        if (N > 0) then
           allocate(V_Vec(n))
           V_Vec=0.0
+          allocate(V_Vec_Std(n))
+          V_Vec_Std=0.0
           allocate(V_Name(n))
           V_Name=" "
           allocate(V_Bounds(3,n))
@@ -794,22 +916,7 @@
        end do
 
        !---- Updating V_Vectors ----!
-       if (deleted) then
-          do i=N+1,Np_refi
-             V_Vec(i-1)=V_Vec(i)
-             V_Name(i-1)=V_Name(i)
-             V_Bounds(:,i-1)=V_Bounds(:,i)
-             V_BCon(i-1)=V_BCon(i)
-             V_List(i-1)=V_List(i)
-          end do
-          V_Vec(np_refi)=0.0
-          V_Name(np_refi)=" "
-          V_Bounds(:,np_refi)=0.0
-          V_BCon(np_refi)=0
-          V_List(np_refi)=0
-
-          np_refi=np_refi-1
-       end if
+       if (deleted) call Delete_element_in_Varrays(N)
 
        return
     End Subroutine Delete_RefCodes_FAtom
@@ -910,22 +1017,7 @@
        end do
 
        !---- Updating V_Vectors ----!
-       if (deleted) then
-          do i=N+1,Np_refi
-             V_Vec(i-1)=V_Vec(i)
-             V_Name(i-1)=V_Name(i)
-             V_Bounds(:,i-1)=V_Bounds(:,i)
-             V_BCon(i-1)=V_BCon(i)
-             V_List(i-1)=V_List(i)
-          end do
-          V_Vec(np_refi)=0.0
-          V_Name(np_refi)=" "
-          V_Bounds(:,np_refi)=0.0
-          V_BCon(np_refi)=0
-          V_List(np_refi)=0
-
-          np_refi=np_refi-1
-       end if
+       if (deleted) call Delete_element_in_Varrays(N)
 
        return
     End Subroutine Delete_RefCodes_FmAtom
@@ -1127,22 +1219,7 @@
        end if
 
        !---- Updating V_Vectors ----!
-       if (deleted) then
-          do i=N+1,Np_refi
-             V_Vec(i-1)=V_Vec(i)
-             V_Name(i-1)=V_Name(i)
-             V_Bounds(:,i-1)=V_Bounds(:,i)
-             V_BCon(i-1)=V_BCon(i)
-             V_List(i-1)=V_List(i)
-          end do
-          V_Vec(np_refi)=0.0
-          V_Name(np_refi)=" "
-          V_Bounds(:,np_refi)=0.0
-          V_BCon(np_refi)=0
-          V_List(np_refi)=0
-
-          np_refi=np_refi-1
-       end if
+       if (deleted) call Delete_element_in_Varrays(N)
 
        return
     End Subroutine Delete_RefCodes_MolCrys
@@ -1285,22 +1362,7 @@
        end do
 
        !---- Updating V_Vectors ----!
-       if (deleted) then
-          do i=N+1,Np_refi
-             V_Vec(i-1)=V_Vec(i)
-             V_Name(i-1)=V_Name(i)
-             V_Bounds(:,i-1)=V_Bounds(:,i)
-             V_BCon(i-1)=V_BCon(i)
-             V_List(i-1)=V_List(i)
-          end do
-          V_Vec(np_refi)=0.0
-          V_Name(np_refi)=" "
-          V_Bounds(:,np_refi)=0.0
-          V_BCon(np_refi)=0
-          V_List(np_refi)=0
-
-          np_refi=np_refi-1
-       end if
+       if (deleted) call Delete_element_in_Varrays(N)
 
        return
     End Subroutine Delete_RefCodes_Molec
@@ -1353,26 +1415,71 @@
         end do
 
        !---- Updating V_Vectors ----!
-       if (deleted) then
-          do i=N+1,Np_refi
-             V_Vec(i-1)=V_Vec(i)
-             V_Name(i-1)=V_Name(i)
-             V_Bounds(:,i-1)=V_Bounds(:,i)
-             V_BCon(i-1)=V_BCon(i)
-             V_List(i-1)=V_List(i)
-          end do
-          V_Vec(np_refi)=0.0
-          V_Name(np_refi)=" "
-          V_Bounds(:,np_refi)=0.0
-          V_BCon(np_refi)=0
-          V_List(np_refi)=0
-
-          np_refi=np_refi-1
-       end if
+       if (deleted) call Delete_element_in_Varrays(N)
 
        return
     End Subroutine Delete_RefCodes_Magdom
 
+    !!----
+    !!---- Subroutine Delete_RefGCodes(N, model)
+    !!----   integer,                             intent(in)     :: N
+    !!----   type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----
+    !!---- Delete the number of Refinable Parameter (N) on the list of
+    !!---- non atomic parameters
+    !!----
+    !!---- Update: November 2 - 2013
+    !!
+    Subroutine Delete_RefGCodes(N, model)
+       !---- Arguments ----!
+       integer,                             intent(in)     :: N
+       type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+
+       !---- Local Variables ----!
+       logical :: deleted
+       integer :: i,j
+
+       deleted=.false.
+
+       !---- Eliminate N Parameter ----!
+       do i=1,model%npar
+          if (model%par(i)%Lcode == N) then
+              model%par(i)%Lcode=0
+              model%par(i)%multip=0.0
+              deleted=.true.
+          end if
+       end do
+
+       !---- Updating Variables ----!
+       do i=1,model%npar
+          if (model%par(i)%Lcode > N) then
+              model%par(i)%Lcode=model%par(i)%Lcode-1
+          end if
+       end do
+
+       !---- Updating V_Vectors ----!
+       if (deleted) call Delete_element_in_Varrays(N)
+       return
+    End Subroutine Delete_RefGCodes
+
+    Subroutine Delete_element_in_Varrays(N)
+       integer, intent(in) :: N
+       integer             :: i
+       do i=N+1,Np_refi
+          V_Vec(i-1)=V_Vec(i)
+          V_Name(i-1)=V_Name(i)
+          V_Bounds(:,i-1)=V_Bounds(:,i)
+          V_BCon(i-1)=V_BCon(i)
+          V_List(i-1)=V_List(i)
+       end do
+       V_Vec(np_refi)=0.0
+       V_Name(np_refi)=" "
+       V_Bounds(:,np_refi)=0.0
+       V_BCon(np_refi)=0
+       V_List(np_refi)=0
+       np_refi=np_refi-1
+       return
+    End Subroutine Delete_element_in_Varrays
     !!--++
     !!--++ Subroutine Fill_RefCodes(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FAtom/MolCrys/Molec,Spg)
     !!--++    integer,                       intent(in)     :: Key
@@ -1454,7 +1561,7 @@
           case ("fix")
 
              select case (key)
-                case (0)
+                case (0) !Key=0 -> Provide information on individual parameter for atom na (nb should be given)
                    !---- nb must be different zero ----!
                    select case (nb)
                       case (0)
@@ -1462,35 +1569,35 @@
                          ERR_RefCodes_Mess="Option not defined"
                          return
 
-                      case ( 1:3)
+                      case ( 1:3) ! key=0, nb=1 to 3. Fix particular coordinate x(nb) for atom na
                          !---- X_, Y_, Z_ ----!
                          if (FAtom%atom(na)%lx(nb) /=0) then
                             nc=FAtom%atom(na)%lx(nb)
                             call Delete_RefCodes(nc,FAtom)
                          end if
 
-                      case ( 4)
+                      case ( 4) ! key=0, nb=4. Fix Biso for atom na
                          !---- Biso_ ----!
                          if (FAtom%atom(na)%lbiso /=0) then
                             nc=FAtom%atom(na)%lbiso
                             call Delete_RefCodes(nc,fatom)
                          end if
 
-                      case ( 5)
+                      case ( 5) ! key=0, nb=5. Fix Occ for atom na
                          !---- Occ_ ----!
                          if (FAtom%atom(na)%locc /=0) then
                             nc=FAtom%atom(na)%locc
                             call Delete_RefCodes(nc,fatom)
                          end if
 
-                      case ( 6:11)
+                      case ( 6:11) ! key=0, nb=6 to 11. Fix particula Baniso(nb) for atom na
                          !---- B11_,...,B23_ ----!
                          if (FAtom%atom(na)%lu(nb-5) /=0) then
                             nc=FAtom%atom(na)%lu(nb-5)
                             call Delete_RefCodes(nc,fatom)
                          end if
 
-                      case (12)
+                      case (12) ! key=0, nb=12. Fix all B for atom na
                          !---- Banis_ or Bns_ ----!
                          do j=1,6
                             if (FAtom%atom(na)%lu(j) /=0) then
@@ -1505,7 +1612,7 @@
                          return
                    end select ! nb
 
-                case (1)
+                case (1) ! Key=1  XYZ -> Fix all coordinates of atom na
                    !---- XYZ ----!
                    do j=1,3
                       if (FAtom%atom(na)%lx(j) /=0) then
@@ -1514,21 +1621,21 @@
                       end if
                    end do
 
-                case (2)
+                case (2) !  Key=2  OCC -> Fix occupation factor of atom na
                    !---- OCC ----!
                    if (FAtom%atom(na)%locc /=0) then
                       nc=FAtom%atom(na)%locc
                       call Delete_RefCodes(nc,fatom)
                    end if
 
-                case (3)
+                case (3) !  Key=3  BIS -> Fix isotropic temperature factor of atom na
                    !---- BIS ----!
                    if (FAtom%atom(na)%lbiso /=0) then
                       nc=FAtom%atom(na)%lbiso
                       call Delete_RefCodes(nc,fatom)
                    end if
 
-                case (4)
+                case (4) !  Key=4  BAN -> Fix anisotropic temperature factors of atom na
                   !---- BAN ----!
                   do j=1,6
                      if (FAtom%atom(na)%lu(j) /=0) then
@@ -1537,7 +1644,7 @@
                      end if
                   end do
 
-                case (5)
+                case (5) !  Key=5  ALL -> Fix all parameters of atom na
                    !---- ALL ----!
                    do j=1,3
                       if (FAtom%atom(na)%lx(j) /=0) then
@@ -1579,7 +1686,7 @@
                          ERR_RefCodes_Mess="Option not defined"
                          return
 
-                      case ( 1:3)
+                      case ( 1:3) ! key=0, nb=1 to 3. Vary particular coordinate x(nb) for atom na
                          !---- X_, Y_, Z_ ----!
                          if (FAtom%atom(na)%lx(nb) ==0) then
                             FAtom%atom(na)%mx(nb)=1.0
@@ -1598,7 +1705,7 @@
                             end if
                          end if
 
-                      case ( 4)
+                      case ( 4) ! key=0, nb=4. Vary Biso for atom na
                          !---- Biso_ ----!
                          if (FAtom%atom(na)%lbiso ==0) then
                             np_refi=np_refi+1
@@ -1613,7 +1720,7 @@
                             V_list(np_refi)=na
                          end if
 
-                      case ( 5)
+                      case ( 5)  ! key=0, nb=5. Vary Occ for atom na
                          !---- Occ_ ----!
                          if (FAtom%atom(na)%locc ==0) then
                             np_refi=np_refi+1
@@ -1628,7 +1735,7 @@
                             V_list(np_refi)=na
                          end if
 
-                      case ( 6:11)
+                      case ( 6:11) ! key=0, nb=6 to 11. Vary particular Baniso(nb) for atom na
                          !---- B11_,...,B23_ ----!
                          if (FAtom%atom(na)%lu(nb-5) ==0) then
                             FAtom%atom(na)%mu(nb-5)=1.0
@@ -1647,7 +1754,7 @@
                             end if
                          end if
 
-                      case (12)
+                      case (12)  ! key=0, nb=12. Vary all Baniso for atom na
                          !---- Banis_ ----!
                          np_ini=np_refi
                          FAtom%atom(na)%mu(:)=1.0
@@ -1676,7 +1783,7 @@
 
                    end select ! nb
 
-                case (1)
+                case (1)  ! Key=1  XYZ -> Vary all coordinates of atom na
                    !---- XYZ ----!
                    do j=1,3
                       if (FAtom%atom(na)%lx(j) ==0) then
@@ -1697,7 +1804,7 @@
                       end if
                    end do
 
-                case (2)
+                case (2) !  Key=2  OCC -> Vary occupation factor of atom na
                    !---- OCC ----!
                    if (FAtom%atom(na)%locc ==0) then
                       np_refi=np_refi+1
@@ -1712,7 +1819,7 @@
                       V_list(np_refi)=na
                    end if
 
-                case (3)
+                case (3) !  Key=3  BIS -> Vary isotropic temperature factor of atom na
                    !---- BIS ----!
                    if (FAtom%atom(na)%lbiso ==0) then
                       np_refi=np_refi+1
@@ -1727,7 +1834,7 @@
                       V_list(np_refi)=na
                    end if
 
-                case (4)
+                case (4) !  Key=4  BAN -> Vary all anisotropic temperature factors of atom na
                    !---- BAN ----!
                    np_ini=np_refi
                    FAtom%atom(na)%mu(:)=1.0
@@ -1748,7 +1855,7 @@
                       end if
                    end do
 
-                case (5)
+                case (5) !  Key=5  ALL -> Vary all parameters of atom na
                    !---- ALL ----!
                    do j=1,3
                       if (FAtom%atom(na)%lx(j) ==0) then
@@ -1877,7 +1984,7 @@
                          ERR_RefCodes_Mess="Option not defined"
                          return
 
-                      case ( 1:3)
+                      case ( 1:3) ! key=0, nb=1 to 3, particular coordinate x(nb) for atom na
                          !---- Rx_, Ry_, Rz_ ----!
                          if (FmAtom%atom(na)%lSkR(nb,ik) /=0) then
                             nc=FmAtom%atom(na)%lSkR(nb,ik)
@@ -2282,7 +2389,7 @@
                             end do
                          end if
 
-                      case ( 4)
+                      case ( 4) ! key=0, nb=4 Biso for atom na
                          !---- Biso_ ----!
                          if (na <= molcrys%n_free) then
                             if (molcrys%atm(na)%lbiso /=0) then
@@ -4006,6 +4113,293 @@
 
        return
     End Subroutine Fill_RefCodes_Magdom
+
+    !!----
+    !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model)
+    !!----    integer,                             intent(in)     :: Key  !0=> nb as below,
+    !!----    character(len=*),                    intent(in)     :: Dire !Var of Fix
+    !!----    character(len=*),                    intent(in)     :: namp !Name of the parameter to be refined or fixed
+    !!----    real(kind=cp),                       intent(in)     :: Xl   !Lower bound of parameter
+    !!----    real(kind=cp),                       intent(in)     :: Xu   !Upper bound of parameter
+    !!----    real(kind=cp),                       intent(in)     :: Xs   !Step of parameter
+    !!----    integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
+    !!----    type(NonAtomic_Parameter_List_Type), intent(in out) :: model
+    !!----
+    !!---- Write on Vectors the Information for Non atomic parameters
+    !!----  Key=0 -> Provide information on individual parameter for atom na (nb should be given)
+    !!----  Key=1  BKG -> fix or vary all background parameters
+    !!----  Key=2  CELL -> fix or vary cell parameters
+    !!----  Key=3  UVW -> fix or vary u,v,w parameters
+    !!----  Key=4  ASIZE -> fix or vary size parameters
+    !!----  Key=5  ASTRAIN -> fix or vary strain parameters
+    !!----  Key=6  EXTINCT -> fix or vary extinction parameters
+    !!----  Key=7  SCALEFS -> fix or vary scale factors
+    !!----  Key=9  ALL -> fix or vary all parameters
+    !!----
+    !!----
+    !!---- Updated: November 3 - 2013
+    !!
+    Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model)
+       integer,                             intent(in)     :: Key  !0=> nb as below,
+       character(len=*),                    intent(in)     :: Dire !Var of Fix
+       character(len=*),                    intent(in)     :: Namp !Name of the parameter to be refined or fixed
+       real(kind=cp),                       intent(in)     :: Xl   !Lower bound of parameter
+       real(kind=cp),                       intent(in)     :: Xu   !Upper bound of parameter
+       real(kind=cp),                       intent(in)     :: Xs   !Step of parameter
+       integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
+       type(NonAtomic_Parameter_List_Type), intent(in out) :: model
+
+       !---- Local variables ----!
+       integer                  :: i,j,nc,np_ini
+       character(len=len(namp)) :: name_par
+
+       call init_err_refcodes()
+       if (len_trim(namp) == 0) then
+          err_refcodes=.true.
+          ERR_RefCodes_Mess="No name for a parameter to be refined"
+          return
+       end if
+
+       select case (trim(dire))
+          !---- GFIX Directive ----!
+          case ("gfix")
+
+             select case (key)
+                case (0) !Key=0 -> Provide information on individual parameter for type of parameter na (nb should be given)
+
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par /= namp) cycle
+                      if ( model%par(i)%lcode /= 0) then
+                         nc=model%par(i)%lcode
+                         call Delete_RefGCodes(nc,model)
+                      end if
+                      exit
+                   end do
+
+                case (1) ! Key=1  BKG -> Fix all background parameters
+                   !---- BKG ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) /= "bkg") cycle
+                      if ( model%par(i)%lcode /= 0) then
+                         nc=model%par(i)%lcode
+                         call Delete_RefGCodes(nc,model)
+                      end if
+                      exit
+                   end do
+
+                case (2) !  Key=2  CELL -> Fix all cell parameters
+                   !---- CELL ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
+                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                           trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
+                           trim(name_par) == "cell_alpha" .or. trim(name_par) == "cell_beta" .or. trim(name_par) == "cell_gamma" .or. &
+                           trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (3) !  Key=3  UVW -> Fix U,V,W parameters
+                   !---- UVW ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( trim(name_par) == "up" .or. trim(name_par) == "vp" .or. trim(name_par) == "wp" ) then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (4) !  Key=4  ASIZE -> Fix all size parameters
+                  !---- ASIZE ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "siz" .or. name_par(1:4) == "gsiz") then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (5) !  Key=5  ASTRAIN -> Fix all strain parameters
+                   !---- ASTRAIN ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "str" .or. name_par(1:4) == "lstr") then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (6)  !  Key=6  EXTINCT -> Fix all extinction parameters
+                   !---- EXTINCT ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "ext" .or. name_par(1:5) == "bcext") then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (7)  !  Key=7  SCALEFS -> Fix all scale factors
+
+                    !---- SCALEFS ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:2) == "sc" .or. name_par(1:5) == "scale") then
+                         if ( model%par(i)%lcode /= 0) then
+                            nc=model%par(i)%lcode
+                            call Delete_RefGCodes(nc,model)
+                         end if
+                      end if
+                   end do
+
+                case (8)  !  Key=8  ALL -> Fix all non atomic parameters
+                    !---- ALL ----!
+                   do i=1,model%npar
+                      if ( model%par(i)%lcode /= 0) then
+                         nc=model%par(i)%lcode
+                         call Delete_RefGCodes(nc,model)
+                      end if
+                   end do
+
+                case (9:)
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Incompatible information for this Non-atomic parameter "//trim(Namp)
+                   return
+
+             end select
+
+          !---- GVARY Directive ----!
+          case ("gvar")
+
+             select case (key)
+                case (0) !Key=0 -> Provide information on individual model parameter
+                         !Vary a single model parameter
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par /= namp) cycle
+                      if ( model%par(i)%lcode == 0) then
+                         call update_vect(i)
+                         exit
+                      end if
+                   end do
+
+                case (1) ! Key=1  BKG -> Vary all background parameters
+
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) /= "bkg") cycle
+                      if ( model%par(i)%lcode == 0) call update_vect(i)
+                   end do
+
+                case (2) !  Key=2  CELL -> Vary all cell parameters
+                   !---- CELL ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
+                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                           trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
+                           trim(name_par) == "cell_alpha" .or. trim(name_par) == "cell_beta" .or. trim(name_par) == "cell_gamma" .or. &
+                           trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                           if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (3) !  Key=3  UVW -> Vary U,V,W parameters
+                   !---- UVW ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( trim(name_par) == "up" .or. trim(name_par) == "vp" .or. trim(name_par) == "wp" ) then
+                         if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (4) !  Key=4  ASIZE -> Vary all size parameters
+                  !---- ASIZE ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "siz" .or. name_par(1:4) == "gsiz") then
+                         if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (5) !  Key=5  ASTRAIN -> Vary all strain parameters
+                   !---- ASTRAIN ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "str" .or. name_par(1:4) == "lstr") then
+                         if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (6)  !  Key=6  EXTINCT -> Vary all extinction parameters
+                   !---- EXTINCT ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:3) == "ext") then
+                         if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (7)  !  Key=7  SCALEFS -> Vary all scale factors
+                   !---- SCALEFS ----!
+                   do i=1,model%npar
+                      name_par=l_case(model%par(i)%nam)
+                      if ( name_par(1:2) == "sc" .or. name_par(1:5) == "scale") then
+                         if ( model%par(i)%lcode == 0) call update_vect(i)
+                      end if
+                   end do
+
+                case (8)  !  Key=8  ALL -> Vary all non atomic parameters
+                  !---- ALL ----!
+                   do i=1,model%npar
+                      if ( model%par(i)%lcode == 0) call update_vect(i)
+                   end do
+
+
+                case (9:)
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Incompatible information for this Non-atomic parameter "//trim(Namp)
+                   return
+             end select
+
+       end select
+
+       return
+
+       contains
+
+         Subroutine update_vect(n)  !Internal subroutine to avoid copying the same text
+           integer, intent(in):: n  !every time we need to do the same thing!
+           np_refi=np_refi+1        !Here V_Vec_std should not be updated
+           model%par(n)%lcode=np_refi
+           V_Vec(np_refi)=model%par(n)%value
+           V_Name(np_refi)=model%par(n)%nam
+           V_Bounds(1,np_refi)=xl
+           V_Bounds(2,np_refi)=xu
+           V_Bounds(3,np_refi)=xs
+           V_BCon(np_refi)=ic
+           V_list(np_refi)=n
+           return
+         End Subroutine update_vect
+
+    End Subroutine Fill_RefGCodes
+
 
     !!--++
     !!--++  Subroutine Get_Atombet_Ctr(X,Betas,Spgr,Codini,Icodes,Multip,Ord,Ss,Ipr)
@@ -6590,6 +6984,172 @@
     End Subroutine Get_RefCodes_Line_Magdom
 
     !!----
+    !!---- Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model)
+    !!----    integer,                             intent(in)     :: Key
+    !!----    character(len=*),                    intent(in)     :: Dire
+    !!----    character(len=*),                    intent(in)     :: Line
+    !!----    character(len=*),                    intent(in)     :: namp !name of the parameter to be fixed or refined
+    !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----
+    !!---- Get Refinement Codes for non-atomic parameters in the current line
+    !!----
+    !!---- Update: November 1 - 2013
+    !!
+    Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model)
+       integer,                             intent(in)     :: Key
+       character(len=*),                    intent(in)     :: Dire
+       character(len=*),                    intent(in)     :: Line
+       character(len=*),                    intent(in)     :: namp
+       type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+
+       !---- Local Variables ----!
+       character(len=20), dimension(30) :: label
+       character(len=20)                :: new_label
+       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic !,k,nc
+       integer                          :: icond,iv,n_ini,n_end
+       integer, dimension(5)            :: ivet
+       integer, dimension(30)           :: ilabel
+       real(kind=cp)                    :: x_low,x_up,x_step
+       real(kind=cp),dimension(5)       :: vet
+
+       call init_err_refcodes()
+       nlong=len_trim(line)
+
+       if (nlong ==0) then  !In this case key cannot be zero and namp does not contain numbers
+          !---- Default Values ----!
+          call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model)
+
+       else
+          !---- VARY/FIX Line: [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
+          ilabel=0
+          call getword(line,label,ic)
+          do i=1,ic
+             call getnum(label(i),vet,ivet,iv)
+             if (iv == 1) ilabel(i)=1
+          end do
+          ndir=count(ilabel(1:ic) < 1)  !Counts the number of zeroes
+                                        !This means the number of keywords
+
+          if (ndir <= 0) then  !label(i) contain only numbers (no more keywords!)
+             !--- [INF,[SUP,[STEP,[COND]]]] ----! It corresponds to a generic key/=0 keyword plus
+             call getnum(line,vet,ivet,iv)
+             select case (iv)
+                case (1)
+                   x_low=vet(1)
+                    x_up=vet(1)
+                  x_step=0.0
+                   icond=0
+
+                case (2)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=0.0
+                   icond=0
+
+                case (3)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=vet(3)
+                   icond=0
+
+                case (4)
+                   x_low=vet(1)
+                    x_up=vet(2)
+                  x_step=vet(3)
+                   icond=ivet(4)
+
+                case default
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Maximum of 4 numbers in "//trim(namp)
+                   return
+             end select
+
+             call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model)
+             if (err_refcodes) return
+
+          else  !Now there are more keywords and eventually numbers
+             !---- [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
+             ! If Ilabel(i) == 0 then is a label otherwise is a number
+             n_ini=minloc(ilabel,dim=1)
+             ilabel(n_ini)=2
+             n_end=minloc(ilabel,dim=1)-1
+
+             do n=1,ndir  !This runs over the number of directives
+                nb=0
+                !---- Default values ----!
+                x_low =0.0
+                x_up  =0.0
+                x_step=0.0
+                icond =0
+
+                !---- Label ----!
+                npos=index(label(n_ini),"_")
+                if (npos > 0) then
+                   do j=1,ngcode
+                      if (u_case(label(n_ini)(1:npos))==u_case(trim(GCode_Nam(j)))) then
+                         nb=j
+                         exit
+                      end if
+                   end do
+                   if (nb == 0) then
+                      err_refcodes=.true.
+                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
+                      return
+                   end if
+                end if
+
+                do j=1,model%npar
+                   if (u_case(model%Par(j)%nam(1:6)) == u_case(label(n_ini)(npos+1:npos+6))) then
+                      na=j
+                      exit
+                   end if
+                end do
+                if (na == 0) then
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess=" NonAtomic label not found for "//trim(line)
+                   return
+                else
+                   new_label=model%Par(na)%nam
+                end if
+
+                !---- Valu List: Inf,Sup,Step,Cond ----!
+                i=0
+                do j=n_ini+1,n_end
+                   i=i+1
+                   call getnum(label(j),vet,ivet,iv)
+                   select case (i)
+                      case (1)
+                         x_low=vet(1)
+                         x_up =vet(1)
+
+                      case (2)
+                         x_up =vet(1)
+
+                      case (3)
+                         x_step =vet(1)
+
+                      case (4)
+                         icond = ivet(1)
+                   end select
+                end do
+
+                call fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model)
+                if (err_refcodes) return
+
+                n_ini=minloc(ilabel,dim=1)
+                ilabel(n_ini)=2
+                n_end=minloc(ilabel,dim=1)-1
+
+             end do
+          end if
+
+       end if
+
+       return
+    End Subroutine Get_RefGCodes_Line
+
+
+    !!----
     !!---- Subroutine Get_RestAng_Line(Line, FAtom)
     !!----    character(len=*),        intent(in)     :: Line
     !!----    type(Atom_List_Type),    intent(in out) :: FAtom
@@ -6962,263 +7522,170 @@
     End Subroutine Init_Err_RefCodes
 
     !!----
-    !!---- Subroutine Init_RefCodes(FAtom/MolCrys/Molec/MagDom)
-    !!----    type(Atom_List_Type),         intent(in out) :: FAtom    ! Free Atom Object
-    !!----    or
-    !!----    type(mAtom_List_Type),        intent(in out) :: FmAtom    ! Free mAtom Object
-    !!----    or
-    !!----    type(molecular_Crystal_type), intent(in out) :: MolCrys  ! Molecular Crystal Object
-    !!----    or
-    !!----    type(molecule_type),          intent(in out) :: Molec    ! Molecule Object
+    !!---- Subroutine Init_RefCodes(FAtom,FmAtom,Mag_dom,MolCrys,Molec,Model)
+    !!----    type(Atom_List_Type),               optional,intent(in out) :: FAtom   ! Free Atom Object
+    !!----    type(mAtom_List_Type),              optional,intent(in out) :: FmAtom  ! Magnetic Atom Object
+    !!----    type(Magnetic_Domain_type),         optional,intent(in out) :: Mag_dom ! Magnetic domain object
+    !!----    type(Molecular_Crystal_Type),       optional,intent(in out) :: MolCrys ! Molecular Crystal Object
+    !!----    type(Molecule_Type),                optional,intent(in out) :: Molec   ! Molecule Object
+    !!----    type(Nonatomic_Parameter_List_Type),optional,intent(in out) :: Model   !Non atomic parameter object
     !!----
-    !!----    type(Magnetic_Domain_type),   intent(in out) :: Mag_Dom    ! Free MagDom Object
-    !!----    or
-    !!----    Initialize all refinement codes
     !!----
-    !!---- Update: March - 2005
+    !!---- Initialize all refinement codes. This subroutine has been merged with individual ones
+    !!---- into a single subroutine with optional arguments. It seems more simple because the
+    !!---- global set of parameters is nullified and initialized.
+    !!----
+    !!---- Update: November 2 - 2012
     !!
-
-    !!--++
-    !!--++ Subroutine Init_RefCodes_FAtom(FAtom)
-    !!--++    type(Atom_List_Type), intent(in out) :: FAtom  ! Free Atom Object
-    !!--++
-    !!--++ Overloaded
-    !!--++ Initialize all refinement codes
-    !!--++
-    !!--++ Update: March - 2005
-    !!
-    Subroutine Init_RefCodes_FAtom(FAtom)
+    Subroutine Init_RefCodes(FAtom,FmAtom,Mag_dom,MolCrys,Molec,Model)
        !---- Arguments ----!
-       type(Atom_List_Type), intent(in out)  :: FAtom
+       type(Atom_List_Type),               optional,intent(in out) :: FAtom   ! Free Atom Object
+       type(mAtom_List_Type),              optional,intent(in out) :: FmAtom  ! Magnetic Atom Object
+       type(Magnetic_Domain_type),         optional,intent(in out) :: Mag_dom ! Magnetic domain object
+       type(Molecular_Crystal_Type),       optional,intent(in out) :: MolCrys ! Molecular Crystal Object
+       type(Molecule_Type),                optional,intent(in out) :: Molec   ! Molecule Object
+       type(Nonatomic_Parameter_List_Type),optional,intent(in out) :: Model   !Non atomic parameter object
 
        !---- Local variables ----!
        integer :: i
 
-       NP_Refi=0
-       NP_Cons=0
+       !NP_Refi=0  !This has been removed because the initialization of V-arrays
+       !NP_Cons=0  !is done in Allocate_VParam
+       !
+       !V_Vec   =0.0
+       !V_Name=" "
+       !V_Bounds=0.0
+       !V_BCon  =0
 
-       V_Vec   =0.0
-       V_Name=" "
-       V_Bounds=0.0
-       V_BCon  =0
+       if(present(FAtom)) then
+          do i=1,FAtom%Natoms
+             FAtom%atom(i)%mx=0.0
+             FAtom%atom(i)%lx=0
 
-       do i=1,FAtom%Natoms
-          FAtom%atom(i)%mx=0.0
-          FAtom%atom(i)%lx=0
+             FAtom%atom(i)%mbiso=0.0
+             FAtom%atom(i)%lbiso=0
 
-          FAtom%atom(i)%mbiso=0.0
-          FAtom%atom(i)%lbiso=0
+             FAtom%atom(i)%mocc=0.0
+             FAtom%atom(i)%locc=0
 
-          FAtom%atom(i)%mocc=0.0
-          FAtom%atom(i)%locc=0
-
-          FAtom%atom(i)%mu=0.0
-          FAtom%atom(i)%lu=0
-       end do
-
-       return
-    End Subroutine Init_RefCodes_FAtom
-
-    !!--++
-    !!--++ Subroutine Init_RefCodes_FmAtom(FmAtom)
-    !!--++    type(Atom_List_Type), intent(in out) :: FmAtom  ! Free Atom Object
-    !!--++
-    !!--++ Initialize magnetic refinement codes
-    !!--++ magnetic clone of Init_RefCodes_FAtom
-    !!--++ Created: December - 2011
-    !!
-    Subroutine Init_RefCodes_FmAtom(FmAtom)
-       !---- Arguments ----!
-       type(mAtom_List_Type), intent(in out)  :: FmAtom
-
-       !---- Local variables ----!
-       integer :: i
-
-       NP_Refi=0
-       NP_Cons=0
-
-       V_Vec   =0.0
-       V_Name=" "
-       V_Bounds=0.0
-       V_BCon  =0
-
-       do i=1,FmAtom%Natoms
-
-          FmAtom%atom(i)%mSkR=0.0
-          FmAtom%atom(i)%lskr=0
-
-          FmAtom%atom(i)%mSkI=0.0
-          FmAtom%atom(i)%lski=0
-
-          FmAtom%atom(i)%mmphas=0.0
-          FmAtom%atom(i)%lmphas=0
-
-          FmAtom%atom(i)%mbas=0.0
-          FmAtom%atom(i)%lbas=0
-
-       end do
-
-       return
-    End Subroutine Init_RefCodes_FmAtom
-
-    !!--++
-    !!--++ Subroutine Init_RefCodes_MolCrys(MolCrys)
-    !!--++    type(molecular_Crystal_type), intent(in out) :: MolCrys    ! Molecular Crystal Object
-    !!--++
-    !!--++ Overloaded
-    !!--++ Initialize all refinement codes
-    !!--++
-    !!--++ Update: March - 2005
-    !!
-    Subroutine Init_RefCodes_MolCrys(MolCrys)
-       !---- Arguments ----!
-       type(molecular_Crystal_type), intent(in out) :: MolCrys    ! Molecular Crystal Object
-
-       !---- Local variables ----!
-       integer :: i
-
-       NP_Refi=0
-       NP_Cons=0
-
-       V_Vec   =0.0
-       V_Name=" "
-       V_Bounds=0.0
-       V_BCon  =0
-
-       if (MolCrys%N_Free > 0 .and. allocated(MolCrys%Atm)) then
-          do i=1,MolCrys%N_Free
-             MolCrys%Atm(i)%mx=0.0
-             MolCrys%Atm(i)%lu=0
-
-             MolCrys%Atm(i)%mbiso=0.0
-             MolCrys%Atm(i)%lbiso=0
-
-             MolCrys%Atm(i)%mocc=0.0
-             MolCrys%Atm(i)%locc=0
-
-             MolCrys%Atm(i)%mu=0.0
-             MolCrys%Atm(i)%lu=0
+             FAtom%atom(i)%mu=0.0
+             FAtom%atom(i)%lu=0
           end do
        end if
 
-       if (MolCrys%N_Mol > 0 .and. allocated(MolCrys%Mol)) then
-          do i=1,MolCrys%N_Mol
-             MolCrys%mol(i)%mxcentre=0.0
-             MolCrys%mol(i)%lxcentre=0
+       if(present(FmAtom)) then
+          do i=1,FmAtom%Natoms
 
-             MolCrys%mol(i)%morient=0.0
-             MolCrys%mol(i)%lorient=0
+             FmAtom%atom(i)%mSkR=0.0
+             FmAtom%atom(i)%lskr=0
 
-             MolCrys%mol(i)%mT_TLS=0.0
-             MolCrys%mol(i)%lT_TLS=0
+             FmAtom%atom(i)%mSkI=0.0
+             FmAtom%atom(i)%lski=0
 
-             MolCrys%mol(i)%mL_TLS=0.0
-             MolCrys%mol(i)%lL_TLS=0
+             FmAtom%atom(i)%mmphas=0.0
+             FmAtom%atom(i)%lmphas=0
 
-             MolCrys%mol(i)%mS_TLS=0.0
-             MolCrys%mol(i)%lS_TLS=0
+             FmAtom%atom(i)%mbas=0.0
+             FmAtom%atom(i)%lbas=0
 
-             if (MolCrys%Mol(i)%natoms > 0) then
-                MolCrys%mol(i)%mI_coor=0.0
-                MolCrys%mol(i)%lI_coor=0
-
-                MolCrys%mol(i)%mbiso=0.0
-                MolCrys%mol(i)%lbiso=0
-
-                MolCrys%mol(i)%mocc=0.0
-                MolCrys%mol(i)%locc=0
-             end if
           end do
+       end if !present FmAtom
+
+       if(present(Mag_dom)) then
+          do i=1,Mag_Dom%nd
+
+             Mag_Dom%Mpop(1:2,i)=0.0
+             Mag_Dom%Lpop(1:2,i)=0
+
+          end do
+       end if  !present Mag_Dom
+
+       if (present(MolCrys)) then
+
+          if (MolCrys%N_Free > 0 .and. allocated(MolCrys%Atm)) then
+             do i=1,MolCrys%N_Free
+                MolCrys%Atm(i)%mx=0.0
+                MolCrys%Atm(i)%lu=0
+
+                MolCrys%Atm(i)%mbiso=0.0
+                MolCrys%Atm(i)%lbiso=0
+
+                MolCrys%Atm(i)%mocc=0.0
+                MolCrys%Atm(i)%locc=0
+
+                MolCrys%Atm(i)%mu=0.0
+                MolCrys%Atm(i)%lu=0
+             end do
+          end if
+
+          if (MolCrys%N_Mol > 0 .and. allocated(MolCrys%Mol)) then
+             do i=1,MolCrys%N_Mol
+                MolCrys%mol(i)%mxcentre=0.0
+                MolCrys%mol(i)%lxcentre=0
+
+                MolCrys%mol(i)%morient=0.0
+                MolCrys%mol(i)%lorient=0
+
+                MolCrys%mol(i)%mT_TLS=0.0
+                MolCrys%mol(i)%lT_TLS=0
+
+                MolCrys%mol(i)%mL_TLS=0.0
+                MolCrys%mol(i)%lL_TLS=0
+
+                MolCrys%mol(i)%mS_TLS=0.0
+                MolCrys%mol(i)%lS_TLS=0
+
+                if (MolCrys%Mol(i)%natoms > 0) then
+                   MolCrys%mol(i)%mI_coor=0.0
+                   MolCrys%mol(i)%lI_coor=0
+
+                   MolCrys%mol(i)%mbiso=0.0
+                   MolCrys%mol(i)%lbiso=0
+
+                   MolCrys%mol(i)%mocc=0.0
+                   MolCrys%mol(i)%locc=0
+                end if
+             end do
+          end if
+       end if !present MolCrys
+
+       if(present(Molec)) then
+          Molec%mxcentre=0.0
+          Molec%lxcentre=0
+
+          Molec%morient=0.0
+          Molec%lorient=0
+
+          Molec%mT_TLS=0.0
+          Molec%lT_TLS=0
+
+          Molec%mL_TLS=0.0
+          Molec%lL_TLS=0
+
+          Molec%mS_TLS=0.0
+          Molec%lS_TLS=0
+
+          do i=1,molec%natoms
+             Molec%mI_coor(:,i)=0.0
+             Molec%lI_coor(:,i)=0
+
+             Molec%mbiso(i)=0.0
+             Molec%lbiso(i)=0
+
+             Molec%mocc(i)=0.0
+             Molec%locc(i)=0
+          end do
+       end if !if present Molec
+
+       if(present(Model)) then
+         do i=1,Model%npar
+            Model%par(i)%multip=0.0
+            Model%par(i)%Lcode=0
+         end do
        end if
 
        return
-    End Subroutine Init_RefCodes_MolCrys
-
-    !!--++
-    !!--++ Subroutine Init_RefCodes_Molec(Molec)
-    !!--++    type(molecule_type), intent(in out) :: Molec ! Molecule Object
-    !!--++
-    !!--++ Overloaded
-    !!--++ Initialize all refinement codes
-    !!--++
-    !!--++ Update: March - 2005
-    !!
-    Subroutine Init_RefCodes_Molec(Molec)
-       !---- Arguments ----!
-       type(molecule_type), intent(in out) :: Molec
-
-       !---- Local variables ----!
-       integer :: i
-
-       NP_Refi=0
-       NP_Cons=0
-
-       V_Vec   =0.0
-       V_Name=" "
-       V_Bounds=0.0
-       V_BCon  =0
-
-       Molec%mxcentre=0.0
-       Molec%lxcentre=0
-
-       Molec%morient=0.0
-       Molec%lorient=0
-
-       Molec%mT_TLS=0.0
-       Molec%lT_TLS=0
-
-       Molec%mL_TLS=0.0
-       Molec%lL_TLS=0
-
-       Molec%mS_TLS=0.0
-       Molec%lS_TLS=0
-
-       do i=1,molec%natoms
-          Molec%mI_coor(:,i)=0.0
-          Molec%lI_coor(:,i)=0
-
-          Molec%mbiso(i)=0.0
-          Molec%lbiso(i)=0
-
-          Molec%mocc(i)=0.0
-          Molec%locc(i)=0
-       end do
-
-       return
-    End Subroutine Init_RefCodes_Molec
-
-    !!--++
-    !!--++ Subroutine Init_RefCodes_Magdom(Mag_dom)
-    !!--++    type(Magnetic_Domain_type), intent(in out) :: Mag_dom
-    !!--++
-    !!--++ Initialize magnetic refinement codes
-    !!--++ related to magnetic domains
-    !!--++ Created: February - 2012
-    !!
-    Subroutine Init_RefCodes_Magdom(Mag_dom)
-       !---- Arguments ----!
-       type(Magnetic_Domain_type), intent(in out)  :: Mag_dom
-
-       !---- Local variables ----!
-       integer :: i
-
-       NP_Refi=0
-       NP_Cons=0
-
-       V_Vec   =0.0
-       V_Name=" "
-       V_Bounds=0.0
-       V_BCon  =0
-
-       do i=1,Mag_Dom%nd
-
-          Mag_Dom%Mpop(1:2,i)=0.0
-          Mag_Dom%Lpop(1:2,i)=0
-
-       end do
-
-       return
-    End Subroutine Init_RefCodes_Magdom
+    End Subroutine Init_RefCodes
 
     !!----
     !!---- Subroutine Read_RefCodes_File(file_dat,n_ini,n_end,FAtom/MolCrys/Molec/MagStr,Spg)
@@ -7757,6 +8224,116 @@
        return
     End Subroutine Read_RefCodes_File_Molec
 
+    !!----
+    !!---- Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model)
+    !!----    Type(file_list_type),                intent( in)    :: file_dat
+    !!----    integer,                             intent( in)    :: n_ini
+    !!----    integer,                             intent( in)    :: n_end
+    !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----
+    !!----    Subroutine for treatment of Codes for non-atomic paramters
+    !!----
+    !!---- Update: November - 2013
+    !!
+    Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model)
+       Type(file_list_type),                intent( in)    :: file_dat
+       integer,                             intent( in)    :: n_ini
+       integer,                             intent( in)    :: n_end
+       type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+
+       !---- Local variables ----!
+       character(len=132)              :: line
+       character(len=20)               :: namp
+       character(len=132),dimension(5) :: dire
+       integer                         :: i,k,nlong
+       integer                         :: nop_in_line,key
+
+       call init_err_refcodes()
+
+       do i=n_ini,n_end
+          line=adjustl(file_dat%line(i))
+          namp=" "
+          if (line(1:1) ==" ") cycle
+          if (line(1:1) =="!") cycle
+          k=index(line,"!")
+          if( k /= 0) line=trim(line(1:k-1))
+
+          select case (l_case(line(1:5)))
+
+             !---- Main Directive: FIX ----!
+             case ("gfix ")
+                call cutst(line,nlong)
+                call split_operations(line,nop_in_line,dire)
+                do k=1,nop_in_line
+                   namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
+                   select case (trim(namp))
+                      case ("bkg")
+                         key=1
+                      case ("cell")
+                         key=2
+                      case ("uvw")
+                         key=3
+                      case ("asize")
+                         key=4
+                      case ("astrain")
+                         key=5
+                      case ("extinct")
+                         key=6
+                      case ("scalefs")
+                         key=7
+                      case ("all")
+                         key=8
+                      case default
+                         key=0
+                   end select
+                   if (key /=0) call cutst(dire(k),nlong)
+                   call get_refGcodes_line(key,"gfix",dire(k),namp,model)
+                   if (err_refcodes) return
+                end do
+
+             !---- Main Directive: GVARY ----!
+             case ("gvary")
+                call cutst(line,nlong)
+                call split_operations(line,nop_in_line,dire)
+                do k=1,nop_in_line
+                   namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
+                   select case (trim(namp))
+                      case ("bkg")
+                         key=1
+                      case ("cell")
+                         key=2
+                      case ("uvw")
+                         key=3
+                      case ("asize")
+                         key=4
+                      case ("astrain")
+                         key=5
+                      case ("extinct")
+                         key=6
+                      case ("scalefs")
+                         key=7
+                      case ("all")
+                         key=8
+                      case default
+                         key=0
+                   end select
+                   if (key /=0) call cutst(dire(k),nlong)
+                   call get_refGcodes_line(key,"gvar",dire(k),namp,model)
+                   if (err_refcodes) return
+                end do
+
+             !---- Main Directive: EQUAL ----!
+             case ("equa")
+                call cutst(line,nlong)
+                call get_congcodes_line(line,model)
+
+          end select
+       end do
+
+       return
+    End Subroutine Read_RefGCodes_File
+
+
     !!--++
     !!--++ Subroutine Split_Operations(Line, Ni, S_Lines)
     !!--++    character(len=*),              intent( in) :: line
@@ -7912,7 +8489,8 @@
     !!--++
     !!--++    (Overloaded)
     !!--++
-    !!--++ Update: March - 2005
+    !!--++ Update: March - 2005.
+    !!--++ Modified to include standard deviations, November 3, 2013 (JRC)
     !!
     Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
        !---- Arguments ----!
@@ -7945,6 +8523,7 @@
                 case ("s","S") ! Passing Shift
                    FAtom%atom(i)%x(j)=FAtom%atom(i)%x(j)+v_shift(l)*FAtom%atom(i)%mx(j)
              end select
+             FAtom%atom(i)%x_std(j)=v_vec_std(l)*FAtom%atom(i)%mx(j)
           end do
 
           !---- BISO ----!
@@ -7962,6 +8541,7 @@
              case ("s","S") ! Passing Shift
                 FAtom%atom(i)%biso=FAtom%atom(i)%biso+v_shift(l)*FAtom%atom(i)%mbiso
           end select
+          FAtom%atom(i)%biso_std=v_vec(l)*FAtom%atom(i)%mbiso
 
           !---- OCC ----!
           l=FAtom%atom(i)%locc
@@ -7978,6 +8558,7 @@
              case ("s","S") ! Passing Shift
                 FAtom%atom(i)%occ=FAtom%atom(i)%occ+v_shift(l)*FAtom%atom(i)%mocc
           end select
+          FAtom%atom(i)%occ_std=v_vec_std(l)*FAtom%atom(i)%mocc
 
           !---- BANIS ----!
           do j=1,6
@@ -7995,6 +8576,7 @@
                 case ("s","S") ! Passing Shift
                    FAtom%atom(i)%u(j)=FAtom%atom(i)%u(j)+v_shift(l)*FAtom%atom(i)%mu(j)
              end select
+             FAtom%atom(i)%u_std(j)=v_vec_std(l)*FAtom%atom(i)%mu(j)
           end do
 
        end do
@@ -8011,7 +8593,7 @@
     !!--++
     !!--++ magnetic clone of VState_to_AtomsPar_FAtom
     !!--++ Created: December - 2011
-    !!--++ Updated: February - 2012
+    !!--++ Updated: February - 2012, November 3, 2013 (standard deviations,JRC)
     !!
     Subroutine VState_to_AtomsPar_FmAtom(FmAtom,Mode,MGp,Mag_dom)
        !---- Arguments ----!
@@ -8045,15 +8627,19 @@
                 case ("v","V") ! Passing Value
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                   FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
                  else
                    FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                   FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
                  end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                   FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
                  else
                    FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
+                   FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
                  end if
 
              end select
@@ -8072,15 +8658,19 @@
                 case ("v","V") ! Passing Value
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                   FmAtom%atom(i)%Spher_SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  else
                    FmAtom%atom(i)%SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                   FmAtom%atom(i)%SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
                    FmAtom%atom(i)%Spher_SkI(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j,ik)
+                   FmAtom%atom(i)%Spher_SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  else
                    FmAtom%atom(i)%SkI(j,ik)=FmAtom%atom(i)%SkI(j,ik)+v_shift(l)*FmAtom%atom(i)%mSkI(j,ik)
+                   FmAtom%atom(i)%SkI_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j,ik)
                  end if
 
              end select
@@ -8088,8 +8678,8 @@
 
           !---- Mxyz ----!
           do j=1,6
-            if(1<=j.and.j<=3) l=FmAtom%atom(i)%lSkR(j,ik)
-            if(4<=j.and.j<=6) l=FmAtom%atom(i)%lSkI(j-3,ik)
+            if(1 <= j .and. j <= 3) l=FmAtom%atom(i)%lSkR(j,ik)
+            if(4 <= j .and. j <= 6) l=FmAtom%atom(i)%lSkI(j-3,ik)
              if (l == 0) cycle
              if (l > np_refi) then
                 err_refcodes=.true.
@@ -8099,44 +8689,69 @@
              select case (car)
                 case ("v","V") ! Passing Value
                  if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1<=j .and. j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j .and. j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1 <= j .and. j <= 3) then
+                    FmAtom%atom(i)%Spher_SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                    FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  end if
+                  if(4 <= j .and. j <= 6) then
+                    FmAtom%atom(i)%Spher_SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                    FmAtom%atom(i)%Spher_SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  end if
                  else
-                  if(1<=j .and. j<=3) FmAtom%atom(i)%SkR(j  ,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
-                  if(4<=j .and. j<=6) FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1 <= j .and. j <= 3) then
+                    FmAtom%atom(i)%SkR(j,ik)=v_vec(l)*FmAtom%atom(i)%mSkR(j,ik)
+                    FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  end if
+                  if(4 <= j .and. j <= 6) then
+                    FmAtom%atom(i)%SkI(j-3,ik)=v_vec(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                    FmAtom%atom(i)%SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  end if
                  end if
 
                 case ("s","S") ! Passing Shift
                  if(MGp%Sk_type == "Spherical_Frame") then
-                  if(1<=j .and. j<=3) FmAtom%atom(i)%Spher_SkR(j  ,ik)=FmAtom%atom(i)%Spher_SkR(j  ,ik)+ &
-                                                                     v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j .and. j<=6) FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
-                                                                     v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1 <= j .and. j <= 3) then
+                    FmAtom%atom(i)%Spher_SkR(j,ik)=FmAtom%atom(i)%Spher_SkR(j,ik)+ &
+                                               v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
+                    FmAtom%atom(i)%Spher_SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  end if
+                  if(4 <= j .and. j <= 6) then
+                    FmAtom%atom(i)%Spher_SkI(j-3,ik)=FmAtom%atom(i)%Spher_SkI(j-3,ik)+ &
+                                                v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                    FmAtom%atom(i)%Spher_SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  end if
                  else
-                  if(1<=j .and. j<=3) FmAtom%atom(i)%SkR(j  ,ik)=FmAtom%atom(i)%SkR(j  ,ik)+ &
-                                                               v_shift(l)*FmAtom%atom(i)%mSkR(j  ,ik)
-                  if(4<=j .and. j<=6) FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
-                                                             v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  if(1 <= j .and. j <= 3) then
+                    FmAtom%atom(i)%SkR(j,ik)=FmAtom%atom(i)%SkR(j,ik)+ &
+                                             v_shift(l)*FmAtom%atom(i)%mSkR(j,ik)
+                    FmAtom%atom(i)%SkR_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkR(j,ik)
+                  end if
+                  if(4 <= j .and. j <= 6) then
+                    FmAtom%atom(i)%SkI(j-3,ik)=FmAtom%atom(i)%SkI(j-3,ik)+ &
+                                               v_shift(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                    FmAtom%atom(i)%SkI_std(j-3,ik)=v_vec_std(l)*FmAtom%atom(i)%mSkI(j-3,ik)
+                  end if
                  end if
              end select
           end do
 
           !---- MagPh ----!
           l=FmAtom%atom(i)%lmphas(ik)
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
+          if (l /= 0) then
+            if (l > np_refi) then
+               err_refcodes=.true.
+               ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+               return
+            end if
+            select case (car)
+               case ("v","V") ! Passing Value
+                  FmAtom%atom(i)%mphas(ik)=v_vec(l)*FmAtom%atom(i)%mmphas(ik)
+
+               case ("s","S") ! Passing Shift
+                  FmAtom%atom(i)%mphas(ik)=FmAtom%atom(i)%mphas(ik)+v_shift(l)*FmAtom%atom(i)%mmphas(ik)
+            end select
+            FmAtom%atom(i)%mphas_std(ik)=v_vec_std(l)*FmAtom%atom(i)%mmphas(ik)
           end if
-          select case (car)
-             case ("v","V") ! Passing Value
-                FmAtom%atom(i)%mphas(ik)=v_vec(l)*FmAtom%atom(i)%mmphas(ik)
-
-             case ("s","S") ! Passing Shift
-                FmAtom%atom(i)%mphas(ik)=FmAtom%atom(i)%mphas(ik)+v_shift(l)*FmAtom%atom(i)%mmphas(ik)
-          end select
-
           !---- C1-12 ----!
           do j=1,12
              l=FmAtom%atom(i)%lbas(j,ik)
@@ -8153,6 +8768,7 @@
                 case ("s","S") ! Passing Shift
                    FmAtom%atom(i)%cbas(j,ik)=FmAtom%atom(i)%cbas(j,ik)+v_shift(l)*FmAtom%atom(i)%mbas(j,ik)
              end select
+             FmAtom%atom(i)%cbas_std(j,ik)=v_vec_std(l)*FmAtom%atom(i)%mbas(j,ik)
           end do
        end do !on atoms
 
@@ -8179,6 +8795,7 @@
                 case ("s","S") ! Passing Shift
                    Mag_Dom%pop(j,i)=Mag_Dom%pop(j,i)+v_shift(l)*Mag_Dom%Mpop(j,i)
              end select
+             Mag_Dom%pop_std(j,i)=v_vec_std(l)*Mag_Dom%Mpop(j,i)
          end do
         end do
 
@@ -8597,6 +9214,48 @@
        return
     End Subroutine VState_to_AtomsPar_Molec
 
+    !!----
+    !!---- Subroutine VState_to_ModelPar(Model,Mode)
+    !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----    character(len=*), optional,          intent(in)     :: Mode
+    !!----
+    !!----    (Overloaded)
+    !!----
+    !!---- Update: November 2 - 2013
+    !!
+    Subroutine VState_to_ModelPar(Model,Mode)
+       !---- Arguments ----!
+       type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+       character(len=*), optional,          intent(in)     :: Mode
+
+       !---- Local variables ----!
+       integer          :: i,l
+       character(len=1) :: car
+
+       call init_err_refcodes()
+
+       car="s"
+       if (present(mode)) car=adjustl(mode)
+
+       do i=1,model%npar
+          l=model%par(i)%Lcode
+          if (l == 0) cycle
+          if (l > np_refi) then
+             err_refcodes=.true.
+             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+             return
+          end if
+          select case (car)
+             case ("v","V") ! Passing Value
+                model%par(i)%value=v_vec(l)*model%par(i)%multip
+
+             case ("s","S") ! Passing Shift
+                model%par(i)%value=model%par(i)%value+v_shift(l)*model%par(i)%multip
+          end select
+          model%par(i)%sigma=v_vec_std(l)*model%par(i)%multip
+       end do
+       return
+    End Subroutine VState_to_ModelPar
 
     !!----
     !!---- Subroutine Write_Info_RefCodes(FAtom/FmAtom/MolCrys/Molec/MagStr, Iunit)
@@ -9471,6 +10130,60 @@
        return
 
     End Subroutine Write_Info_RefCodes_MagStr
+
+    !!----
+    !!---- Subroutine Write_Info_RefGCodes(model, Iunit)
+    !!----    type(Nonatomic_Parameter_List_Type), intent(in) :: model
+    !!----    integer, optional,                   intent(in) :: Iunit
+    !!----
+    !!----    Write the Information about Refinement Codes of non-atomic parameters
+    !!----
+    !!---- Update: November 2 - 2013
+    !!
+    Subroutine Write_Info_RefGCodes(model, Iunit)
+       !---- Arguments ----!
+       type(Nonatomic_Parameter_List_Type), intent(in) :: model
+       integer, optional,                   intent(in) :: Iunit
+
+       !---- Local variables ----!
+       character(len=20)              :: car
+       character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
+       Character(len=25),dimension(3) :: symcar
+       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4
+       real(kind=cp)                  :: mu
+       real(kind=cp),dimension(3)     :: tr
+
+       !---- Format Zone ----!
+       fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"
+       fmt2="(t10,i3,t21,a,t31,a,t39,f8.4)"
+
+       lun=6
+       if (present(iunit)) lun=iunit
+
+       if (NP_Refi > 0) then
+          write(unit=lun, fmt="(a)") " "
+          write(unit=lun, fmt="(a,i5)") " => Non-atomic refinable Parameters: ",model%npar
+          write(unit=lun, fmt="(a)") " "
+          write(unit=lun, fmt="(a,a)")"    Name      N.Param   Code-Name       Value        L.Bound       ",&
+                                      "U.Bound         Step    Condition   Multiplier   Order in Model"
+          write(unit=lun, fmt="(a,a)")" ==================================================================",&
+                                      "==========================================================="
+          do i=1,model%npar
+             if (model%par(i)%lcode > 0) then
+                na=model%par(i)%lcode
+                mu=model%par(i)%multip
+                car=trim(model%par(i)%nam)
+                write(unit=lun,fmt=fmt1)  &
+                     trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+             end if
+          end do
+       end if
+
+
+       return
+    End Subroutine Write_Info_RefGCodes
+
+
 
     !!----
     !!---- Subroutine Write_Info_RefParams(iunit)

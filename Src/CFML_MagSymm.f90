@@ -139,6 +139,7 @@
     !!----    real(kind=cp), dimension (2,24)   :: Dt=0.0        !Translations associated to rotation matrices
     !!----    real(kind=cp), dimension (2,24)   :: pop=0.0       !Populations of domains (sum=1,
     !!----                                                       !the second value is /=0 for chir=.true.)
+    !!----    real(kind=cp), dimension (2,24)   :: pop_std=0.0   !Standard deviations of Populations of domains
     !!----    integer,dimension (2,24)          :: Lpop=0        !Number of the refined parameter
     !!----    real(kind=cp), dimension (2,24)   :: Mpop=0.0      !Refinement codes for populations
     !!----    character(len=10),dimension (2,24):: Lab           !Label of domain
@@ -155,7 +156,7 @@
     !!----  domains exist.
     !!-->>
     !!----
-    !!---- Updated: October - 2006, July-2012 (JRC, more type of domains)
+    !!---- Updated: October - 2006, July-2012 (JRC, more type of domains), November 2013 (standard deviations)
     !!
     Type, public :: Magnetic_Domain_type
        integer                           :: nd=0          !Number of rotational domains (not counting chiral domains)
@@ -168,6 +169,7 @@
                                                           !the second value is /=0 for chir=.true.)
        integer      , dimension (2,24)   :: Lpop=0        !Number of the refined parameter
        real(kind=cp), dimension (2,24)   :: Mpop=0.0      !Multipliers for population
+       real(kind=cp), dimension (2,24)   :: pop_std=0.0   !Standard deviations of Populations of domains
        character(len=10),dimension (2,24):: Lab           !Label of domain
     End type Magnetic_Domain_type
 
