@@ -224,6 +224,7 @@
     !!--..
     !!----  Type, public :: Crystal_Cell_Type
     !!----     real(kind=cp),dimension(3)   :: cell, ang          ! Direct cell parameters
+    !!----     integer,      dimension(3)   :: lcell, lang        ! Code number for refinement in optimization procedures
     !!----     real(kind=cp),dimension(3)   :: cell_std, ang_std  ! Standar deviations cell parameters
     !!----     real(kind=cp),dimension(3)   :: rcell,rang         ! Reciprocal cell parameters
     !!----     real(kind=cp),dimension(3,3) :: GD,GR              ! Direct and reciprocal Metric Tensors
@@ -241,10 +242,11 @@
     !!----                                                        ! the Cartesian Frame has x // a.
     !!----  End Type Crystal_Cell_Type
     !!----
-    !!---- Update: January - 2011
+    !!---- Updated: November - 2013 (adding lcell and lang components)
     !!
     Type, public :: Crystal_Cell_Type
        real(kind=cp),dimension(3)   :: cell, ang
+       integer,      dimension(3)   :: lcell, lang
        real(kind=cp),dimension(3)   :: cell_std, ang_std
        real(kind=cp),dimension(3)   :: rcell, rang
        real(kind=cp),dimension(3,3) :: GD,GR
@@ -2815,7 +2817,9 @@
        else
           Celda%cell_std=0.0
           Celda%ang_std=0.0
-       end if
+          Celda%lcell=0    !These codes are attributed in refinement programs
+          Celda%lang=0     !In order to preserve the values given by these programs the
+       end if              !procedure should be invoked with standard deviations
 
        Celda%cell=cellv
        Celda%ang=angl

@@ -4117,7 +4117,7 @@
     !!----
     !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model)
     !!----    integer,                             intent(in)     :: Key  !0=> nb as below,
-    !!----    character(len=*),                    intent(in)     :: Dire !Var of Fix
+    !!----    character(len=*),                    intent(in)     :: Dire !GVar of GFix
     !!----    character(len=*),                    intent(in)     :: namp !Name of the parameter to be refined or fixed
     !!----    real(kind=cp),                       intent(in)     :: Xl   !Lower bound of parameter
     !!----    real(kind=cp),                       intent(in)     :: Xu   !Upper bound of parameter
@@ -4141,7 +4141,7 @@
     !!
     Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model)
        integer,                             intent(in)     :: Key  !0=> nb as below,
-       character(len=*),                    intent(in)     :: Dire !Var of Fix
+       character(len=*),                    intent(in)     :: Dire !GVar of GFix
        character(len=*),                    intent(in)     :: Namp !Name of the parameter to be refined or fixed
        real(kind=cp),                       intent(in)     :: Xl   !Lower bound of parameter
        real(kind=cp),                       intent(in)     :: Xu   !Upper bound of parameter
@@ -4169,7 +4169,7 @@
 
                    do i=1,model%npar
                       name_par=l_case(model%par(i)%nam)
-                      if ( name_par /= namp) cycle
+                      if ( name_par /= l_case(namp)) cycle
                       if ( model%par(i)%lcode /= 0) then
                          nc=model%par(i)%lcode
                          call Delete_RefGCodes(nc,model)
@@ -4291,7 +4291,7 @@
                          !Vary a single model parameter
                    do i=1,model%npar
                       name_par=l_case(model%par(i)%nam)
-                      if ( name_par /= namp) cycle
+                      if ( name_par /= l_case(namp)) cycle
                       if ( model%par(i)%lcode == 0) then
                          call update_vect(i)
                          exit
@@ -4388,6 +4388,7 @@
            integer, intent(in):: n  !every time we need to do the same thing!
            np_refi=np_refi+1        !Here V_Vec_std should not be updated
            model%par(n)%lcode=np_refi
+           model%par(n)%multip=1.0
            V_Vec(np_refi)=model%par(n)%value
            V_Name(np_refi)=model%par(n)%nam
            V_Bounds(1,np_refi)=xl
@@ -8263,7 +8264,7 @@
              !---- Main Directive: GFIX ----!
              case ("gfix ")
                 call cutst(line,nlong)
-                call split_operations(line,nop_in_line,dire)
+                call split_goperations(line,nop_in_line,dire)
                 do k=1,nop_in_line
                    namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
                    select case (trim(namp))
@@ -8294,7 +8295,7 @@
              !---- Main Directive: GVARY ----!
              case ("gvary")
                 call cutst(line,nlong)
-                call split_operations(line,nop_in_line,dire)
+                call split_goperations(line,nop_in_line,dire)
                 do k=1,nop_in_line
                    namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
                    select case (trim(namp))
@@ -8323,9 +8324,9 @@
                 end do
 
              !---- Main Directive: EQUAL ----!
-             case ("equa")
-                call cutst(line,nlong)
-                call get_congcodes_line(line,model)
+             !case ("equa")
+             !   call cutst(line,nlong)
+             !   call get_congcodes_line(line,model)
 
           end select
        end do
@@ -8400,7 +8401,74 @@
 
        return
     End Subroutine Split_Operations
+    !!----
+    !!---- Subroutine Split_GOperations(Line, Ni, S_Lines)
+    !!----    character(len=*),              intent( in) :: line
+    !!----    integer,                       intent(out) :: ni
+    !!----    character(len=*),dimension(:), intent(out) :: s_lines
+    !!----
+    !!----    (Private)
+    !!----    Split diferent directives according to GCODE_NAM Variable
+    !!----
+    !!---- Update: November - 2013
+    !!
+    Subroutine Split_GOperations(Line, Ni, S_Lines)
+       !---- Arguments ----!
+       character(len=*),              intent( in) :: line
+       integer,                       intent(out) :: ni
+       character(len=*),dimension(:), intent(out) :: s_lines
 
+       !---- Local variables ----!
+       character(len=150)        :: linec
+       character(len=10)         :: up_gcode_nam
+       character(len=10)         :: car
+       integer                   :: i,j,npos
+       integer,dimension(NGCode) :: ip,ipc
+
+       ni=0
+       s_lines=" "
+
+       linec=u_case(line)
+
+       !---- Search Subkeys: XYZ,OCC,BIS... ----!
+       ip=0
+       do i=1,NGCode
+          up_gcode_nam=u_case(Gcode_Nam(i))
+          npos=index(linec,up_gcode_nam)
+          if (npos > 0) then
+             car=linec(npos:)
+             j=index(car," ")
+             if (j > 0) car=car(:j-1)
+             j=index(car,"_")
+             if (j > 0) cycle
+          end if
+          ip(i)=npos
+       end do
+
+       npos=count(ip > 0)
+       if (npos == 0) then
+          ni=1
+          s_lines(1)=adjustl(line)
+       else
+          call sort(ip,NGCode,ipc)
+          do i=1,NGCode
+             if (ip(ipc(i)) == 0) then
+                if (ip(ipc(i+1)) <= 1) cycle
+                ni=ni+1
+                s_lines(ni)=adjustl(line(1:ip(ipc(i+1))-1))
+             else
+                ni=ni+1
+                if (i < NGCode) then
+                   s_lines(ni)=adjustl(line(ip(ipc(i)):ip(ipc(i+1))-1))
+                else
+                   s_lines(ni)=adjustl(line(ip(ipc(i)):))
+                end if
+             end if
+          end do
+       end if
+
+       return
+    End Subroutine Split_GOperations
     !!--++
     !!--++ Subroutine Split_mOperations(Line, Ni, S_Lines)
     !!--++    character(len=*),              intent( in) :: line
