@@ -1095,7 +1095,7 @@
        write(unit=lun,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS AND STANDARD DEVIATIONS",&
                                            "      --------------------------------------------------------"
        write(unit=lun,fmt="(/,a,/)") &
-       "    #   Parameter name             No.(Model)         Final-Value   Standard Deviation"
+       "    Parameter name     No.(LSQ)         Final-Value   Standard Deviation"
        do i=1,c%npvar
         write(unit=lun,fmt="(a,i6,2f20.5)") "    "//vnam(i),i,v(i),vstd(i)
        end do
