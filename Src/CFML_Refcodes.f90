@@ -4197,7 +4197,7 @@
                            trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
                            trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
                            trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                           trim(name_par) == "cell_alpha" .or. trim(name_par) == "cell_beta" .or. trim(name_par) == "cell_gamma" .or. &
+                           trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
                            trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
                          if ( model%par(i)%lcode /= 0) then
                             nc=model%par(i)%lcode
@@ -4314,7 +4314,7 @@
                            trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
                            trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
                            trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                           trim(name_par) == "cell_alpha" .or. trim(name_par) == "cell_beta" .or. trim(name_par) == "cell_gamma" .or. &
+                           trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
                            trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
                            if ( model%par(i)%lcode == 0) call update_vect(i)
                       end if
