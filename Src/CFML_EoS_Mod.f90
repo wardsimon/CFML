@@ -326,8 +326,7 @@ Contains
       real(kind=cp),  optional, intent(in) :: DeltaT  ! Delta T value
 
       !---- Local Variables ----!
-      character(len=10)              :: car
-      real(kind=cp)                  :: alpha,del,tt,vt,delmin,tlimit
+      real(kind=cp)                  :: alpha,del,tt,delmin,tlimit
       real(kind=cp), dimension(-2:2) :: v       ! array for calc v values
       integer                        :: j
 
@@ -658,10 +657,9 @@ Contains
       type(Eos_Type), intent(in) :: EoSPar   ! Eos Parameter
 
       !---- Local Variables ----!
-      character(len=10)                  :: car
       real(kind=cp)                      :: V
       real(kind=cp)                      :: V0,Tref,A,B,C,Tn,tt
-      real(kind=cp)                      :: delt,delt2,two_k,tlimit
+      real(kind=cp)                      :: delt,delt2,two_k
       real(kind=cp), dimension(n_eospar) :: ev
 
       !> Init
@@ -1767,7 +1765,7 @@ Contains
       !---- Local Variables ----!
       real(kind=cp), dimension(n_eospar) :: ev
       real(kind=cp)                      :: vv0,k0,delt, delt2, alpha0,alpha1,vt0,dpdvt,deltinv
-      real(kind=cp)                      :: aa,f,b,c,e,h,df,dh,vx,u,vv,w,du,dv,dw,dpdx,cv
+      real(kind=cp)                      :: aa,f,b,c,e,h,df,dh,vx,vv,w,du,dv,dw,dpdx,cv
       real(kind=cp)                      :: term1,term2,term3,term4,vterm
       real(kind=cp)                      :: a,f52,da,db,dc,nu   ! new guys
       real(kind=cp),dimension(3)         :: abc                 !Tait parammeters
@@ -3245,7 +3243,6 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp),dimension(N_EOSPar,N_EOSPar)  :: d         ! cross derivatives of parameters
-      real(kind=cp),dimension(N_EOSPar,n_eospar)  :: ev        ! local copies of room pressure parameter values
       real(kind=cp),dimension(-2:2,6)             :: par
       real(kind=cp), parameter                    :: factor=0.01        ! shift factor for calculating derivatives
       real(kind=cp)                               :: shift              ! shift applied to parameter
