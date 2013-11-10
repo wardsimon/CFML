@@ -658,8 +658,8 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp)                      :: V
-      real(kind=cp)                      :: V0,Tref,A,B,C,Tn,tt
-      real(kind=cp)                      :: delt,delt2,two_k
+      real(kind=cp)                      :: Tref,A,B,C,Tn,tt
+      real(kind=cp)                      :: delt,delt2
       real(kind=cp), dimension(n_eospar) :: ev
 
       !> Init
@@ -749,7 +749,7 @@ Contains
       real(kind=cp)                     :: Vol, step,dp1,dp2
       real(kind=cp),dimension(n_eospar) :: ev
       real(kind=cp),dimension(3)        :: abc          ! Tait parameters
-      real(kind=cp)                     :: pth,pa       ! pth is thermal pressure, pa=p-pth
+      real(kind=cp)                     :: pa           ! pa=p-pth
 
       !> Init
       v=0.0_cp
@@ -1028,8 +1028,8 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp)                      :: kpc
-      real(kind=cp)                      :: vv0,k0,kp,kpp,delv,vol1,vol2,rk1,rk2,p
-      real(kind=cp)                      :: a,b,f,rkp_top, rkp_bot,nu,y
+      real(kind=cp)                      :: vv0,k0,kp,kpp,vol1,p
+      real(kind=cp)                      :: a,b,f,rkp_top, rkp_bot,nu
       real(kind=cp), dimension(n_eospar) :: ev
       real(kind=cp), dimension(3)        :: abc     ! Tait parameters
 
@@ -1764,9 +1764,9 @@ Contains
 
       !---- Local Variables ----!
       real(kind=cp), dimension(n_eospar) :: ev
-      real(kind=cp)                      :: vv0,k0,delt, delt2, alpha0,alpha1,vt0,dpdvt,deltinv
-      real(kind=cp)                      :: aa,f,b,c,e,h,df,dh,vx,vv,w,du,dv,dw,dpdx,cv
-      real(kind=cp)                      :: term1,term2,term3,term4,vterm
+      real(kind=cp)                      :: vv0,k0,delt, delt2,vt0,dpdvt,deltinv
+      real(kind=cp)                      :: f,b,c,cv
+      real(kind=cp)                      :: term1,term2,term3,vterm
       real(kind=cp)                      :: a,f52,da,db,dc,nu   ! new guys
       real(kind=cp),dimension(3)         :: abc                 !Tait parammeters
 
@@ -2004,8 +2004,8 @@ Contains
 
       !---- Local Variables ----!
       type(Eos_Type)                 :: Eost                 ! Eos Parameter local copy
-      real(kind=cp), dimension(-2:2) :: p       ! array for calc p values
-      real(kind=cp)                  :: delfactor,del,ps,d_prev,delmin
+      real(kind=cp), dimension(-2:2) :: p                    ! array for calc p values
+      real(kind=cp)                  :: delfactor,del,d_prev,delmin
       integer                        :: i,j,icycle
 
       !> Initialise
@@ -2701,8 +2701,8 @@ Contains
       character(len=30), dimension(ncol_data_max)   :: dire
 
       integer                                       :: nldata,ndat
-      integer                                       :: i,j,k,kk,nl,nk,nlines,m
-      integer                                       :: ncol, iv, inum
+      integer                                       :: i,j,kk,nl,nk,nlines,m
+      integer                                       :: iv, inum
       integer, dimension(ncol_data_max)             :: ivet,iorden
 
       real, dimension(ncol_data_max)                :: vet,vetsd
