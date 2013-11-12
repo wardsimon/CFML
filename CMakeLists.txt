@@ -33,20 +33,22 @@ message(STATUS "Setting CMAKE_INSTALL_PREFIX to ${CMAKE_INSTALL_PREFIX}")
 
 
 if (DEFINED CRYSFML_PREFIX)
-    set(CRYSFML_PREFIX ${CRYSFML_PREFIX} CACHE PATH "The crysfml installation prefix.")
+    set(CRYSFML_PREFIX ${CRYSFML_PREFIX})
 else()
-    set(CRYSFML_PREFIX LibC CACHE PATH "The crysfml installation prefix.")
+    set(CRYSFML_PREFIX LibC)
 endif()
+set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
 if (GUI)
     if (DEFINED WCRYSFML_PREFIX)
-        set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX} CACHE PATH "The wcrysfml installation prefix.")
+        set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX})
     else()
-        set(WCRYSFML_PREFIX LibW CACHE PATH "The wcrysfml installation prefix.")
+        set(WCRYSFML_PREFIX LibW)
     endif()
-    message(STATUS "WCrysFML installation path set to ${WCRYSFML_PREFIX}")
 endif()
+set (WCRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX})
+message(STATUS "WCrysFML installation path set to ${WCRYSFML_PREFIX}")
 
 #################################
 # Project section
@@ -62,7 +64,6 @@ if (NOT WCRYSFML_PREFIX)
     # Set the default name for wcrysfml library within the install prefix.
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
-
 
 #################################
 # Includes section

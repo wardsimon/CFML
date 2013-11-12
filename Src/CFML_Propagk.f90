@@ -286,9 +286,9 @@
 
     !!----
     !!---- Subroutine K_Star(K,Spacegroup,Gk)
-    !!----    integer, dimension(3),   intent(in)  :: k           !  In ->
-    !!----    type (Space_Group_Type), intent(in)  :: SpaceGroup  !  In ->
-    !!----    Type (Group_k_Type),     intent(out) :: Groupk      ! Out ->
+    !!----    real(kind=cp),dimension(3), intent(in)  :: k           !  In ->
+    !!----    type (Space_Group_Type),    intent(in)  :: SpaceGroup  !  In ->
+    !!----    Type (Group_k_Type),        intent(out) :: Groupk      ! Out ->
     !!----
     !!----    Calculate the star of the propagation vector
     !!----    and the group of the vector k. Construct the object
