@@ -3,7 +3,9 @@
    use CFML_GlobalDeps,       only: sp
    use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
                                     iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
-   use read_data,             only: crys_2d_type, read_structure_file
+   use CFML_Optimization_General, only : Opt_Conditions_Type
+   use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type
+   use read_data,             only: crys_2d_type, read_structure_file, length, opti, cond
    use diffax_mod
 
    implicit none
@@ -13,6 +15,8 @@
               chk_sym, overlp, nmcoor
 
 
+   !type (Opt_Conditions_Type),     save  :: opti
+   !type (LSQ_Conditions_type),     save  :: cond
 
    contains
  ! ______________________________________________________________________
@@ -272,9 +276,11 @@
       CLOSE(UNIT = sf, ERR = 600)
 
       999 RETURN
-      500 WRITE(op,220) 'Unable to backspace scattering factor file ''', trim(sfname), '''.'
+      500 WRITE(op,220) 'Unable to backspace scattering factor file ''',  &
+          sfname(1:length(sfname)), '''.'
       RETURN
-      600 WRITE(op,220) 'Unable to close scattering factor file ''',  trim(sfname), '''.'
+      600 WRITE(op,220) 'Unable to close scattering factor file ''',  &
+          sfname(1:length(sfname)), '''.'
       RETURN
       200 FORMAT(1X, a)
       210 FORMAT(2X, a)
@@ -579,7 +585,7 @@
 
       IF(symgrpno > 10) GO TO 500
 
-      900 WRITE(op,*) '=> The diffraction data fits the point group symmetry ', trim(pnt_grp),''''
+      900 WRITE(op,*) '=> The diffraction data fits the point group symmetry ', pnt_grp(1:length(pnt_grp)),''''
       IF(max_var > eps6 .AND. max_var <= eps1) THEN
         WRITE(op,203) '   with a tolerance of one part in ', nint(one / max_var)
       ELSE IF(max_var > eps1) THEN
@@ -593,12 +599,13 @@
 ! The user's guess is inconsistent with cell_gamma.
 ! Override the user.
       910 WRITE(op,200) 'The cell angle of',cell_gamma * rad2deg, ' degrees,'
-      WRITE(op,202) ' is inconsistent with point group symmetry ''',  trim(pnt_grp),''''
+      WRITE(op,202) ' is inconsistent with point group symmetry ''',  &
+          pnt_grp(1:length(pnt_grp)),''''
       WRITE(op,300)
       check_sym = .false.
       symgrpno = get_sym(ok)
       IF(.NOT.ok) GO TO 999
-      WRITE(op,205) trim(pnt_grp)
+      WRITE(op,205) pnt_grp(1:length(pnt_grp))
       IF(tolerance > eps6 .AND. tolerance <= eps1) THEN
         WRITE(op,203) '  with a tolerance of one part in ', nint(one / tolerance)
       ELSE IF(tolerance > eps1) THEN
@@ -612,14 +619,15 @@
 ! Override the user.
       920 WRITE(op,201) 'The cell a and b dimensions, ',  &
           cell_a,' Angstroms by ',cell_b,' Angstroms,'
-      WRITE(op,202) '   are inconsistent with point group symmetry ''', trim(pnt_grp),''''
+      WRITE(op,202) '   are inconsistent with point group symmetry ''',  &
+          pnt_grp(1:length(pnt_grp)),''''
       WRITE(op,300)
 ! reset check_sym flag, since we are now evaluating from scratch
       check_sym = .false.
       max_var = zero
       symgrpno = get_sym(ok)
-      IF(.NOT. ok) GO TO 999
-      WRITE(op,205) trim(pnt_grp)
+      IF(.NOT.ok) GO TO 999
+      WRITE(op,205) pnt_grp(1:length(pnt_grp))
 
       IF(tolerance > eps6 .AND. tolerance <= eps1) THEN
         WRITE(op,203) '  with a tolerance of one part in ', nint(one / tolerance)
@@ -1348,13 +1356,16 @@
       !WRITE(op,200) 'Enter 1 for full atomic position dump: '
       !READ(cntrl,*,ERR=99,END=9999) i2
       !IF(cfile) WRITE(op,'(1x,i3)') i2
-      WRITE(op,300) 'Writing data dump to file ''', trim(dmpfile),'''. . .'
+      WRITE(op,300) 'Writing data dump to file ''',  &
+          dmpfile(1:length(dmpfile)),'''. . .'
+!title
+      WRITE(dmp,"(a)") 'TITLE:', ttl
 ! sundry details about layers
       WRITE(dmp,125) 'Number of layers = ', n_layers
       WRITE(dmp,125) 'Number of unique layers = ', n_actual
       WRITE(dmp,125) 'Number of different atom types = ', n_atoms
 ! cell dimensions
-      WRITE(dmp,140) ' cell_a,      cell_b,      cell_c,      cell_gamma ',  &
+      WRITE(dmp,"(a,3f12.6,f12.2)") ' cell_a,      cell_b,      cell_c,      cell_gamma ',  &
           cell_a, cell_b, cell_c, rad2deg * cell_gamma
 
 
@@ -1509,8 +1520,10 @@
           WRITE(dmp,230) nint(l_cnt)
         END IF
       ELSE IF(xplcit) THEN
-        IF(rndm) THEN
+        IF(randm) THEN
           WRITE(dmp,240)
+        ELSEIF(semirandm) THEN
+          WRITE(dmp,245)
         ELSE
           WRITE(dmp,250)
         END IF
@@ -1559,6 +1572,47 @@
       WRITE(dmp,200) ' '   !Per deixar espai
       WRITE(dmp,200) ' '
 
+      write(dmp,"(a)")     " CALCULATION  "
+        if (opt == 0) then
+          write(dmp,"(a)")          " SIMULATION"
+          write(dmp,"(3f10.4)")     th2_min, th2_max, d_theta
+        elseif (opt == 3) then
+          write(dmp,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
+          write(dmp,"(a,i4)")          " MXFUN  ", opti%mxfun
+          write(dmp,"(a,f10.4)")          " EPS  ", opti%eps
+          write(dmp,"(a, i2)")          " IOUT  ", opti%iout
+          write(dmp,"(a,f10.7)")          " ACC  ", opti%acc
+        elseif (opt == 4) then
+          write(dmp,"(a)")          " LMQ"
+          if (Cond%constr) write(dmp,"(a,f5.2)")          " BOXP    " , Cond%percent
+          write(dmp,"(a,i4)")    " CORRMAX    ", cond%corrmax
+          write(dmp,"(a,i4)")    " MAXFUN     ", cond%icyc
+          write(dmp,"(a,f10.4)")    " TOL     ", cond%tol
+          write(dmp,"(a,i2)")    " Nprint     ", cond%nprint
+        else
+          write(*,*) "ERROR writing *.dmp file: Problem with calculation section"
+        end if
+
+       WRITE(dmp,200) ' '   !Per deixar espai
+       WRITE(dmp,200) ' '
+
+       if(opt == 3 .or. opt == 4) then
+         write(dmp,"(a)")              "  "
+         write(dmp,"(a)")          " EXPERIMENTAL"
+         write(dmp,"(2a)")         " FILE  ", dfile
+         if (nexcrg /= 0) then
+           write(dmp,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
+           do i=1,nexcrg
+             write(dmp,"(2f10.4)")  alow(i),ahigh(i)
+           end do
+
+         end if
+         write(dmp,"(2a)")         " FFORMAT  ",fmode
+         write(dmp,"(2a)")         " BGR  ",background_file
+         write(dmp,"(2a)")         " BCALC  ",mode
+       end if
+
+
       IF(dmp /= op) CLOSE(UNIT = dmp)
       999 RETURN
       9999 ok = .false.
@@ -1582,10 +1636,11 @@
       180 FORMAT(21X, 4(2X, f7.3), 2(4x, f9.3))
       185 FORMAT(21X, 3(2X, f7.3))
       200 FORMAT(1X, a)
-      210 FORMAT(1X, 'Stacking is to be treated ', a, ' by DIFFaX.')
+      210 FORMAT(1X, 'Stacking is to be treated ', a, ' by FAULTS.')
       220 FORMAT(1X, 'Number of layers along the fault direction is ', a)
       230 FORMAT(1X, 'There are ',i5 ,' layers along the fault direction')
-      240 FORMAT(1X, 'Sequencing is defined RANDOMLY by DIFFaX.')
+      240 FORMAT(1X, 'Sequencing is defined RANDOMLY by FAULTS.')
+      245 FORMAT(1X, 'Sequencing is defined SEMIRANDOMLY by FAULTS.')
       250 FORMAT(1X, 'Sequencing is defined EXPLICITLY by the user.')
       260 FORMAT(1X, a, i4, a)
       270 FORMAT(1X, 30I3)
@@ -1692,7 +1747,7 @@
            bname=name1(1:i-1)
         end if
         ln=len_trim(bname) + len_trim(APPEND) + 3
-        if(ln > len_trim(name2) ) return
+        if(ln > length(name2) ) return
 
         i=1
         WRITE(name2,"(a,i1)") trim(bname),i
@@ -2063,7 +2118,7 @@
         END IF
 
 ! write progress to screen
-        WRITE(op,102) h, k, trim(infile)
+        WRITE(op,102) h, k, infile(1:length(infile))
 
         CALL xyphse(h, k)
 
@@ -2362,7 +2417,7 @@
             IF(rot_only .AND. (theta2-hk_th) <= eps3 .AND. symgrpno /= 1) CYCLE
             IF(symgrpno == 11 .AND. .NOT. l_axis) CYCLE
          !   WRITE(op,200) 'Integrating along l at ',h,k,  &
-         !       '''',trim(infile),''''
+         !       '''',infile(1:length(infile)),''''
             on_bndry = ABS(hk_th-theta1) <= eps3 .OR. ABS(hk_th-theta2) <= eps3
 ! set up the phases in the structure factors and stacking vectors
 ! which depend on h and k only
@@ -5294,7 +5349,7 @@
 ! get length of the string holding the filename
       namlen = LEN(name1)
       name2  = ' '
-      applen = len_trim(APPEND)
+      applen = length(APPEND)
 
       idot = INDEX(name1,'.')
 
@@ -5586,6 +5641,7 @@
             IF(.NOT.did_it(j,i)) THEN
               did_it(j,i) = .true.
               WRITE(op,401) j, i
+              STOP
             END IF
           END IF
         END DO
@@ -5642,8 +5698,9 @@
           GO TO 999
         END IF
         IF(sy /= op) OPEN(UNIT = sy, FILE = sym_fnam, STATUS = 'new')
-        WRITE(op,204) 'Writing symmetry data to file ''', trim(sym_fnam),'''. . .'
-        WRITE(sy,303) '''', trim(rootnam),''''
+        WRITE(op,204) 'Writing symmetry data to file ''',  &
+            sym_fnam(1:length(sym_fnam)),'''. . .'
+        WRITE(sy,303) '''', rootnam(1:length(rootnam)),''''
         WRITE(sy,203) no_trials
         WRITE(sy,206) tiny_inty
       END IF
@@ -5656,7 +5713,8 @@
 
       IF(dosymdump) THEN
         WRITE(sy,202) ' '
-        WRITE(sy,204) 'The diffraction data fits the point group symmetry ''', trim(pnt_grp),''''
+        WRITE(sy,204) 'The diffraction data fits the point group symmetry ''',  &
+            pnt_grp(1:length(pnt_grp)),''''
         IF(symgrpno /= 1 .AND. symgrpno /= 11) THEN
           IF(max_var > eps6 .AND. max_var <= eps1) THEN
             WRITE(sy,201) '  with a tolerance of one part in ', nint(one / max_var)
@@ -6510,7 +6568,8 @@
 ! external subroutine (Some compilers need them declared external)
 !      external ATOMS
 
-      WRITE(op,301) ' => Reading scattering factor datafile''', trim(sfname),'''. . .'
+      WRITE(op,301) ' => Reading scattering factor datafile''',  &
+          sfname(1:length(sfname)),'''. . .'
 
       sfc = .false.
       DO  i = 1, max_ta
@@ -6585,7 +6644,7 @@
         IF(.NOT.list(i)) THEN
           ok = .false.
           WRITE(op,330) 'ERROR: Data for atom ''', atom_l(i),  &
-              ''' NOT FOUND IN FILE ''', trim(sfname), ''''
+              ''' NOT FOUND IN FILE ''', sfname(1:length(sfname)), ''''
           CALL atoms()
         END IF
       END DO
@@ -6594,7 +6653,8 @@
         WRITE(op,400) ' => Scattering factor data read in.'
       END IF
       RETURN
-      200 WRITE(op,301) ' => Scattering factor file ''', trim(sfname), ''' DEFECTIVE.'
+      200 WRITE(op,301) ' => Scattering factor file ''',  &
+          sfname(1:length(sfname)), ''' DEFECTIVE.'
       CLOSE(sf,ERR=240)
       RETURN
       210 WRITE(op,400) ' => ERROR reading scattering factor data.'
@@ -6607,7 +6667,8 @@
       END DO
       WRITE(op,402) ' => Maximum number of types allowed is ', max_ta
       RETURN
-      240 WRITE(op,301) ' => Unable to close scattering factor file ''', trim(sfname), '''.'
+      240 WRITE(op,301) ' => Unable to close scattering factor file ''',  &
+          sfname(1:length(sfname)), '''.'
       RETURN
       300 FORMAT(a)
       301 FORMAT(1X, 3A)
@@ -6913,7 +6974,8 @@
         GO TO 10
       END IF
 
-      WRITE(op,404) 'Writing streak data to file ''', trim(strkfile),'''. . .'
+      WRITE(op,404) 'Writing streak data to file ''',  &
+          strkfile(1:length(strkfile)),'''. . .'
 
       CALL xyphse(h, k)
 
@@ -6939,12 +7001,15 @@
         30   WRITE(sk,406,ERR=100) l, CHAR(9), x
       END DO
       IF(sk /= op) CLOSE(sk,ERR=110)
-      WRITE(op,404) 'Streak data file, ''', trim(strkfile),''' WRITTEN TO DISK.'
+      WRITE(op,404) 'Streak data file, ''',  &
+          strkfile(1:length(strkfile)),''' WRITTEN TO DISK.'
       RETURN
-      100 WRITE(op,404) 'ERROR writing to streak data file ''', trim(strkfile),''''
+      100 WRITE(op,404) 'ERROR writing to streak data file ''',  &
+          strkfile(1:length(strkfile)),''''
       IF(sk /= op) CLOSE(sk,ERR=110)
       RETURN
-      110 WRITE(op,404) 'Unable to close streak data file ''', trim(strkfile),''''
+      110 WRITE(op,404) 'Unable to close streak data file ''',  &
+          strkfile(1:length(strkfile)),''''
       RETURN
       999 WRITE(op,405) 'ERROR encountered in streak integration at l = ',l
       RETURN
@@ -7676,7 +7741,8 @@
 ! external subroutine (Some compilers need them declared external)
 !      external SMUDGE
 
-      WRITE(op,102) 'Writing SADP data to file ''', trim(outfile), '''. . .'
+      WRITE(op,102) 'Writing SADP data to file ''',  &
+          outfile(1:length(outfile)), '''. . .'
 
 ! set standard deviation
       sigma = zero
@@ -7831,7 +7897,7 @@
       n_low  = 1
       tab = CHAR(9)
       theta = th2_min * rad2deg
-      WRITE(op,200) 'Writing spectrum data to file ''', trim(spcfile), '''. . .'
+      WRITE(op,200) 'Writing spectrum data to file ''',      spcfile(1:length(spcfile)), '''. . .'
 !      do 10 i = int(HALF*th2_min / d_theta) + 1,
 !     |                  int(HALF*th2_max / d_theta) + 1
       IF(blurring == NONE) THEN

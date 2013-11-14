@@ -1,7 +1,7 @@
     Module read_data
        use CFML_GlobalDeps,           only : sp , cp
        use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
-                                             err_string_mess, getnum, Ucase, cutst, U_Case
+                                             err_string_mess, getnum, Ucase, cutst
        use CFML_Optimization_General, only : Opt_Conditions_Type
        use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
        use CFML_Simulated_Annealing
@@ -10,7 +10,7 @@
 
        private
        !public subroutines
-       public:: read_structure_file  !, new_getfil
+       public:: read_structure_file, new_getfil , length
 
 !      Declaration of diffraction_pattern_type
 
@@ -89,6 +89,13 @@
        real,             dimension(:),     allocatable  :: vlim1                        !Low-limit value of parameters
        real,             dimension(:),     allocatable  :: vlim2                        !Low-limit value of parameters
        real,             dimension(:)  ,   allocatable  :: Pv_refi                      !vector containing the free parameters to optimize (restrictions taken into account)
+
+       character(len=132)                               :: ttl          !title
+       logical,          dimension(:),     allocatable  :: fundamental  !array which defines if each layer is fundamental or not
+       logical                                          :: randm, semirandm, spcfc !defines what of the explicit cases is
+       integer,          dimension(:),     allocatable  :: original     !
+       integer                                         :: fls, lls, otls, stls  !data of the sequence in the semirandom case
+
        end  type crys_2d_type
 
        integer, parameter ,private                      :: i_data=30
@@ -98,10 +105,10 @@
        character(len=132), dimension(:),allocatable     :: tfile     !List of lines of the input file (UPPER CASE)
        Integer                                          :: numberl   !number of lines in the input file
        Integer                                          :: np        !to count number of parameters to be refined =npar
-       Integer, dimension(7)                            :: sect_indx=0 !Indices (line numbers) of the sevent sections:
-                                                                       !1:INSTRUMENTAL, 2:STRUCTURAL, 3:LAYER
-                                                                       !4:STACKING , 5:TRANSITIONS, 6:CALCULATION,
-                                                                       !7:EXPERIMENTAL
+       Integer, dimension(8)                            :: sect_indx=0 !Indices (line numbers) of the sevent sections:
+                                                                       !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
+                                                                       !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
+                                                                       !8:EXPERIMENTAL
 
       type (crys_2d_type),            save,  public  :: crys
       type (Opt_Conditions_Type),     save,  public  :: opti
@@ -117,7 +124,6 @@
       character(len=*),  intent(in)  :: namef
       logical,           intent(out) :: logi
       integer :: i
-      character(len=160) :: line
       call number_lines(namef, numberl)                            ! count number of lines in file
 
       logi=.true.
@@ -133,19 +139,8 @@
         call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
       end if
       close(unit=i_data)
-      do i = 1, numberl                 ! To read in case insensitive mode (First preserve the Title as input)
-        line=U_case(adjustl(tfile(i)))
-        if(line(1:5) == "TITLE") then
-          title=tfile(i)(6:)  !Setting the title
-          line="TITLE "//trim(title)
-        end if
-        if(line(1:4) == "FILE") then  !Preserving the case of the input data file (compatibility with Unix-like OPS)
-          line="FILE "//tfile(i)(6:)
-        end if
-        if(line(1:3) == "BGR") then  !Preserving the case of the background file (compatibility with Unix-like OPS)
-          line="BGR "//tfile(i)(5:)
-        end if
-        tfile(i)=line
+      do i = 1, numberl                 ! To read in case insensitive mode
+        call Ucase(tfile(i))
       end do
       call Set_Sections_index()
       return
@@ -195,45 +190,52 @@
       global:   do
         k=k+1; if(k > numberl) exit
         txt=adjustl(tfile(k))
-        if(txt(1:12) == "INSTRUMENTAL") then
+        if(txt(1:5) == "TITLE") then
           sect_indx(1) = k
           do
             k=k+1; if(k > numberl) exit
             txt=adjustl(tfile(k))
-            if(txt(1:10) == "STRUCTURAL") then
+            if(txt(1:12) == "INSTRUMENTAL") then
               sect_indx(2) = k
               do
                 k=k+1; if(k > numberl) exit
                 txt=adjustl(tfile(k))
-                if(txt(1:5) == "LAYER") then
+                if(txt(1:10) == "STRUCTURAL") then
                   sect_indx(3) = k
-                  !n_actual=r+1
-                  n_layers=l+1
                   do
                     k=k+1; if(k > numberl) exit
                     txt=adjustl(tfile(k))
-                    if(txt(1:8) == "STACKING") then
+                    if(txt(1:5) == "LAYER") then
                        sect_indx(4) = k
+                       !n_actual=r+1
+                       n_layers=l+1
                        do
                          k=k+1; if(k > numberl) exit
                          txt=adjustl(tfile(k))
-                         if(txt(1:11) == "TRANSITIONS") then
+                         if(txt(1:8) == "STACKING") then
                             sect_indx(5) = k
                             do
                               k=k+1; if(k > numberl) exit
                               txt=adjustl(tfile(k))
-                              if(txt(1:11) == "CALCULATION") then
+                              if(txt(1:11) == "TRANSITIONS") then
                                  sect_indx(6) = k
                                  do
                                    k=k+1; if(k > numberl) exit
                                    txt=adjustl(tfile(k))
-                                   if(txt(1:12) == "EXPERIMENTAL") then
+                                   if(txt(1:11) == "CALCULATION") then
                                       sect_indx(7) = k
-                                      exit global
-                                   end if
-                                 end do
-                              end if
-                            end do
+                                      do
+                                        k=k+1; if(k > numberl) exit
+                                        txt=adjustl(tfile(k))
+                                        if(txt(1:12) == "EXPERIMENTAL") then
+                                           sect_indx(8) = k
+                                           exit global
+                                     end if
+                                   end do
+                                 end if
+                               end do
+                             end if
+                           end do
                          end if
                        end do
                     end if
@@ -250,9 +252,38 @@
     End Subroutine Set_Sections_index
 
 
- !1:INSTRUMENTAL, 2:STRUCTURAL, 3:LAYER
- !4:STACKING , 5:TRANSITIONS, 6:CALCULATION,
- !7:EXPERIMENTAL
+ !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
+ !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
+ !8:EXPERIMENTAL
+
+    Subroutine Read_TITLE(logi)
+      logical, intent(out) :: logi
+
+      integer :: i,i1,i2,k, ier
+      character(len=132) :: txt
+
+      logical :: ok_title
+
+      logi=.true.
+      i1=sect_indx(1)
+      i2=sect_indx(2)-1
+
+      i=i1
+
+      ok_title=.false.
+
+      do
+        i=i+1
+        if(i > i2) exit
+        txt=adjustl(tfile(i))
+        if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
+        txt=adjustl(txt)
+        crys%ttl = txt
+        ok_title=.true.
+      end do
+
+    End Subroutine Read_TITLE
+
     Subroutine Read_INSTRUMENTAL(logi)
       logical, intent(out) :: logi
 
@@ -263,8 +294,8 @@
       real  :: ab
 
       logi=.true.
-      i1=sect_indx(1)
-      i2=sect_indx(2)-1
+      i1=sect_indx(2)
+      i2=sect_indx(3)-1
 
       i=i1
 
@@ -284,7 +315,7 @@
 
           Case("RADIATION")
 
-               if (index(txt , 'X-RAY')/=0 ) then
+                if (index(txt , 'X-RAY')/=0 ) then
                   crys%rad_type = 0
                 else if (index(txt , 'NEUTRON')/=0) then
                   crys%rad_type = 1
@@ -300,17 +331,25 @@
 
           Case("WAVELENGTH")
 
-             read(unit=txt,fmt=*, iostat=ier) crys%lambda, crys%lambda2, crys%ratio
-             if(ier /= 0 ) then
-                read(unit=txt,fmt=*, iostat=ier) crys%lambda
+            read(unit=txt,fmt=*, iostat=ier) crys%lambda, crys%lambda2, crys%ratio
+              if(ier /= 0 ) then
+                read(unit=txt,fmt=*, iostat=ier) crys%lambda, crys%lambda2
                 if(ier /= 0 ) then
+                  read(unit=txt,fmt=*, iostat=ier) crys%lambda
+                  if(ier/=0) then
+                     Err_crys=.true.
+                     Err_crys_mess="ERROR reading wavelength instruction"
+                     logi=.false.
+                     return
+                  end if
+                else
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading wavelength instruction"
+                  Err_crys_mess="ERROR reading ratio"
                   logi=.false.
                   return
                 end if
-             end if
-             ok_wave=.true.
+              end if
+            ok_wave=.true.
 
           Case("ABERRATIONS")
 
@@ -409,7 +448,7 @@
                return
              end if
 
-             if(index(txt,"TRIM") /= 0) crys%trm=.true.
+             if(index(txt,"TRIM") /= 0)   crys%trm=.true.
 
              i=i+1
              txt=adjustl(tfile(i))
@@ -431,7 +470,8 @@
                                                        crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
                 if(ier /= 0) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading the ranges of the Pseudo-Voigt parameters"
+                  Err_crys_mess= "ERROR reading the ranges of the Pseudo-Voigt parameters."
+                  write(*,*) "The line could be too long. It must not have more than 132 characters"
                   logi=.false.
                   return
                 end if
@@ -531,13 +571,6 @@
                crys%Pv_refi(crys%p(np)) =crys%p_dl
              end if
 
-             if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
-             if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
-             if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
-             if (abs(crys%ref_p_x) > 0.0) crys%rang_p_x = 0.0
-             if (abs(crys%ref_p_dg) > 0.0) crys%rang_p_dg = 0.0
-             if (abs(crys%ref_p_dl) > 0.0) crys%rang_p_dl = 0.0
-
              ok_uvw=.true.
 
           Case("GAUSSIAN")
@@ -574,7 +607,8 @@
 
                 if(ier /= 0) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters"
+                  Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters."
+                  write(*,*) "The line could be too long. It must not have more than 132 characters"
                   logi=.false.
                   return
                 end if
@@ -645,12 +679,6 @@
                crys%Pv_refi(crys%p(np))=crys%p_dg
              end if
 
-             if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
-             if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
-             if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
-             if (abs(crys%ref_p_dg) > 0.0) crys%rang_p_dg = 0.0
-
-
              ok_uvw=.true.
 
           Case("LORENTZIAN")
@@ -687,7 +715,8 @@
 
                 if(ier /= 0) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters"
+                  Err_crys_mess="ERROR reading the ranges of the Gaussian/Lorentzian parameters."
+                  write(*,*) "The line could be too long. It must not have more than 132 characters"
                   logi=.false.
                   return
                 end if
@@ -757,12 +786,7 @@
                crys%Pv_refi(crys%p(np)) =crys%p_dl
              end if
 
-             if (abs(crys%ref_p_u) > 0.0) crys%rang_p_u = 0.0
-             if (abs(crys%ref_p_v) > 0.0) crys%rang_p_v = 0.0
-             if (abs(crys%ref_p_w) > 0.0) crys%rang_p_w = 0.0
-             if (abs(crys%ref_p_dl) > 0.0) crys%rang_p_dl = 0.0
-
-             ok_uvw=.true.
+            ok_uvw=.true.
 
           Case Default
 
@@ -791,8 +815,8 @@
       real  :: ab
 
       logi=.true.
-      i1=sect_indx(2)
-      i2=sect_indx(3)-1
+      i1=sect_indx(3)
+      i2=sect_indx(4)-1
 
       i=i1
 
@@ -909,11 +933,6 @@
                crys%Pv_refi(crys%p(np)) =crys%cell_gamma
              end if
 
-             if (abs(crys%ref_cell_a) > 0.0 ) crys%rang_cell_a = 0.0
-             if (abs(crys%ref_cell_b) > 0.0 ) crys%rang_cell_b = 0.0
-             if (abs(crys%ref_cell_c) > 0.0 ) crys%rang_cell_c = 0.0
-             if (abs(crys%ref_cell_gamma) > 0.0 ) crys%rang_cell_gamma = 0.0
-
              ok_cell=.true.
 
           Case("SYMM")
@@ -969,6 +988,12 @@
                logi=.false.
                return
              end if
+             if(crys%n_typ==0) then
+              Err_crys=.true.
+              Err_crys_mess="ERROR reading number of layer types. It can not be zero."
+              logi=.false.
+              return
+             end if
 
              ok_nlayers=.true.
 
@@ -983,26 +1008,25 @@
                   crys%layer_b= crys%layer_a
                   ier=0
                end if
-
+               if (crys%layer_a==0) then
+                 Err_crys=.true.
+                 Err_crys_mess="ERROR reading layer width parameters: width along a cannot be zero"
+                 logi=.false.
+                 return
+               end if
                if(ier /= 0 ) then
                  Err_crys=.true.
                  Err_crys_mess="ERROR reading layer width parameters"
                  logi=.false.
                  return
                end if
-               if (crys%layer_b==0) then
-                  crys%layer_b= crys%layer_a
-               end if
+
                i=i+1
                txt=adjustl(tfile(i))
               ! Reading refinement codes
                k=index(txt,"(")
                l=index(txt,")")
                  read(unit=txt(:k),fmt=*, iostat=ier) crys%ref_layer_a, crys%ref_layer_b
-                   if (crys%ref_layer_b==0) then
-                     crys%ref_layer_b = crys%ref_layer_a
-                     ier=0
-                   end if
                    if(ier /= 0) then
                      Err_crys=.true.
                      Err_crys_mess="ERROR reading the refinement codes of layer width parameters"
@@ -1013,14 +1037,9 @@
                    ! Reading range of parameters
                    if(k /= 0) then
                      read(unit=txt(k+1:l-1),fmt=*, iostat=ier) crys%rang_layer_a, crys%rang_layer_b
-
-                     if (abs(crys%ref_layer_b) > 0.0) then
-                       crys%rang_layer_b = crys%rang_layer_a
-                       ier=0
-                     end if
                      if(ier /= 0) then
                        Err_crys=.true.
-                       Err_crys_mess="ERROR reading the ranges of the Pseudo-Voigt parameters"
+                       Err_crys_mess="ERROR reading the ranges of the layer width parameters"
                        logi=.false.
                        return
                      end if
@@ -1042,25 +1061,25 @@
                      crys%mult(np) = ((abs(crys%ref_layer_a ))-(10.0* &
                        REAL(crys%p(np))))*SIGN(1.0,(crys%ref_layer_a ))
                      crys%vlim1(crys%p(np)) = crys%layer_a - crys%rang_layer_a
+                     if (crys%vlim1(crys%p(np))   .LT. 0 ) crys%vlim1(crys%p(np)) = 0
                      crys%vlim2(crys%p(np)) = crys%layer_a + crys%rang_layer_a
-                     np = np + 1
-                     crys%list (np) =crys%layer_b
                      crys%Pv_refi(crys%p(np)) =crys%layer_a
+                   end if
+                   if (abs(crys%ref_layer_b) > 0.0) then
+                     np = np + 1        ! to count npar
+                     crys%list (np) =crys%layer_b
                      write(unit=namepar(np),fmt="(a)")'diameter_b'
                      crys%cod(np) = 1
-                     ab =  (abs(crys%ref_layer_a)/10.0)
+                     ab =  (abs(crys%ref_layer_b)/10.0)
                      crys%p(np)= int(ab)
-                     crys%mult(np) = ((abs(crys%ref_layer_a ))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_layer_a ))
-                     crys%vlim1(crys%p(np)) = crys%layer_a - crys%rang_layer_a
-                     crys%vlim2(crys%p(np)) = crys%layer_a + crys%rang_layer_a
+                     crys%mult(np) = ((abs(crys%ref_layer_b ))-(10.0* &
+                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_layer_b ))
+                     crys%vlim1(crys%p(np)) = crys%layer_b - crys%rang_layer_b
+                     if (crys%vlim1(crys%p(np))   .LT. 0 ) crys%vlim1(crys%p(np)) = 0
+                     crys%vlim2(crys%p(np)) = crys%layer_b + crys%rang_layer_b
                      crys%Pv_refi(crys%p(np)) =crys%layer_b
                    end if
 
-                   if (abs(crys%ref_layer_a) > 0.0) then
-                     crys%rang_layer_a  = 0.0
-                     crys%rang_layer_b  = 0.0
-                   end if
              else
                 Err_crys=.true.
                 Err_crys_mess="ERROR: No parameter in the Layer width instruction: this must be given!"
@@ -1081,7 +1100,7 @@
         return
       else
         Err_crys=.true.
-        Err_crys_mess="ERROR: cell parameters, Laue symmetry or number of layer types missing!"
+        Err_crys_mess="ERROR: cell parameters, Laue symmetry, number of layer types, or layers width missing!"
         logi=.false.
       end if
 
@@ -1099,13 +1118,21 @@
       integer,          dimension(:),     allocatable  :: d !counts nº of atoms in unique layer
       real  :: ab
 
+      if (allocated (crys%fundamental)) deallocate(crys%fundamental)
+      allocate(crys%fundamental(crys%n_typ))
+
+
+      if (allocated (crys%original)) deallocate(crys%original)
+      allocate(crys%original(crys%n_typ))
+      crys%original=0
+
       if (allocated (d)) deallocate(d)
       allocate(d(max_a))
       d=0
 
       logi=.true.
-      i1=sect_indx(3)
-      i2=sect_indx(4)-1
+      i1=sect_indx(4)
+      i2=sect_indx(5)-1
 
       i=i1-1
 
@@ -1133,8 +1160,9 @@
           Case ("LAYER")
             if (index(txt,'=') /= 0) then        ! search for '=' sign
               j = j+1
-
               read (unit = txt, fmt =*, iostat = ier) a1, layer, a2
+              crys%fundamental(j)=.false.
+              crys%original(j)= a2
               if(ier /= 0) then
                 Err_crys=.true.
                 Err_crys_mess="ERROR reading layer equivalencies"
@@ -1153,7 +1181,7 @@
               j=j+1
               r=r+1
               crys%l_actual(j) = r
-
+              crys%fundamental(j)=.true.
             end if
             crys%n_actual = r
             n_layers=j
@@ -1192,7 +1220,12 @@
             read(unit=citem(2),fmt=*,iostat=ier) crys%a_num (d(r),r)
             read(unit=citem(6),fmt=*,iostat=ier) crys%a_B (d(r),r)
             read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
-
+             if(crys%a_occup(d(r),r)<0 .or. crys%a_occup(d(r),r)>1) then
+               Err_crys=.true.
+               Err_crys_mess="ERROR reading atomic parameters. Occupation must be between 0 and 1"
+               logi=.false.
+               return
+             end if
             if(ier /= 0) then
               Err_crys=.true.
               Err_crys_mess="ERROR reading atomic parameters"
@@ -1289,10 +1322,6 @@
               crys%vlim2(crys%p(np)) = crys%a_B( d(r),r) + crys%rang_a_B( d(r),r)
               crys%Pv_refi(crys%p(np)) =crys%a_B( d(r),r)
             end if
-            if (abs(crys%ref_a_pos(1, d(r),r)) > 0.0) crys%rang_a_pos (1,d(r),r) = 0.0
-            if (abs(crys%ref_a_pos(2, d(r),r)) > 0.0) crys%rang_a_pos (2,d(r),r) = 0.0
-            if (abs(crys%ref_a_pos(3, d(r),r)) > 0.0) crys%rang_a_pos (3,d(r),r) = 0.0
-            if (abs(crys%ref_a_B( d(r),r)) > 0.0) crys%rang_a_B (d(r),r) = 0.0
 
             crys%l_n_atoms(r) = d(r)
             ok_atom=.true.
@@ -1342,12 +1371,14 @@
       real  :: ab
 
       logi=.true.
-      i1=sect_indx(4)
-      i2=sect_indx(5)-1
+      i1=sect_indx(5)
+      i2=sect_indx(6)-1
 
       i=i1
 
       ok_explicit=.false.; ok_recursive=.false.
+
+      crys%randm=.false.; crys%semirandm=.false.; crys%spcfc=.false.
 
       do
 
@@ -1369,8 +1400,9 @@
               txt=adjustl(tfile(i))
             end if
             if (index(txt , 'SPECIFIC')/=0 ) then
+              crys%spcfc=.true.
               crys%inf_thick = .false.
-            read (unit = txt, fmt = *, iostat = ier) lstype
+              read (unit = txt, fmt = *, iostat = ier) lstype
               do
                 i=i+1
                 if (i>i2) exit
@@ -1384,19 +1416,8 @@
                 crys%l_cnt = r
               end do
 
-
-            else if (index(txt , 'RANDOM')/=0) then
-              read (unit = txt, fmt = *, iostat = ier) lstype, crys%l_cnt
-                if   (crys%l_cnt==0) then
-                  Err_crys=.true.
-                  Err_crys_mess="ERROR :  Number of layers is missing"
-                  logi = .false.
-                  return
-                end if
-                  crys%inf_thick = .false.
-                  rndm = .true.
-
             else if (index(txt , 'SEMIRANDOM')/=0) then
+              crys%semirandm=.true.
               read (unit = txt, fmt = *, iostat = ier) lstype, crys%l_cnt
                 if   (crys%l_cnt==0) then
                   Err_crys=.true.
@@ -1412,6 +1433,10 @@
                 if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
                 if (index(txt , 'SEQ')==1) then
                   read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
+                  crys%fls=j1
+                  crys%lls=j2
+                  crys%otls=l1
+                  crys%stls=l2
                   crys%n_seq=crys%n_seq+1
                   j=j1
                   do
@@ -1427,10 +1452,26 @@
                     j=j+1
                   end do
                 else
+                  !Err_crys=.true.
+                  !Err_crys_mess="ERROR : Layer explicit sequences missing"
                   write(*,*) "ERROR : Layer explicit sequences missing"
                   logi = .false.
                   return
                 end if
+
+            else if (index(txt , 'RANDOM')/=0) then
+              crys%randm=.true.
+              read (unit = txt, fmt = *, iostat = ier) lstype, crys%l_cnt
+                if   (crys%l_cnt==0) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR :  Number of layers is missing"
+                  logi = .false.
+                  return
+                end if
+                  crys%inf_thick = .false.
+                  rndm = .true.
+
+
             else
               Err_crys=.true.
               Err_crys_mess="ERROR reading explicit layer sequence"
@@ -1451,7 +1492,11 @@
               crys%inf_thick = .true.
             else
               read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
-              crys%inf_thick = .false.
+              if (crys%l_cnt>=1023.0) then
+                crys%inf_thick = .true.
+              else
+                crys%inf_thick = .false.
+              end if
               i=i+1
               txt=adjustl(tfile(i))
               !Reading refinement codes
@@ -1494,7 +1539,7 @@
                 crys%vlim2(crys%p(np)) = crys%l_cnt + crys%rang_l_cnt
                 crys%Pv_refi(crys%p(np)) = crys%l_cnt
               end if
-              if (abs(crys%ref_l_cnt) > 0.0) crys%rang_l_cnt = 0.0
+             ! if (abs(crys%ref_l_cnt) > 0.0) crys%rang_l_cnt = 0.0
             end if
             ok_recursive=.true.
 
@@ -1525,8 +1570,8 @@
 
       logi=.true.
       ok_lt=.false.
-      i1=sect_indx(5)
-      i2=sect_indx(6)-1
+      i1=sect_indx(6)
+      i2=sect_indx(7)-1
 
       i=i1+1
       l=1
@@ -1544,9 +1589,16 @@
           key=txt(1:k-1)
           txt=adjustl(txt(k+1:))
 
-          SELECT CASE (key)
+
+          write(*,*) "KEY", key
+        SELECT CASE (key)
 
           CASE ("LT")
+            if (j==n_layers) then
+                l=l+1
+                j=0
+            end if
+
             j=j+1
 
             call getword(txt, citem, nitem)
@@ -1562,7 +1614,7 @@
             read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
             if(ier /= 0) then
                    Err_crys=.true.
-                   Err_crys_mess="ERROR reading atomic parameters"
+                   Err_crys_mess="ERROR reading layer probabilities"
                    logi=.false.
                    return
             end if
@@ -1589,6 +1641,8 @@
               crys%mult(np) = ((abs(crys%ref_l_alpha (j,l)))-(10.0* &
                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_alpha (j,l)))
               crys%vlim1(crys%p(np))=crys%l_alpha(j,l)- crys%rang_l_alpha (j,l)
+                write(*,*)  "crys%vlim1(crys%p(np)), crys%l_alpha(j,l), crys%rang_l_alpha (j,l):",&
+                                 crys%vlim1(crys%p(np)), crys%l_alpha(j,l), crys%rang_l_alpha (j,l)
               if (crys%vlim1(crys%p(np))  .LT. 0 ) crys%vlim1(crys%p(np)) = 0
               crys%vlim2(crys%p(np)) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
               if (crys%vlim2(crys%p(np))  > 1 ) crys%vlim2(crys%p(np)) = 1
@@ -1634,21 +1688,22 @@
               crys%Pv_refi(crys%p(np)) = crys%l_r(3,j,l)
             end if
 
-            if (abs(crys%ref_l_alpha (j,l)) > 0.0)  crys%rang_l_alpha(j,l) = 0.0
-            if (abs(crys%ref_l_r(1,j,l)) > 0.0 )  crys%rang_l_r(1,j,l) = 0.0
-            if (abs(crys%ref_l_r(2,j,l)) > 0.0)  crys%rang_l_r(2,j,l) = 0.0
-            if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  crys%rang_l_r(3,j,l) = 0.0
+         !  if (abs(crys%ref_l_alpha (j,l)) > 0.0)  crys%rang_l_alpha(j,l) = 0.0
+         !  if (abs(crys%ref_l_r(1,j,l)) > 0.0 )  crys%rang_l_r(1,j,l) = 0.0
+         !  if (abs(crys%ref_l_r(2,j,l)) > 0.0)  crys%rang_l_r(2,j,l) = 0.0
+         !  if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  crys%rang_l_r(3,j,l) = 0.0
 
-            if (j==n_layers) then
-                l=l+1
-                j=0
-            end if
+            write(*,*) "l,j", l,j
+
             i=i+1
-            ok_lt=.true.
 
 
           CASE ("FW")
+            write(*,*) "TXT, l, j", txt, l, j
+            write(*,*) "l, j",  l, j
             read (unit = txt, fmt =*, iostat = ier) crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
+                                                    crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
+            WRITE(*,*) "J,L,fw", j, l,   crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
                                                     crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
             if(ier /= 0) then
               Err_crys=.true.
@@ -1661,7 +1716,10 @@
           CASE DEFAULT
             cycle
           end select
+
+
         end do
+
 
         DO  l = 1, crys%n_typ        !check if l_apha sums one for each layer
           suma = 0
@@ -1675,6 +1733,7 @@
             logi = .false.
           end if
         END DO
+        ok_lt=.true.
         if(ok_lt) then
           return
         else
@@ -1695,84 +1754,19 @@
                  ok_range, ok_corrmax, ok_tol, ok_nprint
 
       logi=.true.
-      i1=sect_indx(6)
-      if (sect_indx(7) == 0) then
+      i1=sect_indx(7)
+      if (sect_indx(8) == 0) then
         i2= numberl
       else
-        i2=sect_indx(7)-1 !if simulation there is no experimental section
+        i2=sect_indx(8)-1 !if simulation there is no experimental section
       end if
 
       i=i1
 
+
       ok_sim=.false.; ok_opt=.false.; ok_eps=.false.; ok_acc=.false.; ok_iout=.false.; ok_mxfun=.false.
       ok_lmq=.false.; ok_boxp=.false.; ok_maxfun=.false.; ok_corrmax=.false.; ok_tol=.false. ; ok_nprint=.false.
       ok_range=.false.
-
-      txt=adjustl(tfile(i)) !CALCULATION LINE containing eventually range 2theta_max, 2theta_min, step
-      txt=txt(12:)
-      k=index(txt,"{")
-      if( k /= 0) txt=txt(:k-1)
-      k=index(txt,"!")
-      if( k /= 0) txt=txt(:k-1)
-
-      if(len_trim(txt) /= 0) then ! Reading range
-        read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
-        if(ier /= 0 ) then
-          Err_crys=.true.
-          Err_crys_mess="ERROR reading 2theta ranges"
-          logi=.false.
-          return
-        end if
-
-        IF(th2_min < zero) THEN
-          WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
-          logi = .false.
-          RETURN
-        END IF
-        IF(th2_min >= one_eighty) THEN
-          WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
-          logi = .false.
-          RETURN
-        END IF
-        IF(th2_max <= zero) THEN
-            WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta min.'
-            logi = .false.
-            RETURN
-        END IF
-        IF(th2_max > one_eighty) THEN
-            WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
-            logi = .false.
-            RETURN
-        END IF
-        ! if th2_max = 180, reduce it slightly to keep us out of trouble
-        IF(th2_max == one_eighty) th2_max = th2_max - eps4
-        IF(d_theta <= zero) THEN
-          WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
-          logi = .false.
-          RETURN
-        END IF
-        IF(th2_min >= th2_max) THEN
-            WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
-            logi = .false.
-            RETURN
-        END IF
-        IF((th2_max - th2_min) < d_theta) THEN
-             WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
-             logi = .false.
-             RETURN
-        END IF
-
-        !--- Calculation of n_high (maximum index of the array for pattern calculation)
-        thmin=th2_min
-        thmax=th2_max
-        step_2th=d_theta
-        n_high = nint((th2_max-th2_min)/d_theta+1.0_dp)
-        !th2_min = th2_min * deg2rad
-        !th2_max = th2_max * deg2rad
-        !d_theta = half * deg2rad * d_theta
-        ok_range=.true.
-
-      end if
 
 
       do
@@ -1786,13 +1780,75 @@
         Select Case(key)
 
           Case ('SIMULATION')
-                  if(.not. ok_range) then
-                     WRITE(op,"(a)") ' ERROR: No 2theta range has been provided in CALCULATION instruction.'
-                     logi = .false.
-                     RETURN
-                  end if
-                  opt = 0
-                  ok_sim = .true.
+
+            i=i+1; if(i > i2) exit
+            txt=adjustl(tfile(i))
+
+            if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
+            if(len_trim(txt) /= 0) then ! Reading range
+              read (unit = txt, fmt = *, iostat=ier) th2_min, th2_max, d_theta
+                if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading 2theta ranges"
+                  logi=.false.
+                  return
+                end if
+                IF(th2_min < zero) THEN
+                  WRITE(op,"(a)") ' ERROR: 2theta min is negative.'
+                  logi = .false.
+                  RETURN
+                END IF
+                IF(th2_min >= one_eighty) THEN
+                  WRITE(op,"(a)") ' ERROR: 2theta min exceeds 180 degrees.'
+                  logi = .false.
+                  RETURN
+                END IF
+                IF(th2_max <= zero) THEN
+                  WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta max.'
+                  logi = .false.
+                  RETURN
+                END IF
+                IF(th2_max > one_eighty) THEN
+                  WRITE(op,"(a)") ' ERROR: 2theta max exceeds 180 degrees.'
+                  logi = .false.
+                  RETURN
+                END IF
+                ! if th2_max = 180, reduce it slightly to keep us out of trouble
+                IF(th2_max == one_eighty) th2_max = th2_max - eps4
+                IF(d_theta <= zero) THEN
+                  WRITE(op,"(a)") ' ERROR: Negative (or zero) value for 2theta increment.'
+                  logi = .false.
+                  RETURN
+                END IF
+                IF(th2_min >= th2_max) THEN
+                  WRITE(op,"(a)") ' ERROR: 2theta min is larger than 2theta max.'
+                  logi = .false.
+                  RETURN
+                END IF
+                IF((th2_max - th2_min) < d_theta) THEN
+                  WRITE(op,"(a)") ' ERROR: 2theta increment is larger than 2theta max - 2theta min.'
+                  logi = .false.
+                  RETURN
+                END IF
+
+              !--- Calculation of n_high (maximum index of the array for pattern calculation)
+              thmin=th2_min
+              thmax=th2_max
+              step_2th=d_theta
+              n_high = nint((th2_max-th2_min)/d_theta+1.0_dp)
+              !th2_min = th2_min * deg2rad
+              !th2_max = th2_max * deg2rad
+              !d_theta = half * deg2rad * d_theta
+              ok_range=.true.
+
+            end if
+            if(.not. ok_range) then
+              WRITE(op,"(a)") ' ERROR: No 2theta range has been provided in CALCULATION instruction.'
+              logi = .false.
+              RETURN
+            end if
+            opt = 0
+            ok_sim = .true.
 
           Case ("LMQ")
             opt=4
@@ -1820,10 +1876,14 @@
               end if
               if( Cond%percent <= 0.0 .or. Cond%percent >= 300.0)  then
                 Cond%constr=.false.
+                Err_crys=.true.
+                Err_crys_mess="ERROR: Boxp out of range. It must be 0<boxp<300"
+                logi=.false.
+                return
               else
                 Cond%constr=.true.
               end if
-            ok_boxp=.true.
+            !ok_boxp=.true.
 
           Case ("CORRMAX")
             txt=adjustl(txt(k+1:))
@@ -2041,7 +2101,7 @@
       logical :: ok_file, ok_fformat, ok_bgr, ok_bcalc
 
       logi=.true.
-      i1=sect_indx(7)
+      i1=sect_indx(8)
       i2=numberl
 
       i=i1
@@ -2290,28 +2350,29 @@
 
 
 !_____________________________________________________________________________________________________
-    !Subroutine new_getfil(stfile, olg)
-    !
-    !
-    !   character(len=31) ,             intent (in out)      :: stfile
-    !   logical                   ,     intent (   out)      :: olg
-    !
-    !    write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
-    !    read(unit= *,fmt="(a)") stfile
-    !
-    !    !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
-    !    OPEN(UNIT = sf, FILE = sfname)
-    !    !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
-    !
-    !    call read_structure_file(stfile, olg)
-    !
-    !    if (err_crys) then
-    !      print*, trim(err_crys_mess)
-    !    else
-    !      write(op, fmt=*) "=> Structure input file read in"
-    !    end if
-    !    return
-    !End subroutine
+    Subroutine new_getfil(stfile,vecsan, olg)
+
+
+       character(len=31) ,             intent (in out)      :: stfile
+       type (State_Vector_Type),       intent (   out)      :: vecsan
+       logical                   ,     intent (   out)      :: olg
+
+        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
+        read(unit= *,fmt="(a)") stfile
+
+        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
+        OPEN(UNIT = sf, FILE = sfname)
+        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
+
+        call read_structure_file(stfile, olg)
+
+        if (err_crys) then
+          print*, trim(err_crys_mess)
+        else
+          write(op, fmt=*) "=> Structure input file read in"
+        end if
+        return
+    End subroutine
 
 !______________________________________________________________________________________________________
 
@@ -2326,9 +2387,9 @@
  !    INTEGER*4 i, j1, j2
  !
  !    i = 1
- !    j1 = len_trim(flag)
+ !    j1 = length(flag)
  !
- !    10 j2 = len_trim(list(i))
+ !    10 j2 = length(list(i))
 !!see if the string contained in list(i) is identical to that in flag
  !    IF(j1 == j2 .AND. INDEX(flag, list(i)(1:j2)) == 1) GO TO 20
  !    i = i + 1
@@ -2340,6 +2401,21 @@
  !    RETURN
  !    END FUNCTION choice
 !______________________________________________________________________________________________________
+
+     Function length(string) result(leng)    !from diffax
+
+        character(len=*), intent(in) :: string
+        integer :: leng
+        integer :: i
+        i=index(string," ")
+        if( i==0) then
+          leng=len_trim(string)
+        else
+          leng=i-1
+        end if
+      End Function length
+!______________________________________________________________________________________________________
+
         Subroutine read_structure_file (namef,  logi)
 
         character(len=*)    ,          intent(in    )     :: namef
@@ -2377,16 +2453,21 @@
         end if
 
         call Set_TFile(namef,logi)
-
         if(.not. logi) return
 
-        call Read_INSTRUMENTAL(logi)
-
-
-        if(.not. logi) then
+        call Read_TITLE(logi)
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
+          write(*,*)     "Title:   ", crys%ttl
+         end if
+
+        call Read_INSTRUMENTAL(logi)
+         if(.not. logi) then
+          write(*,"(a)")  " => "//Err_crys_mess
+          return
+         else
           write(*,"(a,i2)")     " Radiation:            ", crys%rad_type
           write(*,"(a,3f10.4)") " Lambda:               ", crys%lambda, crys%lambda2, crys%ratio
           write(*,"(a,6f10.2)") " peak-width parameters:", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
@@ -2394,12 +2475,13 @@
                                                            crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
           write(*,"(a,6f10.2)") " peak-width ranges:    ", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
                                                            crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
-        end if
+         end if
+
         call Read_STRUCTURAL(logi)
-        if(.not. logi) then
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
           write(*,"(a,4f10.4)") " Cell parameters:       ", crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma
           write(*,"(a,4f10.2)") " cell parameter codes:  ", crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
                                                             crys%ref_cell_gamma
@@ -2409,14 +2491,13 @@
           write(*,"(a,2f10.2)")     " layer width parameters:", crys%layer_a, crys%layer_b
           write(*,"(a,6f10.2)") " layer width codes:     ", crys%ref_layer_a, crys%ref_layer_b
           write(*,"(a,6f10.2)") " layer width ranges:    ", crys%rang_layer_a, crys%rang_layer_b
-        end if
+         end if
 
         call Read_LAYER(logi)
-
-        if(.not. logi) then
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
             b=1
             a=1
           do b=1, crys%n_actual
@@ -2432,13 +2513,13 @@
             end do
           end do
            write(*,*) "n_layers", n_layers
-        end if
+         end if
 
         call Read_STACKING (logi)
-        if(.not. logi) then
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
           if (crys%xplcit) then
             write(*, "(2a)") "Stacking type: EXPLICIT, ", lstype
             write(*, "(a, f5.2)") "Number of layers:", crys%l_cnt
@@ -2456,14 +2537,13 @@
                write (*, "(a, f5.2)") "Number of layers:", crys%l_cnt
              end if
            end if
-        end if
+         end if
 
         call Read_TRANSITIONS (logi)
-
-        if(.not. logi) then
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
           l=1
           j=1
           do l=1, n_layers
@@ -2479,17 +2559,17 @@
                                       crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
             end do
           end do
-        end if
+         end if
 
 
         call Read_CALCULATION (logi)
 
         crys%npar=np
 
-        if(.not. logi) then
+         if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
-        else
+         else
 
           if (opt==3) then        !construction of some optimization variables(DFP)
             numpar = crys%npar
@@ -2525,11 +2605,11 @@
             th2_max = th2_max * deg2rad
             d_theta = half * deg2rad * d_theta
           end if
-        end if
+         end if
 
         if (opt /= 0) then !not necessary for simulation
 
-          call Read_EXPERIMENTAL(logi)
+       call Read_EXPERIMENTAL(logi)
 
           if(.not. logi) then
             write(*,"(a)")  " => "//Err_crys_mess
@@ -2599,6 +2679,16 @@
                         mult(1:numpar) = crys%mult(1:numpar)
                               n_layers = crys%n_typ
 
+                                   ttl = crys%ttl
+                                   fundamental = crys%fundamental
+                                   original = crys%original
+                                   randm = crys%randm
+                                   semirandm = crys%semirandm
+                                   spcfc = crys%spcfc
+                                   fls = crys%fls
+                                   lls = crys%lls
+                                   otls = crys%otls
+                                   stls = crys%stls
         return
         End subroutine  read_structure_file
 

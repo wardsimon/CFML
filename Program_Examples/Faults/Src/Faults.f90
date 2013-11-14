@@ -5,7 +5,6 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use CFML_String_Utilities,      only : L_case
       use read_data,                  only : opti, crys_2d_type, crys, cond
 
       implicit none
@@ -27,12 +26,14 @@
           integer,                intent(in) :: i_ftls
 
 
-          integer                            :: a,b, j, l,i
+          integer                            :: a,b,c, j, l,i ,n, print_width
           CHARACTER(LEN=80)                  :: list(2)
 
-          write(i_ftls,"(a)")          " {Input control file for FAULTS program}"
-          write(i_ftls,"(/a/)")          " TITLE "//trim(title)
-          write(i_ftls,"(a)")          " INSTRUMENTAL  AND  SIZE  BROADENING  {Description of radiation, intrument broadening and aberrations}"
+          write(i_ftls,"(a)")          "TITLE"
+          write(i_ftls,"(a)")          crys%ttl
+
+          write(i_ftls,"(a)")              "  "
+          write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
           if (crys%rad_type == 0 ) then
             write(i_ftls,"(a)")     " Radiation            X-RAY"
           elseif (crys%rad_type == 1 ) then
@@ -40,99 +41,112 @@
           else
             write(i_ftls,"(a)")     " Radiation            ELECTRON"
           end if
-          write(i_ftls,"(a,3f10.5)") " Lambda      ", crys%lambda , crys%lambda2 , crys%ratio
+          write(i_ftls,"(a,3f10.4)") " Wavelength                ", crys%lambda , crys%lambda2 , crys%ratio
+
+          write(i_ftls,"(a,3f10.4)") " Aberrations", crys%zero_shift, crys%sycos, crys%sysin
+          write(i_ftls,"(tr13,3f10.2,a,3f10.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "  (", &
+                                       crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin, ")"
 
           if (crys%broad == ps_vgt .and. crys%trm) then
-            write(i_ftls,"(a,4f10.5,2f10.2, a)") " Pseudo-Voigt", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
+            write(i_ftls,"(a,4f12.6,2f7.2, a)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
             write(i_ftls,"(tr13,6f10.2, a,6f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg, crys%rang_p_dl," )"
+                                        crys%rang_p_dg, crys%rang_p_dl,")"
           elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
-            write(i_ftls,"(a,4f10.5,2f10.2)") " Pseudo-Voigt", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
-            write(i_ftls,"(tr13,6f10.2, a,6f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+            write(i_ftls,"(a,4f12.6,2f7.2)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
+            write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg, crys%rang_p_dl," )"
+                                        crys%rang_p_dg, crys%rang_p_dl,")"
           elseif (crys%broad == pv_gss .and. crys%trm) then
-            write(i_ftls,"(a,4f10.5,f10.2, a)") " Gaussian", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
-            write(i_ftls,"(tr8,5f10.2, a,5f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+            write(i_ftls,"(a,4f12.6,1f7.2, a)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
+            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg ," )"
+                                        crys%rang_p_dg ,")"
           elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
-            write(i_ftls,"(a,4f10.5,f10.2)") " Gaussian", pv_u, pv_v, pv_w, pv_x, pv_dg
-            write(i_ftls,"(tr8,5f10.2, a,5f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+            write(i_ftls,"(a,4f12.6,1f7.2)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg
+            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
                                         "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg ," )"
+                                        crys%rang_p_dg ,")"
           elseif (crys%broad == pv_lrn .and. crys%trm ) then
-            write(i_ftls,"(a,4f10.5,f10.2, a)") "Lorentzian", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
-            write(i_ftls,"(tr11,5f10.2, a,5f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+            write(i_ftls,"(a,4f12.6,1f7.2 a)") "LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
+            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dl," )"
+                                        crys%rang_p_dl,")"
           elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
-            write(i_ftls,"(a,4f10.5,f10.2)") " Lorentzian", pv_u, pv_v, pv_w, pv_x, pv_dl
-            write(i_ftls,"(tr11,5f10.2, a,5f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+            write(i_ftls,"(a,4f12.6,1f7.2)") " LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl
+            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
                                         crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dl," )"
+                                        crys%rang_p_dl,")"
           else
             write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
             return
           end if
-          write(i_ftls,"(a,3f10.5)") " Aberrations ", crys%zero_shift, crys%sycos, crys%sysin
-          write(i_ftls,"(tr13,3f10.2,a,3f8.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "  (", &
-                                       crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin, " )"
+
 
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          " STRUCTURAL  "
-          write(i_ftls,"(a,3f10.5,f10.3)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma
-          write(i_ftls,"(tr7,4f10.2,a,4f8.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
-                                               "  (", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma," )"
-          write(i_ftls,"(a)")       " SYMM   "//trim(L_case(crys%sym))
-          write(i_ftls,"(a,i4,a)")  " Nlayers", n_layers,"    {Number of layer types}"
+          write(i_ftls,"(a,3f12.6,f12.2)")   " CELL  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
+          write(i_ftls,"(tr4,4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
+                                               "  (", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
+          write(i_ftls,*)            " SYMM  ", pnt_grp
+          write(i_ftls,"(a,i2)")            " NLAYERS  ", n_layers
           if (crys%finite_width) then
-            write(i_ftls,"(a)")    "  {Size along a and b in angstroms}"
-            write(i_ftls,"(2f10.5)")    Wa, Wb
-            write(i_ftls,"(2f10.2,a,2f8.2,a)")    crys%ref_layer_a, crys%ref_layer_b , "  (", crys%rang_layer_a, &
-                                                     crys%rang_layer_b, " )"
+            write(i_ftls,"(a,2f10.2)") " LWIDTH",   Wa, Wb
+            write(i_ftls,"(2f10.2,a,2f10.2,a)")    crys%ref_layer_a, crys%ref_layer_b , "  (", crys%rang_layer_a, &
+                                                     crys%rang_layer_b, ")"
           else
-            write(i_ftls,"(a)")        " INFINITE"
+            write(i_ftls,"(a)")        "LWIDTH  INFINITE"
           end if
 
           b=1
           a=1
+          c=0
           do b=1, n_layers
             write(i_ftls,"(a)")              "  "
-            write(i_ftls,"(a, i2)")  " LAYER", b
-            list(1) = 'None '
-            list(2) = 'Centrosymmetric '
-           !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
-            write(i_ftls,"(2a)")      " LSYM   ", list(l_symmetry(b)+1)
-            do a=1, crys%l_n_atoms(b)
-              write(i_ftls,"(2a,i4, 5f10.5)") " ATOM ", a_name(a,b), a_number(a,b), a_pos(1, a,b)/pi2, &
-                                         a_pos(2, a,b)/pi2,a_pos(3, a,b)/pi2, a_B (a,b), a_occup(a,b)
-              write(i_ftls,"(tr14,4f10.2,a,4f8.2,a)") crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
-                                                  crys%ref_a_pos(3, a,b), crys%ref_a_B(a,b), "  (", crys%rang_a_pos(1, a,b),&
-                                                  crys%rang_a_pos(2, a,b), crys%rang_a_pos(3, a,b), crys%rang_a_B(a,b)," )"
-            end do
+            if (fundamental(b) .eqv. .false.) then
+              write(i_ftls,"(a,i2,a,i2)") "LAYER",b," =", original(b)
+            else
+              c=c+1
+              write(i_ftls,"(a, i2)")  " LAYER", b
+              list(1) = 'NONE '
+              list(2) = 'CENTROSYMMETRIC '
+             !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
+              write(i_ftls,"(2a)")      " LSYM   ", list(l_symmetry(c)+1)
+              do a=1, crys%l_n_atoms(c)
+                write(i_ftls,"(2a,i4, 5f10.5)") " ATOM ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
+                                           a_pos(2, a,c)/pi2,a_pos(3, a,c)/pi2, a_B (a,c), a_occup(a,c)
+                write(i_ftls,"(tr13,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,c), crys%ref_a_pos(2, a,c), &
+                                                  crys%ref_a_pos(3, a,c), crys%ref_a_B(a,c), "  (", crys%rang_a_pos(1, a,c),&
+                                                  crys%rang_a_pos(2, a,c), crys%rang_a_pos(3, a,c), crys%rang_a_B(a,c),")"
+              end do
+            end if
           end do
-          write(i_ftls,"(a)")    "  "
-          write(i_ftls,"(a)")    " STACKING"
+          write(i_ftls,"(a)")              "  "
+          write(i_ftls,"(a)")          " STACKING"
           if (crys%xplcit) then
             write(i_ftls, "(a)") " EXPLICIT "
-            if (rndm) then
-               write(i_ftls, " (f5.2)")   l_cnt
-            else
-               write(i_ftls,"(a)") lstype
-               if (index(lstype, 'SEMIRANDOM')/=0) then
-                 i=1
-                 do i=1,crys%n_seq
-                   write(i_ftls,"(a)") "SEQ"             !----------------TO BE FINISHED
-                 end do
-               elseif(index(lstype, 'SPECIFIC')/=0) then
+            !if (rndm) then
+            !   write(i_ftls, " (a,f5.2)") "RANDOM ",l_cnt
+           ! else
+            !   write(i_ftls,"(a)") lstype
+               if (semirandm) then
+                 write(i_ftls,"(a)", advance="no") " SEMIRANDOM "
+                 write(i_ftls,"(f6.1)") l_cnt
+                 write(i_ftls,"(a,i5,i5,i5,i5)") " SEQ", fls, lls, otls, stls
+                ! i=1
+                ! do i=1,crys%n_seq
+                   !write(i_ftls,"(a)") "SEQ"             !----------------TO BE FINISHED
+                ! end do
+               elseif(spcfc) then
                  write(i_ftls,"(a)") " SPECIFIC"
-                 write(i_ftls, *) crys%l_seq(1:crys%l_cnt)
+                 write(i_ftls, "(25i2)") crys%l_seq(1:crys%l_cnt)
+               elseif(randm) then
+                 write(i_ftls,"(a)", advance="no") " RANDOM "
+                 write(i_ftls,"(f6.1)") l_cnt
                else
-                 write(i_ftls,"(a)") " RANDOM"
+                 write(i_ftls,"(a)") "ez du ondo egin"
                end if
-            end if
+           ! end if
             !a = 1
             !do a=1, int(crys%l_cnt)
             !    if (crys%l_seq(a) /=0) then
@@ -144,44 +158,45 @@
              if (crys%inf_thick) then
                write (i_ftls, "(a)") " INFINITE"
              else
-               write (i_ftls, "( f5.2)") l_cnt
-               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "  (", crys%rang_l_cnt, " )"
+               write (i_ftls, "( f6.1)") l_cnt
+               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "  (", crys%rang_l_cnt, ")"
              end if
            end if
-          write(i_ftls,"(a)") "  "
-          write(i_ftls,"(a)") " TRANSITIONS"
+          write(i_ftls,"(a)")              "  "
+          write(i_ftls,"(a)")          " TRANSITIONS"
           l=1
           j=1
           do l=1, n_layers
             do j=1, n_layers
-              write(i_ftls, "(a,i2, a, i2)") "! Layer ", l, " to Layer ", j
-              write(i_ftls, "(a, 4f10.5)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
+              write(i_ftls, "(a,i2, a, i2)") "!layer ", l, " to layer ", j
+              write(i_ftls, "(a, 4f10.4)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
 
 
-              write(i_ftls, "(tr3,4f10.2,a,4f8.2,a)") crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
-                                                       crys%ref_l_r (3,j,l), "  (" ,  crys%rang_l_alpha (j,l), &
-                                                       crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l), " )"
-              write(i_ftls, "(a, 6f10.5)") "FT ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
-                                                 r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
+              write(i_ftls, "(tr3,4f10.2,a,4f10.2,a)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+                                                      crys%ref_l_r (3,j,l), "  (" ,  crys%rang_l_alpha (j,l), &
+                                                      crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l), ")"
+              write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
+                                      r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
             end do
           end do
-          write(i_ftls,"(a)")          "  "
-          write(i_ftls,"(a, 3f10.5, a)")  " CALCULATION  ", thmin, thmax, step_2th, "  {2theta range and step for calculating the pattern}"
+          write(i_ftls,"(a)")              "  "
+          write(i_ftls,"(a)")     " CALCULATION  "
           if (opt == 0) then
-            write(i_ftls,"(a)")           " SIMULATION"
+            write(i_ftls,"(a)")          " SIMULATION"
+            write(i_ftls,"(3f10.4)")     th2_min, th2_max, d_theta
           elseif (opt == 3) then
-            write(i_ftls,"(a)")          " LOCAL_OPTIMIZER   "//trim(opti%method)//"       {Local optimization method}"
-            write(i_ftls,"(a,i9,a)")     " Mxfun", opti%mxfun,"    {Maximum number of function evaluations}"
-            write(i_ftls,"(a,g9.2,a)")   " Eps  ", opti%eps,  "    {Tolerance for convergence condition}"
-            write(i_ftls,"(a,i9,a)")     " Iout ", opti%iout, "    {Output refinement information if IOUT/=0 }"
-            write(i_ftls,"(a,g9.2,a)")   " Acc  ", opti%acc,  "    {Minimum Percentage of accepted configurations}"
+            write(i_ftls,"(2a)")          " LOCAL_OPTIMIZER   ", opti%method
+            write(i_ftls,"(a,i4)")          " MXFUN  ", opti%mxfun
+            write(i_ftls,"(a,f10.4)")          " EPS  ", opti%eps
+            write(i_ftls,"(a, i2)")          " IOUT  ", opti%iout
+            write(i_ftls,"(a,f10.7)")          " ACC  ", opti%acc
           elseif (opt == 4) then
-            write(i_ftls,"(a)")          " LMQ                 {Levenberg-Marquardt Least Squares refinement}"
-            if (Cond%constr) write(i_ftls,"(a,f10.4)")          " Boxp    " , Cond%percent
-            write(i_ftls,"(a,i9,a)")    " Corrmax", cond%corrmax,"    {Correlations above CORRMAX (in %) are output}"
-            write(i_ftls,"(a,i9,a)")    " Maxfun ", cond%icyc,   "    {Maximum number of function evaluations}"
-            write(i_ftls,"(a,g9.2,a)")  " Tol    ", cond%tol,    "    {Tolerance for convergence condition}"
-            write(i_ftls,"(a,i9,a)")    " Nprint ", cond%nprint, "    {Output refinement information each Nprint iterations}"
+            write(i_ftls,"(a)")          " LMQ"
+            if (Cond%constr) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
+            write(i_ftls,"(a,i4)")    " CORRMAX    ", cond%corrmax
+            write(i_ftls,"(a,i4)")    " MAXFUN     ", cond%icyc
+            write(i_ftls,"(a,f10.4)")    " TOL     ", cond%tol
+            write(i_ftls,"(a,i2)")    " Nprint     ", cond%nprint
           else
             write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
             return
@@ -190,18 +205,17 @@
           if(opt == 3 .or. opt == 4) then
             write(i_ftls,"(a)")              "  "
             write(i_ftls,"(a)")          " EXPERIMENTAL"
-            write(i_ftls,"(a)")          " FILE  "//trim(dfile)
+            write(i_ftls,"(2a)")         " FILE  ", dfile
             if (nexcrg /= 0) then
-              write(i_ftls,"(a, i3,a)")    " EXCLUDED_REGIONS  ",  nexcrg, "    {Number of Excluded regions}"
-              write(i_ftls,"(a)")    "!  2Theta_Low  2Theta_High  "
+              write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
               do i=1,nexcrg
-                write(i_ftls,"(2f13.4)")  alow(i),ahigh(i)
+                write(i_ftls,"(2f10.4)")  alow(i),ahigh(i)
               end do
 
             end if
-            write(i_ftls,"(a)")         " FFORMAT  "//trim(fmode)
-            write(i_ftls,"(a)")         " BGR      "//trim(background_file)
-            write(i_ftls,"(a)")         " BCALC    "//trim(mode)
+            write(i_ftls,"(2a)")         " FFORMAT  ",fmode
+            write(i_ftls,"(2a)")         " BGR  ",background_file
+            write(i_ftls,"(2a)")         " BCALC  ",mode
           end if
 
           return
@@ -356,6 +370,8 @@
          ! write(*,*) "fvec(Pat%npts)", fvec(Pat%npts) , pat%y(pat%npts), pat%ycalc(pat%npts)
          !write (*,*) "r, chi2 , punts, c,  opti%npar", r, chi2 , c,  punts, opti%npar, pat%npts
           write (*,*) "Rp=", r, "chi2=", chi2
+          !write (*,*) "a=",crys%cell_a,"b=",crys%cell_b,"c=",crys%cell_c
+
          return
        End subroutine calc_par_lmq
 
@@ -443,7 +459,7 @@
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
     use CFML_Math_General,          only : spline, splint, sind, cosd
     use diffax_mod
-    use read_data,                  only : crys, read_structure_file, opti , cond, vs
+    use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                            gospec, gostrk, gointr,gosadp, getfnm, nmcoor
     use Diff_ref,                   only : scale_factor, scale_factor_lmq, Write_Prf
@@ -452,6 +468,7 @@
 
     public  :: F_cost, Cost_LMQ, apply_aberrations !Cost3
     type (diffraction_pattern_type),  save         :: difpat
+    type (State_Vector_Type), public, save         :: st
 
     contains
 
@@ -656,17 +673,17 @@
          shift(i) = v(i) - vector(i)
       end do
 
-      do i = 1, crys%npar           !NOT CORRECT
-        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-        !write(*,*) state(i)
-        if (state(i) < crys%vlim1(crys%p(i)) .or. state(i) > crys%vlim2(crys%p(i))) then
-            write(*,*) "State corrections in", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
-            state(i) =  crys%vlim1(crys%p(i))+ (crys%vlim2(crys%p(i)) - crys%vlim1(crys%p(i))) / 2
-            write(*,*) "State corrections out", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
-        else
-            cycle
-        end if
-      end do
+     do i = 1, crys%npar           !NOT CORRECT
+       state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+       !write(*,*) state(i)
+  !     if (state(i) < crys%vlim1(crys%p(i)) .or. state(i) > crys%vlim2(crys%p(i))) then
+  !         write(*,*) "State corrections in", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
+  !         state(i) =  crys%vlim1(crys%p(i))+ (crys%vlim2(crys%p(i)) - crys%vlim1(crys%p(i))) / 2
+  !         write(*,*) "State corrections out", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
+  !     else
+  !         cycle
+  !     end if
+     end do
 
 
       !******* state(i) corrections *******        attention: vlim not used
@@ -1011,12 +1028,12 @@
      use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
-     use read_data,                    only : read_structure_file,  &
+     use read_data,                    only : new_getfil, read_structure_file, length,   &
                                               crys, opti, opsan, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Diff_ref ,                    only : scale_factor, scale_factor_lmq, Write_Prf, write_ftls
-     use dif_ref,                      only :  difpat , F_cost,  cost_LMQ, apply_aberrations !, cost3
+     use dif_ref,                      only :  difpat , F_cost, st, cost_LMQ, apply_aberrations !, cost3
 
      implicit none
 
@@ -1059,6 +1076,7 @@
       OPEN(UNIT = sf, FILE = sfname)
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
+      !call read_structure_file(infile, st, gol)
       call read_structure_file(infile, gol)  !new way
 
       if (err_crys) then
@@ -1068,6 +1086,7 @@
         write(op, fmt=*) "=> Structure input file read in"
       end if
 
+      !call new_getfil(infile, st,   gol)    ! Reading input control file
       opsan%Cost_function_name="R-factor"
 
       IF(gol) then
@@ -1376,39 +1395,39 @@
 !!!
 
 
-          Case (2) !SIMPLEX
-
-              rpo = 1000                         !initialization of agreement factor
-             ! rpl = 0
-              do i=1, opti%npar                       !creation of the step sizes
-                steplex(i) = 0.2 * crys%Pv_refi(i)
-                vector(i) = crys%Pv_refi(i)
-              end do
-              open (unit=23, file='nelder_mess.out', status='replace', action='write')
-              !write(*,*) "npar", opti%npar, numpar
-              call  Nelder_Mead_Simplex( F_cost,opti%npar  ,crys%Pv_refi(1:opti%npar) , &
-                                         steplex(1:opti%npar), var_plex(1:opti%npar), rpl, opti, ipr=23)
-              write(*,*)'Rp', rpo
-              write(*,*) '_____________________________________'
-              write(*,'(3a)') ' Parameter     refined value    '
-              write(*,*) '_____________________________________'
-              do i = 1, numpar
-                    write(*,*)  namepar(i)  ,statok(i)
-              end do
-
-
-              CALL getfnm(filenam, outfile, '.prf', ok)
-              if (ok) then
-                OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
-                call Write_Prf(difpat,out)
-              else
-                write(*,*) 'The outfile cannot be created'
-              end if
+!!!!      Case (2) !SIMPLEX
+!!!!
+!!!!          rpo = 1000                         !initialization of agreement factor
+!!!!         ! rpl = 0
+!!!!          do i=1, opti%npar                       !creation of the step sizes
+!!!!            steplex(i) = 0.2 * crys%Pv_refi(i)
+!!!!            vector(i) = crys%Pv_refi(i)
+!!!!          end do
+!!!!          open (unit=23, file='nelder_mess.out', status='replace', action='write')
+!!!!          !write(*,*) "npar", opti%npar, numpar
+!!!!          call  Nelder_Mead_Simplex( F_cost,opti%npar  ,crys%Pv_refi(1:opti%npar) , &
+!!!!                                     steplex(1:opti%npar), var_plex(1:opti%npar), rpl, opti, ipr=23)
+!!!!          write(*,*)'Rp', rpo
+!!!!          write(*,*) '_____________________________________'
+!!!!          write(*,'(3a)') ' Parameter     refined value    '
+!!!!          write(*,*) '_____________________________________'
+!!!!          do i = 1, numpar
+!!!!                write(*,*)  namepar(i)  ,statok(i)
+!!!!          end do
+!!!!
+!!!!
+!!!!          CALL getfnm(filenam, outfile, '.prf', ok)
+!!!!          if (ok) then
+!!!!            OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
+!!!!            call Write_Prf(difpat,out)
+!!!!          else
+!!!!            write(*,*) 'The outfile cannot be created'
+!!!!          end if
 
           Case (3) !Local optimizer
 
 
-              chi2o = 1000                         !initialization of agreement factor
+              rpo = 1000                         !initialization of agreement factor
             !  rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
                 vector(i) = crys%Pv_refi(i)
@@ -1416,13 +1435,15 @@
               end do
 
               open (unit=23, file='local_optimizer.out', status='replace', action='write')
-              if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDOM") then
+              if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDI" &
+                   .or. opti%method =="SIMPLEX") then
                 call Lcase(opti%method )
 
                 call Local_Optimize( F_cost,crys%Pv_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
                                     maxi=crys%vlim2(1:opti%npar),ipr=23  )
               else
-                write(*,*) "simplex to be added"
+                write(*,*) "Error in optimization method"
+                stop
               end if
               write(*,*)'Rp', rpo
               write(*,*) '______________________________________'
@@ -1439,6 +1460,12 @@
               else
                 write(*,*) 'The outfile cannot be created'
               end if
+              if (ok) then
+               OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
+               call Write_ftls(crys,i_flts)
+             else
+               write(*,*) 'The outfile .flts cannot be created'
+             end if
 
           Case (4) !LMQ
 
@@ -1471,7 +1498,7 @@
                OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
                call Write_ftls(crys,i_flts)
              else
-               write(*,*) 'The outfile .ftls cannot be created'
+               write(*,*) 'The outfile .flts cannot be created'
              end if
 
 

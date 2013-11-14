@@ -273,7 +273,6 @@
 !***********************************************************************
 
       Implicit None
-      Character(len=132) ::   Title=" "      !Title of the Job to be read in the input control file
       Integer, Parameter ::   max_l=20, &    !MAX_L  -  the maximum number of layer types allowed
                               max_a=200,&    !MAX_A  -  the maximum number of atoms per layer
                               max_ta=20,&    !MAX_TA -  the maximum number of different atom types
@@ -372,6 +371,7 @@
  character (len = 20)                   :: background_file  !name of backfround file
  character (len=20)                     :: mode             ! calculation for background: polynomial or interpolation
  character (len=20)                     :: lstype !type of explicit stacking
+ character (len=132)                    :: ttl  !title
 !
 !**********************     logical variables
 !
@@ -415,7 +415,8 @@
              same_layer,  &   !TRUE if all of the explicitly defined layers are identical
              finite_width     !d-> TRUE if layer widths are finite
 
-
+ logical,          dimension(:),     allocatable  :: fundamental  !array which defines if each layer is fundamental or not
+ logical                                          :: randm, semirandm, spcfc
 !
 !*********************     integer*4 variables
 !
@@ -508,6 +509,8 @@
   integer :: d_punt     !number of reflections
   integer :: h_min, h_max, k_min, k_max ! lower and higher values of index h and k
 
+  integer,          dimension(:),     allocatable  :: original
+  integer                                          :: fls, lls, otls, stls
 !
 !**********************     REAL(kind=dp) variables
 !
@@ -680,6 +683,8 @@
  integer, parameter        :: max_excl=100 !Maximum number of excluded regions
  integer                   :: nexcrg       !Number of excluded regions
  real, dimension(max_excl) :: alow, ahigh  !Excluded regions
+
+
 
  End Module diffax_mod
 !----------------------------------------------------------------------------------------------------
