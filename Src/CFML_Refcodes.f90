@@ -8596,37 +8596,41 @@
 
           !---- BISO ----!
           l=FAtom%atom(i)%lbiso
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-             case ("v","V") ! Passing Value
-                FAtom%atom(i)%biso=v_vec(l)*FAtom%atom(i)%mbiso
+          if (l > 0) then
+              if (l > np_refi) then
+                  err_refcodes=.true.
+                  ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                  return
+              end if
+              select case (car)
+                 case ("v","V") ! Passing Value
+                    FAtom%atom(i)%biso=v_vec(l)*FAtom%atom(i)%mbiso
 
-             case ("s","S") ! Passing Shift
-                FAtom%atom(i)%biso=FAtom%atom(i)%biso+v_shift(l)*FAtom%atom(i)%mbiso
-          end select
-          FAtom%atom(i)%biso_std=v_vec(l)*FAtom%atom(i)%mbiso
+                 case ("s","S") ! Passing Shift
+                    FAtom%atom(i)%biso=FAtom%atom(i)%biso+v_shift(l)*FAtom%atom(i)%mbiso
+              end select
+              FAtom%atom(i)%biso_std=v_vec_std(l)*FAtom%atom(i)%mbiso
+          end if
+
 
           !---- OCC ----!
           l=FAtom%atom(i)%locc
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-             case ("v","V") ! Passing Value
-                FAtom%atom(i)%occ=v_vec(l)*FAtom%atom(i)%mocc
+          if (l > 0) then
+              if (l > np_refi) then
+                 err_refcodes=.true.
+                 ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                 return
+              end if
+              select case (car)
+                 case ("v","V") ! Passing Value
+                    FAtom%atom(i)%occ=v_vec(l)*FAtom%atom(i)%mocc
+                 case ("s","S") ! Passing Shift
+                    FAtom%atom(i)%occ=FAtom%atom(i)%occ+v_shift(l)*FAtom%atom(i)%mocc
 
-             case ("s","S") ! Passing Shift
-                FAtom%atom(i)%occ=FAtom%atom(i)%occ+v_shift(l)*FAtom%atom(i)%mocc
-          end select
-          FAtom%atom(i)%occ_std=v_vec_std(l)*FAtom%atom(i)%mocc
+              end select
+              FAtom%atom(i)%occ_std=v_vec_std(l)*FAtom%atom(i)%mocc
+          end if
+
 
           !---- BANIS ----!
           do j=1,6
