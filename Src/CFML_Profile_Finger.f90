@@ -1403,7 +1403,7 @@
       dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
       dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
 
-      If (use_hps) Then
+      If (use_hps .or. asym2 < eps) Then
         dprds = 0.5_cp*(dprdd + dprds)  !S is really D+S
         dprdd = 0.5_cp*(dprdd - dprds)  !D is really D-S
       End If
