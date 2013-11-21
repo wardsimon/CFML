@@ -35,7 +35,7 @@
 !!---- MODULE: CFML_PowderProfiles_Finger
 !!----   INFO: Asymmetry due to axial divergence using the method of Finger, Cox and
 !!----         Jephcoat, J. Appl. Cryst. 27, 892, 1992.
-!!----         Implementation based in the paper by James Hester, 
+!!----         Implementation based in the paper by James Hester,
 !!----         J. Applied Crystallography 46, 1219-1220(2013).
 !!----
 !!---- HISTORY
@@ -1239,7 +1239,7 @@
 
         twoth0r=twoth0*to_rad
         cstwoth = Cos(twoth0r)
-        If (use_hps) Then
+        If (use_hps .or. asym2 < eps) Then
           s_l = 0.5*(asym1 - asym2)  ! 1/2(s_l+d_l - (d_l-s_l))
           d_l = 0.5*(asym1 + asym2)  ! 1/2(s_l+d_l + (d_l-s_l))
         Else
@@ -1273,7 +1273,7 @@
         ! If S_L or D_L are zero, set Einfl = 2theta
         ! If S_L equals D_L, set Einfl = 2theta
 
-        If ((s_l == 0.0) .OR. (d_l == 0.0) .OR. s_eq_d) then
+        If (abs(s_l) <= eps  .OR.  abs(d_l) <= eps  .OR. s_eq_d) then
           einfl = twoth0
           einflr=einfl*to_rad
         End if
@@ -1393,13 +1393,13 @@
         End Do  ! loop over left, right side of quadrature
       End Do
 
-      If (sumwg == 0.0) sumwg = 1.0_cp
+      If (abs(sumwg) <= eps) sumwg = 1.0_cp
       profval = sumwrg / sumwg
       dprdt = sumwgdrd2t/ sumwg
       dprdg = sumwgdrdg / sumwg
       dprde = sumwgdrde / sumwg
       !
-      If(normv_analytic <= 0.0) normv_analytic=1.0_cp
+      If(normv_analytic <= eps) normv_analytic=1.0_cp
       dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
       dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
 
