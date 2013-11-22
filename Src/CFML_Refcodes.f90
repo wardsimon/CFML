@@ -8547,7 +8547,7 @@
     !!----
     !!----    Update the values to the variable FAtom/MolCrys/Molec from Vector
     !!----
-    !!---- Update: March - 2005
+    !!---- Update: November 22 - 2013
     !!
 
     !!--++
@@ -8557,7 +8557,7 @@
     !!--++
     !!--++    (Overloaded)
     !!--++
-    !!--++ Update: March - 2005.
+    !!--++ Update: November 22 - 2013.
     !!--++ Modified to include standard deviations, November 3, 2013 (JRC)
     !!
     Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
@@ -8851,7 +8851,7 @@
         ich=1
        end if
 
-        do i=1,Mag_Dom%nd
+       do i=1,Mag_Dom%nd
          do j=1,ich
              l=Mag_Dom%Lpop(j,i)
              if (l == 0) cycle
@@ -8881,7 +8881,7 @@
     !!--++
     !!--++    (Overloaded)
     !!--++
-    !!--++ Update: March - 2005
+    !!--++ Update: November 22 - 2013
     !!
     Subroutine VState_to_AtomsPar_Molcrys(Molcrys,Mode)
        !---- Arguments ----!
@@ -8918,35 +8918,37 @@
 
           !---- BISO ----!
           l=molcrys%atm(i)%lbiso
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-             case ("v","V") ! Passing Value
-                molcrys%atm(i)%biso=v_vec(l)*molcrys%atm(i)%mbiso
+          if (l > 0) then
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                case ("v","V") ! Passing Value
+                   molcrys%atm(i)%biso=v_vec(l)*molcrys%atm(i)%mbiso
 
-             case ("s","S") ! Passing Shift
-                molcrys%atm(i)%biso=molcrys%atm(i)%biso+v_shift(l)*molcrys%atm(i)%mbiso
-          end select
+                case ("s","S") ! Passing Shift
+                   molcrys%atm(i)%biso=molcrys%atm(i)%biso+v_shift(l)*molcrys%atm(i)%mbiso
+             end select
+          end if
 
           !---- OCC ----!
           l=molcrys%atm(i)%locc
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-             case ("v","V") ! Passing Value
-                molcrys%atm(i)%occ=v_vec(l)*molcrys%atm(i)%mocc
+          if (l > 0) then
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                case ("v","V") ! Passing Value
+                   molcrys%atm(i)%occ=v_vec(l)*molcrys%atm(i)%mocc
 
-             case ("s","S") ! Passing Shift
-                molcrys%atm(i)%occ=molcrys%atm(i)%occ+v_shift(l)*molcrys%atm(i)%mocc
-          end select
+                case ("s","S") ! Passing Shift
+                   molcrys%atm(i)%occ=molcrys%atm(i)%occ+v_shift(l)*molcrys%atm(i)%mocc
+             end select
+          end if
 
           !---- BANIS ----!
           do j=1,6
@@ -8989,35 +8991,37 @@
 
              !---- Biso ----!
              l=molcrys%mol(k)%lbiso(i)
-             if (l == 0) cycle
-             if (l > np_refi) then
-                err_refcodes=.true.
-                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-                return
-             end if
-             select case (car)
-                case ("v","V") ! Passing Value
-                   molcrys%mol(k)%biso(i)=v_vec(l)*molcrys%mol(k)%mbiso(i)
+             if (l > 0) then
+                if (l > np_refi) then
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                   return
+                end if
+                select case (car)
+                   case ("v","V") ! Passing Value
+                      molcrys%mol(k)%biso(i)=v_vec(l)*molcrys%mol(k)%mbiso(i)
 
-                case ("s","S") ! Passing Shift
-                   molcrys%mol(k)%biso(i)=molcrys%mol(k)%biso(i)+v_shift(l)*molcrys%mol(k)%mbiso(i)
-             end select
+                   case ("s","S") ! Passing Shift
+                      molcrys%mol(k)%biso(i)=molcrys%mol(k)%biso(i)+v_shift(l)*molcrys%mol(k)%mbiso(i)
+                end select
+             end if
 
              !---- Occ ----!
              l=molcrys%mol(k)%locc(i)
-             if (l == 0) cycle
-             if (l > np_refi) then
-                err_refcodes=.true.
-                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-                return
-             end if
-             select case (car)
-                case ("v","V") ! Passing Value
-                   molcrys%mol(k)%occ(i)=v_vec(l)*molcrys%mol(k)%mocc(i)
+             if (l > 0) then
+                if (l > np_refi) then
+                   err_refcodes=.true.
+                   ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                   return
+                end if
+                select case (car)
+                   case ("v","V") ! Passing Value
+                      molcrys%mol(k)%occ(i)=v_vec(l)*molcrys%mol(k)%mocc(i)
 
-                case ("s","S") ! Passing Shift
-                   molcrys%mol(k)%occ(i)=molcrys%mol(k)%occ(i)+v_shift(l)*molcrys%mol(k)%mocc(i)
-             end select
+                   case ("s","S") ! Passing Shift
+                      molcrys%mol(k)%occ(i)=molcrys%mol(k)%occ(i)+v_shift(l)*molcrys%mol(k)%mocc(i)
+                end select
+             end if
 
              !---- Centre ----!
              do j=1,3
@@ -9123,7 +9127,7 @@
     !!--++
     !!--++    (Overloaded)
     !!--++
-    !!--++ Update: March - 2005
+    !!--++ Update: November 22 - 2013
     !!
     Subroutine VState_to_AtomsPar_Molec(Molec,Mode)
        !---- Arguments ----!
@@ -9160,35 +9164,37 @@
 
           !---- Biso ----!
           l=molec%lbiso(i)
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-              case ("v","V") ! Passing Value
-                 molec%biso(i)=v_vec(l)*molec%mbiso(i)
+          if (l > 0) then
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                 case ("v","V") ! Passing Value
+                    molec%biso(i)=v_vec(l)*molec%mbiso(i)
 
-              case ("s","S") ! Passing Shift
-                 molec%biso(i)=molec%biso(i)+v_shift(l)*molec%mbiso(i)
-          end select
+                 case ("s","S") ! Passing Shift
+                    molec%biso(i)=molec%biso(i)+v_shift(l)*molec%mbiso(i)
+             end select
+          end if
 
           !---- Occ ----!
           l=molec%locc(i)
-          if (l == 0) cycle
-          if (l > np_refi) then
-             err_refcodes=.true.
-             ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
-             return
-          end if
-          select case (car)
-              case ("v","V") ! Passing Value
-                 molec%occ(i)=v_vec(l)*molec%mocc(i)
+          if (l > 0) then
+             if (l > np_refi) then
+                err_refcodes=.true.
+                ERR_RefCodes_Mess="Number of Refinable parameters is wrong"
+                return
+             end if
+             select case (car)
+                 case ("v","V") ! Passing Value
+                    molec%occ(i)=v_vec(l)*molec%mocc(i)
 
-              case ("s","S") ! Passing Shift
-                 molec%occ(i)=molec%occ(i)+v_shift(l)*molec%mocc(i)
-          end select
+                 case ("s","S") ! Passing Shift
+                    molec%occ(i)=molec%occ(i)+v_shift(l)*molec%mocc(i)
+             end select
+          end if
        end do
 
        !---- Centre ----!
