@@ -673,9 +673,9 @@
          shift(i) = v(i) - vector(i)
       end do
 
-     do i = 1, crys%npar           !NOT CORRECT
-       state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-       !write(*,*) state(i)
+      do i = 1, crys%npar           !NOT CORRECT
+        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+        !write(*,*) state(i)
   !     if (state(i) < crys%vlim1(crys%p(i)) .or. state(i) > crys%vlim2(crys%p(i))) then
   !         write(*,*) "State corrections in", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
   !         state(i) =  crys%vlim1(crys%p(i))+ (crys%vlim2(crys%p(i)) - crys%vlim1(crys%p(i))) / 2
@@ -683,47 +683,41 @@
   !     else
   !         cycle
   !     end if
-     end do
+      end do
 
 
-      !******* state(i) corrections *******        attention: vlim not used
+      do i = 1, crys%npar
+        if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
+               write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
+               write(*,*) "alpha before " , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
+                           crys%vlim2(crys%p(i))
+               shift(crys%p(i)) = shift(crys%p(i))/1.5
+               state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+               write(*,*) "alpha correction 1 " , namepar(i), state(i), shift(crys%p(i))
+               if (state(i) < zero .or. state(i) > 1) then
+                 shift(crys%p(i)) = shift(crys%p(i))/2
+                 state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+                 write(*,*) "alpha alpha correction 2 " , namepar(i), state(i), shift(crys%p(i))
+               end if
+               do j=1,crys%npar
+                 write(*,*) "j", j, namepar(j)
+                 if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
+                     state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+                 write(*,*) "other alpha " , namepar(j), state(j), shift(crys%p(i))
+               end do
 
- !    do i = 1, crys%npar
- !       write(*,*)  "namepar(i)", namepar(i), state(i)
- !       if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
- !              write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
- !              write(*,*) "alpha before" , namepar(i), state(i)
- !              shift(crys%p(i)) = shift(crys%p(i))/2
- !              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
- !              write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
- !              do j=1,crys%npar
- !                if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
- !                    state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
- !                write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
- !              end do
- !
- !              if (state(i) < zero .or. state(i) > zero) then
- !                shift(crys%p(i)) = - shift (crys%p(i))
- !                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
- !                write(*,*) "alpha again" , namepar(i), state(i), shift(crys%p(i))
- !                do j=1,crys%npar
- !                  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
- !                    state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
- !                  write(*,*) "other alpha again" , namepar(j), state(j), shift(crys%p(i))
- !                end do
- !              end if
- !       else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
- !                state(i) = (-1.0) * state(i)  !Biso only >0
- !       else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
- !                state(i) = (-1.0) * state(i)  !v only <0
- !       else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
- !                index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1 ) .and. state(i) .lt. zero ) then  !only >0
- !                state(i) = (-1.0) * state(i)
- !                write(*,*) "Attention, shift was higher/lower than accepted values for ", namepar(i),  "new shift applied"
- !       else
- !          cycle
- !       end if
- !    End do
+
+       ! else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
+       !         state(i) = (-1.0) * state(i)  !Biso only >0
+       ! else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
+       !          state(i) = (-1.0) * state(i)  !v only <0
+       ! else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
+       !          index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1) .and. state(i) .lt. 0 ) then  !only >0
+       !           state(i) = (-1.0) * state(i)
+        else
+           cycle
+        end if
+      End do
 
       !update  (only if iflag = 1)
       if(iflag == 1) then
@@ -913,7 +907,7 @@
 
 
 
-    Subroutine  F_cost(n_plex,v,rplex,g)      !SIMPLEX
+    Subroutine  F_cost(n_plex,v,rplex,g)      !Local optimize
       use CFML_GlobalDeps,  only: cp
       integer,                        intent (in    ) :: n_plex
       real(kind=cp),  dimension(:),   intent (in    ) :: v
@@ -940,35 +934,36 @@
       !******* state(i) corrections *******
 
       do i = 1, crys%npar
-         if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
-                write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
-                write(*,*) "alpha before" , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
-                            crys%vlim2(crys%p(i))
-                shift(crys%p(i)) = shift(crys%p(i))/2
-                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-                write(*,*) "alpha after" , namepar(i), state(i), shift(crys%p(i))
-                do j=1,crys%npar
-                  write(*,*) "j", j, namepar(j)
-                  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
-                      state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
-                  write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
-                end do
+        if (index (namepar(i) , 'alpha' ) == 1 .and. (state(i) < zero .or. state(i) > 1)) then
+               write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
+               write(*,*) "alpha before  " , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(crys%p(i)) ,&
+                           crys%vlim2(crys%p(i))
+               shift(crys%p(i)) = shift(crys%p(i))/1.5
+               state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+               write(*,*) "alpha correction 1  " , namepar(i), state(i), shift(crys%p(i))
+               if (state(i) < zero .or. state(i) > 1) then
+                 shift(crys%p(i)) = shift(crys%p(i))/2
+                 state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+                 write(*,*) "alpha alpha correction 2  " , namepar(i), state(i), shift(crys%p(i))
+               end if
+               do j=1,crys%npar
+                 write(*,*) "j", j, namepar(j)
+                 if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
+                     state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+                 write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
+               end do
 
-                if (state(i) < zero .or. state(i) > zero) then
-                  shift(crys%p(i)) = - shift (crys%p(i))
-                  state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-                  write(*,*) "alpha again" , namepar(i), state(i), shift(crys%p(i))
-                end if
-         else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
-                  state(i) = (-1.0) * state(i)  !Biso only >0
-         else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
-                  state(i) = (-1.0) * state(i)  !v only <0
-         else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
-                  index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1) .and. state(i) .lt. 0 ) then  !only >0
-                   state(i) = (-1.0) * state(i)
-         else
-            cycle
-         end if
+
+       ! else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
+       !         state(i) = (-1.0) * state(i)  !Biso only >0
+       ! else if (index (namepar(i),'v' ) == 1 .and. state(i) .gt. 0 ) then
+       !          state(i) = (-1.0) * state(i)  !v only <0
+       ! else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
+       !          index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1) .and. state(i) .lt. 0 ) then  !only >0
+       !           state(i) = (-1.0) * state(i)
+        else
+           cycle
+        end if
       End do
 
       !update
@@ -1431,7 +1426,6 @@
             !  rpl = 0
               do i=1, opti%npar                       !creation of the step sizes
                 vector(i) = crys%Pv_refi(i)
-                write(*,*) "crys%vlim1(i)", crys%vlim1(i)
               end do
 
               open (unit=23, file='local_optimizer.out', status='replace', action='write')

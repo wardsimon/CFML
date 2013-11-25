@@ -247,7 +247,6 @@
         end if
       end do global
 
-      !write(*,"(a,7i6)") " Indices: ", sect_indx
 
     End Subroutine Set_Sections_index
 
@@ -779,7 +778,6 @@
                crys%p(np)= int(ab)
                crys%mult(np) = ((abs(crys%ref_p_dl))-(10.0* &
                  REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dl ))
-               write(*,*)  crys%p(np) , crys%p_dl ,   crys%rang_p_dl
                crys%vlim1(crys%p(np)) = crys%p_dl - crys%rang_p_dl
                if (crys%vlim1(crys%p(np))   .LT. 0 ) crys%vlim1(crys%p(np)) = 0
                crys%vlim2(crys%p(np)) = crys%p_dl + crys%rang_p_dl
@@ -1590,7 +1588,6 @@
           txt=adjustl(txt(k+1:))
 
 
-          write(*,*) "KEY", key
         SELECT CASE (key)
 
           CASE ("LT")
@@ -1641,8 +1638,7 @@
               crys%mult(np) = ((abs(crys%ref_l_alpha (j,l)))-(10.0* &
                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_alpha (j,l)))
               crys%vlim1(crys%p(np))=crys%l_alpha(j,l)- crys%rang_l_alpha (j,l)
-                write(*,*)  "crys%vlim1(crys%p(np)), crys%l_alpha(j,l), crys%rang_l_alpha (j,l):",&
-                                 crys%vlim1(crys%p(np)), crys%l_alpha(j,l), crys%rang_l_alpha (j,l)
+
               if (crys%vlim1(crys%p(np))  .LT. 0 ) crys%vlim1(crys%p(np)) = 0
               crys%vlim2(crys%p(np)) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
               if (crys%vlim2(crys%p(np))  > 1 ) crys%vlim2(crys%p(np)) = 1
@@ -1693,18 +1689,14 @@
          !  if (abs(crys%ref_l_r(2,j,l)) > 0.0)  crys%rang_l_r(2,j,l) = 0.0
          !  if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  crys%rang_l_r(3,j,l) = 0.0
 
-            write(*,*) "l,j", l,j
 
             i=i+1
 
 
           CASE ("FW")
-            write(*,*) "TXT, l, j", txt, l, j
-            write(*,*) "l, j",  l, j
             read (unit = txt, fmt =*, iostat = ier) crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
                                                     crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
-            WRITE(*,*) "J,L,fw", j, l,   crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
-                                                    crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
+
             if(ier /= 0) then
               Err_crys=.true.
               Err_crys_mess="ERROR reading fats waller parameters"
@@ -2503,7 +2495,6 @@
           do b=1, crys%n_actual
               write(*,*)            " Layer symmetry:         ", crys%centro(b)
             do a=1, crys%l_n_atoms(b)
-              write(*,*) "a,b,crys%a_num(a,b)"  , a,b,crys%a_num(a,b)
               write(*,"(2a,i4, 5f10.2)") " Atomic parameters:       ", crys%a_name(a,b), crys%a_num(a,b), crys%a_pos(1, a,b), &
                                            crys%a_pos(2, a,b), crys%a_pos(3, a,b), crys%a_B (a,b), crys%a_occup(a,b)
               write(*,"(a,4f10.2)")      " Atomic parameter codes:  ", crys%ref_a_pos(1, a,b), crys%ref_a_pos(2, a,b), &
