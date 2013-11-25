@@ -67,17 +67,17 @@ STACKING
    TRANSITIONS
 !layer  1 to layer  1
 LT     0.900    0.0000    0.0000    1.0000
-         41.00      0.00      0.00     0.00  (      0.1      0.10      0.10      0.10)
+         42.00      0.00      0.00     0.00  (      0.1      0.10      0.10      0.10)
 FW       0.00      0.00      0.00      0.00      0.00      0.00
 !layer  1 to layer  2
 LT     0.050    0.3330    0.6667    1.0000
-         -40.50      0.00      0.00      0.00  (      0.05      0.10      0.10      0.10)
+         -41.00      0.00      0.00      0.00  (      0.05      0.10      0.10      0.10)
 !layer  1 to layer  3
 LT     0.0000    0.0000    0.0000    0.0000
          0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
 !layer  1 to layer  4
 LT     0.050    0.0000    0.0000    1.0000
-         -40.50      0.00      0.00      0.00  (      0.005      0.10      0.10      0.10)
+         -41.00      0.00      0.00      0.00  (      0.005      0.10      0.10      0.10)
 
    !layer 2 to layer 1
 LT   0.00     0.0      0.0      0.0
@@ -127,7 +127,7 @@ CALCULATION
    BOXP     50
    CORRMAX     50
    MAXFUN     50
-   TOL     10-3       {Total number of function and gradient evaluations}
+   TOL     10-5       {Total number of function and gradient evaluations}
    NPRINT   1
 
 EXPERIMENTAL

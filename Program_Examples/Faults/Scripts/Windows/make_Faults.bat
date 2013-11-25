@@ -18,6 +18,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd     goto IFORTD
    goto FIN
 rem
 rem ****---- Lahey Compiler ----****
@@ -39,14 +40,18 @@ echo on
   ifort /c Diffax_calc.f90 /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
   ifort /c Faults.f90      /O2 /nologo         /I"%CRYSFML%"\ifort\LibC
   link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort\LibC\crysfml.lib
-
-rem    ifort /c Diffax_glb.f90  /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
-rem    ifort /c Faults_Read.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
-rem    ifort /c Diffax_calc.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
-rem    ifort /c Faults.f90      /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
-rem    link  *.obj /subsystem:console /out:Faults.exe  "%CRYSFML%"\ifort_debug\LibC\crysfml.lib
    upx Faults.exe
    if exist %FULLPROF% copy Faults.exe %FULLPROF% > nul
+   goto END
+:IFORTD
+echo on
+   ifort /c Diffax_glb.f90  /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Faults_Read.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Diffax_calc.f90 /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   ifort /c Faults.f90      /debug:full /check /traceback  /nologo      /I"%CRYSFML%"\ifort_debug\LibC
+   link  *.obj /subsystem:console /out:Faultsd.exe  "%CRYSFML%"\ifort_debug\LibC\crysfml.lib
+   upx Faultsd.exe
+   if exist %FULLPROF% copy Faultsd.exe %FULLPROF% > nul
    goto END
 rem
 rem **---- G95 Compiler ----**

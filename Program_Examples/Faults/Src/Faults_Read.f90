@@ -104,7 +104,7 @@
 
        character(len=132), dimension(:),allocatable     :: tfile     !List of lines of the input file (UPPER CASE)
        Integer                                          :: numberl   !number of lines in the input file
-       Integer                                          :: np        !to count number of parameters to be refined =npar
+       Integer                                          :: np        !to count number of parameters with refinement codes = npar
        Integer, dimension(8)                            :: sect_indx=0 !Indices (line numbers) of the sevent sections:
                                                                        !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
                                                                        !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
@@ -1118,11 +1118,19 @@
 
       if (allocated (crys%fundamental)) deallocate(crys%fundamental)
       allocate(crys%fundamental(crys%n_typ))
+      crys%fundamental=.false.
 
+      if (allocated (fundamental)) deallocate(fundamental)
+      allocate(fundamental(crys%n_typ))
+      fundamental=.false.
 
       if (allocated (crys%original)) deallocate(crys%original)
       allocate(crys%original(crys%n_typ))
       crys%original=0
+
+      if (allocated (original)) deallocate(original)
+      allocate(original(crys%n_typ))
+      original=0
 
       if (allocated (d)) deallocate(d)
       allocate(d(max_a))
@@ -1629,20 +1637,20 @@
                                                         crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l)
             end if
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
-              np = np + 1    !to count npar
-              crys%list (np) = crys%l_alpha (j,l)
-              write(unit=namepar(np),fmt="(a,2i1)")'alpha',l,j
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_l_alpha (j,l))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_l_alpha (j,l)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_alpha (j,l)))
-              crys%vlim1(crys%p(np))=crys%l_alpha(j,l)- crys%rang_l_alpha (j,l)
+                np = np + 1    !to count npar
+                crys%list (np) = crys%l_alpha (j,l)
+                write(unit=namepar(np),fmt="(a,2i1)")'alpha',l,j
+                crys%cod(np) = 1
+                ab =  (abs(crys%ref_l_alpha (j,l))/10.0)
+                crys%p(np)= int(ab)
+                crys%mult(np) = ((abs(crys%ref_l_alpha (j,l)))-(10.0* &
+                          REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_alpha (j,l)))
+                crys%vlim1(np)=crys%l_alpha(j,l)- crys%rang_l_alpha (j,l)
 
-              if (crys%vlim1(crys%p(np))  .LT. 0 ) crys%vlim1(crys%p(np)) = 0
-              crys%vlim2(crys%p(np)) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
-              if (crys%vlim2(crys%p(np))  > 1 ) crys%vlim2(crys%p(np)) = 1
-              crys%Pv_refi(crys%p(np)) = crys%l_alpha (j,l)
+                if (crys%vlim1(np)  < 0.0 ) crys%vlim1(np) = 0
+                crys%vlim2(np) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
+                if (crys%vlim2(np)  > 1 ) crys%vlim2(np) = 1
+                crys%Pv_refi(crys%p(np)) = crys%l_alpha (j,l)
             end if
             if (abs(crys%ref_l_r(1,j,l)) > 0.0 ) then
               np = np + 1
@@ -2570,7 +2578,6 @@
             opti%npar = n_plex
           end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
-
             opti%npar =maxval(crys%p)
             Cond%npvar=opti%npar
             numpar = crys%npar
