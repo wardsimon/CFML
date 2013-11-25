@@ -675,7 +675,7 @@
 
       do i = 1, crys%npar           !NOT CORRECT
         state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-        !write(*,*) state(i)
+        write(*,*) "state(i)", state(i), crys%list(i) ,  mult(i), shift(crys%p(i))
   !     if (state(i) < crys%vlim1(crys%p(i)) .or. state(i) > crys%vlim2(crys%p(i))) then
   !         write(*,*) "State corrections in", state(i), crys%vlim1(crys%p(i)), crys%vlim2(crys%p(i))
   !         state(i) =  crys%vlim1(crys%p(i))+ (crys%vlim2(crys%p(i)) - crys%vlim1(crys%p(i))) / 2
@@ -685,28 +685,27 @@
   !     end if
       end do
 
-
+     write(*,*) "crys%npar, opti%npar, npar" , crys%npar, opti%npar, npar
      do i = 1, crys%npar
-        if (index (namepar(i) , 'alpha' ) == 1) then
+        !if (index (namepar(i) , 'alpha' ) == 1) then
           if (state(i) < crys%vlim1(i) .or. state(i) > crys%vlim2(i)) then
-               write(*,*) 'Attention, shift was higher/lower than accepted values for alpha:  new shift applied'
-               write(*,*) "alpha before  " , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(i) ,&
-                           crys%vlim2(i)
+               write(*,*) 'Attention, out of range:  new shift applied'
+               write(*,*) "before  " , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(i) ,&
+                           crys%vlim2(i), mult(i)
                shift(crys%p(i)) = shift(crys%p(i))/2.0
                state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-               write(*,*) "alpha correction 1  " , namepar(i), state(i), shift(crys%p(i))
+               write(*,*) "correction 1  " , namepar(i), state(i), shift(crys%p(i))
                !if (state(i) < zero .or. state(i) > 1) then
                !  shift(crys%p(i)) = shift(crys%p(i))/2
                !  state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
                !  write(*,*) "alpha alpha correction 2  " , namepar(i), state(i), shift(crys%p(i))
                !end if
-               !do j=1,crys%npar
-               !  write(*,*) "j", j, namepar(j)
-               !  if (index (namepar(j) , 'alpha' ) == 1 .and.  crys%p(i) == crys%p(j)) &
-               !      state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
-               !  write(*,*) "other alpha" , namepar(j), state(j), shift(crys%p(i))
-               !end do
-
+               do j=1,crys%npar
+                 write(*,*) "j", j, namepar(j)
+                 if (crys%p(i) == crys%p(j)) state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
+                 write(*,*) "other" , namepar(j), state(j), shift(crys%p(i))
+               end do
+           end if
 
        ! else if (index (namepar(i),'Biso' ) == 1 .and. state(i) .lt. 0 ) then
        !         state(i) = (-1.0) * state(i)  !Biso only >0
@@ -715,9 +714,9 @@
        ! else if ((index (namepar(i),'Dg') == 1 .or. index (namepar(i), 'Dl') == 1 .or. index (namepar(i),'u')  == 1 .or. &
        !          index (namepar(i), 'w') == 1  .or. index (namepar(i), 'x') == 1) .and. state(i) .lt. 0 ) then  !only >0
        !           state(i) = (-1.0) * state(i)
-        else
-           cycle
-        end if
+       ! else
+       !    cycle
+       ! end if
       End do
 
 
