@@ -6,9 +6,9 @@ TITLE
 
 INSTRUMENTAL  AND  SIZE  BROADENING
   !type of radiation
-radiation      neutron
+radiation      x-ray
              !lambda1   lambda2   ratio
-wavelength     0.025
+wavelength     1.5406
 !instrumental aberrations  zero sycos sysin
 aberrations  -0.05 0.0 0.0
              0.0 0.0 0.0  (0.1 0.1 0.0)
