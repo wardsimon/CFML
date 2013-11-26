@@ -297,7 +297,7 @@
 
       Real(kind=dp),    Parameter :: inf_width=1.0D4  !inf_width -  Layer width in Angstroms that DIFFaX considers to
                                                !             be infinite, with no detectable size broadening
-      Integer, Parameter :: ip=5, &     !ip  -  standard input device number
+      Integer, Parameter ::   ip=5, &   !ip  -  standard input device number
                               op=6, &   !op  -  standard output device number
                               df=2, &   !df  -  unit that the structure data file will be read from
                               sf=4, &   !sf  -  unit that the standard scattering factor data will be read from
@@ -306,15 +306,13 @@
                               unit_sp=12,&   !sk  -  unit that the streak data will be written to.
                               sk=13,&   !sp  -  unit that the spectrum data will be written to.
                               sa=14 ,&     !sa  -  unit that the 8-bit binary formatted selected area diffraction pattern data will be written to.
-                              san_out = 17,&   ! output device number for SAN
-                              simplex_out = 26, & ! output device number for simplex
                               i_flts = 27
 
       INTEGER, PARAMETER :: scrtch = 3      !scrtch  -  unit that the scratch file will be used on
 
       INTEGER, PARAMETER :: clip = 14       !CLIP    -  allowed length of filename appendages
 
-      INTEGER, PARAMETER   :: max_bckg_points=100               !Maximum of background points
+      INTEGER, PARAMETER :: max_bckg_points=100               !Maximum of background points
 
       INTEGER, PARAMETER :: UNKNOWN = -1    !UNKNOWN -  flag indicating whether or not the symmetry
                                             !           point-group has been defined by the user
@@ -415,8 +413,8 @@
              same_layer,  &   !TRUE if all of the explicitly defined layers are identical
              finite_width     !d-> TRUE if layer widths are finite
 
- logical,          dimension(:),     allocatable  :: fundamental  !array which defines if each layer is fundamental or not
- logical                                          :: randm, semirandm, spcfc
+ logical,  dimension(:), allocatable  :: fundamental  !array which defines if each layer is fundamental or not
+ logical                              :: randm, semirandm, spcfc
 !
 !*********************     integer*4 variables
 !
@@ -458,8 +456,6 @@
 
   INTEGER  :: loglin      !i->  1 if logarithmic scaling of SADP data is required
 
-  integer    :: n_plex    !number of parameters to be refined   in simplex
-
   integer    :: numcal = 0
 
   INTEGER  :: GAUSS  = 1   ! numeric constant (= 1) indicating user wishes to simulate Gaussian
@@ -476,7 +472,6 @@
 
   INTEGER  :: PV_LRN = 5   !  numeric constant (= 5) indicating user wishes to simulate Lorentzian
                            !  instrumental broadening, with a variable half width
-  integer, dimension(max_npar)      :: pnum !refinable parameter index
   INTEGER  ::  maxsad    !  Maximum intensity of sadp patterns.
 
   INTEGER  ::  n_actual  ! Number of unique layers ( <= n_layers).
@@ -491,19 +486,18 @@
   INTEGER  ::  rad_type  !d->  Type of radiation for which to calculate diffraction intensities.
                          !     Choices are: X_RAY, NEUTRN, ELECTN
 
-  integer    ::  punts     !     number of excluded points
+  integer  ::  punts     !     number of excluded points
   INTEGER  ::  sadblock  !     Length of a row of SADP data
   INTEGER  ::  SymGrpNo  !d->  Numeric descriptor of diffraction symmetry.
 
   INTEGER  ::  X_RAY  = 0   !     Numeric constant (= 0) indicating radiation type is X-rays.
   INTEGER  ::  NEUTRN = 1   !     Numeric constant (= 1) indicating radiation type is neutrons.
   INTEGER  ::  ELECTN = 2   !     Numeric constant (= 2) indicating radiation type is electrons.
-  INTEGER  ::   n_cyc       !     number of cycles of refinement to be done
 !
   INTEGER, dimension(max_bin) ::  pow         !?
   INTEGER                     ::  max_pow     ! ?
 
-  integer                       :: n_high, numpar   ,npar
+  integer                       :: n_high
 
   integer                       :: opt
   integer :: d_punt     !number of reflections
@@ -665,9 +659,6 @@
 
  real(kind=sp),dimension (max_sp)  :: ycalcdef
  real(kind=sp),dimension(max_npar) :: statok
- real(kind=cp),dimension(max_npar) :: v_plex  ! vector of refinable parameters in simplex
- real(kind=cp),dimension(max_npar) :: steplex
- real(kind=cp),dimension(max_npar) :: var_plex !diagonal elements of the of the inverse of the information matrix.
 
 !********************     complex*16 variables
 

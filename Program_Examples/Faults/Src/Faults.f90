@@ -301,12 +301,12 @@
        End Subroutine Write_Prf
 
        Subroutine scale_factor_lmq(pat, fvec, chi2)
-         type (diffraction_pattern_type)  , intent (in out) :: pat
-         Real (Kind=cp),Dimension(:),         Intent(   Out):: fvec
-         real                                  ,Intent( out):: chi2
-         real                                               :: a ,  c, r
-         integer                                            :: punts=0
-         integer                                            :: i,j
+         type (diffraction_pattern_type), intent(in out):: pat
+         Real (Kind=cp),Dimension(:),     Intent(   Out):: fvec
+         real,                            Intent(   out):: chi2
+         real                                           :: a ,  c, r
+         integer                                        :: punts=0
+         integer                                        :: i,j
 
          a=0
          punts=0
@@ -524,7 +524,7 @@
       end if
 
 
-      if (chi2 < chi2o ) then                  !To keep calculated intensity for the best value of rplex
+      if (chi2 < chi2o ) then                  !To keep calculated intensity for the best value of chi2
         chi2o = chi2
         statok(1:crys%npar) = state( 1:crys%npar)
         write(*,*)  ' => Writing the best calculated pattern up to now. Chi2 : ', chi2o
@@ -666,18 +666,17 @@
                                               getword, err_string, err_string_mess, getnum, Ucase, lcase
      use CFML_Diffraction_patterns,    only : read_pattern , diffraction_pattern_type , err_diffpatt, err_diffpatt_mess,  &
                                               read_background_file
-     use CFML_Simulated_Annealing
-     use CFML_Optimization_General,    only : Nelder_Mead_Simplex,  Opt_Conditions_Type, Local_Optimize
+     use CFML_Optimization_General,    only : Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
      use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
-     use read_data,                    only : new_getfil, read_structure_file, length,   &
+     use read_data,                    only : read_structure_file, length,   &
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Dif_compl,                    only : scale_factor_lmq, Write_Prf, write_ftls
-     use dif_ref,                      only :  difpat , cost_LMQ, apply_aberrations
+     use dif_ref,                      only : difpat , cost_LMQ, apply_aberrations
 
      implicit none
 
@@ -736,7 +735,7 @@
       end if
 
 
-      do i = 1, numpar              ! to avoid repetitions
+      do i = 1, crys%npar              ! to avoid repetitions
              if (index (namepar(i) , 'pos' ) == 1 )  conv_a = 1
              if (index (namepar(i) , 't' ) == 1 .or. index (namepar(i) , 'alpha' ) == 1 ) conv_b = 1
              if (index (namepar(i) , 'cell' ) == 1 ) conv_c = 1
@@ -873,7 +872,7 @@
             write(*,*) '_____________________________________'
             write(*,'(3a)') ' Parameter     refined value    '
             write(*,*) '_____________________________________'
-            do i = 1, numpar
+            do i = 1, crys%npar
                write(*,*)  namepar(i)  ,statok(i)
             end do
 
@@ -908,7 +907,6 @@
 
       ending = .true.
 
-      close(unit = san_out)
       999 IF(cfile) CLOSE(UNIT = cntrl)
       IF(ok .AND. ending) THEN
         WRITE(op,100) ' => FAULTS ended normally....'

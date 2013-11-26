@@ -10,7 +10,7 @@ radiation      x-ray
              !lambda1   lambda2   ratio
 wavelength     1.5406
 !instrumental aberrations  zero sycos sysin
-aberrations  -0.05 0.0 0.0
+aberrations  -1.05 0.0 0.0
              0.0 0.0 0.0  (0.1 0.1 0.0)
   !instr. broadening  u         v           w          x       Dg         Dl
  pseudo-voigt          0.03637  -0.003558   0.2274    0       490        459    trim

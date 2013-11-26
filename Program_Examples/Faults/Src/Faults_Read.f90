@@ -4,111 +4,109 @@
                                              err_string_mess, getnum, Ucase, cutst
        use CFML_Optimization_General, only : Opt_Conditions_Type
        use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
-       use CFML_Simulated_Annealing
        use diffax_mod
        implicit none
 
        private
        !public subroutines
-       public:: read_structure_file, new_getfil , length
+       public:: read_structure_file, length
 
 !      Declaration of diffraction_pattern_type
 
-       type,public :: crys_2d_type
-       integer                                          :: rad_type                     !radiation type   >  rad_type
-       real                                             :: lambda , lambda2 , ratio     !radiation wavelength    > lambda
-       integer                                          :: broad                        !type of instrumental broadening>  blurring
-       real                                             :: cell_a                       !cell parameter a   >cell_a
-       real                                             :: cell_b                       !cell parameter b    >cell_b
-       real                                             :: cell_c                       !cell parameter c   >cell_c
-       real                                             :: cell_gamma                   !gamma   >cell_gamma
-       real                                             :: layer_a = 0.0, layer_b = 0.0 !layer characteristic widths (optional)
-       real                                             :: ref_layer_a, ref_layer_b, rang_layer_a, rang_layer_b
-       real                                             :: zero_shift = 0.0
-       real                                             :: sycos = 0.0
-       real                                             :: sysin = 0.0
-       real                                             :: p_u = 0.0                    !u  > pv_u
-       real                                             :: p_v = 0.0                    !v  > pv_v
-       real                                             :: p_w = 0.0                    !w  > pv_w
-       real                                             :: fwhm = 0.0                   !fwmh ( cannot be negative)  >fwhm
-       real                                             :: p_gamma = 0.0                !pseudo-voigt gamma    > pv_gamma
-       real                                             :: p_x                          ! x > pv_x
-       real                                             :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
-       real                                             :: ref_p_u, ref_p_v, ref_p_w, ref_p_x, ref_p_dg, ref_p_dl
-       real                                             :: ref_zero_shift, ref_sycos, ref_sysin
-       real                                             :: rang_p_v, rang_p_u, rang_p_w, rang_p_x, rang_p_dg, rang_p_dl
-       real                                             :: rang_zero_shift, rang_sycos, rang_sysin
-       real                                             :: tolerance                    !d-> Maximum deviation that intensities can have
-       real                                             :: rang_cell_a ,rang_cell_b,rang_cell_c,rang_cell_gamma
-       real                                             :: t_ini=0.0, anneal, accept        ! In SAN: initial temperature, kirkpatrick factor of annealing, minimum number of accepted configurations
-       character (len=132)                              :: sym                          !Laue symmetry  >pnt_grp
-       character (len=132)                              :: calctype                     !type of calculation
-       real                                             :: ref_cell_a,ref_cell_b, ref_cell_c, ref_cell_gamma  ! index of refinement: if zero, no refinement, if one, refinement to be done
-       integer                                          :: n_typ                        !number of layer types    >n_layers
-       real                                             :: l_cnt = 0.0                  !number of layers in stacking section
-       real                                             :: ref_l_cnt
-       real                                             :: rang_l_cnt
-       integer                                          :: SymGrpNo
-       integer                                          :: n_cycles=0
-       integer                                          :: n_actual                     !number of unique layers
-       integer                                          :: npar = 0                     !total number of parameters to be refined
-       integer                                          :: num_temp=0                   ! maximum number of temperatures in SAN
-       integer                                          :: init_config                  ! flag to randomly initialaze SAN configuration if = 1.
-       integer                                          :: yy                           !max number of atoms per layer
-       integer                                          :: n_seq                        !number of semirandom sequences
-       logical                                          :: recrsv                       !layer sequencing recursive
-       logical                                          :: xplcit                       !layer sequencing explicit
-       logical                                          :: finite_width                 !layer width in plane ab
-       logical                                          :: inf_thick                    !infinit stacking
-       logical                                          :: trm                          !trim keyword: to supress peak at origin >trim_origin
-       character(len=4), dimension(:,:),   allocatable  :: a_name                       !atom name (4characters wide)>atom_l o a_name?
-       integer,          dimension(:),     allocatable  :: centro                       !layer symmetry : none or centrosymmetric  >only_real
-       integer,          dimension(:),     allocatable  :: cod
-       integer,          dimension(:,:),   allocatable  :: a_num                        !atom number  > a_number
-       real,             dimension(:,:,:), allocatable  :: ref_a_pos
-       integer,          dimension(:)  ,   allocatable  :: l_seq                        !d-> array containing the explicitly defined sequence of layers.
-       integer,          dimension(:)  ,   allocatable  :: l_actual                     !Contains the layer number that layer i is structurally identical to.
-       integer,          dimension(:)  ,   allocatable  :: l_n_atoms                    !number of atoms in each layer
-       integer,          dimension(:),     allocatable  :: p                            ! refinable parameter index
-       real,             dimension(:),     allocatable  :: mult                         ! refinable parameter multiplicator
-       real,             dimension(:,:),   allocatable  :: ref_l_alpha                  ! index of refinement of l_alpha
-       real,             dimension(:,:,:), allocatable  :: ref_l_r                      ! refinement index of transitions vector
-       real,             dimension(:,:,:), allocatable  :: rang_a_pos
-       real,             dimension(:,:,:), allocatable  :: a_pos                        ! xyz coordinates of the atoms   >a_pos
-       real,             dimension(:,:),   allocatable  :: a_B                          !debye waller factors
-       real,             dimension(:,:),   allocatable  :: ref_a_B                      !index of refinement of debye waller factors
-       real,             dimension(:,:),   allocatable  :: rang_a_B                     !range of refinement of debye waller factors
-       real,             dimension(:,:),   allocatable  :: a_occup                      !occupation factor (between 0 and 1)
-       real,             dimension(:)  ,   allocatable  :: high_atom, low_atom          !lower and upper atom positions
-       real,             dimension(:,:),   allocatable  :: l_alpha                      !l_alpha
-       real,             dimension(:,:),   allocatable  :: rang_l_alpha                 !range of refinement of l_alpha
-       real,             dimension(:,:,:), allocatable  :: l_r                          !transitions vector
-       real,             dimension(:,:,:), allocatable  :: rang_l_r                     !range of refinement of transitions vector
-       real,             dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
-       real,             dimension(:)  ,   allocatable  :: list                         !vector containing all the parameters to optimize
-       real,             dimension(:),     allocatable  :: vlim1                        !Low-limit value of parameters
-       real,             dimension(:),     allocatable  :: vlim2                        !Low-limit value of parameters
-       real,             dimension(:)  ,   allocatable  :: Pv_refi                      !vector containing the free parameters to optimize (restrictions taken into account)
+       Type,Public :: crys_2d_type
+         integer    :: rad_type                     !radiation type   >  rad_type
+         real       :: lambda , lambda2 , ratio     !radiation wavelength    > lambda
+         integer    :: broad                        !type of instrumental broadening>  blurring
+         real       :: cell_a                       !cell parameter a   >cell_a
+         real       :: cell_b                       !cell parameter b    >cell_b
+         real       :: cell_c                       !cell parameter c   >cell_c
+         real       :: cell_gamma                   !gamma   >cell_gamma
+         real       :: layer_a = 0.0, layer_b = 0.0 !layer characteristic widths (optional)
+         real       :: ref_layer_a, ref_layer_b, rang_layer_a, rang_layer_b
+         real       :: zero_shift = 0.0
+         real       :: sycos = 0.0
+         real       :: sysin = 0.0
+         real       :: p_u = 0.0                    !u  > pv_u
+         real       :: p_v = 0.0                    !v  > pv_v
+         real       :: p_w = 0.0                    !w  > pv_w
+         real       :: fwhm = 0.0                   !fwmh ( cannot be negative)  >fwhm
+         real       :: p_gamma = 0.0                !pseudo-voigt gamma    > pv_gamma
+         real       :: p_x                          ! x > pv_x
+         real       :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
+         real       :: ref_p_u, ref_p_v, ref_p_w, ref_p_x, ref_p_dg, ref_p_dl
+         real       :: ref_zero_shift, ref_sycos, ref_sysin
+         real       :: rang_p_v, rang_p_u, rang_p_w, rang_p_x, rang_p_dg, rang_p_dl
+         real       :: rang_zero_shift, rang_sycos, rang_sysin
+         real       :: tolerance                    !d-> Maximum deviation that intensities can have
+         real       :: rang_cell_a ,rang_cell_b,rang_cell_c,rang_cell_gamma
+         character(len=132) :: sym         !Laue symmetry  >pnt_grp
+         character(len=132) :: calctype    !type of calculation
+         real                :: ref_cell_a,ref_cell_b, ref_cell_c, ref_cell_gamma  ! index of refinement: if zero, no refinement, if one, refinement to be done
+         integer             :: n_typ        !number of layer types    > n_layers
+         real                :: l_cnt = 0.0  !number of layers in stacking section
+         real                :: ref_l_cnt
+         real                :: rang_l_cnt
+         integer             :: SymGrpNo
+         integer             :: n_cycles=0
+         integer             :: n_actual       !number of unique layers
+         integer             :: npar = 0       !total number of parameters to be refined
+         integer             :: num_temp=0     ! maximum number of temperatures in SAN
+         integer             :: init_config    ! flag to randomly initialaze SAN configuration if = 1.
+         integer             :: yy             !max number of atoms per layer
+         integer             :: n_seq          !number of semirandom sequences
+         logical             :: recrsv         !layer sequencing recursive
+         logical             :: xplcit         !layer sequencing explicit
+         logical             :: finite_width   !layer width in plane ab
+         logical             :: inf_thick      !infinit stacking
+         logical             :: trm            !trim keyword: to supress peak at origin >trim_origin
+         character(len=4),dimension(:,:),allocatable:: a_name  !atom name (4characters wide)>atom_l o a_name?
+         integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  >only_real
+         integer, dimension(:),     allocatable  :: cod
+         integer, dimension(:,:),   allocatable  :: a_num               !atom number  > a_number
+         real,    dimension(:,:,:), allocatable  :: ref_a_pos
+         integer, dimension(:)  ,   allocatable  :: l_seq               !d-> array containing the explicitly defined sequence of layers.
+         integer, dimension(:)  ,   allocatable  :: l_actual            !Contains the layer number that layer i is structurally identical to.
+         integer, dimension(:)  ,   allocatable  :: l_n_atoms           !number of atoms in each layer
+         integer, dimension(:),     allocatable  :: p                   ! refinable parameter index
+         real,    dimension(:),     allocatable  :: mult                ! refinable parameter multiplicator
+         real,    dimension(:,:),   allocatable  :: ref_l_alpha         ! index of refinement of l_alpha
+         real,    dimension(:,:,:), allocatable  :: ref_l_r             ! refinement index of transitions vector
+         real,    dimension(:,:,:), allocatable  :: rang_a_pos
+         real,    dimension(:,:,:), allocatable  :: a_pos               ! xyz coordinates of the atoms   >a_pos
+         real,    dimension(:,:),   allocatable  :: a_B                 !debye waller factors
+         real,    dimension(:,:),   allocatable  :: ref_a_B             !index of refinement of debye waller factors
+         real,    dimension(:,:),   allocatable  :: rang_a_B            !range of refinement of debye waller factors
+         real,    dimension(:,:),   allocatable  :: a_occup             !occupation factor (between 0 and 1)
+         real,    dimension(:)  ,   allocatable  :: high_atom, low_atom !lower and upper atom positions
+         real,    dimension(:,:),   allocatable  :: l_alpha             !l_alpha
+         real,    dimension(:,:),   allocatable  :: rang_l_alpha        !range of refinement of l_alpha
+         real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
+         real,    dimension(:,:,:), allocatable  :: rang_l_r            !range of refinement of transitions vector
+         real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
+         real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
+         real,    dimension(:),     allocatable  :: vlim1    !Low-limit value of parameters
+         real,    dimension(:),     allocatable  :: vlim2    !Low-limit value of parameters
+         real,    dimension(:)  ,   allocatable  :: Pv_refi  !vector containing the free parameters to optimize (restrictions taken into account)
 
-       character(len=132)                               :: ttl          !title
-       logical,          dimension(:),     allocatable  :: fundamental  !array which defines if each layer is fundamental or not
-       logical                                          :: randm, semirandm, spcfc !defines what of the explicit cases is
-       integer,          dimension(:),     allocatable  :: original     !
-       integer                                         :: fls, lls, otls, stls  !data of the sequence in the semirandom case
+         character(len=132)               :: ttl          !title
+         logical,dimension(:),allocatable :: fundamental  !array which defines if each layer is fundamental or not
+         logical                          :: randm, semirandm, spcfc !defines what of the explicit cases is
+         integer,dimension(:),allocatable :: original     !
+         integer                          :: fls, lls, otls, stls  !data of the sequence in the semirandom case
 
-       end  type crys_2d_type
+       End Type crys_2d_type
 
-       integer, parameter ,private                      :: i_data=30
-       logical,            public, save                 :: Err_crys=.false.
-       character(len=120), public, save                 :: Err_crys_mess=" "
+       integer, parameter ,private       :: i_data=30
+       logical,            public, save  :: Err_crys=.false.
+       character(len=120), public, save  :: Err_crys_mess=" "
 
-       character(len=132), dimension(:),allocatable     :: tfile     !List of lines of the input file (UPPER CASE)
-       Integer                                          :: numberl   !number of lines in the input file
-       Integer                                          :: np        !to count number of parameters with refinement codes = npar
-       Integer, dimension(8)                            :: sect_indx=0 !Indices (line numbers) of the sevent sections:
-                                                                       !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
-                                                                       !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
-                                                                       !8:EXPERIMENTAL
+       character(len=132), dimension(:),allocatable :: tfile     !List of lines of the input file (UPPER CASE)
+       Integer               :: numberl   !number of lines in the input file
+       Integer               :: np        !to count number of parameters with refinement codes = npar
+       Integer, dimension(8) :: sect_indx=0 !Indices (line numbers) of the sevent sections:
+                                            !1:TITLE, 2:INSTRUMENTAL, 3:STRUCTURAL, 4:LAYER
+                                            !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
+                                            !8:EXPERIMENTAL
 
       type (crys_2d_type),            save,  public  :: crys
       type (Opt_Conditions_Type),     save,  public  :: opti
@@ -1990,83 +1988,6 @@
             end if
             ok_acc=.true.
 
-     !    Case ("SIMPLEX")  !TO BE CHECKED /ELIMINATED
-     !
-     !        i=i+1; if(i > i2) exit
-     !        txt=adjustl(tfile(i))
-     !        if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
-     !        k=index(txt," ")
-     !        key=txt(1:k-1)
-     !        txt=adjustl(txt(k+1:))
-     !
-     !
-     !              read(unit = txt, fmt = *, iostat=ier) opti%mxfun
-     !              do
-     !                z = z+1; if(z > numberl) exit
-     !                txt = adjustl (tfile (z))
-     !                if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or.index(txt,'{')==1) cycle
-     !                if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-     !                  z=z-1
-     !                  exit
-     !                else
-     !                  read(unit = txt, fmt = *, iostat=ier) opti%eps
-     !                  do
-     !                    z = z+1; if(z > numberl) exit
-     !                    txt = adjustl (tfile (z))
-     !                    if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
-     !                    if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-     !                      z=z-1
-     !                      exit
-     !                    else
-     !                      read(unit = txt, fmt = *, iostat=ier) opti%iout
-     !                      do
-     !                        z = z+1; if(z > numberl) exit
-     !                        txt = adjustl (tfile (z))
-     !                        if(index(txt,"!") == 1 .or. len_trim(txt) == 0 .or. index(txt,'{')==1) cycle
-     !                        if ( index (txt, 'EXPERIMENTAL' ) == 1 ) then
-     !                          z=z-1
-     !                          exit
-     !                        else
-     !                          read(unit = txt, fmt = *, iostat=ier) opti%acc
-     !                        end if
-     !                      end do
-     !                    end if
-     !                  end do
-     !                end if
-     !              end do
-     !
-     !
-!////!////////////////CONVERSION TO SIMPLEX VARIABLES///////////////////////////////////////////
-     !
-     !            !vector(1:nrp)  = crys%list (1:nrp)
-     !            !   code(1:nrp) = crys%cod(1:nrp)
-     !                    numpar = np
-     !            !      nm_cycl  = crys%n_cycles
-!////!/////////////////////////////////////////////////////////////////////////////////////////
-     !            n_plex = maxval(crys%p)
-     !            opti%loops = 2 * n_plex
-     !            opti%iquad=1
-     !
-     !            opti%npar = n_plex
-     !
-     !            do i = 1, numpar
-     !               label(crys%p(i)) = 0
-     !            end do
-     !
-     !            do i=1, numpar                    !construction of SIMPLEX 'in' vectors
-     !
-     !              if (label (crys%p(i))  == 0 ) then        !not to overwrite in config
-     !               !  v_plex(crys%p(i)) = crys%Pv_refi(i)
-     !
-     !               !  nampar(pnum(i)) = namepar(i)
-     !                 sanvec%low(pnum(i)) = crys%vlim1(i)
-     !                 sanvec%high(pnum(i)) = crys%vlim2(i)
-     !
-     !              end if
-     !              label (crys%p(i)) = 1
-     !            end do
-     !
-
           Case Default
             cycle
           End Select
@@ -2342,59 +2263,6 @@
 
         return
     End Subroutine Set_Crys
-
-
-!_____________________________________________________________________________________________________
-    Subroutine new_getfil(stfile,vecsan, olg)
-
-
-       character(len=31) ,             intent (in out)      :: stfile
-       type (State_Vector_Type),       intent (   out)      :: vecsan
-       logical                   ,     intent (   out)      :: olg
-
-        write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
-        read(unit= *,fmt="(a)") stfile
-
-        !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
-        OPEN(UNIT = sf, FILE = sfname)
-        !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
-
-        call read_structure_file(stfile, olg)
-
-        if (err_crys) then
-          print*, trim(err_crys_mess)
-        else
-          write(op, fmt=*) "=> Structure input file read in"
-        end if
-        return
-    End subroutine
-
-!______________________________________________________________________________________________________
-
- !    INTEGER*4 FUNCTION choice(flag, list, n)          !from diffax
- !
- !
- !    IMPLICIT NONE
- !    CHARACTER (LEN=*), INTENT(IN)        :: flag
- !    CHARACTER (LEN=80), INTENT(IN)       :: list(n)
- !    INTEGER*4, INTENT(IN)                :: n
- !
- !    INTEGER*4 i, j1, j2
- !
- !    i = 1
- !    j1 = length(flag)
- !
- !    10 j2 = length(list(i))
-!!see if the string contained in list(i) is identical to that in flag
- !    IF(j1 == j2 .AND. INDEX(flag, list(i)(1:j2)) == 1) GO TO 20
- !    i = i + 1
- !    IF(i <= n) GO TO 10
- !
- !    20 IF(i > n) i = -1
- !    choice = i
- !
- !    RETURN
- !    END FUNCTION choice
 !______________________________________________________________________________________________________
 
      Function length(string) result(leng)    !from diffax
@@ -2411,21 +2279,15 @@
       End Function length
 !______________________________________________________________________________________________________
 
-        Subroutine read_structure_file (namef,  logi)
-
-        character(len=*)    ,          intent(in    )     :: namef
-        logical                   ,    intent(   out)     :: logi
-
-
-
-        logical                                        :: esta
-        integer                                        :: ier, a,b,l,j, i
-        !real,               dimension(80)              :: label
+      Subroutine read_structure_file (namef,  logi)
+        character(len=*), intent(in ):: namef
+        logical,          intent(out):: logi
+        !Local variables
+        logical :: esta
+        integer :: ier, a,b,l,j, i, n
 
         logi = .true.
-
         call Set_Crys()
-
         b = 0
         a = 0
         l = 0
@@ -2448,9 +2310,10 @@
         end if
 
         call Set_TFile(namef,logi)
-        if(.not. logi) return
 
-        call Read_TITLE(logi)
+         if(.not. logi) return
+
+         call Read_TITLE(logi)
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
@@ -2458,21 +2321,21 @@
           write(*,*)     "Title:   ", crys%ttl
          end if
 
-        call Read_INSTRUMENTAL(logi)
+         call Read_INSTRUMENTAL(logi)
          if(.not. logi) then
-          write(*,"(a)")  " => "//Err_crys_mess
-          return
+           write(*,"(a)")  " => "//Err_crys_mess
+           return
          else
-          write(*,"(a,i2)")     " Radiation:            ", crys%rad_type
-          write(*,"(a,3f10.4)") " Lambda:               ", crys%lambda, crys%lambda2, crys%ratio
-          write(*,"(a,6f10.2)") " peak-width parameters:", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
-          write(*,"(a,6f10.2)") " peak-width codes:     ", crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
-                                                           crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
-          write(*,"(a,6f10.2)") " peak-width ranges:    ", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
-                                                           crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
+           write(*,"(a,i2)")     " Radiation:            ", crys%rad_type
+           write(*,"(a,3f10.4)") " Lambda:               ", crys%lambda, crys%lambda2, crys%ratio
+           write(*,"(a,6f10.2)") " peak-width parameters:", crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
+           write(*,"(a,6f10.2)") " peak-width codes:     ", crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
+                                                            crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+           write(*,"(a,6f10.2)") " peak-width ranges:    ", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, &
+                                                            crys%rang_p_x, crys%rang_p_dg, crys%rang_p_dl
          end if
 
-        call Read_STRUCTURAL(logi)
+         call Read_STRUCTURAL(logi)
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
@@ -2488,7 +2351,7 @@
           write(*,"(a,6f10.2)") " layer width ranges:    ", crys%rang_layer_a, crys%rang_layer_b
          end if
 
-        call Read_LAYER(logi)
+         call Read_LAYER(logi)
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
@@ -2509,7 +2372,7 @@
            write(*,*) "n_layers", n_layers
          end if
 
-        call Read_STACKING (logi)
+         call Read_STACKING (logi)
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
@@ -2543,22 +2406,21 @@
           do l=1, n_layers
             do j=1, n_layers
               write(*, "(a,i2, a, i2,a)") "Layer transition parameters between layers ", l, " and ", j, ":"
-              write(*, "(a,4f10.2)")  "Stacking probability and stacking vector:", crys%l_alpha (j,l), crys%l_r (1,j,l), &
+              write(*, "(a,4f10.2)") "Stacking probability and stacking vector:", crys%l_alpha (j,l), crys%l_r (1,j,l), &
                                       crys%l_r (2,j,l), crys%l_r (3,j,l)
-              write(*, "(a, 4f10.2)") "Refinement codes:", crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
-                                      crys%ref_l_r (3,j,l)
-              write(*, "(a, 4f10.2)") "Refinement ranges:",crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) ,&
-                                      crys%rang_l_r(3,j,l)
-              write(*, "(a, 6f10.2)") "Fats Waller parameters:",crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
-                                      crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
+              write(*, "(a,4f10.2)") "Refinement codes:", crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+                                     crys%ref_l_r (3,j,l)
+              write(*, "(a,4f10.2)") "Refinement ranges:",crys%rang_l_alpha (j,l), crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) ,&
+                                     crys%rang_l_r(3,j,l)
+              write(*, "(a,6f10.2)") "Fats Waller parameters:",crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
+                                     crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
             end do
           end do
          end if
 
+         call Read_CALCULATION (logi)
 
-        call Read_CALCULATION (logi)
-
-        crys%npar=np
+         crys%npar=np
 
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
@@ -2566,16 +2428,14 @@
          else
 
           if (opt==3) then        !construction of some optimization variables(DFP)
-            numpar = crys%npar
-            n_plex = maxval(crys%p)
-            opti%loops = 2 * n_plex
+            opti%npar = maxval(crys%p)
+            opti%loops = 2 * opti%npar
             opti%iquad=1
-            opti%npar = n_plex
+
           end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
             opti%npar =maxval(crys%p)
             Cond%npvar=opti%npar
-            numpar = crys%npar
             vs%pv(1:opti%npar)= crys%Pv_refi(1:opti%npar)
             vs%code(1:opti%npar) = 1
             vs%np= opti%npar
@@ -2589,7 +2449,7 @@
             write(*,"(a,f5.2 )") "Stopping criterion: ", opti%eps
             write(*,"(a,i2 )") "Output file indicator: ", opti%iout
             write(*,"(a,f12.9 )") "Accuracy: ", opti%acc
-          elseif (opt == 4) then
+          else if (opt == 4) then
             write(*,"(a,f5.2, 2i4, f12.9, i4)") "percent, corrmax, maxfun, tol, nprint: ", Cond%percent, Cond%corrmax, &
                                              Cond%icyc, cond%tol, cond%nprint
           else
@@ -2602,7 +2462,7 @@
 
         if (opt /= 0) then !not necessary for simulation
 
-       call Read_EXPERIMENTAL(logi)
+          call Read_EXPERIMENTAL(logi)
 
           if(.not. logi) then
             write(*,"(a)")  " => "//Err_crys_mess
@@ -2620,69 +2480,68 @@
         end if
 
 !///////////////////////CONVERSION TO DIFFAX VARIABLES////////////////
-
-                              rad_type = crys%rad_type
-                              lambda   = crys%lambda
-                              lambda2  = crys%lambda2
-                                 ratio = crys%ratio
-                              blurring = crys%broad      ! Diffax utiliza varias variables, primero asigna blurring a: none, gauss, pv_gss, lorenz, pv_lrn , ps_vgt; y luego asigna cada una de estas variables a los enteros  : 0,1,4,2,5,y 3 respectivamente. Todas estas variables estan definidas como enteros
-                              cell_a   = crys%cell_a
-                              cell_b   = crys%cell_b
-                              cell_c   = crys%cell_c
-                            cell_gamma = crys%cell_gamma
-                             pnt_grp   = crys%sym        ! hay otra variable: symgrpno
-                            l_symmetry = crys%centro     ! mismo problema k en blurring: 1o asigna l_symmetry a none o centro y luego asigna estos a 0 y 1 respectivamente
-           a_name(1:crys%yy,1:crys%n_typ)   = crys%a_name(1:crys%yy,1:crys%n_typ)
-           a_number(1:crys%yy,1:crys%n_typ) = crys%a_num(1:crys%yy,1:crys%n_typ)
-          a_pos(1:3,1:crys%yy,1:crys%n_typ) = crys%a_pos(1:3,1:crys%yy,1:crys%n_typ)
-             a_b(1:crys%yy,1:crys%n_typ)    = crys%a_B(1:crys%yy,1:crys%n_typ)
-            a_occup(1:crys%yy,1:crys%n_typ) = crys%a_occup(1:crys%yy,1:crys%n_typ)
-                              recrsv   = crys%recrsv
-                              xplcit   = crys%xplcit
-                          finite_width = crys%finite_width
-                            inf_thick  = crys%inf_thick
-  l_alpha(1:crys%n_typ,1:crys%n_typ)   = crys%l_alpha(1:crys%n_typ,1:crys%n_typ)
-  l_r(1:3,1:crys%n_typ,1:crys%n_typ)   = crys%l_r(1:3,1:crys%n_typ,1:crys%n_typ)
-                                Wa     = crys%layer_a
-                                Wb     = crys%layer_b
-                               pv_u    = crys%p_u
-                               pv_v    = crys%p_v
-                               pv_w    = crys%p_w
-                               pv_x    = crys%p_x
-                               pv_dg   = crys%p_dg
-                               pv_dl   = crys%p_dl
-                              pv_gamma = crys%p_gamma
-                           trim_origin = crys%trm
-                            n_actual   = crys%n_actual
-                              l_cnt    = crys%l_cnt
-                       l_seq(1:xp_max) = crys%l_seq(1:xp_max)
-                l_actual(1:crys%n_typ) = crys%l_actual(1:crys%n_typ)
-                           SymGrpNo    = crys%SymGrpNo
-              r_b11(1:crys%yy,1:crys%n_typ) = crys%r_b11 (1:crys%yy,1:crys%n_typ)
-              r_b22(1:crys%yy,1:crys%n_typ) = crys%r_b22 (1:crys%yy,1:crys%n_typ)
-              r_b33(1:crys%yy,1:crys%n_typ) = crys%r_b33 (1:crys%yy,1:crys%n_typ)
-              r_b12(1:crys%yy,1:crys%n_typ) = crys%r_b12 (1:crys%yy,1:crys%n_typ)
-              r_b31(1:crys%yy,1:crys%n_typ) = crys%r_b31 (1:crys%yy,1:crys%n_typ)
-              r_b23(1:crys%yy,1:crys%n_typ) = crys%r_b23 (1:crys%yy,1:crys%n_typ)
-              l_n_atoms(1:crys%n_typ)  = crys%l_n_atoms(1:crys%n_typ)
-               low_atom(1:crys%n_typ)  = crys%low_atom(1:crys%n_typ)
-              high_atom(1:crys%n_typ)  = crys%high_atom(1:crys%n_typ)
-                             tolerance = crys%tolerance
-                        pnum(1:numpar) = crys%p(1:numpar)
-                        mult(1:numpar) = crys%mult(1:numpar)
-                              n_layers = crys%n_typ
-
-                                   ttl = crys%ttl
-                                   fundamental = crys%fundamental
-                                   original = crys%original
-                                   randm = crys%randm
-                                   semirandm = crys%semirandm
-                                   spcfc = crys%spcfc
-                                   fls = crys%fls
-                                   lls = crys%lls
-                                   otls = crys%otls
-                                   stls = crys%stls
+                   n  = crys%n_typ
+                   j  = crys%yy
+             rad_type = crys%rad_type
+             lambda   = crys%lambda
+             lambda2  = crys%lambda2
+                ratio = crys%ratio
+             blurring = crys%broad      ! Diffax utiliza varias variables, primero asigna blurring a: none, gauss, pv_gss, lorenz, pv_lrn , ps_vgt; y luego asigna cada una de estas variables a los enteros  : 0,1,4,2,5,y 3 respectivamente. Todas estas variables estan definidas como enteros
+             cell_a   = crys%cell_a
+             cell_b   = crys%cell_b
+             cell_c   = crys%cell_c
+           cell_gamma = crys%cell_gamma
+            pnt_grp   = crys%sym        ! hay otra variable: symgrpno
+           l_symmetry = crys%centro     ! mismo problema k en blurring: 1o asigna l_symmetry a none o centro y luego asigna estos a 0 y 1 respectivamente
+          a_name(1:j,1:n)   = crys%a_name(1:j,1:n)
+          a_number(1:j,1:n) = crys%a_num(1:j,1:n)
+         a_pos(1:3,1:j,1:n) = crys%a_pos(1:3,1:j,1:n)
+            a_b(1:j,1:n)    = crys%a_B(1:j,1:n)
+           a_occup(1:j,1:n) = crys%a_occup(1:j,1:n)
+                   recrsv   = crys%recrsv
+                   xplcit   = crys%xplcit
+               finite_width = crys%finite_width
+                 inf_thick  = crys%inf_thick
+         l_alpha(1:n,1:n)   = crys%l_alpha(1:n,1:n)
+         l_r(1:3,1:n,1:n)   = crys%l_r(1:3,1:n,1:n)
+                     Wa     = crys%layer_a
+                     Wb     = crys%layer_b
+                    pv_u    = crys%p_u
+                    pv_v    = crys%p_v
+                    pv_w    = crys%p_w
+                    pv_x    = crys%p_x
+                    pv_dg   = crys%p_dg
+                    pv_dl   = crys%p_dl
+                   pv_gamma = crys%p_gamma
+                trim_origin = crys%trm
+                 n_actual   = crys%n_actual
+                   l_cnt    = crys%l_cnt
+            l_seq(1:xp_max) = crys%l_seq(1:xp_max)
+              l_actual(1:n) = crys%l_actual(1:n)
+                 SymGrpNo   = crys%SymGrpNo
+             r_b11(1:j,1:n) = crys%r_b11 (1:j,1:n)
+             r_b22(1:j,1:n) = crys%r_b22 (1:j,1:n)
+             r_b33(1:j,1:n) = crys%r_b33 (1:j,1:n)
+             r_b12(1:j,1:n) = crys%r_b12 (1:j,1:n)
+             r_b31(1:j,1:n) = crys%r_b31 (1:j,1:n)
+             r_b23(1:j,1:n) = crys%r_b23 (1:j,1:n)
+             l_n_atoms(1:n) = crys%l_n_atoms(1:n)
+              low_atom(1:n) =  crys%low_atom(1:n)
+             high_atom(1:n) = crys%high_atom(1:n)
+             tolerance      = crys%tolerance
+                 mult(1:np) = crys%mult(1:np)
+                   n_layers = crys%n_typ
+                        ttl = crys%ttl
+                fundamental = crys%fundamental
+                   original = crys%original
+                      randm = crys%randm
+                  semirandm = crys%semirandm
+                      spcfc = crys%spcfc
+                       fls  = crys%fls
+                       lls  = crys%lls
+                       otls = crys%otls
+                       stls = crys%stls
         return
-        End subroutine  read_structure_file
+      End subroutine  read_structure_file
 
     End module read_data
