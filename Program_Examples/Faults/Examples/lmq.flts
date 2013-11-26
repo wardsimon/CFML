@@ -1,147 +1,123 @@
-{Ni(OH)2 with deformation and growth faults}
-{Correct values: Dg=490.76, Dl=459.63}
-
 TITLE
- Ni(OH)2 with deformation and growth faults
+NI(OH)2 WITH DEFORMATION AND GROWTH FAULTS
 
 INSTRUMENTAL  AND  SIZE  BROADENING
-  !type of radiation
-radiation      x-ray
-             !lambda1   lambda2   ratio
-wavelength     1.5406
-!instrumental aberrations  zero sycos sysin
-aberrations  0.0 0.0 0.0
-             0.0 0.0 0.0  (0.1 0.1 0.0)
-  !instr. broadening  u         v           w          x       Dg         Dl
- pseudo-voigt          0.003637  -0.003558   0.2274    0       490        459    trim
-                       0.0        0.0        0.0      0.0  0.0          0        (  0.01   0.01   0.01   0.01   100.0   100.0)
+ Radiation            X-RAY
+ Wavelength                    1.5406    0.0000    0.0000
+ Aberrations    0.0000    0.0000    0.0000
+                   0.00      0.00      0.00  (      0.10      0.10      0.00)
+ PSEUDO-VOIGT   0.059595   -0.003558    0.227400    0.000000    1000.00     1000 TRIM
+                  11.00      0.00      0.00      0.00      81.00     51.00  (    0.01    0.01    0.01    0.01  800.00  100.00)
 
-STRUCTURAL
-          !a            b            c         gamma
-CELL    3.12864828   3.12864828   4.60875607         120.0
-        0.0        0.0        0.0             0.0    ( 0.1 0.1 0.1 0.1 )
-   !Laue simmetry
-SYMM  -3m
-   !number of layer types
-NLAYERS   4
-LWIDTH  infinite
+ STRUCTURAL
+ CELL      3.128601    3.128601    4.613862      120.00
+         21.00     21.00     31.00      0.00  (      0.10      0.10      0.10      0.10)
+  SYMM  -3M
+ NLAYERS   4
+LWIDTH  INFINITE
 
+ LAYER 1
+ LSYM   CENTROSYMMETRIC
+ ATOM NI2+   1   0.67000   0.33000   0.00000   1.06197   0.50000
+                   0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
+ ATOM O2-    2   0.33000   0.67000   0.20202   0.75961   1.00000
+                   0.00      0.00      71.00      0.00  (      0.10      0.10      0.10      0.10)
 
+LAYER 2 = 1
 
-LAYER 1       {ab}
-   !Layer simmetry
-LSYM   centrosymmetric
-   !Atom name   number   x      y      z         Biso      Occ
-ATOM    Ni2+        1   0.67   0.33    0        1.06197    0.5
-                         0.0    0.0    0.0       0.0               ( 0.1 0.1 0.1  0.1)
-   !Atom name   number   x      y      z         Biso      Occ
-ATOM    O2-        2    0.33   0.67   0.22022   0.75961   1.0
-                         0.0    0.0    0.0       0.0               ( 0.1 0.1 0.1  0.1)
-   !Atom name   number   x      y      z         Biso      Occ
+LAYER 3 = 1
 
-LAYER 2 = 1   {ca}
+ LAYER 4
+ LSYM   CENTROSYMMETRIC
+ ATOM NI2+   3   0.00000   0.00000   0.00000   1.06197   0.50000
+                   0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
+ ATOM O2-    4   0.33000   0.67000   0.20202   0.75961   1.00000
+                   0.00      0.00      71.00      0.00  (      0.10      0.10      0.10      0.10)
 
+ STACKING
+ RECURSIVE
+ 100
+61.00  (70.00)
 
-LAYER 3 = 1   {ca}
-
-
-LAYER 4      {cb}
-!Layer simmetry
-LSYM   centrosymmetric
-   !Atom name   number   x      y      z         Biso      Occ
-ATOM   Ni2+         3  0.0    0.0    0.0       1.06197   0.5
-                         0.0    0.0    0.0       0.0            ( 0.1 0.1 0.1  0.1)
-   !Atom name   number   x      y      z         Biso      Occ
-ATOM     O2-        4   0.33 0.67     0.22022   0.75961   1.0
-                        0.0   0.0     0.0        0.0           ( 0.1 0.1 0.1  0.1)
-   !Atom name   number   x      y      z         Biso      Occ
-
-STACKING
-   !stacking type
-   recursive
-   !number of layers
-   infinite
-
-
-
-   TRANSITIONS
+ TRANSITIONS
 !layer  1 to layer  1
-LT     0.900    0.0000    0.0000    1.0000
-         42.00      0.00      0.00     0.00  (      0.1      0.10      0.10      0.10)
+LT     0.9900    0.0000    0.0000    1.0000
+         -92.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
 FW       0.00      0.00      0.00      0.00      0.00      0.00
 !layer  1 to layer  2
-LT     0.050    0.3330    0.6667    1.0000
-         -41.00      0.00      0.00      0.00  (      0.05      0.10      0.10      0.10)
+LT     0.0050    0.3330    0.6667    1.0000
+         91.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
 !layer  1 to layer  3
 LT     0.0000    0.0000    0.0000    0.0000
          0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
 !layer  1 to layer  4
-LT     0.050    0.0000    0.0000    1.0000
-         -41.00      0.00      0.00      0.00  (      0.005      0.10      0.10      0.10)
-
-   !layer 2 to layer 1
-LT   0.00     0.0      0.0      0.0
-   0       0        0         0        ( 0.1 0.1 0.1 0.1)
-   !layer 2 to layer 2
-LT   0.99  0.0      0.0       1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 2 to layer 3
-LT   0.01  0.333      0.66667     1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 2 to layer 4
-LT   0.00    0.0      0.0       0.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-
-
-   !layer 3 to layer 1
-LT   0.01    0.333      0.66667      1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 3 to layer 2
+LT     0.0050    0.0000    0.0000    1.0000
+         91.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  2 to layer  1
 LT     0.0000    0.0000    0.0000    0.0000
          0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
-   !layer 3 to layer 3
- LT  0.99   0.0      0.0       1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 3 to layer 4
-LT   0.0     0.0      0.0       1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  2 to layer  2
+LT     0.9900    0.0000    0.0000    1.0000
+         -101.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  2 to layer  3
+LT     0.0100    0.3330    0.6667    1.0000
+         101.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  2 to layer  4
+LT     0.0000    0.0000    0.0000    0.0000
+         0.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  3 to layer  1
+LT     0.0100    0.3330    0.6667    1.0000
+        -111.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  3 to layer  2
+LT     0.0000    0.0000    0.0000    0.0000
+         0.00      0.00      0.00      0.00  (      0.10      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  3 to layer  3
+LT     0.9900    0.0000    0.0000    1.0000
+         111.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  3 to layer  4
+LT     0.0000    0.0000    0.0000    1.0000
+         0.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  4 to layer  1
+LT     0.0100    0.0000    0.0000    1.0000
+         -121.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  4 to layer  2
+LT     0.0000    0.0000    0.0000    1.0000
+         0.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  4 to layer  3
+LT     0.0000    0.0000    0.0000    0.0000
+         0.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
+!layer  4 to layer  4
+LT     0.9900    0.0000    0.0000    1.0000
+         121.00      0.00      0.00      0.00  (      0.30      0.10      0.10      0.10)
+FW       0.00      0.00      0.00      0.00      0.00      0.00
 
+ CALCULATION
+ LMQ
+ BOXP 0.0
+ CORRMAX      50
+ MAXFUN       50
+ TOL         0.0001
+ Nprint      1
 
-   !layer 4 to layer 1
-LT  0.01    0        0         1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 4 to layer 2
- LT  0.00    0.0      0.0       1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 4 to layer 3
-LT   0.00    0.0      0.0       0.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-   !layer 4 to layer 4
-LT   0.99    0.0      0.0       1.0
-   0.0     0        0         0        ( 0.3 0.1 0.1 0.1)
-
-
-CALCULATION
-  lmq {type of optimization}
-
-   BOXP     50
-   CORRMAX     50
-   MAXFUN     50
-   TOL     10-5       {Total number of function and gradient evaluations}
-   NPRINT   1
-
-EXPERIMENTAL
-
-        !filename    2thetamin  2thetamax  stepsize
-  FILE      simulation4.dat
-
-  EXCLUDED_REGIONS 2
-    0.0  15.0
-    65.0  180
-
-        ! file format
- FFORMAT       free
-        !background filename
- BGR       sim.bgr
-        !background calculation
- BCALC       interpolation
+ EXPERIMENTAL
+ FILE  SIMULATION7.DAT
+ EXCLUDED_REGIONS   2
+    0.0000   15.0000
+   70.0000  180.0000
+ FFORMAT  FREE
+ BGR  SIM.BGR
+ BCALC  INTERPOLATION
