@@ -301,7 +301,6 @@
                               op=6, &   !op  -  standard output device number
                               df=2, &   !df  -  unit that the structure data file will be read from
                               sf=4, &   !sf  -  unit that the standard scattering factor data will be read from
-                              dmp=10,&  !dmp  -  unit that the structure data dump will be written to
                               sy=11,&   !sy  -  unit that the symmetry evaluation data will be written to
                               unit_sp=12,&   !sk  -  unit that the streak data will be written to.
                               sk=13,&   !sp  -  unit that the spectrum data will be written to.

@@ -392,7 +392,8 @@
     implicit none
 
     public  ::  Cost_LMQ, apply_aberrations
-    type (diffraction_pattern_type),  save         :: difpat
+    type (diffraction_pattern_type), save :: difpat
+    integer, parameter, public            :: iout = 25,i_out=20
 
 
     contains
@@ -440,10 +441,10 @@
         Case(1)  !Calculation of fvec and updating completely the parameters
 
            fvec=0.0
-           write(*,"(a)")" --------FCOST-------"
+           write(i_out,"(a)")" --------FCOST-------"
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             if(iflag == 1) write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
+             if(iflag == 1) write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
@@ -456,6 +457,7 @@
            numcal = numcal + 1  !Counter for optimz, detun, etc
            iter = iter + 1
            write(*,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+           write(i_out,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
 
         Case(2)  !Calculation of numerical derivatives
 
@@ -619,7 +621,7 @@
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
      use Dif_compl,                    only : scale_factor_lmq, Write_Prf, write_ftls
-     use dif_ref,                      only : difpat , cost_LMQ, apply_aberrations
+     use dif_ref
 
      implicit none
 
@@ -629,7 +631,6 @@
       INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
       character(len=100)      :: pfile, bfile , bmode
       character(len=100)      :: pmode, filenam
-      integer, parameter      :: iout = 25
       character(len=10)       :: time, date
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
@@ -644,7 +645,6 @@
       sfname = 'data.sfc'
       cntrl=ip
 
-      CALL salute()
 
       !---- Arguments on the command line ----!
       narg=command_argument_count()
@@ -654,6 +654,8 @@
          arggiven=.true.
       end if
 
+      CALL salute()
+
       if(.not. arggiven) then
         write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
         read(unit= *,fmt="(a)") infile
@@ -661,6 +663,12 @@
       !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
       OPEN(UNIT = sf, FILE = sfname)
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
+
+      filenam = trim(infile(1:(index(infile,'.')-1)))
+
+      open(unit=i_out, file=trim(filenam)//".out",status="replace",action="write")
+      CALL salute(i_out)
+
 
       call read_structure_file(infile, gol)
 
@@ -730,7 +738,6 @@
         CALL chk_sym(ok)
         IF(.NOT. ok) GO TO 999
       END IF
-      filenam = trim(infile(1:(index(infile,'.')-1)))
       IF(ok) ok = get_g()
       IF(ok .AND. rndm) ok = getlay()
       IF(ok) CALL sphcst()
@@ -738,8 +745,8 @@
       IF(.NOT. ok) GO TO 999
       ! See if there are any optimizations we can do
       IF(ok) CALL optimz(infile, ok)
-      write(*,"(a)") " => Calling dump file: "//trim(filenam)//".dmp"
-      call dump(infile, p_ok)
+      !write(*,"(a)") " => Calling dump file: "//trim(filenam)//".dmp"
+      call dump(infile, i_out, p_ok) !Writing read control file
       call overlp()
       call nmcoor ()
 
@@ -809,7 +816,8 @@
             call Levenberg_Marquardt_Fit(cost_LMQ, difpat%npts, cond, Vs, chi2, infout)
 
             !Output the final list of refined parameters
-            Call Info_LSQ_LM(Chi2,6,Cond,Vs)
+            Call Info_LSQ_LM(Chi2,op,Cond,Vs)
+            Call Info_LSQ_LM(Chi2,i_out,Cond,Vs)
 
             write(*,"(a)") " => "// trim(infout)
 

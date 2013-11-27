@@ -1323,7 +1323,7 @@
 !        modifies:      no COMMON variables are modified
 ! ______________________________________________________________________
 
-      SUBROUTINE dump(infile,ok)
+      SUBROUTINE dump(infile,dmp,ok)
 
 !     Utiliza las variables: DIFFaX.par , DIFFaX.inc, infile, ok, scale, atom_cnt(MAX_TA),
 !                            cum_atom_cnt(MAX_TA), norm  , i, i2, j, n, type, num_types, tot_types
@@ -1333,31 +1333,23 @@
 
 
       CHARACTER (LEN=*), INTENT(IN) :: infile
+      integer, intent(in)           :: dmp
       LOGICAL, INTENT(OUT)          :: ok
 
       REAL(kind=8) :: scale, atom_cnt(max_ta), cum_atom_cnt(max_ta), norm
       INTEGER :: i, i2, j, n, TYPE, num_types, tot_types
       INTEGER :: print_width
-      CHARACTER(LEN=31) :: dmpfile
       CHARACTER(LEN=80) :: list(5)
 
-! external subroutine (Some compilers need them declared external)
-!      external GETFNM
-
-      CALL getfnm(infile, dmpfile, '.dmp', ok)
-      write(*,"(a)") " => Getting out of getfnm: infile="//trim(infile)//"  dmpfile="//trim(dmpfile)
-      IF(.NOT. ok) THEN
-        WRITE(op,200) 'DUMP aborted'
-        GO TO 999
-      END IF
-      IF(dmp /= op) OPEN(UNIT = dmp , FILE = dmpfile, STATUS = 'replace')
 
       i2 = 1
       !WRITE(op,200) 'Enter 1 for full atomic position dump: '
       !READ(cntrl,*,ERR=99,END=9999) i2
       !IF(cfile) WRITE(op,'(1x,i3)') i2
-      WRITE(op,300) 'Writing data dump to file ''',  &
-          dmpfile(1:length(dmpfile)),'''. . .'
+      WRITE(dmp,"(/a)") ' --------------------------------------------------------'
+      WRITE(dmp,"(a)")  ' Writing input data parameter read in file'//trim(infile)
+      WRITE(dmp,"(a/)") ' --------------------------------------------------------'
+
 !title
       WRITE(dmp,"(a)") 'TITLE:', ttl
 ! sundry details about layers
@@ -1612,8 +1604,6 @@
          write(dmp,"(2a)")         " BCALC  ",mode
        end if
 
-
-      IF(dmp /= op) CLOSE(UNIT = dmp)
       999 RETURN
       9999 ok = .false.
       WRITE(op,200) 'DUMP aborted'
@@ -6508,21 +6498,27 @@
 !           No arguments are needed.
 ! ______________________________________________________________________
 
-      SUBROUTINE salute()
-
-      WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)") '         _______ FAULTS 2010 _______           '
-      WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)") '                                               '
-      WRITE(op,"(a)") '     A computer program based in DIFFax for    '
-      WRITE(op,"(a)") '     refining faulted layered structures       '
-      WRITE(op,"(a)") '     Authors: M.Casas-Cabanas                  '
-      WRITE(op,"(a)") '              J.Rodriguez-Carvajal             '
-      WRITE(op,"(a)") ' ______________________________________________'
-      WRITE(op,"(a)")
-      WRITE(op,"(a)")
+      SUBROUTINE salute(i_write)
+      integer, optional, intent(in) :: i_write
+      integer :: iw
+      if(present(i_write)) then
+        iw=i_write
+      else
+        iw=op
+      end if
+      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)") '         _______ FAULTS 2013 _______           '
+      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)") '                                               '
+      WRITE(iw,"(a)") '     A computer program based in DIFFax for    '
+      WRITE(iw,"(a)") '     refining faulted layered structures       '
+      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas  (CIC energiGUNE)'
+      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal (ILL)       '
+      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)")
+      WRITE(iw,"(a)")
 
       RETURN
       END SUBROUTINE salute
