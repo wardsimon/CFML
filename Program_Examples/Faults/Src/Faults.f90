@@ -106,69 +106,6 @@
 
        call Var_assign(crys%list)
 
- !     crys%n_typ     = n
- !     crys%yy        = j
- !     crys%rad_type  = rad_type
- !     crys%lambda    = lambda
- !     crys%lambda2   = lambda2
- !     crys%ratio     = ratio
- !     crys%broad     = blurring
- !     crys%cell_a    = cell_a
- !     crys%cell_b    = cell_b
- !     crys%cell_c    = cell_c
- !     crys%cell_gamma= cell_gamma
- !     crys%sym       = pnt_grp
- !     crys%centro    = l_symmetry
- !     crys%a_name(1:j,1:n)     = a_name(1:j,1:n)
- !     crys%a_num(1:j,1:n)      = a_number(1:j,1:n)
- !     crys%a_pos(1:3,1:j,1:n)  = a_pos(1:3,1:j,1:n)
- !     crys%a_B(1:j,1:n)        = a_b(1:j,1:n)
- !     crys%a_occup(1:j,1:n)    = a_occup(1:j,1:n)
- !     crys%recrsv              = recrsv
- !     crys%xplcit              = xplcit
- !     crys%finite_width        = finite_width
- !     crys%inf_thick           = inf_thick
- !     crys%l_alpha(1:n,1:n)    = l_alpha(1:n,1:n)
- !     crys%l_r(1:3,1:n,1:n)    = l_r(1:3,1:n,1:n)
- !     crys%layer_a             = Wa
- !     crys%layer_b             = Wb
- !     crys%p_u                 = pv_u
- !     crys%p_v                 = pv_v
- !     crys%p_w                 = pv_w
- !     crys%p_x                 = pv_x
- !     crys%p_dg                = pv_dg
- !     crys%p_dl                = pv_dl
- !     crys%p_gamma             = pv_gamma
- !     crys%trm                 = trim_origin
- !     crys%n_actual            = n_actual
- !     crys%l_cnt               = l_cnt
- !     crys%l_seq(1:xp_max)     = l_seq(1:xp_max)
- !     crys%l_actual(1:n)       = l_actual(1:n)
- !     crys%SymGrpNo            = SymGrpNo
- !     crys%r_b11 (1:j,1:n)     = r_b11 (1:j,1:n)
- !     crys%r_b22 (1:j,1:n)     = r_b22 (1:j,1:n)
- !     crys%r_b33 (1:j,1:n)     = r_b33 (1:j,1:n)
- !     crys%r_b12 (1:j,1:n)     = r_b12 (1:j,1:n)
- !     crys%r_b31 (1:j,1:n)     = r_b31 (1:j,1:n)
- !     crys%r_b23 (1:j,1:n)     = r_b23 (1:j,1:n)
- !     crys%l_n_atoms(1:n)      = l_n_atoms(1:n)
- !      crys%low_atom(1:n)      = low_atom(1:n)
- !     crys%high_atom(1:n)      = high_atom(1:n)
- !     crys%tolerance           = tolerance
- !     crys%mult(1:crys%npar)   = mult(1:crys%npar)
- !     crys%n_typ               = n_layers
- !     crys%ttl                 = ttl
- !     crys%fundamental         = fundamental
- !     crys%original            = original
- !     crys%randm               = randm
- !     crys%semirandm           = semirandm
- !     crys%spcfc               = spcfc
- !     crys%fls                 = fls
- !     crys%lls                 = lls
- !     crys%otls                = otls
- !     crys%stls                = stls
-
-
        End subroutine vs2faults
 
        Subroutine Faults2diffax(crys)
@@ -354,36 +291,19 @@
           write(i_ftls,"(a)")     "!stacking type"
           if (crys%xplcit) then
             write(i_ftls, "(a)") " EXPLICIT "
-            !if (rndm) then
-            !   write(i_ftls, " (a,f5.2)") "RANDOM ",l_cnt
-           ! else
-            !   write(i_ftls,"(a)") lstype
                if (semirandm) then
-                 write(i_ftls,"(a)", advance="no") " SEMIRANDOM "
                  write(i_ftls,"(a)") "!number of layers"
+                 write(i_ftls,"(a)", advance="no") " SEMIRANDOM "
                  write(i_ftls,"(f6.1)") l_cnt
                  write(i_ftls,"(a,i5,i5,i5,i5)") " SEQ", fls, lls, otls, stls
-                ! i=1
-                ! do i=1,crys%n_seq
-                   !write(i_ftls,"(a)") "SEQ"             !----------------TO BE FINISHED
-                ! end do
                elseif(spcfc) then
                  write(i_ftls,"(a)") " SPECIFIC"
                  write(i_ftls, "(25i2)") crys%l_seq(1:crys%l_cnt)
                elseif(randm) then
+                write(i_ftls,"(a)") "!number of layers"
                  write(i_ftls,"(a)", advance="no") " RANDOM "
-                 write(i_ftls,"(a)") "!number of layers"
                  write(i_ftls,"(f6.1)") l_cnt
-               else
-                 write(i_ftls,"(a)") "ez du ondo egin"
                end if
-           ! end if
-            !a = 1
-            !do a=1, int(crys%l_cnt)
-            !    if (crys%l_seq(a) /=0) then
-            !      write(i_ftls,*)  crys%l_seq(1:crys%l_cnt)
-            !    end if
-            !end do                                      !_______________________________
           else
              write(i_ftls, "(a)") " RECURSIVE"
              write(i_ftls,"(a)") "!number of layers"
@@ -393,7 +313,7 @@
                write (i_ftls, "( f6.1)") l_cnt
                write (i_ftls, "( f6.1,a)")  crys%ref_l_cnt
              end if
-           end if
+          end if
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          " TRANSITIONS"
           l=1
@@ -438,7 +358,8 @@
           if(opt == 3 .or. opt == 4) then
             write(i_ftls,"(a)")              "  "
             write(i_ftls,"(a)")          " EXPERIMENTAL"
-            write(i_ftls,"(2a)")         " FILE  ", dfile
+            write(i_ftls,"(a)")          "!     Filename              Scale factor    code"
+            write(i_ftls,"(2a, g14.4,f14.2)")         " FILE  ", dfile, crys%patscal, crys%ref_patscal
             if (nexcrg /= 0) then
               write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
               do i=1,nexcrg
@@ -447,8 +368,18 @@
 
             end if
             write(i_ftls,"(2a)")         " FFORMAT  ",fmode
-            write(i_ftls,"(2a)")         " BGR    ",background_file
-            write(i_ftls,"(2a)")         " BCALC    ",mode
+            write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%bgr_num
+            if (crys%bgrpatt) then
+              do i=1, crys%num_bgrpatt
+                write(i_ftls,"(2a, 2f10.2)")         " BGRPATT    ", crys%bfilepat(i), crys%bscalpat(i), crys%ref_bscalpat(i)
+              end do
+            else if (crys%bgrinter) then
+              write(i_ftls,"(2a)")         " BGRINTER    ", background_file
+            else if (crys%bgrcheb) then
+              write(i_ftls,"(a, i2)")         " BGRCHEB     ", crys%cheb_nump
+              write(i_ftls,*)  crys%chebp(1:crys%cheb_nump)
+              write(i_ftls,*)  crys%ref_chebp(1:crys%cheb_nump)
+            end if
           end if
 
           return

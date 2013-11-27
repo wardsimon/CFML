@@ -39,6 +39,7 @@
          character(len=132) :: sym         !Laue symmetry  >pnt_grp
          character(len=132) :: calctype    !type of calculation
          real                :: ref_cell_a,ref_cell_b, ref_cell_c, ref_cell_gamma  ! index of refinement: if zero, no refinement, if one, refinement to be done
+         real                :: patscal, ref_patscal
          integer             :: n_typ        !number of layer types    > n_layers
          real                :: l_cnt = 0.0  !number of layers in stacking section
          real                :: ref_l_cnt
@@ -50,12 +51,18 @@
          integer             :: init_config    ! flag to randomly initialaze SAN configuration if = 1.
          integer             :: yy             !max number of atoms per layer
          integer             :: n_seq          !number of semirandom sequences
+         integer             :: bgr_num        !number of backgrounds
+         integer             :: max_bgr_num=10
+         integer             :: num_bgrpatt
+         integer             :: cheb_nump      !number of parameters in cheb polynomial
          logical             :: recrsv         !layer sequencing recursive
          logical             :: xplcit         !layer sequencing explicit
          logical             :: finite_width   !layer width in plane ab
          logical             :: inf_thick      !infinit stacking
          logical             :: trm            !trim keyword: to supress peak at origin >trim_origin
+         logical             :: bgrpatt, bgrinter, bgrcheb
          character(len=4),dimension(:,:),allocatable:: a_name  !atom name (4characters wide)>atom_l o a_name?
+         character, dimension(:), allocatable    :: bfilepat            !filename for bgrpatt
          integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  >only_real
          integer, dimension(:),     allocatable  :: cod
          integer, dimension(:,:),   allocatable  :: a_num               !atom number  > a_number
@@ -76,6 +83,10 @@
          real,    dimension(:,:),   allocatable  :: l_alpha             !l_alpha
          real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
          real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
+         real,    dimension(:),     allocatable  :: chebp
+         real,    dimension(:),     allocatable  :: ref_chebp
+         real,    dimension(:),     allocatable  :: bscalpat     !scale factor for bgrpatt
+         real,    dimension(:),     allocatable  :: ref_bscalpat !scale factor refinement code for bgrpatt
          real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
          real,    dimension(:)  ,   allocatable  :: Pv_refi  !vector containing the free parameters to optimize (restrictions taken into account)
 
@@ -1779,19 +1790,22 @@
     Subroutine Read_EXPERIMENTAL(logi)
     logical, intent(out) :: logi
 
-      integer :: i,i1,i2,k,j, ier
+
+      integer :: i,i1,i2,k,j, ier, m
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_file, ok_fformat, ok_bgr, ok_bcalc
+      logical :: ok_file, ok_fformat, ok_bgr, ok_bcalc, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt
 
       logi=.true.
       i1=sect_indx(8)
       i2=numberl
 
       i=i1
+      m=0
 
-      ok_file=.false.; ok_fformat=.false.; ok_bgr=.false. ; ok_bcalc=.false.
-
+      ok_file=.false.; ok_fformat=.false.; ok_bgrnum=.false.; ok_bgr=.false. ; ok_bcalc=.false.
+      ok_bgrinter=.false.; ok_bgrcheb=.false.; ok_bgrpatt=.false.
+      crys%bgrpatt=.false.; crys%bgrinter=.false.; crys%bgrcheb=.false.
       do
 
         i=i+1; if(i > i2) exit
@@ -1806,7 +1820,7 @@
 
         Case("FILE")
 
-            read(unit=txt,fmt=*, iostat=ier)   dfile
+            read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, crys%ref_patscal
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
@@ -1846,25 +1860,64 @@
               end if
               ok_fformat=.true.
 
-          Case("BGR")
+          Case("BGRNUM")
+            read(unit=txt,fmt=*,iostat=ier)  crys%bgr_num
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading number of backgrounds"
+                  logi=.false.
+                  return
+              end if
+              ok_bgrnum=.true.
+
+          Case("BGRINTER")
+            crys%bgrinter=.true.
+            mode = "INTERPOLATION"
             read(unit=txt,fmt=*,iostat=ier)  background_file
               if(ier /= 0 ) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading background instruction"
+                  Err_crys_mess="ERROR reading background linear interpolation instruction"
                   logi=.false.
                   return
               end if
-              ok_bgr=.true.
+              ok_bgrinter=.true.
 
-          Case("BCALC")
-            read (unit = txt, fmt = *, iostat=ier) mode
+          Case("BGRCHEB")
+              crys%bgrcheb=.true.
+              read(unit=txt,fmt=*,iostat=ier)  crys%cheb_nump
+              txt=adjustl(txt(k+1:))
+              read (unit=txt,fmt=*,iostat=ier) crys%chebp(1:crys%cheb_nump)
+              txt=adjustl(txt(k+1:))
+              read (unit=txt,fmt=*,iostat=ier) crys%ref_chebp(1:crys%cheb_nump)
               if(ier /= 0 ) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading background calculation instruction"
+                  Err_crys_mess="ERROR reading background Chebichev instruction"
                   logi=.false.
                   return
               end if
-              ok_bcalc=.true.
+              ok_bgrcheb=.true.
+
+          Case("BGRPATT")
+            crys%bgrpatt=.true.
+            m=m+1
+            read(unit=txt,fmt=*,iostat=ier)  crys%bfilepat(m), crys%bscalpat(m), crys%ref_bscalpat(m)
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading background pattern instruction"
+                  logi=.false.
+                  return
+              end if
+              ok_bgrpatt=.true.
+
+    !!    Case("BCALC")
+    !!      read (unit = txt, fmt = *, iostat=ier) mode
+    !!        if(ier /= 0 ) then
+    !!            Err_crys=.true.
+    !!            Err_crys_mess="ERROR reading background calculation instruction"
+    !!            logi=.false.
+    !!            return
+    !!        end if
+    !!        ok_bcalc=.true.
 
 
           Case Default
@@ -1872,6 +1925,7 @@
              cycle
 
         End Select
+        crys%num_bgrpatt=m
       end do
 
       if(ok_file .and. ok_fformat .and. ok_bgr .and. ok_bcalc) then
@@ -1988,6 +2042,26 @@
         if (allocated (crys%r_b31)) deallocate(crys%r_b31)
         allocate(crys%r_b31(max_a,max_l))
         crys%r_b31=0
+
+        if (allocated (crys%chebp)) deallocate(crys%chebp)
+        allocate(crys%chebp(28))
+        crys%chebp=0
+
+        if (allocated (crys%ref_chebp)) deallocate(crys%ref_chebp)
+        allocate(crys%ref_chebp(28))
+        crys%ref_chebp=0
+
+        if (allocated (crys%bfilepat)) deallocate(crys%bfilepat)
+        allocate(crys%bfilepat(crys%max_bgr_num))
+        crys%bfilepat=" "
+
+        if (allocated (crys%bscalpat)) deallocate(crys%bscalpat)
+        allocate(crys%bscalpat(crys%max_bgr_num))
+        crys%bscalpat=0
+
+        if (allocated (crys%ref_bscalpat)) deallocate(crys%ref_bscalpat)
+        allocate(crys%ref_bscalpat(crys%max_bgr_num))
+        crys%ref_bscalpat=0
 
         if(allocated (crys%list)) deallocate(crys%list)
         allocate(crys%list(max_npar))
@@ -2139,8 +2213,8 @@
               write(*,"(2a,3f8.5)") " => File parameters:", dfile , th2_min, th2_max, d_theta
             end if
             write(*, "(2a)") " => File format: ", fmode
-            write(*, "(2a)") " => Background file name: ", background_file
-            write(*, "(2a)") " => Background calculation type: ", mode
+            !write(*, "(2a)") " => Background file name: ", background_file
+            !write(*, "(2a)") " => Background calculation type: ", mode
           end if
         end if
 
