@@ -6,77 +6,302 @@
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
       use read_data,                  only : opti, crys_2d_type, crys, cond
+      use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
 
       implicit none
 
       private
 
       !public subroutines
-      public :: scale_factor_lmq, Write_Prf, Write_ftls
+      public :: scale_factor_lmq, Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
 
       contains
 !________________________________________________________________________________________________________________________
 
+       Subroutine Var_assign(state)
 
-       Subroutine Write_ftls(crys,i_ftls)
+    real, dimension(:), intent(in) :: state
+    !local variables
+    integer :: i, j, k, a, b
+
+          !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
+
+      do i=1, crys%npar
+
+        if (namepar(i) ==  'u')          pv_u   = state(i)
+        if (namepar(i) ==  'v')          pv_v   = state(i)
+        if (namepar(i) ==  'w')          pv_w   = state(i)
+        if (namepar(i) ==  'x')          pv_x   = state(i)
+        if (namepar(i) ==  'Dg')         pv_dg  = state(i)
+        if (namepar(i) ==  'Dl')         pv_dl  = state(i)
+        if (namepar(i) ==  'cell_a')     cell_a = state(i)
+        if (namepar(i) ==  'cell_b')     cell_b = state(i)
+        if (namepar(i) ==  'cell_c')     cell_c = state(i)
+        if (namepar(i) ==  'num_layers') l_cnt  = state(i)
+        if (namepar(i) ==  "diameter_a") Wa = state(i)
+        if (namepar(i) ==  "diameter_b") Wa = state(i)
+        if (namepar(i) ==  'zero_shift') crys%zero_shift  = state(i)
+        if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
+        if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
+        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
+
+        do j=1, n_layers
+          do k=1, n_atoms
+            if (index (namepar(i) , 'pos_x' )== 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(1,a,b)  = state(i) * pi2                         !need to invert conversion done by routine nmcoor (diffax_calc)
+            end if
+            if (index (namepar(i) ,'pos_y' )== 1)    then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(2,a,b)  = state(i) * pi2
+            end if
+            if (index (namepar(i), 'pos_z' ) == 1 )   then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                a_pos(3,a,b)  = state(i) * pi2
+            end if
+            if (index (namepar(i),'Biso')==1) then
+                read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
+                a_b(a,b)  = state(i)
+
+            end if
+            if (index( namepar(i) ,  'alpha' ) == 1)    then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                l_alpha(a,b)  = state(i)
+
+            end if
+            if (index (namepar(i), 'tx' )== 1 )    then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(1,a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'ty' )== 1 )    then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(2,a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'tz' ) == 1)     then
+                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                l_r(3,a,b)  = state(i)
+            end if
+          end do
+        end do
+      end do
+
+    End subroutine Var_assign
+
+    Subroutine vs2faults(vs, crys)
+
+       type(crys_2d_type),     intent(in out)   :: crys
+       type(LSQ_State_Vector_type), Intent(In)  :: Vs
+
+       !local variables
+       integer        :: n, j, i
+       real, dimension(max_npar):: shift
+
+       do i=1, opti%npar
+         shift(1:opti%npar) = vs%pv(1:opti%npar) - crys%Pv_refi(1:opti%npar)
+       end do
+
+       do i = 1, crys%npar
+             crys%list(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+       end do
+
+       call Var_assign(crys%list)
+
+ !     crys%n_typ     = n
+ !     crys%yy        = j
+ !     crys%rad_type  = rad_type
+ !     crys%lambda    = lambda
+ !     crys%lambda2   = lambda2
+ !     crys%ratio     = ratio
+ !     crys%broad     = blurring
+ !     crys%cell_a    = cell_a
+ !     crys%cell_b    = cell_b
+ !     crys%cell_c    = cell_c
+ !     crys%cell_gamma= cell_gamma
+ !     crys%sym       = pnt_grp
+ !     crys%centro    = l_symmetry
+ !     crys%a_name(1:j,1:n)     = a_name(1:j,1:n)
+ !     crys%a_num(1:j,1:n)      = a_number(1:j,1:n)
+ !     crys%a_pos(1:3,1:j,1:n)  = a_pos(1:3,1:j,1:n)
+ !     crys%a_B(1:j,1:n)        = a_b(1:j,1:n)
+ !     crys%a_occup(1:j,1:n)    = a_occup(1:j,1:n)
+ !     crys%recrsv              = recrsv
+ !     crys%xplcit              = xplcit
+ !     crys%finite_width        = finite_width
+ !     crys%inf_thick           = inf_thick
+ !     crys%l_alpha(1:n,1:n)    = l_alpha(1:n,1:n)
+ !     crys%l_r(1:3,1:n,1:n)    = l_r(1:3,1:n,1:n)
+ !     crys%layer_a             = Wa
+ !     crys%layer_b             = Wb
+ !     crys%p_u                 = pv_u
+ !     crys%p_v                 = pv_v
+ !     crys%p_w                 = pv_w
+ !     crys%p_x                 = pv_x
+ !     crys%p_dg                = pv_dg
+ !     crys%p_dl                = pv_dl
+ !     crys%p_gamma             = pv_gamma
+ !     crys%trm                 = trim_origin
+ !     crys%n_actual            = n_actual
+ !     crys%l_cnt               = l_cnt
+ !     crys%l_seq(1:xp_max)     = l_seq(1:xp_max)
+ !     crys%l_actual(1:n)       = l_actual(1:n)
+ !     crys%SymGrpNo            = SymGrpNo
+ !     crys%r_b11 (1:j,1:n)     = r_b11 (1:j,1:n)
+ !     crys%r_b22 (1:j,1:n)     = r_b22 (1:j,1:n)
+ !     crys%r_b33 (1:j,1:n)     = r_b33 (1:j,1:n)
+ !     crys%r_b12 (1:j,1:n)     = r_b12 (1:j,1:n)
+ !     crys%r_b31 (1:j,1:n)     = r_b31 (1:j,1:n)
+ !     crys%r_b23 (1:j,1:n)     = r_b23 (1:j,1:n)
+ !     crys%l_n_atoms(1:n)      = l_n_atoms(1:n)
+ !      crys%low_atom(1:n)      = low_atom(1:n)
+ !     crys%high_atom(1:n)      = high_atom(1:n)
+ !     crys%tolerance           = tolerance
+ !     crys%mult(1:crys%npar)   = mult(1:crys%npar)
+ !     crys%n_typ               = n_layers
+ !     crys%ttl                 = ttl
+ !     crys%fundamental         = fundamental
+ !     crys%original            = original
+ !     crys%randm               = randm
+ !     crys%semirandm           = semirandm
+ !     crys%spcfc               = spcfc
+ !     crys%fls                 = fls
+ !     crys%lls                 = lls
+ !     crys%otls                = otls
+ !     crys%stls                = stls
+
+
+       End subroutine vs2faults
+
+       Subroutine Faults2diffax(crys)
+
+       Type(crys_2d_type),     intent(in) :: crys
+       integer        :: n, j
+
+                   n  = crys%n_typ
+                   j  = crys%yy
+             rad_type = crys%rad_type
+             lambda   = crys%lambda
+             lambda2  = crys%lambda2
+                ratio = crys%ratio
+             blurring = crys%broad      ! Diffax utiliza varias variables, primero asigna blurring a: none, gauss, pv_gss, lorenz, pv_lrn , ps_vgt; y luego asigna cada una de estas variables a los enteros  : 0,1,4,2,5,y 3 respectivamente. Todas estas variables estan definidas como enteros
+             cell_a   = crys%cell_a
+             cell_b   = crys%cell_b
+             cell_c   = crys%cell_c
+           cell_gamma = crys%cell_gamma
+            pnt_grp   = crys%sym        ! hay otra variable: symgrpno
+           l_symmetry = crys%centro     ! mismo problema k en blurring: 1o asigna l_symmetry a none o centro y luego asigna estos a 0 y 1 respectivamente
+          a_name(1:j,1:n)   = crys%a_name(1:j,1:n)
+          a_number(1:j,1:n) = crys%a_num(1:j,1:n)
+         a_pos(1:3,1:j,1:n) = crys%a_pos(1:3,1:j,1:n)
+            a_b(1:j,1:n)    = crys%a_B(1:j,1:n)
+           a_occup(1:j,1:n) = crys%a_occup(1:j,1:n)
+                   recrsv   = crys%recrsv
+                   xplcit   = crys%xplcit
+               finite_width = crys%finite_width
+                 inf_thick  = crys%inf_thick
+         l_alpha(1:n,1:n)   = crys%l_alpha(1:n,1:n)
+         l_r(1:3,1:n,1:n)   = crys%l_r(1:3,1:n,1:n)
+                     Wa     = crys%layer_a
+                     Wb     = crys%layer_b
+                    pv_u    = crys%p_u
+                    pv_v    = crys%p_v
+                    pv_w    = crys%p_w
+                    pv_x    = crys%p_x
+                    pv_dg   = crys%p_dg
+                    pv_dl   = crys%p_dl
+                   pv_gamma = crys%p_gamma
+                trim_origin = crys%trm
+                 n_actual   = crys%n_actual
+                   l_cnt    = crys%l_cnt
+            l_seq(1:xp_max) = crys%l_seq(1:xp_max)
+              l_actual(1:n) = crys%l_actual(1:n)
+                 SymGrpNo   = crys%SymGrpNo
+             r_b11(1:j,1:n) = crys%r_b11 (1:j,1:n)
+             r_b22(1:j,1:n) = crys%r_b22 (1:j,1:n)
+             r_b33(1:j,1:n) = crys%r_b33 (1:j,1:n)
+             r_b12(1:j,1:n) = crys%r_b12 (1:j,1:n)
+             r_b31(1:j,1:n) = crys%r_b31 (1:j,1:n)
+             r_b23(1:j,1:n) = crys%r_b23 (1:j,1:n)
+             l_n_atoms(1:n) = crys%l_n_atoms(1:n)
+              low_atom(1:n) =  crys%low_atom(1:n)
+             high_atom(1:n) = crys%high_atom(1:n)
+             tolerance      = crys%tolerance
+          mult(1:crys%npar) = crys%mult(1:crys%npar)
+                   n_layers = crys%n_typ
+                        ttl = crys%ttl
+                fundamental = crys%fundamental
+                   original = crys%original
+                      randm = crys%randm
+                  semirandm = crys%semirandm
+                      spcfc = crys%spcfc
+                       fls  = crys%fls
+                       lls  = crys%lls
+                       otls = crys%otls
+                       stls = crys%stls
+
+       End subroutine Faults2diffax
+
+       Subroutine Write_ftls(crys,i_ftls, vs)
           !-----------------------------------------------
           !   D u m m y   A r g u m e n t s
           !-----------------------------------------------
-          Type(crys_2d_type),     intent(in) :: crys
-          integer,                intent(in) :: i_ftls
+          Type(crys_2d_type),     intent(in  out) :: crys
+          integer,                intent(in)      :: i_ftls
+          type(LSQ_State_Vector_type), Intent(In) :: Vs
 
 
           integer                            :: a,b,c, j, l,i ,n, print_width
           CHARACTER(LEN=80)                  :: list(2)
+
+          call vs2faults(vs, crys)
 
           write(i_ftls,"(a)")          "TITLE"
           write(i_ftls,"(a)")          crys%ttl
 
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          "INSTRUMENTAL  AND  SIZE  BROADENING"
+          write(i_ftls,"(a)")          "!type of radiation"
           if (crys%rad_type == 0 ) then
-            write(i_ftls,"(a)")     " Radiation            X-RAY"
+            write(i_ftls,"(a)")     " Radiation      X-RAY"
           elseif (crys%rad_type == 1 ) then
-            write(i_ftls,"(a)")     " Radiation            NEUTRON"
+            write(i_ftls,"(a)")     " Radiation      NEUTRON"
           else
-            write(i_ftls,"(a)")     " Radiation            ELECTRON"
+            write(i_ftls,"(a)")     " Radiation      ELECTRON"
           end if
-          write(i_ftls,"(a,3f10.4)") " Wavelength                ", crys%lambda , crys%lambda2 , crys%ratio
+          write(i_ftls,"(a)")          "!               lambda1    lambda2   ratio "
+          write(i_ftls,"(a,3f10.4)") " Wavelength  ", crys%lambda , crys%lambda2 , crys%ratio
 
-          write(i_ftls,"(a,3f10.4)") " Aberrations", crys%zero_shift, crys%sycos, crys%sysin
-          write(i_ftls,"(tr13,3f10.2,a,3f10.2,a)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin, "  (", &
-                                       crys%rang_zero_shift,crys%rang_sycos, crys%rang_sysin, ")"
+          write(i_ftls,"(a)")          "!instrumental aberrations      zero      sycos     sysin"
+          write(i_ftls,"(a,3f10.4)") " Aberrations               ", crys%zero_shift, crys%sycos, crys%sysin
+          write(i_ftls,"(tr25,3f10.2)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin
 
           if (crys%broad == ps_vgt .and. crys%trm) then
-            write(i_ftls,"(a,4f12.6,2f11.2, a)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
-            write(i_ftls,"(tr13,6f10.2, a,6f8.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg, crys%rang_p_dl,")"
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg         Dl  "
+            write(i_ftls,"(a,4f12.6,2f11.2, a)") " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
+            write(i_ftls,"(tr16,6f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl
           elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg         Dl   "
             write(i_ftls,"(a,4f12.6,2f11.2)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
-            write(i_ftls,"(tr13,6f10.2, a,6f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg, crys%rang_p_dl,")"
+            write(i_ftls,"(tr16,6f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                        crys%ref_p_dl
           elseif (crys%broad == pv_gss .and. crys%trm) then
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg  "
             write(i_ftls,"(a,4f12.6,1f11.2, a)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
-            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg ,")"
+            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
           elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg"
             write(i_ftls,"(a,4f12.6,1f11.2)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg
-            write(i_ftls,"(tr8,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dg ,")"
+            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
           elseif (crys%broad == pv_lrn .and. crys%trm ) then
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dl  "
             write(i_ftls,"(a,4f12.6,1f11.2 a)") "LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
-            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dl,")"
+            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl
           elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
+            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dl  "
             write(i_ftls,"(a,4f12.6,1f11.2)") " LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl
-            write(i_ftls,"(tr11,5f10.2, a,5f10.2,a)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl, "  (", crys%rang_p_u,crys%rang_p_v, crys%rang_p_w, crys%rang_p_x, &
-                                        crys%rang_p_dl,")"
+            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                        crys%ref_p_dl
           else
             write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
             return
@@ -85,17 +310,19 @@
 
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          " STRUCTURAL  "
+          write(i_ftls,"(a)")          " !         a            b            c          gamma "
           write(i_ftls,"(a,3f12.6,f12.2)")   " CELL  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
-          write(i_ftls,"(tr4,4f10.2,a,4f10.2,a)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma,&
-                                               "  (", crys%rang_cell_a, crys%rang_cell_b, crys%rang_cell_c,crys%rang_cell_gamma,")"
-          write(i_ftls,*)            " SYMM  ", pnt_grp
+          write(i_ftls,"(tr7,4f12.2)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma
+          write(i_ftls,"(a)")        "!Laue symmetry"
+          write(i_ftls,*)            "SYMM  ", pnt_grp
+          write(i_ftls,"(a)")        "!number of layer types"
           write(i_ftls,"(a,i2)")            " NLAYERS  ", n_layers
+          write(i_ftls,"(a)")       "!layer width"
           if (crys%finite_width) then
             write(i_ftls,"(a,2f10.2)") " LWIDTH",   Wa, Wb
-            write(i_ftls,"(2f10.2,a,2f10.2,a)")    crys%ref_layer_a, crys%ref_layer_b , "  (", crys%rang_layer_a, &
-                                                     crys%rang_layer_b, ")"
+            write(i_ftls,"(2f10.2)")    crys%ref_layer_a, crys%ref_layer_b
           else
-            write(i_ftls,"(a)")        "LWIDTH  INFINITE"
+            write(i_ftls,"(a)")        " LWIDTH  INFINITE"
           end if
 
           b=1
@@ -111,18 +338,20 @@
               list(1) = 'NONE '
               list(2) = 'CENTROSYMMETRIC '
              !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
+              write(i_ftls,"(a)")        "!Layer symmetry   "
               write(i_ftls,"(2a)")      " LSYM   ", list(l_symmetry(c)+1)
               do a=1, crys%l_n_atoms(c)
-                write(i_ftls,"(2a,i4, 5f10.5)") " ATOM ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
+                write(i_ftls,"(2a)")      "!Atom name   number   x         y         z         Biso      Occ  "
+                write(i_ftls,"(2a,i9, 5f10.5)") " ATOM ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
                                            a_pos(2, a,c)/pi2,a_pos(3, a,c)/pi2, a_B (a,c), a_occup(a,c)
-                write(i_ftls,"(tr13,4f10.2,a,4f10.2,a)") crys%ref_a_pos(1, a,c), crys%ref_a_pos(2, a,c), &
-                                                  crys%ref_a_pos(3, a,c), crys%ref_a_B(a,c), "  (", crys%rang_a_pos(1, a,c),&
-                                                  crys%rang_a_pos(2, a,c), crys%rang_a_pos(3, a,c), crys%rang_a_B(a,c),")"
+                write(i_ftls,"(tr19,5f10.2)") crys%ref_a_pos(1, a,c), crys%ref_a_pos(2, a,c), &
+                                                  crys%ref_a_pos(3, a,c), crys%ref_a_B(a,c), crys%ref_a_occup(a,c)
               end do
             end if
           end do
           write(i_ftls,"(a)")              "  "
           write(i_ftls,"(a)")          " STACKING"
+          write(i_ftls,"(a)")     "!stacking type"
           if (crys%xplcit) then
             write(i_ftls, "(a)") " EXPLICIT "
             !if (rndm) then
@@ -131,6 +360,7 @@
             !   write(i_ftls,"(a)") lstype
                if (semirandm) then
                  write(i_ftls,"(a)", advance="no") " SEMIRANDOM "
+                 write(i_ftls,"(a)") "!number of layers"
                  write(i_ftls,"(f6.1)") l_cnt
                  write(i_ftls,"(a,i5,i5,i5,i5)") " SEQ", fls, lls, otls, stls
                 ! i=1
@@ -142,6 +372,7 @@
                  write(i_ftls, "(25i2)") crys%l_seq(1:crys%l_cnt)
                elseif(randm) then
                  write(i_ftls,"(a)", advance="no") " RANDOM "
+                 write(i_ftls,"(a)") "!number of layers"
                  write(i_ftls,"(f6.1)") l_cnt
                else
                  write(i_ftls,"(a)") "ez du ondo egin"
@@ -155,11 +386,12 @@
             !end do                                      !_______________________________
           else
              write(i_ftls, "(a)") " RECURSIVE"
+             write(i_ftls,"(a)") "!number of layers"
              if (crys%inf_thick) then
                write (i_ftls, "(a)") " INFINITE"
              else
                write (i_ftls, "( f6.1)") l_cnt
-               write (i_ftls, "( f5.2,a,f5.2,a)")  crys%ref_l_cnt , "  (", crys%rang_l_cnt, ")"
+               write (i_ftls, "( f6.1,a)")  crys%ref_l_cnt
              end if
            end if
           write(i_ftls,"(a)")              "  "
@@ -167,14 +399,15 @@
           l=1
           j=1
           do l=1, n_layers
+            write(i_ftls,"(a)")              "  "
+            write(i_ftls,"(a)")              "  "
             do j=1, n_layers
               write(i_ftls, "(a,i2, a, i2)") "!layer ", l, " to layer ", j
               write(i_ftls, "(a, 4f10.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
 
 
-              write(i_ftls, "(tr3,4f10.2,a,4f10.2,a)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
-                                                      crys%ref_l_r (3,j,l), "  (" ,  crys%rang_l_alpha (j,l), &
-                                                      crys%rang_l_r(1,j,l), crys%rang_l_r(2,j,l) , crys%rang_l_r(3,j,l), ")"
+              write(i_ftls, "(tr3,4f10.2)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+                                                      crys%ref_l_r (3,j,l)
               write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
                                       r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
             end do
@@ -192,7 +425,7 @@
             write(i_ftls,"(a,f10.7)")          " ACC  ", opti%acc
           elseif (opt == 4) then
             write(i_ftls,"(a)")          " LMQ"
-            if (Cond%constr == .true.) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
+            if (Cond%constr ) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
             write(i_ftls,"(a,i4)")    " CORRMAX    ", cond%corrmax
             write(i_ftls,"(a,i4)")    " MAXFUN     ", cond%icyc
             write(i_ftls,"(a,f10.4)")    " TOL     ", cond%tol
@@ -214,13 +447,14 @@
 
             end if
             write(i_ftls,"(2a)")         " FFORMAT  ",fmode
-            write(i_ftls,"(2a)")         " BGR  ",background_file
-            write(i_ftls,"(2a)")         " BCALC  ",mode
+            write(i_ftls,"(2a)")         " BGR    ",background_file
+            write(i_ftls,"(2a)")         " BCALC    ",mode
           end if
 
           return
 
        End Subroutine Write_ftls
+
 
        Subroutine Write_Prf(diff_pat,i_prf)
           !-----------------------------------------------
@@ -387,7 +621,7 @@
     use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                            gospec, gostrk, gointr,gosadp, getfnm, nmcoor
-    use Dif_compl,                  only : scale_factor_lmq, Write_Prf
+    use Dif_compl,                  only : scale_factor_lmq, Write_Prf, Faults2diffax, vs2faults, Var_assign
 
     implicit none
 
@@ -448,6 +682,7 @@
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
+           crys%Pv_refi(1:npar) = v(1:npar)
            call Pattern_Calculation(state,ok)
            if(.not. ok) then
              print*, "Error calculating spectrum, please check input parameters"
@@ -490,70 +725,9 @@
     Subroutine Pattern_Calculation(state,ok)
       real, dimension(:), intent(in) :: state
       logical,            intent(out):: ok
-      !---- Local variables
-      integer :: i,j,k,a,b
-      !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
-
-      do i=1, crys%npar
-
-        if (namepar(i) ==  'u')          pv_u   = state(i)
-        if (namepar(i) ==  'v')          pv_v   = state(i)
-        if (namepar(i) ==  'w')          pv_w   = state(i)
-        if (namepar(i) ==  'x')          pv_x   = state(i)
-        if (namepar(i) ==  'Dg')         pv_dg  = state(i)
-        if (namepar(i) ==  'Dl')         pv_dl  = state(i)
-        if (namepar(i) ==  'cell_a')     cell_a = state(i)
-        if (namepar(i) ==  'cell_b')     cell_b = state(i)
-        if (namepar(i) ==  'cell_c')     cell_c = state(i)
-        if (namepar(i) ==  'num_layers') l_cnt  = state(i)
-        if (namepar(i) ==  "diameter_a") Wa = state(i)
-        if (namepar(i) ==  "diameter_b") Wa = state(i)
-        if (namepar(i) ==  'zero_shift') crys%zero_shift  = state(i)
-        if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
-        if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
-        if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
-
-        do j=1, n_layers
-          do k=1, n_atoms
-            if (index (namepar(i) , 'pos_x' )== 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(1,a,b)  = state(i) * pi2                         !need to invert conversion done by routine nmcoor (diffax_calc)
-            end if
-            if (index (namepar(i) ,'pos_y' )== 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(2,a,b)  = state(i) * pi2
-            end if
-            if (index (namepar(i), 'pos_z' ) == 1 )   then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
-                a_pos(3,a,b)  = state(i) * pi2
-            end if
-            if (index (namepar(i),'Biso')==1) then
-                read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
-                a_b(a,b)  = state(i)
-
-            end if
-            if (index( namepar(i) ,  'alpha' ) == 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
-                l_alpha(a,b)  = state(i)
-
-            end if
-            if (index (namepar(i), 'tx' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(1,a,b)  = state(i)
-            end if
-            if (index (namepar(i), 'ty' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(2,a,b)  = state(i)
-            end if
-            if (index (namepar(i), 'tz' ) == 1)     then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
-                l_r(3,a,b)  = state(i)
-            end if
-          end do
-        end do
-      end do
 
 
+      call Var_assign(state)
       ok = .true.
       if ((conv_d == 1 .or.  numcal== 0) .and. ok ) ok = get_g()
       if ((conv_d == 1 .or.  numcal== 0  .or. conv_e==1) .and. (ok .AND. rndm)) ok = getlay()
@@ -620,7 +794,7 @@
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Dif_compl,                    only : scale_factor_lmq, Write_Prf, write_ftls
+     use Dif_compl,                    only : scale_factor_lmq, Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
      use dif_ref
 
      implicit none
@@ -678,6 +852,8 @@
       else
         write(op, fmt=*) "=> Structure input file read in"
       end if
+
+      call faults2diffax(crys)
 
       IF(gol) then
         ok = sfc()
@@ -834,7 +1010,7 @@
                i=index(filenam,"_new")
                if(i /= 0) filenam=filenam(1:i-1)
                OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
-               call Write_ftls(crys,i_flts)
+               call Write_ftls(crys,i_flts, vs)
              else
                write(*,*) 'The outfile .flts cannot be created'
              end if
