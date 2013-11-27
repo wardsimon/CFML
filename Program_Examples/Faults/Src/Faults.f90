@@ -275,33 +275,33 @@
           write(i_ftls,"(tr25,3f10.2)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin
 
           if (crys%broad == ps_vgt .and. crys%trm) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg         Dl  "
+            write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
             write(i_ftls,"(a,4f12.6,2f11.2, a)") " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
-            write(i_ftls,"(tr16,6f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl
+            write(i_ftls,"(tr16,4f12.2,2f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                           crys%ref_p_dl
           elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg         Dl   "
-            write(i_ftls,"(a,4f12.6,2f11.2)") " PSEUDO-VOIGT", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
-            write(i_ftls,"(tr16,6f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                        crys%ref_p_dl
+            write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
+            write(i_ftls,"(a,4f12.6,2f11.2)")   " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
+            write(i_ftls,"(tr16,4f12.2,2f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
+                                                  crys%ref_p_dl
           elseif (crys%broad == pv_gss .and. crys%trm) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg  "
-            write(i_ftls,"(a,4f12.6,1f11.2, a)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
-            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
+            write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg"
+            write(i_ftls,"(a,4f12.6,f11.2, a)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
           elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dg"
-            write(i_ftls,"(a,4f12.6,1f11.2)") " GAUSSIAN", pv_u, pv_v, pv_w, pv_x, pv_dg
-            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
+            write(i_ftls,"(a)")  "!instr. broadening       u           v           w           x         Dg"
+            write(i_ftls,"(a,4f12.6,1f11.2)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
           elseif (crys%broad == pv_lrn .and. crys%trm ) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dl  "
-            write(i_ftls,"(a,4f12.6,1f11.2 a)") "LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
-            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl
+            write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
+            write(i_ftls,"(a,4f12.6,1f11.2 a)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                                 crys%ref_p_dl
           elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
-            write(i_ftls,"(a)")          "!instr. broadening  u           v           w           x            Dl  "
-            write(i_ftls,"(a,4f12.6,1f11.2)") " LORENTZIAN", pv_u, pv_v, pv_w, pv_x, pv_dl
-            write(i_ftls,"(tr16,5f12.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                        crys%ref_p_dl
+            write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
+            write(i_ftls,"(a,4f12.6,1f11.2)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
+                                                 crys%ref_p_dl
           else
             write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
             return
@@ -406,7 +406,7 @@
               write(i_ftls, "(a, 4f10.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
 
 
-              write(i_ftls, "(tr3,4f10.2)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
+              write(i_ftls, "(f13.6,3f10.2)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
                                                       crys%ref_l_r (3,j,l)
               write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
                                       r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
@@ -428,7 +428,7 @@
             if (Cond%constr ) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
             write(i_ftls,"(a,i4)")    " CORRMAX    ", cond%corrmax
             write(i_ftls,"(a,i4)")    " MAXFUN     ", cond%icyc
-            write(i_ftls,"(a,f10.4)")    " TOL     ", cond%tol
+            write(i_ftls,"(a,g14.6)")    " TOL     ", cond%tol
             write(i_ftls,"(a,i2)")    " Nprint     ", cond%nprint
           else
             write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
@@ -678,7 +678,7 @@
            write(i_out,"(a)")" --------FCOST-------"
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             if(iflag == 1) write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
+             write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
@@ -707,12 +707,11 @@
            end if
 
         Case(0)  !Printing
-           iter = iter + cond%nprint
-           write(*,"(a,i4)")  " => Iteration number ",iter
+           write(*,"(a,i4,a,f14.4)")  " => Iteration ",iter,"   Chi2 = ",chi2
            do i=1, crys%npar
              write(*,"(a,f14.5)")  "  ->  "//namepar(i), state(i)
            end do
-           write(*,"(a,f12.3)") ' => Calculated Chi2: ' , chi2
+
       End Select
 
       ok = .true.
@@ -772,6 +771,7 @@
         tt=tt-shift
         call splint(difpat%x,broad_spect,der2v,difpat%npts,tt,ycal)
         difpat%ycalc(i)=ycal
+        brd_spc(i)=ycal
       end do
       return
     End Subroutine Apply_Aberrations

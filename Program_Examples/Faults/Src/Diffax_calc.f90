@@ -6017,14 +6017,14 @@
       END IF
       IF(shkl > q2) THEN
         WRITE(op,402) h, k, l,' exceeds 180 degree scattering angle!'
-        WRITE(op,400) 'Re-enter. . . '
+        WRITE(op,"(a)") ' Re-enter. . . '
         GO TO 10
       END IF
       ! make sure we are not going to blow up at the origin
       IF(h == 0 .AND. k == 0 .AND. rad_type == electn) THEN
         IF(shkl <= eps4) THEN
-          WRITE(op,400) 'Cannot integrate across the origin for electron radiation'
-          WRITE(op,400) 'Re-enter. . .'
+          WRITE(op,"(a)") ' Cannot integrate across the origin for electron radiation'
+          WRITE(op,"(a)") ' Re-enter. . .'
           GO TO 10
         END IF
       END IF
@@ -6059,23 +6059,23 @@
       WRITE(op,404) '2theta = ', rad2deg * two * angle(h,k,l), ' degrees'
       IF(shkl > zero) WRITE(op,403) 'd = ', one / SQRT(shkl)
       IF(shkl >= zero) WRITE(op,403) '1/d = ', SQRT(shkl)
-      WRITE(op,400) ' '
-      WRITE(op,400) 'Layer scattering factors'
+      WRITE(op,"(a)") ' '
+      WRITE(op,"(a)") ' Layer scattering factors'
       DO  i = 1, n_layers
         WRITE(op,405) i, f(i)
       END DO
-      WRITE(op,400) ' '
+      WRITE(op,"(a)") ' '
       IF(recrsv) THEN
-        WRITE(op,400) 'Average scattered wavefunctions'
+        WRITE(op,"(a)") ' Average scattered wavefunctions'
         DO  i = 1, n_layers
           WRITE(op,407) i, s(i)
         END DO
       ELSE
         WRITE(op,408) 'Crystal wavefunction', wavefn
       END IF
-      WRITE(op,400) ' '
+      WRITE(op,"(3a)") ' '
       WRITE(op,406) 'Intensity at ', h, k, l, ' = ', x
-      WRITE(op,400) 'Another point? (y/n)'
+      WRITE(op,"(3a)") 'Another point? (y/n)'
       READ(cntrl,'(a)') chr
       IF(chr(1:1) == 'y' .OR. chr(1:1) == 'Y') GO TO 1
 
@@ -6563,7 +6563,7 @@
       ! external subroutine (Some compilers need them declared external)
       !      external ATOMS
 
-      WRITE(op,301) ' => Reading scattering factor datafile''',  &
+      WRITE(op,"(3a)") ' => Reading scattering factor datafile''',  &
           sfname(1:length(sfname)),'''. . .'
 
       sfc = .false.
@@ -6645,28 +6645,27 @@
       END DO
       IF(ok) THEN
         sfc = .true.
-        WRITE(op,400) ' => Scattering factor data read in.'
+        WRITE(op,"(3a)") ' => Scattering factor data read in.'
       END IF
       RETURN
-      200 WRITE(op,301) ' => Scattering factor file ''',  &
+      200 WRITE(op,"(3a)") ' => Scattering factor file ''',  &
           sfname(1:length(sfname)), ''' DEFECTIVE.'
       CLOSE(sf,ERR=240)
       RETURN
-      210 WRITE(op,400) ' => ERROR reading scattering factor data.'
+      210 WRITE(op,"(3a)") ' => ERROR reading scattering factor data.'
       CLOSE(sf,ERR=240)
       RETURN
       220 WRITE(op,402) ' => There are too many types of atoms in layer ', i
-      WRITE(op,400) ' => Atoms recorded so far are:'
+      WRITE(op,"(3a)") ' => Atoms recorded so far are:'
       DO  j = 1, max_ta
         WRITE(op,403) '       Atom type ', j, '   ', atom_l(j)
       END DO
       WRITE(op,402) ' => Maximum number of types allowed is ', max_ta
       RETURN
-      240 WRITE(op,301) ' => Unable to close scattering factor file ''',  &
+      240 WRITE(op,"(3a)") ' => Unable to close scattering factor file ''',  &
           sfname(1:length(sfname)), '''.'
       RETURN
       300 FORMAT(a)
-      301 FORMAT(1X, 3A)
       310 FORMAT(t5, 10F11.6, i3)
       320 FORMAT(t104, f11.6)
       330 FORMAT(1X, 5A)
@@ -6937,7 +6936,7 @@
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       q2 = four / (lambda**2)
-      10 WRITE(op,400) 'Enter h, k, l0, l1, delta l : '
+      10 WRITE(op,"(a)") ' Enter h, k, l0, l1, delta l : '
       READ(cntrl,*,ERR=10) h, k, l0, l1, dl
       IF(cfile) WRITE(op,401) h, k, l0, l1, dl
 ! check input

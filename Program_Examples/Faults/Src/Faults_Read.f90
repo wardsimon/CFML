@@ -287,7 +287,9 @@
       i=i1
 
       ok_rad=.false.; ok_wave=.false.; ok_uvw=.false. ; ok_abe=.true.
-      vs%np = 0
+      !Initialise codes to zero as well as values
+       vs%code=0; vs%pv=0.0; vs%spv=0.0; vs%nampar=" "; vs%dpv=0.0; vs%np=0
+
       np=0
       do
 
@@ -1366,7 +1368,7 @@
     Subroutine Read_TRANSITIONS(logi)
       logical, intent(out) :: logi
       integer :: i,i1,i2, k, ier, j, l, nitem, m
-      integer, parameter :: eps =1.0E-4
+      real, parameter :: eps =1.0E-4
       real  :: ab, suma
       character(len=20), dimension(30) :: citem
       character(len=132) :: txt
@@ -1504,14 +1506,14 @@
 
 
         DO  l = 1, crys%n_typ        !check if l_apha sums one for each layer
-          suma = 0
+          suma = 0.0
           DO  j = 1, crys%n_typ
             suma = suma + crys%l_alpha(j,l)
           END DO
 
           IF(ABS(suma - 1.0) > eps) THEN
-            write(op,*) "Stacking probabilities from LAYER ",l," do not sum  1."
-            write (*,*)  'the sum is'  , suma
+            write(op,"(a,i3,a)") " Stacking probabilities from LAYER ",l," do not sum  1."
+            write(op,"(a,f10.5)")" The sum is ", suma
             logi = .false.
           end if
         END DO
@@ -1689,8 +1691,6 @@
                return
              end if
              ok_nprint=.true.
-      !Initialise codes to zero
-            vs%code=0
 
             if (Cond%constr .and. ok_corrmax .and. ok_tol .and. ok_maxfun) then
               ok_lmq=.true.
@@ -2106,33 +2106,19 @@
           return
          else
 
-          if (opt==3) then        !construction of some optimization variables(DFP)
-            opti%npar = maxval(crys%p)
-            opti%loops = 2 * opti%npar
-            opti%iquad=1
-
-          end if
           if (opt==4) then         !construction of some optimization variables  (LMQ)
             opti%npar =maxval(crys%p)
             Cond%npvar=opti%npar
             vs%pv(1:opti%npar)= crys%Pv_refi(1:opti%npar)
-            vs%code(1:opti%npar) = 1
+            do i=1,crys%npar
+             vs%code(crys%p(i)) =1
+            end do
             vs%np= opti%npar
           end if
 
 
-          write(*,"(a,i2)") " Type of calculation (0=simulation, 3=local_optimizer, 4=LMQ): ",  opt
-          if (opt == 3) then
-            write(*,"(2a)") " Method of calculation: ", opti%method
-            write(*,"(a,i4 )") " Maximum number of function evaluations: ", opti%mxfun
-            write(*,"(a,f5.2 )") "Stopping criterion: ", opti%eps
-            write(*,"(a,i2 )") "Output file indicator: ", opti%iout
-            write(*,"(a,f12.9 )") "Accuracy: ", opti%acc
-          else if (opt == 4) then
-            write(*,"(a,f5.2, 2i4, f12.9, i4)") "percent, corrmax, maxfun, tol, nprint: ", Cond%percent, Cond%corrmax, &
-                                             Cond%icyc, cond%tol, cond%nprint
-          else
-            write(*,"(a,3f7.2 )") "2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
+          if (opt == 0) then
+            write(*,"(a,3f7.2 )") " => 2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
             th2_min = th2_min * deg2rad
             th2_max = th2_max * deg2rad
             d_theta = half * deg2rad * d_theta
@@ -2148,78 +2134,16 @@
             return
           else
             if (th2_min == 0 .and.  th2_max == 0 .and. d_theta == 0) then
-              write(*, "(2a)") "File name:", dfile
+              write(*,"(a)") " => File name: "//trim(dfile)
             else
-              write(*,"(2a,3f8.5)") " File parameters:", dfile , th2_min, th2_max, d_theta
+              write(*,"(2a,3f8.5)") " => File parameters:", dfile , th2_min, th2_max, d_theta
             end if
-            write(*, "(2a)") "File format: ", fmode
-            write(*, "(2a)") "Background file name: ", background_file
-            write(*, "(2a)") "Background calculation type: ", mode
+            write(*, "(2a)") " => File format: ", fmode
+            write(*, "(2a)") " => Background file name: ", background_file
+            write(*, "(2a)") " => Background calculation type: ", mode
           end if
         end if
 
-!///////////////////////CONVERSION TO DIFFAX VARIABLES////////////////
-!                  n  = crys%n_typ
-!                  j  = crys%yy
-!            rad_type = crys%rad_type
-!            lambda   = crys%lambda
-!            lambda2  = crys%lambda2
-!               ratio = crys%ratio
-!            blurring = crys%broad      ! Diffax utiliza varias variables, primero asigna blurring a: none, gauss, pv_gss, lorenz, pv_lrn , ps_vgt; y luego asigna cada una de estas variables a los enteros  : 0,1,4,2,5,y 3 respectivamente. Todas estas variables estan definidas como enteros
-!            cell_a   = crys%cell_a
-!            cell_b   = crys%cell_b
-!            cell_c   = crys%cell_c
-!          cell_gamma = crys%cell_gamma
-!           pnt_grp   = crys%sym        ! hay otra variable: symgrpno
-!          l_symmetry = crys%centro     ! mismo problema k en blurring: 1o asigna l_symmetry a none o centro y luego asigna estos a 0 y 1 respectivamente
-!         a_name(1:j,1:n)   = crys%a_name(1:j,1:n)
-!         a_number(1:j,1:n) = crys%a_num(1:j,1:n)
-!        a_pos(1:3,1:j,1:n) = crys%a_pos(1:3,1:j,1:n)
-!           a_b(1:j,1:n)    = crys%a_B(1:j,1:n)
-!          a_occup(1:j,1:n) = crys%a_occup(1:j,1:n)
-!                  recrsv   = crys%recrsv
-!                  xplcit   = crys%xplcit
-!              finite_width = crys%finite_width
-!                inf_thick  = crys%inf_thick
-!        l_alpha(1:n,1:n)   = crys%l_alpha(1:n,1:n)
-!        l_r(1:3,1:n,1:n)   = crys%l_r(1:3,1:n,1:n)
-!                    Wa     = crys%layer_a
-!                    Wb     = crys%layer_b
-!                   pv_u    = crys%p_u
-!                   pv_v    = crys%p_v
-!                   pv_w    = crys%p_w
-!                   pv_x    = crys%p_x
-!                   pv_dg   = crys%p_dg
-!                   pv_dl   = crys%p_dl
-!                  pv_gamma = crys%p_gamma
-!               trim_origin = crys%trm
-!                n_actual   = crys%n_actual
-!                  l_cnt    = crys%l_cnt
-!           l_seq(1:xp_max) = crys%l_seq(1:xp_max)
-!             l_actual(1:n) = crys%l_actual(1:n)
-!                SymGrpNo   = crys%SymGrpNo
-!            r_b11(1:j,1:n) = crys%r_b11 (1:j,1:n)
-!            r_b22(1:j,1:n) = crys%r_b22 (1:j,1:n)
-!            r_b33(1:j,1:n) = crys%r_b33 (1:j,1:n)
-!            r_b12(1:j,1:n) = crys%r_b12 (1:j,1:n)
-!            r_b31(1:j,1:n) = crys%r_b31 (1:j,1:n)
-!            r_b23(1:j,1:n) = crys%r_b23 (1:j,1:n)
-!            l_n_atoms(1:n) = crys%l_n_atoms(1:n)
-!             low_atom(1:n) =  crys%low_atom(1:n)
-!            high_atom(1:n) = crys%high_atom(1:n)
-!            tolerance      = crys%tolerance
-!                mult(1:np) = crys%mult(1:np)
-!                  n_layers = crys%n_typ
-!                       ttl = crys%ttl
-!               fundamental = crys%fundamental
-!                  original = crys%original
-!                     randm = crys%randm
-!                 semirandm = crys%semirandm
-!                     spcfc = crys%spcfc
-!                      fls  = crys%fls
-!                      lls  = crys%lls
-!                      otls = crys%otls
-!                      stls = crys%stls
         return
       End subroutine  read_structure_file
 
