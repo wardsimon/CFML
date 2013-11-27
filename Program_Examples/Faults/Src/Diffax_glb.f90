@@ -658,7 +658,6 @@
  REAL(kind=dp), dimension(9,MAX_TA) :: x_sf !s-> X-ray scattering factors.
 
  real(kind=sp),dimension (max_sp)  :: ycalcdef
- real(kind=sp),dimension(max_npar) :: statok
 
 !********************     complex*16 variables
 

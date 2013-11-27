@@ -300,11 +300,11 @@
           RETURN
        End Subroutine Write_Prf
 
-       Subroutine scale_factor_lmq(pat, fvec, chi2)
+       Subroutine scale_factor_lmq(pat, fvec, chi2,r)
          type (diffraction_pattern_type), intent(in out):: pat
-         Real (Kind=cp),Dimension(:),     Intent(   Out):: fvec
-         real,                            Intent(   out):: chi2
-         real                                           :: a ,  c, r
+         Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
+         real,                            Intent(   out):: chi2, r
+         real                                           :: a ,  c
          integer                                        :: punts=0
          integer                                        :: i,j
 
@@ -339,12 +339,12 @@
 
        Subroutine calc_par_lmq (pat, punts, r, fvec, chi2)
          type (diffraction_pattern_type), intent(in    ) :: pat
-         integer                        , intent(in    ) :: punts
-         real                           , intent(   out) :: r
-         Real (Kind=cp),Dimension(:),     Intent(   out) :: fvec
+         integer,                         intent(in    ) :: punts
+         real,                            intent(   out) :: r
+         Real (Kind=cp),Dimension(:),     Intent(in out) :: fvec
          real,                            Intent(   out) :: chi2
          !----
-         real                                            :: a,b,c
+         real                                            :: a,b,c,delta
          integer                                         :: j,i
 
          a=0.0
@@ -366,16 +366,10 @@
            fvec(j)=  (pat%y(j) - pat%ycalc(j))/sqrt(pat%sigma(j))
            c = c + fvec(j)*fvec(j)
          end do do_c
-         chi2= c/(punts-opti%npar)
-         ! write(*,*) "fvec(Pat%npts)", fvec(Pat%npts) , pat%y(pat%npts), pat%ycalc(pat%npts)
-         !write (*,*) "r, chi2 , punts, c,  opti%npar", r, chi2 , c,  punts, opti%npar, pat%npts
-          write (*,*) "Rp=", r, "chi2=", chi2
-          !write (*,*) "a=",crys%cell_a,"b=",crys%cell_b,"c=",crys%cell_c
 
+         chi2= c/(punts-opti%npar)
          return
        End subroutine calc_par_lmq
-
-
 
   End module Dif_compl
 !________________________________________________________________________________________________________________
@@ -423,118 +417,67 @@
 !!--..           End Subroutine Model_Functn                               !If iflag=2 calculate only fjac keeping fvec fixed
 !!--..         End Interface No_Fderivatives
 
-    Subroutine Cost_LMQ(m,npar,v,fvec,iflag)            !Levenberg Marquardt
-      Integer,                       Intent(In)    :: m !is the number of observations (Num_spots)
-      Integer,                       Intent(In)    :: npar !is the number of free parameters
-      Real (Kind=cp),Dimension(:),   Intent(In)    :: v !List of free parameters values
-      Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec   !Residuals Num_spots
+    Subroutine Cost_LMQ(m,npar,v,fvec,iflag)                 !Levenberg Marquardt
+      Integer,                       Intent(In)    :: m      !is the number of observations
+      Integer,                       Intent(In)    :: npar   !is the number of free parameters
+      Real (Kind=cp),Dimension(:),   Intent(In)    :: v      !List of free parameters values
+      Real (Kind=cp),Dimension(:),   Intent(In Out):: fvec   !Residuals
       Integer,                       Intent(In Out):: iflag  !=0 for printing, 1: Full calculation, 2: Calculation of derivatives
                                                              ! If modified to a negative number the algorithm stops.
       !local variables
       logical                  :: ok
       integer                  :: j ,i, k, a, b
       real, dimension(max_npar):: shift, state
+ !     real, dimension(m),save  :: svdfvec
+      real                     :: rf
       real, save               :: chi2
       integer, save            :: iter=0
 
-      fvec=0.0
-      !chi2=chi2o
-      write(*,*)"--------FCOST-------"
+      shift(1:npar) = v(1:npar) - vector(1:npar)
 
+      Select Case(iflag)
 
-      do i= 1, opti%npar
-         shift(i) = v(i) - vector(i)
-      end do
+        Case(1)  !Calculation of fvec and updating completely the parameters
 
-      do i = 1, crys%npar           !NOT CORRECT
-        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-        write(*,*) "state(i)", state(i), crys%list(i) ,  mult(i), shift(crys%p(i))
-      end do
+           fvec=0.0
+           write(*,"(a)")" --------FCOST-------"
+           do i = 1, crys%npar
+             state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+             if(iflag == 1) write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
+           end do
+           crys%list(:) = state(:)
+           vector(1:npar) = v(1:npar) !vector upload
+           call Pattern_Calculation(state,ok)
+           if(.not. ok) then
+             print*, "Error calculating spectrum, please check input parameters"
+           else
+             call scale_factor_lmq(difpat, fvec, chi2,rf)
+           end if
+           numcal = numcal + 1  !Counter for optimz, detun, etc
+           iter = iter + 1
+           write(*,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
 
-     write(*,*) "crys%npar, opti%npar, npar" , crys%npar, opti%npar, npar
-     do i = 1, crys%npar
-        if (index (namepar(i) , 'alpha' ) == 1) then  !Correction for stacking probabilities: applying a softer shift
-          if (state(i) < 0 .or. state(i) > 1) then
-            write(*,*) 'Attention, alpha out of range:  new shift applied'
-            write(*,*) "before  " , namepar(i), state(i), shift(crys%p(i)) , crys%vlim1(i) ,&
-                        crys%vlim2(i), mult(i)
-            shift(crys%p(i)) = shift(crys%p(i))/2.0
-            state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-            write(*,*) "correction 1  " , namepar(i), state(i), shift(crys%p(i))
-            do j=1,crys%npar !apply changes to parameters constrained by refinement code
-              write(*,*) "j", j, namepar(j), crys%p(i), crys%p(j)
-              if (crys%p(i) == crys%p(j)) state(j) = crys%list(j) +  mult(j) * shift(crys%p(i))
-              write(*,*) "other" , namepar(j), state(j), shift(crys%p(j))
-            end do
-          end if
+        Case(2)  !Calculation of numerical derivatives
 
-        else if (Cond%constr==.true. .and. state(i) < crys%vlim1(i))  then  !put parameters other than alpha inside the box
-          state(i) = crys%vlim1(i)
-          write(*,*) 'Attention ', namepar(i) ,' out of range:  new value= ', state(i)
-          do j=1,crys%npar   !apply changes to parameters constrained by refinement code
-            !write(*,*) "j", j, namepar(j), crys%p(i), crys%p(j)
-            if (crys%p(i) == crys%p(j)) then
-              state(j) = state(i)
-              write(*,*) "other" , namepar(j), state(j), shift(crys%p(j))
-            end if
-          end do
-        else if (Cond%constr==.true. .and. state(i) > crys%vlim2(i))  then  !put parameters other than alpha inside the box
-          state(i) = crys%vlim2(i)
-          write(*,*) 'Attention ', namepar(i) ,' out of range:  new value= ', state(i)
-          do j=1,crys%npar  !apply changes to parameters constrained by refinement code
-            !write(*,*) "j", j, namepar(j), crys%p(i), crys%p(j)
-            if (crys%p(i) == crys%p(j)) then
-              state(j) = state(i)
-              write(*,*) "other" , namepar(j), state(j), shift(crys%p(j))
-            end if
-          end do
-        else
-          cycle
-        end if
-      End do
+           do i = 1, crys%npar
+             state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+           end do
+           call Pattern_Calculation(state,ok)
+           if(.not. ok) then
+             print*, "Error calculating spectrum, please check input parameters"
+           else
+             call scale_factor_lmq(difpat, fvec, chi2, rf)
+           end if
 
+        Case(0)  !Printing
+           iter = iter + cond%nprint
+           write(*,"(a,i4)")  " => Iteration number ",iter
+           do i=1, crys%npar
+             write(*,"(a,f14.5)")  "  ->  "//namepar(i), state(i)
+           end do
+           write(*,"(a,f12.3)") ' => Calculated Chi2: ' , chi2
+      End Select
 
-      !update  (only if iflag = 1)
-      if(iflag == 1) then
-         crys%list(:) = state(:)
-         do i=1, opti%npar                 !vector upload
-           vector(i) = v(i)
-         end do
-      end if
-
-      call Pattern_Calculation(state,ok)
-
-      if(.not. ok) then
-        print*, "Error calculating spectrum, please check input parameters"
-      else
-        call scale_factor_lmq(difpat,fvec, chi2)
-      end if
-
-      numcal = numcal + 1
-
-      if(iflag == 0) then
-        iter = iter + cond%nprint
-        write(*,"(a,i4)")  " => Iteration number ",iter
-        do i=1, crys%npar
-          write(*,"(a,f14.5)")  "  ->  "//namepar(i), state(i)
-        end do
-        write(*,*) ' => Calculated Chi2    :   ' , chi2
-        write(*,*) ' => Best Chi2 up to now:   ' , chi2o
-        return
-      end if
-
-
-      if (chi2 < chi2o ) then                  !To keep calculated intensity for the best value of chi2
-        chi2o = chi2
-        statok(1:crys%npar) = state( 1:crys%npar)
-        write(*,*)  ' => Writing the best calculated pattern up to now. Chi2 : ', chi2o
-        do j = 1, n_high
-          ycalcdef(j) = difpat%ycalc(j)
-        end do
-        do j=1, l_cnt
-          l_seqdef(j) = l_seq(j)
-        end do
-      end if
       ok = .true.
 
       IF(cfile) CLOSE(UNIT = cntrl)
@@ -668,7 +611,7 @@
                                               read_background_file
      use CFML_Optimization_General,    only : Opt_Conditions_Type, Local_Optimize
      use CFML_Crystal_Metrics,         only : Set_Crystal_Cell, Crystal_Cell_Type
-     use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit
+     use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit,Info_LSQ_LM
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
      use read_data,                    only : read_structure_file, length,   &
@@ -686,7 +629,7 @@
       INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
       character(len=100)      :: pfile, bfile , bmode
       character(len=100)      :: pmode, filenam
-      integer, parameter      :: out = 25
+      integer, parameter      :: iout = 25
       character(len=10)       :: time, date
       Real (Kind=cp)          :: chi2     !final Chi2
       character(len=3000)     :: infout   !Information about the refinement (min length 256)
@@ -777,9 +720,9 @@
       IF(symgrpno == UNKNOWN) THEN
         symgrpno = get_sym(ok)
         IF(.NOT. ok) GO TO 999
-        WRITE(op,200) 'Diffraction point symmetry is ',pnt_grp
+        WRITE(op,"(a)") 'Diffraction point symmetry is '//pnt_grp
         IF(symgrpno /= 1) THEN
-          WRITE(op,201) '  to within a tolerance of one part in ',  &
+          WRITE(op,"(a,i6)") '  to within a tolerance of one part in ',  &
               nint(one / tolerance)
         END IF
       ELSE
@@ -806,8 +749,8 @@
 
           ! What type of intensity output does the user want?
            10  IF(ok) THEN
-              ! WRITE(op,100) 'Enter function number: '
-              ! WRITE(op,100) '0 POINT, 1 STREAK, 2 INTEGRATE, 3 POWDER PATTERN, 4 SADP : '
+              ! WRITE(op,"(a)") 'Enter function number: '
+              ! WRITE(op,"(a)") '0 POINT, 1 STREAK, 2 INTEGRATE, 3 POWDER PATTERN, 4 SADP : '
               ! READ(cntrl,*,END=999) n
                 n=3 !Powder pattern
              END IF
@@ -827,31 +770,29 @@
 
                      Do j = 1, n_high
                          ycalcdef(j) = brd_spc(j)
-                         !write(*,*) ycalcdef(j)
                      end do
 
                      CALL getfnm(filenam, outfile, '.dat', ok)
-                !        write(*,*) outfile
 
-                     OPEN(UNIT = out, FILE = outfile, STATUS = 'new')
-                        write(unit = out,fmt = *)'!', outfile
-                        write(unit = out,fmt = '(3f12.4)')thmin, step_2th,thmax
+                     OPEN(UNIT = iout, FILE = outfile, STATUS = 'new')
+                        write(unit = iout,fmt = *)'!', outfile
+                        write(unit = iout,fmt = '(3f12.4)')thmin, step_2th,thmax
                      !  theta = thmin +(j-1)*d_theta
-                        write(unit = out,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
+                        write(unit = iout,fmt = '(8f12.2)') ( ycalcdef(j), j=1, n_high    )
 
-                    CLOSE(UNIT = out)
+                    CLOSE(UNIT = iout)
                     ok = .true.
                 ELSE IF(n == 4) THEN
                    CALL gosadp(infile,outfile,ok)
                 ELSE
-                   WRITE(op,100) 'Unknown function type.'
+                   WRITE(op,"(a)") ' Unknown function type.'
                 END IF
 
               END IF
 
 
               IF(ok .AND. n /= 3) THEN
-              96   WRITE(op,100) 'Enter 1 to return to function menu.'
+              96   WRITE(op,"(a)") ' => Enter 1 to return to function menu.'
                    READ(cntrl,*,ERR=96,END=999) fn_menu
                    IF(fn_menu == 1) GO TO 10
               END IF
@@ -864,22 +805,18 @@
             do i=1, opti%npar                       !creation of the step sizes
               vector(i) = crys%Pv_refi(i)
             end do
-            open (unit=23, file='nelder_mess.out', status='replace', action='write')
 
             call Levenberg_Marquardt_Fit(cost_LMQ, difpat%npts, cond, Vs, chi2, infout)
-            write(*,*) "infout" // trim(infout)
-            !write(*,*)'Rp', rpo
-            write(*,*) '_____________________________________'
-            write(*,'(3a)') ' Parameter     refined value    '
-            write(*,*) '_____________________________________'
-            do i = 1, crys%npar
-               write(*,*)  namepar(i)  ,statok(i)
-            end do
+
+            !Output the final list of refined parameters
+            Call Info_LSQ_LM(Chi2,6,Cond,Vs)
+
+            write(*,"(a)") " => "// trim(infout)
 
             CALL getfnm(filenam, outfile, '.prf', ok)
               if (ok) then
-                OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
-                call Write_Prf(difpat,out)
+                OPEN(UNIT = iout, FILE = outfile, STATUS = 'replace')
+                call Write_Prf(difpat,iout)
               else
                 write(*,*) 'The outfile .prf cannot be created'
               end if
@@ -909,15 +846,10 @@
 
       999 IF(cfile) CLOSE(UNIT = cntrl)
       IF(ok .AND. ending) THEN
-        WRITE(op,100) ' => FAULTS ended normally....'
+        WRITE(op,"(a)") ' => FAULTS ended normally....'
       ELSE
-        WRITE(op,100) ' => FAULTS was terminated abnormally!'
+        WRITE(op,"(a)") ' => FAULTS was terminated abnormally!'
       END IF
-      100 FORMAT(1X, a)
-      101 FORMAT(1X, i3)
-      200 FORMAT(1X, 2A)
-      201 FORMAT(1X, a, i6)
-
 
    END PROGRAM FAULTS
 

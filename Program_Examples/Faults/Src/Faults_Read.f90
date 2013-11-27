@@ -400,7 +400,7 @@
                !if (crys%vlim1(np) .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%zero_shift + crys%rang_zero_shift
                crys%Pv_refi(crys%p(np)) = crys%zero_shift
-
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_sycos) > 0.0) then
                np = np + 1        ! to count npar
@@ -415,6 +415,7 @@
                crys%vlim2(np) = crys%sycos + crys%rang_sycos
                !if (crys%vlim2(np)  .GT. 0 ) crys%vlim2(np) = 0
                crys%Pv_refi(crys%p(np))=crys%sycos
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_sysin) > 0.0) then
                np = np + 1        ! to count npar
@@ -429,6 +430,7 @@
                if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%sysin + crys%rang_sysin
                crys%Pv_refi(crys%p(np))= crys%sysin
+               vs%nampar(crys%p(np))=namepar(np)
              end if
 
              ok_abe=.true.
@@ -492,7 +494,7 @@
                !if (crys%vlim1(np) .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_u + crys%rang_p_u
                crys%Pv_refi(crys%p(np)) = crys%p_u
-
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_v) > 0.0) then
                np = np + 1        ! to count npar
@@ -507,6 +509,7 @@
                crys%vlim2(np) = crys%p_v + crys%rang_p_v
                !if (crys%vlim2(np)  .GT. 0 ) crys%vlim2(np) = 0
                crys%Pv_refi(crys%p(np))=crys%p_v
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                np = np + 1        ! to count npar
@@ -521,6 +524,7 @@
                if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_w + crys%rang_p_w
                crys%Pv_refi(crys%p(np))= crys%p_w
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_x) > 0.0) then
                np = np + 1        ! to count npar
@@ -535,6 +539,7 @@
                if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_x + crys%rang_p_x
                crys%Pv_refi(crys%p(np))=crys%p_x
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_dg) > 0.0) then
                np = np + 1        ! to count npar
@@ -551,6 +556,7 @@
                end if
                crys%vlim2(np) = crys%p_dg + crys%rang_p_dg
                crys%Pv_refi(crys%p(np))=crys%p_dg
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_dl) > 0.0) then
                np = np + 1        ! to count npar
@@ -565,6 +571,7 @@
                if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_dl + crys%rang_p_dl
                crys%Pv_refi(crys%p(np)) =crys%p_dl
+               vs%nampar(crys%p(np))=namepar(np)
              end if
 
              ok_uvw=.true.
@@ -628,7 +635,7 @@
                !if (crys%vlim1(np) .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_u + crys%rang_p_u
                crys%Pv_refi(crys%p(np)) = crys%p_u
-
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_v) > 0.0) then
                np = np + 1        ! to count npar
@@ -643,6 +650,7 @@
                crys%vlim2(np) = crys%p_v + crys%rang_p_v
                !if (crys%vlim2(np)  .GT. 0 ) crys%vlim2(np) = 0
                crys%Pv_refi(crys%p(np))=crys%p_v
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                np = np + 1        ! to count npar
@@ -657,6 +665,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_w + crys%rang_p_w
                crys%Pv_refi(crys%p(np))= crys%p_w
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_dg) > 0.0) then
                np = np + 1        ! to count npar
@@ -673,6 +682,7 @@
                !end if
                crys%vlim2(np) = crys%p_dg + crys%rang_p_dg
                crys%Pv_refi(crys%p(np))=crys%p_dg
+               vs%nampar(crys%p(np))=namepar(np)
              end if
 
              ok_uvw=.true.
@@ -736,7 +746,7 @@
                !if (crys%vlim1(np) .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_u + crys%rang_p_u
                crys%Pv_refi(crys%p(np)) = crys%p_u
-
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_v) > 0.0) then
                np = np + 1        ! to count npar
@@ -751,6 +761,7 @@
                crys%vlim2(np) = crys%p_v + crys%rang_p_v
                !if (crys%vlim2(np)  .GT. 0 ) crys%vlim2(np) = 0
                crys%Pv_refi(crys%p(np))=crys%p_v
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_w) > 0.0) then
                np = np + 1        ! to count npar
@@ -765,6 +776,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_w + crys%rang_p_w
                crys%Pv_refi(crys%p(np))= crys%p_w
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_p_dl) > 0.0) then
                np = np + 1        ! to count npar
@@ -779,6 +791,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%p_dl + crys%rang_p_dl
                crys%Pv_refi(crys%p(np)) =crys%p_dl
+               vs%nampar(crys%p(np))=namepar(np)
              end if
 
             ok_uvw=.true.
@@ -884,6 +897,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%cell_a + crys%rang_cell_a
                crys%Pv_refi(crys%p(np)) =crys%cell_a
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_cell_b) > 0.0 ) then
                np = np + 1
@@ -898,6 +912,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%cell_b + crys%rang_cell_b
                crys%Pv_refi(crys%p(np)) =crys%cell_b
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_cell_c) > 0.0 ) then
                np = np + 1
@@ -912,6 +927,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%cell_c + crys%rang_cell_c
                crys%Pv_refi(crys%p(np)) =crys%cell_c
+               vs%nampar(crys%p(np))=namepar(np)
              end if
              if (abs(crys%ref_cell_gamma) > 0.0 ) then
                np = np + 1
@@ -926,6 +942,7 @@
                !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                crys%vlim2(np) = crys%cell_gamma + (crys%rang_cell_gamma * deg2rad)
                crys%Pv_refi(crys%p(np)) =crys%cell_gamma
+               vs%nampar(crys%p(np))=namepar(np)
              end if
 
              ok_cell=.true.
@@ -1059,6 +1076,7 @@
                      !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                      crys%vlim2(np) = crys%layer_a + crys%rang_layer_a
                      crys%Pv_refi(crys%p(np)) =crys%layer_a
+                     vs%nampar(crys%p(np))=namepar(np)
                    end if
                    if (abs(crys%ref_layer_b) > 0.0) then
                      np = np + 1        ! to count npar
@@ -1073,6 +1091,7 @@
                      !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
                      crys%vlim2(np) = crys%layer_b + crys%rang_layer_b
                      crys%Pv_refi(crys%p(np)) =crys%layer_b
+                     vs%nampar(crys%p(np))=namepar(np)
                    end if
 
              else
@@ -1284,6 +1303,7 @@
               crys%vlim1(np) = crys%a_pos(1, d(r),r) - crys%rang_a_pos(1, d(r),r)
               crys%vlim2(np) = crys%a_pos(1, d(r),r) + crys%rang_a_pos(1, d(r),r)
               crys%Pv_refi(crys%p(np)) =crys%a_pos(1, d(r),r)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_a_pos(2,d(r),r)) > 0.0) then
               np = np + 1
@@ -1297,6 +1317,7 @@
               crys%vlim1(np) = crys%a_pos(2, d(r),r) - crys%rang_a_pos(2, d(r),r)
               crys%vlim2(np) = crys%a_pos(2, d(r),r) + crys%rang_a_pos(2, d(r),r)
               crys%Pv_refi(crys%p(np)) =crys%a_pos(2, d(r),r)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_a_pos(3, d(r),r)) > 0.0) then
               np = np + 1
@@ -1310,6 +1331,7 @@
               crys%vlim1(np) = crys%a_pos(3, d(r),r) - crys%rang_a_pos(3, d(r),r)
               crys%vlim2(np) = crys%a_pos(3, d(r),r) + crys%rang_a_pos(3, d(r),r)
               crys%Pv_refi(crys%p(np)) =crys%a_pos(3, d(r),r)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_a_B( d(r),r)) > 0.0) then
               np = np + 1
@@ -1324,6 +1346,7 @@
               !if (crys%vlim1(np)   .LT. 0 ) crys%vlim1(np) = 0
               crys%vlim2(np) = crys%a_B( d(r),r) + crys%rang_a_B( d(r),r)
               crys%Pv_refi(crys%p(np)) =crys%a_B( d(r),r)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
 
             crys%l_n_atoms(r) = d(r)
@@ -1541,6 +1564,7 @@
                 crys%vlim1(np) = crys%l_cnt - crys%rang_l_cnt
                 crys%vlim2(np) = crys%l_cnt + crys%rang_l_cnt
                 crys%Pv_refi(crys%p(np)) = crys%l_cnt
+                vs%nampar(crys%p(np))=namepar(np)
               end if
              ! if (abs(crys%ref_l_cnt) > 0.0) crys%rang_l_cnt = 0.0
             end if
@@ -1648,6 +1672,7 @@
                 crys%vlim2(np) = crys%l_alpha(j,l)+crys%rang_l_alpha(j,l)
                 if (crys%vlim2(np)  > 1 ) crys%vlim2(np) = 1
                 crys%Pv_refi(crys%p(np)) = crys%l_alpha (j,l)
+                vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_l_r(1,j,l)) > 0.0 ) then
               np = np + 1
@@ -1661,6 +1686,7 @@
               crys%vlim1(np) = crys%l_r (1,j,l) - crys%rang_l_r (1,j,l)
               crys%vlim2(np) = crys%l_r (1,j,l) + crys%rang_l_r (1,j,l)
               crys%Pv_refi(crys%p(np)) = crys%l_r(1,j,l)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_l_r(2,j,l)) > 0.0 ) then
               np = np + 1
@@ -1674,6 +1700,7 @@
               crys%vlim1(np) = crys%l_r (2,j,l) - crys%rang_l_r (2,j,l)
               crys%vlim2(np) = crys%l_r (2,j,l) + crys%rang_l_r (2,j,l)
               crys%Pv_refi(crys%p(np)) = crys%l_r(2,j,l)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
             if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  then
               np = np + 1
@@ -1687,6 +1714,7 @@
               crys%vlim1(np) = crys%l_r (3,j,l) - crys%rang_l_r (3,j,l)
               crys%vlim2(np) = crys%l_r (3,j,l) + crys%rang_l_r (3,j,l)
               crys%Pv_refi(crys%p(np)) = crys%l_r(3,j,l)
+              vs%nampar(crys%p(np))=namepar(np)
             end if
 
          !  if (abs(crys%ref_l_alpha (j,l)) > 0.0)  crys%rang_l_alpha(j,l) = 0.0

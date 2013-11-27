@@ -4165,19 +4165,19 @@
 
       IF(ok) THEN
         IF(blurring == gauss) THEN
-          WRITE(op,104) 'Gaussian'
+          !WRITE(op,104) 'Gaussian'
           CALL gaussn(cut_off)
         ELSE IF(blurring == lorenz) THEN
-          WRITE(op,104) 'Lorentzian'
+          !WRITE(op,104) 'Lorentzian'
           CALL lornzn(cut_off)
         ELSE IF(blurring == ps_vgt) THEN
-          WRITE(op,104) 'pseudo-Voigt'
+          !WRITE(op,104) 'pseudo-Voigt'
           CALL pv(cut_off)
         ELSE IF(blurring == pv_gss) THEN
-          WRITE(op,104) 'Gaussian'
+          !WRITE(op,104) 'Gaussian'
           CALL pv(cut_off)
         ELSE IF(blurring == pv_lrn) THEN
-          WRITE(op,104) 'Lorentzian'
+          !WRITE(op,104) 'Lorentzian'
           CALL pv(cut_off)
         ELSE IF(blurring /= NONE) THEN
           WRITE(op,100) 'Instrumental broadening type is undefined in GOSPEC.'
@@ -5496,9 +5496,9 @@
 ! If calculation is to be recursive for a finite number of layers,
 ! then store the binary form of l_cnt+1 in an array for efficient
 ! matrix multiplication.
-      IF(recrsv .AND. .NOT.inf_thick) THEN
+      IF(recrsv .AND. .NOT. inf_thick) THEN
         ok = binpow(l_cnt+1)
-        IF(.NOT.ok) THEN
+        IF(.NOT. ok) THEN
           WRITE(op,202) 'ERROR returned by BINPOW to OPTIMZ'
           WRITE(op,201) 'The argument passed was l_cnt+1 = ', nint(l_cnt)+1
           GO TO 999
@@ -5519,18 +5519,17 @@
 ! find absolute deviation of coefficients
         DO  j = 1, m
           error = error + ABS(a_b(j,j2) - x)
-
         END DO
 ! get relative error
         IF(x /= zero) error = error / (x * m)
         one_b(j2) = ABS(error) <= eps3
       END DO
 
-! Check that the layer uncertainty factors are physically reasonable.
+     ! Check that the layer uncertainty factors are physically reasonable.
       DO  i = 1, n_layers
         DO  j = 1, n_layers
           IF(there(j,i)) THEN
-! check on r_B12
+           ! check on r_B12
             x = r_b11(j,i)*r_b22(j,i)*a0*b0 - r_b12(j,i)*r_b12(j,i)*ab0*ab0
             IF(x < zero) THEN
               WRITE(op,500) 'C12'
@@ -5539,7 +5538,7 @@
               ok = .false.
               GO TO 999
             END IF
-! check on r_B23
+           ! check on r_B23
             x = r_b22(j,i)*r_b33(j,i)*b0*c0 - r_b23(j,i)*r_b23(j,i)*bc0*bc0
             IF(x < zero) THEN
               WRITE(op,500) 'C23'
@@ -5548,7 +5547,7 @@
               ok = .false.
               GO TO 999
             END IF
-! check on r_B31
+            ! check on r_B31
             x = r_b11(j,i)*r_b33(j,i)*a0*c0 - r_b31(j,i)*r_b31(j,i)*ca0*ca0
             IF(x < zero) THEN
               WRITE(op,500) 'C13'
@@ -5561,8 +5560,8 @@
         END DO
       END DO
 
-! see if stacking 'uncertainty' coefficients are same for all layers.
-! Special flag if they are all zero.
+      ! see if stacking 'uncertainty' coefficients are same for all layers.
+      ! Special flag if they are all zero.
       all_bs_zero = .true.
       DO  i = 1, n_layers
         DO  j = 1, n_layers
@@ -5573,8 +5572,8 @@
         END DO
       END DO
 
-! run through all 6 coefficients
-! until it is clear that some are different
+      ! run through all 6 coefficients
+      ! until it is clear that some are different
       same_bs = equalb(r_b11, a_b11)
       IF(same_bs) same_bs = equalb(r_b22, a_b22)
       IF(same_bs) same_bs = equalb(r_b33, a_b33)
@@ -5582,13 +5581,13 @@
       IF(same_bs) same_bs = equalb(r_b23, a_b23)
       IF(same_bs) same_bs = equalb(r_b31, a_b31)
 
-! see if all layers are centrosymmetric
+      ! see if all layers are centrosymmetric
       only_real = .true.
       DO  i = 1, n_actual
         only_real = only_real .AND. (l_symmetry(i) == centro)
       END DO
 
-! see if all z-components of the stacking vectors are the same
+      ! see if all z-components of the stacking vectors are the same
       l_rz = zero
       n = 0
       DO  i = 1, n_layers
@@ -5608,8 +5607,8 @@
       END DO
       same_rz = ABS(error) <= eps4
 
-! If the stacking is explicit, check to see if all the layers are
-! the same
+      ! If the stacking is explicit, check to see if all the layers are
+      ! the same
       same_layer = .false.
       IF(xplcit) THEN
         IF(nint(l_cnt) == 1) GO TO 140
@@ -5623,15 +5622,15 @@
           same_layer = .false.
         END IF
 
-! Check if any of the layer transitions have non-zero probability
-! initialize flags so that we do not produce duplicate error messages
+        ! Check if any of the layer transitions have non-zero probability
+        ! initialize flags so that we do not produce duplicate error messages
         DO  i = 1, n_layers
           DO  j = 1, n_layers
             did_it(j,i) = .false.
           END DO
         END DO
 
-! now check for legal transitions
+        ! now check for legal transitions
         WRITE(op,400)
         DO  n = 1, nint(l_cnt)-1
           i = l_seq(n)
@@ -5649,42 +5648,42 @@
       END IF
       IF(.NOT.ok) GO TO 999
 
-! Pre-compute a pseudo-Lorentzian form factor for lateral
-! planar widths.
+      ! Pre-compute a pseudo-Lorentzian form factor for lateral
+      ! planar widths.
       IF(finite_width) THEN
-! ideally, FFACT_SIZE is odd
+        ! ideally, FFACT_SIZE is odd
         m = ffact_size/2
-! incr contains the correct increment size such that the first and
-! last array elements contain zero.
+        ! incr contains the correct increment size such that the first and
+        ! last array elements contain zero.
         incr = (three*n_sigmas*n_sigmas + one) / (two*n_sigmas*m)
         ffact_scale = incr
         z = one + n_sigmas*n_sigmas
         tmp = one / (z*z)
-! put the peak in the middle (if FFACT_SIZE is odd)
+        ! put the peak in the middle (if FFACT_SIZE is odd)
         formfactor(m+1) = one
         DO   n = 1, m
           z = n*incr
           IF(z <= DBLE(n_sigmas)) THEN
-! Lorentzian part
+            ! Lorentzian part
             x = one / (one + z*z)
           ELSE
-! Linear part
+            ! Linear part
             x = tmp*(three*n_sigmas*n_sigmas + one - two*n_sigmas*z)
           END IF
           IF(m+n+1 <= ffact_size) formfactor(m+n+1) = x
           IF(m-n+1 > 0)          formfactor(m-n+1) = x
         END DO
-! compute half width in reciprocal Angstroms for use in computing the
-! subtle impact of a-b shape broadening on 00l reflections
+        ! compute half width in reciprocal Angstroms for use in computing the
+        ! subtle impact of a-b shape broadening on 00l reflections
         tmp = wa*SIN(pi-cell_gamma)
         ffwdth = SQRT(one/(tmp*tmp) + one/(wb*wb))
       END IF
-! get diffraction symmetry
+      ! get diffraction symmetry
 
-! establish some bounds
+      ! establish some bounds
       no_trials = 25
       max_var = zero
-! save lambda, HKL_LIM (called by THRESH), may change it.
+      ! save lambda, HKL_LIM (called by THRESH), may change it.
       old_lambda = lambda
       CALL thresh(ok)
       IF(.NOT. ok) GO TO 999
@@ -5705,7 +5704,7 @@
         WRITE(sy,206) tiny_inty
       END IF
 
-! restore lambda.
+      ! restore lambda.
       lambda = old_lambda
 
       has_l_mirror = symgrpno /= 1 .AND. symgrpno /= 3 .AND.  &
@@ -5728,15 +5727,15 @@
               'By definition, all diffraction data has a center of symmetry'
           WRITE(sy,202) 'thus, there is no need to test for inversion.'
         END IF
-! close file, unless the output was to the default device
+        ! close file, unless the output was to the default device
         IF(sy /= op) CLOSE (UNIT = sy)
       END IF
-! establish integration limits and weighting factors
+      ! establish integration limits and weighting factors
       CALL get_bds()
-! compute angles of scanning vectors relative to 1 0 0
+      ! compute angles of scanning vectors relative to 1 0 0
       theta1 = hkangl(k_start, h_start)
       theta2 = hkangl(k_end, h_end)
-! resolve ambiguity in the case of -1 point symmetry
+      ! resolve ambiguity in the case of -1 point symmetry
       IF(symgrpno == 1 .OR. symgrpno == 11) THEN
         theta1 = -pi
         theta2 =  pi
@@ -5794,7 +5793,7 @@
       REAL*8 x1, y1, z1, x2, y2, z2, sum_occ, tol, tmp
       PARAMETER(tol = eps1)
 
-! external functions
+      ! external functions
      !EXTERNAL bounds
 
       WRITE(op,fmt="(a)") ' => Checking for conflicts in atomic positions . . .'
@@ -5808,11 +5807,11 @@
         DO  j2 = 1, at_num
           lay(1,j2) = bounds(a_pos(1,j2,i))
           lay(2,j2) = bounds(a_pos(2,j2,i))
-! Remember, only the a and b directions are truly periodic.
-! The scaling along c is arbitrary. Furthermore, c is perpendicular
-! to a and b, and is not necessarily parallel to Rii, which (if it
-! exists) would define the third cell-repeat direction. In other words,
-! for the general case, we cannot use the BOUNDS function along c.
+         ! Remember, only the a and b directions are truly periodic.
+         ! The scaling along c is arbitrary. Furthermore, c is perpendicular
+         ! to a and b, and is not necessarily parallel to Rii, which (if it
+         ! exists) would define the third cell-repeat direction. In other words,
+         ! for the general case, we cannot use the BOUNDS function along c.
           lay(3,j2) = a_pos(3,j2,i)
         END DO
         IF(invert) THEN
@@ -5858,8 +5857,8 @@
         END DO
       END DO
 
-! now let's look at i-j layer transitions and generate a simple warning
-! message if it seems that the layers are intertwined.
+      ! now let's look at i-j layer transitions and generate a simple warning
+      ! message if it seems that the layers are intertwined.
       DO  i = 1, n_layers
         DO  j = 1, n_layers
           IF(there(j,i) .AND. i /= j) THEN
@@ -5925,17 +5924,17 @@
       REAL*8 s, angle, w4,   theta, x
       COMPLEX*16 f(max_l)
 
-! external functions
+      ! external functions
 
-! external subroutines (Some compilers need them declared external)
-!      external GET_F, XYPHSE, PRE_MAT
+      ! external subroutines (Some compilers need them declared external)
+      !      external GET_F, XYPHSE, PRE_MAT
 
-! statement functions
-! S is the value of 1/d**2 at hkl
+      ! statement functions
+      ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-! W4 is the X-ray polarization factor
+      ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
 
@@ -5999,28 +5998,28 @@
       REAL*8 l,  shkl, x, angle, ss, w4, theta, q2
       COMPLEX*16 f(max_l), s(max_l)
 
-! external functions
+     ! external functions
 
-! external subroutines (Some compilers need them declared external)
-!      external XYPHSE, PRE_MAT, GET_MAT, GET_F
+     ! external subroutines (Some compilers need them declared external)
+     !      external XYPHSE, PRE_MAT, GET_MAT, GET_F
 
-! statement functions
-! SS is the value of 1/d**2 at hkl
+      ! statement functions
+      ! SS is the value of 1/d**2 at hkl
       ss(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(ss(h,k,l)))
-! W4 is the X-ray polarization factor
+      ! W4 is the X-ray polarization factor
       w4(theta) = half * (one + (COS(two*theta))**2)
 
       1 WRITE(op,400) ' '
-    !  WRITE(op,400) 'CALCULATING INTENSITY AT A POINT. . .'
+      !  WRITE(op,400) 'CALCULATING INTENSITY AT A POINT. . .'
       10 WRITE(op,400) 'Enter h, k, l : '
       READ(cntrl,*,ERR=10)  h, k, l
       IF(cfile) WRITE(op,401) h, k, l
-! check angles are meaningful
+      ! check angles are meaningful
       q2 = four / (lambda**2)
       shkl = ss(h,k,l)
-! Check that SS(h,k,l) is legal
+      ! Check that SS(h,k,l) is legal
       IF(shkl < zero) THEN
         WRITE(op,403) 'ERROR: In POINT(), 1/d**2 = ', shkl
         ok = .false.
@@ -6031,7 +6030,7 @@
         WRITE(op,400) 'Re-enter. . . '
         GO TO 10
       END IF
-! make sure we are not going to blow up at the origin
+      ! make sure we are not going to blow up at the origin
       IF(h == 0 .AND. k == 0 .AND. rad_type == electn) THEN
         IF(shkl <= eps4) THEN
           WRITE(op,400) 'Cannot integrate across the origin for electron radiation'
@@ -6039,7 +6038,7 @@
           GO TO 10
         END IF
       END IF
-! get intensity
+      ! get intensity
 
       CALL xyphse(h, k)
 
@@ -6048,24 +6047,24 @@
       IF(recrsv) THEN
         x = intens(f, h, k, l, ok)
         IF(.NOT.ok) GO TO 999
-! set up mat again to re-call GET_S (or GET_S2)
+        ! set up mat again to re-call GET_S (or GET_S2)
         CALL pre_mat(h, k)
         CALL get_mat(h, k, l)
         IF(inf_thick) THEN
-! initialize s to -f, since mat is -(ident - T)
+          ! initialize s to -f, since mat is -(ident - T)
           DO  i = 1, n_layers
             s(i) = - f(i)
           END DO
           ok = get_s(f, s, h, k, l)
         ELSE
-! s is initialized within GET_S2, which then calls GET_S
+          ! s is initialized within GET_S2, which then calls GET_S
           ok = get_s2(f, s, h, k, l)
         END IF
       ELSE
         x = inten2(f, h, k, l, ok)
       END IF
       IF(.NOT.ok) GO TO 999
-! for diagnostics write out the s values as well
+      ! for diagnostics write out the s values as well
       IF(rad_type == x_ray)  x = x * w4(angle(h,k,l))
       WRITE(op,404) '2theta = ', rad2deg * two * angle(h,k,l), ' degrees'
       IF(shkl > zero) WRITE(op,403) 'd = ', one / SQRT(shkl)
@@ -6224,9 +6223,9 @@
       REAL*8 dot
       INTEGER*4 i, j
 
-! Set up matrix that represents the sequences
-! For the matrix inversion routines, 'mat' and 'mat1' have to be
-! in 'i,j' format rather than the quicker 'j,i' format
+      ! Set up matrix that represents the sequences
+      ! For the matrix inversion routines, 'mat' and 'mat1' have to be
+      ! in 'i,j' format rather than the quicker 'j,i' format
       DO  i = 1, n_layers
         DO  j = 1, n_layers
           IF(there(j,i)) THEN
@@ -6235,7 +6234,7 @@
             IF(same_bs.OR.bs_zero(j,i)) THEN
               mat1(i,j) =  detune(j,i) * l_alpha(j,i) * l_phi(j,i)
             ELSE
-! h-k components only. l-components are handled later by GET_MAT.
+              ! h-k components only. l-components are handled later by GET_MAT.
               mat1(i,j) = detune(j,i) * l_alpha(j,i) * l_phi(j,i)  &
                   * EXP(-quarter*(r_b11(j,i)*a0*h*h + r_b22(j,i)*b0*k*k)  &
                   + half*r_b12(j,i)*ab0*h*k )
@@ -6246,13 +6245,13 @@
         END DO
       END DO
 
-! Are all the uncertainty factors identical?
-! Here, we compute only the h-k components.
-! The l-components are handled later by GET_MAT.
+      ! Are all the uncertainty factors identical?
+      ! Here, we compute only the h-k components.
+      ! The l-components are handled later by GET_MAT.
       IF(same_bs) THEN
         IF(all_bs_zero) THEN
-! This initialization is not actually necessary, since if we are here,
-! fatsWalla_hk will not be needed by GET_MAT. However, let's be safe.
+          ! This initialization is not actually necessary, since if we are here,
+          ! fatsWalla_hk will not be needed by GET_MAT. However, let's be safe.
           fatswalla_hk = one
         ELSE
           fatswalla_hk = EXP(-(quarter*(a_b11*a0*h*h + a_b22*b0*k*k) +  &
@@ -6301,7 +6300,7 @@
       real(kind = sp ) ::  pv_hg, pv_hl, tmp
       REAL      :: k1, k2, k3, k4, k5, pvoigt, const, speci
 
-! first check the numbers
+      ! first check the numbers
       IF(pv_u == zero .AND. pv_v == zero .AND. pv_w == zero) THEN
         WRITE(op,"(a)") '  pseudo-Voigt parameters are zero in PV()'
         WRITE(op,"(a)") '  pseudo-Voigt instrumental broadening not added'
@@ -6322,8 +6321,8 @@
       END IF
 
 
-! th2_low is the angle relative to th2_min
-! 2*d_theta is the angular step size
+      ! th2_low is the angle relative to th2_min
+      ! 2*d_theta is the angular step size
       n_low  = INT(half*th2_low/d_theta) + 1
       delta_lambda = lambda2 - lambda
       if ( delta_lambda <= 0 ) delta_lambda = delta_lambda * (-1)
@@ -6338,7 +6337,7 @@
       temp1 = pi * pv_dg * pv_dg
       temp4 = (2*lambda/pi) * rad2deg
       DO  i = n_low, n_high
-! get tan((2theta)/2)
+        ! get tan((2theta)/2)
         tn_th = TAN(i*d_theta + th0)
         temp3 = (COS(i*d_theta + th0))
         pv_hg = (pv_u * tn_th * tn_th) + pv_v * tn_th  +  pv_w + (temp2 / (temp1 * temp3* temp3))
@@ -6565,8 +6564,8 @@
       CHARACTER (LEN=120) :: line
       REAL*4 tmp
 
-! external subroutine (Some compilers need them declared external)
-!      external ATOMS
+      ! external subroutine (Some compilers need them declared external)
+      !      external ATOMS
 
       WRITE(op,301) ' => Reading scattering factor datafile''',  &
           sfname(1:length(sfname)),'''. . .'
@@ -6579,12 +6578,12 @@
 
       m = 0
 
-! determine all distinct atom types
+      ! determine all distinct atom types
       DO  i = 1, n_actual
         DO  j = 1, l_n_atoms(i)
           NAMEa = a_name(j,i)
           CALL Ucase(NAMEa)
-! see if this name has been seen already
+          ! see if this name has been seen already
           n = 0
           do
             n = n + 1
@@ -6605,27 +6604,27 @@
         END DO
       END DO
       n_atoms = m
-! now find data for each atom type in file
-! pass through file only once
+      ! now find data for each atom type in file
+      ! pass through file only once
    60 READ(sf, 300, END=90, ERR=200) line
       NAMEa = line(1:4)
       CALL ucase(NAMEa)
-! see if this is one of the distinct atoms
+      ! see if this is one of the distinct atoms
       i = 0
       70   i = i + 1
       our_atom = NAMEa == atom_l(i)
       IF(.NOT. our_atom .AND. i < n_atoms) GO TO 70
-! have we read all that we need to know?
+      ! have we read all that we need to know?
       done = .true.
       DO  n = 1, n_atoms
         done = done .AND. list(n)
       END DO
-! If we're done, close file.
+      ! If we're done, close file.
       IF(done) GO TO 90
       IF(our_atom .AND. .NOT. list(i)) THEN
-! mark this atom's data as read in
+        ! mark this atom's data as read in
         list(i) = .true.
-! and read it in
+        ! and read it in
         IF(rad_type == x_ray) THEN
           READ(line,310,ERR=210) (x_sf(j,i), j=1, 9)
         ELSE IF(rad_type == neutrn) THEN
@@ -6638,7 +6637,7 @@
 
       90 CLOSE(sf,ERR=240)
 
-! see if all the data for each atom has been read in
+      ! see if all the data for each atom has been read in
       ok = .true.
       DO  i = 1, n_atoms
         IF(.NOT.list(i)) THEN
@@ -6724,27 +6723,27 @@
       Logical       :: ok
       Real(kind=8)  :: s,  angle, ll, l, i1, i2, x, theta, l_next
 
-! external subroutine (Some compilers need them declared external)
-!      external GET_F
-! external functions
+     ! external subroutine (Some compilers need them declared external)
+     !      external GET_F
+     ! external functions
 
 
-! statement functions
-! S is the value of 1/d**2 at hkl
+      ! statement functions
+      ! S is the value of 1/d**2 at hkl
       s(h,k,l) = h*h*a0 + k*k*b0 + l*l*c0 + h*k*d0
-! ANGLE is the Bragg angle (in radians) of the h,k,l plane
+      ! ANGLE is the Bragg angle (in radians) of the h,k,l plane
       angle(h,k,l) = ASIN(half * lambda * SQRT(s(h,k,l)))
-! LL is the maximum allowable l value for a given h,k and theta
+      ! LL is the maximum allowable l value for a given h,k and theta
       ll(theta,h,k) =  SQRT( ( (two*SIN(theta)/lambda)**2  &
           - h*h*a0 - k*k*b0 - h*k*d0) / c0 )
 
       sharp = .false.
 
-! get the intensity at hkl, with l = 0 initially
+      ! get the intensity at hkl, with l = 0 initially
       l = zero
       10 i1 = pntint(h, k, l, ok)
       IF(.NOT. ok) GO TO 100
-! If there is an extinction at hkl, try again at l = l + d_l
+      ! If there is an extinction at hkl, try again at l = l + d_l
       IF(i1 < eps4) THEN
         l = l + d_l
         IF(angle(h,k,l) < half*pi) THEN
@@ -6754,7 +6753,7 @@
         END IF
       END IF
 
-! Define a spot to be sharp if intensity is halved at l = l + d_l/100
+      ! Define a spot to be sharp if intensity is halved at l = l + d_l/100
       theta = angle(h, k, l)
       x = MIN(d_theta, half*th2_max-theta)
       l_next = ll(theta+x, h, k)
