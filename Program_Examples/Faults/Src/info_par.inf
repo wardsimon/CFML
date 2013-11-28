@@ -1,0 +1,41 @@
+Information about mapping of the different parameters in FAULTS
+===============================================================
+Scale_factor      1      Lgbl(1 ... 17+NbgrPat+nc)
+Zero_shift        2      LAtom(i,j,L)   i=1:5,  j=1:na(L),   L=1:nlayers
+SyCos             3      Ltrans(i,j,k)  i=1:10, j=1:nlayers, k=1:nlayers
+SySin             4
+U                 5
+V                 6      ref_gbl(1 ... 17+NbgrPat+nc)
+W                 7      ref_Atom(i,j,L)   i=1:5,  j=1:na(L),   L=1:nlayers
+X                 8      ref_trans(i,j,k)  i=1:10, j=1:nlayers, k=1:nlayers
+Dg                9
+DL               10
+a                11
+b                12
+c                13
+gamma            14
+Wa               15
+Wb               16
+Number_layers    17
+Scale_Factor(1)  18
+Scale_Factor(2)  19
+..............
+Scale_Factor(n)  17+NbgrPat = LGBL1
+Cheb_coeff(1)    LGBL1+1
+............
+
+Cheb_coeff(nc)   LGBL2=17+NbgrPat+nc    nc: number of Chebychev coefficients
+
+
+
+
+Atom_Layer(j,L)_x      LAtom(i,j,L)  i=1 ..5, j=1,..na(L), L=1, nlayers
+Atom_Layer(j,L)_y
+Atom_Layer(j,L)_z
+Atom_Layer(j,L)_biso
+Atom_Layer(j,L)_occ
+
+1 - 1
+1 - 2             nlayers x nlayers  (alpha, tx,ty,tz, u1, u2,  u6)
+.....
+1 - n             Ltrans(i,j,k)  i=1:10, j=1:nlayers, k=1:nlayers
