@@ -376,15 +376,15 @@
               write(i_ftls,"(a)") "!Polynomial  Number of coefficients"
               write(i_ftls,"(a, i2)")         " BGRCHEB          ", crys%cheb_nump
               write(i_ftls,"(a)") "!Polynomial coefficients"
-              write(i_ftls,*)  crys%chebp(1:crys%cheb_nump)
-              write(i_ftls,*)  crys%ref_chebp(1:crys%cheb_nump)
+              write(i_ftls,"(24f12.5)")  crys%chebp(1:crys%cheb_nump)
+              write(i_ftls,"(24f12.5)")  crys%ref_chebp(1:crys%cheb_nump)
             end if
             if (crys%bgrpatt) then
-              write(i_ftls,"(a)")  "!number of pattern backgrounds"
+              write(i_ftls,"(a)")        "!number of pattern backgrounds"
               write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%num_bgrpatt
+              write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code"
               do i=1, crys%num_bgrpatt
-                write(i_ftls,"(a)") "!Pattern file   Filename   Scale factor  code"
-                write(i_ftls,"(a, 2f10.2)")         " BGRPATT    "//crys%bfilepat(i), crys%bscalpat(i), crys%ref_bscalpat(i)
+                write(i_ftls,"(2a, g18.5,f10.2)")  " BGRPATT    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), crys%ref_bscalpat(i)
               end do
             end if
 

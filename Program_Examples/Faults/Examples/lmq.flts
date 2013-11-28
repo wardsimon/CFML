@@ -134,6 +134,7 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
  1.0 1.0 1.0 1.0 1.0
  0.0 0.0 0.0 0.0 0.0
  !number of pattern backgrounds
- BGRNUM   1
+ BGRNUM   2
  !Pattern file   Filename   Scale factor  code
- BGRPATT   pat.dat 1.0 0.0
+ BGRPATT   pat1.dat  1.0  0.0
+ BGRPATT   pat2.dat  1.0  0.0

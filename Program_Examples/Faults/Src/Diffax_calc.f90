@@ -1370,7 +1370,7 @@
             end if
         end if
       else
-          write(*,*) 'Layers are to be treated as having infinite lateral width.'
+          write(*,"(a)") ' => Layers are to be treated as having infinite lateral width.'
           write(dmp,200) 'Layers are to be treated as having infinite lateral width.'
       end if
 
