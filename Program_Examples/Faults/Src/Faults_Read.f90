@@ -13,10 +13,11 @@
 
        integer, parameter :: max_bgr_num=10 !maximum number of pattern backgrounds
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
-       integer(kind=2), dimension(17+max_bgr_num+max_n_cheb) :: Lgbl
+       integer            :: LGBL1=0  !number of global parameters
+       integer(kind=2), dimension(17+max_bgr_num+max_n_cheb) :: Lglb
        integer(kind=2), dimension(5,max_a,max_l)             :: Latom
        integer(kind=2), dimension(10,max_l,max_l)            :: Ltrans
-       real,            dimension(17+max_bgr_num+max_n_cheb) :: ref_gbl
+       real,            dimension(17+max_bgr_num+max_n_cheb) :: ref_glb
        real,            dimension(5,max_a,max_l)             :: ref_atom
        real,            dimension(10,max_l,max_l)            :: ref_trans
 
@@ -442,6 +443,8 @@
              !Reading refinement codes
              read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
                                               crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
+             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:10)
+             ref_glb(5:10)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x,crys%ref_p_dg,crys%ref_p_dl]
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Pseudo-Voigt instruction"
@@ -545,6 +548,8 @@
              txt=adjustl(tfile(i))
              !Reading refinement codes
              read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dg
+             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:9)
+             ref_glb(5:9)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x,crys%ref_p_dg]
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
@@ -624,6 +629,9 @@
              txt=adjustl(tfile(i))
              !Reading refinement codes
              read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dl
+             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:8,10)
+             ref_glb(5:8)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x]
+             ref_glb(10)=crys%ref_p_dl
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
@@ -746,6 +754,8 @@
              !Reading refinement codes
              read(unit=txt,fmt=*, iostat=ier)  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
                                                crys%ref_cell_gamma   !read refinement codes of cell parameters
+             !read(unit=txt,fmt=*, iostat=ier) ref_glb(11:14)
+             ref_glb(11:14)=[crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma]
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the cell parameters"
@@ -897,6 +907,8 @@
                k=index(txt,"(")
                l=index(txt,")")
                  read(unit=txt(:k),fmt=*, iostat=ier) crys%ref_layer_a, crys%ref_layer_b
+                 !read(unit=txt,fmt=*, iostat=ier) ref_glb(15:16)
+                 ref_glb(15:16)=[crys%ref_layer_a, crys%ref_layer_b]
                    if(ier /= 0) then
                      Err_crys=.true.
                      Err_crys_mess="ERROR reading the refinement codes of layer width parameters"
@@ -1102,6 +1114,9 @@
             !reading refinement codes
             read (unit = txt, fmt =*, iostat=ier) crys%ref_a_pos(1, d(r),r), crys%ref_a_pos(2, d(r),r), &
                                                   crys%ref_a_pos(3, d(r),r), crys%ref_a_B(d(r),r), crys%ref_a_occup(d(r),r)
+            !read(unit=txt,fmt=*, iostat=ier) ref_atom(1:5,d(r),r)
+            ref_atom(1:5,d(r),r)=[crys%ref_a_pos(1, d(r),r), crys%ref_a_pos(2, d(r),r), &
+                                 crys%ref_a_pos(3, d(r),r), crys%ref_a_B(d(r),r), crys%ref_a_occup(d(r),r)]
             if(ier /= 0) then
                    Err_crys=.true.
                    Err_crys_mess="ERROR reading atomic parameters refinement codes"
@@ -1348,6 +1363,8 @@
               txt=adjustl(tfile(i))
               !Reading refinement codes
               read(unit=txt,fmt=*, iostat=ier) crys%ref_l_cnt
+              !read(unit=txt,fmt=*, iostat=ier) ref_glb(17)
+              ref_glb(17)=crys%ref_l_cnt
               if(ier /= 0) then
                 Err_crys=.true.
                 Err_crys_mess="ERROR reading the refinement codes of the number of layers in the crystal"
@@ -1452,6 +1469,8 @@
             read (unit = txt, fmt =*, iostat = ier) crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l), &
                                                     crys%ref_l_r (2,j,l), crys%ref_l_r (3,j,l)
 
+            !read(unit=txt,fmt=*, iostat=ier) ref_trans(1:4, j, l)
+            ref_trans(1:4, j, l)=[crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l), crys%ref_l_r (2,j,l), crys%ref_l_r (3,j,l)]
 
             if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
                 np = np + 1    !to count npar
@@ -1507,8 +1526,10 @@
 
 
           CASE ("FW")
-            read (unit = txt, fmt =*, iostat = ier) crys%r_b11 (j,l) , crys%r_b22 (j,l) , crys%r_b33 (j,l) , &
-                                                    crys%r_b12 (j,l) , crys%r_b31 (j,l) , crys%r_b23 (j,l)
+            read (unit = txt, fmt =*, iostat = ier) crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
+                                                    crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)
+            !read(unit=txt,fmt=*, iostat=ier) ref_trans(5:10, j, l)
+            ref_trans(5:10, j, l)=[crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)]
 
             if(ier /= 0) then
               Err_crys=.true.
@@ -1831,6 +1852,8 @@
         Case("FILE")
 
             read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, crys%ref_patscal
+            !read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
+            ref_glb(1)=crys%ref_patscal
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
@@ -1892,6 +1915,8 @@
               i=i+1
               txt=adjustl(tfile(i))
               read (unit=txt,fmt=*,iostat=ier) crys%ref_chebp(1:crys%cheb_nump)
+              !read(unit=txt,fmt=*, iostat=ier)ref_glb(18:crys%cheb_nump)
+              ref_glb(18:crys%cheb_nump)=[crys%ref_chebp(1:crys%cheb_nump)]
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background Chebichev instruction"
@@ -1914,6 +1939,8 @@
             crys%bgrpatt=.true.
             m=m+1
             read(unit=txt,fmt=*,iostat=ier)  crys%bfilepat(m), crys%bscalpat(m), crys%ref_bscalpat(m)
+            !read(unit=txt,fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), ref_glb(17+crys%cheb_nump+1:17+crys%cheb_nump+crys%num_bgrpatt)
+            ref_glb(17+crys%cheb_nump+1:17+crys%cheb_nump+crys%num_bgrpatt)=[crys%ref_bscalpat(m)]
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background pattern instruction"
@@ -1929,6 +1956,8 @@
         End Select
         crys%num_bgrpatt=m
       end do
+
+      LGBL1=17+crys%cheb_nump+crys%num_bgrpatt
 
       if(ok_file .and. ok_fformat .and. ok_bgrnum .and. (ok_bgrinter .or. ok_bgrcheb .or. ok_bgrpatt) ) then
         return
@@ -2108,7 +2137,7 @@
         logical,          intent(out):: logi
         !Local variables
         logical :: esta
-        integer :: ier, a,b,l,j, i, n
+        integer :: ier, a,b,l,j, i, n, Lcode_max
 
         logi = .true.
         call Set_Crys()
@@ -2117,9 +2146,10 @@
         l = 0
         j = 0
 
-        lgbl=0;  ref_gbl=0.0
+        lglb=0;  ref_glb=0.0
         latom=0; ref_atom=0.0
         ltrans=0; ref_trans=0.0
+
 
 
         inquire(file=namef,exist=esta)
@@ -2216,442 +2246,384 @@
           end if
         end if
 
+        do i=1, np
+          write(*,*) "list ref codes", ref_glb(i)
+        end do
+
+        call Treat_codes(Lcode_max)
+        call Modify_codes(Lcode_max)
         return
       End subroutine  read_structure_file
 
       Subroutine Treat_codes(Lcode_max)
        integer, intent (out)     :: Lcode_max
-       integer                   :: n_pat, k, i, j, iyy, iof,iom,nd, jend
-       real(kind=cp)             :: x
-       integer, dimension(npatt) :: patfas
-       logical                   :: chir
+       integer                   :: k, i, j, iyy
+!      real(kind=cp)             :: x
+!      integer, dimension(npatt) :: patfas
+!      logical                   :: chir
+!
+!       Lcode_max=0
+!       !Instrumental aberrations
 
-        Lcode_max=0
-        !Instrumental aberrations
-
-        do k=1,nphase
-          IF(k > 1) iof=iof+natom(k-1)
-
-          CALL Treat_atomcodes(k,natom(k),iof,Lcode_max,suppress(k)) !treat atom codes
-
-          DO i=1,nvk(k)  !Treatment of propagation vector codes
-            DO j=1,3
-              if(suppress(k)) avk(k,i,j)=0.0
-              x=avk(k,i,j)
-              iyy=INT(ABS(x)/10.0)
-              IF(iyy > MaxPARAM) GO TO 99996
-              if(iyy > Lcode_max) Lcode_max=iyy
-              lvk(k,i,j)=iyy
-              avk(k,i,j)=(ABS(x)-10.0*REAL(iyy))*sign(1.0_cp,x)
-              if( abs(valx(iyy)) <= 0.000001 .and. avk(k,i,j) > 0.0)  valx(iyy) = pvk(k,i,j)
-            END DO
-          END DO
-
-          if(nph_magdom(k) /= 0) then  !Treatment of magnetic domains
-            iom=nph_magdom(k)
-            nd=MagDom(iom)%nd
-            chir=MagDom(iom)%chir
-            jend=1
-            if(chir) then
-             jend=2
-             if(abs(MagDom(iom)%Mpop(2,nd)) > 0.0) MagDom(iom)%Mpop(2,nd) =0.0
-            else
-             MagDom(iom)%Mpop(2,1:nd) =0.0
-             if(abs(MagDom(iom)%Mpop(1,nd)) > 0.0) MagDom(iom)%Mpop(1,nd) =0.0
-            end if
-            do i=1,nd
-             do j=1,jend
-              x=MagDom(iom)%Mpop(j,i)
-              iyy=INT(ABS(x)/10.0)
-              IF(iyy > MaxPARAM) GO TO 99996
-              if(iyy > Lcode_max) Lcode_max=iyy
-              MagDom(iom)%Lpop(j,i)=iyy
-              MagDom(iom)%Mpop(j,i)=(ABS(x)-10.0*REAL(iyy))*sign(1.0_cp,x)
-              if( abs(valx(iyy)) <= 0.000001 .and. MagDom(iom)%Mpop(j,i) > 0.0)  valx(iyy) = MagDom(iom)%pop(j,i)
-             end do
-            end do
-          end if
-
+        do k=1, LGBL1
+           Lglb(k) =  int(abs(ref_glb(k)/10.0))  !ordinal
+           iyy= Lglb(k)
+           if(iyy > Lcode_max) Lcode_max=iyy
+           ref_glb(k) = ((abs(ref_glb(k))-(10.0*REAL(Lglb(k))))*SIGN(1.0,(ref_glb(k))))  !multiplicador
         end do
 
-        do n_pat=1,n_patt
-         do k=1,nphase
+        do k=1, crys%n_actual
+          do i=1, crys%l_n_atoms(k)
+            do j=1,5
+              Latom(j,i,k) = int(abs(ref_atom(j,i,k)/10.0))  !ordinal
+              iyy= Latom(j,i,k)
+              if(iyy > Lcode_max) Lcode_max=iyy
+              ref_atom(j,i,k) = ((abs(ref_atom(j,i,k))-(10.0*REAL(Latom(j,i,k))))*SIGN(1.0,(ref_atom(j,i,k))))  !multiplicador
+            end do
+          end do
+        end do
 
-          DO i=1,mpar
-            if(affpat(n_pat) == 0) apar(k,i,n_pat)=0.0
-            x=apar(k,i,n_pat)
-            iyy=INT(ABS(x)/10.0)
-            IF(iyy > MaxPARAM) GO TO 99996
-            if(iyy > Lcode_max) Lcode_max=iyy
-            lpar(k,i,n_pat)=iyy
-            apar(k,i,n_pat)=(ABS(x)-10.0*REAL(iyy))*sign(1.0_cp,x)
-            if( abs(valx(iyy)) <= 0.000001 .and. apar(k,i,n_pat) > 0.0)  valx(iyy) = par(k,i,n_pat)
-          END DO
+        do k=1, crys%n_typ
+          do i=1, crys%n_typ
+            do j=1, 10
+              Ltrans(j, i, k) = int(abs(ref_trans(j,i,k)/10.0))  !ordinal
+              iyy= Ltrans(j, i, k)
+              if(iyy > Lcode_max) Lcode_max=iyy
+              ref_trans(j, i, k) = ((abs(ref_trans(j,i,k))-(10.0*REAL(Ltrans(j, i, k))))*SIGN(1.0,(ref_trans(j,i,k))))  !multiplicador
+            end do
+          end do
+        end do
 
+        write(*,*) " Lcode_max", Lcode_max
 
-         end do ! k=1,nPhase
-
-          DO i=1,ngl
-            if(affpat(n_pat) == 0) aglb(i,n_pat)=0.0
-            x=aglb(i,n_pat)
-            iyy=INT(ABS(x)/10.0)
-            IF(iyy > MaxPARAM) GO TO 99996
-            if(iyy > Lcode_max) Lcode_max=iyy
-            lglb(i,n_pat)=iyy
-            aglb(i,n_pat)=(ABS(x)-10.0*REAL(iyy))*sign(1.0_cp,x)
-            if( abs(valx(iyy)) <= 0.000001 .and. aglb(i,n_pat) > 0.0)  valx(iyy) = glb(i,n_pat)
-          END DO
-
-        end do !n_pat=1,n_patt
-
-       return
-99996 ierr=100
-      message_text%nlines=2
-      write(message_text%txt(1),'(a,f12.2)')'                        Error in a code: ',x
-      write(message_text%txt(2),'(a,i4)') '    The maximum number of parameters is: ',MaxPARAM
-      return
       end Subroutine Treat_codes
+!
+ !     Subroutine Restore_Codes()
+!        !---- Local Variables ----!
+!        integer :: i, j, n, n_pat, iiphas,L, iom, nd
+!
 
-      Subroutine Restore_Codes()
-         !---- Local Variables ----!
-         integer :: i, j, n, n_pat, iiphas,L, iom, nd
 
-         n=0
-         do iiphas=1,nphase
-            n=n+natom(iiphas)
-         end do
 
-         do i=1,n
-            do j=1,nat_p
-               a(i,j)=sign(1.0_cp,a(i,j))*(real(10*lp(i,j))+abs(a(i,j)))
-               if (.not. automatic .and. lp(i,j)==0) a(i,j)=0.0
-            end do
-         end do
-
-         do i=1,nphase
-
-            do n_pat=1,n_patt
-               do j=1,mpar
-                  apar(i,j,n_pat)=sign(1.0_cp,apar(i,j,n_pat))*(real(10*lpar(i,j,n_pat))+abs(apar(i,j,n_pat)))
-                  if (.not. automatic .and. lpar(i,j,n_pat)==0) apar(i,j,n_pat)=0.0
-               end do
-            end do
-
-            do j=1,nvk(i)
-              avk(i,j,:)=sign(1.0_cp,avk(i,j,:))*(real(10*lvk(i,j,:))+ abs(avk(i,j,:)))
-              do l=1,3
-                if (.not. automatic .and. lvk(i,j,L)==0) avk(i,j,l)=0.0
-              end do
-            end do
-
-            if(nph_magdom(i) /= 0) then
-              iom=nph_magdom(i)
-              nd=MagDom(iom)%nd
-              do l=1,nd
-                do j=1,2
-                 MagDom(iom)%Mpop(j,l) = sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(real(10*MagDom(iom)%Lpop(j,l))+ &
-                                         abs(MagDom(iom)%Mpop(j,l)))
-                 if (.not. automatic .and. MagDom(iom)%Lpop(j,l)==0) MagDom(iom)%Mpop(j,l)=0.0
-                end do
-              end do
-            end if
-
-         end do
-
-         do n_pat=1,n_patt
-            do  j=1,ngl
-                aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(real(10*lglb(j,n_pat))+abs(aglb(j,n_pat)))
-                if (.not. automatic .and. lglb(j,n_pat)==0) aglb(j,n_pat)=0.0
-            end do
-         end do
-
-         code_splitted=.false.
-         return
-      End Subroutine Restore_Codes
-      Subroutine Modify_codes(Lcode_max)
+ !-------------------------------------------------------------------------------------------------------
+!        n=0
+!        do iiphas=1,nphase
+!           n=n+natom(iiphas)
+!        end do
+!
+!        do i=1,n
+!           do j=1,nat_p
+!              a(i,j)=sign(1.0_cp,a(i,j))*(real(10*lp(i,j))+abs(a(i,j)))
+!              if (.not. automatic .and. lp(i,j)==0) a(i,j)=0.0
+!           end do
+!        end do
+!
+!        do i=1,nphase
+!
+!           do n_pat=1,n_patt
+!              do j=1,mpar
+!                 apar(i,j,n_pat)=sign(1.0_cp,apar(i,j,n_pat))*(real(10*lpar(i,j,n_pat))+abs(apar(i,j,n_pat)))
+!                 if (.not. automatic .and. lpar(i,j,n_pat)==0) apar(i,j,n_pat)=0.0
+!              end do
+!           end do
+!
+!           do j=1,nvk(i)
+!             avk(i,j,:)=sign(1.0_cp,avk(i,j,:))*(real(10*lvk(i,j,:))+ abs(avk(i,j,:)))
+!             do l=1,3
+!               if (.not. automatic .and. lvk(i,j,L)==0) avk(i,j,l)=0.0
+!             end do
+!           end do
+!
+!           if(nph_magdom(i) /= 0) then
+!             iom=nph_magdom(i)
+!             nd=MagDom(iom)%nd
+!             do l=1,nd
+!               do j=1,2
+!                MagDom(iom)%Mpop(j,l) = sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(real(10*MagDom(iom)%Lpop(j,l))+ &
+!                                        abs(MagDom(iom)%Mpop(j,l)))
+!                if (.not. automatic .and. MagDom(iom)%Lpop(j,l)==0) MagDom(iom)%Mpop(j,l)=0.0
+!               end do
+!             end do
+!           end if
+!
+!        end do
+!
+!        do n_pat=1,n_patt
+!           do  j=1,ngl
+!               aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(real(10*lglb(j,n_pat))+abs(aglb(j,n_pat)))
+!               if (.not. automatic .and. lglb(j,n_pat)==0) aglb(j,n_pat)=0.0
+!           end do
+!        end do
+!
+!        code_splitted=.false.
+!        return
+!     End Subroutine Restore_Codes
+     Subroutine Modify_codes(Lcode_max)
        integer, intent (in out) :: Lcode_max
        integer                  :: n_pat, k, l , kk, i, j, iof, n_given,  &
                                    n_att, ndisp, nn, ni, ndispm,iom,nd
        integer, dimension(Lcode_max) :: disp
        real(kind=cp), parameter      :: e=0.001
-
-
+!
+!
 !  Check correlated parameters and already used codes
-
-      ndisp=0
-      n_given=0
-      disp(:)=0
+!
+     ndisp=0
+     n_given=0
+     disp(:)=0
 ! First Pass
-      DO i=1, Lcode_max
+      DO l=1, Lcode_max
+!
+        ni=0
+        do k=1, LGBL1
+          IF (l == Lglb(k)) ni=ni+1
+        end do
 
-       ni=0
-       do n_pat=1,n_patt
-        DO j =1,ngl
-          IF (i == lglb(j,n_pat)) ni=ni+1
-        END DO
-       end do
-
-        iof=0
-        DO k=1,nphase
-          IF(k > 1) iof=iof+natom(k-1)
-
-          do n_pat=1,n_patt
-           DO j=1,mpar
-            IF(i == lpar(k,j,n_pat)) ni=ni+1
-           END DO
-          end do !n_pat=1,n_patt
-
-          DO l=1,nvk(k)
-            DO j=1,3
-              IF(i == lvk(k,l,j)) ni=ni+1
-            END DO
-          END DO
-
-          if(nph_magdom(k) /= 0) then
-            iom=nph_magdom(k)
-            nd=MagDom(iom)%nd
-            do l=1,nd
-             do j=1,2
-              if( i == MagDom(iom)%Lpop(j,l) ) ni=ni+1
-             end do
+        do k=1, crys%n_actual
+          do i=1, crys%l_n_atoms(k)
+            do j=1,5
+              IF (l == Latom(j,i,k)) ni=ni+1
             end do
-          end if
+          end do
+        end do
 
-          DO kk=1,natom(k)
-            DO j=1,nat_p
-              IF(i == lp(iof+kk,j)) ni=ni+1
-            END DO
-          END DO
-
-        END DO     !Phase k
+        do k=1, crys%n_typ
+          do i=1, crys%n_typ
+            do j=1, 10
+              IF (l == Ltrans(j, i, k)) ni=ni+1
+            end do
+          end do
+        end do
 
         if(ni==0) then
           ndisp=ndisp+1  !number of disponible codes
-          disp(ndisp)=i  !disponible code number
+          disp(ndisp)=l  !disponible code number
         else
           n_given=n_given+1  !number of given codes
         end if
+!
+     END DO !=1,Lcode_max
 
-      END DO !=1,Lcode_max
-
-      !if(ndisp == 0 .and. Lcode_max >= maxs) return  !all codes have been attributed
-
-      !
-      ! Attributing numbers to parameters (not already attributed) with multipliers
-      ! different from zero. First the attribution is taken from the vector disp() and
-      ! continued, after finishing the disponible codes, from Lcode_max+1, ...
-      ! If after attributing the codes ndisp /=0, then a displacement of all parameters
-      ! is done and the maximum number of parameters to be refined is diminished by
-      ! ndisp
-      !
-       ndispm=ndisp !number of disponible codes before attributing code numbers
-       ni=0
-       nn=Lcode_max
-       n_att=0
-      ! Test Global Parameters
-       do n_pat=1,n_patt
-        DO j =1,ngl
-          IF (abs(aglb(j,n_pat)) > e .and. lglb(j,n_pat) == 0 ) then
-            if(abs(aglb(j,n_pat)) > 1.001) then
-               aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(abs(aglb(j,n_pat))-1.0)
-            end if
-            if(ndisp==0) then
-              nn=nn+1
-              lglb(j,n_pat)=nn
-              valx(nn) = glb(j,n_pat)
-              n_att=n_att+1
-            else
-              ni=ni+1
-              lglb(j,n_pat)=disp(ni)
-              valx(disp(ni)) = glb(j,n_pat)
-              n_att=n_att+1
-              ndisp=ndisp-1
-            end if
-
-          END IF
-        END DO
-       end do !n_pat=1,n_patt
-
-        ! Test Phase Parameters
-        iof=0
-        DO k=1,nphase
-          IF(k > 1) iof=iof+natom(k-1)
-          ! Test Profile and further Parameters
-          do n_pat=1,n_patt
-           DO j=1,mpar
-            IF(abs(apar(k,j,n_pat)) > e .and. lpar(k,j,n_pat) == 0) then
-            if(abs(apar(k,j,n_pat)) > 1.001) then
-               apar(k,j,n_pat)=sign(1.0_cp,apar(k,j,n_pat))*(abs(apar(k,j,n_pat))-1.0)
-            end if
-            if(ndisp == 0) then
-              nn=nn+1
-              lpar(k,j,n_pat)=nn
-              valx(nn) = par(k,j,n_pat)
-              n_att=n_att+1
-            else
-              ni=ni+1
-              lpar(k,j,n_pat)=disp(ni)
-              valx(disp(ni)) = par(k,j,n_pat)
-              ndisp=ndisp-1
-              n_att=n_att+1
-            end if
-            END IF
-           END DO
-          end do !n_pat=1,n_patt
-
-          ! Test propagation vector Parameters
-
-          DO l=1,nvk(k)
-            DO j=1,3
-             IF(abs(avk(k,l,j)) > e .and. lvk(k,l,j) == 0) then
-              if(abs(avk(k,l,j)) > 1.001) then
-                avk(k,l,j)=sign(1.0_cp,avk(k,l,j))*(abs(avk(k,l,j))-1.0)
-              end if
-              if(ndisp == 0) then
-               nn=nn+1
-               lvk(k,l,j)=nn
-               valx(nn) = pvk(k,l,j)
-               n_att=n_att+1
-              else
-               ni=ni+1
-               lvk(k,l,j)=disp(ni)
-               valx(disp(ni)) = pvk(k,l,j)
-               ndisp=ndisp-1
-               n_att=n_att+1
-              end if
-             END IF
-            END DO
-          END DO
-          ! Test magnetic domain Parameters
-          if(nph_magdom(k) /= 0) then
-            iom=nph_magdom(k)
-            nd=MagDom(iom)%nd
-            DO l=1,nd
-              DO j=1,2
-               IF(abs(MagDom(iom)%Mpop(j,l)) > e .and. MagDom(iom)%Lpop(j,l) == 0) then
-                if(abs(MagDom(iom)%Mpop(j,l)) > 1.001) then
-                  MagDom(iom)%Mpop(j,l)=sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(abs(MagDom(iom)%Mpop(j,l))-1.0)
-                end if
-                if(ndisp == 0) then
-                 nn=nn+1
-                 MagDom(iom)%Lpop(j,l)=nn
-                 valx(nn) = MagDom(iom)%pop(j,l)
-                 n_att=n_att+1
-                else
-                 ni=ni+1
-                 MagDom(iom)%Lpop(j,l)=disp(ni)
-                 valx(disp(ni)) = MagDom(iom)%pop(j,l)
-                 ndisp=ndisp-1
-                 n_att=n_att+1
-                end if
-               END IF
-              END DO
-            END DO
-          End if
-          ! Test Atom Parameters
-
-          DO kk=1,natom(k)
-            DO j=1,nat_p
-              IF(i == lp(iof+kk,j)) ni=ni+1
-             IF(abs(a(iof+kk,j)) > e .and. lp(iof+kk,j) == 0) then
-              if(abs(a(iof+kk,j)) > 1.001) then
-                a(iof+kk,j)=sign(1.0_cp,a(iof+kk,j))*(abs(a(iof+kk,j))-1.0)
-              end if
-              if(ndisp == 0) then
-                nn=nn+1
-                lp(iof+kk,j)=nn
-                valx(nn) = xl(iof+kk,j)
-                n_att=n_att+1
-               else
-                ni=ni+1
-                lp(iof+kk,j)=disp(ni)
-                valx(disp(ni)) = xl(iof+kk,j)
-                ndisp=ndisp-1
-                n_att=n_att+1
-               end if
-             END IF
-            END DO
-          END DO
-
-        END DO     !Phase k
-        if(ndisp == 0) then
-          maxs=nn
-          return  !all parameters have been attributed
-        end if
-
-        maxs=n_given+n_att    !Number of refined parameters (given + attributed)
-
-        ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
-
-      n_att=ndispm-ndisp+1
-
-
-      DO i=Lcode_max, maxs+1,-1
-       nn=0
-       do n_pat=1,n_patt
-        DO j =1,ngl
-          IF (i == lglb(j,n_pat)) then
-            lglb(j,n_pat)=disp(n_att)
-            if(aglb(j,n_pat) > 0.0 ) valx(lglb(j,n_pat))=glb(j,n_pat)
-            nn=nn+1
-          end if
-        END DO
-       end do  !n_pat=1,n_patt
-
-        iof=0
-        DO k=1,nphase
-          IF(k > 1) iof=iof+natom(k-1)
-
-          do n_pat=1,n_patt
-           DO j=1,mpar
-            IF(i == lpar(k,j,n_pat)) then
-                lpar(k,j,n_pat)=disp(n_att)
-                if(apar(k,j,n_pat) > 0.0 ) valx(lpar(k,j,n_pat))=par(k,j,n_pat)
-                nn=nn+1
-            end if
-           END DO
-          end do  !n_pat=1,n_patt
-
-          DO l=1,nvk(k)
-            DO j=1,3
-              IF(i == lvk(k,l,j)) then
-                lvk(k,l,j)=disp(n_att)
-                if(avk(k,l,j) > 0.0 ) valx(lvk(k,l,j)) = pvk(k,l,j)
-                nn=nn+1
-              end if
-            END DO
-          END DO
-
-          if(nph_magdom(k) /= 0) then
-            iom=nph_magdom(k)
-            nd=MagDom(iom)%nd
-            DO l=1,nd
-              DO j=1,2
-              IF(i == MagDom(iom)%Lpop(j,l)) then
-                MagDom(iom)%Lpop(j,l)=disp(n_att)
-                if(MagDom(iom)%Mpop(j,l) > 0.0 ) valx(disp(n_att)) = MagDom(iom)%pop(j,l)
-                nn=nn+1
-              end if
-              END DO
-            END DO
-          end if
-
-          DO kk=1,natom(k)
-            DO j=1,nat_p
-              IF(i == lp(iof+kk,j)) then
-                lp(iof+kk,j)=disp(n_att)
-                if(a(iof+kk,j) > 0.0 ) valx(lp(iof+kk,j)) = xl(iof+kk,j)
-                nn=nn+1
-              end if
-            END DO
-          END DO
-
-        END DO     !Phase k
-        if(nn == 0) cycle
-        n_att=n_att+1
-        if(n_att > ndispm) return !exit
-      END DO !i=Lcode_max,maxs+1,-1
-      return
-      end Subroutine Modify_codes
+     write(*,*)"ndisp, n_given , disp", ndisp, n_given , disp(1:ndisp)
+!
+     if(ndisp == 0) return  !all codes have been attributed
+!
+!     !
+!     ! Attributing numbers to parameters (not already attributed) with multipliers
+!     ! different from zero. First the attribution is taken from the vector disp() and
+!     ! continued, after finishing the disponible codes, from Lcode_max+1, ...
+!     ! If after attributing the codes ndisp /=0, then a displacement of all parameters
+!     ! is done and the maximum number of parameters to be refined is diminished by
+!     ! ndisp
+!     !
+!      ndispm=ndisp !number of disponible codes before attributing code numbers
+!      ni=0
+!      nn=Lcode_max
+!      n_att=0
+!     ! Test Global Parameters
+!      do n_pat=1,n_patt
+!       DO j =1,ngl
+!         IF (abs(aglb(j,n_pat)) > e .and. lglb(j,n_pat) == 0 ) then
+!           if(abs(aglb(j,n_pat)) > 1.001) then
+!              aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(abs(aglb(j,n_pat))-1.0)
+!           end if
+!           if(ndisp==0) then
+!             nn=nn+1
+!             lglb(j,n_pat)=nn
+!             valx(nn) = glb(j,n_pat)
+!             n_att=n_att+1
+!           else
+!             ni=ni+1
+!             lglb(j,n_pat)=disp(ni)
+!             valx(disp(ni)) = glb(j,n_pat)
+!             n_att=n_att+1
+!             ndisp=ndisp-1
+!           end if
+!
+!         END IF
+!       END DO
+!      end do !n_pat=1,n_patt
+!
+!       ! Test Phase Parameters
+!       iof=0
+!       DO k=1,nphase
+!         IF(k > 1) iof=iof+natom(k-1)
+!         ! Test Profile and further Parameters
+!         do n_pat=1,n_patt
+!          DO j=1,mpar
+!           IF(abs(apar(k,j,n_pat)) > e .and. lpar(k,j,n_pat) == 0) then
+!           if(abs(apar(k,j,n_pat)) > 1.001) then
+!              apar(k,j,n_pat)=sign(1.0_cp,apar(k,j,n_pat))*(abs(apar(k,j,n_pat))-1.0)
+!           end if
+!           if(ndisp == 0) then
+!             nn=nn+1
+!             lpar(k,j,n_pat)=nn
+!             valx(nn) = par(k,j,n_pat)
+!             n_att=n_att+1
+!           else
+!             ni=ni+1
+!             lpar(k,j,n_pat)=disp(ni)
+!             valx(disp(ni)) = par(k,j,n_pat)
+!             ndisp=ndisp-1
+!             n_att=n_att+1
+!           end if
+!           END IF
+!          END DO
+!         end do !n_pat=1,n_patt
+!
+!         ! Test propagation vector Parameters
+!
+!         DO l=1,nvk(k)
+!           DO j=1,3
+!            IF(abs(avk(k,l,j)) > e .and. lvk(k,l,j) == 0) then
+!             if(abs(avk(k,l,j)) > 1.001) then
+!               avk(k,l,j)=sign(1.0_cp,avk(k,l,j))*(abs(avk(k,l,j))-1.0)
+!             end if
+!             if(ndisp == 0) then
+!              nn=nn+1
+!              lvk(k,l,j)=nn
+!              valx(nn) = pvk(k,l,j)
+!              n_att=n_att+1
+!             else
+!              ni=ni+1
+!              lvk(k,l,j)=disp(ni)
+!              valx(disp(ni)) = pvk(k,l,j)
+!              ndisp=ndisp-1
+!              n_att=n_att+1
+!             end if
+!            END IF
+!           END DO
+!         END DO
+!         ! Test magnetic domain Parameters
+!         if(nph_magdom(k) /= 0) then
+!           iom=nph_magdom(k)
+!           nd=MagDom(iom)%nd
+!           DO l=1,nd
+!             DO j=1,2
+!              IF(abs(MagDom(iom)%Mpop(j,l)) > e .and. MagDom(iom)%Lpop(j,l) == 0) then
+!               if(abs(MagDom(iom)%Mpop(j,l)) > 1.001) then
+!                 MagDom(iom)%Mpop(j,l)=sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(abs(MagDom(iom)%Mpop(j,l))-1.0)
+!               end if
+!               if(ndisp == 0) then
+!                nn=nn+1
+!                MagDom(iom)%Lpop(j,l)=nn
+!                valx(nn) = MagDom(iom)%pop(j,l)
+!                n_att=n_att+1
+!               else
+!                ni=ni+1
+!                MagDom(iom)%Lpop(j,l)=disp(ni)
+!                valx(disp(ni)) = MagDom(iom)%pop(j,l)
+!                ndisp=ndisp-1
+!                n_att=n_att+1
+!               end if
+!              END IF
+!             END DO
+!           END DO
+!         End if
+!         ! Test Atom Parameters
+!
+!         DO kk=1,natom(k)
+!           DO j=1,nat_p
+!             IF(i == lp(iof+kk,j)) ni=ni+1
+!            IF(abs(a(iof+kk,j)) > e .and. lp(iof+kk,j) == 0) then
+!             if(abs(a(iof+kk,j)) > 1.001) then
+!               a(iof+kk,j)=sign(1.0_cp,a(iof+kk,j))*(abs(a(iof+kk,j))-1.0)
+!             end if
+!             if(ndisp == 0) then
+!               nn=nn+1
+!               lp(iof+kk,j)=nn
+!               valx(nn) = xl(iof+kk,j)
+!               n_att=n_att+1
+!              else
+!               ni=ni+1
+!               lp(iof+kk,j)=disp(ni)
+!               valx(disp(ni)) = xl(iof+kk,j)
+!               ndisp=ndisp-1
+!               n_att=n_att+1
+!              end if
+!            END IF
+!           END DO
+!         END DO
+!
+!       END DO     !Phase k
+!       if(ndisp == 0) then
+!         maxs=nn
+!         return  !all parameters have been attributed
+!       end if
+!
+!       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
+!
+!       ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
+!
+!     n_att=ndispm-ndisp+1
+!
+!
+!     DO i=Lcode_max, maxs+1,-1
+!      nn=0
+!      do n_pat=1,n_patt
+!       DO j =1,ngl
+!         IF (i == lglb(j,n_pat)) then
+!           lglb(j,n_pat)=disp(n_att)
+!           if(aglb(j,n_pat) > 0.0 ) valx(lglb(j,n_pat))=glb(j,n_pat)
+!           nn=nn+1
+!         end if
+!       END DO
+!      end do  !n_pat=1,n_patt
+!
+!       iof=0
+!       DO k=1,nphase
+!         IF(k > 1) iof=iof+natom(k-1)
+!
+!         do n_pat=1,n_patt
+!          DO j=1,mpar
+!           IF(i == lpar(k,j,n_pat)) then
+!               lpar(k,j,n_pat)=disp(n_att)
+!               if(apar(k,j,n_pat) > 0.0 ) valx(lpar(k,j,n_pat))=par(k,j,n_pat)
+!               nn=nn+1
+!           end if
+!          END DO
+!         end do  !n_pat=1,n_patt
+!
+!         DO l=1,nvk(k)
+!           DO j=1,3
+!             IF(i == lvk(k,l,j)) then
+!               lvk(k,l,j)=disp(n_att)
+!               if(avk(k,l,j) > 0.0 ) valx(lvk(k,l,j)) = pvk(k,l,j)
+!               nn=nn+1
+!             end if
+!           END DO
+!         END DO
+!
+!         if(nph_magdom(k) /= 0) then
+!           iom=nph_magdom(k)
+!           nd=MagDom(iom)%nd
+!           DO l=1,nd
+!             DO j=1,2
+!             IF(i == MagDom(iom)%Lpop(j,l)) then
+!               MagDom(iom)%Lpop(j,l)=disp(n_att)
+!               if(MagDom(iom)%Mpop(j,l) > 0.0 ) valx(disp(n_att)) = MagDom(iom)%pop(j,l)
+!               nn=nn+1
+!             end if
+!             END DO
+!           END DO
+!         end if
+!
+!         DO kk=1,natom(k)
+!           DO j=1,nat_p
+!             IF(i == lp(iof+kk,j)) then
+!               lp(iof+kk,j)=disp(n_att)
+!               if(a(iof+kk,j) > 0.0 ) valx(lp(iof+kk,j)) = xl(iof+kk,j)
+!               nn=nn+1
+!             end if
+!           END DO
+!         END DO
+!
+!       END DO     !Phase k
+!       if(nn == 0) cycle
+!       n_att=n_att+1
+!       if(n_att > ndispm) return !exit
+!     END DO !i=Lcode_max,maxs+1,-1
+!     return
+     end Subroutine Modify_codes
 
     End module read_data

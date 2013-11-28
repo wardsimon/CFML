@@ -17,15 +17,15 @@ gamma            14
 Wa               15
 Wb               16
 Number_layers    17
-Scale_Factor(1)  18
-Scale_Factor(2)  19
-..............
-Scale_Factor(n)  17+NbgrPat = LGBL1
-Cheb_coeff(1)    LGBL1+1
+
+Cheb_coeff(1)    18
 ............
 
-Cheb_coeff(nc)   LGBL2=17+NbgrPat+nc    nc: number of Chebychev coefficients
+Cheb_coeff(nc)   LGBL1=18+nc    nc: number of Chebychev coefficients
+Scale_Factor(1)  LGBL1+1
 
+..............
+Scale_Factor(n)  17+NbgrPat+nc = LGBL1
 
 
 
