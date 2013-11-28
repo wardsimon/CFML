@@ -268,7 +268,7 @@
           do b=1, n_layers
             write(i_ftls,"(a)")              "  "
             if (fundamental(b) .eqv. .false.) then
-              write(i_ftls,"(a,i2,a,i2)") "LAYER",b," =", original(b)
+              write(i_ftls,"(a,i2,a,i2)") " LAYER",b," =", original(b)
             else
               c=c+1
               write(i_ftls,"(a, i2)")  " LAYER", b
@@ -358,8 +358,8 @@
           if(opt == 3 .or. opt == 4) then
             write(i_ftls,"(a)")              "  "
             write(i_ftls,"(a)")          " EXPERIMENTAL"
-            write(i_ftls,"(a)")          "!     Filename              Scale factor    code"
-            write(i_ftls,"(2a, g14.4,f14.2)")         " FILE  ", dfile, crys%patscal, crys%ref_patscal
+            write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
+            write(i_ftls,"(2a, g14.4,f9.2)")         " FILE  ", dfile, crys%patscal, crys%ref_patscal
             if (nexcrg /= 0) then
               write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
               do i=1,nexcrg
@@ -368,18 +368,26 @@
 
             end if
             write(i_ftls,"(2a)")         " FFORMAT  ",fmode
-            write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%bgr_num
-            if (crys%bgrpatt) then
-              do i=1, crys%num_bgrpatt
-                write(i_ftls,"(2a, 2f10.2)")         " BGRPATT    ", crys%bfilepat(i), crys%bscalpat(i), crys%ref_bscalpat(i)
-              end do
-            else if (crys%bgrinter) then
+            if (crys%bgrinter) then
+              write(i_ftls,"(a)")"!Linear interpolation"
               write(i_ftls,"(2a)")         " BGRINTER    ", background_file
-            else if (crys%bgrcheb) then
-              write(i_ftls,"(a, i2)")         " BGRCHEB     ", crys%cheb_nump
+            end if
+            if (crys%bgrcheb) then
+              write(i_ftls,"(a)") "!Polynomial  Number of coefficients"
+              write(i_ftls,"(a, i2)")         " BGRCHEB          ", crys%cheb_nump
+              write(i_ftls,"(a)") "!Polynomial coefficients"
               write(i_ftls,*)  crys%chebp(1:crys%cheb_nump)
               write(i_ftls,*)  crys%ref_chebp(1:crys%cheb_nump)
             end if
+            if (crys%bgrpatt) then
+              write(i_ftls,"(a)")  "!number of pattern backgrounds"
+              write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%num_bgrpatt
+              do i=1, crys%num_bgrpatt
+                write(i_ftls,"(a)") "!Pattern file   Filename   Scale factor  code"
+                write(i_ftls,"(a, 2f10.2)")         " BGRPATT    "//crys%bfilepat(i), crys%bscalpat(i), crys%ref_bscalpat(i)
+              end do
+            end if
+
           end if
 
           return

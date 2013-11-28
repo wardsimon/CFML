@@ -51,8 +51,7 @@
          integer             :: init_config    ! flag to randomly initialaze SAN configuration if = 1.
          integer             :: yy             !max number of atoms per layer
          integer             :: n_seq          !number of semirandom sequences
-         integer             :: bgr_num        !number of backgrounds
-         integer             :: max_bgr_num=10
+         integer             :: max_bgr_num=10 !maximum number of pattern backgrounds
          integer             :: num_bgrpatt
          integer             :: cheb_nump      !number of parameters in cheb polynomial
          logical             :: recrsv         !layer sequencing recursive
@@ -1794,7 +1793,7 @@
       integer :: i,i1,i2,k,j, ier, m
       character(len=132) :: txt
       character(len=25)  :: key
-      logical :: ok_file, ok_fformat, ok_bgr, ok_bcalc, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt
+      logical :: ok_file, ok_fformat, ok_bgrnum, ok_bgrinter, ok_bgrcheb, ok_bgrpatt
 
       logi=.true.
       i1=sect_indx(8)
@@ -1803,7 +1802,7 @@
       i=i1
       m=0
 
-      ok_file=.false.; ok_fformat=.false.; ok_bgrnum=.false.; ok_bgr=.false. ; ok_bcalc=.false.
+      ok_file=.false.; ok_fformat=.false.; ok_bgrnum=.false.
       ok_bgrinter=.false.; ok_bgrcheb=.false.; ok_bgrpatt=.false.
       crys%bgrpatt=.false.; crys%bgrinter=.false.; crys%bgrcheb=.false.
       do
@@ -1860,15 +1859,6 @@
               end if
               ok_fformat=.true.
 
-          Case("BGRNUM")
-            read(unit=txt,fmt=*,iostat=ier)  crys%bgr_num
-              if(ier /= 0 ) then
-                  Err_crys=.true.
-                  Err_crys_mess="ERROR reading number of backgrounds"
-                  logi=.false.
-                  return
-              end if
-              ok_bgrnum=.true.
 
           Case("BGRINTER")
             crys%bgrinter=.true.
@@ -1885,9 +1875,11 @@
           Case("BGRCHEB")
               crys%bgrcheb=.true.
               read(unit=txt,fmt=*,iostat=ier)  crys%cheb_nump
-              txt=adjustl(txt(k+1:))
+              i=i+1
+              txt=adjustl(tfile(i))
               read (unit=txt,fmt=*,iostat=ier) crys%chebp(1:crys%cheb_nump)
-              txt=adjustl(txt(k+1:))
+              i=i+1
+              txt=adjustl(tfile(i))
               read (unit=txt,fmt=*,iostat=ier) crys%ref_chebp(1:crys%cheb_nump)
               if(ier /= 0 ) then
                   Err_crys=.true.
@@ -1896,6 +1888,16 @@
                   return
               end if
               ok_bgrcheb=.true.
+
+          Case("BGRNUM")
+            read(unit=txt,fmt=*,iostat=ier)  crys%num_bgrpatt
+              if(ier /= 0 ) then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading number of pattern backgrounds"
+                  logi=.false.
+                  return
+              end if
+              ok_bgrnum=.true.
 
           Case("BGRPATT")
             crys%bgrpatt=.true.
@@ -1909,17 +1911,6 @@
               end if
               ok_bgrpatt=.true.
 
-    !!    Case("BCALC")
-    !!      read (unit = txt, fmt = *, iostat=ier) mode
-    !!        if(ier /= 0 ) then
-    !!            Err_crys=.true.
-    !!            Err_crys_mess="ERROR reading background calculation instruction"
-    !!            logi=.false.
-    !!            return
-    !!        end if
-    !!        ok_bcalc=.true.
-
-
           Case Default
 
              cycle
@@ -1928,7 +1919,7 @@
         crys%num_bgrpatt=m
       end do
 
-      if(ok_file .and. ok_fformat .and. ok_bgr .and. ok_bcalc) then
+      if(ok_file .and. ok_fformat .and. ok_bgrnum .and. (ok_bgrinter .or. ok_bgrcheb .or. ok_bgrpatt) ) then
         return
       else
         Err_crys=.true.
@@ -2206,15 +2197,6 @@
           if(.not. logi) then
             write(*,"(a)")  " => "//Err_crys_mess
             return
-          else
-            if (th2_min == 0 .and.  th2_max == 0 .and. d_theta == 0) then
-              write(*,"(a)") " => File name: "//trim(dfile)
-            else
-              write(*,"(2a,3f8.5)") " => File parameters:", dfile , th2_min, th2_max, d_theta
-            end if
-            write(*, "(2a)") " => File format: ", fmode
-            !write(*, "(2a)") " => Background file name: ", background_file
-            !write(*, "(2a)") " => Background calculation type: ", mode
           end if
         end if
 

@@ -115,15 +115,25 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
  LMQ
  BOXP 1.0
  CORRMAX      30
- MAXFUN       650
+ MAXFUN       50
  TOL         0.00001
  Nprint      0
 
  EXPERIMENTAL
- FILE  SIMULATION1.DAT
+ !     Filename              Scale factor    code
+ FILE  SIMULATION1.DAT           1.0          0.0
  EXCLUDED_REGIONS   2
     0.0000   8.0000
   135.0000  180.0000
  FFORMAT  FREE
- BGR  SIM.BGR
- BCALC  INTERPOLATION
+  !Linear interpolation
+ BGRINTER SIM.BGR
+ !Number of polynomial coefficients
+ BGRCHEB  5
+ !polynomial coefficients
+ 1.0 1.0 1.0 1.0 1.0
+ 0.0 0.0 0.0 0.0 0.0
+ !number of pattern backgrounds
+ BGRNUM   1
+ !Pattern file   Filename   Scale factor  code
+ BGRPATT   pat.dat 1.0 0.0
