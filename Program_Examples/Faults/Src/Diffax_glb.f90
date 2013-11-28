@@ -363,7 +363,7 @@
 
  CHARACTER (LEN=31)    :: infile, outfile
 
- character (len=15), dimension(max_npar):: namepar
+ character (len=20), dimension(max_npar):: namepar
  character (len = 20)                   :: dfile, fmode  ! name of diffraction pattern file, file mode as in  winplotr
  character (len = 20)                   :: background_file  !name of backfround file
  character (len=20)                     :: mode             ! calculation for background: polynomial or interpolation

@@ -13,14 +13,22 @@
 
        integer, parameter :: max_bgr_num=10 !maximum number of pattern backgrounds
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
-       integer            :: LGBL1=0  !number of global parameters
+       integer            :: LGBLT=0  !number of global parameters
        integer(kind=2), dimension(17+max_bgr_num+max_n_cheb) :: Lglb
        integer(kind=2), dimension(5,max_a,max_l)             :: Latom
        integer(kind=2), dimension(10,max_l,max_l)            :: Ltrans
+
        real,            dimension(17+max_bgr_num+max_n_cheb) :: ref_glb
        real,            dimension(5,max_a,max_l)             :: ref_atom
        real,            dimension(10,max_l,max_l)            :: ref_trans
 
+       real,            dimension(17+max_bgr_num+max_n_cheb) :: val_glb
+       real,            dimension(5,max_a,max_l)             :: val_atom
+       real,            dimension(10,max_l,max_l)            :: val_trans
+!                                                                  123456789012   123456789012
+       character(len=*),dimension(17),parameter :: names_glb = [ "Scale_Factor","zero_shift  ", &
+                                                                 "sycos       ","sysin       ", &
+                                                                 ...
 !      Declaration of diffraction_pattern_type
 
        Type,Public :: crys_2d_type
@@ -1957,7 +1965,7 @@
         crys%num_bgrpatt=m
       end do
 
-      LGBL1=17+crys%cheb_nump+crys%num_bgrpatt
+      LGBLT=17+crys%cheb_nump+crys%num_bgrpatt
 
       if(ok_file .and. ok_fformat .and. ok_bgrnum .and. (ok_bgrinter .or. ok_bgrcheb .or. ok_bgrpatt) ) then
         return
@@ -2245,11 +2253,6 @@
             return
           end if
         end if
-
-        do i=1, np
-          write(*,*) "list ref codes", ref_glb(i)
-        end do
-
         call Treat_codes(Lcode_max)
         call Modify_codes(Lcode_max)
         return
@@ -2265,7 +2268,7 @@
 !       Lcode_max=0
 !       !Instrumental aberrations
 
-        do k=1, LGBL1
+        do k=1, LGBLT
            Lglb(k) =  int(abs(ref_glb(k)/10.0))  !ordinal
            iyy= Lglb(k)
            if(iyy > Lcode_max) Lcode_max=iyy
@@ -2358,31 +2361,30 @@
 !        code_splitted=.false.
 !        return
 !     End Subroutine Restore_Codes
+
      Subroutine Modify_codes(Lcode_max)
        integer, intent (in out) :: Lcode_max
        integer                  :: n_pat, k, l , kk, i, j, iof, n_given,  &
-                                   n_att, ndisp, nn, ni, ndispm,iom,nd
+                                   n_att, ndisp, nn, ni, ndispm,iom,nd,maxs
        integer, dimension(Lcode_max) :: disp
        real(kind=cp), parameter      :: e=0.001
-!
-!
-!  Check correlated parameters and already used codes
-!
+     !
+     !  Check correlated parameters and already used codes
+     !
      ndisp=0
      n_given=0
      disp(:)=0
-! First Pass
-      DO l=1, Lcode_max
-!
+     ! First Pass
+      Do L=1, Lcode_max
         ni=0
-        do k=1, LGBL1
-          IF (l == Lglb(k)) ni=ni+1
+        do k=1, LGBLT
+          IF (L == Lglb(k)) ni=ni+1
         end do
 
         do k=1, crys%n_actual
           do i=1, crys%l_n_atoms(k)
             do j=1,5
-              IF (l == Latom(j,i,k)) ni=ni+1
+              IF (L == Latom(j,i,k)) ni=ni+1
             end do
           end do
         end do
@@ -2390,240 +2392,202 @@
         do k=1, crys%n_typ
           do i=1, crys%n_typ
             do j=1, 10
-              IF (l == Ltrans(j, i, k)) ni=ni+1
+              IF (L == Ltrans(j, i, k)) ni=ni+1
             end do
           end do
         end do
 
         if(ni==0) then
           ndisp=ndisp+1  !number of disponible codes
-          disp(ndisp)=l  !disponible code number
+          disp(ndisp)=L  !disponible code number
         else
           n_given=n_given+1  !number of given codes
         end if
 !
-     END DO !=1,Lcode_max
-
-     write(*,*)"ndisp, n_given , disp", ndisp, n_given , disp(1:ndisp)
+     End Do !=1,Lcode_max
 !
      if(ndisp == 0) return  !all codes have been attributed
-!
-!     !
-!     ! Attributing numbers to parameters (not already attributed) with multipliers
-!     ! different from zero. First the attribution is taken from the vector disp() and
-!     ! continued, after finishing the disponible codes, from Lcode_max+1, ...
-!     ! If after attributing the codes ndisp /=0, then a displacement of all parameters
-!     ! is done and the maximum number of parameters to be refined is diminished by
-!     ! ndisp
-!     !
-!      ndispm=ndisp !number of disponible codes before attributing code numbers
-!      ni=0
-!      nn=Lcode_max
-!      n_att=0
-!     ! Test Global Parameters
-!      do n_pat=1,n_patt
-!       DO j =1,ngl
-!         IF (abs(aglb(j,n_pat)) > e .and. lglb(j,n_pat) == 0 ) then
-!           if(abs(aglb(j,n_pat)) > 1.001) then
-!              aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(abs(aglb(j,n_pat))-1.0)
-!           end if
-!           if(ndisp==0) then
-!             nn=nn+1
-!             lglb(j,n_pat)=nn
-!             valx(nn) = glb(j,n_pat)
-!             n_att=n_att+1
-!           else
-!             ni=ni+1
-!             lglb(j,n_pat)=disp(ni)
-!             valx(disp(ni)) = glb(j,n_pat)
-!             n_att=n_att+1
-!             ndisp=ndisp-1
-!           end if
-!
-!         END IF
-!       END DO
-!      end do !n_pat=1,n_patt
-!
-!       ! Test Phase Parameters
-!       iof=0
-!       DO k=1,nphase
-!         IF(k > 1) iof=iof+natom(k-1)
-!         ! Test Profile and further Parameters
-!         do n_pat=1,n_patt
-!          DO j=1,mpar
-!           IF(abs(apar(k,j,n_pat)) > e .and. lpar(k,j,n_pat) == 0) then
-!           if(abs(apar(k,j,n_pat)) > 1.001) then
-!              apar(k,j,n_pat)=sign(1.0_cp,apar(k,j,n_pat))*(abs(apar(k,j,n_pat))-1.0)
-!           end if
-!           if(ndisp == 0) then
-!             nn=nn+1
-!             lpar(k,j,n_pat)=nn
-!             valx(nn) = par(k,j,n_pat)
-!             n_att=n_att+1
-!           else
-!             ni=ni+1
-!             lpar(k,j,n_pat)=disp(ni)
-!             valx(disp(ni)) = par(k,j,n_pat)
-!             ndisp=ndisp-1
-!             n_att=n_att+1
-!           end if
-!           END IF
-!          END DO
-!         end do !n_pat=1,n_patt
-!
-!         ! Test propagation vector Parameters
-!
-!         DO l=1,nvk(k)
-!           DO j=1,3
-!            IF(abs(avk(k,l,j)) > e .and. lvk(k,l,j) == 0) then
-!             if(abs(avk(k,l,j)) > 1.001) then
-!               avk(k,l,j)=sign(1.0_cp,avk(k,l,j))*(abs(avk(k,l,j))-1.0)
-!             end if
-!             if(ndisp == 0) then
-!              nn=nn+1
-!              lvk(k,l,j)=nn
-!              valx(nn) = pvk(k,l,j)
-!              n_att=n_att+1
-!             else
-!              ni=ni+1
-!              lvk(k,l,j)=disp(ni)
-!              valx(disp(ni)) = pvk(k,l,j)
-!              ndisp=ndisp-1
-!              n_att=n_att+1
-!             end if
-!            END IF
-!           END DO
-!         END DO
-!         ! Test magnetic domain Parameters
-!         if(nph_magdom(k) /= 0) then
-!           iom=nph_magdom(k)
-!           nd=MagDom(iom)%nd
-!           DO l=1,nd
-!             DO j=1,2
-!              IF(abs(MagDom(iom)%Mpop(j,l)) > e .and. MagDom(iom)%Lpop(j,l) == 0) then
-!               if(abs(MagDom(iom)%Mpop(j,l)) > 1.001) then
-!                 MagDom(iom)%Mpop(j,l)=sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(abs(MagDom(iom)%Mpop(j,l))-1.0)
-!               end if
-!               if(ndisp == 0) then
-!                nn=nn+1
-!                MagDom(iom)%Lpop(j,l)=nn
-!                valx(nn) = MagDom(iom)%pop(j,l)
-!                n_att=n_att+1
-!               else
-!                ni=ni+1
-!                MagDom(iom)%Lpop(j,l)=disp(ni)
-!                valx(disp(ni)) = MagDom(iom)%pop(j,l)
-!                ndisp=ndisp-1
-!                n_att=n_att+1
-!               end if
-!              END IF
-!             END DO
-!           END DO
-!         End if
-!         ! Test Atom Parameters
-!
-!         DO kk=1,natom(k)
-!           DO j=1,nat_p
-!             IF(i == lp(iof+kk,j)) ni=ni+1
-!            IF(abs(a(iof+kk,j)) > e .and. lp(iof+kk,j) == 0) then
-!             if(abs(a(iof+kk,j)) > 1.001) then
-!               a(iof+kk,j)=sign(1.0_cp,a(iof+kk,j))*(abs(a(iof+kk,j))-1.0)
-!             end if
-!             if(ndisp == 0) then
-!               nn=nn+1
-!               lp(iof+kk,j)=nn
-!               valx(nn) = xl(iof+kk,j)
-!               n_att=n_att+1
-!              else
-!               ni=ni+1
-!               lp(iof+kk,j)=disp(ni)
-!               valx(disp(ni)) = xl(iof+kk,j)
-!               ndisp=ndisp-1
-!               n_att=n_att+1
-!              end if
-!            END IF
-!           END DO
-!         END DO
-!
-!       END DO     !Phase k
-!       if(ndisp == 0) then
-!         maxs=nn
-!         return  !all parameters have been attributed
-!       end if
-!
-!       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
-!
-!       ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
-!
-!     n_att=ndispm-ndisp+1
-!
-!
-!     DO i=Lcode_max, maxs+1,-1
-!      nn=0
-!      do n_pat=1,n_patt
-!       DO j =1,ngl
-!         IF (i == lglb(j,n_pat)) then
-!           lglb(j,n_pat)=disp(n_att)
-!           if(aglb(j,n_pat) > 0.0 ) valx(lglb(j,n_pat))=glb(j,n_pat)
-!           nn=nn+1
-!         end if
-!       END DO
-!      end do  !n_pat=1,n_patt
-!
-!       iof=0
-!       DO k=1,nphase
-!         IF(k > 1) iof=iof+natom(k-1)
-!
-!         do n_pat=1,n_patt
-!          DO j=1,mpar
-!           IF(i == lpar(k,j,n_pat)) then
-!               lpar(k,j,n_pat)=disp(n_att)
-!               if(apar(k,j,n_pat) > 0.0 ) valx(lpar(k,j,n_pat))=par(k,j,n_pat)
-!               nn=nn+1
-!           end if
-!          END DO
-!         end do  !n_pat=1,n_patt
-!
-!         DO l=1,nvk(k)
-!           DO j=1,3
-!             IF(i == lvk(k,l,j)) then
-!               lvk(k,l,j)=disp(n_att)
-!               if(avk(k,l,j) > 0.0 ) valx(lvk(k,l,j)) = pvk(k,l,j)
-!               nn=nn+1
-!             end if
-!           END DO
-!         END DO
-!
-!         if(nph_magdom(k) /= 0) then
-!           iom=nph_magdom(k)
-!           nd=MagDom(iom)%nd
-!           DO l=1,nd
-!             DO j=1,2
-!             IF(i == MagDom(iom)%Lpop(j,l)) then
-!               MagDom(iom)%Lpop(j,l)=disp(n_att)
-!               if(MagDom(iom)%Mpop(j,l) > 0.0 ) valx(disp(n_att)) = MagDom(iom)%pop(j,l)
-!               nn=nn+1
-!             end if
-!             END DO
-!           END DO
-!         end if
-!
-!         DO kk=1,natom(k)
-!           DO j=1,nat_p
-!             IF(i == lp(iof+kk,j)) then
-!               lp(iof+kk,j)=disp(n_att)
-!               if(a(iof+kk,j) > 0.0 ) valx(lp(iof+kk,j)) = xl(iof+kk,j)
-!               nn=nn+1
-!             end if
-!           END DO
-!         END DO
-!
-!       END DO     !Phase k
-!       if(nn == 0) cycle
-!       n_att=n_att+1
-!       if(n_att > ndispm) return !exit
-!     END DO !i=Lcode_max,maxs+1,-1
-!     return
-     end Subroutine Modify_codes
+
+      !
+      ! Attributing numbers to parameters (not already attributed) with multipliers
+      ! different from zero. First the attribution is taken from the vector disp() and
+      ! continued, after finishing the disponible codes, from Lcode_max+1, ...
+      ! If after attributing the codes ndisp /=0, then a displacement of all parameters
+      ! is done and the maximum number of parameters to be refined is diminished by
+      ! ndisp
+      !
+      ndispm=ndisp !number of disponible codes before attributing code numbers
+      ni=0
+      nn=Lcode_max
+      n_att=0
+     ! Test Global Parameters
+       do j =1,LGBLT
+         if (abs(ref_glb(j)) > e .and. lglb(j) == 0 ) then
+           if(abs(ref_glb(j)) > 1.001) then
+              ref_glb(j)=sign(1.0_cp,ref_glb(j))*(abs(ref_glb(j))-1.0)
+           end if
+           if(ndisp==0) then
+             nn=nn+1
+             lglb(j)=nn
+             n_att=n_att+1
+           else
+             ni=ni+1
+             lglb(j)=disp(ni)
+             n_att=n_att+1
+             ndisp=ndisp-1
+           end if
+         end if
+       end do
+
+       ! Test Atom Parameters
+
+       do k=1, crys%n_actual
+         do i=1, crys%l_n_atoms(k)
+           do j=1,5
+              if(abs(ref_atom(j,i,k)) > e .and. Latom(j,i,k) == 0 ) then
+                if(abs(ref_atom(j,i,k)) > 1.001) then
+                   ref_atom(j,i,k)=sign(1.0_cp,ref_atom(j,i,k))*(abs(ref_atom(j,i,k))-1.0)
+                end if
+                if(ndisp==0) then
+                  nn=nn+1
+                  Latom(j,i,k)=nn
+                  n_att=n_att+1
+                else
+                  ni=ni+1
+                  Latom(j,i,k)=disp(ni)
+                  n_att=n_att+1
+                  ndisp=ndisp-1
+                end if
+              end if
+           end do
+         end do
+       end do
+
+       ! Test Transition Parameters
+
+       do k=1, crys%n_typ
+         do i=1, crys%n_typ
+           do j=1, 10
+              if(abs(ref_trans(j,i,k)) > e .and. Ltrans(j,i,k) == 0 ) then
+                if(abs(ref_trans(j,i,k)) > 1.001) then
+                   ref_trans(j,i,k)=sign(1.0_cp,ref_trans(j,i,k))*(abs(ref_trans(j,i,k))-1.0)
+                end if
+                if(ndisp==0) then
+                  nn=nn+1
+                  Ltrans(j,i,k)=nn
+                  n_att=n_att+1
+                else
+                  ni=ni+1
+                  Ltrans(j,i,k)=disp(ni)
+                  n_att=n_att+1
+                  ndisp=ndisp-1
+                end if
+              end if
+           end do
+         end do
+       end do
+
+       if(ndisp == 0) then
+         maxs=nn
+         return  !all parameters have been attributed
+       end if
+
+       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
+
+       ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
+
+     n_att=ndispm-ndisp+1
+
+
+     DO L=Lcode_max, maxs+1,-1
+      nn=0
+       do j =1,LGBLT
+         if (L == lglb(j)) then
+           lglb(j)=disp(n_att)
+           nn=nn+1
+         end if
+       end do
+
+       do k=1, crys%n_actual
+         do i=1, crys%l_n_atoms(k)
+           do j=1,5
+              if(L == Latom(j,i,k)) then
+                Latom(j,i,k)=disp(n_att)
+                nn=nn+1
+              end if
+           end do
+         end do
+       end do
+
+       do k=1, crys%n_typ
+         do i=1, crys%n_typ
+           do j=1, 10
+              if(L == Ltrans(j,i,k)) then
+                Ltrans(j,i,k)=disp(n_att)
+                nn=nn+1
+              end if
+           end do
+         end do
+       end do
+
+       if(nn == 0) cycle
+       n_att=n_att+1
+       if(n_att > ndispm) exit
+     END DO !i=Lcode_max,maxs+1,-1
+     Lcode_max=maxs
+     return
+     End Subroutine Modify_codes
+
+     Subroutine Update_all(Lcode_Max)
+
+     np=0
+     DO L=1,Lcode_max
+
+       do j =1,LGBLT
+         if (L == lglb(j)) then
+           np=np+1
+           crys%list(np)=val_glb(j)
+           crys%p(np)=lglb(j)
+           crys%Pv_refi(crys%p(np))=val_glb(j)
+           if(j <= 17) then
+              namepar(np) = names_glb(j)
+           else if (j> 17 .and. j <= 17+crys%cheb_nump ) then
+              write(namepar(np),"(a,i2.2)") "ChebCoeff_",j-17
+           else if (j> 17+crys%cheb_nump .and. j <= LGBLT ) then
+              write(namepar(np),"(a,i2.2)") "Bgk_Scale_",j-(17+crys%cheb_nump)
+           end if
+           vs%nampar(crys%p(np))=namepar(np)
+         end if
+       end do
+
+       do k=1, crys%n_actual
+         do i=1, crys%l_n_atoms(k)
+           do j=1,5
+              if(L == Latom(j,i,k)) then
+                Latom(j,i,k)=disp(n_att)
+                nn=nn+1
+              end if
+           end do
+         end do
+       end do
+
+       do k=1, crys%n_typ
+         do i=1, crys%n_typ
+           do j=1, 10
+              if(L == Ltrans(j,i,k)) then
+                Ltrans(j,i,k)=disp(n_att)
+                nn=nn+1
+              end if
+           end do
+         end do
+       end do
+
+       if(nn == 0) cycle
+       n_att=n_att+1
+       if(n_att > ndispm) exit
+     END DO !i=Lcode_max,maxs+1,-1
+
+
+     End Subroutine Update_all
 
     End module read_data
