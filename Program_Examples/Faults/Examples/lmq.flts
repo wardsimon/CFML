@@ -7,11 +7,11 @@ INSTRUMENTAL  AND  SIZE  BROADENING
  Aberrations    0.0000    0.0000    0.0000
                 .00      0.00      0.00
  PSEUDO-VOIGT   0.03637   -0.003558    0.227400    0.000000    490.00     459 TRIM
-                   11.00      0.00       0.00        0.00         .00      .00
+                    1.00      0.00       0.00        0.00         .00      .00
 
  STRUCTURAL
  CELL      3.128601    3.128601    4.613862      120.00
-         21.00     21.00     31.00      0.00
+         21.00     21.00      1.00      0.00
   SYMM  -3M
  NLAYERS   4
 LWIDTH  INFINITE

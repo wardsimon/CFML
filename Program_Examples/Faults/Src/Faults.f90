@@ -48,72 +48,72 @@
         do j=1, n_layers
           do k=1, n_atoms
             if (index (namepar(i) , 'pos_x' )== 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) a,b
                 a_pos(1,a,b)  = state(i) * pi2                         !need to invert conversion done by routine nmcoor (diffax_calc)
             end if
             if (index (namepar(i) ,'pos_y' )== 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) a,b
                 a_pos(2,a,b)  = state(i) * pi2
             end if
             if (index (namepar(i), 'pos_z' ) == 1 )   then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) a,b
                 a_pos(3,a,b)  = state(i) * pi2
             end if
             if (index (namepar(i),'Biso')==1) then
-                read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(5:8), fmt = "(2i2)" ) a,b
                 a_b(a,b)  = state(i)
             end if
             if (index (namepar(i),'Occ')==1) then
-                read (unit = namepar(i)(4:5), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(4:7), fmt = "(2i2)" ) a,b
                 a_occup(a,b)  = state(i)
             end if
             if (index( namepar(i) ,  'alpha' ) == 1)    then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 l_alpha(a,b)  = state(i)
 
             end if
             if (index (namepar(i), 'tx' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(3:6), fmt = "(2i2)" ) b,a
                 l_r(1,a,b)  = state(i)
             end if
             if (index (namepar(i), 'ty' )== 1 )    then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(3:6), fmt = "(2i2)" ) b,a
                 l_r(2,a,b)  = state(i)
             end if
             if (index (namepar(i), 'tz' ) == 1)     then
-                read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(3:6), fmt = "(2i2)" ) b,a
                 l_r(3,a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_11' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_22' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_33' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_12' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_31' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'FW_23' ) == 1)     then
-                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
             end if
             if (index (namepar(i), 'ChebCoeff_' ) == 1)     then
-                read (unit = namepar(i)(11:12), fmt = "(2i1)" ) a,b
+                read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
                 crys%chebp(a)  = state(i)
             end if
             if (index (namepar(i), 'Bgk_Scale_' ) == 1)     then
-                read (unit = namepar(i)(11:12), fmt = "(i1)" ) a,b
+                read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
                 crys%bscalpat(a)  = state(i)
             end if
           end do

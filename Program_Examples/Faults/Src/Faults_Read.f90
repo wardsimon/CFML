@@ -1311,6 +1311,8 @@
                   logi = .false.
                   return
                 end if
+                val_glb(17) = crys%l_cnt
+                ref_glb(17) = 0.0
                 crys%inf_thick = .false.
                 rndm = .true.
                 crys%n_seq=0
@@ -1348,15 +1350,17 @@
             else if (index(txt , 'RANDOM')/=0) then
               crys%randm=.true.
               read (unit = txt, fmt = *, iostat = ier) lstype, crys%l_cnt
+
                 if   (crys%l_cnt==0) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR :  Number of layers is missing"
                   logi = .false.
                   return
                 end if
-                  crys%inf_thick = .false.
-                  rndm = .true.
-
+                crys%inf_thick = .false.
+                rndm = .true.
+                val_glb(17) = crys%l_cnt
+                ref_glb(17) = 0.0
 
             else
               Err_crys=.true.
@@ -1378,6 +1382,7 @@
               crys%inf_thick = .true.
             else
               read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
+              val_glb(17) = crys%l_cnt
               if (crys%l_cnt>=1023.0) then
                 crys%inf_thick = .true.
               else
@@ -1472,7 +1477,7 @@
             call getword(txt, citem, nitem)
             do m=1, 3
               call read_fraction(citem(1+m), crys%l_r (m,j,l))
-              val_trans(2:4, j,l)=crys%l_r (m,j,l)
+              val_trans(m+1,j,l)=crys%l_r (m,j,l)
               if(ERR_String) then
                 write(unit=*,fmt="(a)") trim(ERR_String_Mess)
                 logi=.false.
@@ -1481,7 +1486,7 @@
             end do
 
             read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
-            val_trans(1, j,l)=crys%l_r (m,j,l)
+            val_trans(1,j,l) = crys%l_alpha (j,l)
             if(ier /= 0) then
                    Err_crys=.true.
                    Err_crys_mess="ERROR reading layer probabilities"
@@ -2268,23 +2273,10 @@
 
          call Read_CALCULATION (logi)
 
-         crys%npar=np
-
          if(.not. logi) then
           write(*,"(a)")  " => "//Err_crys_mess
           return
          else
-
-          if (opt==4) then         !construction of some optimization variables  (LMQ)
-            opti%npar =maxval(crys%p)
-            Cond%npvar=opti%npar
-            vs%pv(1:opti%npar)= crys%Pv_refi(1:opti%npar)
-            do i=1,crys%npar
-             vs%code(crys%p(i)) =1
-            end do
-            vs%np= opti%npar
-          end if
-
 
           if (opt == 0) then
             write(*,"(a,3f7.2 )") " => 2Theta max, 2Theta min, stepsize:",  th2_min, th2_max, d_theta
@@ -2303,9 +2295,27 @@
             return
           end if
         end if
+
         call Treat_codes(Lcode_max)
         call Modify_codes(Lcode_max)
-      !  call Update_all(Lcode_max)
+        call Update_all(Lcode_max)
+        crys%npar=np
+
+        if (opt == 4) then         !construction of some optimization variables  (LMQ)
+          opti%npar = Lcode_max
+          Cond%npvar=opti%npar
+          vs%pv(1:Lcode_max)= crys%Pv_refi(1:Lcode_max)
+          do i=1,crys%npar
+           vs%code(crys%p(i)) = 1
+          end do
+          vs%np= opti%npar
+          do i=1,Lcode_max
+            write(*,*) i,vs%nampar(i),vs%pv(i)
+          end do
+        end if
+
+
+
         return
       End subroutine  read_structure_file
 
@@ -2350,66 +2360,32 @@
 
       end Subroutine Treat_codes
 !
- !     Subroutine Restore_Codes()
-!        !---- Local Variables ----!
-!        integer :: i, j, n, n_pat, iiphas,L, iom, nd
-!
+      Subroutine Restore_Codes()
+        !---- Local Variables ----!
+        integer :: i, j, k
+!-------------------------------------------------------------------------------------------------------
 
+        do i=1,LGBLT
+          ref_glb(i)=sign(1.0_cp,ref_glb(i))*(real(10*lglb(i))+abs(ref_glb(i)))
+        end do
+        do k=1, crys%n_actual
+          do i=1, crys%l_n_atoms(k)
+            do j=1,5
+              ref_atom(j,i,k) =sign(1.0_cp,ref_atom(j,i,k))*(real(10*latom(j,i,k))+abs(ref_atom(j,i,k)))
+            end do
+          end do
+        end do
 
+        do k=1, crys%n_typ
+          do i=1, crys%n_typ
+            do j=1, 10
+              ref_trans(j,i,k) =sign(1.0_cp,ref_trans(j,i,k))*(real(10*ltrans(j,i,k))+abs(ref_trans(j,i,k)))
+            end do
+          end do
+        end do
 
- !-------------------------------------------------------------------------------------------------------
-!        n=0
-!        do iiphas=1,nphase
-!           n=n+natom(iiphas)
-!        end do
-!
-!        do i=1,n
-!           do j=1,nat_p
-!              a(i,j)=sign(1.0_cp,a(i,j))*(real(10*lp(i,j))+abs(a(i,j)))
-!              if (.not. automatic .and. lp(i,j)==0) a(i,j)=0.0
-!           end do
-!        end do
-!
-!        do i=1,nphase
-!
-!           do n_pat=1,n_patt
-!              do j=1,mpar
-!                 apar(i,j,n_pat)=sign(1.0_cp,apar(i,j,n_pat))*(real(10*lpar(i,j,n_pat))+abs(apar(i,j,n_pat)))
-!                 if (.not. automatic .and. lpar(i,j,n_pat)==0) apar(i,j,n_pat)=0.0
-!              end do
-!           end do
-!
-!           do j=1,nvk(i)
-!             avk(i,j,:)=sign(1.0_cp,avk(i,j,:))*(real(10*lvk(i,j,:))+ abs(avk(i,j,:)))
-!             do l=1,3
-!               if (.not. automatic .and. lvk(i,j,L)==0) avk(i,j,l)=0.0
-!             end do
-!           end do
-!
-!           if(nph_magdom(i) /= 0) then
-!             iom=nph_magdom(i)
-!             nd=MagDom(iom)%nd
-!             do l=1,nd
-!               do j=1,2
-!                MagDom(iom)%Mpop(j,l) = sign(1.0_cp,MagDom(iom)%Mpop(j,l))*(real(10*MagDom(iom)%Lpop(j,l))+ &
-!                                        abs(MagDom(iom)%Mpop(j,l)))
-!                if (.not. automatic .and. MagDom(iom)%Lpop(j,l)==0) MagDom(iom)%Mpop(j,l)=0.0
-!               end do
-!             end do
-!           end if
-!
-!        end do
-!
-!        do n_pat=1,n_patt
-!           do  j=1,ngl
-!               aglb(j,n_pat)=sign(1.0_cp,aglb(j,n_pat))*(real(10*lglb(j,n_pat))+abs(aglb(j,n_pat)))
-!               if (.not. automatic .and. lglb(j,n_pat)==0) aglb(j,n_pat)=0.0
-!           end do
-!        end do
-!
-!        code_splitted=.false.
-!        return
-!     End Subroutine Restore_Codes
+        return
+      End Subroutine Restore_Codes
 
      Subroutine Modify_codes(Lcode_max)
        integer, intent (in out) :: Lcode_max
@@ -2621,11 +2597,13 @@
                 crys%list(np)=val_atom(j,i,k)
                 crys%p(np)=Latom(j,i,k)
                 crys%Pv_refi(crys%p(np))=val_atom(j,i,k)
-                if(j==1) write(namepar(np),"(a,2i2.2)") 'pos_x',i,k
-                if(j==2) write(namepar(np),"(a,2i2.2)") 'pos_y',i,k
-                if(j==3) write(namepar(np),"(a,2i2.2)") 'pos_z',i,k
-                if(j==4) write(namepar(np),"(a,2i2.2)") 'Biso',i,k
-                if(j==5) write(namepar(np),"(a,2i2.2)") 'Occ',i,k
+                Select Case(j)
+                  Case(1) ; write(namepar(np),"(a,2i2.2)") 'pos_x',i,k
+                  Case(2) ; write(namepar(np),"(a,2i2.2)") 'pos_y',i,k
+                  Case(3) ; write(namepar(np),"(a,2i2.2)") 'pos_z',i,k
+                  Case(4) ; write(namepar(np),"(a,2i2.2)") 'Biso',i,k
+                  case(5) ; write(namepar(np),"(a,2i2.2)") 'Occ',i,k
+                End Select
                 vs%nampar(crys%p(np))=namepar(np)
               end if
            end do
@@ -2640,16 +2618,18 @@
                 crys%list(np)=val_trans(j,i,k)
                 crys%p(np)=Ltrans(j,i,k)
                 crys%Pv_refi(crys%p(np))=val_trans(j,i,k)
-                if(j==1) write(namepar(np),"(a,2i2.2)")"alpha",i,k
-                if(j==2) write(namepar(np),"(a,2i2.2)")"tx",i,k
-                if(j==3) write(namepar(np),"(a,2i2.2)")"ty",i,k
-                if(j==4) write(namepar(np),"(a,2i2.2)")"tz",i,k
-                if(j==5) write(namepar(np),"(a,i2.2)") "FW_11",i,k
-                if(j==6) write(namepar(np),"(a,i2.2)") "FW_22",i,k
-                if(j==7) write(namepar(np),"(a,i2.2)") "FW_33",i,k
-                if(j==8) write(namepar(np),"(a,i2.2)") "FW_12",i,k
-                if(j==9) write(namepar(np),"(a,i2.2)") "FW_31",i,k
-                if(j==10) write(namepar(np),"(a,i2.2)") "FW_23",i,k
+                Select Case (j)
+                   Case(1) ; write(namepar(np),"(a,2i2.2)")"alpha",k,i
+                   Case(2) ; write(namepar(np),"(a,2i2.2)")"tx"   ,k,i
+                   Case(3) ; write(namepar(np),"(a,2i2.2)")"ty"   ,k,i
+                   Case(4) ; write(namepar(np),"(a,2i2.2)")"tz"   ,k,i
+                   Case(5) ; write(namepar(np),"(a,i2.2)") "FW_11",k,i
+                   Case(6) ; write(namepar(np),"(a,i2.2)") "FW_22",k,i
+                   Case(7) ; write(namepar(np),"(a,i2.2)") "FW_33",k,i
+                   Case(8) ; write(namepar(np),"(a,i2.2)") "FW_12",k,i
+                   Case(9) ; write(namepar(np),"(a,i2.2)") "FW_31",k,i
+                   Case(10); write(namepar(np),"(a,i2.2)") "FW_23",k,i
+                End Select
                 vs%nampar(crys%p(np))=namepar(np)
               end if
            end do
