@@ -27,7 +27,7 @@
           !////////CALCULATED PATTERN VARIABLES ASSIGNMENT////////////////////////////////////
 
       do i=1, crys%npar
-
+        if (namepar(i) ==  'Scale_Factor') crys%patscal = state(i)
         if (namepar(i) ==  'u')          pv_u   = state(i)
         if (namepar(i) ==  'v')          pv_v   = state(i)
         if (namepar(i) ==  'w')          pv_w   = state(i)
@@ -62,7 +62,10 @@
             if (index (namepar(i),'Biso')==1) then
                 read (unit = namepar(i)(5:6), fmt = "(2i1)" ) a,b
                 a_b(a,b)  = state(i)
-
+            end if
+            if (index (namepar(i),'Occ')==1) then
+                read (unit = namepar(i)(4:5), fmt = "(2i1)" ) a,b
+                a_occup(a,b)  = state(i)
             end if
             if (index( namepar(i) ,  'alpha' ) == 1)    then
                 read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
@@ -80,6 +83,38 @@
             if (index (namepar(i), 'tz' ) == 1)     then
                 read (unit = namepar(i)(3:4), fmt = "(2i1)" ) b,a
                 l_r(3,a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_11' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_22' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_33' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_12' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_31' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'FW_23' ) == 1)     then
+                read (unit = namepar(i)(6:7), fmt = "(2i1)" ) b,a
+                r_b11(a,b)  = state(i)
+            end if
+            if (index (namepar(i), 'ChebCoeff_' ) == 1)     then
+                read (unit = namepar(i)(11:12), fmt = "(2i1)" ) a,b
+                crys%chebp(a)  = state(i)
+            end if
+            if (index (namepar(i), 'Bgk_Scale_' ) == 1)     then
+                read (unit = namepar(i)(11:12), fmt = "(i1)" ) a,b
+                crys%bscalpat(a)  = state(i)
             end if
           end do
         end do
@@ -190,6 +225,7 @@
           CHARACTER(LEN=80)                  :: list(2)
 
           call vs2faults(vs, crys)
+
 
           write(i_ftls,"(a)")          "TITLE"
           write(i_ftls,"(a)")          crys%ttl
@@ -329,7 +365,9 @@
               write(i_ftls, "(f13.6,3f10.2)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
                                                       crys%ref_l_r (3,j,l)
               write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
-                                      r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
+                                                 r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
+              write(i_ftls, "(f13.2, 5f10.2)") crys%ref_r_b11 (j,l), crys%ref_r_b22 (j,l) , crys%ref_r_b33 (j,l) , &
+                                               crys%ref_r_b12 (j,l) ,crys%ref_r_b31 (j,l) , crys%ref_r_b23 (j,l)
             end do
           end do
           write(i_ftls,"(a)")              "  "
@@ -660,6 +698,72 @@
 
     End subroutine Cost_LMQ
 
+ !   Subroutine  F_cost(n_plex,v,rplex,g)      !SIMPLEX
+ !     use CFML_GlobalDeps,  only: cp
+ !     integer,                        intent (in    ) :: n_plex
+ !     real(kind=cp),  dimension(:),   intent (in    ) :: v
+ !     real(kind=cp),                  intent (   out) :: rplex
+ !     real(kind=cp),dimension(:),optional, intent(out):: g
+ !
+ !     logical                 :: ok
+ !     integer                 :: j ,i, k, a, b
+ !     real, dimension(300)    :: shift, state
+ !     real                    :: chi2
+ !
+ !     write(*,*)"--------FCOST-------"
+ !
+ !      !--- to avoid warnings
+ !     if(present(g)) g=0.0
+ !     do i= 1, opti%npar
+ !           shift(i) = v(i) - vector(i)
+ !     end do
+ !
+ !     do i = 1, crys%npar
+ !        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+ !     end do
+ !
+ !     !update
+ !
+ !     crys%list(:) = state(:)
+ !
+ !     do i=1, opti%npar
+ !            vector(i) = v(i)
+ !     end do
+ !
+ !     do i=1, crys%npar
+ !       write(*,*)  namepar(i), state(i)
+ !     end do
+ !
+ !     call Pattern_Calculation(state,ok)
+ !
+ !     if(.not. ok) then
+ !       print*, "Error calculating spectrum, please check input parameters"
+ !     else
+ !       call scale_factor(difpat,rplex, chi2)
+ !     end if
+ !     numcal = numcal + 1
+ !     write(*,*) ' => Calculated Rp    :   ' , rplex
+ !     write(*,*) ' => Best Rp up to now:   ' , rpo
+ !
+ !
+ !     if (rplex < rpo ) then                  !To keep calculated intensity for the best value of rplex
+ !       rpo = rplex
+ !       statok(1:crys%npar) = state( 1:crys%npar)
+ !
+ !       write(*,*)  ' => Writing the best calculated pattern up to now. Rp : ', rpo
+ !       do j = 1, n_high
+ !         ycalcdef(j) = difpat%ycalc(j)
+ !       end do
+ !       do j=1, l_cnt
+ !         l_seqdef(j) = l_seq(j)
+ !       end do
+ !     end if
+ !     ok = .true.
+ !
+ !     IF(cfile) CLOSE(UNIT = cntrl)
+ !     return
+ !   End subroutine F_cost
+
     Subroutine Pattern_Calculation(state,ok)
       real, dimension(:), intent(in) :: state
       logical,            intent(out):: ok
@@ -919,7 +1023,49 @@
                    IF(fn_menu == 1) GO TO 10
               END IF
 
-
+  !        Case (3) !Local optimizer
+  !
+  !
+  !            rpo = 1000                         !initialization of agreement factor
+  !          !  rpl = 0
+  !            do i=1, opti%npar                       !creation of the step sizes
+  !              vector(i) = crys%Pv_refi(i)
+  !              write(*,*) "crys%vlim1(i)", crys%vlim1(i)
+  !            end do
+  !
+  !            open (unit=23, file='local_optimizer.out', status='replace', action='write')
+  !            if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDI" &
+  !                 .or. opti%method =="SIMPLEX") then
+  !              call Lcase(opti%method )
+  !
+  !              call Local_Optimize( F_cost,crys%Pv_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
+  !                                  maxi=crys%vlim2(1:opti%npar),ipr=23  )
+  !            else
+  !              write(*,*) "Error in optimization method"
+  !              stop
+  !            end if
+  !            write(*,*)'Rp', rpo
+  !            write(*,*) '______________________________________'
+  !            write(*,'(3a)') ' Parameter     refined value     '
+  !            write(*,*) '______________________________________'
+  !            do i = 1, numpar
+  !                  write(*,*)  namepar(i)  ,statok(i)
+  !            end do
+  !
+  !            CALL getfnm(filenam, outfile, '.prf', ok)
+  !            if (ok) then
+  !              OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
+  !              call Write_Prf(difpat,out)
+  !            else
+  !              write(*,*) 'The outfile cannot be created'
+  !            end if
+  !            if (ok) then
+  !             OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
+  !             call Write_ftls(crys,i_flts)
+  !           else
+  !             write(*,*) 'The outfile .flts cannot be created'
+  !           end if
+  !
           Case (4) !LMQ
 
             chi2o = 1.0E10                         !initialization of agreement factor

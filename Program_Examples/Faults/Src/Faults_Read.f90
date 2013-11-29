@@ -25,10 +25,16 @@
        real,            dimension(17+max_bgr_num+max_n_cheb) :: val_glb
        real,            dimension(5,max_a,max_l)             :: val_atom
        real,            dimension(10,max_l,max_l)            :: val_trans
-!                                                                  123456789012   123456789012
+!
        character(len=*),dimension(17),parameter :: names_glb = [ "Scale_Factor","zero_shift  ", &
                                                                  "sycos       ","sysin       ", &
-                                                                 ...
+                                                                 "u           ","v           ", &
+                                                                 "w           ","x           ", &
+                                                                 "Dg          ","Dl          ", &
+                                                                 "cell_a      ","cell_b      ", &
+                                                                 "cell_c      ","cell_gamma  ", &
+                                                                 "diameter_a  ", "diameter_b ", &
+                                                                 "num_layers  "]
 !      Declaration of diffraction_pattern_type
 
        Type,Public :: crys_2d_type
@@ -99,6 +105,7 @@
          real,    dimension(:,:),   allocatable  :: l_alpha             !l_alpha
          real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
          real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
+         real,    dimension(:,:),   allocatable  :: ref_r_b11  , ref_r_B22 , ref_r_B33 , ref_r_B12 , ref_r_B23, ref_r_B31
          real,    dimension(:),     allocatable  :: chebp
          real,    dimension(:),     allocatable  :: ref_chebp
          real,    dimension(:),     allocatable  :: bscalpat     !scale factor for bgrpatt
@@ -371,7 +378,7 @@
           Case("ABERRATIONS")
 
              read(unit=txt,fmt=*, iostat=ier) crys%zero_shift, crys%sycos, crys%sysin
-
+             val_glb(2:4)=[crys%zero_shift, crys%sycos, crys%sysin]
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading instrumental aberrations"
@@ -437,6 +444,7 @@
           Case("PSEUDO-VOIGT")
              crys%broad=ps_vgt
              read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl
+             val_glb(5:10)=[crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl]
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Pseudo-Voigt instruction"
@@ -543,6 +551,7 @@
 
              read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dg
              crys%p_dl=100000
+             val_glb(5:10)=[crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl]
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
@@ -624,6 +633,7 @@
 
              read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dl
              crys%p_dg=100000
+             val_glb(5:10)=[crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl]
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading Gaussian/Lorentzian instruction"
@@ -749,6 +759,7 @@
 
           Case("CELL")
                 read(unit=txt,fmt=*,iostat=ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
+                val_glb(11:14)=[crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma ]
                 if (ier /= 0)then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading cell parameters"
@@ -870,6 +881,7 @@
           Case("NLAYERS")
 
              read(unit=txt,fmt=*, iostat=ier)  crys%n_typ
+             val_glb(17)=crys%n_typ
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading number of layer types"
@@ -891,6 +903,7 @@
                return
              elseif  (INDEX (txt, 'INFINITE') == 0) then
                read(unit=txt,fmt=*, iostat=ier)  crys%layer_a, crys%layer_b
+               val_glb(15:16)=[crys%layer_a, crys%layer_b]
                crys%finite_width=.true.
                if (crys%layer_b==0) then
                   crys%layer_b= crys%layer_a
@@ -1089,6 +1102,7 @@
             do m=1, 3
 
               call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
+              val_atom(1:3, d(r),r)=crys%a_pos(m, d(r),r)
               if(ERR_String) then
                 write(unit=*,fmt="(a)") trim(ERR_String_Mess)
                 logi=.false.
@@ -1098,7 +1112,9 @@
             crys%a_name(d(r),r)=citem(1)
             read(unit=citem(2),fmt=*,iostat=ier) crys%a_num (d(r),r)
             read(unit=citem(6),fmt=*,iostat=ier) crys%a_B (d(r),r)
+            val_atom(4,d(r),r)=crys%a_B (d(r),r)
             read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
+            val_atom(4,d(r),r)=crys%a_occup (d(r),r)
              if(crys%a_occup(d(r),r)<0 .or. crys%a_occup(d(r),r)>1) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading atomic parameters. Occupation must be between 0 and 1"
@@ -1456,6 +1472,7 @@
             call getword(txt, citem, nitem)
             do m=1, 3
               call read_fraction(citem(1+m), crys%l_r (m,j,l))
+              val_trans(2:4, j,l)=crys%l_r (m,j,l)
               if(ERR_String) then
                 write(unit=*,fmt="(a)") trim(ERR_String_Mess)
                 logi=.false.
@@ -1464,6 +1481,7 @@
             end do
 
             read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
+            val_trans(1, j,l)=crys%l_r (m,j,l)
             if(ier /= 0) then
                    Err_crys=.true.
                    Err_crys_mess="ERROR reading layer probabilities"
@@ -1529,15 +1547,20 @@
               vs%nampar(crys%p(np))=namepar(np)
             end if
 
-
             i=i+1
+
 
 
           CASE ("FW")
             read (unit = txt, fmt =*, iostat = ier) crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
                                                     crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)
-            !read(unit=txt,fmt=*, iostat=ier) ref_trans(5:10, j, l)
-            ref_trans(5:10, j, l)=[crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)]
+            val_trans(5:10, j,l)=[crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
+                                 crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)]
+
+
+        !    read(unit=txt,fmt=*, iostat=ier) ref_trans(5:10, j, l)
+        !    ref_trans(5:10, j, l)= [crys%ref_r_b11(j,l) , crys%ref_r_b22(j,l) , crys%ref_r_b33(j,l) , &
+        !                            crys%ref_r_b12(j,l) , crys%ref_r_b31(j,l) , crys%ref_r_b23(j,l)]
 
             if(ier /= 0) then
               Err_crys=.true.
@@ -1861,6 +1884,7 @@
 
             read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, crys%ref_patscal
             !read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
+            val_glb(1)=crys%patscal
             ref_glb(1)=crys%ref_patscal
               if(ier /= 0 ) then
                   Err_crys=.true.
@@ -1920,6 +1944,7 @@
               i=i+1
               txt=adjustl(tfile(i))
               read (unit=txt,fmt=*,iostat=ier) crys%chebp(1:crys%cheb_nump)
+              val_glb(18:crys%cheb_nump)=crys%chebp(1:crys%cheb_nump)
               i=i+1
               txt=adjustl(tfile(i))
               read (unit=txt,fmt=*,iostat=ier) crys%ref_chebp(1:crys%cheb_nump)
@@ -1947,8 +1972,9 @@
             crys%bgrpatt=.true.
             m=m+1
             read(unit=txt,fmt=*,iostat=ier)  crys%bfilepat(m), crys%bscalpat(m), crys%ref_bscalpat(m)
+            val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
             !read(unit=txt,fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), ref_glb(17+crys%cheb_nump+1:17+crys%cheb_nump+crys%num_bgrpatt)
-            ref_glb(17+crys%cheb_nump+1:17+crys%cheb_nump+crys%num_bgrpatt)=[crys%ref_bscalpat(m)]
+            ref_glb(17+crys%cheb_nump+m)=crys%ref_bscalpat(m)
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background pattern instruction"
@@ -2081,6 +2107,30 @@
         if (allocated (crys%r_b31)) deallocate(crys%r_b31)
         allocate(crys%r_b31(max_a,max_l))
         crys%r_b31=0
+
+        if (allocated (crys%ref_r_b11)) deallocate(crys%ref_r_b11)
+        allocate(crys%ref_r_b11(max_a,max_l))
+        crys%ref_r_b11=0
+
+        if (allocated (crys%ref_r_b22)) deallocate(crys%ref_r_b22)
+        allocate(crys%ref_r_b22(max_a,max_l))
+        crys%ref_r_b22=0
+
+        if (allocated (crys%ref_r_b33)) deallocate(crys%ref_r_b33)
+        allocate(crys%ref_r_b33(max_a,max_l))
+        crys%ref_r_b33=0
+
+        if (allocated (crys%ref_r_b12)) deallocate(crys%ref_r_b12)
+        allocate(crys%ref_r_b12(max_a,max_l))
+        crys%ref_r_b12=0
+
+        if (allocated (crys%ref_r_b23)) deallocate(crys%ref_r_b23)
+        allocate(crys%ref_r_b23(max_a,max_l))
+        crys%ref_r_b23=0
+
+        if (allocated (crys%ref_r_b31)) deallocate(crys%ref_r_b31)
+        allocate(crys%ref_r_b31(max_a,max_l))
+        crys%ref_r_b31=0
 
         if (allocated (crys%chebp)) deallocate(crys%chebp)
         allocate(crys%chebp(max_n_cheb))
@@ -2255,6 +2305,7 @@
         end if
         call Treat_codes(Lcode_max)
         call Modify_codes(Lcode_max)
+      !  call Update_all(Lcode_max)
         return
       End subroutine  read_structure_file
 
@@ -2296,8 +2347,6 @@
             end do
           end do
         end do
-
-        write(*,*) " Lcode_max", Lcode_max
 
       end Subroutine Treat_codes
 !
@@ -2535,10 +2584,14 @@
        if(n_att > ndispm) exit
      END DO !i=Lcode_max,maxs+1,-1
      Lcode_max=maxs
+
      return
      End Subroutine Modify_codes
 
      Subroutine Update_all(Lcode_Max)
+     integer, intent (in out) :: Lcode_max
+     integer                  :: L,i,j,k
+
 
      np=0
      DO L=1,Lcode_max
@@ -2554,7 +2607,7 @@
            else if (j> 17 .and. j <= 17+crys%cheb_nump ) then
               write(namepar(np),"(a,i2.2)") "ChebCoeff_",j-17
            else if (j> 17+crys%cheb_nump .and. j <= LGBLT ) then
-              write(namepar(np),"(a,i2.2)") "Bgk_Scale_",j-(17+crys%cheb_nump)
+              write(namepar(np),"(a,i2.2)") "Bgk_Scale_",j-(17+crys%num_bgrpatt)
            end if
            vs%nampar(crys%p(np))=namepar(np)
          end if
@@ -2564,8 +2617,16 @@
          do i=1, crys%l_n_atoms(k)
            do j=1,5
               if(L == Latom(j,i,k)) then
-                Latom(j,i,k)=disp(n_att)
-                nn=nn+1
+                np=np+1
+                crys%list(np)=val_atom(j,i,k)
+                crys%p(np)=Latom(j,i,k)
+                crys%Pv_refi(crys%p(np))=val_atom(j,i,k)
+                if(j==1) write(namepar(np),"(a,2i2.2)") 'pos_x',i,k
+                if(j==2) write(namepar(np),"(a,2i2.2)") 'pos_y',i,k
+                if(j==3) write(namepar(np),"(a,2i2.2)") 'pos_z',i,k
+                if(j==4) write(namepar(np),"(a,2i2.2)") 'Biso',i,k
+                if(j==5) write(namepar(np),"(a,2i2.2)") 'Occ',i,k
+                vs%nampar(crys%p(np))=namepar(np)
               end if
            end do
          end do
@@ -2575,16 +2636,26 @@
          do i=1, crys%n_typ
            do j=1, 10
               if(L == Ltrans(j,i,k)) then
-                Ltrans(j,i,k)=disp(n_att)
-                nn=nn+1
+                np=np+1
+                crys%list(np)=val_trans(j,i,k)
+                crys%p(np)=Ltrans(j,i,k)
+                crys%Pv_refi(crys%p(np))=val_trans(j,i,k)
+                if(j==1) write(namepar(np),"(a,2i2.2)")"alpha",i,k
+                if(j==2) write(namepar(np),"(a,2i2.2)")"tx",i,k
+                if(j==3) write(namepar(np),"(a,2i2.2)")"ty",i,k
+                if(j==4) write(namepar(np),"(a,2i2.2)")"tz",i,k
+                if(j==5) write(namepar(np),"(a,i2.2)") "FW_11",i,k
+                if(j==6) write(namepar(np),"(a,i2.2)") "FW_22",i,k
+                if(j==7) write(namepar(np),"(a,i2.2)") "FW_33",i,k
+                if(j==8) write(namepar(np),"(a,i2.2)") "FW_12",i,k
+                if(j==9) write(namepar(np),"(a,i2.2)") "FW_31",i,k
+                if(j==10) write(namepar(np),"(a,i2.2)") "FW_23",i,k
+                vs%nampar(crys%p(np))=namepar(np)
               end if
            end do
          end do
        end do
 
-       if(nn == 0) cycle
-       n_att=n_att+1
-       if(n_att > ndispm) exit
      END DO !i=Lcode_max,maxs+1,-1
 
 
