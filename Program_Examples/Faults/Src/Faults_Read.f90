@@ -46,7 +46,6 @@
          real       :: cell_c                       !cell parameter c   >cell_c
          real       :: cell_gamma                   !gamma   >cell_gamma
          real       :: layer_a = 0.0, layer_b = 0.0 !layer characteristic widths (optional)
-         real       :: ref_layer_a, ref_layer_b
          real       :: zero_shift = 0.0
          real       :: sycos = 0.0
          real       :: sysin = 0.0
@@ -57,16 +56,12 @@
          real       :: p_gamma = 0.0                !pseudo-voigt gamma    > pv_gamma
          real       :: p_x                          ! x > pv_x
          real       :: p_dg, p_dl                   ! gaussian and lorentzian average volumetric size
-         real       :: ref_p_u, ref_p_v, ref_p_w, ref_p_x, ref_p_dg, ref_p_dl
-         real       :: ref_zero_shift, ref_sycos, ref_sysin
          real       :: tolerance                    !d-> Maximum deviation that intensities can have
          character(len=132) :: sym         !Laue symmetry  >pnt_grp
          character(len=132) :: calctype    !type of calculation
-         real                :: ref_cell_a,ref_cell_b, ref_cell_c, ref_cell_gamma  ! index of refinement: if zero, no refinement, if one, refinement to be done
-         real                :: patscal, ref_patscal
+         real                :: patscal
          integer             :: n_typ        !number of layer types    > n_layers
          real                :: l_cnt = 0.0  !number of layers in stacking section
-         real                :: ref_l_cnt
          integer             :: SymGrpNo
          integer             :: n_cycles=0
          integer             :: n_actual       !number of unique layers
@@ -88,28 +83,20 @@
          integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  >only_real
          integer, dimension(:),     allocatable  :: cod
          integer, dimension(:,:),   allocatable  :: a_num               !atom number  > a_number
-         real,    dimension(:,:,:), allocatable  :: ref_a_pos
          integer, dimension(:)  ,   allocatable  :: l_seq               !d-> array containing the explicitly defined sequence of layers.
          integer, dimension(:)  ,   allocatable  :: l_actual            !Contains the layer number that layer i is structurally identical to.
          integer, dimension(:)  ,   allocatable  :: l_n_atoms           !number of atoms in each layer
          integer, dimension(:),     allocatable  :: p                   ! refinable parameter index
          real,    dimension(:),     allocatable  :: mult                ! refinable parameter multiplicator
-         real,    dimension(:,:),   allocatable  :: ref_l_alpha         ! index of refinement of l_alpha
-         real,    dimension(:,:,:), allocatable  :: ref_l_r             ! refinement index of transitions vector
          real,    dimension(:,:,:), allocatable  :: a_pos               ! xyz coordinates of the atoms   >a_pos
          real,    dimension(:,:),   allocatable  :: a_B                 !debye waller factors
-         real,    dimension(:,:),   allocatable  :: ref_a_B             !index of refinement of debye waller factors
          real,    dimension(:,:),   allocatable  :: a_occup             !occupation factor (between 0 and 1)
-         real,    dimension(:,:),   allocatable  :: ref_a_occup         !index of refinement of atomic occupancies
          real,    dimension(:)  ,   allocatable  :: high_atom, low_atom !lower and upper atom positions
          real,    dimension(:,:),   allocatable  :: l_alpha             !l_alpha
          real,    dimension(:,:,:), allocatable  :: l_r                 !transitions vector
          real,    dimension(:,:),   allocatable  :: r_b11  , r_B22 , r_B33 , r_B12 , r_B23, r_B31
-         real,    dimension(:,:),   allocatable  :: ref_r_b11  , ref_r_B22 , ref_r_B33 , ref_r_B12 , ref_r_B23, ref_r_B31
          real,    dimension(:),     allocatable  :: chebp
-         real,    dimension(:),     allocatable  :: ref_chebp
          real,    dimension(:),     allocatable  :: bscalpat     !scale factor for bgrpatt
-         real,    dimension(:),     allocatable  :: ref_bscalpat !scale factor refinement code for bgrpatt
          real,    dimension(:)  ,   allocatable  :: list     !vector containing all the parameters to optimize
          real,    dimension(:)  ,   allocatable  :: Pv_refi  !vector containing the free parameters to optimize (restrictions taken into account)
 
@@ -137,8 +124,6 @@
       type (Opt_Conditions_Type),     save,  public  :: opti
       type (LSQ_Conditions_type),     save,  public  :: cond
       type (LSQ_State_Vector_Type),   save,  public  :: Vs
-
-      !integer, parameter ::  nrp=80
 
 
    contains
@@ -389,55 +374,13 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin
-             !read(unit=txt,fmt=*, iostat=ier) ref_glb(2:4)
-             ref_glb(2:4)=[crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin]
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(2:4)   !codes for zero_shift,sycos,sysin
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the instrumental aberrations"
                logi=.false.
                return
              end if
-
-
-             !Creating refinement vectors
-             if (abs(crys%ref_zero_shift) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list(np) =crys%zero_shift
-               namepar(np)='zero_shift'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_zero_shift)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_zero_shift))-(10.0*  &
-                                   REAL(crys%p(np))))*SIGN(1.0,(crys%ref_zero_shift ))
-               crys%Pv_refi(crys%p(np)) = crys%zero_shift
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_sycos) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%sycos
-               write(unit=namepar(np),fmt="(a)")'sycos'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_sycos)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_sycos))-(10.0*  &
-               REAL(crys%p(np))))*SIGN(1.0,(crys%ref_sycos ))
-               crys%Pv_refi(crys%p(np))=crys%sycos
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_sysin) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%sysin
-               write(unit=namepar(np),fmt="(a)")'sysin'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_sysin)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_sysin))-(10.0* &
-                     REAL(crys%p(np))))*SIGN(1.0,(crys%ref_sysin ))
-               crys%Pv_refi(crys%p(np))= crys%sysin
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-
              ok_abe=.true.
 
 
@@ -457,92 +400,13 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, &
-                                              crys%ref_p_x,  crys%ref_p_dg,  crys%ref_p_dl
-             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:10)
-             ref_glb(5:10)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x,crys%ref_p_dg,crys%ref_p_dl]
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(5:10) !codes for U,V,W,X,Dg,DL
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Pseudo-Voigt instruction"
                logi=.false.
                return
              end if
-
-
-             !Creating refinement vectors
-             if (abs(crys%ref_p_u) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_u
-               write(unit=namepar(np),fmt="(a)")'u'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_u)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_u))-(10.0*  &
-                                   REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_u ))
-               crys%Pv_refi(crys%p(np)) = crys%p_u
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_v) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_v
-               write(unit=namepar(np),fmt="(a)")'v'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_v)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_v))-(10.0*  &
-               REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_v ))
-               crys%Pv_refi(crys%p(np))=crys%p_v
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_w) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_w
-               write(unit=namepar(np),fmt="(a)")'w'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_w)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_w))-(10.0* &
-                     REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_w ))
-               crys%Pv_refi(crys%p(np))= crys%p_w
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_x) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_x
-               write(unit=namepar(np),fmt="(a)")'x'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_x)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_x))-(10.0* &
-                      REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_x ))
-               crys%Pv_refi(crys%p(np))=crys%p_x
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_dg) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_dg
-               write(unit=namepar(np),fmt="(a)")'Dg'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_dg)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_dg))-(10.0* &
-                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dg ))
-               crys%Pv_refi(crys%p(np))=crys%p_dg
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_dl) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_dl
-               write(unit=namepar(np),fmt="(a)")'Dl'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_dl)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_dl))-(10.0* &
-                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dl ))
-               crys%Pv_refi(crys%p(np)) =crys%p_dl
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-
              ok_uvw=.true.
 
           Case("GAUSSIAN")
@@ -564,74 +428,21 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dg
-             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:9)
-             ref_glb(5:9)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x,crys%ref_p_dg]
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(5:9) !codes for U,V,W,X,Dg
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
                logi=.false.
                return
              end if
-
-
-             !Creating refinement vectors
-             if (abs(crys%ref_p_u) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_u
-               write(unit=namepar(np),fmt="(a)")'u'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_u)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_u))-(10.0*  &
-                                   REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_u ))
-               crys%Pv_refi(crys%p(np)) = crys%p_u
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_v) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_v
-               write(unit=namepar(np),fmt="(a)")'v'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_v)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_v))-(10.0*  &
-               REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_v ))
-               crys%Pv_refi(crys%p(np))=crys%p_v
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_w) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_w
-               write(unit=namepar(np),fmt="(a)")'w'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_w)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_w))-(10.0* &
-                     REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_w ))
-               crys%Pv_refi(crys%p(np))= crys%p_w
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_dg) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_dg
-               write(unit=namepar(np),fmt="(a)")'Dg'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_dg)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_dg))-(10.0* &
-                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dg ))
-               crys%Pv_refi(crys%p(np))=crys%p_dg
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-
              ok_uvw=.true.
 
           Case("LORENTZIAN")
 
              crys%broad= pv_lrn
 
-             read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dl
+             !read(unit=txt,fmt=*, iostat=ier) crys%p_u, crys%p_v, crys%p_w, crys%p_dl
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(5:10)
              crys%p_dg=100000
              val_glb(5:10)=[crys%p_u, crys%p_v, crys%p_w, crys%p_x, crys%p_dg, crys%p_dl]
              if(ier /= 0 ) then
@@ -646,68 +457,13 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier) crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_dl
-             !read(unit=txt,fmt=*, iostat=ier) ref_glb(5:8,10)
-             ref_glb(5:8)=[crys%ref_p_u,crys%ref_p_v,crys%ref_p_w,crys%ref_p_x]
-             ref_glb(10)=crys%ref_p_dl
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(5:8),ref_glb(10)
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the Gaussian/Lorentzian instruction"
                logi=.false.
                return
              end if
-
-
-             !Creating refinement vectors
-             if (abs(crys%ref_p_u) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_u
-               write(unit=namepar(np),fmt="(a)")'u'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_u)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_u))-(10.0*  &
-                                   REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_u ))
-               crys%Pv_refi(crys%p(np)) = crys%p_u
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_v) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_v
-               write(unit=namepar(np),fmt="(a)")'v'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_v)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_v))-(10.0*  &
-               REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_v ))
-               crys%Pv_refi(crys%p(np))=crys%p_v
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_w) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_w
-               write(unit=namepar(np),fmt="(a)")'w'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_w)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_w))-(10.0* &
-                     REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_w ))
-               crys%Pv_refi(crys%p(np))= crys%p_w
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_p_dl) > 0.0) then
-               np = np + 1        ! to count npar
-               crys%list (np) =crys%p_dl
-               write(unit=namepar(np),fmt="(a)")'Dl'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_p_dl)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_p_dl))-(10.0* &
-                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_p_dl ))
-               crys%Pv_refi(crys%p(np)) =crys%p_dl
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-
             ok_uvw=.true.
 
           Case Default
@@ -771,67 +527,13 @@
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
-             read(unit=txt,fmt=*, iostat=ier)  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, &
-                                               crys%ref_cell_gamma   !read refinement codes of cell parameters
-             !read(unit=txt,fmt=*, iostat=ier) ref_glb(11:14)
-             ref_glb(11:14)=[crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma]
+             read(unit=txt,fmt=*, iostat=ier) ref_glb(11:14)
              if(ier /= 0) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading the refinement codes of the cell parameters"
                logi=.false.
                return
              end if
-
-             !Creating refinement vectors
-             if (abs(crys%ref_cell_a) > 0.0 ) then
-               np = np + 1       !to count npar
-               crys%list (np) = crys%cell_a
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_cell_a)/10.0)
-               crys%p(np)= INT(ab)
-               crys%mult(np) = ((abs(crys%ref_cell_a))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_cell_a))
-               namepar(np) = 'cell_a'
-               crys%Pv_refi(crys%p(np)) =crys%cell_a
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_cell_b) > 0.0 ) then
-               np = np + 1
-               crys%list (np) = crys%cell_b
-               namepar(np) = 'cell_b'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_cell_b)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_cell_b))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_cell_b))
-               crys%Pv_refi(crys%p(np)) =crys%cell_b
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_cell_c) > 0.0 ) then
-               np = np + 1
-               crys%list (np) = crys%cell_c
-               namepar(np) = 'cell_c'
-               crys%cod(np) =1
-               ab =  (abs(crys%ref_cell_c)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_cell_c))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_cell_c))
-               crys%Pv_refi(crys%p(np)) =crys%cell_c
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-             if (abs(crys%ref_cell_gamma) > 0.0 ) then
-               np = np + 1
-               crys%list (np) = crys%cell_gamma
-               namepar(np) = 'cell_gamma'
-               crys%cod(np) = 1
-               ab =  (abs(crys%ref_cell_gamma)/10.0)
-               crys%p(np)= int(ab)
-               crys%mult(np) = ((abs(crys%ref_cell_gamma))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_cell_gamma))
-               crys%Pv_refi(crys%p(np)) =crys%cell_gamma
-               vs%nampar(crys%p(np))=namepar(np)
-             end if
-
              ok_cell=.true.
 
           Case("SYMM")
@@ -881,7 +583,6 @@
           Case("NLAYERS")
 
              read(unit=txt,fmt=*, iostat=ier)  crys%n_typ
-             val_glb(17)=crys%n_typ
              if(ier /= 0 ) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading number of layer types"
@@ -894,14 +595,13 @@
               logi=.false.
               return
              end if
-
              ok_nlayers=.true.
 
           Case ("LWIDTH")
 
-             if (INDEX (txt, 'INFINITE') /= 0) then
+             if (index(txt, 'INFINITE') /= 0) then
                return
-             elseif  (INDEX (txt, 'INFINITE') == 0) then
+             else if (index(txt, 'INFINITE') == 0) then
                read(unit=txt,fmt=*, iostat=ier)  crys%layer_a, crys%layer_b
                val_glb(15:16)=[crys%layer_a, crys%layer_b]
                crys%finite_width=.true.
@@ -927,41 +627,12 @@
               ! Reading refinement codes
                k=index(txt,"(")
                l=index(txt,")")
-                 read(unit=txt(:k),fmt=*, iostat=ier) crys%ref_layer_a, crys%ref_layer_b
-                 !read(unit=txt,fmt=*, iostat=ier) ref_glb(15:16)
-                 ref_glb(15:16)=[crys%ref_layer_a, crys%ref_layer_b]
+                 read(unit=txt,fmt=*, iostat=ier) ref_glb(15:16)  !Codes for Wa,Wb
                    if(ier /= 0) then
                      Err_crys=.true.
                      Err_crys_mess="ERROR reading the refinement codes of layer width parameters"
                      logi=.false.
                      return
-                   end if
-
-
-                   !Creating refinement vectors
-                   if (abs(crys%ref_layer_a) > 0.0) then
-                     np = np + 1        ! to count npar
-                     crys%list (np) =crys%layer_a
-                     write(unit=namepar(np),fmt="(a)")'diameter_a'
-                     crys%cod(np) = 1
-                     ab =  (abs(crys%ref_layer_a)/10.0)
-                     crys%p(np)= int(ab)
-                     crys%mult(np) = ((abs(crys%ref_layer_a ))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_layer_a ))
-                     crys%Pv_refi(crys%p(np)) =crys%layer_a
-                     vs%nampar(crys%p(np))=namepar(np)
-                   end if
-                   if (abs(crys%ref_layer_b) > 0.0) then
-                     np = np + 1        ! to count npar
-                     crys%list (np) =crys%layer_b
-                     write(unit=namepar(np),fmt="(a)")'diameter_b'
-                     crys%cod(np) = 1
-                     ab =  (abs(crys%ref_layer_b)/10.0)
-                     crys%p(np)= int(ab)
-                     crys%mult(np) = ((abs(crys%ref_layer_b ))-(10.0* &
-                       REAL(crys%p(np))))*SIGN(1.0,(crys%ref_layer_b ))
-                     crys%Pv_refi(crys%p(np)) =crys%layer_b
-                     vs%nampar(crys%p(np))=namepar(np)
                    end if
 
              else
@@ -1136,80 +807,13 @@
             txt=adjustl(tfile(i))
 
             !reading refinement codes
-            read (unit = txt, fmt =*, iostat=ier) crys%ref_a_pos(1, d(r),r), crys%ref_a_pos(2, d(r),r), &
-                                                  crys%ref_a_pos(3, d(r),r), crys%ref_a_B(d(r),r), crys%ref_a_occup(d(r),r)
-            !read(unit=txt,fmt=*, iostat=ier) ref_atom(1:5,d(r),r)
-            ref_atom(1:5,d(r),r)=[crys%ref_a_pos(1, d(r),r), crys%ref_a_pos(2, d(r),r), &
-                                 crys%ref_a_pos(3, d(r),r), crys%ref_a_B(d(r),r), crys%ref_a_occup(d(r),r)]
+            read(unit=txt,fmt=*, iostat=ier) ref_atom(1:5,d(r),r)
             if(ier /= 0) then
                    Err_crys=.true.
                    Err_crys_mess="ERROR reading atomic parameters refinement codes"
                    logi=.false.
                    return
             end if
-
-            if (abs(crys%ref_a_pos(1, d(r),r)) > 0.0) then
-              np = np + 1        ! to count npar
-              crys%list (np) =crys%a_pos(1, d(r),r)
-              write(unit=namepar(np),fmt="(a,2i1)")'pos_x',d(r),r   !att: solo para i y j de 1 digito!!!!
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_a_pos(1, d(r),r))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_a_pos(1, d(r),r)))-(10.0* &
-              REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_pos(1,d(r),r)))
-              crys%Pv_refi(crys%p(np)) =crys%a_pos(1, d(r),r)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_a_pos(2,d(r),r)) > 0.0) then
-              np = np + 1
-              crys%list (np) = crys%a_pos(2, d(r),r)
-              write(unit=namepar(np),fmt="(a,2i1)")'pos_y',d(r),r
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_a_pos(2, d(r),r))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_a_pos(2, d(r),r)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_pos(2, d(r),r)))
-              crys%Pv_refi(crys%p(np)) =crys%a_pos(2, d(r),r)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_a_pos(3, d(r),r)) > 0.0) then
-              np = np + 1
-              crys%list (np) = crys%a_pos(3, d(r),r)
-              write(unit=namepar(np),fmt="(a,2i1)")'pos_z',d(r),r
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_a_pos(3, d(r),r))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_a_pos(3, d(r),r)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
-                write(*,*) "crys%mult(np)", crys%mult(np)
-              crys%Pv_refi(crys%p(np)) =crys%a_pos(3, d(r),r)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_a_B( d(r),r)) > 0.0) then
-              np = np + 1
-              crys%list (np) = crys%a_B( d(r),r)
-              write(unit=namepar(np),fmt="(a,2i1)")'Biso',d(r),r
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_a_B(d(r),r))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_a_B( d(r),r)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_B( d(r),r)))
-              crys%Pv_refi(crys%p(np)) =crys%a_B( d(r),r)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_a_occup( d(r),r)) > 0.0) then
-              np = np + 1
-              crys%list (np) = crys%a_occup( d(r),r)
-              write(unit=namepar(np),fmt="(a,2i1)")'Occ',d(r),r
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_a_occup(d(r),r))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_a_occup( d(r),r)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_occup( d(r),r)))
-              crys%Pv_refi(crys%p(np)) =crys%a_occup( d(r),r)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-
             crys%l_n_atoms(r) = d(r)
             ok_atom=.true.
             crys%n_actual=r
@@ -1392,9 +996,7 @@
               i=i+1
               txt=adjustl(tfile(i))
               !Reading refinement codes
-              read(unit=txt,fmt=*, iostat=ier) crys%ref_l_cnt
-              !read(unit=txt,fmt=*, iostat=ier) ref_glb(17)
-              ref_glb(17)=crys%ref_l_cnt
+              read(unit=txt,fmt=*, iostat=ier) ref_glb(17)
               if(ier /= 0) then
                 Err_crys=.true.
                 Err_crys_mess="ERROR reading the refinement codes of the number of layers in the crystal"
@@ -1402,19 +1004,6 @@
                 return
               end if
 
-              !Creating refinement vectors
-              if (abs(crys%ref_l_cnt) > 0.0) then
-                np = np + 1        ! to count npar
-                crys%list (np) =crys%l_cnt
-                write(unit=namepar(np),fmt="(a,2i1)")'num_layers'
-                crys%cod(np) = 1
-                ab =  (abs(crys%ref_l_cnt)/10.0)
-                crys%p(np)= int(ab)
-                crys%mult(np) = ((abs(crys%ref_l_cnt))-(10.0* &
-                     REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_cnt))
-                crys%Pv_refi(crys%p(np)) = crys%l_cnt
-                vs%nampar(crys%p(np))=namepar(np)
-              end if
             end if
             ok_recursive=.true.
 
@@ -1498,64 +1087,10 @@
             i=i+1
             txt=adjustl(tfile(i))
 
-            read (unit = txt, fmt =*, iostat = ier) crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l), &
-                                                    crys%ref_l_r (2,j,l), crys%ref_l_r (3,j,l)
+            read (unit = txt, fmt =*, iostat = ier) ref_trans(1:4, j, l)
 
-            !read(unit=txt,fmt=*, iostat=ier) ref_trans(1:4, j, l)
-            ref_trans(1:4, j, l)=[crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l), crys%ref_l_r (2,j,l), crys%ref_l_r (3,j,l)]
-
-            if (abs(crys%ref_l_alpha (j,l)) > 0.0)  then
-                np = np + 1    !to count npar
-                crys%list (np) = crys%l_alpha (j,l)
-                write(unit=namepar(np),fmt="(a,2i1)")'alpha',l,j
-                crys%cod(np) = 1
-                ab =  (abs(crys%ref_l_alpha (j,l))/10.0)
-                crys%p(np)= int(ab)
-                crys%mult(np) = ((abs(crys%ref_l_alpha (j,l)))-(10.0* &
-                          REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_alpha (j,l)))
-                crys%Pv_refi(crys%p(np)) = crys%l_alpha (j,l)
-                vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_l_r(1,j,l)) > 0.0 ) then
-              np = np + 1
-              crys%list (np) = crys%l_r(1,j,l)
-              write(unit=namepar(np),fmt="(a,2i1)")'tx',l,j
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_l_r(1,j,l))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_l_r(1,j,l)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_r(1,j,l)))
-              crys%Pv_refi(crys%p(np)) = crys%l_r(1,j,l)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_l_r(2,j,l)) > 0.0 ) then
-              np = np + 1
-              crys%list (np) = crys%l_r(2,j,l)
-              write(unit=namepar(np),fmt="(a,2i1)")'ty',l,j
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_l_r(2,j,l))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_l_r(2,j,l)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_r(2,j,l)))
-              crys%Pv_refi(crys%p(np)) = crys%l_r(2,j,l)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
-            if (abs(crys%ref_l_r(3,j,l)) > 0.0 )  then
-              np = np + 1
-              crys%list (np) = crys%l_r(3,j,l)
-              write(unit=namepar(np),fmt="(a,2i1)")'tz',l,j
-              crys%cod(np) = 1
-              ab =  (abs(crys%ref_l_r(3,j,l))/10.0)
-              crys%p(np)= int(ab)
-              crys%mult(np) = ((abs(crys%ref_l_r(3,j,l)))-(10.0* &
-                REAL(crys%p(np))))*SIGN(1.0,(crys%ref_l_r(3,j,l)))
-              crys%Pv_refi(crys%p(np)) = crys%l_r(3,j,l)
-              vs%nampar(crys%p(np))=namepar(np)
-            end if
 
             i=i+1
-
-
 
           CASE ("FW")
             read (unit = txt, fmt =*, iostat = ier) crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
@@ -1563,10 +1098,10 @@
             val_trans(5:10, j,l)=[crys%r_b11(j,l) , crys%r_b22(j,l) , crys%r_b33(j,l) , &
                                  crys%r_b12(j,l) , crys%r_b31(j,l) , crys%r_b23(j,l)]
 
+            i=i+1
+            txt=adjustl(tfile(i))
 
-        !    read(unit=txt,fmt=*, iostat=ier) ref_trans(5:10, j, l)
-        !    ref_trans(5:10, j, l)= [crys%ref_r_b11(j,l) , crys%ref_r_b22(j,l) , crys%ref_r_b33(j,l) , &
-        !                            crys%ref_r_b12(j,l) , crys%ref_r_b31(j,l) , crys%ref_r_b23(j,l)]
+            read(unit=txt,fmt=*, iostat=ier) ref_trans(5:10, j, l)
 
             if(ier /= 0) then
               Err_crys=.true.
@@ -1888,10 +1423,8 @@
 
         Case("FILE")
 
-            read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, crys%ref_patscal
-            !read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
+            read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
             val_glb(1)=crys%patscal
-            ref_glb(1)=crys%ref_patscal
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file instruction"
@@ -1953,9 +1486,7 @@
               val_glb(18:crys%cheb_nump)=crys%chebp(1:crys%cheb_nump)
               i=i+1
               txt=adjustl(tfile(i))
-              read (unit=txt,fmt=*,iostat=ier) crys%ref_chebp(1:crys%cheb_nump)
-              !read(unit=txt,fmt=*, iostat=ier)ref_glb(18:crys%cheb_nump)
-              ref_glb(18:crys%cheb_nump)=[crys%ref_chebp(1:crys%cheb_nump)]
+              read(unit=txt,fmt=*, iostat=ier)ref_glb(18:crys%cheb_nump)
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background Chebichev instruction"
@@ -1977,10 +1508,9 @@
           Case("BGRPATT")
             crys%bgrpatt=.true.
             m=m+1
-            read(unit=txt,fmt=*,iostat=ier)  crys%bfilepat(m), crys%bscalpat(m), crys%ref_bscalpat(m)
+            read(unit=txt,fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+                                            ref_glb(17+crys%cheb_nump+m)
             val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
-            !read(unit=txt,fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), ref_glb(17+crys%cheb_nump+1:17+crys%cheb_nump+crys%num_bgrpatt)
-            ref_glb(17+crys%cheb_nump+m)=crys%ref_bscalpat(m)
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background pattern instruction"
@@ -2038,21 +1568,10 @@
         allocate(crys%a_pos(3,max_a,max_l))
         crys%a_pos=0
 
-        if (allocated (crys%ref_a_pos)) deallocate(crys%ref_a_pos)
-        allocate(crys%ref_a_pos(3,max_a,max_l))
-        crys%ref_a_pos=0
 
         if (allocated (crys%a_B)) deallocate(crys%a_B)
         allocate(crys%a_B(max_a,max_l))
         crys%a_B=0
-
-        if (allocated (crys%ref_a_B)) deallocate(crys%ref_a_B)
-        allocate(crys%ref_a_B(max_a,max_l))
-        crys%ref_a_B=0
-
-        if (allocated (crys%ref_a_occup)) deallocate(crys%ref_a_occup)
-        allocate(crys%ref_a_occup(max_a,max_l))
-        crys%ref_a_occup=0
 
         if (allocated (crys%centro)) deallocate(crys%centro)
         allocate(crys%centro(max_l))
@@ -2078,17 +1597,11 @@
         allocate(crys%l_alpha(max_a,max_l))
         crys%l_alpha=0
 
-        if (allocated (crys%ref_l_alpha)) deallocate(crys%ref_l_alpha)
-        allocate(crys%ref_l_alpha(max_a,max_l))
-        crys%ref_l_alpha=0
 
         if (allocated (crys%l_r)) deallocate(crys%l_r)
         allocate(crys%l_r(3,max_a,max_l))
         crys%l_r=0
 
-        if (allocated (crys%ref_l_r)) deallocate(crys%ref_l_r)
-        allocate(crys%ref_l_r(3,max_a,max_l))
-        crys%ref_l_r=0
 
         if (allocated (crys%r_b11)) deallocate(crys%r_b11)
         allocate(crys%r_b11(max_a,max_l))
@@ -2114,37 +1627,10 @@
         allocate(crys%r_b31(max_a,max_l))
         crys%r_b31=0
 
-        if (allocated (crys%ref_r_b11)) deallocate(crys%ref_r_b11)
-        allocate(crys%ref_r_b11(max_a,max_l))
-        crys%ref_r_b11=0
-
-        if (allocated (crys%ref_r_b22)) deallocate(crys%ref_r_b22)
-        allocate(crys%ref_r_b22(max_a,max_l))
-        crys%ref_r_b22=0
-
-        if (allocated (crys%ref_r_b33)) deallocate(crys%ref_r_b33)
-        allocate(crys%ref_r_b33(max_a,max_l))
-        crys%ref_r_b33=0
-
-        if (allocated (crys%ref_r_b12)) deallocate(crys%ref_r_b12)
-        allocate(crys%ref_r_b12(max_a,max_l))
-        crys%ref_r_b12=0
-
-        if (allocated (crys%ref_r_b23)) deallocate(crys%ref_r_b23)
-        allocate(crys%ref_r_b23(max_a,max_l))
-        crys%ref_r_b23=0
-
-        if (allocated (crys%ref_r_b31)) deallocate(crys%ref_r_b31)
-        allocate(crys%ref_r_b31(max_a,max_l))
-        crys%ref_r_b31=0
-
         if (allocated (crys%chebp)) deallocate(crys%chebp)
         allocate(crys%chebp(max_n_cheb))
         crys%chebp=0
 
-        if (allocated (crys%ref_chebp)) deallocate(crys%ref_chebp)
-        allocate(crys%ref_chebp(max_n_cheb))
-        crys%ref_chebp=0
 
         if (allocated (crys%bfilepat)) deallocate(crys%bfilepat)
         allocate(crys%bfilepat(max_bgr_num))
@@ -2154,9 +1640,6 @@
         allocate(crys%bscalpat(max_bgr_num))
         crys%bscalpat=0
 
-        if (allocated (crys%ref_bscalpat)) deallocate(crys%ref_bscalpat)
-        allocate(crys%ref_bscalpat(max_bgr_num))
-        crys%ref_bscalpat=0
 
         if(allocated (crys%list)) deallocate(crys%list)
         allocate(crys%list(max_npar))
@@ -2362,7 +1845,6 @@
       Subroutine Restore_Codes()
         !---- Local Variables ----!
         integer :: i, j, k
-!-------------------------------------------------------------------------------------------------------
 
         do i=1,LGBLT
           ref_glb(i)=sign(1.0_cp,ref_glb(i))*(real(10*lglb(i))+abs(ref_glb(i)))
@@ -2389,178 +1871,178 @@
      Subroutine Modify_codes(Lcode_max)
        integer, intent (in out) :: Lcode_max
        integer                  :: n_pat, k, l , kk, i, j, iof, n_given,  &
-                                   n_att, ndisp, nn, ni, ndispm,iom,nd,maxs
+                                   n_att, ndisp, nn, ni, ndispm,nd,maxs
        integer, dimension(Lcode_max) :: disp
        real(kind=cp), parameter      :: e=0.001
-     !
-     !  Check correlated parameters and already used codes
-     !
-     ndisp=0
-     n_given=0
-     disp(:)=0
-     ! First Pass
-      Do L=1, Lcode_max
+       !
+       !  Check correlated parameters and already used codes
+       !
+       ndisp=0
+       n_given=0
+       disp(:)=0
+       ! First Pass
+        Do L=1, Lcode_max
+          ni=0
+          do k=1, LGBLT
+            IF (L == Lglb(k)) ni=ni+1
+          end do
+
+          do k=1, crys%n_actual
+            do i=1, crys%l_n_atoms(k)
+              do j=1,5
+                IF (L == Latom(j,i,k)) ni=ni+1
+              end do
+            end do
+          end do
+
+          do k=1, crys%n_typ
+            do i=1, crys%n_typ
+              do j=1, 10
+                IF (L == Ltrans(j, i, k)) ni=ni+1
+              end do
+            end do
+          end do
+
+          if(ni==0) then
+            ndisp=ndisp+1  !number of disponible codes
+            disp(ndisp)=L  !disponible code number
+          else
+            n_given=n_given+1  !number of given codes
+          end if
+!
+       End Do !=1,Lcode_max
+!
+       if(ndisp == 0) return  !all codes have been attributed
+
+        !
+        ! Attributing numbers to parameters (not already attributed) with multipliers
+        ! different from zero. First the attribution is taken from the vector disp() and
+        ! continued, after finishing the disponible codes, from Lcode_max+1, ...
+        ! If after attributing the codes ndisp /=0, then a displacement of all parameters
+        ! is done and the maximum number of parameters to be refined is diminished by
+        ! ndisp
+        !
+        ndispm=ndisp !number of disponible codes before attributing code numbers
         ni=0
-        do k=1, LGBLT
-          IF (L == Lglb(k)) ni=ni+1
-        end do
-
-        do k=1, crys%n_actual
-          do i=1, crys%l_n_atoms(k)
-            do j=1,5
-              IF (L == Latom(j,i,k)) ni=ni+1
-            end do
-          end do
-        end do
-
-        do k=1, crys%n_typ
-          do i=1, crys%n_typ
-            do j=1, 10
-              IF (L == Ltrans(j, i, k)) ni=ni+1
-            end do
-          end do
-        end do
-
-        if(ni==0) then
-          ndisp=ndisp+1  !number of disponible codes
-          disp(ndisp)=L  !disponible code number
-        else
-          n_given=n_given+1  !number of given codes
-        end if
-!
-     End Do !=1,Lcode_max
-!
-     if(ndisp == 0) return  !all codes have been attributed
-
-      !
-      ! Attributing numbers to parameters (not already attributed) with multipliers
-      ! different from zero. First the attribution is taken from the vector disp() and
-      ! continued, after finishing the disponible codes, from Lcode_max+1, ...
-      ! If after attributing the codes ndisp /=0, then a displacement of all parameters
-      ! is done and the maximum number of parameters to be refined is diminished by
-      ! ndisp
-      !
-      ndispm=ndisp !number of disponible codes before attributing code numbers
-      ni=0
-      nn=Lcode_max
-      n_att=0
-     ! Test Global Parameters
-       do j =1,LGBLT
-         if (abs(ref_glb(j)) > e .and. lglb(j) == 0 ) then
-           if(abs(ref_glb(j)) > 1.001) then
-              ref_glb(j)=sign(1.0_cp,ref_glb(j))*(abs(ref_glb(j))-1.0)
+        nn=Lcode_max
+        n_att=0
+       ! Test Global Parameters
+         do j =1,LGBLT
+           if (abs(ref_glb(j)) > e .and. lglb(j) == 0 ) then
+             if(abs(ref_glb(j)) > 1.001) then
+                ref_glb(j)=sign(1.0_cp,ref_glb(j))*(abs(ref_glb(j))-1.0)
+             end if
+             if(ndisp==0) then
+               nn=nn+1
+               lglb(j)=nn
+               n_att=n_att+1
+             else
+               ni=ni+1
+               lglb(j)=disp(ni)
+               n_att=n_att+1
+               ndisp=ndisp-1
+             end if
            end if
-           if(ndisp==0) then
+         end do
+
+         ! Test Atom Parameters
+
+         do k=1, crys%n_actual
+           do i=1, crys%l_n_atoms(k)
+             do j=1,5
+                if(abs(ref_atom(j,i,k)) > e .and. Latom(j,i,k) == 0 ) then
+                  if(abs(ref_atom(j,i,k)) > 1.001) then
+                     ref_atom(j,i,k)=sign(1.0_cp,ref_atom(j,i,k))*(abs(ref_atom(j,i,k))-1.0)
+                  end if
+                  if(ndisp==0) then
+                    nn=nn+1
+                    Latom(j,i,k)=nn
+                    n_att=n_att+1
+                  else
+                    ni=ni+1
+                    Latom(j,i,k)=disp(ni)
+                    n_att=n_att+1
+                    ndisp=ndisp-1
+                  end if
+                end if
+             end do
+           end do
+         end do
+
+         ! Test Transition Parameters
+
+         do k=1, crys%n_typ
+           do i=1, crys%n_typ
+             do j=1, 10
+                if(abs(ref_trans(j,i,k)) > e .and. Ltrans(j,i,k) == 0 ) then
+                  if(abs(ref_trans(j,i,k)) > 1.001) then
+                     ref_trans(j,i,k)=sign(1.0_cp,ref_trans(j,i,k))*(abs(ref_trans(j,i,k))-1.0)
+                  end if
+                  if(ndisp==0) then
+                    nn=nn+1
+                    Ltrans(j,i,k)=nn
+                    n_att=n_att+1
+                  else
+                    ni=ni+1
+                    Ltrans(j,i,k)=disp(ni)
+                    n_att=n_att+1
+                    ndisp=ndisp-1
+                  end if
+                end if
+             end do
+           end do
+         end do
+
+         if(ndisp == 0) then
+           maxs=nn
+           return  !all parameters have been attributed
+         end if
+
+         maxs=n_given+n_att    !Number of refined parameters (given + attributed)
+
+         ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
+
+       n_att=ndispm-ndisp+1
+
+
+       DO L=Lcode_max, maxs+1,-1
+        nn=0
+         do j =1,LGBLT
+           if (L == lglb(j)) then
+             lglb(j)=disp(n_att)
              nn=nn+1
-             lglb(j)=nn
-             n_att=n_att+1
-           else
-             ni=ni+1
-             lglb(j)=disp(ni)
-             n_att=n_att+1
-             ndisp=ndisp-1
            end if
-         end if
-       end do
+         end do
 
-       ! Test Atom Parameters
-
-       do k=1, crys%n_actual
-         do i=1, crys%l_n_atoms(k)
-           do j=1,5
-              if(abs(ref_atom(j,i,k)) > e .and. Latom(j,i,k) == 0 ) then
-                if(abs(ref_atom(j,i,k)) > 1.001) then
-                   ref_atom(j,i,k)=sign(1.0_cp,ref_atom(j,i,k))*(abs(ref_atom(j,i,k))-1.0)
-                end if
-                if(ndisp==0) then
+         do k=1, crys%n_actual
+           do i=1, crys%l_n_atoms(k)
+             do j=1,5
+                if(L == Latom(j,i,k)) then
+                  Latom(j,i,k)=disp(n_att)
                   nn=nn+1
-                  Latom(j,i,k)=nn
-                  n_att=n_att+1
-                else
-                  ni=ni+1
-                  Latom(j,i,k)=disp(ni)
-                  n_att=n_att+1
-                  ndisp=ndisp-1
                 end if
-              end if
+             end do
            end do
          end do
-       end do
 
-       ! Test Transition Parameters
-
-       do k=1, crys%n_typ
-         do i=1, crys%n_typ
-           do j=1, 10
-              if(abs(ref_trans(j,i,k)) > e .and. Ltrans(j,i,k) == 0 ) then
-                if(abs(ref_trans(j,i,k)) > 1.001) then
-                   ref_trans(j,i,k)=sign(1.0_cp,ref_trans(j,i,k))*(abs(ref_trans(j,i,k))-1.0)
-                end if
-                if(ndisp==0) then
+         do k=1, crys%n_typ
+           do i=1, crys%n_typ
+             do j=1, 10
+                if(L == Ltrans(j,i,k)) then
+                  Ltrans(j,i,k)=disp(n_att)
                   nn=nn+1
-                  Ltrans(j,i,k)=nn
-                  n_att=n_att+1
-                else
-                  ni=ni+1
-                  Ltrans(j,i,k)=disp(ni)
-                  n_att=n_att+1
-                  ndisp=ndisp-1
                 end if
-              end if
+             end do
            end do
          end do
-       end do
 
-       if(ndisp == 0) then
-         maxs=nn
-         return  !all parameters have been attributed
-       end if
+         if(nn == 0) cycle
+         n_att=n_att+1
+         if(n_att > ndispm) exit
+       END DO !i=Lcode_max,maxs+1,-1
+       Lcode_max=maxs
 
-       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
-
-       ! Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
-
-     n_att=ndispm-ndisp+1
-
-
-     DO L=Lcode_max, maxs+1,-1
-      nn=0
-       do j =1,LGBLT
-         if (L == lglb(j)) then
-           lglb(j)=disp(n_att)
-           nn=nn+1
-         end if
-       end do
-
-       do k=1, crys%n_actual
-         do i=1, crys%l_n_atoms(k)
-           do j=1,5
-              if(L == Latom(j,i,k)) then
-                Latom(j,i,k)=disp(n_att)
-                nn=nn+1
-              end if
-           end do
-         end do
-       end do
-
-       do k=1, crys%n_typ
-         do i=1, crys%n_typ
-           do j=1, 10
-              if(L == Ltrans(j,i,k)) then
-                Ltrans(j,i,k)=disp(n_att)
-                nn=nn+1
-              end if
-           end do
-         end do
-       end do
-
-       if(nn == 0) cycle
-       n_att=n_att+1
-       if(n_att > ndispm) exit
-     END DO !i=Lcode_max,maxs+1,-1
-     Lcode_max=maxs
-
-     return
+       return
      End Subroutine Modify_codes
 
      Subroutine Update_all(Lcode_Max)
