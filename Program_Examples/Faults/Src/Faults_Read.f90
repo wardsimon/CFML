@@ -7,9 +7,9 @@
        use diffax_mod
        implicit none
 
-       private
+       !private
        !public subroutines
-       public:: read_structure_file, length
+       !public:: read_structure_file, length
 
        integer, parameter :: max_bgr_num=10 !maximum number of pattern backgrounds
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
@@ -1181,6 +1181,7 @@
               crys%p(np)= int(ab)
               crys%mult(np) = ((abs(crys%ref_a_pos(3, d(r),r)))-(10.0* &
                 REAL(crys%p(np))))*SIGN(1.0,(crys%ref_a_pos(3, k,r)))
+                write(*,*) "crys%mult(np)", crys%mult(np)
               crys%Pv_refi(crys%p(np)) =crys%a_pos(3, d(r),r)
               vs%nampar(crys%p(np))=namepar(np)
             end if
@@ -2314,8 +2315,6 @@
           end do
         end if
 
-
-
         return
       End subroutine  read_structure_file
 
@@ -2578,6 +2577,7 @@
            crys%list(np)=val_glb(j)
            crys%p(np)=lglb(j)
            crys%Pv_refi(crys%p(np))=val_glb(j)
+           crys%mult(np)=ref_glb(j)
            if(j <= 17) then
               namepar(np) = names_glb(j)
            else if (j> 17 .and. j <= 17+crys%cheb_nump ) then
@@ -2597,6 +2597,7 @@
                 crys%list(np)=val_atom(j,i,k)
                 crys%p(np)=Latom(j,i,k)
                 crys%Pv_refi(crys%p(np))=val_atom(j,i,k)
+                crys%mult(np)=ref_atom(j,i,k)
                 Select Case(j)
                   Case(1) ; write(namepar(np),"(a,2i2.2)") 'pos_x',i,k
                   Case(2) ; write(namepar(np),"(a,2i2.2)") 'pos_y',i,k
@@ -2618,6 +2619,7 @@
                 crys%list(np)=val_trans(j,i,k)
                 crys%p(np)=Ltrans(j,i,k)
                 crys%Pv_refi(crys%p(np))=val_trans(j,i,k)
+                crys%mult(np)=ref_trans(j,i,k)
                 Select Case (j)
                    Case(1) ; write(namepar(np),"(a,2i2.2)")"alpha",k,i
                    Case(2) ; write(namepar(np),"(a,2i2.2)")"tx"   ,k,i

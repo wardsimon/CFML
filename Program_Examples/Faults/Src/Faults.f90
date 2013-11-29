@@ -5,7 +5,7 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use read_data,                  only : opti, crys_2d_type, crys, cond
+      use read_data!,                  only : opti, crys_2d_type, crys, cond
       use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
 
       implicit none
@@ -225,7 +225,7 @@
           CHARACTER(LEN=80)                  :: list(2)
 
           call vs2faults(vs, crys)
-
+          call Restore_Codes()
 
           write(i_ftls,"(a)")          "TITLE"
           write(i_ftls,"(a)")          crys%ttl
@@ -245,36 +245,32 @@
 
           write(i_ftls,"(a)")          "!instrumental aberrations      zero      sycos     sysin"
           write(i_ftls,"(a,3f10.4)") " Aberrations               ", crys%zero_shift, crys%sycos, crys%sysin
-          write(i_ftls,"(tr25,3f10.2)") crys%ref_zero_shift, crys%ref_sycos,  crys%ref_sysin
+          write(i_ftls,"(tr25,3f10.2)") ref_glb(2:4)
 
           if (crys%broad == ps_vgt .and. crys%trm) then
             write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
             write(i_ftls,"(a,4f12.6,2f11.2, a)") " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
-            write(i_ftls,"(tr16,4f12.2,2f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                           crys%ref_p_dl
+            write(i_ftls,"(tr16,4f12.2,2f11.2)")  ref_glb(5:10)
           elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
             write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
             write(i_ftls,"(a,4f12.6,2f11.2)")   " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
-            write(i_ftls,"(tr16,4f12.2,2f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg, &
-                                                  crys%ref_p_dl
+            write(i_ftls,"(tr16,4f12.2,2f11.2)")  ref_glb(5:10)
           elseif (crys%broad == pv_gss .and. crys%trm) then
             write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg"
             write(i_ftls,"(a,4f12.6,f11.2, a)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
-            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:9)
           elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
             write(i_ftls,"(a)")  "!instr. broadening       u           v           w           x         Dg"
             write(i_ftls,"(a,4f12.6,1f11.2)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg
-            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  crys%ref_p_dg
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:9)
           elseif (crys%broad == pv_lrn .and. crys%trm ) then
             write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
             write(i_ftls,"(a,4f12.6,1f11.2 a)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
-            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                                 crys%ref_p_dl
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:8), ref_glb(10)
           elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
             write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
             write(i_ftls,"(a,4f12.6,1f11.2)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl
-            write(i_ftls,"(tr16,4f12.2,f11.2)")  crys%ref_p_u, crys%ref_p_v,  crys%ref_p_w, crys%ref_p_x,  &
-                                                 crys%ref_p_dl
+            write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:8), ref_glb(10)
           else
             write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
             return
@@ -285,7 +281,7 @@
           write(i_ftls,"(a)")          " STRUCTURAL  "
           write(i_ftls,"(a)")          " !         a            b            c          gamma "
           write(i_ftls,"(a,3f12.6,f12.2)")   " CELL  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
-          write(i_ftls,"(tr7,4f12.2)")  crys%ref_cell_a, crys%ref_cell_b, crys%ref_cell_c, crys%ref_cell_gamma
+          write(i_ftls,"(tr7,4f12.2)")  ref_glb(11:14)
           write(i_ftls,"(a)")        "!Laue symmetry"
           write(i_ftls,*)            "SYMM  ", pnt_grp
           write(i_ftls,"(a)")        "!number of layer types"
@@ -293,7 +289,7 @@
           write(i_ftls,"(a)")       "!layer width"
           if (crys%finite_width) then
             write(i_ftls,"(a,2f10.2)") " LWIDTH",   Wa, Wb
-            write(i_ftls,"(2f10.2)")    crys%ref_layer_a, crys%ref_layer_b
+            write(i_ftls,"(2f10.2)")    ref_glb(15:16)
           else
             write(i_ftls,"(a)")        " LWIDTH  INFINITE"
           end if
@@ -317,8 +313,7 @@
                 write(i_ftls,"(2a)")      "!Atom name   number   x         y         z         Biso      Occ  "
                 write(i_ftls,"(2a,i9, 5f10.5)") " ATOM ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
                                            a_pos(2, a,c)/pi2,a_pos(3, a,c)/pi2, a_B (a,c), a_occup(a,c)
-                write(i_ftls,"(tr19,5f10.2)") crys%ref_a_pos(1, a,c), crys%ref_a_pos(2, a,c), &
-                                                  crys%ref_a_pos(3, a,c), crys%ref_a_B(a,c), crys%ref_a_occup(a,c)
+                write(i_ftls,"(tr19,5f10.2)") ref_atom(1:5,a,c)
               end do
             end if
           end do
@@ -347,7 +342,7 @@
                write (i_ftls, "(a)") " INFINITE"
              else
                write (i_ftls, "( f6.1)") l_cnt
-               write (i_ftls, "( f6.1,a)")  crys%ref_l_cnt
+               write (i_ftls, "( f6.1,a)")  ref_glb(17)
              end if
           end if
           write(i_ftls,"(a)")              "  "
@@ -362,12 +357,10 @@
               write(i_ftls, "(a, 4f10.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
 
 
-              write(i_ftls, "(f13.6,3f10.2)")  crys%ref_l_alpha (j,l), crys%ref_l_r (1,j,l),crys%ref_l_r (2,j,l), &
-                                                      crys%ref_l_r (3,j,l)
+              write(i_ftls, "(f13.6,3f10.2)")  ref_trans(1:4, j, l)
               write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
                                                  r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
-              write(i_ftls, "(f13.2, 5f10.2)") crys%ref_r_b11 (j,l), crys%ref_r_b22 (j,l) , crys%ref_r_b33 (j,l) , &
-                                               crys%ref_r_b12 (j,l) ,crys%ref_r_b31 (j,l) , crys%ref_r_b23 (j,l)
+              write(i_ftls, "(f13.2, 5f10.2)") ref_trans(5:10, j, l)
             end do
           end do
           write(i_ftls,"(a)")              "  "
@@ -397,7 +390,7 @@
             write(i_ftls,"(a)")              "  "
             write(i_ftls,"(a)")          " EXPERIMENTAL"
             write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
-            write(i_ftls,"(2a, g14.4,f9.2)")         " FILE  ", dfile, crys%patscal, crys%ref_patscal
+            write(i_ftls,"(2a, g14.4,f9.2)")         " FILE  ", dfile, crys%patscal, ref_glb(1)
             if (nexcrg /= 0) then
               write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
               do i=1,nexcrg
@@ -415,14 +408,14 @@
               write(i_ftls,"(a, i2)")         " BGRCHEB          ", crys%cheb_nump
               write(i_ftls,"(a)") "!Polynomial coefficients"
               write(i_ftls,"(24f12.5)")  crys%chebp(1:crys%cheb_nump)
-              write(i_ftls,"(24f12.5)")  crys%ref_chebp(1:crys%cheb_nump)
+              write(i_ftls,"(24f12.5)")  ref_glb(18:crys%cheb_nump)
             end if
             if (crys%bgrpatt) then
               write(i_ftls,"(a)")        "!number of pattern backgrounds"
               write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%num_bgrpatt
               write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code"
               do i=1, crys%num_bgrpatt
-                write(i_ftls,"(2a, g18.5,f10.2)")  " BGRPATT    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), crys%ref_bscalpat(i)
+                write(i_ftls,"(2a, g18.5,f10.2)")  " BGRPATT    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), ref_glb(17+crys%cheb_nump+i)
               end do
             end if
 
