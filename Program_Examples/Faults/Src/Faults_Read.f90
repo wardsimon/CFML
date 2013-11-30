@@ -1,7 +1,7 @@
     Module read_data
        use CFML_GlobalDeps,           only : sp , cp
        use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
-                                             err_string_mess, getnum, Ucase, cutst
+                                             err_string_mess, getnum, U_case, cutst
        use CFML_Optimization_General, only : Opt_Conditions_Type
        use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
        use diffax_mod
@@ -9,7 +9,7 @@
 
        !private
        !public subroutines
-       !public:: read_structure_file, length
+       !public:: read_structure_file, length, Read_Bgr_patterns
 
        integer, parameter :: max_bgr_num=10 !maximum number of pattern backgrounds
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
@@ -79,7 +79,9 @@
          logical             :: trm            !trim keyword: to supress peak at origin >trim_origin
          logical             :: bgrpatt, bgrinter, bgrcheb
          character(len=4),  dimension(:,:),allocatable :: a_name  !atom name (4characters wide)>atom_l o a_name?
-         character(len=20), dimension(:),  allocatable :: bfilepat            !filename for bgrpatt
+         character(len=20), dimension(:),  allocatable :: bfilepat  !filename for bgrpatt
+         character(len=20), dimension(:),  allocatable :: bfilehkl  !filename for reflection indices and positions associated to a
+                                                                    !background pattern
          integer, dimension(:),     allocatable  :: centro              !layer symmetry : none or centrosymmetric  >only_real
          integer, dimension(:),     allocatable  :: cod
          integer, dimension(:,:),   allocatable  :: a_num               !atom number  > a_number
@@ -120,13 +122,59 @@
                                             !5:STACKING , 6:TRANSITIONS, 7:CALCULATION,
                                             !8:EXPERIMENTAL
 
-      type (crys_2d_type),            save,  public  :: crys
-      type (Opt_Conditions_Type),     save,  public  :: opti
-      type (LSQ_Conditions_type),     save,  public  :: cond
-      type (LSQ_State_Vector_Type),   save,  public  :: Vs
-
+      type (crys_2d_type),             save,  public  :: crys
+      type (Opt_Conditions_Type),      save,  public  :: opti
+      type (LSQ_Conditions_type),      save,  public  :: cond
+      type (LSQ_State_Vector_Type),    save,  public  :: Vs
+      Real, dimension(:,:),     allocatable,  public  :: bgr_patt
+      Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
+      integer, dimension(:,:,:),allocatable,  public  :: bgr_hkl_ind
+      integer, dimension(:),    allocatable,  public  :: bgr_hkl_nref
 
    contains
+
+    Subroutine Read_Bgr_patterns()
+      integer :: i,j,k,i_pat,nlin,maxref
+      real    :: ai,st,af
+      character(len=132) :: line
+      logical :: done
+      done=.false.
+      nlin=0; maxref=0
+      do i=1,crys%num_bgrpatt
+        if(len_trim(crys%bfilehkl(i)) /= 0) then
+          call number_lines(trim(crys%bfilehkl(i)),nlin)
+          if(nlin > maxref) maxref=nlin
+          done=.true.
+        end if
+      end do
+      if(done) then
+        allocate(bgr_hkl_pos(maxref,crys%num_bgrpatt))
+        allocate(bgr_hkl_ind(3,maxref,crys%num_bgrpatt))
+        allocate(bgr_hkl_nref(crys%num_bgrpatt))
+        bgr_hkl_nref=0
+        bgr_hkl_pos=0.0
+        bgr_hkl_ind=0
+     end if
+      do i=1,crys%num_bgrpatt
+         open(newunit=i_pat,file=trim(crys%bfilepat(i)),status="old",action="read",position="rewind")
+         read(unit=i_pat,fmt=*) ai,st,af
+         read(unit=i_pat,fmt=*) bgr_patt(:,i)
+         close(unit=i_pat)
+         if(.not. done) cycle
+         if(len_trim(crys%bfilehkl(i)) /= 0) then
+           call number_lines(trim(crys%bfilehkl(i)),nlin)
+           bgr_hkl_nref(i)=nlin-3
+           open(newunit=i_pat,file=trim(crys%bfilehkl(i)),status="old",action="read",position="rewind")
+           read(unit=i_pat,fmt="(a)") line
+           read(unit=i_pat,fmt="(a)") line
+           read(unit=i_pat,fmt="(a)") line
+           do j=1, bgr_hkl_nref(i)
+             read(unit=i_pat,fmt=*) bgr_hkl_ind(:,j,i),k,ai,bgr_hkl_pos(j,i)
+           end do
+           close(unit=i_pat)
+         end if
+      end do
+    End Subroutine Read_Bgr_patterns
 
     Subroutine Set_TFile(namef,logi)
       character(len=*),  intent(in)  :: namef
@@ -147,9 +195,9 @@
         call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
       end if
       close(unit=i_data)
-      do i = 1, numberl                 ! To read in case insensitive mode
-        call Ucase(tfile(i))
-      end do
+      !do i = 1, numberl                 ! To read in case insensitive mode
+      !  call u_case(tfile(i))
+      !end do
       call Set_Sections_index()
       return
     End Subroutine Set_TFile
@@ -197,44 +245,44 @@
       l=0   !counts n_layer
       global:   do
         k=k+1; if(k > numberl) exit
-        txt=adjustl(tfile(k))
+        txt=u_case(adjustl(tfile(k)))
         if(txt(1:5) == "TITLE") then
           sect_indx(1) = k
           do
             k=k+1; if(k > numberl) exit
-            txt=adjustl(tfile(k))
+            txt=u_case(adjustl(tfile(k)))
             if(txt(1:12) == "INSTRUMENTAL") then
               sect_indx(2) = k
               do
                 k=k+1; if(k > numberl) exit
-                txt=adjustl(tfile(k))
+                txt=u_case(adjustl(tfile(k)))
                 if(txt(1:10) == "STRUCTURAL") then
                   sect_indx(3) = k
                   do
                     k=k+1; if(k > numberl) exit
-                    txt=adjustl(tfile(k))
+                    txt=u_case(adjustl(tfile(k)))
                     if(txt(1:5) == "LAYER") then
                        sect_indx(4) = k
                        !n_actual=r+1
                        n_layers=l+1
                        do
                          k=k+1; if(k > numberl) exit
-                         txt=adjustl(tfile(k))
+                         txt=u_case(adjustl(tfile(k)))
                          if(txt(1:8) == "STACKING") then
                             sect_indx(5) = k
                             do
                               k=k+1; if(k > numberl) exit
-                              txt=adjustl(tfile(k))
+                              txt=u_case(adjustl(tfile(k)))
                               if(txt(1:11) == "TRANSITIONS") then
                                  sect_indx(6) = k
                                  do
                                    k=k+1; if(k > numberl) exit
-                                   txt=adjustl(tfile(k))
+                                   txt=u_case(adjustl(tfile(k)))
                                    if(txt(1:11) == "CALCULATION") then
                                       sect_indx(7) = k
                                       do
                                         k=k+1; if(k > numberl) exit
-                                        txt=adjustl(tfile(k))
+                                        txt=u_case(adjustl(tfile(k)))
                                         if(txt(1:12) == "EXPERIMENTAL") then
                                            sect_indx(8) = k
                                            exit global
@@ -314,7 +362,7 @@
       do
 
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
         key=txt(1:k-1)
@@ -505,7 +553,7 @@
       do
 
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
         key=txt(1:k-1)
@@ -711,7 +759,7 @@
        m=0
       do
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
 
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
@@ -769,8 +817,8 @@
 
             d(r)=d(r)+1
 
-            call getword(txt, citem, nitem)
-            do m=1, 3
+            call getword(tfile(i)(k+1:), citem, nitem)
+            do m=1,3
 
               call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
               val_atom(1:3, d(r),r)=crys%a_pos(m, d(r),r)
@@ -874,7 +922,7 @@
       do
 
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
         key=txt(1:k-1)
@@ -888,7 +936,7 @@
             txt=adjustl(tfile(i))
             if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
               i=i+1
-              txt=adjustl(tfile(i))
+              txt=u_case(adjustl(tfile(i)))
             end if
             if (index(txt , 'SPECIFIC')/=0 ) then
               crys%spcfc=.true.
@@ -922,7 +970,7 @@
                 rndm = .true.
                 crys%n_seq=0
                 i=i+1
-                txt=adjustl(tfile(i))
+                txt=u_case(adjustl(tfile(i)))
                 if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
                 if (index(txt , 'SEQ')==1) then
                   read (unit = txt, fmt = *, iostat = ier) seq, j1, j2, l1, l2
@@ -978,10 +1026,10 @@
           Case("RECURSIVE")
             crys%recrsv = .true.
             i=i+1
-            txt=adjustl(tfile(i))
+            txt=u_case(adjustl(tfile(i)))
             if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
               i=i+1
-              txt=adjustl(tfile(i))
+              txt=u_case(adjustl(tfile(i)))
             end if
             if (index(txt , 'INFINITE')==1) then
               crys%inf_thick = .true.
@@ -1044,7 +1092,7 @@
 
         do
           if(i > i2) exit
-          txt=adjustl(tfile(i))
+          txt=u_case(adjustl(tfile(i)))
           if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) then
            i=i+1
            cycle
@@ -1169,7 +1217,7 @@
 
       do
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
 
         k=index(txt," ")
@@ -1412,7 +1460,7 @@
       do
 
         i=i+1; if(i > i2) exit
-        txt=adjustl(tfile(i))
+        txt=u_case(adjustl(tfile(i)))
         if( len_trim(txt) == 0 .or. txt(1:1) == "!" .or. txt(1:1) == "{" ) cycle
         k=index(txt," ")
         key=txt(1:k-1)
@@ -1421,9 +1469,9 @@
         Select Case(key)
 
 
-        Case("FILE")
+        Case("FILE")   !Here read tfile that conserves the true file name
 
-            read(unit=txt,fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
+            read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)   dfile, crys%patscal, ref_glb(1)
             val_glb(1)=crys%patscal
               if(ier /= 0 ) then
                   Err_crys=.true.
@@ -1468,7 +1516,7 @@
           Case("BGRINTER")
             crys%bgrinter=.true.
             mode = "INTERPOLATION"
-            read(unit=txt,fmt=*,iostat=ier)  background_file
+            read(unit=tfile(i)(k+1:),fmt=*,iostat=ier)  background_file
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading background linear interpolation instruction"
@@ -1508,15 +1556,20 @@
           Case("BGRPATT")
             crys%bgrpatt=.true.
             m=m+1
-            read(unit=txt,fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
-                                            ref_glb(17+crys%cheb_nump+m)
+            !First try to read the name of the hkl file
+            read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+                                                       ref_glb(17+crys%cheb_nump+m),crys%bfilehkl(m)
+            if(ier /= 0) then !if not re-read only the background file name the scale factor and the code
+               read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+                                                       ref_glb(17+crys%cheb_nump+m)
+            end if
+            if(ier /= 0 ) then
+                Err_crys=.true.
+                Err_crys_mess="ERROR reading background pattern instruction"
+                logi=.false.
+                return
+            end if
             val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
-              if(ier /= 0 ) then
-                  Err_crys=.true.
-                  Err_crys_mess="ERROR reading background pattern instruction"
-                  logi=.false.
-                  return
-              end if
               ok_bgrpatt=.true.
 
           Case Default
@@ -1635,6 +1688,10 @@
         if (allocated (crys%bfilepat)) deallocate(crys%bfilepat)
         allocate(crys%bfilepat(max_bgr_num))
         crys%bfilepat=" "
+
+        if (allocated (crys%bfilehkl)) deallocate(crys%bfilehkl)
+        allocate(crys%bfilehkl(max_bgr_num))
+        crys%bfilehkl=" "
 
         if (allocated (crys%bscalpat)) deallocate(crys%bscalpat)
         allocate(crys%bscalpat(max_bgr_num))
@@ -1793,9 +1850,6 @@
            vs%code(crys%p(i)) = 1
           end do
           vs%np= opti%npar
-          do i=1,Lcode_max
-            write(*,*) i,vs%nampar(i),vs%pv(i)
-          end do
         end if
 
         return
@@ -1804,12 +1858,6 @@
       Subroutine Treat_codes(Lcode_max)
        integer, intent (out)     :: Lcode_max
        integer                   :: k, i, j, iyy
-!      real(kind=cp)             :: x
-!      integer, dimension(npatt) :: patfas
-!      logical                   :: chir
-!
-!       Lcode_max=0
-!       !Instrumental aberrations
 
         do k=1, LGBLT
            Lglb(k) =  int(abs(ref_glb(k)/10.0))  !ordinal
@@ -2065,7 +2113,7 @@
            else if (j> 17 .and. j <= 17+crys%cheb_nump ) then
               write(namepar(np),"(a,i2.2)") "ChebCoeff_",j-17
            else if (j> 17+crys%cheb_nump .and. j <= LGBLT ) then
-              write(namepar(np),"(a,i2.2)") "Bgk_Scale_",j-(17+crys%num_bgrpatt)
+              write(namepar(np),"(a,i2.2)") "Bkg_Scale_",j-(17+crys%cheb_nump)
            end if
            vs%nampar(crys%p(np))=namepar(np)
          end if
@@ -2125,4 +2173,4 @@
 
      End Subroutine Update_all
 
-    End module read_data
+    End Module read_data

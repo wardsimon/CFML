@@ -13,7 +13,7 @@
       private
 
       !public subroutines
-      public :: scale_factor_lmq, Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
+      public :: calc_fullpat_lmq, Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
 
       contains
 !________________________________________________________________________________________________________________________
@@ -112,7 +112,7 @@
                 read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
                 crys%chebp(a)  = state(i)
             end if
-            if (index (namepar(i), 'Bgk_Scale_' ) == 1)     then
+            if (index (namepar(i), 'Bkg_Scale_' ) == 1)     then
                 read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
                 crys%bscalpat(a)  = state(i)
             end if
@@ -225,7 +225,7 @@
        CHARACTER(LEN=80), dimension(2)    :: list
 
        call vs2faults(vs, crys)
-       call Restore_Codes() !the ref_* varaibles are now the original codes
+       call Restore_Codes() !the ref_* variables are now the original codes
 
        !Here we use the DIFFAX variables or the type Crys
        write(i_ftls,"(a)")          "TITLE"
@@ -250,27 +250,27 @@
 
        if (crys%broad == ps_vgt .and. crys%trm) then
          write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
-         write(i_ftls,"(a,4f12.6,2f11.2, a)") " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
+         write(i_ftls,"(a,4f12.6,2f11.2, a)") " Pseudo-Voigt   ", pv_u, pv_v, pv_w, pv_x, pv_dg,pv_dl, " TRIM"
          write(i_ftls,"(tr16,4f12.2,2f11.2)")  ref_glb(5:10)
        elseif (crys%broad == ps_vgt .and. .not. crys%trm ) then
          write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg         Dl"
-         write(i_ftls,"(a,4f12.6,2f11.2)")   " PSEUDO-VOIGT   ", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
+         write(i_ftls,"(a,4f12.6,2f11.2)")   " Pseudo-Voigt   ", pv_u, pv_v, pv_w, pv_x, pv_dg, pv_dl
          write(i_ftls,"(tr16,4f12.2,2f11.2)")  ref_glb(5:10)
        elseif (crys%broad == pv_gss .and. crys%trm) then
          write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dg"
-         write(i_ftls,"(a,4f12.6,f11.2, a)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
+         write(i_ftls,"(a,4f12.6,f11.2, a)") "    Gaussian    ", pv_u, pv_v, pv_w, pv_x, pv_dg, "TRIM"
          write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:9)
        elseif (crys%broad == pv_gss .and. .not. crys%trm ) then
          write(i_ftls,"(a)")  "!instr. broadening       u           v           w           x         Dg"
-         write(i_ftls,"(a,4f12.6,1f11.2)") "    GAUSSIAN    ", pv_u, pv_v, pv_w, pv_x, pv_dg
+         write(i_ftls,"(a,4f12.6,1f11.2)") "    Gaussian    ", pv_u, pv_v, pv_w, pv_x, pv_dg
          write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:9)
        elseif (crys%broad == pv_lrn .and. crys%trm ) then
          write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
-         write(i_ftls,"(a,4f12.6,1f11.2 a)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
+         write(i_ftls,"(a,4f12.6,1f11.2 a)") "   Lorentzian   ", pv_u, pv_v, pv_w, pv_x, pv_dl, "TRIM"
          write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:8), ref_glb(10)
        elseif   (crys%broad==pv_lrn .and. .not. crys%trm) then
          write(i_ftls,"(a)") "!instr. broadening       u           v           w           x         Dl"
-         write(i_ftls,"(a,4f12.6,1f11.2)") "   LORENTZIAN   ", pv_u, pv_v, pv_w, pv_x, pv_dl
+         write(i_ftls,"(a,4f12.6,1f11.2)") "   Lorentzian   ", pv_u, pv_v, pv_w, pv_x, pv_dl
          write(i_ftls,"(tr16,4f12.2,f11.2)")  ref_glb(5:8), ref_glb(10)
        else
          write(*,*) "ERROR writing *.ftls file: Problem with instrumental parameters!"
@@ -281,18 +281,18 @@
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          " STRUCTURAL  "
        write(i_ftls,"(a)")          " !         a            b            c          gamma "
-       write(i_ftls,"(a,3f12.6,f12.2)")   " CELL  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
+       write(i_ftls,"(a,3f12.6,f12.2)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
        write(i_ftls,"(tr7,4f12.2)")  ref_glb(11:14)
        write(i_ftls,"(a)")        "!Laue symmetry"
-       write(i_ftls,*)            "SYMM  ", pnt_grp
+       write(i_ftls,*)            "Symm  ", pnt_grp
        write(i_ftls,"(a)")        "!number of layer types"
        write(i_ftls,"(a,i2)")            " NLAYERS  ", n_layers
        write(i_ftls,"(a)")       "!layer width"
        if (crys%finite_width) then
-         write(i_ftls,"(a,2f10.2)") " LWIDTH",   Wa, Wb
+         write(i_ftls,"(a,2f10.2)") " Lwidth",   Wa, Wb
          write(i_ftls,"(2f10.2)")    ref_glb(15:16)
        else
-         write(i_ftls,"(a)")        " LWIDTH  INFINITE"
+         write(i_ftls,"(a)")        " Lwidth  Infinite"
        end if
 
        b=1
@@ -305,14 +305,14 @@
          else
            c=c+1
            write(i_ftls,"(a, i2)")  " LAYER", b
-           list(1) = 'NONE '
-           list(2) = 'CENTROSYMMETRIC '
+           list(1) = 'None '
+           list(2) = 'CentroSymmetric '
           !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
            write(i_ftls,"(a)")        "!Layer symmetry   "
            write(i_ftls,"(2a)")      " LSYM   ", list(l_symmetry(c)+1)
            do a=1, crys%l_n_atoms(c)
              write(i_ftls,"(2a)")      "!Atom name   number   x         y         z         Biso      Occ  "
-             write(i_ftls,"(2a,i9, 5f10.5)") " ATOM ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
+             write(i_ftls,"(2a,i9, 5f10.5)") " Atom ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
                                         a_pos(2, a,c)/pi2,a_pos(3, a,c)/pi2, a_B (a,c), a_occup(a,c)
              write(i_ftls,"(tr19,5f10.2)") ref_atom(1:5,a,c)
            end do
@@ -355,13 +355,11 @@
          write(i_ftls,"(a)")              "  "
          do j=1, n_layers
            write(i_ftls, "(a,i2, a, i2)") "!layer ", l, " to layer ", j
-           write(i_ftls, "(a, 4f10.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
-
-
-           write(i_ftls, "(f13.6,3f10.6)")  ref_trans(1:4, j, l)
-           write(i_ftls, "(a, 6f10.2)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
+           write(i_ftls, "(a, 4f12.6)")  "LT ",  l_alpha (j,l), l_r (1,j,l), l_r (2,j,l), l_r (3,j,l)
+           write(i_ftls, "(f15.2,3f12.2)")  ref_trans(1:4, j, l)
+           write(i_ftls, "(a, 6f12.6)") "FW ",r_b11 (j,l) , r_b22 (j,l) , r_b33 (j,l) , &
                                               r_b12 (j,l) ,r_b31 (j,l) , r_b23 (j,l)
-           write(i_ftls, "(f13.2, 5f10.2)") ref_trans(5:10, j, l)
+           write(i_ftls, "(f15.2, 5f12.2)") ref_trans(5:10, j, l)
          end do
        end do
        write(i_ftls,"(a)")              "  "
@@ -377,10 +375,10 @@
          write(i_ftls,"(a,f10.7)")          " ACC  ", opti%acc
        elseif (opt == 4) then
          write(i_ftls,"(a)")          " LMQ"
-         if (Cond%constr ) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
-         write(i_ftls,"(a,i4)")    " CORRMAX    ", cond%corrmax
-         write(i_ftls,"(a,i4)")    " MAXFUN     ", cond%icyc
-         write(i_ftls,"(a,g14.6)")    " TOL     ", cond%tol
+         if (Cond%constr) write(i_ftls,"(a,f5.2)")          " BOXP    " , Cond%percent
+         write(i_ftls,"(a,i4)")    " Corrmax    ", cond%corrmax
+         write(i_ftls,"(a,i4)")    " Maxfun     ", cond%icyc
+         write(i_ftls,"(a,g14.6)")    " Tol     ", cond%tol
          write(i_ftls,"(a,i2)")    " Nprint     ", cond%nprint
        else
          write(*,*) "ERROR writing *.ftls file: Problem with calculation section"
@@ -391,32 +389,37 @@
          write(i_ftls,"(a)")              "  "
          write(i_ftls,"(a)")          " EXPERIMENTAL"
          write(i_ftls,"(a)")          "!Filename                    Scale factor     code"
-         write(i_ftls,"(2a, g14.4,f9.2)")         " FILE  ", dfile, crys%patscal, ref_glb(1)
+         write(i_ftls,"(2a, g14.6,f9.2)")         " File  ", dfile, crys%patscal, ref_glb(1)
          if (nexcrg /= 0) then
-           write(i_ftls,"(a, i2)")    " EXCLUDED_REGIONS  ",  nexcrg
+           write(i_ftls,"(a, i2)")    " Excluded_Regions  ",  nexcrg
            do i=1,nexcrg
              write(i_ftls,"(2f10.4)")  alow(i),ahigh(i)
            end do
 
          end if
-         write(i_ftls,"(2a)")         " FFORMAT  ",fmode
+         write(i_ftls,"(2a)")         " Fformat  ",fmode
          if (crys%bgrinter) then
            write(i_ftls,"(a)")"!Linear interpolation"
-           write(i_ftls,"(2a)")         " BGRINTER    ", background_file
+           write(i_ftls,"(2a)")         " BgrInter    ", background_file
          end if
          if (crys%bgrcheb) then
            write(i_ftls,"(a)") "!Polynomial  Number of coefficients"
-           write(i_ftls,"(a, i2)")         " BGRCHEB          ", crys%cheb_nump
-           write(i_ftls,"(a)") "!Polynomial coefficients"
+           write(i_ftls,"(a, i2)")         " BgrCheb          ", crys%cheb_nump
+           write(i_ftls,"(a)") "!Chebychev Polynomial coefficients"
            write(i_ftls,"(24f12.5)")  crys%chebp(1:crys%cheb_nump)
-           write(i_ftls,"(24f12.5)")  ref_glb(18:crys%cheb_nump)
+           write(i_ftls,"(24f12.2)")  ref_glb(18:17+crys%cheb_nump)
          end if
          if (crys%bgrpatt) then
-           write(i_ftls,"(a)")        "!number of pattern backgrounds"
-           write(i_ftls,"(a, i2)")    " BGRNUM ",  crys%num_bgrpatt
-           write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code"
+           write(i_ftls,"(a)")        "!Number of pattern backgrounds"
+           write(i_ftls,"(a, i2)")    " BgrNum ",  crys%num_bgrpatt
+           if(any(len_trim(crys%bfilehkl) /= 0)) then
+             write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code        hkl-file"
+           else
+             write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code"
+           end if
            do i=1, crys%num_bgrpatt
-             write(i_ftls,"(2a, g18.5,f10.2)")  " BGRPATT    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), ref_glb(17+crys%cheb_nump+i)
+             write(i_ftls,"(2a, g18.5,f10.2,tr4,a)")  " BgrPatt    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), &
+                                                    ref_glb(17+crys%cheb_nump+i), trim(crys%bfilehkl(i))
            end do
          end if
 
@@ -505,7 +508,7 @@
        RETURN
     End Subroutine Write_Prf
 
-    Subroutine scale_factor_lmq(pat, fvec, chi2,r)
+    Subroutine calc_fullpat_lmq(pat, fvec, chi2,r)
       type (diffraction_pattern_type), intent(in out):: pat
       Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
       real,                            Intent(   out):: chi2, r
@@ -518,6 +521,12 @@
        pat%ycalc(j)  = brd_spc(j)
        pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
       End do
+
+      if(crys%num_bgrpatt > 0) then !Adding contributions of background patterns
+        do i=1,crys%num_bgrpatt
+          pat%ycalc=pat%ycalc+crys%bscalpat(i)*bgr_patt(:,i)
+        end do
+      end if
 
       a=0.0; b=0.0; c=0.0
       punts=0
@@ -535,7 +544,7 @@
       r =  b/a *100.0
       chi2= c/(punts-opti%npar)
       return
-    End subroutine scale_factor_lmq
+    End subroutine calc_fullpat_lmq
 
   End module Dif_compl
 !________________________________________________________________________________________________________________
@@ -550,10 +559,11 @@
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
     use CFML_Math_General,          only : spline, splint, sind, cosd
     use diffax_mod
-    use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs
+    use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs, &
+                                           bgr_patt
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                            gospec, gostrk, gointr,gosadp, getfnm, nmcoor
-    use Dif_compl,                  only : scale_factor_lmq, Write_Prf, Faults2diffax, vs2faults, Var_assign
+    use Dif_compl,                  only : calc_fullpat_lmq, Write_Prf, Faults2diffax, vs2faults, Var_assign
 
     implicit none
 
@@ -607,10 +617,13 @@
         Case(1)  !Calculation of fvec and updating completely the parameters
 
            fvec=0.0
-           write(i_out,"(a)")" --------FCOST-------"
+           write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+           write(i_out,"(a)")"              Parameter Name           New_Value     Old_Value    Multiplier         Shift ParNum"
+           write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):"//namepar(i),state(i), crys%list(i) ,  mult(i), shift(crys%p(i)),crys%p(i)
+             write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+                                               shift(crys%p(i)),crys%p(i)
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
@@ -619,7 +632,7 @@
            if(.not. ok) then
              print*, "Error calculating spectrum, please check input parameters"
            else
-             call scale_factor_lmq(difpat, fvec, chi2,rf)
+             call calc_fullpat_lmq(difpat, fvec, chi2,rf)
            end if
            numcal = numcal + 1  !Counter for optimz, detun, etc
            iter = iter + 1
@@ -635,7 +648,7 @@
            if(.not. ok) then
              print*, "Error calculating spectrum, please check input parameters"
            else
-             call scale_factor_lmq(difpat, fvec, chi2, rf)
+             call calc_fullpat_lmq(difpat, fvec, chi2, rf)
            end if
 
         Case(0)  !Printing
@@ -788,17 +801,17 @@
      use CFML_Optimization_LSQ,        only : Levenberg_Marquardt_Fit,Info_LSQ_LM
      use CFML_LSQ_TypeDef,             only : LSQ_Conditions_type, LSQ_State_Vector_Type
      use diffax_mod
-     use read_data,                    only : read_structure_file, length,   &
+     use read_data,                    only : read_structure_file, length, bgr_patt, Read_Bgr_patterns,  &
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Dif_compl,                    only : scale_factor_lmq, Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
+     use Dif_compl,                    only : calc_fullpat_lmq, Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
      use dif_ref
 
      implicit none
 
 
-      real                    :: rpl,  theta , ymax, ymini , ymin ,deg
+      real                    :: rpl,  theta , ymax, ymini , ymin ,deg, tini,tfin
       LOGICAL                 :: ok, ending , gol, p_ok, arggiven=.false.
       INTEGER                 :: i ,n ,j, l , ier , fn_menu,a,b,c ,aa,bb,cc, e, narg
       character(len=100)      :: pfile, bfile , bmode
@@ -832,6 +845,7 @@
         write(unit=op,fmt="(a)",advance="no") ' => Enter the complete name of the structure input file: '
         read(unit= *,fmt="(a)") infile
       end if
+      call cpu_time(tini)
       !WRITE(op,fmt=*) "=> Looking for scattering factor data file '",  sfname(:),"'"
       OPEN(UNIT = sf, FILE = sfname)
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
@@ -894,6 +908,10 @@
          write(*,"(a)") " => Reading Background file="//trim(background_file)
          call read_background_file(background_file, mode ,difpat)
                if(Err_diffpatt) print*, trim(err_diffpatt_mess)
+         if(crys%num_bgrpatt > 0) then
+           allocate(bgr_patt(difpat%npts,crys%num_bgrpatt))
+           call Read_Bgr_patterns()
+         end if
 
       end if
 
@@ -1074,7 +1092,12 @@
       ELSE
         WRITE(op,"(a)") ' => FAULTS was terminated abnormally!'
       END IF
-
+      call cpu_time(tfin)
+      tini=tfin-tini
+      tini=tini/60.0
+      tfin=int(tini)
+      tini=(tini-tfin)*60.0
+      write(op,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
    END PROGRAM FAULTS
 
 
