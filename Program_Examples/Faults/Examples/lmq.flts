@@ -7,8 +7,8 @@ Instrumental  And  Size  Broadening
 !               lambda1    lambda2   ratio
  Wavelength      1.5406    0.0000    0.0000
 !instrumental aberrations      zero      sycos     sysin
- Aberrations                   0.1000    0.0000    0.0000
-                                 1.00      0.00      0.00
+ Aberrations                   0.0000    0.0000    0.0000
+                                 0.00      0.00      0.00
 !instr. broadening       u           v           w           x         Dg         Dl
  Pseudo-Voigt       0.032948   -0.003558    0.227400    0.000000     479.26     459.87 Trim
                         1.00        0.00        0.00        0.00       1.00       1.00
@@ -153,7 +153,7 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
 
  Experimental
 !Filename                    Scale factor     code
- FILE  simul.dat                0.812         1.00
+ FILE  cer+simul.dat                0.812         1.00
  Excluded_Regions   2
     0.0000    8.0000
   135.0000  180.0000
@@ -166,6 +166,6 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
      0.00000     0.00000     0.00000     0.00000     0.00000
     0 0 0 0 0 0
 !number of pattern backgrounds
- Bgrnum  0
+ Bgrnum  1
 !Pattern file           Filename      Scale factor     code
-! Bgrpatt           cerusite1.sub        0.006000          1.00   cerusite.hkl
+ Bgrpatt           cerusite1.sub        0.026000       1.00   cerusite.hkl
