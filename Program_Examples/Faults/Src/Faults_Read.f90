@@ -11,7 +11,7 @@
        !public subroutines
        !public:: read_structure_file, length, Read_Bgr_patterns
 
-       integer, parameter :: max_bgr_num=10 !maximum number of pattern backgrounds
+       integer, parameter :: max_bgr_num=15 !maximum number of background patterns
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
        integer            :: LGBLT=0  !number of global parameters
        integer(kind=2), dimension(17+max_bgr_num+max_n_cheb) :: Lglb
@@ -130,6 +130,7 @@
       Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
       integer, dimension(:,:,:),allocatable,  public  :: bgr_hkl_ind
       integer, dimension(:),    allocatable,  public  :: bgr_hkl_nref
+      logical,                                public  :: calculate_aberrations=.false.
 
    contains
 
@@ -418,7 +419,7 @@
                logi=.false.
                return
              end if
-
+             if(sum(abs(val_glb(2:4))) > 0.0001)  calculate_aberrations=.true.
              i=i+1
              txt=adjustl(tfile(i))
              !Reading refinement codes
@@ -430,6 +431,7 @@
                return
              end if
              ok_abe=.true.
+             if(sum(abs(ref_glb(2:4))) > 0.1)  calculate_aberrations=.true.
 
 
           Case("PSEUDO-VOIGT")
@@ -1547,7 +1549,7 @@
             read(unit=txt,fmt=*,iostat=ier)  crys%num_bgrpatt
               if(ier /= 0 ) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading number of pattern backgrounds"
+                  Err_crys_mess="ERROR reading number of background patterns "
                   logi=.false.
                   return
               end if

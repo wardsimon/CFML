@@ -4137,7 +4137,6 @@
      ! READ(cntrl,*,ERR=3456) full_brd
      ! IF(cfile) WRITE(op,101) full_brd
 
-          full_brd = 1
       if (conv_g == 1 .or. numcal == 0 ) then
           IF(full_brd == 1) THEN
            ok = getspc(aglq16, infile)

@@ -13,7 +13,7 @@
       private
 
       !public subroutines
-      public :: calc_fullpat_lmq, Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
+      public :: Write_Prf, Write_ftls, Faults2diffax, vs2faults, Var_assign
 
       contains
 !________________________________________________________________________________________________________________________
@@ -410,7 +410,7 @@
            write(i_ftls,"(24f12.2)")  ref_glb(18:17+crys%cheb_nump)
          end if
          if (crys%bgrpatt) then
-           write(i_ftls,"(a)")        "!Number of pattern backgrounds"
+           write(i_ftls,"(a)")        "!Number of background patterns"
            write(i_ftls,"(a, i2)")    " BgrNum ",  crys%num_bgrpatt
            if(any(len_trim(crys%bfilehkl) /= 0)) then
              write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code        hkl-file"
@@ -439,17 +439,26 @@
        !-----------------------------------------------
        !   L o c a l   V a r i a b l e s
        !-----------------------------------------------
-       integer ::  i, j, iposr, ihkl, irc, nvk
+       integer ::  i, j,k, iposr, ihkl, irc, nvk,nphase,ideltr
 
-       real :: twtet, dd, scl,yymi,yyma
+       real :: twtet, dd, scl,yymi,yyma,t1,t2
        character (len=1)   :: tb
        character (len=50)  :: forma1,forma2
+       integer, dimension(max_bgr_num+1) :: nref
+       integer, dimension(max_bgr_num+1) :: ibgr
        !character (len=200) :: cell_sp_string
        !-----------------------------------------------
        !check for very high values of intensities and rescal everything in such a case
        ! scl: scale factor scl=1.0 (normal ymax < 1e6, 0.1 multiplier)
-       yyma=diff_pat%ymax
+       t1=maxval(diff_pat%y)
+       t2=maxval(diff_pat%ycalc)
+       yyma=max (t1,t2)
        scl=1.0
+       nref=0
+       ibgr =0
+       nphase=1
+       nref(1)=n_hkl
+       ibgr(1)=1
        do
          if(yyma < 1.0e6) exit !on exit we have the appropriate value of scl
          scl=scl*0.1
@@ -471,12 +480,28 @@
        end if
        !cell_sp_string=" "
        !write(unit=cell_sp_string,fmt="(a,3f10.5,3f10.4,a)")"  CELL: ",cellp(1)%cell(:),cellp(1)%ang(:),"   SPGR: "//symb(1)
+       !Calculate the number of phases taking into account the number of background patterns
+       !having an accompanying file with reflections
+       if(crys%bgrpatt) then
+         do i=1,crys%num_bgrpatt
+           if(len_trim(crys%bfilehkl(i)) /= 0) then
+            nphase=nphase+1
+            nref(nphase)=bgr_hkl_nref(i)
+            ibgr(nphase) = i
+          end if
+         end do
+       end if
        write(i_prf,'(A)') trim(diff_pat%title)
 
-       write(i_prf,'(i3,i7,5f12.5,i5)') 1,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
+       write(i_prf,'(i3,i7,5f12.5,i5)') nphase,diff_pat%npts,lambda,lambda2,0.0,0.0,0.0,0
 
        nvk=0
-       WRITE(i_prf,'(17I5)') n_hkl, nvk , nexcrg
+       if(nphase <= 8) then
+         write(i_prf,'(17i6)')(Nref(i),i=1,nphase), (nvk,i=1,nphase) , nexcrg
+       else
+         write(i_prf,'(16i6)')(Nref(i),i=1,8), (nvk,i=1,8)
+         write(i_prf,'(17i6)')(Nref(i),i=9,nphase), (nvk,i=9,nphase), nexcrg
+       end if
 
        do  j=1,nexcrg
          write(i_prf,'(2f14.5)')alow(j),ahigh(j)
@@ -499,52 +524,25 @@
        iposr=0
        irc=1
        ihkl=0
+       ideltr=INT(yyma/16)
        DO i=1,n_hkl
          WRITE(i_prf,'(f12.4,9a,i8,a,3i3,a,2i3)')  &
              dos_theta(i),tb,'        ',tb,'        ',tb,'        ',  &
              tb,'        ',tb,iposr, tb//'(',hkl_list(:,i),')'//tb,ihkl,irc
        END DO
+       do i=2,nphase
+         iposr=-(i-1)*ideltr
+         k=ibgr(i)
+         do j=1,nref(i)
+           twtet=bgr_hkl_pos(j,k)+zero
+           write(i_prf,'(f12.4,9a,i8,a,3i3,a,2i3)')  &
+             twtet,tb,'        ',tb,'        ',tb,'        ',  &
+             tb,'        ',tb,iposr, tb//'(',bgr_hkl_ind(:,j,k),')'//tb,ihkl,irc
+         end do
+       end do
 
        RETURN
     End Subroutine Write_Prf
-
-    Subroutine calc_fullpat_lmq(pat, fvec, chi2,r)
-      type (diffraction_pattern_type), intent(in out):: pat
-      Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
-      real,                            Intent(   out):: chi2, r
-      real                                           :: a,b,c,delta
-      integer                                        :: punts
-      integer                                        :: i,j
-
-      pat%scal = crys%patscal
-      Do j = 1, pat%npts
-       pat%ycalc(j)  = brd_spc(j)
-       pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
-      End do
-
-      if(crys%num_bgrpatt > 0) then !Adding contributions of background patterns
-        do i=1,crys%num_bgrpatt
-          pat%ycalc=pat%ycalc+crys%bscalpat(i)*bgr_patt(:,i)
-        end do
-      end if
-
-      a=0.0; b=0.0; c=0.0
-      punts=0
-      do_a: do j=1, pat%npts
-        do i=1,nexcrg
-         if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
-        end do
-        punts=punts+1
-        a= a + pat%y(j)
-        delta= pat%y(j) - pat%ycalc(j)
-        b= b + abs(delta)
-        fvec(j)=  delta/sqrt(pat%sigma(j))
-        c = c + fvec(j)*fvec(j)
-      end do do_a
-      r =  b/a *100.0
-      chi2= c/(punts-opti%npar)
-      return
-    End subroutine calc_fullpat_lmq
 
   End module Dif_compl
 !________________________________________________________________________________________________________________
@@ -560,10 +558,10 @@
     use CFML_Math_General,          only : spline, splint, sind, cosd
     use diffax_mod
     use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs, &
-                                           bgr_patt
+                                           bgr_patt, calculate_Aberrations
     use diffax_calc,                only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                            gospec, gostrk, gointr,gosadp, getfnm, nmcoor
-    use Dif_compl,                  only : calc_fullpat_lmq, Write_Prf, Faults2diffax, vs2faults, Var_assign
+    use Dif_compl,                  only : Write_Prf, Faults2diffax, vs2faults, Var_assign
 
     implicit none
 
@@ -605,10 +603,10 @@
       logical                  :: ok
       integer                  :: j ,i, k, a, b
       real, dimension(max_npar):: shift, state
- !     real, dimension(m),save  :: svdfvec
+      !real, dimension(max_sp),save  :: svdfvec
       real                     :: rf
       real, save               :: chi2
-      integer, save            :: iter=0
+      integer, save            :: iter=-1
 
       shift(1:npar) = v(1:npar) - vector(1:npar)
 
@@ -617,13 +615,20 @@
         Case(1)  !Calculation of fvec and updating completely the parameters
 
            fvec=0.0
-           write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
-           write(i_out,"(a)")"              Parameter Name           New_Value     Old_Value    Multiplier         Shift ParNum"
-           write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+           iter = iter + 1
+           if(iter > 0) then
+              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+              write(i_out,"(a)")"              Parameter Name           New_Value     Old_Value    Multiplier         Shift ParNum"
+              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+           end if
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+             if(iter > 0) then
+              write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
                                                shift(crys%p(i)),crys%p(i)
+              write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+                                               shift(crys%p(i)),crys%p(i)
+             end if
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
@@ -635,9 +640,11 @@
              call calc_fullpat_lmq(difpat, fvec, chi2,rf)
            end if
            numcal = numcal + 1  !Counter for optimz, detun, etc
-           iter = iter + 1
-           write(*,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
-           write(i_out,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+           if(iter > 0) then
+              write(*,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+              write(i_out,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+           end if
+           !svdfvec(1:m)=fvec(1:m)
 
         Case(2)  !Calculation of numerical derivatives
 
@@ -650,6 +657,7 @@
            else
              call calc_fullpat_lmq(difpat, fvec, chi2, rf)
            end if
+           !fvec(1:m)=svdfvec(1:m)
 
         Case(0)  !Printing
            write(*,"(a,i4,a,f14.4)")  " => Iteration ",iter,"   Chi2 = ",chi2
@@ -665,6 +673,44 @@
       return
 
     End subroutine Cost_LMQ
+
+    Subroutine calc_fullpat_lmq(pat, fvec, chi2,r)
+      type (diffraction_pattern_type), intent(in out):: pat
+      Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
+      real,                            Intent(   out):: chi2, r
+      real                                           :: a,b,c,delta
+      integer                                        :: punts
+      integer                                        :: i,j
+
+      pat%scal = crys%patscal
+      Do j = 1, pat%npts
+       pat%ycalc(j)  = brd_spc(j)
+       pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
+      End do
+
+      if(crys%num_bgrpatt > 0) then !Adding contributions of background patterns
+        do i=1,crys%num_bgrpatt
+          pat%ycalc=pat%ycalc+crys%bscalpat(i)*bgr_patt(:,i)
+        end do
+      end if
+
+      a=0.0; b=0.0; c=0.0
+      punts=0
+      do_a: do j=1, pat%npts
+        do i=1,nexcrg
+         if(pat%x(j) >= alow(i) .and. pat%x(j) <= ahigh(i)) cycle do_a
+        end do
+        punts=punts+1
+        a= a + pat%y(j)
+        delta= pat%y(j) - pat%ycalc(j)
+        b= b + abs(delta)
+        fvec(j)=  delta/sqrt(pat%sigma(j))
+        c = c + fvec(j)*fvec(j)
+      end do do_a
+      r =  b/a *100.0
+      chi2= c/(punts-opti%npar)
+      return
+    End subroutine calc_fullpat_lmq
 
  !   Subroutine  F_cost(n_plex,v,rplex,g)      !SIMPLEX
  !     use CFML_GlobalDeps,  only: cp
@@ -751,13 +797,14 @@
         return
       END IF
       CALL gospec(infile,outfile,ok)
+      if(calculate_aberrations) call Apply_Aberrations()
       return
-
-      call Apply_Aberrations()
 
     End Subroutine Pattern_Calculation
 
+    !Subroutine Apply_Aberrations(pat)
     Subroutine Apply_Aberrations()
+    !type (diffraction_pattern_type), intent(in out):: pat
       !--- Modifies brd_spc by spline interpolation after applying zero-shift
       !--- displacement and transparency (Bragg-Brentano)
       real(kind=cp), dimension(n_high) :: true_2th, broad_spect, der2v
@@ -780,8 +827,7 @@
         if(i_geom == 0) t=t*0.5 !Bragg Brentano (SyCos: displacement, Sysin: transparency)
         shift=crys%zero_shift + crys%sycos * cosd(t) + crys%sysin * sind(tt)
         tt=tt-shift
-        call splint(difpat%x,broad_spect,der2v,difpat%npts,tt,ycal)
-        difpat%ycalc(i)=ycal
+        call splint(true_2th,broad_spect,der2v,n_high,tt,ycal)
         brd_spc(i)=ycal
       end do
       return
@@ -805,7 +851,7 @@
                                               crys, opti, cond, Vs, Err_crys, Err_crys_mess
      use diffax_calc ,                 only : salute , sfc, get_g, get_alpha, getlay , sphcst, dump, detun, optimz,point,  &
                                               gospec, gostrk, gointr,gosadp, chk_sym, get_sym, overlp, nmcoor , getfnm
-     use Dif_compl,                    only : calc_fullpat_lmq, Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
+     use Dif_compl,                    only : Write_Prf, write_ftls, Faults2diffax, vs2faults, Var_assign
      use dif_ref
 
      implicit none
@@ -1098,6 +1144,8 @@
       tfin=int(tini)
       tini=(tini-tfin)*60.0
       write(op,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
+      write(i_out,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
+      stop
    END PROGRAM FAULTS
 
 
