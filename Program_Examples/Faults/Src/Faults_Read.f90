@@ -1530,16 +1530,24 @@
           Case("BGRCHEB")
               crys%bgrcheb=.true.
               read(unit=txt,fmt=*,iostat=ier)  crys%cheb_nump
-              i=i+1
-              txt=adjustl(tfile(i))
+              do
+                 i=i+1
+                txt=adjustl(tfile(i))
+                if(txt(1:1) == "!") cycle
+                exit
+              end do
               read (unit=txt,fmt=*,iostat=ier) crys%chebp(1:crys%cheb_nump)
-              val_glb(18:crys%cheb_nump)=crys%chebp(1:crys%cheb_nump)
-              i=i+1
-              txt=adjustl(tfile(i))
-              read(unit=txt,fmt=*, iostat=ier)ref_glb(18:crys%cheb_nump)
+              val_glb(18:17+crys%cheb_nump)=crys%chebp(1:crys%cheb_nump)
+              do
+                 i=i+1
+                txt=adjustl(tfile(i))
+                if(txt(1:1) == "!") cycle
+                exit
+              end do
+              read(unit=txt,fmt=*, iostat=ier)ref_glb(18:17+crys%cheb_nump)
               if(ier /= 0 ) then
                   Err_crys=.true.
-                  Err_crys_mess="ERROR reading background Chebichev instruction"
+                  Err_crys_mess="ERROR reading background Chebychev instruction"
                   logi=.false.
                   return
               end if

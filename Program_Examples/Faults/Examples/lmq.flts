@@ -161,10 +161,10 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
 !Linear interpolation
  Bgrinter    Sim.Bgr
 !Polynomial  Number of coefficients
- Bgrcheb           5
+ Bgrcheb           2
 !Polynomial coefficients
-     0.00000     0.00000     0.00000     0.00000     0.00000
-    0 0 0 0 0 0
+     1.03000     0.20000
+    1 1
 !number of pattern backgrounds
  Bgrnum  1
 !Pattern file           Filename      Scale factor     code

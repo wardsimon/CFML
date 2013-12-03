@@ -44,6 +44,14 @@
         if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
         if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
         if (index( namepar(i) ,'cell_gamma') == 1)   cell_gamma = state(i)
+        if (index (namepar(i), 'ChebCoeff_' ) == 1)     then
+            read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
+            crys%chebp(a)  = state(i)
+        end if
+        if (index (namepar(i), 'Bkg_Scale_' ) == 1)     then
+            read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
+            crys%bscalpat(a)  = state(i)
+        end if
 
         do j=1, n_layers
           do k=1, n_atoms
@@ -107,14 +115,6 @@
             if (index (namepar(i), 'FW_23' ) == 1)     then
                 read (unit = namepar(i)(6:9), fmt = "(2i2)" ) b,a
                 r_b11(a,b)  = state(i)
-            end if
-            if (index (namepar(i), 'ChebCoeff_' ) == 1)     then
-                read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
-                crys%chebp(a)  = state(i)
-            end if
-            if (index (namepar(i), 'Bkg_Scale_' ) == 1)     then
-                read (unit = namepar(i)(11:12), fmt = "(i2)" ) a
-                crys%bscalpat(a)  = state(i)
             end if
           end do
         end do
@@ -674,19 +674,47 @@
 
     End subroutine Cost_LMQ
 
+    Subroutine Bck_Chebychev(bk)
+      real, dimension(:), intent(out) :: bk
+      real    :: x,c,thx,rj
+      integer :: i,j
+
+      bk=0.0
+      do i=1,difpat%npts
+        x=difpat%x(i)
+        thx=2.0*(x-0.5*(difpat%x(difpat%npts)+difpat%x(1)))/(difpat%x(difpat%npts)-difpat%x(i))
+        if(thx < -1.0) thx=-1.0
+        if(thx >  1.0) thx= 1.0
+        c=acos(thx)
+        do j=1,crys%cheb_nump
+          rj=real(j)
+          bk(i)=bk(i)+crys%chebp(j)*cos(rj*c)
+        end do
+      end do
+    End Subroutine Bck_Chebychev
+
+
     Subroutine calc_fullpat_lmq(pat, fvec, chi2,r)
       type (diffraction_pattern_type), intent(in out):: pat
       Real (Kind=cp),Dimension(:),     Intent(in Out):: fvec
       real,                            Intent(   out):: chi2, r
+      ! Local variables
       real                                           :: a,b,c,delta
       integer                                        :: punts
       integer                                        :: i,j
+      real, dimension(pat%npts)                      :: bk
 
       pat%scal = crys%patscal
       Do j = 1, pat%npts
        pat%ycalc(j)  = brd_spc(j)
        pat%ycalc(j)  = pat%scal * pat%ycalc(j)+ pat%bgr(j)
       End do
+
+      !Adding Chebychev polynomial background
+      if(crys%bgrcheb) then
+        call Bck_Chebychev(bk)
+        pat%ycalc=pat%ycalc+bk
+      end if
 
       if(crys%num_bgrpatt > 0) then !Adding contributions of background patterns
         do i=1,crys%num_bgrpatt
