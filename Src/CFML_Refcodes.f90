@@ -4130,6 +4130,13 @@
     !!----  Key=0 -> Provide information on individual parameter for atom na (nb should be given)
     !!----  Key=1  BKG -> fix or vary all background parameters
     !!----  Key=2  CELL -> fix or vary cell parameters
+    !!             For the constraints on cell parameters the optional argument sys should be
+    !!----         provided. It contains the crystal system and the (in the case of Monoclinic)
+    !!----         the setting "a", "b" or "c" for the twofold axis. For instance the content
+    !!----         of Sys may be Sys="Monoclinic c". Between the crystal system and the information
+    !!----         about the setting a space must exist.
+    !!----         The proper application of the constraints supposes that the cell parameters
+    !!----         are contiguous in the list of non-atomic parameters.
     !!----  Key=3  UVW -> fix or vary u,v,w parameters
     !!----  Key=4  ASIZE -> fix or vary size parameters
     !!----  Key=5  ASTRAIN -> fix or vary strain parameters
@@ -4197,12 +4204,12 @@
                    !---- CELL ----!
                    do i=1,model%npar
                       name_par=l_case(model%par(i)%nam)
-                      if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
-                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                           trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                           trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
-                           trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                        if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
+                             trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                             trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
+                             trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma" .or. &
+                             trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
+                             trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
                          if ( model%par(i)%lcode /= 0) then
                             nc=model%par(i)%lcode
                             call Delete_RefGCodes(nc,model)
@@ -4313,6 +4320,7 @@
                 case (2) !  Key=2  CELL -> Vary all cell parameters
                    !---- CELL ----!
                    if(present(sys)) then
+
                       do i=1,model%npar
                          name_par=l_case(model%par(i)%nam)
                          if ( trim(name_par) == "a" .or. trim(name_par) == "cell-a" .or. trim(name_par) == "cell_a" ) then
@@ -4379,6 +4387,20 @@
                             call update_vect(k+1,.false.)
                             call update_vect(k+2,.false.)
                      End Select
+
+                   else
+
+                     do i=1,model%npar
+                        name_par=l_case(model%par(i)%nam)
+                        if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
+                             trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
+                             trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
+                             trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma" .or. &
+                             trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
+                             trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                           if ( model%par(i)%lcode == 0) call call update_vect(i)
+                        end if
+                     end do
 
                    end if
 
@@ -8315,7 +8337,9 @@
     !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
     !!----    character(len=*), optional,          intent( in)    :: sys
     !!----
-    !!----    Subroutine for treatment of Codes for non-atomic paramters
+    !!----    Subroutine for treatment of Codes for non-atomic parameters.
+    !!----    The optional argument Sys containts the crystal system and the
+    !!----    setting in case of the monoclinic, e.g. Sys="Monoclinic b".
     !!----
     !!---- Update: November - 2013
     !!
