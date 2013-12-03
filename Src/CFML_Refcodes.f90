@@ -4398,7 +4398,7 @@
                              trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma" .or. &
                              trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
                              trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
-                           if ( model%par(i)%lcode == 0) call call update_vect(i)
+                           if ( model%par(i)%lcode == 0) call update_vect(i)
                         end if
                      end do
 
