@@ -4115,7 +4115,7 @@
     End Subroutine Fill_RefCodes_Magdom
 
     !!----
-    !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model)
+    !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model,sys)
     !!----    integer,                             intent(in)     :: Key  !0=> nb as below,
     !!----    character(len=*),                    intent(in)     :: Dire !GVar of GFix
     !!----    character(len=*),                    intent(in)     :: namp !Name of the parameter to be refined or fixed
@@ -4124,6 +4124,7 @@
     !!----    real(kind=cp),                       intent(in)     :: Xs   !Step of parameter
     !!----    integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
     !!----    type(NonAtomic_Parameter_List_Type), intent(in out) :: model
+    !!----    character(len=*), optional,          intent( in)    :: sys
     !!----
     !!---- Write on Vectors the Information for Non atomic parameters
     !!----  Key=0 -> Provide information on individual parameter for atom na (nb should be given)
@@ -4139,7 +4140,7 @@
     !!----
     !!---- Updated: November 3 - 2013
     !!
-    Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model)
+    Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model,sys)
        integer,                             intent(in)     :: Key  !0=> nb as below,
        character(len=*),                    intent(in)     :: Dire !GVar of GFix
        character(len=*),                    intent(in)     :: Namp !Name of the parameter to be refined or fixed
@@ -4148,10 +4149,13 @@
        real(kind=cp),                       intent(in)     :: Xs   !Step of parameter
        integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
        type(NonAtomic_Parameter_List_Type), intent(in out) :: model
+       character(len=*), optional,          intent(in)     :: sys
 
        !---- Local variables ----!
-       integer                  :: i,j,nc,np_ini
+       integer                  :: i,j,k,nc,np_ini
        character(len=len(namp)) :: name_par
+       character(len=15)        :: c_system
+       character(len=5)         :: info
 
        call init_err_refcodes()
        if (len_trim(namp) == 0) then
@@ -4308,17 +4312,75 @@
 
                 case (2) !  Key=2  CELL -> Vary all cell parameters
                    !---- CELL ----!
-                   do i=1,model%npar
-                      name_par=l_case(model%par(i)%nam)
-                      if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
-                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                           trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                           trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                           trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma" .or. &
-                           trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
-                           if ( model%par(i)%lcode == 0) call update_vect(i)
-                      end if
-                   end do
+                   if(present(sys)) then
+                      do i=1,model%npar
+                         name_par=l_case(model%par(i)%nam)
+                         if ( trim(name_par) == "a" .or. trim(name_par) == "cell-a" .or. trim(name_par) == "cell_a" ) then
+                            k=i
+                            exit
+                         end if
+                      end do
+                      i=index(sys," ")
+                      c_system=sys(1:i-1)
+                      info=sys(i+1:)
+                      Select Case(c_system)
+
+                          case("Triclinic")
+                             do i=k,k+5
+                               call update_vect(i)
+                             end do
+
+                          case("Monoclinic")
+
+                             do i=k,k+2
+                               call update_vect(i)
+                             end do
+
+                            if(index(Info,"b") /= 0) then
+                               model%par(k+3)%value=90.0;  model%par(k+5)%value=90.0
+                               call update_vect(k+4)
+
+                            else if(index(Info,"c") /= 0) then
+                               model%par(k+3)%value=90.0;  model%par(k+4)%value=90.0
+                               call update_vect(k+5)
+
+                            else if(index(Info,"a") /= 0) then
+                               model%par(k+4)%value=90.0;  model%par(k+5)%value=90.0
+                               call update_vect(k+3)
+
+                            end if
+
+                          case("Orthorhombic")
+                            model%par(k+3:k+5)%value=90.0
+                            do i=k,k+2
+                              call update_vect(i)
+                            end do
+
+                          case("Tetragonal")
+                            model%par(k+1)%value=model%par(k)%value
+                            model%par(k+3:k+5)%value=90.0
+                            call update_vect(k)
+                            call update_vect(k+1,.false.)
+                            call update_vect(k+2)
+
+                          case("Trigonal","Hexagonal")
+                            model%par(k+1)%value=model%par(k)%value
+                            model%par(k+3:k+4)%value=90.0
+                            model%par(k+5)%value=120.0
+                            call update_vect(k)
+                            call update_vect(k+1,.false.)
+                            call update_vect(k+2)
+
+                          case("Cubic")
+                            model%par(k+3:k+5)%value=90.0
+                            model%par(k+1)%value=model%par(k)%value
+                            model%par(k+2)%value=model%par(k)%value
+                            call update_vect(k)
+                            call update_vect(k+1,.false.)
+                            call update_vect(k+2,.false.)
+                     End Select
+
+                   end if
 
                 case (3) !  Key=3  UVW -> Vary U,V,W parameters
                    !---- UVW ----!
@@ -4384,18 +4446,25 @@
 
        contains
 
-         Subroutine update_vect(n)  !Internal subroutine to avoid copying the same text
+         Subroutine update_vect(n,up_np_refi)  !Internal subroutine to avoid copying the same text
            integer, intent(in):: n  !every time we need to do the same thing!
-           np_refi=np_refi+1        !Here V_Vec_std should not be updated
+           logical, optional,intent(in):: up_np_refi
+           logical :: local_up
+
+           local_up=.true.
+           if(present(up_np_refi)) local_up=up_np_refi
+           if(local_up) np_refi=np_refi+1        !Here V_Vec_std should not be updated
            model%par(n)%lcode=np_refi
            model%par(n)%multip=1.0
-           V_Vec(np_refi)=model%par(n)%value
-           V_Name(np_refi)=model%par(n)%nam
-           V_Bounds(1,np_refi)=xl
-           V_Bounds(2,np_refi)=xu
-           V_Bounds(3,np_refi)=xs
-           V_BCon(np_refi)=ic
-           V_list(np_refi)=n
+           if(local_up) then
+              V_Vec(np_refi)=model%par(n)%value
+              V_Name(np_refi)=model%par(n)%nam
+              V_Bounds(1,np_refi)=xl
+              V_Bounds(2,np_refi)=xu
+              V_Bounds(3,np_refi)=xs
+              V_BCon(np_refi)=ic
+              V_list(np_refi)=n
+           end if
            return
          End Subroutine update_vect
 
@@ -6985,23 +7054,25 @@
     End Subroutine Get_RefCodes_Line_Magdom
 
     !!----
-    !!---- Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model)
+    !!---- Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,Sys)
     !!----    integer,                             intent(in)     :: Key
     !!----    character(len=*),                    intent(in)     :: Dire
     !!----    character(len=*),                    intent(in)     :: Line
     !!----    character(len=*),                    intent(in)     :: namp !name of the parameter to be fixed or refined
     !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----    character(len=*), optional,          intent( in)    :: sys
     !!----
     !!---- Get Refinement Codes for non-atomic parameters in the current line
     !!----
     !!---- Update: November 1 - 2013
     !!
-    Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model)
+    Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,sys)
        integer,                             intent(in)     :: Key
        character(len=*),                    intent(in)     :: Dire
        character(len=*),                    intent(in)     :: Line
        character(len=*),                    intent(in)     :: namp
        type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+       character(len=*), optional,          intent(in)     :: sys
 
        !---- Local Variables ----!
        character(len=20), dimension(30) :: label
@@ -7018,7 +7089,11 @@
 
        if (nlong ==0) then  !In this case key cannot be zero and namp does not contain numbers
           !---- Default Values ----!
-          call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model)
+          if(present(sys)) then
+            call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model,sys)
+          else
+            call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model)
+          end if
 
        else
           !---- VARY/FIX Line: [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
@@ -7064,8 +7139,11 @@
                    ERR_RefCodes_Mess="Maximum of 4 numbers in "//trim(namp)
                    return
              end select
-
-             call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model)
+             if(present(sys)) then
+               call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model,sys)
+             else
+               call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model)
+             end if
              if (err_refcodes) return
 
           else  !Now there are more keywords and eventually numbers
@@ -7134,7 +7212,11 @@
                    end select
                 end do
 
-                call fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model)
+                if(present(sys)) then
+                  call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model,sys)
+                else
+                  call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model)
+                end if
                 if (err_refcodes) return
 
                 n_ini=minloc(ilabel,dim=1)
@@ -8226,22 +8308,23 @@
     End Subroutine Read_RefCodes_File_Molec
 
     !!----
-    !!---- Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model)
+    !!---- Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys)
     !!----    Type(file_list_type),                intent( in)    :: file_dat
     !!----    integer,                             intent( in)    :: n_ini
     !!----    integer,                             intent( in)    :: n_end
     !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
+    !!----    character(len=*), optional,          intent( in)    :: sys
     !!----
     !!----    Subroutine for treatment of Codes for non-atomic paramters
     !!----
     !!---- Update: November - 2013
     !!
-    Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model)
+    Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys)
        Type(file_list_type),                intent( in)    :: file_dat
        integer,                             intent( in)    :: n_ini
        integer,                             intent( in)    :: n_end
        type(Nonatomic_Parameter_List_Type), intent(in out) :: model
-
+       character(len=*), optional,          intent( in)    :: sys
        !---- Local variables ----!
        character(len=132)              :: line
        character(len=20)               :: namp
@@ -8319,7 +8402,11 @@
                          key=0
                    end select
                    if (key /=0) call cutst(dire(k),nlong)
-                   call get_refGcodes_line(key,"gvar",dire(k),namp,model)
+                   if(present(Sys)) then
+                      call get_refGcodes_line(key,"gvar",dire(k),namp,model,sys)
+                   else
+                      call get_refGcodes_line(key,"gvar",dire(k),namp,model)
+                   end if
                    if (err_refcodes) return
                 end do
 
