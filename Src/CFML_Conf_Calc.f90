@@ -78,7 +78,7 @@
  Module CFML_BVS_Energy_Calc
     !---- Use Files ----!
     Use CFML_GlobalDeps,                 only: Sp,Cp
-    Use CFML_Math_General,               only: Sort_Strings
+    Use CFML_Math_General,               only: Sort_Strings,Sort
     use CFML_String_Utilities,           only: Getword, U_Case,pack_string, get_logunit
     Use CFML_Scattering_Chemical_Tables, only: Get_Ionic_Radius, Get_Chemsymb
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type
@@ -632,17 +632,20 @@
        real(kind=cp),               intent(in) :: drmax
 
        !---- Local variables ----!
-       character(len=4)                            :: car,atm,chem
-       integer                                     :: i,j,k,n,n1,n2
-       integer                                     :: nx1,nx2,ny1,ny2,nz1,nz2
-       integer                                     :: i1,j1,k1
-       integer                                     :: jbvs
-       real(kind=cp)                               :: rx1,ry1,rz1
-       real(kind=cp)                               :: sbvs, dd, occ
-       real(kind=cp), dimension(3)                 :: pto,pta
-       real(kind=cp),dimension(:,:,:), allocatable :: map_bvs
-
-       type (Atom_list_Type)                       :: At1, At2
+       character(len=4)                             :: car,atm,chem
+       integer                                      :: i,j,k,n,n1,n2,np,L,nL
+       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
+       integer                                      :: i1,j1,k1
+       integer                                      :: jbvs
+       integer,      dimension(:),     allocatable  :: ind
+       real(kind=cp)                                :: rx1,ry1,rz1,qval,dif
+       real(kind=cp)                                :: sbvs, dd, occ
+       real(kind=cp), dimension(3)                  :: pto,pta
+       real(kind=cp), dimension(:,:,:), allocatable :: map_bvs
+       real(kind=cp), dimension(:,:),   allocatable :: peaks
+       real(kind=cp), dimension(:),     allocatable :: VD_peaks
+       type (Atom_list_Type)                        :: At1, At2
+       logical                                      :: new_peak
 
        !---- Initial conditions ----!
        if (A%natoms <= 0) return
@@ -663,6 +666,13 @@
        allocate(map_bvs(ndimz,ndimx,ndimy))
        map_bvs=0.0
 
+       allocate(peaks(4,ndimx)) ! A maximum of ndimx peaks will be stored
+       peaks=0.0
+       allocate(VD_peaks(ndimx)) ! Vector holding the differences of bond-valences
+       VD_peaks=0.0
+       allocate(ind(ndimx))      ! Vector pointer for ordering the peaks
+       ind=0
+
        n1=0
        call Get_Chemsymb(atm,chem)
        chem=u_case(chem)
@@ -678,8 +688,16 @@
           ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
           return
        end if
+       ! Determination of the valence expected for a good position
+       i=index(car,"+")
+       if( i /= 0) then
+         read(unit=car(i+1:),fmt=*) qval
+       else
+         i=index(car,"-")
+         read(unit=car(i+1:),fmt=*) qval
+       end if
 
-
+       np=0
        !---- Map Calculation ----!
        do k=1,ndimz
           pto(3)=(k-1)*(1.0/real(ndimz))
@@ -736,19 +754,60 @@
                    end do
 
                 end do
+
+                !Algorithm for selecting the optimum positions
+                dif=abs(sbvs-qval)
+                if(dif < 0.15 .and. np < ndimx) then
+                  new_peak=.true.
+                  do L=1,np
+                     dd=Distance(peaks(1:3,L),pto,Cell)
+                     if( dd < 0.2 ) then
+                       new_peak=.false.
+                       nL=L
+                       exit
+                     end if
+                  end do
+                  if(new_peak) then
+                    np=np+1
+                    peaks(1:3,np)= pto
+                    peaks(4,np)  = sbvs
+                    VD_peaks(np) = dif
+                  else  !now compare with the peak stored at nL and interchange them if sbvs is more favourable
+                    if( dif < abs(qval-peaks(4,nL)) ) then
+                      peaks(1:3,nL) = pto
+                      peaks(  4,nL) = sbvs
+                      VD_peaks(nL)  = dif
+                    end if
+                  end if
+                end if
+                !end of peaks construction
                 map_bvs(k,i,j)=sbvs
              end do
           end do
        end do
-
+       !Sorting the favourable peak positions for inserting the species of atom Atname
+       call sort(VD_peaks,np,ind)
        !---- Export a File ----!
        call Get_LogUnit(jbvs)
        open(unit=jbvs,file=trim(filecod)//".map")
 
-       write (unit=jbvs, fmt='(a)') "BVS Calculations using Bond_STR Program"
-       write (unit=jbvs, fmt='(a)') " BVS "
-       write (unit=jbvs, fmt='(3f12.4,3x,3f8.3)') cell%cell,cell%ang
-       write (unit=jbvs, fmt='(9i6)') ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
+       write (unit=jbvs, fmt='(a)') "BVS Map Calculations using Bond_STR Program"
+       write (unit=jbvs, fmt='(a)') "BVS Map for species "//trim(car)
+       write (unit=jbvs, fmt='(a,3f12.4,3x,3f8.3)') "CELL ",cell%cell,cell%ang
+       write (unit=jbvs, fmt='(a)')     "SPGR  "//trim(SpG%spg_symb)
+       write (unit=jbvs, fmt='(a)')     "! List ot atoms  "
+       do i=1,A%natoms
+         write(unit=jbvs, fmt='(a,t20,5f12.5)')"Atom "//trim(A%Atom(i)%lab)//"  "//A%Atom(i)%SfacSymb, &
+                                                A%Atom(i)%x, A%Atom(i)%biso, A%Atom(i)%occ
+       end do
+       write (unit=jbvs, fmt='(a)')     "! List ot favourable positions for inserting the species "//trim(car)
+       do i=1,np
+         j=ind(i)
+         write(unit=jbvs, fmt='(a,i4,a,3f10.5,a,f8.3)')"#",i,"  Position: (",peaks(1:3,j),")  Valence: ",peaks(4,j)
+       end do
+       write (unit=jbvs, fmt='(a)')     "! Grid values: ndimx,ndimy,ndimz [0,ndimx-1] [0,ndimy-1] [0,ndimz-1]  "
+       write (unit=jbvs, fmt='(a,9i6)') "GRID ",ndimx,ndimy,ndimz,0,ndimx-1,0,ndimy-1,0,ndimz-1
+       write (unit=jbvs, fmt='(a)')     "DENSITY_MAP"
        write(unit=jbvs,fmt='(8g12.5)') map_bvs
        close(unit=jbvs)
 
