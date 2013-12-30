@@ -2713,6 +2713,8 @@ Contains
       integer                                       :: NCDat         ! Total columns for data
       integer, dimension(ncol_data_max)             :: IC_Dat        ! Which values are input - local copy
 
+      !> Eos init
+      call Init_err_Eos()
 
       !> Init
       dire=' '                       ! Clear, otherwise a second read may have items in dire from 1st read
