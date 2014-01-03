@@ -251,5 +251,30 @@ Module CFML_GlobalDeps
       return
    End Function Directory_Exists
 
+   !---------------------!
+   !---- Subroutines ----!
+   !---------------------!
+
+   !!----
+   !!---- Subroutine Write_Date_Time(lun)
+   !!----    integer, intent(in) :: lun
+   !!----
+   !!---- Generic subroutine for writing the date and time
+   !!---- in form   Date: Day/Month/Year  Time: hour:minute:second
+   !!---- to a file with logical unit = lun.
+   !!----
+   !!---- Update: January - 2014
+   !!
+   Subroutine Write_Date_Time(lun)
+     integer, intent(in) :: lun
+     !--- Local variables ----!
+     character (len=10) :: dat
+     character (len=10) :: tim
+     call date_and_time(date=dat,time=tim)
+     write(unit=lun,fmt="(/,4a)") &
+       " => Date: ",dat(7:8)//"/"//dat(5:6)//"/"//dat(1:4),      &
+         "  Time: ",tim(1:2)//":"//tim(3:4)//":"//tim(5:10)
+     return
+   End Subroutine Write_Date_Time
 
 End Module CFML_GlobalDeps

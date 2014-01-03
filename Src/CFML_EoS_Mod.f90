@@ -2705,8 +2705,8 @@ Contains
       integer                                       :: iv, inum
       integer, dimension(ncol_data_max)             :: ivet,iorden
 
-      real, dimension(ncol_data_max)                :: vet,vetsd
-      real, dimension(ncol_data_max)                :: rvet
+      real(kind=cp), dimension(ncol_data_max)       :: vet,vetsd
+      real(kind=cp), dimension(ncol_data_max)       :: rvet
 
       !---- Data Files ----!
       character(len=512)                            :: filedat=' '

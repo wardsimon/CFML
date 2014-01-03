@@ -126,6 +126,7 @@
     !!----    character(len=180)                          :: Title         !Identification of the pattern
     !!----    character(len=20)                           :: diff_kind     !type of radiation
     !!----    character(len=20)                           :: scat_var      !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, Lambda, Energy, Temperature, etc
+    !!----    character(len=30)                           :: xax_text      !x-axis legend, eg. "Lambda (Angstroms)"
     !!----    character(len=30)                           :: yax_text      !y-axis legend, eg. "Intensity (arb. units)"
     !!----    character(len=20)                           :: instr         !file type
     !!----    character(len=512)                          :: filename      !file name
@@ -170,7 +171,8 @@
        character(len=180)                          :: Title=" "        !Identification of the pattern
        character(len=20)                           :: diff_kind=" "    !type of radiation
        character(len=20)                           :: scat_var=" "     !x-space: 2theta, TOF, Q, s, d-spacing, SinT/L, etc
-       character(len=30)                           :: yax_text         !y-axis legend, eg. "Intensity (arb. units)"
+       character(len=30)                           :: xax_text=" "     !x-axis legend, eg. "Lambda (Angstroms)"
+       character(len=30)                           :: yax_text=" "     !y-axis legend, eg. "Intensity (arb. units)"
        character(len=20)                           :: instr=" "        !file type
        character(len=512)                          :: filename=" "     !file name
        character(len=512)                          :: filepath=" "     !file path
@@ -2040,6 +2042,7 @@
                  call Read_Pattern_isis_m(i_dat,dif_pat,numpat)
                  dif_pat%diff_kind = "neutrons_tof"
                  dif_pat%scat_var =  "TOF"
+                 dif_pat%xax_text =  "TOF (micro-seconds)"
                  dif_pat%yax_text =  "Intensity (arb. units)"
                  dif_pat%instr  = " 14  - "//mode
 
@@ -2215,6 +2218,7 @@
              call Read_Pattern_d1b_d20(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  3  - "//mode
              dif_pat%ct_step = .true.
@@ -2223,6 +2227,7 @@
              call Read_Pattern_nls(i_dat,dif_pat)
              dif_pat%diff_kind = "xrays_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  4  - "//mode
              dif_pat%ct_step = .true.
@@ -2231,6 +2236,7 @@
              call Read_Pattern_g41(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  5  - "//mode
              dif_pat%ct_step = .true.
@@ -2239,6 +2245,7 @@
              call Read_Pattern_d1a_d2b(i_dat,dif_pat)     ! Data from D1A,D2B  (Files *.sum, renamed *.dat, as prepared by D1ASUM or D2BSUM programs)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  6  - "//mode
              dif_pat%ct_step = .true.
@@ -2247,6 +2254,7 @@
              call Read_Pattern_d1a_d2b_old(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  1  - "//mode
              dif_pat%ct_step = .true.
@@ -2255,6 +2263,7 @@
              call Read_Pattern_dmc(i_dat,dif_pat)
              dif_pat%diff_kind = "neutrons_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  8  - "//mode
              dif_pat%ct_step = .true.
@@ -2263,6 +2272,7 @@
              call  Read_Pattern_socabim(i_dat,dif_pat)
              dif_pat%diff_kind = "xrays_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = "  9  - "//mode
              dif_pat%ct_step = .true.
@@ -2283,6 +2293,7 @@
              call Read_Pattern_gsas(i_dat,dif_pat)         ! GSAS file
              dif_pat%diff_kind = "constant_wavelength"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = " 12  - "//mode
 
@@ -2290,6 +2301,7 @@
              call Read_Pattern_gsas(i_dat,dif_pat,tofn)         ! GSAS file for TOF
              dif_pat%diff_kind = "neutrons_tof"
              dif_pat%scat_var =  "TOF"
+             dif_pat%xax_text =  "TOF(micro-seconds)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = " 12  - "//mode
 
@@ -2298,6 +2310,7 @@
              extdat=u_case(filename(i:))
              dif_pat%diff_kind = "xrays_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = " 13  - "//mode
 
@@ -2319,6 +2332,7 @@
              call Read_Pattern_time_variable(i_dat,dif_pat)
              dif_pat%diff_kind = "xrays_cw"
              dif_pat%scat_var =  "2theta"
+             dif_pat%xax_text =  "2theta(degrees)"
              dif_pat%yax_text =  "Intensity (arb. units)"
              dif_pat%instr  = " 11  - "//mode
 
@@ -2331,8 +2345,10 @@
              dif_pat%yax_text =  "Intensity (arb. units)"
              if(dif_pat%x(dif_pat%npts) > 180.0 ) then
                  dif_pat%scat_var =  "TOF"
+                 dif_pat%xax_text =  "TOF(micro-seconds)"
              else
                  dif_pat%scat_var =  "2theta"
+                 dif_pat%xax_text =  "2theta(degrees)"
              end if
        end select
 
@@ -3338,7 +3354,7 @@
               end if
               i=index(txt1,"Legend_X")
               if(i /= 0) then
-                 pat%scat_var=adjustl(txt1(i+8:))
+                 pat%xax_text = adjustl(txt1(i+8:))
                  cycle
               end if
               i=index(txt1,"Legend_Y")
@@ -3377,7 +3393,7 @@
 
               j=index(txt1,"Legend_X")
               if(j /= 0) then
-                 pat%scat_var=adjustl(txt1(j+8:))
+                 pat%xax_text=adjustl(txt1(j+8:))
               end if
 
               j=index(txt1,"Legend_Y")
