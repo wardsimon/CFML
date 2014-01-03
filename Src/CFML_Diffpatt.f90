@@ -1368,8 +1368,31 @@
           aline=adjustl(aline)
 
           ! Comment lines using ! or #
-          if (aline(1:1) == "!" .or. aline(1:1) == "#") cycle
-
+          if (aline(1:1) == "!" .or. aline(1:1) == "#") then
+            i=index(aline,"Legend_X")
+            if(i /= 0) then
+              pat%xax_text=adjustl(aline(i+8:))
+            end if
+            i=index(aline,"Legend_Y")
+            if(i /= 0) then
+              pat%yax_text=adjustl(aline(i+8:))
+            end if
+            i=index(aline,"Scattering variable:")
+            if(i /= 0) then
+              pat%scat_var=adjustl(aline(i+20:))
+            end if
+            i=index(aline,"TSAMP")
+            if(i /= 0) then
+                read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
+                if (ier /= 0) pat%tsamp = 0.0
+            end if
+            i=index(aline,"TITLE")
+            if(i /= 0) then
+                Pat%title=trim(aline(i+5:))
+                title_given=.true.
+            end if
+            cycle
+          end if
           ! BANK Information
           if (aline(1:4) == "BANK") then
              read(unit=aline(5:41),fmt=*) inum,pat%npts
@@ -2342,13 +2365,15 @@
              dif_pat%diff_kind = "unknown"
              dif_pat%instr  = "  0  - "//"Free format"
              dif_pat%ct_step = .true.
-             dif_pat%yax_text =  "Intensity (arb. units)"
-             if(dif_pat%x(dif_pat%npts) > 180.0 ) then
-                 dif_pat%scat_var =  "TOF"
-                 dif_pat%xax_text =  "TOF(micro-seconds)"
-             else
-                 dif_pat%scat_var =  "2theta"
-                 dif_pat%xax_text =  "2theta(degrees)"
+             if(len_trim(dif_pat%yax_text) == 0) dif_pat%yax_text =  "Intensity (arb. units)"
+             if(len_trim(dif_pat%xax_text) == 0)  then
+                if(dif_pat%x(dif_pat%npts) > 180.0 ) then
+                    dif_pat%scat_var =  "TOF"
+                    dif_pat%xax_text =  "TOF(micro-seconds)"
+                else
+                    dif_pat%scat_var =  "2theta"
+                    dif_pat%xax_text =  "2theta(degrees)"
+                end if
              end if
        end select
 
