@@ -2052,7 +2052,7 @@
          end do
 
          if(ndisp == 0) then
-           maxs=nn
+           if(nn > Lcode_max) Lcode_max=nn
            return  !all parameters have been attributed
          end if
 

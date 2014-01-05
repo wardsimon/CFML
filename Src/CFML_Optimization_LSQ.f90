@@ -402,9 +402,9 @@
     !!--++  (PRIVATE)
     !!--++  Names of refined parameters
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: January - 2014
     !!
-    character(len=25), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
+    character(len=40), dimension(Max_Free_Par), private   :: namfree    !Names of refined parameters
 
     !!--++
     !!--++ PN
@@ -1165,6 +1165,7 @@
                                            "      --------------------------------------------------------"
        write(unit=lun,fmt="(/,a,/)") &
        "    #   Parameter name                       No.(Model)         Final-Value   Standard Deviation"
+
        inum=0
        do i=1,vs%np
           if (vs%code(i)/=0) then
@@ -1172,6 +1173,7 @@
             write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
+
        write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
 
 
@@ -1323,9 +1325,12 @@
     !!--++     arguments in order to expose to the user only the important information
     !!--++     that are stored in Vs of type LSQ_Vector_State_Type.
     !!--++     The "ipvt" argument has also been suppressed.
+    !!--++     If one uses Vs%code_comp=.true.  be careful with the calculations inside
+    !!--++     Model_Functn, for making properly the constraints one has to work with
+    !!--++     shift of parameters instead of the parameters themselves.
     !!--++
     !!--++
-    !!--++ Update: February - 2009
+    !!--++  Updated: January - 2014
     !!
     Subroutine LM_Der(Model_Functn, m, c, Vs, chi2, calder, infout,residuals)
        !---- Arguments ----!
@@ -1353,7 +1358,8 @@
                                                iflag,info
        Integer,        dimension(c%npvar)   :: ipvt
        Integer, dimension(c%npvar,c%npvar)  :: p,id
-       Real (Kind=cp), dimension(c%npvar)   :: x, sx
+       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo
+       Real (Kind=cp), dimension(vs%np)     :: vp
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
        Real (Kind=cp)                       :: ftol, gtol, xtol,iChi2,deni,denj
@@ -1375,13 +1381,29 @@
           write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
           return
        end if
+
        j=0
-       Do i=1,Vs%np
-          if(Vs%code(i) == 0) cycle
-          j=j+1
-          x(j)=Vs%pv(i)
-          namfree(j)=vs%nampar(i)
-       End do
+       if(vs%code_comp) then
+          !save the initial values of all parameters
+          vp=vs%pv(1:vs%np)
+          do j=1,n
+            do i=1,vs%np
+               if(vs%code(i) == j) then
+                  x(j)=Vs%pv(i)
+                  namfree(j)=vs%nampar(i)
+                  exit
+               end if
+            end do
+          end do
+          xo=x !saving the initial free parameter
+       else
+          do i=1,vs%np
+             if (vs%code(i) == 0) cycle
+             j=j+1
+             x(j)=Vs%pv(i)
+             namfree(j)=vs%nampar(i)
+          end do
+       end if
 
        ! Initial calculation of Chi2
        iflag=1
@@ -1462,15 +1484,27 @@
 
        !Update the State vector Vs
        n=0
-       Do i=1,Vs%np
-          if (Vs%code(i) == 0) then
-              Vs%spv(i)=0.0
-          Else
-             n=n+1
-             Vs%pv(i) = x(n)
-             Vs%spv(i)=sx(n)
-          End if
-       End do
+       if(vs%code_comp) then
+          Do i=1,Vs%np
+             if (Vs%code(i) == 0) then
+                 Vs%spv(i)=0.0
+             Else
+                n=vs%code(i)
+                Vs%pv(i) = vp(i)+(x(n)-xo(n))*Vs%mul(i)
+                Vs%spv(i)=sx(n)*Vs%mul(i)
+             End if
+          End do
+       else
+          Do i=1,Vs%np
+             if (Vs%code(i) == 0) then
+                 Vs%spv(i)=0.0
+             Else
+                n=n+1
+                Vs%pv(i) = x(n)
+                Vs%spv(i)=sx(n)
+             End if
+          End do
+       end if
 
        Select Case (info)
           Case(0)
@@ -1745,8 +1779,11 @@
     !!--++  The residuals vector has been eliminated from the arguments in order to expose to the
     !!--++  user only the important information that are stored in Vs of type LSQ_Vector_State_Type.
     !!--++  The "iwa" argument has also been suppressed.
+    !!--++  If one uses Vs%code_comp=.true.  be careful with the calculations inside
+    !!--++  Model_Functn, for making properly the constraints one has to work with
+    !!--++  shift of parameters instead of the parameters themselves.
     !!--++
-    !!--++ Update: February - 2009
+    !!--++ Updated: January - 2014
     !!
     Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals)
        !---- Arguments ----!
@@ -1772,7 +1809,8 @@
                                                iflag,info
        Integer,        dimension(c%npvar)   :: ipvt
        Integer, dimension(c%npvar,c%npvar)  :: p,id
-       Real (Kind=cp), dimension(c%npvar)   :: x, sx
+       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo
+       Real (Kind=cp), dimension(vs%np)     :: vp
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
        Real (Kind=cp)                       :: epsfcn,ftol, gtol, xtol,iChi2,deni,denj
@@ -1793,13 +1831,30 @@
           write(unit=infout,fmt="(a,2i5,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):",n,m,c%tol
           Return
        End if
+
+
        j=0
-       Do i=1,Vs%np
-          if(Vs%code(i) == 0) cycle
-          j=j+1
-          x(j)=Vs%pv(i)
-          namfree(j)=vs%nampar(i)
-       End do
+       if(vs%code_comp) then
+          !save the initial values of all parameters
+          vp=vs%pv(1:vs%np)
+          do j=1,n
+            do i=1,vs%np
+               if(vs%code(i) == j) then
+                  x(j)=Vs%pv(i)
+                  namfree(j)=vs%nampar(i)
+                  exit
+               end if
+            end do
+          end do
+          xo=x !saving the initial free parameter
+       else
+          do i=1,vs%np
+             if (vs%code(i) == 0) cycle
+             j=j+1
+             x(j)=Vs%pv(i)
+             namfree(j)=vs%nampar(i)
+          end do
+       end if
 
        !Initial calculation of Chi2
        iflag=1
@@ -1873,15 +1928,27 @@
 
        !Update the State vector Vs
        n=0
-       Do i=1,Vs%np
-          if (Vs%code(i) == 0) then
-             Vs%spv(i)=0.0
-          Else
-             n=n+1
-             Vs%pv(i) = x(n)
-             Vs%spv(i)=sx(n)
-          End if
-       End do
+       if(vs%code_comp) then
+          Do i=1,Vs%np
+             if (Vs%code(i) == 0) then
+                 Vs%spv(i)=0.0
+             Else
+                n=vs%code(i)
+                Vs%pv(i) = vp(i)+(x(n)-xo(n))*Vs%mul(i)
+                Vs%spv(i)=sx(n)*Vs%mul(i)
+             End if
+          End do
+       else
+          Do i=1,Vs%np
+             if (Vs%code(i) == 0) then
+                 Vs%spv(i)=0.0
+             Else
+                n=n+1
+                Vs%pv(i) = x(n)
+                Vs%spv(i)=sx(n)
+             End if
+          End do
+       end if
 
        Select Case (info)
           Case(0)
@@ -3447,7 +3514,7 @@
     !!--++    The model function should use at least some of the public variables of the
     !!--++    present module in order to set the derivatives with respect to the model
     !!--++    parameters. Examples of using this module are given in the program
-    !!--++    templates CW_fit and TOF_fit.
+    !!--++    templates CW_fit and TOF_fit. This subroutine ignores vs%code_comp!
     !!--++
     !!--..    INFORMATION
     !!--..        Author: Juan Rodriguez-Carvajal (based in text descriptions of the literature)
@@ -3500,7 +3567,7 @@
        logical                                :: fixed, write_cyc
        character(len=180)                     :: line
        integer                                :: ifail,nt
-       integer                                :: i,ncount,li,ntex
+       integer                                :: i,j,ncount,li,ntex
        real(kind=cp)                          :: fl,chi1
        real(kind=cp), dimension(Max_Free_Par) :: a,sa
 
@@ -3521,7 +3588,8 @@
        do i=1,vs%np
           if (vs%code(i) == 0) cycle
           ncount=ncount+1
-          namfree(ncount)=vs%nampar(i)
+          j=vs%code(i)
+          namfree(j)=vs%nampar(i)
        end do
        c%npvar=ncount
        write(unit=ipr,fmt="(a,i6)")        " => Number of free parameters: ",ncount

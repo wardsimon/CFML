@@ -1623,7 +1623,6 @@
 
        if(present(comment)) write(unit=lun,fmt="(a)") "TITLE "//trim(comment)
        write(unit=lun,fmt="(a)") "!  Automatically generated CFL file (Write_CFL)"
-       write(unit=lun,fmt="(a)") "!  "
 
        a(1:3)=Cel%Cell
        a(4:6)=Cel%ang
@@ -1632,7 +1631,9 @@
        do j=1,6
           call SetNum_Std(a(j), sa(j), text(j))
        end do
+       write(unit=lun,fmt="(a)") "!        a           b           c         alpha        beta        gamma"
        write(unit=lun,fmt="(a,6a12)") "Cell ",text
+       write(unit=lun,fmt="(a,i3)")"!     Space Group # ",SpG%NumSpg
        write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
        call Write_Atoms_CFL(Atm,Lun,cel)
 
