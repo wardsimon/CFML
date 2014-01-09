@@ -892,7 +892,7 @@ Contains
             V=v0*(1.0_cp+2.0_cp*s)**(-1.5_cp)
 
          case (3) ! Vinet
-            V=v0*s**3.0_cp
+            V=v0*(1.0_cp-s)**3.0_cp   !JGP
 
          case (4) ! Natural Strain
             V=v0*exp(-3.0_cp*s)
