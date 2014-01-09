@@ -1099,7 +1099,7 @@
        do i=1,c%npvar
         write(unit=lun,fmt="(a,i6,2f20.5)") "    "//vnam(i),i,v(i),vstd(i)
        end do
-       write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
+       write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
 
 
        return
@@ -1174,7 +1174,7 @@
           end if
        end do
 
-       write(unit=lun,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
+       write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
 
 
        return
@@ -1278,7 +1278,7 @@
             write(unit=lun,fmt="(i5,a,i6,2f20.5)") inum,"    "//vs%nampar(i),i,vs%pv(i),vs%spv(i)
           end if
        end do
-       write(unit=lun,fmt="(/,a,f12.5)") " => Final value of Chi2: ",chi2
+       write(unit=lun,fmt="(/,a,g13.5)") " => Final value of Chi2: ",chi2
 
        if (present(out_obscal)) then
           !---- Output of a file with the observed and calculated curves ----!

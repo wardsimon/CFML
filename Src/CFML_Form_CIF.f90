@@ -3218,17 +3218,17 @@
 
     !!--++
     !!--++ Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase, Job_Info, file_list,CFrame)
-    !!--++    character(len=*),              intent( in)  :: filenam  ! In -> Name of the file
-    !!--++    Type (Crystal_Cell_Type),      intent(out)  :: Cell     ! Out -> Cell object
-    !!--++    Type (atom_list_type),         intent(out)  :: A        ! Out -> Atom_List object
-    !!--++    Type (Space_Group_Type),       intent(out)  :: SpG      ! Out -> Space Group object
-    !!--++    Character(len=*),    optional, intent( in)  :: Mode     ! In -> if Mode="CIF" filenam
-    !!--++                                                                    is of CIF type format
-    !!--++    Integer,             optional, intent( in)  :: Iphase   ! Number of the phase.
-    !!--++    Type(Job_Info_type), optional, intent(out)  :: Job_Info ! Diffaction conditions
-    !!--++    Type(file_list_type),optional, intent(out)  :: file_list! Complete file to be used by
+    !!--++    character(len=*),              intent( in)     :: filenam  ! In -> Name of the file
+    !!--++    Type (Crystal_Cell_Type),      intent(out)     :: Cell     ! Out -> Cell object
+    !!--++    Type (atom_list_type),         intent(out)     :: A        ! Out -> Atom_List object
+    !!--++    Type (Space_Group_Type),       intent(out)     :: SpG      ! Out -> Space Group object
+    !!--++    Character(len=*),    optional, intent( in)     :: Mode     ! In -> if Mode="CIF" filenam
+    !!--++                                                                       is of CIF type format
+    !!--++    Integer,             optional, intent( in)     :: Iphase   ! Number of the phase.
+    !!--++    Type(Job_Info_type), optional, intent(out)     :: Job_Info ! Diffaction conditions
+    !!--++    Type(file_list_type),optional, intent(in out)  :: file_list! Complete file to be used by
     !!--++                                                              the calling program or other procedures
-    !!--++    Character(len=*),    optional, intent(in)   :: CFrame
+    !!--++    Character(len=*),    optional, intent(in)      :: CFrame
     !!--++    Overloaded
     !!--++    Subroutine to read and input file and construct the crystal structure
     !!--++    in terms of the ofjects Cell, SpG and A. The optional argument Iphase is an integer
@@ -3239,13 +3239,13 @@
     !!
     Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase,Job_Info,file_list,CFrame)
        !---- Arguments ----!
-       character(len=*),              intent( in)  :: filenam
-       Type (Molecular_Crystal_Type), intent(out)  :: Molcrys
-       Character(len=*),     optional,intent( in)  :: Mode
-       Integer,              optional,intent( in)  :: Iphase
-       Type(Job_Info_type),  optional,intent(out)  :: Job_Info
-       Type(file_list_type), optional,intent(out)  :: file_list
-       Character(len=*),     optional,intent(in)   :: CFrame
+       character(len=*),              intent( in)     :: filenam
+       Type (Molecular_Crystal_Type), intent(out)     :: Molcrys
+       Character(len=*),     optional,intent( in)     :: Mode
+       Integer,              optional,intent( in)     :: Iphase
+       Type(Job_Info_type),  optional,intent(out)     :: Job_Info
+       Type(file_list_type), optional,intent(in out)  :: file_list
+       Character(len=*),     optional,intent(in)      :: CFrame
        !---- Local variables -----!
        Type (Atom_list_type)                         :: A
        character(len=132), allocatable, dimension(:) :: file_dat
@@ -3255,24 +3255,33 @@
 
        call init_err_form()
 
+       nlines=0
+       if (present(file_list)) nlines=file_list%nlines
+
        !---- Number of Lines in the input file ----!
-       call Number_Lines(trim(filenam), nlines)
-       if (nlines==0) then
-          err_form=.true.
-          ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
-          return
+       if(nlines == 0) then
+           call Number_Lines(trim(filenam), nlines)
+           if (nlines==0) then
+              err_form=.true.
+              ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
+              return
+           else
+              if (allocated(file_dat)) deallocate( file_dat)
+              allocate( file_dat(nlines))
+              call reading_Lines(trim(filenam),nlines,file_dat)
+           end if
+           if (present(file_list)) then
+              file_list%nlines=nlines
+              if (allocated(file_list%line)) deallocate(file_list%line)
+              allocate(file_list%line(nlines))
+              file_list%line=file_dat
+           end if
        else
-          if (allocated(file_dat)) deallocate( file_dat)
-          allocate( file_dat(nlines))
-          call reading_Lines(trim(filenam),nlines,file_dat)
+           if (allocated(file_dat)) deallocate( file_dat)
+           allocate( file_dat(nlines))
+           file_dat=file_list%line
        end if
 
-       if (present(file_list)) then
-          file_list%nlines=nlines
-          if (allocated(file_list%line)) deallocate(file_list%line)
-          allocate(file_list%line(nlines))
-          file_list%line=file_dat
-       end if
 
        !---- Define the type of file: CIF, CFL, RES,... ----!
        modec=" "
@@ -3377,17 +3386,17 @@
 
     !!--++
     !!--++ Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Type,File_List,CFrame)
-    !!--++    character(len=*),              intent( in)  :: filenam  ! In -> Name of the file
-    !!--++    Type (Crystal_Cell_Type),      intent(out)  :: Cell     ! Out -> Cell object
-    !!--++    Type (Space_Group_Type),       intent(out)  :: SpG      ! Out -> Space Group object
-    !!--++    Type (atom_list_type),         intent(out)  :: A        ! Out -> Atom_List object
-    !!--++    Character(len=*),    optional, intent( in)  :: Mode     ! In -> if Mode="CIF" filenam
-    !!--++                                                                    is of CIF type format
-    !!--++    Integer,             optional, intent( in)  :: Iphase   ! Number of the phase.
-    !!--++    Type(Job_Info_type), optional, intent(out)  :: Job_Info ! Diffaction conditions
-    !!--++    Type(file_list_type),optional, intent(out)  :: file_list! Complete file to be used by
-    !!--++                                                              the calling program or other procedures
-    !!--++    Character(len=*),    optional, intent( in)  :: CFrame   !Cartesian Frame
+    !!--++    character(len=*),              intent( in)     :: filenam  ! In -> Name of the file
+    !!--++    Type (Crystal_Cell_Type),      intent(out)     :: Cell     ! Out -> Cell object
+    !!--++    Type (Space_Group_Type),       intent(out)     :: SpG      ! Out -> Space Group object
+    !!--++    Type (atom_list_type),         intent(out)     :: A        ! Out -> Atom_List object
+    !!--++    Character(len=*),    optional, intent( in)     :: Mode     ! In -> if Mode="CIF" filenam
+    !!--++                                                                       is of CIF type format
+    !!--++    Integer,             optional, intent( in)     :: Iphase   ! Number of the phase.
+    !!--++    Type(Job_Info_type), optional, intent(out)     :: Job_Info ! Diffaction conditions
+    !!--++    Type(file_list_type),optional, intent(in out)  :: file_list! Complete file to be used by
+    !!--++                                                                 the calling program or other procedures
+    !!--++    Character(len=*),    optional, intent( in)     :: CFrame   !Cartesian Frame
     !!--++
     !!--++    Overloaded
     !!--++    Subroutine to read and input file and construct the crystal structure
@@ -3399,41 +3408,49 @@
     !!
     Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Mode,Iphase,Job_Info,file_list,CFrame)
        !---- Arguments ----!
-       character(len=*),             intent( in)  :: filenam
-       Type (Crystal_Cell_Type),     intent(out)  :: Cell
-       Type (Space_Group_Type),      intent(out)  :: SpG
-       Type (atom_list_type),        intent(out)  :: A
-       Character(len=*),    optional,intent( in)  :: Mode
-       Integer,             optional,intent( in)  :: Iphase
-       Type(Job_Info_type), optional,intent(out)  :: Job_Info
-       Type(file_list_type),optional,intent(out)  :: file_list
-       Character(len=*),    optional,intent( in)  :: CFrame
+       character(len=*),             intent( in)     :: filenam
+       Type (Crystal_Cell_Type),     intent(out)     :: Cell
+       Type (Space_Group_Type),      intent(out)     :: SpG
+       Type (atom_list_type),        intent(out)     :: A
+       Character(len=*),    optional,intent( in)     :: Mode
+       Integer,             optional,intent( in)     :: Iphase
+       Type(Job_Info_type), optional,intent(out)     :: Job_Info
+       Type(file_list_type),optional,intent(in out)  :: file_list
+       Character(len=*),    optional,intent( in)     :: CFrame
 
        !---- Local variables -----!
        character(len=132), allocatable, dimension(:) :: file_dat
        character(len=3)                              :: modec
        integer                                       :: nlines
-
+       logical                                       :: read_file
 
        call init_err_form()
 
-       !---- Number of Lines in the input file ----!
-       call Number_Lines(trim(filenam), nlines)
-       if (nlines==0) then
-          err_form=.true.
-          ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
-          return
-       else
-          if (allocated(file_dat)) deallocate( file_dat)
-          allocate( file_dat(nlines))
-          call reading_Lines(trim(filenam),nlines,file_dat)
-       end if
+       nlines=0
+       if (present(file_list)) nlines=file_list%nlines
 
-       if (present(file_list)) then
-          file_list%nlines=nlines
-          if (allocated(file_list%line)) deallocate(file_list%line)
-          allocate(file_list%line(nlines))
-          file_list%line=file_dat
+       !---- Number of Lines in the input file ----!
+       if(nlines == 0) then
+           call Number_Lines(trim(filenam), nlines)
+           if (nlines==0) then
+              err_form=.true.
+              ERR_Form_Mess="The file "//trim(filenam)//" contains nothing"
+              return
+           else
+              if (allocated(file_dat)) deallocate( file_dat)
+              allocate( file_dat(nlines))
+              call reading_Lines(trim(filenam),nlines,file_dat)
+           end if
+           if (present(file_list)) then
+              file_list%nlines=nlines
+              if (allocated(file_list%line)) deallocate(file_list%line)
+              allocate(file_list%line(nlines))
+              file_list%line=file_dat
+           end if
+       else
+           if (allocated(file_dat)) deallocate( file_dat)
+           allocate( file_dat(nlines))
+           file_dat=file_list%line
        end if
 
        !---- Define the type of file: CIF, CFL, RES,... ----!
