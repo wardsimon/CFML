@@ -1413,12 +1413,12 @@
        if (ichi2 < 1.0e5) then
           ichi2=ichi2*ichi2/max(1.0_cp,real(m-n,kind=cp))
        end if
-       If ( c%icyc < 5*n) then
-          maxfev = 100*(n + 1)
-          c%icyc= maxfev
-       Else
+       !If ( c%icyc < 5*n) then
+       !   maxfev = 100*(n + 1)
+       !   c%icyc= maxfev
+       !Else
           maxfev = c%icyc
-       End if
+       !End if
        ftol = c%tol
        xtol = c%tol
        gtol = zero

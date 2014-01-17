@@ -2627,7 +2627,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'AAAAAAAAAA') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block A-Type has been found'
           return
        end if
 
@@ -2945,7 +2945,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'FFFFFFFFFF') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block F-Type has been found'
           return
        end if
 
@@ -3016,7 +3016,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'IIIIIIIIII') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block I-Type has been found'
           return
        end if
 
@@ -3087,7 +3087,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'JJJJJJJJJJ') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block J-Type has been found'
           return
        end if
 
@@ -3270,10 +3270,10 @@ Module CFML_ILL_Instrm_Data
        character(len=80)                            :: line
        integer                                      :: nlines
        integer                                      :: numor,idum
-       logical                                      :: new_form
+       logical                                      :: new_form, very_old,old
 
        err_illdata=.false.
-       new_form = .false.
+       new_form = .false.; very_old=.false.; old=.false.
 
        ! Detecting numor
        call Number_Lines(fileinfo,nlines)
@@ -3290,12 +3290,26 @@ Module CFML_ILL_Instrm_Data
 
        ! Check format for D1B
        call Number_KeyTypes_on_File(filevar,nlines)
+
+                                          !R A S F I J V
        if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
          new_form = .true.
-         if(.not. equal_vector(n_keytypes,(/1,2,1,2,2,0,0/),7)) then
-          err_illdata=.true.
-          err_illdata_mess='This numor does not correspond with D1B Format'
-          return
+         !write(*,*) "  New format"
+         if(equal_vector(n_keytypes,(/1,2,1,2,2,0,0/),7)) then
+             old=.true.
+             new_form=.false.
+             !write(*,*) "  Old format"
+         else                            !R A S F I J V
+             if(equal_vector(n_keytypes,(/1,2,1,2,1,0,0/),7)) then
+                very_old=.true.
+                new_form=.false.
+                old=.false.
+                !write(*,*) "  VERY Old format"
+             else
+                err_illdata=.true.
+                err_illdata_mess='This numor does not correspond with D1B Format'
+                return
+             end if
          end if
        end if
 
@@ -3346,10 +3360,20 @@ Module CFML_ILL_Instrm_Data
 
        ! Real values
        call read_F_keyType(filevar,nl_keytypes(4,1,1),nl_keytypes(4,1,2))
-       if (nval_f > 0 .and. .not. new_form) then
+       if (nval_f > 0 .and. old ) then
           n%wave=rvalues(18)
           n%conditions(1:3)=rvalues(46:48)  ! Temp-s, Temp-r, Temp-sample
        end if
+
+       if (nval_f > 0 .and. very_old ) then
+          n%monitor=rvalues(1)
+          n%time=rvalues(2)
+          n%scans(1)=rvalues(3)        ! Initial 2theta
+          n%conditions(1:3)=rvalues(15:17)  ! Temp-s, Temp-r, Temp-sample
+          n%wave=rvalues(18)  !Not sure
+          !write(*,*) " Monitor, time, 2theta_zero, T-set T-reg, T-samp"
+          !write(*,*) n%monitor,n%time,n%scans(1),n%conditions(1:3)
+      end if
 
        if (nval_f > 0 .and. new_form) then
           n%wave=rvalues(18)           ! Wavelength
@@ -3401,7 +3425,7 @@ Module CFML_ILL_Instrm_Data
             n%counts(:,1)=ivalues(1:n%nbdata)
          end if
 
-       Else  !Below old format
+       Else if (old) then !Below old format
 
          ! Counts
          if (allocated(n%counts)) deallocate(n%counts)
@@ -3417,6 +3441,22 @@ Module CFML_ILL_Instrm_Data
                n%counts(:,1)=real(ivalues(4:nval_i))
             end if
          end if
+
+       Else if (very_old) then !Below  very old format
+
+         ! Counts
+         if (allocated(n%counts)) deallocate(n%counts)
+         !write(*,*) " Reading F-types between lines ",nl_keytypes(4,2,1),nl_keytypes(4,2,2)
+         call read_F_keyType(filevar,nl_keytypes(4,2,1),nl_keytypes(4,2,2))
+         if (nval_f > 0) then
+            n%nbdata=nval_f
+            if(Instrm_Info_only) return    !This is placed here waiting for a proper database
+            if (n%nbdata > 0) then
+               allocate(n%counts(n%nbdata,1))
+               n%counts(:,1)=rvalues(1:nval_f)
+            end if
+         end if
+
        end if
 
        return
@@ -5060,7 +5100,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'RRRRRRRRRR') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block R-Type has been found'
           return
        end if
 
@@ -5131,7 +5171,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'SSSSSSSSSS') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block S-Type has been found'
           return
        end if
 
@@ -5188,7 +5228,7 @@ Module CFML_ILL_Instrm_Data
        line=filevar(n_ini)
        if (line(1:10) /= 'VVVVVVVVVV') then
           err_illdata=.true.
-          err_illdata_mess=' A bad Block Type has been found'
+          err_illdata_mess=' A bad Block V-Type has been found'
           return
        end if
 
