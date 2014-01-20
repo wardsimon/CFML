@@ -3308,9 +3308,10 @@
     !!--++    integer,                         intent(in)     :: i_dat
     !!--++    type (diffraction_pattern_type), intent(in out) :: pat
     !!--++
-    !!--++    Read a pattern for X,Y,Sigma
+    !!--++    Read a pattern for X,Y,Sigma. Adding (2014) the possibility to read a calculated pattern
+    !!--++    in a fouth column
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Updated: January - 2014
     !!
     Subroutine Read_Pattern_XYSigma(i_dat,Pat)
        !---- Arguments ----!
@@ -3320,7 +3321,7 @@
        !---- Local Variables ----!
        character(len=180)                           :: txt1, aline, fmtfields, fmtformat
        character (len=5)                            :: date1
-       integer                                      :: line_da, ntt, interpol, i, j,ier,npp
+       integer                                      :: line_da, ntt, interpol, i, j,ier,npp,nb_col
        real(kind=cp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm
        real(kind=cp)                                :: ycor, xt, stepin, ypn
        real(kind=cp), parameter                     :: eps1=1.0E-6
@@ -3466,7 +3467,7 @@
        call Allocate_Diffraction_Pattern(pat)
 
 
-       fmtfields = "fff"
+       fmtfields = "ffff"  !Now four columns are read in order to incorporate the calcualted pattern
        sumavar=0.0
        cnorm=0.0
        i=0
@@ -3475,12 +3476,12 @@
           if (ierr_fmt == -1) exit
           if (ierr_fmt /= 0) then
              Err_diffpatt=.true.
-             ERR_DiffPatt_Mess=" Error reading X,Y, Sigma in profile DATA file"
+             ERR_DiffPatt_Mess=" Error reading X,Y, Sigma Ycalc in profile DATA file"
              return
           end if
           if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
           i=i+1
-          read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i)
+          read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i),pat%ycalc(i)
           if (ier /=0) then
              Err_diffpatt=.true.
              ERR_DiffPatt_Mess=" Error in Intensity file, check your instr parameter!"
@@ -3489,6 +3490,7 @@
           IF (i > 10 .and. ABS(pat%x(i)) < eps1 .AND. pat%y(i) < eps1 .AND.  pat%sigma(i) < eps1) exit
           pat%x(i)=pat%x(i)*fac_x
           pat%y(i)=pat%y(i)*fac_y
+          pat%ycalc(i)=pat%ycalc(i)*fac_y
           pat%sigma(i)=pat%sigma(i)*fac_y
           pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
           sumavar=sumavar+pat%sigma(i)
