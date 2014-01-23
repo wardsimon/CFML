@@ -534,7 +534,7 @@ Contains
       end select
 
       !> handle pthermal EoS
-      if (eospar%itherm == 6) p=p+pthermal(T,eospar)
+      if (eospar%itherm == 6 .and. eospar%imodel /= 0) p=p+pthermal(T,eospar)
 
       return
    End Function Get_Pressure
@@ -779,6 +779,7 @@ Contains
 
       !> Analytic solution for Murnaghan:  use this for first guess for other EoS except Tait
       v=v0*(1.0_cp + kp*pa/k0)**(-1.0_cp/kp)
+
       if (eospar%imodel ==1) then
          if (eospar%linear) v=v**(1.0_cp/3.0_cp)
          return
