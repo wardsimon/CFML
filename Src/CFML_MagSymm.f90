@@ -42,17 +42,22 @@
 !!----
 !!----
 !!---- DEPENDENCIES
-!!--++    Use CFML_GlobalDeps,                only: Sp, tpi
+!!--++    Use CFML_GlobalDeps,                only: cp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
 !!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
-!!--++                                              err_symm,err_symm_mess,Lattice_Trans
-!!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos, &
-!!--++                                              Get_Mat_From_Symb
+!!--++                                              err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO,   &
+!!--++                                              Lattice_Trans
+!!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
+!!--++                                              Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
+!!--++                                              Err_String_Mess,setnum_std, getword
 !!--++    Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
 !!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
+!!--++                                              Magnetic_Form
+!!--++    Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell
 !!----
 !!---- VARIABLES
@@ -92,7 +97,8 @@
                                               err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO,   &
                                               Lattice_Trans
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
-                                              Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,Err_String_Mess
+                                              Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
+                                              Err_String_Mess,setnum_std, getword
     Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
     Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -1217,10 +1223,11 @@
        !---- Local Variables ----!
        integer :: i,num_sym, num_constr, num_kvs,num_msym,num_matom, num_mom,   &
                   ier, j, m, n, k, ncar,mult,nitems,iv
+       integer,   dimension(9)       :: lugar
        integer,   dimension(5)       :: pos
        integer,   dimension(3)       :: code
        real(kind=cp)                 :: ph
-       real(kind=cp),dimension(3)    :: rsk,isk,cel,ang
+       real(kind=cp),dimension(3)    :: cel,ang,cel_std,ang_std
        real(kind=cp),dimension(6)    :: values,std
        real(kind=cp),dimension(3,3)  :: matr
        real(kind=cp),dimension(3,384):: orb
@@ -1230,6 +1237,7 @@
        character(len=132),dimension(384)   :: mom_strings
        character(len=132),dimension(30)    :: constr_strings
        character(len=132),dimension(30)    :: kv_strings
+       character(len=20), dimension(15)    :: lab_items
        character(len=40)    :: shubk
        character(len=2)     :: chars
        character(len=10)    :: label
@@ -1242,6 +1250,12 @@
        call init_err_MagSym()
 
        call File_To_FileList(file_mcif,mcif)
+       !Remove all possible tabs and non-ASCII characters in the CIF
+       do i=1,mcif%nlines
+         do j=1,len_trim(mcif%line(i))
+           if(mcif%line(i)(j:j) == char(9)) mcif%line(i)(j:j)=" "
+         end do
+       end do
        num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0
        cel=0.0; ang=0.0
        i=0
@@ -1312,6 +1326,7 @@
                   return
                 end if
                 cel(1)=values(1)
+                cel_std(1)=std(1)
                 MGp%m_cell=.true.
 
              Case("_magnetic_cell_length_b")
@@ -1322,6 +1337,7 @@
                   return
                 end if
                 cel(2)=values(1)
+                cel_std(2)=std(1)
 
              Case("_magnetic_cell_length_c")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -1331,6 +1347,7 @@
                   return
                 end if
                 cel(3)=values(1)
+                cel_std(3)=std(1)
 
              Case("_magnetic_cell_angle_alpha")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -1340,6 +1357,7 @@
                   return
                 end if
                 ang(1)=values(1)
+                ang_std(1)=std(1)
 
              Case("_magnetic_cell_angle_beta")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -1349,6 +1367,7 @@
                   return
                 end if
                 ang(2)=values(1)
+                ang_std(2)=std(1)
 
              Case("_magnetic_cell_angle_gamma")
                 call getnum_std(lowline(j:),values,std,iv)
@@ -1358,6 +1377,7 @@
                   return
                 end if
                 ang(3)=values(1)
+                ang_std(3)=std(1)
 
              Case("loop_")
                  i=i+1
@@ -1443,17 +1463,63 @@
                       allocate(Mgp%MSymop(k))
 
                    Case("_magnetic_atom_site_label")
-                      do k=1,6
-                        i=i+1
-                        if(index(mcif%line(i),"_magnetic_atom_site") == 0) then
-                          !err_magsym=.true.
-                          !ERR_MagSym_Mess=" Error reading the magnetic_atom_site loop"
-                          !return
-                          i=i-1
-                          nitems=k
-                          exit
-                        end if
+                      lugar=0
+                      lugar(1)=1
+                      j=1
+                      do k=1,9
+                         i=i+1
+                         if(index(mcif%line(i),"_atom_site_type_symbol") /= 0) then
+                            j=j+1
+                            lugar(2)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_x") /= 0) then
+                            j=j+1
+                            lugar(3)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_y") /= 0) then
+                            j=j+1
+                            lugar(4)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_atom_site_fract_z") /= 0) then
+                            j=j+1
+                            lugar(5)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_U_iso_or_equiv") /= 0) then
+                            j=j+1
+                            lugar(6)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_occupancy") /= 0) then
+                            j=j+1
+                            lugar(7)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_symmetry_multiplicity") /= 0) then
+                            j=j+1
+                            lugar(8)=j
+                            cycle
+                         end if
+                         if (index(mcif%line(i),"_atom_site_Wyckoff_label") /= 0) then
+                            j=j+1
+                            lugar(9)=j
+                            cycle
+                         end if
+                         exit
                       end do
+
+                      if (any(lugar(3:5) == 0)) then
+                          err_magsym=.true.
+                          ERR_MagSym_Mess=" Error reading the asymmetric unit of magnetic atoms"
+                          return
+                      end if
+
+                      i=i-1
+                      nitems=count(lugar > 0)
+
                       k=0
                       do
                         i=i+1
@@ -1490,6 +1556,8 @@
 
        if(MGp%m_cell) then
          call Set_Crystal_Cell(cel,ang,mCell)
+         mCell%cell_std=cel_std
+         mCell%ang_std=ang_std
        end if
 
        !Treat symmetry operators
@@ -1559,58 +1627,94 @@
           return
        else
           Call Allocate_mAtom_list(num_matom,Am)
+
           do i=1,Am%natoms
-            line=adjustl(atm_strings(i))
-            j=index(line," ")
-            Am%atom(i)%lab=line(1:j-1)
-            line=adjustl(line(j+1:))
-            j=index(line," ")
-            label=line(1:j-1)
-            line=adjustl(line(j+1:))
-            call getnum_std(line,values,std,iv)
-            if(err_string) then
-              err_magsym=.true.
-              write(unit=ERR_MagSym_Mess,fmt="(a,i4)")" Error reading magnetic atom #",i
-              ERR_MagSym_Mess=trim(ERR_MagSym_Mess)//" -> "//trim(err_string_mess)
-              return
+
+            call getword(atm_strings(i),lab_items,iv)
+            if(iv /= nitems) write(*,"(2(a,i2))") " => Warning nitems=",nitems," /= items read=",iv
+            Am%atom(i)%lab=lab_items(lugar(1))
+            if (lugar(2) /= 0) then
+               Am%atom(i)%SfacSymb=lab_items(lugar(2))(1:4)
+               if(index("1234567890+-",lab_items(lugar(2))(2:2)) /= 0 ) then
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(2))(1:1))
+               else
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(2))(1:1))//L_case(lab_items(lugar(2))(2:2))
+               end if
+            else
+               if(index("1234567890+-",lab_items(lugar(1))(2:2)) /= 0 ) then
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(1))(1:1))
+               else
+                  Am%atom(i)%chemSymb=U_case(lab_items(lugar(1))(1:1))//L_case(lab_items(lugar(1))(2:2))
+               end if
+               Am%atom(i)%SfacSymb=Am%atom(i)%chemSymb
             end if
-            Am%atom(i)%x=values(1:3)
-            Am%atom(i)%x_std=std(1:3)
-            if(nitems == 6) then
-              Am%atom(i)%occ=values(4)
-              Am%atom(i)%occ_std=std(4)
+            call getnum_std(lab_items(lugar(3)),values,std,iv)    ! _atom_site_fract_x
+            Am%atom(i)%x(1)=values(1)
+            Am%atom(i)%x_std(1)=std(1)
+            call getnum_std(lab_items(lugar(4)),values,std,iv)    ! _atom_site_fract_y
+            Am%atom(i)%x(2)=values(1)
+            Am%atom(i)%x_std(2)=std(1)
+            call getnum_std(lab_items(lugar(5)),values,std,iv)    ! _atom_site_fract_z
+            Am%atom(i)%x(3)=values(1)
+            Am%atom(i)%x_std(3)=std(1)
+
+            if (lugar(6) /= 0) then  ! _atom_site_Uiso_or_equiv
+               call getnum_std(lab_items(lugar(6)),values,std,iv)
+            else
+               values=0.0
+               std=0.0
             end if
-            if(len_trim(label) <=2) then
-              label="M"//u_case(trim(label))//"2" !assumes a magnetic form-factor for +2 ion
+            Am%atom(i)%ueq=values(1)
+            Am%atom(i)%Biso=values(1)*78.95683521     !If anisotropic they
+            Am%atom(i)%Biso_std=std(1)*78.95683521    !will be put to zero
+            Am%atom(i)%utype="u_ij"
+
+            if (lugar(7) /= 0) then ! _atom_site_occupancy
+               call getnum_std(lab_items(lugar(7)),values,std,iv)
+            else
+               values=1.0
+               std=0.0
             end if
-            Am%atom(i)%SfacSymb=trim(label)
-            Call Get_mOrbit(Am%atom(i)%x,MGp,Mult,orb)
-            if(nitems == 5) then
-              Am%atom(i)%occ=real(Mult)/real(MGp%n_sym)
-            else if(nitems == 6) then
-              Am%atom(i)%occ=Am%atom(i)%occ*real(Mult)/real(MGp%n_sym)
+            Am%atom(i)%occ=values(1)
+            Am%atom(i)%occ_std=std(1)
+
+            if(lugar(8) /= 0) then
+              read(unit=lab_items(lugar(8)),fmt=*) Mult
+              Am%atom(i)%mult=Mult
+            else
+              Call Get_mOrbit(Am%atom(i)%x,MGp,Mult,orb)
+              Am%atom(i)%mult=Mult
             end if
+            !Conversion from occupancy to occupation factor
+            Am%atom(i)%occ=Am%atom(i)%occ*real(Mult)/real(MGp%n_sym)
+
+            if(lugar(9) /= 0) then
+               Am%atom(i)%wyck=adjustl(trim(lab_items(lugar(9))))
+            end if
+
           end do
        end if
 
        !Treating moments of magnetic atoms
        if(num_mom /= 0) then
           do i=1,num_mom
-            line=adjustl(mom_strings(i))
-            j=index(line," ")
-            label=line(1:j-1)
-            line=adjustl(line(j+1:))
-            call getnum_std(line,values,std,iv)
-            if(err_string) then
+            call getword(mom_strings(i),lab_items,iv)
+            !write(*,"(4(a,tr3))")lab_items(1:iv)
+            if(iv /= 4) then
                err_magsym=.true.
                write(unit=ERR_MagSym_Mess,fmt="(a,i4)")" Error reading magnetic moment #",i
-               ERR_MagSym_Mess=trim(ERR_MagSym_Mess)//" -> "//trim(err_string_mess)
+               ERR_MagSym_Mess=trim(ERR_MagSym_Mess)//" -> 4 items expected in this line: 'Label mx my mz', read: "// &
+                                                      trim(mom_strings(i))
                return
             end if
-            rsk=values(1:3)
+            label=Lab_items(1)
             do j=1,Am%natoms
                if(label == Am%Atom(j)%lab) then
-                 Am%Atom(j)%SkR(:,1)=rsk
+                 do k=1,3
+                     call getnum_std(lab_items(1+k),values,std,iv)
+                     Am%Atom(j)%SkR(k,1)=values(1)
+                     Am%Atom(j)%SkR_std(k,1)=std(1)
+                 end do
                end if
             end do
           end do
@@ -1636,7 +1740,8 @@
              if(keyword(j:j) == "m") keyword(j:j) = " "
            end do
            keyword=Pack_String(keyword)
-           !write(*,"(a)") "  keyword: "//trim(keyword)
+           !write(*,"(a)") "  constr_string: "//trim(line)
+           !write(*,"(a)") "        keyword: "//trim(keyword)
            call Get_Mat_From_Symb(keyword,Matr, (/"x","y","z"/) )
            !write(*,"(9f10.3)") Matr
            do j=1,Am%natoms
@@ -2429,8 +2534,10 @@
        type(Crystal_Cell_Type),         intent(in)           :: mCell
        type(mAtom_List_Type),           intent(in)           :: Am
        !
-       Character(len=132)   :: line
-       character(len=2)     :: invc
+       Character(len=132)             :: line
+       character(len=40),dimension(6) :: text
+       character(len=2)               :: invc
+       real                           :: occ,occ_std,uiso,uiso_std
        integer :: i,j,k
 
        write(unit=Ipr,fmt="(a)") "#  TEST of Magnetic CIF file generated by CrysFML"
@@ -2451,12 +2558,16 @@
        write(unit=Ipr,fmt="(a)") '_magnetic_space_group_OG_name  "'//trim(MSGp%OG_symbol)//'"'
        write(unit=Ipr,fmt="(a)")
        if(MSGp%m_cell) then
-          write(unit=Ipr,fmt="(a,f14.5)") "_magnetic_cell_length_a ",mCell%Cell(1)
-          write(unit=Ipr,fmt="(a,f14.5)") "_magnetic_cell_length_b ",mCell%Cell(2)
-          write(unit=Ipr,fmt="(a,f14.5)") "_magnetic_cell_length_c ",mCell%Cell(3)
-          write(unit=Ipr,fmt="(a,f10.4)") "_magnetic_cell_angle_alpha ",mCell%Ang(1)
-          write(unit=Ipr,fmt="(a,f10.4)") "_magnetic_cell_angle_beta  ",mCell%Ang(2)
-          write(unit=Ipr,fmt="(a,f10.4)") "_magnetic_cell_angle_gamma ",mCell%Ang(3)
+          do i=1,3
+            call setnum_std(mCell%Cell(i),mCell%cell_std(i),text(i))
+            call setnum_std(mCell%ang(i),mCell%ang_std(i),text(i+3))
+          end do
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_a    "//trim(text(1))
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_b    "//trim(text(2))
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_c    "//trim(text(3))
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_alpha "//trim(text(4))
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_beta  "//trim(text(5))
+          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_gamma "//trim(text(6))
           write(unit=Ipr,fmt="(a)")
        end if
        if(MSGp%n_kv > 0) then
@@ -2498,8 +2609,23 @@
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_x"
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_y"
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_z"
+       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_U_iso_or_equiv"
+       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_occupancy"
+       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_symmetry_multiplicity"
+       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_Wyckoff_label"
+       line=" "
        do i=1,Am%natoms
-          write(unit=Ipr,fmt="(a6,a6,3f12.5)") Am%Atom(i)%lab, Am%atom(i)%SfacSymb,Am%atom(i)%x
+          do j=1,3
+            call setnum_std(Am%atom(i)%x(j),Am%atom(i)%x_std(j),text(j))
+          end do
+          occ=real(MSgp%n_sym)/real(Am%atom(i)%Mult)*Am%atom(i)%occ
+          occ_std=real(MSgp%n_sym)/real(Am%atom(i)%Mult)*Am%atom(i)%occ_std
+          call setnum_std(occ,occ_std,text(5))
+          uiso=Am%atom(i)%biso/78.95683521
+          uiso_std=Am%atom(i)%biso_std/78.95683521
+          call setnum_std(uiso,uiso_std,text(4))
+          write(unit=Ipr,fmt="(a6,a6,3a13,2a11,i4,a)") Am%Atom(i)%lab, Am%atom(i)%SfacSymb,(text(j),j=1,5),&
+                                                       Am%atom(i)%Mult," "//Am%atom(i)%wyck
        end do
        write(unit=Ipr,fmt="(a)")
        write(unit=Ipr,fmt="(a)") "loop_"
@@ -2509,7 +2635,10 @@
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_mz"
        do i=1,Am%natoms
           if(sum(abs(Am%Atom(i)%Skr(:,1))) < 0.0001) cycle
-          write(unit=Ipr,fmt="(a8,3f12.5)") Am%Atom(i)%lab,Am%atom(i)%Skr(:,1)
+          do j=1,3
+            call setnum_std(Am%atom(i)%Skr(j,1),Am%atom(i)%Skr_std(j,1),text(j))
+          end do
+          write(unit=Ipr,fmt="(a8,3a12)") Am%Atom(i)%lab,(text(j),j=1,3)
        end do
        write(unit=Ipr,fmt="(a)")
        return

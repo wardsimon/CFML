@@ -1453,11 +1453,22 @@
     !!----                           / m1   m2   m3 \
     !!----                    Mat = |  m4   m5   m6  |
     !!----                           \ m7   m8   m9 /
-    !!----  In the symbor it may appear negative sign and the order within each
+    !!----  In the symbol it may appear negative sign and the order within each
     !!----  direction is irrelevant, for instantce: m2b+m1a+m3c,m6c+m5b+m4a,m9c+m8b+m7a
-    !!----  is strictly equivalent to the symbol given above
+    !!----  is strictly equivalent to the symbol given above.
+    !!----  This subroutine has been modified in order to accept data of the form:
+    !!----   3a/2+b-c/4, a-3b/2,c+b/2. Now the letters may be followed by the division
+    !!----  symbol. Befor this modification the previous item should had be given as:
+    !!----   3/2a+b-1/4c, a-3/2b,c+1/2b. Singular matrices are also accepted, for instance
+    !!----  the matrix corresponding to the string: 0,a+b,0 was previously incorrect, now
+    !!----  the constructed matrix is as expected:
+    !!----                           / 0   0   0 \
+    !!----      0,a+b,0  ->   Mat = |  1   1   0  |
+    !!----                           \ 0   0   0 /
+    !!----
     !!----
     !!----   Created: February - 2012 (JRC)
+    !!----   Updated: January  - 2014 (JRC).
     !!----
     Subroutine Get_Mat_From_Symb(Symb,Mat,cod)
       character(len=*),                intent(in)  :: Symb
@@ -1488,139 +1499,197 @@
     !!--..  as for the subroutine Get_Mat_From_Symb applies.
     !!--..
     !!--..  Created: February - 2012 (JRC).
+    !!--..  Updated: January  - 2014 (JRC).
     !!--..
+
     Subroutine Get_Num_String(string,v,cod)
       character(len=*),                intent(in)  :: string
       real,dimension(3),               intent(out) :: v
       character(len=1), dimension(3),  intent(in)  :: cod
       !--- Local variables ---!
-      integer :: i
-      integer, dimension(3) :: j
+      integer :: i,k,ns,np,nterm,m,nsp,jk,jp
+      integer, dimension(3) :: j,pos,neg, klist
+      character(len=len(string)),dimension(3) :: split
 
-      do i=1,3
-        j(i)=index(string,cod(i))
+      call Get_Separator_Pos(string,"+",pos,np)
+      call Get_Separator_Pos(string,"-",neg,ns)
+      nterm=np+ns
+      !write(*,"(//a)") " => Input string: "//trim(string)
+      !write(*,"(a,i4)") " => Nterms: ",nterm
+      !write(*,"(a,3i4)") " => Pos vector: ",(pos(i),i=1,np)
+      !write(*,"(a,3i4)") " => Neg vector: ",(neg(i),i=1,ns)
+      !Construct the splitted terms depending on +/- separators
+      Select Case (nterm)
+        Case(0)  !only 1 positive item without sign
+             nsp=1
+             split(1)=string
+
+        Case(1)
+
+             Select Case(np)
+               Case(0) !A single term with a negative symbol or two terms separated by the negative symbol
+                   if(neg(1) == 1) then !single term
+                     nsp=1
+                     split(1)=string
+                   else
+                     nsp=2
+                     split(1)=string(1:neg(1)-1)
+                     split(2)=string(neg(1):)
+                   end if
+               Case(1) !A single term with a positive symbol or two positive terms
+                   if(pos(1) == 1) then !single term
+                     nsp=1
+                     split(1)=string(2:)
+                   else
+                     nsp=2
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:)
+                   end if
+             End Select
+
+        Case(2)
+
+             Select Case(np)
+               Case(0) !No positive terms then (1) -cccc -dddd or (2)xxxx - yyyy -  zzzz
+                   if(neg(1) == 1) then !two negative terms (1)
+                     nsp=2
+                     split(1)=string(1:neg(2)-1)
+                     split(2)=string(neg(2):)
+                   else                  !Three terms as (2)
+                     nsp=3
+                     split(1)=string(1:neg(1)-1)
+                     split(2)=string(neg(1):neg(2)-1)
+                     split(3)=string(neg(2):)
+                   end if
+               Case(1) !Four options (1)+xxxx-yyyy  (2)-xxxx+yyyy  (3)xxxx+yyyyy-zzzzz  (4)xxxx-yyyy+zzzz
+                   if(pos(1) == 1) then !(1)
+                     nsp=2
+                     split(1)=string(2:neg(1)-1)
+                     split(2)=string(neg(1):)
+                   else if(neg(1) == 1) then  !(2)
+                     nsp=2
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:)
+                   else if(pos(1) < neg(1)) then !(3)
+                     nsp=3
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:neg(1)-1)
+                     split(3)=string(neg(1):)
+                   else if(pos(1) > neg(1)) then !(4)
+                     nsp=3
+                     split(1)=string(1:neg(1)-1)
+                     split(2)=string(neg(1):pos(1)-1)
+                     split(3)=string(pos(1)+1:)
+                   end if
+               Case(2) !Two options (1)+xxxx+yyyy  (2) xxxx+yyyy+zzzz
+                   if(pos(1) == 1) then !(1)
+                     nsp=2
+                     split(1)=string(2:pos(2)-1)
+                     split(2)=string(pos(2)+1:)
+                   else   !2
+                     nsp=3
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:pos(2)-1)
+                     split(3)=string(pos(2)+1:)
+                   end if
+             End Select
+
+        Case(3)
+
+             nsp=3
+             Select Case(np)
+               Case(0) !No positive terms  a single option: -xxxx - yyyy -  zzzz
+                   split(1)=string(1:neg(2)-1)
+                   split(2)=string(neg(2):neg(3)-1)
+                   split(3)=string(neg(3):)
+               Case(1) !Three options (1)+xxxx-yyyy-zzzz  (2)-xxxx+yyyy-zzzz  (3)-xxxx-yyyyy+zzzzz
+                   if(pos(1) == 1) then !(1)
+                     split(1)=string(2:neg(1)-1)
+                     split(2)=string(neg(1):neg(2)-1)
+                     split(3)=string(neg(2):)
+                   else if(pos(1) <  neg(2)) then  !(2)
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:neg(2)-1)
+                     split(3)=string(neg(2):)
+                   else if(pos(1) > neg(2)) then !(3)
+                     split(1)=string(1:neg(2)-1)
+                     split(2)=string(neg(2):pos(1)-1)
+                     split(3)=string(pos(1)+1:)
+                   end if
+               Case(2) !Two options (1)+xxx+yyy-zzz  (2)-xxx+yyy+zzzz (3) +xxx-yyy+zzz
+                   if(neg(1) == 1) then !(2)
+                     split(1)=string(1:pos(1)-1)
+                     split(2)=string(pos(1)+1:pos(2)-1)
+                     split(3)=string(pos(2)+1:)
+                   else if(neg(1) > pos(2)) then !(1)
+                     split(1)=string(2:pos(2)-1)
+                     split(2)=string(pos(2)+1:neg(1)-1)
+                     split(3)=string(neg(1):)
+                   else if(neg(1) < pos(2)) then !(3)
+                     split(1)=string(2:neg(1)-1)
+                     split(2)=string(neg(1):pos(2)-1)
+                     split(3)=string(pos(2)+1:)
+                   end if
+               Case(3) !Single option (1)+xxx+yyy+zzz
+                   split(1)=string(2:pos(2)-1)
+                   split(2)=string(pos(2)+1:pos(3)-1)
+                   split(3)=string(pos(3)+1:)
+             End Select
+      End Select
+      do i=1,nsp
+         split(i)=pack_string(split(i))
       end do
+      !write(*,"(a,3a10)") " => Split items: ",(split(m),m=1,nsp)
 
-      if(j(1) == 0) then
-
-        v(1)=0.0
-        if(j(2) == 0) then
-          v(2)=0.0
-          !only the third component exist
-          if(j(3)-1 <= 0) then
-             v(3)=1.0
-          else
-            call Read_Fract(string(1:j(3)-1), v(3))
-          end if
-        else if(j(3) == 0) then
-          v(3)=0.0
-          !only the second component exist
-          if(j(2)-1 <= 0) then
-            v(2)=1.0
-          else
-            call Read_Fract(string(1:j(2)-1), v(2))
-          end if
-        else    !j(2) and j(3) are not zero
-          if(j(2) < j(3)) then
-            if(j(2)-1 <= 0) then
-              v(2)=1.0
-            else
-              call Read_Fract(string(1:j(2)-1), v(2))
+      v(:) =0.0; nterm=0;  klist=0
+      do m=1,nsp
+         k=0
+         j=0
+         np=len_trim(split(m))
+         do i=1,3
+            j(i)=index(split(m),cod(i))
+            if(j(i) /= 0) then
+              k =i
+              nterm=nterm+1
+              klist(nterm)=i
+              exit
             end if
-            if(j(3)-1-j(2) <= 0) then
-              v(3)=1.0
-            else
-              call Read_Fract(string(j(2)+1:j(3)-1), v(3))
+         end do
+         !write(*,"(a,i3)") " => Split: "//trim(split(m)),k
+         if ( k == 0) cycle !the component is zero
+         do i=1,nterm-1
+            if(k == klist(i)) then
+              !This is impossible in principle
+              ERR_String= .true.
+              ERR_String_Mess=" The provided symbol is illegal: "//trim(string)
+              return
             end if
-          else
-            if(j(3)-1 <= 0) then
-              v(3)=1.0
+         end do
+         jk=j(k)
+         i=jk-1
+         jp=jk+1
+         if(i == 0 .and. np == 1 ) then !the code is the first character replace it by "1" and read the rest of the string
+            split(m)(jk:jk)="1"
+         else if(i == 0) then
+            if(split(m)(jp:jp) ==  "/") then
+              split(m)(jk:jk)="1"
             else
-              call Read_Fract(string(1:j(3)-1), v(3))
+              split(m)(jk:jk)=" "
             end if
-            if(j(2)-1-j(3) <= 0) then
-              v(2)=1.0
-            else
-              call Read_Fract(string(j(3)+1:j(2)-1), v(2))
+         else if(split(m)(i:i) == "-") then
+            if(split(m)(jp:jp) ==  "/") then
+               split(m)(jk:jk)="1"
+            else  !There is a number on the right
+               split(m)(jk:jk)=" "
             end if
-          end if
-        end if
-
-      else if(j(2) == 0) then
-
-        v(2)=0.0
-        !j(1)/=0 now, just check j(3)
-        if(j(3) == 0) then
-          v(3)=0.0
-          !only the First component exist
-          if(j(1)-1 <= 0) then
-            v(1)=1.0
-          else
-            call Read_Fract(string(1:j(1)-1), v(1))
-          end if
-        else  ! only 1 and 3
-          if(j(1) < j(3)) then
-            if(j(1)-1 <= 0) then
-              v(1)=1.0
-            else
-              call Read_Fract(string(1:j(1)-1), v(1))
-            end if
-            if(j(3)-1-j(1) <= 0) then
-              v(3)=1.0
-            else
-              call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-            end if
-          else
-            call Read_Fract(string(1:j(3)-1), v(3))
-            call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-          end if
-
-        end if
-
-      else if(j(3) == 0) then
-
-        v(3)=0.0
-        if(j(1) < j(2)) then
-          call Read_Fract(string(1:j(1)-1), v(1))
-          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-        else
-          call Read_Fract(string(1:j(2)-1), v(2))
-          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-        end if
-
-      else !none of them is zero
-
-        if(j(1) < j(2) .and. j(2) < j(3)) Then !normal order a b c
-          call Read_Fract(string(1:j(1)-1),      v(1))
-          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-          call Read_Fract(string(j(2)+1:j(3)-1), v(3))
-        else if(j(2) < j(1) .and. j(1) < j(3)) then ! b a c
-          call Read_Fract(string(1:j(2)-1),      v(2))
-          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-          call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-        else if(j(2) < j(3) .and. j(3) < j(1)) then ! b c a
-          call Read_Fract(string(1:j(2)-1),      v(2))
-          call Read_Fract(string(j(2)+1:j(3)-1), v(3))
-          call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-        else if(j(3) < j(2) .and. j(2) < j(1)) then ! c b a
-          call Read_Fract(string(1:j(3)-1),      v(3))
-          call Read_Fract(string(j(3)+1:j(2)-1), v(2))
-          call Read_Fract(string(j(2)+1:j(1)-1), v(1))
-        else if(j(3) < j(1) .and. j(1) < j(2)) then ! c a b
-          call Read_Fract(string(1:j(3)-1),      v(3))
-          call Read_Fract(string(j(3)+1:j(1)-1), v(1))
-          call Read_Fract(string(j(1)+1:j(2)-1), v(2))
-        else if(j(1) < j(3) .and. j(3) < j(2)) then ! a c b
-          call Read_Fract(string(1:j(1)-1),      v(1))
-          call Read_Fract(string(j(1)+1:j(3)-1), v(3))
-          call Read_Fract(string(j(3)+1:j(2)-1), v(2))
-        else
-          !This is impossible in principle
-          ERR_String= .true.
-          ERR_String_Mess=" The provided symbol is illegal: "//trim(string)
-        end if
-      end if
-
+         else   !there is a number on the left, remove the symbol, compact it and read
+            split(m)(jk:jk)=" "
+         end if
+         split(m)=pack_string(split(m))
+         call Read_Fract(split(m), v(k))
+         !write(*,"(a,i3,a,f12.5)") " => Modified split: "//trim(split(m))//"  k=", k, "  v(k) =",v(k)
+      end do
+      return
     End Subroutine Get_Num_String
 
     !!----

@@ -129,6 +129,7 @@
     !!----    character(len=20)                       :: Lab           ! Label
     !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
     !!----    character(len=4)                        :: SfacSymb      ! Chemical Symbol for SF
+    !!----    character(len=1)                        :: wyck          ! Wyckoff letter
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
@@ -165,6 +166,7 @@
        character(len=20)                        :: Lab
        character(len=2)                         :: ChemSymb
        character(len=4)                         :: SfacSymb
+       character(len=1)                         :: wyck
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
@@ -258,6 +260,7 @@
     !!----    character(len=10)                       :: Lab           ! Label
     !!----    character(len=2)                        :: ChemSymb      ! Chemical Symbol
     !!----    character(len=4)                        :: SfacSymb      ! Chemical Symbol for SF
+    !!----    character(len=1)                        :: wyck          ! Wyckoff letter
     !!----    logical                                 :: active        ! Control for different purposes
     !!----    integer                                 :: Z             ! Atomic number
     !!----    integer                                 :: mult          ! multiplicity of the site
@@ -320,6 +323,7 @@
        character(len=10)                        :: Lab
        character(len=2)                         :: ChemSymb
        character(len=4)                         :: SfacSymb
+       character(len=1)                         :: wyck
        logical                                  :: Active
        integer                                  :: Z
        integer                                  :: Mult
@@ -916,6 +920,7 @@
        A%Lab      =" "
        A%ChemSymb =" "
        A%SfacSymb =" "
+       A%Wyck     ="."
        A%Active   =.true.
        A%Z        =0
        A%Mult     =1
@@ -962,6 +967,7 @@
        A%Lab      =" "
        A%ChemSymb =" "
        A%SfacSymb =" "
+       A%Wyck     ="."
        A%Active   =.true.
        A%Z =0; A%Mult=1
        A%X=0.0; A%X_Std=0.0; A%MX=0.0; A%LX=0
