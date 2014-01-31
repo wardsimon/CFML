@@ -108,6 +108,7 @@
 !!----       GET_CRYSTAL_SYSTEM
 !!--++       GET_CRYSTAL_SYSTEM_R_OP   [Overloaded]
 !!--++       GET_CRYSTAL_SYSTEM_R_ST   [Overloaded]
+!!----       GET_GENSYMB_FROM_GENER
 !!----       GET_HALLSYMB_FROM_GENER
 !!----       GET_LATTICE_TYPE
 !!----       GET_LAUE_PG
@@ -146,6 +147,8 @@
 !!----       SET_SPACEGROUP
 !!----       SET_SPG_MULT_TABLE
 !!----       SETTING_CHANGE
+!!--++       SETTING_CHANGE_CONV       [Overloaded]
+!!--++       SETTING_CHANGE_NONCONV    [Overloaded]
 !!----       SIMILAR_TRANSF_SG
 !!----       SYM_B_RELATIONS
 !!--++       SYM_B_RELATIONS_OP        [Overloaded]
@@ -202,7 +205,7 @@
                Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,        &
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,    &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                 &
-               Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup
+               Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -213,7 +216,9 @@
     !---- List of private subroutines ----!
     private :: Check_Symbol_Hm, Get_Seitz, Get_SymSymbI, Get_SymSymbR, Mod_Trans, Sym_B_Relations_Op  , &
                Sym_B_Relations_St, Symmetry_Symbol_Op, Symmetry_Symbol_Xyz , Symmetry_Symbol_Str,       &
-               Max_Conv_Lattice_Type, Get_Setting_Info,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST
+               Max_Conv_Lattice_Type,Get_Setting_Info,Get_Crystal_System_R_OP,Get_Crystal_System_R_ST, &
+               Setting_Change_Conv,Setting_Change_NonConv
+
 
     !---- Global Variables ----!
 
@@ -322,14 +327,14 @@
 
     !!----
     !!---- LTR
-    !!----    real(kind=cp), dimension(3,10), public  :: Ltr
+    !!----    real(kind=cp), dimension(3,192), public  :: Ltr
     !!----
-    !!----    Centering Lattice Translations, up to 10 lattice centring
+    !!----    Centering Lattice Translations, up to 192 lattice centring
     !!----    vectors are allowed. Conventional lattice centring need only 4 vectors
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January-2014
     !!
-    real(kind=cp), dimension(3,12), public  :: Ltr            ! Centering Lattice Translations
+    real(kind=cp), dimension(3,192), public  :: Ltr    ! Centering Lattice Translations
 
     !!----
     !!---- MONOC
@@ -443,64 +448,66 @@
     !!---- TYPE :: SPACE_GROUP_TYPE
     !!--..
     !!---- Type, public :: Space_Group_Type
-    !!----    Integer                            :: NumSpg        ! Number of the Space Group
-    !!----    Character(len=20)                  :: SPG_Symb      ! Hermann-Mauguin Symbol
-    !!----    Character(len=16)                  :: Hall          ! Hall symbol
-    !!----    Character(len=12)                  :: CrystalSys    ! Crystal system
-    !!----    Character(len= 5)                  :: Laue          ! Laue Class
-    !!----    Character(len= 5)                  :: PG            ! Point group
-    !!----    Character(len= 5)                  :: Info          ! Extra information
-    !!----    Character(len=80)                  :: SG_setting    ! Information about the SG setting
-    !!----                                                        ! (IT,KO,ML,ZA,Table,Standard,UnConventional)
-    !!----    Logical                            :: Hexa          !
-    !!----    Character(len= 1)                  :: SPG_lat       ! Lattice type
-    !!----    Character(len= 2)                  :: SPG_latsy     ! Lattice type Symbol
-    !!----    Integer                            :: NumLat        ! Number of lattice points in a cell
-    !!----    real(kind=cp), dimension(3,12)     :: Latt_trans    ! Lattice translations
-    !!----    Character(len=51)                  :: Bravais       ! String with Bravais symbol + translations
-    !!----    Character(len=80)                  :: Centre        ! Information about Centric or Acentric
-    !!----    Integer                            :: Centred       ! =0 Centric(-1 no at origin)
-    !!----                                                        ! =1 Acentric
-    !!----                                                        ! =2 Centric(-1 at origin)
-    !!----    real(kind=cp), dimension(3)        :: Centre_coord  ! Fractional coordinates of the inversion centre
-    !!----    Integer                            :: NumOps        ! Number of reduced set of S.O.
-    !!----    Integer                            :: Multip        ! Multiplicity of the general position
-    !!----    Integer                            :: Num_gen       ! Minimum number of operators to generate the Group
-    !!----    type(Sym_Oper_Type), dimension(192):: SymOp         ! Symmetry operators
-    !!----    Character(len=40), dimension(192)  :: SymopSymb     ! Strings form of symmetry operators
-    !!----    type(wyckoff_type)                 :: Wyckoff       ! Wyckoff Information
-    !!----    real(kind=cp), dimension(3,2)      :: R_Asym_Unit   ! Asymmetric unit in real space
+    !!----    Integer                                         :: NumSpg        ! Number of the Space Group
+    !!----    Character(len=20)                               :: SPG_Symb      ! Hermann-Mauguin Symbol
+    !!----    Character(len=16)                               :: Hall          ! Hall symbol
+    !!----    Character(len=90)                               :: gHall         ! Generalised Hall symbol
+    !!----    Character(len=12)                               :: CrystalSys    ! Crystal system
+    !!----    Character(len= 5)                               :: Laue          ! Laue Class
+    !!----    Character(len= 5)                               :: PG            ! Point group
+    !!----    Character(len= 5)                               :: Info          ! Extra information
+    !!----    Character(len=90)                               :: SG_setting    ! Information about the SG setting
+    !!----                                                                     ! (IT,KO,ML,ZA,Table,Standard,UnConventional)
+    !!----    Logical                                         :: Hexa          !
+    !!----    Character(len= 1)                               :: SPG_lat       ! Lattice type
+    !!----    Character(len= 2)                               :: SPG_latsy     ! Lattice type Symbol
+    !!----    Integer                                         :: NumLat        ! Number of lattice points in a cell
+    !!----    real(kind=cp), allocatable, dimension(:,:)      :: Latt_trans    ! Lattice translations
+    !!----    Character(len=51)                               :: Bravais       ! String with Bravais symbol + translations
+    !!----    Character(len=80)                               :: Centre        ! Information about Centric or Acentric
+    !!----    Integer                                         :: Centred       ! =0 Centric(-1 no at origin)
+    !!----                                                                     ! =1 Acentric
+    !!----                                                                     ! =2 Centric(-1 at origin)
+    !!----    real(kind=cp), dimension(3)                     :: Centre_coord  ! Fractional coordinates of the inversion centre
+    !!----    Integer                                         :: NumOps        ! Number of reduced set of S.O.
+    !!----    Integer                                         :: Multip        ! Multiplicity of the general position
+    !!----    Integer                                         :: Num_gen       ! Minimum number of operators to generate the Group
+    !!----    type(Sym_Oper_Type), allocatable, dimension(:)  :: SymOp         ! Symmetry operators (192)
+    !!----    Character(len=50),   allocatable, dimension(:)  :: SymopSymb     ! Strings form of symmetry operators (192)
+    !!----    type(wyckoff_type)                              :: Wyckoff       ! Wyckoff Information
+    !!----    real(kind=cp), dimension(3,2)                   :: R_Asym_Unit   ! Asymmetric unit in real space
     !!---- End Type Space_Group_Type
     !!----
     !!----     Definition of a variable type Space_Group_Type
     !!----
-    !!---- Update: February - 2005
+    !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
     !!
     Type, public :: Space_Group_Type
-       integer                              :: NumSpg           ! Number of the Space Group
-       character(len=20)                    :: SPG_Symb         ! Hermann-Mauguin Symbol
-       character(len=16)                    :: Hall             ! Hall symbol
-       character(len=12)                    :: CrystalSys       ! Crystal system
-       character(len= 5)                    :: Laue             ! Laue Class
-       character(len= 5)                    :: PG               ! Point group
-       character(len= 5)                    :: Info             ! Extra information
-       character(len=80)                    :: SG_setting       ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-       logical                              :: Hexa             !
-       character(len= 1)                    :: SPG_lat          ! Lattice type
-       character(len= 2)                    :: SPG_latsy        ! Lattice type Symbol
-       integer                              :: NumLat           ! Number of lattice points in a cell
-       real(kind=cp), dimension(3,12)       :: Latt_trans       ! Lattice translations
-       character(len=51)                    :: Bravais          ! String with Bravais symbol + translations
-       character(len=80)                    :: Centre           ! Alphanumeric information about the center of symmetry
-       integer                              :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=cp), dimension(3)          :: Centre_coord     ! Fractional coordinates of the inversion centre
-       integer                              :: NumOps           ! Number of reduced set of S.O.
-       integer                              :: Multip           ! Multiplicity of the general position
-       integer                              :: Num_gen          ! Minimum number of operators to generate the Group
-       type(Sym_Oper_Type), dimension(192)  :: SymOp            ! Symmetry operators
-       character(len=40), dimension(192)    :: SymopSymb        ! Strings form of symmetry operators
-       type(Wyckoff_Type)                   :: Wyckoff          ! Wyckoff Information
-       real(kind=cp),dimension(3,2)         :: R_Asym_Unit      ! Asymmetric unit in real space
+       integer                                       :: NumSpg           ! Number of the Space Group
+       character(len=20)                             :: SPG_Symb         ! Hermann-Mauguin Symbol
+       character(len=16)                             :: Hall             ! Hall symbol
+       character(len=90)                             :: gHall            ! Generalised Hall symbol
+       character(len=12)                             :: CrystalSys       ! Crystal system
+       character(len= 5)                             :: Laue             ! Laue Class
+       character(len= 5)                             :: PG               ! Point group
+       character(len= 5)                             :: Info             ! Extra information
+       character(len=90)                             :: SG_setting       ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+       logical                                       :: Hexa             !
+       character(len= 1)                             :: SPG_lat          ! Lattice type
+       character(len= 2)                             :: SPG_latsy        ! Lattice type Symbol
+       integer                                       :: NumLat           ! Number of lattice points in a cell
+       real(kind=cp), allocatable,dimension(:,:)     :: Latt_trans       ! Lattice translations (3,12)
+       character(len=51)                             :: Bravais          ! String with Bravais symbol + translations
+       character(len=80)                             :: Centre           ! Alphanumeric information about the center of symmetry
+       integer                                       :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+       real(kind=cp), dimension(3)                   :: Centre_coord     ! Fractional coordinates of the inversion centre
+       integer                                       :: NumOps           ! Number of reduced set of S.O.
+       integer                                       :: Multip           ! Multiplicity of the general position
+       integer                                       :: Num_gen          ! Minimum number of operators to generate the Group
+       type(Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
+       character(len=50),   allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
+       type(Wyckoff_Type)                            :: Wyckoff          ! Wyckoff Information
+       real(kind=cp),dimension(3,2)                  :: R_Asym_Unit      ! Asymmetric unit in real space
     End Type Space_Group_Type
 
     !!----
@@ -535,6 +542,11 @@
        Module Procedure Get_SymSymbI
        Module Procedure Get_SymSymbR
     End Interface  Get_SymSymb
+
+    Interface  Setting_Change
+       Module Procedure Setting_Change_Conv
+       Module Procedure Setting_Change_NonConv
+    End Interface  Setting_Change
 
     Interface  Sym_B_Relations
        Module Procedure Sym_B_Relations_Op
@@ -1308,91 +1320,142 @@
     End Subroutine DecodMatMag
 
     !!----
-    !!---- Subroutine Get_Centring_Vectors(L,Latc)
-    !!----    integer,                        intent (in out) :: L     ! Number of centring vectors
-    !!----    real(kind=cp), dimension(:,:),  intent (in out) :: latc  ! Centering vectors
+    !!---- Subroutine Get_Centring_Vectors(L,Latc,LatSymb)
+    !!----    integer,                        intent (in out) :: L       ! Number of centring vectors
+    !!----    real(kind=cp), dimension(:,:),  intent (in out) :: latc    ! Centering vectors
+    !!----    character(len=1),               intent (   out) :: LatSymb ! Lattice symbol
     !!----
-    !!----    Subroutine to complete the centring vectors of a centered lattice
-    !!----    It is useful when non-conventional lattices are used.
+    !!----    Subroutine to complete the centring vectors of a centered lattice and to provide a lattice symbol.
+    !!----    It is useful when non-conventional lattices are used to obtain all lattice
+    !!----    translations with components in the range [0.0 1.0). The (0,0,0) translation
+    !!----    is removed in case it comes on input.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January-2014 (JRC)
     !!
-    Subroutine Get_Centring_Vectors(L,Latc)
+    Subroutine Get_Centring_Vectors(L,Latc,LatSymb)
        !---- Arguments ----!
        integer,                       intent (in out) :: L
        real(kind=cp), dimension(:,:), intent (in out) :: latc  !(3,n)
-
+       character(len=*),              intent (out)    :: LatSymb
        !---- Local variables ----!
        logical                                  :: isnew
-       real(kind=cp), dimension(3,size(latc,2)) :: latinv
-       real(kind=cp), dimension(3)              :: v
-       integer                                  :: i,j,k, imax, jmax, kmax, lm
+       real(kind=cp), dimension(3,size(latc,2)) :: latinv,newlat
+       real(kind=cp), dimension(3)              :: v,v1,v2
+       integer                                  :: i,j,k1,k2,n,lat_ini,lm
+       real(kind=cp), parameter                 :: teps=3.0*eps_symm
+
+       LatSymb="P"
+       if(L == 0) return
+       newlat=latc
+       !Purge the translations
+       do i=1,L-1
+         v=newlat(:,i)
+         if(sum(v) < teps) cycle
+         do j=i+1,L
+            if(sum(abs(newlat(:,j)-v)) < teps) newlat(:,j)=0.0
+         end do
+       end do
+       n=0
+       do i=1,L
+         if(sum(abs(newlat(:,i))) < teps) cycle
+         n=n+1
+         latc(:,n)=newlat(:,i)
+       end do
+       L=n  !normally n < L_initial
 
        latinv=0.0
-       where (abs(latc)> eps_symm)
+       where (abs(latc)> teps)
           latinv=1.0/latc
        end where
+       do
+          lat_ini=L
+          do i=1,L    !Even for a single centring vector this loop is executed
+            v1=latc(:,i)
+            do j=i,L  !start on i to ensure that for a single centring vector the internal loops are executed
+              v2=latc(:,j)
+              do k1=0,maxval(nint(latinv(:,i)))
+                do k2=0,maxval(nint(latinv(:,j)))
+                  v=modulo_lat(k1*v1+k2*v2)
+                  if(sum(abs(v)) < teps) cycle
+                  if( any(v > 1.0-teps) ) cycle
+                  isnew=.true.
+                  do lm=1,L
+                    if (sum(abs(v-latc(:,lm))) < teps) then
+                       isnew=.false.
+                       exit
+                    end if
+                  end do
+                  if(isnew) then
+                     L=L+1
+                     latc(:,L)=v
+                  end if
+                end do
+              end do
+            end do
+          end do
+          If(L == Lat_ini) exit !No more vectors have been generated
+       end do
 
-       Select Case (L)
-          case(1)
-             imax=nint(maxval(latinv))-1
-             do i=2,imax
-                v= latc(:,1)*real(i)
-                latc(:,i)=Modulo_Lat(v)
-             end do
-             L=max(L,imax)
+       !Recognize the type of Lattice
+       Select Case(L)
 
-          case(2)
-             imax=nint(maxval(latinv(:,1)))-1
-             jmax=nint(maxval(latinv(:,2)))-1
-             do i=0,imax
-                do j=0,jmax
-                   v=latc(:,1)*real(i)+latc(:,2)*real(j)
-                   v=Modulo_Lat(v)
-                   if (sum(abs(v)) < 3.0*eps_symm) cycle
+         Case(1) !Test I, A, B, C
+            if(sum(abs(latc(:,1)-Ltr_i(:,2))) < teps) then
+              LatSymb="I"
+              return
+            end if
+            if(sum(abs(latc(:,1)-Ltr_a(:,2))) < teps) then
+              LatSymb="A"
+              return
+            end if
+            if(sum(abs(latc(:,1)-Ltr_b(:,2))) < teps) then
+              LatSymb="B"
+              return
+            end if
+            if(sum(abs(latc(:,1)-Ltr_c(:,2))) < teps) then
+              LatSymb="C"
+              return
+            end if
+
+         Case(2)  !Test R
+             isnew=.false.
+             if(sum(abs(latc(:,1)-Ltr_r(:,2))) < teps .or. sum(abs(latc(:,1)-Ltr_r(:,3))) < teps) isnew=.true.
+             if(isnew) then
+               if(sum(abs(latc(:,2)-Ltr_r(:,2))) < teps .or. sum(abs(latc(:,2)-Ltr_r(:,3))) < teps) then
+                 LatSymb="R"
+                 return
+               end if
+             end if
+
+         Case(3)
+             isnew=.false.
+             do i=2,4
+                if (  sum(abs(latc(:,1)-Ltr_f(:,i))) < teps  ) then
                    isnew=.true.
-                   do lm=1,L
-                      if (sum(abs(v-latc(:,lm))) < 3.0*eps_symm) then
-                         isnew=.false.
-                         exit
-                      end if
-                   end do
-                   if (isnew) then
-                      L=L+1
-                      latc(:,L)=v
-                      if (L == size(latc,2) ) return !No. of centring vectors limited to size of Latc
+                   exit
+                end if
+             end do
+             if(isnew) then
+                isnew=.false.
+                do i=2,4
+                   if (  sum(abs(latc(:,2)-Ltr_f(:,i))) < teps  ) then
+                      isnew=.true.
+                      exit
                    end if
                 end do
-             end do
-
-           case(3:)
-              imax=nint(maxval(latinv(:,1)))-1
-              jmax=nint(maxval(latinv(:,2)))-1
-              kmax=nint(maxval(latinv(:,3)))-1
-              do i=0,imax
-                 do j=0,jmax
-                    do k=0,kmax
-                       v=latc(:,1)*real(i)+latc(:,2)*real(j)+latc(:,3)*real(k)
-                       v=Modulo_Lat(v)
-                       if (sum(abs(v)) < 3.0*eps_symm) cycle
-                       isnew=.true.
-                       do lm=1,L
-                          if (sum(abs(v-latc(:,lm))) < 3.0*eps_symm) then
-                             isnew=.false.
-                             exit
-                          end if
-                       end do
-                       if (isnew) then
-                          L=L+1
-                          latc(:,L)=v
-                          if (L == size(latc,2) ) return !No. of centring vectors limited to size of Latc
-                       end if
-                    end do
-                 end do
-              end do
+             end if
+             if(isnew) then
+                isnew=.false.
+                do i=2,4
+                   if (  sum(abs(latc(:,3)-Ltr_f(:,i))) < teps  ) then
+                       LatSymb="F"
+                       return
+                   end if
+                end do
+             end if
 
        End Select
-
+       LatSymb="Z"
        return
     End Subroutine Get_Centring_Vectors
 
@@ -1560,6 +1623,155 @@
        return
     End Subroutine Get_Crystal_System_R_ST
 
+    !!----
+    !!---- Subroutine Get_GenSymb_from_Gener(gen,ngen, SpaceH)
+    !!----    character(len=*),dimension(:),  intent(in) :: gen     !  In -> list of generators is string mode
+    !!----    integer,                        intent(in) :: ngen    !  In -> number of generators provided
+    !!----    character(len=*),              intent(out) :: SpaceH  ! Out -> Generalised Hall Symbol
+    !!----
+    !!----    Determines a generalised Hall symbol for a space group formed by the symmetry symbols of
+    !!----    the provided generators.
+    !!----
+    !!---- Updated: January - 2014 (JRC)
+    !!
+    Subroutine Get_GenSymb_from_Gener(gen,ngen,SpaceH)
+       !---- Arguments ----!
+       character(len=*),dimension(:),  intent(in) :: gen
+       integer,                        intent(in) :: ngen
+       character(len=*),              intent(out) :: SpaceH
+
+       !----Local variables ----!
+       character(len= 1)          :: LatSymb
+       character(len=20)          :: centr
+       character(len=40)          :: gen_symb
+       integer                    :: ng, ini, i, orden,L,j
+       integer, dimension(3,3,24) :: ss
+       integer, dimension(3,3)    :: nulo,unitm
+
+       real(kind=cp), dimension(3,24)  :: ts
+       real(kind=cp), dimension(3,192) :: latc
+       real(kind=cp), dimension(3)     :: ts_centre
+       logical                         :: centred
+
+       !---- Initial Values ----!
+       nulo=0
+       unitm=0
+       unitm(1,1)=1;  unitm(2,2)=1;  unitm(3,3)=1
+       latc=0.0
+       centred=.false.
+       centr=" "
+       SpaceH=" "
+
+       ! --- Test if lattice translations are provide with a symbol in the first generator
+       if(index(gen(1),"-I") /= 0) then       !Centric with -1 at 000
+         SpaceH="-I"
+       else if(index(gen(1),"-A") /= 0) then
+         SpaceH="-A"
+       else if(index(gen(1),"-B") /= 0) then
+         SpaceH="-B"
+       else if(index(gen(1),"-C") /= 0) then
+         SpaceH="-C"
+       else if(index(gen(1),"-R") /= 0) then
+         SpaceH="-R"
+       else if(index(gen(1),"-F") /= 0) then
+         SpaceH="-F"
+       else if(index(gen(1),"-Z") /= 0) then
+         SpaceH="-Z"
+       else if(index(gen(1),"-P") /= 0) then
+         SpaceH="-P"
+       end if
+       if(len_trim(SpaceH) == 0) then           !centric with -1 out of 000 or acentric
+           if(index(gen(1),"I") /= 0) then
+             SpaceH="I"
+           else if(index(gen(1),"A") /= 0) then
+             SpaceH="A"
+           else if(index(gen(1),"B") /= 0) then
+             SpaceH="B"
+           else if(index(gen(1),"C") /= 0) then
+             SpaceH="C"
+           else if(index(gen(1),"R") /= 0) then
+             SpaceH="R"
+           else if(index(gen(1),"F") /= 0) then
+             SpaceH="F"
+           else if(index(gen(1),"P") /= 0) then
+             SpaceH="P"
+           else if(index(gen(1),"Z") /= 0) then
+             SpaceH="Z"
+           end if
+       end if
+       if(len_trim(SpaceH) == 0) then
+         ini=1  !If there is a centring lattice it must be given in the list of the
+       else
+         ini=2
+         if(len_trim(SpaceH)==1) LatSymb=trim(SpaceH)
+       end if
+       ng=0
+       do i=ini,ngen
+         ng=ng+1
+         call Read_Xsym(gen(i),1,ss(:,:,ng),ts(:,ng))
+       end do
+       !Look for lattice translationsas generators
+       if(ini == 1) then
+         L=0
+         do i=1,ng
+           if(equal_matrix(ss(:,:,i),unitm,3)) then
+             L=L+1
+             latc(:,L)=ts(:,i)
+             ss(:,:,i)=0
+           end if
+         end do
+         if(L > 0) then !There are lattice translations
+           call Get_Centring_Vectors(L,latc,LatSymb)
+         end if
+       end if
+       !Look for centre of symmetry as generator
+       do i=1,ng
+         if(equal_matrix(ss(:,:,i),-unitm,3)) then !Centre of symmetry
+           ts_centre=ts(:,i)
+           ss(:,:,i)=0
+           centred=.true.
+           exit
+         end if
+       end do
+       if(centred) then
+         if(sum(abs(ts_centre)) < eps_symm) then
+             SpaceH="-"//LatSymb
+          else
+            ts_centre=0.5*ts_centre
+            call Frac_Trans_2Dig(ts_centre,centr)
+            centr="-1"//trim(centr)
+          end if
+       else
+         if(ini ==1) SpaceH=LatSymb
+       end if
+       !Construct the symbol
+       do i=1,ng
+          if(equal_matrix(ss(:,:,i), nulo,3)) cycle
+          call symmetry_symbol(ss(:,:,i),ts(:,i),gen_symb)
+
+          if(len_trim(gen_symb) == 0) then
+            orden=axes_rotation(ss(:,:,i))
+            write(unit=gen_symb,fmt="(i2)") orden
+            gen_symb=adjustl(gen_symb)//"[]"
+          else
+            j=index(gen_symb,")")
+            if( j /= 0) then
+               gen_symb=gen_symb(1:j)
+               j=index(gen_symb,"+")
+               gen_symb(j:j)=" "
+               gen_symb=pack_string(gen_symb)
+            else
+               j=index(gen_symb," ")
+               gen_symb=gen_symb(1:j)
+               j=index(gen_symb,"+")
+               gen_symb=gen_symb(1:j-1)
+            end if
+          end if
+          SpaceH=trim(SpaceH)//" "//trim(gen_symb)
+       end do
+       SpaceH=trim(SpaceH)//" "//trim(centr)
+       return
+    End Subroutine Get_GenSymb_from_Gener
 
     !!----
     !!---- Subroutine Get_HallSymb_From_Gener(Spacegroup, Spaceh)
@@ -1569,7 +1781,8 @@
     !!----
     !!----    Determines the Hall symbol. In general this routine try to obtain
     !!----    the Hall symbol from generators so you need call Get_So_from_Gener
-    !!----    before and call Set_Spgr_Info.
+    !!----    before and call Set_Spgr_Info.It doesn't work for arbitrary settings.
+    !!----    If one wants to use arbitrary settings the subroutine Get_GenSymb_from_Gener
     !!----
     !!---- Update: February - 2005
     !!
@@ -3432,10 +3645,14 @@
        character (len=*),            intent(   out) :: SpaceGen
 
        !---- Local Variables ----!
+       real(kind=cp),dimension(3,192)  :: latc
+       integer                         :: nlat_t
        logical :: latt_p, latt_a, latt_b, latt_c, latt_i, latt_r, latt_f, latt_z
        integer, dimension(6) :: latt_given
        character(len=*), dimension(8),  parameter :: red = &
                            (/"P","A","B","C","I","R","F","Z"/)
+       integer, dimension(3,192)          :: lat_trans
+       integer, dimension(3)              :: txyz
        integer, dimension(3,6), parameter :: lattice=reshape((/0,6,6, 6,0,6, &
                                                      6,6,0, 6,6,6, 8,4,4, 4,8,8/),(/3,6/))
        integer, dimension(4,4), parameter :: identidad = reshape((/1, 0, 0, 0, &
@@ -3446,10 +3663,12 @@
                                                                    0, 0, 0, 0, &
                                                                    0, 0, 0, 0, &
                                                                    0, 0, 0, 0/),(/4,4/))
-       integer, dimension(4,4,24)     :: tabla
+       integer, parameter             :: num_tab=24
+       integer, dimension(4,4,num_tab):: tabla
        integer, dimension(4,4)        :: m1,m2
        integer, dimension(3)          :: tt,tt1
-       real(kind=cp), dimension(3,11) :: latc
+       real(kind=cp), parameter       :: lat_norm=12.0  !a multiple of 12 is compulsory
+       integer,       parameter       :: ilat_norm=nint(lat_norm), ilat_fact=ilat_norm*4
        integer :: i,j,k,n,nop,nopp,ipos,nt,ntp,L,jcen
        integer :: tx, ty, tz
        logical :: cen_found
@@ -3471,12 +3690,15 @@
        latt_r=.false.
        latt_f=.false.
        latt_z=.false.
+       !Set to zero all previous centring vectors
+       nlat=0
+       Ltr=0.0_cp
 
        !---- Redundances ----!
        do i=1,nop
-          if (equal_matrix(ss(:,:,i),      nulo(1:3,1:3),3)) cycle
-          if (equal_matrix(ss(:,:,i), identidad(1:3,1:3),3)) cycle
-          if (equal_matrix(ss(:,:,i),-identidad(1:3,1:3),3)) cycle
+          if (equal_matrix(ss(:,:,i),      nulo(1:3,1:3),3)) cycle  !ignore zero matrices
+          if (equal_matrix(ss(:,:,i), identidad(1:3,1:3),3)) cycle  !Do not consider lattice translations
+          if (equal_matrix(ss(:,:,i),-identidad(1:3,1:3),3)) cycle  !Do not consider inversion centre
           do j=i+1,nop
              if (equal_matrix(ss(:,:,j),      nulo(1:3,1:3),3)) cycle
              if (equal_matrix(ss(:,:,j), identidad(1:3,1:3),3)) cycle
@@ -3484,21 +3706,21 @@
 
              !---- Traslation part ----!
              if (equal_matrix(ss(:,:,i),ss(:,:,j),3)) then
-                tt =nint(12.0 * ts(:,i))
-                tt1=nint(12.0 * ts(:,j))
+                tt =nint(lat_norm * ts(:,i))
+                tt1=nint(lat_norm * ts(:,j))
 
-                tx=mod(tt(1)-tt1(1)+48,12)        !?????????
-                ty=mod(tt(2)-tt1(2)+48,12)
-                tz=mod(tt(3)-tt1(3)+48,12)
+                tx=mod(tt(1)-tt1(1)+ilat_fact,ilat_norm)        !?????????
+                ty=mod(tt(2)-tt1(2)+ilat_fact,ilat_norm)
+                tz=mod(tt(3)-tt1(3)+ilat_fact,ilat_norm)
 
                 if (tx == 0 .and. ty == 0 .and. tz == 0) then
                    ss(:,:,j)=0
                    ts(:,j)=0.0
                    cycle
                 else
-                   tx=mod(tt(1)+tt1(1)+48,12)
-                   ty=mod(tt(2)+tt1(2)+48,12)
-                   tz=mod(tt(3)+tt1(3)+48,12)
+                   tx=mod(tt(1)+tt1(1)+ilat_fact,ilat_norm)
+                   ty=mod(tt(2)+tt1(2)+ilat_fact,ilat_norm)
+                   tz=mod(tt(3)+tt1(3)+ilat_fact,ilat_norm)
 
                    if (tx == 0 .and. ty == 0 .and. tz == 0) then
                       ss(:,:,j)=0
@@ -3506,9 +3728,9 @@
                       cycle
                    else
                       ss(:,:,j)=identidad(1:3,1:3)
-                      ts(1,j)=real(tx)/12.0
-                      ts(2,j)=real(ty)/12.0
-                      ts(3,j)=real(tz)/12.0
+                      ts(1,j)=real(tx)/lat_norm
+                      ts(2,j)=real(ty)/lat_norm
+                      ts(3,j)=real(tz)/lat_norm
                       cycle
                    end if
                 end if
@@ -3516,21 +3738,21 @@
 
              !---- Inversion part ----!
              if (equal_matrix(ss(:,:,i),-ss(:,:,j),3)) then
-                tt =nint(12.0 * ts(:,i))
-                tt1=nint(12.0 * ts(:,j))
+                tt =nint(lat_norm * ts(:,i))
+                tt1=nint(lat_norm * ts(:,j))
 
-                tx=mod(tt(1)-tt1(1)+48,12)        !?????????
-                ty=mod(tt(2)-tt1(2)+48,12)
-                tz=mod(tt(3)-tt1(3)+48,12)
+                tx=mod(tt(1)-tt1(1)+ilat_fact,ilat_norm)        !?????????
+                ty=mod(tt(2)-tt1(2)+ilat_fact,ilat_norm)
+                tz=mod(tt(3)-tt1(3)+ilat_fact,ilat_norm)
 
                 if (tx == 0 .and. ty == 0 .and. tz == 0) then
                    ss(:,:,j)=-identidad(1:3,1:3)
                    ts(:,j)=0.0
                    cycle
                 else
-                   tx=mod(tt(1)+tt1(1)+48,12)
-                   ty=mod(tt(2)+tt1(2)+48,12)
-                   tz=mod(tt(3)+tt1(3)+48,12)
+                   tx=mod(tt(1)+tt1(1)+ilat_fact,ilat_norm)
+                   ty=mod(tt(2)+tt1(2)+ilat_fact,ilat_norm)
+                   tz=mod(tt(3)+tt1(3)+ilat_fact,ilat_norm)
 
                    if (tx == 0 .and. ty == 0 .and. tz == 0) then
                       ss(:,:,j)=-identidad(1:3,1:3)
@@ -3538,9 +3760,9 @@
                       cycle
                    else
                       ss(:,:,j)=-identidad(1:3,1:3)
-                      ts(1,j)=real(tx)/12.0
-                      ts(2,j)=real(ty)/12.0
-                      ts(3,j)=real(tz)/12.0
+                      ts(1,j)=real(tx)/lat_norm
+                      ts(2,j)=real(ty)/lat_norm
+                      ts(3,j)=real(tz)/lat_norm
                       cycle
                    end if
                 end if
@@ -3551,10 +3773,11 @@
 
        !---- Determine the type of lattice before starting generation ----!
        !---- This is only in case an explicit translation generator is given.
+       !---- This block construct the lattice vectors and remove the corresponding operators
        L=0
        do i=1,nop
           if (equal_matrix(ss(:,:,i),identidad(1:3,1:3),3)) then
-             tt=nint(12.0 * ts(:,i))   ! Translations x 12
+             tt=nint(lat_norm * ts(:,i))   ! Translations x 12
 
              !---- Identity (I,0) is being processed ----!
              if (tt(1) == 0 .and. tt(2) == 0 .and. tt(3) == 0) then
@@ -3563,10 +3786,10 @@
                 cycle
              end if
              !---- Compare the translation part of the operator with tabulated array ----!
-              L=L+1  !counts the number of non trivial centring vectors
-              latt_given(:) = 0
+             L=L+1  !counts the number of non trivial centring vectors
+             latt_given(:) = 0
              do j=1,6
-                if (equal_vector(tt,lattice(:,j),3)) then
+                if (equal_vector(tt,(ilat_norm/12)*lattice(:,j),3)) then
                    latt_given(j) = 1
                    select case (j)
                       case (1)
@@ -3584,7 +3807,7 @@
                 end if
              end do
              latc(:,L) = ts(:,i)
-             ss(:,:,i)=0
+             ss(:,:,i)=0   !Removing the operators with pure translations
              ts(:,i)=0.0
              if(sum(latt_given) == 0) latt_z = .true.
           end if
@@ -3600,56 +3823,92 @@
           latt_p=.false.
           latt_i=.false.
        end if
+       if(latt_f .and. latt_r) latt_z=.true.
+       if(latt_i .and. latt_r) latt_z=.true.
+       if(latt_a .and. latt_r) latt_z=.true.
+       if(latt_b .and. latt_r) latt_z=.true.
+       if(latt_c .and. latt_r) latt_z=.true.
+
+       if(latt_z) then
+          latt_f=.false.
+          latt_a=.false.
+          latt_b=.false.
+          latt_c=.false.
+          latt_p=.false.
+          latt_i=.false.
+          latt_r=.false.
+       end if
 
        if (latt_p) then
           SpaceGen="P"
           Ibravl  = 1
+          nlat_t=0
        end if
        if (latt_a) then
           SpaceGen="A"
           Ibravl  = 2
+          nlat_t=1
+          latc(:,1)=(/0.0,0.5,0.5/)
        end if
        if (latt_b) then
           SpaceGen="B"
           Ibravl  = 3
+          nlat_t=1
+          latc(:,1)=(/0.5,0.0,0.5/)
        end if
        if (latt_c) then
           SpaceGen="C"
           Ibravl  = 4
+          nlat_t=1
+          latc(:,1)=(/0.5,0.5,0.0/)
        end if
        if (latt_i) then
           SpaceGen="I"
           Ibravl  = 5
+          nlat_t=1
+          latc(:,1)=(/0.5,0.5,0.5/)
        end if
        if (latt_r) then
           SpaceGen="R"
           Ibravl  = 6
+          nlat_t=2
+          latc(:,1)=(/ 2.0/3.0, 1.0/3.0, 1.0/3.0 /)
+          latc(:,2)=(/ 1.0/3.0, 2.0/3.0, 2.0/3.0 /)
        end if
        if (latt_f) then
           SpaceGen="F"
           Ibravl  = 7
+          nlat_t=3
+          latc(:,1)=(/0.5,0.5,0.0/)
+          latc(:,2)=(/0.5,0.0,0.5/)
+          latc(:,3)=(/0.0,0.5,0.5/)
        end if
        if (latt_z) then
-          SpaceGen="Z"
           Ibravl  = 8
-      ! Determine here the total number of non-trivial centring vectors
-          call get_centring_vectors(L,latc)
+          !Determine here the total number of non-trivial centring vectors
+          call get_centring_vectors(L,latc,SpaceGen)
+          nlat_t=L
+          do i=1,nlat_t
+             lat_trans(:,i)=maxval(nint(lat_norm*latc(:,i)))
+          end do
        end if
 
        if (len_trim(SpaceGen) /= 0) then
-          call latsym(SpaceGen,L,latc)
+          !write(*,"(a)") " => Lattice centrings at Get_SO_from_Gener: "
+          !do i=1,nlat_t
+          !   write(*,"(i8,3f14.5)")i,latc(:,i)
+          !end do
+          call latsym(SpaceGen,nlat_t,latc)
        else
           err_symm=.true.
           ERR_Symm_Mess=" Lattice Type couldn't be determined"
           return
        end if
 
-       !---- Centre of symmetry ? ----!
-
-
+       !---- Removing Centre of symmetry if found ----!
        do i=1,nop
           if (equal_matrix(ss(:,:,i),-identidad(1:3,1:3),3)) then
-             tt=nint(12.0 * ts(:,i))
+             tt=nint(lat_norm * ts(:,i))
 
              if (tt(1) == 0 .and. tt(2) == 0 .and. tt(3) == 0) then
                 isymce=2       ! Centric with -1 at origin
@@ -3665,7 +3924,8 @@
        end do
 
        !---- Purge the starting list of generators ----!
-
+       !     by diminishing the number of generators to the strictly
+       !     assymmetric block without translations and centre
        nopp=nop
        ipos=1
        do
@@ -3693,7 +3953,10 @@
        !---- among the given generators.
 
        !---- Creation of the symmetry operators table ----!
-
+       !write(*,"(a,i6)") " => Number of generators (no centre/no lattice) to start the table: ",nop
+       !do i=1,nop
+       !  write(*,"(9i4,3f8.4)") ss(:,:,i), ts(:,i)
+       !end do
        !---- Initializing ----!
        nt=1
        tabla=0
@@ -3706,14 +3969,14 @@
        do i=1,nop
           nt=nt+1
           tabla(1:3,1:3,nt)= ss(:,:,i)
-          tabla(1:3,4,nt)  = mod(nint(12.0*ts(1:3,i))+48,12)
+          tabla(1:3,4,nt)  = mod(nint(lat_norm*ts(1:3,i))+ilat_fact,ilat_norm)
        end do
 
        num_g=nop   !Minimum number of generators (except inversion)
 
        !---- Generate power operations from generators ----!
        do i=2,nt
-             ntp=axes_rotation(tabla(:,:,i))    ! Determine the order of the generator
+             ntp=axes_rotation(tabla(1:3,1:3,i))    ! Determine the order of the generator
           if (ntp == -1 .or. ntp == -3) then
              ntp=-2*ntp
           else
@@ -3725,7 +3988,7 @@
 
           p1:do j=1,ntp-1
              m2=matmul(m2,m1)
-             m2(:,4)=mod(m2(:,4)+48,12)
+             m2(:,4)=mod(m2(:,4)+ilat_fact,ilat_norm)
 
              !---- Check if the generated operation is already in the table
              do k=1,nt
@@ -3858,10 +4121,25 @@
                           m2(2,4)=ty
                        end if
                     end if
+
+                 Case(8)
+                    !eliminate translations
+                    txyz=m2(1:3,4)
+                    do k=1,nlat_t
+                       if(txyz(1) >= lat_trans(1,k) .and. txyz(2) >= lat_trans(2,k) .and. txyz(3) >= lat_trans(3,k)) then
+                          txyz(:)=mod(m2(1:3,4), lat_trans(:,k))
+                          if(txyz(1) == 0 .and. txyz(2) == 0 .and.txyz(3) == 0 ) then
+                             cycle p1
+                          else
+                              m2(1:3,4)=txyz(:)
+                          end if
+                       end if
+                    end do
+
              end select
 
              nt=nt+1
-             if (nt > 24) then
+             if (nt > num_tab) then
                 err_symm=.true.
                 ERR_Symm_Mess=" Dimension of Table exceeded (I)"
                 return
@@ -3870,6 +4148,12 @@
           end do p1
 
        end do
+
+       !write(*,"(a,i6)") " => Number of terms in the table at stage I: ",nt
+       !do i=1,nt
+       !  write(*,"(9i3,3i6)") tabla(1:3,1:3,i),tabla(1:3,4,i)
+       !end do
+       !write(*,"(//a//)") " => MULTIPLICATION OF GENERATORS: "
 
        !---- Multiplications between generators ----!
        do
@@ -3880,7 +4164,7 @@
              p2:do j=i,n
 
                 m2=matmul(tabla(:,:,i),tabla(:,:,j))
-                m2(:,4)=mod(m2(:,4)+48,12)
+                m2(:,4)=mod(m2(:,4)+ilat_fact,ilat_norm)
 
                 !---- Eliminating lattice contribution if necessary ----!
                 select case (ibravl)
@@ -3888,30 +4172,24 @@
                       ty=m2(2,4)
                       tz=m2(3,4)
                       if (ty >= 6 .and. tz >= 6) then
-                         ty=mod(m2(2,4),6)
-                         tz=mod(m2(3,4),6)
-                         m2(2,4)=ty
-                         m2(3,4)=tz
+                         m2(2,4)=mod(m2(2,4),6)
+                         m2(3,4)=mod(m2(3,4),6)
                       end if
 
                    case (3)
                       tx=m2(1,4)
                       tz=m2(3,4)
                       if (tx >= 6 .and. tz >= 6) then
-                         tx=mod(m2(1,4),6)
-                         tz=mod(m2(3,4),6)
-                         m2(1,4)=tx
-                         m2(3,4)=tz
+                         m2(1,4)=mod(m2(1,4),6)
+                         m2(3,4)=mod(m2(3,4),6)
                       end if
 
                    case (4)
                       tx=m2(1,4)
                       ty=m2(2,4)
                       if (tx >= 6 .and. ty >= 6) then
-                         tx=mod(m2(1,4),6)
-                         ty=mod(m2(2,4),6)
-                         m2(1,4)=tx
-                         m2(2,4)=ty
+                         m2(1,4)=mod(m2(1,4),6)
+                         m2(2,4)=mod(m2(2,4),6)
                       end if
 
                    case (5)
@@ -3919,12 +4197,9 @@
                       ty=m2(2,4)
                       tz=m2(3,4)
                       if (tx >= 6 .and. ty >= 6 .and. tz >= 6) then
-                         tx=mod(m2(1,4),6)
-                         ty=mod(m2(2,4),6)
-                         tz=mod(m2(3,4),6)
-                         m2(1,4)=tx
-                         m2(2,4)=ty
-                         m2(3,4)=ty
+                         m2(1,4)=mod(m2(1,4),6)
+                         m2(2,4)=mod(m2(2,4),6)
+                         m2(3,4)=mod(m2(3,4),6)
                       end if
 
                    case (6)
@@ -3932,19 +4207,13 @@
                       ty=m2(2,4)
                       tz=m2(3,4)
                       if (tx >=8 .and. ty >=4 .and. tz >=4) then
-                         tx=mod(m2(1,4),8)
-                         ty=mod(m2(2,4),4)
-                         tz=mod(m2(3,4),4)
-                         m2(1,4)=tx
-                         m2(2,4)=ty
-                         m2(3,4)=tz
+                         m2(1,4)=mod(m2(1,4),8)
+                         m2(2,4)=mod(m2(2,4),4)
+                         m2(3,4)=mod(m2(3,4),4)
                       else if (tx >=4 .and. ty >=8 .and. tz >=8) then
-                         tx=mod(m2(1,4),4)
-                         ty=mod(m2(2,4),8)
-                         tz=mod(m2(3,4),8)
-                         m2(1,4)=tx
-                         m2(2,4)=ty
-                         m2(3,4)=tz
+                         m2(1,4)=mod(m2(1,4),4)
+                         m2(2,4)=mod(m2(2,4),8)
+                         m2(3,4)=mod(m2(3,4),8)
                       end if
 
                    case (7)
@@ -3952,21 +4221,25 @@
                       ty=m2(2,4)
                       tz=m2(3,4)
                       if (ty >= 6 .and. tz >=6) then
-                         ty=mod(m2(2,4),6)
-                         tz=mod(m2(3,4),6)
-                         m2(2,4)=ty
-                         m2(3,4)=tz
+                         m2(2,4)=mod(m2(2,4),6)
+                         m2(3,4)=mod(m2(3,4),6)
                       else if (tx >=6 .and. tz >=6) then
-                         tx=mod(m2(1,4),6)
-                         tz=mod(m2(3,4),6)
-                         m2(1,4)=tx
-                         m2(3,4)=tz
+                         m2(1,4)=mod(m2(1,4),6)
+                         m2(3,4)=mod(m2(3,4),6)
                       else if (tx >=6 .and. ty >=6) then
-                         tx=mod(m2(1,4),6)
-                         ty=mod(m2(2,4),6)
-                         m2(1,4)=tx
-                         m2(2,4)=ty
+                         m2(1,4)=mod(m2(1,4),6)
+                         m2(2,4)=mod(m2(2,4),6)
                       end if
+
+                   case(8)
+
+                      txyz=m2(1:3,4)
+                      do k=1,nlat_t
+                         if(txyz(1) >= lat_trans(1,k) .and. txyz(2) >= lat_trans(2,k) .and. txyz(3) >= lat_trans(3,k)) then
+                            m2(1:3,4)=mod(m2(1:3,4), lat_trans(:,k))
+                         end if
+                      end do
+
                 end select
 
                 do k=1,nt
@@ -3975,9 +4248,9 @@
                       tx=m2(1,4)+tabla(1,4,k)
                       ty=m2(2,4)+tabla(2,4,k)
                       tz=m2(3,4)+tabla(3,4,k)
-                      tx=mod(tx,12)
-                      ty=mod(ty,12)
-                      tz=mod(tz,12)
+                      tx=mod(tx,ilat_norm)
+                      ty=mod(ty,ilat_norm)
+                      tz=mod(tz,ilat_norm)
                       select case (ibravl)
                           case (2)
                              if (ty == 6 .and. tz == 6) cycle p2
@@ -4008,15 +4281,22 @@
                              if (ty == 0 .and. tz == 0) cycle p2
                              if (tx == 0 .and. tz == 0) cycle p2
                              if (tx == 0 .and. ty == 0) cycle p2
+
+                          case (8)
+                             txyz=(/tx,ty,tz/)
+                             if(txyz(1) == 0 .and. txyz(2) == 0 .and. txyz(3) == 0) cycle p2
+                             do l=1,nlat_t
+                                if(txyz(1) == lat_trans(1,l) .and. txyz(2) == lat_trans(2,l) .and. txyz(3) == lat_trans(3,l)) cycle p2
+                             end do
 
                       end select
 
                       tx=m2(1,4)-tabla(1,4,k)
                       ty=m2(2,4)-tabla(2,4,k)
                       tz=m2(3,4)-tabla(3,4,k)
-                      tx=mod(tx+48,12)
-                      ty=mod(ty+48,12)
-                      tz=mod(tz+48,12)
+                      tx=mod(tx+ilat_fact,ilat_norm)
+                      ty=mod(ty+ilat_fact,ilat_norm)
+                      tz=mod(tz+ilat_fact,ilat_norm)
 
                       select case (ibravl)
                           case (2)
@@ -4048,18 +4328,27 @@
                              if (ty == 0 .and. tz == 0) cycle p2
                              if (tx == 0 .and. tz == 0) cycle p2
                              if (tx == 0 .and. ty == 0) cycle p2
+
+                          case (8)
+                             txyz=(/tx,ty,tz/)
+                             if(txyz(1) == 0 .and. txyz(2) == 0 .and. txyz(3) == 0) cycle p2
+                             do l=1,nlat_t
+                                if(txyz(1) == lat_trans(1,l) .and. txyz(2) == lat_trans(2,l) .and. txyz(3) == lat_trans(3,l)) cycle p2
+                             end do
+
                       end select
                    end if
                 end do
 
                 nt=nt+1
-                if (nt > 24) then
+                if (nt > num_tab) then
                    err_symm=.true.
-                   ERR_Symm_Mess=" Dimension of Table exceeded (II)"
+                   write(unit=ERR_Symm_Mess,fmt="(a,i5)") " Dimension of Table exceeded (II): ",nt
                    return
                 end if
+                !new operator
                 tabla(:,:,nt)=m2
-
+                !write(*,"(a,i4,a,9i3,3i6)")  "  Op:",nt," -> ", tabla(1:3,1:3,nt),tabla(1:3,4,nt)
              end do p2
           end do
 
@@ -4071,7 +4360,7 @@
        ng=nt
        do i=1,nt
           ss(:,:,i)=tabla(1:3,1:3,i)
-          ts(:,i)  = real(tabla(1:3,4,i))/12.0
+          ts(:,i)  = real(tabla(1:3,4,i))/lat_norm
        end do
 
        ! Check anomalous cases where the order of generators has produced
@@ -4206,8 +4495,8 @@
                                                                      0, 1, 0, 0, &
                                                                      0, 0, 1, 0, &
                                                                      0, 0, 0, 1/),(/4,4/))
-
-       integer, dimension(4,4,24):: tabla
+       integer, parameter             :: num_tab=24
+       integer, dimension(4,4,num_tab):: tabla
        integer, dimension(4,4,4) :: gener
        integer, dimension(4,4)   :: sn, snp
        integer, dimension(4,4)   :: m1,m2
@@ -4722,7 +5011,7 @@
              end select
 
              nt=nt+1
-             if (nt > 24) then
+             if (nt > num_tab) then
                 err_symm=.true.
                 ERR_Symm_Mess=" Dimension of Table exceeded (I)"
                 return
@@ -4913,7 +5202,7 @@
                 end do
 
                 nt=nt+1
-                if (nt > 24) then
+                if (nt > num_tab) then
                    err_symm=.true.
                    ERR_Symm_Mess=" Dimension of Table exceeded (II)"
                    return
@@ -5922,11 +6211,11 @@
        character (len=*),           intent(out) :: Strsym
 
        !---- Local variables ----!
-       character (len=6)                            :: fracc
+       character (len=12)                           :: fracc
        character (len=*), dimension( 3), parameter  :: xlab = (/"x","y","z"/)
-       character (len=15), dimension(15)            :: xyzt
+       character (len=35), dimension(15)            :: xyzt
        character (len= 2), dimension( 3)            :: sigx
-       character (len=15)                           :: auxc
+       character (len=35)                           :: auxc
        integer                                      :: lenx,i,j
        integer, dimension (3)                       :: ino,lni
 
@@ -5964,9 +6253,9 @@
 
           if (abs(tt(i)) > eps_symm) then
              call get_fraction_2dig(tt(i),fracc)
-             write(unit=xyzt(i),fmt="(a,a,a)") auxc(1:lenx),fracc,","
+             xyzt(i)=auxc(1:lenx)//fracc//","
           else
-             write(unit=xyzt(i),fmt="(a,a)") auxc(1:lenx),","
+             xyzt(i)=auxc(1:lenx)//","
           end if
 
           xyzt(i)=adjustl(xyzt(i))
@@ -6002,7 +6291,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 20):: car
+       character(len= 60):: car
        integer           :: i,j,k, np,npp,npos
        real(kind=cp)     :: suma
 
@@ -6131,9 +6420,9 @@
        integer,                              intent(out) :: nsg
 
        !--- Local variables ---!
-       integer                           :: i,L,j, nc, maxg,ng , nla, i1,i2,nop
-       character (len=30), dimension(15) :: gen
-       logical                           :: newg, cen_added
+       integer                            :: i,L,j, nc, maxg,ng , nla, i1,i2,nop
+       character (len=30), dimension(192) :: gen
+       logical                            :: newg, cen_added
 
        maxg=size(SubG)
        !---- Construct first the generators of centring translations ----!
@@ -6363,7 +6652,7 @@
     !!---- Subroutine Latsym(Symb,Numl,Latc)
     !!----    character (len=*),                       intent(in)  :: SYMB  !  In -> Space Group H-M/Hall symbol
     !!----    integer, optional,                       intent(in)  :: numL  !  Number of centring vectors
-    !!----    real(kind=cp),optional, dimension(3,11), intent(in)  :: latc  !  Centering vectors
+    !!----    real(kind=cp),optional, dimension(:,:),  intent(in)  :: latc  !  Centering vectors
     !!----
     !!--<<        Inlat  Lattice type & associated translations
     !!----          1     P: { 000 }
@@ -6379,13 +6668,13 @@
     !!----    of the lattice, the multiplicity (Nlat) and the fractionnal lattice translations
     !!----    ((Ltr(in,j)j=1,3),in=1,Nlat) and Lat_Ch.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January 2014 (JRC)
     !!
     Subroutine LatSym(SYMB,numL,latc)
        !---- Argument ----!
-       character(len=*),                intent(in)  :: SYMB
-       integer, optional,               intent(in)  :: numL
-       real(kind=cp),optional, dimension(3,11),  intent(in)  :: latc
+       character(len=*),                        intent(in)  :: SYMB
+       integer, optional,                       intent(in)  :: numL
+       real(kind=cp),optional, dimension(:,:),  intent(in)  :: latc  !general vector (JRC, Jan2014)
 
        !---- Local variables ----!
        character(len=1)                        :: LAT
@@ -6467,7 +6756,7 @@
              if(present(numL) .and. present(latc)) then
               lat="Z"
               nlat=numL+1
-              nlat=min(nlat,12)
+              !nlat=min(nlat,12) !restriction removed in January 2014
               inlat=8
               do i=2,nlat
                 ltr(:,i)=latc(:,i-1)
@@ -6495,7 +6784,7 @@
     !!--++    (PRIVATE)
     !!--++    Subroutine to get the maximum conventional lattice symbol from
     !!--++    a set of possible centring vectors.
-    !!--++    Used by subroutine: Similar_Trans_SG
+    !!--++    Used by subroutine: Similar_Transf_SG
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -7070,7 +7359,7 @@
        character (len=20)               :: Spgm
        character (len=20)               :: ssymb
        character (len=130)              :: gener
-       character (len= 3)               :: opcion
+       character (len=3)                :: opcion
        character (len=2)                :: Latsy
        integer                          :: num, i, j, iv, istart
        integer,      dimension(1)       :: ivet
@@ -7086,10 +7375,15 @@
 
        !---- Inicializing Space Group ----!
        call init_err_symm()
-       SpaceGroup=Space_Group_Type(0,"unknown","unknown","unknown","?","?","?","?",.false.,"?","?", &
-                              0,0.0,"?","?", -1, 0.0,  0, 0,  0, Sym_Oper_Type(0, 0.0),"?",         &
-                              wyckoff_type(0,wyck_pos_type(0," ",0," "," ")),0.0)
+
+       !Constructor eliminated because some components are nowadays allocatable
+       !There's no risk of undefined fields because in this procedure everything is set.
+       !
+       !SpaceGroup=Space_Group_Type(0,"unknown","unknown","unknown","?","?","?","?",.false.,"?","?", &
+       !                       0,0.0,"?","?", -1, 0.0,  0, 0,  0, Sym_Oper_Type(0, 0.0),"?",         &
+       !                       wyckoff_type(0,wyck_pos_type(0," ",0," "," ")),0.0)
        SpaceGroup%R_Asym_Unit(:,2)=1.0
+       SpaceGroup%gHall=" "
 
        !---- Loading Tables ----!
        call Set_Spgr_Info()
@@ -7222,7 +7516,9 @@
              call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm)
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%NumLat       = nlat
-             SpaceGroup%Latt_trans   = Ltr
+             if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
+             allocate(SpaceGroup%Latt_trans(3,nlat))
+             SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Num_gen      = max(0,num_g)
              SpaceGroup%Centre_coord = co
              SpaceGroup%SG_setting   = "Non-Conventional (user-given operators)"
@@ -7238,6 +7534,7 @@
                 ng=ngen
                 istart=1
                 num_g=ng
+                call Get_GenSymb_from_Gener(gen,ng,SpaceGroup%gHall)
                 do i=1,ngen
                    call Read_Xsym(gen(i),istart,ss(:,:,i),ts(:,i))
                 end do
@@ -7254,7 +7551,9 @@
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
-             SpaceGroup%Latt_trans   = Ltr
+             if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
+             allocate(SpaceGroup%Latt_trans(3,nlat))
+             SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Bravais      = Latt(ibravl)
              SpaceGroup%centre       = Centro(isymce)
              SpaceGroup%centred      = isymce
@@ -7287,7 +7586,9 @@
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
-             SpaceGroup%Latt_trans   = Ltr
+             if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
+             allocate(SpaceGroup%Latt_trans(3,nlat))
+             SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Bravais      = Latt(ibravl)
              SpaceGroup%centre       = Centro(isymce)
              SpaceGroup%centred      = isymce
@@ -7364,7 +7665,9 @@
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
-             SpaceGroup%Latt_trans   = Ltr
+             if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
+             allocate(SpaceGroup%Latt_trans(3,nlat))
+             SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Bravais      = Latt(ibravl)
              SpaceGroup%centre       = Centro(isymce)
              SpaceGroup%centred      = isymce
@@ -7431,7 +7734,9 @@
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%NumLat       = nlat
-             SpaceGroup%Latt_trans   = Ltr
+             if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
+             allocate(SpaceGroup%Latt_trans(3,nlat))
+             SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Bravais      = Latt(ibravl)
              SpaceGroup%centre       = Centro(isymce)
              SpaceGroup%centred      = isymce
@@ -7449,6 +7754,26 @@
        if (Is_Hexa(ng,ss)) SpaceGroup%Hexa=.true.
 
        hexa=SpaceGroup%Hexa  !added 24/05/2007
+
+       if (opcion(1:3) /= "FIX") then              !This has been changed of place for allocating
+           select case (SpaceGroup%centred)        !the allocatable components properly
+              case (0)
+                 SpaceGroup%Multip = 2*NG*nlat
+              case (1)
+                 SpaceGroup%Multip =   NG*nlat
+              case (2)
+                 SpaceGroup%Multip = 2*NG*nlat
+           end select
+       else
+           SpaceGroup%Multip =   NG
+       end if
+
+       !Allocate here the total number of symmetry operators (JRC, Jan2014)
+
+       if(allocated(SpaceGroup%Symop)) deallocate(SpaceGroup%Symop)
+       allocate(SpaceGroup%Symop(SpaceGroup%Multip))
+       if(allocated(SpaceGroup%SymopSymb)) deallocate(SpaceGroup%SymopSymb)
+       allocate(SpaceGroup%SymopSymb(SpaceGroup%Multip))
 
        do i=1,SpaceGroup%Numops
           SpaceGroup%Symop(i)%Rot(:,:) = ss(:,:,i)
@@ -7475,7 +7800,7 @@
           ngm=m
           if (SpaceGroup%NumLat > 1) then
 
-             do L=2,min(SpaceGroup%NumLat,4)
+             do L=2,SpaceGroup%NumLat  ! min(SpaceGroup%NumLat,4)  restriction removed Jan2014 (JRC)
                 do i=1,ngm
                    m=m+1
                    vec=SpaceGroup%Symop(i)%tr(:) + SpaceGroup%Latt_trans(:,L)
@@ -7485,31 +7810,27 @@
              end do
           end if
 
-          select case (SpaceGroup%centred)
-             case (0)
-                SpaceGroup%Multip = 2*NG*nlat
-             case (1)
-                SpaceGroup%Multip =   NG*nlat
-             case (2)
-                SpaceGroup%Multip = 2*NG*nlat
-         end select
-       else
-          SpaceGroup%Multip =   NG
        end if
-
-       do i=1,min(SpaceGroup%multip,192)
+       !write(*,"(a)") " => Generating the symetry operators symbols"
+       do i=1,SpaceGroup%multip  ! min(SpaceGroup%multip,192) restriction removed Jan2014 (JRC)
           call Get_SymSymb(SpaceGroup%Symop(i)%Rot(:,:), &
                            SpaceGroup%Symop(i)%tr(:)   , &
-                           SpaceGroup%SymopSymb(i)       )
+                           SpaceGroup%SymopSymb(i))
        end do
+       !write(*,"(a)") " => done"
 
        if (num <= 0) then
           call Get_Laue_PG(SpaceGroup, SpaceGroup%Laue, SpaceGroup%PG)
        end if
+       !write(*,"(a)") " => Point group done"
 
        if(isymce == 0) then
           SpaceGroup%centre = trim(SpaceGroup%centre)//"  Gen(-1):"//SpaceGroup%SymopSymb(NG+1)
        end if
+
+       if(opcion(1:3)=="GEN") call Get_HallSymb_from_Gener(SpaceGroup)
+
+       !write(*,"(a)") " => Wyckoff information"
 
        !---- Wyckoff information ----!
        if (len_trim(SpaceGroup%Spg_Symb) /= 0) then
@@ -7527,6 +7848,7 @@
           end do
           SpaceGroup%Spg_Symb(2:)=l_case(SpaceGroup%Spg_Symb(2:))  !Make lowercase the HM generators of the group
        end if
+       !write(*,"(a)") " => Wyckoff done"
 
        return
     End Subroutine Set_SpaceGroup
@@ -7595,24 +7917,24 @@
       return
     End Subroutine Set_SpG_Mult_Table
 
-    !!----
-    !!---- Subroutine Setting_Change(From_Syst,To_Syst,Spacegroup, Car_Sym, Icar_Sym)
-    !!----    character(len=2),    intent(in)     :: From_Syst   !  In -> IT : International Tables
-    !!----                                                                ML : Miller & Love
-    !!----                                                                KO : Kovalev
-    !!----                                                                BC : Bradley & Cracknell
-    !!----                                                                ZA : Zack
-    !!----    character(len=2),    intent(in)     :: To_Syst     !  In -> (Idem to From_Syst)
-    !!----    type (Space_Group),  intent(in out) :: SpaceGroup  !  In ->
-    !!----                                                         Out ->
-    !!----    character(len=35),    intent(out)   :: car_sym     ! Out ->
-    !!----    character(len=35),    intent(out)   :: icar_sym    ! Out ->
-    !!----
-    !!----    Traslate From From_Syst to To_syst the set of symmetry operators
-    !!----
-    !!---- Update: February - 2005
+    !!--++
+    !!--++ Subroutine Setting_Change_Conv(From_Syst,To_Syst,Spacegroup, Car_Sym, Icar_Sym)
+    !!--++    character(len=2),    intent(in)     :: From_Syst   !  In -> IT : International Tables
+    !!--++                                                                ML : Miller & Love
+    !!--++                                                                KO : Kovalev
+    !!--++                                                                BC : Bradley & Cracknell
+    !!--++                                                                ZA : Zack
+    !!--++    character(len=2),    intent(in)     :: To_Syst     !  In -> (Idem to From_Syst)
+    !!--++    type (Space_Group),  intent(in out) :: SpaceGroup  !  In ->
+    !!--++                                                         Out ->
+    !!--++    character(len=35),    intent(out)   :: car_sym     ! Out ->
+    !!--++    character(len=35),    intent(out)   :: icar_sym    ! Out ->
+    !!--++
+    !!--++    Traslate From From_Syst to To_syst the set of symmetry operators
+    !!--++
+    !!--++   Update: February - 2005 (Name changed and overloaded by JRC in Jan2014)
     !!
-    Subroutine Setting_Change(From_Syst, To_Syst, SpaceGroup, car_sym, icar_sym)
+    Subroutine Setting_Change_Conv(From_Syst, To_Syst, SpaceGroup, car_sym, icar_sym)
        !---- Arguments ----!
        character(len=2),          intent(in)     :: From_Syst, To_Syst
        type (Space_Group_Type),   intent(in out) :: SpaceGroup
@@ -7926,7 +8248,269 @@
        end do
 
        return
-    End Subroutine Setting_Change
+    End Subroutine Setting_Change_Conv
+
+    !!--++
+    !!--++ Subroutine Setting_Change_NonConv(Mat,Orig,Spg,Spgn,Matkind)
+    !!--++   real(kind=cp), dimension(3,3),intent(in) :: mat      ! Basis transformation matrix
+    !!--++   real(kind=cp), dimension(3),  intent(in) :: orig     ! New origing in the old basis
+    !!--++   type (Space_Group_Type),      intent(in) :: SpG      ! Input space group
+    !!--++   type (Space_Group_Type),     intent(out) :: SpGn     ! New space group in the new setting.
+    !!--++   character (len=*), optional,  intent(in) :: matkind  ! Kind of transformation matrix
+    !!--++
+    !!--++    Transform the symmetry operators of the space group to a new basis given by
+    !!--++    the matrix "mat" and vector "orig"
+    !!--++    If matkind is given and matkind="it"/"IT", the input matrix is given
+    !!--++    as in International Tables: Mat=P =>  (a,b,c)'=(a,b,c)P
+    !!--++    Otherwise it is the trasposed matrix Mat=Pt
+    !!--++
+    !!--++ Created: January - 2014 (JRC)
+    !!
+    Subroutine Setting_Change_NonConv(Mat,Orig,Spg,Spgn,Matkind)
+       !---- Arguments ----!
+       real(kind=cp), dimension(3,3),intent(in) :: Mat
+       real(kind=cp), dimension(3),  intent(in) :: Orig
+       type (Space_Group_Type),      intent(in) :: SpG
+       type (Space_Group_Type),     intent(out) :: SpGn
+       character (len=*), optional,  intent(in) :: Matkind
+
+       !--- Local variables ---!
+       integer                 :: ifail, i, j, k, L, im, nc, m, ngm,n,ngen
+       real(kind=cp)           :: det
+       character(len=40)       :: transla
+       character(len=1)        :: LatSymb
+       real(kind=cp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
+                                                                   0.0,1.0,0.0,  &
+                                                                   0.0,0.0,1.0/),(/3,3/))
+       real(kind=cp), dimension (3,192)    :: newlat = 0.0 !big enough number of centring tranlations
+       real(kind=cp), dimension (3,3)      :: S, Sinv, rot, rotn  !S is the ITC matrix P.
+       integer,       dimension (3,3)      :: irot,nulo
+       real(kind=cp), dimension (  3)      :: tr, trn, v
+       logical                             :: lattl,change_only_origin
+       character(len=80)                   :: string, symbsg
+       character(len=60),dimension(15)     :: gen
+       character(len=180)                  :: setting
+       integer,  dimension(3,3,Spg%Multip) :: sm
+       real(kind=cp),  dimension(3,Spg%Multip)   :: tm
+
+       err_symm=.false.
+       change_only_origin=.false.
+       nulo=0
+       call get_setting_info(Mat,orig,setting,matkind)
+       symbsg=Pack_String(SpG%spg_symb)
+       if (present(matkind)) then
+          if (matkind(1:2) == "it" .or. matkind(1:2) == "IT" ) then
+             S=Mat
+          else
+             S=transpose(Mat)
+          end if
+       else
+          S=transpose(Mat)
+       end if
+       setting = trim(setting)//" det:"
+       if(equal_matrix(S,e,3)) change_only_origin=.true.
+       det=determ_a(Mat)
+       i=len_trim(setting)
+       write(unit=setting(i+2:),fmt="(f6.2)") det
+       write(unit=*,fmt="(a)") " => Setting Symbol: "//trim(setting)
+       call matrix_inverse(S,Sinv,ifail)
+       if (ifail /= 0) then
+          err_symm=.true.
+          ERR_Symm_Mess= "Inversion Matrix Failed on: Setting_Change_NonConv"
+          return
+       end if
+
+       L=0
+       if (SpG%NumLat > 1) then  !Original lattice is centered
+          do i=2,SpG%NumLat      !Transform the centring vectors to the new lattice
+             v=Modulo_Lat(matmul(Sinv,SpG%Latt_trans(:,i)))
+             if (sum(v) < eps_symm) cycle
+             L=L+1
+             newlat(:,L)=v
+          end do
+       end if
+       do i=1,3  !Test the basis vectors of the original setting
+         rot(:,i)=Modulo_Lat(Sinv(:,i))
+         if (sum(rot(:,i)) < eps_symm) cycle
+         L=L+1
+         newlat(:,L)=rot(:,i)
+       end do
+
+       if (det > 1 ) then  !The new lattice is centred
+          im=nint(det)-1         !Determine the new lattice translations
+          ngm=L+im
+          doi: do i=0,im
+             v(1) = i
+             do j=0,im
+                v(2) = j
+                do k=0,im
+                   v(3) = k
+                   if (nint(sum(v)) == 0) cycle
+                   tr=Modulo_Lat(matmul(Sinv,v))
+                   if (sum(tr) < eps_symm) cycle
+                   lattl =.true.
+                   do m=1,L
+                      if (sum(abs(tr-newlat(:,m))) < eps_symm) then
+                         lattl =.false.
+                         exit
+                      end if
+                   end do
+                   if (lattl) then ! new lattice translation
+                      L=L+1
+                      newlat(:,L) = tr(:)
+                      if (L == ngm) exit doi
+                   end if
+                end do !k
+             end do !j
+          end do doi !i
+       end if
+
+       call get_centring_vectors(L,newlat,LatSymb)  !Complete the centring vectors
+       !Now we have L centring translations
+       call LatSym(LatSymb,L,newlat)  !provides the value of the global variable inlat: index of the type of lattice
+       SpGn%SPG_lat      = LatSymb
+       SpGn%SPG_latsy    = SpG%SPG_latsy(1:1)//LatSymb
+
+       !---- Change of symmetry operator under a change of basis and origin
+       !----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)
+       !----  Symmetry operator C = (R,T)  -> C' = (R',T')
+       !----   R' = inv(Mt) R Mt                 ITC:    R'= inv(P) R P
+       !----   T' = inv(Mt) (T -(E-R)O)                  T'= inv(P) (T-(E-R)O)
+       sm=0
+       tm=0.0
+       sm(:,:,1)=SpG%SymOp(1)%Rot
+       tm(:,1)=SpG%SymOp(1)%tr
+       n=1
+       do_i:do i=2,SpG%NumOps
+          Rot=SpG%SymOp(i)%rot
+          Rotn=matmul(matmul(Sinv,Rot),S)
+          irot=nint(Rotn)
+          do k=n,1,-1
+            if(equal_matrix(irot,sm(:,:,k),3))  cycle do_i
+          end do
+          n=n+1
+          sm(:,:,N)=irot
+          tr=SpG%SymOp(i)%tr
+          trn=matmul(Sinv,tr-matmul(e-Rot,orig))
+          tm(:,n)=Modulo_Lat(trn)
+       end do do_i
+
+       SpGn%Centred=SpG%Centred
+       SpGn%Centre_coord=SpG%Centre_coord
+       if (SpG%Centred /= 1) then !the space group is centro-symmetric
+          nc=SpG%NumOps+1
+          Rot=SpG%SymOp(nc)%rot
+          tr=SpG%SymOp(nc)%tr
+          trn=matmul(Sinv,tr-matmul(e-Rot,orig)) ! matmul(Sinv,tr-2*orig)
+          trn= Modulo_Lat(trn)
+          if(sum(abs(trn)) > 3.0*eps_symm) then
+            SpGn%Centred=0
+            SpGn%Centre_coord=0.5*trn
+          end if
+       end if
+
+       !Do another thing we conserve the transformations and generate ourself the new group
+       !The new multiplicity is
+       i=1
+       if(SpGn%Centred /= 1) i=2
+       SpGn%multip= n * i * nlat  !nlat=L+1
+
+       allocate(SpGn%SymOp(SpGn%multip), SpGn%SymOpSymb(SpGn%multip))
+       SpGn%NumOps=n
+       do i=1,SpGn%NumOps
+         SpGn%SymOp(i)%Rot=sm(:,:,i)
+         SpGn%SymOp(i)%tr=tm(:,i)
+       end do
+
+       allocate(SpGn%Latt_trans(3,nlat))
+       SpGn%NumLat    = nlat
+       SpGn%Latt_trans= Ltr(:,1:nlat)
+       SpGn%CrystalSys   = SpG%CrystalSys
+       SpGn%SG_setting   = setting
+       SpGn%Bravais      = Latt(inlat)
+       Select Case (SpGn%Centred)
+           Case(0,2)
+             call Frac_Trans_2Dig(SpGn%Centre_coord,transla)
+             SpGn%centre="Centric, -1 at "//trim(transla)
+           Case Default
+             SpGn%centre="Acentric"
+       End Select
+       SpGn%Num_gen      = SpG%Num_gen
+       SpGn%PG           = SpG%PG
+       SpGn%Laue         = SpG%laue
+       SpGn%NumSpg=SpG%NumSpg
+       m=SpGn%Numops
+       if (SpGn%centred /= 1) then
+          do i=1,SpGn%Numops
+             m=m+1
+             SpGn%Symop(m)%Rot(:,:) = -SpGn%Symop(i)%Rot(:,:)
+             SpGn%Symop(m)%tr(:)    =  modulo_lat(-SpGn%Symop(i)%tr(:)+2.0*SpGn%Centre_coord)
+          end do
+       end if
+       ngm=m
+       if (SpGn%NumLat > 1) then
+          do L=2,SpGn%NumLat  ! min(SpaceGroup%NumLat,4)  restriction removed Jan2014 (JRC)
+             do i=1,ngm
+                m=m+1
+                trn=SpGn%Symop(i)%tr(:) + SpGn%Latt_trans(:,L)
+                SpGn%Symop(m)%Rot(:,:) = SpGn%Symop(i)%Rot(:,:)
+                SpGn%Symop(m)%tr(:)    = modulo_lat(trn)
+             end do
+          end do
+       end if
+       do i=1,SpGn%multip  ! min(SpaceGroup%multip,192) restriction removed Jan2014 (JRC)
+          call Get_SymSymb(SpGn%Symop(i)%Rot(:,:), &
+                           SpGn%Symop(i)%tr(:)   , &
+                           SpGn%SymopSymb(i))
+       end do
+       !Try to assign a Hall symbol to the space group in the new setting
+       !If the hall symbol has been found and the symbol exists in the table the H-M symbol is also set.
+       call Get_HallSymb_from_Gener(SpGn)
+       if(err_symm) then
+         SpGn%hall="From:"//trim(SpG%hall)
+         SpGn%spg_symb="From:"//trim(SpG%spg_symb)
+       else
+         if(len_trim(symbsg) == 0) then
+            symbsg=SpGn%spg_symb
+         end if
+       end if
+       if(change_only_origin) then
+         SpGn%spg_symb=trim(symbsg)
+       else
+         if(SpGn%NumSpg == 0) then
+            SpGn%spg_symb="From:"//trim(symbsg)
+         end if
+       end if
+       !Generate a general symbol, first select generators as a function of SpGn$Numops
+       n=SpGn%NumOps
+       Select Case(SpGn%centred)
+         Case(0)
+           gen(1)=SpGn%SPG_lat
+           gen(2)=SpGn%SymopSymb(n+1)
+           ngen=2
+         Case(1)
+           gen(1)=SpGn%SPG_lat
+           ngen=1
+         Case(2)
+           gen(1)="-"//SpGn%SPG_lat
+           ngen=1
+       End Select
+
+       Select Case(n)
+         case(1:3)
+           ngen=ngen+1
+           gen(ngen)=SpGn%SymopSymb(2)
+         case(4:)
+           ngen=ngen+1
+           gen(ngen)=SpGn%SymopSymb(2)
+           ngen=ngen+1
+           gen(ngen)=SpGn%SymopSymb(3)
+       End Select
+
+       call Get_GenSymb_from_Gener(gen,ngen,SpGn%ghall)
+
+       return
+    End Subroutine Setting_Change_NonConv
 
     !!----
     !!---- Subroutine Similar_Transf_Sg(Mat,Orig,Spg,Spgn,Matkind)
@@ -7977,7 +8561,7 @@
        real(kind=cp), dimension (3,3), parameter :: e = reshape ((/1.0,0.0,0.0,  &
                                                                    0.0,1.0,0.0,  &
                                                                    0.0,0.0,1.0/),(/3,3/))
-       real(kind=cp), dimension (3,48) :: newlat = 0.0
+       real(kind=cp), dimension (3,192):: newlat = 0.0 !big enough number of centring tranlations
        real(kind=cp), dimension (3,3)  :: S, Sinv, rot, rotn
        integer,       dimension (3,3)  :: irot
        real(kind=cp), dimension (  3)  :: tr, trn, v
@@ -8026,6 +8610,13 @@
              end do
           end if
 
+          do i=1,3  !Test also the basis vectors of the original setting
+            rot(:,i)=Modulo_Lat(Sinv(:,i))
+            if (sum(rot(:,i)) < eps_symm) cycle
+            L=L+1
+            newlat(:,L)=rot(:,i)
+          end do
+
           if (det > 1 ) then  !The new lattice is centred
              im=det-1         !Determine the new lattice translations
              ngm=L+im
@@ -8055,12 +8646,13 @@
              end do doi !i
           end if
 
-          if (L > 1) call get_centring_vectors(L,newlat)
-          call max_Conv_Lattice_Type(L,newlat,lattsymb)
+          call get_centring_vectors(L,newlat,lattsymb)
+          if(lattsymb == "Z") call Max_Conv_Lattice_Type(L, newlat, lattsymb)
+          !newlat is not used anymore
        end if
        !---- Select the generators of the maximum conventional lattice
        ngen=0
-       select case(lattsymb)
+       Select Case(lattsymb)
           Case("A")
              ngen=1
              gen(1)="x,y+1/2,z+1/2"
@@ -8080,7 +8672,7 @@
           Case("R")
              ngen=1
              gen(1)="x+2/3,y+1/3,z+1/3"
-       end select
+       End Select
 
        !---- Up to here all "conventionnal" translational generators have been obtained
        !---- Set the minimum and maximum admissible component of translations
@@ -8115,8 +8707,8 @@
        !---- Change of symmetry operator under a change of basis and origin
        !----  A'= M A,  origin O =>  X'=inv(Mt)(X-O)
        !----  Symmetry operator C = (R,T)  -> C' = (R',T')
-       !----                R' = inv(Mt) R Mt
-       !----                T' = inv(Mt) (T -(E-R)O)
+       !----   R' = inv(Mt) R Mt                 ITC:    R'= inv(P) R P
+       !----   T' = inv(Mt) (T -(E-R)O)                  T'= inv(P) (T-(E-R)O)
        do i=2,SpG%NumOps
           Rot=SpG%SymOp(i)%rot
           tr=SpG%SymOp(i)%tr
@@ -8124,7 +8716,6 @@
           irot=abs(nint(rotn))
           if ( any(irot > 1) ) cycle    !Conserve only the conventional forms  |aij|=1,0
           if (.not. Zbelong(Rotn)) cycle
-
           ! Verify is the associated translation is admissible in the crystal system of
           ! the parent space group.
           trn=matmul(Sinv,tr-matmul(e-Rot,orig))
@@ -8235,7 +8826,7 @@
        else
           SpGn%spg_symb="From("//trim(symbsg)//")"
        end if
-       call get_HallSymb_from_gener(SpGn,SpGn%hall)
+       call get_HallSymb_from_gener(SpGn)
        SpGn%SG_setting=setting
 
        return
@@ -8958,6 +9549,7 @@
                 call get_string_resolv(t2,x2,ix2,carsym)
                 symb(npos:)=carsym(1:len_trim(carsym))
              end if
+
        end select
 
        return
@@ -9123,11 +9715,11 @@
           do i=2,SpaceGroup%Numlat
              call Frac_Trans_1Dig(SpaceGroup%Latt_trans(:,i),aux)
              if (mod(i-1,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
+                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a36)") &
                                            " => Latt(",i-1,"): ",trim(aux)
                 nlines=nlines+1
              else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
+                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a36)")  &
                                            " => Latt(",i-1,"): ",trim(aux)
              end if
           end do
@@ -9157,11 +9749,11 @@
           nlines=1
           do i=1,SpaceGroup%NumOps
              if (mod(i,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
+                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a36)") &
                                            " => SYMM(",i,"): ",trim(SpaceGroup%SymopSymb(i))
                 nlines=nlines+1
              else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
+                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a36)")  &
                                            " => SYMM(",i,"): ",trim(SpaceGroup%SymopSymb(i))
              end if
           end do

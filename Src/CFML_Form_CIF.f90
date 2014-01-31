@@ -1992,6 +1992,9 @@
        integer                      :: iv, i,j
        integer,       dimension(12) :: ivet
        real(kind=cp), dimension(12) :: vet
+       character(len=80)            :: transf_key
+       character(len=40)            :: mat
+       character(len=20)            :: ori
 
        !---- Initial values ----!
        call init_err_form()
@@ -2000,11 +2003,22 @@
        j=nline_end
 
        !---- transformation matrix ----!
-       call read_key_value(filevar,i,j,"trans",vet,ivet,iv)
-       if (iv /= 12) then
-          err_form=.true.
-          ERR_Form_Mess=" Bad matrix/origin setting..."
-          return
+       call read_key_value(filevar,i,j,"trans",vet,ivet,iv,"#",transf_key)
+       if (iv /= 12 .or. err_string) then
+          !Try to read the transformation from transf_key
+          if(len_trim(transf_key) /= 0) then
+            call Get_Transf(transf_key,trans,orig)
+            if(err_string) then
+               err_form=.true.
+               ERR_Form_Mess=" Bad matrix/origin setting in string: "//trim(transf_key)//" -> "//trim(Err_String_Mess)
+               return
+            end if
+          else
+               err_form=.true.
+               ERR_Form_Mess=" Bad matrix/origin setting..."
+               return
+          end if
+
        else
           trans(1,1:3)=vet(1:3)
           trans(2,1:3)=vet(4:6)

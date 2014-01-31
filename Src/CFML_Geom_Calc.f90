@@ -92,6 +92,7 @@
 !!----       INIT_ERR_GEOM
 !!----       P1_DIST
 !!----       PRINT_DISTANCES
+!!----       SET_NEW_ASYMUNIT
 !!----       SET_ORBITS_INLIST
 !!----       SET_ROTATION_MATRIX
 !!----       SET_TDIST_COORDINATION
@@ -103,10 +104,11 @@
     !---- Use Modules ----!
     use CFML_GlobalDeps,                 only: Sp, Cp, eps, pi, to_rad, to_deg
     use CFML_Math_General,               only: acosd, cosd, sind, Modulo_Lat
-    use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse
+    use CFML_Math_3D,                    only: Cross_Product, Matrix_Inverse, determ_A
     use CFML_String_Utilities,           only: Frac_Trans_1Dig, L_Case,U_Case,pack_string,setnum_std, get_logunit
     use CFML_Crystal_Metrics,            only: Crystal_Cell_Type, Get_Deriv_Orth_Cell,Rot_Matrix
-    use CFML_Atom_TypeDef,               only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab
+    use CFML_Atom_TypeDef,               only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab, Atom_Equiv_List_Type, &
+                                               allocate_atom_list
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
                                                searchop, Read_SymTrans_Code, Write_SymTrans_Code
 
@@ -125,7 +127,7 @@
               Deallocate_Coordination_Type, Deallocate_Point_List, Distance_and_Sigma, Get_Euler_From_Fract, &
               Get_PhiTheChi, init_err_geom, P1_Dist, Print_Distances, Set_Orbits_InList, Set_TDist_Coordination, &
               Get_Transf_List, Set_TDist_Partial_Coordination, Get_Anglen_Axis_From_RotMat, Get_Matrix_moving_v_to_u, &
-              Get_OmegaChiPhi, Set_Rotation_Matrix
+              Get_OmegaChiPhi, Set_Rotation_Matrix, Set_New_AsymUnit
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -1290,9 +1292,9 @@
           write(unit=lun_cif, fmt='(a)') "#=============================================================================#"
           write(unit=lun_cif, fmt='(a)') "#                      UNIT CELL INFORMATION                                  #"
           write(unit=lun_cif, fmt='(a)') "#=============================================================================#"
-          write(unit=lun_cif, fmt='(a)') "_symmetry_cell_setting                "//SPG%CrystalSys
-          write(unit=lun_cif, fmt='(a)') "_symmetry_space_group_name_H-M       '"//SPG%SPG_symb//"'"
-          write(unit=lun_cif, fmt='(a)') "_symmetry_space_group_name_Hall      '"//SPG%Hall//"'"
+          write(unit=lun_cif, fmt='(a)') "_symmetry_cell_setting                "//trim(SPG%CrystalSys)
+          write(unit=lun_cif, fmt='(a)') "_symmetry_space_group_name_H-M       '"//trim(SPG%SPG_symb)//"'"
+          write(unit=lun_cif, fmt='(a)') "_symmetry_space_group_name_Hall      '"//trim(SPG%Hall)//"'"
           write(unit=lun_cif, fmt='(a)') " "
           write(unit=lun_cif, fmt='(a)') "loop_"
           write(unit=lun_cif, fmt='(a)') "    _symmetry_equiv_pos_as_xyz   #<--must include 'x,y,z'"
@@ -2468,6 +2470,186 @@
 
        return
     End Subroutine Print_Distances
+
+    !!---- Subroutine Set_New_AsymUnit(celln,SpGn,Ate,Mat,orig,A_n,matkind,debug)
+    !!----    type (Crystal_Cell_Type),      intent(in    ) :: Celln   !New cell that has been previously set
+    !!----    type (Space_Group_Type) ,      intent(in    ) :: SpGn    !New space group that has been previously set
+    !!----    type (Atom_Equiv_List_Type),   intent(in    ) :: Ate     !In old group
+    !!----    real(kind=cp), dimension (3,3),intent(in    ) :: Mat     !Transformation matrix from the old to the new setting
+    !!----    real(kind=cp), dimension (  3),intent(in    ) :: orig    !Displacement of the origin in the old setting
+    !!----    type (Atom_list_Type),         intent(in out) :: A_n     !New atom list
+    !!----    character (len=*), optional,   intent(in    ) :: matkind !Kind of transformation matrix
+    !!----    character (len=*), optional,   intent(in    ) :: debug
+    !!----
+    !!----    Updated: January 2014 (JRC)
+    !!----
+    !!----
+    Subroutine Set_New_AsymUnit(celln,SpGn,Ate,Mat,orig,A_n,matkind,debug)
+       type (Crystal_Cell_Type),      intent(in    ) :: Celln
+       type (Space_Group_Type) ,      intent(in    ) :: SpGn
+       type (Atom_Equiv_List_Type),   intent(in    ) :: Ate !In old group
+       real(kind=cp), dimension (3,3),intent(in    ) :: Mat
+       real(kind=cp), dimension (  3),intent(in    ) :: orig
+       type (Atom_list_Type),         intent(in out) :: A_n
+       character (len=*), optional,   intent(in    ) :: matkind
+       character (len=*), optional,   intent(in    ) :: debug
+       ! Local variables
+       integer                           :: i,j,k,m,ifail,L,n,Ls,ip
+       integer                           :: i1,i2,i3,maxa,maxp,maxm
+       real(kind=cp), dimension (3,3)    :: S,Sinv
+       real(kind=cp)                     :: determ
+       logical                           :: newp,fail
+       real(kind=cp), dimension (  3)    :: pos
+       type(point_list_type)             :: pl,att
+       type (Atom_list_Type)             :: A
+       character(len=*),parameter,dimension(26) :: let=(/"a","b","c","d","e","f","g","h", &
+          "i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"/)
+       real(kind=cp), allocatable, dimension (:,:) :: vec
+       integer,parameter         :: lu=93
+       real(kind=cp), parameter  :: epsi = 0.002
+
+       if(present(matkind)) then
+        if(matkind(1:2) == "it" .or. matkind(1:2) == "IT" ) then
+          S=Mat             !Atoms positions X'=inv(Mat) (X-O)
+        else
+          S=transpose(Mat)  !Atoms positions X'=inv(MatT)(X-O)
+        end if
+       else
+          S=transpose(Mat)
+       end if
+       call matrix_inverse(S,Sinv,ifail) !Atoms positions X'= Sinv X
+       if (ifail /= 0) then
+         err_geom=.true.
+         err_geom_Mess= "Inversion Matrix Failed on: Change_Setting_SG"
+         return
+       end if
+       if(present(debug)) then
+         open(unit=lu,file="similar_debug.lis",status="replace",action="write")
+         write(unit=lu,fmt="(a)")  "  Debugging SIMILAR calculations  "
+         write(unit=lu,fmt="(a/)") "  ============================== "
+       end if
+
+       determ=determ_a(S)
+       determ=abs(determ)
+
+       m=0
+       if(determ > 1.0001) then  !Generate indices for lattice translations to be applied
+         i1=max(nint(maxval(abs(S(:,1))))-1,1)
+         i2=max(nint(maxval(abs(S(:,2))))-1,1)
+         i3=max(nint(maxval(abs(S(:,3))))-1,1)
+         allocate(vec(3,(i1+1)*(i2+1)*(i3+1)))
+         do i=0,i1
+          do j=0,i2
+           do k=0,i3
+            if(i==0 .and.j==0 .and. k==0) cycle
+            m=m+1
+            vec(:,m) = real((/i,j,k/))
+            !write(*,*) "  vect: ",m," :",vec(:,m)
+           end do
+          end do
+         end do
+       end if
+
+       maxm=m    !maximum nubmer of translations to be applied before changing the basis
+       maxa=maxval(Ate%Atm(:)%mult)  !highest multiplicity of the atom sequence list
+       !Factor 2
+       maxp=2*maxa*determ    !maximum multiplicity in the new cell of a particular atom type
+       !write(*,*) " Allocating altoms_list and Point list for ", maxa*Ate%nauas, " and ", maxp, " values"
+       call Allocate_Atom_List(maxa*Ate%nauas,A)  !Atom list in the new cell
+       Call Allocate_Point_List(maxp,Pl,Ifail)
+       if(ifail /= 0) then
+         !write(*,*) " Error allocating PL for ",maxp," values"
+          err_geom=.true.
+          write(unit=err_geom_Mess,fmt="(a,i8,a)")  " Error allocating PL for ",maxp," values"
+          return
+       end if
+       Ls=0
+
+      ! write(*,*) " Allocating PL and A successful "
+
+       do i=1,Ate%nauas
+         !write(*,*) i, Ate%Atm(i)%Lab(1), Ate%Atm(i)%mult
+         Ls=Ls+1
+         !Setting pl object
+           ip=index(Ate%Atm(i)%Lab(1),"_")
+           if(ip /= 0) then
+              pl%nam(i)=Ate%Atm(i)%Lab(1)(1:ip-1)
+           else
+              pl%nam(i)=Ate%Atm(i)%Lab(1)
+           end if
+           pl%x=0.0
+           pl%p=0.0
+         !
+         n=0
+         do j=1,Ate%Atm(i)%mult
+           n=n+1
+           pos(:)    = Ate%Atm(i)%x(:,j)-orig(:)
+           !write(*,*) " n=",n
+           pl%x(:,n) = matmul(Sinv,pos)  !Complete list in new coordinate system of atoms of type i
+           if(present(debug)) then
+             write(unit=lu,fmt="(i4,2(a,3f8.4),a)") n,"  Atom: "//pl%nam(i)//" at (", &
+                                         Ate%Atm(i)%x(:,j),") trasform to (",pl%x(:,n),")"
+           end if
+           pl%x(:,n) = Modulo_Lat(pl%x(:,n))  !Complete list in new coordinate system of atoms of type i
+         end do
+         if(determ > 1.0) then
+          doj:do j=1,Ate%Atm(i)%mult
+               do m=1,maxm
+                 pos(:) = Ate%Atm(i)%x(:,j)-orig(:)+ vec(:,m)
+                 pos(:) = Modulo_Lat(matmul(Sinv,pos))
+                 newp=.true.
+                 do k=1,n
+                    if (sum(abs(pos(:)-pl%x(:,k))) < epsi) then
+                       newp=.false.
+                       exit
+                    end if
+                 end do
+                 if (newp) then ! new position
+                    n=n+1
+                    !write(*,*) "  n=",n
+                    pl%x(:,n) = pos(:)
+                    if(n == maxp) exit doj
+                 end if
+               end do
+             end do doj
+         end if
+
+         pl%np=n
+         A%atom(Ls)%Lab =pl%nam(i)
+         A%atom(Ls)%x(:)=pl%x(:,1)
+         !Determine the number of independent orbits for this point
+         call Set_Orbits_Inlist(Spgn,pl)
+         L=1
+         do j=2,n
+           if(pl%p(j) > L) then
+            Ls=Ls+1
+            A%atom(Ls)%x(:)=pl%x(:,j)
+            A%atom(Ls)%Lab =trim(pl%nam(i))//let(L)
+            L=L+1
+           end if
+         end do
+
+       end do  !i=1,Ate%nauas
+
+       !write(*,*) "  Orbits correct"
+       !write(*,*) "  Allocate_Atom_List for ",Ls," atoms"
+       call Allocate_Atom_List(Ls,A_n,fail)
+       if(fail .and. present(debug)) then
+          write(*,*) "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
+       else
+          write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
+       end if
+       do i=1,A_n%natoms
+         !write(*,*) "   ",i,A%atom(i)%Lab,A%atom(i)%x
+         A_n%atom(i)%x= A%atom(i)%x
+         A_n%atom(i)%Lab= A%atom(i)%Lab
+       end do
+       if(allocated(A%atom)) deallocate(A%atom)
+       if(present(debug)) close(unit=lu)
+        !write(*,*) "  Atoms copied and debug unit closed! "
+       return
+    End Subroutine Set_New_AsymUnit
+
 
     !!----
     !!---- Subroutine Set_Orbits_Inlist(Spg,Pl)

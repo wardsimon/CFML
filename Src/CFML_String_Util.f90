@@ -98,6 +98,7 @@
 !!----       GET_MAT_FROM_SYMB
 !!----       GET_NUM_STRING       [Private]
 !!----       GET_SEPARATOR_POS
+!!----       GET_TRANSF
 !!----       GETNUM
 !!----       GETNUM_STD
 !!----       GETWORD
@@ -137,7 +138,7 @@
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
               Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, &
-              Get_Extension, Get_Mat_From_Symb
+              Get_Extension, Get_Mat_From_Symb, Get_Transf
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err, Get_Num_String,Read_Fract
@@ -1146,19 +1147,18 @@
        character (len=* ),          intent(out)   :: CharF
 
        !---- Local Variables ----!
-       character (len=4), dimension(3)   :: Frac
+       character (len=8), dimension(3)   :: Frac
        integer                           :: i,j
-
-       CharF="(    ,    ,    )"
+       CharF="(        ,        ,        )"
        do i=1,3
           call Get_Fraction_1Dig(v(i),Frac(i))
           j=index(Frac(i),"+")
           if (j /= 0) Frac(i)(j:j) = " "
        end do
-       CharF(2:5)  =Frac(1)
-       CharF(7:10) =Frac(2)
-       CharF(12:15)=Frac(3)
-
+       CharF(2:9)  =Frac(1)
+       CharF(11:18)=Frac(2)
+       CharF(20:27)=Frac(3)
+       CharF=Pack_String(CharF)
        return
     End Subroutine Frac_Trans_1Dig
 
@@ -1179,19 +1179,19 @@
        character (len=* ),          intent(out) :: CharF
 
        !---- Local Variables ----!
-       character (len=6), dimension(3) :: Frac
-       character (len=22)              :: str
+       character (len=10), dimension(3) :: Frac
+       character (len=34)              :: str
        integer                         :: i,j
 
-       str="(      ,      ,      )"
+       str="(          ,          ,          )"
        do i=1,3
           call Get_Fraction_2Dig(v(i),Frac(i))
           j=index(Frac(i),"+")
           if (j /= 0) Frac(i)(j:j) = " "
        end do
-       str( 2: 7) =Frac(1)
-       str( 9:14) =Frac(2)
-       str(16:21) =Frac(3)
+       str( 2:11) =Frac(1)
+       str(13:22) =Frac(2)
+       str(24:33) =Frac(3)
        CharF=Pack_String(str)
 
        return
@@ -1305,8 +1305,9 @@
     !!----    Get a string with the most simple fraction that uses single digits
     !!----    in numerator and denominator. Used, for instance, to get a character
     !!----    representation of symmetry operators.
+    !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January-2014 (JRC)
     !!
     Subroutine Get_Fraction_1Dig(V,Fracc)
        !---- Argument ----!
@@ -1317,13 +1318,12 @@
        integer          ::  numerator, denominator
        real(kind=cp)    ::  num, denom, frac
 
-       fracc="**/*"
+       fracc=" "
        if (Zbelong(v)) then
-          fracc="    "
           if (v > 0.0) then
-             write(unit=fracc, fmt="(a,i1)") "+", nint(v)
+             write(unit=fracc, fmt="(a,i2)") "+", nint(v)
           else
-             write(unit=fracc, fmt="(i2)") nint(v)
+             write(unit=fracc, fmt="(i3)") nint(v)
           end if
        else
           do numerator=1,9
@@ -1342,8 +1342,13 @@
                 end if
              end do
           end do
+          if(v >= 0.0) then
+            write(unit=fracc, fmt="(a,f10.4)") "+", v
+          else
+            write(unit=fracc, fmt="(f10.4)") v
+          end if
        end if
-
+       fracc=Pack_String(fracc)
        return
     End Subroutine Get_Fraction_1Dig
 
@@ -1355,8 +1360,9 @@
     !!----    Get a string with the most simple fraction that uses up to two
     !!----    digits in numerator and denominator. Used, for instance, to get a
     !!----    character representation of symmetry operators.
+    !!----    If no fractional representation is found a decimal expression is produced
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, January-2014 (JRC)
     !!
     Subroutine Get_Fraction_2Dig(v,fracc)
        !---- Argument ----!
@@ -1368,16 +1374,13 @@
        real(kind=cp)      :: num, denom, frac
        integer            :: numerator, denominator
 
-       fracc="***/**"
+       fracc=" "
        if (Zbelong(v)) then
-          fracc="      "
           if (v > 0.0_cp) then
-             formm="(a,i1)"
-             if(v >=10.0_cp) formm="(a,i2)"
+             formm="(a,i3)"
              write(unit=fracc,fmt=formm) "+", nint(v)
           else
-             formm="(i2)"
-             if(v >=10.0_cp) formm="(i3)"
+             formm="(i4)"
              write(unit=fracc,fmt=formm) nint(v)
           end if
        else
@@ -1401,8 +1404,13 @@
                 end if
              end do
           end do
+          if(v > 0.0) then
+              write(unit=fracc,fmt="(a,f10.4)") "+",v
+          else
+              write(unit=fracc,fmt="(f10.4)") v
+          end if
        end if
-
+       fracc=Pack_String(fracc)
        return
     End Subroutine Get_Fraction_2Dig
 
@@ -1478,6 +1486,7 @@
       integer :: i,j
       character(len=len(Symb)), dimension(3) :: split
 
+      call init_err_string()
       i=index(Symb,",")
       j=index(Symb,",",back=.true.)
       split(1)= pack_string(Symb(1:i-1))
@@ -1488,6 +1497,83 @@
       end do
       return
     End Subroutine Get_Mat_From_Symb
+
+    !!----  Subroutine Get_Transf(string,mat,v,cod)
+    !!----    character(len=*),                         intent(in)  :: string
+    !!----    real(kind=cp),dimension(3,3),             intent(out) :: mat
+    !!----    real(kind=cp),dimension(3),               intent(out) :: v
+    !!----    character(len=1), optional,dimension(4),  intent(in)  :: cod
+    !!----
+    !!----  This subroutine extracts the transformation matrix and the vector
+    !!----  corresponding to the change of origin from a symbol of the form:
+    !!----  m1a+m2b+m3c,m4a+m5b+m6c,m7a+m8b+m9c;t1,t2,t3.
+    !!----  The order may be matrix;origin or origin;matrix. Parenthesis may
+    !!----  accompany the symbol like in (a,b+c,c-b;1/2,0,1/2). The basis vectors
+    !!----  a,b,c and the separator ";" may be changed by putting them into the
+    !!----  optional array cod. For instance if cod=["u","v","w","|"] a sort of
+    !!----  Seitz symbom may be read.
+    !!----
+    !!----  Created: January 2014 (JRC)
+    !!----
+    Subroutine Get_Transf(string,mat,v,cod)
+      character(len=*),                         intent(in)  :: string
+      real(kind=cp),dimension(3,3),             intent(out) :: mat
+      real(kind=cp),dimension(3),               intent(out) :: v
+      character(len=1), optional,dimension(4),  intent(in)  :: cod
+      !--- Local variables ---!
+      character(len=1), dimension(4) :: cd
+      character(len=len(string))     :: transf_key,cmat,ori
+      integer  :: i,j,nc
+      integer,dimension(2) :: pos
+
+      call init_err_string()
+      cd=(/"a","b","c",";"/)
+      if(present(cod)) cd=cod
+      transf_key=string
+      !Remove the parenthesis is present
+      j=index(transf_key,"(")
+      if(j /= 0) transf_key(j:j)= " "
+      j=index(transf_key,")")
+      if(j /= 0) transf_key(j:j)= " "
+      transf_key=adjustl(l_case(transf_key))
+
+      !Determine the order in which the string is provided
+      i=index(transf_key,cd(4))
+      if(i /= 0) then
+         cmat=transf_key(1:i-1)
+         j=index(cmat,cd(1))
+         if(j == 0) then
+            ori=cmat
+            cmat=transf_key(i+1:)
+         else
+            ori=transf_key(i+1:)
+         end if
+         call Get_Mat_From_Symb(cMat,mat,cd(1:3))
+         if(ERR_String) then
+           ERR_String_Mess=" Bad matrix setting...: "//trim(ERR_String_Mess)
+         end if
+         !Origin
+         Call Get_Separator_Pos(ori,",",pos,nc)
+         if(nc /= 2)then
+           ERR_String=.true.
+           ERR_String_Mess=" Bad origin setting...: "//trim(ori)
+           return
+         else
+           call Read_Fract(ori(1:pos(1)-1),v(1))
+           call Read_Fract(ori(pos(1)+1:pos(2)-1),v(2))
+           call Read_Fract(ori(pos(2)+1:),v(3))
+           if(ERR_String) then
+             ERR_String_Mess=" Bad origing setting...: "//trim(ERR_String_Mess)//" :: "//trim(ori)
+             return
+           end if
+         end if
+      else
+         ERR_String=.true.
+         ERR_String_Mess=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(string)
+      end if
+      return
+    End Subroutine Get_Transf
+
 
     !!--..  Subroutine Get_Num_String(string,v,cod)
     !!--..    character(len=*),                intent(in)  :: string
@@ -2473,7 +2559,7 @@
     End Subroutine Read_Key_StrVal
 
     !!----
-    !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment)
+    !!---- Subroutine Read_Key_Value(Filevar,Nline_Ini,Nline_End,Keyword,Vet,Ivet,Iv,comment,line_key)
     !!----    character(len=*),dimension(:), intent(in)      :: Filevar     !  In -> Input vector of String
     !!----    integer,                       intent(in out)  :: Nline_Ini   !  In -> Pointer to initial position to search
     !!----                                                                  ! Out -> Pointer to final position in search
@@ -2482,13 +2568,15 @@
     !!----    real(kind=cp),dimension(:),    intent(out)     :: Vet         ! Out -> Vector for real numbers
     !!----    integer,dimension(:),          intent(out)     :: Ivet        ! Out -> Vector for integer numbers
     !!----    integer,                       intent(out)     :: Iv          ! Out -> Number of components
+    !!----    character(len=1),     optional, intent(in)     :: comment     ! Consider the character passed in comment as a comment to skip the line
+    !!----    character(len=*),     optional, intent(out)    :: Iv          ! Out -> Cut line where keyword is read
     !!----
     !!----    Read a string on "filevar" starting with a particular "keyword" between lines "nline_ini" and
     !!----    "nline_end". If the string contains numbers they are read and put into "vet/ivet".
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment)
+    Subroutine Read_Key_Value(filevar,nline_ini,nline_end,keyword,vet,ivet,iv,comment,line_key)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in)     :: filevar
        integer,                        intent(in out) :: nline_ini
@@ -2498,6 +2586,7 @@
        integer,dimension(:),           intent(out)    :: ivet
        integer,                        intent(out)    :: iv
        character(len=1),     optional, intent(in)     :: comment
+       character(len=*),     optional, intent(out)    :: line_key
 
        !---- Local Variable ----!
        character(len=len(filevar(1))) :: line
@@ -2526,6 +2615,7 @@
           line=line(np:)
           call cutst(line)
           call getnum(line,vet,ivet,iv)
+          if(present(line_key)) line_key=line
           if (err_string) exit
           nline_ini=i
           exit

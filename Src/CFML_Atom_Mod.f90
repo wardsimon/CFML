@@ -42,7 +42,7 @@
 !!----
 !!--++    Use CFML_GlobalDeps,                only: Cp, Pi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
-!!--++    Use CFML_Math_3D,                   only: matrix_diageigen
+!!--++    Use CFML_Math_3D,                   only: matrix_diageigen, determ_a,
 !!--++    Use CFML_String_Utilities,          only: setnum_std
 !!--++    Use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, convert_b_betas,    &
 !!--++                                              convert_b_u, convert_betas_b,          &
@@ -84,6 +84,7 @@
 !!----       MERGE_ATOMS_PEAKS
 !!----       MULTI
 !!----       READ_BIN_ATOM_LIST
+!!----       SET_ATOM_EQUIV_LIST
 !!----       WRITE_ATOM_LIST
 !!----       WRITE_ATOMS_CFL
 !!----       WRITE_BIN_ATOM_LIST
@@ -92,7 +93,7 @@
 !!
  Module CFML_Atom_TypeDef
 
-    !---- Use Files ----!
+    !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: Cp, Pi
     Use CFML_Math_General,              only: Modulo_Lat, Equal_Vector
     Use CFML_String_Utilities,          only: setnum_std
@@ -118,9 +119,38 @@
               Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,            &
               Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,               &
               Write_Atoms_CFL, Write_CFL, Allocate_mAtom_list, Deallocate_mAtom_list, &
-              Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List
+              Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List,               &
+              Set_Atom_Equiv_List
 
     !---- Definitions ----!
+
+     !!---- Type, Public :: Atom_Equiv_Type
+     !!----    integer                                        :: mult
+     !!----    character(len=2)                               :: ChemSymb
+     !!----    character(len=10),allocatable, dimension(:)    :: Lab
+     !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
+     !!---- End Type Atom_Equiv_Type
+     !!----
+     !!----  Updated: January 2014
+     !!
+     Type, Public :: Atom_Equiv_Type
+        integer                                        :: mult
+        character(len=2)                               :: ChemSymb
+        character(len=20),allocatable, dimension(:)    :: Lab
+        real(kind=cp),    allocatable, dimension(:,:)  :: x
+     End Type Atom_Equiv_Type
+
+     !!---- Type, Public :: Atom_Equiv_List_Type
+     !!----    integer                                           :: nauas
+     !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+     !!---- End Type Atom_Equiv_List_Type
+     !!----
+     !!----  Updated: January 2014
+     !!
+     Type, Public :: Atom_Equiv_List_Type
+        integer                                           :: nauas
+        type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+     End Type Atom_Equiv_List_Type
 
     !!----
     !!---- TYPE :: ATOM_TYPE
@@ -1300,6 +1330,97 @@
        end do
        return
     End Subroutine Read_Bin_atom_list
+
+    !!----
+    !!----    Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
+    !!----      type(Crystal_Cell_Type),    intent(in) :: Cell
+    !!----      type(Space_Group_Type) ,    intent(in) :: SpG
+    !!----      type(Atom_list_Type)   ,    intent(in) :: A
+    !!----      type(Atom_Equiv_List_Type), intent(out):: Ate
+    !!----      integer, optional,          intent(in) :: lun
+    !!----
+    !!---- Subroutine constructing the list of all atoms in the unit cell.
+    !!---- The atoms are in a structure of type "Atom_Equiv_List_Type" containing
+    !!---- the fractional coordinates of all the atoms in the cell.
+    !!----
+    !!---- Updated: January 2014
+    !!
+    Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
+     type(Crystal_Cell_Type),    intent(in) :: Cell
+     type(Space_Group_Type) ,    intent(in) :: SpG
+     type(Atom_list_Type)   ,    intent(in) :: A
+     type(Atom_Equiv_List_Type), intent(out):: Ate
+     integer, optional,          intent(in) :: lun
+
+     ! local variables
+     real(kind=cp),  dimension(3)     :: xx,xo,v,xc
+     real(kind=cp),  dimension(3,192) :: u
+     character(len=20),dimension(192) :: label
+     integer                          :: k,j,L,nt
+     character (len=6)                :: fmm
+     character (len=20)               :: nam
+     real(kind=cp), parameter         :: epsi = 0.002
+
+     if (.not. allocated (Ate%atm)) allocate(Ate%atm(A%natoms))
+     ate%nauas=A%natoms
+     if (present(lun))  then
+        write(unit=lun,fmt="(/,a)") "     LIST OF ATOMS INSIDE THE CONVENTIONAL UNIT CELL "
+        write(unit=lun,fmt="(a,/)") "     =============================================== "
+     end if
+     do k=1,A%natoms
+        ate%atm(k)%ChemSymb = A%atom(k)%ChemSymb
+        xo(:) =Modulo_Lat(A%atom(k)%x(:))
+        L=1
+        u(:,L)=xo(:)
+        !!!!Ate%atm(k)%x(:,L)= xo(:)
+        xc =matmul(cell%Cr_Orth_cel,xo)
+    !    Ate%atm(k)%c_coord(:,L)=xc
+        if (present(lun))then
+         write(unit=lun,fmt="(/,a,a)") " => Equivalent positions of atom: ",A%atom(k)%lab
+         write(unit=lun,fmt="(a)")  &
+         "                          x         y         z          Xc        Yc        Zc"
+        end if
+        fmm="(a,i1)"
+        !!!!write(unit=Ate%atm(k)%lab(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+        write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+        !!!!nam=Ate%atm(k)%lab(L)
+        nam=label(L)
+        if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xo,"  ", xc
+
+        do_eq:DO j=2,SpG%multip
+           xx=ApplySO(SpG%SymOp(j),xo)
+           xx=modulo_lat(xx)
+           DO nt=1,L
+              v=u(:,nt)-xx(:)
+             ! if (Lattice_trans(v,SpG%spg_lat)) cycle do_eq
+               if (sum(abs((v))) < epsi ) cycle do_eq
+           END DO
+           L=L+1
+           u(:,L)=xx(:)
+           if ( L > 9 .and. L < 100)  fmm="(a,i2)"
+           if ( L >= 100 )  fmm="(a,i3)"
+           !!!!write(unit=Ate%atm(k)%lab(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+           write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+           !!!nam=Ate%atm(k)%lab(L)
+           nam=Label(L)
+           !!! Ate%atm(k)%x(:,L)=xx(:)
+           xc=matmul(cell%Cr_Orth_cel,xx)
+           if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xx,"  ", xc
+        end do do_eq
+
+        if(allocated(Ate%Atm(k)%Lab)) deallocate(Ate%Atm(k)%Lab)
+        allocate(Ate%Atm(k)%lab(L))
+        if(allocated(Ate%Atm(k)%x)) deallocate(Ate%Atm(k)%x)
+        allocate(Ate%Atm(k)%x(3,L))
+        Ate%Atm(k)%mult=L
+        do j=1,Ate%Atm(k)%mult
+          Ate%Atm(k)%lab(j)=Label(j)
+          Ate%Atm(k)%x(:,j)=u(:,j)
+        end do
+     end do
+     if (present(lun))  write(unit=lun,fmt="(/)")
+     return
+    End Subroutine Set_Atom_Equiv_List
 
     !!----
     !!---- Subroutine Write_Atom_List(Ats,Level,Lun,Cell)

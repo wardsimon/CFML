@@ -88,7 +88,7 @@
  Module CFML_Magnetic_Symmetry
 
     !---- Use Modules ----!
-    Use CFML_GlobalDeps,                only: cp, tpi
+    Use CFML_GlobalDeps,                only: cp, tpi,Write_Date_Time
     Use CFML_Math_General,              only: Modulo_Lat
     Use CFML_Math_3D,                   only: Get_Cart_From_Spher
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
@@ -196,15 +196,21 @@
     !!----    Integer                              :: MagType
     !!----    Integer                              :: Parent_num
     !!----    Character(len=20)                    :: Parent_spg
-    !!----    Character(len=1)                     :: standard_setting ! 'y' or 'n'
+    !!----    logical                              :: standard_setting  !true or false ! 'yes' or 'no'
     !!----    logical                              :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
     !!----    logical                              :: m_cell !true if magnetic cell is used for symmetry operators
-    !!----    logical                              :: m_constr !true if constraints have been provided
+    !!----    logical                              :: m_constr !true if constraints have been provided, strings are in atom types
     !!----    Character(len=40)                    :: trn_from_parent
     !!----    Character(len=40)                    :: trn_to_standard
     !!----    Integer                              :: n_sym
-    !!----    Integer                              :: n_wyck
+    !!----    Integer                              :: n_wyck  !Number of Wyckoff positions of the magnetic group
     !!----    Integer                              :: n_kv
+    !!----    Integer                              :: n_irreps
+    !!----    Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
+    !!----    Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
+    !!----    Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
+    !!----    Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
+    !!----    Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
     !!----    Character(len=15),   dimension(:),allocatable  :: kv_label
     !!----    real(kind=cp),     dimension(:,:),allocatable  :: kv
     !!----    character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
@@ -233,15 +239,22 @@
        Integer                              :: MagType
        Integer                              :: Parent_num
        Character(len=20)                    :: Parent_spg
-       Character(len=1)                     :: standard_setting ! 'y' or 'n'
+       logical                              :: standard_setting  !true or false
        logical                              :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
        logical                              :: m_cell !true if magnetic cell is used for symmetry operators
        logical                              :: m_constr !true if constraints have been provided
        Character(len=40)                    :: trn_from_parent
        Character(len=40)                    :: trn_to_standard
        Integer                              :: n_sym
-       Integer                              :: n_wyck
+       Integer                              :: n_wyck   !Number of Wyckoff positions of the magnetic group
        Integer                              :: n_kv
+       Integer                              :: n_irreps
+       Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
+       Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
+       Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
+       Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
+       Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
+       Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
        Character(len=15),   dimension(:),allocatable  :: kv_label
        real(kind=cp),     dimension(:,:),allocatable  :: kv
        character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
@@ -295,7 +308,7 @@
     !!----    integer,             dimension(4)        :: nbas       ! Number of basis functions per irrep (if nbas < 0, the corresponding basis is complex).
     !!----    integer,             dimension(12,4)     :: icomp      ! Indicator (0 pure real/ 1 pure imaginary) for coefficients of basis fucntions
     !!----    character(len=40),   dimension(48)       :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----    type( Sym_Oper_Type),dimension(48)       :: SymOp      ! Crystallographic symmetry operators
+    !!----    type(Sym_Oper_Type), dimension(48)       :: SymOp      ! Crystallographic symmetry operators
     !!----    character(len=40),   dimension(48,8)     :: MSymopSymb ! Alphanumeric Symbols for MSYMM
     !!----    type(MSym_Oper_Type),dimension(48,8)     :: MSymOp     ! Magnetic symmetry operators
     !!----    Complex(kind=cp),    dimension(3,12,48,4):: basf       ! Basis functions of the irreps of Gk
@@ -425,8 +438,8 @@
        MGp%Latt="P"
        MGp%nmsym=0
        MGp%nirreps=0
-       MGp%centred=1
-       MGp%mcentred=1
+       MGp%centred=1    !By default the crystal structure is acentric
+       MGp%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
        MGp%nkv=0
        MGp%kvec=0.0
        MGp%NumLat=1
@@ -450,6 +463,14 @@
        return
     End Subroutine Init_MagSymm_k_Type
 
+    !!---- Subroutine Init_Magnetic_Space_Group_Type(MGp)
+    !!----   type(Magnetic_Space_Group_Type),  intent (in out) :: MGp
+    !!----
+    !!----   Initialize the non-allocatle parts of Magnetic_Space_Group_Type MGp
+    !!----   It is called inside Readn_set_Magnetic_Structure
+    !!----
+    !!----   Updated: January-2014
+    !!
     Subroutine Init_Magnetic_Space_Group_Type(MGp)
        !---- Arguments ----!
        type(Magnetic_Space_Group_Type),  intent (in out) :: MGp
@@ -464,7 +485,7 @@
        MGp%MagType=0
        MGp%Parent_num=0
        MGp%Parent_spg=" "
-       MGp%standard_setting=" "
+       MGp%standard_setting=.false.
        MGp%mcif=.true.
        MGp%m_cell=.false.
        MGp%m_constr=.false.
@@ -475,6 +496,52 @@
        MGp%n_kv=0
        return
     End Subroutine Init_Magnetic_Space_Group_Type
+
+    Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type(MG_Symk,MSpG)
+       Type(MagSymm_k_Type),              intent(in)  :: MG_Symk
+       Type(Magnetic_Space_Group_Type),   intent(out) :: MSpG
+       !---- Local variables ----!
+       Type(Space_Group_Type) :: SpG
+       integer :: i,j,k,L,m,n, ngen
+       integer,      dimension(5)    :: pos
+       real(kind=cp)                 :: ph
+       character(len=40),dimension(:), allocatable   :: gen
+       character(len=132)   :: lowline,line
+       character(len=30)    :: magmod, shubk
+       character(len=2)     :: lattice, chardom
+       character(len=4)     :: symbcar
+
+       !
+       call Init_Magnetic_Space_Group_Type(MSpG)
+
+       !Verify the crystal structure information contained in MG_Symk by constructing the full Space group
+       n=MG_Symk%Numops
+       m=MG_Symk%Numops*MG_Symk%centred*MG_Symk%NumLat
+       ngen=n-1
+       allocate(gen(ngen))
+       ngen=0
+       do i=2,MG_Symk%Numops
+         ngen=ngen+1
+         gen(ngen)=MG_Symk%SymopSymb(i)
+       end do
+       if(MG_Symk%centred == 2) then
+         ngen=ngen+1
+         gen(ngen)="-x,-y,-z"
+       end if
+       Select Case(MG_Symk%Latt)
+       End Select
+       if(MG_Symk%Latt == "A") then
+           ngen=ngen+1
+           call Get_SymSymb(MG_Symk%SymOp(1)%rot,MG_Symk%Ltr(:,i),gen(ngen))
+           gen(ngen)="-x,-y,-z"
+       end if
+       !Still to be finished
+       call Set_SpaceGroup(" ",SpG,gen,ngen,"gen")
+
+
+       return
+    End Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type
+
     !!----
     !!---- Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
     !!----    type(file_list_type),                intent (in)     :: file_cfl
@@ -1222,20 +1289,22 @@
 
        !---- Local Variables ----!
        integer :: i,num_sym, num_constr, num_kvs,num_msym,num_matom, num_mom,   &
-                  ier, j, m, n, k, ncar,mult,nitems,iv
-       integer,   dimension(9)       :: lugar
-       integer,   dimension(5)       :: pos
-       integer,   dimension(3)       :: code
-       real(kind=cp)                 :: ph
-       real(kind=cp),dimension(3)    :: cel,ang,cel_std,ang_std
-       real(kind=cp),dimension(6)    :: values,std
-       real(kind=cp),dimension(3,3)  :: matr
-       real(kind=cp),dimension(3,384):: orb
-       character(len=132)   :: lowline,keyword,line
+                  ier, j, m, n, k, ncar,mult,nitems,iv, num_irreps, nitems_irreps
+       integer,   dimension(9)             :: lugar
+       integer,   dimension(6)             :: irrep_pos
+       integer,   dimension(5)             :: pos
+       integer,   dimension(3)             :: code
+       real(kind=cp)                       :: ph
+       real(kind=cp),dimension(3)          :: cel,ang,cel_std,ang_std
+       real(kind=cp),dimension(6)          :: values,std
+       real(kind=cp),dimension(3,3)        :: matr
+       real(kind=cp),dimension(3,384)      :: orb
+       character(len=132)                  :: lowline,keyword,line
        character(len=132),dimension(384)   :: sym_strings
        character(len=132),dimension(384)   :: atm_strings
        character(len=132),dimension(384)   :: mom_strings
        character(len=132),dimension(30)    :: constr_strings
+       character(len=132),dimension(30)    :: irreps_strings
        character(len=132),dimension(30)    :: kv_strings
        character(len=20), dimension(15)    :: lab_items
        character(len=40)    :: shubk
@@ -1274,7 +1343,7 @@
 
              Case("_magnetic_space_group_standard_setting")
                 chars=adjustl(line(j+1:))
-                MGp%standard_setting=chars(2:2)
+                if(chars(2:2) == "y" .or. chars(2:2) == "Y") MGp%standard_setting=.true.
 
              Case("_parent_space_group.name_h-m")
                 shubk=adjustl(line(j+1:))
@@ -1387,6 +1456,54 @@
                  keyword=lowline(1:j-1)
 
                  Select Case(trim(keyword))
+
+                   Case("_irrep_id")
+                      irrep_pos=0
+                      irrep_pos(1)=1
+                      j=1
+                      do k=1,6
+                         i=i+1
+                         if(index(mcif%line(i),"_irrep_dimension") /= 0) then
+                            j=j+1
+                            irrep_pos(2)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_small_irrep_dimension") /= 0) then
+                            j=j+1
+                            irrep_pos(3)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_direction_type") /= 0) then
+                            j=j+1
+                            irrep_pos(4)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_action") /= 0) then
+                            j=j+1
+                            irrep_pos(5)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_modes_number") /= 0) then
+                            j=j+1
+                            irrep_pos(6)=j
+                            cycle
+                         end if
+                         exit
+                      end do
+
+                      i=i-1
+                      nitems_irreps=count(irrep_pos > 0)
+
+                      k=0
+                      do
+                        i=i+1
+                        if(i > mcif%nlines) exit
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        irreps_strings(k)=mcif%line(i)
+                      end do
+                      num_irreps=k
+                      !Treat later the list of irreps
 
                    Case("_magnetic_propagation_vector_seq_id")
                       do k=1,3
@@ -1594,6 +1711,67 @@
        end if
        ! Symmetry operators treatment done!
 
+
+       !Treating irreps
+
+       if(num_irreps == 0) then
+
+          MGp%n_irreps=0
+
+        else
+
+          MGp%n_irreps=num_irreps
+          if(allocated(MGp%irrep_dim))          deallocate(MGp%irrep_dim)
+          if(allocated(MGp%small_irrep_dim))    deallocate(MGp%small_irrep_dim)
+          if(allocated(MGp%irrep_id))           deallocate(MGp%irrep_id)
+          if(allocated(MGp%irrep_direction))    deallocate(MGp%irrep_direction)
+          if(allocated(MGp%irrep_action))       deallocate(MGp%irrep_action)
+          if(allocated(MGp%irrep_modes_number)) deallocate(MGp%irrep_modes_number)
+          allocate(MGp%irrep_dim(num_irreps),MGp%small_irrep_dim(num_irreps),MGp%irrep_id(num_irreps), &
+                   MGp%irrep_direction(num_irreps),MGp%irrep_action(num_irreps),MGp%irrep_modes_number(num_irreps))
+
+          MGp%irrep_dim=0; MGp%small_irrep_dim=0; MGp%irrep_id=" "; MGp%irrep_direction=" "; MGp%irrep_action=" "
+          MGp%irrep_modes_number=0
+
+          do i=1,MGp%n_irreps
+
+            call getword(irreps_strings(i),lab_items,iv)
+
+            !if(iv /= nitems_irreps) write(*,"(2(a,i2))") " => Warning irreps_nitems=",nitems_irreps," /= items read=",iv
+
+            MGp%irrep_id(i)=lab_items(irrep_pos(1))
+            if(MGp%irrep_id(i) == "?") then
+               MGp%n_irreps=0
+               exit
+            end if
+
+            if (irrep_pos(2) /= 0) then
+               read(unit=lab_items(irrep_pos(2)),fmt=*,iostat=ier) MGp%irrep_dim(i)
+               if(ier /= 0) MGp%irrep_dim(i)=0
+            end if
+
+            if (irrep_pos(3) /= 0) then
+               read(unit=lab_items(irrep_pos(3)),fmt=*,iostat=ier) MGp%small_irrep_dim(i)
+               if(ier /= 0) MGp%small_irrep_dim(i)=0
+            end if
+
+            if (irrep_pos(4) /= 0) then
+               MGp%irrep_direction(i)=lab_items(irrep_pos(4))
+            end if
+
+            if (irrep_pos(5) /= 0) then
+               MGp%irrep_action(i)=lab_items(irrep_pos(5))
+            end if
+
+            if (irrep_pos(6) /= 0) then
+               read(unit=lab_items(irrep_pos(6)),fmt=*,iostat=ier) MGp%irrep_modes_number(i)
+               if(ier /= 0) MGp%irrep_modes_number(i)=0
+            end if
+
+          end do
+       end if
+       ! End treatment of irreps
+
        ! Treating propagation vectors
        if(num_kvs == 0) then
          MGp%n_kv=0
@@ -1631,7 +1809,7 @@
           do i=1,Am%natoms
 
             call getword(atm_strings(i),lab_items,iv)
-            if(iv /= nitems) write(*,"(2(a,i2))") " => Warning nitems=",nitems," /= items read=",iv
+            !if(iv /= nitems) write(*,"(2(a,i2))") " => Warning nitems=",nitems," /= items read=",iv
             Am%atom(i)%lab=lab_items(lugar(1))
             if (lugar(2) /= 0) then
                Am%atom(i)%SfacSymb=lab_items(lugar(2))(1:4)
@@ -2366,7 +2544,7 @@
           nlines=1
           texto(:) (1:100) = " "
           do i=2,MGp%Numlat
-             call Frac_Trans_1Dig(MGp%Ltr(:,i),aux)
+             call Frac_Trans_2Dig(MGp%Ltr(:,i),aux)
              if (mod(i-1,2) == 0) then
                 write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") " => Latt(",i-1,"): ",trim(aux)
                 nlines=nlines+1
@@ -2528,11 +2706,12 @@
        return
     End Subroutine Write_Magnetic_Structure
 
-    Subroutine Write_MCIF(Ipr,mCell,MSGp,Am)
+    Subroutine Write_MCIF(Ipr,mCell,MSGp,Am,Cell)
        Integer,                         intent(in)           :: Ipr
        type(Magnetic_Space_Group_Type), intent(in)           :: MSGp
        type(Crystal_Cell_Type),         intent(in)           :: mCell
        type(mAtom_List_Type),           intent(in)           :: Am
+       type(Crystal_Cell_Type),optional,intent(in)           :: Cell
        !
        Character(len=132)             :: line
        character(len=40),dimension(6) :: text
@@ -2540,9 +2719,42 @@
        real                           :: occ,occ_std,uiso,uiso_std
        integer :: i,j,k
 
-       write(unit=Ipr,fmt="(a)") "#  TEST of Magnetic CIF file generated by CrysFML"
+       write(unit=Ipr,fmt="(a)") "#  --------------------------------------"
+       write(unit=Ipr,fmt="(a)") "#  Magnetic CIF file generated by CrysFML"
+       write(unit=Ipr,fmt="(a)") "#  --------------------------------------"
+       write(unit=Ipr,fmt="(a)") "# https://forge.epn-campus.eu/projects/crysfml/repository"
+       call Write_Date_Time(dtim=line)
+       write(unit=Ipr,fmt="(a)") trim(line)
+       write(unit=Ipr,fmt="(a)") " "
+
+       write(unit=Ipr,fmt="(a)") "data_"
+       write(unit=Ipr,fmt="(a)") "_citation_journal_abbrev ?"
+       write(unit=Ipr,fmt="(a)") "_citation_journal_volume ?"
+       write(unit=Ipr,fmt="(a)") "_citation_page_first     ?"
+       write(unit=Ipr,fmt="(a)") "_citation_page_last      ?"
+       write(unit=Ipr,fmt="(a)") "_citation_article_id     ?"
+       write(unit=Ipr,fmt="(a)") "_citation_year           ?"
+       write(unit=Ipr,fmt="(a)") "_loop "
+       write(unit=Ipr,fmt="(a)") "_citation_author_name"
+       write(unit=Ipr,fmt="(a)") "?"
        write(unit=Ipr,fmt="(a)")
-       write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  '"//MSGp%standard_setting//"'"
+       write(unit=Ipr,fmt="(a)") "_atomic_positions_source_database_code_ICSD  ?"
+       write(unit=Ipr,fmt="(a)") "_atomic_positions_source_other    .  "
+       write(unit=Ipr,fmt="(a)")
+       write(unit=Ipr,fmt="(a)") "_Neel_temperature  ?"
+       write(unit=Ipr,fmt="(a)") "_magn_diffrn_temperature  ?"
+       write(unit=Ipr,fmt="(a)") "_exptl_crystal_magnetic_properties_details"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") "_active_magnetic_irreps_details"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") ";"
+       write(unit=Ipr,fmt="(a)") " "
+       if(MSGp%standard_setting) then
+          write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'yes'"
+       else
+          write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'no'"
+       end if
        write(unit=Ipr,fmt="(a)")    '_parent_space_group.name_H-M  "'//trim(MSGp%Parent_spg)//'"'
        write(unit=Ipr,fmt="(a,i3)") "_parent_space_group.IT_number  ",MSGp%Parent_num
        write(unit=Ipr,fmt="(a)")    "_magnetic_space_group.transform_from_parent_Pp_abc  '"//trim(MSGp%trn_from_parent)//"'"
@@ -2557,6 +2769,42 @@
        if(len_trim(MSGp%OG_symbol) /= 0) &
        write(unit=Ipr,fmt="(a)") '_magnetic_space_group_OG_name  "'//trim(MSGp%OG_symbol)//'"'
        write(unit=Ipr,fmt="(a)")
+
+       if(MSGp%n_irreps /= 0) then
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_irrep_id"
+          write(unit=Ipr,fmt="(a)") "_irrep_dimension"
+          if( any(MSGp%small_irrep_dim > 0) ) write(unit=Ipr,fmt="(a)") "_small_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_irrep_direction_type"
+          write(unit=Ipr,fmt="(a)") "_irrep_action"
+          if( any(MSGp%irrep_modes_number > 0) ) write(unit=Ipr,fmt="(a)") "_irrep_modes_number"
+          do i=1,MSGp%n_irreps
+            if(MSGp%small_irrep_dim(i) > 0) then
+               write(unit=line,fmt=("(2i4)"))  MSGp%irrep_dim(i), MSGp%small_irrep_dim(i)
+            else
+               write(unit=line,fmt=("(i4)"))  MSGp%irrep_dim(i)
+            end if
+            line= trim(MSGp%irrep_id(i))//"  "//trim(line)//"   "// &
+                                      trim(MSGp%irrep_direction(i))//"  "//trim(MSGp%irrep_action(i))
+            if( MSGp%irrep_modes_number(i) > 0) then
+               j=len_trim(line)
+              write(unit=line(j+1:),fmt="(i4)") MSGp%irrep_modes_number(i)
+            end if
+            write(unit=Ipr,fmt="(a)") trim(line)
+          end do
+          write(unit=Ipr,fmt="(a)")
+       else
+          write(unit=Ipr,fmt="(a)") "loop_"
+          write(unit=Ipr,fmt="(a)") "_irrep_id"
+          write(unit=Ipr,fmt="(a)") "_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_small_irrep_dimension"
+          write(unit=Ipr,fmt="(a)") "_irrep_direction_type"
+          write(unit=Ipr,fmt="(a)") "_irrep_action"
+          write(unit=Ipr,fmt="(a)") "_irrep_modes_number"
+          write(unit=Ipr,fmt="(a)") " ?  ?  ?  ?  ?  ?"
+          write(unit=Ipr,fmt="(a)")
+       end if
+
        if(MSGp%m_cell) then
           do i=1,3
             call setnum_std(mCell%Cell(i),mCell%cell_std(i),text(i))
@@ -2569,6 +2817,20 @@
           write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_beta  "//trim(text(5))
           write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_gamma "//trim(text(6))
           write(unit=Ipr,fmt="(a)")
+       else
+          if(present(Cell)) then
+             do i=1,3
+               call setnum_std(Cell%Cell(i),Cell%cell_std(i),text(i))
+               call setnum_std(Cell%ang(i),Cell%ang_std(i),text(i+3))
+             end do
+             write(unit=Ipr,fmt="(a)") "_cell_length_a    "//trim(text(1))
+             write(unit=Ipr,fmt="(a)") "_cell_length_b    "//trim(text(2))
+             write(unit=Ipr,fmt="(a)") "_cell_length_c    "//trim(text(3))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_alpha "//trim(text(4))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_beta  "//trim(text(5))
+             write(unit=Ipr,fmt="(a)") "_cell_angle_gamma "//trim(text(6))
+             write(unit=Ipr,fmt="(a)")
+          end if
        end if
        if(MSGp%n_kv > 0) then
           write(unit=Ipr,fmt="(a)") "loop_"
