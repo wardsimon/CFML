@@ -19,6 +19,7 @@ rem
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
    if x%1 == xifortd     goto IFORTd
+   if x%1 == xgfortrand  goto GFORd
    goto END
 rem
 rem ****---- Absoft Compiler ----****
@@ -83,6 +84,16 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c -O3 -funroll-loops  -msse2   menu_5.f90     -I..\..\GFortran\LibC
    gfortran -c -O3 -funroll-loops  -msse2   calsym.f90     -I..\..\GFortran\LibC
    gfortran *.o -o cryscalc -O3  -funroll-loops  -msse2  -L..\..\GFortran\LibC -lcrysfml
+   goto END
+:GFORD
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_0.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_1.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_2.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_3.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_4.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   menu_5.f90     -I..\..\GFortran_debug\LibC
+   gfortran -c -O0 -fbacktrace -funroll-loops  -msse2   calsym.f90     -I..\..\GFortran_debug\LibC
+   gfortran *.o -o cryscalc -fbacktrace -funroll-loops  -msse2  -L..\..\GFortran_debug\LibC -lcrysfml
    goto END
 rem
 :END

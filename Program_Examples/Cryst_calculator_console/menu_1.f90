@@ -8,7 +8,7 @@
     use Menu_0
     use CFML_Symmetry_Tables
     use CFML_Crystallographic_Symmetry
-    use CFML_String_Utilities,          only: u_case, ucase, getnum
+    use CFML_String_Utilities
     use CFML_Math_General,              only: equal_vector
     use CFML_Math_3D,                   only: resolv_sist_3x3
     use CFML_IO_Messages,               only: Wait_Message
@@ -45,8 +45,9 @@
           write(unit=*,fmt="(a)") " [ 6] Determination of the Laue class and Point Group"
           write(unit=*,fmt="(a)") " [ 7] Determination of the Symbol for Symmetry Operators"
           write(unit=*,fmt="(a)") " [ 8] Conversions: IT -> Kovalev, Miller&Love, Zack, etc..."
-          !write(unit=*,fmt="(a)") " [ 9] Wyckoff Positions (Testing...)"
-          !write(unit=*,fmt="(a)") " [10] Wyckoff for all Groups (Testing...)"
+          write(unit=*,fmt="(a)") " [ 9] Non-conventional space groups"
+          !write(unit=*,fmt="(a)") " [10] Wyckoff Positions (Testing...)"
+          !write(unit=*,fmt="(a)") " [11] Wyckoff for all Groups (Testing...)"
           write(unit=*,fmt="(a)") " "
           write(unit=*,fmt="(a)",advance="no") " OPTION: "
           read(*,'(a)') car
@@ -81,11 +82,14 @@
              case ('8 ')
                 call Menu_SPGR_8()
 
-             !case ('9 ')
-             !   call Menu_SPGR_9()
+             case ('9 ')
+                call Menu_SPGR_9()
 
-             !case ('10')
+             !case ('10 ')
              !   call Menu_SPGR_10()
+
+             !case ('11')
+             !   call Menu_SPGR_11()
           end select
        end do
 
@@ -863,11 +867,118 @@
 
     End Subroutine Menu_Spgr_8
 
+
+
+    Subroutine Menu_Spgr_9()
+
+       character(len=200)            :: line
+       character(len=90)            :: setline,symb,transla
+       type (Space_Group_type)       :: SpG
+       type (NS_Space_Group_Type)    :: SpGn
+       integer :: i,ng
+       character(len=60),dimension(10):: gen
+       real, dimension(3,3) :: Mat
+       real, dimension(3)   :: v
+       logical              :: ok_newspg,ok
+
+       do
+          call system(clear_string)
+          write(unit=*,fmt="(a)") "                  GENERAL CRYSTALLOGRAPHY CALCULATOR "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") "                Generation of Non-standard Space Groups     "
+          write(unit=*,fmt="(a)") "     Provided generators should be in string form separated by ';' and"
+          write(unit=*,fmt="(a)") " Tranformations in form: m1a+m2b+m3c, m4a+m5b+m6c, m7a+m8b+m9c ; t1,t2,t3"
+          write(unit=*,fmt="(a)") " =========================================================================="
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)") " "
+          write(unit=*,fmt="(a)",advance="no") " Give the string with generators: "
+
+          read(*,'(a)') line
+          if (len_trim(line)==0) exit
+
+          line=adjustl(line)
+          ng=0
+          do
+             i=index(line,";")
+             if (i /= 0 ) then
+                ng=ng+1
+                gen(ng)=line(1:i-1)
+                line=line(i+1:)
+             else
+                if (len_trim(line) /= 0) then
+                   ng=ng+1
+                   gen(ng)= trim(line)
+                   exit
+                end if
+             end if
+             if (ng == 10) exit
+          end do
+
+          call set_spacegroup("  ",SpG,gen,ng,'gen')
+          if(Err_Symm) then
+            write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+            call Wait_Message(" => Press <enter> to continue ...")
+            cycle
+          end if
+          call Write_SpaceGroup(SpG,full=.true.)
+
+          call Wait_Message(" => Press <enter> to continue ...")
+
+          write(unit=*,fmt="(a)",advance="no") " Give the string with setting transformation: "
+          read(*,'(a)') setline
+
+          if(len_trim(setline) == 0) then
+            setline="a,b,c;0,0,0"
+          end if
+          setline=pack_string(setline)
+
+          if(setline(1:11) /= "a,b,c;0,0,0") then
+             call Get_Transf(setline,mat,v)
+             if (Err_String) then
+                write(unit=*,fmt="(a)") trim(Err_String_Mess)
+                call Wait_Message(" => Press <enter> to continue ...")
+                cycle
+             else
+                call Setting_Change(mat,v,Spg,SpGn)
+                if (Err_Symm) then
+                     write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+                     call Wait_Message(" => Press <enter> to continue ...")
+                     cycle
+                else
+                   ok_newspg=.true.
+                end if
+             end if
+          end if
+          if(ok_newspg) then
+            write(unit=*,fmt="(a)") ' => Setting: '//trim(spgn%sg_setting)
+            if(spgn%NumLat > 1) then
+              do i=2,spgn%NumLat
+                     v=spgn%Latt_trans(:,i)
+                     call Frac_Trans_2Dig(v,transla)
+                     write(unit=*,fmt="(a,i3,a)") "   Lattice centring vector # ",i-1,"   "//trim(transla)
+              end do
+            end if
+            do i=1,spgn%multip
+               call Check_Generator(spgn%symopsymb(i),ok,symb)
+               if(ok) call Symmetry_Symbol(spgn%symopsymb(i),Symb)
+               write(unit=*, fmt='(a,i4,a,t14,a,t62,a)') "SymmOp",i,":",spgn%symopsymb(i),"Symbol: "//trim(symb)
+            end do
+          end if
+
+          call Wait_Message(" => Press <enter> to continue ...")
+
+          exit
+
+       end do
+
+    End Subroutine Menu_Spgr_9
+
+
     !!----
-    !!---- Subroutine Menu_SPGR_9
+    !!---- Subroutine Menu_SPGR_10
     !!----
     !!
-    Subroutine Menu_Spgr_9()
+    Subroutine Menu_Spgr_10()
        !---- Local Variables ----!
        character(len=40)      :: line, spgr
        character(len=3)       :: car
@@ -903,13 +1014,13 @@
        end do
 
        return
-    End Subroutine Menu_Spgr_9
+    End Subroutine Menu_Spgr_10
 
     !!----
-    !!---- Subroutine Menu_SPGR_10
+    !!---- Subroutine Menu_SPGR_11
     !!----
     !!
-    Subroutine Menu_Spgr_10()
+    Subroutine Menu_Spgr_11()
        !---- Local Variables ----!
        character(len=40)      :: line, spgr
        character(len=3)       :: car
@@ -954,7 +1065,7 @@
        end do
 
        return
-    End Subroutine Menu_Spgr_10
+    End Subroutine Menu_Spgr_11
 
 
     !!----

@@ -96,7 +96,7 @@
 !!----       GET_FRACTION_2DIG
 !!----       GET_LOGUNIT
 !!----       GET_MAT_FROM_SYMB
-!!----       GET_NUM_STRING       [Private]
+!!----       GET_NUM_STRING
 !!----       GET_SEPARATOR_POS
 !!----       GET_TRANSF
 !!----       GETNUM
@@ -138,10 +138,10 @@
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
               Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, &
-              Get_Extension, Get_Mat_From_Symb, Get_Transf
+              Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String
 
     !---- List of private subroutines ----!
-    private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err, Get_Num_String,Read_Fract
+    private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err,Read_Fract
 
 
     !---- Definitions ----!
@@ -1575,18 +1575,18 @@
     End Subroutine Get_Transf
 
 
-    !!--..  Subroutine Get_Num_String(string,v,cod)
-    !!--..    character(len=*),                intent(in)  :: string
-    !!--..    real,dimension(3),               intent(out) :: v
-    !!--..    character(len=1), dimension(3),  intent(in)  :: cod
-    !!--..
-    !!--..  Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
-    !!--..  a real vector from symbol of the form:  m1a+m2b+m3c. Similar comments
-    !!--..  as for the subroutine Get_Mat_From_Symb applies.
-    !!--..
-    !!--..  Created: February - 2012 (JRC).
-    !!--..  Updated: January  - 2014 (JRC).
-    !!--..
+    !!----  Subroutine Get_Num_String(string,v,cod)
+    !!----    character(len=*),                intent(in)  :: string
+    !!----    real,dimension(3),               intent(out) :: v
+    !!----    character(len=1), dimension(3),  intent(in)  :: cod
+    !!----
+    !!----  Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
+    !!----  a real vector from symbol of the form:  m1a+m2b+m3c. Similar comments
+    !!----  as for the subroutine Get_Mat_From_Symb applies.
+    !!----
+    !!----  Created: February - 2012 (JRC).
+    !!----  Updated: January  - 2014 (JRC).
+    !!----
 
     Subroutine Get_Num_String(string,v,cod)
       character(len=*),                intent(in)  :: string

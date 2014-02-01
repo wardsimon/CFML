@@ -103,6 +103,7 @@
 !!----
 !!----    Subroutines:
 !!--++       CHECK_SYMBOL_HM           [Private]
+!!----       CHECK_GENERATOR
 !!----       DECODMATMAG
 !!----       GET_CENTRING_VECTORS
 !!----       GET_CRYSTAL_SYSTEM
@@ -179,7 +180,7 @@
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
                                      Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
-                                     U_case, Ucase, Getnum, Frac_trans_2Dig
+                                     U_case, Ucase, Getnum, Frac_trans_2Dig, Get_Num_String
     Use CFML_Symmetry_Tables
 
     implicit none
@@ -196,16 +197,17 @@
                Get_Pointgroup_Num, Is_New_Op, Lattice_Trans, Spgr_Equal, Sym_Prod
 
     !---- List of public subroutines ----!
-    public  :: Decodmatmag, Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,           &
-               Get_Laue_Pg, Get_Laue_Str, Get_orbit, Get_Pointgroup_Str, Get_So_From_Fix,         &
-               Get_So_From_Gener,Get_So_From_Hall, Get_So_From_Hms, Get_HallSymb_From_Gener,      &
-               Get_Stabilizer,Get_String_Resolv,Get_SubOrbits,Get_Symel, Get_Symkov, Get_SymSymb, &
-               Init_Err_Symm, Inverse_Symm, Latsym, Read_Msymm, Read_Xsym, Searchop,              &
-               Set_Spacegroup, Setting_Change, Sym_B_Relations, Sym_Prod_St, Symmetry_Symbol,     &
-               Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,        &
-               Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,    &
-               Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                 &
-               Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener
+    public  :: Decodmatmag, Get_Centring_Vectors, Get_Crystal_System, Get_Lattice_Type,              &
+               Get_Laue_Pg, Get_Laue_Str, Get_orbit, Get_Pointgroup_Str, Get_So_From_Fix,            &
+               Get_So_From_Gener,Get_So_From_Hall, Get_So_From_Hms, Get_HallSymb_From_Gener,         &
+               Get_Stabilizer,Get_String_Resolv,Get_SubOrbits,Get_Symel, Get_Symkov, Get_SymSymb,    &
+               Init_Err_Symm, Inverse_Symm, Latsym, Read_Msymm, Read_Xsym, Searchop,                 &
+               Set_Spacegroup, Setting_Change, Sym_B_Relations, Sym_Prod_St, Symmetry_Symbol,        &
+               Write_Spacegroup, Write_Sym, Write_Wyckoff, Wyckoff_Orbit, Get_T_SubGroups,           &
+               Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,       &
+               Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
+               Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
+               Check_Generator
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -355,6 +357,86 @@
     !!---- Update: February - 2005
     !!
     integer, public      :: Nlat
+
+    !!----
+    !!---- TYPE :: NS_SYM_OPER_TYPE
+    !!--..
+    !!---- Type, public :: NS_Sym_Oper_Type
+    !!----    real(kind=cp), dimension(3,3) :: Rot     !  Rotational Part of Symmetry Operator
+    !!----    real(kind=cp), dimension(3)   :: Tr      !  Traslational part of Symmetry Operator
+    !!---- End Type  NS_Sym_Oper_Type
+    !!----
+    !!----   Non-standard symmetry operator. Needed for describing non-standard space groups with
+    !!----   symmetry operators defined with respect to arbitrary axes
+    !!----
+    !!---- Update: January - 2014
+    !!
+    Type, public :: NS_Sym_Oper_Type
+       real(kind=cp), dimension(3,3) :: Rot
+       real(kind=cp), dimension(3)   :: Tr
+    End Type NS_Sym_Oper_Type
+
+    !!----
+    !!---- TYPE :: NS_SPACE_GROUP_TYPE
+    !!--..
+    !!---- Type, public :: NS_Space_Group_Type
+    !!----    Integer                                          :: NumSpg        ! Number of the Space Group
+    !!----    Character(len=20)                                :: SPG_Symb      ! Hermann-Mauguin Symbol
+    !!----    Character(len=16)                                :: Hall          ! Hall symbol
+    !!----    Character(len=90)                                :: gHall         ! Generalised Hall symbol
+    !!----    Character(len=12)                                :: CrystalSys    ! Crystal system
+    !!----    Character(len= 5)                                :: Laue          ! Laue Class
+    !!----    Character(len= 5)                                :: PG            ! Point group
+    !!----    Character(len= 5)                                :: Info          ! Extra information
+    !!----    Character(len=90)                                :: SG_setting    ! Information about the SG setting
+    !!----                                                                      ! (IT,KO,ML,ZA,Table,Standard,UnConventional)
+    !!----    Character(len= 1)                                :: SPG_lat       ! Lattice type
+    !!----    Character(len= 2)                                :: SPG_latsy     ! Lattice type Symbol
+    !!----    Integer                                          :: NumLat        ! Number of lattice points in a cell
+    !!----    real(kind=cp), allocatable, dimension(:,:)       :: Latt_trans    ! Lattice translations
+    !!----    Character(len=51)                                :: Bravais       ! String with Bravais symbol + translations
+    !!----    Character(len=80)                                :: Centre        ! Information about Centric or Acentric
+    !!----    Integer                                          :: Centred       ! =0 Centric(-1 no at origin)
+    !!----                                                                      ! =1 Acentric
+    !!----                                                                      ! =2 Centric(-1 at origin)
+    !!----    real(kind=cp), dimension(3)                      :: Centre_coord  ! Fractional coordinates of the inversion centre
+    !!----    Integer                                          :: NumOps        ! Number of reduced set of S.O.
+    !!----    Integer                                          :: Multip        ! Multiplicity of the general position
+    !!----    Integer                                          :: Num_gen       ! Minimum number of operators to generate the Group
+    !!----    type(NS_Sym_Oper_Type), allocatable, dimension(:):: SymOp         ! Symmetry operators (192)
+    !!----    Character(len=50),      allocatable, dimension(:):: SymopSymb     ! Strings form of symmetry operators (192)
+    !!---- End Type NS_Space_Group_Type
+    !!----
+    !!----  Definition of the type NS_Space_Group_Type: Non-standard space group. This type has been created
+    !!----  in order to be able to describe symmetry operators with non-integer values when they are referred
+    !!----  to arbitrary settings. They are created only as intermediate variables in some calculations.
+    !!----
+    !!---- Updated: February - 2005, January 2014 (JRC to make some components allocatable and change the length of some strings)
+    !!
+    Type, public :: NS_Space_Group_Type
+       integer                                          :: NumSpg           ! Number of the Space Group
+       character(len=20)                                :: SPG_Symb         ! Hermann-Mauguin Symbol
+       character(len=16)                                :: Hall             ! Hall symbol
+       character(len=90)                                :: gHall            ! Generalised Hall symbol
+       character(len=12)                                :: CrystalSys       ! Crystal system
+       character(len= 5)                                :: Laue             ! Laue Class
+       character(len= 5)                                :: PG               ! Point group
+       character(len= 5)                                :: Info             ! Extra information
+       character(len=90)                                :: SG_setting       ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+       character(len= 1)                                :: SPG_lat          ! Lattice type
+       character(len= 2)                                :: SPG_latsy        ! Lattice type Symbol
+       integer                                          :: NumLat           ! Number of lattice points in a cell
+       real(kind=cp), allocatable,dimension(:,:)        :: Latt_trans       ! Lattice translations (3,12)
+       character(len=51)                                :: Bravais          ! String with Bravais symbol + translations
+       character(len=80)                                :: Centre           ! Alphanumeric information about the center of symmetry
+       integer                                          :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+       real(kind=cp), dimension(3)                      :: Centre_coord     ! Fractional coordinates of the inversion centre
+       integer                                          :: NumOps           ! Number of reduced set of S.O.
+       integer                                          :: Multip           ! Multiplicity of the general position
+       integer                                          :: Num_gen          ! Minimum number of operators to generate the Group
+       type(NS_Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
+       character(len=50),      allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
+    End Type NS_Space_Group_Type
 
     !!----
     !!---- NUM_SPGR_INFO
@@ -1162,6 +1244,157 @@
 
        return
     End Function Sym_Prod
+
+    !!---- Subroutine Check_Generator(gen,ok,symbol)
+    !!----   Character(len=*),         intent(in)  :: gen
+    !!----   logical,                  intent(out) :: ok
+    !!----   character(len=*),optional,intent(out) :: symbol
+    !!----
+    !!----  Check that the string containing a generator, contains a legal symmetry operator
+    !!----  Only integer coefficients and determinant of the rotational part equal to +1 or -1
+    !!----  are allowed. In the optional argument "symbol" the nature of the operator is provided.
+    !!----
+    !!----  Updated: January 2014
+    !!----
+    !!
+    Subroutine Check_Generator(gen,ok,symbol)
+      Character(len=*),         intent(in)  :: gen
+      logical,                  intent(out) :: ok
+      character(len=*),optional,intent(out) :: symbol
+      !--- Local variables ---!
+      integer :: i,j,k,n,itr,idet
+      character(len=len(gen)), dimension(3) :: split
+      character(len=len(gen))  :: symb
+      character(len=*), dimension(3), parameter :: code=(/"x","y","z"/)
+      real(kind=cp)  :: det
+      real(kind=cp), dimension(3,3) :: Mat,iMat
+      logical :: esta
+
+      call Init_Err_Symm()
+      ok=.false.
+      i=index(gen,",")
+      j=index(gen,",",back=.true.)
+      split(1)= l_case(pack_string(gen(1:i-1)))
+      split(2)= l_case(pack_string(gen(i+1:j-1)))
+      split(3)= l_case(pack_string(gen(j+1:)))
+      !Remove the translation part if it exists
+      !write(*,"(4a)") " => Initial split: ", (trim(split(i))//"   ",i=1,3)
+      do i=1,3
+        n=len_trim(split(i))
+        j=index(split(i),"+",back=.true.)
+        if(j /= 0) then
+          symb=split(i)(j+1:)
+          esta=.false.
+          do k=1,len_trim(symb)
+            if(symb(k:k) == code(1) .or. symb(k:k) == code(2) .or. symb(k:k) == code(3) ) then
+               esta = .true.  !A translation is not provided after the matrix
+               exit
+            end if
+          end do
+          if(.not. esta) then ! a translation is given in that part of the string, so remove it!
+             split(i)=split(i)(1:j-1)
+          else ! we have to check starting from the left of the string
+             j=index(split(i),"+") !look for the first appearance of "+"
+             !Check if there are x,y,z on the left of "+"
+             if(j > 1) then
+                symb=split(i)(1:j-1)
+                esta=.false.
+                do k=1,len_trim(symb)
+                  if(symb(k:k) == code(1) .or. symb(k:k) == code(2) .or. symb(k:k) == code(3) ) then
+                     esta = .true.  !A translation is not provided before the matrix
+                     exit
+                  end if
+                end do
+                if(.not. esta) then   !A translation exists
+                  split(i)=split(i)(j+1:)
+                end if
+             end if
+          end if
+        end if
+        if(len_trim(split(i)) == n) then !Check now if instead of "+" the translation is given with "-" sign
+          j=index(split(i),"-",back=.true.)
+          if(j /= 0) then
+            symb=split(i)(j+1:)
+            esta=.false.
+            do k=1,len_trim(symb)
+              if(symb(k:k) == code(1) .or. symb(k:k) == code(2) .or. symb(k:k) == code(3) ) then
+                 esta = .true.  !A translation is not provided after the matrix
+                 exit
+              end if
+            end do
+            if(.not. esta) then ! a translation is given in that part of the string, so remove it!
+               split(i)=split(i)(1:j-1)
+            else ! we have to check "-" starting from the left of the string
+               j=index(split(i),"-") !look for the first appearance of "+"
+               !Check if there are x,y,z on the left of "-"
+               if(j > 1) then
+                  symb=split(i)(1:j-1)
+                  esta=.false.
+                  do k=1,len_trim(symb)
+                    if(symb(k:k) == code(1) .or. symb(k:k) == code(2) .or. symb(k:k) == code(3) ) then
+                       esta = .true.  !A translation is not provided before the matrix
+                       exit
+                    end if
+                  end do
+                  if(.not. esta) then   !A translation exists
+                    split(i)=split(i)(j+1:)
+                  end if
+               end if
+            end if
+          end if
+        end if
+      end do
+      !write(*,"(4a)") " => Final split: ", (trim(split(i))//"   ",i=1,3)
+      do i=1,3
+       call Get_Num_String(trim(split(i)), Mat(i,:),code)
+      end do
+      !Now determine if the matrix has integer components
+      iMat=real(nint(Mat))
+      !now calculate the determinant ... it should be equal to +/-1!
+      det=determ_A(Mat)
+      idet=nint(det)
+      det=abs(det)
+      if(present(symbol)) then
+        itr=nint(trace(Mat))
+        n=0
+        select case (itr)
+           case (-3)
+              if (idet == -1) symbol="-1"
+           case (-2)
+              if (idet == -1) symbol="-6"
+           case (-1)
+              if (idet == -1) symbol="-4"
+              if (idet ==  1) symbol="2 or 21"
+           case ( 0)
+              if (idet == -1) symbol="-3"
+              if (idet ==  1) symbol="3 or 31/32"
+           case ( 1)
+              if (idet == -1) symbol="m or g"
+              if (idet ==  1) symbol="4 or 41,42..."
+           case ( 2)
+              if (idet ==  1) symbol="6 or 61,62,..."
+           case ( 3)
+              if (idet ==  1) symbol="1"
+           case default
+              n=0
+        end select
+        symbol=trim(symbol)//"  [undet. loc.]"
+      end if
+      iMat=iMat-Mat
+      if(sum(abs(iMat)) > eps_symm) then
+        err_symm=.true.
+        err_symm_mess="The matrix corresponding to a generator has non-integer values!"
+        return
+      else
+        if(abs(det-1.0) > eps_symm) then
+          err_symm=.true.
+          err_symm_mess="The matrix corresponding to a generator has a determinant with absolute value different of 1.0"
+          return
+        end if
+      end if
+      ok=.true.  !arriving here the generator is ok!
+      return
+    End Subroutine Check_Generator
 
     !---- Subroutines ----!
 
@@ -5949,7 +6182,7 @@
        character (len=*),       intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len=10) :: car
+       character(len=60) :: car
        integer           :: i, np, npos
        real(kind=cp),dimension(3) :: xx
 
@@ -6291,7 +6524,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 60):: car
+       character(len= 80):: car
        integer           :: i,j,k, np,npp,npos
        real(kind=cp)     :: suma
 
@@ -7095,7 +7328,7 @@
        real(kind=cp),dimension(3), intent(out) :: Tr
 
        !---- Local variables ----!
-       character(len=8) :: car
+       character(len=20) :: car
        integer          :: i,j,k,n_ini,n_end,nt
 
        N=1
@@ -7372,6 +7605,7 @@
        real(kind=cp),dimension(3)       :: co
        real(kind=cp),dimension(1)       :: vet
        real(kind=cp),dimension(3)       :: vec
+       logical                          :: ok
 
        !---- Inicializing Space Group ----!
        call init_err_symm()
@@ -7531,6 +7765,11 @@
 
           case ("GEN")
              if (present(gen) .and. present(ngen))  then
+                do i=1,ngen
+                   call Check_Generator(gen(i),ok)
+                   !write(*,"(a,i3,a,tr2,L)") " => Generator # ",i,"  "//trim(gen(i)), ok
+                   if(.not. ok) return
+                end do
                 ng=ngen
                 istart=1
                 num_g=ng
@@ -8255,7 +8494,7 @@
     !!--++   real(kind=cp), dimension(3,3),intent(in) :: mat      ! Basis transformation matrix
     !!--++   real(kind=cp), dimension(3),  intent(in) :: orig     ! New origing in the old basis
     !!--++   type (Space_Group_Type),      intent(in) :: SpG      ! Input space group
-    !!--++   type (Space_Group_Type),     intent(out) :: SpGn     ! New space group in the new setting.
+    !!--++   type (NS_Space_Group_Type),  intent(out) :: SpGn     ! New space group in the new setting.
     !!--++   character (len=*), optional,  intent(in) :: matkind  ! Kind of transformation matrix
     !!--++
     !!--++    Transform the symmetry operators of the space group to a new basis given by
@@ -8271,7 +8510,7 @@
        real(kind=cp), dimension(3,3),intent(in) :: Mat
        real(kind=cp), dimension(3),  intent(in) :: Orig
        type (Space_Group_Type),      intent(in) :: SpG
-       type (Space_Group_Type),     intent(out) :: SpGn
+       type (NS_Space_Group_Type),  intent(out) :: SpGn
        character (len=*), optional,  intent(in) :: Matkind
 
        !--- Local variables ---!
@@ -8290,10 +8529,10 @@
        character(len=80)                   :: string, symbsg
        character(len=60),dimension(15)     :: gen
        character(len=180)                  :: setting
-       integer,  dimension(3,3,Spg%Multip) :: sm
+       real(kind=cp),  dimension(3,3,Spg%Multip) :: sm
        real(kind=cp),  dimension(3,Spg%Multip)   :: tm
 
-       err_symm=.false.
+       call Init_Err_Symm()
        change_only_origin=.false.
        nulo=0
        call get_setting_info(Mat,orig,setting,matkind)
@@ -8312,7 +8551,7 @@
        det=determ_a(Mat)
        i=len_trim(setting)
        write(unit=setting(i+2:),fmt="(f6.2)") det
-       write(unit=*,fmt="(a)") " => Setting Symbol: "//trim(setting)
+       !write(unit=*,fmt="(a)") " => Setting Symbol: "//trim(setting)
        call matrix_inverse(S,Sinv,ifail)
        if (ifail /= 0) then
           err_symm=.true.
@@ -8376,7 +8615,7 @@
        !----  Symmetry operator C = (R,T)  -> C' = (R',T')
        !----   R' = inv(Mt) R Mt                 ITC:    R'= inv(P) R P
        !----   T' = inv(Mt) (T -(E-R)O)                  T'= inv(P) (T-(E-R)O)
-       sm=0
+       sm=0.0
        tm=0.0
        sm(:,:,1)=SpG%SymOp(1)%Rot
        tm(:,1)=SpG%SymOp(1)%tr
@@ -8384,12 +8623,12 @@
        do_i:do i=2,SpG%NumOps
           Rot=SpG%SymOp(i)%rot
           Rotn=matmul(matmul(Sinv,Rot),S)
-          irot=nint(Rotn)
+          !irot=nint(Rotn)
           do k=n,1,-1
-            if(equal_matrix(irot,sm(:,:,k),3))  cycle do_i
+            if(equal_matrix(Rotn,sm(:,:,k),3))  cycle do_i
           end do
           n=n+1
-          sm(:,:,N)=irot
+          sm(:,:,N)=Rotn
           tr=SpG%SymOp(i)%tr
           trn=matmul(Sinv,tr-matmul(e-Rot,orig))
           tm(:,n)=Modulo_Lat(trn)
@@ -8449,7 +8688,7 @@
        end if
        ngm=m
        if (SpGn%NumLat > 1) then
-          do L=2,SpGn%NumLat  ! min(SpaceGroup%NumLat,4)  restriction removed Jan2014 (JRC)
+          do L=2,SpGn%NumLat
              do i=1,ngm
                 m=m+1
                 trn=SpGn%Symop(i)%tr(:) + SpGn%Latt_trans(:,L)
@@ -8458,22 +8697,15 @@
              end do
           end do
        end if
-       do i=1,SpGn%multip  ! min(SpaceGroup%multip,192) restriction removed Jan2014 (JRC)
+       do i=1,SpGn%multip
           call Get_SymSymb(SpGn%Symop(i)%Rot(:,:), &
                            SpGn%Symop(i)%tr(:)   , &
                            SpGn%SymopSymb(i))
        end do
        !Try to assign a Hall symbol to the space group in the new setting
        !If the hall symbol has been found and the symbol exists in the table the H-M symbol is also set.
-       call Get_HallSymb_from_Gener(SpGn)
-       if(err_symm) then
-         SpGn%hall="From:"//trim(SpG%hall)
-         SpGn%spg_symb="From:"//trim(SpG%spg_symb)
-       else
-         if(len_trim(symbsg) == 0) then
-            symbsg=SpGn%spg_symb
-         end if
-       end if
+       SpGn%hall="From:"//trim(SpG%hall)
+       SpGn%spg_symb="From:"//trim(SpG%spg_symb)
        if(change_only_origin) then
          SpGn%spg_symb=trim(symbsg)
        else
@@ -8506,7 +8738,7 @@
            ngen=ngen+1
            gen(ngen)=SpGn%SymopSymb(3)
        End Select
-
+       !
        call Get_GenSymb_from_Gener(gen,ngen,SpGn%ghall)
 
        return
@@ -9122,7 +9354,7 @@
     Subroutine Symmetry_Symbol_OP(Op,symb)
        !---- Arguments ----!
        type(Sym_Oper_Type),   intent (in)  :: Op
-       character(len=*), intent (out)      :: symb
+       character(len=*),     intent (out)  :: symb
 
        call symmetry_symbol_str(Op%Rot,Op%tr,symb)
 
@@ -9136,7 +9368,7 @@
     !!--++    character (len=*),           intent(out) :: symb
     !!--++
     !!--++    (OVERLOADED)
-    !!--++    Obtain the symbol of the symmetry
+    !!--++    Obtain the symbol of the symmetry element corresponding to operator (S,T)
     !!--++
     !!--++ Update: February - 2005
     !!
@@ -9147,7 +9379,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local variables ----!
-       character (len=30)      :: carsym
+       character (len=80)      :: carsym
        character (len=1)       :: signo
        integer                 :: i, n, npos
        integer, dimension(3)   :: ix1, ix2, ix3
@@ -9168,6 +9400,7 @@
        t0=t                       !of the symmetry operator
        x1 =0.0
        ix1=0
+       call Init_Err_Symm()
 
        select case (n)
           case (1) ! Traslation or identity
