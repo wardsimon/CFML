@@ -98,7 +98,7 @@
                                               Lattice_Trans
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
                                               Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
-                                              Err_String_Mess,setnum_std, getword
+                                              Err_String_Mess,setnum_std, getword, Get_Transf
     Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
     Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
@@ -294,38 +294,65 @@
     !!---- Type, Public :: MagSymm_k_Type
     !!----    character(len=31)                        :: MagModel   ! Name to characterize the magnetic symmetry
     !!----    character(len=10)                        :: Sk_type    ! If Sk_type="Spherical_Frame" the input Fourier coefficients are in spherical components
+    !!----    character(len=15)                        :: BNS_number ! Added for keeping the same information
+    !!----    character(len=15)                        :: OG_number  ! as in Magnetic_Space_Group_Type
+    !!----    Character(len=34)                        :: BNS_symbol !             "
+    !!----    Character(len=34)                        :: OG_symbol  !             "
+    !!----    Integer                                  :: MagType    !             "
+    !!----    Integer                                  :: Parent_num !             "
+    !!----    Character(len=20)                        :: Parent_spg !             "
     !!----    character(len=1)                         :: Latt       ! Symbol of the crystallographic lattice
     !!----    integer                                  :: nirreps    ! Number of irreducible representations (max=4, if nirreps /= 0 => nmsym=0)
+    !!----    Integer,             dimension(4)        :: irrep_dim       !Dimension of the irreps
+    !!----    Integer,             dimension(4)        :: small_irrep_dim !Dimension of the small irrep
+    !!----    Integer,             dimension(4)        :: irrep_modes_number !Number of the mode of the irrep
+    !!----    Character(len=15),   dimension(4)        :: irrep_id        !Labels for the irreps
+    !!----    Character(len=20),   dimension(4)        :: irrep_direction !Irrep direction in representation space
+    !!----    Character(len=20),   dimension(4)        :: irrep_action    !Irrep character primary or secondary
     !!----    integer                                  :: nmsym      ! Number of magnetic operators per crystallographic operator (max=8)
     !!----    integer                                  :: centred    ! =0 centric centre not at origin, =1 acentric, =2 centric (-1 at origin)
     !!----    integer                                  :: mcentred   ! =1 Anti/a-centric Magnetic symmetry, = 2 centric magnetic symmetry
     !!----    integer                                  :: nkv        ! Number of independent propagation vectors
-    !!----    real(kind=cp),dimension(3,12)            :: kvec       ! Propagation vectors
+    !!----    real(kind=cp),       dimension(3,12)     :: kvec       ! Propagation vectors
+    !!----    Character(len=15),   dimension(12)       :: kv_label
     !!----    integer                                  :: NumLat     ! Number of centring lattice vectors
     !!----    real(kind=cp), dimension(3,4)            :: Ltr        ! Centring translations
     !!----    integer                                  :: Numops     ! Reduced number of crystallographic Symm. Op.
     !!----    integer                                  :: Multip     ! General multiplicity of the space group
     !!----    integer,             dimension(4)        :: nbas       ! Number of basis functions per irrep (if nbas < 0, the corresponding basis is complex).
     !!----    integer,             dimension(12,4)     :: icomp      ! Indicator (0 pure real/ 1 pure imaginary) for coefficients of basis fucntions
-    !!----    character(len=40),   dimension(48)       :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----    type(Sym_Oper_Type), dimension(48)       :: SymOp      ! Crystallographic symmetry operators
-    !!----    character(len=40),   dimension(48,8)     :: MSymopSymb ! Alphanumeric Symbols for MSYMM
-    !!----    type(MSym_Oper_Type),dimension(48,8)     :: MSymOp     ! Magnetic symmetry operators
     !!----    Complex(kind=cp),    dimension(3,12,48,4):: basf       ! Basis functions of the irreps of Gk
+    !!----    character(len=40),   dimension(:),   allocatable :: SymopSymb  ! Alphanumeric Symbols for SYMM
+    !!----    type(Sym_Oper_Type), dimension(:),   allocatable :: SymOp       ! Crystallographic symmetry operators (48)
+    !!----    character(len=40),   dimension(:,:), allocatable :: MSymopSymb ! Alphanumeric Symbols for MSYMM (48,8)
+    !!----    type(MSym_Oper_Type),dimension(:,:), allocatable :: MSymOp     ! Magnetic symmetry operators (48,8)
     !!---- End Type MagSymm_k_Type
     !!----
     !!----  Definition of the MagSymm_k_type derived type, encapsulating the information
     !!----  concerning the crystallographic symmetry, propagation vectors and magnetic matrices.
     !!----  Needed for calculating magnetic structure factors.
     !!----
-    !!---- Created: April - 2005
-    !!---- Updated: April - 2005
+    !!---- Created: April   - 2005
+    !!---- Updated: January - 2014
     !!
     Type, Public :: MagSymm_k_Type
        character(len=31)                        :: MagModel
        character(len=15)                        :: Sk_type
+       character(len=15)                        :: BNS_number ! Added for keeping the same information
+       character(len=15)                        :: OG_number  ! as in Magnetic_Space_Group_Type
+       Character(len=34)                        :: BNS_symbol !             "
+       Character(len=34)                        :: OG_symbol  !             "
+       Integer                                  :: MagType    !             "
+       Integer                                  :: Parent_num !             "
+       Character(len=20)                        :: Parent_spg !             "
        character(len=1)                         :: Latt
        integer                                  :: nirreps
+       Integer,             dimension(4)        :: irrep_dim          !Dimension of the irreps
+       Integer,             dimension(4)        :: small_irrep_dim    !Dimension of the small irrep
+       Integer,             dimension(4)        :: irrep_modes_number !Number of the mode of the irrep
+       Character(len=15),   dimension(4)        :: irrep_id           !Labels for the irreps
+       Character(len=20),   dimension(4)        :: irrep_direction    !Irrep direction in representation space
+       Character(len=20),   dimension(4)        :: irrep_action       !Irrep character primary or secondary
        integer                                  :: nmsym
        integer                                  :: centred
        integer                                  :: mcentred
@@ -337,11 +364,11 @@
        integer                                  :: Multip
        integer,             dimension(4)        :: nbas
        integer,             dimension(12,4)     :: icomp
-       character(len=40),   dimension(48)       :: SymopSymb
-       type( Sym_Oper_Type),dimension(48)       :: SymOp
-       character(len=40),   dimension(48,8)     :: MSymopSymb
-       type(MSym_Oper_Type),dimension(48,8)     :: MSymOp
        Complex(kind=cp),    dimension(3,12,48,4):: basf
+       character(len=40),   dimension(:),   allocatable :: SymopSymb  ! Alphanumeric Symbols for SYMM
+       type(Sym_Oper_Type), dimension(:),   allocatable :: SymOp      ! Crystallographic symmetry operators (48)
+       character(len=40),   dimension(:,:), allocatable :: MSymopSymb ! Alphanumeric Symbols for MSYMM (48,8)
+       type(MSym_Oper_Type),dimension(:,:), allocatable :: MSymOp     ! Magnetic symmetry operators (48,8)
     End Type MagSymm_k_Type
 
     !!----
@@ -423,7 +450,7 @@
     !!----   Subroutine to initialize the MagSymm_k_Type variable MGp.
     !!----   It is called inside Readn_set_Magnetic_Structure
     !!----
-    !!----  Update: April 2005
+    !!----  Update: April 2005, January 2014
     !!
     Subroutine Init_MagSymm_k_Type(MGp)
        !---- Arguments ----!
@@ -436,8 +463,21 @@
        MGp%MagModel="Unnamed Model"
        MGp%Sk_Type="Crystal_Frame"       ! "Spherical_Frame"
        MGp%Latt="P"
+       MGp%BNS_number=" "
+       MGp%OG_number=" "
+       MGp%BNS_symbol=" "
+       MGp%OG_symbol=" "
+       MGp%MagType=0
+       MGp%Parent_num=0
+       MGp%Parent_spg=" "
        MGp%nmsym=0
        MGp%nirreps=0
+       MGp%irrep_dim=0          !Dimension of the irreps
+       MGp%small_irrep_dim=0    !Dimension of the small irrep
+       MGp%irrep_modes_number=0 !Number of the mode of the irrep
+       MGp%irrep_id=" "         !Labels for the irreps
+       MGp%irrep_direction=" "  !Irrep direction in representation space
+       MGp%irrep_action=" "     !Irrep character primary or secondary
        MGp%centred=1    !By default the crystal structure is acentric
        MGp%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
        MGp%nkv=0
@@ -449,17 +489,6 @@
        MGp%nbas=0
        MGp%icomp=0
        MGp%basf=cmplx(0.0,0.0)
-       do i=1,48
-          MGp%SymopSymb(i)=" "
-          MGp%SymOp(i)%Rot(:,:)=0
-          MGp%SymOp(i)%tr(:)=0.0
-          do j=1,8
-             MGp%MSymopSymb(i,j)=" "
-             MGp%MSymOp(i,j)%Rot(:,:)=0
-             MGp%MSymOp(i,j)%Phas=0.0
-          end do
-       end do
-
        return
     End Subroutine Init_MagSymm_k_Type
 
@@ -497,8 +526,190 @@
        return
     End Subroutine Init_Magnetic_Space_Group_Type
 
-    Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type(MG_Symk,MSpG)
+    Subroutine Magnetic_Space_Group_Type_to_MagSymm_k_Type(MSpG,mode,MG_Symk)
+       Type(Magnetic_Space_Group_Type),   intent(in)  :: MSpG
+       character(len=*),                  intent(in)  :: mode
+       Type(MagSymm_k_Type),              intent(out) :: MG_Symk
+       !---- Local variables ----!
+       Type(Space_Group_Type) :: SpG
+       integer :: i,j,k,L,m,n, ngen
+       logical :: full_convertion
+       integer,      dimension(5)    :: pos
+       real(kind=cp)                 :: ph
+       character(len=40),dimension(:), allocatable   :: gen
+       character(len=132)   :: lowline,line
+       character(len=30)    :: magmod, shubk
+       character(len=2)     :: lattice, chardom
+       character(len=4)     :: symbcar
+       character(Len=*),dimension(4),parameter :: cod=(/"a","b","c",";"/)
+       real(kind=cp), dimension(3,3) :: Mat  !Matrix from parent space group to actual setting in magnetic cell
+       real(kind=cp), dimension(3)   :: v    !Change of origin with respect to the standard
+       !
+       call Init_MagSymm_k_Type(MG_Symk)
+
+       full_convertion=.false.
+       if(MSpG%parent_num > 0 .or. len_trim(MSpG%Parent_spg) /= 0) Then
+         if(len_trim(MSpG%trn_from_parent) /= 0) then !The transformation from the parent space group to the
+            call Get_Transf(MSpG%trn_from_parent,mat,v,cod)  !actual given cell is read from this item
+            if(Err_String) then
+               full_convertion=.false.
+            else
+               full_convertion=.true.
+            end if
+         end if
+       end if
+
+       Select Case (l_case(Mode(1:2)))
+         Case("mc")  !Use magnetic cell is equivalent to use a k=0 in MG_Symk
+             if(MSpG%m_cell) then
+                MG_Symk%MagModel  ="Using the magnetic cell "
+                MG_Symk%Sk_Type   ="Crystal_Frame"
+                MG_Symk%BNS_number=MSpG%BNS_number
+                MG_Symk%OG_number =MSpG%OG_number
+                MG_Symk%BNS_symbol=MSpG%BNS_symbol
+                MG_Symk%OG_symbol =MSpG%OG_symbol
+                MG_Symk%MagType   =MSpG%MagType
+                MG_Symk%Parent_num=MSpG%Parent_num
+                MG_Symk%Parent_spg=MSpG%Parent_spg
+                MG_Symk%Latt="P"
+                MG_Symk%nmsym=1
+                MG_Symk%nirreps=0
+                MG_Symk%centred=1    !By default the crystal structure is acentric
+                MG_Symk%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
+                MG_Symk%nkv=1        !always a propagation vector even if not provided in MSpG
+                MG_Symk%kvec=0.0     !The propagation vector is assumed to be (0,0,0) w.r.t. "magnetic cell"
+                MG_Symk%NumLat=1     !No lattice centring are considered (all of them should be included in the list of operators)
+                MG_Symk%Ltr=0.0
+                MG_Symk%Numops=MSpG%n_sym  !Reduced number of symmetry operators is equal to the multiplicity in this
+                MG_Symk%Multip=MSpG%n_sym  !case ...
+                allocate(MG_Symk%Symop(MSpG%n_sym))
+                allocate(MG_Symk%SymopSymb(MSpG%n_sym))
+                allocate(MG_Symk%MSymop(MSpG%n_sym,1))
+                allocate(MG_Symk%MSymopSymb(MSpG%n_sym,1))
+                MG_Symk%Symop=MSpG%Symop
+                do i=1,MG_Symk%Multip
+                  MG_Symk%MSymop(i,1)=MSpG%MSymop(i)
+                end do
+                if(MSpG%mcif) then
+                    do i=1,MG_Symk%Multip
+                       line=MSpG%MSymopSymb(i)
+                       do k=1,len_trim(line)
+                         if(line(k:k) == "m") line(k:k)=" "
+                         if(line(k:k) == "x") line(k:k)="u"
+                         if(line(k:k) == "y") line(k:k)="v"
+                         if(line(k:k) == "z") line(k:k)="w"
+                       end do
+                       line=Pack_String(line)//", 0.0"
+                       MG_Symk%MSymopSymb(i,1)=trim(line)
+                    end do
+                else
+                    do i=1,MG_Symk%Multip
+                      MG_Symk%MSymopSymb(i,1)=MSpG%MSymopSymb(i)
+                    end do
+                end if
+             else
+                Err_Magsym=.true.
+                Err_Magsym_Mess=" The magnetic cell in the Magnetic_Space_Group_Type is not provided! Use mode CC!"
+                return
+             end if
+
+         Case("cc")
+             !This only possible if full_convertion is true
+             if(full_convertion) then
+                MG_Symk%MagModel  = "Using the crystal cell and k-vectors "
+                MG_Symk%Sk_Type   = "Crystal_Frame"
+                MG_Symk%BNS_number= MSpG%BNS_number
+                MG_Symk%OG_number = MSpG%OG_number
+                MG_Symk%BNS_symbol= MSpG%BNS_symbol
+                MG_Symk%OG_symbol = MSpG%OG_symbol
+                MG_Symk%MagType   = MSpG%MagType
+                MG_Symk%Parent_num= MSpG%Parent_num
+                MG_Symk%Parent_spg= MSpG%Parent_spg
+                MG_Symk%Latt      = MSpG%Parent_spg(1:1)
+                MG_Symk%nmsym     = 1
+                MG_Symk%nirreps=0
+
+                MG_Symk%centred=1    !By default the crystal structure is acentric
+                MG_Symk%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
+                MG_Symk%nkv=1        !always a propagation vector even if not provided in MSpG
+                MG_Symk%kvec=0.0     !The propagation vector is assumed to be (0,0,0) w.r.t. "magnetic cell"
+                MG_Symk%NumLat=1     !No lattice centring are considered (all of them should be included in the list of operators)
+                MG_Symk%Ltr=0.0
+                MG_Symk%Numops=MSpG%n_sym  !Reduced number of symmetry operators is equal to the multiplicity in this
+                MG_Symk%Multip=MSpG%n_sym  !case ...
+                allocate(MG_Symk%Symop(MSpG%n_sym))
+                allocate(MG_Symk%SymopSymb(MSpG%n_sym))
+                allocate(MG_Symk%MSymop(MSpG%n_sym,1))
+                allocate(MG_Symk%MSymopSymb(MSpG%n_sym,1))
+                MG_Symk%Symop=MSpG%Symop
+                do i=1,MG_Symk%Multip
+                  MG_Symk%MSymop(i,1)=MSpG%MSymop(i)
+                end do
+                if(MSpG%mcif) then
+                    do i=1,MG_Symk%Multip
+                       line=MSpG%MSymopSymb(i)
+                       do k=1,len_trim(line)
+                         if(line(k:k) == "m") line(k:k)=" "
+                         if(line(k:k) == "x") line(k:k)="u"
+                         if(line(k:k) == "y") line(k:k)="v"
+                         if(line(k:k) == "z") line(k:k)="w"
+                       end do
+                       line=Pack_String(line)//", 0.0"
+                       MG_Symk%MSymopSymb(i,1)=trim(line)
+                    end do
+                else
+                    do i=1,MG_Symk%Multip
+                      MG_Symk%MSymopSymb(i,1)=MSpG%MSymopSymb(i)
+                    end do
+                end if
+             else
+                Err_Magsym=.true.
+                Err_Magsym_Mess=" This option is available only if the parent group and the transformation has ben provided! Use mode MC!"
+                return
+             end if
+
+       End Select
+
+       !First determine if there is propagation vector information
+       !Integer                              :: Sh_number
+       !character(len=15)                    :: BNS_number
+       !character(len=15)                    :: OG_number
+       !Character(len=34)                    :: BNS_symbol
+       !Character(len=34)                    :: OG_symbol
+       !Integer                              :: MagType
+       !Integer                              :: Parent_num
+       !Character(len=20)                    :: Parent_spg
+       !logical                              :: standard_setting  !true or false
+       !logical                              :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
+       !logical                              :: m_cell !true if magnetic cell is used for symmetry operators
+       !logical                              :: m_constr !true if constraints have been provided
+       !Character(len=40)                    :: trn_from_parent
+       !Character(len=40)                    :: trn_to_standard
+       !Integer                              :: n_sym
+       !Integer                              :: n_wyck   !Number of Wyckoff positions of the magnetic group
+       !Integer                              :: n_kv
+       !Integer                              :: n_irreps
+       !Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
+       !Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
+       !Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
+       !Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
+       !Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
+       !Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
+       !Character(len=15),   dimension(:),allocatable  :: kv_label
+       !real(kind=cp),     dimension(:,:),allocatable  :: kv
+       !character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
+       !character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
+       !type(Sym_Oper_Type), dimension(:),allocatable  :: SymOp      ! Crystallographic symmetry operators
+       !character(len=40),   dimension(:),allocatable  :: MSymopSymb ! Alphanumeric Symbols for MSYMM
+       !type(MSym_Oper_Type),dimension(:),allocatable  :: MSymOp     ! Magnetic symmetry operators
+
+       return
+    End Subroutine Magnetic_Space_Group_Type_to_MagSymm_k_Type
+
+
+    Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type(MG_Symk,mode,MSpG)
        Type(MagSymm_k_Type),              intent(in)  :: MG_Symk
+       character(len=*),                  intent(in)  :: mode
        Type(Magnetic_Space_Group_Type),   intent(out) :: MSpG
        !---- Local variables ----!
        Type(Space_Group_Type) :: SpG
@@ -538,9 +749,9 @@
        !Still to be finished
        call Set_SpaceGroup(" ",SpG,gen,ngen,"gen")
 
-
        return
     End Subroutine MagSymm_k_Type_to_Magnetic_Space_Group_Type
+
 
     !!----
     !!---- Subroutine Readn_Set_Magnetic_Structure_CFL(file_cfl,n_ini,n_end,MGp,Am,SGo,Mag_dom,Cell)
@@ -587,7 +798,7 @@
        character(len=4)     :: symbcar
        character(len=30)    :: msyr
        logical              :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
-                               irreps_begin, bfcoef_begin, magdom_begin
+                               irreps_begin, bfcoef_begin, magdom_begin, done
        type(Magnetic_Group_Type)  :: SG
 
        call init_err_MagSym()
@@ -616,6 +827,7 @@
              exit
           end if
        end do
+
        n_ini=no_iline
        n_end=no_eline
 
@@ -624,6 +836,48 @@
           ERR_MagSym_Mess=" No magnetic phase found in file!"
           return
        end if
+       call Init_MagSymm_k_Type(MGp)
+
+       !Determine the number of symmetry operators existing the magnetic part of the file
+       !This is for allocating the dimension of allocatable arrays in MagSymm_k_Type object
+       !We will allocate the double for taking into account the possible centring of the magnetic structure
+       n=0
+       done=.false.
+       do i=n_ini,n_end
+          lowline=l_case(adjustl(file_cfl%line(i)))
+          if (index(lowline(1:4),"symm") == 0 ) cycle
+          n=n+1
+
+          !determine now the number of msym cards per symm card
+          if(.not. done) then
+            m=0
+            do j=i+1,i+8
+               lowline=l_case(adjustl(file_cfl%line(j)))
+               if (index(lowline(1:4),"msym") /= 0 ) then
+                 m=m+1
+                 cycle
+               end if
+               done=.true.
+               exit
+            end do
+          end if
+
+       end do
+       n=2*n !if it is centred we will need this space
+       if(n > 0) then
+          !Allocate the allocatable components of MagSymm_k_Type
+          if(allocated(MGp%Symop))      deallocate(MGp%Symop)
+          if(allocated(MGp%SymopSymb))  deallocate(MGp%SymopSymb)
+          if(allocated(MGp%MSymop))     deallocate(MGp%MSymop)
+          if(allocated(MGp%MSymopSymb)) deallocate(MGp%MSymopSymb)
+          allocate(MGp%Symop(n))
+          allocate(MGp%SymopSymb(n))
+          if(m > 0) then
+             allocate(MGp%MSymop(n,m))
+             allocate(MGp%MSymopSymb(n,m))
+          end if
+       end if
+
 
        num_matom=0
        do i=n_ini,n_end
@@ -641,7 +895,6 @@
        num_xsym=0
        kvect_begin=.true.
        magdom_begin=.true.
-       call Init_MagSymm_k_Type(MGp)
        i=n_ini
        shub_given  =.false.
        irreps_given=.false.

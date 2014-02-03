@@ -3591,7 +3591,7 @@
     !!----   Brigham Young University, Provo, Utah, USA
     !!----   June 2010 >
     !!----
-    !!---- Updated: November 2012
+    !!---- Updated: November 2012, January 2014
     !!----
     Subroutine Get_Shubnikov_Operator_Symbol(Mat,Rot,tr,ShOp_symb,mcif)
       integer,       dimension(3,3), intent(in) :: Mat,Rot
@@ -6435,72 +6435,88 @@
     !!--++    (OVERLOADED)
     !!--++    Obtain the Jones Faithful representation of a symmetry operator
     !!--++
-    !!--++ Update: February - 2005
+    !!--++ Update: February - 2005, January-2014 (changed for a more robust algorithm,JRC)
     !!
-    Subroutine Get_SymSymbI(Sim,Tt,Strsym)
+    Subroutine Get_SymSymbI(X,T,Symb)
        !---- Arguments ----!
-       integer, dimension(3,3),     intent( in) :: sim
-       real(kind=cp), dimension(3), intent( in) :: tt
-       character (len=*),           intent(out) :: Strsym
+       integer,       dimension(3,3), intent( in) :: x
+       real(kind=cp), dimension(3),   intent( in) :: t
+       character (len=*),          intent(out) :: symb
 
-       !---- Local variables ----!
-       character (len=12)                           :: fracc
-       character (len=*), dimension( 3), parameter  :: xlab = (/"x","y","z"/)
-       character (len=35), dimension(15)            :: xyzt
-       character (len= 2), dimension( 3)            :: sigx
-       character (len=35)                           :: auxc
-       integer                                      :: lenx,i,j
-       integer, dimension (3)                       :: ino,lni
+       !---- Local Variables ----!
+       character(len= 25):: car
+       integer           :: i,j, np,npp,npos,suma
 
+
+       !---- Main ----!
+       symb=" "
+       npos=1
        do i=1,3
-          sigx=" "
-          auxc="               "
-          lenx=1
+          npp=0
           do j=1,3
-             ino(j)=0
-             if (sim(i,j) > 0) then
-                if (sim(i,j) == 1) then
-                   sigx(j)="+ "
+             if (x(i,j) /= 0 ) then
+                write(unit=car,fmt="(i4)") x(i,j)
+                car=adjustl(car)
+                if (abs(x(i,j)) == 1 ) then
+                     if (npp == 0) then
+                        select case (car(1:2))
+                           case ("-1")
+                              car(2:)=car(3:)//"  "
+                           case ("+1")
+                              car=car(3:)//"  "
+                        end select
+                     else
+                        car(2:)=car(3:)//"  "
+                     end if
                 else
-                   write(unit=sigx(j),fmt="(a,i1)")"+",sim(i,j)
+                   if (npp == 0) then
+                      if (car(1:1) =="+") then
+                         car=car(2:)//"  "
+                      end if
+                   end if
                 end if
-             else if(sim(i,j) < 0) then
-                if (sim(i,j) == -1) then
-                   sigx(j)="- "
-                else
-                   write(unit=sigx(j),fmt="(i2)") sim(i,j)
-                end if
-             else
-                ino(j)=1
+
+                np=len_trim(car)
+                !Remove 1x 1y 1z
+                if(np == 1 .and. car(1:1) == "1") car(1:1)=" "
+                select case (j)
+                   case (1)
+                      symb(npos:)=trim(car)//"x"
+                   case (2)
+                      symb(npos:)=trim(car)//"y"
+                   case (3)
+                      symb(npos:)=trim(car)//"z"
+                end select
+                npos=len_trim(symb)+1
+                npp=npos
              end if
           end do
 
-          if (sigx(1)(1:1) == "+") sigx(1)(1:1)=" "
-          do j=1,3
-             if (lenx < 1) lenx=1
-             if (ino(j) == 0) then
-                auxc=auxc(1:lenx)//trim(adjustl(sigx(j)))//xlab(j)
+          if (abs(t(i)) <= eps_symm .and. npp /= 0) then
+             if (i < 3) then
+                symb(npos:)=", "
+                npos=len_trim(symb)+2
              end if
-             lenx=len_trim(auxc)
-          end do
+             cycle
+          end if
 
-          if (abs(tt(i)) > eps_symm) then
-             call get_fraction_2dig(tt(i),fracc)
-             xyzt(i)=auxc(1:lenx)//fracc//","
+          call get_fraction_2dig(t(i),car)
+          car=adjustl(car)
+          suma=sum(abs(x(i,:)))
+          np=len_trim(car)
+          if (suma == 0) then
+             if (car(1:1) == "+") car=car(2:np)//" "
+          end if
+
+          if (i < 3) then
+             symb(npos:)=car(1:np)//", "
+             npos=len_trim(symb)+2
           else
-             xyzt(i)=auxc(1:lenx)//","
+             symb(npos:)=car(1:np)
           end if
-
-          xyzt(i)=adjustl(xyzt(i))
-          if (xyzt(i)(1:1) == "+") then
-             xyzt(i)(1:1)=" "
-             xyzt(i)=adjustl(xyzt(i))
-          end if
-          lni(i)=len_trim(xyzt(i))
        end do
 
-       strsym=xyzt(1)(1:lni(1))//xyzt(2)(1:lni(2))//xyzt(3)(1:lni(3)-1)
-       strsym=pack_string(strsym)
+       symb=pack_string(symb)
 
        return
     End Subroutine Get_SymSymbI
@@ -6512,7 +6528,7 @@
     !!--++     character (len=*),                   intent(out) :: symb
     !!--++
     !!--++     (OVERLOADED)
-    !!--++     Returning a string for point, axes or plane give as
+    !!--++     Returning a string for symmetry operators or for points, axes or plane give as
     !!--++     written in fractional form
     !!--++
     !!--++ Update: February - 2005
@@ -6524,7 +6540,7 @@
        character (len=*),                intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 80):: car
+       character(len= 25):: car
        integer           :: i,j,k, np,npp,npos
        real(kind=cp)     :: suma
 

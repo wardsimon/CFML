@@ -17,6 +17,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTd
    goto END
 rem
 rem ****---- Lahey Compiler ----****
@@ -28,9 +29,12 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c MagPolar3D.f90 /O2 /nologo /I. /IC:\CrysFML\ifort\LibC
-rem ifort /c MagPolar3D.f90  /debug:full /check /traceback /nologo  /I. /IC:\CrysFML\ifort\LibC
-rem ifort /exe:MagPolar3D_if *.obj C:\CrysFML\ifort\LibC\CrysFML.lib /link /stack:102400000
    link /subsystem:console /stack:102400000 /out:MagPolar3D.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   goto END
+:IFORTD
+   ifort /c MagPolar3D.f90  /debug:full /check /traceback /nologo  /I. /IC:\CrysFML\ifort_debug\LibC
+rem   ifort  *.obj /exe:MagPolar3D_if  C:\CrysFML\ifort_debug\LibC\CrysFML.lib /link /stack:102400000
+   link /subsystem:console /stack:102400000 /out:MagPolar3D.exe *.obj C:\CrysFML\ifort_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

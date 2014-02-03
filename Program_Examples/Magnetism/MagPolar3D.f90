@@ -99,8 +99,8 @@ Program MagPolar3D
      write(unit=*,fmt="( a )") "    Text of the input CFL file"
      write(unit=*,fmt="(a,/)") "    =========================="
      do i=1,fich_cfl%nlines
-       write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//fich_cfl%line(i)
-       write(unit=*,fmt="(a,i5,a)") " Line:",i,"  "//fich_cfl%line(i)
+       write(unit=lun,fmt="(a,i5,a)") " Line:",i,"  "//trim(fich_cfl%line(i))
+       write(unit=*,fmt="(a,i5,a)") " Line:",i,"  "//trim(fich_cfl%line(i))
      end do
 
 
@@ -208,7 +208,9 @@ Program MagPolar3D
           end do
           Mag_Dom%pop(1,1)= 1.0
        end if
+
        call Write_Magnetic_Structure(lun,MGp,Am,Mag_dom=Mag_dom)
+
        nch=1
        if(Mag_Dom%chir) nch=2
 
