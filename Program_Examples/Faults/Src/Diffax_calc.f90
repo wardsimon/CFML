@@ -7728,8 +7728,10 @@
       INTEGER*4, INTENT(IN OUT)                :: hk_lim
       LOGICAL, INTENT(IN OUT)                  :: ok
 
-      INTEGER*4 i, j, p1, p2
+      INTEGER*4 i, j, p1, p2, irow(sadsize)
       REAL*8 rowint(sadsize), incr, sigma, x
+      integer(kind=2), dimension(sadsize) :: short_data
+      integer(kind=2),          parameter :: zero_2bytes=0
 
 ! external subroutine (Some compilers need them declared external)
 !      external SMUDGE
@@ -7787,12 +7789,21 @@
           END IF
         END DO
         CALL smudge(rowint, sadsize, sigma, ok)
-        IF(.NOT.ok) GO TO 999
+        IF(.NOT. ok) GO TO 999
         IF(bitdepth == 8) THEN
           WRITE(sa,ERR=900) (CHAR(nint(rowint(i))), i = 1, sadsize)
         ELSE
-          WRITE(sa,ERR=900) (CHAR(INT(rowint(i)/256)),  &
-              CHAR(INT(rowint(i)-real(INT(rowint(i)/256),kind=8)*256)),i=1,sadsize)
+          do  i = 1, SADSIZE
+            irow(i)=nint(rowint(i))
+            if( irow(i) > 65535) then
+              short_data(i) = -1
+            else if( irow(i) > 32767) then
+              short_data(i) = irow(i) - 65536
+            else
+              short_data(i) = irow(i)
+            end if
+          end do
+          write(sa,err=900) (short_data(i), i = 1, SADSIZE)
         END IF
       END DO
 
@@ -7821,19 +7832,28 @@
             rowint(p2) = x
           END DO
           CALL smudge(rowint, sadsize, sigma, ok)
-          IF(.NOT.ok) GO TO 999
+          IF(.NOT. ok) GO TO 999
           IF(bitdepth == 8) THEN
             WRITE(sa,ERR=900) (CHAR(nint(rowint(i))), i = 1, sadsize)
           ELSE
-            WRITE(sa,ERR=900) (CHAR(INT(rowint(i)/256)),  &
-                CHAR(INT(rowint(i)-real(INT(rowint(i)/256),kind=8)*256)),i=1,sadsize)
+            do  i = 1, SADSIZE
+              irow(i)=nint(rowint(i))
+              if( irow(i) > 65535) then
+                short_data(i) = -1
+              else if( irow(i) > 32767) then
+                short_data(i) = irow(i) - 65536
+              else
+                short_data(i) = irow(i)
+              end if
+            end do
+            write(sa,err=900) (short_data(i), i = 1, SADSIZE)
           END IF
         END DO
 ! write a blank last line to make the array SADSIZE x SADSIZE square
         IF(bitdepth == 8) THEN
           WRITE(sa,ERR=900) (CHAR(0), i = 1, sadsize)
         ELSE
-          WRITE(sa,ERR=900) (CHAR(0), i = 1, 2*sadsize)
+          write(sa,err=900) (zero_2bytes, i = 1, 2*SADSIZE)
         END IF
       END IF
 

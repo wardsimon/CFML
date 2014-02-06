@@ -7616,8 +7616,8 @@
        integer                          :: isystm,isymce,ibravl,Num_g
        integer                          :: m,l,ngm,k,ier
        integer                          :: ng
-       integer,      dimension(3,3,48)  :: ss
-       real(kind=cp),dimension(3,48)    :: ts
+       integer,      dimension(3,3,384) :: ss
+       real(kind=cp),dimension(3,384)   :: ts
        real(kind=cp),dimension(3)       :: co
        real(kind=cp),dimension(1)       :: vet
        real(kind=cp),dimension(3)       :: vec
@@ -7764,15 +7764,21 @@
                 return
              end if
              call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm)
+             SpaceGroup%Spg_Symb     = "unknown "
+             SpaceGroup%Hall         = "unknown "
+             SpaceGroup%Laue         = " "
+             SpaceGroup%Info         = "Fixed symmetry operators (no info)"
              SpaceGroup%SPG_lat      = Lat_Ch
              SpaceGroup%NumLat       = nlat
+
              if(allocated(SpaceGroup%Latt_trans)) deallocate(SpaceGroup%Latt_trans)
              allocate(SpaceGroup%Latt_trans(3,nlat))
+
              SpaceGroup%Latt_trans   = Ltr(:,1:nlat)
              SpaceGroup%Num_gen      = max(0,num_g)
              SpaceGroup%Centre_coord = co
              SpaceGroup%SG_setting   = "Non-Conventional (user-given operators)"
-             SpaceGroup%CrystalSys   = sys_cry(isystm)
+             SpaceGroup%CrystalSys   = " "
              SpaceGroup%Bravais      = Latt(ibravl)
              SpaceGroup%SPG_latsy    = latsy
              SpaceGroup%centred      = isymce
@@ -9910,11 +9916,12 @@
        logical,   optional,    intent(in) :: full
 
        !---- Local variables ----!
-       character (len=100), dimension(24):: texto
-       character (len=40)                :: aux
-       integer                           :: lun
-       integer                           :: i, nlines
-       logical                           :: print_latt
+       integer,  parameter                      :: max_lines=192
+       character (len=100), dimension(max_lines):: texto
+       character (len=40)                       :: aux
+       integer                                  :: lun
+       integer                                  :: i, nlines
+       logical                                  :: print_latt
 
        !---- Initializing variables ----!
        lun=6
@@ -9964,11 +9971,11 @@
           do i=2,SpaceGroup%Numlat
              call Frac_Trans_1Dig(SpaceGroup%Latt_trans(:,i),aux)
              if (mod(i-1,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a36)") &
+                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") &
                                            " => Latt(",i-1,"): ",trim(aux)
                 nlines=nlines+1
              else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a36)")  &
+                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a)")  &
                                            " => Latt(",i-1,"): ",trim(aux)
              end if
           end do
@@ -9992,24 +9999,28 @@
           call Write_Wyckoff(SpaceGroup%Wyckoff, SpaceGroup%SPG_Symb,lun)
 
        else
-          write(unit=lun,fmt="(a)") " => List of S.O. without inversion and lattice centring translations"
+          write(unit=lun,fmt="(/,a)") " => List of S.O. without inversion and lattice centring translations"
 
           texto(:) (1:100) = " "
           nlines=1
           do i=1,SpaceGroup%NumOps
              if (mod(i,2) == 0) then
-                write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a36)") &
+                write(unit=texto(nlines)(51:100),fmt="(a,i3,a,a)") &
                                            " => SYMM(",i,"): ",trim(SpaceGroup%SymopSymb(i))
                 nlines=nlines+1
              else
-                write(unit=texto(nlines)( 1:50),fmt="(a,i2,a,a36)")  &
+                write(unit=texto(nlines)( 1:50),fmt="(a,i3,a,a)")  &
                                            " => SYMM(",i,"): ",trim(SpaceGroup%SymopSymb(i))
              end if
+             if(nlines == max_lines) then
+                texto(nlines)=trim(texto(nlines))//"   <= Maximum number of lines exhausted!"
+                exit
+             end if
           end do
-          if (nlines > 24) nlines=24
           do i=1,nlines
              write(unit=lun,fmt="(a)") trim(texto(i))
           end do
+
        end if
 
 

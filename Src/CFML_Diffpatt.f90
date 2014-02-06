@@ -915,6 +915,7 @@
           if (ier /= 0) exit
           if (len_trim(line) == 0) cycle
           if (index(line,"!") /= 0) cycle
+          if (index(line,"#") /= 0) cycle
           i=i+1
        end do
        bck_points=i
@@ -936,13 +937,10 @@
           return
        end if
 
-       read(unit=i_bck,fmt="(a)",iostat=ier) line
-       read(unit=i_bck,fmt="(a)",iostat=ier) line
-
        do j=1, bck_points
           read(unit=i_bck,fmt="(a)",iostat=ier) line
           if (ier /= 0) exit
-          if (len_trim(line) == 0) cycle
+          if (len_trim(line) == 0 .or. line(1:1) == "!" .or. line(1:1)=="#") cycle
           read(unit=line, fmt=*, iostat=ier)  bck_p(j), bck_v(j)
           if (ier /= 0) then
              Err_diffpatt=.true.
