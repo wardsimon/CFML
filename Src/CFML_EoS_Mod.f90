@@ -182,6 +182,7 @@ Module CFML_EoS
    !!----  TYPE :: EOS_TYPE
    !!--..
    !!----  Type, public :: EoS_Type
+   !!----     character(len=80)                         :: Title     ! Descriptive title of EoS, set by user
    !!----     character(len=15)                         :: Model     ! Murnaghan, Birch-Murnaghan, Vinet, Natural-Strain
    !!----     character(len=15)                         :: TModel    ! Name for thermal model
    !!----     character(len=5), dimension(n_eospar)     :: ParName   ! Names of the Eos variables...init
@@ -209,6 +210,7 @@ Module CFML_EoS
    !!---- Update: January - 2013
    !!
    Type, public :: EoS_Type
+      character(len=80)                         :: Title     ! Descriptive title of EoS, set by user
       character(len=15)                         :: Model     ! Murnaghan, Birch-Murnaghan, Vinet, Natural-Strain
       character(len=15)                         :: TModel    ! Name for thermal model
       character(len=5), dimension(n_eospar)     :: ParName   ! Names of the Eos variables...init
@@ -536,6 +538,7 @@ Contains
       !> handle pthermal EoS
       if (eospar%itherm == 6 .and. eospar%imodel /= 0) p=p+pthermal(T,eospar)
 
+
       return
    End Function Get_Pressure
 
@@ -779,7 +782,6 @@ Contains
 
       !> Analytic solution for Murnaghan:  use this for first guess for other EoS except Tait
       v=v0*(1.0_cp + kp*pa/k0)**(-1.0_cp/kp)
-
       if (eospar%imodel ==1) then
          if (eospar%linear) v=v**(1.0_cp/3.0_cp)
          return
@@ -1139,7 +1141,9 @@ Contains
       p1=get_pressure(vol1,t,eospar)
       p2=get_pressure(vol2,t,eospar)
 
-      kppc=(rk2-rk1)/(p2-p1)
+      !> trap case when p2=p1 because there is no eos loaded
+      if(abs(p2-p1) .gt. tiny(0._cp))kppc=(rk2-rk1)/(p2-p1)
+
 
       !> No linear conversion is required because kp_cal returns values for "linear Kp" = Mp,
       !> so kppc is already dMp/dP = Mpp
@@ -2544,6 +2548,7 @@ Contains
 
       Eospar%IModel  =0
       Eospar%IOrder  =3
+      Eospar%Title   =' '
 
       eospar%ParName=' '
       eospar%comment=' '
@@ -3111,6 +3116,7 @@ Contains
              eospar%iuse(10:11)=1 ! alpha terms
 
          case(4)             ! Holland-Powell thermal expansion, in Kroll form
+             if(eospar%iuse(3) == 0)eospar%iuse(3)=2     ! require Kprime_zero but not stable in refinement if no P data (added 27/01/2014 RJA)
              eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10)=1    ! alpha at Tref
              eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
@@ -3357,6 +3363,7 @@ Contains
       write(unit=lun,fmt='(a)') '  EOS Information'
       write(unit=lun,fmt='(a)') '-------------------'
       write(unit=lun,fmt='(a)') ' '
+      write(unit=lun,fmt='(a)') ' Title: '//trim(eospar%title)
       write(unit=lun,fmt='(a)') ' Model: '//trim(eospar%model)
       write(unit=lun,fmt='(a,i2)') ' Order: ',eospar%iorder
       if (eospar%linear) then
