@@ -2480,7 +2480,7 @@ Contains
             eospar%tmodel     = 'Modified HP1998'
             eospar%parname(10:11) = (/'alph0','alph1'/)
             eospar%comment(10) = 'Constant of thermal expansion x10^5 K^-1'
-            eospar%comment(11) = 'Sqrt term of thermal expansion x10^5 K^-1/2'
+            eospar%comment(11) = 'Sqrt term of thermal expansion x10^4 K^-1/2'
             eospar%factor(10)  = 1.0E5_cp                ! factor to multiply values on printing
             eospar%factor(11)  = 1.0E4_cp
             eospar%TRef        =298.0_cp       ! Simple thermal expansion,
