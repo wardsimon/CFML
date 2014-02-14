@@ -3862,20 +3862,22 @@
     !!----
     !!----    Calculates the whole set of symmetry operators from a set of given generators.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, February-2014 (JRC)
     !!
-    Subroutine Get_SO_from_Gener(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,Num_g,SpaceGen)
+    Subroutine Get_SO_from_Gener(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,Num_g,SpaceGen,num_lat,lat_cent)
        !---- Arguments ----!
-       integer,                      intent(   out) :: Isystm
-       integer,                      intent(   out) :: Isymce
-       integer,                      intent(   out) :: Ibravl
-       integer,                      intent(in out) :: Ng
-       integer, dimension(:,:,:),    intent(in out) :: Ss ! (3,3,48)
-       real(kind=cp),dimension(:,:), intent(in out) :: Ts ! (3  ,48)
-       character (len=*),            intent(   out) :: Latsy
-       real(kind=cp),dimension(3),   intent(   out) :: Co
-       integer,                      intent(   out) :: Num_g
-       character (len=*),            intent(   out) :: SpaceGen
+       integer,                                              intent(   out) :: Isystm
+       integer,                                              intent(   out) :: Isymce
+       integer,                                              intent(   out) :: Ibravl
+       integer,                                              intent(in out) :: Ng
+       integer, dimension(:,:,:),                            intent(in out) :: Ss ! (3,3,48)
+       real(kind=cp),dimension(:,:),                         intent(in out) :: Ts ! (3  ,48)
+       character (len=*),                                    intent(   out) :: Latsy
+       real(kind=cp),dimension(3),                           intent(   out) :: Co
+       integer,                                              intent(   out) :: Num_g
+       character (len=*),                                    intent(   out) :: SpaceGen
+       integer, optional,                                    intent(   out) :: num_lat
+       real(kind=cp), dimension(:,:), allocatable, optional, intent(   out) :: lat_cent
 
        !---- Local Variables ----!
        real(kind=cp),dimension(3,192)  :: latc
@@ -4124,6 +4126,13 @@
           do i=1,nlat_t
              lat_trans(:,i)=maxval(nint(lat_norm*latc(:,i)))
           end do
+       end if
+
+       if(present(num_lat) .and. present(lat_cent)) then
+         num_lat=nlat_t
+         if(allocated(lat_cent)) deallocate(lat_cent)
+         allocate(lat_cent(3,num_lat))
+         lat_cent(:,1:num_lat)=latc(:,1:num_lat)
        end if
 
        if (len_trim(SpaceGen) /= 0) then
@@ -7591,7 +7600,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Set_Spacegroup(Spacegen,Spacegroup,Gen,Ngen,Mode,Force_Hall)
+    Subroutine Set_SpaceGroup(Spacegen,Spacegroup,Gen,Ngen,Mode,Force_Hall)
        !----Arguments ----!
        character (len=*),                intent(in )           :: SpaceGen
        Type (Space_Group_Type),          intent(out)           :: SpaceGroup

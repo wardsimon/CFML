@@ -106,7 +106,7 @@ Program MagRef
     !!----    integer                             :: mcentred   ! =1 Anti/a-centric Magnetic symmetry, = 2 centric magnetic symmetry
     !!----    integer                             :: nkv        ! Number of independent propagation vectors
     !!----    real(kind=sp),dimension(3,12)       :: kvec       ! Propagation vectors
-    !!----    integer                             :: NumLat     ! Number of centring lattice vectors
+    !!----    integer                             :: Num_Lat    ! Number of centring lattice vectors
     !!----    real(kind=sp), dimension(3,4)       :: Ltr        ! Centring translations
     !!----    integer                             :: Numops     ! Reduced number of crystallographic Symm. Op.
     !!----    integer                             :: Multip     ! General multiplicity of the space group

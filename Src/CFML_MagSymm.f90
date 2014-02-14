@@ -46,10 +46,10 @@
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
 !!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
-!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
+!!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, axes_rotation, &
 !!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
 !!--++                                              err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO,   &
-!!--++                                              Lattice_Trans
+!!--++                                              Lattice_Trans, Get_SO_from_Gener,Get_Centring_Vectors
 !!--++    Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
 !!--++                                              Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
 !!--++                                              Err_String_Mess,setnum_std, getword
@@ -89,13 +89,15 @@
 
     !---- Use Modules ----!
     Use CFML_GlobalDeps,                only: cp, tpi,Write_Date_Time
-    Use CFML_Math_General,              only: Modulo_Lat
-    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
-    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
-    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, &
+    Use CFML_Math_General,              only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
+                                              Equal_Vector,Sort
+    Use CFML_Math_3D,                   only: Get_Cart_From_Spher,Determ_A, matrix_inverse
+    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f,Sys_cry,LATT
+    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb,axes_rotation, &
                                               Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
                                               err_symm,err_symm_mess, set_SpG_Mult_Table,ApplySO,   &
-                                              Lattice_Trans
+                                              Lattice_Trans, Get_SO_from_Gener, Get_Centring_Vectors, &
+                                              Get_Shubnikov_Operator_Symbol
     Use CFML_String_Utilities,          only: u_case, l_case, Frac_Trans_1Dig, Get_Separator_Pos,Pack_String, &
                                               Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
                                               Err_String_Mess,setnum_std, getword, Get_Transf,ucase
@@ -116,7 +118,7 @@
 
     !---- List of public subroutines ----!
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
-              Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF
+              Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor
 
 
     !---- Definitions ----!
@@ -186,38 +188,49 @@
 
     !!----
     !!---- TYPE :: MAGNETIC_SPACE_GROUP_TYPE
-    !!--..
+    !!----
     !!---- Type, Public :: Magnetic_Space_Group_Type
-    !!----    Integer                              :: number
-    !!----    character(len=15)                    :: BNS_number
-    !!----    character(len=15)                    :: OG_number
-    !!----    Character(len=34)                    :: BNS_symbol
-    !!----    Character(len=34)                    :: OG_symbol
-    !!----    Integer                              :: MagType
-    !!----    Integer                              :: Parent_num
-    !!----    Character(len=20)                    :: Parent_spg
-    !!----    logical                              :: standard_setting  !true or false ! 'yes' or 'no'
-    !!----    logical                              :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
-    !!----    logical                              :: m_cell !true if magnetic cell is used for symmetry operators
-    !!----    logical                              :: m_constr !true if constraints have been provided, strings are in atom types
-    !!----    Character(len=40)                    :: trn_from_parent
-    !!----    Character(len=40)                    :: trn_to_standard
-    !!----    Integer                              :: Multip
-    !!----    Integer                              :: n_wyck  !Number of Wyckoff positions of the magnetic group
-    !!----    Integer                              :: n_kv
-    !!----    Integer                              :: n_irreps
-    !!----    Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
-    !!----    Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
-    !!----    Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
-    !!----    Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
-    !!----    Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
-    !!----    Character(len=15),   dimension(:),allocatable  :: kv_label
-    !!----    real(kind=cp),     dimension(:,:),allocatable  :: kv
-    !!----    character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
-    !!----    character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----    type(Sym_Oper_Type), dimension(:),allocatable  :: SymOp      ! Crystallographic symmetry operators
-    !!----    character(len=40),   dimension(:),allocatable  :: MSymopSymb ! Alphanumeric Symbols for MSYMM
-    !!----    type(MSym_Oper_Type),dimension(:),allocatable  :: MSymOp     ! Magnetic symmetry operators
+    !!----   Integer                                        :: Sh_number
+    !!----   character(len=15)                              :: BNS_number
+    !!----   character(len=15)                              :: OG_number
+    !!----   Character(len=34)                              :: BNS_symbol
+    !!----   Character(len=34)                              :: OG_symbol
+    !!----   Integer                                        :: MagType
+    !!----   Integer                                        :: Parent_num
+    !!----   Character(len=20)                              :: Parent_spg
+    !!----   logical                                        :: standard_setting  !true or false
+    !!----   logical                                        :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
+    !!----   logical                                        :: m_cell !true if magnetic cell is used for symmetry operators
+    !!----   logical                                        :: m_constr !true if constraints have been provided
+    !!----   Character(len=40)                              :: trn_from_parent
+    !!----   Character(len=40)                              :: trn_to_standard
+    !!----   character(len=12)                              :: CrystalSys       ! Crystal system
+    !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
+    !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
+    !!----   integer                                        :: Num_Lat           ! Number of lattice points in a cell
+    !!----   real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations (3,12)
+    !!----   character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
+    !!----   integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+    !!----   real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
+    !!----   integer                                        :: NumOps           ! Number of reduced set of S.O.
+    !!----   Integer                                        :: Multip
+    !!----   integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
+    !!----   Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
+    !!----   Integer                                        :: n_kv
+    !!----   Integer                                        :: n_irreps
+    !!----   Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
+    !!----   Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
+    !!----   Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
+    !!----   Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
+    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
+    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
+    !!----   Character(len=15),   dimension(:),allocatable  :: kv_label
+    !!----   real(kind=cp),     dimension(:,:),allocatable  :: kv
+    !!----   character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
+    !!----   character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
+    !!----   type(Sym_Oper_Type), dimension(:),allocatable  :: SymOp      ! Crystallographic symmetry operators
+    !!----   character(len=40),   dimension(:),allocatable  :: MSymopSymb ! Alphanumeric Symbols for MSYMM
+    !!----   type(MSym_Oper_Type),dimension(:),allocatable  :: MSymOp     ! Magnetic symmetry operators
     !!---- End Type Magnetic_Space_Group_Type
     !!----
     !!--<<
@@ -248,12 +261,14 @@
        character(len=12)                              :: CrystalSys       ! Crystal system
        character(len= 1)                              :: SPG_lat          ! Lattice type
        character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
-       integer                                        :: NumLat           ! Number of lattice points in a cell
-       real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations (3,12)
+       integer                                        :: Num_Lat          ! Number of lattice points in a cell
+       integer                                        :: Num_aLat         ! Number of anti-lattice points in a cell
+       real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations
+       real(kind=cp), allocatable,dimension(:,:)      :: aLatt_trans      ! Lattice anti-translations
        character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
        integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
        real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
-       integer                                        :: NumOps           ! Number of reduced set of S.O.
+       integer                                        :: NumOps           ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
        Integer                                        :: Multip
        integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
        Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
@@ -325,7 +340,7 @@
     !!----    integer                                  :: nkv        ! Number of independent propagation vectors
     !!----    real(kind=cp),       dimension(3,12)     :: kvec       ! Propagation vectors
     !!----    Character(len=15),   dimension(12)       :: kv_label
-    !!----    integer                                  :: NumLat     ! Number of centring lattice vectors
+    !!----    integer                                  :: Num_Lat     ! Number of centring lattice vectors
     !!----    real(kind=cp), dimension(3,4)            :: Ltr        ! Centring translations
     !!----    integer                                  :: Numops     ! Reduced number of crystallographic Symm. Op.
     !!----    integer                                  :: Multip     ! General multiplicity of the space group
@@ -368,7 +383,7 @@
        integer                                  :: mcentred
        integer                                  :: nkv
        real(kind=cp),dimension(3,12)            :: kvec
-       integer                                  :: NumLat
+       integer                                  :: Num_Lat
        real(kind=cp), dimension(3,4)            :: Ltr
        integer                                  :: Numops
        integer                                  :: Multip
@@ -492,7 +507,7 @@
        MGp%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
        MGp%nkv=0
        MGp%kvec=0.0
-       MGp%NumLat=1
+       MGp%Num_Lat=1
        MGp%Ltr=0.0
        MGp%Numops=0
        MGp%Multip=0
@@ -588,7 +603,7 @@
                 MG_Symk%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
                 MG_Symk%nkv=1        !always a propagation vector even if not provided in MSpG
                 MG_Symk%kvec=0.0     !The propagation vector is assumed to be (0,0,0) w.r.t. "magnetic cell"
-                MG_Symk%NumLat=1     !No lattice centring are considered (all of them should be included in the list of operators)
+                MG_Symk%Num_Lat=1    !No lattice centring are considered (all of them should be included in the list of operators)
                 MG_Symk%Ltr=0.0
                 MG_Symk%Numops=MSpG%Multip  !Reduced number of symmetry operators is equal to the multiplicity in this
                 MG_Symk%Multip=MSpG%Multip  !case ...
@@ -643,7 +658,7 @@
                 MG_Symk%mcentred=1   !By default the magnetic structure is anti-centric (if there is -1 it is combined with time inversion)
                 MG_Symk%nkv=1        !always a propagation vector even if not provided in MSpG
                 MG_Symk%kvec=0.0     !The propagation vector is assumed to be (0,0,0) w.r.t. "magnetic cell"
-                MG_Symk%NumLat=1     !No lattice centring are considered (all of them should be included in the list of operators)
+                MG_Symk%Num_Lat=1    !No lattice centring are considered (all of them should be included in the list of operators)
                 MG_Symk%Ltr=0.0
                 MG_Symk%Numops=MSpG%Multip  !Reduced number of symmetry operators is equal to the multiplicity in this
                 MG_Symk%Multip=MSpG%Multip  !case ...
@@ -674,7 +689,8 @@
                 end if
              else
                 Err_Magsym=.true.
-                Err_Magsym_Mess=" This option is available only if the parent group and the transformation has ben provided! Use mode MC!"
+                Err_Magsym_Mess=&
+                " This option is available only if the parent group and the transformation has ben provided! Use mode MC!"
                 return
              end if
 
@@ -737,7 +753,7 @@
 
        !Verify the crystal structure information contained in MG_Symk by constructing the full Space group
        n=MG_Symk%Numops
-       m=MG_Symk%Numops*MG_Symk%centred*MG_Symk%NumLat
+       m=MG_Symk%Numops*MG_Symk%centred*MG_Symk%Num_Lat
        ngen=n-1
        allocate(gen(ngen))
        ngen=0
@@ -1489,34 +1505,34 @@
 
        !Get the centring lattice translations of the crystallographic structure
        !and calculate the general multiplicity of the group.
-       Mgp%NumLat=1
+       Mgp%Num_Lat=1
        MGp%Ltr(:,:) = 0.0
        Select Case(MGp%Latt)
           case ("A")
-             Mgp%NumLat=2
+             Mgp%Num_Lat=2
              MGp%Ltr(:,1:2)=Ltr_a(:,1:2)
           case ("B")
-             Mgp%NumLat=2
+             Mgp%Num_Lat=2
              MGp%Ltr(:,1:2)=Ltr_b(:,1:2)
           case ("C")
-             Mgp%NumLat=2
+             Mgp%Num_Lat=2
              MGp%Ltr(:,1:2)=Ltr_c(:,1:2)
           case ("I")
-             Mgp%NumLat=2
+             Mgp%Num_Lat=2
              MGp%Ltr(:,1:2)=Ltr_i(:,1:2)
           case ("R")
-             Mgp%NumLat=3
+             Mgp%Num_Lat=3
              MGp%Ltr(:,1:3)=Ltr_r(:,1:3)
           case ("F")
-             Mgp%NumLat=4
+             Mgp%Num_Lat=4
              MGp%Ltr(:,1:4)=Ltr_f(:,1:4)
        End Select
 
        select case (MGp%centred)
           case (1)
-             MGp%Multip =   MGp%Numops * Mgp%NumLat
+             MGp%Multip =   MGp%Numops * Mgp%Num_Lat
           case (2)
-             MGp%Multip = 2 * MGp%Numops * Mgp%NumLat
+             MGp%Multip = 2 * MGp%Numops * Mgp%Num_Lat
        end select
 
        if (present(SGo)) then
@@ -1551,7 +1567,7 @@
        type(mAtom_List_Type),          intent (out) :: Am
 
        !---- Local Variables ----!
-       integer :: i,num_sym, num_constr, num_kvs,num_msym,num_matom, num_mom,   &
+       integer :: i,num_sym, num_constr, num_kvs,num_msym,num_matom, num_mom, num_magscat,  &
                   ier, j, m, n, k, ncar,mult,nitems,iv, num_irreps, nitems_irreps
        integer,   dimension(9)             :: lugar
        integer,   dimension(6)             :: irrep_pos
@@ -1566,7 +1582,7 @@
        character(len=132),dimension(384)   :: sym_strings
        character(len=132),dimension(384)   :: atm_strings
        character(len=132),dimension(384)   :: mom_strings
-       character(len=132),dimension(30)    :: constr_strings
+       character(len=132),dimension(30)    :: constr_strings, mag_scatt_string
        character(len=132),dimension(30)    :: irreps_strings
        character(len=132),dimension(30)    :: kv_strings
        character(len=20), dimension(15)    :: lab_items
@@ -1588,7 +1604,7 @@
            if(mcif%line(i)(j:j) == char(9)) mcif%line(i)(j:j)=" "
          end do
        end do
-       num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0
+       num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0
        cel=0.0; ang=0.0
        i=0
        call Init_Magnetic_Space_Group_Type(MGp)
@@ -1795,6 +1811,25 @@
                       if(allocated(Mgp%kv_label)) deallocate(Mgp%kv_label)
                       allocate(Mgp%kv_label(k))
                       !Treat later the propagation vectors
+
+                   Case("_atom_type_symbol")
+                      do k=1,3
+                        i=i+1
+                        if(index(mcif%line(i),"_magnetic_atom_type_symbol") == 0) then
+                          err_magsym=.true.
+                          ERR_MagSym_Mess=" Error reading the _magnetic_atom_type_symbol in loop"
+                          return
+                        end if
+                      end do
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        mag_scatt_string(k)=mcif%line(i)
+                      end do
+                      num_magscat=k
+                      !Treat later the scattering factor
 
                    Case("_magnetic_atom_site_moment_symmetry_constraints_label")
                       i=i+1
@@ -2062,6 +2097,8 @@
        end if
        ! Propagation vectors treatment done!
 
+       Call cleanup_symmetry_operators(MgP)
+
        !Treating magnetic atoms
        if(num_matom == 0) then
           Am%natoms = 0
@@ -2191,10 +2228,25 @@
              if(label == Am%Atom(j)%lab) then
                 Am%Atom(j)%SkR=matmul(Matr,Am%Atom(j)%SkR)
                 Am%Atom(j)%AtmInfo=constr_strings(i)
+                Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
                 exit
              end if
            end do
            !The treatment of the codes will be done in the future
+         end do
+       end if
+
+       if(num_magscat > 0) then !Reading the valence for determining the magnetic form factor
+         do i=1,num_magscat
+           call getword(mag_scatt_string(i),lab_items,iv)
+           do j=1,Am%natoms
+             if(Am%atom(j)%chemSymb == lab_items(1)) then
+               Am%atom(j)%SfacSymb=lab_items(2)
+               if(lab_items(2) /= ".") then !magnetic atoms
+                  Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+               end if
+             end if
+           end do
          end do
        end if
 
@@ -2204,7 +2256,7 @@
 
        !---- Find Species in Magnetic_Form ----!
        do i=1,Am%natoms
-          symbcar=u_case(Am%atom(i)%SfacSymb)
+          symbcar=get_magnetic_form_factor(Am%atom(i)%SfacSymb)
           do j=1,num_mag_form
              if (symbcar /= Magnetic_Form(j)%Symb) cycle
              Am%atom(i)%ind(1)=j
@@ -2214,6 +2266,342 @@
 
        return
     End Subroutine Readn_Set_Magnetic_Structure_MCIF
+
+    Subroutine Cleanup_Symmetry_Operators(MSpG)
+      Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+      !--- Local variables ---!
+      integer,      dimension(3,3,MSpG%Multip) :: ss
+      real(kind=cp),dimension(3,  MSpG%Multip) :: ts
+      integer,      dimension(    MSpG%Multip) :: p,ip,it
+      logical,      dimension(    MSpG%Multip) :: nul
+      real(kind=cp),dimension(3,192)           :: Lat_tr
+      real(kind=cp),dimension(3,192)           :: aLat_tr
+      integer :: i,j,k,L,m, Ng, Num_gen,num_lat, num_alat,invt,nl,i_centre
+      integer :: Isystm, Isymce, Ibravl    !out
+     ! character(len=1) :: Latsym
+      character(len=2) :: Latsy
+      integer, dimension(3,3) :: identity, nulo, inver,mat,imat
+      real(kind=cp),dimension(3) :: Co, v
+      character(len=80)          :: SpaceGen , ShOp_symb
+      logical                    :: centrosymm
+      character (len=*),dimension(0:2), parameter  :: Centro = &
+                                         (/"Centric (-1 not at origin)", &
+                                           "Acentric                  ", &
+                                           "Centric (-1 at origin)    "/)
+      !Type(Magnetic_Space_Group_Type) :: MSpGn
+
+      !MSpGn=MSpG  !copy with allocation in F2003
+      identity=0; nulo=0
+      do i=1,3
+        identity(i,i)=1
+      end do
+      inver=-identity
+      num_lat=0; num_alat=0
+      p=0
+      i=0
+      k=0
+      centrosymm=.false.
+      do j=2,MSpG%Multip
+        invt= nint(MSpG%MSymOp(j)%phas)
+        if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
+           i=i+1
+           if(invt == 1) then
+              num_lat=num_lat+1
+              Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
+              p(j)=10
+           else
+              num_alat=num_alat+1
+              aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
+              p(j)=-10
+           end if
+        else if (equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
+           k=k+1
+           if(invt == 1) then
+             p(j)=20
+             if(.not. centrosymm) then
+               centrosymm=.true.
+               i_centre=j
+             end if
+           else
+             p(j)=-20
+           end if
+        else
+           p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
+        end if
+      end do
+      if(num_lat > 0) then
+        if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
+        allocate(MSpG%Latt_trans(3,num_lat+1))
+         MSpG%Latt_trans=0.0
+         m=1
+        do j=1,num_lat
+          m=m+1
+          MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
+        end do
+        MSpG%Num_Lat=num_lat+1
+      end if
+      if(num_alat > 0) then
+        if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
+        allocate(MSpG%aLatt_trans(3,num_alat))
+        MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
+        MSpG%Num_aLat=num_alat
+      end if
+
+      !Nullify the operators that can be deduced from others by applying translations,
+      !anti-translations and centre of symmetry
+      nul=.false.
+      ip=0; it=0
+      do j=2,MSpG%Multip-1
+         if(p(j) == 10 .or. p(j) == -10)  then
+            nul(j)=.true.
+            cycle
+         end if
+         if(nul(j)) cycle
+         do i=j+1,MSpG%Multip
+           if(nul(i)) cycle
+           mat=MSpG%SymOp(i)%Rot(:,:)-MSpG%SymOp(j)%Rot(:,:)
+           if(equal_matrix(mat,nulo,3) ) then
+              v=MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+
+              if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                 nul(i)=.true.
+                 ip(i)=j
+                 it(i)=nl
+                 cycle
+              end if
+
+
+              if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                 nul(i)=.true.
+                 ip(i)=j
+                 it(i)=-nl
+                 cycle
+              end if
+
+           end if
+
+           if(centrosymm) then
+              imat=MSpG%SymOp(i)%Rot(:,:)+MSpG%SymOp(j)%Rot(:,:)
+              if(equal_matrix(imat,nulo,3)) then
+                 v=MSpG%SymOp(i_centre)%tr(:)-MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+
+                 if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                    nul(i)=.true.
+                    ip(i)=i_centre
+                    it(i)=nl
+                    cycle
+                 end if
+
+                 if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                    nul(i)=.true.
+                    ip(i)=j
+                    it(i)=-nl
+                    cycle
+                 end if
+              end if
+
+           end if
+         end do
+      end do
+      j=0
+      do i=1,MSpG%Multip
+        if(nul(i) .or. i==i_centre) cycle
+        j=j+1
+        ss(:,:,j)=MSpG%SymOp(i)%Rot
+        ts(:,j) = MSpG%SymOp(i)%tr
+        ip(j)   = nint(MSpG%MSymOp(i)%phas)
+        !write(*,"(i6,a,t70,4i4)") j, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i)
+      end do
+      MSpG%Numops=j !This is the reduced set of symmetry operators
+
+      !Construct in an ordered way all the symmetry operators in MSpG
+      !Replacing the operators in the proper order
+      do i=1,MSpG%Numops
+        MSpG%SymOp(i)%Rot= ss(:,:,i)
+        MSpG%SymOp(i)%tr= ts(:,i)
+        MSpG%MSymOp(i)%phas= ip(i)
+        MSpG%MSymOp(i)%Rot=determ_A(ss(:,:,i))*ip(i)*ss(:,:,i)
+      end do
+      m=MSpG%Numops
+      if(centrosymm) then   !First apply the centre of symmetry
+        v=MSpG%SymOp(i_centre)%tr
+        do i=1,MSpG%Numops
+          m=m+1
+          MSpG%SymOp(m)%Rot  = -MSpG%SymOp(i)%Rot
+          MSpG%SymOp(m)%tr   =  modulo_lat(-MSpG%SymOp(i)%tr+v)
+          MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
+          MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
+        end do
+      end if
+      ng=m
+      if(MSpG%Num_Lat > 1) then  !Second apply the lattice centring translations
+        do L=2,MSpG%Num_Lat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
+             MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
+           end do
+        end do
+      end if
+      if(MSpG%Num_aLat > 0) then   !Third apply the lattice centring anti-translations
+        do L=1,MSpG%Num_aLat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%aLatt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)%Rot = -MSpG%MSymOp(i)%Rot
+             MSpG%MSymOp(m)%phas= -MSpG%MSymOp(i)%phas
+           end do
+        end do
+      end if
+      !Normally here the number of operators should be equal to multiplicity
+      ng=m
+      !if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
+      !now generate all symbols for symmetry operators and magnetic matrices
+      do i=1,MSpG%Multip
+         call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
+        ! write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+        ! write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
+      end do
+      !do i=1,num_lat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
+      !end do
+      !do i=1,num_alat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
+      !end do
+     ! write(*,"(a)")
+     !do i=1,MSpG%Multip
+     ! Select Case (p(i))
+     !   Case(10)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "     Translation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(-10)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, " Antitranslation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(20)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "          Centre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(-20)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "      Anticentre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case Default
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "       Other Op.: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     ! End Select
+     !end do
+
+      !write(*,"(2i8,a,i4)")k,j,"   Centre at:  "//trim(MSpG%SymOpSymb(j))//"   "//trim(MSpG%MSymOpSymb(j)), invt
+      !do j=1,NG
+      !  i=p(j)
+      !  if(i == 0) exit
+      !  write(*,"(2i6,a,i4)")j,i, "    "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+      !end do
+    !!----   character(len=12)                              :: CrystalSys       ! Crystal system
+    !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
+    !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
+    !!----   integer                                        :: Num_Lat           ! Number of lattice points in a cell
+    !!----   real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations (3,12)
+    !!----   character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
+    !!----   integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+    !!----   real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
+    !!----   integer                                        :: NumOps           ! Number of reduced set of S.O.
+    !!----   Integer                                        :: Multip
+    !!----   integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
+    !!----   Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
+    !!----   Integer                                        :: n_kv
+    !!----   Integer                                        :: n_irreps
+    !!----   Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
+    !!----   Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
+    !!----   Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
+    !!----   Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
+    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
+    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
+    !!----   Character(len=15),   dimension(:),allocatable  :: kv_label
+    !!----   real(kind=cp),     dimension(:,:),allocatable  :: kv
+    !!----   character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
+    !!----   character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
+    !!----   type(Sym_Oper_Type), dimension(:),allocatable  :: SymOp      ! Crystallographic symmetry operators
+    !!----   character(len=40),   dimension(:),allocatable  :: MSymopSymb ! Alphanumeric Symbols for MSYMM
+    !!----   type(MSym_Oper_Type),dimension(:),allocatable  :: MSymOp     ! Magnetic symmetry operators
+    !!---- End Type Magnetic_Space_Group_Type
+      return
+    End Subroutine Cleanup_Symmetry_Operators
+
+    Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
+       !---- Argument ----!
+       real(kind=cp), dimension(3),   intent( in) :: v
+       real(kind=cp), dimension(:,:), intent( in) :: Ltr
+       integer,                       intent( in) :: nlat
+       integer,                       intent(out) :: nl
+       logical                                    :: Lattice_Transl
+
+       !---- Local variables ----!
+       real(kind=cp)   , dimension(3) :: vec
+       integer                        :: i
+
+       Lattice_Transl=.false.
+       nl=0
+
+       if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
+          Lattice_Transl=.true.
+       else                       ! if not look for lattice type
+          do i=1,nlat
+            vec=Ltr(:,i)-v
+            if (Zbelong(vec)) then
+              Lattice_Transl=.true.
+              nl=i
+              exit
+            end if
+          end do
+       end if
+       return
+    End Function is_Lattice_vec
+
+    Function get_magnetic_form_factor(element) result(formf)
+      character(len=*),intent(in) :: element
+      character(len=6)            :: formf
+      !
+      logical :: is_re
+      integer :: i,j, valence,ier
+      character(len=6)   :: melem,aux
+      integer, parameter :: n_re =12
+      character(len=*), parameter, dimension(n_re) :: re=(/"ce","pr","nd","sm","eu","gd","tb","dy","ho","er","tm","yb"/)
+      melem=l_case(element)
+      is_re=.false.
+      do i=1,n_re
+        if(index(melem,re(i)) /= 0) then
+          is_re=.true.
+           exit
+        end if
+      end do
+      if(is_re) then
+        aux=melem(3:)
+        i=index(aux,"+")
+        if(i /= 0) then
+          aux(i:i)=" "
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+        else
+           valence=3
+        end if
+        write(unit=formf,fmt="(a,i1)") "J"//melem(1:2),valence
+      else
+        i=index(melem,"+")
+        if(i /= 0) then
+          melem(i:i)=" "
+          aux=melem(i-1:i-1)
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+          melem(i-1:i-1)=" "
+        else
+           valence=2
+        end if
+        write(unit=formf,fmt="(a,i1)") "M"//trim(melem),valence
+      end if
+      formf=u_case(formf)
+      return
+    End Function get_magnetic_form_factor
+
+
 
     Subroutine Get_mOrbit(x,Spg,Mult,orb,ptr)
        !---- Arguments ----!
@@ -2347,7 +2735,7 @@
              !MSpG%SG_setting   = "Non-Conventional (user-given operators)"
              !MSpG%SPG_lat      = Lat_Ch
              !MSpG%SPG_latsy    = latsy
-             !MSpG%NumLat       = nlat
+             !MSpG%Num_Lat       = nlat
              !if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
              !allocate(MSpG%Latt_trans(3,nlat))
              !MSpG%Latt_trans   = Ltr(:,1:nlat)
@@ -2377,7 +2765,7 @@
              !MSpG%Laue         = " "
              !MSpG%Info         = "Fixed symmetry operators (no info)"
              !MSpG%SPG_lat      = Lat_Ch
-             !MSpG%NumLat       = nlat
+             !MSpG%Num_Lat       = nlat
              !
              !if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
              !allocate(MSpG%Latt_trans(3,nlat))
@@ -2443,9 +2831,9 @@
              end do
           end if
           ngm=m
-          if (MSpG%NumLat > 1) then
+          if (MSpG%Num_Lat > 1) then
 
-             do L=2,MSpG%NumLat  ! min(MSpG%NumLat,4)  restriction removed Jan2014 (JRC)
+             do L=2,MSpG%Num_Lat  ! min(MSpG%Num_Lat,4)  restriction removed Jan2014 (JRC)
                 do i=1,ngm
                    m=m+1
                    vec=MSpG%Symop(i)%tr(:) + MSpG%Latt_trans(:,L)
@@ -3037,11 +3425,11 @@
        do i=1,MGp%nkv
           write(unit=ipr,fmt="(a,i2,a,3f8.4,a)") " => Propagation vectors #",i," = (",MGp%kvec(:,i)," )"
        end do
-       if (MGp%Numlat > 1) then
-          write(unit=ipr,fmt="(a,i3)")  " => Centring vectors:",MGp%Numlat-1
+       if (MGp%Num_lat > 1) then
+          write(unit=ipr,fmt="(a,i3)")  " => Centring vectors:",MGp%Num_lat-1
           nlines=1
           texto(:) (1:100) = " "
-          do i=2,MGp%Numlat
+          do i=2,MGp%Num_lat
              call Frac_Trans_2Dig(MGp%Ltr(:,i),aux)
              if (mod(i-1,2) == 0) then
                 write(unit=texto(nlines)(51:100),fmt="(a,i2,a,a)") " => Latt(",i-1,"): ",trim(aux)
@@ -3394,7 +3782,8 @@
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_my"
        write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_mz"
        do i=1,Am%natoms
-          if(sum(abs(Am%Atom(i)%Skr(:,1))) < 0.0001) cycle
+          !if(sum(abs(Am%Atom(i)%Skr(:,1))) < 0.0001) cycle
+          if(Am%Atom(i)%moment < 0.01) cycle
           do j=1,3
             call setnum_std(Am%atom(i)%Skr(j,1),Am%atom(i)%Skr_std(j,1),text(j))
           end do

@@ -1724,7 +1724,7 @@
        !---- multipliers factors concerning centre of symmetry and
        !---- centred translations
        if (Grp%mCentred == 2) mFR=2.0*mFR
-       if (Grp%NumLat  > 1)  mFR=Grp%NumLat*mFR
+       if (Grp%Num_Lat  > 1)  mFR=Grp%Num_Lat*mFR
 
        return
     End Subroutine Set_Fixed_Tables
