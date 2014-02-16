@@ -619,8 +619,8 @@ Contains
 
       !> This subroutine, if needed, needs complete rewriting!********
       v0=ev(1)
-      alpha0=ev(6)
-      alpha1=ev(7)
+      alpha0=ev(10)
+      alpha1=ev(11)
 
       !>
       cvt=vt
