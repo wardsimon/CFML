@@ -6453,80 +6453,39 @@
        character (len=*),          intent(out) :: symb
 
        !---- Local Variables ----!
-       character(len= 25):: car
-       integer           :: i,j, np,npp,npos,suma
-
+       character(len=*),dimension(3),parameter :: xyz=(/"x","y","z"/)
+       character(len= 25)              :: car
+       character(len= 25),dimension(3) :: sym
+       integer           :: i,j
 
        !---- Main ----!
        symb=" "
-       npos=1
        do i=1,3
-          npp=0
+          sym(i)=" "
           do j=1,3
-             if (x(i,j) /= 0 ) then
-                write(unit=car,fmt="(i4)") x(i,j)
-                car=adjustl(car)
-                if (abs(x(i,j)) == 1 ) then
-                     if (npp == 0) then
-                        select case (car(1:2))
-                           case ("-1")
-                              car(2:)=car(3:)//"  "
-                           case ("+1")
-                              car=car(3:)//"  "
-                        end select
-                     else
-                        car(2:)=car(3:)//"  "
-                     end if
-                else
-                   if (npp == 0) then
-                      if (car(1:1) =="+") then
-                         car=car(2:)//"  "
-                      end if
-                   end if
-                end if
-
-                np=len_trim(car)
-                !Remove 1x 1y 1z
-                if(np == 1 .and. car(1:1) == "1") car(1:1)=" "
-                select case (j)
-                   case (1)
-                      symb(npos:)=trim(car)//"x"
-                   case (2)
-                      symb(npos:)=trim(car)//"y"
-                   case (3)
-                      symb(npos:)=trim(car)//"z"
-                end select
-                npos=len_trim(symb)+1
-                npp=npos
+             if(x(i,j) == 1) then
+                sym(i) = trim(sym(i))//"+"//xyz(j)
+             else if(x(i,j) == -1) then
+                sym(i) =  trim(sym(i))//"-"//xyz(j)
+             else if(x(i,j) /= 0) then
+               car=" "
+               write(unit=car,fmt="(i3,a)") x(i,j),xyz(j)
+               if(x(i,j) > 0) car="+"//trim(car)
+               sym(i)=trim(sym(i))//pack_string(car)
              end if
           end do
-
-          if (abs(t(i)) <= eps_symm .and. npp /= 0) then
-             if (i < 3) then
-                symb(npos:)=", "
-                npos=len_trim(symb)+2
-             end if
-             cycle
+          if (abs(t(i)) > eps_symm ) then
+             call get_fraction_2dig(t(i),car)
+             sym(i)=trim(sym(i))//trim(car)
           end if
-
-          call get_fraction_2dig(t(i),car)
-          car=adjustl(car)
-          suma=sum(abs(x(i,:)))
-          np=len_trim(car)
-          if (suma == 0) then
-             if (car(1:1) == "+") car=car(2:np)//" "
+          sym(i)=adjustl(sym(i))
+          if(sym(i)(1:1) == "+")  then
+            sym(i)(1:1) = " "
+            sym(i)=adjustl(sym(i))
           end if
-
-          if (i < 3) then
-             symb(npos:)=car(1:np)//", "
-             npos=len_trim(symb)+2
-          else
-             symb(npos:)=car(1:np)
-          end if
+          sym(i)=pack_string(sym(i))
        end do
-
-       symb=pack_string(symb)
-
+       symb=trim(sym(1))//","//trim(sym(2))//","//trim(sym(3))
        return
     End Subroutine Get_SymSymbI
 
@@ -7185,19 +7144,33 @@
                                  SpG%Hexa,          &   !
                                  SpG%SPG_lat,       &   ! Lattice type
                                  SpG%SPG_latsy,     &   ! Lattice type Symbol
-                                 SpG%NumLat,        &   ! Number of lattice points in a cell
-                                 SpG%Latt_trans,    &   ! Lattice translations
+                                 SpG%NumLat             ! Number of lattice points in a cell
+       if(ier /= 0) then
+        ok=.false.
+        return
+       end if
+
+       if(allocated(SpG%Latt_trans)) deallocate(SpG%Latt_trans)
+       allocate(SpG%Latt_trans(3,SpG%NumLat))
+
+       read(unit=Lun,iostat=ier) SpG%Latt_trans,    &   ! Lattice translations
                                  SpG%Bravais,       &   ! String with Bravais symbol + translations
                                  SpG%Centre,        &   ! Alphanumeric information about the center of symmetry
                                  SpG%Centred,       &   ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
                                  SpG%Centre_coord,  &   ! Fractional coordinates of the inversion centre
                                  SpG%NumOps,        &   ! Number of reduced set of S.O.
                                  SpG%Multip,        &   ! Multiplicity of the general position
-                                 SpG%Num_gen          ! Minimum number of operators to generate the Group
+                                 SpG%Num_gen            ! Minimum number of operators to generate the Group
        if(ier /= 0) then
         ok=.false.
         return
        end if
+
+       if(allocated(SpG%SymOp)) deallocate(SpG%SymOp)
+       allocate(SpG%SymOp(SpG%Multip))
+       if(allocated(SpG%SymOpSymb)) deallocate(SpG%SymOpSymb)
+       allocate(SpG%SymOpSymb(SpG%Multip))
+
        do i=1,SpG%Multip
          read(unit=Lun,iostat=ier) SpG%SymOp(i)%Rot,SpG%SymOp(i)%tr, & ! Symmetry operators
                                    SpG%SymopSymb(i)                    ! Strings form of symmetry operators
