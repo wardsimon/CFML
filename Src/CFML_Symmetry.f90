@@ -3903,7 +3903,7 @@
        integer, dimension(4,4)        :: m1,m2
        integer, dimension(3)          :: tt,tt1
        real(kind=cp), parameter       :: lat_norm=12.0  !a multiple of 12 is compulsory
-       integer,       parameter       :: ilat_norm=nint(lat_norm), ilat_fact=ilat_norm*4
+       integer,       parameter       :: ilat_norm=12, ilat_fact=ilat_norm*4
        integer :: i,j,k,n,nop,nopp,ipos,nt,ntp,L,jcen
        integer :: tx, ty, tz
        logical :: cen_found
