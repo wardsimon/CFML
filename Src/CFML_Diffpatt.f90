@@ -3319,7 +3319,7 @@
        !---- Local Variables ----!
        character(len=180)                           :: txt1, aline, fmtfields, fmtformat
        character (len=5)                            :: date1
-       integer                                      :: line_da, ntt, interpol, i, j,ier,npp,nb_col
+       integer                                      :: line_da, ntt, interpol, i, j,ier,npp
        real(kind=cp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm
        real(kind=cp)                                :: ycor, xt, stepin, ypn
        real(kind=cp), parameter                     :: eps1=1.0E-6

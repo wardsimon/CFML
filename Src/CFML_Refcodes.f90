@@ -4159,7 +4159,7 @@
        character(len=*), optional,          intent(in)     :: sys
 
        !---- Local variables ----!
-       integer                  :: i,j,k,nc,np_ini
+       integer                  :: i,k,nc !j,,np_ini
        character(len=len(namp)) :: name_par
        character(len=15)        :: c_system
        character(len=5)         :: info
@@ -10336,11 +10336,11 @@
 
        !---- Local variables ----!
        character(len=20)              :: car
-       character(len=60)              :: fmt1,fmt2,fmt3,fmt4,fmt5
-       Character(len=25),dimension(3) :: symcar
-       integer                        :: i,j,k,n,na,np,lun,p1,p2,p3,p4
+       character(len=60)              :: fmt1,fmt2 !,fmt3,fmt4,fmt5
+       !Character(len=25),dimension(3) :: symcar
+       integer                        :: i,na,lun !,n,j,k,np,p1,p2,p3,p4
        real(kind=cp)                  :: mu
-       real(kind=cp),dimension(3)     :: tr
+       !real(kind=cp),dimension(3)     :: tr
 
        !---- Format Zone ----!
        fmt1="(t5,a,t16,i3,t27,a,t33,4(tr6,f8.4),tr8,i2,tr6,f8.3,i9)"

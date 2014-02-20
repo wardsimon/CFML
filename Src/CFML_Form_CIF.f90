@@ -1993,8 +1993,6 @@
        integer,       dimension(12) :: ivet
        real(kind=cp), dimension(12) :: vet
        character(len=80)            :: transf_key
-       character(len=40)            :: mat
-       character(len=20)            :: ori
 
        !---- Initial values ----!
        call init_err_form()
@@ -3436,7 +3434,6 @@
        character(len=132), allocatable, dimension(:) :: file_dat
        character(len=3)                              :: modec
        integer                                       :: nlines
-       logical                                       :: read_file
 
        call init_err_form()
 
