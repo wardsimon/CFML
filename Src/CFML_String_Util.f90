@@ -1480,7 +1480,7 @@
     !!----
     Subroutine Get_Mat_From_Symb(Symb,Mat,cod)
       character(len=*),                intent(in)  :: Symb
-      real,dimension(3,3),             intent(out) :: Mat
+      real(kind=cp),dimension(3,3),    intent(out) :: Mat
       character(len=1), dimension(3),  intent(in)  :: cod
       !---- local variables ----!
       integer :: i,j
@@ -1577,7 +1577,7 @@
 
     !!----  Subroutine Get_Num_String(string,v,cod)
     !!----    character(len=*),                intent(in)  :: string
-    !!----    real,dimension(3),               intent(out) :: v
+    !!----    real(kind=cp),dimension(3),      intent(out) :: v
     !!----    character(len=1), dimension(3),  intent(in)  :: cod
     !!----
     !!----  Auxiliary subroutine of Get_Mat_From_Symb. This subroutine extracts
@@ -1590,7 +1590,7 @@
 
     Subroutine Get_Num_String(string,v,cod)
       character(len=*),                intent(in)  :: string
-      real,dimension(3),               intent(out) :: v
+      real(kind=cp),dimension(3),      intent(out) :: v
       character(len=1), dimension(3),  intent(in)  :: cod
       !--- Local variables ---!
       integer :: i,k,ns,np,nterm,m,nsp,jk,jp
@@ -2362,7 +2362,7 @@
 
     !!--..  Subroutine Read_Fract(str,valu)
     !!--..   Character(len=*), intent(in) :: str
-    !!--..   real,             intent(out):: valu
+    !!--..   real(kind=cp),    intent(out):: valu
     !!--..
     !!--..  Auxiliary subroutine for reading a string containing a real number
     !!--..  or a fraction. Is able to handle simple symbols:"", "-", "+", means
@@ -2372,7 +2372,7 @@
     !!--..
     Subroutine Read_Fract(str,valu)
      Character(len=*), intent(in) :: str
-     real,             intent(out):: valu
+     real(kind=cp),    intent(out):: valu
      !--- Local variables ---!
      integer :: k, ierr
      real(kind=cp) :: num,den

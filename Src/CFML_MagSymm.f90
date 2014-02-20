@@ -481,10 +481,6 @@
        !---- Arguments ----!
        type(MagSymm_k_Type),  intent (in out) :: MGp
 
-       !---- Local variables ----!
-       integer :: i,j
-
-
        MGp%MagModel="Unnamed Model"
        MGp%Sk_Type="Crystal_Frame"       ! "Spherical_Frame"
        MGp%Latt="P"
@@ -556,11 +552,9 @@
        character(len=*),                  intent(in)  :: mode
        Type(MagSymm_k_Type),              intent(out) :: MG_Symk
        !---- Local variables ----!
-       Type(Space_Group_Type) :: SpG
-       integer :: i,j,k,L,m,n, ngen
+       integer :: i,k
        logical :: full_convertion
-       integer,      dimension(5)    :: pos
-       real(kind=cp)                 :: ph
+       real(kind=cp)        :: ph
        character(len=40),dimension(:), allocatable   :: gen
        character(len=132)   :: lowline,line
        character(len=30)    :: magmod, shubk
@@ -739,11 +733,10 @@
        Type(Magnetic_Space_Group_Type),   intent(out) :: MSpG
        !---- Local variables ----!
        Type(Space_Group_Type) :: SpG
-       integer :: i,j,k,L,m,n, ngen
-       integer,      dimension(5)    :: pos
-       real(kind=cp)                 :: ph
+       integer :: i,m,n, ngen
+       real(kind=cp)        :: ph
        character(len=40),dimension(:), allocatable   :: gen
-       character(len=132)   :: lowline,line
+       character(len=132)   :: lowline
        character(len=30)    :: magmod, shubk
        character(len=2)     :: lattice, chardom
        character(len=4)     :: symbcar
@@ -1567,12 +1560,11 @@
        type(mAtom_List_Type),          intent (out) :: Am
 
        !---- Local Variables ----!
-       integer :: i,num_sym, num_constr, num_kvs,num_msym,num_matom, num_mom, num_magscat,  &
+       integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat,  &
                   ier, j, m, n, k, ncar,mult,nitems,iv, num_irreps, nitems_irreps
        integer,   dimension(9)             :: lugar
        integer,   dimension(6)             :: irrep_pos
        integer,   dimension(5)             :: pos
-       integer,   dimension(3)             :: code
        real(kind=cp)                       :: ph
        real(kind=cp),dimension(3)          :: cel,ang,cel_std,ang_std
        real(kind=cp),dimension(6)          :: values,std
@@ -1592,7 +1584,7 @@
        character(len=4)     :: symbcar
        logical              :: ktag
 
-       type(Magnetic_Group_Type)  :: SG
+       !type(Magnetic_Group_Type)  :: SG
        type(file_list_type)       :: mcif
 
        call init_err_MagSym()
@@ -2276,8 +2268,8 @@
       logical,      dimension(    MSpG%Multip) :: nul
       real(kind=cp),dimension(3,192)           :: Lat_tr
       real(kind=cp),dimension(3,192)           :: aLat_tr
-      integer :: i,j,k,L,m, Ng, Num_gen,num_lat, num_alat,invt,nl,i_centre
-      integer :: Isystm, Isymce, Ibravl    !out
+      integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
+      integer :: Isymce, Ibravl    !Isystm, out
      ! character(len=1) :: Latsym
       character(len=2) :: Latsy
       integer, dimension(3,3) :: identity, nulo, inver,mat,imat
@@ -2561,7 +2553,7 @@
       character(len=6)            :: formf
       !
       logical :: is_re
-      integer :: i,j, valence,ier
+      integer :: i,valence,ier
       character(len=6)   :: melem,aux
       integer, parameter :: n_re =12
       character(len=*), parameter, dimension(n_re) :: re=(/"ce","pr","nd","sm","eu","gd","tb","dy","ho","er","tm","yb"/)
@@ -2668,15 +2660,15 @@
        character (len=130)              :: gener
        character (len=8)                :: opcion
        character (len=2)                :: Latsy
-       integer                          :: num, i, j, iv, istart
+       integer                          :: num, i, iv, istart
        integer,      dimension(1)       :: ivet
        integer,      dimension(5)       :: poscol
-       integer                          :: isystm,isymce,ibravl,Num_g
-       integer                          :: m,l,ngm,k,ier,nlat
+       integer                          :: isymce,ibravl,Num_g !isystm,
+       integer                          :: m,l,ngm,ier,nlat
        integer                          :: ng
        integer,      dimension(3,3,384) :: ss
-       real(kind=cp),dimension(3,384)   :: ts,Ltr
-       integer,      dimension(384)     :: invt
+       real(kind=cp),dimension(3,384)   :: ts !,Ltr
+       !integer,      dimension(384)     :: invt
        real(kind=cp),dimension(3)       :: co
        real(kind=cp),dimension(1)       :: vet
        real(kind=cp),dimension(3)       :: vec
@@ -3602,7 +3594,7 @@
        Character(len=132)             :: line
        character(len=40),dimension(6) :: text
        character(len=2)               :: invc
-       real                           :: occ,occ_std,uiso,uiso_std
+       real(kind=cp)                  :: occ,occ_std,uiso,uiso_std
        integer :: i,j,k
 
        write(unit=Ipr,fmt="(a)") "#  --------------------------------------"

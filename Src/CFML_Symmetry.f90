@@ -3473,9 +3473,9 @@
 
     !!----
     !!---- Subroutine Get_Seitz_Symbol(iop,itim,tr,Seitz_symb)
-    !!----    integer,                 intent(in) :: iop,itim      !  In -> Number of the rotational matrix, time inversion
-    !!----    real,    dimension(3),   intent(in) :: tr            !  In -> Translation part
-    !!----    character(len=*),        intent(out):: Seitz_symb    ! Out -> Seitz Symbol
+    !!----    integer,                   intent(in) :: iop,itim      !  In -> Number of the rotational matrix, time inversion
+    !!----    real(kind=cp),dimension(3),intent(in) :: tr            !  In -> Translation part
+    !!----    character(len=*),          intent(out):: Seitz_symb    ! Out -> Seitz Symbol
     !!----
     !!----    Provide the Seitz symbol of a symmetry operator. It uses the Litvin notation and
     !!----    the ordering is that of Table given by Harold T. Stokes and Branton J. Campbell.
