@@ -1437,7 +1437,7 @@
 
        !---- Local Variables ----!
        logical :: deleted
-       integer :: i,j
+       integer :: i
 
        deleted=.false.
 

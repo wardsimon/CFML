@@ -554,8 +554,8 @@
        !---- Local variables ----!
        integer :: i,k
        logical :: full_convertion
-       real(kind=cp)        :: ph
-       character(len=132)   :: lowline,line
+       !real(kind=cp)        :: ph
+       character(len=132)    :: line !lowline,
        !character(len=30)    :: magmod, shubk
        !character(len=2)     :: lattice, chardom
        !character(len=4)     :: symbcar
@@ -2266,11 +2266,11 @@
       real(kind=cp),dimension(3,192)           :: Lat_tr
       real(kind=cp),dimension(3,192)           :: aLat_tr
       integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
-      integer :: Isymce, Ibravl    !Isystm, out
+      !integer :: Ibravl,Isystm, out
      ! character(len=1) :: Latsym
      ! character(len=2) :: Latsy
       integer, dimension(3,3) :: identity, nulo, inver,mat,imat
-      real(kind=cp),dimension(3) :: Co, v
+      real(kind=cp),dimension(3) ::  v !Co,
       character(len=80)          :: ShOp_symb ! SpaceGen ,
       logical                    :: centrosymm
       character (len=*),dimension(0:2), parameter  :: Centro = &
@@ -2657,16 +2657,16 @@
        !character (len=130)              :: gener
        character (len=8)                :: opcion
        !character (len=2)                :: Latsy
-       integer                          :: num, i, iv, istart
+       integer                          :: num, i  !, iv, istart
        !integer,      dimension(1)       :: ivet
        !integer,      dimension(5)       :: poscol
-       integer                          :: Num_g !isymce,isystm,ibravl
+       !integer                          :: Num_g !isymce,isystm,ibravl
        integer                          :: m,l,ngm,nlat !,ier
        integer                          :: ng
        integer,      dimension(3,3,384) :: ss
        real(kind=cp),dimension(3,384)   :: ts !,Ltr
        !integer,      dimension(384)     :: invt
-       real(kind=cp),dimension(3)       :: co
+       !real(kind=cp),dimension(3)       :: co
        !real(kind=cp),dimension(1)       :: vet
        real(kind=cp),dimension(3)       :: vec
        !logical                          :: ok
