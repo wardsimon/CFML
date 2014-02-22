@@ -2887,6 +2887,8 @@
           SpaceGroup%R_Asym_Unit(3,2) = real(spgr_info(k)%asu(6))/24.0
        else
           SpaceGroup%Spg_Symb     = "Unknown"
+          SpaceGroup%Info         = "User-provided generators "
+
        end if
 
        if (present(SpaceH) ) SpaceH=hall

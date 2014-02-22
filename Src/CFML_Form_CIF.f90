@@ -2577,12 +2577,12 @@
        Type(Job_Info_type), optional,intent(out)  :: Job_Info
 
        !---- Local variables ----!
-       character(len=132)        :: line
-       character(len= 20)        :: Spp
-
-       integer                   :: i, nauas, ndata, iph, n_ini,n_end
-       integer, parameter        :: maxph=21  !Maximum number of phases "maxph-1"
-       integer, dimension(maxph) :: ip
+       character(len=132)               :: line
+       character(len= 20)               :: Spp
+       character(len= 40),dimension(192):: gen
+       integer                          :: i, nauas, ndata, iph, n_ini,n_end,ngen,k,nsym
+       integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
+       integer, dimension(maxph)        :: ip
 
        real(kind=cp),dimension(3):: vet
 
@@ -2627,9 +2627,40 @@
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
        call read_File_Spg (file_dat,n_ini,n_end,Spp)
-       if (err_form) return
-       call Set_SpaceGroup(Spp,SpG) !Construct the space group
-
+       if (err_form) then !Try to read symmetry operators or generators
+         ngen=0
+         nsym=0
+         do i=n_ini, n_end
+           line=l_case(adjustl(file_dat(i)))
+           if(line(1:4) == "symm") nsym=nsym+1
+           if(line(1:3) == "gen")  ngen=ngen+1
+         end do
+         if(ngen > 0) then
+           k=0
+           do i=n_ini, n_end
+             line=l_case(adjustl(file_dat(i)))
+             if(line(1:3) == "gen")  then
+              k=k+1
+              gen(k)=adjustl(line(5:))
+             end if
+           end do
+           call Set_SpaceGroup(" ",SpG,gen,ngen,"gen")   !Construct the space group from generators
+         else if (nsym > 0) then
+           k=0
+           do i=n_ini, n_end
+             line=l_case(adjustl(file_dat(i)))
+             if(line(1:4) == "symm")  then
+              k=k+1
+              gen(k)=adjustl(line(6:))
+             end if
+           end do
+           call Set_SpaceGroup(" ",SpG,gen,nsym,"fix")  !Construct the space group from fixed symmetry elements
+         else
+           return
+         end if
+       else
+          call Set_SpaceGroup(Spp,SpG) !Construct the space group
+       end if
        !---- Read Atoms Information ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
