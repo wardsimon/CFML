@@ -110,7 +110,7 @@
     use CFML_Atom_TypeDef,               only: atom_list_type,Atoms_Cell_Type,Equiv_Atm, Wrt_Lab, Atom_Equiv_List_Type, &
                                                allocate_atom_list
     use CFML_Crystallographic_Symmetry,  only: Space_Group_Type, ApplySo, Lattice_Trans, Get_Multip_Pos, &
-                                               searchop, Read_SymTrans_Code, Write_SymTrans_Code
+                                               searchop, Read_SymTrans_Code, Write_SymTrans_Code, Get_Orbit
 
     implicit none
 
@@ -2495,11 +2495,12 @@
        character (len=*), optional,   intent(in    ) :: debug
        ! Local variables
        integer                           :: i,j,k,m,ifail,L,n,Ls,ip
-       integer                           :: i1,i2,i3,maxa,maxp,maxm
+       integer                           :: i1,i2,i3,maxa,maxp,maxm,mult
        real(kind=cp), dimension (3,3)    :: S,Sinv
        real(kind=cp)                     :: determ
        logical                           :: newp,fail
        real(kind=cp), dimension (  3)    :: pos
+       real(kind=cp), dimension (3,192)  :: orb
        type(point_list_type)             :: pl,att
        type (Atom_list_Type)             :: A
        character(len=*),parameter,dimension(26) :: let=(/"a","b","c","d","e","f","g","h", &
@@ -2637,12 +2638,15 @@
        if(fail .and. present(debug)) then
           write(*,*) "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
        else
-          write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
+          !write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
        end if
        do i=1,A_n%natoms
          !write(*,*) "   ",i,A%atom(i)%Lab,A%atom(i)%x
          A_n%atom(i)%x= A%atom(i)%x
          A_n%atom(i)%Lab= A%atom(i)%Lab
+         call Get_Orbit(A_n%atom(i)%x,Spgn,Mult,orb)
+         A_n%atom(i)%Mult=mult
+         A_n%atom(i)%occ=real(mult)/real(Spgn%Multip)
        end do
        if(allocated(A%atom)) deallocate(A%atom)
        if(present(debug)) close(unit=lu)

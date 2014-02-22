@@ -15,7 +15,7 @@ Module Super_Exchange
   public ::  Get_Expo, rkky, equiv_jotas, init_exchange_interaction, &
              write_exchange_interaction, Get_vect
 
-  integer, parameter, public :: num_de=250, num_se=100, num_sse=200
+  integer, parameter, public :: num_de=250, num_se=100, num_sse=200, maxss=16
 
   interface  Get_Expo
     module procedure Get_Expo_c
@@ -24,19 +24,19 @@ Module Super_Exchange
 
   Type, public :: Exchange_interaction
      character(len=3)     :: J       ! Name of J
-     character(len=4)     :: nam1    ! Nature of atom1
-     character(len=4)     :: nam2    ! Nature of atom2
+     character(len=6)     :: nam1    ! Nature of atom1
+     character(len=6)     :: nam2    ! Nature of atom2
      integer              :: ns      ! Number of superexchange paths
      integer              :: nss     ! Number of super-superexchange paths
      integer              :: nde     ! 0 if no direct exchange, 1 if direct exchange
      real                 :: valj    ! value of the exchange integral
      real                 :: dist    ! distance betwen atoms atom1-atom2
-     character(len=40)               :: de_nam  ! atom1-atom2(transl)
-     character(len=40),dimension(6)  :: s_nam   ! atom1-atom2-atom3(transl)
-     real,             dimension(3,6):: se_geo  ! super-exchange geometry
-                                                ! Up to 6 s-e paths:(d1,d2,theta)1,(d1,d2,theta)2, ...(d1,d2,theta)6
-     character(len=50),dimension(6)  :: ss_nam  ! atom1-atom2-atom3-atom4(transl)
-     real,             dimension(6,6):: sse_geo ! super-exchange geometry (up to six ss-e) (d1,d2,d3,ang1,ang2,dihed,dtot)
+     character(len=60)                   :: de_nam  ! atom1-atom2(transl)
+     character(len=60),dimension(maxss)  :: s_nam   ! atom1-atom2-atom3(transl)
+     real,             dimension(3,maxss):: se_geo  ! super-exchange geometry
+                                                ! Up to 16 s-e paths:(d1,d2,theta)1,(d1,d2,theta)2, ...(d1,d2,theta)6
+     character(len=70),dimension(maxss)  :: ss_nam  ! atom1-atom2-atom3-atom4(transl)
+     real,             dimension(6,maxss):: sse_geo ! super-exchange geometry (up to six ss-e) (d1,d2,d3,ang1,ang2,dihed,dtot)
   End Type  Exchange_interaction
 
   Type, public :: Direct_Ex_path
@@ -52,7 +52,7 @@ Module Super_Exchange
      character(len=10)    :: nam1  ! atom1
      character(len=10)    :: nam2  ! atom2
      character(len=10)    :: nam3  ! atom3
-     character(len=40)    :: nam   ! atom1-atom2-atom3(transl)
+     character(len=60)    :: nam   ! atom1-atom2-atom3(transl)
      real, dimension(4)   :: geom  !(d12, d23, angle(123), dtot )
      real, dimension(3,3) :: coord !Fractional coordinates of atom k:  coord(:,k) (k=1,2,3)
      real, dimension(3,3) :: carte !Cartesian  coordinates of atom k:  carte(:,k) (k=1,2,3)
@@ -63,7 +63,7 @@ Module Super_Exchange
      character(len=10)    :: nam2  ! atom2
      character(len=10)    :: nam3  ! atom3
      character(len=10)    :: nam4  ! atom4
-     character(len=50)    :: nam   ! atom1-atom2-atom3-atom4(transl)
+     character(len=70)    :: nam   ! atom1-atom2-atom3-atom4(transl)
      real, dimension(7)   :: geom  !(d12, d23, d24,angle(123),angle(234), Dihedral(1234), dtot)
      real, dimension(3,4) :: coord !Fractional coordinates of atom k:  coord(:,k) (k=1,2,3,4)
      real, dimension(3,4) :: carte !Cartesian  coordinates of atom k:  carte(:,k) (k=1,2,3,4)
@@ -84,9 +84,10 @@ Module Super_Exchange
    Subroutine Get_vect(trans,vect)
     character (len=*),  intent(in)  :: trans
     real, dimension(3), intent(out) :: vect
-    character (len=5), dimension(3)  :: XX
+    character (len=10), dimension(3):: XX
     integer:: i1,i2,i
     real   :: num, denom
+
       i1=index(trans,",")
       i2=index(trans,",",back=.true.)
       XX(1)=trans(2:i1-1)
@@ -111,9 +112,10 @@ Module Super_Exchange
                                  ! 1234567890123456
                                  ! (-X/2+ Y/4-8Z/9) -> -X/2+Y/4-8Z/9
                                  ! (-1/2, 1/4,-8/9) -> -X/2+Y/4-8Z/9
-    character (len=16) :: ex
-    character (len=5)  :: XX,YY,ZZ
+    character (len=25) :: ex
+    character (len=10) :: XX,YY,ZZ
     integer:: i1,i2
+
       i1=index(trans,",")
       i2=index(trans,",",back=.true.)
       XX=trans(2:i1-1)
@@ -127,7 +129,9 @@ Module Super_Exchange
         XX=trim(XX)//"X"
       end if
       i1=index(XX,"X")
-      if(XX(i1-1:i1-1) == "1") XX(i1-1:i1-1)=" "
+      if(i1-1 > 0) then
+        if(XX(i1-1:i1-1) == "1") XX(i1-1:i1-1)=" "
+      end if
       if(XX(1:1) == "0")  XX="     "
 
       !!  YY
@@ -139,8 +143,10 @@ Module Super_Exchange
       end if
       if(YY(1:1) /= "-") YY="+"//YY
       i1=index(YY,"Y")
-      if(YY(i1-1:i1-1) == "1") YY(i1-1:i1-1)=" "
-      if(YY(i1-1:i1-1) == "0") YY="     "
+      if(i1-1 > 0) then
+        if(YY(i1-1:i1-1) == "1") YY(i1-1:i1-1)=" "
+        if(YY(i1-1:i1-1) == "0") YY="     "
+      end if
 
       !!  ZZ
       i1=index(ZZ,"/")
@@ -151,8 +157,10 @@ Module Super_Exchange
       end if
       if(ZZ(1:1) /= "-") ZZ="+"//ZZ
       i1=index(ZZ,"Z")
-      if(ZZ(i1-1:i1-1) == "1") ZZ(i1-1:i1-1)=" "
-      if(ZZ(i1-1:i1-1) == "0")  ZZ="     "
+      if(i1-1 > 0) then
+        if(ZZ(i1-1:i1-1) == "1") ZZ(i1-1:i1-1)=" "
+        if(ZZ(i1-1:i1-1) == "0")  ZZ="     "
+      end if
 
       ex=XX//YY//ZZ
      if(len_trim(ex) == 0) then
@@ -167,7 +175,7 @@ Module Super_Exchange
    Subroutine Get_Expo_r(v, expo)
     real, dimension(3), intent(in)  :: v
     character (len=*), intent(out) :: expo
-    character (len=16) :: transla, ex
+    character (len=25) :: transla, ex
                                    ! 1234567890123456
                                    ! (-X/2+ Y/4-8Z/9) -> -X/2+Y/4-8Z/9
      call Frac_Trans_1Dig(v,transla)        ! (-1/2, 1/4,-8/9) -> -X/2+Y/4-8Z/9
@@ -230,7 +238,7 @@ Module Super_Exchange
      Logical :: equiv
      !Local variables
      real, parameter :: eps=0.002, epa=0.02
-     integer, dimension(6) :: neq
+     integer, dimension(maxss) :: neq
      real :: d1,d2,d3,ang1,ang2,ang3
      integer :: i,j
 

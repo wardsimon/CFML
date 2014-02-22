@@ -1378,7 +1378,7 @@
         if (present(lun))then
          write(unit=lun,fmt="(/,a,a)") " => Equivalent positions of atom: ",A%atom(k)%lab
          write(unit=lun,fmt="(a)")  &
-         "                          x         y         z          Xc        Yc        Zc"
+         "                                    x         y         z          Xc        Yc        Zc"
         end if
         fmm="(a,i1)"
         !!!!write(unit=Ate%atm(k)%lab(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L

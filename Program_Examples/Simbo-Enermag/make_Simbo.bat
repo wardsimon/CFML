@@ -18,6 +18,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd     goto IFORTD
    echo    Unknown compiler!
    goto FIN
 rem
@@ -37,6 +38,12 @@ rem ****---- Intel Compiler ----****
    ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
    ifort /c Simbo.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
    link /subsystem:console /stack:64000000 /out:Simbo.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   goto END
+rem
+:IFORTD
+   ifort /c Sup_Exc.f90 /debug:full /check /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Simbo.f90   /debug:full /check /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
+   link /subsystem:console /out:Simbo.exe *.obj C:\CrysFML\ifort_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

@@ -43,8 +43,8 @@
      integer                    :: n_mag,im,km
      real, dimension(3)         :: vm,vmp,va,vap,vmmp,vma,vmpap,vaap
      real                       :: d2, ang, ang1,ang2, ang3, dis,dir2
-     character (len=40)         :: tangl
-     character (len=16)         :: translat
+     character (len=60)         :: tangl
+     character (len=40)         :: translat
 
      d2= dbond*dbond   !Square of the distance cation-anion for s-ex and ss-ex paths
                        !Square of the distance  anion-anion for s-ex and ss-ex paths
@@ -67,7 +67,7 @@
 
 
      do i=1,num_de
-       spaths(:,:)%DE(i)%nam(1:40)=" "
+       spaths(:,:)%DE(i)%nam(1:)=" "
        do j=1,3
         do k=1,2
          spaths(:,:)%DE(i)%coord(j,k)=0.0
@@ -76,7 +76,7 @@
      end do
 
      do i=1,num_se
-      spaths(:,:)%SE(i)%nam(1:40)=" "
+      spaths(:,:)%SE(i)%nam(1:)=" "
       do j=1,4
        spaths(:,:)%SE(i)%geom(j)=0.0
       end do
@@ -88,7 +88,7 @@
      end do
 
      do i=1,num_sse
-      spaths(:,:)%SSE(i)%nam(1:40)=" "
+      spaths(:,:)%SSE(i)%nam(1:)=" "
       do j=1,7
        spaths(:,:)%SSE(i)%geom(j)=0.0
       end do
@@ -192,7 +192,7 @@
                                         !Super-Exchange path         /   \
                                         !                           M-----M'
               nsij=nsij+1               !                             vmmp
-              tangl(1:40)=" "
+              tangl=" "
               write(unit=tangl,fmt="(5a)") trim(Ac%noms(i)),"-",trim(Ac%noms(ki)),"-",trim(Ac%noms(k))
 
               ang=Angle_uv(vma,vmpap)
@@ -258,7 +258,7 @@
              dis=sqrt(dis)
              ang3=angle_dihedral(vma,vaap,-vmpap)
 
-             tangl(1:40)=" "
+             tangl=" "
              write(unit=tangl,fmt="(7a)") trim(Ac%noms(i)),"-",trim(Ac%noms(ki)),"-",&
                                  trim(Ac%noms(kk)),"-",trim(Ac%noms(k))
 
@@ -301,7 +301,7 @@
            dis=dot_PRODUCT(vmmp,vmmp)
            if(dis <= dir2) then
               spaths(im,km)%nd=spaths(im,km)%nd+1
-              tangl(1:40)=" "
+              tangl=" "
               write(unit=tangl,fmt="(3a)") trim(Ac%noms(i)),"-",trim(Ac%noms(k))
               spaths(im,km)%DE(spaths(im,km)%nd)%nam1=trim(Ac%noms(i))
               spaths(im,km)%DE(spaths(im,km)%nd)%nam2=trim(Ac%noms(k))
@@ -408,11 +408,11 @@
     integer                             :: i,j,k,im,km,j1,j2,n,L,nj,nt
     integer, dimension(n_mag,n_mag)     :: nterms
     integer,          dimension(max_jx) :: p
-    character(len=16),dimension(max_jx) :: trans
-    character(len=16),dimension(max_jx) :: Nam_12
-    character(len=60)                   :: text
-    character(len=30)                   :: expo
-    character(len=16)                   :: transla
+    character(len=25),dimension(max_jx) :: trans
+    character(len=25),dimension(max_jx) :: Nam_12
+    character(len=180)                  :: text
+    character(len=60)                   :: expo
+    character(len=25)                   :: transla
     real, dimension(3)                  :: vect
     real :: dmin
     type (Exchange_interaction), dimension(n_mag,n_mag,max_jx) :: jota
@@ -651,7 +651,7 @@
 
           text=jota(im,km,nt)%J//" : "//trim(jota(im,km,nt)%s_nam(1))//trim(jota(im,km,nt)%ss_nam(1))
           if(len_trim(text) == 0) text=trim(jota(im,km,nt)%nam1)//trim(jota(im,km,nt)%nam2)//" <-Direct-Exchange"
-         ! write(*,"(a,2i3,a,i3,a)") " => Element: (",im,km,") -> Term: ",nt,"  Trans:"//transla
+          !write(*,"(a,2i3,a,i3,a)") " => Element: (",im,km,") -> Term: ",nt,"  Trans:"//transla
           call Get_Expo(transla,expo)
           call Get_vect(transla,vect)
          !  reading from ENERMAG

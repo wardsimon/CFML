@@ -2885,6 +2885,8 @@
           SpaceGroup%R_Asym_Unit(1,2) = real(spgr_info(k)%asu(4))/24.0
           SpaceGroup%R_Asym_Unit(2,2) = real(spgr_info(k)%asu(5))/24.0
           SpaceGroup%R_Asym_Unit(3,2) = real(spgr_info(k)%asu(6))/24.0
+       else
+          SpaceGroup%Spg_Symb     = "Unknown"
        end if
 
        if (present(SpaceH) ) SpaceH=hall
