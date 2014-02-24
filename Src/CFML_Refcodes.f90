@@ -4155,6 +4155,7 @@
        real(kind=cp),                       intent(in)     :: Xu   !Upper bound of parameter
        real(kind=cp),                       intent(in)     :: Xs   !Step of parameter
        integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
+       !integer,                             intent(in)     :: Imstart   !Starting index for mode search
        type(NonAtomic_Parameter_List_Type), intent(in out) :: model
        character(len=*), optional,          intent(in)     :: sys
 
@@ -4204,7 +4205,7 @@
                    !---- CELL ----!
                    do i=1,model%npar
                       name_par=l_case(model%par(i)%nam)
-                        if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
+                      if   ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
                              trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
                              trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
                              trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma".or.&
@@ -4323,7 +4324,7 @@
 
                       do i=1,model%npar
                          name_par=l_case(model%par(i)%nam)
-                         if ( trim(name_par) == "a" .or. trim(name_par) == "cell-a" .or. trim(name_par) == "cell_a" ) then
+                         if ( trim(name_par) == "a" .or. index(name_par,"cell-a") /= 0 .or. index(name_par,"cell_a") /= 0 ) then
                             k=i
                             exit
                          end if
