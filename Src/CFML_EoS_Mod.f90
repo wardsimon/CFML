@@ -3088,6 +3088,9 @@ Contains
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
 
+      !---- Local Variables ----!
+      integer :: i
+
       !> Init
       eospar%iuse=0
 
@@ -3104,32 +3107,38 @@ Contains
 
       select case(eospar%itherm)
          case(1)             ! Berman
-             eospar%iuse(5)=1     ! allow dK/dT
+             if (eospar%imodel /=0) eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10:11)=1 ! alpha terms
 
          case(2)             ! Fei
-             eospar%iuse(5)=1     ! allow dK/dT
+             if (eospar%imodel /=0) eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10:12)=1 ! alpha terms
 
          case(3)             ! HP 1998
-             eospar%iuse(5)=1     ! allow dK/dT
+             if (eospar%imodel /=0) eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10:11)=1 ! alpha terms
 
          case(4)             ! Holland-Powell thermal expansion, in Kroll form
              if(eospar%iuse(3) == 0)eospar%iuse(3)=2     ! require Kprime_zero but not stable in refinement if no P data (added 27/01/2014 RJA)
-             eospar%iuse(5)=1     ! allow dK/dT
+             if (eospar%imodel /=0) eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10)=1    ! alpha at Tref
              eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
 
          case(5)             ! Salje
-             eospar%iuse(5)=1     ! allow dK/dT
+             if (eospar%imodel /=0) eospar%iuse(5)=1     ! allow dK/dT
              eospar%iuse(10:11)=1
 
          case(6)             ! Thermal pressure in H&P form (no dK/dT): requires a eos model as well
+             eospar%iuse(2:3)=2   ! K, Kp refinement is not stable
              eospar%iuse(5)=0     ! No dK/dT parameter:
              eospar%iuse(10)=1    ! alpha at Tref
              eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
       end select
+
+      !> JGP
+      do i=1,n_eospar
+         if (eospar%iuse(i) /=1) eospar%iref(i)=0
+      end do
 
       return
    End Subroutine Set_Eos_Use
