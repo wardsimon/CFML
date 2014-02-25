@@ -28,11 +28,11 @@
 
     contains
 
-   Subroutine Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex,Cell,SpG,Ac,spaths)
+   Subroutine Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex1,directex2,Cell,SpG,Ac,spaths)
      integer,                  intent(in)       :: lun
      logical,                  intent(in)       :: iprin
      real,                     intent(in)       :: dmax
-     real,                     intent(in)       :: dbond,angm,angn,directex
+     real,                     intent(in)       :: dbond,angm,angn,directex1,directex2
      type (Crystal_cell_type), intent(in)       :: Cell
      type (Space_Group_type),  intent(in)       :: SpG
      type (Atoms_Cell_type),   intent(in out)   :: Ac
@@ -42,13 +42,14 @@
      integer                    :: i,j,k,ki,kk,ji,jk,nsij,nssij
      integer                    :: n_mag,im,km
      real, dimension(3)         :: vm,vmp,va,vap,vmmp,vma,vmpap,vaap
-     real                       :: d2, ang, ang1,ang2, ang3, dis,dir2
+     real                       :: d2, ang, ang1,ang2, ang3, dis,dir1,dir2
      character (len=60)         :: tangl
      character (len=40)         :: translat
 
      d2= dbond*dbond   !Square of the distance cation-anion for s-ex and ss-ex paths
                        !Square of the distance  anion-anion for s-ex and ss-ex paths
-     dir2=directex*directex   !Square of the distance for direct exchange
+     dir1=directex1*directex1   !Square of the distance for minimal direct exchange
+     dir2=directex2*directex2   !Square of the distance for maximal direct exchange
 
      !Construct full connectivity of atoms in the cell without printing
      !The structure Ac(Atoms_Cell_type) contains all atoms + coordinations, etc...
@@ -104,7 +105,8 @@
        write(unit=lun,fmt="( a,/)") "   =========================="
      end if
      write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance between magnetic atoms:",dmax,  " angstroms"
-     write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance for direct exchange   :",directex," angstrom"
+     write(unit=lun,fmt="(a,f9.3,a)")  "   Minimum distance for direct exchange   :",directex1," angstrom"
+     write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance for direct exchange   :",directex2," angstrom"
      write(unit=lun,fmt="(a,f9.3,a)")  "   Maximum distance between anions        :",dbond, &
                                        " angstroms (also for cation-anion bonds)"
      write(unit=lun,fmt="(a,f9.3,a )") "   Maximum angle between M-M' and M-A     :",angm , " degrees"
@@ -299,7 +301,7 @@
 
          if(spaths(im,km)%ns + spaths(im,km)%nss == 0) then ! Test for direct exchange
            dis=dot_PRODUCT(vmmp,vmmp)
-           if(dis <= dir2) then
+           if(dis <= dir2 .and. dis > dir1) then
               spaths(im,km)%nd=spaths(im,km)%nd+1
               tangl=" "
               write(unit=tangl,fmt="(3a)") trim(Ac%noms(i)),"-",trim(Ac%noms(k))
@@ -498,6 +500,7 @@
            jota(im,km,nt)%nam1=spaths(im,km)%DE(1)%nam1(1:j1-1)
            j1=index(spaths(im,km)%DE(1)%nam2,"_")
            jota(im,km,nt)%nam2=spaths(im,km)%DE(1)%nam2(1:j1-1)
+           jota(im,km,nt)%nde=1
 
           end if
 
@@ -530,6 +533,7 @@
               if(nt == p(n)) then
                 jota(im,km,nt)%dist = spaths(im,km)%DE(i)%dist
                 jota(im,km,nt)%de_nam = spaths(im,km)%DE(i)%nam
+                jota(im,km,nt)%nde=1
               end if
            !end if
            end do
@@ -593,9 +597,10 @@
     end do
 
 
-    write(unit=lun,fmt="(/,/,a)") " ============================================================"
-    write(unit=lun,fmt="(a)")     " ======>  LIST OF INDEPENDENT EXCHANGE INTERACTIONS  <======="
-    write(unit=lun,fmt="(a,/,/)") " ============================================================"
+    write(unit=lun,fmt="(/,/,a)") "  ============================================================"
+    write(unit=lun,fmt="(a)")     "  ======>  LIST OF INDEPENDENT EXCHANGE INTERACTIONS  <======="
+    write(unit=lun,fmt="(a,/,/)") "  ============================================================"
+    write(unit=lun,fmt="(a)")     " (Warning:  direct exchange interactions may not be independent)"
 
     do i=1,nj
         call write_exchange_interaction(lun,jxch(i))
@@ -603,9 +608,9 @@
 
     do im=1,n_mag
       do km=1,n_mag
-        write(unit=lun,fmt="(/,/,a)")       " ==========================================================="
-        write(unit=lun,fmt="(a,i2,a,i2,a)") " ====>  TERMS OF THE ELEMENT [",im,",",km,"] of the J(k)-MATRIX"
-        write(unit=lun,fmt="(a,/,/)")       " ==========================================================="
+        write(unit=lun,fmt="(/,/,a)")       "  ==========================================================="
+        write(unit=lun,fmt="(a,i2,a,i2,a)") "  ====>  TERMS OF THE ELEMENT [",im,",",km,"] of the J(k)-MATRIX"
+        write(unit=lun,fmt="(a,/,/)")       "  ==========================================================="
         do nt=1,nterms(im,km)
            write(unit=lun,fmt="(/,a,i3)")   " => Term number: ",nt
            call write_exchange_interaction(lun,jota(im,km,nt))
@@ -709,7 +714,7 @@
             dbond=3.0,& !Maximun distance between anions involved in a SS-exchange path
             angm=89.5,& !Maximum angle between M-M' and M(M')-A(A') or M-M' and AA'
             angn=89.5,& !Minimun angle between M-A  and AA' to consider a possible SSE path
-            directex=0.0, &  !Maximum distance to consider a possible direct exchange path
+            directex1=0.0, directex2=0.0,&  !Minimum and Maximum distances to consider a possible direct exchange path
             kF=0.0     ! Fermi wave-vector
    real  :: seconds, End_time, start_time, rminutes, hours
    logical :: iprin, mag=.false.
@@ -813,10 +818,11 @@
    end if
 
    write(unit=*,fmt="(a,f9.3)")" => Maximum bond-distance (Dmax)                       : ",dmax
-   write(unit=*,fmt="(a,f9.3)")" => Maximum distance for direct exchange (Direct)      : ",directex
+   write(unit=*,fmt="(a,f9.3)")" => Minimum distance for direct exchange (Direct)      : ",directex1
+   write(unit=*,fmt="(a,f9.3)")" => Maximum distance for direct exchange (Direct)      : ",directex2
    write(unit=*,fmt="(a,f9.3)")" => Maximum distance for angle calculation(Dangl)      : ",dangl
    write(unit=*,fmt="(a     )")" => Maximum distance for anion-anion bond (Dbond)        "
-   write(unit=*,fmt="(a,f9.3)")"              (also for cation-anion bonds)            : " ,dbond
+   write(unit=*,fmt="(a,f9.3)")"              (also for cation-anion bonds)            : ",dbond
    write(unit=*,fmt="(a,f9.3)")" => Maximum angle M-M'^M(M')-A(A') for S-E paths (Angm): ",angm
    write(unit=*,fmt="(a,f9.3)")" => Minimum angle M-A-A'/M'-A'-A   for S-E paths (Angn): ",angn
    write(unit=*,fmt="(a,/)")   "                  (if Dangl=0 no angles are calculated)"
@@ -825,12 +831,12 @@
    read(unit=*,fmt="(a)") ans
    if(ans == "Y" .OR. ans == "y") then
      write(unit=*,fmt="(a)",advance="no") " => Give new values for Dmax, Direct, Dangl, Dbond, Angm and Angn : "
-     read(unit=*,fmt=*)dmax, directex, dangl, dbond, angm, angn
+     read(unit=*,fmt=*) dmax, directex1,directex2, dangl, dbond, angm, angn
      if(dbond < 2.0 ) then
        write(unit=*,fmt="(a)") " => Warning ! Dbond cannot be lower than 2, Dbond=2.0! "
        dbond=2.0
      end if
-     if(directex > 0.001) then
+     if(directex1 > 0.001) then
        write(unit=*,fmt="(a)",advance="no") " => Give the values for kF (Fermi wavevector) : "
        read(unit=*,fmt=*) kF
      end if
@@ -840,7 +846,8 @@
    write(unit=lun,fmt="(      a,f8.4,a)")"                       ",dangl," for angles calculation"
    write(unit=lun,fmt="(      a,f8.4,a)")"                       ",dbond," for anion-anion/cation-anion bond-distances"
 
-   write(unit=lun,fmt="(a,f8.3)")" => Maximum distance for direct exchange: ", directex
+   write(unit=lun,fmt="(a,f8.3)")" => Minimum distance for direct exchange: ", directex1
+   write(unit=lun,fmt="(a,f8.3)")" => Maximum distance for direct exchange: ", directex2
    write(unit=lun,fmt="(a,f8.2)")   &
    " => Maximum angle M-M'^M(M')-A(A') for Super(Super)-Exchange paths (Angm):",angm
    write(unit=lun,fmt="(a,f8.2,/,/)")   &
@@ -898,7 +905,7 @@
    read(unit=*,fmt="(a)") ans
    if(ans == "y" .or. ans == "Y") iprin=.true.
    if(.not. negligible(dbond)) &
-      call Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex,Cell,gP1,Ac,spaths)
+     call Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex1,directex2,Cell,gP1,Ac,spaths)
    Call deAllocate_Atoms_Cell(Ac)    !From Ac we have conserved only "spaths"
    Call Allocate_Atoms_Cell(nmag, 1, dmax, Acm)
 

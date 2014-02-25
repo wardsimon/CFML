@@ -348,7 +348,7 @@ Module Super_Exchange
         write(unit=lun,fmt="(a,a,3f8.4,3f8.2,a)")  "    SS-Exchange (d1,d2,d3,ang1,ang2,dihed): ",&
                                                    trim(j%ss_nam(i))//"  (",j%sse_geo(:,i)," )"
       end do
-      if( j%ns == 0 .and. j%nss == 0 .and. j%nde /= 0) then
+      if( j%nde /= 0) then
         write(unit=lun,fmt="(a)")  "    Direct-Exchange: "//trim(j%de_nam)
       end if
       return
