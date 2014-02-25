@@ -370,7 +370,7 @@
     !!--++
     !!--++ Update: November - 2013
     !!
-    integer, private, parameter :: NGCode=85
+    integer, private, parameter :: NGCode=86
 
     !!----
     !!---- GCODE_NAM
@@ -379,18 +379,18 @@
     !!----    Variable for treatement of GCodes
     !!--..
     !!----
-    !!---- Update: November - 2013
+    !!---- Update: November - 2013, February 2014
     !!
     character(len=*), dimension(NGCode), public, parameter :: &
-                      GCode_Nam=(/"Scalef ","a      ","b      ", &
-                                  "c      ","alpha  ","beta   ", &
-                                  "gamma  ","cell   ","Up     ","Vp     ", &
-                                  "Wp     ","Xp     ","Yp     ", &
+                      GCode_Nam=(/"Scalef ","Cell-a ","Cell-b ", &
+                                  "Cell-c ","C-alpha","C-beta ", &
+                                  "C-gamma","Cell   ","Up     ","Vp     ", &
+                                  "Wp     ","Xp     ","Yp     ","Xfract ", &
                                   "Size   ","Gsize  ","Strain ", &
                                   "LStrain","Qbroad ","Qdamp  ", &
                                   "delta1 ","delta2 ","Lratio ", &
                                   "Sratio ","Zero   ","Diff1  ", &
-                                  "Diff2  ","eta    ","sig_2  ", &
+                                  "Diff2  ","eta    ","sig2   ", &
                                   "sig1   ","sig0   ","gamm2  ", &
                                   "gamm1  ","gamm0  ","alph0  ", &
                                   "alph1  ","beta0  ","beta1  ", &
@@ -4115,7 +4115,7 @@
     End Subroutine Fill_RefCodes_Magdom
 
     !!----
-    !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model,sys)
+    !!---- Subroutine Fill_RefGCodes(Key,Dire,namp,Xl,Xu,Xs,Ic,model,sys,Iphas)
     !!----    integer,                             intent(in)     :: Key  !0=> nb as below,
     !!----    character(len=*),                    intent(in)     :: Dire !GVar of GFix
     !!----    character(len=*),                    intent(in)     :: namp !Name of the parameter to be refined or fixed
@@ -4125,6 +4125,7 @@
     !!----    integer,                             intent(in)     :: Ic   !Boundary condition (0:fixed or 1:periodic)
     !!----    type(NonAtomic_Parameter_List_Type), intent(in out) :: model
     !!----    character(len=*), optional,          intent( in)    :: sys
+    !!----    integer,          optional,          intent(in)     :: Iphas
     !!----
     !!---- Write on Vectors the Information for Non atomic parameters
     !!----  Key=0 -> Provide information on individual parameter for atom na (nb should be given)
@@ -4147,8 +4148,8 @@
     !!----
     !!---- Updated: November 3 - 2013
     !!
-    Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model,sys)
-       integer,                             intent(in)     :: Key  !0=> nb as below,
+    Subroutine Fill_RefGCodes(Key,Dire,Namp,Xl,Xu,Xs,Ic,model,sys,Iphas)
+       integer,                             intent(in)     :: Key  !0 => nb as below,
        character(len=*),                    intent(in)     :: Dire !GVar of GFix
        character(len=*),                    intent(in)     :: Namp !Name of the parameter to be refined or fixed
        real(kind=cp),                       intent(in)     :: Xl   !Lower bound of parameter
@@ -4158,18 +4159,25 @@
        !integer,                             intent(in)     :: Imstart   !Starting index for mode search
        type(NonAtomic_Parameter_List_Type), intent(in out) :: model
        character(len=*), optional,          intent(in)     :: sys
+       integer,          optional,          intent(in)     :: Iphas
 
        !---- Local variables ----!
        integer                  :: i,k,nc !j,,np_ini
        character(len=len(namp)) :: name_par
        character(len=15)        :: c_system
        character(len=5)         :: info
+       character(len=2)         :: phase
 
        call init_err_refcodes()
        if (len_trim(namp) == 0) then
           err_refcodes=.true.
           ERR_RefCodes_Mess="No name for a parameter to be refined"
           return
+       end if
+       if(present(Iphas)) then
+         write(unit=phase,fmt="(i2.2)") Iphas
+       else
+         phase="  "
        end if
 
        select case (trim(dire))
@@ -4205,12 +4213,10 @@
                    !---- CELL ----!
                    do i=1,model%npar
                       name_par=l_case(model%par(i)%nam)
-                      if   ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
-                             trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                             trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                             trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma".or.&
-                             trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma".or.&
-                             trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                      if(index(name_par,"cell") /= 0 ) then
+                         if(present(Iphas)) then
+                           if(index(name_par,phase) == 0) cycle
+                         end if
                          if ( model%par(i)%lcode /= 0) then
                             nc=model%par(i)%lcode
                             call Delete_RefGCodes(nc,model)
@@ -4324,7 +4330,10 @@
 
                       do i=1,model%npar
                          name_par=l_case(model%par(i)%nam)
-                         if ( trim(name_par) == "a" .or. index(name_par,"cell-a") /= 0 .or. index(name_par,"cell_a") /= 0 ) then
+                         if ( index(name_par,"cell") /= 0) then
+                            if(present(Iphas)) then
+                              if(index(name_par,phase) == 0) cycle
+                            end if
                             k=i
                             exit
                          end if
@@ -4393,12 +4402,10 @@
 
                      do i=1,model%npar
                         name_par=l_case(model%par(i)%nam)
-                        if ( trim(name_par) == "a" .or. trim(name_par) == "b" .or. trim(name_par) == "c" .or. &
-                             trim(name_par) == "cell-a" .or. trim(name_par) == "cell-b" .or. trim(name_par) == "cell-c" .or. &
-                             trim(name_par) == "cell_a" .or. trim(name_par) == "cell_b" .or. trim(name_par) == "cell_c" .or. &
-                             trim(name_par) == "cell-alpha" .or. trim(name_par)=="cell-beta" .or. trim(name_par)=="cell-gamma".or.&
-                             trim(name_par) == "cell_alpha" .or. trim(name_par)=="cell_beta" .or. trim(name_par)=="cell_gamma".or.&
-                             trim(name_par) == "alpha" .or. trim(name_par) == "beta" .or. trim(name_par) == "gamma") then
+                        if ( index(name_par,"cell") /= 0) then
+                            if(present(Iphas)) then
+                              if(index(name_par,phase) == 0) cycle
+                            end if
                            if ( model%par(i)%lcode == 0) call update_vect(i)
                         end if
                      end do
@@ -7077,29 +7084,32 @@
     End Subroutine Get_RefCodes_Line_Magdom
 
     !!----
-    !!---- Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,Sys)
+    !!---- Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,Sys,Iphas)
     !!----    integer,                             intent(in)     :: Key
-    !!----    character(len=*),                    intent(in)     :: Dire
-    !!----    character(len=*),                    intent(in)     :: Line
-    !!----    character(len=*),                    intent(in)     :: namp !name of the parameter to be fixed or refined
+    !!----    character(len=*),                    intent(in)     :: Dire ! "gvary" or "gfix"
+    !!----    character(len=*),                    intent(in)     :: Line ! directive after gvary or gfix
+    !!----    character(len=*),                    intent(in)     :: namp ! name of the parameter to be fixed or refined
     !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
     !!----    character(len=*), optional,          intent( in)    :: sys
+    !!----    integer,          optional,          intent( in)    :: Iphas
     !!----
     !!---- Get Refinement Codes for non-atomic parameters in the current line
     !!----
     !!---- Update: November 1 - 2013
     !!
-    Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,sys)
+    Subroutine Get_RefGCodes_Line(Key,Dire,Line,namp,model,sys,Iphas)
        integer,                             intent(in)     :: Key
        character(len=*),                    intent(in)     :: Dire
        character(len=*),                    intent(in)     :: Line
        character(len=*),                    intent(in)     :: namp
        type(Nonatomic_Parameter_List_Type), intent(in out) :: model
        character(len=*), optional,          intent(in)     :: sys
+       integer,          optional,          intent( in)    :: Iphas
 
        !---- Local Variables ----!
        character(len=20), dimension(30) :: label
-       character(len=20)                :: new_label
+       character(len=20)                :: new_label,aux_string
+       character(len=2)                 :: phase
        integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic !,k,nc
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
@@ -7108,30 +7118,39 @@
        real(kind=cp),dimension(5)       :: vet
 
        call init_err_refcodes()
-       nlong=len_trim(line)
+       nlong=len_trim(line)  !length of the directive, eg. for "cell_a  5 6 0.1 0", nlong=17
 
-       if (nlong ==0) then  !In this case key cannot be zero and namp does not contain numbers
+       if (nlong ==0) then  !In this case "key" cannot be zero and "namp" does not contain numbers
           !---- Default Values ----!
           if(present(sys)) then
-            call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model,sys)
+            if(present(Iphas)) then
+               call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model,sys,Iphas)
+            else
+               call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model,sys)
+            end if
           else
-            call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model)
+            if(present(Iphas)) then
+               call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model,Iphas=Iphas)
+            else
+               call Fill_RefGCodes(Key,Dire,namp,0.0_cp,0.0_cp,0.0_cp,0,model)
+            end if
           end if
 
        else
-          !---- VARY/FIX Line: [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
+          !---- GVARY/GFIX Line: [LABEL, [INF,[SUP,[STEP,[COND]]]]] ----!
           ilabel=0
           call getword(line,label,ic)
           do i=1,ic
              call getnum(label(i),vet,ivet,iv)
              if (iv == 1) ilabel(i)=1
           end do
-          ndir=count(ilabel(1:ic) < 1)  !Counts the number of zeroes
+          ndir=count(ilabel(1:ic) < 1)  !Counts the number of zeroes  (label(1) contains always the name of the parameter)
                                         !This means the number of keywords
 
           if (ndir <= 0) then  !label(i) contain only numbers (no more keywords!)
-             !--- [INF,[SUP,[STEP,[COND]]]] ----! It corresponds to a generic key/=0 keyword plus
+             !--- [INF,[SUP,[STEP,[COND]]]] ----! It corresponds to a generic key /= 0 keyword plus numbers
              call getnum(line,vet,ivet,iv)
+
              select case (iv)
                 case (1)
                    x_low=vet(1)
@@ -7162,10 +7181,19 @@
                    ERR_RefCodes_Mess="Maximum of 4 numbers in "//trim(namp)
                    return
              end select
+
              if(present(sys)) then
-               call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model,sys)
+               if(present(Iphas)) then
+                  call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model,sys,Iphas)
+               else
+                   call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model,sys) !dire="gvary" or "gfix", namp may contain numbers
+               end if
              else
-               call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model)
+               if(present(Iphas)) then
+                  call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model,Iphas=Iphas)
+               else
+                  call Fill_refGcodes(key,dire,namp,x_low,x_up,x_step,icond,model)
+               end if
              end if
              if (err_refcodes) return
 
@@ -7176,42 +7204,35 @@
              ilabel(n_ini)=2
              n_end=minloc(ilabel,dim=1)-1
 
-             do n=1,ndir  !This runs over the number of directives
+             do n=1,ndir  !This runs over the number of directives (keywords, names of parameters)
                 nb=0
                 !---- Default values ----!
                 x_low =0.0
                 x_up  =0.0
                 x_step=0.0
                 icond =0
+                aux_string=u_case(label(n_ini))
 
-                !---- Label ----!
-                npos=index(label(n_ini),"_")
-                if (npos > 0) then
-                   do j=1,ngcode
-                      if (u_case(label(n_ini)(1:npos))==u_case(trim(GCode_Nam(j)))) then
-                         nb=j
-                         exit
-                      end if
-                   end do
-                   if (nb == 0) then
-                      err_refcodes=.true.
-                      ERR_RefCodes_Mess="Code-name not found for "//trim(label(n_ini))
-                      return
-                   end if
+                if(present(Iphas)) then
+                  write(unit=phase,fmt="(i2.2)") iphas
+                  if(index(aux_string,phase) == 0) then
+                    aux_string=trim(aux_string)//"_"//phase
+                  end if
                 end if
 
                 do j=1,model%npar
-                   if (u_case(model%Par(j)%nam(1:6)) == u_case(label(n_ini)(npos+1:npos+6))) then
+                   if (index(u_case(model%Par(j)%nam),trim(aux_string)) /= 0 ) then
                       na=j
                       exit
                    end if
                 end do
+
                 if (na == 0) then
                    err_refcodes=.true.
                    ERR_RefCodes_Mess=" NonAtomic label not found for "//trim(line)
                    return
                 else
-                   new_label=model%Par(na)%nam
+                   new_label=model%Par(na)%nam  !this is the name of the parameter to be fixed or refined
                 end if
 
                 !---- Valu List: Inf,Sup,Step,Cond ----!
@@ -7236,9 +7257,17 @@
                 end do
 
                 if(present(sys)) then
-                  call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model,sys)
+                  if(present(Iphas)) then
+                     call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model,sys,Iphas=Iphas)
+                  else
+                     call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model,sys)
+                  end if
                 else
-                  call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model)
+                  if(present(Iphas)) then
+                     call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model,Iphas=Iphas)
+                  else
+                     call Fill_refGcodes(key,dire,new_label,x_low,x_up,x_step,icond,model)
+                  end if
                 end if
                 if (err_refcodes) return
 
@@ -8331,12 +8360,13 @@
     End Subroutine Read_RefCodes_File_Molec
 
     !!----
-    !!---- Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys)
+    !!---- Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys,Iphas)
     !!----    Type(file_list_type),                intent( in)    :: file_dat
     !!----    integer,                             intent( in)    :: n_ini
     !!----    integer,                             intent( in)    :: n_end
     !!----    type(Nonatomic_Parameter_List_Type), intent(in out) :: model
     !!----    character(len=*), optional,          intent( in)    :: sys
+    !!----    integer, optional,                   intent( in)    :: Iphas
     !!----
     !!----    Subroutine for treatment of Codes for non-atomic parameters.
     !!----    The optional argument Sys containts the crystal system and the
@@ -8344,12 +8374,13 @@
     !!----
     !!---- Update: November - 2013
     !!
-    Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys)
+    Subroutine Read_RefGCodes_File(file_dat,n_ini,n_end,model,sys,Iphas)
        Type(file_list_type),                intent( in)    :: file_dat
        integer,                             intent( in)    :: n_ini
        integer,                             intent( in)    :: n_end
        type(Nonatomic_Parameter_List_Type), intent(in out) :: model
        character(len=*), optional,          intent( in)    :: sys
+       integer, optional,                   intent( in)    :: Iphas
        !---- Local variables ----!
        character(len=132)              :: line
        character(len=20)               :: namp
@@ -8361,9 +8392,8 @@
 
        do i=n_ini,n_end
           line=adjustl(file_dat%line(i))
+          if (line(1:1) =="!" .or. len_trim(line) == 0) cycle
           namp=" "
-          if (line(1:1) ==" ") cycle
-          if (line(1:1) =="!") cycle
           k=index(line,"!")
           if( k /= 0) line=trim(line(1:k-1))
 
@@ -8375,7 +8405,7 @@
                 call split_goperations(line,nop_in_line,dire)
                 do k=1,nop_in_line
                    namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
-                   select case (trim(namp))
+                   select case (trim(namp))    !Simple general directives key /= 0
                       case ("bkg")
                          key=1
                       case ("cell")
@@ -8392,11 +8422,15 @@
                          key=7
                       case ("all")
                          key=8
-                      case default
+                      case default  !other parameter names or the directive contains numbers or other options
                          key=0
                    end select
-                   if (key /=0) call cutst(dire(k),nlong)
-                   call get_refGcodes_line(key,"gfix",dire(k),namp,model)
+                   if (key /=0) call cutst(dire(k),nlong)  !in case key=0  dire(k)=namp, otherwise dire(k) does not contain the generic name of the parameter
+                   if(present(iphas)) then
+                     call get_refGcodes_line(key,"gfix",dire(k),namp,model,Iphas=iphas)
+                   else
+                     call get_refGcodes_line(key,"gfix",dire(k),namp,model)
+                   end if
                    if (err_refcodes) return
                 end do
 
@@ -8406,7 +8440,7 @@
                 call split_goperations(line,nop_in_line,dire)
                 do k=1,nop_in_line
                    namp=trim(l_case(dire(k)))  !keep the name of the parameter in the directive
-                   select case (trim(namp))
+                   select case (trim(namp))    !Simple general directives key /= 0
                       case ("bkg")
                          key=1
                       case ("cell")
@@ -8423,29 +8457,36 @@
                          key=7
                       case ("all")
                          key=8
-                      case default
+                      case default  !other parameter names or the directive contains numbers or other options
                          key=0
                    end select
-                   if (key /=0) call cutst(dire(k),nlong)
+                   if (key /=0) call cutst(dire(k),nlong) !in case key=0  dire(k)=namp,otherwise dire(k) does not contain the generic name of the parameter
                    if(present(Sys)) then
-                      call get_refGcodes_line(key,"gvar",dire(k),namp,model,sys)
+                      if(present(iphas)) then
+                        call get_refGcodes_line(key,"gvar",dire(k),namp,model,sys,Iphas=iphas)
+                      else
+                        call get_refGcodes_line(key,"gvar",dire(k),namp,model,sys)
+                      end if
                    else
-                      call get_refGcodes_line(key,"gvar",dire(k),namp,model)
+                      if(present(iphas)) then
+                        call get_refGcodes_line(key,"gvar",dire(k),namp,model,Iphas=iphas)
+                      else
+                        call get_refGcodes_line(key,"gvar",dire(k),namp,model)
+                      end if
                    end if
                    if (err_refcodes) return
                 end do
 
              !---- Main Directive: EQUAL ----!
-             !case ("equa")
-             !   call cutst(line,nlong)
-             !   call get_congcodes_line(line,model)
+              !case ("equa")
+              !   call cutst(line,nlong)
+              !   call get_congcodes_line(line,model)
 
           end select
        end do
 
        return
     End Subroutine Read_RefGCodes_File
-
 
     !!--++
     !!--++ Subroutine Split_Operations(Line, Ni, S_Lines)
@@ -8542,19 +8583,11 @@
 
        linec=u_case(line)
 
-       !---- Search Subkeys: XYZ,OCC,BIS... ----!
+       !---- Search Subkeys: scale,cell,delta... ----!
        ip=0
        do i=1,NGCode
           up_gcode_nam=u_case(Gcode_Nam(i))
-          npos=index(linec,up_gcode_nam)
-          if (npos > 0) then
-             car=linec(npos:)
-             j=index(car," ")
-             if (j > 0) car=car(:j-1)
-             j=index(car,"_")
-             if (j > 0) cycle
-          end if
-          ip(i)=npos
+          ip(i)=index(linec,up_gcode_nam)
        end do
 
        npos=count(ip > 0)
