@@ -2490,7 +2490,7 @@
        type (Atom_Equiv_List_Type),   intent(in    ) :: Ate !In old group
        real(kind=cp), dimension (3,3),intent(in    ) :: Mat
        real(kind=cp), dimension (  3),intent(in    ) :: orig
-       type (Atom_list_Type),         intent(in out) :: A_n
+       type (Atom_list_Type),         intent(out   ) :: A_n
        character (len=*), optional,   intent(in    ) :: matkind
        character (len=*), optional,   intent(in    ) :: debug
        ! Local variables
@@ -2551,12 +2551,12 @@
          end do
        end if
 
-       maxm=m    !maximum nubmer of translations to be applied before changing the basis
+       maxm=m    !maximum number of translations to be applied before changing the basis
        maxa=maxval(Ate%Atm(:)%mult)  !highest multiplicity of the atom sequence list
        !Factor 2
        maxp=2*maxa*determ    !maximum multiplicity in the new cell of a particular atom type
-       !write(*,*) " Allocating altoms_list and Point list for ", maxa*Ate%nauas, " and ", maxp, " values"
-       call Allocate_Atom_List(maxa*Ate%nauas,A)  !Atom list in the new cell
+       !write(*,*) " Allocating atoms_list and Point list for ", maxp*Ate%nauas, " and ", maxp, " values"
+       call Allocate_Atom_List(maxp*Ate%nauas,A)  !Atom list in the new cell, we must use "maxp"*Ate%nauas and not "maxa"
        Call Allocate_Point_List(maxp,Pl,Ifail)
        if(ifail /= 0) then
          !write(*,*) " Error allocating PL for ",maxp," values"
@@ -2566,10 +2566,9 @@
        end if
        Ls=0
 
-      ! write(*,*) " Allocating PL and A successful "
+       !write(*,*) " Allocating PL and A successful "
 
        do i=1,Ate%nauas
-         !write(*,*) i, Ate%Atm(i)%Lab(1), Ate%Atm(i)%mult
          Ls=Ls+1
          !Setting pl object
            ip=index(Ate%Atm(i)%Lab(1),"_")
@@ -2609,6 +2608,10 @@
                     n=n+1
                     !write(*,*) "  n=",n
                     pl%x(:,n) = pos(:)
+                    if(present(debug)) then
+                      write(unit=lu,fmt="(i4,2(a,3f8.4),a)") n,"  Atom: "//pl%nam(i)//" at (", &
+                                                  Ate%Atm(i)%x(:,j),") trasform to (",pl%x(:,n),")"
+                    end if
                     if(n == maxp) exit doj
                  end if
                end do
@@ -2618,6 +2621,8 @@
          pl%np=n
          A%atom(Ls)%Lab =pl%nam(i)
          A%atom(Ls)%x(:)=pl%x(:,1)
+         !write(*,"(2i5,a,i5,a)") i,Ls, "  "//Ate%Atm(i)%Lab(1), Ate%Atm(i)%mult,"   "//A%atom(Ls)%Lab
+
          !Determine the number of independent orbits for this point
          call Set_Orbits_Inlist(Spgn,pl)
          L=1
@@ -2626,6 +2631,7 @@
             Ls=Ls+1
             A%atom(Ls)%x(:)=pl%x(:,j)
             A%atom(Ls)%Lab =trim(pl%nam(i))//let(L)
+           ! write(*,"(2i5,a,i5,a)") i,Ls, "  "//Ate%Atm(i)%Lab(1), Ate%Atm(i)%mult,"   "//A%atom(Ls)%Lab
             L=L+1
            end if
          end do
@@ -2635,13 +2641,15 @@
        !write(*,*) "  Orbits correct"
        !write(*,*) "  Allocate_Atom_List for ",Ls," atoms"
        call Allocate_Atom_List(Ls,A_n,fail)
-       if(fail .and. present(debug)) then
+       if(fail) then
+         if(present(debug)) then
           write(*,*) "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
+          write(unit=lu,fmt="(a,i4,a)") "  Error on Allocate_Atom_List for ",A_n%natoms," atoms"
+         end if
        else
           !write(*,*) "  Success on Allocate_Atom_List for ",A_n%natoms," atoms"
        end if
        do i=1,A_n%natoms
-         !write(*,*) "   ",i,A%atom(i)%Lab,A%atom(i)%x
          A_n%atom(i)%x= A%atom(i)%x
          A_n%atom(i)%Lab= A%atom(i)%Lab
          call Get_Orbit(A_n%atom(i)%x,Spgn,Mult,orb)
@@ -2650,7 +2658,6 @@
        end do
        if(allocated(A%atom)) deallocate(A%atom)
        if(present(debug)) close(unit=lu)
-        !write(*,*) "  Atoms copied and debug unit closed! "
        return
     End Subroutine Set_New_AsymUnit
 

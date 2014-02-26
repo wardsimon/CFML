@@ -8,8 +8,8 @@
 !!---------------------------------------------------------------------------------
 Module Super_Exchange
 
-  Use CFML_String_Utilities, only: Frac_Trans_1Dig, Pack_String
-
+  Use CFML_String_Utilities,          only: Frac_Trans_1Dig, Pack_String,u_case
+  Use CFML_Crystallographic_Symmetry, only: Get_SymSymb
   implicit none
   private
   public ::  Get_Expo, rkky, equiv_jotas, init_exchange_interaction, &
@@ -108,116 +108,36 @@ Module Super_Exchange
 
    Subroutine Get_Expo_c(trans, expo)
     character (len=*),  intent(in)  :: trans
-    character (len=*), intent(out) :: expo
-                                 ! 1234567890123456
-                                 ! (-X/2+ Y/4-8Z/9) -> -X/2+Y/4-8Z/9
-                                 ! (-1/2, 1/4,-8/9) -> -X/2+Y/4-8Z/9
-    character (len=25) :: ex
-    character (len=10) :: XX,YY,ZZ
-    integer:: i1,i2
+    character (len=*), intent(out)  :: expo
 
-      i1=index(trans,",")
-      i2=index(trans,",",back=.true.)
-      XX=trans(2:i1-1)
-      YY=trans(i1+1:i2-1)
-      ZZ=trans(i2+1:len_trim(trans)-1)
-      !!  XX
-      i1=index(XX,"/")
-      if (i1 /= 0) then
-        XX=XX(1:i1-1)//"X"//XX(i1:)
-      else
-        XX=trim(XX)//"X"
-      end if
-      i1=index(XX,"X")
-      if(i1-1 > 0) then
-        if(XX(i1-1:i1-1) == "1") XX(i1-1:i1-1)=" "
-      end if
-      if(XX(1:1) == "0")  XX="     "
+    real, dimension(3) :: tr
+    real, dimension(3,3) :: mat
+    integer :: i
 
-      !!  YY
-      i1=index(YY,"/")
-      if (i1 /= 0) then
-          YY=YY(1:i1-1)//"Y"//YY(i1:)
-      else
-          YY=trim(YY)//"Y"
-      end if
-      if(YY(1:1) /= "-") YY="+"//YY
-      i1=index(YY,"Y")
-      if(i1-1 > 0) then
-        if(YY(i1-1:i1-1) == "1") YY(i1-1:i1-1)=" "
-        if(YY(i1-1:i1-1) == "0") YY="     "
-      end if
-
-      !!  ZZ
-      i1=index(ZZ,"/")
-      if (i1 /= 0) then
-          ZZ=ZZ(1:i1-1)//"Z"//ZZ(i1:)
-      else
-          ZZ=trim(ZZ)//"Z"
-      end if
-      if(ZZ(1:1) /= "-") ZZ="+"//ZZ
-      i1=index(ZZ,"Z")
-      if(i1-1 > 0) then
-        if(ZZ(i1-1:i1-1) == "1") ZZ(i1-1:i1-1)=" "
-        if(ZZ(i1-1:i1-1) == "0")  ZZ="     "
-      end if
-
-      ex=XX//YY//ZZ
-     if(len_trim(ex) == 0) then
-      expo=" "
-     else
-      ex= Pack_String(ex)
-      if(ex(1:1) == "+") ex(1:1) = " "
-      expo="exp{-2pi("//trim(ex)//")}"
-     end if
+    mat=0.0; tr=0.0
+    call Get_vect(trans,mat(1,:))
+    call Get_SymSymb(mat,tr,expo)
+    i=index(expo,",")
+    expo=u_case(expo(1:i-1))
+    expo="exp{-2pi("//trim(expo)//")}"
+    return
    End Subroutine Get_Expo_c
 
    Subroutine Get_Expo_r(v, expo)
     real, dimension(3), intent(in)  :: v
     character (len=*), intent(out) :: expo
-    character (len=25) :: transla, ex
-                                   ! 1234567890123456
-                                   ! (-X/2+ Y/4-8Z/9) -> -X/2+Y/4-8Z/9
-     call Frac_Trans_1Dig(v,transla)        ! (-1/2, 1/4,-8/9) -> -X/2+Y/4-8Z/9
-     ex=transla
-        ex(16:16)=" "    !remove parentheses
-        ex(1:1)=" "
-     !!  XXXXXX
-     if(ex(3:3) /= "1") then
-        ex(1:1)=ex(2:2)
-        ex(2:2)=ex(3:3)
-     end if
-        ex(3:3)="X"
-        if(ex(2:2) == "0") ex(1:5)=" "
-     !!  YYYYYYY
-     if(ex(8:8) /= "1") then
-        ex(6:6)=ex(7:7)
-        ex(7:7)=ex(8:8)
-        if(ex(6:6) == " ") ex(6:6)="+"
-     else
-        ex(6:6)=" "
-        if(ex(7:7) == " ") ex(7:7)="+"
-     end if
-        ex(8:8)="Y"
-        if(ex(7:7) == "0") ex(6:10)=" "
-     !!  ZZZZZZZ
-     if(ex(13:13) /= "1") then
-        ex(11:11)=ex(12:12)
-        ex(12:12)=ex(13:13)
-        if(ex(11:11) == " ") ex(11:11)="+"
-     else
-        ex(11:11)=" "
-        if(ex(12:12) == " ") ex(12:12)="+"
-     end if
-        ex(13:13)="Z"
-        if(ex(12:12) == "0") ex(11:15)=" "
-     if(len_trim(ex) == 0) then
-      expo=" "
-     else
-      transla= Pack_String(ex)
-      if(transla(1:1) == "+") transla(1:1) = " "
-      expo="exp{-2pi("//trim(transla)//")}"
-     end if
+
+    real, dimension(3) :: tr
+    real, dimension(3,3) :: mat
+    integer :: i
+
+    mat=0.0; tr=0.0
+    mat(1,:)=v
+    call Get_SymSymb(mat,tr,expo)
+    i=index(expo,",")
+    expo=u_case(expo(1:i-1))
+    expo="exp{-2pi("//trim(expo)//")}"
+    return
    End Subroutine Get_Expo_r
 
    Pure Function rkky(dist,kf) result(jval)

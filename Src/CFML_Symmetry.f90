@@ -6657,9 +6657,34 @@
 
        nla=ng
        nc=SpG%Numops+1  !Position of the centre of symmetry if it exist
+       L=0
+       !---- Determine first the triclinic subgroups
+       cen_added=.false.
+       do
+           L=L+1
+           newg=.true.
+           call set_spacegroup(" ",SubG(L),gen,ng,"gen")
+           do j=1,L-1
+              if (SpGr_Equal(SubG(L), SubG(j))) then
+                 newg=.false.
+                 exit
+              end if
+           end do
+           if (newg) then
+              call get_HallSymb_from_gener(SubG(L))
+           else
+              L=L-1
+           end if
+           if (SpG%centred /= 1 .and. newg .and. .not. cen_added) then !add the centre of symmetry if needed
+              ng=ng+1
+              gen(ng)=SpG%SymopSymb(nc)
+              cen_added=.true.
+           else
+              exit
+           end if
+       end do
 
        !---- Determine first the groups with only one rotational generator
-       L=0
        do i=2,nop
           ng=nla+1
           gen(ng) = SpG%SymopSymb(i)

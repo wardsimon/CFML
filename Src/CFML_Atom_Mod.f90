@@ -1412,6 +1412,7 @@
         allocate(Ate%Atm(k)%lab(L))
         if(allocated(Ate%Atm(k)%x)) deallocate(Ate%Atm(k)%x)
         allocate(Ate%Atm(k)%x(3,L))
+
         Ate%Atm(k)%mult=L
         do j=1,Ate%Atm(k)%mult
           Ate%Atm(k)%lab(j)=Label(j)

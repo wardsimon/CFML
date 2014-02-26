@@ -818,8 +818,8 @@
    end if
 
    write(unit=*,fmt="(a,f9.3)")" => Maximum bond-distance (Dmax)                       : ",dmax
-   write(unit=*,fmt="(a,f9.3)")" => Minimum distance for direct exchange (Direct)      : ",directex1
-   write(unit=*,fmt="(a,f9.3)")" => Maximum distance for direct exchange (Direct)      : ",directex2
+   write(unit=*,fmt="(a,f9.3)")" => Minimum distance for direct exchange (Direct1)     : ",directex1
+   write(unit=*,fmt="(a,f9.3)")" => Maximum distance for direct exchange (Direct2)     : ",directex2
    write(unit=*,fmt="(a,f9.3)")" => Maximum distance for angle calculation(Dangl)      : ",dangl
    write(unit=*,fmt="(a     )")" => Maximum distance for anion-anion bond (Dbond)        "
    write(unit=*,fmt="(a,f9.3)")"              (also for cation-anion bonds)            : ",dbond
@@ -830,7 +830,7 @@
 
    read(unit=*,fmt="(a)") ans
    if(ans == "Y" .OR. ans == "y") then
-     write(unit=*,fmt="(a)",advance="no") " => Give new values for Dmax, Direct, Dangl, Dbond, Angm and Angn : "
+     write(unit=*,fmt="(a)",advance="no") " => Give new values for Dmax, Direct1,Direct2, Dangl, Dbond, Angm and Angn : "
      read(unit=*,fmt=*) dmax, directex1,directex2, dangl, dbond, angm, angn
      if(dbond < 2.0 ) then
        write(unit=*,fmt="(a)") " => Warning ! Dbond cannot be lower than 2, Dbond=2.0! "
