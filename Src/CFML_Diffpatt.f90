@@ -1355,6 +1355,7 @@
        pat%xmin=0.0
        pat%xmax=0.0
        pat%step=0.0
+       pat%scat_var="2theta"
 
        do
           read(unit=i_dat,fmt="(a)",iostat=ier) aline
@@ -2372,6 +2373,8 @@
                     dif_pat%scat_var =  "2theta"
                     dif_pat%xax_text =  "2theta(degrees)"
                 end if
+             else
+                if(len_trim(dif_pat%scat_var) == 0) dif_pat%scat_var =  "2theta"
              end if
        end select
 
