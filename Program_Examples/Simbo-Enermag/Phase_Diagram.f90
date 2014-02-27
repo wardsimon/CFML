@@ -16,7 +16,7 @@
       Use CFML_String_Utilities, only: Frac_Trans_1DIG, Pack_String
 
       Implicit none
-      integer, parameter  :: n_sk=90
+      integer, parameter  :: n_sk=96
       real, dimension(3,n_sk), parameter :: sk = reshape ( (/         &
           0.00000,0.00000,0.00000,  0.50000,0.00000,0.00000,  0.00000,0.50000,0.00000,  &
           0.00000,0.00000,0.50000,  0.50000,0.50000,0.00000,  0.50000,0.00000,0.50000,  &
@@ -29,6 +29,8 @@
           0.00000,0.25000,0.50000,  0.25000,0.00000,0.50000,  0.25000,0.50000,0.00000,  &
           1.50000,0.00000,0.00000,  0.00000,1.50000,0.00000,  0.00000,0.00000,1.50000,  &
           1.00000,0.00000,0.00000,  0.00000,1.00000,0.00000,  0.00000,0.00000,1.00000,  &
+          1.00000,0.50000,0.00000,  0.00000,1.00000,0.50000,  0.00000,0.50000,1.00000,  &
+          1.00000,0.00000,0.50000,  0.50000,1.00000,0.00000,  0.50000,0.00000,1.00000,  &
           0.33333,0.00000,0.00000,  0.00000,0.33333,0.00000,  0.00000,0.00000,0.33333,  &
           0.33333,0.33333,0.00000,  0.33333,0.00000,0.33333,  0.00000,0.33333,0.33333,  &
           0.33333,0.33333,0.33333,  0.33333,0.66667,0.00000,  0.66667,0.33333,0.00000,  &
@@ -48,7 +50,7 @@
           0.50000,0.33333,0.00000,  0.50000,0.00000,0.33333,  0.00000,0.50000,0.33333,  &
           0.50000,0.33333,0.50000,  0.50000,0.50000,0.33333,  0.33333,0.50000,0.50000,  &
           0.33333,0.50000,0.33333,  0.33333,0.33333,0.50000,  0.50000,0.33333,0.33333   &
-                     /),(/3,90/) )
+                     /),(/3,96/) )
 
 
       integer, parameter         :: nsites=3, numa=16, numag=500
@@ -59,7 +61,7 @@
       REAL, dimension(5)         :: valj
       REAL, dimension(5,numag)   :: jdomin
       REAL, dimension(5,numag)   :: jdomax
-      character (len=16)         :: kvector
+      character (len=35)         :: kvector
       REAL, dimension(3)         :: vk,tvk
       REAL, dimension(numa)      :: eigenvr,eigenvi
       character (len=132)        :: fileres,forma
@@ -69,7 +71,7 @@
       logical                    :: esta
       integer,           dimension(nsites*numa) :: magt
       character(len=1),  dimension(nsites*numa) :: magc
-      character(len=120),dimension(numag)       :: magchar
+      character(len=180),dimension(numag)       :: magchar
 
     ! Density information
    !---- Title or reference ----!
@@ -176,10 +178,11 @@
          forma=' '
          i=(index(line,")")-index(line,"("))/10
          if(i > nsub) then
+                  !1234567890123456789012345!!8901234567!!012345
             FORMa='(f14.4,   i6,1x,3f6.2,2x,  f8.2,2x,a,  f10.4)'
             WRITE(FORMa(26:27),'(i2)') nj
             WRITE(FORMa(38:39),'(i2)') nsub*2
-         else
+         else     !1234567890123456789012345!!8901234567!!012345
             FORMa='(f14.4,i6   ,1x,3f6.2,2x,  f8.2,2x,a,  f10.4)'
             WRITE(FORMa(26:27),'(i2)') nj
             WRITE(FORMa(38:39),'(i2)') nsub
@@ -216,8 +219,9 @@
            jdomin(1:nj,num_mag) = valj(1:nj)
            jdomax(1:nj,num_mag) = valj(1:nj)
            write(magchar(num_mag),'(a,i2,a,49(a1,1x))') '(',nvec,': ',magc(1:nsub),')'
-             call Frac_Trans_1DIG(vk,kvector)
+           call Frac_Trans_1DIG(vk,kvector)
            magchar(num_mag) = trim(magchar(num_mag))//' k = '//kvector
+
            j= num_mag
            freq_mag(j)=freq_mag(j)+1
          else
@@ -262,11 +266,12 @@
        write(3,'(a,a/)')'  ANALYSIS OF MAGNETIC STRUCTURE TYPES IN: ',trim(fileres)//'.res'
        write(3,'(a,i3)') ' => Number of distinct magnetic structures: ',num_mag
        write(3,'(a//a/)')  ' => List of magnetic structure types: ',&
-           ' Type        Code       Vk-Sign seq.               J-domains        ......       Frequency'
+           ' Type        Code          Vk-Sign seq.                           J-domains        ...............       Frequency'
        write(*,'(a/a/)')  ' => List of magnetic structure types: ',&
-           ' Type        Code       Vk-Sign seq.               J-domains        ......       Frequency'
-       forma='(i5,2x,i10,2x,a, (3x,2f6.1),i8)'
-       write(forma(17:17),'(i1)') nj
+           ' Type        Code          Vk-Sign seq.                           J-domains        ...............       Frequency'
+             !1234567890123456789012345678901
+       forma='(i5,2x,i10,2x,a,t60, (3x,2f6.1),i8)'
+       write(forma(21:21),'(i1)') nj
        do i=1,num_mag
          write(3,forma) i,mag_types(i),trim(magchar(i)), &
                             (jdomin(j,i),jdomax(j,i),j=1,nj), freq_mag(i)
@@ -355,15 +360,12 @@
       open(jfilbin,file=trim(fileres)//'.bin',form='unformatted',access='stream',status='replace',action="write")
 
       !---- Writting the information ----!
+
       write (jfilbin) titulo
       write (jfilbin) version
       call Write_Bin_Crystal_Cell(celda,jfilbin)
       call Write_Bin_SpaceGroup(grp_espacial,jfilbin)
       call Write_Bin_Atom_List(Atomos,jfilbin)
-      !write (jfilbin) celda
-      !write (jfilbin) grp_espacial
-      !write (jfilbin) natom
-      !write (jfilbin) (atomos(i),i=1,natom)
       write (jfilbin) fildat,filbin,filhkl,filatm,lugar,jlist,dist1,dist2,dist3
       write (jfilbin) f000,f000s,ntype,smin,smax,sigm,npeaks_to_find
       write (jfilbin) ngrid,denmin,denmax,xlim,ylim,zlim,xinc,yinc,zinc

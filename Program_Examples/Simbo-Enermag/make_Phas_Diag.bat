@@ -18,6 +18,7 @@ rem
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
+   if x%1 == xifortd    goto IFORTD
    echo    Unknown compiler!
    goto FIN
 rem
@@ -39,6 +40,12 @@ rem ****---- Intel Compiler ----****
    rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    goto END
+:IFORTD
+   ifort /c Sup_Exc.f90 /debug:full /check /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Phase_Diagram.f90   /debug:full /check /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   goto END
 rem
 rem **---- G95 Compiler ----**
 :G95
@@ -59,10 +66,10 @@ rem
 rem  Comment the following lines if upx or %FULLPROF% are not available
 rem  or if you want to conserve the object files
 rem  Compression of executable
-rem        upx Phase_Diagram.exe
+        upx Phase_Diagram.exe
 rem  Move the excutable to a directory in the Path
-rem        if exist %FULLPROF% move Phase_Diagram.exe %FULLPROF% > nul
-        if exist %FULLPROF% move Phase_Diagram_gf.exe %FULLPROF% > nul
+        if exist %FULLPROF% move Phase_Diagram.exe %FULLPROF% > nul
+rem        if exist %FULLPROF% move Phase_Diagram_gf.exe %FULLPROF% > nul
 rem  Remove unnecessary files
         del *.obj *.mod *.o *.map *.bak > nul
 :FIN

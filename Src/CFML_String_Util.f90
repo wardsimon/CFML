@@ -1343,9 +1343,9 @@
              end do
           end do
           if(v >= 0.0) then
-            write(unit=fracc, fmt="(a,f10.4)") "+", v
+            write(unit=fracc, fmt="(a,f7.3)") "+", v
           else
-            write(unit=fracc, fmt="(f10.4)") v
+            write(unit=fracc, fmt="(f8.4)") v
           end if
        end if
        fracc=Pack_String(fracc)
@@ -1405,7 +1405,7 @@
              end do
           end do
           if(v > 0.0) then
-              write(unit=fracc,fmt="(a,f10.4)") "+",v
+              write(unit=fracc,fmt="(a,f9.4)") "+",v
           else
               write(unit=fracc,fmt="(f10.4)") v
           end if

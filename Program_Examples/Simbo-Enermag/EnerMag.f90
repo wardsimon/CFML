@@ -687,7 +687,7 @@
        write(unit=4,fmt="(  a)") " => Input set of exchange parameters"
        write(unit=4,fmt="(a,/)") "------------------------------------"
      END IF
-     IF(nex < 10) THEN
+     IF(nex < 20) THEN
        DO j=1,nex
          write(unit=*,fmt="(a,i1,a,f8.3,a,a)") "  J",j," =",valj(j),"  ",trim(jotas(j))
          write(unit=lun2,fmt="(a,i1,a,f8.3,a,a)") "  J",j," =",valj(j),"  ",trim(jotas(j))
@@ -698,6 +698,7 @@
        read(unit=*,fmt="(a)") ans
        IF(ans == "y".OR.ans == "Y") iphase=1
      ELSE
+       write(unit=*,fmt="(a)",advance="no") " => Too many exchange interactions, phase diagram cannot be calculated "
        DO j=1,9
          write(unit=*,fmt="(a,i1,a,f8.3,a,a)") "  J",j," =",valj(j),"  ",trim(jotas(j))
          write(unit=lun2,fmt="(a,i1,a,f8.3,a,a)") "  J",j," =",valj(j),"  ",trim(jotas(j))
