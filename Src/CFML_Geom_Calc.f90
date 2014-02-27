@@ -987,10 +987,10 @@
        integer                            :: i,j,k,lk,i1,i2,i3,jl,npeq,nn,L,nlines, max_coor,ico
        character(len= 80), dimension(12)  :: texto = " "
        character(len=  5)                 :: nam,nam1,nam2
-       character(len= 16)                 :: transla
+       character(len= 40)                 :: transla
        character(len=160)                 :: form3
-       character(len= 90)                 :: form2= &   ! TR 4 fev. 2013
-                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
+       character(len= 90)                 :: form2= "(a,3I4,a,a,a,a,a,f9.4,a,3F8.4,a,t85,a)"  !  JRC feb 2014 &   ! TR 4 fev. 2013
+                                           !  "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
        integer, dimension(3)              :: ic1,ic2
        real(kind=cp),    dimension(3)     :: xx,x1,xo,Tn,xr, QD
        real(kind=cp)                      :: T,dd, da1,da2,da12,cang12,ang12,cang1,ang2,ang1
@@ -1052,7 +1052,7 @@
                        "    Distances less than",dmax,"  to atom: ",nam, xo
              write(unit=lun,fmt="(a,/,/)")"    -------------------------------------------------------------------"
              write(unit=lun,fmt="(/,/,a,/,/)") & ! TR 4 fev. 2013
-             " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
+             " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext  (tx,ty,tz)     Sym. op."
           end if
           Coord_Info%Coord_Num(i)=0
           ico=0
@@ -1094,7 +1094,7 @@
                             Coord_Info%Tr_Coo(:,ico,i)=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
-                               write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
+                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
                          end do do_jl
                       end do !i3
@@ -1189,12 +1189,12 @@
        integer                            :: i,j,k,lk,i1,i2,i3,jl,nn,L,&
                                              itnum1,itnum2,num_const, max_coor,num_angc,ico
        character(len=  5)                 :: nam,nam1,nam2
-       character(len= 16)                 :: transla
+       character(len= 40)                 :: transla
        character(len= 20)                 :: text,tex,texton
        character(len=132)                 :: line
        character(len=160)                 :: form3
-       character(len= 90)                 :: form2= &   ! TR 4 fev. 2013
-                                             "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
+       character(len= 90)                 :: form2= "(a,3i4,a,a,a,a,a,f9.4,a,3F8.4,a,t85,a)"  !  JRC feb 2014 form2= &   ! TR 4 fev. 2013
+                                             !"("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",3F8.4,""  "",a,""  "",a)"
        integer, dimension(3)              :: ic1,ic2
        integer, dimension(192)            :: itnum
        real(kind=cp),dimension(3,3,6)     :: DerM
@@ -1343,7 +1343,7 @@
                        "    Distances less than",dmax,"  to atom: ",nam, xo
              write(unit=lun,fmt="(a,/,/)")"    -------------------------------------------------------------------"
              write(unit=lun,fmt="(/,/,a,/,/)") &		! TR 4 fev. 2013
-                  " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext    tx   ty   tz    Sym. op."
+                  " Orig. extr. p.equiv.           Distance      x_ext   y_ext   z_ext  (tx,ty,tz)     Sym. op."
           end if
 
           ico=0
@@ -1397,7 +1397,8 @@
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
                                call setnum_std(dd,sdd,text)
-                               write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
+                               !write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
+                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
 
                             if(present(lun_cons)) then
@@ -2262,9 +2263,8 @@
        !---- Local Variables ----!
        logical                                :: iprint
        character(len=6 )                      :: nam,nam1
-       character(len=16)                      :: transla
-       character(len=90)                      :: form1,form2= &
-                       "("" "",2I4,""   ("",a,"")-("",a,""):"",f10.4,""   "",a,""  "",3F8.4)"
+       character(len=40)                      :: transla
+       character(len=90)                      :: form1,form2="(a,2i4,a,a,a,a,a,f10.4,a,t62,3F8.4)"
        integer                                :: i,k,lk,i1,i2,i3,jl,nn,L,inew,ne,id
        integer, dimension(3)                  :: ic1,ic2
        integer, dimension(Ac%nat,Ac%nat)      :: mn  !neighbouring matrix
@@ -2277,7 +2277,7 @@
           if (lun > 0) iprint=.true.
        end if
        call init_err_geom()
-       id=3*nint(0.74048*(dmax/1.1)**3)
+       id=4*nint(0.74048*(dmax/1.1)**3)
 
        qd(:)=1.0/cell%rcell(:)
        ic2(:)= nint(dmax/cell%cell(:)+3.0)
@@ -2320,7 +2320,7 @@
                          lk=lk+1
                          u(:,lk)=x1(:)
                          call Frac_Trans_1Dig(tn,transla)
-                         if (iprint) write(unit=lun,fmt=form2)i,k,nam,nam1,dd,transla,x1(:)
+                         if (iprint) write(unit=lun,fmt=form2)" ",i,k,"   (",nam,")-(",nam1,"):",dd,"  "//transla,x1(:)
                          mn(i,k)=mn(i,k)+1
                          ne=ne+1
                          IF (ne > id) THEN
@@ -2393,9 +2393,9 @@
        integer                           :: i,j,k,lk,i1,i2,i3,jl,npeq,nn,L,nlines
        character(len=80), dimension(12)  :: texto=" "
        character(len=5 )                 :: nam,nam1
-       character(len=16)                 :: transla
-       character(len=54)                 :: form2= &
-                                            "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
+       character(len=40)                 :: transla
+       character(len=54)                 :: form2="(a,3i4,a,a,a,a,a,f10.4,a,t66,3F8.4)" !&
+                                            !"("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
        integer,          dimension(3)    :: ic1,ic2
        real(kind=cp),    dimension(3)    :: xx,x1,xo,Tn,xr, QD
        real(kind=cp)                     :: T,dd
@@ -2459,7 +2459,9 @@
                             lk=lk+1
                             uu(:,lk)=x1(:)
                             call Frac_Trans_1Dig(tn,transla)
-                            write(unit=lun,fmt=form2)i,k,j,nam ,nam1,dd,transla,x1(:)
+                            write(unit=lun,fmt=form2)" ",i,k,j,"   (",nam,")-(",nam1,"):",dd,"  "//transla,x1(:)
+                            !write(unit=lun,fmt=form2)i,k,j,nam ,nam1,dd,transla,x1(:)
+                                        !    "("" "",3I4,""  ("",a,"")-("",a,""):"",f9.4,""   "",a,""  "",3F8.4)"
                          end do do_jl
                       end do !i3
                    end do !i2

@@ -147,7 +147,7 @@
          lambda=PL%lambda_min+step*real(k-1)
          Y= to_deg*Lambda/PPC%Ls
          !flux = get_gauss(Lambda,PL%Lambda_cent,PL%Lambda_width)
-         flux = Maxwellian(Lambda,PL)
+         flux = Maxwellian(Lambda,PL) * lambda*lambda*lambda
          write(unit=i_spec,fmt="(2f12.4)") lambda,flux*1000
          if(flux < 0.0001) cycle
          do i=1,hkl%nref

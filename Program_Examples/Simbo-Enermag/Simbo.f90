@@ -54,12 +54,16 @@
      !Construct full connectivity of atoms in the cell without printing
      !The structure Ac(Atoms_Cell_type) contains all atoms + coordinations, etc...
      call P1_dist( dmax, Cell, SpG, Ac)
+     !call P1_dist( dmax, Cell, SpG, Ac,lun)
+
 
      if(Err_Geom) then
        write(unit=*,fmt="(/,a)") " => WARNING"
        write(unit=*,fmt="(a)") trim(ERR_Geom_Mess)
        write(unit=*,fmt="(a,/)") " => The calculation of exchange paths may be wrong!"
      end if
+     !Print the full structure Ac
+     !call print_AC(Ac,directex1,directex2,lun)
 
      !Inititalize spaths
      spaths(:,:)%nd=0
@@ -299,21 +303,20 @@
           end do  !jk
          end do  !ji
 
-         if(spaths(im,km)%ns + spaths(im,km)%nss == 0) then ! Test for direct exchange
-           dis=dot_PRODUCT(vmmp,vmmp)
-           if(dis <= dir2 .and. dis > dir1) then
-              spaths(im,km)%nd=spaths(im,km)%nd+1
-              tangl=" "
-              write(unit=tangl,fmt="(3a)") trim(Ac%noms(i)),"-",trim(Ac%noms(k))
-              spaths(im,km)%DE(spaths(im,km)%nd)%nam1=trim(Ac%noms(i))
-              spaths(im,km)%DE(spaths(im,km)%nd)%nam2=trim(Ac%noms(k))
-              spaths(im,km)%DE(spaths(im,km)%nd)%nam=trim(tangl)//trim(translat)
-              spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,1)=Ac%xyz(:,i)
-              spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,2)=Ac%xyz(:,k)+Ac%trans(:,j,i)
-              spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,1)=vm(:)
-              spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,2)=vmp(:)
-              spaths(im,km)%DE(spaths(im,km)%nd)%dist=sqrt(dis)
-           end if
+         ! Test for direct exchange
+         dis=dot_PRODUCT(vmmp,vmmp)
+         if(dis <= dir2 .and. dis > dir1) then
+            spaths(im,km)%nd=spaths(im,km)%nd+1
+            tangl=" "
+            write(unit=tangl,fmt="(3a)") trim(Ac%noms(i)),"-",trim(Ac%noms(k))
+            spaths(im,km)%DE(spaths(im,km)%nd)%nam1=trim(Ac%noms(i))
+            spaths(im,km)%DE(spaths(im,km)%nd)%nam2=trim(Ac%noms(k))
+            spaths(im,km)%DE(spaths(im,km)%nd)%nam=trim(tangl)//trim(translat)
+            spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,1)=Ac%xyz(:,i)
+            spaths(im,km)%DE(spaths(im,km)%nd)%coord(:,2)=Ac%xyz(:,k)+Ac%trans(:,j,i)
+            spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,1)=vm(:)
+            spaths(im,km)%DE(spaths(im,km)%nd)%carte(:,2)=vmp(:)
+            spaths(im,km)%DE(spaths(im,km)%nd)%dist=sqrt(dis)
          end if
 
        end do   !j magnetic neighbours of i
@@ -396,6 +399,33 @@
 
      return
    End Subroutine Exchange_Paths
+
+   Subroutine Print_AC(Ac,d1,d2,lun)
+     type (Atoms_Cell_type),   intent(in)   :: Ac
+     real,                     intent(in)   :: d1,d2
+     integer,                  intent(in)   :: lun
+     integer :: i,j,k
+     real    :: dd
+     real, dimension(3) :: tn
+     write(unit=lun,fmt="(a)") "  ------------------------------------------------------- "
+     write(unit=lun,fmt="(a)") "  Connectivity of all magnetic atoms with direct Exchange "
+     write(unit=lun,fmt="(a)") "  ------------------------------------------------------- "
+     write(unit=lun,fmt="(a)") "    "
+     do i=1,Ac%nat
+        if(Ac%moment(i) < 0.01) cycle
+        write(unit=lun,fmt="(/,a,i6)") " => Neighbours of atom "//trim(Ac%noms(i))//"      Total number: ",Ac%neighb(i)
+        do j=1,Ac%neighb(i)
+            k=Ac%neighb_atom(j,i)
+            if(Ac%moment(k) < 0.01) cycle
+            dd=Ac%distance(j,i)
+            if(dd < d1 .or. dd > d2) cycle
+            tn=Ac%trans(:,j,i)
+            write(unit=lun,fmt="(a,f10.5,a,3f8.3,a)") " => Atom "//trim(Ac%noms(k))//" at distance: ",dd, "  Tn = (",tn,")"
+        end do
+     end do
+     write(unit=lun,fmt="(/,a)") " "
+     return
+   End Subroutine Print_AC
 
    Subroutine construct_jxch(lun,iprin,n_mag,spaths,kf)
     integer,                            intent(in ) :: lun,n_mag
@@ -868,7 +898,7 @@
    call Allocate_Atom_List(Ac%nat,Ap)       !allocate space for Ap
    call Atoms_Cell_to_List(Ac,Ap)
    sp1=SpG%SPG_Symb(1:1)//" 1"
-   call Set_SpaceGroup(sp1,gP1)     !construct space group P1
+   call Set_SpaceGroup(sp1,gP1)     !construct space group P1/A1/B1/C1/I1/R1/F1
    iprin=.false.
    write(unit=*,fmt="(a)",advance="no")" => List all distances & angles (y/n)? (def=n): "
    read(unit=*,fmt="(a)") ans
@@ -905,7 +935,7 @@
    read(unit=*,fmt="(a)") ans
    if(ans == "y" .or. ans == "Y") iprin=.true.
    if(.not. negligible(dbond)) &
-     call Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex1,directex2,Cell,gP1,Ac,spaths)
+       call Exchange_Paths(lun,iprin,dmax,dbond,angm,angn,directex1,directex2,Cell,gP1,Ac,spaths)
    Call deAllocate_Atoms_Cell(Ac)    !From Ac we have conserved only "spaths"
    Call Allocate_Atoms_Cell(nmag, 1, dmax, Acm)
 
@@ -922,7 +952,7 @@
    !  Write terms of the Fourier transform of the exchange interactions
    !  Write also the information to the file *.exc(unit=4) and MCMAG
 
-   open(unit=4,file=outfil(1:ln)//".exc",status="replace",action="write",position="rewind")
+   open(unit=4,file=trim(outfil)//".exc",status="replace",action="write",position="rewind")
    write(unit=4,fmt="(a)") title
    write(unit=4,fmt="(i4,f8.4)")Acm%nat,dmax
    write(unit=4,fmt="(a)") SpG%SPG_Symb

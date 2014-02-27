@@ -243,7 +243,7 @@
     !!----    real(kind=cp),dimension(:, :,:), allocatable :: trans       ! -> Lattice translations   (3,nat,idp)
     !!----    integer                                      :: ndist       ! -> Number of distinct distances
     !!----    real(kind=cp),     dimension(:), allocatable :: ddist       ! -> List of distinct distances(nat*idp)
-    !!----    character (len=20), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
+    !!----    character(len=20), dimension(:), allocatable :: ddlab       ! -> Labels of atoms at ddist (nat*idp)
     !!---- End Type atoms_cell_type
     !!----
     !!---- This type is mostly used for distance-angle and Bond-valence calculations.
@@ -252,7 +252,7 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Type, public :: atoms_cell_type
+    Type, public :: Atoms_Cell_Type
        integer                                            :: nat
        character (len=20),      dimension(:), allocatable :: noms
        real(kind=cp),         dimension(:,:), allocatable :: xyz
@@ -266,7 +266,7 @@
        integer                                            :: ndist
        real(kind=cp),           dimension(:), allocatable :: ddist
        character (len=20),      dimension(:), allocatable :: ddlab
-    End Type atoms_cell_type
+    End Type Atoms_Cell_Type
 
     !!----
     !!---- TYPE :: ATOM_LIST_TYPE
