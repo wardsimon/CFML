@@ -59,7 +59,7 @@ rem
 rem  Comment the following lines if upx or %FULLPROF% are not available
 rem  or if you want to conserve the object files
 rem  Compression of executable
-rem        upx EnerMag.exe
+        upx EnerMag.exe
 rem  Move the excutable to a directory in the Path
         if exist %FULLPROF% move EnerMag.exe %FULLPROF% > nul
 rem  Remove unnecessary files

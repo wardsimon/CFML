@@ -2277,7 +2277,7 @@
           if (lun > 0) iprint=.true.
        end if
        call init_err_geom()
-       id=4*nint(0.74048*(dmax/1.1)**3)
+       id=3*nint(0.74048*(dmax/1.1)**3)
 
        qd(:)=1.0/cell%rcell(:)
        ic2(:)= nint(dmax/cell%cell(:)+3.0)

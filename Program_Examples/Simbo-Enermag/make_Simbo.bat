@@ -35,9 +35,9 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c Simbo.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
-   link /subsystem:console /stack:64000000 /out:Simbo.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   ifort /c Sup_Exc.f90 /O2 /nologo /heap-arrays:100 /IC:\CrysFML\ifort\LibC
+   ifort /c Simbo.f90   /O2 /nologo /heap-arrays:100 /IC:\CrysFML\ifort\LibC
+   link /subsystem:console  /out:Simbo.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
    goto END
 rem
 :IFORTD
