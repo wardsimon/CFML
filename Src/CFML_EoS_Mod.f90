@@ -346,8 +346,8 @@ Contains
       end select
 
       !> numerical solutions: set step size
-      del =0.001_cp/eospar%params(10)      ! set step in T to get about 0.1% shift in V
-      if (del > 30.0) del=30.0_cp          ! otherwise for small alpha, del is too big and alpha is inaccurate
+      del =abs(0.001_cp/eospar%params(10))      ! set step in T to get about 0.1% shift in V
+      if (del > 80.0) del=80.0_cp          ! otherwise for small alpha, del is too big and alpha is inaccurate
       if (present(deltat)) del=deltat
 
       select case(eospar%itherm)           ! adjustment of step size
@@ -3129,7 +3129,7 @@ Contains
              eospar%iuse(10:11)=1
 
          case(6)             ! Thermal pressure in H&P form (no dK/dT): requires a eos model as well
-             eospar%iuse(2:3)=2   ! K, Kp refinement is not stable
+             if (eospar%imodel==0)eospar%iuse(2:3)=2   ! K, Kp refinement is not stable without a pressure model
              eospar%iuse(5)=0     ! No dK/dT parameter:
              eospar%iuse(10)=1    ! alpha at Tref
              eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
