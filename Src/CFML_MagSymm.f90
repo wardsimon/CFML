@@ -1606,7 +1606,7 @@
           lowline=l_case(line)
           j=index(lowline," ")
           keyword=lowline(1:j-1)
-
+          !write(*,"(a)") " Keyword: "//trim(keyword)
           Select Case (trim(keyword))
 
              Case("_magnetic_space_group_standard_setting")
@@ -1722,7 +1722,7 @@
                  lowline=l_case(line)
                  j=index(lowline," ")
                  keyword=lowline(1:j-1)
-
+                 !write(*,"(a)") "         Loop_Keyword: "//trim(keyword)
                  Select Case(trim(keyword))
 
                    Case("_irrep_id")
@@ -2006,7 +2006,7 @@
           MGp%n_irreps=0
 
         else
-
+          !write(*,"(a,i3)") " Treating irreps: ",num_irreps
           MGp%n_irreps=num_irreps
           if(allocated(MGp%irrep_dim))          deallocate(MGp%irrep_dim)
           if(allocated(MGp%small_irrep_dim))    deallocate(MGp%small_irrep_dim)
@@ -2063,6 +2063,7 @@
        if(num_kvs == 0) then
          MGp%n_kv=0
        else
+         !write(*,"(a,i3)") " Treating propagation vectors: ",num_kvs
          do i=1,MGp%n_kv
             line=adjustl(kv_strings(i))
             j=index(line," ")
@@ -2086,13 +2087,16 @@
        end if
        ! Propagation vectors treatment done!
 
+       !write(*,"(a)") " Cleaning up symmetry operators: "
        Call cleanup_symmetry_operators(MgP)
+       !write(*,"(a)") " Cleaning up done! "
 
        !Treating magnetic atoms
        if(num_matom == 0) then
           Am%natoms = 0
           return
        else
+          !write(*,"(a,i4)") " Treating magnetic atoms:  ",num_matom
           Call Allocate_mAtom_list(num_matom,Am)
 
           do i=1,Am%natoms
@@ -2164,6 +2168,7 @@
 
        !Treating moments of magnetic atoms
        if(num_mom /= 0) then
+          !write(*,"(a,i4)") " Treating magnetic moments:  ",num_mom
           do i=1,num_mom
             call getword(mom_strings(i),lab_items,iv)
             !write(*,"(4(a,tr3))")lab_items(1:iv)
@@ -2191,6 +2196,7 @@
 
        if(num_constr /= 0) then
 
+         !write(*,"(a,i4)") " Treating constraints:  ",num_constr
          do i=1,num_constr
            line=adjustl(constr_strings(i))
            j=index(line," ")
@@ -2290,6 +2296,7 @@
       i=0
       k=0
       centrosymm=.false.
+      nul=.false.
       do j=2,MSpG%Multip
         invt= nint(MSpG%MSymOp(j)%phas)
         if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
@@ -2298,10 +2305,12 @@
               num_lat=num_lat+1
               Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
               p(j)=10
+              nul(j)=.true.
            else
               num_alat=num_alat+1
               aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
               p(j)=-10
+              nul(j)=.true.
            end if
         else if (equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
            k=k+1
@@ -2314,6 +2323,7 @@
            else
              p(j)=-20
            end if
+           nul(j)=.true.
         else
            p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
         end if
@@ -2335,16 +2345,17 @@
         MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
         MSpG%Num_aLat=num_alat
       end if
+      !do i=1,num_lat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
+      !end do
+      !do i=1,num_alat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
+      !end do
 
       !Nullify the operators that can be deduced from others by applying translations,
       !anti-translations and centre of symmetry
-      nul=.false.
       ip=0; it=0
       do j=2,MSpG%Multip-1
-         if(p(j) == 10 .or. p(j) == -10)  then
-            nul(j)=.true.
-            cycle
-         end if
          if(nul(j)) cycle
          do i=j+1,MSpG%Multip
            if(nul(i)) cycle
@@ -2449,20 +2460,14 @@
       end if
       !Normally here the number of operators should be equal to multiplicity
       ng=m
-      !if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
+      if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
       !now generate all symbols for symmetry operators and magnetic matrices
       do i=1,MSpG%Multip
          call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
-        ! write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
-        ! write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
+        !write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+        !write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
       end do
-      !do i=1,num_lat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
-      !end do
-      !do i=1,num_alat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
-      !end do
-     ! write(*,"(a)")
+      !write(*,"(a)")
      !do i=1,MSpG%Multip
      ! Select Case (p(i))
      !   Case(10)

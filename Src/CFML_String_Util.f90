@@ -2218,13 +2218,13 @@
     !!----    integer        , intent(out) :: N            ! Out -> Number of lines in the file
     !!----    character(len=*), optional,intent(in) :: input_string   ! In -> String to exit
     !!----
-    !!----    Return the number of lines contained in a file. If the file is
-    !!----    open, a rewind procedure is made.
+    !!----    Return the number of lines contained in a file. The file will be opened and closed before
+    !!----    returning to the calling unit.
     !!----    If 'input_string' is present, return the number of lines until 'input_string' is founded
     !!----    as first string in the line
     !!----    (example : input_string =='END' : avoid Q peaks in a SHELX file)
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, March-2014 (removing the "opened" inquire, JRC)
     !!
     Subroutine Number_Lines(filename,n, input_string)
        !---- Arguments ----!
@@ -2250,14 +2250,7 @@
        inquire (file=filename,exist=info)
        if (.not. info) return
 
-       !---- Is it Open? ----!
-       inquire (file=filename,opened=info)
-       if (.not. info) then
-          open(unit=lun,file=filename, status="old",action="read", position="rewind")
-       else
-          inquire(file=filename,number=lun)
-          rewind(unit=lun)
-       end if
+       open(unit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Counting lines ----!
        do
@@ -2270,12 +2263,7 @@
           n=n+1
        end do
 
-       !---- Was Opened? ----!
-       if (.not. info) then
-          close(unit=lun)
-       else
-          rewind(unit=lun)
-       end if
+       close(unit=lun)
 
        return
     End Subroutine Number_Lines
@@ -2690,10 +2678,10 @@
     !!----    integer,           intent(in)                :: Nlines     !  In -> Number of lines to read
     !!----    character(len= *), dimension(:), intent(out) :: Filevar    ! Out -> String vector
     !!----
-    !!----    Read nlines of the file and put the information on Filevar. If the file
-    !!----    is open, the a rewind procedure is made.
+    !!----    Read nlines of the file and put the information on Filevar. The file is opened to read the
+    !!----    lines and closed before returning to the calling unit.
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, March-2014 (eliminating the "opened" inquire,JRC)
     !!
     Subroutine Reading_Lines(filename,nlines,filevar)
        !---- Arguments ----!
@@ -2714,30 +2702,18 @@
        inquire (file=filename,exist=info)
        if (.not. info) then
           err_string=.true.
-          ERR_String_Mess="Not exist the file"
+          ERR_String_Mess="The file"//trim(filename)//" does not exist "
           return
        end if
 
-       !---- Is it Open? ----!
-       inquire (file=filename,opened=info)
-       if (.not. info) then
-          open(unit=lun,file=filename, status="old",action="read", position="rewind")
-       else
-          inquire(file=filename,number=lun)
-          rewind(unit=lun)
-       end if
+       open(unit=lun,file=filename, status="old",action="read", position="rewind")
 
        !---- Reading... ----!
        do i=1,nlines
           read(unit=lun,fmt="(a)") filevar(i)
        end do
 
-       !---- Was Opened? ----!
-       if (.not. info) then
-          close(unit=lun)
-       else
-          rewind(unit=lun)
-       end if
+       close(unit=lun)
 
        return
     End Subroutine Reading_Lines

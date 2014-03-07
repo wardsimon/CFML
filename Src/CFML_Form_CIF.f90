@@ -290,6 +290,7 @@
 
        !---- Number of Lines in the input file ----!
        call Number_Lines(trim(File_dat), nlines)
+
        if (nlines==0) then
           err_form=.true.
           ERR_Form_Mess="The file "//trim(File_dat)//" contains nothing"
