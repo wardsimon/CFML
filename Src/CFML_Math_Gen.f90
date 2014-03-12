@@ -3288,7 +3288,7 @@
              det=det + log(abs(lu(i,i)))
           end do
           det=d*exp(det)
-          if (abs(det) <= 1.0e-30) then
+          if (abs(det) <= 1.0e-36) then
              singular=.true.
              b=lu
              return
@@ -3548,7 +3548,7 @@
     !!----    real(kind=cp),    dimension(:),  intent(in out) :: b
     !!--<<
     !!----    Adapted from Numerical Recipes.
-    !!----    Solves the set of N linear equations A � X = B. Here the N � N matrix A is input,
+    !!----    Solves the set of N linear equations A  X = B. Here the N x N matrix A is input,
     !!----    not as the original matrix A, but rather as its LU decomposition, determined
     !!----    by the routine LU_DECOMP. INDX is input as the permutation vector of length N
     !!----    returned by LU_DECOMP. B is input as the right-hand-side vector B,
@@ -3642,7 +3642,7 @@
              a(j,j)=vtiny                !(at least to the precision of the algorithm)
              singular=.true.             !For some applications on singular matrices,
              return                      !it is desirable to substitute vtiny for zero.
-          end if                         ! This is actually the present case
+          end if                         !This is actually the present case
           a(j+1:n,j)=a(j+1:n,j)/a(j,j)                                    !Divide by the pivot element.
           a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(a(j+1:n,j),a(j,j+1:n))  !Reduce remaining submatrix.
        end do

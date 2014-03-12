@@ -1441,6 +1441,7 @@
        !       p *(jac *jac)*p = r *r
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
+       ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
        curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
@@ -1667,7 +1668,8 @@
        !       p *(jac *jac)*p = r *r
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
-       curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+       ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
+       curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
        end do
@@ -1753,13 +1755,14 @@
     End Subroutine LM_DerV
 
     !!--++
-    !!--++   Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals)
+    !!--++   Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals,idebug)
     !!--++     Integer,                     Intent(In)      :: m        !Number of observations
     !!--++     type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
     !!--++     type(LSQ_State_Vector_type), Intent(In Out)  :: Vs       !State vector
     !!--++     Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
     !!--++     character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
     !!--++     Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+    !!--++     integer,                     optional, intent(in)  :: idebug !logical unit for writing results
     !!--++     !--- Local Variables ---!
     !!--++     Interface
     !!--++       Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
@@ -1785,7 +1788,7 @@
     !!--++
     !!--++ Updated: January - 2014
     !!
-    Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals)
+    Subroutine LM_Dif(Model_Functn, m, c, Vs, chi2, infout,residuals,idebug)
        !---- Arguments ----!
        Integer,                     Intent(In)      :: m        !Number of observations
        type(LSQ_conditions_type),   Intent(In Out)  :: c        !Conditions of refinement
@@ -1793,6 +1796,7 @@
        Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
        character(len=*),            Intent(out)     :: infout   !Information about the refinement  (min length 256)
        Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
+       integer,                     optional, intent(in)  :: idebug !logical unit for writing results
 
        Interface
          Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
@@ -1809,13 +1813,14 @@
                                                iflag,info
        Integer,        dimension(c%npvar)   :: ipvt
        Integer, dimension(c%npvar,c%npvar)  :: p,id
-       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo
+       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo, vsig
        Real (Kind=cp), dimension(vs%np)     :: vp
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
        Real (Kind=cp)                       :: epsfcn,ftol, gtol, xtol,iChi2,deni,denj
        Real (Kind=cp), Parameter            :: factor = 100.0_CP, zero = 0.0_CP
        Logical                              :: singular
+       character(len=20)                    :: formt
 
        info = 0
        n=c%npvar
@@ -1891,6 +1896,7 @@
        !       p *(jac *jac)*p = r *r
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
+       ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
        curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
@@ -1905,9 +1911,32 @@
              if( deni <= zero) deni=1.0
              correl(j,i)=curv_mat(j,i)/sqrt(denj*deni)
           end do
-          correl(j,j)=1.00001
+          correl(j,j)=1.0001
        end do
+
+       if(present(idebug)) then
+         formt="(    g10.3)"
+         write(unit=formt(2:5),fmt="(i4)") n/12
+         write(unit=idebug,fmt="(a,i5,a,/)") "  Output pseudo-Jacobian for ",n," free parameters"
+         do j=1,n
+           write(unit=idebug,fmt=formt) fjac(j,1:n)
+         end do
+         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the calculated Curvature matrix for ",n," free parameters"
+         write(unit=idebug,fmt=formt) (curv_mat(j,j),j=1,n)
+         write(unit=idebug,fmt="(a,g14.4)") "  Maxvalue of Correl before inversion: ",maxval(correl)
+         write(unit=idebug,fmt="(a,g14.4)") "  Minvalue of Correl before inversion: ",minval(correl)
+       end if
+
        Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
+
+       if(present(idebug)) then
+         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the Inverse Correlation matrix for ",n," free parameters"
+         write(unit=idebug,fmt=formt) (correl(j,j),j=1,n)
+         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Variances for ",n," free parameters"
+         write(unit=idebug,fmt=formt) (correl(j,j)/curv_mat(j,j),j=1,n)
+
+       end if
+
        If (.not. singular) then
           Do i=1,n
              deni = curv_mat(i,i)
@@ -1916,14 +1945,15 @@
           End Do
        Else
           Do i=1,n
-             if (correl(i,i) <= zero) then
-                info=0
-                write(unit=infout,fmt="(a,i3)") "Final Singular Matrix!, problem with parameter #",i
-                exit
+             deni = curv_mat(i,i)
+             if( deni <= zero) then
+               sx(i) = 99999.9
+             else
+               sx(i) = sqrt(abs(correl(i,i)/deni))         !sqrt(abs(correl(i,i)*Chi2))
              end if
           End Do
           Err_lsq =.true.
-          Err_Lsq_Mess=" Singular Matrix at the end of LM_Der for calculating std deviations ..."
+          Err_Lsq_Mess=" => Singular Matrix at the end of LM_Der for calculating std deviations ... provided sigmas are dubious!"
        End if
 
        !Update the State vector Vs
