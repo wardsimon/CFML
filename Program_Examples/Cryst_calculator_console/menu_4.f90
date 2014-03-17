@@ -68,10 +68,10 @@
     !!
     Subroutine Menu_Chem_1()
        !---- Local Variables ----!
-       character(len=20)     :: line
-       integer               :: i, j, n, iv, ierr, npos
-       integer, dimension(1) :: ivet
-       real, dimension(1)    :: vet
+       character(len=20)           :: line
+       integer                     :: i, j, n, iv, ierr, npos
+       integer,       dimension(1) :: ivet
+       real(kind=cp), dimension(1) :: vet
 
        call Set_Chem_Info()
 

@@ -25,10 +25,10 @@
    Character(len=1)         :: Cart_type="A"
 
    Type, public :: Zone_Planes_Type
-     integer                            :: nplanes
-     real,   dimension(  :),allocatable :: mh
-     integer,dimension(:,:),allocatable :: h     !co-prime indices
-     real,   dimension(:,:),allocatable :: hc
+     integer                                     :: nplanes
+     real(kind=cp),   dimension(  :),allocatable :: mh
+     integer,         dimension(:,:),allocatable :: h     !co-prime indices
+     real(kind=cp),   dimension(:,:),allocatable :: hc
    End Type Zone_Planes_Type
 
  Contains
@@ -122,9 +122,9 @@
     !!
     Subroutine Menu_Geom_1()
        !---- Local Variables ----!
-       character(len=80)        :: line
-       character(len=1)         :: car
-       real, dimension(3)       :: Cellv,Angl
+       character(len=80)          :: line
+       character(len=1)           :: car
+       real(kind=cp), dimension(3):: Cellv,Angl
 
        do
           call system(clear_string)
@@ -233,9 +233,9 @@
     !!
     Subroutine Menu_Geom_3()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real, dimension(3)     :: u,v,uc,vc,ur,vr
-       real                   :: angle,mu,mv
+       character(len=80)          :: line
+       real(kind=cp), dimension(3):: u,v,uc,vc,ur,vr
+       real(kind=cp)              :: angle,mu,mv
 
        do
           call system(clear_string)
@@ -304,9 +304,9 @@
     !!
     Subroutine Menu_Geom_4()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real, dimension(3)     :: h,k,hc,kc,hd,kd
-       real                   :: angle,mh,mk
+       character(len=80)          :: line
+       real(kind=cp), dimension(3):: h,k,hc,kc,hd,kd
+       real(kind=cp)              :: angle,mh,mk
 
        do
           call system(clear_string)
@@ -378,9 +378,9 @@
     !!
     Subroutine Menu_Geom_5()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real, dimension(3)     :: h,u,hc,uc,hd,ur
-       real                   :: angle,mh,mu
+       character(len=80)          :: line
+       real(kind=cp), dimension(3):: h,u,hc,uc,hd,ur
+       real(kind=cp)              :: angle,mh,mu
 
        do
           call system(clear_string)
@@ -450,9 +450,9 @@
     !!
     subroutine Menu_Geom_6()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real, dimension(3)     :: u,uc,vc,ur
-       real                   :: mu,mv
+       character(len=80)           :: line
+       real(kind=cp), dimension(3) :: u,uc,vc,ur
+       real(kind=cp)               :: mu,mv
 
        do
           call system(clear_string)
@@ -510,9 +510,9 @@
     !!
     Subroutine Menu_Geom_7()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real, dimension(3)     :: u,v,uc,vc
-       real                   :: mu,mv
+       character(len=80)          :: line
+       real(kind=cp), dimension(3):: u,v,uc,vc
+       real(kind=cp)              :: mu,mv
 
        do
           call system(clear_string)
@@ -568,10 +568,10 @@
     !!
     subroutine Menu_Geom_8()
        !---- Local Variables ----!
-       character(len=80)        :: line,symb
-       real, dimension(3,3)     :: mat
-       type (Crystal_Cell_type) :: Celln
-       integer                  :: i
+       character(len=80)            :: line,symb
+       real(kind=cp), dimension(3,3):: mat
+       type (Crystal_Cell_type)     :: Celln
+       integer                      :: i
 
        do
           call system(clear_string)
@@ -617,13 +617,13 @@
 
     subroutine Menu_Geom_9()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real,    dimension(3)  :: uc,vc
-       integer, dimension(3)  :: u
-       real,    dimension(:),allocatable  :: angs
-       real,    dimension(:),allocatable  :: angles
-       integer, dimension(:),allocatable  :: ii,jj,nang
-       real                   :: dmin,angle,mu,mv,ca, tol
+       character(len=80)                     :: line
+       real(kind=cp),dimension(3)            :: uc,vc
+       integer,      dimension(3)            :: u
+       real(kind=cp),dimension(:),allocatable:: angs
+       real(kind=cp),dimension(:),allocatable:: angles
+       integer,      dimension(:),allocatable:: ii,jj,nang
+       real(kind=cp)                         :: dmin,angle,mu,mv,ca, tol
        integer                :: i,j,k,n,n_angles
        Type(Zone_Axis_Type)   :: Zone_Axis
        Type(Zone_Planes_Type) :: Zone_Planes
@@ -742,14 +742,14 @@
 
     Subroutine Menu_Geom_10()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real,    dimension(3)  :: uc,vc,h1,h2,h3,h4
-       real,    dimension(4)  :: angs,abest
-       integer, dimension(3,8):: hb
-       real,    dimension(:),allocatable  :: angles
-       integer, dimension(:),allocatable  :: ii,jj,nang
-       integer, dimension(3)  :: u,h,hi2,ho2,hi4,ho4
-       real                   :: n_max,angle,mv1,mv2,mv3,mv4, tol, a13,a14,a23,a24, &
+       character(len=80)           :: line
+       real(kind=cp),dimension(3)  :: uc,vc,h1,h2,h3,h4
+       real(kind=cp),dimension(4)  :: angs,abest
+       integer,      dimension(3,8):: hb
+       real(kind=cp),dimension(:),allocatable  :: angles
+       integer,      dimension(:),allocatable  :: ii,jj,nang
+       integer,      dimension(3)              :: u,h,hi2,ho2,hi4,ho4
+       real(kind=cp)          :: n_max,angle,mv1,mv2,mv3,mv4, tol, a13,a14,a23,a24, &
                                  a1,a2,a3,a4, mu,mv,rf, rmin
        integer                :: i,j,k,nedges,n,msol,nsol, nbest,neq
        Type(Zone_Axis_Type)   :: Zone_Axis
@@ -983,11 +983,11 @@
     !!
     Subroutine Menu_Geom_11()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       integer, dimension(3)  :: h1,h2,u,uc
-       real,    dimension(3)  :: c1,c2
-       integer                :: i,j,k,n,hmax,kmax,lmax
-       real                   :: ang,ang1,ang2,mc1,mc2,dmin
+       character(len=80)         :: line
+       integer,      dimension(3):: h1,h2,u,uc
+       real(kind=cp),dimension(3):: c1,c2
+       integer                   :: i,j,k,n,hmax,kmax,lmax
+       real(kind=cp)             :: ang,ang1,ang2,mc1,mc2,dmin
 
        do
           call system(clear_string)
@@ -1045,7 +1045,7 @@
           hmax=nint(Celda%cell(1)/dmin+1.0)
           kmax=nint(Celda%cell(2)/dmin+1.0)
           lmax=nint(Celda%cell(3)/dmin+1.0)
-          c1=Cart_Vector("R",real(h1),Celda)
+          c1=Cart_Vector("R",real(h1,kind=cp),Celda)
           mc1=sqrt(dot_Product(c1,c1))
           write(unit=*,fmt="(/,2(a,3i3),a)") " => List of planes intersecting (",h1,") at the zone axis: [",u,"]"
           n=0
@@ -1058,7 +1058,7 @@
                 uc=Cross_Product(h1,h2)
                 if(co_linear(uc,u,3)) then
                   !Calculate the angle with the initial plane
-                  c2=Cart_Vector("R",real(h2),Celda)
+                  c2=Cart_Vector("R",real(h2,kind=cp),Celda)
                   mc2=sqrt(dot_Product(c2,c2))
                   ang=180.0-Angle_val(c1,mc1,c2,mc2)
                   if(ang >= ang1 .and. ang <= ang2) then
@@ -1076,9 +1076,9 @@
     End Subroutine Menu_Geom_11
 
     Function Angle_val(h1,m1,h2,m2) result(angle)
-     real, dimension(:), intent(in) :: h1,h2
-     real,               intent(in) :: m1,m2
-     real                           :: angle
+     real(kind=cp), dimension(:), intent(in) :: h1,h2
+     real(kind=cp),               intent(in) :: m1,m2
+     real(kind=cp)                           :: angle
      angle=dot_product(h1,h2)/m1/m2
      if(angle > 1.0) angle=1.0
      if(angle <-1.0) angle=-1.0
@@ -1091,9 +1091,9 @@
     !!
     Subroutine Menu_Geom_12()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real,    dimension(3)  :: u,v,w, h,c
-       real                   :: angu,angv,angw,Chi,Phi,Theta,mc
+       character(len=80)            :: line
+       real(kind=cp), dimension(3)  :: u,v,w, h,c
+       real(kind=cp)                :: angu,angv,angw,Chi,Phi,Theta,mc
 
        do
           call system(clear_string)
@@ -1199,13 +1199,13 @@
 
     Subroutine Menu_Geom_12a()
        !---- Local Variables ----!
-       character(len=80)      :: line
-       real,    dimension(3)  :: uc,vc
-       real,    dimension(:),allocatable  :: angs,angles
+       character(len=80)               :: line
+       real(kind=cp),    dimension(3)  :: uc,vc
+       real(kind=cp),    dimension(:),allocatable  :: angs,angles
        integer, dimension(:),allocatable  :: ii,jj,nn,nang,nl
        integer, dimension(:,:),allocatable  :: p
        integer, dimension(3)  :: u,h,h1,h2,h3,h4,hi,ho
-       real                   :: n_max,angle,mu,mv, tol
+       real(kind=cp)          :: n_max,angle,mu,mv, tol
        integer                :: i,j,k,nedges,n,msol,nsol,k1,k2
        Type(Zone_Axis_Type)   :: Zone_Axis
        Type(Zone_Planes_Type) :: Zone_Planes
@@ -1425,7 +1425,7 @@
    !!----   !---- Arguments ----!
    !!----   integer, dimension(3),   intent(in) :: u1
    !!----   integer, dimension(3),   intent(in) :: u2
-   !!----   real,                    intent(in) :: dmin
+   !!----   real(kind=cp),           intent(in) :: dmin
    !!----   Type(Crystal_Cell_Type), intent(in) :: Cell
    !!----   Type(Zone_Planes_Type),  intent(out):: Zone_Planes
    !!----   Character(len=*),optional,intent(in):: Mode
@@ -1444,25 +1444,25 @@
       !---- Arguments ----!
       integer, dimension(3),   intent(in) :: u1
       integer, dimension(3),   intent(in) :: u2
-      real,                    intent(in) :: dmin
+      real(kind=cp),           intent(in) :: dmin
       Type(Crystal_Cell_Type), intent(in) :: Cell
       Type(Zone_Planes_Type),  intent(out):: Zone_Planes
       Character(len=*),optional,intent(in):: Mode
 
       !---- Local variables ----!
       integer              :: i1,i2,n,i,j
-      real                 :: smax,rm,rm1,rm2
-      real                 :: cosgam,cos2,singam
-      integer,dimension(3) :: h
-      real,dimension(3,3)  :: mat,mg
-      integer,dimension(:,:), allocatable :: cp_ind
+      real(kind=cp)        :: smax,rm,rm1,rm2
+      real(kind=cp)        :: cosgam,cos2,singam
+      integer,      dimension(3)  :: h
+      real(kind=cp),dimension(3,3):: mat,mg
+      integer,      dimension(:,:), allocatable :: cp_ind
 
       if(present(mode)) then
-        call get_recip_to_Cart(real(u1),real(u2),dmin,cell,mat,"R")
+        call get_recip_to_Cart(real(u1,kind=cp),real(u2,kind=cp),dmin,cell,mat,"R")
         smax=dmin
         mg=cell%gd
       else
-        call get_recip_to_Cart(real(u1),real(u2),dmin,cell,mat)
+        call get_recip_to_Cart(real(u1,kind=cp),real(u2,kind=cp),dmin,cell,mat)
         smax=1.0/dmin
         mg=cell%gr
      end if
@@ -1511,12 +1511,12 @@
 
    !!----Subroutine Get_Recip_to_Cart(u1,u2,dmin,Cell,Og,Mode)
    !!----   !---- Arguments ----!
-   !!----   real, dimension(3),         intent(in) :: u1
-   !!----   real, dimension(3),         intent(in) :: u2
-   !!----   real,                       intent(in) :: Dmin
-   !!----   type (Crystal_Cell_Type),   intent(in) :: Cell
-   !!----   real, dimension(3,3),       intent(out):: Og
-   !!----   Character(len=*), optional, intent(in) :: Mode
+   !!----   real(kind=cp), dimension(3),  intent(in) :: u1
+   !!----   real(kind=cp), dimension(3),  intent(in) :: u2
+   !!----   real(kind=cp),                intent(in) :: Dmin
+   !!----   type (Crystal_Cell_Type),     intent(in) :: Cell
+   !!----   real(kind=cp), dimension(3,3),intent(out):: Og
+   !!----   Character(len=*), optional,   intent(in) :: Mode
    !!----
    !!----   This subroutine defines a Cartesian frame in which the x-axis is
    !!----   along the reciprocal vector u1, the y-axis in within the plane
@@ -1532,20 +1532,20 @@
    !!----
    Subroutine Get_Recip_to_Cart(u1,u2,dmin,Cell,Og,Mode)
       !---- Arguments ----!
-      real, dimension(3),         intent(in) :: u1
-      real, dimension(3),         intent(in) :: u2
-      real,                       intent(in) :: Dmin
-      type (Crystal_Cell_Type),   intent(in) :: cell
-      real, dimension(3,3),       intent(out):: Og
-      Character(len=*), optional, intent(in) :: Mode
+      real(kind=cp), dimension(3),  intent(in) :: u1
+      real(kind=cp), dimension(3),  intent(in) :: u2
+      real(kind=cp),                intent(in) :: Dmin
+      type (Crystal_Cell_Type),     intent(in) :: cell
+      real(kind=cp), dimension(3,3),intent(out):: Og
+      Character(len=*), optional,   intent(in) :: Mode
 
       !---- Local variables ----!
       integer                          :: i1,i2,nref,n,ii,jj,j,k,iv
-      real                             :: d,rm,rm1,rm2,rm3,ri,rj,s,smax
-      real                             :: deter,cosgam,cos2,singam,cosbet,cost,vrec,anglp
-      real, dimension(3)               :: h,u3,r,r1,r2
-      real, dimension(3,3)             :: uc,b,tinv,mat
-      real, parameter, dimension(3,16) :: rmore=reshape( (/1.,0.,0.,  0.,1.,0.,  0.,0.,1.,  1.,1.,0.,  1.,0.,1., &
+      real(kind=cp)                     :: d,rm,rm1,rm2,rm3,ri,rj,s,smax
+      real(kind=cp)                     :: deter,cosgam,cos2,singam,cosbet,cost,vrec,anglp
+      real(kind=cp), dimension(3)               :: h,u3,r,r1,r2
+      real(kind=cp), dimension(3,3)             :: uc,b,tinv,mat
+      real(kind=cp), parameter, dimension(3,16) :: rmore=reshape( (/1.,0.,0.,  0.,1.,0.,  0.,0.,1.,  1.,1.,0.,  1.,0.,1., &
                                                            0.,1.,1., -1.,1.,0., -1.,0.,1.,  0.,-1.,1., 1.,1.,1., &
                                                           -1.,1.,1.,  1.,-1.,1., 1.,1.,-1.,-1.,-1.,1.,-1.,1.,-1.,&
                                                            1.,-1.,-1./),(/3,16/))
@@ -1575,8 +1575,8 @@
       !----    u1 is along x,  u2 is in the xy plane
       !----    r1,r2 cartesian components of u1 and u2
       !----
-      r1=(/rm1,0.0,0.0/)
-      r2=(/rm2*cosgam,rm2*singam,0.0/)
+      r1=(/rm1,0.0_cp,0.0_cp/)
+      r2=(/rm2*cosgam,rm2*singam,0.0_cp/)
       uc(1,:)=r1
       uc(2,:)=r2
 
@@ -1658,10 +1658,10 @@
 !       integer,dimension(1)   :: i0
 !       integer                :: kmin,kmax,lmin,lmax
 !       integer,dimension(3)   :: au,h,mu
-!       real, dimension(2)     :: rm
-!       real, dimension(3,3)   :: mat
+!       real(kind=cp), dimension(2)     :: rm
+!       real(kind=cp), dimension(3,3)   :: mat
 !       integer,dimension(3,2) :: bas
-!       real                   :: rv,s2max
+!       real(kind=cp)                   :: rv,s2max
 !
 !       ZoneB%nlayer=0
 !       ZoneB%uvw=u

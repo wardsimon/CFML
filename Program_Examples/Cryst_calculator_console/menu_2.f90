@@ -81,12 +81,12 @@
     !!
     Subroutine Menu_Refl_1()
        !---- Local Variables ----!
-       character(len=20)       :: line, spgr
-       integer                 :: i, iv, ierr, npos
-       integer, dimension(1)   :: ivet
-       integer, dimension(3)   :: h,k
-       real, dimension(1)      :: vet
-       type (Space_Group_type) :: grp_espacial
+       character(len=20)           :: line, spgr
+       integer                     :: i, iv, ierr, npos
+       integer, dimension(1)       :: ivet
+       integer, dimension(3)       :: h,k
+       real(kind=cp), dimension(1) :: vet
+       type (Space_Group_type)     :: grp_espacial
 
        do
           call system(clear_string)
@@ -133,8 +133,8 @@
        integer, dimension(3)                            :: h,k,nulo
        integer, dimension(1)                            :: ivet
        integer                                          :: i,j,num,iv,ierr,npos
-       real                                             :: fase,fase1,fase2
-       real, dimension(1)                               :: vet
+       real(kind=cp)                                    :: fase,fase1,fase2
+       real(kind=cp), dimension(1)                      :: vet
        type (Space_Group_type)                          :: grp_espacial
        type (Reflection_type),allocatable, dimension(:) :: reflexiones
 
@@ -210,12 +210,12 @@
     !!
     Subroutine Menu_Refl_3()
        !---- Local Variables ----!
-       logical               :: info
-       character(len=20)     :: line, spgr
-       integer               :: i, iv, ierr, npos
-       integer, dimension(1) :: ivet
-       integer, dimension(3) :: h,k,nulo
-       real, dimension(1)    :: vet
+       logical                    :: info
+       character(len=20)          :: line, spgr
+       integer                    :: i, iv, ierr, npos
+       integer, dimension(1)      :: ivet
+       integer, dimension(3)      :: h,k,nulo
+       real(kind=cp), dimension(1):: vet
        type (Space_Group_type)    :: grp_espacial
 
        nulo=0
@@ -274,8 +274,8 @@
        integer, dimension(3)                       :: h,k,l,nulo
        integer, dimension(1)                       :: ivet
        integer                                     :: i,j,num,iv,ierr,npos
-       real                                        :: fase,fase1,fase2
-       real, dimension(1)                          :: vet
+       real(kind=cp)                               :: fase,fase1,fase2
+       real(kind=cp), dimension(1)                 :: vet
        type (Space_Group_type)                          :: grp_espacial
        type (Reflection_type),allocatable, dimension(:) :: reflexiones
 
@@ -367,9 +367,9 @@
        integer, dimension(3)                       :: h,k,l,nulo
        integer, dimension(1)                       :: ivet
        integer                                     :: i,j,num,iv,ierr,npos
-       real                                        :: fase,fase1,fase2,val1,val2
-       real, dimension(1)                          :: vet
-       real, dimension(3)                          :: celda, angulo
+       real(kind=cp)                               :: fase,fase1,fase2,val1,val2
+       real(kind=cp), dimension(1)                 :: vet
+       real(kind=cp), dimension(3)                 :: celda, angulo
        type (Space_Group_type)                     :: grp_espacial
        type (Reflect_type),allocatable, dimension(:) :: reflexiones
        type (Crystal_Cell_type)                      :: celdilla
@@ -408,7 +408,7 @@
           write(unit=*,fmt=*) " "
           write(unit=*,fmt="(a)",advance="no") " INTERVAL in Sin_Theta/Lambda (0 0 for exit): "
           read(unit=*,fmt=*) val1,val2
-          if (val1 < 0.00001 .and. val2 < 0.00001) exit
+          if (val1 < 0.00001_cp .and. val2 < 0.00001_cp) exit
           write(unit=*,fmt=*) " "
           if (.not. allocated(reflexiones)) allocate (reflexiones(10000))
           call hkl_uni(celdilla,grp_espacial,.true.,val1,val2,'s',num,reflexiones)
@@ -439,14 +439,14 @@
     !!
     subroutine Menu_REFL_6()
        !---- Local Variables ----!
-       logical                                     :: info
-       character(len=20)                           :: spgr,line
-       integer, dimension(3)                       :: h,k,l,nulo
-       integer, dimension(1)                       :: ivet
-       integer                                     :: mul
-       integer                                     :: i,j,iv,ierr,npos
-       real, dimension(1)                          :: vet
-       type (Space_Group_type)                     :: grp_espacial
+       logical                      :: info
+       character(len=20)            :: spgr,line
+       integer, dimension(3)        :: h,k,l,nulo
+       integer, dimension(1)        :: ivet
+       integer                      :: mul
+       integer                      :: i,j,iv,ierr,npos
+       real(kind=cp), dimension(1)  :: vet
+       type (Space_Group_type)      :: grp_espacial
 
        nulo=0
        info=.true.

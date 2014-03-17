@@ -84,6 +84,7 @@
 !!----
 !!----
   Program Search_TwinLaws
+    use CFML_GlobalDeps,       only:cp
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, Err_Crys_Mess, Init_err_crys,  &
                                      Change_Setting_Cell,Set_Crystal_Cell, Write_Crystal_Cell,   &
                                      get_primitive_cell
@@ -96,13 +97,13 @@
     use CFML_Math_General,  only: acosd, Equal_Matrix, Trace, Co_prime_Vector
     implicit none
     integer, parameter          :: Max_Sol=2000
-    real,    dimension(3)       :: cel1,ang1,axc
+    real(kind=cp),    dimension(3)       :: cel1,ang1,axc
     integer, dimension(3,3)     :: Nu,nB
     integer, dimension(3)       :: axis,ax
     integer, dimension(3,3,48)  :: sym !Symmetry operators of the point group
                                        !in a primitive basis
-    real, dimension(3,3,Max_Sol):: Bsol !Independent solutions
-    real, dimension(3,3)        :: base,Rot,Wi,W,GD,DELTA,Bm,Bmi,Dt,Lm,Lmi
+    real(kind=cp), dimension(3,3,Max_Sol):: Bsol !Independent solutions
+    real(kind=cp), dimension(3,3)        :: base,Rot,Wi,W,GD,DELTA,Bm,Bmi,Dt,Lm,Lmi
     character(len=1)            :: lat_type, key
     type (Crystal_Cell_Type)    :: cell, pcell
     type (space_group_type)     :: SpG
@@ -112,7 +113,7 @@
     integer                     :: i,j,lun=1,lout=2,i_cfl=3,i1,i2,i3,i4,i5,i6,i7,i8,i9,n1,n2,n3
     integer                     :: ia1,ia2,ib1,ib2,ic1,ic2, in1,in2,narg,nop,n,ier
     integer(kind=8)             :: iratio,im,nn
-    real                        :: tol,tolf,sm,start,fin,remain,angle
+    real(kind=cp)               :: tol,tolf,sm,start,fin,remain,angle
 
 
     narg=command_argument_count()
@@ -174,7 +175,7 @@
       i=index(line,"tol")
       if( i /= 0) then
         read(unit=line(4:),fmt=*) tol
-        if(tol > 1.0) tol=tol*0.01
+        if(tol > 1.0_cp) tol=tol*0.01_cp
       end if
       i=index(line,"indices")
       if( i /= 0) then
@@ -250,7 +251,7 @@
 
     base=transpose(pCell%Cr_Orth_cel)   !Provides a matrix with rows equal to the basis vectors in cartesian components
     GD=pCell%GD  !metric tensor of the primitive cell
-    tolf=tol*Sum(abs(GD))/9.0
+    tolf=tol*Sum(abs(GD))/9.0_cp
 
     iratio= (ia2-ia1+1)*(ia2-ia1+1)*(ia2-ia1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ic2-ic1+1)*(ic2-ic1+1)*(ic2-ic1+1)
     iratio=iratio*(in2-in1+1)*(in2-in1+1)*(in2-in1+1)
@@ -275,9 +276,9 @@
                 nn=nn+1
                 if(j/(n1*n2*n3) /= 1) cycle !Determinant of B should be 1
                 nB=reshape((/ i1/n1,i2/n2,i3/n3,i4/n1,i5/n2,i6/n3,i7/n1,i8/n2,i9/n3 /),(/3,3/))
-                Bm(1,:)=real(Nu(1,:))/real(n1)
-                Bm(2,:)=real(Nu(2,:))/real(n2)
-                Bm(3,:)=real(Nu(3,:))/real(n3)
+                Bm(1,:)=real(Nu(1,:),kind=cp)/real(n1,kind=cp)
+                Bm(2,:)=real(Nu(2,:),kind=cp)/real(n2,kind=cp)
+                Bm(3,:)=real(Nu(3,:),kind=cp)/real(n3,kind=cp)
                 do i=1,n !n is the current number of solutions
                   if(Equal_Matrix(Bm, Bsol(:,:,i),3)) cycle doi
                 end do
@@ -285,7 +286,7 @@
                 if(mod(nn,im) == 0)  then
                   write(unit=*,fmt="(a,i12,a,f12.3)") "  Status: ",iratio-nn," tests remaining  ->  SM: ",sm
                   call cpu_time(fin)
-                  remain=real(iratio-nn)*(fin-start)/real(nn)
+                  remain=real(iratio-nn,kind=cp)*(fin-start)/real(nn,kind=cp)
                   write(*,"(a,i6,a)")"  Approximate remaining CPU-Time: ",nint(remain)," seconds"
                 end if
 
@@ -321,7 +322,7 @@
                 write(unit=i_cfl,fmt="(a,3f8.4,f14.4)") "TWIN_rot ",axc,angle
                 write(unit=lout,fmt="(a,3f10.4,a)")  &
                 " => Cartesian axis of the twin Law:   [ ",axc," ]"
-                ax=Nint(100.0*Matmul(Transpose(Lm),axc))
+                ax=Nint(100.0_cp*Matmul(Transpose(Lm),axc))
                 Call Co_Prime_vector(ax,axis)
                 write(unit=lout,fmt="(a,3i4,a,f10.4)")  &
                 " => Axis and angle of the twin Law:   [ ",axis," ]    Alpha = ",angle

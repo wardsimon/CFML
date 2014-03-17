@@ -21,9 +21,9 @@
     type (space_group_type)     :: SpG
     type (Atom_list_Type)       :: A
     type (Crystal_Cell_Type)    :: Cell
-    real, parameter :: eps=0.00001
-    real            :: qcellp=0.0 , qcellm=0.0
-    logical         :: neutral=.true.
+    real(kind=cp), parameter :: eps=0.00001
+    real(kind=cp)            :: qcellp=0.0 , qcellm=0.0
+    logical                  :: neutral=.true.
 
  Contains
 
@@ -82,11 +82,11 @@
     !!
     Subroutine Menu_Atom_1()
        !---- Local Variables ----!
-       character(len=20)     :: line, spgr
-       integer               :: i, iv, ierr, mlt
-       integer, dimension(3) :: ivet
-       real                  :: occ
-       real, dimension(3)    :: vet,xp
+       character(len=20)          :: line, spgr
+       integer                    :: i, iv, ierr, mlt
+       integer, dimension(3)      :: ivet
+       real(kind=cp)              :: occ
+       real(kind=cp), dimension(3):: vet,xp
        type (Space_Group_type)    :: grp_espacial
 
        do
@@ -125,7 +125,7 @@
              call getnum(line,vet,ivet,iv)
              if (iv == 3) then
                 mlt=Get_Multip_Pos(vet,grp_espacial)
-                occ=real(mlt)/real(grp_espacial%Multip)
+                occ=real(mlt,kind=cp)/real(grp_espacial%Multip,kind=cp)
                 write(unit=*,fmt=*) " "
                 write(*,'(a,i4,a,f3.6)') " Multiplicity: ",mlt, "     Occupancy(SHELX/FullProf) proportional to: ",occ
                 call Wait_Message(" => Press <enter> to continue ...")
@@ -250,13 +250,13 @@
 
     Subroutine Menu_Atom_4()
        !---- Local Variables ----!
-       character(len=20)     :: line
-       integer               :: i,j,Mult,m ,la,lb,lc,lam,lbm,lcm,np,nm
-       real                  :: q, qp,pol,ang,ncell,dist
-       real, dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus
-       real, dimension(3,384):: orb !increased to take into account the surface atoms
-       real, dimension(  384):: qat !New charges
-       logical               :: calc_possible=.true.
+       character(len=20)              :: line
+       integer                        :: i,j,Mult,m ,la,lb,lc,lam,lbm,lcm,np,nm
+       real(kind=cp)                  :: q, qp,pol,ang,ncell,dist
+       real(kind=cp), dimension(3)    :: pos,cpos,r_frac, r_pol,r_plus,r_minus
+       real(kind=cp), dimension(3,384):: orb !increased to take into account the surface atoms
+       real(kind=cp), dimension(  384):: qat !New charges
+       logical                        :: calc_possible=.true.
 
        call system(clear_string)
        write(unit=*,fmt="(a)") "               GENERAL CRYSTALLOGRAPHY CALCULATOR "
@@ -299,61 +299,61 @@
               qp=0.125*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = [1.0,0.0,0.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [1.0_cp,0.0_cp,0.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [0.0,1.0,0.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [0.0_cp,1.0_cp,0.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [0.0,0.0,1.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [0.0_cp,0.0_cp,1.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [1.0,1.0,0.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [1.0_cp,1.0_cp,0.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [1.0,0.0,1.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [1.0_cp,0.0_cp,1.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [0.0,1.0,1.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [0.0_cp,1.0_cp,1.0_cp] ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = [1.0,1.0,1.0] ; qat(Mult+m)=qp
+              orb(:,Mult+m) = [1.0_cp,1.0_cp,1.0_cp] ; qat(Mult+m)=qp
             else if(abs(orb(1,j)) < eps .and. abs(orb(2,j)) < eps  ) Then !atom in z-edge
               qp=0.25*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [1.0_cp,0.0_cp,0.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,1.0_cp,0.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [1.0,1.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [1.0_cp,1.0_cp,0.0_cp]  ; qat(Mult+m)=qp
             else if(abs(orb(1,j)) < eps .and. abs(orb(3,j)) < eps  ) Then !atom in y-edge
               qp=0.25*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [1.0_cp,0.0_cp,0.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,0.0_cp,1.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,1.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [1.0_cp,0.0_cp,1.0_cp]  ; qat(Mult+m)=qp
             else if(abs(orb(2,j)) < eps .and. abs(orb(3,j)) < eps ) Then !atom in x-edge
               qp=0.25*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,1.0_cp,0.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,0.0_cp,1.0_cp]  ; qat(Mult+m)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,1.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,1.0_cp,1.0_cp]  ; qat(Mult+m)=qp
             else if(abs(orb(1,j)) < eps ) Then !atom in yz-plane
               qp=0.5*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [1.0,0.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [1.0_cp,0.0_cp,0.0_cp]  ; qat(Mult+m)=qp
             else if(abs(orb(2,j)) < eps ) Then !atom in xz-plane
               qp=0.5*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,1.0,0.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,1.0_cp,0.0_cp]  ; qat(Mult+m)=qp
             else if(abs(orb(3,j)) < eps ) Then !atom in xy-plane
               qp=0.5*q
               qat(j)=qp
               m=m+1
-              orb(:,Mult+m) = orb(:,j) + [0.0,0.0,1.0]  ; qat(Mult+m)=qp
+              orb(:,Mult+m) = orb(:,j) + [0.0_cp,0.0_cp,1.0_cp]  ; qat(Mult+m)=qp
             else
               qat(j)=q
             end if
@@ -367,7 +367,7 @@
             !do la=-lam,lam
             !  do lb=-lbm,lbm
             !    do lc=-lcm,lcm
-                  pos=orb(:,j)-[0.5,0.5,0.5]   !+[la,lb,lc]
+                  pos=orb(:,j)-[0.5_cp,0.5_cp,0.5_cp]   !+[la,lb,lc]
                   r_frac=r_frac+ pos*qat(j)
                   cpos=cpos+pos
                   if(qat(j) > eps) then
@@ -381,7 +381,7 @@
             !  end do
             !end do
           end do
-         cpos=cpos/(ncell * real(mult))
+         cpos=cpos/(ncell * real(mult,kind=cp))
          write(unit=*,fmt="(a,3f10.5,a)") "    Average of vector positions w.r.to (1/2,1/2,1/2): (",cpos," )"
        end do
        r_plus=r_plus/np
@@ -401,13 +401,13 @@
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (Coulomb/m^2)  : ",16.0217646*pol/Cell%CellVol  !/real(SpG%Numlat)
        write(unit=*,fmt="(a,f12.4)")     " => Ionic Polarisation (uCoulomb/cm^2): ",1602.17646*pol/Cell%CellVol  !/real(SpG%Numlat)
        if(pol > eps) then
-         cpos=Cart_Vector("D",[1.0,0.0,0.0],Cell)
+         cpos=Cart_Vector("D",[1.0_cp,0.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
          write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with a-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,1.0,0.0],Cell)
+         cpos=Cart_Vector("D",[0.0_cp,1.0_cp,0.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
          write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with b-axis: ",ang," degrees"
-         cpos=Cart_Vector("D",[0.0,0.0,1.0],Cell)
+         cpos=Cart_Vector("D",[0.0_cp,0.0_cp,1.0_cp],Cell)
          ang=Angle_Vect(cpos, r_pol)
          write(unit=*,fmt="(a,f10.3,a)")  " => Angle of Polarisation vector with c-axis: ",ang," degrees"
        end if
@@ -416,9 +416,9 @@
     End Subroutine Menu_Atom_4
 
     Function Angle_vect(u,v) Result(angle)
-      real, dimension(:), intent(in) :: u,v
-      real :: angle
-      real :: mu, mv
+      real(kind=cp), dimension(:), intent(in) :: u,v
+      real(kind=cp) :: angle
+      real(kind=cp) :: mu, mv
       mu=sqrt(dot_Product(u,u))
       mv=sqrt(dot_Product(v,v))
       if(mu < eps .or. mv < eps) then

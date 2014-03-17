@@ -18,6 +18,7 @@
   !!----           (Acc) = Tr (AN) = Tr Prod (Aic) = Tr . trans . transfm (Aic)
 
   Program Get_Conventional_Unit_Cells
+    use CFML_GlobalDeps,       only: cp
     use CFML_String_Utilities, only: Ucase
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, ERR_Crys_Mess, &
                                      Set_Crystal_Cell,Get_Cryst_Family, Niggli_Cell,     &
@@ -39,17 +40,17 @@
     !  5.211 5.212  5.209   59.90  60.12  59.85                            F       !Pseudo-Rhombohedral
     !  5.234 9.065  11.91   89.91  90.01  90.03                            C       !Pseudo-Hexagonal
 
-    real, dimension(3,3)    :: transfm,trans,prod,finalm,mat, invm
-    integer, dimension(3,3) :: tr
-    real, dimension(6)      :: ad
-    real, dimension(12)     :: del
+    real(kind=cp), dimension(3,3)    :: transfm,trans,prod,finalm,mat, invm
+    integer,       dimension(3,3)    :: tr
+    real(kind=cp), dimension(6)      :: ad
+    real(kind=cp), dimension(12)     :: del
     integer, dimension(12)  :: ind
     character(len=1)        :: ls,ans,mon
     character(len=80)       :: message
     character(len=11)       :: metr
     logical                 :: ok,cell_trans
     integer                 :: i,j,p,n,ier, ntwot, nold , io=6 !Standard output
-    real                    :: rmi,rma, tol, told, det
+    real(kind=cp)           :: rmi,rma, tol, told, det
     Type(Twofold_Axes_Type) :: twofold,twf
     Type(Twofold_Axes_Type), dimension(12) :: otwf   !Individual two-fold axes for searching
                                                      !monoclinic cells
@@ -276,7 +277,7 @@
       write(unit=io, fmt="(/,130a)") " ",("-",i=1,120)
       write(unit=io,fmt="(  a)")   &
       " => The new Cell is "//metr//trim(message)//"  and the transformation matrix from then Niggli cell is:"
-      finalm=matmul(real(tr),prod)
+      finalm=matmul(real(tr,kind=cp),prod)
       write(unit=io, fmt="(130a,/)") " ",("-",i=1,120)
       write(unit=io,fmt="(a,i3,2i4,a)")     "                         /",tr(1,:), " \"
       write(unit=io,fmt="(a,i3,2i4,a,i4)") "  (Acc) = Tr (AN);  Tr: | ",tr(2,:), "  |   Determinant: ",nint(det)

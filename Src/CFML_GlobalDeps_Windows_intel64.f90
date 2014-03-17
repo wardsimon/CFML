@@ -138,7 +138,7 @@ Module CFML_GlobalDeps
    !!----
    !!---- Update: January - 2009
    !!
-   integer, parameter :: cp = dp
+   integer, parameter :: cp = sp
 
    !----------------------------------!
    !---- Trigonometric Parameters ----!

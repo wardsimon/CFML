@@ -101,10 +101,10 @@
     !!
     Subroutine Menu_Spgr_1()
        !---- Local Variables ----!
-       character(len=20)      :: line, spgr
-       integer                :: i, iv, ierr, npos
-       integer, dimension(1)  :: ivet
-       real, dimension(1)     :: vet
+       character(len=20)           :: line, spgr
+       integer                     :: i, iv, ierr, npos
+       integer, dimension(1)       :: ivet
+       real(kind=cp), dimension(1) :: vet
        type (Space_Group_Type):: grp_espacial
 
        do
@@ -147,7 +147,7 @@
        integer                          :: i, iv, ierr, lun, nlines, npos
        integer, dimension(1)            :: ivet
 
-       real, dimension(1)               :: vet
+       real(kind=cp), dimension(1)               :: vet
 
        type (Space_Group_type)          :: grp_espacial
 
@@ -235,7 +235,7 @@
        integer, dimension(3,3,24)        :: ss
        integer                           :: ng,i,istart,nlines,ier
 
-       real, dimension(3,24)             :: ts
+       real(kind=cp), dimension(3,24)    :: ts
 
        type (Space_Group_type)                :: grp_espacial
 
@@ -415,8 +415,8 @@
        integer, dimension(3,3,24)        :: ss
        integer, parameter                :: num_spgr_info=612
 
-       real, dimension(1)                :: vet
-       real, dimension(3,24)             :: ts
+       real(kind=cp), dimension(1)       :: vet
+       real(kind=cp), dimension(3,24)    :: ts
 
        type (Space_Group_type)           :: grp_espacial1, grp_espacial2
 
@@ -711,7 +711,7 @@
        integer, dimension(3,3,24)        :: ss
        integer                           :: ng,i,istart,ier
 
-       real, dimension(3,24)             :: ts
+       real(kind=cp), dimension(3,24)    :: ts
 
        do
           call system(clear_string)
@@ -871,15 +871,15 @@
 
     Subroutine Menu_Spgr_9()
 
-       character(len=200)            :: line
-       character(len=90)            :: setline,symb,transla
-       type (Space_Group_type)       :: SpG
-       type (NS_Space_Group_Type)    :: SpGn
-       integer :: i,ng
+       character(len=200)             :: line
+       character(len=90)              :: setline,symb,transla
+       type (Space_Group_type)        :: SpG
+       type (NS_Space_Group_Type)     :: SpGn
+       integer                        :: i,ng
        character(len=60),dimension(10):: gen
-       real, dimension(3,3) :: Mat
-       real, dimension(3)   :: v
-       logical              :: ok_newspg,ok
+       real(kind=cp), dimension(3,3 ) :: Mat
+       real(kind=cp), dimension(3)    :: v
+       logical                        :: ok_newspg,ok
 
        do
           call system(clear_string)
@@ -1083,7 +1083,7 @@
        integer                           :: nx,ny,nz
        integer,dimension(3)              :: ix,ix1,ix2,ix11,ix22
        integer,dimension(3,3)            :: w,w1
-       real,dimension(3)                 :: t,t1,ts,ts1,ts2,x,x1,x2
+       real(kind=cp),dimension(3)        :: t,t1,ts,ts1,ts2,x,x1,x2
        type(wyckoff_type)                :: Wyck1
        type(wyck_pos_type)               :: wyckpos
 
@@ -1119,9 +1119,9 @@
              do jj=0,1
                 uno:do kk=0,1
 
-                   t(1)=grp%symop(i)%tr(1) + real(ii)
-                   t(2)=grp%symop(i)%tr(2) + real(jj)
-                   t(3)=grp%symop(i)%tr(3) + real(kk)
+                   t(1)=grp%symop(i)%tr(1) + real(ii,kind=cp)
+                   t(2)=grp%symop(i)%tr(2) + real(jj,kind=cp)
+                   t(3)=grp%symop(i)%tr(3) + real(kk,kind=cp)
                    call resolv_sist_3x3(w,-t,ts,x,ix)
                    ts=mod(ts+10.0,1.0)
 
@@ -1341,7 +1341,7 @@
 
                t1=t
                dos: do k=0,7
-                  t1(j)=real(k)/8.0
+                  t1(j)=real(k,kind=cp)/8.0_cp
 
                   npos=0
                   do n=1, grp%multip
@@ -1410,9 +1410,9 @@
    !!----
    Subroutine Wyckoff_Represen(ts,x,ix)
       !---- Arguments ----!
-      real, dimension(3),    intent(in out) :: ts
-      real, dimension(3),    intent(in out) :: x
-      integer, dimension(3), intent(in out) :: ix
+      real(kind=cp), dimension(3),    intent(in out) :: ts
+      real(kind=cp), dimension(3),    intent(in out) :: x
+      integer,       dimension(3),    intent(in out) :: ix
 
       !---- Local variables ----!
       integer :: i, nzeros
@@ -1449,10 +1449,10 @@
    !!----
    Subroutine Read_RSymm(Symb,T,X,Ix)
       !---- Arguments ----!
-      character(len=*),      intent(in ) :: Symb
-      real, dimension(3),    intent(out) :: T
-      real, dimension(3),    intent(out) :: X
-      integer, dimension(3), intent(out) :: Ix
+      character(len=*),               intent(in ) :: Symb
+      real(kind=cp), dimension(3),    intent(out) :: T
+      real(kind=cp), dimension(3),    intent(out) :: X
+      integer,       dimension(3),    intent(out) :: Ix
 
       !---- Local Variables ----!
       integer                   :: i,j,k
@@ -1467,7 +1467,7 @@
          do j=1,3
             if (w(i,j) == 0) cycle
             ix(i)=j
-            x(i)=real(w(i,j))
+            x(i)=real(w(i,j),kind=cp)
          end do
       end do
 
