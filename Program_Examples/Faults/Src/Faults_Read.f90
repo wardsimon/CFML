@@ -33,7 +33,7 @@
                                                                  "Dg          ","Dl          ", &
                                                                  "cell_a      ","cell_b      ", &
                                                                  "cell_c      ","cell_gamma  ", &
-                                                                 "diameter_a  ", "diameter_b ", &
+                                                                 "diameter_a  ", "diameter_b  ", &
                                                                  "num_layers  "]
 !      Declaration of diffraction_pattern_type
 
@@ -655,13 +655,11 @@
                read(unit=txt,fmt=*, iostat=ier)  crys%layer_a, crys%layer_b
                val_glb(15:16)=[crys%layer_a, crys%layer_b]
                crys%finite_width=.true.
-               if (crys%layer_b==0) then
-                  crys%layer_b= crys%layer_a
-                  ier=0
-               end if
-               if (crys%layer_a==0) then
+
+
+               if (crys%layer_a==0 .or. crys%layer_b==0) then
                  Err_crys=.true.
-                 Err_crys_mess="ERROR reading layer width parameters: width along a cannot be zero"
+                 Err_crys_mess="ERROR reading layer width parameters: width along a or b cannot be zero"
                  logi=.false.
                  return
                end if
@@ -675,15 +673,17 @@
                i=i+1
                txt=adjustl(tfile(i))
               ! Reading refinement codes
-               k=index(txt,"(")
-               l=index(txt,")")
-                 read(unit=txt,fmt=*, iostat=ier) ref_glb(15:16)  !Codes for Wa,Wb
-                   if(ier /= 0) then
-                     Err_crys=.true.
-                     Err_crys_mess="ERROR reading the refinement codes of layer width parameters"
-                     logi=.false.
-                     return
-                   end if
+               !k=index(txt,"(")
+               !l=index(txt,")")
+
+               read(unit=txt,fmt=*, iostat=ier) ref_glb(15:16)  !Codes for Wa,Wb
+
+               if(ier /= 0) then
+                 Err_crys=.true.
+                 Err_crys_mess="ERROR reading the refinement codes of layer width parameters"
+                 logi=.false.
+                 return
+               end if
 
              else
                 Err_crys=.true.
@@ -799,6 +799,7 @@
             crys%n_actual = r
             n_layers=j
 
+
           Case("LSYM")
             if(INDEX(txt, 'CENTROSYMMETRIC') == 1) then
               crys%centro(r) = CENTRO
@@ -877,6 +878,15 @@
 
        end do
 
+
+       if(abs(crys%n_typ - n_layers) >= 1.0) then                      !NIK
+            Err_crys=.true.                                            !
+            Err_crys_mess="ERROR with the number of layer types."      !
+            logi=.false.                                               !
+            return                                                     !
+       end if                                                          !
+
+
        ! make sure we have genuine lowest and highest atoms in each layer.
        DO  i = 1, crys%n_actual
          IF(l_symmetry(i) == centro) THEN
@@ -896,6 +906,9 @@
          Err_crys_mess="ERROR: layer symmetry or layer atomic parameters missing!"
          logi=.false.
        end if
+
+
+
 
     End Subroutine Read_LAYER
 
@@ -1564,23 +1577,27 @@
               ok_bgrnum=.true.
 
           Case("BGRPATT")
-            crys%bgrpatt=.true.
-            m=m+1
-            !First try to read the name of the hkl file
-            read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+
+              if (crys%num_bgrpatt /= 0) then
+                                                                                         !NIK
+                  crys%bgrpatt=.true.
+                  m=m+1
+                  !First try to read the name of the hkl file
+                  read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m),crys%bfilehkl(m)
-            if(ier /= 0) then !if not re-read only the background file name the scale factor and the code
-               read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+                  if(ier /= 0) then !if not re-read only the background file name the scale factor and the code
+                    read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m)
-            end if
-            if(ier /= 0 ) then
-                Err_crys=.true.
-                Err_crys_mess="ERROR reading background pattern instruction"
-                logi=.false.
-                return
-            end if
-            val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
-              ok_bgrpatt=.true.
+                  end if
+                  if(ier /= 0 ) then
+                    Err_crys=.true.
+                    Err_crys_mess="ERROR reading background pattern instruction"
+                    logi=.false.
+                    return
+                  end if
+                  val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
+                  ok_bgrpatt=.true.
+              end if
 
           Case Default
 
@@ -1852,7 +1869,13 @@
         call Update_all(Lcode_max)
         crys%npar=np
 
+
+
+
         if (opt == 4) then         !construction of some optimization variables  (LMQ)
+          if (np==0) then                                                        !
+            write(*,"(a)") "WARNING: No parameters are being refined!"  !NIK
+          end if                                                                 !
           opti%npar = Lcode_max
           Cond%npvar=opti%npar
           vs%pv(1:Lcode_max)= crys%Pv_refi(1:Lcode_max)
@@ -2052,7 +2075,7 @@
          end do
 
          if(ndisp == 0) then
-           if(nn > Lcode_max) Lcode_max=nn
+           maxs=nn
            return  !all parameters have been attributed
          end if
 
