@@ -1094,7 +1094,8 @@
                             Coord_Info%Tr_Coo(:,ico,i)=tn
                             if (iprin) then
                                call Frac_Trans_1Dig(tn,transla)
-                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, trim(Spg%SymOpSymb(j)) !JRC Feb2014
+                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, &
+                                                         trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
                          end do do_jl
                       end do !i3
@@ -1398,7 +1399,8 @@
                                call Frac_Trans_1Dig(tn,transla)
                                call setnum_std(dd,sdd,text)
                                !write(unit=lun,fmt=form2) i,k,j,nam,nam1,dd,x1(:), transla, trim(Spg%SymOpSymb(j))! TR 4 fev. 2013
-                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, trim(Spg%SymOpSymb(j)) !JRC Feb2014
+                               write(unit=lun,fmt=form2) " ",i,k,j,"  (",nam,")-(",nam1,"):",dd,"   ",x1(:), "  "//transla, &
+                                                         trim(Spg%SymOpSymb(j)) !JRC Feb2014
                             end if
 
                             if(present(lun_cons)) then
