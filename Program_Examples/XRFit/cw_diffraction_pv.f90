@@ -44,7 +44,7 @@
 
         !Local variables
         integer                     :: i,j,no
-        real                        :: xval,yval
+        real                        :: xval,yval,chi,chiold=1.0e30
         type(LSQ_State_Vector_type) :: lvs
         Real (Kind=cp),Dimension(n) :: der
         lvs=vs                 !Set the local state vector
@@ -58,12 +58,18 @@
         Select Case (iflag)
 
            case(1)
-
+             chi=0.0
              do i=1,m
                call Sum_PV_Peaks(i,d%x(i),d%yc(i),lvs)
                fvec(i)= (d%y(i)-d%yc(i))/d%sw(i)
+               chi=chi+fvec(i)*fvec(i)
              end do
-             c%nfev=c%nfev+1
+             chi=chi/real(m-n)
+             if(chi <= chiold) then
+               c%nfev=c%nfev+1
+               write(unit=*,fmt="(a,i6,a,g12.4)") " => Evaluation of the function number: ",c%nfev, "  Chi2=",chi
+               chiold=chi
+             end if
 
            case(2)
 
