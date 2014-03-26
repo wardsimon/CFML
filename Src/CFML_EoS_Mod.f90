@@ -70,6 +70,7 @@
 !!----    GET_PRESSURE
 !!----    GET_PRESSURE_ESD
 !!----    GET_TEMPERATURE
+!!----    GET_TEMPERATURE_P0
 !!----    GET_V0_T                       [PRIVATE]
 !!----    GET_VOLUME
 !!----    GET_VOLUME_S
@@ -119,7 +120,7 @@
 !!
 Module CFML_EoS
    !---- Use Modules ----!
-   Use CFML_GlobalDeps,       only: cp
+   Use CFML_GlobalDeps,       only: cp, pi
    Use CFML_Crystal_Metrics,  only: Crystal_Cell_Type,Get_Cryst_Family,Volume_Sigma_from_Cell
    Use CFML_String_Utilities
 
@@ -129,7 +130,7 @@ Module CFML_EoS
 
    !---- List of public functions ----!
    public :: Alpha_Cal, Dkdt_Cal,Get_Pressure, Get_Pressure_Esd, Get_Temperature, Get_Volume, Get_Volume_S, &
-             K_Cal, Kp_Cal, Kpp_Cal, Pressure_F, Strain, Strain_EOS
+             K_Cal, Kp_Cal, Kpp_Cal, Pressure_F, Strain, Strain_EOS, Get_Temperature_P0
 
 
    !---- List of public subroutines ----!
@@ -641,6 +642,211 @@ Contains
 
       return
    End Function Get_Temperature
+
+   !!----
+   !!---- FUNCTION Get_Temperature_P0(V0t,EosPar,Tmin,Tmax)
+   !!----    real(kind=cp),           intent(in) :: V0t       ! Volume at P=0 and Temperature T (or Pth Pthermal case)
+   !!----    type(Eos_Type),          intent(in) :: EoSPar    ! Eos Parameter
+   !!----    real(kind=cp), optional, intent(in) :: Tmin      ! Range for solution in T
+   !!----    real(kind=cp), optional, intent(in) :: Tmax      !
+   !!----
+   !!---- Returns Temperature at P=0 for given V0T
+   !!----
+   !!---- Date: 14/02/2013
+   !!
+   Function Get_Temperature_P0(V0t,EosPar,Tmin,Tmax) Result(Tk)
+      !---- Arguments ----!
+      real(kind=cp),           intent(in) :: V0t       ! Volume at temperature T or Pth
+      type(Eos_Type),          intent(in) :: EoSPar    ! Eos Parameter
+      real(kind=cp), optional, intent(in) :: Tmin
+      real(kind=cp), optional, intent(in) :: Tmax
+
+      !---- Local Variables ----!
+      real(kind=cp) :: tk,tref
+      real(kind=cp) :: v00
+      real(kind=cp) :: a,b,c,d,t1,t2,t3,x1,x2,x3
+      real(kind=cp) :: a1,a2,a3,q,r,s1,s2,dd,th
+      real(kind=cp) :: y,p,v
+      real(kind=cp) :: kp,th_e,eps0
+      real(kind=cp) :: Tkmin,Tkmax
+
+      !> Init
+      Tk=1.0_cp
+
+      !> Optional arguments
+      TKmin=0.0_cp
+      if (present(Tmin)) TKmin=tmin
+      TKmax=1.0e4
+      if (present(Tmax)) TKmax=tmax
+
+      !> Check
+      Tref=eospar%tref
+      v00=eospar%params(1)
+      if (v00 <= tiny(0.0)) return
+
+      !> Init local variables
+      t1=0.0
+      t2=0.0
+      t3=0.0
+
+      select case (eospar%itherm)
+         case (1) ! Berman
+            a= 0.5*eospar%params(11)
+            b= eospar%params(10) - eospar%params(11)*tref
+            c= 1.0 - eospar%params(10)*tref + 0.5*eospar%params(11)*tref*tref - (v0t/v00)
+
+            d= b*b - 4.0*a*c
+            if (d >= 0.0) then
+               t1=(-b+sqrt(d))/(2.0*a)
+               t2=(-b-sqrt(d))/(2.0*a)
+               if (t1 > 0.0) then
+                  if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+               elseif (t2 > 0.0) then
+                  if (t2 >=TKmin .and. t2 <=TKmax) tk=t2
+               end if
+            end if
+
+         case (2) ! Fei
+            a=0.5*eospar%params(11)
+            b=eospar%params(10)
+            c=-b*tref -a*tref*tref + eospar%params(12)/tref -log(v0t/v00)
+            d=-eospar%params(12)
+
+            a1=b/a
+            a2=c/a
+            a3=d/a
+            q=(3.0*a2 - a1*a1)/9.0
+            r=(9.0*a1*a2-27.0*a3-2.0*a1*a1*a1)/54.0
+
+            dd=q**3+r**2
+            if (dd >= 0.0) then
+               s1=(r + sqrt(q**3+r**2))**(1.0/3.0)
+               s2=(r - sqrt(q**3+r**2))**(1.0/3.0)
+
+               t1=s1+s2-a1/3.0
+               if (abs(s1-s2) <= tiny(0.0)) t2=-0.5*(s1+s2)-a1/3.0
+
+               if (t1 > 0.0) then
+                  if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+               elseif (t2 > 0.0) then
+                  if (t2 >=TKmin .and. t2 <=TKmax) tk=t2
+               end if
+
+            else
+               th=acos(r/sqrt(-q**3))
+               t1=2.0*sqrt(-q)*cos(th/3.0)-a1/3.0
+               t2=2.0*sqrt(-q)*cos((th+2.0*pi)/3.0) -a1/3.0
+               t3=2.0*sqrt(-q)*cos((th+4.0*pi)/3.0) -a1/3.0
+               if (t1 > 0.0) then
+                  if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+               elseif (t2 > 0.0) then
+                  if (t2 >=TKmin .and. t2 <=TKmax) tk=t2
+               elseif (t3 > 0.0) then
+                  if (t3 >=TKmin .and. t3 <=TKmax) tk=t3
+               end if
+            end if
+
+         case (3) ! HP
+            a=eospar%params(10)
+            b=-2.0*eospar%params(11)
+            c=1.0 - eospar%params(10)*tref + 2.0*eospar%params(11)*sqrt(tref) - (V0t/V00)
+
+            d=b*b - 4.0*a*c
+            if (d >= 0.0) then
+               x1=(-b+sqrt(d))/(2.0*a)
+               x2=(-b-sqrt(d))/(2.0*a)
+               if (x1 > 0.0) then
+                  t1=sqrt(x1)
+                  if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+               elseif (x2 > 0.0) then
+                  t2=sqrt(t2)
+                  if (t2 >=TKmin .and. t2 <=TKmax) tk=t2
+               end if
+            end if
+
+         case (4) ! Kroll
+            kp=eospar%params(3)
+            th_e=eospar%params(11)
+            a=th_e/Tref
+            b=-1.0/(kp*(kp+2.0))
+            eps0=(a**2)*exp(a)/(exp(a)-1.0)**2
+
+            x1=(-b*(1.0+kp))*eps0/(eospar%params(10)*th_e)
+            x2=1.0 - (((v0t/v00)+kp)/(1.0+kp))**(1.0/b)
+            x3=1.0/(exp(a)-1)
+
+            c=1.0/(x1*x2+x3)
+            d=log(1.0 +c)
+
+            t1=th_e/d
+            if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+
+         case (5) ! Salje
+            x1=0.0
+            x2=0.0
+            x3=0.0
+
+            y=eospar%params(10)*eospar%params(11)
+            p=v00**(1.0/3.0) -y
+
+            a=y**3
+            b=3.0 * y*y*p
+            c=3.0 * y * p*p
+            d=p**3 - v0t
+
+            a1=b/a
+            a2=c/a
+            a3=d/a
+            q=(3.0*a2 - a1*a1)/9.0
+            r=(9.0*a1*a2-27.0*a3-2.0*a1*a1*a1)/54.0
+
+            dd=q**3+r**2
+            if (dd >= 0.0) then
+               s1=(r + sqrt(q**3+r**2))**(1.0/3.0)
+               s2=(r - sqrt(q**3+r**2))**(1.0/3.0)
+
+               x1=s1+s2-a1/3.0
+               if (abs(s1-s2) <= tiny(0.0)) then
+                  x2=-0.5*(s1+s2)-a1/3.0
+               end if
+            else
+               th=acos(r/sqrt(-q**3))
+               x1=2.0*sqrt(-q)*cos(th/3.0)-a1/3.0
+               x2=2.0*sqrt(-q)*cos((th+2.0*pi)/3.0) -a1/3.0
+               x3=2.0*sqrt(-q)*cos((th+4.0*pi)/3.0) -a1/3.0
+            end if
+            if (abs(x1) >= 1.0) t1=2.0*eospar%params(11)/log((1.0+x1)/(x1-1.0))
+            if (abs(x2) >= 1.0) t2=2.0*eospar%params(11)/log((1.0+x2)/(x2-1.0))
+            if (abs(x3) >= 1.0) t3=2.0*eospar%params(11)/log((1.0+x3)/(x3-1.0))
+
+            if (t1 > 0.0) then
+               if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+            end if
+            if (t2 > 0.0 .and. tk < 0.0) then
+               if (t2 >=TKmin .and. t2 <=TKmax) tk=t2
+            end if
+            if (t3 > 0.0 .and. tk < 0.0) then
+               if (t3 >=TKmin .and. t3 <=TKmax) tk=t3
+            end if
+
+         case(6)
+            th_e=eospar%params(11)
+            a=th_e/Tref
+            eps0=(a**2)*exp(a)/(exp(a)-1.0)**2
+
+            x1=eps0/(eospar%params(10)*eospar%params(2)*eospar%params(11))
+            x2=1.0/(exp(a)-1.0)
+
+            c=1.0/(v0t*x1+x2)
+            d=log(1.0 + c)
+
+            t1=th_e/d
+            if (t1 >=TKmin .and. t1 <=TKmax) tk=t1
+
+      end select
+
+      return
+   End Function Get_Temperature_P0
 
    !!--++
    !!--++ FUNCTION Get_V0_T(T,EosPar)
