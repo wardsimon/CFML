@@ -1068,8 +1068,8 @@ Module CFML_ILL_Instrm_Data
 
         !> Checking dimensions
         ndet=PNumors(1)%nbdata
-        write(*,*) " Number of    numors: ",n
-        write(*,*) " Number of detectors: ",ndet
+        !write(*,*) " Number of    numors: ",n
+        !write(*,*) " Number of detectors: ",ndet
         npoints=0
         do i=1,n
            if (.not. actlist(i)) cycle
@@ -2418,6 +2418,7 @@ Module CFML_ILL_Instrm_Data
        real(kind=cp)                     :: xmin,xmax,xstep,cnorm
 
        np=n%nbdata
+       !write(*,*)  "  Allocation of Diffraction pattern with ",np," points"
        call Allocate_Diffraction_Pattern (Pat, np)
        xmin=n%scans(1)
        xstep=n%scans(2)
@@ -3273,7 +3274,6 @@ Module CFML_ILL_Instrm_Data
        logical                                      :: new_form, very_old,old
 
        err_illdata=.false.
-       new_form = .false.; very_old=.false.; old=.false.
 
        ! Detecting numor
        call Number_Lines(fileinfo,nlines)
@@ -3291,27 +3291,21 @@ Module CFML_ILL_Instrm_Data
        ! Check format for D1B
        call Number_KeyTypes_on_File(filevar,nlines)
 
-                                          !R A S F I J V
-       if (.not. equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
-         new_form = .true.
-         !write(*,*) "  New format"
-         if(equal_vector(n_keytypes,(/1,2,1,2,2,0,0/),7)) then
-             old=.true.
-             new_form=.false.
-             !write(*,*) "  Old format"
-         else                            !R A S F I J V
-             if(equal_vector(n_keytypes,(/1,2,1,2,1,0,0/),7)) then
-                very_old=.true.
-                new_form=.false.
-                old=.false.
-                !write(*,*) "  VERY Old format"
-             else
-                err_illdata=.true.
-                err_illdata_mess='This numor does not correspond with D1B Format'
-                return
-             end if
-         end if
+       new_form = .false.; very_old=.false.; old=.false.
+
+                                    !R A S F I J V
+       if (equal_vector(n_keytypes,(/1,2,1,2,2,0,0/),7)) then
+           new_form = .true.
+       else if (equal_vector(n_keytypes,(/1,2,1,1,2,0,0/),7)) then
+           old=.true.
+       else if (equal_vector(n_keytypes,(/1,2,1,2,1,0,0/),7)) then
+           very_old=.true.
+       else
+           err_illdata=.true.
+           err_illdata_mess='This numor does not correspond with D1B Format'
+           return
        end if
+
 
        ! Defining the different blocks and load information on nl_keytypes
        call Set_KeyTypes_on_File(filevar,nlines)
@@ -3382,7 +3376,6 @@ Module CFML_ILL_Instrm_Data
        end if
 
        if(new_form) then
-
 
          ! Allocating
          if (allocated(n%counts)) deallocate(n%counts)
