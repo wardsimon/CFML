@@ -8556,10 +8556,10 @@
                                                                    0.0,0.0,1.0/),(/3,3/))
        real(kind=cp), dimension (3,192)    :: newlat = 0.0 !big enough number of centring tranlations
        real(kind=cp), dimension (3,3)      :: S, Sinv, rot, rotn  !S is the ITC matrix P.
-       integer,       dimension (3,3)      :: irot,nulo
+       integer,       dimension (3,3)      :: nulo
        real(kind=cp), dimension (  3)      :: tr, trn, v
        logical                             :: lattl,change_only_origin
-       character(len=80)                   :: string, symbsg
+       character(len=80)                   :: symbsg
        character(len=60),dimension(15)     :: gen
        character(len=180)                  :: setting
        real(kind=cp),  dimension(3,3,Spg%Multip) :: sm

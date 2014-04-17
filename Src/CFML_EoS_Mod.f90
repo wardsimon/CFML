@@ -613,7 +613,7 @@ Contains
       real(kind=cp)                     :: t
       real(kind=cp)                     :: pa,va,ta
       real(kind=cp)                     :: step,dp1,dp2
-      real(kind=cp),dimension(n_eospar) :: ev
+      !real(kind=cp),dimension(n_eospar) :: ev
 
       !> Init
       t=eospar%tref
@@ -695,7 +695,7 @@ Contains
       real(kind=cp) :: v00,v0T
       real(kind=cp) :: a,b,c,d,t1,t2,t3,x1,x2,x3
       real(kind=cp) :: a1,a2,a3,q,r,s1,s2,dd,th
-      real(kind=cp) :: y,p,v
+      real(kind=cp) :: y,p
       real(kind=cp) :: kp,th_e,eps0
       real(kind=cp) :: Tkmin,Tkmax
       real(kind=cp), dimension(n_eospar) :: ev

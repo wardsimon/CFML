@@ -1813,7 +1813,7 @@
                                                iflag,info
        Integer,        dimension(c%npvar)   :: ipvt
        Integer, dimension(c%npvar,c%npvar)  :: p,id
-       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo, vsig
+       Real (Kind=cp), dimension(c%npvar)   :: x, sx,xo
        Real (Kind=cp), dimension(vs%np)     :: vp
        Real (Kind=cp), dimension(m)         :: fvec  !Residuals
        Real (Kind=cp), dimension(m,c%npvar) :: fjac

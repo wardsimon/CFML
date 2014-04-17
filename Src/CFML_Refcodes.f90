@@ -7110,7 +7110,7 @@
        character(len=20), dimension(30) :: label
        character(len=20)                :: new_label,aux_string
        character(len=2)                 :: phase
-       integer                          :: i,j,n,na,nb,ndir,npos,nlong,ic !,k,nc
+       integer                          :: i,j,n,na,nb,ndir,nlong,ic !,k,nc
        integer                          :: icond,iv,n_ini,n_end
        integer, dimension(5)            :: ivet
        integer, dimension(30)           :: ilabel
@@ -8574,8 +8574,7 @@
        !---- Local variables ----!
        character(len=150)        :: linec
        character(len=10)         :: up_gcode_nam
-       character(len=10)         :: car
-       integer                   :: i,j,npos
+       integer                   :: i,npos
        integer,dimension(NGCode) :: ip,ipc
 
        ni=0
@@ -9462,6 +9461,7 @@
 
        do i=1,model%npar
           l=model%par(i)%Lcode
+         ! write(*,"(a,i5,a,i5)") " Parameter: "//trim(model%par(i)%nam),i,"  Code-number:",l
           if (l == 0) cycle
           if (l > np_refi) then
              err_refcodes=.true.
@@ -9476,6 +9476,7 @@
                 model%par(i)%value=model%par(i)%value+v_shift(l)*model%par(i)%multip
           end select
           model%par(i)%sigma=v_vec_std(l)*model%par(i)%multip
+         ! write(*,"(a,2f14.5)") " New value and sigma: ",model%par(i)%value,model%par(i)%sigma
        end do
        return
     End Subroutine VState_to_ModelPar
@@ -10398,6 +10399,9 @@
                 car=trim(model%par(i)%nam)
                 write(unit=lun,fmt=fmt1)  &
                      trim(car),na,trim(V_Name(na)),V_Vec(na),V_Bounds(:,na),V_BCon(na),mu,V_List(na)
+                !write(unit=*,fmt="(2i6,a)") i,na, "    "//trim(car)
+             !else
+                !write(unit=*,fmt="(2i6,a)") i,model%par(i)%lcode, "    "//trim(model%par(i)%nam)
              end if
           end do
        end if

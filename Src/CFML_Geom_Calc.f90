@@ -2475,8 +2475,7 @@
        return
     End Subroutine Print_Distances
 
-    !!---- Subroutine Set_New_AsymUnit(celln,SpGn,Ate,Mat,orig,A_n,matkind,debug)
-    !!----    type (Crystal_Cell_Type),      intent(in    ) :: Celln   !New cell that has been previously set
+    !!---- Subroutine Set_New_AsymUnit(SpGn,Ate,Mat,orig,A_n,matkind,debug)
     !!----    type (Space_Group_Type) ,      intent(in    ) :: SpGn    !New space group that has been previously set
     !!----    type (Atom_Equiv_List_Type),   intent(in    ) :: Ate     !In old group
     !!----    real(kind=cp), dimension (3,3),intent(in    ) :: Mat     !Transformation matrix from the old to the new setting
@@ -2488,8 +2487,7 @@
     !!----    Updated: January 2014 (JRC)
     !!----
     !!----
-    Subroutine Set_New_AsymUnit(celln,SpGn,Ate,Mat,orig,A_n,matkind,debug)
-       type (Crystal_Cell_Type),      intent(in    ) :: Celln
+    Subroutine Set_New_AsymUnit(SpGn,Ate,Mat,orig,A_n,matkind,debug)
        type (Space_Group_Type) ,      intent(in    ) :: SpGn
        type (Atom_Equiv_List_Type),   intent(in    ) :: Ate !In old group
        real(kind=cp), dimension (3,3),intent(in    ) :: Mat
@@ -2505,7 +2503,7 @@
        logical                           :: newp,fail
        real(kind=cp), dimension (  3)    :: pos
        real(kind=cp), dimension (3,192)  :: orb
-       type(point_list_type)             :: pl,att
+       type(point_list_type)             :: pl
        type (Atom_list_Type)             :: A
        character(len=*),parameter,dimension(26) :: let=(/"a","b","c","d","e","f","g","h", &
           "i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"/)
