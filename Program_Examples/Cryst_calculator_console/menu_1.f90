@@ -9,9 +9,9 @@
     use CFML_Symmetry_Tables
     use CFML_Crystallographic_Symmetry
     use CFML_String_Utilities
-    use CFML_Math_General,              only: equal_vector
-    use CFML_Math_3D,                   only: resolv_sist_3x3
-    use CFML_IO_Messages,               only: Wait_Message
+    use CFML_Math_General,              only: equal_vector,modulo_lat
+    use CFML_Math_3D,                   only: resolv_sist_3x3, matrix_inverse
+    use CFML_IO_Messages,               only: Wait_Message, Error_Message
 
     !---- Variables ----!
     implicit none
@@ -46,6 +46,7 @@
           write(unit=*,fmt="(a)") " [ 7] Determination of the Symbol for Symmetry Operators"
           write(unit=*,fmt="(a)") " [ 8] Conversions: IT -> Kovalev, Miller&Love, Zack, etc..."
           write(unit=*,fmt="(a)") " [ 9] Non-conventional space groups"
+          write(unit=*,fmt="(a)") " [10] Space Group in a new base and origin"
           !write(unit=*,fmt="(a)") " [10] Wyckoff Positions (Testing...)"
           !write(unit=*,fmt="(a)") " [11] Wyckoff for all Groups (Testing...)"
           write(unit=*,fmt="(a)") " "
@@ -85,7 +86,8 @@
              case ('9 ')
                 call Menu_SPGR_9()
 
-             !case ('10 ')
+             case ('10 ')
+                call Menu_SPGR_12()
              !   call Menu_SPGR_10()
 
              !case ('11')
@@ -1473,5 +1475,109 @@
 
       return
    End Subroutine Read_RSymm
+
+   !!----
+   !!---- Subroutine Menu_SPGR_12
+   !!----
+   !!
+   Subroutine Menu_Spgr_12()
+      !---- Local Variables ----!
+      character(len=80)             :: line,line2
+      character(len=20)             :: spgr
+      integer                       :: i, j,iv, ierr, npos
+      integer, dimension(3)         :: ivet
+      integer, dimension(3,3)       :: w
+      real(kind=cp), dimension(3)   :: vet,orig,t1,t2,t3
+      real(kind=cp), dimension(3,3) :: p, p_inv,w1,w2
+      type (Space_Group_Type)       :: grp1, grp2
+
+      do
+         call system(clear_string)
+         write(unit=*,fmt="(a)") "                   GENERAL CRYSTALLOGRAPHY CALCULATOR "
+         write(unit=*,fmt="(a)") " "
+         write(unit=*,fmt="(a)") "     Space Group in a new base and origin"
+         write(unit=*,fmt="(a)") "   =========================================="
+         write(unit=*,fmt="(a)") " "
+
+         !> Space Group
+         write(unit=*,fmt="(a)") " "
+         write(unit=*,fmt="(a)",advance="no") " Space Group (HM/Hall/Num): "
+
+         read(unit=*,fmt='(a)') line
+         if (len_trim(line)==0) exit
+         line=adjustl(line)
+
+         call set_spacegroup(line,grp1)
+         if(Err_Symm) then
+           write(unit=*,fmt="(a)") trim(ERR_Symm_Mess)
+           call Wait_Message(" => Press <enter> to continue ...")
+           cycle
+         end if
+
+         !> Matrix P
+         write(unit=*,fmt="(a)") " "
+         write(unit=*,fmt="(a)") " Write the P Matrix (3x3)"
+         p=0.0
+         do i=1,3
+            read(unit=*,fmt='(a)') line
+            call getnum(line,vet,ivet,iv)
+            p(i,1:3)=vet(1:3)
+         end do
+
+         !> Origin p
+         write(unit=*,fmt="(a)") " "
+         write(unit=*,fmt="(a)") " Write the new Origin"
+         orig=0.0
+         read(unit=*,fmt='(a)') line
+         call getnum(line,vet,ivet,iv)
+         orig=vet(1:3)
+
+         !>
+         call Similar_Transf_SG(p,orig,grp1,grp2,'IT')
+
+         call write_spacegroup(grp1,full=.true.)
+         write(unit=*,fmt=*) " "
+         call Wait_Message(" => Press <enter> to continue ...")
+
+         call write_spacegroup(grp2,full=.true.)
+         write(unit=*,fmt=*) " "
+         call Wait_Message(" => Press <enter> to continue ...")
+
+         !> Calculation of P-1
+         call Matrix_Inverse(p,p_inv,iv)
+         if (iv /=0) then
+            call error_message('inv(P) failed!')
+            call Wait_Message(" => Press <enter> to continue ...")
+            cycle
+         end if
+
+         do i =1,grp1%Multip
+            call Get_SymSymb(grp1%symop(i)%rot,grp1%symop(i)%tr,line2)
+
+            !> New W'
+            w1=real(grp1%symop(i)%rot)
+            w1=matmul(w1,p)
+            w2=matmul(p_inv,w1)
+            w=nint(w2)
+
+            !> New w'
+            w1=real(grp1%symop(i)%rot)
+            do j=1,3
+               w1(j,j)=w1(j,j)-1.0
+            end do
+            t1=matmul(w1,orig)
+            t2=grp1%symop(i)%tr+t1
+            t3=matmul(p_inv,t2)
+            t2=modulo_lat(t3)
+            call Get_SymSymb(w,t2,line)
+
+            write(unit=*,fmt='(i4,a,t35,a)') i,": "//trim(line2)," ---> "//trim(line)
+         end do
+
+         call Wait_Message(" => Press <enter> to continue ...")
+
+
+      end do
+   End Subroutine Menu_Spgr_12
 
  End module Menu_1
