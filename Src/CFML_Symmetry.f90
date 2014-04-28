@@ -104,6 +104,7 @@
 !!----    Subroutines:
 !!--++       CHECK_SYMBOL_HM           [Private]
 !!----       CHECK_GENERATOR
+!!----       COPY_NS_SPG_TO_SPG
 !!----       DECODMATMAG
 !!----       GET_CENTRING_VECTORS
 !!----       GET_CRYSTAL_SYSTEM
@@ -207,7 +208,7 @@
                Similar_Transf_SG, Read_SymTrans_Code, Write_SymTrans_Code, Set_SpG_Mult_Table,       &
                Get_Seitz_Symbol, Get_Trasfm_Symbol,Get_Shubnikov_Operator_Symbol,                    &
                Get_Transl_Symbol, Read_Bin_Spacegroup, Write_Bin_Spacegroup, Get_GenSymb_from_Gener, &
-               Check_Generator
+               Check_Generator, Copy_NS_SpG_To_SpG
 
     !---- List of private Operators ----!
     private :: Equal_Symop, Product_Symop
@@ -10292,5 +10293,74 @@
 
        return
     End Subroutine Wyckoff_Orbit
+
+    Subroutine Copy_NS_SpG_To_SpG(SpGN,SpG)
+       !---- Arguments ----!
+       type(NS_Space_Group_type), intent(in) :: SpGN
+       type(Space_Group_type),    intent(out)   :: SpG
+
+       !---- Local Variables ----!
+       logical              :: change
+       integer              :: i,j,k
+       real, dimension(3,3) :: w
+
+       !> Init
+       call init_err_symm()
+       change=.true.
+
+       !> Check if the copy is possible
+       loop_1: do k=1,SpG%Multip
+          w=SpGn%Symop(k)%Rot
+          w=abs(w)*100.0
+          do i=1,3
+             do j=1,3
+                if (w(i,j) > 0.5 .and. w(i,j) < 99.5) then
+                   change=.false.
+                   exit loop_1
+                end if
+             end do
+          end do
+       end do loop_1
+
+       if (.not. change) then
+          err_symm=.true.
+          ERR_Symm_Mess="No copy was possible for SpgN to Spg "
+          return
+       end if
+
+       SpG%NumSpg      = SpGn%NumSpg
+       SpG%SPG_Symb    = SpGn%SPG_Symb
+       SpG%Hall        = SpGn%Hall
+       SpG%gHall       = SpGn%gHall
+       SpG%CrystalSys  = SpGn%CrystalSys
+       SpG%Laue        = SpGn%Laue
+       SpG%PG          = SpGn%PG
+       SpG%Info        = SpGn%Info
+       SpG%SG_setting  = SpGn%SG_setting
+       SpG%SPG_lat     = SpGn%SPG_lat
+       SpG%SPG_latsy   = SpGn%SPG_latsy
+       SpG%NumLat      = SpGn%NumLat
+       if(allocated(SpG%Latt_Trans)) deallocate(SpG%Latt_Trans)
+       allocate(SpG%Latt_Trans(3,SpG%NumLat))
+       SpG%Latt_Trans  = SpGn%Latt_Trans
+       SpG%Bravais     = SpGn%Bravais
+       SpG%Centre      = SpGn%Centre
+       SpG%Centred     = SpGn%Centred
+       SpG%Centre_coord= SpGn%Centre_coord
+       SpG%NumOps      = SpGn%NumOps
+       SpG%Multip      = SpGn%Multip
+       SpG%Num_gen     = SpGn%Num_gen
+       if(allocated(SpG%SymopSymb)) deallocate(SpG%SymopSymb)
+       allocate(SpG%SymopSymb(SpG%Multip))
+       SpG%SymopSymb=SpGn%SymopSymb
+       if(allocated(SpG%Symop)) deallocate(SpG%Symop)
+       allocate(SpG%Symop(SpG%Multip))
+       do i=1,SpG%Multip
+         SpG%Symop(i)%Rot(:,:) = nint(SpGn%Symop(i)%Rot(:,:))
+         SpG%Symop(i)%tr(:) =  SpGn%Symop(i)%tr(:)
+       end do
+
+       return
+    End Subroutine Copy_NS_SpG_To_SpG
 
  End Module CFML_Crystallographic_Symmetry
