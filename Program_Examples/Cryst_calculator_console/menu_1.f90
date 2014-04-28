@@ -1489,7 +1489,8 @@
       integer, dimension(3,3)       :: w
       real(kind=cp), dimension(3)   :: vet,orig,t1,t2,t3
       real(kind=cp), dimension(3,3) :: p, p_inv,w1,w2
-      type (Space_Group_Type)       :: grp1, grp2
+      type (Space_Group_Type)       :: grp1,grp3
+      type (NS_Space_Group_Type)    :: grp2
 
       do
          call system(clear_string)
@@ -1532,50 +1533,13 @@
          call getnum(line,vet,ivet,iv)
          orig=vet(1:3)
 
-         !>
-         call Similar_Transf_SG(p,orig,grp1,grp2,'IT')
+         !> Change
+         call Setting_Change(p,orig,grp1,grp2,'IT')
+         call Copy_NS_SpG_To_SpG(grp2,grp3)
 
-         call write_spacegroup(grp1,full=.true.)
+         call write_spacegroup(grp3,full=.true.)
          write(unit=*,fmt=*) " "
          call Wait_Message(" => Press <enter> to continue ...")
-
-         call write_spacegroup(grp2,full=.true.)
-         write(unit=*,fmt=*) " "
-         call Wait_Message(" => Press <enter> to continue ...")
-
-         !> Calculation of P-1
-         call Matrix_Inverse(p,p_inv,iv)
-         if (iv /=0) then
-            call error_message('inv(P) failed!')
-            call Wait_Message(" => Press <enter> to continue ...")
-            cycle
-         end if
-
-         do i =1,grp1%Multip
-            call Get_SymSymb(grp1%symop(i)%rot,grp1%symop(i)%tr,line2)
-
-            !> New W'
-            w1=real(grp1%symop(i)%rot)
-            w1=matmul(w1,p)
-            w2=matmul(p_inv,w1)
-            w=nint(w2)
-
-            !> New w'
-            w1=real(grp1%symop(i)%rot)
-            do j=1,3
-               w1(j,j)=w1(j,j)-1.0
-            end do
-            t1=matmul(w1,orig)
-            t2=grp1%symop(i)%tr+t1
-            t3=matmul(p_inv,t2)
-            t2=modulo_lat(t3)
-            call Get_SymSymb(w,t2,line)
-
-            write(unit=*,fmt='(i4,a,t35,a)') i,": "//trim(line2)," ---> "//trim(line)
-         end do
-
-         call Wait_Message(" => Press <enter> to continue ...")
-
 
       end do
    End Subroutine Menu_Spgr_12
