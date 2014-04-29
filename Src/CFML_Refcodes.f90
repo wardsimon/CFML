@@ -614,6 +614,18 @@
 
     real(kind=cp), public, dimension(:),    allocatable :: V_Vec
     !!----
+    !!---- V_SAVE
+    !!----    real(kind=cp), public, dimension(:), allocatable :: V_Save
+    !!----
+    !!----    Vector of Parameters saving previous values of parameters.
+    !!----    This vector is handled by the calling program. It is only automatically
+    !!----    allocated in this module by a call to Allocate_VParam.
+    !!----
+    !!---- Update: April - 2014
+    !!
+
+    real(kind=cp), public, dimension(:),    allocatable :: V_Save
+    !!----
     !!---- V_VEC_std
     !!----    real(kind=cp), public, dimension(:), allocatable :: V_Vec_std
     !!----
@@ -791,6 +803,7 @@
        integer, intent(in) :: N
 
        if (allocated(V_Vec))    deallocate(V_Vec)
+       if (allocated(V_Save))   deallocate(V_Save)
        if (allocated(V_Vec_Std))deallocate(V_Vec_Std)
        if (allocated(V_Name))   deallocate(V_Name)
        if (allocated(V_Bounds)) deallocate(V_Bounds)
@@ -801,6 +814,8 @@
        if (N > 0) then
           allocate(V_Vec(n))
           V_Vec=0.0
+          allocate(V_Save(n))
+          V_Save=0.0
           allocate(V_Vec_Std(n))
           V_Vec_Std=0.0
           allocate(V_Name(n))
@@ -4477,7 +4492,7 @@
        contains
 
          Subroutine update_vect(n,up_np_refi)  !Internal subroutine to avoid copying the same text
-           integer, intent(in):: n  !every time we need to do the same thing!
+           integer, intent(in):: n             !every time we need to do the same thing!
            logical, optional,intent(in):: up_np_refi
            logical :: local_up
 

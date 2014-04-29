@@ -1634,7 +1634,7 @@
 
        ! Initial calculation of Chi2
        iflag=1
-       if(calder) iflag=1
+       if(calder) iflag=1  !Just for for purposes of making unambiguous the generic procedure
        Call Model_Functn(m, n, v, fvec, fjac, iflag)
        ichi2=enorm(m,fvec)
        if (ichi2 < 1.0e5) then

@@ -20,7 +20,7 @@
     public :: j_k, spin_conf, genj, genk  !, read_exchange
     private :: sin2p, cos2p, spin_confr, spin_confc
 
-    integer, public, parameter :: nat=25, id=50, njo=180000, ijo=15, nv=125000
+    integer, public, parameter :: nat=25, id=50, njo=1800000, ijo=10, nv=125000
     integer, public                           :: natcel !number of atoms/primitive cell
     real,    public, dimension        (3,nat) :: xyz    !Coordinates of atoms in the cell
     real,    public, dimension        (  nat) :: s      !Spin of atoms
@@ -737,8 +737,12 @@
          rang2(i)=0
          npoi(i)=1
        END DO
-       write(unit=*,fmt="(a,i2,a)",advance="no") " => Number of J's TO BE VARIED (<=",ijo,"): "
-       read(unit=*,fmt=*) nojvar
+       do
+         write(unit=*,fmt="(a,i2,a)",advance="no") " => Number of J's TO BE VARIED (<=",ijo,"): "
+         read(unit=*,fmt=*) nojvar
+         if(nojvar <= ijo) exit
+         write(unit=*,fmt="(a)") " => Too many J's TO BE VARIED !"
+       end do
        do
          njjj=1
          DO i=1,nojvar
@@ -748,8 +752,10 @@
            njjj=njjj*npoi(i)
          END DO
          IF(njjj > njo) THEN
-           write(unit=*,fmt="(a,i5)")  &
-               " => Too many J-parameters! Reduce the number of points!"
+           write(unit=*,fmt="(a)")  &
+               " => Too many J-parameters! Reduce the number of points or increase the value of 'njo' in J_k_exchange module!"
+           write(unit=*,fmt="(2(a,i7))")  &
+               " => The number of requested J-points is: ",njjj,", the present maximum is: ",njo
            cycle
          END IF
          exit
