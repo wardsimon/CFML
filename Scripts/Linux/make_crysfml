@@ -364,7 +364,7 @@ else
           ;;
    esac
 fi
-#rm *.o
+rm *.o
 #
 # Changing to default directory
 #
