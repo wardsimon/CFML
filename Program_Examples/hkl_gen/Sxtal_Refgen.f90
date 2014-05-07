@@ -1,6 +1,7 @@
 Module Ref_Gen
 
     use CFML_IO_Formats,      only: file_list_type
+    use CFML_Math_General,    only: sind
     use CFML_ILL_Instrm_data, only: Err_ILLdata_Mess, Err_ILLdata, &
                                     SXTAL_Orient_type, Current_Orient, diffractometer_type, &
                                     Current_Instrm, Read_Current_Instrm, Update_Current_Instrm_UB,&
