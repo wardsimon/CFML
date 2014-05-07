@@ -144,9 +144,10 @@ Program Test_HKL_GEN
 
       !> Write the Reflections
       write(unit=1,fmt="(/,a,2f8.4,a,/)") " => List of reflections within: ",val1,val2,texto
+      write(unit=1,fmt="(a)") "   H   K   L  Mul  SinTheta/L      2Theta  NumRef"
       do i=1,num
          angle_2theta=2.0*asind(reflections(i)%S*lambda)
-         write(unit=1,fmt="(3i4,i5,2f10.5,i8)") reflections(i)%h, reflections(i)%mult, &
+         write(unit=1,fmt="(3i4,i5,2f12.5,i8)") reflections(i)%h, reflections(i)%mult, &
                                                 reflections(i)%S, angle_2theta,i
       end do
       close(unit=1)
