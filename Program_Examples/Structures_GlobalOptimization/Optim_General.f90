@@ -431,7 +431,7 @@ Subroutine Write_FST(fst_file,v,cost)
       write(unit=lun,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
       write(unit=lun,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
       do i=1,A%natoms
-         write(unit=lun,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%chemsymb, A%atom(i)%x, A%atom(i)%AtmInfo
+         write(unit=lun,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%SfacSymb, A%atom(i)%x, A%atom(i)%AtmInfo
       end do
       do i=1,nc
          write(unit=lun,fmt="(a)") trim(cmds(i))
