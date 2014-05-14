@@ -1790,7 +1790,7 @@ Module CFML_ILL_Instrm_Data
     !!----    4. In the 'data-1' subdirectory (same logic as above)
     !!----    5. Working from the current year and most recent cycle and
     !!----       working back through cycles and year until the stopping
-    !!----       at the first cycle of 1973, when the first data was archived
+    !!----       at the first cycle of 1973, when the first data were archived
     !!----
     !!--..    Tries to find an uncompress numor first and then tries to find
     !!--..    a compressed numor (.Z extension). If found the numor is uncomp-
