@@ -271,9 +271,6 @@
                    .and. mod(ivec(1)+ivec(3),2) == 0        &
                    .and. mod(ivec(1)+ivec(2),2) == 0 ) equiv=.true.
 
-             case default
-                equiv=.true.
-
           end select
        end if
 

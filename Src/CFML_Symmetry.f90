@@ -3662,7 +3662,7 @@
     End Subroutine Get_Shubnikov_Operator_Symbol
 
     !!----
-    !!---- Subroutine Get_So_From_Fix(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,Spacegen)
+    !!---- Subroutine Get_So_From_Fix(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,Spacegen,lsym)
     !!----    integer,                     intent(out) :: ISYSTM    ! Out -> Number of the crystalline system
     !!----                                                          ! Out    (1:T, 2:M, 3:O, 4:T, 5:R-Trg, 6:H, 7:C)
     !!----    integer,                     intent(out) :: ISYMCE    ! Out -> 0 Centric (-1 not at origin)
@@ -3677,23 +3677,25 @@
     !!----    character (len=2),           intent(out) :: latsy     ! Out -> Bravais Lattice symbol
     !!----    real(kind=cp),dimension(3)  ,intent(out) :: Co        ! Out -> Coordinates of origin
     !!----    character (len=1),           intent(out) :: SpaceGen  ! Out -> Type of Cell
+    !!----    character (len=1),           intent(in)  :: lsym      ! In  -> Type of Cell forced
     !!----
     !!----    Determines some of items of the object Space_Group_Type from FIXed
     !!----    symmetry operators given by user.
     !!----
     !!---- Update: February - 2005
     !!
-    Subroutine Get_SO_from_FIX(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,SpaceGen)
+    Subroutine Get_SO_from_FIX(Isystm,Isymce,Ibravl,Ng,Ss,Ts,Latsy,Co,SpaceGen,lsym)
        !---- Arguments ----!
-       integer,                      intent(   out) :: Isystm
-       integer,                      intent(   out) :: Isymce
-       integer,                      intent(   out) :: Ibravl
-       integer,                      intent(   in ) :: Ng
-       integer, dimension(:,:,:),    intent(   in ) :: Ss  !(3,3,48)
-       real(kind=cp),dimension(:,:), intent(   in ) :: Ts  !(3  ,48)
-       character (len= 2),           intent(   out) :: Latsy
-       real(kind=cp),dimension(3),   intent(   out) :: Co
-       character (len= 1),           intent(   out) :: SpaceGen
+       integer,                      intent(out) :: Isystm
+       integer,                      intent(out) :: Isymce
+       integer,                      intent(out) :: Ibravl
+       integer,                      intent(in ) :: Ng
+       integer, dimension(:,:,:),    intent(in ) :: Ss  !(3,3,48)
+       real(kind=cp),dimension(:,:), intent(in ) :: Ts  !(3  ,48)
+       character (len= 2),           intent(out) :: Latsy
+       real(kind=cp),dimension(3),   intent(out) :: Co
+       character (len= 1),           intent(out) :: SpaceGen
+       character (len= 1),optional,  intent(in ) :: lsym
 
        !---- Local Variables ----!
        logical :: latt_p, latt_a, latt_b, latt_c, latt_i, latt_r, latt_f, latt_z
@@ -3714,103 +3716,109 @@
        integer                        :: i,j,l
 
        !---- Initializing ----!
+
        isystm  = 0
        isymce  = 1
        ibravl  = 0
        co      = 0.0
        latsy   = " "
        SpaceGen= " "
+       if(present(lsym)) then
+         if(.not. (lsym == "P" .or. lsym=="p")) SpaceGen=lsym
+       end if
 
-       latt_p=.true.
-       latt_a=.false.
-       latt_b=.false.
-       latt_c=.false.
-       latt_i=.false.
-       latt_r=.false.
-       latt_f=.false.
-       latt_z=.false.
-
-
-       !---- Determine the type of lattice ----!
-       !---- This is only in case an explicit translation generator is given.
-       l=0
-       do i=1,ng
-          if (equal_matrix(ss(:,:,i),identidad(1:3,1:3),3)) then
-             tt(1)=nint(12.0 * ts(1,i))   ! Translations x 12
-             tt(2)=nint(12.0 * ts(2,i))
-             tt(3)=nint(12.0 * ts(3,i))
-
-             !---- Identity (I,0) is being processed ----!
-             if (tt(1) == 0 .and. tt(2) == 0 .and. tt(3) == 0) cycle
-
-             !---- Compare the translation part of the operator with tabulated array ----!
-             l=l+1  !counts the number of non trivial centring vectors
-             latt_given(:) = 0
-             do j=1,6
-                if (equal_vector(tt,lattice(:,j),3)) then
-                   latt_given(j)=1
-                   select case (j)
-                      case (1)
-                         latt_a=.true.
-                      case (2)
-                         latt_b=.true.
-                      case (3)
-                         latt_c=.true.
-                      case (4)
-                         latt_i=.true.
-                      case (5,6)
-                         latt_r=.true.
-                   end select
-                   exit
-                end if
-             end do
-             latc(:,L) = ts(:,i)
-             if(sum(latt_given) == 0) latt_z=.true.
-          end if
-       end do
-
-       !---- Lattice Type ----!
-       if ( (latt_a .and. latt_b .and. latt_c) .or. (latt_a .and. latt_b) .or. &
-            (latt_a .and. latt_c) .or. (latt_b .and. latt_c) ) then
-          latt_f=.true.
+       if(len_trim(SpaceGen) == 0) then  !Test lattice translation only if lsym has not been provided
+          latt_p=.true.                  !or if lsym="P"
           latt_a=.false.
           latt_b=.false.
           latt_c=.false.
-          latt_p=.false.
           latt_i=.false.
-       end if
+          latt_r=.false.
+          latt_f=.false.
+          latt_z=.false.
 
-       if (latt_p) then
-          SpaceGen="P"
-          Ibravl  = 1
-       end if
-       if (latt_a) then
-          SpaceGen="A"
-          Ibravl  = 2
-       end if
-       if (latt_b) then
-          SpaceGen="B"
-          Ibravl  = 3
-       end if
-       if (latt_c) then
-          SpaceGen="C"
-          Ibravl  = 4
-       end if
-       if (latt_i) then
-          SpaceGen="I"
-          Ibravl  = 5
-       end if
-       if (latt_r) then
-          SpaceGen="R"
-          Ibravl  = 6
-       end if
-       if (latt_f) then
-          SpaceGen="F"
-          Ibravl  = 7
-       end if
-       if (latt_z) then
-          SpaceGen="Z"
-          Ibravl  = 8
+
+          !---- Determine the type of lattice ----!
+          !---- This is only in case an explicit translation generator is given.
+          l=0
+          do i=1,ng
+             if (equal_matrix(ss(:,:,i),identidad(1:3,1:3),3)) then
+                tt(1)=nint(12.0 * ts(1,i))   ! Translations x 12
+                tt(2)=nint(12.0 * ts(2,i))
+                tt(3)=nint(12.0 * ts(3,i))
+
+                !---- Identity (I,0) is being processed ----!
+                if (tt(1) == 0 .and. tt(2) == 0 .and. tt(3) == 0) cycle
+
+                !---- Compare the translation part of the operator with tabulated array ----!
+                l=l+1  !counts the number of non trivial centring vectors
+                latt_given(:) = 0
+                do j=1,6
+                   if (equal_vector(tt,lattice(:,j),3)) then
+                      latt_given(j)=1
+                      select case (j)
+                         case (1)
+                            latt_a=.true.
+                         case (2)
+                            latt_b=.true.
+                         case (3)
+                            latt_c=.true.
+                         case (4)
+                            latt_i=.true.
+                         case (5,6)
+                            latt_r=.true.
+                      end select
+                      exit
+                   end if
+                end do
+                latc(:,L) = ts(:,i)
+                if(sum(latt_given) == 0) latt_z=.true.
+             end if
+          end do
+
+          !---- Lattice Type ----!
+          if ( (latt_a .and. latt_b .and. latt_c) .or. (latt_a .and. latt_b) .or. &
+               (latt_a .and. latt_c) .or. (latt_b .and. latt_c) ) then
+             latt_f=.true.
+             latt_a=.false.
+             latt_b=.false.
+             latt_c=.false.
+             latt_p=.false.
+             latt_i=.false.
+          end if
+
+          if (latt_p) then
+             SpaceGen="P"
+             Ibravl  = 1
+          end if
+          if (latt_a) then
+             SpaceGen="A"
+             Ibravl  = 2
+          end if
+          if (latt_b) then
+             SpaceGen="B"
+             Ibravl  = 3
+          end if
+          if (latt_c) then
+             SpaceGen="C"
+             Ibravl  = 4
+          end if
+          if (latt_i) then
+             SpaceGen="I"
+             Ibravl  = 5
+          end if
+          if (latt_r) then
+             SpaceGen="R"
+             Ibravl  = 6
+          end if
+          if (latt_f) then
+             SpaceGen="F"
+             Ibravl  = 7
+          end if
+          if (latt_z) then
+             SpaceGen="Z"
+             Ibravl  = 8
+          end if
        end if
 
        if (len_trim(SpaceGen) /= 0) then
@@ -7775,7 +7783,8 @@
                 ERR_Symm_Mess=" Generators should be provided if FIX option is Used"
                 return
              end if
-             call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm)
+             call Get_SO_from_FIX(isystm,isymce,ibravl,ng,ss,ts,latsy,co,Spgm,Spacegen(1:1))
+
              SpaceGroup%Spg_Symb     = "unknown "
              SpaceGroup%Hall         = "unknown "
              SpaceGroup%Laue         = " "
