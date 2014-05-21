@@ -79,6 +79,7 @@
 !!----       EQUAL_SETS_TEXT
 !!----       L_CASE
 !!----       PACK_STRING
+!!----       STRING_COUNT
 !!----       STRIP_STRING
 !!----       U_CASE
 !!----
@@ -116,6 +117,7 @@
 !!----       READING_LINES
 !!----       SETNUM_STD
 !!--++       SGETFTMFIELD         [Private]
+!!----       SSTRING_REPLACE
 !!--++       TREATMCHARFIELD      [Private]
 !!--++       TREATNUMERFIELD      [Private]
 !!----       UCASE
@@ -131,14 +133,14 @@
     private
 
     !---- List of public functions ----!
-    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String
+    public :: Equal_Sets_Text, L_Case, Pack_String, U_Case, Strip_String, String_Count
 
     !---- List of public subroutines ----!
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
               Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, &
-              Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String
+              Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String, SString_Replace
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err,Read_Fract
@@ -567,7 +569,36 @@
     End Function Pack_String
 
     !!----
-    !!---- Character Strip_String(string, to_strip) Result(striped_string)
+    !!---- Function String_Count(string,substr) result(coun)
+    !!----    character(len=*), intent(in) :: string
+    !!----    character(len=*), intent(in) :: substr
+    !!----    integer                      :: coun
+    !!----
+    !!----  Function counting the number of times a substring appears in a string
+    !!----
+    !!---- Updated: May - 2014
+    !!
+    Function String_Count(string,substr) result(coun)
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: substr
+      integer                      :: coun
+      ! --- Local variables ---!
+      character(len=len_trim(string)) :: cut_string
+      integer :: i,lstr
+      coun=0
+      lstr=len_trim(substr)-1
+      cut_string=string
+      do
+        i=index(cut_string,trim(substr))
+        if (i == 0) exit
+        coun=coun+1
+        cut_string=cut_string(i+lstr:)
+      end do
+      return
+    End Function String_Count
+
+    !!----
+    !!---- Character Function Strip_String(string, to_strip) Result(striped_string)
     !!----    character (len=*), intent(in) :: string          !  In ->
     !!----    character (len=*), intent(in) :: to_string       !  In ->
     !!----    character (len=len(text))     :: striped_string  ! Out ->
@@ -2859,6 +2890,34 @@
 
        return
     End Subroutine SGetFTMfield
+
+    !!----
+    !!----
+    !!---- Subroutine SString_Replace(string, substr, rep_string)
+    !!----    character(len=*), intent(in out) :: string
+    !!----    character(len=*), intent(in)     :: substr
+    !!----    character(len=*), intent(in)     :: rep_string
+    !!----
+    !!----    Subroutine to replace a substring by another one within
+    !!----    a given string. The original string is modified on output
+    !!----
+    !!---- Updated: May - 2014
+    !!
+    Subroutine SString_Replace(string, substr, rep_string)
+      character(len=*), intent(in out) :: string
+      character(len=*), intent(in)     :: substr
+      character(len=*), intent(in)     :: rep_string
+      ! --- Local variables ---!
+      integer :: i,lstr
+
+      lstr=len(substr)
+      do
+        i=index(string,substr)
+        if (i == 0) exit
+        string=string(1:i-1)//rep_string//trim(string(i+lstr:))
+      end do
+      return
+    End Subroutine SString_Replace
 
     !!--++
     !!--++ Subroutine TreatMCharField(iFld,aLine,L_Line,nC_L,nC_X)
