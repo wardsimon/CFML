@@ -99,6 +99,7 @@
 !!----       GET_MAT_FROM_SYMB
 !!----       GET_NUM_STRING
 !!----       GET_SEPARATOR_POS
+!!----       GET_SUBSTRING_POSITIONS
 !!----       GET_TRANSF
 !!----       GETNUM
 !!----       GETNUM_STD
@@ -139,8 +140,9 @@
     public :: Cutst, Get_Basename, Get_Dirname, Get_Fraction_1Dig, Get_Fraction_2Dig, Getnum, Getnum_std,   &
               Getword, Init_err_String, lcase, Number_lines, Read_Key_str, Read_Key_strVal, Read_Key_Value, &
               Read_Key_ValueSTD, Reading_Lines, Setnum_std, Ucase, FindFmt, Init_FindFmt, Frac_Trans_1Dig,  &
-              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos, &
-              Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String, SString_Replace
+              Frac_Trans_2Dig, get_logunit, NumCol_from_NumFmt, Inc_LineNum, Get_Separator_Pos,             &
+              Get_Extension, Get_Mat_From_Symb, Get_Transf, Get_Num_String, SString_Replace,                &
+              Get_Substring_Positions
 
     !---- List of private subroutines ----!
     private :: BuildFmt, TreatNumerField, TreatMCharField, SgetFtmField, FindFmt_Err,Read_Fract
@@ -2112,6 +2114,39 @@
     End Subroutine Get_Separator_Pos
 
     !!----
+    !!---- Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
+    !!----   character(len=*),      intent(in)  :: string   ! In -> Input String
+    !!----   character(len=*),      intent(in)  :: substr   ! In -> Substring
+    !!----   integer, dimension(:), intent(out) :: pos      ! Out -> Vector with positions of the firs character of "substr" in "String"
+    !!----   integer,               intent(out) :: nsubs    ! Out -> Number of appearance of "substr" in "String"
+    !!----
+    !!----    Determines the positions of the substring "substr" in "String" and generates
+    !!----    the vector Pos containing the positions of the first character of "substr" in "String".
+    !!----    The number of times the "substr" appears in "String" is stored in "nsubs".
+    !!----
+    !!----     Updated: May 2014
+
+    Subroutine Get_Substring_Positions(string,substr,pos,nsubs)
+      character(len=*),      intent(in)  :: string
+      character(len=*),      intent(in)  :: substr
+      integer, dimension(:), intent(out) :: pos
+      integer,               intent(out) :: nsubs
+      integer :: i,j,lsubs
+
+      nsubs=0
+      lsubs=len_trim(substr)
+      j=0
+      do i=1,len_trim(string)
+        j=j+1
+        if(string(j:j+lsubs-1) == trim(substr)) then
+          nsubs=nsubs+1
+          pos(nsubs)=j
+        end if
+      end do
+      return
+    End Subroutine Get_Substring_Positions
+
+    !!----
     !!---- Subroutine Getword(Line, Dire, Ic)
     !!----    character(len=*),              intent( in) :: Line   !  In -> Input String
     !!----    character(len=*),dimension(:), intent(out) :: Dire   ! Out -> Vector of Words
@@ -2893,29 +2928,70 @@
 
     !!----
     !!----
-    !!---- Subroutine SString_Replace(string, substr, rep_string)
+    !!---- Subroutine SString_Replace(string, substr, rep_string,warning)
     !!----    character(len=*), intent(in out) :: string
     !!----    character(len=*), intent(in)     :: substr
     !!----    character(len=*), intent(in)     :: rep_string
+    !!----    character(len=*), intent(out)    :: warning
     !!----
     !!----    Subroutine to replace a substring by another one within
-    !!----    a given string. The original string is modified on output
+    !!----    a given string. The original string is modified on output.
+    !!----    If len_trim(warning) /= one of the substrings will not be complete,
+    !!----    it works as an Warning or error condition without interrupting the
+    !!----    procedure.
     !!----
     !!---- Updated: May - 2014
     !!
-    Subroutine SString_Replace(string, substr, rep_string)
+    Subroutine SString_Replace(string, substr, rep_string,warning)
       character(len=*), intent(in out) :: string
       character(len=*), intent(in)     :: substr
       character(len=*), intent(in)     :: rep_string
+      character(len=*), intent(out)    :: warning
       ! --- Local variables ---!
-      integer :: i,lstr
+      integer :: i,j,lstr,ncount,nsubs,d,dmax
+      integer, dimension(:),allocatable :: pos
+      character(len=len(string)) :: aux
+      character(len=512),dimension(:),allocatable :: splitted_string
 
       lstr=len(substr)
-      do
-        i=index(string,substr)
-        if (i == 0) exit
-        string=string(1:i-1)//rep_string//trim(string(i+lstr:))
-      end do
+      warning=" "
+      i=index(rep_string,substr)
+      if(i /= 0) then !The short code doesn't work ... we have to use a longer analysis
+         ncount=String_Count(string,trim(substr))+1
+         allocate(pos(ncount))
+         allocate(splitted_string(ncount))
+         call Get_Substring_Positions(string,substr,pos,nsubs)
+         dmax=0
+         do i=2,nsubs
+           d=pos(i)-pos(i-1)
+           if(d > dmax) dmax=d
+         end do
+         if(dmax > 512) write(unit=warning,fmt="(a)") " => Warning! ... string too long to be fetch into the splitted_string"
+         !Construct the splitted string
+         j=1
+         splitted_string(j)=string(1:pos(j)-1)
+         do
+           j=j+1
+           if(j > nsubs) exit
+           splitted_string(j)=string(pos(j-1)+lstr:pos(j)-1)
+         end do
+         splitted_string(ncount)=string(pos(nsubs)+lstr:)
+         !Construct now the full string
+         string=""
+         do i=1,nsubs
+           string=trim(string)//trim(splitted_string(i))//rep_string
+         end do
+         string=trim(string)//trim(splitted_string(ncount))
+
+      else  !The following code works easily
+
+         do
+           i=index(string,substr)
+           if (i == 0) exit
+           string=string(1:i-1)//rep_string//trim(string(i+lstr:))
+         end do
+
+      end if
       return
     End Subroutine SString_Replace
 
