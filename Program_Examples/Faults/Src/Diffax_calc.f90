@@ -6285,9 +6285,9 @@
 
 
       INTEGER*4 i, j, n_low,  indx
-      REAL      ::th_rng,th_rng2, tn_th, c00, hk_inv, th0 , temp1, temp2, temp3, temp4, delta_lambda
+      REAL      :: th_rng,th_rng2, tn_th, c00, hk_inv, th0 , temp1, temp2, temp3, temp4, delta_lambda
       real(kind = sp ) ::  pv_hg, pv_hl, tmp
-      REAL      :: k1, k2, k3, k4, k5, pvoigt, const, speci
+      REAL      :: k1, k2, k3, k4, k5, pvoigt, const, speci,pv1,pv2
 
       ! first check the numbers
       IF(pv_u == zero .AND. pv_v == zero .AND. pv_w == zero) THEN
@@ -6325,6 +6325,7 @@
       temp2 = (4.0 * log(2.0) *lambda * lambda ) * rad2deg*rad2deg
       temp1 = pi * pv_dg * pv_dg
       temp4 = (2*lambda/pi) * rad2deg
+
       DO  i = n_low, n_high
         ! get tan((2theta)/2)
         tn_th = TAN(i*d_theta + th0)
@@ -6345,11 +6346,12 @@
         speci = spec(i)
 
        if (lambda2 /= 0 ) then
-
         DO  j = n_low - i, n_high - i
           th_rng = tmp * j*j
-          th_rng2 =  (((2*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
-          pvoigt = ((k4/(one+four*th_rng) + k5*EXP(k3*th_rng)) + ratio * (k4/(one+four*th_rng2) + k5*EXP(k3*th_rng2)))* speci
+          th_rng2 =  (((-2.0*rad2deg*delta_lambda * tn_th / lambda)+ j*const) * hk_inv) **2
+          pv1=(k4/(one+four*th_rng) + k5*EXP(k3*th_rng))* speci
+          pv2=(k4/(one+four*th_rng2) + k5*EXP(k3*th_rng2))*speci
+          pvoigt = pv1 + ratio * pv2
           indx = i + j
           brd_spc(indx) = brd_spc(indx) + pvoigt
         END DO
