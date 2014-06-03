@@ -2,7 +2,7 @@
 !!---- information obtained from the ILL database saved in "Tabulated" format.
 !!---- Author: Juan Rodriguez-Carvajal (ILL)
   Program ILL_Pubs_WoS
-   use CFML_String_Utilities, only: String_Count, SString_Replace
+   use CFML_String_Utilities, only: String_Count, SString_Replace,lcase
    use Data_Articles_Mod
    implicit none
    integer, parameter      :: max_chars=204800
@@ -12,33 +12,43 @@
 
    integer :: ier,n,i,j, nart, ncar, npub, n_doi,nlog,n_title
    integer :: narg,iart=1
-   logical :: esta
-   integer, dimension(30) :: pos
-   character(len=12)   :: nam_inst
+   logical :: esta, doi_only=.false., inc_auth=.false.
+   character(len=12)   :: nam_inst=" "
+   character(len=16)   :: third_arg=" "
    character(len=180)  :: file_inst
    integer             :: num_art
 
 
-   write(unit=*,fmt="(/a)") "-----------------------------------------------------------------------------"
+
+   write(unit=*,fmt="(/a)") "-------------------------------------------------------------------------------------"
    write(unit=*,fmt="( a)") " Program to generate a long string for Advanced Search in the Web of Science "
    write(unit=*,fmt="( a)") "     It needs a text file from the ILL database in Tabulated format."
    write(unit=*,fmt="( a)") "                       May 2014, JRC -ILL"
-   write(unit=*,fmt="( a)") "        Usage: -> ILL_Pubs_WoS  my_input_file  my_output_file    "
-   write(unit=*,fmt="(a/)") "-----------------------------------------------------------------------------"
+   write(unit=*,fmt="( a)") " Usage: -> ILL_Pubs_WoS  my_input_file  my_output_file [doi_only or include_authors] "
+   write(unit=*,fmt="(a/)") "-------------------------------------------------------------------------------------"
    narg= COMMAND_ARGUMENT_COUNT()
 
    if( narg <= 1) then
 
-       write(unit=*,fmt="(a)")    " => The program 'ILL_Pubs_WoS' should be invoked with two arguments as indicated in the banner "
+       write(unit=*,fmt="(a)")    " => The program 'ILL_Pubs_WoS' should be invoked at least with two arguments as indicated in the banner "
        write(unit=*,fmt="(a)")    "    The two arguments are: "
        write(unit=*,fmt="(a)")    "     1: the name of the saved file from the ILL database "
        write(unit=*,fmt="(a)")    "     2: the name of the file in which the search string will be written "
+       write(unit=*,fmt="(a)")    "    "
+       write(unit=*,fmt="(a)")    " => An additional optional arguments is the type of output: "
+       write(unit=*,fmt="(a)")    "    The values of the additional argument are: doi_only or include_authors "
        stop
 
    else
 
      call GET_COMMAND_ARGUMENT(1, fileinf)
      call GET_COMMAND_ARGUMENT(2, file_inst)
+     if(narg > 2) then
+       call GET_COMMAND_ARGUMENT(3, third_arg)
+       call lcase(third_arg)
+       if(trim(third_arg) == "doi_only")        doi_only=.true.
+       if(trim(third_arg) == "include_authors") inc_auth=.true.
+     end if
 
    end if
    inquire(file=fileinf,exist=esta)
@@ -108,18 +118,30 @@
    end do
    close(unit=iart)
    nart=n
+   open(newunit=i_str,file="strange_chars.inf",status="replace",action="write")
 
    DOI_Str=" "; Title_Str=" "
    npub=0
    do j=1,nart
+      if(articles(j)%year == 0) then
+           write(unit=*,fmt="(a,a)")  " => No year available in the article: "//trim(articles(j)%Numb), &
+           " ... The document "//trim(articles(j)%Numb)//" is discarded"
+           cycle
+      end if
       if(len_trim(articles(j)%DOI) == 0) then
+        if(doi_only) cycle
         n_title=n_title+1
-        call ISI_string_title(articles(j),ISI_str)
+        if(inc_auth) then
+           call ISI_string(articles(j),ISI_str,"include_authors")
+        else
+           call ISI_string(articles(j),ISI_str)
+        end if
         if(n_title == 1) then
           Title_Str=trim(ISI_str)
         else
           nlog=len_trim(ISI_str)
           ncar=len_trim(Title_Str)
+          !write(unit=*,fmt="(3i9)")  nlog, ncar,nlog+ncar
           if(nlog+ncar <= max_chars) then
              Title_Str=trim(Title_Str)//" OR"//line_feed//trim(ISI_str)
           else
@@ -144,7 +166,11 @@
       npub=npub+1
    end do
    open(unit=iart,file=trim(file_inst),status="replace",action="write")
-     write(unit=iart,fmt="(a)")  trim(DOI_str)//" OR"//line_feed//trim(Title_Str)
+     if(doi_only) then
+        write(unit=iart,fmt="(a)")  trim(DOI_str)
+     else
+        write(unit=iart,fmt="(a)")  trim(DOI_str)//" OR"//line_feed//trim(Title_Str)
+     end if
    close(unit=iart)
 
    write(unit=*,fmt="(a,i6)") " => Number of articles saved   : ",npub

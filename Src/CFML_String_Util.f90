@@ -2951,7 +2951,7 @@
       integer :: i,j,lstr,ncount,nsubs,d,dmax
       integer, dimension(:),allocatable :: pos
       character(len=len(string)) :: aux
-      character(len=512),dimension(:),allocatable :: splitted_string
+      character(len=1024),dimension(:),allocatable :: splitted_string
 
       lstr=len(substr)
       warning=" "
@@ -2966,7 +2966,7 @@
            d=pos(i)-pos(i-1)
            if(d > dmax) dmax=d
          end do
-         if(dmax > 512) write(unit=warning,fmt="(a)") " => Warning! ... string too long to be fetch into the splitted_string"
+         if(dmax > 1024) write(unit=warning,fmt="(a)") " => Warning! ... string too long to be fetch into the splitted_string"
          !Construct the splitted string
          j=1
          splitted_string(j)=string(1:pos(j)-1)

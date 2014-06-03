@@ -5,9 +5,10 @@
    Use CFML_String_Utilities, only: Pack_String, get_separator_pos, SString_Replace
    implicit none
    private
-   public :: ISI_string, ISI_string_title
+   public :: ISI_string
    character(len=1), parameter, public :: tab=achar(9), line_feed=achar(10)
    character(len=1), parameter, public :: comma=","
+   integer, public :: i_str !Logical unit for writing strange characters not currently handled
 
    Type, public :: article
      character(len=20)  :: Numb=" "
@@ -32,71 +33,20 @@
    !  ASCII 1-127  ichar("a")=97 - ichar("z")=122    ichar("A")= 65 - ichar("Z")=90
    !
    !
-   subroutine ISI_string(artic,ISI_str)
-     type(article),    intent(in) :: artic
-     character(len=*), intent(out):: ISI_str
+   subroutine ISI_string(artic,ISI_str,include_authors)
+     type(article),             intent(in) :: artic
+     character(len=*),          intent(out):: ISI_str
+     character(len=*),optional, intent(in) :: include_authors
      !--- Local variables ---!
      character(len=512) :: authors, mtitle
      character(len=20),dimension(20)  :: tit_words
      character(len=60),dimension(20)  :: author
      character(len=60)  :: autnam,author_1,author_2
      character(len=8)   :: initials
-     integer :: i,j,k,l,nau, ncar,nc,nw               ! 1   2   3   4   5   6   7   8   9  10  11  12  13
-     character(len=1),dimension(13):: list_non_ascii=(/"å","ä","á","é","è","í","ï","ö","ó","ü","ù","ú","ñ"/)
-     character(len=1),dimension(13):: list_____ascii=(/"a","a","a","e","e","i","i","o","o","u","u","u","n"/)
+     integer :: i,j,k,l,nau, ncar,nc,nw
      integer, dimension(60) :: pos
      integer, dimension(10) :: pb
-
      ISI_Str=" "
-     authors=artic%authors
-     i=index(authors,'"')     !supress quotes
-     if(i /= 0) then
-       authors(i:i) = " "
-       i=index(authors,'"')
-       authors(i:i) = " "
-       authors=adjustl(authors)
-     end if
-     i=0
-     do         !Suppress dots and compact initials of authors B.E.F. => BEF
-       i=i+1
-       if(authors(i:i) == ".") then
-         authors=authors(1:i-1)//authors(i+1:)
-         i=i-1
-       end if
-       if(i > len_trim(authors)) exit
-     end do
-     !Treat the name of the authors having blanks
-     call get_separator_pos(trim(authors),comma,pos,ncar)
-     nau=ncar+1
-     if(nau > 1) then
-       author(nau)=authors(pos(ncar)+1:)
-       j=0
-       do i=1,ncar
-         author(i)= authors(j+1:pos(i)-1)
-         j=pos(i)
-       end do
-     else
-       author(1)=authors
-     end if
-     authors=" "
-     do i=1,nau
-         k=index(trim(author(i))," ",back=.true.)
-         initials=author(i)(k+1:)
-         autnam=adjustl(author(i)(1:k-1))
-         call get_separator_pos(trim(autnam)," ",pb,nc)
-         author_1=" "
-         author_2=" "
-         if (nc > 0) then
-           author_1=trim(Pack_String(autnam))//" "//trim(initials)
-           author_2=  trim(autnam(pb(nc)+1:))//" "//trim(initials)//autnam(1:1)
-           author(i) = "("//trim(author_1)//" OR "//trim(author_2)//")"
-         end if
-         if(len_trim(author(i)) > 0) then
-           authors=trim(authors)//" "//trim(author(i))//" AND"
-         end if
-     end do
-     i=Len_Trim(authors)-2
-     if(authors(i:i+2) == "AND") authors=authors(1:i-1)
 
      !Title of the article
      mtitle=artic%title
@@ -107,93 +57,190 @@
        mtitle(i:i) = " "
        mtitle=adjustl(mtitle)
      end if
-     call get_separator_pos(trim(mtitle)," ",pos,ncar)
-     nw=ncar+1
-     tit_words(nw)=mtitle(pos(ncar)+1:)
-     j=0
-     do i=1,ncar
-       tit_words(i)= mtitle(j+1:pos(i)-1)
-       j=pos(i)
-     end do
-     mtitle=" "
-     do i=1,nw
-         if(len_trim(tit_words(i)) > 4) then
-           mtitle=trim(mtitle)//" "//trim(tit_words(i))//" AND"
-         end if
-     end do
-     i=Len_Trim(mtitle)-2
-     if(mtitle(i:i+2) == "AND") mtitle=mtitle(1:i-1)
 
-     ISI_str=" "
-     if( nau > 2) then
-       write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year,")"
-     else
-       write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND PY=",artic%year," AND TI=("//trim(mtitle)//"))"
-     end if
+     if(.not. present(include_authors)) then  !Only year and title are provided in ISI_Str
 
-     !Now replace non-ascii characters by the equivalent ascii ones
-     do i=1,len_trim(ISI_str)
-      do j=1,13
-        if(List_non_ascii(j) == ISI_str(i:i)) then
-          ISI_str(i:i)=list_____ascii(j)
-          exit
+        if( artic%year == 0) then
+          ISI_str='(TI="'//trim(mtitle)//'")'
+        else
+          write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
         end if
-      end do
-     end do
+
+     else        !Year, authors and title
+
+        !Eliminate articles, parenthesis anb booleans from the title to simplify the search
+        call purge_bool_par_art(mtitle)
+        authors=artic%authors
+        i=index(authors,'"')     !supress quotes
+        if(i /= 0) then
+          authors(i:i) = " "
+          i=index(authors,'"')
+          authors(i:i) = " "
+          authors=adjustl(authors)
+        end if
+        i=0
+        do         !Suppress dots and compact initials of authors B.E.F. => BEF
+          i=i+1
+          if(authors(i:i) == ".") then
+            authors=authors(1:i-1)//authors(i+1:)
+            i=i-1
+          end if
+          if(i > len_trim(authors)) exit
+        end do
+        !Treat the name of the authors having blanks
+        call get_separator_pos(trim(authors),comma,pos,ncar)
+        nau=ncar+1
+        if(nau > 1) then
+          author(nau)=authors(pos(ncar)+1:)
+          j=0
+          do i=1,ncar
+            author(i)= authors(j+1:pos(i)-1)
+            j=pos(i)
+          end do
+        else
+          author(1)=authors
+        end if
+        authors=" "
+        do i=1,min(3,nau) !Limit the output to 3 authors
+            k=index(trim(author(i))," ",back=.true.)
+            initials=author(i)(k+1:)
+            autnam=adjustl(author(i)(1:k-1))
+
+            call get_separator_pos(trim(autnam)," ",pb,nc)
+            author_1=" "
+            author_2=" "
+            if (nc > 0) then
+              author_1=trim(Pack_String(autnam))//" "//trim(initials)
+              author_2=  trim(autnam(pb(nc)+1:))//" "//trim(initials)//autnam(1:1)
+              author(i) = "("//trim(author_1)//" OR "//trim(author_2)//")"
+            else
+              call get_separator_pos(trim(autnam),"-",pb,nc)
+              if (nc > 0) then
+                author_1=trim(Pack_String(autnam))//" "//trim(initials)
+                author_2=  autnam(1:pb(nc)-1)//trim(autnam(pb(nc)+1:))//" "//trim(initials)
+                author(i) = "("//trim(author_1)//" OR "//trim(author_2)//")"
+              end if
+            end if
+
+            if(len_trim(author(i)) > 0) then
+              authors=trim(authors)//" "//trim(author(i))//" AND"
+            end if
+        end do
+        i=Len_Trim(authors)-2
+        if(authors(i:i+2) == "AND") authors=authors(1:i-1)
+        write(unit=ISI_str,fmt="(a,i5,a)") "(AU=("//trim(authors)//") AND (PY=",artic%year,") AND TI=("//trim(mtitle)//"))"
+     end if
+     call Replace_n_Search_nonascii(ISI_str)
+     return
    end subroutine ISI_string
 
-   subroutine ISI_string_title(artic,ISI_str)
-     type(article),    intent(in) :: artic
-     character(len=*), intent(out):: ISI_str
-     !--- Local variables ---!
-     character(len=512) :: authors, mtitle
-     character(len=20),dimension(20)  :: tit_words
-     character(len=60),dimension(20)  :: author
-     character(len=60)  :: autnam,author_1,author_2,warn
-     character(len=8)   :: initials
-     integer :: i,j,l,nau, ncar,nc,nw               ! 1   2   3   4   5   6   7   8   9  10  11  12  13
-     character(len=1),dimension(13):: list_non_ascii=(/"å","ä","á","é","è","í","ï","ö","ó","ü","ù","ú","ñ"/)
-     character(len=1),dimension(13):: list_____ascii=(/"a","a","a","e","e","i","i","o","o","u","u","u","n"/)
-     integer, dimension(60) :: pos
-     integer, dimension(10) :: pb
+   Subroutine Replace_n_Search_nonascii(string)
+     character(len=*), intent(in out) :: string
+     !--- Local variables
+     character(len=60)  :: warn
+     character(len=30)  :: stchar
+     integer :: i
+     !Convert characters that need a special encoding (two or three bytes) to equivalent ascii
+     !(single byte) character.
+     call SString_Replace(string,"&lt;"," ",warn)
+     call SString_Replace(string,"&gt;"," ",warn)
+     call SString_Replace(string,"&#039;"," ",warn)
+     call SString_Replace(string,"&#034;"," ",warn)
+     call SString_Replace(string,"#"," ",warn)
+     call SString_Replace(string,"Ãª","e",warn)
+     call SString_Replace(string,"Ã©","e",warn)
+     call SString_Replace(string,"â€™"," ",warn)
+     call SString_Replace(string,"Ã¡","a",warn)
+     call SString_Replace(string,"Ã­","i",warn)
+     call SString_Replace(string,"Ã¶","o",warn)
+     call SString_Replace(string,"Ã³","o",warn)
+     call SString_Replace(string,"Ã±","n",warn)
+     call SString_Replace(string,"Ã§","c",warn)
+     call SString_Replace(string,"Â–","-",warn)
+     call SString_Replace(string,"Ã¥","a",warn)
+     call SString_Replace(string,"Ã¨","e",warn)
+     call SString_Replace(string,"Ã ","a",warn)
+     call SString_Replace(string,"Ã¯","i",warn)
+     call SString_Replace(string,"Ãº","u",warn)
+     call SString_Replace(string,"Ã¼","u",warn)
+     call SString_Replace(string,"Ã²","o",warn)
+     call SString_Replace(string,"Ã»","u",warn)
+     call SString_Replace(string,"&amp;"," ",warn)
 
-     authors=artic%authors
-     ISI_Str=" "
-     !Title of the article
-     mtitle=artic%title
-     i=index(mtitle,'"')     !supress quotes
-     if(i /= 0) then
-       mtitle(i:i) = " "
-       i=index(mtitle,'"')
-       mtitle(i:i) = " "
-       mtitle=adjustl(mtitle)
-     end if
-     ISI_str=" "
-     if( artic%year == 0) then
-       ISI_str='(TI="'//trim(mtitle)//'")'
-     else
-       write(unit=ISI_str,fmt="(a,i5,a)") "(PY=",artic%year,' AND TI="'//trim(mtitle)//'")'
-     end if
-     ISI_str=trim(ISI_str)
-     !Now replace non-ascii characters by the equivalent ascii ones
-     do i=1,len_trim(ISI_str)
-      do j=1,13
-        if(List_non_ascii(j) == ISI_str(i:i)) then
-          ISI_str(i:i)=list_____ascii(j)
-          exit
+     !Now search for non-handled non-ascii characters
+     do i=1,len_trim(string)
+      if(iachar(string(i:i)) > 127) then
+        stchar=" "
+        if(iachar(string(i+1:i+1)) > 127) then
+          stchar=string(i:i+1)
+        else
+          stchar=string(max(1,i-14):min(i+15,len_trim(string)))
         end if
-      end do
-      if(iachar(ISI_str(i:i)) > 127) then
-        !write(unit=*,fmt="(a,i5)") " -> Strange character: "//ISI_str(i:i)//" <- Value of iachar: ",iachar(ISI_str(i:i))
-        ISI_str(i:i)=" "
+        write(unit=i_str,fmt="(a,i5,a)") " -> Strange character: "//string(i:i)//" <- Value of iachar: ",iachar(string(i:i)),"    "//trim(stchar)
       end if
      end do
-     call SString_Replace(ISI_str,"&lt;"," ",warn)
-     call SString_Replace(ISI_str,"&gt;"," ",warn)
-     call SString_Replace(ISI_str,"&#039;"," ",warn)
-     call SString_Replace(ISI_str,"&#034;"," ",warn)
-     call SString_Replace(ISI_str,"#"," ",warn)
      return
-   End subroutine ISI_string_title
+   End Subroutine Replace_n_Search_nonascii
+
+   Subroutine purge_bool_par_art(string)
+     character(len=*), intent(in out) :: string
+     !--- Local variables
+     character(len=60)  :: warn
+     character(len=20), dimension(:), allocatable :: words
+     integer :: i,j,nw
+     integer,dimension(180) :: pos
+
+     If(string(1:2) == "A ") string=adjustl(string(2:))
+     !call SString_Replace(string,"(","",warn)
+     !call SString_Replace(string,")","",warn)
+     call SString_Replace(string," and "," ",warn)
+     call SString_Replace(string," or "," ",warn)
+     call SString_Replace(string,"The ","",warn)
+     call SString_Replace(string," the "," ",warn)
+     call SString_Replace(string," a "," ",warn)
+     call SString_Replace(string," of "," ",warn)
+     call SString_Replace(string,"="," ",warn)
+     call SString_Replace(string," from "," ",warn)
+     call SString_Replace(string,"."," ",warn)
+     call SString_Replace(string,","," ",warn)
+     call SString_Replace(string," in "," ",warn)
+     call SString_Replace(string," near "," ",warn)
+     string=adjustl(string)
+
+     !---Attempt to eliminate formulae ?
+     call get_separator_pos(trim(string)," ",pos,j)
+     nw=j+1
+     allocate(words(nw))
+     words(1)=string(1:pos(1)-1)
+     do i=2,nw-1
+       words(i)=string(pos(i-1)+1:pos(i)-1)
+     end do
+     words(nw)=string(pos(nw-1)+1:)
+     string=" "
+     do i=1,nw
+       if(Contains_a_number(words(i))) cycle
+       if(len_trim(words(i)) < 4) cycle
+       string=trim(string)//" "//trim(words(i))
+     end do
+     i=index(string,"(")
+     j=index(string,")")
+     if(j == 0 .and. i > 0) string(i:i) =""
+     if(i == 0 .and. j > 0) string(j:j) =""
+     return
+   End Subroutine purge_bool_par_art
+
+   Function Contains_a_number(string) result(ok)
+     character(len=*), intent(in) :: string
+     logical :: ok
+     character(len=*),parameter,dimension(10) :: numbers=(/"0","1","2","3","4","5","6","7","8","9"/)
+     integer :: i
+     ok=.false.
+     do i=1,10
+       if(index(string,numbers(i)) /= 0) then
+         ok=.true.
+         exit
+       end if
+     end do
+   End Function Contains_a_number
 
   End Module Data_Articles_Mod
