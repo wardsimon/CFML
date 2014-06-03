@@ -427,19 +427,19 @@
     !!----                                                                     !"TL ": Translational + Librational
     !!----                                                                     !"TLS": Translational + Librational + Correlation
     !!----     real(kind=cp), dimension(3)                     :: xcentre      !Fractional coordinates of the centre
-    !!----     real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
+    !!----     real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes (or multipliers) of Fractional coordinates of the centre
     !!----     integer,       dimension(3)                     :: lxcentre     !Numbers of LSQ parameters for Fractional coordinates of the centre
     !!----     real(kind=cp), dimension(3)                     :: Orient       !Orientation angles (Euler angles or variant ...)
-    !!----     real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
+    !!----     real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes (or multipliers) of Orientation angles (Euler angles or variant ...)
     !!----     integer,       dimension(3)                     :: lOrient      !Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)
     !!----     real(kind=cp), dimension(6)                     :: T_TLS        !Translational Thermal factor tensor
-    !!----     real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
+    !!----     real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes (or multipliers) of Translational Thermal factor tensor
     !!----     integer,       dimension(6)                     :: lT_TLS       !Numbers of LSQ parameters for Translational Thermal factor tensor
     !!----     real(kind=cp), dimension(6)                     :: L_TLS        !Librational Thermal factor tensor
-    !!----     real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
+    !!----     real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes (or multipliers) of Librational Thermal factor tensor
     !!----     integer,       dimension(6)                     :: lL_TLS       !Numbers of LSQ parameters for Librational Thermal factor tensor
     !!----     real(kind=cp), dimension(3,3)                   :: S_TLS        !TL-correlation Thermal factor
-    !!----     real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
+    !!----     real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes (or multipliers) of TL-correlation Thermal factor
     !!----     integer,       dimension(3,3)                   :: lS_TLS       !Numbers of LSQ parameters for TL-correlation Thermal factor
     !!----     real(kind=cp), dimension(3,3)                   :: Euler        !Euler matrix
     !!----     character(len=6),  allocatable, dimension(  :)  :: AtName       !Atom Name
@@ -447,16 +447,16 @@
     !!----     integer,           allocatable, dimension(  :)  :: AtZ          !Atomic Number
     !!----     integer,           allocatable, dimension(:,:)  :: Ptr          !Pointer to scat.factors (first index -> pattern)
     !!----     real(kind=cp),     allocatable, dimension(:,:)  :: I_coor       !Internal coordinates (d,ang,dang)
-    !!----     real(kind=cp),     allocatable, dimension(:,:)  :: mI_coor      !Refinement codes of internal coordinates
+    !!----     real(kind=cp),     allocatable, dimension(:,:)  :: mI_coor      !Refinement codes (or multipliers) of internal coordinates
     !!----     integer,           allocatable, dimension(:,:)  :: lI_coor      !Numbers of LSQ parameters for internal coordinates
     !!----     real(kind=cp),     allocatable, dimension(  :)  :: biso         !Isotropic temperature factor
-    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
+    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes (or multipliers) of Isotropic temperature factor
     !!----     integer,           allocatable, dimension(  :)  :: lbiso        !Numbers of LSQ parameters for Isotropic temperature factor
     !!----     real(kind=cp),     allocatable, dimension(  :)  :: occ          !Occupation factor
-    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
+    !!----     real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes (or multipliers) of Occupation factor
     !!----     integer,           allocatable, dimension(  :)  :: locc         !Numbers of LSQ parameters for Occupation factor
     !!----     integer,           allocatable, dimension(  :)  :: Nb           !Number of neighbours
-    !!----     integer,           allocatable, dimension(:,:)  :: inb          !Index of neighbous
+    !!----     integer,           allocatable, dimension(:,:)  :: inb          !Index of neighbours
     !!----     integer,           allocatable, dimension(:,:)  :: Tb           !Type of bonds
     !!----     integer,           allocatable, dimension(:,:)  :: conn         !Conectivity (N1,N2,N3)
     !!----  End Type Molecule_Type
@@ -468,11 +468,11 @@
        integer                                         :: natoms       !Number of atoms
        logical                                         :: in_xtal      !True if global coordinates xcentre, orient are defined
        logical                                         :: is_EulerMat  !True if the Euler Matrix has been set
-       logical                                         :: is_connect   !True if the connectivity is correct
+       logical                                         :: is_connect   !True if the connectivity is given and correct
        character(len=1)                                :: rot_type     !Type of rotational angles
                                                                        !"E": Conventional Euler angles (alpha,beta,gamma)
                                                                        !"P": Second variant of Euler angles (default)
-                                                                      !     Polar:(theta,phi,chi)
+                                                                       !     Polar:(theta,phi,chi)
        character(len=1)                                :: coor_type    !Type of internal coordinates
                                                                        !"Z": Z-matrix
                                                                        !"C": Cartesian
@@ -484,19 +484,19 @@
                                                                        !"TL ": Translational + Librational
                                                                        !"TLS": Translational + Librational + Correlation
        real(kind=cp), dimension(3)                     :: xcentre      !Fractional coordinates of the centre
-       real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes of Fractional coordinates of the centre
+       real(kind=cp), dimension(3)                     :: mxcentre     !Refinement codes (or multipliers) of Fractional coordinates of the centre
        integer,       dimension(3)                     :: lxcentre     !Numbers of LSQ parameters for Fractional coordinates of the centre
        real(kind=cp), dimension(3)                     :: Orient       !Orientation angles (Euler angles or variant ...)
-       real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes of Orientation angles (Euler angles or variant ...)
+       real(kind=cp), dimension(3)                     :: mOrient      !Refinement codes (or multipliers) of Orientation angles (Euler angles or variant ...)
        integer,       dimension(3)                     :: lOrient      !Numbers of LSQ parameters for Orientation angles (Euler angles or variant ...)
        real(kind=cp), dimension(6)                     :: T_TLS        !Translational Thermal factor tensor
-       real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes of Translational Thermal factor tensor
+       real(kind=cp), dimension(6)                     :: mT_TLS       !Refinement codes (or multipliers) of Translational Thermal factor tensor
        integer,       dimension(6)                     :: lT_TLS       !Numbers of LSQ parameters for Translational Thermal factor tensor
        real(kind=cp), dimension(6)                     :: L_TLS        !Librational Thermal factor tensor
-       real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes of Librational Thermal factor tensor
+       real(kind=cp), dimension(6)                     :: mL_TLS       !Refinement codes (or multipliers) of Librational Thermal factor tensor
        integer,       dimension(6)                     :: lL_TLS       !Numbers of LSQ parameters for Librational Thermal factor tensor
        real(kind=cp), dimension(3,3)                   :: S_TLS        !TL-correlation Thermal factor
-       real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes of TL-correlation Thermal factor
+       real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes (or multipliers) of TL-correlation Thermal factor
        integer,       dimension(3,3)                   :: lS_TLS       !Numbers of LSQ parameters for TL-correlation Thermal factor
        real(kind=cp), dimension(3,3)                   :: Euler        !Euler matrix
        character(len=6),  allocatable, dimension(  :)  :: AtName       !Atom Name
@@ -504,16 +504,16 @@
        integer,           allocatable, dimension(  :)  :: AtZ          !Atomic Number
        integer,           allocatable, dimension(:,:)  :: Ptr          !Pointer to scat.factors (first index -> pattern)
        real(kind=cp),     allocatable, dimension(:,:)  :: I_coor       !Internal coordinates (d,ang,dang)
-       real(kind=cp),     allocatable, dimension(:,:)  :: mI_Coor      !Refinement codes of internal coordinates
+       real(kind=cp),     allocatable, dimension(:,:)  :: mI_Coor      !Refinement codes (or multipliers) of internal coordinates
        integer,           allocatable, dimension(:,:)  :: lI_coor      !Numbers of LSQ parameters for internal coordinates
        real(kind=cp),     allocatable, dimension(  :)  :: biso         !Isotropic temperature factor
-       real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes of Isotropic temperature factor
+       real(kind=cp),     allocatable, dimension(  :)  :: mbiso        !Refinement codes (or multipliers) of Isotropic temperature factor
        integer,           allocatable, dimension(  :)  :: lbiso        !Numbers of LSQ parameters for Isotropic temperature factor
        real(kind=cp),     allocatable, dimension(  :)  :: occ          !Occupation factor
-       real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes of Occupation factor
+       real(kind=cp),     allocatable, dimension(  :)  :: mocc         !Refinement codes (or multipliers) of Occupation factor
        integer,           allocatable, dimension(  :)  :: locc         !Numbers of LSQ parameters for Occupation factor
        integer,           allocatable, dimension(  :)  :: Nb           !Number of neighbours
-       integer,           allocatable, dimension(:,:)  :: INb          !Index of neighbous
+       integer,           allocatable, dimension(:,:)  :: INb          !Index of neighbours
        integer,           allocatable, dimension(:,:)  :: Tb           !Type of Bonds
        integer,           allocatable, dimension(:,:)  :: Conn         !Conectivity (N1,N2,N3)
     End Type Molecule_type

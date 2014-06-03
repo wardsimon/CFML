@@ -3263,9 +3263,7 @@
     !!--++
     !!--++ Subroutine Readn_Set_Xtal_Structure_Molcr(filenam,Molcrys,Mode,Iphase, Job_Info, file_list,CFrame)
     !!--++    character(len=*),              intent( in)     :: filenam  ! In -> Name of the file
-    !!--++    Type (Crystal_Cell_Type),      intent(out)     :: Cell     ! Out -> Cell object
-    !!--++    Type (atom_list_type),         intent(out)     :: A        ! Out -> Atom_List object
-    !!--++    Type (Space_Group_Type),       intent(out)     :: SpG      ! Out -> Space Group object
+    !!--++    Type (Molecular_Crystal_Type), intent(out)     :: Molcrys  ! Molecular crytal
     !!--++    Character(len=*),    optional, intent( in)     :: Mode     ! In -> if Mode="CIF" filenam
     !!--++                                                                       is of CIF type format
     !!--++    Integer,             optional, intent( in)     :: Iphase   ! Number of the phase.
