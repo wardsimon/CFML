@@ -3024,8 +3024,8 @@ Contains
       type (eos_data_list_type), intent(out) :: dat  ! data structure
 
       !---- Local Variables ----!
-      character(len=255), dimension(:), allocatable :: flines   !was len=132: too short
-      character(len=255)                            :: line     !was len=132: too short
+      character(len=255), dimension(:), allocatable :: flines
+      character(len=255)                            :: line
       character(len=5)                              :: car
       character(len=1)                              :: Ts
       character(len=30), dimension(ncol_data_max)   :: dire
@@ -3047,7 +3047,7 @@ Contains
       call Init_err_Eos()
 
       !> Init
-      dire=' '                       ! Clear, otherwise a second read may have items in dire from 1st read
+      dire=' '
       filedat=trim(fname)
 
       !> Number of lines
@@ -3340,38 +3340,67 @@ Contains
    End Subroutine Read_EoS_DataFile
 
    !!----
-   !!---- SUBROUTINE Read_Eos_File(Eos,Lun)
+   !!---- SUBROUTINE Read_Eos_File(Fname,Eos)
+   !!----    character(len=*),intent(in)  :: fname
    !!----    type (Eos_Type), intent(out) :: EoS  ! EoS structure
-   !!----    integer,         intent(in)  :: Lun  ! Unit for reading
    !!----
    !!---- General routine to read Eos from Lun unit
    !!----
    !!---- Update: 09/06/2014
    !!
-   Subroutine Read_Eos_File(Eos,Lun)
+   Subroutine Read_Eos_File(Fname,Eos)
       !---- Arguments ----!
+      character(len=*),intent(in)  :: fname
       type (EoS_Type), intent(out) :: Eos
-      integer,         intent(in)  :: lun
 
       !---- Variables ----!
+      character(len=255), dimension(:), allocatable :: flines
+      character(len=255)                            :: text
+      character(len=512)                            :: filedat
+
       integer                         :: c,ierr,i,j,imax,idoc
+      integer                         :: nlines,nl
       real                            :: val,temptref
       real,dimension(n_eospar)        :: tempval
-      character(len=255)              :: text
+
+      !> Eos init
+      call Init_err_Eos()
+
+      !> Init
+      filedat=' '
+      filedat=trim(fname)
+
+      !> Number of lines
+      call number_lines (trim(filedat),nlines)
+      if (nlines <= 0) then
+         err_eos=.true.
+         Err_EoS_Mess="Impossible to read the EoS file "
+         return
+      end if
+
+      !> Read lines
+      if (allocated(flines)) deallocate(flines)
+      allocate(flines(nlines))
+      flines=' '
+      call reading_lines(trim(filedat),nlines,flines)
 
 
       !> initialisation
       call init_eos_type(eos)
+      nl=0
+      imax=0
+      ierr=0
       idoc=0                      ! local counter
 
-      main: do
-         text=''
-         read(unit=lun,fmt='(a)',iostat=ierr)text
-         if (ierr > 0) cycle main                        ! error
-         if (ierr == -1) exit main                       ! end of file
-         if (len_trim(text) == 0) cycle main             ! blank line
+      do
+         nl=nl+1
+         if (nl > nlines) exit
+         text=adjustl(flines(nl))
+         if (len_trim(text) <=0) cycle   ! blank line
+         if (text(1:1) == '!') cycle     ! comment line
+         if (ierr /=0) exit
 
-         c=index(text,'=')+1           !  1 place after the =
+         c=index(text,'=')+1             !  1 place after the =
          text(1:c-1)=U_case(text(1:c-1)) ! set keyword in caps
 
          if (index(text,'TITLE') /= 0)then
@@ -3383,39 +3412,59 @@ Contains
 
          else if(index(text,'MODEL') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%imodel
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Model number"
 
          else if(index(text,'ORDER') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%iorder
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Order number"
 
          else if(index(text,'THERMAL') /= 0)then
             read(text(c:),'(i5)',iostat=ierr)eos%itherm
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Thermal model"
 
          else if(index(text,'PSCALE') /= 0)then
             read(text(c:),'(a)',iostat=ierr)eos%pscale_name
+            if (ierr /=0) Err_EoS_Mess="Error reading the Pressure Scale info"
 
          else if(index(text,'TYPE') /= 0)then
             if(index(U_case(text),'LINEAR') /= 0) eos%linear=.true.
 
          else if(index(text,'PREF') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%pref
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Pressure reference"
 
          else if(index(text,'TREF') /= 0)then
             read(text(c:),'(f10.0)',iostat=ierr)eos%tref
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Temperature reference"
 
          else if(index(text,'PARAM') /= 0)then
             read(text(c:),'(i2,f12.6)',iostat=ierr)i,val
+            if (ierr /=0) Err_EoS_Mess="Error reading the EoS Parameters"
+
             if (i > 0 .and. i <= n_eospar)then
                eos%params(i)=val
-               imax=i                      ! use this for vcv reading: allows reading of old files when n_eospar is increased
+               imax=max(imax,i)   ! use this for vcv reading: allows reading of old files when n_eospar is increased
             end if
 
          else if(index(text,'VARIANCE') /= 0)then
+            ierr=0
             do i=1,imax
-               read(unit=lun,fmt='(<imax>e13.6)',iostat=ierr)eos%vcv(i,1:imax)
-               if (ierr /= 0)exit main
+               read(unit=flines(nl+i),fmt='(<imax>e12.5)',iostat=ierr)eos%vcv(i,1:imax)
+               if (ierr /= 0)exit
             end do
+            if (ierr /= 0)then
+               Err_EoS_Mess="Error reading the EoS Variance information"
+               exit
+            end if
          end if
-      end do main
+      end do
+
+      !> Error during reading
+      if (ierr /=0) then
+         if (allocated(flines)) deallocate(flines)
+         err_eos=.true.
+         return
+      end if
 
       !> Now finish setting the other eos components
       call set_eos_names(eos)
