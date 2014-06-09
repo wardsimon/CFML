@@ -136,8 +136,8 @@ Module CFML_EoS
    !---- List of public subroutines ----!
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Deallocate_EoS_Data_List, Deallocate_EoS_List, &
              Deriv_Partial_P, EoS_Cal,  EoS_Cal_Esd, FfCal_Dat, FfCal_Dat_Esd, FfCal_EoS, Init_EoS_Data_Type,  &
-             Init_EoS_Type, Init_Err_EoS, Init_Eos_Thermal, Read_EoS_DataFile, Set_Eos_Names, &
-             Set_Eos_Use, Set_Kp_Kpp_Cond, Write_Info_EoS
+             Init_EoS_Type, Init_Err_EoS, Init_Eos_Thermal, Read_EoS_File,Read_EoS_DataFile, Set_Eos_Names, &
+             Set_Eos_Use, Set_Kp_Kpp_Cond, Write_EoS_File, Write_EoS_DataFile, Write_Info_EoS
 
    !---- Definitions ----!
 
@@ -188,6 +188,7 @@ Module CFML_EoS
    !!----     character(len=15)                         :: TModel    ! Name for thermal model
    !!----     character(len=5), dimension(n_eospar)     :: ParName   ! Names of the Eos variables...init
    !!----     character(len=50),dimension(n_eospar)     :: Comment   ! Description of the Eos variables inclduing units...init
+   !!----     character(len=15)                         :: Pscale_name   ! Description of the Pressure scale. Only used for output
    !!----     integer                                   :: IModel    ! Index for Model
    !!----     integer                                   :: IOrder    ! Order for the Model
    !!----     logical                                   :: Linear    ! Flag for Linear EoS not volume
@@ -216,6 +217,8 @@ Module CFML_EoS
       character(len=15)                         :: TModel    ! Name for thermal model
       character(len=5), dimension(n_eospar)     :: ParName   ! Names of the Eos variables...init
       character(len=50),dimension(n_eospar)     :: Comment   ! Description of the Eos variables inclduing units...init
+      character(len=15)                         :: Pscale_name   ! Description of the Pressure scale. Only used for output
+      character(len=120),dimension(10)          :: doc       ! Documentation for eos: set by user
       integer                                   :: IModel    ! Index for Model
       integer                                   :: IOrder    ! Order for the Model
       logical                                   :: Linear    ! Flag for Linear EoS not volume
@@ -2756,7 +2759,23 @@ Contains
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
 
+      !---- Variables ----!
+      integer,parameter :: n=12 ! max index for thermal parameter
+
       select case(eospar%itherm)
+         case(0)
+            eospar%params(5)=0.0
+            eospar%params(10:n)=0.0
+            eospar%vcv(5,1:n)=0.
+            eospar%vcv(10:n,1:n)=0.
+            eospar%vcv(1:n,10:n)=0.
+            eospar%tmodel     = 'None'
+            eospar%parname(10:n) = ' '
+            eospar%comment(10:n) = ' '
+            eospar%factor(10:n) = 1.0
+            eospar%TRef    =298.0_cp       ! Simple thermal expansion,
+            eospar%TRef_fixed = .false.
+
          case(1)
             eospar%tmodel     = 'Berman (1988)'
             eospar%parname(10:11) = (/'alph0','alph1'/)
@@ -2855,6 +2874,8 @@ Contains
 
       eospar%ParName=' '
       eospar%comment=' '
+      eospar%doc=' '
+      eospar%pscale_name=' '
       call Set_Eos_Names(Eospar)         ! also sets the print factors for the pressure part
 
       Eospar%PRef    =0.0_cp
@@ -2883,7 +2904,7 @@ Contains
       !> test for optional argument for thermal
       Eospar%ITherm  =0
       Eospar%Tref = 298.0_cp         !sensible default
-      if (present(ithermal) .and. ithermal /= 0)then
+      if (present(ithermal) .and. ithermal > -1 )then
          Eospar%Itherm = ithermal
          call Init_Eos_Thermal(Eospar)              ! set up default values, names for specific thermal eqn
       end if
@@ -3003,8 +3024,8 @@ Contains
       type (eos_data_list_type), intent(out) :: dat  ! data structure
 
       !---- Local Variables ----!
-      character(len=132), dimension(:), allocatable :: flines
-      character(len=132)                            :: line
+      character(len=255), dimension(:), allocatable :: flines   !was len=132: too short
+      character(len=255)                            :: line     !was len=132: too short
       character(len=5)                              :: car
       character(len=1)                              :: Ts
       character(len=30), dimension(ncol_data_max)   :: dire
@@ -3319,6 +3340,287 @@ Contains
    End Subroutine Read_EoS_DataFile
 
    !!----
+   !!---- SUBROUTINE Read_Eos_File(Eos,Lun)
+   !!----    type (Eos_Type), intent(out) :: EoS  ! EoS structure
+   !!----    integer,         intent(in)  :: Lun  ! Unit for reading
+   !!----
+   !!---- General routine to read Eos from Lun unit
+   !!----
+   !!---- Update: 09/06/2014
+   !!
+   Subroutine Read_Eos_File(Eos,Lun)
+      !---- Arguments ----!
+      type (EoS_Type), intent(out) :: Eos
+      integer,         intent(in)  :: lun
+
+      !---- Variables ----!
+      integer                         :: c,ierr,i,j,imax,idoc
+      real                            :: val,temptref
+      real,dimension(n_eospar)        :: tempval
+      character(len=255)              :: text
+
+
+      !> initialisation
+      call init_eos_type(eos)
+      idoc=0                      ! local counter
+
+      main: do
+         text=''
+         read(unit=lun,fmt='(a)',iostat=ierr)text
+         if (ierr > 0) cycle main                        ! error
+         if (ierr == -1) exit main                       ! end of file
+         if (len_trim(text) == 0) cycle main             ! blank line
+
+         c=index(text,'=')+1           !  1 place after the =
+         text(1:c-1)=U_case(text(1:c-1)) ! set keyword in caps
+
+         if (index(text,'TITLE') /= 0)then
+            eos%title=trim(text(c:))
+
+         else if(index(text,'COMMENT') /= 0)then
+            idoc=idoc+1
+            eos%doc(idoc)=trim(text(c:))
+
+         else if(index(text,'MODEL') /= 0)then
+            read(text(c:),'(i5)',iostat=ierr)eos%imodel
+
+         else if(index(text,'ORDER') /= 0)then
+            read(text(c:),'(i5)',iostat=ierr)eos%iorder
+
+         else if(index(text,'THERMAL') /= 0)then
+            read(text(c:),'(i5)',iostat=ierr)eos%itherm
+
+         else if(index(text,'PSCALE') /= 0)then
+            read(text(c:),'(a)',iostat=ierr)eos%pscale_name
+
+         else if(index(text,'TYPE') /= 0)then
+            if(index(U_case(text),'LINEAR') /= 0) eos%linear=.true.
+
+         else if(index(text,'PREF') /= 0)then
+            read(text(c:),'(f10.0)',iostat=ierr)eos%pref
+
+         else if(index(text,'TREF') /= 0)then
+            read(text(c:),'(f10.0)',iostat=ierr)eos%tref
+
+         else if(index(text,'PARAM') /= 0)then
+            read(text(c:),'(i2,f12.6)',iostat=ierr)i,val
+            if (i > 0 .and. i <= n_eospar)then
+               eos%params(i)=val
+               imax=i                      ! use this for vcv reading: allows reading of old files when n_eospar is increased
+            end if
+
+         else if(index(text,'VARIANCE') /= 0)then
+            do i=1,imax
+               read(unit=lun,fmt='(<imax>e13.6)',iostat=ierr)eos%vcv(i,1:imax)
+               if (ierr /= 0)exit main
+            end do
+         end if
+      end do main
+
+      !> Now finish setting the other eos components
+      call set_eos_names(eos)
+      tempval(1:n_eospar)=eos%params(1:n_eospar)
+      temptref=eos%tref
+      call init_eos_thermal(eos)          ! problem is that this resets Tref etc
+      eos%params(1:n_eospar)=tempval(1:n_eospar)
+      eos%tref=temptref
+
+      eos%params=eos%params/eos%factor    ! rescale the values
+      do i=1,n_eospar                     ! rescale the vcv matrix
+         do j=1,n_eospar
+            eos%vcv(i,j)=eos%vcv(i,j)/eos%factor(i)/eos%factor(j)
+         end do
+         eos%esd(i)=sqrt(eos%vcv(i,i))   ! set the esd's from the vcv
+      end do
+
+      call Set_Kp_Kpp_Cond(eos)           ! set default values
+
+      !> we have to also set the refinement flags to match vcv
+      do i=1,n_eospar
+         if (abs(eos%vcv(i,i)) > tiny(0.0))eos%iref(i)=1
+      end do
+
+      return
+   End Subroutine Read_Eos_File
+
+   !!----
+   !!---- SUBROUTINE Write_EoS_DataFile(Dat,Lun)
+   !!----    Type (eos_data_list_type), intent(in) :: Dat  ! data structure
+   !!----    integer,                   intent(in)  :: Lun  ! Unit for reading
+   !!----
+   !!---- General routine to Write Data in a Lun iunit
+   !!----
+   !!---- Update: 09/06/2014
+   !!
+   Subroutine Write_EoS_DataFile(dat,lun)
+      !---- Arguments ----!
+      type (eos_data_list_type), intent(in) :: dat  ! data structure
+      integer,                   intent(in) :: lun
+
+
+      !---- Variables ----!
+      integer              :: ierr,i,j,k
+      character(len=128)   :: text
+
+      !> set up the labels in order
+      integer, parameter           :: ini=4,iend=21
+      character(len=5),dimension(ini:iend) :: lab=(/'T','sigT','P','sigP','V','sigV',  &
+                                                    'A','sigA','B','sigB','C','sigC',  &
+                                                    'ALPHA','sigAL','BETA','sigBE','GAMMA','sigGA'/)
+
+      !>
+      !> assume that unit is connected and open.
+      !>
+
+      !> Write header info
+      write(unit=lun,fmt='(a,a)',iostat=ierr) 'TITLE ',trim(dat%title)
+      write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      write(unit=lun,fmt='(a)',iostat=ierr)    '#  Data file written by CFML eos module'
+      write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+
+      !> Crystal system
+      if (len_trim(dat%system) > 0)then
+         write(unit=lun,fmt='(a,a)',iostat=ierr)  'SYSTEM ',trim(dat%system)
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      end if
+
+      !> Original Tscale of data is not known, write out Tscale K if T data present
+      if (dat%ic_dat(4) == 1)then
+         write(unit=lun,fmt='(a)',iostat=ierr)  'TSCALE  K'
+         write(unit=lun,fmt='(a)',iostat=ierr)    '#'
+      end if
+
+      !> build format line
+      text='FORMAT 1'
+      do i=ini,iend
+         if (dat%ic_dat(i) ==1) text=trim(text)//' '//lab(i)
+      end do
+      write(unit=lun,fmt='(a)',iostat=ierr)    trim(text)
+
+      !> write the data: all data written out
+      do i=1,dat%n        ! loop over data points
+         if (dat%ic_dat(4) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%t
+         if (dat%ic_dat(5) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%sigt
+         if (dat%ic_dat(6) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%p
+         if (dat%ic_dat(7) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%sigp
+         if (dat%ic_dat(8) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%v
+         if (dat%ic_dat(9) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%sigv
+
+         !> small loop over cell edges
+         do j=1,3
+            k=8+2*j
+            if (dat%ic_dat(k) == 1)   write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%cell(j)
+            if (dat%ic_dat(k+1) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%sigc(j)
+         end do
+
+         !> small loop over cell angles
+         do j=1,3
+            k=14+2*j
+            if (dat%ic_dat(k) == 1)   write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%ang(j)
+            if (dat%ic_dat(k+1) == 1) write(unit=lun,fmt='(f12.6)',iostat=ierr,advance='no') dat%eosd(i)%siga(j)
+         end do
+         write(unit=lun,fmt='(1x)',iostat=ierr)          ! forces new line
+      end do
+
+      return
+   End Subroutine Write_Eos_Datafile
+
+   !!----
+   !!---- SUBROUTINE Write_Eos_File(Eos,Lun)
+   !!----    Type (eos_type), intent(in) :: EoS  ! EoS structure
+   !!----    integer,         intent(in) :: Lun  ! Unit for writting
+   !!----
+   !!---- General routine to Write EoS in a Lun iunit
+   !!----
+   !!---- Update: 09/06/2014
+   !!
+   Subroutine Write_Eos_File(Eos,Lun)
+      !---- Arguments ----!
+      type (EoS_Type),intent(in)   :: Eos
+      integer,intent(in)           :: lun
+
+      !---- Variables ----!
+      character(len=12)            :: stext
+      character(len=255)           :: text
+      integer                      :: ierr,i,j
+
+      !>
+      !> assume that unit is connected and open.
+      !>
+
+      !> Header info written to file from calling program
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+      write(unit=lun,fmt='(a)',iostat=ierr) ' EosFit parameter file'
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+      write(unit=lun,fmt='(a)',iostat=ierr) ' This is a fixed-format file. If you edit this file, make sure you do not move '// &
+                                            'anything!'
+      write(unit=lun,fmt='(a)',iostat=ierr) ' It is safer to change the parameters by loading the file to EosFit, and saving '// &
+                                            'the file after making changes'
+      write(unit=lun,fmt='(a)',iostat=ierr) ' _______________________________________________________________________________'// &
+                                            '_____________________________'
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+
+
+      !> title and comments
+      write(unit=lun,fmt='(a,a)',iostat=ierr) 'Title =',trim(eos%title)
+      do i=1,10
+         if (len_trim(eos%doc(i)) > 0)then
+            write(unit=lun,fmt='(a)') 'Comment ='//trim(eos%doc(i))
+         end if
+      end do
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+
+      !> eos type
+      text=',  ('//trim(eos%model)//')'
+      if (eos%imodel == 0) text=',  (none)'
+      write(unit=lun,fmt='(a,i3,a)',iostat=ierr) 'Model =',eos%imodel,text
+      write(unit=lun,fmt='(a,i3)',iostat=ierr) 'Order =',eos%iorder
+
+      text=',  ('//trim(eos%tmodel)//')'
+      if (eos%itherm == 0)text=',  (none)'
+      write(unit=lun,fmt='(a,i3,a,a,a)',iostat=ierr) 'Thermal =',eos%itherm,text
+      if (eos%linear)then
+         write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Linear'
+      else
+         write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Volume'
+      end if
+      write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Pref =',eos%pref
+      write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Tref =',eos%tref
+      write(unit=lun,fmt='(a,a)',iostat=ierr) 'Pscale =',trim(eos%pscale_name)
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+
+      !> Eos parameters
+      do i=1,n_eospar
+         if (eos%iuse(i) == 0)then
+            write(unit=lun,fmt='(a,i2,f12.6,5a)')'Param =',i,eos%params(i)*eos%factor(i)
+         else
+            write(unit=lun,fmt='(a,i2,f12.6,5a)')'Param =',i,eos%params(i)*eos%factor(i),'     (',eos%parname(i),',  ',&
+                 trim(eos%comment(i)),')'
+         end if
+      end do
+
+      !> VCV: stored as scaled values for precision
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+      write(unit=lun,fmt='(a)',iostat=ierr) '  Variance-Covariance matrix='
+      do i=1,n_eospar
+         text=''
+         do j=1,n_eospar
+            if (abs(eos%vcv(i,j)) > tiny(0.0))then
+               write(stext,fmt='(e12.5)')eos%vcv(i,j )*eos%factor(i)*eos%factor(j)
+               text=trim(text)//stext
+            else              !   123456789012
+               text=trim(text)//' 0.00000E+00'
+            end if
+         end do
+         write(unit=lun,fmt='(a)',iostat=ierr)trim(text)
+      end do
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+
+      return
+   End Subroutine Write_Eos_File
+
+   !!----
    !!---- SUBROUTINE Set_Eos_Names(Eospar)
    !!----    type (EoS_Type), intent(in out)      :: Eospar
    !!----
@@ -3330,6 +3632,7 @@ Contains
    Subroutine Set_Eos_Names(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
+      character(len=50),dimension(5)  :: ptext          ! local variable to hold name of pressure scale
 
       !> Set the Eos name
       select case(eospar%imodel)
@@ -3348,24 +3651,34 @@ Contains
       end select
 
       !> set the comments for parameters for volume or linear eos
-      !eospar%ParName=' '
-      !eospar%comment=' '
+      !> set the pressure scale text first
+      ptext=''
+      if(len_trim(eospar%pscale_name) > 0)then
+          ptext(2)='units are '//trim(eospar%pscale_name)
+          ptext(4)='units are inverse '//trim(eospar%pscale_name)
+          ptext(5)='units are '//trim(eospar%pscale_name)//'/K'
+      else
+          ptext(2)='same units as pressure data'
+          ptext(4)='inverse pressure units'
+          ptext(5)='units are P units/K'
+      endif
+
       if (.not. eospar%linear) then
          eospar%ParName(1:5) =(/'V0   ','K0   ','Kp   ','Kpp  ','dK/dT'/)
 
-         eospar%comment(1) = 'Zero pressure volume: units as volume data'
-         eospar%comment(2) = 'Bulk modulus: same units as pressure data'
+         eospar%comment(1) = 'Reference pressure volume: units as volume data'
+         eospar%comment(2) = 'Bulk modulus: '//trim(ptext(2))
          eospar%comment(3) = 'dK/dP: dimensionless'
-         eospar%comment(4) = 'd2K/dP2 inverse pressure units'
-         eospar%comment(5) = 'dK/dT: units are P units/K'
+         eospar%comment(4) = 'd2K/dP2: '//trim(ptext(4))
+         eospar%comment(5) = 'dK/dT: '//trim(ptext(5))
       else
          eospar%ParName(1:5) =(/'a0   ','M0   ','Mp   ','Mpp  ','dM/dT'/)
 
-         eospar%comment(1) = 'Zero pressure length: units as cell parameters'
-         eospar%comment(2) = 'Linear modulus: same units as pressure data'
+         eospar%comment(1) = 'Reference pressure length: units as cell parameters'
+         eospar%comment(2) = 'Linear modulus: '//trim(ptext(2))
          eospar%comment(3) = 'dM/dP: dimensionless'
-         eospar%comment(4) = 'd2M/dP2: inverse pressure units'
-         eospar%comment(5) = 'dM/dT: : units are P units/K'
+         eospar%comment(4) = 'd2M/dP2: '//trim(ptext(4))
+         eospar%comment(5) = 'dM/dT: '//trim(ptext(5))
       end if
 
       !> Thermal models are only set in init_EoS_thermal
@@ -3662,43 +3975,61 @@ Contains
       type(Eos_Type),    intent(in) :: Eospar
       integer, optional, intent(in) :: iout
 
+
       !---- Local Variables ----!
       character(len=30) :: line,string
       integer           :: i,lun
 
+
       !> Unit to print the information
       lun=6
       if (present(iout)) lun=iout
+
+
 
       write(unit=lun,fmt='(a)') ' '
       write(unit=lun,fmt='(a)') ' '
       write(unit=lun,fmt='(a)') '  EOS Information'
       write(unit=lun,fmt='(a)') '-------------------'
       write(unit=lun,fmt='(a)') ' '
-      write(unit=lun,fmt='(a)') ' Title: '//trim(eospar%title)
-      write(unit=lun,fmt='(a)') ' Model: '//trim(eospar%model)
-      write(unit=lun,fmt='(a,i2)') ' Order: ',eospar%iorder
-      if (eospar%linear) then
-         write(unit=lun,fmt='(a)') ' Class: Linear'
-      else
-         write(unit=lun,fmt='(a)') ' Class: Volume'
-      end if
+      write(unit=lun,fmt='(a)') '   Title: '//trim(eospar%title)
 
-      !> Pressure Parameters
-      write(unit=lun,fmt='(a,f8.3)') ' Pressure of reference: ',eospar%pref
+      do i=1,10
+          if(len_trim(eospar%doc(i)) > 0)then
+            write(unit=lun,fmt='(a)') ' Comment: '//trim(eospar%doc(i))
+          endif
+      enddo
+      if(len_trim(eospar%Pscale_name) > 0)write(unit=lun,fmt='(a)') '  Pscale: '//trim(eospar%Pscale_name)
+
+
       write(unit=lun,fmt='(a)') ' '
-
-      do i=1,4
-         if (eospar%iuse(i) /= 0)then
-            call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
-            string=' '
-            if (eospar%iuse(i) == 2)string=' [IMPLIED VALUE]'
-            write(unit=lun,fmt='(1x,a5,'': '',a,T30,'':'',a)') &
-                 trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
-         end if
-      end do
+      write(unit=lun,fmt='(a)') '  Compressibility'
+      write(unit=lun,fmt='(a)') '-------------------'
       write(unit=lun,fmt='(a)') ' '
+      write(unit=lun,fmt='(a)') '   Model: '//trim(eospar%model)
+      if(eospar%imodel > 0)then                ! no output if no p eos: all done in write_info_eos_thermal
+          write(unit=lun,fmt='(a,i2)') '   Order: ',eospar%iorder
+          if (eospar%linear) then
+             write(unit=lun,fmt='(a)') '   Class: Linear'
+          else
+             write(unit=lun,fmt='(a)') '   Class: Volume'
+          end if
 
+          !> Pressure Parameters
+          write(unit=lun,fmt='(a,f8.3)') '  Pressure of reference: ',eospar%pref
+          write(unit=lun,fmt='(a)') ' '
+
+          do i=1,4
+             if (eospar%iuse(i) /= 0)then
+                call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
+                string=' '
+                if (eospar%iuse(i) == 2)string=' [IMPLIED VALUE]'
+                write(unit=lun,fmt='(3x,a5,'': '',a,T30,'':'',a)') &
+                     trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
+             end if
+          end do
+          write(unit=lun,fmt='(a)') ' '
+      endif
       !> Thermal EOS
       if (eospar%itherm > 0) call write_info_eos_thermal(eospar,lun)
 
@@ -3725,28 +4056,31 @@ Contains
 
       !---- Local Variables ----!
       character(len=30) :: line,string
-      integer           :: i,lun
+      integer           :: i,lun,is
 
       !> Init
       lun=6
       if (present(iout)) lun=iout
 
-      write(unit=lun,fmt='(a)') ' '
+      is=5          ! If pmodel present, it was already reported
+      if(eospar%imodel == 0)is=1        ! if no pmodel report all params here
+
+
       write(unit=lun,fmt='(a)') ' '
       write(unit=lun,fmt='(a)') '  Thermal Expansion'
       write(unit=lun,fmt='(a)') '-------------------'
       write(unit=lun,fmt='(a)') ' '
-      write(unit=lun,fmt='(a)') ' Model: '//trim(eospar%tmodel)
+      write(unit=lun,fmt='(a)') '   Model: '//trim(eospar%tmodel)
       write(unit=lun,fmt='(a)') ' '
 
       write(unit=lun,fmt='(a,f8.2,a)') ' Temperature of reference: ',eospar%tref,' K'
       write(unit=lun,fmt='(a)') ' '
-      do i=5,n_eospar
+      do i=is,n_eospar
          if (eospar%iuse(i) /= 0) then
              call setnum_std(eospar%params(i)*eospar%factor(i),eospar%esd(i)*eospar%factor(i),line)     ! include scaling
              string=' '
              if (eospar%iuse(i) > 1) string=' [FIXED VALUE]'
-             write(unit=lun,fmt='(1x,a5,'': '',a,T30,'':'',a)') &
+             write(unit=lun,fmt='(3x,a5,'': '',a,T30,'':'',a)') &
                   trim(eospar%parname(i)),trim(line),trim(eospar%comment(i))//trim(string)
          end if
       end do
