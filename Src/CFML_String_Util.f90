@@ -2599,7 +2599,7 @@
           line=string
 
           !---- String Value ----!
-          call cutst(line,np,string)
+          !call cutst(line,np,string)
 
           !---- Values ----!
           call getnum(line,vet,ivet,iv)
