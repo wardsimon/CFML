@@ -824,7 +824,7 @@
             do m=1,3
 
               call read_fraction(citem(2+m), crys%a_pos(m, d(r),r))
-              val_atom(1:3, d(r),r)=crys%a_pos(m, d(r),r)
+              val_atom(m, d(r),r)=crys%a_pos(m, d(r),r)
               if(ERR_String) then
                 write(unit=*,fmt="(a)") trim(ERR_String_Mess)
                 logi=.false.
@@ -836,7 +836,7 @@
             read(unit=citem(6),fmt=*,iostat=ier) crys%a_B (d(r),r)
             val_atom(4,d(r),r)=crys%a_B (d(r),r)
             read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
-            val_atom(4,d(r),r)=crys%a_occup (d(r),r)
+            val_atom(5,d(r),r)=crys%a_occup (d(r),r)
              if(crys%a_occup(d(r),r)<0 .or. crys%a_occup(d(r),r)>1) then
                Err_crys=.true.
                Err_crys_mess="ERROR reading atomic parameters. Occupation must be between 0 and 1"
