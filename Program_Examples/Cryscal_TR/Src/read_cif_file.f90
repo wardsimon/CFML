@@ -1,4 +1,5 @@
 !     Last change:  TR   11 Oct 2007    6:53 pm
+!     Last change:  TR   11 Oct 2007    6:53 pm
 
  ! lecture fichier .CIF
  !  source: EDPCR (JGP)
@@ -24,16 +25,18 @@ subroutine read_CIF_input_file(input_file, input_string)
 
   ! local variable for .CIF file
   integer                                    :: nb_lines, npos
-  character(len=80),dimension(:),allocatable :: file_cif
+  character(len=256),dimension(:),allocatable :: file_cif
   character(len=40),dimension(48)            :: car_symop
 
   integer                                    :: n_elem_atm    ! N. of different species
   !real            ,  dimension(15)           :: n_elem        ! Number of elementos into the same species
   character(len=2),  dimension(15)           :: elem_atm      ! Character to identify the specie
-  character(len=40)                          :: symb_spgr
-  
+  character(len=40)                          :: symb_spgr  
   logical                                    :: input_out
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_CIF_INPUT_FILE ("//trim(input_string)//")")
+  
+  
   long_input_string = len_trim(input_string)
   input_out = .true.
   if(long_input_string == 6) then
@@ -65,7 +68,9 @@ subroutine read_CIF_input_file(input_file, input_string)
   npos=1
   call Read_Cif_Cell(file_cif, npos, nb_lines, unit_cell%param, unit_cell%param_esd)
   known_cell_esd = .true.
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  call create_CELL_object()
+  
   if(.not. input_out) return
   IF(unit_cell%volume < 0.1) call volume_calculation('no_out')  ! << oct. 2011
   
@@ -83,6 +88,8 @@ subroutine read_CIF_input_file(input_file, input_string)
   symb_spgr=' '
   npos=1
   call read_cif_hm(file_cif ,npos, nb_lines, symb_spgr)
+  if(index(symb_spgr, '::R') /=0) symb_spgr = replace_car(symb_spgr, '::R', ':R')
+    
   if (len_trim(symb_spgr) > 0) then
    call Set_SpaceGroup(symb_spgr, SPG)
   else
@@ -94,6 +101,7 @@ subroutine read_CIF_input_file(input_file, input_string)
     npos=1
     call read_cif_symm(file_cif, npos ,nb_lines, nb_symm_op, car_symop)
     symb_spgr=' '
+	
     call set_spacegroup(symb_spgr, SPG, car_symop, nb_symm_op,'gen')
     call get_hallsymb_from_gener(SPG)
    end if
@@ -195,9 +203,10 @@ end subroutine read_CIF_input_file
 !------------------------------------------------------------------------------
 
 subroutine read_CIF_input_file_TR(input_unit)
- USE cryscal_module, ONLY : keyword_WAVE, wavelength, keyword_SIZE, Z_unit,          &
-                            keyword_ZUNIT, CIF_diffrn_reflns, CIF_cell_measurement,  &
-                            crystal, CIF_parameter, unit_cell, nb_atoms_type, molecule
+ USE cryscal_module, ONLY : keyword_WAVE, wavelength, keyword_SIZE, Z_unit,             &
+                            keyword_ZUNIT, CIF_diffrn_reflns, CIF_cell_measurement,     &
+                            crystal, CIF_parameter, unit_cell, nb_atoms_type, molecule, &
+							debug_proc
  USE macros_module,  ONLY : nombre_de_colonnes, remove_car
  implicit none
   INTEGER, INTENT(IN)       :: input_unit
@@ -205,6 +214,12 @@ subroutine read_CIF_input_file_TR(input_unit)
   INTEGER                   :: nb_arg, i1, i2
   LOGICAL                   :: ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_CIF_INPUT_FILE_TR")
+  
+  ! sample ID
+   call get_sample_ID(input_unit)
+
+  
   ! wave:
   call get_champ_value(input_unit, '_diffrn_radiation_wavelength', string_value, ok)
   IF(ok) then
@@ -322,6 +337,7 @@ end subroutine read_CIF_input_file_TR
 !------------------------------------------------------------------------------
 subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_esd)
  USE IO_module
+ USE cryscal_module, only : debug_proc
  implicit none
   INTEGER, INTENT(IN)                  :: file_unit
   REAL,    INTENT(OUT),   dimension(*) :: cell_param, cell_param_esd
@@ -331,7 +347,8 @@ subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_e
   character (len=64)                   :: cell_alfa_string, cell_beta_string, cell_gamma_string
   LOGICAL , DIMENSION(6)               :: logical_cell
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_CELL_PARAMETERS_FROM_CIF_FILE")
+  
   logical_cell(1:6) = .false.
   REWIND(UNIT=file_unit)
   do
@@ -350,32 +367,32 @@ subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_e
 
    if(trim(line(1:14))=='_cell_length_a') then
     read(line(16:),'(a)') cell_a_string
-    call get_cell_param(cell_a_string, cell_param(1), cell_param_esd(1))
+    call get_cell_param(cell_a_string, cell_param(1), cell_param_esd(1), 'a')
     logical_cell(1) = .true.
 
    elseif(trim(line(1:14))=='_cell_length_b') then
     read(line(16:),'(a)') cell_b_string
-    call get_cell_param(cell_b_string, cell_param(2), cell_param_esd(2))
+    call get_cell_param(cell_b_string, cell_param(2), cell_param_esd(2), 'b')
     logical_cell(2) = .true.
 
    elseif(trim(line(1:14))=='_cell_length_c') then
     read(line(16:),'(a)') cell_c_string
-    call get_cell_param(cell_c_string, cell_param(3), cell_param_esd(3))
+    call get_cell_param(cell_c_string, cell_param(3), cell_param_esd(3), 'c')
     logical_cell(3) = .true.
 
    elseif(trim(line(1:17))=='_cell_angle_alpha') then
     read(line(19:),'(a)') cell_alfa_string
-    call get_cell_param(cell_alfa_string, cell_param(4), cell_param_esd(4))
+    call get_cell_param(cell_alfa_string, cell_param(4), cell_param_esd(4), 'alpha')
     logical_cell(4) = .true.
 
    elseif(trim(line(1:16))=='_cell_angle_beta') then
     read(line(18:),'(a)') cell_beta_string
-    call get_cell_param(cell_beta_string, cell_param(5), cell_param_esd(5))
+    call get_cell_param(cell_beta_string, cell_param(5), cell_param_esd(5), 'beta')
     logical_cell(5) = .true.
 
    elseif(trim(line(1:17))=='_cell_angle_gamma') then
     read(line(19:),'(a)') cell_gamma_string
-    call get_cell_param(cell_gamma_string, cell_param(6), cell_param_esd(6))
+    call get_cell_param(cell_gamma_string, cell_param(6), cell_param_esd(6), 'gamma')
     logical_cell(6) = .true.
    endif
 
@@ -391,18 +408,80 @@ subroutine get_cell_parameters_from_cif_file(file_unit, cell_param, cell_param_e
 
  RETURN
 end subroutine get_cell_parameters_from_cif_file
-
-
 !----------------------------------------------------------------------
 
-subroutine get_cell_param(cell_string, cell_value, cell_value_esd)
+subroutine Get_UB_matrix_from_CIF_file(file_unit, UB_matrix)
+ use Cryscal_module, only : UB_mat_log, debug_proc
  implicit none
-  CHARACTER (LEN=*), INTENT(IN)        :: cell_string
+  INTEGER, INTENT(IN)                    :: file_unit
+  REAL,    INTENT(OUT),   dimension(3,3) :: UB_matrix
+  character (len=256)                    :: line, UB_string
+  integer                                :: ier
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_UB_MATRIX_FROM_CIF_FILE")
+  
+  UB_mat_log = .false.
+  REWIND(UNIT=file_unit)
+  do
+   read(unit=file_unit, fmt= '(a)', iostat=ier) line 
+   if(ier /=0) return
+   
+   if(trim(line(1:27))=='_diffrn_orient_matrix_UB_11') then
+    read(line(28:),fmt='(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(1,1)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_21') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string,*) UB_matrix(2,1)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_31') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(3,1)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_12') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(1,2)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_22') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(2,2)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_32') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(3,2)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_13') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(1,3)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_23') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(2,3)
+   elseif(trim(line(1:27))=='_diffrn_orient_matrix_UB_33') then
+    read(line(28:),'(a)', iostat=ier) UB_string
+	if(ier/=0) return
+	read(UB_string, *) UB_matrix(3,3)
+	exit
+   endif	
+  end do 
+ 
+   UB_mat_log = .true.
+	
+ return
+end subroutine Get_UB_matrix_from_CIF_file 
+!----------------------------------------------------------------------
+
+subroutine get_cell_param(cell_string, cell_value, cell_value_esd, input_string)
+ use cryscal_module, only : debug_proc
+ implicit none
+  CHARACTER (LEN=*) , INTENT(IN)        :: cell_string
   REAL              , INTENT(OUT)       :: cell_value
   REAL              , INTENT(OUT)       :: cell_value_esd
+  character (len=*)                     :: input_string
   INTEGER                               :: i1, i2
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_CELL_PARAM ("//trim(input_string)//")")
 
   ! lecture de la valeur avant la parenthese
   i1 = INDEX (cell_string, '(')
@@ -422,6 +501,7 @@ end subroutine get_cell_param
 !---------------------------------------------------------------------------
 
 subroutine get_wavelength_from_cif_file(file_unit, wave)
+ use cryscal_module, only : debug_proc
  use IO_module
  implicit none
   INTEGER, INTENT(IN)                  :: file_unit
@@ -432,6 +512,7 @@ subroutine get_wavelength_from_cif_file(file_unit, wave)
   integer                              :: ier
   LOGICAL                              :: logical_wave
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_WAVELENGTH_FROM_CIF_FILE")
 
   logical_wave = .false.
 
@@ -508,16 +589,19 @@ end subroutine get_wavelength_from_cif_file
 !--------------------------------------------------------------------------
 
 subroutine get_crystal_system_from_CIF_file(file_unit, crystal_system)
- USE macros_module, ONLY : l_case
+ USE macros_module,  ONLY : l_case
+ USE cryscal_module, only  : debug_proc
  USE IO_module
  implicit none
-  INTEGER,           INTENT(IN)        :: file_unit
-  character (len=16), INTENT(OUT)       :: crystal_system
+  INTEGER,            INTENT(IN)       :: file_unit
+  character (len=16), INTENT(OUT)      :: crystal_system
   character (len=256)                  :: line
   CHARACTER (LEN=256)                  :: champ_text, champ_value
   integer                              :: ier
   LOGICAL                              :: logical_wave
-
+ 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_CRYSTAL_SYSTEM_FROM_CIF_FILE")
+  
   rewind(file_unit)
   do
    read(file_unit, '(a)', iostat=ier) line
@@ -567,7 +651,7 @@ subroutine get_crystal_system_from_CIF_file(file_unit, crystal_system)
   endif
 
 
-
+ return
 end subroutine get_crystal_system_from_CIF_file
 
 
@@ -575,6 +659,7 @@ end subroutine get_crystal_system_from_CIF_file
 
 subroutine get_H_M_from_CIF_file(file_unit, H_M)
  USE macros_module,  ONLY : l_case
+ USE cryscal_module, ONLY : debug_proc
  USE IO_module
  implicit none
   INTEGER,           INTENT(IN)        :: file_unit
@@ -584,6 +669,8 @@ subroutine get_H_M_from_CIF_file(file_unit, H_M)
   integer                              :: ier
   LOGICAL                              :: logical_wave
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_H_M_FROM_CIF_FILE")
+  
   rewind(file_unit)
   do
    read(file_unit, '(a)', iostat=ier) line
@@ -618,12 +705,13 @@ subroutine get_H_M_from_CIF_file(file_unit, H_M)
   H_M = adjustl(champ_value(1:32))
 
 
-
+ return
 end subroutine get_H_M_from_CIF_file
 
 !--------------------------------------------------------------------------
 
 subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
+ use cryscal_module, only : debug_proc
  implicit none
  INTEGER          , INTENT(IN)    :: CIF_unit
  CHARACTER (LEN=*), INTENT(IN)    :: string_text
@@ -632,6 +720,7 @@ subroutine get_champ_value(CIF_unit, string_text, string_value, ok)
  CHARACTER (LEN=256)              :: READ_line
  integer                          :: ier, long_string, long_line
 
+ if(debug_proc%level_3)  call write_debug_proc_level(3, "GET_CHAMP_VALUE ("//trim(string_text)//")")
 
  REWIND(UNIT=CIF_unit)
 
@@ -666,14 +755,16 @@ end subroutine get_champ_value
 !--------------------------------------------------------------------------
 
 subroutine read_lines_before_hkl(file_unit, cos_exist)
+ use cryscal_module, only : debug_proc
  implicit none
   INTEGER, INTENT(IN)             :: file_unit
   LOGICAL, INTENT(OUT)            :: cos_exist
   ! local variables
   INTEGER                         :: i, num_ligne, ier
   CHARACTER(LEN=128)              :: line
-
-
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_LINES_BEFORE_HKL")
+ 
   num_ligne = 0
   rewind(UNIT=file_unit)
 
@@ -722,16 +813,22 @@ END subroutine read_lines_before_hkl
 
 !----------------------------------------------------------------------------
 subroutine read_SQUEEZE_file
- use cryscal_module, only : SQUEEZE
+ use cryscal_module, only : SQUEEZE, include_SQUEEZE, debug_proc
  implicit none
   logical               :: file_exist
   integer               :: i_error
   character (len=256)   :: read_line
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_SQUEEZE_FILE")
+  
  inquire(file= trim(SQUEEZE%file), exist= file_exist)
  SQUEEZE%procedure = .false.
- if(.not. file_exist) return
- 
+ if(.not. file_exist) then
+  inquire(file = 'platon_sqr.sqf', exist=file_exist) 
+  if(.not. file_exist)  return
+  squeeze%file = 'platon_sqr.sqf'
+ end if 
+ if(.not. include_SQUEEZE) return
  
  open(unit=SQUEEZE%unit, file=trim(SQUEEZE%file))
   do
@@ -751,14 +848,15 @@ end subroutine read_SQUEEZE_file
 
 ! ----------------------------------------------------------------------------------
  subroutine read_and_modif_ARCHIVE(input_unit)
-  use cryscal_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit, &
-                             CIF_parameter, SADABS_ratio, CIFdep, ACTA, CIF_format80, include_RES_file, tmp_unit
-  use macros_module,  only : u_case, test_file_exist, Get_Wingx_job
+  use cryscal_module, only : CIF_unit, CIF_archive_unit, AUTHOR, DEVICE, SQUEEZE, IMPORT_CIF_unit,                &
+                             CIF_parameter, SADABS_ratio, CIFdep, ACTA, CIF_format80, include_RES_file, tmp_unit, &
+							 cryscal_version, debug_proc
+  use macros_module,  only : u_case, test_file_exist, Get_Wingx_job, Get_current_folder_name, Get_sample_ID_from_folder_name
   use IO_module,      only : write_info
   implicit none
    integer, intent(in)               :: input_unit
    character (len=256)               :: read_line
-   integer                           :: i_error, i, i1, long
+   integer                           :: i_error, i, i1, i2, long
    integer                           :: n_line 
    logical                           :: file_exist
    logical                           :: diffracto
@@ -770,9 +868,10 @@ end subroutine read_SQUEEZE_file
    character (len=16), dimension(16) :: CIF_str
    character (len=16), dimension(8)  :: CIF_str_fmt
    character (len=64)                :: fmt_, fmt_final
-   character (len=32)                :: job
-   character (len=256)               :: wingx_structure_dir
+   character (len=256)               :: job, sample_ID, diffraction_date
+   character (len=256)               :: wingx_structure_dir, current_folder
    character (len=256)               :: wingx_res_file
+   character (len=256)               :: CIF_sep_line
    
    
    ! caracteristiques de la boucle _atom_site
@@ -788,6 +887,7 @@ end subroutine read_SQUEEZE_file
    integer                           :: CIF_atom_site_refinement_flags_numor ! numero du champ
    integer                           :: CIF_atom_site_loop_numor             ! numero de la ligne du champ _loop   
    integer                           :: CIF_atom_site_occupancy_numor
+   integer                           :: CIF_atom_site_symm_multiplicity_numor 
    integer                           :: CIF_atom_site_disorder_assembly_numor
    integer                           :: CIF_atom_site_disorder_group_numor
    
@@ -804,10 +904,14 @@ end subroutine read_SQUEEZE_file
    logical                           :: linear
    logical                           :: contain_H
   
-  
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_AND_MODIF_ARCHIVE")
+ 
 
    fmt_      = ''
    fmt_final = ''
+   job       = "?"
+   sample_ID = "?"
+   write(CIF_sep_line, '(a,76a1,a)') '#', ('-',i=1,76), '#'
   
   rewind(unit=input_unit)
   close(unit = CIF_unit)
@@ -885,6 +989,10 @@ end subroutine read_SQUEEZE_file
   
  ! champ _atom_site_occupancy
   call Get_CIF_champ_numor('_atom_site_occupancy', CIF_atom_site_occupancy_numor)
+  
+ ! champ _atom_site_symmetry_multiplicity
+  call Get_CIF_champ_numor('_atom_site_symmetry_multiplicity', CIF_atom_site_symm_multiplicity_numor)
+  
   
  ! champ _atom_site_disorder_assembly
   call Get_CIF_champ_numor('_atom_site_disorder_assembly', CIF_atom_site_disorder_assembly_numor)
@@ -1004,8 +1112,7 @@ end subroutine read_SQUEEZE_file
     exit
    endif
   end do
-  
-  
+    
   ! squeeze  ?
   squeeze_results = .false.
   rewind(unit=input_unit)
@@ -1055,6 +1162,66 @@ end subroutine read_SQUEEZE_file
     endif
    endif
    
+  ! if(index(read_line, 'data_') /=0 .and. job=='?') then
+  !  call Get_current_folder_name(current_folder)
+  ! 	i1 = index(current_folder, '_')
+!	if(i1 /=0) then
+!	 write(job, '(a)') current_folder(i1+1:)
+!	else
+!	 call Get_Wingx_job(job, wingx_structure_dir)
+!	endif
+!	write(CIF_archive_unit, '(2a)') 'data_', trim(job)
+ !   cycle
+ !  endif
+   
+   
+   if(index(read_line, 'data_') /=0 .and. sample_ID=='?') then
+    call Get_current_folder_name(current_folder)
+	call Get_sample_ID_from_folder_name(current_folder, sample_ID)
+	
+	i1 = index(current_folder, '\', back=.true.)
+	if(i1 /=0) then
+	 i2 = index(current_folder(i1+1:),"_")
+     if(i2 /=0) then	 
+	  write(sample_ID, '(a)') current_folder(i1+1:i1+i2-1)
+	 endif 
+	endif
+    if(sample_ID == '?') call Get_Wingx_job(sample_ID, wingx_structure_dir)
+	if(sample_ID == '?') sample_ID = trim(read_line(6:))
+	
+	diffraction_date = ''
+	i1 = index(current_folder, '_', back=.true.)
+	if (i1 /=0) then
+	 diffraction_date = current_folder(i1+1:)
+	end if 
+	
+	write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
+	long = len_trim(CRYSCAL_version)
+	write(fmt_ , '(a,i2,a)') '(3a,', 28-long, 'x,a)'
+	write(CIF_archive_unit, fmt=trim(fmt_))        '#  CIF file completed and formatted by CRYSCAL (', trim(CRYSCAL_version),')','#'
+	!write(CIF_archive_unit, '(3a,19x,a)')        '#  CIF file completed and formatted by CRYSCAL (', trim(CRYSCAL_version),')','#'
+	
+	if(len_trim(diffraction_date) /= 0) then
+	 long = len_trim(diffraction_date)
+	 write(fmt_ , '(a,i2,a)') '(2a,', 41-long, 'x,a)'
+     write(CIF_archive_unit, fmt = trim(fmt_)) 	   '#  Date of diffraction experiment : ', trim(diffraction_date),"#"	 
+	 !write(CIF_archive_unit, '(2a,34x,a)')        '#  Date of diffraction experiment : ', trim(diffraction_date),"#"	 
+	end if 
+	write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
+	write(CIF_archive_unit, '(a)')        ''
+	
+    write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
+    write(CIF_archive_unit, '(a)') trim(CIF_sep_line)	
+	write(CIF_archive_unit, '(a)')        ''
+	if( sample_ID /='?') then  	
+	 write(CIF_archive_unit, '(2a)') 'data_', u_case(trim(sample_ID))
+	else
+     write(CIF_archive_unit, '(a)') trim(read_line)	
+	endif 
+	CIF_parameter%sample_ID = sample_ID
+    cycle
+   endif
+   
    
    
    if(index(read_line, '_exptl_absorpt_coefficient_mu') /=0 .and.  &
@@ -1062,8 +1229,7 @@ end subroutine read_SQUEEZE_file
       ! les info. sur les corrections d'absorption sont recuperees dans le fichier CRYSCAL.cif
     do
      read(CIF_unit, '(a)', iostat=i_error) read_line
-     if(i_error /=0) exit
-    
+     if(i_error /=0) exit    
      if(index(read_line, '_exptl_absorpt_coefficient_mu') /=0) then
       write(CIF_archive_unit, '(a)') trim(read_line)
       !do i = 1,7
@@ -1130,7 +1296,7 @@ end subroutine read_SQUEEZE_file
 
    if(index(read_line, '_diffrn_ambient_temperature')   /= 0    .and.  &
       .not. diffracto) then
-    if(u_case(DEVICE%diffracto(1:4)) == 'APEX') then
+    if(u_case(DEVICE%diffracto(1:4)) == 'APEX' .or. u_case(DEVICE%diffracto(1:3)) == 'X2S') then
      write(CIF_archive_unit, '(2a)') "_diffrn_measurement_device_type         ", trim(CIF_parameter%diffrn_measurement_device_type)
      write(CIF_archive_unit, '(2a)') "_diffrn_measurement_method              ", trim(CIF_parameter%diffrn_measurement_method)
      write(CIF_archive_unit, '(2a)') "_diffrn_detector                        ", trim(CIF_parameter%diffrn_detector)
@@ -1174,7 +1340,7 @@ end subroutine read_SQUEEZE_file
 	 call Get_Wingx_job(job, wingx_structure_dir)
 	 if(job(1:1) /= '?') then
 	  write(wingx_res_file, '(4a)') trim(wingx_structure_dir), '\', trim(job), '.res'
-	  call test_file_exist(trim(wingx_res_file), file_exist)
+	  call test_file_exist(trim(wingx_res_file), file_exist, 'out')
 	  if(file_exist) then
 	   call write_info('')
 	   call write_info('  ... Include '//trim(wingx_res_file)//' SHELXL file.')
@@ -1191,6 +1357,8 @@ end subroutine read_SQUEEZE_file
 		end do 
 	   close(unit=tmp_unit)	
 	   write(CIF_archive_unit, '(a)')   ';'
+	   write(CIF_archive_unit, '(a)')   '# End of res file'
+	   write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
 	  endif	
 	 endif 
 	end if 
@@ -1199,20 +1367,37 @@ end subroutine read_SQUEEZE_file
    ! -----------------------------------------------------------
    
    if(index(read_line, '_atom_type_scat_source') /=0)  then
-    write(CIF_archive_unit, '(a)') trim(read_line)
+    write(CIF_archive_unit, '(a)') trim(read_line)	
     do
      read(input_unit, '(a)', iostat=i_error) read_line
      if(i_error /=0) exit
      if(len_trim(read_line) == 0) exit
-     read(read_line, *) CIF_str(1:4)
+	 read(read_line, *) CIF_str(1:4)
      i1 = index(read_line, "'")
      read(read_line(i1:), '(a)') CIF_string
-     write(CIF_archive_unit, '(2a4, 2a8, a)') CIF_str(1:4), trim(CIF_string)
+	 if(CIF_str(3)(1:1) /= '-') then
+	 write(CIF_archive_unit, '(2a4, 1x,2a8, a)') CIF_str(1:4), trim(CIF_string)
+	 else
+     write(CIF_archive_unit, '(2a4, a8,1x,a8, a)') CIF_str(1:4), trim(CIF_string)
+	 endif
     end do 
     write(CIF_archive_unit, '(a)') ''   
-    cycle
+    
    endif
    
+   
+  ! if(index(read_line, '_atom_type_scat_source') /=0)  then
+  !  write(CIF_archive_unit, '(a)') trim(read_line)
+!	do
+!     read(input_unit, '(a)', iostat=i_error) read_line
+!     if(i_error /=0) exit
+!     if(len_trim(read_line) == 0) exit	 
+!	 write(CIF_archive_unit, '(a)') trim(read_line)
+!    end do 
+!    write(CIF_archive_unit, '(a)') ''   
+!
+!   endif
+
    
  
   
@@ -1243,14 +1428,22 @@ end subroutine read_SQUEEZE_file
       if(CIF_atom_site_type_symbol_numor == 2) then  ! symbol en position 2
        if(CIF_atom_site_item_nb == 12) then
         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a5,a4,2a2)' 
-       else
-        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)' 
+       else	   
+	    if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then		
+		 write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2)' 
+		else
+         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2)' 
+		end if 		
        endif
       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
        if(CIF_atom_site_item_nb == 12) then
         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a5,a4,2a2,a3)'  
        else
-        write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)' 
+	    if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+		 write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a2,a5,a4,2a2,a3)'
+        else		 
+         write(fmt_final, '(3a)') '(a5,', trim(fmt_), ',a5,a10,a3,a5,a4,2a2,a3)' 
+		endif 
        endif
       endif
       !write(CIF_archive_unit, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
@@ -1263,19 +1456,27 @@ end subroutine read_SQUEEZE_file
        if(CIF_atom_site_item_nb==12) then
         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a5,a3,2a2)'        
        else
-        write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,2a2,a5,a3,2a2)'            
+	    if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+		 write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a2,a5,a3,2a2)'            
+		else
+         write(fmt_final, '(3a)') '(a5,a3,', trim(fmt_), ',a5,a2,a3,a5,a3,2a2)'            
+		end if 
        endif
       elseif(CIF_atom_site_type_symbol_numor == CIF_atom_site_item_nb) then ! _symbol en derniere position
       
        if(CIF_atom_site_item_nb==12) then
         write(fmt_final, '(3a)') '(a5,', trim(fmt_), 'a5,a2,a5,a3,2a2,a3)'        
        else
-        write(fmt_final, '(3a)')  '(a5,', trim(fmt_), 'a5,2a2,a5,a3,2a2,a3)'            
+        if(len_trim(CIF_str(CIF_atom_site_symm_multiplicity_numor)) == 1) then
+         write(fmt_final, '(3a)')  '(a5,', trim(fmt_), 'a5,a2,a2,a5,a3,2a2,a3)'       		
+		else 
+         write(fmt_final, '(3a)')  '(a5,', trim(fmt_), 'a5,a2,a3,a5,a3,2a2,a3)'       
+		endif 
        endif      
       endif
             	 
      endif
-	 
+	
 	 write(tmp_string, fmt_final) CIF_str(1:CIF_atom_site_item_nb)
      if(len_trim(tmp_string) > 80 .and. .not. CIF_format80) then
       write(CIF_archive_unit, '(a)') trim(read_line)
@@ -1369,7 +1570,7 @@ end subroutine read_SQUEEZE_file
      !if(linear) cycle
      
      call get_fmt(1, CIF_str(5:5), fmt_, -100)
-     write(fmt_final, '(3a)') '(4a5', trim(fmt_), ',x,5a8)'
+     write(fmt_final, '(3a)') '(4a5', trim(fmt_), ',x,5a8)'	 
      write(CIF_archive_unit, fmt_final) CIF_str(1:10)     
     end do
     write(CIF_archive_unit, '(a)') ''
@@ -1395,7 +1596,16 @@ end subroutine read_SQUEEZE_file
    write(CIF_archive_unit, '(a)') trim(read_line)
   end do
  
+   if(sample_ID /= '?') then
+    write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
+	long = len_trim(sample_ID)
+	write(fmt_, '(a,i2,a)') '(2a,', 55-long, 'a1, a)'	
+	write(CIF_archive_unit, trim(fmt_)) '# END OF CIF FILE FOR ', u_case(trim(sample_ID)), (' ',i=1,55-long), '#'
+    !write(CIF_archive_unit, '(2a)') '# END OF CIF FILE FOR ', u_case(trim(sample_ID))
+   endif	
+   write(CIF_archive_unit, '(a)') trim(CIF_sep_line)
   close(unit=CIF_unit)
+  
   return
  end subroutine read_and_modif_ARCHIVE
  
@@ -1408,9 +1618,26 @@ end subroutine read_SQUEEZE_file
   character (len=64), intent(out)              :: fmt_
   integer,            intent(in)               :: level
   real                                         :: value
-  integer                                      :: i, i1
+  integer                                      :: i, i1, len_max, long_max
   
   fmt_ = ''
+  if(level == 0) then
+   long_max = 11
+  else
+   long_max = 11
+  endif   
+  
+  !len_max = len_trim(string(1))
+  !if(n > 2) then
+  !do i=2, n 
+  ! if(len_trim(string(i)) > len_max) len_max = len_trim(string(i))	
+  !end do
+  !if(len_max < long_max) len_max = long_max  
+  !len_max = len_max + 1
+  !end if
+  len_max = long_max + 1
+  
+  
   do i = 1, n
    i1 = index(string(i), '(')
    if(i1 ==0) then 
@@ -1421,44 +1648,53 @@ end subroutine read_SQUEEZE_file
    
    if(level == 0) then
     if(string(i)(1:1) == "-") then
-     write(fmt_, '(2a)') trim(fmt_), ',a13'
+     !write(fmt_, '(2a)') trim(fmt_), ',a13'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',a', len_max+1
+	 
     else
      if(i==1) then
-      write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+      !write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+	  write(fmt_, '(2a,i2)') trim(fmt_), '1x,a', len_max
      else
-      write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+      !write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+	  write(fmt_, '(2a,i2)') trim(fmt_), ',1x,a', len_max
      endif
     endif
-    !if(value > 0.) then
-    ! write(fmt_, '(2a)') trim(fmt_), ',1x,a13'
-    !else
-    ! write(fmt_, '(2a)') trim(fmt_), ',a14'
-    !end if
+    
     
    elseif(level == 100) then     
     if(value > 99.99) then
-     write(fmt_, '(2a)') trim(fmt_), ',a13'
+     !write(fmt_, '(2a)') trim(fmt_), ',a13'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',a',len_max+1
     else
      if(i==1) then
-      write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+      !write(fmt_, '(2a)') trim(fmt_), '1x,a12'
+	  write(fmt_, '(2a,i2)') trim(fmt_), '1x,a',len_max
      else
-      write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+      !write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+	  write(fmt_, '(2a,i2)') trim(fmt_), ',1x,a', len_max
      endif
     endif 
     
    elseif(level == -100) then
     if(value < -99.99) then
-     write(fmt_, '(2a)') trim(fmt_), ',a13'
+     !write(fmt_, '(2a)') trim(fmt_), ',a13'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',a', len_max+1
     elseif(value < -9.99) then
-     write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     !write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',1x,a', len_max
     elseif(string(i)(1:1) == '-') then
-     write(fmt_, '(2a)') trim(fmt_), ',2x,a11'
+     !write(fmt_, '(2a)') trim(fmt_), ',2x,a11'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',2x,a', len_max-1
     elseif(value < 9.99) then
-     write(fmt_, '(2a)') trim(fmt_), ',3x,a10'
+     !write(fmt_, '(2a)') trim(fmt_), ',3x,a10'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',3x,a', len_max-2	 
     elseif(value < 99.99) then
-     write(fmt_, '(2a)') trim(fmt_), ',2x,a11' 
+     !write(fmt_, '(2a)') trim(fmt_), ',2x,a11' 
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',2x,a', len_max-1 
     else
-     write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+     !write(fmt_, '(2a)') trim(fmt_), ',1x,a12'
+	 write(fmt_, '(2a,i2)') trim(fmt_), ',1x,a', len_max
     endif 
    endif
   end do
@@ -1468,17 +1704,19 @@ end subroutine read_SQUEEZE_file
  
 !---------------------------------------------------------------------------
  subroutine Get_SADABS_ratio
-  use  cryscal_module, only : SADABS_ratio, SADABS_Tmin, SADABS_Tmax, IMPORT_cif_unit
+  use  cryscal_module, only : SADABS_ratio, SADABS_Tmin, SADABS_Tmax, IMPORT_cif_unit, debug_proc
   use  macros_module,  only : test_file_exist
   implicit none
    integer                  :: i_error,i1
    character (len=256)      :: read_line
    logical                  :: file_exist
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SADABS_RATIO")
+
   ! lecture du fichier import.cif pour recuperer la valeur de Tmin/Tmax  
   close(unit=IMPORT_CIF_unit)
   open(unit = IMPORT_CIF_unit, file = 'import.cif', iostat=i_error)
-  call test_file_exist("import.cif", file_exist)
+  call test_file_exist("import.cif", file_exist, 'out')
   do
    read(IMPORT_CIF_unit, '(a)', iostat = i_error) read_line
    if(i_error /=0) exit
@@ -1494,7 +1732,7 @@ end subroutine read_SQUEEZE_file
   
   if(SADABS_ratio < 0.) then
    open(unit = IMPORT_CIF_unit, file = 'import.cif', iostat=i_error)
-   call test_file_exist("import.cif", file_exist)
+   call test_file_exist("import.cif", file_exist, 'out')
    do
     read(IMPORT_CIF_unit, '(a)', iostat = i_error) read_line
     if(i_error /=0) exit
@@ -1518,12 +1756,14 @@ end subroutine Get_SADABS_ratio
 ! recheche de la position d'un champ particulier dans une boucle loop_ du fichier.CIF
 
 subroutine  Get_CIF_champ_numor(input_string, output_numor)
- use cryscal_module, only : input_unit
+ use cryscal_module, only : input_unit, debug_proc
  implicit none
   character (len=*), intent(inout) :: input_string  
   integer,           intent(out)   :: output_numor
   CHARACTER (LEN=256)              :: READ_line
   integer                          :: i_error
+
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "GET_CIF_CHAMP_NUMOR ("//trim(input_string)//")")
 
   output_numor = 1
   rewind(unit=input_unit)
@@ -1557,12 +1797,14 @@ subroutine  Get_CIF_champ_numor(input_string, output_numor)
   
 !--------------------------------------------------------------------
 subroutine Get_CIF_champ_nb(input_string, output_nb, output_nb2)
-  use cryscal_module, only : input_unit
+  use cryscal_module, only : input_unit, debug_proc
    implicit none
    character (len=*), intent(inout) :: input_string  
    integer,           intent(out)   :: output_nb, output_nb2
    CHARACTER (LEN=256)              :: READ_line
    integer                          :: i_error
+
+   if(debug_proc%level_3)  call write_debug_proc_level(3, "GET_CIF_CHAMP_NB ("//trim(input_string)//")")
 
    output_nb  = 0
    output_nb2 = 0
@@ -1601,20 +1843,20 @@ end subroutine Get_CIF_champ_nb
 !-------------------------------------------------------------------------------------------------------
 
 subroutine Create_CEL_from_CIF
-! creation d'un fichier .CEL à partir d'un fichier.CIF
+! creation d'un fichier .CEL à partir d'un fichier.CIF (ou .INS)
 
- USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,  &
-                           CEL_unit, INS_file_name, CIF_file_name, CEL_file_name, PCR_file_name, &
-                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc
+ USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,    &
+                           CEL_unit, INS_file_name, CIF_file_name, CEL_file_name, PCR_file_name,   &
+                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc, &
+						   debug_proc
  USE IO_module,      ONLY : write_info
  USE CFML_Scattering_Chemical_Tables, ONLY : chem_info, num_chem_info,   set_chem_info
-
  USE macros_module,                   ONLY : u_case
 
-  
-  implicit none
+ implicit none
   integer                 :: i, j
 
+ if(debug_proc%level_2)  write(debug_proc%unit, '(a)') " . routine : CREATE_CEL_FROM_CIF"
 
   if (.not. keyword_read_CIF .and. .not. keyword_read_INS .and. .not. keyword_read_PCR) then  
    call write_info('')
@@ -1667,36 +1909,28 @@ subroutine Create_CEL_from_CIF
     end do 
     write(message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg
     write(CEL_unit, '(a)') adjustl(trim(message_text))
-   
-     
-
   close(unit = CEL_unit)
-  
+    
   call write_info('')
   write(message_text, '(3a)') '   >> ', trim(CEL_file_name), ' file has been created.'  
   call write_info(trim(message_text))
   call write_info('')
-  return
   
- 
-
-
-
+  return
 end subroutine create_CEL_from_CIF  
 
 !-------------------------------------------------------------------------------------------------------
 
 subroutine Create_ACE_from_CIF
-! creation d'un fichier .ACE pour CaRIne à partir d'un fichier.CIF
+! creation d'un fichier .ACE pour CaRIne à partir d'un fichier.CIF (ou .INS)
 
- USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,  &
-                           ACE_unit, INS_file_name, CIF_file_name, ACE_file_name, PCR_file_name, &
-                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc
+ USE cryscal_module, only : keyword_read_CIF, keyword_read_PCR, keyword_read_INS, message_text,   &
+                           ACE_unit, INS_file_name, CIF_file_name, ACE_file_name, PCR_file_name,  &
+                           unit_cell, SPG, nb_atom, atom_coord, atom_typ, atom_occ, atom_occ_perc, &
+						   debug_proc
  USE IO_module,      ONLY : write_info
  USE CFML_Scattering_Chemical_Tables, ONLY : chem_info, num_chem_info,   set_chem_info
-
- USE macros_module,                   ONLY : u_case
-
+ USE macros_module,                   ONLY : u_case 
   
   implicit none
   integer                           :: i, j
@@ -1706,6 +1940,9 @@ subroutine Create_ACE_from_CIF
   character (len=1)                 :: tab    
   real, parameter                   :: eps = 0.00001
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "CREATE_ACE_FROM_CIF")
+
+  
   tab = char(9)  ! tabulation
   
   if (.not. keyword_read_CIF .and. .not. keyword_read_INS .and. .not. keyword_read_PCR) then  
@@ -1772,7 +2009,7 @@ subroutine Create_ACE_from_CIF
                                         'gamma=',trim(adjustl(cell_string(6)))
 
    write(ACE_unit, '(a)')          '' 
-   write( ACE_unit, '(a)')          'System=CEL'
+   write(ACE_unit, '(a)')          'System=CEL'
    write(ACE_string, *) SPG%NumSpg
    write(ACE_unit, '(2a)')         'Space Group Number=',trim(adjustl(ACE_string))
    if(SPG%NumSpg == 146 .or. SPG%NumSpg == 148 .or. SPG%NumSpg == 155 .or. SPG%NumSpg == 160 .or. &
@@ -1804,34 +2041,37 @@ subroutine Create_ACE_from_CIF
 
   close(unit = ACE_unit)
 
-!    write(unit = message_text, '(a,6F10.4)')   'CELL ', (unit_cell%param(i), i=1,6)
-!    write(unit = CEL_unit, '(a)') adjustl(trim(message_text))
-!    if(nb_atom > 1) write(unit = CEL_unit, '(a,i4)')     'natom ', nb_atom    
-!    do i=1, nb_atom 
-!     do j=1, Num_Chem_Info
-!       if (u_case(atom_typ(i)(1:))== u_case(chem_info(j)%symb(1:))) exit
-!     end do
-!     write(message_text,  '(a2,2x, i3,4F10.5)')  adjustl(atom_typ(i)), chem_info(j)%Z , atom_coord(1:3,i), atom_occ_perc(i)
-!     write(unit = CEL_unit, '(a)') adjustl(trim(message_text))         
-!    end do 
-!    write(unit = message_text, '(a,i3)')     'rgnr ',  SPG%NumSpg
-!    write(unit = CEL_unit, '(a)') adjustl(trim(message_text))
-!   
-!      
-
-! close(unit = CEL_unit)
-  
   call write_info('')
   write(message_text, '(3a)') '   >> ', trim(ACE_file_name), ' file has been created.'  
   call write_info(trim(message_text))
-  call write_info('')
- 
-!  call write_info('')
-!  call write_info(' This routine is not yet implement in CRYSCAL. Sorry !')
-!  call write_info('')
+  call write_info('') 
  
   return
-  
- 
-
 end subroutine create_ACE_from_CIF  
+
+!---------------------------------------------------------------------------------------------------------
+subroutine create_PAT_PRF
+ use cryscal_module,    only : keyword_read_CIF, keyword_read_INS, CIF_file_name, INS_file_name, HKL_2theta, &
+                               X_min, X_max, create_PAT, write_HKL, keyword_GENHKL, wavelength
+ USE wavelength_module, ONLY : X_target 
+
+
+ implicit none  
+  
+	   
+  HKL_2THETA     = .true.
+  X_min          = 0.
+  X_max          = 120.
+  create_PAT     = .true.
+  write_HKL      = .true.
+  keyword_GENHKL = .true.  
+  wavelength = X_target(3)%wave(1)   ! Ka1_Cu
+  call generate_HKL()
+   
+  return
+  
+	
+   
+end subroutine create_PAT_PRF  
+	
+	

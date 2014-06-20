@@ -1,7 +1,7 @@
 !     Last change:  TR   27 Jun 2006    6:28 pm
 subroutine list_space_groups()
  USE list_space_groups_module, ONLY : sg, definition_space_groups
- USE cryscal_module,           ONLY : list_sg, list_sg_centric, message_text, known_space_groups
+ USE cryscal_module,           ONLY : list_sg, list_sg_centric, message_text, known_space_groups, debug_proc
  USE IO_module,                ONLY : write_info
 
 
@@ -10,7 +10,9 @@ subroutine list_space_groups()
    integer                           :: i, i1, i2, j, n_ok
    LOGICAL                           :: ok
 
-   IF(.NOT. known_space_groups) then
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "list_space_groups")
+   
+   IF(.NOT. known_space_groups) then   
     call definition_space_groups()
     known_space_groups = .true.
    endif
@@ -167,18 +169,19 @@ subroutine list_space_groups()
       endif
 
 
-
+ return
 end subroutine list_space_groups
 
 !-------------------------------------------------------------
 subroutine test_Bravais(space_group, ok)
- USE cryscal_module, ONLY : list_sg_bravais
+ USE cryscal_module, ONLY : list_sg_bravais, debug_proc
 
  implicit none
   CHARACTER (LEN=*), INTENT(IN)    :: space_group
   LOGICAL,           INTENT(INOUT) :: ok
   INTEGER                          :: i
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "test_Bravais")
   ok=.false.
 
   IF(list_sg_bravais(1) .and. space_group(1:1) == "P") ok=.true.

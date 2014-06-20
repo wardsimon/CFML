@@ -4,7 +4,7 @@ subroutine read_and_sort_HKL(input_string)
  USE cryscal_module, ONLY      : nb_sort,  sort_type,  cut_off,             &
                                  nb_shell, shell_type, shell_plot,          &
                                  keyword_CELL, keyword_WAVE, keyword_FILE,  &
-                                 HKL_unit, message_text, lecture_OK
+                                 HKL_unit, message_text, lecture_OK, debug_proc
  USE macros_module,  ONLY      : test_file_exist
  USE IO_module,      ONLY      : write_info
  USE hkl_module
@@ -18,6 +18,9 @@ subroutine read_and_sort_HKL(input_string)
   INTEGER                              :: long_input_string
   LOGICAL                              :: input_sort, input_shell
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_AND_SORT_HKL ("//trim(input_string)//")")
+
+  
   !lecture_ok = .false.
   input_sort  = .false.
   input_shell = .false.
@@ -36,7 +39,11 @@ subroutine read_and_sort_HKL(input_string)
    call write_info('')
    return
   endif
-  IF(HKL_file%M91) THEN
+  IF(HKL_file%INT) THEN
+   ext_string = '.int'
+  ELSEIF(HKL_file%COL) then
+   ext_string = '.col'  
+  ELSEIF(HKL_file%M91) THEN
    ext_string = '.m91'
   ELSEIF(HKL_file%M95) then
    ext_string = '.m95'
@@ -44,7 +51,7 @@ subroutine read_and_sort_HKL(input_string)
    ext_string = '.hkl'
   endif
 
-  call test_file_exist(HKL_file%NAME, file_exist)
+  call test_file_exist(HKL_file%NAME, file_exist, 'out')
   IF(.not. file_exist) then
    HKL_file%NAME = ''
    return
@@ -261,17 +268,20 @@ end subroutine read_and_sort_HKL
 subroutine read_data_file(ok)
  USE cryscal_module,    ONLY         : cut_off, unit_cell, wave => wavelength,              &
                                        keyword_CELL, keyword_WAVE, message_text, HKL_unit,  &
-                                       known_theta, keyword_create_CIF, &
-                                       crystal_system 
+                                       known_theta, keyword_create_CIF, hkl_format_free,    &									   
+                                       hkl_format_SHELX, hkl_SHELX_format, hkl_format, crystal_system , UB_matrix, &
+									   debug_proc
  USE HKL_module
  USE IO_module,         ONLY          : write_info
+ USE macros_module,     ONLY          : nombre_de_colonnes, u_case
  USE CFML_Math_General, ONLY          : sort
 
  implicit none
  LOGICAL, INTENT(OUT)              :: ok
  integer                           :: i, i1, ier
 
- integer                           :: h_, k_, l_, m_, code_
+ integer                           :: h_, k_, l_, m_, code_, numor
+ integer                           :: nvk
  real                              :: F2_, sig_F2_
  REAL, DIMENSION(6)                :: cosdir
  LOGICAL                           :: HKL_ok
@@ -280,12 +290,18 @@ subroutine read_data_file(ok)
  CHARACTER (LEN=256)               :: M91_string
  REAL,    DIMENSION(5)             :: M95_r
  INTEGER, DIMENSION(3)             :: M95_i
+ CHARACTER (LEN=256)               :: INT_string, format_
+ real, dimension(4)                :: INT_real
+ CHARACTER (LEN=256)               :: COL_string
 
- INTEGER                           :: div_10
+ INTEGER                           :: div_10, nb_col
  REAL                              :: max_F2
  
  logical                           :: QVEC_type
+ 
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_DATA_FILE")
+  
 
   !lecture fichier .HKL format SHELX ou fichier .CIF
   ! + creation fichier avec sintheta/l dans la 1ere colonne
@@ -303,10 +319,68 @@ subroutine read_data_file(ok)
   cosdir    = 0.
   HKL_file%HKL = ''
 
-  IF(HKL_file%SHELX) THEN     ! lecture d'un fichier.HKl format SHELX
+  IF(HKL_file%SHELX) THEN     ! lecture d'un fichier.HKL 
+   !if(hkl_format_free) then ! verifie qu'il y a au moins 5 colonnes (format libre)
+    read(HKL_unit, '(a)', iostat=ier) read_line
+	if(ier /=0) then
+	 call write_info('')
+	 call write_info(' > Problem reading HKL file in free format !')
+	 call write_info('')
+	 return
+	endif
+	call nombre_de_colonnes(read_line, nb_col)
+	if(hkl_format_free .and. nb_col < 5) then
+	 call write_info('')
+	 call write_info(' > Problem reading HKL file in free format : at least 5 columns have to be present !')
+	 call write_info('')
+	 return
+	else
+	 if(u_case(hkl_format(1:11)) == '(3I4,2F8.2)') then 
+	  if(nb_col == 6) then
+	   hkl_format = '(3I4,2F8.4,I4)'
+	  elseif(nb_col == 12) then
+       hkl_format = hkl_SHELX_format
+      end if	   
+	 end if 
+	endif
+	rewind(unit=HKL_unit)    
+	!i1 = index(HKL_file%NAME, '.')
+	!if(i1 /=0) then
+	! HKL_file%HKL =  HKL_file%NAME(1:i1-1)//'_SX.hkl'
+	!else
+	! HKL_file%HKL =  '_SX.hkl'
+    !endif	
+	!open (UNIT=31, FILE=TRIM(HKL_file%HKL))
+   !else
+   ! HKL_file%HKL =  HKL_file%NAME   
+   !endif
+   
+   if(debug_proc%level_2) then
+    if(hkl_format_free) then
+     call write_debug_proc_level(2, "READ (in free format) and CHECK HKL") 
+	else
+	 call write_debug_proc_level(2, "READ (format="//trim(hkl_format)//") and CHECK HKL !!")  
+    endif
+   end if	
+      
    do
-    READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_,cosdir(1:6)
-    if (ier < 0) exit ! fin du fichier atteinte
+    if(hkl_format_free) then
+	 read(HKL_unit, *, iostat=ier) h_, k_, l_, F2_, sig_F2_
+	 if(ier < 0) exit  ! fin du fichier
+	 !write(31,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_
+	else
+     !READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_,cosdir(1:6)
+	 if(nb_col == 5) then	 
+	  READ(HKL_unit, fmt=trim(hkl_format), iostat=ier) h_,k_,l_, F2_, sig_F2_
+      if (ier < 0) exit ! fin du fichier atteinte
+	 elseif(nb_col == 6) then
+	  READ(HKL_unit, fmt=trim(hkl_format), iostat=ier) h_,k_,l_, F2_, sig_F2_, code_
+      if (ier < 0) exit ! fin du fichier atteinte
+     else
+	  READ(HKL_unit, fmt=trim(hkl_format), iostat=ier) h_,k_,l_, F2_, sig_F2_,code_,cosdir(1:6)    
+      if (ier < 0) exit ! fin du fichier atteinte
+     end if
+	endif 
     IF(h_==0 .AND. k_==0 .AND. l_==0) exit
 
     call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
@@ -329,11 +403,13 @@ subroutine read_data_file(ok)
    call get_wavelength_from_CIF_file(HKL_unit, wave)
    keyword_WAVE = .true.
    call get_cell_parameters_from_CIF_file(HKL_unit, unit_cell%param, unit_cell%param_esd )
+   call get_UB_matrix_from_CIF_file(HKL_unit, UB_matrix)
+      
    call volume_calculation('no_out')
    !call volume_calculation('out')
    call get_crystal_system_from_CIF_file(HKL_unit, crystal_system)
    keyword_CELL = .true.
-   
+     
    call get_H_M_from_CIF_file(HKL_unit, unit_cell%H_M)
    
    call read_lines_before_hkl(HKL_unit, cos_exist)
@@ -344,6 +420,13 @@ subroutine read_data_file(ok)
    endif
    open (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
+   if(debug_proc%level_2) then
+    if(cos_exist) then
+     call write_debug_proc_level(2, "READ (with dir. cos.) and CHECK HKL") 
+	else
+	 call write_debug_proc_level(2, "READ (without dir. cos.) and CHECK HKL") 
+	endif
+endif	
    do
     if (.not. cos_exist) then
      READ(HKL_unit, '(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_  ! sans les cos. dir.
@@ -352,19 +435,25 @@ subroutine read_data_file(ok)
      WRITE(31, '(3i4,2F8.2,I4)')h_,k_,l_,F2_, sig_F2_, code_
     else
      READ(HKL_unit,'(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_
+	 !write(*,'(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_
+	  
       if (ier /=0 ) exit                                                         ! avec les cos. dir.
       IF(h_==0 .AND. k_==0 .AND. l_==0) exit
      READ(HKL_unit,'(F8.5,5F9.5)',IOSTAT=ier) cosdir(1:6)
-      if (ier /=0 ) exit
+	 !READ(HKL_unit,'(6F9.5)',IOSTAT=ier) cosdir(1:6)
+	 
+	  if (ier /=0 ) exit
      write(31,'(3I4,2F8.2,I4,6F8.5)', iostat=ier) h_,k_,l_, F2_, sig_F2_,code_, cosdir(1:6)
+	
     endif
 
+	 
     call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
-
    END do
+   
    ok = .true.
    HKL_data_known = .true.
-   CLOSE(UNIT=31)
+    
 
   ELSEIF(HKL_file%FINAL_y) then
    call get_wavelength_from_FINAL_Y_file(HKL_unit, wave)
@@ -373,7 +462,7 @@ subroutine read_data_file(ok)
    call volume_calculation('no_out')
    keyword_CELL = .true.
    
-   call get_modulation_vect(HKL_unit, qvec_type)
+   call get_modulation_vect(HKL_unit, qvec_type, nvk)
 
    if(.not. QVEC_type ) then
     HKL_file%HKL = 'final_y.HKL'
@@ -393,9 +482,9 @@ subroutine read_data_file(ok)
     END do
    else
     do 
-     call read_mod_reflexion_from_FINAL_Y(HKL_unit, h_, k_, l_, m_, F2_, sig_F2_, HKL_ok)
+     call read_mod_reflexion_from_FINAL_Y(HKL_unit, h_, k_, l_, m_, F2_, sig_F2_, nvk, HKL_ok)
      IF(.NOT. HKL_ok) exit
-     IF(h_==0 .AND. k_==0 .AND. l_==0) exit
+     !IF(h_==0 .AND. k_==0 .AND. l_==0) exit
 
      call check_HKLM(h_, k_, l_, m_, F2_, sig_F2_, code_, cosdir)
      WRITE(31, '(4i4,2F8.2)') h_,k_,l_,m_, F2_, sig_F2_
@@ -404,7 +493,7 @@ subroutine read_data_file(ok)
    endif 
    ok = .true.
    HKL_data_known = .true.
-   CLOSE(UNIT=31)
+    
 
   ELSEIF(HKL_file%RAW) then
 
@@ -416,6 +505,7 @@ subroutine read_data_file(ok)
    endif
    OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
+   if(debug_proc%level_2) call write_debug_proc_level(2, "READ .RAW file (with dir. cos.) and CHECK HKL") 
    do
     READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
@@ -444,7 +534,7 @@ subroutine read_data_file(ok)
    do i=1, n_ref
     write(31, '(3I4, 2F8.2,I4, 6F8.5)') h(i),k(i),l(i), F2(i), sig_F2(i), code(i), cos_dir(i, 1:6)
    END do
-   CLOSE(UNIT=31)
+    
 
   ELSEIF(HKL_file%M91) then
    i1 = INDEX(HKL_file%NAME, ".")
@@ -455,6 +545,7 @@ subroutine read_data_file(ok)
    endif
    OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
 
+   if(debug_proc%level_2) call write_debug_proc_level(2, "READ .M91 and CHECK HKL") 
    do
     READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
@@ -467,7 +558,7 @@ subroutine read_data_file(ok)
    HKL_data_known = .true.
 
    do i=1, n_ref
-    write( 1, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
+    write( 31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
    end do
 
   ELSEIF(HKL_file%M95) then
@@ -494,7 +585,7 @@ subroutine read_data_file(ok)
     BACKSPACE(UNIT=HKL_unit)
    endif
 
-
+   if(debug_proc%level_2) call write_debug_proc_level(2, "READ .M95 and CHECK HKL") 
    do
     READ(HKL_unit, '(a)', IOSTAT=ier) read_line
     IF(ier/=0) exit
@@ -516,14 +607,73 @@ subroutine read_data_file(ok)
     write(31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i)/10., sig_F2(i)/10.
    end do
 
+  ELSEIF(HKL_file%INT) then
+   
+   
+ 
+   i1 = INDEX(HKL_file%NAME, ".")
+   if (i1/=0) then
+    HKL_file%HKL = TRIM(HKL_file%NAME(1:i1-1))//'_int.hkl'
+   else
+    HKL_file%HKL = TRIM(HKL_file%NAME(1:))//'_int.hkl'
+   endif
+   OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
+
+   
+
+   READ(HKL_unit, '(a)') INT_string
+   READ(HKl_unit, '(a)') format_
+   READ(HKL_unit, *) WAVE
+   if(debug_proc%level_2) call write_debug_proc_level(2, "READ and CHECK HKL") 
+   do
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
+    IF(ier/=0) exit
+    READ(read_line,    fmt = trim(format_)) h_, k_, l_, F2_, sig_F2_, code_, INT_real(1), INT_real(2), INT_real(3), INT_real(4) 
+    
+    call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)
+     
+   END do
+   ok = .true.
+   HKL_data_known = .true.
+
+   do i=1, n_ref
+    write( 31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i), sig_F2(i)
+   end do
+  
+  ELSEIF(HKL_file%COL) then
+ 
+   i1 = INDEX(HKL_file%NAME, ".")
+   if (i1/=0) then
+    HKL_file%HKL = TRIM(HKL_file%NAME(1:i1-1))//'_col.hkl'
+   else
+    HKL_file%HKL = TRIM(HKL_file%NAME(1:))//'_col.hkl'
+   endif
+   OPEN (UNIT=31, FILE=TRIM(HKL_file%HKL))
+ 
+   if(debug_proc%level_2) call write_debug_proc_level(2, "READ .COL and CHECK HKL") 
+   do
+    READ(HKL_unit, '(a)', IOSTAT=ier) read_line
+    IF(ier/=0) exit
+    READ(read_line, '(i6,3i4,2F10.2,4F8.2)') numor, h_, k_, l_, F2_, sig_F2_, INT_real(1), INT_real(2), INT_real(3), INT_real(4) 
+    call check_HKL(h_, k_, l_, F2_, sig_F2_, code_, cosdir)     
+   END do
+   ok = .true.
+   HKL_data_known = .true.
+
+   do i=1, n_ref
+    write( 31, '(3I4, 2F8.2)') h(i),k(i),l(i), F2(i), sig_F2(i)
+   end do
+    
   else
    call write_info('')
    call write_info('  >>>> Unknown data file format <<<<')
    call write_info('')
    CLOSE(UNIT = HKL_unit)
+   CLOSE(unit=31)
    return
   endif
   CLOSE(UNIT=HKL_unit)
+  CLOSE(unit=31)
 
 
 
@@ -580,7 +730,8 @@ subroutine read_data_file(ok)
     endif
    endif
 
-   IF(LEN_TRIM(HKL_file%HKL) /=0) then
+   !IF(LEN_TRIM(HKL_file%HKL) /=0 .and. .not. hkl_format_SHELX) then
+   IF(.not. HKL_file%SHELX) then
     call write_info(' ')
     write (message_text, '(3a)') '   ==> ', trim(HKL_file%HKL), ' FILE has been created (SHELX format)'
     call write_info(TRIM(message_text))
@@ -591,7 +742,7 @@ subroutine read_data_file(ok)
     call write_info(' ')
    endif
 
-
+   
    IF(keyword_create_CIF) then
     call write_CIF_file('DATA_LIMITS')
     call write_CIF_file('HKL_DATA')
@@ -604,7 +755,11 @@ end subroutine read_data_file
 !----------------------------------------------------------------------------------------------
 subroutine check_HKL(H_h, H_k, H_l, H_F2, H_sig, code_, H_cos)
  USE HKL_module
- USE cryscal_module, ONLY : keyword_cell, keyword_WAVE, known_theta,  unit_cell, wave => wavelength
+ USE cryscal_module, ONLY : keyword_cell, keyword_WAVE, known_theta,  unit_cell, wave => wavelength, &
+                            file_out, file_out_n, hkl_format_free, hkl_format, message_text, debug_proc
+ USE macros_module,  ONLY : multiple							
+ USE IO_module,      ONLY : write_info
+
 
  INTEGER, INTENT(IN)            :: H_h, H_k, H_l
  REAL,    INTENT(INOUT)         :: H_F2, H_sig
@@ -613,7 +768,12 @@ subroutine check_HKL(H_h, H_k, H_l, H_F2, H_sig, code_, H_cos)
  REAL                           :: Q, Z
  real, parameter                :: eps = 0.000001
  real, parameter                :: pi=3.1415926535897932
+ character (len=32)             :: fmt_
+ integer                        :: long
 
+ !if(debug_proc%level_3)  call write_debug_proc_level(3, "CHECK_HKL")
+  
+ 
     n_ref = n_ref + 1
     call check_nref(n_ref)
     IF(H_F2 < 0.00001) n_ref_neg = n_ref_neg + 1
@@ -655,13 +815,29 @@ subroutine check_HKL(H_h, H_k, H_l, H_F2, H_sig, code_, H_cos)
     cos_dir(n_ref,1:6)     = H_cos(1:6)
 
     WRITE(HKL_string(n_ref), '(a,3I4,a)') '(', H_h, H_k, H_l, ')'
+	
+	!if(file_out .and. file_out_n*int(n_ref/file_out_n) == n_ref ) then
+	if(file_out .and. multiple(n_ref,file_out_n)) then
+	 if(hkl_format_free) then
+	  write(message_text,'(I8,2x,3I4,2F15.2)', iostat=ier) n_ref, H_h,H_k,H_l, H_F2, H_sig 
+	 else
+	  !write(message_text,'(I8,2x,3I4,2F8.2,I4)', iostat=ier) n_ref, H_h,H_k,H_l, H_F2, H_sig,code_
+	   long = len_trim(hkl_format)
+	   write(fmt_, '(23a)') '(I8,2x', trim(hkl_format(2:long)),')'	  
+	   write(message_text, trim(fmt_)) n_ref, H_h,H_k,H_l, H_F2, H_sig
+	 endif
+	 call write_info(trim(message_text))
+	endif
 
   return
 end subroutine check_HKL
 !----------------------------------------------------------------------------------------------
 subroutine check_HKLM(H_h, H_k, H_l, H_m, H_F2, H_sig, code_, H_cos)
  USE HKL_module
- USE cryscal_module, ONLY : keyword_cell, keyword_WAVE, known_theta,  unit_cell, wave => wavelength, Qvec
+ USE cryscal_module, ONLY : keyword_cell, keyword_WAVE, known_theta,  unit_cell, wave => wavelength, Qvec, &
+                            file_out, file_out_n, message_text, debug_proc
+ USE IO_module,      ONLY : write_info
+ USE macros_module,  ONLY : multiple							
 
  INTEGER, INTENT(IN)            :: H_h, H_k, H_l, H_m
  REAL,    INTENT(INOUT)         :: H_F2, H_sig
@@ -671,6 +847,9 @@ subroutine check_HKLM(H_h, H_k, H_l, H_m, H_F2, H_sig, code_, H_cos)
  real, parameter                :: eps = 0.000001
  real, parameter                :: pi=3.1415926535897932
 
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "CHECK_HKLM")
+  
     n_ref = n_ref + 1
     call check_nref(n_ref)
     IF(H_F2 < 0.00001) n_ref_neg = n_ref_neg + 1
@@ -712,13 +891,20 @@ subroutine check_HKLM(H_h, H_k, H_l, H_m, H_F2, H_sig, code_, H_cos)
     cos_dir(n_ref,1:6)     = H_cos(1:6)
 
     WRITE(HKL_string(n_ref), '(a,4I4.0,a)') '(', H_h, H_k, H_l, H_m, ')'
-
+	
+   if(file_out .and. multiple(n_ref,file_out_n)) then
+	write(message_text,'(I8,2x,4I4,2F15.2)', iostat=ier) n_ref, H_h,H_k,H_l, H_m, H_F2, H_sig 	
+	call write_info(trim(message_text))
+   endif
+   
   return
 end subroutine check_HKLM
 
 !----------------------------------------------------------------------------------------------------------------
 subroutine check_F2(F2_, sig_F2_)
+ implicit none
  REAL, INTENT(INOUT) :: F2_, sig_F2_
+ 
 
   if(F2_     < 0.0001)  F2_= 0.0001
   if(sig_F2_ < 0.00001) sig_F2_=sqrt(abs(F2_))
@@ -753,7 +939,7 @@ subroutine classement(n, input_string)
                                      keyword_CELL, keyword_WAVE, message_text,                         &
                                      nb_shell, shell_arg_min_max, shell_min, shell_max,                &
                                      PGF_data, PGF_file, known_theta, winplotr_exe, input_line,        &
-									 allocate_PGF_data_arrays
+									 allocate_PGF_data_arrays, hkl_statistics, debug_proc
  USE CFML_Math_General,       ONLY          : sort
  USE hkl_module
  USE IO_module
@@ -781,6 +967,8 @@ subroutine classement(n, input_string)
  LOGICAL                           :: shell_X, shell_stl, shell_d, shell_theta, shell_int, shell_isig
  LOGICAL                           :: input_sort, input_no_sort
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "CLASSEMENT ("//trim(input_string)//")")
+ 
   long_input_string = LEN_TRIM(input_string)
   input_sort    = .false.
   input_no_sort = .false.
@@ -793,15 +981,15 @@ subroutine classement(n, input_string)
 
   IF(input_sort .or. input_no_sort) then
    if (n==0 .or. n==1) then
-    call test_ratio_I_sig()
+    if(hkl_statistics) call test_ratio_I_sig()
     !call statistics_on_E2()
 
     IF(keyword_CELL) then
-     call stat_repartition_sintheta_lambda()    ! ok
+     if(hkl_statistics) call stat_repartition_sintheta_lambda()    ! ok
 
      !call stat_repartition_d_hkl(F2, sig_F2, d_hkl, n_ref)                       ! nok
      IF(keyword_WAVE) then
-      call stat_repartition_theta()                    ! ok
+      if(hkl_statistics) call stat_repartition_theta()                    ! ok
      endif
 
      IF(HKL_file%plot) then
@@ -837,7 +1025,7 @@ subroutine classement(n, input_string)
 
        ! tri par ordre croissant des X
        call sort(sintheta_lambda, n_ref, ordered_array )     ! math_gen module
-       call sort_arrays(input_string, '+', ordered_array, sintheta_lambda)
+       call sort_arrays(input_string, '+', ordered_array, sintheta_lambda, 'out')
 
      case ('sort_d')
        call write_info('')
@@ -845,14 +1033,14 @@ subroutine classement(n, input_string)
        call write_info('')
 
        call sort(d_hkl, n_ref, ordered_array)
-       call sort_arrays(input_string,'+', ordered_array, d_hkl)
+       call sort_arrays(input_string,'+', ordered_array, d_hkl, 'out')
        call stat_repartition_d_hkl(F2, sig_F2, d_hkl, n_ref)
 
      case ('sort_theta')
        call write_info('')
        call write_info(' ... Sorting hkl in increasing theta...')
        call sort(theta_hkl, n_ref, ordered_array)
-       call sort_arrays(input_string,'+', ordered_array, theta_hkl)
+       call sort_arrays(input_string,'+', ordered_array, theta_hkl, 'out')
 
 
      case ('sort_int')
@@ -861,7 +1049,7 @@ subroutine classement(n, input_string)
        call write_info('')
 
       call sort(I_, n_ref, ordered_array)
-      call sort_arrays(input_string,'-', ordered_array, I_)
+      call sort_arrays(input_string,'-', ordered_array, I_, 'out')
 
       F2(1:n_ref) = I_(1:n_ref)
 
@@ -871,7 +1059,7 @@ subroutine classement(n, input_string)
        call write_info('')
 
       call sort(I_sigma, n_ref, ordered_array)
-      call sort_arrays(input_string,'-', ordered_array, I_sigma)
+      call sort_arrays(input_string,'-', ordered_array, I_sigma, 'out')
 
       F2(1:n_ref) = I_(1:n_ref)
 
@@ -920,20 +1108,33 @@ subroutine classement(n, input_string)
    sig_coef = 1.
    ! -----------------------------------------------
 
+   sort_X      = .false.
+   X_stl       = .false.
+   X_d         = .false.
+   X_theta     = .false.
+   X_int       = .false.
+   X_isig      = .false.
+   shell_X     = .false.
+   shell_stl   = .false.
+   shell_theta = .false.
+   shell_d     = .false.
+   shell_int   = .false.
+   shell_isig  = .false.
+	
 
    IF(keyword_CELL) then
-    sort_X      = .false.
-    X_stl       = .false.
-	X_d         = .false.
-	X_theta     = .false.
-	X_int       = .false.
-	X_isig      = .false.
-	shell_X     = .false.
-	shell_stl   = .false.
-	shell_theta = .false.
-	shell_d     = .false.
-	shell_int   = .false.
-	shell_isig  = .false.
+    !sort_X      = .false.
+    !X_stl       = .false.
+	!X_d         = .false.
+	!X_theta     = .false.
+	!X_int       = .false.
+	!X_isig      = .false.
+	!shell_X     = .false.
+	!shell_stl   = .false.
+	!shell_theta = .false.
+	!shell_d     = .false.
+	!shell_int   = .false.
+	!shell_isig  = .false.
 	
     if(long_input_string >= 5) then
 	 if(input_string(1:5) == 'sort_') sort_X = .true.
@@ -1079,6 +1280,7 @@ subroutine classement(n, input_string)
    endif
 
    IF(sort_X .or. shell_isig) then
+    call write_info('')
     IF(.not. HKL_file%M91 .and. .not. HKL_file%M95) then
      write(message_text,'(a,2F8.2)')       '  Experimental (I/sig) shell:           ', min_cut_off, max_cut_off
     else
@@ -1134,7 +1336,7 @@ subroutine classement(n, input_string)
 
    call Allocate_PGF_data_arrays(n_ref)
    
-    call write_info('')
+    !call write_info('')
     select case (input_string)
      case ('sort_d', 'shell_d')
       n_ref_eff      = 0
@@ -1163,7 +1365,8 @@ subroutine classement(n, input_string)
         endif
        endif
       end do
-      IF(sort_out(n)) call write_info(' ')
+
+      IF(sort_out(n)) call write_info(' ')	  
       call write_info('  >>> '//TRIM(HKL_file%d)// ' file has been created.')
       WRITE(message_text, '(a,I8)')          '     . number of reflections          : ', n_ref_eff
       call write_info(TRIM(message_text))
@@ -1285,6 +1488,7 @@ subroutine classement(n, input_string)
       END if
       	
      case ('sort_int', 'shell_int')
+	  if(debug_proc%level_2)  call write_debug_proc_level(2, "WRITE_SORTED_FILE")
       do i=1, n_ref
        if(F2(i) >= expected_min_intensity .and. F2(i)  <= expected_max_intensity)  call write_sorted_file(i)       	
       end do
@@ -1313,6 +1517,7 @@ end subroutine classement
 !---------------------------------------------------------------------------------------------
 
 subroutine calcul_Q(h,k,l,cell,Q)
+ use cryscal_module, only : debug_proc
  implicit none
   real,               intent(in)       :: h,k,l
   real, dimension(6), intent(in)       :: cell
@@ -1324,7 +1529,10 @@ subroutine calcul_Q(h,k,l,cell,Q)
   real, dimension(3)                   :: cell_star      ! parametre de la maille reciproque
   real, dimension(3)                   :: cell_rad, cos_cell_star
   real                                 :: Q1, Q2, Q3, Q4, Q5, Q6
+  
+  !if(debug_proc%level_3)  call write_debug_proc_level(3, "CALCUL_Q")
 
+  
   pi = 4 * ATAN(1.)
 
  ! Qhkl = (h.as + k.bs + l.cs)**2
@@ -1380,7 +1588,8 @@ end subroutine calcul_Q
 
 
  ! classement d'un tableau X,Y... par ordre croissant des X
-  USE cryscal_module, ONLY : message_text
+  USE cryscal_module, ONLY : message_text, debug_proc
+  USE macros_module,  ONLY : multiple
   USE IO_module,      ONLY : write_info
 
   implicit none
@@ -1396,6 +1605,8 @@ end subroutine calcul_Q
    real                           :: real_temp
    integer                        :: i_temp
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "CLASSEMENT_PAR_ORDRE_CROISSANT")
+   
    if (sort_type(1:3) == 'stl') then
     comment = 'Sintheta/lambda'
    ELSEIF(sort_type(1:1)== 'd') then
@@ -1479,7 +1690,8 @@ end subroutine calcul_Q
      END if
     END do
 
-    if (1000*int(i/1000) == i ) then
+    !if (1000*int(i/1000) == i ) then
+	if(multiple(i, 1000)) then
      write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)') '   ...',i, ' ...   ',trim(comment), ' = ', Z(i), &
                                                      '  (',indice_h(i), indice_k(i),indice_l(i),')'
      call write_info(TRIM(message_text))
@@ -1499,8 +1711,9 @@ end subroutine calcul_Q
  subroutine classement_par_ordre_decroissant(sort_type, N, Z, indice_h, indice_k, indice_l, col4, col5, &
                                              i_code,cos1, cos2, cos3, cos4, cos5, cos6)
 
-   USE cryscal_module, ONLY : message_text
- USE IO_module,        ONLY : write_info
+   USE cryscal_module, ONLY : message_text, debug_proc
+   USE macros_module,  ONLY : multiple
+   USE IO_module,      ONLY : write_info
 
  ! classement d'un tableau X,Y... par ordre decroissant des X
 
@@ -1517,6 +1730,8 @@ end subroutine calcul_Q
    real                           :: real_temp
    integer                        :: i_temp
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "CLASSEMENT_PAR_ORDRE_DECROISSANT")
+   
    if (sort_type(1:3) == 'int' ) then
     comment = 'Intensity'
    elseif(sort_type(1:5) == 'isig') then
@@ -1594,7 +1809,8 @@ end subroutine calcul_Q
      END if
     END do
 
-    if (1000*int(i/1000) == i) then
+    !if (1000*int(i/1000) == i) then
+	if(multiple(i, 1000)) then
      write(message_text,'(a,i6,a,a,a,F10.5)') '   ...',i, ' ...   ',trim(comment), ' = ', Z(i)
      call write_info(TRIM(message_text))
     endif
@@ -1610,11 +1826,12 @@ end subroutine calcul_Q
 !--------------------------------------------------------------------------
 !-----------------------------------------------------------------------------------------------------------------------
 
- subroutine sort_arrays(sort_type, sort_sign, ordered, Z)
+ subroutine sort_arrays(sort_type, sort_sign, ordered, Z, input_string)
 
  ! classement d'un tableau X,Y... par ordre croissant des X
-   USE cryscal_module, ONLY : message_text, max_ref
+   USE cryscal_module, ONLY : message_text, max_ref, debug_proc
    USE IO_module,      ONLY : write_info
+   USE macros_module,  ONLY : multiple
    USE HKL_module,     ONLY : n_ref, h, k,l, F2, sig_F2, code, cos_dir, HKL_flag
 
   implicit none
@@ -1622,7 +1839,8 @@ end subroutine calcul_Q
    CHARACTER  (LEN=*),                INTENT(IN)              :: sort_sign
    INTEGER,       DIMENSION(N_ref),   INTENT(IN)              :: ordered
    REAL,          DIMENSION(N_ref),   INTENT(INOUT)           :: Z
-
+   CHARACTER(len=*),                  intent(in)              :: input_string
+   
    !local variables
    character (len=32)             :: comment
    integer                        :: i, rang
@@ -1631,6 +1849,8 @@ end subroutine calcul_Q
    integer, allocatable, DIMENSION(:,:)    :: temp_H
    INTEGER, allocatable, DIMENSION(:)      :: temp_code
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "SORT_ARRAYS ("//trim(input_string)//")")
+   
    if (ALLOCATED(temp_Z))      DEALLOCATE(temp_Z)
    if (ALLOCATED(temp_F2))     DEALLOCATE(temp_F2)
    if (ALLOCATED(temp_sig_F2)) DEALLOCATE(temp_sig_F2)
@@ -1681,8 +1901,9 @@ end subroutine calcul_Q
          temp_code(i)     = code(rang)
          temp_cos(i,1:6)  = cos_dir(rang,1:6)
 
-         if (1000*int(i/1000) == i ) then
-   		   write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
+         !if (input_string(1:3) =='out' .and. 1000*int(i/1000) == i ) then
+		 if(input_string(1:3) == 'out' .and. multiple(i, 1000)) then
+		   write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
                                                               '  (',temp_H(i,1), temp_H(i,2),temp_H(i,3),')'
 		   call write_info(TRIM(message_text))
          endif
@@ -1708,7 +1929,8 @@ end subroutine calcul_Q
          temp_sig_F2(i)   = sig_F2(rang)
          temp_code(i)     = code(rang)
          temp_cos(i,1:6)  = cos_dir(rang,1:6)
-         if (1000*int(i/1000) == i ) then
+		 !if (input_string(1:3) =='out' .and. 1000*int(i/1000) == i ) then
+		 if(input_string(1:3) == 'out' .and. multiple(i, 1000)) then
 		   write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',i, ' ...   ',trim(comment), ' = ', temp_Z(i), &
                                                      '  (',temp_H(i,1), temp_H(i,2),temp_H(i,3),')'
            call write_info(TRIM(message_text))
@@ -1736,10 +1958,11 @@ end subroutine calcul_Q
    !HKL_flag(1:n_ref, 1) = ordered(1:n_ref)
 
 
-
+   if(input_string(1:3) =='out') then
    write(message_text,'(a,i6,a,a,a,F10.5,a,3I4,a)')   '   ...',n_ref, ' ...   ',trim(comment), ' = ', Z(n_ref), &
                                                      '  (',h(n_ref), k(n_ref),l(n_ref),')'
    call write_info(TRIM(message_text))
+   endif
 
    if (ALLOCATED(temp_Z))      DEALLOCATE(temp_Z)
    if (ALLOCATED(temp_F2))     DEALLOCATE(temp_F2)
@@ -1803,34 +2026,36 @@ end subroutine calcul_Q
 !-----------------------------------------------------------------
 subroutine write_sorted_file(i)
  use hkl_module
+ use cryscal_module, only : debug_proc
  implicit none
   integer, intent(in) :: i
   INTEGER             :: j
 
+  !if(debug_proc%level_2)  call write_debug_proc_level(2, "WRITE_SORTED_FILE")
+  
+   if (cos_exist) then
+     write(12, '(3I4,2F8.2,I4,6F8.5)')h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef , code(i), &
+                                     (cos_dir(i,j),j=1,6)
+    !IF(cif_file) then
+    ! write(13, '(i4,2i5,2F9.2,I5)')   h(i), k(i), l(i), F2(i), sig_F2(i)/sig_coef, code(i)
+    ! WRITE(13, '(F8.5,5F9.5)')        (cos_dir(j),j=1,6)
+    !endif
 
-        if (cos_exist) then
-         write(12, '(3I4,2F8.2,I4,6F8.5)')h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef , code(i), &
-                                         (cos_dir(i,j),j=1,6)
-         !IF(cif_file) then
-         ! write(13, '(i4,2i5,2F9.2,I5)')   h(i), k(i), l(i), F2(i), sig_F2(i)/sig_coef, code(i)
-         ! WRITE(13, '(F8.5,5F9.5)')        (cos_dir(j),j=1,6)
-         !endif
+   else
 
-        else
-
-         IF(HKL_file%M91) then
-          write(12, '(3I4,2F9.1,I4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, TRIM(HKL_line(i))
-         ELSEIF(HKL_file%M95) then
-          WRITE(12, '(I6,3I4,4F7.2,2E15.6, F10.3, 2i2)') HKL_flag(i,1), h(i), k(i), l(i), cos_dir(i,1:4), &
-		                                                 F2(i), sig_F2(i)/sig_coef, cos_dir(i,5), HKL_flag(i,2:3)
-          WRITE(12, '(a)')                               TRIM(HKL_line(i))
-         else
-          write(12, '(3I4,2F8.2,i4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, code(i)
-         endif
-         !IF(cif_file) then
-         ! WRITE(13, '(i4,2i5,2F9.2,I5)')      h(i), k(i), l(i), F2(i), sig_F2(i)/sig_coef, code(i)   ! sans les cos. dir.
-         !endif
-        end if
+    IF(HKL_file%M91) then
+     write(12, '(3I4,2F9.1,I4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, TRIM(HKL_line(i))
+    ELSEIF(HKL_file%M95) then
+     WRITE(12, '(I6,3I4,4F7.2,2E15.6, F10.3, 2i2)') HKL_flag(i,1), h(i), k(i), l(i), cos_dir(i,1:4), &
+	                                             F2(i), sig_F2(i)/sig_coef, cos_dir(i,5), HKL_flag(i,2:3)
+     WRITE(12, '(a)')                               TRIM(HKL_line(i))
+    else
+     write(12, '(3I4,2F8.2,i4)')      h(i), k(i), l(i), F2(i), sig_f2(i)/sig_coef, code(i)
+    endif
+    !IF(cif_file) then
+     ! WRITE(13, '(i4,2i5,2F9.2,I5)')      h(i), k(i), l(i), F2(i), sig_F2(i)/sig_coef, code(i)   ! sans les cos. dir.
+    !endif
+   end if
 
  return
 end subroutine write_sorted_file

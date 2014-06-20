@@ -1,6 +1,7 @@
 !     Last change:  TR   24 Jan 2007    3:04 pm
 !subroutine create_PGF_file(X,Y, h,k,l, npts, X_legend )
 subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
+ !USE cryscal_module, only : debug_proc
  implicit none
   character (len=*), intent(in)          :: pgf_file
   REAL,    INTENT(IN), DIMENSION(npts)   :: X, Y
@@ -13,6 +14,8 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   character (len=64)                     :: titre
   REAL                                   :: Xmin, Xmax, Ymin, Ymax
 
+  !if(debug_proc%level_2)  call write_debug_proc_level(2, "create_PGF_file")
+  
  ! creation d'un fichier format PGF (pour WinPLOTR): F2 = f(sinTheta/wave)
 
  ! entete

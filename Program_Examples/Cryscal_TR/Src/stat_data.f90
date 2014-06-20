@@ -1,7 +1,7 @@
 !     Last change:  TR   19 Sep 2006    4:01 pm
 !--------------------------------------------------------------------------
  subroutine test_ratio_I_sig()
- USE cryscal_module, ONLY   : message_text
+ USE cryscal_module, ONLY   : message_text, debug_proc 
  use hkl_module,     only   : F2, sig_F2, n_ref
  USE IO_module,      ONLY : write_info
   implicit none
@@ -11,8 +11,8 @@
    integer, dimension(11)                      :: nb_ratio
    integer                                     :: i, n
 
-
-
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "test_ratio_I_sig")
+  
    ! statistique sur les I/sig
    nb_I_neg = 0
    nb_sig0  = 0
@@ -204,7 +204,7 @@
    ! statistiques sur la repartition en fonction de sintheta/lambda
 
 subroutine  stat_repartition_sintheta_lambda()
- USE cryscal_module, ONLY   : message_text
+ USE cryscal_module, ONLY   : message_text, debug_proc
  use hkl_module,     ONLY   : F2, sintheta_lambda, n_ref
  USE IO_module,      ONLY   : write_info
  implicit none
@@ -215,6 +215,8 @@ subroutine  stat_repartition_sintheta_lambda()
   integer                               :: i
   character(len=128)                    :: fmt_, range_
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_sintheta_lambda")
+  
   sintheta_lambda_max = maxval(sintheta_lambda(1:n_ref))
 
   nb_shell(1:15)=0
@@ -222,6 +224,7 @@ subroutine  stat_repartition_sintheta_lambda()
   F2_min_shell(1:15)  = 1.E09
   F2_max_shell(1:15)  = -1.E09
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "statistic_shell_stl")
   do i=1, n_ref
    if (sintheta_lambda(i) < 0.1) then
     call statistic_shell(1, F2(i), nb_shell, F2_mean_shell, F2_min_shell, F2_max_shell, 15)
@@ -275,7 +278,8 @@ subroutine  stat_repartition_sintheta_lambda()
   end do
    call write_info(' ')
    call write_info('   ---- Number of reflections in sintheta/lambda ranges:')
-   call write_info('  sinTheta/lambda range       reflections         <F2>       F2_min       F2_max')
+   call write_info(' ')   
+   call write_info('  sinTheta/lambda range       reflections            <F2>        F2_min        F2_max')
 
    fmt_ = '(a,3x,I8,a,F7.3,a,3(5x,F9.2))'
   do i = 1, 15
@@ -295,7 +299,7 @@ end subroutine  stat_repartition_sintheta_lambda
    ! statistiques sur la repartition en fonction de d_hkl
 
 subroutine  stat_repartition_d_hkl()
- USE cryscal_module, ONLY   : message_text
+ USE cryscal_module, ONLY   : message_text, debug_proc
  use hkl_module,     ONLY   :  F2, sig_F2, d_hkl, n_ref
  USE IO_module,      ONLY   : write_info
  implicit none
@@ -307,6 +311,8 @@ subroutine  stat_repartition_d_hkl()
   integer                               :: i
   character(len=128)                    :: fmt_, range_
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_d_hkl")
+  
   d_hkl_max = maxval(d_hkl(1:n_ref))
   d_hkl_min = maxval(d_hkl(1:n_ref))
 
@@ -350,7 +356,7 @@ subroutine  stat_repartition_d_hkl()
    call write_info(' ')
    call write_info('   ---- Number of reflections in d_hkl ranges:')
    call write_info(' ')
-   call write_info('        d_hkl range        reflections         <F2>       F2_min       F2_max')
+   call write_info('        d_hkl range        reflections           <F2>        F2_min        F2_max')
 
    fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
   do i = 1, 10
@@ -370,7 +376,7 @@ end subroutine  stat_repartition_d_hkl
    ! statistiques sur la repartition en fonction de theta
 
 subroutine  stat_repartition_theta ()
- USE cryscal_module, ONLY   : message_text
+ USE cryscal_module, ONLY   : message_text, debug_proc
  USE hkl_module,     ONLY   : F2, sig_F2, theta_hkl, n_ref
  USE IO_module,      ONLY   : write_info
  implicit none
@@ -382,6 +388,8 @@ subroutine  stat_repartition_theta ()
   integer                               :: i
   character(len=128)                    :: fmt_, range_
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "stat_repartition_theta")
+  
   theta_min = minval(theta_hkl(1:n_ref))
   theta_max = maxval(theta_hkl(1:n_ref))
 
@@ -402,7 +410,7 @@ subroutine  stat_repartition_theta ()
   theta_shell(10) = 50.
   theta_shell(11) = 60.
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "statistic_shell_theta")
   do i=1, n_ref
    if (theta_hkl(i) < theta_shell(1)) then
     call statistic_shell(1, F2(i), nb_shell, F2_mean_shell, F2_min_shell, F2_max_shell,12)
@@ -454,7 +462,7 @@ subroutine  stat_repartition_theta ()
    call write_info('')
    call write_info('   ---- Number of reflections in theta ranges:')
    call write_info('')
-   call write_info('        theta range        reflections         <F2>       F2_min       F2_max')
+   call write_info('        theta range        reflections           <F2>        F2_min        F2_max')
 
    fmt_ = '(a,3x,I8,6x,3(5x,F9.2))'
   do i = 1, 12
@@ -479,6 +487,7 @@ end subroutine  stat_repartition_theta
 
 !-----------------------------------------------------------------------------------------
 subroutine  statistic_d_shell(num_shell, nb_shell, d_hkl_, F2_,F2_mean_shell, F2_min_shell, F2_max_shell, d_shell_min, d_shell_max)
+ use cryscal_module, only : debug_proc
  implicit none
   INTEGER, INTENT(IN)                    :: num_shell
   REAL,    INTENT(IN)                    :: d_hkl_
@@ -487,6 +496,7 @@ subroutine  statistic_d_shell(num_shell, nb_shell, d_hkl_, F2_,F2_mean_shell, F2
   REAL,    INTENT(INOUT), DIMENSION(10)  :: F2_mean_shell, F2_min_shell, F2_max_shell
   REAL,    INTENT(INOUT), DIMENSION(10)  :: d_shell_min, d_shell_max
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "statistic_d_shell")
 
   nb_shell(num_shell) = nb_shell(num_shell) + 1
   F2_mean_shell(num_shell) = F2_mean_shell(num_shell) + F2_
@@ -509,6 +519,7 @@ end subroutine statistic_d_shell
 
 
 subroutine statistic_shell(num_shell, F2_, nb_shell, F2_mean_shell, F2_min_shell, F2_max_shell,dim_shell)
+ use cryscal_module, only : debug_proc
  implicit none
   integer, intent(in)                          :: num_shell
   real,    intent(in)                          :: F2_
@@ -516,6 +527,7 @@ subroutine statistic_shell(num_shell, F2_, nb_shell, F2_mean_shell, F2_min_shell
   integer, intent(inout), dimension(dim_shell) :: nb_shell
   real,    intent(inout), dimension(dim_shell) :: F2_mean_shell, F2_min_shell, F2_max_shell
 
+  !if(debug_proc%level_2)  call write_debug_proc_level(2, "statistic_shell")
 
    nb_shell(num_shell) = nb_shell(num_shell) + 1
    F2_mean_shell(num_shell) = F2_mean_shell(num_shell) + F2_
@@ -532,12 +544,13 @@ end subroutine statistic_shell
 
 subroutine statistics_on_E2()
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY: message_text
+ USE cryscal_module, ONLY: message_text, debug_proc
  use  HKL_module
  implicit none
   INTEGER   :: i
   real      :: n_1, n_2, n_3
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "statistics_on_E2")
 
  write(message_text,'(a)')              '   ---- Statistics on E and E2: '
   call write_info(TRIM(message_text))

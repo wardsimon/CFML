@@ -6,7 +6,8 @@ subroutine space_group_info
                                             write_SPG_subgroups, message_text,                    &
                                             SPG, keyword_create_CIF,                              &
                                             keyword_CELL, unit_cell, CIF_cell_measurement,        &
-                                            CIF_diffrn_reflns, input_PCR, known_cell_esd, keyword_read_INS
+                                            CIF_diffrn_reflns, input_PCR, known_cell_esd, keyword_read_INS, &
+											keyword_ATOM_list, nb_atom, debug_proc
  
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, write_spacegroup,  Symmetry_Symbol,   &
                                             Wyckoff_Type, Wyck_Pos_Type,                          &
@@ -36,7 +37,7 @@ subroutine space_group_info
   logical                               :: enantio, chiral, polar
   CHARACTER (len=32)                    :: MOVE_string
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "SPACE_GROUP_INFO")
 
  !open (unit=3, file="sg.out", status="replace")
  call set_spacegroup(space_group_symbol, SPG)
@@ -91,6 +92,16 @@ subroutine space_group_info
     WRITE(message_text, '(a,i3)') '              centric : no'
    endif
    call write_info(TRIM(message_text))
+
+   if( SPG%centred == 1) then
+    call test_chiral(SPG%NUmSPG, chiral)
+    if(chiral) then
+     WRITE(message_text, '(a,i3)') '               chiral : yes'
+    else
+     WRITE(message_text, '(a,i3)') '               chiral : no'
+    endif
+    call write_info(TRIM(message_text))
+   endif	
    
    WRITE(message_text, '(a,i3)') ' general multiplicity : ', SPG%multip
    call write_info(TRIM(message_text))
@@ -105,6 +116,7 @@ subroutine space_group_info
  IF(WRITE_SPG_info)   call write_symm_op_reduced_set()             ! space_group.F90
 
  IF(write_spg_exti) then
+  call test_hkl_equiv_condition(SPG%NUmSPG)
   CLOSE(UNIT=3)
   open (unit=3, file="sg.out", status="replace")
   call search_extinctions(SPG, 3)
@@ -163,15 +175,18 @@ subroutine space_group_info
 
 
   IF(keyword_CELL) then
-   IF(unit_cell%volume < 0.1) call volume_calculation('no_out')
-   IF(known_CELL_esd) then
-    call write_CIF_file('CELL_PARAM_ESD')
-   else
-    call write_CIF_file('CELL_PARAM')
-   endif
+   IF(unit_cell%volume < 0.1) call volume_calculation('out')
+   !call write_CIF_file('UNIT_CELL_INFO')
+   !IF(known_CELL_esd) then
+   ! call write_CIF_file('CELL_PARAM_ESD')
+   !else
+   ! call write_CIF_file('CELL_PARAM')
+   !endif
 
    ! CIF_Thmin, CIF_Thmax
     call write_CIF_file("CIF_THMIN,THMAX")
+	
+	IF(nb_atom /=0 .AND. ON_SCREEN)  call write_atom_list
   endif
  endif
 
@@ -233,27 +248,27 @@ subroutine space_group_info
   endif
 
  
-  if(WRITE_SPG_info .AND. SPG%centred ==1) then
+  if(WRITE_SPG_info .AND. SPG%centred ==1 .and. on_screen) then
     call test_enantio(SPG%NumSPG, enantio)    
 	call test_chiral(SPG%NUmSPG, chiral)
     call test_polar(SPG%NUmSPG, polar)	
 	call write_info("")   
 	if(chiral) then
-	 call write_info(" => Chiral space group:         yes")
+	 call write_info(" => Chiral space group:          yes")
 	else
-	 call write_info(" => Chiral space group:         no")
+	 call write_info(" => Chiral space group:          no")
 	endif
 	if(polar) then
-	 call write_info(" => Polar space group:          yes")
+	 call write_info(" => Polar space group:           yes")
 	else
-	 call write_info(" => Polar space group:          no")
+	 call write_info(" => Polar space group:           no")
 	endif
     if(enantio) then
-     call write_info(" => Enantiomorphic space group: yes")
+     call write_info(" => Enantiomorphic space group:  yes")
  	 call write_info(" => Inverse structure in SHELXL: MOVE 1 1 1 -1 and invert translation parts of the s.o.")
     else	
 	 call get_MOVE_string(Move_string)
-     call write_info(" => Enantiomorphic space group: no")
+     call write_info(" => Enantiomorphic space group:  no")
 	 call write_info(" => Inverse structure in SHELXL: "//trim(MOVE_string))
     endif 
    endif 	
@@ -262,7 +277,7 @@ subroutine space_group_info
 end subroutine space_group_info
 
 !-----------------------------------------------------------------------------------
-subroutine get_SITE_info()
+subroutine get_SITE_info(input_string)
  USE cryscal_module 
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
@@ -275,6 +290,7 @@ subroutine get_SITE_info()
  USE CFML_GlobalDeps,                 ONLY : sp, cp
 
  implicit none
+  character (len=*), intent(in)      :: input_string
  ! local variables
   INTEGER                            :: i, j, k
   REAL (kind=cp), DIMENSION(3)       :: r
@@ -302,7 +318,7 @@ subroutine get_SITE_info()
   integer                            :: codini
   real(kind=cp), dimension(6)        :: codes  !codewords for positions
 
-  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_INFO ("//trim(input_string)//")")
 
   call set_epsg(0.001_cp)  !In mathematical comparisons -> CFML_Math_General
 
@@ -353,7 +369,10 @@ subroutine get_SITE_info()
    WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
    call write_info(trim(message_text))
    
-
+   WRITE(message_text,'(a,F12.8)')  '     . site occupancy   : ', real(site_multiplicity)/SPG%multip
+   call write_info(trim(message_text))
+   
+   
    call write_info('     . list of symmetry operators and symmetry elements of the site point group:')
 
    !do j=1, site_multiplicity
@@ -386,6 +405,36 @@ subroutine get_SITE_info()
     call write_info(trim(message_text))  
    END do
    
+   if(len_trim(input_string)==3 .and. input_string(1:3) == 'pcr') then
+    call write_info('')
+	call write_info('!Atom Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes')
+    call write_info('!    beta11   beta22   beta33   beta12   beta13   beta23  /Codes')
+    do j=1,  wyckoff%num_orbit
+     write(message_text, '(a6,a,i1,2a,3f9.5,3x,a)') trim(atom_label(i)),'_',j,"   ",trim(atom_typ(i)), orbit(:,j), &
+	                                                '   0.300    1.000   0   0   0'      
+	 call write_info(trim(message_text))
+	 write(message_text, '(17x,a)')   '0.000    0.000    0.000      0.000    0.000' 
+	 call write_info(trim(message_text))
+	end do
+   end if
+   
+   if(len_trim(input_string)==7 .and. input_string(1:7) == 'pcr_mag') then
+    call write_info('')
+	call write_info('!Atom Typ  Mag Vek    X      Y      Z       Biso   Occ      Rx      Ry      Rz')
+    call write_info('!     Ix     Iy     Iz    beta11  beta22  beta33   MagPh')
+    do j=1,  wyckoff%num_orbit
+     write(message_text, '(a6,a,i1,3a,3f8.5,a)') trim(atom_label(i)),'_',j,"   ?",trim(atom_typ(i)), '?   1   0  ', orbit(:,j), &
+	                                                ' 0.30000 1.00000   0.000   0.000   0.000'      
+	 call write_info(trim(message_text))
+	 write(message_text, '(29x,a)')   '0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00' 
+	 call write_info(trim(message_text))
+	 write(message_text, '(20x,a)')   '0.000   0.000   0.000   0.000   0.000   0.000 0.00000' 
+	 call write_info(trim(message_text))
+	 write(message_text, '(20x,a)')   ' 0.00    0.00    0.00    0.00    0.00    0.00    0.00' 
+	 call write_info(trim(message_text))
+	end do
+   end if
+   
 
    
    ! constrains on ADP
@@ -414,7 +463,7 @@ end subroutine get_site_info
 subroutine write_symm_op_reduced_set()
  USE IO_module,                      ONLY : write_info
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, searchop, write_sym
- USE cryscal_module,                 ONLY : ON_SCREEN, SPG, message_text
+ USE cryscal_module,                 ONLY : ON_SCREEN, SPG, message_text, debug_proc
  USE CFML_symmetry_tables,           ONLY : intsymoh,x_oh, intsymd6h,x_d6h
 
  implicit none
@@ -422,7 +471,8 @@ subroutine write_symm_op_reduced_set()
   INTEGER                         :: i, j, i1, i2
   INTEGER, DIMENSION(192)         :: indx_op
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "WRItE_SYMM_OP_REDUCED_SET")
+  
   !open (unit=3, file="sg.out", status="replace")
   !do i=1, SPG%multip
   ! WRITE(*,*)

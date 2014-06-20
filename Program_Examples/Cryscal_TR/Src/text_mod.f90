@@ -1,12 +1,9 @@
-!     Last change:  TR    2 May 2008   12:34 pm
-!     Last change:  TR    2 May 2008   12:34 pm
-!--------------------------------------------------------------------
 
 module text_module
  USE cryscal_module, ONLY: nb_help_max
  implicit none
  INTEGER, parameter                    :: title_lines_nb      = 19
- INTEGER, parameter                    :: header_lines_nb     = 58
+ INTEGER, parameter                    :: header_lines_nb     = 60
  INTEGER, parameter                    :: CIF_lines_nb        = 10
 
 
@@ -24,7 +21,6 @@ module text_module
 
 
 end module text_module
-!-------------------------------------------------------------------------------
 
 subroutine def_title_lines
  USE CRYSCAL_module, ONLY : cryscal_version
@@ -36,23 +32,23 @@ subroutine def_title_lines
  title_line(4) ='  *                 CRYSTALLOGRAPHIC CALCULATIONS             *'
  title_line(5) ='  *                                                           *'
  title_line(6) ='  *                                                           *'
- title_line(7) ='  *                (T.R. / CDIFX - UMR6226 Rennes)            *'
- title_line(8) ='  *                           '// cryscal_version(1:16)// '                *'
- title_line(9) ='  *                                                           *'
- title_line(10)='  *            with courtesy of JRC and JGP for CFML          *'
- title_line(11)='  *                                                           *'
+ title_line(7) ='  *                          T. Roisnel                       *'
+ title_line(8) ='  *                 (CDIFX - ISCR UMR6226 Rennes)             *'
+ title_line(9) ='  *                           '// cryscal_version(1:16)// '                *'
+ title_line(10)='  *                                                           *'
+ title_line(11)='  *            with courtesy of JRC and JGP for CFML          *'
  title_line(12)='  *                                                           *'
- title_line(13)='  *              (beta version still under tests)             *'
+ title_line(13)='  *                                                           *'
+!title_line(14)='  *              (beta version still under tests)             *'
  title_line(14)='  *               contact: cdifx@univ-rennes1.fr              *'
  title_line(15)='  *                                                           *'
- title_line(16)='  *      Web site : www.cdifx.univ-rennes1.fr/cryscal.htm     *'
+ title_line(16)='  *         Web site : www.cdifx.univ-rennes1.fr/cryscal      *'
  title_line(17)='  *                                                           *'
  title_line(18)='  *************************************************************'
  title_line(19)=' '
 
 end subroutine  def_title_lines
 
-!-----------------------------------------------------------------------------------------
 subroutine def_CIF_file_title
  use text_module, only : CIF_title_line
 
@@ -60,12 +56,11 @@ subroutine def_CIF_file_title
 
  CIF_title_line(1) = '###########################################################'
  CIF_title_line(2) = '#                   CIF file created by CRYSCAL           #'
- CIF_title_line(3) = '#                  T.R. / CDIFX Rennes / 2006-11          #'
+ CIF_title_line(3) = '#                  T.R. / CDIFX Rennes / 2007-14          #'
  CIF_title_line(4) = '#                www.cdifx.univ-rennes1.fr/cryscal        #'
  CIF_title_line(5) = '###########################################################'
 
 end subroutine def_CIF_file_title
-!-------------------------------------------------------------------------------
 
 
 subroutine def_header_lines()
@@ -89,12 +84,12 @@ subroutine def_header_lines()
  n = n + 1; header_line(n) = '       symmetry operators, extinctions ...'
  n = n + 1; header_line(n) = '     . calculation of d_hkl, Q_hkl, 2theta_hkl (including a propagation wave'
  n = n + 1; header_line(n) = '       vector)'
- n = n + 1; header_line(n) = '     . hkl generation for a given space group' 
+ n = n + 1; header_line(n) = '     . hkl generation for a given space group'
  n = n + 1; header_line(n) = '     . structure factor calculation (Xrays, neutrons, electrons)'
- n = n + 1; header_line(n) = '     . simulation of pouwder diffraction pattern (X, neutrons)'
+ n = n + 1; header_line(n) = '     . simulation of powder diffraction pattern (X, neutrons)'
  n = n + 1; header_line(n) = '     . geometric calculations: interatomic distances, angles, connectivity, '
- n = n + 1; header_line(n) = '       centroid coordinates, angles between 2 vectors in direct and reciprocal '
- n = n + 1; header_line(n) = '       space, ...'
+ n = n + 1; header_line(n) = '       bond valence sums (BVS), centroid coordinates, angles between 2 '
+ n = n + 1; header_line(n) = '       vectors in direct and reciprocal space, ...'
  n = n + 1; header_line(n) = '     . atomic features: weight, density, electronic configuration, ionic and'
  n = n + 1; header_line(n) = '       Shannon radii, neutron data, X-rays data ...'
  n = n + 1; header_line(n) = '     . molecular informations: molecular weight, density ...'
@@ -103,6 +98,8 @@ subroutine def_header_lines()
  n = n + 1; header_line(n) = '     . transformation of unit cell, atomic coodinates and hkl files '
  n = n + 1; header_line(n) = '     . statistics on hkl file and sort of hkl data'
  n = n + 1; header_line(n) = '     . search for systematic extinctions and space group'
+ n = n + 1; header_line(n) = '     . ADP parameters conversion'
+ n = n + 1; header_line(n) = '     . create HTML report from a CIF file'
  n = n + 1; header_line(n) = '     ... '
  n = n + 1; header_line(n) = '      '
  n = n + 1; header_line(n) = '   CRYSCAL can be run through an input file containing a list of keywords,'
@@ -133,7 +130,6 @@ subroutine def_header_lines()
  n = n + 1; header_line(n) = ''
 
 end subroutine def_header_lines
-!-------------------------------------------------------------------------------
 
 
 subroutine def_keywords_lines()
@@ -142,15 +138,14 @@ subroutine def_keywords_lines()
   implicit none
   integer                    :: n, HELP_numor
 
- ! 1
+ ! numor = 1
   n = 0    ;  HELP_numor = HELP_ABSENT_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ABSENT_HKL:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           no argument'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             list observed reflections (with F2>0.) that shoud'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           be absent for a given space group'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             search for observed reflections (with F2>0.) that'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           should be absent for a given space group'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal arguments: . arg = "ALL": all the violations reflections are'
   n = n + 1;  HELP_line(HELP_numor, n) = '                                          output'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . arg = "OUT": requested reflections are output on'
@@ -164,8 +159,8 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  
-  ! 2
+
+ ! numor = 2
   n = 0    ;  HELP_numor = HELP_ABSORPTION_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ABSORPTION:'
@@ -174,13 +169,13 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           no argument'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             absorption coefficient calculation'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keywords:  CELL, WAVE, CONT / CHEM'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  ABSORPTION, ABSORPTION_CALC, CALC_ABSORPTION'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           MU, CALC_MU, MU_CALC' 
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  ABSORPTION, ABSORPTION_CALC, CALC_ABSORPTION,'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MU, CALC_MU, MU_CALC'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
-  
 
- ! 3
+
+ ! numor = 3
   n = 0    ;  HELP_numor = HELP_ACTA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ACTA:'
@@ -193,7 +188,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 4
+ ! numor = 4
   n = 0    ; HELP_numor = HELP_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ANG:'
@@ -221,7 +216,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 5
+ ! numor = 5
   n = 0    ; HELP_numor = HELP_APPLY_OP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > APPLY_OP:'
@@ -236,7 +231,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 6
+ ! numor = 6
   n = 0    ;  HELP_numor = HELP_ATOM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ATOM:'
@@ -244,7 +239,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           2 character strings and 5 reals '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             . string #1: atomic label'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           . string #2: atom type (see SFAC)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           . string #2: atom type (can contain oxdation state)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . x,y,z atomic reduced coordinates'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           . Biso, site occupancy (%)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . remarks:             . if Biso   is missing: Biso = 0.0'
@@ -254,39 +249,50 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           ATOM C8   C   0.02071 -0.12436  0.36957   0.30  1.'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           ATOM C9   C  -0.27497 -0.07538  0.27585   0.30  1.'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           ATOM C10  C  -0.16896 -0.18823  0.36382   0.32  1.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           ATOM Si1 Si+4   0.53245 0.53245 0.5'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           ATOM O1  O-2    0.58566 0.85594 0.61727'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  ATOM, ATM'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 7
+ ! numor = 7
   n= 0     ;  HELP_numor = HELP_ATOM_LIST_numor
   n = n + 1;  HELP_line(HELP_numor, n)   = ''
   n = n + 1;  HELP_line(HELP_numor, n)   = ' > ATOM_LIST:'
   n = n + 1;  HELP_line(HELP_numor, n)   = ''
   n = n + 1;  HELP_line(HELP_numor, n)   = '   . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n)   = '   . arguments:           no'
+  n = n + 1;  HELP_line(HELP_numor, n)   = '   . optional argument:   "CART"'
   n = n + 1;  HELP_line(HELP_numor, n)   = '   . meaning:             list the atoms (type, labels, coordinates, ...)'
+  n = n + 1;  HELP_line(HELP_numor, n)   = '                          if "CART" is present, cartesian atomic coordinates'
+  n = n + 1;  HELP_line(HELP_numor, n)   = '                          will be output.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            derivative CART arguments : CART_A (a//x), '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            CART_C (x//c)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            if "in_A" is present, atomic coordinates are listed'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            in A.'
   n = n + 1;  HELP_line(HELP_numor, n)   = '   . optional keyword:    SPGR'
-  n = n + 1;  HELP_line(HELP_numor, n)   = '   . identical keywords:  ATOM_LIST, LIST_ATOM_LIST, LIST_ATOMS, LST_ATOMS,'
-  n = n + 1;  HELP_line(HELP_numor, n)   = '                          WRITE_ATOMS, WRITE_ATMS'
+  n = n + 1;  HELP_line(HELP_numor, n)   = '   . identical keywords:  ATOM_LIST, ATOM_LST, LIST_ATOM_LIST, LIST_ATOMS, '
+  n = n + 1;  HELP_line(HELP_numor, n)   = '                          LST_ATOMS, WRITE_ATOMS, WRITE_ATMS'
   n = n + 1;  HELP_line(HELP_numor, n)  = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 8
+ ! numor = 8
   n = 0    ;  HELP_numor = HELP_BARY_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > BARY:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           n character strings '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           or "ALL"'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             calculation of the coordinates of the centroid of the'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           n atoms known by the atom label S (cf ATOM keyword)'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             BARY C8 C10 C9 C11'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           n atoms known by the atom label (cf ATOM keyword)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if arg="ALL": all input atoms are considered'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            BARY C8 C10 C9 C11'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           BARY ALL '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  BARY, CENTROID'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 9
+ ! numor = 9
   n = 0    ;  HELP_numor = HELP_BEAM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > BEAM:'
@@ -299,7 +305,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Ag for X Rays (Silver K_alpha)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Mo for X Rays (Molybdenum K_alpha)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Cu for X Rays (Copper K_alpha)'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Ni for X Rays (Cobalt K_alpha)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Ni for X Rays (Nickel K_alpha)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Co for X Rays (Cobalt K_alpha)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Fe for X Rays (Iron K_alpha)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             - X_Cr for X Rays (Chromium K_alpha)'
@@ -307,7 +313,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 10
+ ! numor = 10
   n = 0    ;  HELP_numor = HELP_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CELL:'
@@ -333,7 +339,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 11
+ ! numor = 11
   n = 0    ;  HELP_numor = HELP_CHEM_numor
   n = n + 1;  HELP_line(HELP_numor, n)  = ' '
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > CHEM:'
@@ -353,21 +359,47 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n)  = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 12
+ ! numor = 12
   n = 0    ;  HELP_numor = HELP_CONN_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CONN:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            atom_label + dist_max'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             determine the connectivity around the atom with'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           interatomic distances calculated until dist_max value.'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           dist_max (< 15. A) is optionnal. Default value = 3.0 A.'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           if atom_label=ALL, the program will calculate'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments:  ALL, ALL_X, ANG, BVS, VOL, SHAPE, SELF, MIN=, MAX=, CONDENSED'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             determine the connectivity around the atom "atom_label"'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           with interatomic distances calculated between MIN'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           and MAX values.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           Default values for MIN and MAX = 0.4 and 3.0 A.'   
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=ALL, the program will calculate'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           connectivity around all atoms.'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              interatomic distances. IF CIF/ACTA keyword is'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           entered, the created CIF file will contains all the'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           calculated distances in CIF format.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=ALL_X, the program will calculate'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           connectivity around all atoms of the species X.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if "ANG" is present, interatomic angles will'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            also be calculated.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if "BVS" is present, bond valence sums'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            calculations are performed.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if "VOL" is present, polyedron volume is calculated'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            (ref. : VOLCAL program of L. W. FINGER included in CFML).'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if "SHAPE" is present, an input file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            for SHAPE program (http://www.ee.ub.es/) is created.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            derivative SHAPE arguments : SHAPE_A (a//x), '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            SHAPE_C (x//c)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if SELF (or AUTO) is present, output distances between'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            atoms from the same label'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if CONDENSED is present, short ouput is created'  
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            ex: CONN Yb1 SELF 10.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            ex: CONN Si1 MIN=1.5 MAX=2.7'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            ex: CONN Nd1 VOL SHAPE'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            ex: CONN ALL_Nd'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            ex: CONN ALL ANG CONDENSED'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              interatomic distances, bond distribution and optional BVS' 
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           calculations.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           Effective distance is calculated as follows:'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           r_eff=[N/Sum(r^-3)]^1/3'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           IF CIF/ACTA keyword is input, the created CIF file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           will contains all the calculated distances in CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           format.'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keywords:  SPGR, ATOM, CELL'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  CONN, CONNECT, CONNECTIVITY'
@@ -376,7 +408,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 13
+ ! numor = 13
   n = 0    ;  HELP_numor = HELP_CONT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CONT:'
@@ -392,7 +424,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
-  ! 14 
+ ! numor = 14
   n = 0    ;  HELP_numor = HELP_CREATE_ACE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_ACE :'
@@ -410,7 +442,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 15
+ ! numor = 15
   n = 0    ;  HELP_numor = HELP_CREATE_CEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_CEL'
@@ -428,7 +460,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 16
+ ! numor = 16
   n = 0    ;  HELP_numor = HELP_CREATE_CFL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_CFL'
@@ -446,15 +478,23 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 17 
+ ! numor = 17
   n = 0    ;  HELP_numor = HELP_CREATE_FST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_FST'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            POLY, RUN, MOLE, No_H'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             create .FST file for FP Studio'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   READ_CIF file.cif'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=POLY : include polyedra if '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           connectivity calculation have been performed '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=RUN : launch FP_studio software'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=MOLE: only atoms of the asymetric'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           unit cell are drawn.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument=No_H: H atoms and related bonds'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           are excluded. This option is valid only if'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MOLE is specified.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   READ_CIF file.cif or READ_INS file.ins'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . dependent parameter: CREATE_fst parameter value in the CRYSCAL.INI'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           setting file. If equal to 1, a .fst file will'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           be automatically created if a .CIF file is  '
@@ -462,9 +502,9 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           from a command line :'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           > cryscal file.cif '
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
-  HELP_lines_nb(HELP_numor) = n
+   HELP_lines_nb(HELP_numor) = n
 
-  ! 18 
+ ! numor = 18
   n = 0    ;  HELP_numor = HELP_CREATE_INS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_INS'
@@ -483,7 +523,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 19
+ ! numor = 19
   n = 0    ;  HELP_numor = HELP_CREATE_REPORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_REPORT:'
@@ -505,8 +545,23 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
+ ! numor = 20
+  n = 0    ;  HELP_numor = HELP_CREATE_TIDY_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > CREATE_TIDY:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             create xx_tidy.dat file for TIDY (standardisation'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           of inorganic crystal-structure data [Acta Cryst. '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           1984, A40, 169-183] from a .CIF or .INS file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   READ_CIF file.cif or READ_INS file.ins'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  CREATE_TIDY, CREATE_TIDY_FILE, CREATE_TIDY_INPUT_FILE'
+  HELP_lines_nb(HELP_numor) = n
 
- ! 20
+
+ ! numor = 21
   n = 0    ;  HELP_numor = HELP_D_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > D_HKL: '
@@ -522,7 +577,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 21
+ ! numor = 22
   n = 0    ;  HELP_numor = HELP_D_STAR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > D_STAR: '
@@ -538,7 +593,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 22
+ ! numor = 23
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_DENSITY_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_DENSITY:'
@@ -554,7 +609,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 23
+ ! numor = 24
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_RADIUS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_RADIUS:'
@@ -569,7 +624,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 24
+ ! numor = 25
   n = 0    ;  HELP_numor = HELP_DATA_ATOMIC_WEIGHT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_ATOMIC_WEIGHT:'
@@ -585,7 +640,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 25
+ ! numor = 26
   n = 0    ;  HELP_numor = HELP_DATA_NEUTRONS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DATA_NEUTRONS:'
@@ -606,7 +661,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 26
+ ! numor = 27
   n = 0    ;  HELP_numor = HELP_DATA_XRAYS_numor
   n = n + 1;  HELP_line(HELP_numor, n)  = ''
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > DATA_XRAYS:'
@@ -625,8 +680,8 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = 12
 
- 
-  ! 27
+
+ ! numor = 28
   n = 0    ;  HELP_numor = HELP_DIAG_MAT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DIAG:'
@@ -639,14 +694,13 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           MATR   1/2 1/2 0   -1/2 1/2 0   0 0 1'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              Diagonalization of the 3*3 matrix and output'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           the Eigen values and Eigen vectors'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           (dependent keyword = FILE)'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIAG, DIAG_MAT, DIAG_MATR, DIAG_MATRIX'
+   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIAG, DIAG_MAT, DIAG_MATR, DIAG_MATRIX'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- 
- 
- ! 28
+
+
+ ! numor = 29
   n = 0    ;  HELP_numor = HELP_DIR_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DIR_ANG:'
@@ -664,7 +718,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 29
+ ! numor = 30
   n = 0    ;  HELP_numor = HELP_DIST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > DIST:'
@@ -672,7 +726,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           2 character strings '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             calculation of the interatomic distance between 2'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           atoms labelled by their atom labels (cf ATOM keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           atoms labelled by their atom labels (cf ATOM keyword)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . remark:              atom label can refer to equivalent position through'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           a particular symmetry operator (cf SYMM keyword)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           atomic label, with n refering to the number of '
@@ -682,9 +736,49 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           DIST C10 C9_$1'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIST, DISTANCE, ATOMIC_DISTANCE'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
+
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > DIST_MULT:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           1 real (x) + 2 character strings (A B)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:              - calculation of the interatomic distance between 2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              atoms labelled by their atom labels A and B'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    .                       - calculation of the coordinate of the point M'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              with : d_AM = d_AB * x'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             DIST_X C8 C10 1.2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIST_MULT, DIST_X'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > DIST_PLUS:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           1 real (x) + 2 character strings (A B)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:              - calculation of the interatomic distance between 2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              atoms labelled by their atom labels A and B'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    .                       - calculation of the coordinate of the point M'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              with : d_AM = d_AB + x'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             DIST_PLUS C8 C10 1.2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIST_PLUS, DIST_+'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 30
+ ! numor = 31
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > DIST_DHA:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           2 character strings (D A)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . aoptional argument:  1 real d_H (default value=0.9 Ang.)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:              - calculation of the interatomic distance between'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              donor (D) and acceptor atoms (A)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    .                       - calculation of the coordinate of H atom '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                              with : d_DH = d_AB - d_H'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            DIST_DHA N1 O2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           DHA N1 O2 0.92'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  DIST_DHA, DHA, POS_H, CALC_POS_H'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+ ! numor = 32
   n = 0    ;  HELP_numor = HELP_EDIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EDIT:'
@@ -698,7 +792,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 31
+ ! numor = 33
   n = 0    ;  HELP_numor = HELP_EQUIV_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EQUIV:'
@@ -717,7 +811,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 32 
+ ! numor = 34
   n = 0    ;  HELP_numor = HELP_EXIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > EXIT:'
@@ -730,7 +824,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 33
+ ! numor = 35
   n = 0    ;  HELP_numor = HELP_FILE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FILE:'
@@ -742,7 +836,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                            . available formats for HKL file:'
   n = n + 1;  HELP_line(HELP_numor, n) = '                               . SHELX type: 3I4, 2F8.2'
   n = n + 1;  HELP_line(HELP_numor, n) = '                               . CIF format'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                               . final.y (created by EVALCCD)'
+ ! n = n + 1;  HELP_line(HELP_numor, n) = '                               . final.y (created by EVALCCD)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                               . RAW format (created by SAINT)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                               . M91/M95 format (created by JANA)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              . analysis of the hkl reflections:'
@@ -759,13 +853,21 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                             if (F2      < 0.0001)  F2 = 0.0001'
   n = n + 1;  HELP_line(HELP_numor, n) = '                             if (sig_F2_ < 0.00001) sig_F2_=sqrt(abs(F2)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           PLOT (dependent keywords = CELL, WAVE)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           OUT_n : write every n reflections'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           STAT  : statistics ouput on hkl reflections'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           NO_STAT  : no statistics output on hkl reflections'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           FREE  : free format for hkl data (only h,k,l,F2'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                   and sig_F2 are read.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           FMT=  : format of the hkl file  (default format'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                   corresponds to the SHELX format (3I4, 2F8.2)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . action:              plot the F2=f(sinTheta/lambda) curve with WinPLOTR'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            FILE my_HKL_FILE.HKL'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           FILE import.CIF plot'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           FILE file.HKL FMT=(3i4,2f15.2)'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 34
+ ! numor = 36
   n = 0    ;  HELP_numor = HELP_FIND_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FIND_HKL:'
@@ -792,7 +894,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 35
+ ! numor = 37
   n = 0    ;  HELP_numor = HELP_FIND_HKL_LIST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > FIND_HKL_LIST:'
@@ -859,7 +961,25 @@ subroutine def_keywords_lines()
 
 
 
- ! 36
+ ! numor = 38
+  n = 0    ;  HELP_numor = HELP_FRIEDEL_PAIRS_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > FRIEDEL:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  symmetry (character string): "TRIC", "MONO", "ORTHO", '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           "TETRA", "TRIG", "HEXA", "CUB"'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             calculate the number of Friedel pairs in a hkl file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   FILE, SPGR if no symmetry argument'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  FRIEDEL, FRIEDEL_PAIRS'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             FRIEDEL mono'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  HELP_lines_nb(HELP_numor) = n
+
+
+
+
+ ! numor = 39
   n = 0    ;  HELP_numor = HELP_GEN_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > GEN_HKL:'
@@ -880,16 +1000,18 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           If atoms are input, a structure factor calculation is'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           done.'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           In the case where scattering variable is 2theta, a'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                            list of I/Imax is output.'  
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            list of I/Imax is output.'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments    "OUT": a list of generated reflections will be ouput'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            "PM2K": hkl reflections list stored in the PM2K format'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            "PAT": In the case where scattering variable is '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            2theta, atoms are input and space group is know,'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            a diffraction pattern is then created. Two different'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                            files are ouput :' 
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            files are ouput :'
   n = n + 1;  HELP_line(HELP_numor, n) = '                                - cryscal_pat.xy (2 columns)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                                - cryscal_pat.prf (FullProf format)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            If WinPLOTR is installed on the workstation, it is '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            automatically launched with the PRF file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            "SIZE=XXX": specify particles size (XXX in A)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              - calculation of interplanar distance d_hkl, in A '
   n = n + 1;  HELP_line(HELP_numor, n) = '                             (dependent keyword = CELL)'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           - calculation of Bragg angle 2theta_hkl, in deg.  '
@@ -900,12 +1022,13 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . examples             GEN_HKL theta_min=0. THETA_max=25. OUT'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           GEN_HKL d_min=0.5.   d_max=5.'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           GEN_HKL 2THETA_min=0. 2THETA_max=125. OUT PAT SIZE=150'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  GEN_HKL, GENERATE_HKL, GENERATE_HKL_LIST'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 37
+ ! numor = 40
   n = 0    ;  HELP_numor = HELP_HEADER_numor
   n = n + 1;  HELP_line(HELP_HEADER_numor, n) = ''
   n = n + 1;  HELP_line(HELP_HEADER_numor, n) = ' > HEADER:'
@@ -918,7 +1041,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_HEADER_numor) = n
 
 
- ! 38
+ ! numor = 41
   n = 0    ;  HELP_numor = HELP_HEX_RHOMB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HEX_RHOMB:'
@@ -933,7 +1056,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
- ! 39
+ ! numor = 42
   n = 0    ;  HELP_numor = HELP_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL:'
@@ -951,7 +1074,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 40
+ ! numor = 43
   n = 0    ;  HELP_numor = HELP_HKL_NEG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL_NEG:'
@@ -970,7 +1093,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 41
+ ! numor = 44
   n = 0    ;  HELP_numor = HELP_HKL_POS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > HKL_POS:'
@@ -991,7 +1114,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 42
+ ! numor = 45
   n = 0    ;  HELP_numor = HELP_INSIDE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > INSIDE:'
@@ -1007,7 +1130,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 43
+ ! numor = 46
   n = 0    ;  HELP_numor = HELP_LIST_EXTI_numor
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ''
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ' > LIST_EXTI_RULE:'
@@ -1019,7 +1142,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_LIST_EXTI_numor, n) = ''
   HELP_lines_nb(HELP_LIST_EXTI_numor) = n
 
- ! 44
+ ! numor = 47
   n = 0    ;  HELP_numor = HELP_LIST_KEYS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_KEYS:'
@@ -1039,7 +1162,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 45
+ ! numor = 49
   n = 0    ;  HELP_numor = HELP_LIST_LAUE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_LAUE:'
@@ -1054,7 +1177,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor ) = n
 
 
- ! 46
+ ! numor = 49
   n = 0    ;  HELP_numor = HELP_LIST_MATR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_MAT:'
@@ -1068,7 +1191,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 47
+ ! numor = 50
   n = 0    ;  HELP_numor = HELP_LIST_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > LIST_SG:'
@@ -1106,7 +1229,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 48
+ ! numor = 51
   n = 0    ;  HELP_numor = HELP_MAG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAG:'
@@ -1123,7 +1246,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 49
+ ! numor = 52
   n = 0    ;  HELP_numor = HELP_MAN_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAN:'
@@ -1143,7 +1266,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 50
+ ! numor = 53
   n = 0    ;  HELP_numor = HELP_MAN_HTML_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MAN_HTML:'
@@ -1159,7 +1282,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 51
+ ! numor = 54
   n = 0    ;  HELP_numor = HELP_MATMUL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MATMUL:'
@@ -1173,7 +1296,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 52
+ ! numor = 55
   n = 0    ;  HELP_numor = HELP_MATR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MATR:'
@@ -1215,14 +1338,14 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 53
+ ! numor = 56
   n = 0    ;  HELP_numor = HELP_MENDEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MENDEL:'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTOUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           character strings'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             atom type'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             atom type or atomic number'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              get atomic features: atomic number, weight, '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            density, electronic configuration, oxydation'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            states, ionic radius, ...'
@@ -1238,10 +1361,11 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                            with WinPLOTR'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            MENDEL TI C'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           MENDEL Cu+2 PLOT'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           MENDEL 59'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 54
+ ! numor = 57
   n = 0    ;  HELP_numor = HELP_MERGE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MERGE:'
@@ -1257,7 +1381,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 55 
+ ! numor = 58
   n = 0    ;  HELP_numor = HELP_MONOCLINIC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > MONOCLINIC:'
@@ -1274,13 +1398,12 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 56
+ ! numor = 59
   n = 0    ;  HELP_numor = HELP_NEWS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > NEWS:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          no argument'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:             list the last new facilities implemented in CRYSCAL'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  specified year'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             NEWS 2010'
@@ -1289,7 +1412,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 57
+ ! numor = 60
   n = 0    ;  HELP_numor = HELP_NIGGLI_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > NIGGLI_CELL'
@@ -1303,7 +1426,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 58
+ ! numor = 61
   n = 0    ;  HELP_numor = HELP_OBV_REV_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > OBV_REV:'
@@ -1324,7 +1447,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 59
+ ! numor = 62
   n = 0    ;  HELP_numor = HELP_P4P_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ""
   n = n + 1;  HELP_line(HELP_numor, n) = "  > P4P:"
@@ -1335,14 +1458,14 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = "                           current folder (if more than one .P4P file is present,"
   n = n + 1;  HELP_line(HELP_numor, n) = "                           select a P4P file in a .P4P file list) and create"
   n = n + 1;  HELP_line(HELP_numor, n) = "                           a P4P.cif file containing cell parameters (and esd's),"
-  n = n + 1;  HELP_line(HELP_numor, n) = "                           wavelength, number of reflexions used to refined the"
+  n = n + 1;  HELP_line(HELP_numor, n) = "                           wavelength, number of reflections used to refined the"
   n = n + 1;  HELP_line(HELP_numor, n) = "                           cell parameters and related theta_min and theta_max."
   n = n + 1;  HELP_line(HELP_numor, n) = "    . identical keywords:  P4P, READ_P4P"
   n = n + 1;  HELP_line(HELP_numor, n) = ""
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 60
+ ! numor = 63
   n = 0    ;  HELP_numor = HELP_PAUSE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ""
   n = n + 1;  HELP_line(HELP_numor, n) = "  > PAUSE:"
@@ -1356,7 +1479,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 61
+ ! numor = 64
   n = 0    ;  HELP_numor = HELP_PERMUT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > PERMUT:'
@@ -1373,7 +1496,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 62 
+ ! numor = 65
   n = 0    ;  HELP_numor = HELP_Q_HKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > QHKL: '
@@ -1388,7 +1511,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 63
+ ! numor = 66
   n = 0    ;  HELP_numor = HELP_QVEC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > QVEC:'
@@ -1406,7 +1529,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 64
+ ! numor = 67
   n = 0    ;  HELP_numor = HELP_READ_CEL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_CEL'
@@ -1422,7 +1545,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 65
+ ! numor = 68
   n = 0    ;  HELP_numor = HELP_READ_CIF_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_CIF'
@@ -1437,7 +1560,27 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 66
+ ! numor = 69
+  n = 0    ;  HELP_numor = HELP_READ_FACES_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_FACES'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                input keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional argument:   1 character string corresponding file name'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           containing crystal shape habitus :'  
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           - absorb.ins file created by Collect software (Nonius).'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           - faces.def file created by WinGX.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if absent, shape file = absorb.ins'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             read a file containaing crystal shape as'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           (h,k,l,dim) list.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  READ_FACES, FACES'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:            READ_FACES my_absorb.ins'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           READ_FACES faces.def'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+
+ ! numor = 70
   n = 0    ;  HELP_numor = HELP_READ_INS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_INS'
@@ -1453,7 +1596,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 67
+ ! numor = 71
   n = 0    ;  HELP_numor = HELP_READ_PCR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_PCR'
@@ -1468,22 +1611,41 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 68
+ ! numor = 72
   n = 0    ;  HELP_numor = HELP_READ_NREPORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = " "
   n = n + 1;  HELP_line(HELP_numor, n) = "  > READ_NREPORT:"
   n = n + 1;  HELP_line(HELP_numor, n) = " "
   n = n + 1;  HELP_line(HELP_numor, n) = "    . type:                input keyword"
-  n = n + 1;  HELP_line(HELP_numor, n) = "    . argument:            no"
+  n = n + 1;  HELP_line(HELP_numor, n) = "    . optional argument:   browse"
   n = n + 1;  HELP_line(HELP_numor, n) = "    . meaning:             read nreport.html file created by the Nonius software"
-  n = n + 1;  HELP_line(HELP_numor, n) = "                           suite for KCCD diffractometer and launch the browser defined"
+  n = n + 1;  HELP_line(HELP_numor, n) = "                           suite for KCCD diffractometer."
+  n = n + 1;  HELP_line(HELP_numor, n) = "                           If 'browse' is given as argument, launch the browser defined"
   n = n + 1;  HELP_line(HELP_numor, n) = "                           in the 'cryscal.ini' setting file"
+  n = n + 1;  HELP_line(HELP_numor, n) = "                           If not, ouputs the HTML file on screen (without tags)"
   n = n + 1;  HELP_line(HELP_numor, n) = "    . identical keywords:  READ_NREPORT, READ_HTML_REPORT, READ_NREPORTHTML"
   n = n + 1;  HELP_line(HELP_numor, n) = " "
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 69
+ ! numor = 73
+  n = 0    ;  HELP_numor = HELP_READ_PCR_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > READ_TIDY_OUT'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                input keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional argument:   1 character string corresponding to the TIDY output file'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           to be read. Default name=stidy.out'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             read a output file created by TIDY and extract all structural'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           features as: space group ,'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           cell parameters, atomic positions'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  READ_TIDY_OUT, READ_TIDY_OUTPUT, READ_TIDY_OUTPUT_FILE'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             READ_TIDY_OUT'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+
+ ! numor = 74
   n = 0    ;  HELP_numor = HELP_REC_ANG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > REC_ANG:'
@@ -1500,21 +1662,36 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 70
+ ! numor = 75
+  n = 0    ;  HELP_numor = HELP_REF_ABS_CRYSALIS_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_ABS_CRYSALIS'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write absorption correction procedure implemented'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           in CRYSALIS software (Agilent Technologies)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_ABS_CRYSALIS'
+  HELP_lines_nb(HELP_numor) =  n
+
+
+ ! numor = 76
   n = 0    ;  HELP_numor = HELP_REF_APEX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_APEX'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write APEXII programs and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write APEXII diffractometer programs and device references'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_APEX, REF_APEXII, WRITE_APEX, WRITE_APEXII,'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           APEX, APEXII'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 71
+ ! numor = 77
   n = 0    ;  HELP_numor = HELP_REF_EVAL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_DENZO'
@@ -1527,7 +1704,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 72
+ ! numor = 78
   n = 0    ;  HELP_numor = HELP_REF_DENZO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_EVAL'
@@ -1541,20 +1718,20 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           EVAL, EVALCCD'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 73
+ ! numor = 79
   n = 0    ;  HELP_numor = HELP_REF_KCCD_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_KCCD'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write KCCD and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write KCCD diffractometer software and device references'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_KCCD, KCCD'
   HELP_lines_nb(HELP_numor) =  n
 
- ! 74
+ ! numor = 80
   n = 0    ;  HELP_numor = HELP_REF_SADABS_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_SADABS'
@@ -1567,10 +1744,50 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_SAD, SADABS'
   HELP_lines_nb(HELP_numor) =  n
 
+ ! numor = 81
+  n = 0    ;  HELP_numor = HELP_REF_SUPERNOVA_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_SUPERNOVA'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write SUPERNOVA diffractometer programs and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_SUPERNOVA'
+  HELP_lines_nb(HELP_numor) =  n
+
+
+ ! numor = 82
+  n = 0    ;  HELP_numor = HELP_REF_X2S_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_X2S'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write SMART X2S diffractometer programs and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_X2S, REF_SMART_X2S'
+  HELP_lines_nb(HELP_numor) =  n
+
+ ! numor = 83
+  n = 0    ;  HELP_numor = HELP_REF_XCALIBUR_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > REF_XCALIBUR'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write XCALIBUR diffractometer sotware and device references'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optionnal argument:  CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  REF_SUPERNOVA'
+  HELP_lines_nb(HELP_numor) =  n
 
 
 
- ! 75
+
+ ! numor = 84
   n = 0    ;  HELP_numor = HELP_RESET_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = ' > RESET'
@@ -1584,7 +1801,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
- ! 76
+ ! numor = 85
   n = 0    ;  HELP_numor = HELP_RINT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > RINT:'
@@ -1601,7 +1818,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 77
+ ! numor = 86
   n = 0    ;  HELP_numor = HELP_RHOMB_HEX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > RHOMB_HEX:'
@@ -1615,7 +1832,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 78
+ ! numor = 87
   n = 0    ;  HELP_numor = HELP_SEARCH_EXTI_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SEARCH_EXTI:'
@@ -1636,7 +1853,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 79
+ ! numor = 88
   n = 0    ;  HELP_numor = HELP_SEARCH_SPGR_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SEARCH_SPACE_GROUP:'
@@ -1645,6 +1862,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments:  2 real : n_sig and threshold'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           1 character string, defining the crystal system:'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            M/mono, O/ortho, T/tetra, R/trig, H/hexa, C/cub'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            GET'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             search in a hkl file systematic extinctions and'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           propose space groups in agreement with observed'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           extinctions. '
@@ -1653,7 +1871,9 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                            . a threshold is also applied: only the '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            reflections with F2 > threshold * max(F2) are '
   n = n + 1;  HELP_line(HELP_numor, n) = '                            considered. Default value is threshold=0.03'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           Default value for crystal system is monoclinic'
+  ! n = n + 1;  HELP_line(HELP_numor, n) = '                           Default value for crystal system is monoclinic'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           If GET is input as argument, the most probable'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           space group will be considered'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   FILE'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  SEARCH_SPGR, SEARCH_SPACE_GROUP, SEARCH_GROUP, '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           CHECK_SPGR,  CHECK_SPACE_GROUP,  CHECK_GROUP'
@@ -1663,7 +1883,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 80
+ ! numor = 89
   n = 0    ;  HELP_numor = HELP_SET_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SET:'
@@ -1677,7 +1897,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 81
+ ! numor = 90
   n = 0    ;  HELP_numor = HELP_SETTING_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SETTING:'
@@ -1689,7 +1909,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 82 
+ ! numor = 91
   n = 0    ;  HELP_numor = HELP_SFAC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SFAC:'
@@ -1714,7 +1934,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 83
+ ! numor = 92
   n = 0    ;  HELP_numor = HELP_SFHKL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SF_HKL:'
@@ -1734,7 +1954,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 84
+ ! numor = 93
   n = 0    ;  HELP_numor = HELP_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG:'
@@ -1757,7 +1977,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 85
+ ! numor = 94
   n = 0    ;  HELP_numor = HELP_SG_ALL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_ALL:'
@@ -1772,7 +1992,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 86
+ ! numor = 95
   n = 0    ;  HELP_numor = HELP_SG_EXTI_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_EXTI:'
@@ -1787,7 +2007,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 87
+ ! numor = 96
   n = 0    ;  HELP_numor = HELP_SG_INFO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_INFO:'
@@ -1805,7 +2025,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 88
+ ! numor = 97
   n = 0    ;  HELP_numor = HELP_SG_SUB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SG_SUB:'
@@ -1819,7 +2039,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 89
+ ! numor = 98
   n = 0    ;  HELP_numor = HELP_SHANNON_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHANNON:'
@@ -1841,7 +2061,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 90
+ ! numor = 99
   n = 0    ;  HELP_numor = HELP_SHELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHELL:'
@@ -1879,14 +2099,15 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 91
+ ! numor = 100
   n = 0    ;  HELP_numor = HELP_SHIFT_2TH_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SHIFT_2TH:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          1 real'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             diffractometer 2theta shift'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          3 reals'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             diffractometer 2theta shift: constant, cos dependent'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           and sin dependent values'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:             apply the diffractometer 2theta shift to the '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           calculated 2theta value:'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            2theta = 2theta_calc + shift_2theta'
@@ -1895,7 +2116,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 92
+ ! numor = 101
   n = 0    ;  HELP_numor = HELP_SITE_INFO_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SITE_INFO:'
@@ -1907,15 +2128,20 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '                           group on the atomic positions'
   n = n + 1;  HELP_line(HELP_numor, n) = '                            if no argument:    all atoms of the atoms list '
   n = n + 1;  HELP_line(HELP_numor, n) = '                                           (cf ATOM keyword) are considered'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                            if arg(1) = "ALL": all atoms of the atoms list'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            if arg = "ALL": all atoms of the atoms list'
   n = n + 1;  HELP_line(HELP_numor, n) = '                                          (cf ATOM keyword) are considered'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            if arg = "PCR": list of equivalent atoms is'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                          output in a FullProf format.'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            if arg = "PCR_MAG": list of magnetic atoms is'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                                          output in a FullProf format.'
+
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   SPGR, ATOM'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             SITE_INFO O1 C8'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  SITE_INFO, LIST_SITE_INFO'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 93
+ ! numor = 102
   n = 0    ;  HELP_numor = HELP_SIZE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SIZE:'
@@ -1932,7 +2158,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 94
+ ! numor = 103
   n = 0    ;  HELP_numor = HELP_SORT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SORT:'
@@ -1966,8 +2192,23 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-
- ! 95
+ ! numor = 104
+  n = 0    ;  HELP_numor = HELP_STAR_K_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = ' > STAR_K'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                CALCULATION keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             apply rotational parts of symmetry operators'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    .                      on propagation wave components to determine'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    .                      the star of k'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:             d_hkl(A), Q(A-1)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           theta(deg) for known wavelength'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keywords:   SPGR, QVEC'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  HELP_lines_nb(HELP_numor ) = n
+  
+ ! numor = 105
   n = 0    ;  HELP_numor = HELP_STL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > STL: '
@@ -1983,7 +2224,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor ) = n
 
- ! 96
+ ! numor = 106
   n = 0    ;  HELP_numor = HELP_SYMM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SYMM:'
@@ -2011,7 +2252,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '  '
   HELP_lines_nb(HELP_numor) = n
 
- ! 97
+ ! numor = 107
   n = 0    ;  HELP_numor = HELP_SYST_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > SYST:'
@@ -2024,7 +2265,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) =  n
 
- ! 98
+ ! numor = 108
   n = 0    ;  HELP_numor = HELP_THERM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THERM:'
@@ -2052,8 +2293,8 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  
-   ! 99
+
+ ! numor = 109
   n = 0    ;  HELP_numor = HELP_THERM_SHELX_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THERM_SHELX:'
@@ -2081,7 +2322,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 100
+ ! numor = 110
   n = 0    ;  HELP_numor = HELP_THETA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > THETA: '
@@ -2096,7 +2337,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 101
+ ! numor = 111
   n = 0    ;  HELP_numor = HELP_TITL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TITL:'
@@ -2109,21 +2350,25 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 102
+ ! numor = 112
   n = 0    ;  HELP_numor = HELP_TRANSLATION_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRANSLATION:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                INPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          translation components (3 reals)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          translation components (3 reals) + 1 sign (optional)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:             apply the translation on atomic coordinates'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if sign is input, new atomic coordiantes decome :'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                             t(1) + x.sign, t(2) + y.sign, t(3) + z.sign'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           as in SHELXL with the MOVE keyword'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   ATOM'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . example:             TRANSLATION 0.5 0.5 0.5'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . examples:             TRANSLATION 0.5 0.5 0.5'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                            MOVE 1. 1. 1.5 -1.'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  TRANSLATION, TRANS, TRANSLATE, MOVE'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 103
+ ! numor = 113
   n = 0    ;  HELP_numor = HELP_TRANSMISSION_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRANSMISSION:'
@@ -2136,7 +2381,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 104
+ ! numor = 114
   n = 0    ;  HELP_numor = HELP_TWIN_HEXA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWIN_HEXA:'
@@ -2153,7 +2398,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-! 105
+ ! numor = 115
   n = 0    ;  HELP_numor = HELP_TRICLINIC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TRICLINIC:'
@@ -2172,7 +2417,7 @@ subroutine def_keywords_lines()
 
 
 
- ! 106 
+ ! numor = 116
   n = 0    ;  HELP_numor = HELP_TWIN_PSEUDO_HEXA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWIN_PSEUDO_HEXA:'
@@ -2190,7 +2435,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 107
+ ! numor = 117
   n = 0    ;  HELP_numor = HELP_TWO_THETA_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > TWO_THETA: '
@@ -2204,7 +2449,26 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 108
+
+ ! numor = 118
+  n = 0    ;  HELP_numor = HELP_UB_matrix_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > UB_MAT:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments:           9 reals'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             UB matrix components in the following order:'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           11 21 31 12 22 32 13 23 33'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           If a tenth argument is input and corresponds to '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           "111213212223313233" the UB components are read'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           in the following order :'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           11 12 13 21 22 23 31 32 33'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . output:              cell parameters deduces from the UB matrix'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  UB_MAT, UB_MATRIX'
+  n = n + 1;  HELP_line(HELP_numor, n) = ' '
+  HELP_lines_nb(HELP_numor) = n
+
+
+ ! numor = 119
   n = 0    ;  HELP_numor = HELP_UNIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > UNIT:'
@@ -2229,8 +2493,8 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  ! 109
-  n = 0    ;  HELP_numor = HELP_MATR_numor
+ ! numor = 120
+  n = 0    ;  HELP_numor = HELP_USER_MAT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > USER_MAT:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
@@ -2257,9 +2521,9 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
-  
-  
- ! 110
+
+
+ ! numor = 121
   n = 0    ;  HELP_numor = HELP_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WAVE:'
@@ -2282,7 +2546,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 111
+ ! numor = 122
   n = 0    ;  HELP_numor = HELP_WEB_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WEB:'
@@ -2297,7 +2561,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) =  n
 
- ! 112
+ ! numor = 123
   n = 0    ;  HELP_numor = HELP_WRITE_ADP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_ADP:'
@@ -2306,11 +2570,11 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write anisotropic displacements parameters'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory action :   ADP have to be read previously in a CIF file'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_ADP, WRITE_UIJ'  
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_ADP, WRITE_UIJ'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
-  
- ! 113
+
+ ! numor = 124
   n = 0    ;  HELP_numor = HELP_WRITE_BEAM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_BEAM:'
@@ -2325,20 +2589,22 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) = n
 
 
- ! 114
+ ! numor = 125
   n = 0    ;  HELP_numor = HELP_WRITE_CELL_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_CELL:'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional  argument:  CART_A/CART_C'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write cell parameters (direct and reciprocal space)'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword :  CELL or FILE .CIF'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           and metric tensors and Busing-Levy B-matrix '
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           (if required)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword :  CELL or FILE .CIF or READ_CIF or READ_INS or READ_PCR'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_CELL, OUTPUT_CELL'
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 115
+ ! numor = 126
   n = 0    ;  HELP_numor = HELP_WRITE_CHEM_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n)  = '  > WRITE_CHEM:'
@@ -2352,7 +2618,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 116
+ ! numor = 127
   n = 0    ;  HELP_numor = HELP_WRITE_DEVICE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_DEVICE:'
@@ -2365,7 +2631,7 @@ subroutine def_keywords_lines()
   HELP_lines_nb(HELP_numor) =  n
 
 
-  ! 117
+ ! numor = 128
   n = 0    ;  HELP_numor = HELP_WRITE_QVEC_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_QVEC:'
@@ -2378,7 +2644,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
- ! 118
+ ! numor = 129
   n = 0    ;  HELP_numor = HELP_WRITE_SG_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SG:'
@@ -2391,23 +2657,26 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   HELP_lines_nb(HELP_numor) = n
 
-! 119
+ ! numor = 130
   n = 0    ;  HELP_numor = HELP_WRITE_SYM_OP_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_SYM_OP:'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
-  n = n + 1;  HELP_line(HELP_numor, n) = '    . arguments :          no argument'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . optional arguments : SHELX'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . outputs:             list of symmetry operators (alphanumeric form, '
   n = n + 1;  HELP_line(HELP_numor, n) = '                           rotational and translational parts with the SYMM'
   n = n + 1;  HELP_line(HELP_numor, n) = '                           keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           if argument="SHELX": output reduced set of'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           symmetry operators for the given space group'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           in a SHELX format (NLAT; SYMM)'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword:   SPGR or SYMM'
   n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_SYM_OP, WRITE_SYMM_OP, WRITE_SYMP, WRITE_SYMM,'
-  n = n + 1;  HELP_line(HELP_numor, n) = '                           WRITE_SYMMETRY_OPERATORS'
+  n = n + 1;  HELP_line(HELP_numor, n) = '                           WRITE_SYMMETRY_OPERATORS, WRITE_SYMOP'
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 120
+ ! numor = 131
   n = 0    ;  HELP_numor = HELP_WRITE_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_WAVE:'
@@ -2420,7 +2689,21 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ''
   n = n + 1;  HELP_lines_nb(HELP_numor) =  9
 
- ! 121
+ ! numor = 132
+  n = 0    ;  HELP_numor = HELP_WRITE_ZUNIT_numor
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '  > WRITE_ZUNIT:'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . type:                OUTPUT keyword'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . argument:            no'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . meaning:             write Z unit (number of molecular unit)'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . mandatory keyword :  ZUNIT'
+  n = n + 1;  HELP_line(HELP_numor, n) = '    . identical keywords:  WRITE_ZUNIT, WRITE_Z'
+  n = n + 1;  HELP_line(HELP_numor, n) = ''
+  n = n + 1;  HELP_lines_nb(HELP_numor) =  9
+
+
+ ! numor = 133
   n = 0    ;  HELP_numor = HELP_X_WAVE_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > X_WAVE:'
@@ -2434,7 +2717,7 @@ subroutine def_keywords_lines()
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   HELP_lines_nb(HELP_numor) = n
 
- ! 122
+ ! numor = 134
   n = 0    ;  HELP_numor = HELP_ZUNIT_numor
   n = n + 1;  HELP_line(HELP_numor, n) = ' '
   n = n + 1;  HELP_line(HELP_numor, n) = '  > ZUNIT:'
@@ -2449,7 +2732,7 @@ subroutine def_keywords_lines()
 
 end subroutine def_keywords_lines
 
-!-------------------------------------------------------------------------------------------------------------
+ ! numor =-------------------------------------------------------------------------------------------------------------
 subroutine Def_command_line_arguments
  use Text_module, only : CLA_line, CLA_lines_nb
  implicit none
@@ -2499,6 +2782,9 @@ subroutine Def_command_line_arguments
  n = n + 1; CLa_line(CLA_numor, n)   = "        Search for the corresponding .HKL file and output SADABS file"
  n = n + 1; CLA_line(CLA_numor, n)   = "        to create an 'import.cif' file."
  n = n + 1; CLA_line(CLA_numor, n)   = "         ex : > cryscal mycrystal.P4P"
+ n = n + 1; CLA_line(CLA_numor, n)   = "        RAW file can be specified to create the 'import.cif' file."
+ n = n + 1; CLA_line(CLA_numor, n)   = "         ex : > cryscal mycrystal.P4P RAW=mycrystal.RAW"
+
  CLA_lines_nb(CLA_numor)  = n
 
  n = 0 ; CLA_numor = CLA_numor + 1
@@ -2540,7 +2826,7 @@ subroutine Def_command_line_arguments
   n = n + 1; CLA_line(CLA_numor, n)   = "       Combined with 'ARCHIVE.CIF' argument, this optional argument"
   n = n + 1; CLA_line(CLA_numor, n)   = "       completes the 'cryscal_archive.cif' file with CIF fields related"
   n = n + 1; CLA_line(CLA_numor, n)   = "       to the author of the deposition (name, address), extracted from"
-  n = n + 1; CLA_line(CLA_numor, n)   = "       the 'cryscal.ini' setting file ([AUTHOR] part)"
+  n = n + 1; CLA_line(CLA_numor, n)   = "       the 'cryscal.ini' setting file ([AUTHOR/USER] part)"
  ! n = n + 1; CLa_line(CLA_numor, n)   = "       Can be combined with 'ACTA' argument."
   CLA_lines_nb(CLA_numor)  = n
 
@@ -2574,4 +2860,4 @@ subroutine Def_command_line_arguments
 
 
 end subroutine Def_command_line_arguments
-!-------------------------------------------------------------------------------------------------------------
+! -------------------------------------------------------------------------------------------------------------

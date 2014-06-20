@@ -3,7 +3,7 @@ subroutine Niggli_CELL_TR()
 ! algorithm:
 ! Krivy and Gruber, Acta Cryst 1976, A32, 297
 
- USE cryscal_module, ONLY : unit_cell, message_text
+ USE cryscal_module, ONLY : unit_cell, message_text, debug_proc
  USE macros_module,  ONLY : signe
  USE IO_module,      ONLY : write_info
  USE CFML_Math_General      , ONLY : cosd, acosd
@@ -14,6 +14,8 @@ subroutine Niggli_CELL_TR()
    REAL                          :: tmp_value
    REAL, parameter               :: eps = 0.1
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "Niggli_cell_TR")
+   
   a(1) = unit_cell%param(1) **2.
   a(2) = unit_cell%param(2) **2.
   a(3) = unit_cell%param(3) **2.
@@ -195,8 +197,14 @@ end subroutine   get_cell_sym
 
 subroutine Niggli_cell_CFML
  USE CFML_Crystal_Metrics, only : Niggli_cell
- USE cryscal_module,       ONLY : unit_cell, message_text
+ USE cryscal_module,       ONLY : unit_cell, message_text, debug_proc
  USE IO_module,            ONLY : write_info
+ implicit none
+  real, parameter       :: eps_par = 0.01
+  real, parameter       :: eps_ang = 0.05
+  logical               :: original_Niggli
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "Niggli_cell_CFML")
  
     !!--.. Three non coplanar vectors {a,b,c} generates a lattice using integer linear combinations
     !!--.. There are an infinite number of primitive unit cells generating the same lattice L.
@@ -231,7 +239,27 @@ subroutine Niggli_cell_CFML
    WRITE(message_text,'(a,F10.5,a)') '                 . gamma = ', unit_cell%niggli(6),' (deg)'
     call write_info(TRIM(message_text))
 
-
+   original_Niggli = .false.	
+   if(abs(unit_cell%param(1) - unit_cell%niggli(1)) < eps_par) then
+    if(abs(unit_cell%param(2) - unit_cell%niggli(2)) < eps_par) then
+	 if(abs(unit_cell%param(3) - unit_cell%niggli(3)) < eps_par) then
+	  if(abs(unit_cell%param(4) - unit_cell%niggli(4)) < eps_ang) then
+	   if(abs(unit_cell%param(5) - unit_cell%niggli(5)) < eps_ang) then
+	    if(abs(unit_cell%param(6) - unit_cell%niggli(6)) < eps_ang) then
+		 original_Niggli = .true.
+        end if
+       end if
+      end if
+     end if
+    end if
+   end if
+   
+   call write_info('')
+   if(original_Niggli) then
+    call write_info('    >> Original cell WAS the Niggli one !')
+   else
+    call write_info('    >> Original cell WAS NOT the Niggli one !')
+   end if 
 
    !call Niggli_cell_TR ! juste pour comparer les resultats
    

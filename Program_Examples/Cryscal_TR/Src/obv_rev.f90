@@ -2,9 +2,11 @@
 
 subroutine twin_obverse_reverse
 
- USE cryscal_module, ONLY : HKL_unit, HKLF5_unit, twin_matrix => OBV_REV_twin_matrix, message_text
+ USE cryscal_module, ONLY : HKL_unit, HKLF5_unit, twin_matrix => OBV_REV_twin_matrix, message_text, debug_proc
+ USE macros_module,  ONLY : multiple
  USE HKL_module,     ONLY : n_ref, h,k,l, F2, sig_F2, cos_dir, HKL_file
  USE IO_module,      ONLY : write_info
+ 
 !--------------------------------------------------------------
 !
 ! lecture d'un fichier au format SHELX (HKLF4):
@@ -34,6 +36,9 @@ subroutine twin_obverse_reverse
   real                              :: I_sig_moy_obv, I_sig_moy_rev, I_sig_moy_nonr, I_sig_moy_oar
   real                              :: fraction_rev, fraction_rev2
 
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "twin_obverse_reverse")
+ 
   n      = 0
   n_obv  = 0
   n_rev  = 0
@@ -64,28 +69,32 @@ subroutine twin_obverse_reverse
     hkl_obv = -h(i)+k(i)+l(i)
     hkl_rev =  h(i)-k(i)+l(i)
 
-    if (3*int(hkl_obv/3)==hkl_obv)     then
+    !if (3*int(hkl_obv/3)==hkl_obv)     then
+	if(multiple(hkl_obv,3)) then
      n_obv = n_obv+1
      Imoy_obv = Imoy_obv + F2(i)
      I_sig_moy_obv =  I_sig_moy_obv + F2(i)/sig_F2(i)
      code = 1   ! domaine 1 exclusivement
     end if
 
-    if (3*int(hkl_rev/3)==hkl_rev) then
+    !if (3*int(hkl_rev/3)==hkl_rev) then
+	if(multiple(hkl_rev, 3)) then
      n_rev = n_rev+1
      Imoy_rev = Imoy_rev + F2(i)
      I_sig_moy_rev =  I_sig_moy_rev + F2(i)/sig_F2(i)
      code = 2   ! domaine 2 uniquement (à exclure)
     end if
 
-    if (3*int(hkl_obv/3)==hkl_obv .and. 3*int(hkl_rev/3)==hkl_rev) then
+    !if (3*int(hkl_obv/3)==hkl_obv .and. 3*int(hkl_rev/3)==hkl_rev) then
+	if(multiple(hkl_obv,3) .and. multiple(hkl_rev,3)) then
      n_oar = n_oar + 1
      Imoy_oar = Imoy_oar + F2(i)
      I_sig_moy_oar =  I_sig_moy_oar + F2(i)/sig_F2(i)
      code = -2   ! domaine 1 + domaine 2
     endif
 
-    if (3*int(hkl_obv/3)/=hkl_obv .and. 3*int(hkl_rev/3)/=hkl_rev) then    	
+    !if (3*int(hkl_obv/3)/=hkl_obv .and. 3*int(hkl_rev/3)/=hkl_rev) then    	
+	if(.not. multiple(hkl_obv, 3) .and. .not. multiple(hkl_rev,3)) then
      n_nonr = n_nonr + 1
      Imoy_nonr = Imoy_nonr + F2(i)
      I_sig_moy_nonr =  I_sig_moy_nonr + F2(i)/sig_F2(i)
@@ -128,7 +137,7 @@ subroutine twin_obverse_reverse
 
 
   call write_info(' ')
-  WRITE(message_text,'(a,I8,a)')  '   ANALYSIS OF THE ',n_ref, ' reflectionS:'
+  WRITE(message_text,'(a,I8,a)')  '   ANALYSIS OF THE ',n_ref, ' reflections:'
   call write_info(TRIM(message_text))
   call write_info(' ')
   call write_info(' ')
@@ -185,6 +194,6 @@ subroutine twin_obverse_reverse
   call write_info(TRIM(message_text))
 
 
-
+ return
 end subroutine twin_obverse_reverse
 

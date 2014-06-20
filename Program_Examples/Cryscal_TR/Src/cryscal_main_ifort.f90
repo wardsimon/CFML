@@ -3,9 +3,9 @@
 
 program crystallographic_calculations
  USE IO_module
- USE macros_module
+ USE macros_module 
  use cryscal_module
- USE hkl_module,                       ONLY: HKL_list
+ USE hkl_module
 
  implicit none
   CHARACTER (len=256)                      :: cmd_line
@@ -15,8 +15,9 @@ program crystallographic_calculations
   LOGICAL                                  :: arg_keyword
   INTEGER                                  :: len_cmd_line, nb_arg
   INTEGER                                  :: i, i1, i2, nb_col
+  INTEGER                                  :: i_error
   character (len=256), dimension(10)       :: cmd_arg
-  INTEGER                                  :: i_arg_DEBUG, i_arg_NOOUT, i_arg_CIFDEP, i_arg_ACTA
+  INTEGER                                  :: i_arg_DEBUG, i_arg_NOOUT, i_arg_CIFDEP, i_arg_ACTA, i_arg_PYMOL, i_arg_NO_SQUEEZE
 
 
  ! >>>>  initialisation
@@ -24,7 +25,6 @@ program crystallographic_calculations
   call cryscal_init()
   tmp_logical = .false.
  
-
  ! >>>>  analyse de la ligne de commande
   input_file = ''
   input_arg  = ''
@@ -44,10 +44,14 @@ program crystallographic_calculations
   !
 
   if(nb_arg > 9) then
-   write(*,*) ' '
-   write(*,*) ' Number of arguments in the command line too large (max. = 10) !'
-   write(*,*) ' Programm will be stopped.'
-   write(*,*) ' '
+   !write(*,*) ' '
+   !write(*,*) ' Number of arguments in the command line too large (max. = 10) !'
+   !write(*,*) ' Programm will be stopped.'
+   !write(*,*) ' '
+   call write_info('')
+   call write_info(' Number of arguments in the command line too large (max. = 10) !')
+   call write_info(' Program will be stopped.')
+   call write_info('')
    pause
    stop
   endif
@@ -57,14 +61,22 @@ program crystallographic_calculations
     call GetArg(i, cmd_arg(i))   ! g95
 	len_cmd_line = len_cmd_line + len_trim(cmd_arg(i)) + 1
    end do
-   i_arg_DEBUG  = 0
-   i_arg_NOOUT  = 0
-   i_arg_CIFDEP = 0
-   i_arg_ACTA   = 0
-   do i = 1, nb_arg
+   i_arg_DEBUG      = 0
+   i_arg_NOOUT      = 0
+   i_arg_CIFDEP     = 0
+   i_arg_ACTA       = 0
+   i_arg_PYMOL      = 0
+   i_arg_NO_SQUEEZE = 0
+  do i = 1, nb_arg
     if(u_case(cmd_arg(i)(1:5)) == 'DEBUG' .or. u_case(cmd_arg(i)(1:3)) == 'LOG')  then
-     DEBUG_file%write = .true.
-     i_arg_DEBUG      = i     
+     debug_proc%write   = .true.
+	 debug_proc%level_1 = .true.
+	 if(u_case(cmd_arg(i)(1:7)) == 'DEBUG_2') debug_proc%level_2 = .true.
+	 if(u_case(cmd_arg(i)(1:7)) == 'DEBUG_3') then
+	  debug_proc%level_2 = .true. 
+	  debug_proc%level_3 = .true.
+	 end if 
+     i_arg_DEBUG    = i
     end if
     if(u_case(cmd_arg(i)(1:6)) == 'NO_OUT') then
      ON_SCREEN      = .false.
@@ -76,34 +88,61 @@ program crystallographic_calculations
     endif
     if(u_case(cmd_arg(i)(1:4)) == 'ACTA')   then
      ACTA           = .true.
-     CIFDEP         = .true.
+     !CIFDEP         = .true.
      i_arg_ACTA     = i
     endif
+	if(u_case(cmd_arg(i)(1:5)) == 'PYMOL') then
+	 create_CIF_PYMOL = .true.
+	 i_arg_PYMOL    = i
+	endif
+	if(u_case(cmd_arg(i)(1:10)) == 'NO_SQUEEZE' .or. u_case(cmd_arg(i)(1:6)) == 'NO_SQZ') then
+	 include_SQUEEZE  = .false.
+	 i_arg_NO_SQUEEZE = i
+	end if 
+	if(u_case(cmd_arg(i)(1:4)) == 'RAW=' ) then
+	 RAW_file_name = cmd_arg(i)(5:)
+	 keyword_RAW = .true.	
+	end if 
+	if(u_case(cmd_arg(i)(1:4)) == 'HKL=' ) then
+	 HKL_file_name = cmd_arg(i)(5:)
+	 keyword_HKL = .true.	
+	end if 
+	if(u_case(cmd_arg(i)(1:4)) == 'P4P=' ) then
+	 P4P_file_name = cmd_arg(i)(5:)
+	 keyword_P4P = .true.	
+	end if 
    end do 
    
-   if(DEBUG_file%write) then
-    open(unit = DEBUG_file%unit, file = 'cryscal_debug.txt')
-    write(DEBUG_file%unit, '(2a)') ' COMMAND LINE : ', trim(cmd_line)
+   if(debug_proc%write) call open_debug_file
+   if(debug_proc%write) then   
+    write(debug_proc%unit, '(2a)') ' COMMAND LINE : ', trim(cmd_line)
     if(nb_arg /=0) then
      do i=1, nb_arg
-      write(DEBUG_file%unit, '(2x,a,i1,2a)') ' . arg_', i, ' : ', trim(cmd_arg(i))
+      write(debug_proc%unit, '(2x,a,i1,2a)') ' . arg_', i, ' : ', trim(cmd_arg(i))
      end do
-	end if 
-    write(DEBUG_file%unit,*) '' 
+	end if
+    write(debug_proc%unit,*) ''
    end if
     
-    ! creation de la ligne de commande exempte des arguments DEBUG, NOOUT, CIFDEP, ACTA
-   if(i_arg_DEBUG /=0 .or. i_arg_NOOUT /=0 .or. i_arg_CIFDEP /=0 .or. i_arg_ACTA /=0) then
+     ! creation de la ligne de commande exempte des arguments DEBUG, NOOUT, CIFDEP, ACTA, PYMOL, NO_SQUEEZE
+   if(i_arg_DEBUG /=0 .or. i_arg_NOOUT /=0 .or. i_arg_CIFDEP /=0 .or. i_arg_ACTA /=0 .or. i_arg_PYMOL /=0 .and. &
+      i_arg_NO_SQUEEZE /=0) then
     cmd_line = ''
-    do i=1, nb_arg 
-     if (i/=i_arg_DEBUG .and. i/=i_arg_NOOUT .and. i/=i_arg_CIFDEP .and. i/=i_arg_ACTA) then
+    do i=1, nb_arg
+     if (i/=i_arg_DEBUG .and. i/=i_arg_NOOUT .and. i/=i_arg_CIFDEP .and. i/=i_arg_ACTA .and. i/=i_arg_PYMOL .and. &
+	     i/=i_arg_NO_SQUEEZE) then      
       cmd_line = trim(cmd_line)// ' ' //trim(cmd_arg(i))
      endif
     end do
     len_cmd_line = len_trim(cmd_line)
     call nombre_de_colonnes(cmd_line, nb_arg)
    end if
-  end if 
+  end if
+
+  if(debug_proc%write) then
+   write(debug_proc%unit, '(2a)') ' NEW COMMAND LINE : ', trim(cmd_line)
+  end if
+
 
  ! >>>>  lecture du fichier de configuration CRYSCAL.ini 
   call read_cryscal_ini()
@@ -114,7 +153,8 @@ program crystallographic_calculations
    input_arg = u_case(cmd_arg(1))
    i1 = INDEX(input_arg, '.', back=.true.)
    
-   IF(input_arg(1:4) == 'HELP' .or. input_arg(1:3) == 'MAN') then
+   IF((len_trim(input_arg) == 4 .and. input_arg(1:4) == 'HELP') .or. &
+      (len_trim(input_arg) == 3 .and. input_arg(1:3) == 'MAN')) then
     keyword_HELP = .true.
     arg_keyword  = .true.
     read(cmd_line(5:), '(a)') arg_string
@@ -130,19 +170,20 @@ program crystallographic_calculations
 	OPEN(UNIT = 2, FILE='CRYSCAL_manual.txt')
             
 
-   ELSEIF(input_arg(1:4) == 'HTML') then
+   ELSEIF(len_trim(input_arg) >= 4 .and. input_arg(1:4) == 'HTML') then
     keyword_create_CRYSCAL_HTML = .true.
     arg_keyword                 = .true.
     if(input_arg(1:11) == 'HTML_BROWSE' .or. input_arg(1:10) == 'HTM_BROWSE' ) browse_cryscal_HTML = .true.
     
-   ELSEIF(input_arg(1:4) == 'NEWS') then
+   ELSEIF(len_trim(input_arg) == 4 .and. input_arg(1:4) == 'NEWS') then
     keyword_create_CRYSCAL_news = .true.
     arg_keyword                 = .true.
     !OPEN(UNIT = NEWS_unit, FILE = 'cryscal_news.txt', ACTION='write', STATUS = 'replace')
     !OPEN(UNIT = 2, FILE = 'CRYSCAL_news.txt', ACTION='write', STATUS = 'replace')
 	OPEN(UNIT = 2, FILE = 'CRYSCAL_news.txt')
     
-   ELSEIF(input_arg(1:3) == 'KEY' .or. input_arg(1:4) == 'KEYS') then
+   ELSEIF((len_trim(input_arg)==3 .and. input_arg(1:3) == 'KEY') .or.   &
+          (len_trim(input_arg)==4 .and. input_arg(1:4) == 'KEYS')) then
     keyword_KEY = .true.
     arg_keyword = .true.
     !OPEN(UNIT=KEYS_unit, FILE='CRYSCAL_keys.txt',   ACTION='write', STATUS='replace')
@@ -151,7 +192,7 @@ program crystallographic_calculations
 
     !call write_KEYWORD()
    
-   ELSEIF(input_arg(1:3) == 'CLA' ) then
+   ELSEIF(len_trim(input_arg) == 3 .and. input_arg(1:3) == 'CLA' ) then
     keyword_CLA = .true.
     arg_keyword = .true.
     !open(unit = 2, FILE = 'CRYSCAL_cla.txt', ACTION = 'write', STATUS = 'replace')
@@ -165,13 +206,15 @@ program crystallographic_calculations
    ELSEIF(input_arg(i1+1:i1+3) == 'P4P') then
     keyword_P4P = .true.
     arg_keyword = .true.
-    i1 = INDEX(input_arg, '"')
-    i2 = INDEX(input_arg, '"', back=.true.)
-    IF(i1 /=0 .AND. i2 /=0) then
-     P4P_file_name = input_arg(i1+1:i2-1)
-    else
-     P4P_file_name = input_arg
-    endif
+	if(len_trim(P4P_file_name) == 0) then
+     i1 = INDEX(input_arg, '"')
+     i2 = INDEX(input_arg, '"', back=.true.)
+     IF(i1 /=0 .AND. i2 /=0) then
+      P4P_file_name = input_arg(i1+1:i2-1)
+     else
+      P4P_file_name = input_arg
+     endif
+	end if 
    
    elseif(input_arg(i1+1:i1+3) == "RAW") then
     keyword_RAW = .true.
@@ -185,12 +228,24 @@ program crystallographic_calculations
     endif
 
     
-   ELSEIF(input_arg(1:6) == 'REPORT' .or. input_arg(1:11) == 'REPORT_LONG') then
+   ELSEIF(input_arg(1:6) == 'REPORT' .or. input_arg(1:11) == 'REPORT_LONG' .or. input_arg(1:10) == 'REPORT_TEX' .or. input_arg(1:12) == 'REPORT_LATEX') then
     keyword_create_report = .true.
-    arg_keyword = .true.
-    long_report = .false.
+    arg_keyword   = .true.
+	HTML_report   = .true.
+    long_report   = .false.
+	text_report   = .false.
+	latex_report  = .false.
     if(input_arg(1:11) == 'REPORT_LONG') long_report = .true.
-    !if(nb_arg > 1  .and. u_case(cmd_arg(2)(1:5)) /= 'DEBUG'   &
+	if(input_arg(1:10) == 'REPORT_TEX')  then
+	 long_report = .true.
+	 text_report  = .true.
+	 HTML_report  = .false.
+	endif
+	if(input_arg(1:12) == 'REPORT_LATEX') then
+	 long_report = .true.
+	 latex_report = .true.
+	 HTML_report  = .false.
+	endif     !if(nb_arg > 1  .and. u_case(cmd_arg(2)(1:5)) /= 'DEBUG'   &
 	!               .and. u_case(cmd_arg(2)(1:3)) /= 'LOG'     &
     !               .and. u_case(cmd_arg(2)(1:6)) /= 'NO_OUT'  &
     !               .and. u_case(cmd_arg(2)(1:6)) /= 'CIFDEP'  &
@@ -214,8 +269,16 @@ program crystallographic_calculations
 
    if(.not. keyword_HELP .and. .not. keyword_KEY .and. .not. keyword_create_CRYSCAL_HTML &
                                                  .and. .not. keyword_create_CRYSCAL_NEWS) then
-    !open(UNIT=2, FILE='cryscal.log',        ACTION='write', status='replace')   
-	open(UNIT=2, FILE='cryscal.log')   
+    close(unit=2)												 
+	open(UNIT=2, FILE='cryscal.log',   ACTION='write', status='replace', iostat=i_error)
+    if(i_error /=0) then
+     call write_info('')
+     call write_info('  !! Problem opening cryscal.log file !!')
+	 call write_info('  !! Program will be stopped. !!')
+     call write_info('')	
+	 stop
+	end if 
+
    endif 
    
  
@@ -231,19 +294,35 @@ program crystallographic_calculations
      IF(i1 /=0 .AND. i2/=0) input_file = input_file(i1+1:i2-1)
      IF(input_file(i+1:) =='CFL') input_CFL = .true.
     endif
-    call test_file_exist(input_file, file_exist)
+    call test_file_exist(input_file, file_exist, 'out')
     if(.not. file_exist) input_file = ''
    ENDIF
   
   else
-   !open(UNIT=2, FILE='CRYSCAL.log',        ACTION='write', status='replace')    
-   open(UNIT=2, FILE='CRYSCAL.log')    
+    close(unit=2)												 
+	open(UNIT=2, FILE='cryscal.log',   ACTION='write', status='replace', iostat=i_error)
+   	if(i_error /=0) then
+     call write_info('')
+     call write_info('  !! Problem opening cryscal.log file !!')
+	 call write_info('  !! Program will be stopped. !!')
+     call write_info('')	
+	 stop
+	end if 
+
   endif   ! fin de la condition if (len_cmd_line /=0
 
 
  if(nb_arg /=0) then
-  !open(UNIT=2, FILE='CRYSCAL.log',        ACTION='write', status='replace')   
-  open(UNIT=2, FILE='CRYSCAL.log')   
+  close(unit=2)												 
+  open(UNIT=2, FILE='cryscal.log',   ACTION='write', status='replace', iostat=i_error)
+  if(i_error /=0) then
+   call write_info('')
+   call write_info('  !! Problem opening cryscal.log file !!')
+   call write_info('  !! Program will be stopped. !!')
+   call write_info('')	
+   stop
+  end if 
+
   call write_info('')
   call write_info('  . CRYSCAL arguments : ' //trim(cmd_line))
   call write_info('')
@@ -310,6 +389,7 @@ program crystallographic_calculations
 
  IF (keyword_P4P) THEN
   call read_P4P(P4P_file_name)
+  if(.not. lecture_OK) stop
   IF(molecule%formula(1:1) /= '?' ) then
    call nombre_de_colonnes(molecule%formula, nb_col)
    call decode_CHEM_string(molecule%formula, nb_col)
@@ -317,9 +397,21 @@ program crystallographic_calculations
    call molecular_weight
   ENDIF
 
-  call read_SADABS_file()
+  if(len_trim(RAW_file_name) ==0)  then  ! fichier .HKL
+   call read_SHELX_HKL('cos')   ! avec ou sans cos. dir. ?
+   if(.not. cos_exist) call read_SADABS_file()
+  else
+   cos_exist = .true.
+  endif 
   call create_CIF_P4P_import('IMPORT')
-  call read_SHELX_HKL
+  
+  if(len_trim(RAW_file_name) == 0) then
+    call read_SHELX_HKL('data')  ! lecture des hkl
+  else 
+    call allocate_HKL_arrays
+    call read_RAW_file('2')       ! lecture des hkl (sans creation fichier _raw.hkl
+  end if  
+
   call write_info('')
   call write_info('    >>> import.cif file has been created.')
   call write_info('')
@@ -328,7 +420,8 @@ program crystallographic_calculations
   stop
  
  elseif(keyword_RAW) then
-  call read_RAW_file
+  call allocate_HKL_arrays
+  call read_RAW_file('1')
   stop
   
  ELSEIF(keyword_create_REPORT) then
@@ -364,26 +457,30 @@ program crystallographic_calculations
 
  else
   do
-   call WRITE_info("  ")
-   call WRITE_info("  ****           CRYSCAL main menu          ****")
-   call write_info("  ")
-   call WRITE_info("     1. Interactive mode")
-   call WRITE_info("     2. Read keywords list from input file")
-   call WRITE_info("     3. User's guide")
-   call WRITE_info("     4. List of keywords")
-   call write_info("     5. List of command line arguments")
-   call WRITE_info("     6. What's new in Cryscal ?")
-   call WRITE_info("     0. Stop")
-   call WRITE_info("  ")
-   call WRITE_info("    Enter your choice [def=1] : ")
+   if(.not. skip_start_menu) then
+    call WRITE_info("  ")
+    call WRITE_info("  ****           CRYSCAL main menu          ****")
+    call write_info("  ")
+    call WRITE_info("     1. Interactive mode")
+    call WRITE_info("     2. Read keywords list from input file")
+    call WRITE_info("     3. User's guide")
+    call WRITE_info("     4. List of keywords")
+    call write_info("     5. List of command line arguments")
+    call WRITE_info("     6. What's new in Cryscal ?")
+    call WRITE_info("     0. Stop")
+    call WRITE_info("  ")
+    call WRITE_info("    Enter your choice [def=1] : ")
 
    !call read_input_line(input_string)
    !READ(input_string, '(a)') choice
    
-   read(*,'(a)') choice
-   
-   choice = ADJUSTL(choice)
-   if(len_trim(choice) == 0) choice = '1'
+    read(*,'(a)') choice
+    choice = ADJUSTL(choice)
+    if(len_trim(choice) == 0) choice = '1'
+   else
+    choice = '1'
+	skip_start_menu = .false.
+   endif
    
    select case (choice)
        case ('0', 'x', 'X', 'xx', 'XX', 'xX', 'Xx')

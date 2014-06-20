@@ -56,6 +56,7 @@ del *.map
       g95 -c -O3 -funroll-loops  -msse2  pgf_file.f90
       g95 -c -O3 -funroll-loops  -msse2  HELP.f90             -I%CRYSFML%\G95\libC
       g95 -c -O3 -funroll-loops  -msse2  create_HTML.f90      -I%CRYSFML%\G95\libC
+      g95 -c -O3 -funroll-loops  -msse2  create_report.f90    -I%CRYSFML%\G95\libC
       g95 -c -O3 -funroll-loops  -msse2  create_CIF.f90       -I%CRYSFML%\G95\libC
       g95 -c -O3 -funroll-loops  -msse2  cryscal_lsg_cfml.f90 -I%CRYSFML%\G95\libC
       g95 -c -O3 -funroll-loops  -msse2  cryscal_write.f90    -I%CRYSFML%\G95\libC

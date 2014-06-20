@@ -1,11 +1,12 @@
 !     Last change:  TR   26 Apr 2007    2:19 pm
 subroutine search_exti()
  USE IO_module,      ONLY:  write_info
- USE cryscal_module, ONLY : keyword_file, message_text 
+ USE cryscal_module, ONLY : keyword_file, message_text, debug_proc
  USE hkl_module
  implicit none
   INTEGER               :: i
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "search_exti")
 
  IF(.NOT. keyword_file) then
   call write_info('')
@@ -42,11 +43,15 @@ end subroutine search_exti
 !------------------------------------------------------
 
 subroutine search_HKL_exti(rule_number)
+ USE macros_module, ONLY : multiple
  USE HKL_module
+ USE cryscal_module, only : debug_proc
  implicit none
   INTEGER, INTENT(IN)          :: rule_number
   INTEGER                      :: i
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_HKl_exti")
+  
   n_pair    = 0
   n_impair  = 0
   F2_pair   = 0.
@@ -61,7 +66,8 @@ subroutine search_HKL_exti(rule_number)
        IF(F2(i) < 0.01) cycle
       endif
       IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)==0) then
-       IF(h(i)==2*INT(h(i)/2)) then
+       !IF(h(i)==2*INT(h(i)/2)) then
+	   if(multiple(h(i),2)) then
         n_pair = n_pair + 1
         F2_pair = F2_pair + F2(i)
         if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -82,7 +88,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(k(i)==2*INT(k(i)/2)) then
+   !IF(k(i)==2*INT(k(i)/2)) then
+   if(multiple(k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -103,7 +110,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(l(i)==2*INT(l(i)/2)) then
+   !IF(l(i)==2*INT(l(i)/2)) then
+   if(multiple(l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -123,7 +131,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(k(i)==2*INT(k(i)/2)) then
+   !IF(k(i)==2*INT(k(i)/2)) then
+   if(multiple(k(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -144,7 +153,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(l(i)==2*INT(l(i)/2)) then
+   !IF(l(i)==2*INT(l(i)/2)) then
+   if(multiple(l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -165,7 +175,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(k(i)+l(i)==2*INT((k(i)+l(i))/2)) then
+   !IF(k(i)+l(i)==2*INT((k(i)+l(i))/2)) then
+   if(multiple(k(i)+l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -186,7 +197,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(h(i)==2*INT(h(i)/2)) then
+   !IF(h(i)==2*INT(h(i)/2)) then
+   if(multiple(h(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -207,7 +219,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(l(i)==2*INT(l(i)/2)) then
+   !IF(l(i)==2*INT(l(i)/2)) then
+   if(multiple(l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -228,7 +241,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   !IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   if(multiple(h(i)+l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -250,7 +264,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(h(i)==2*INT(h(i)/2)) then
+   !IF(h(i)==2*INT(h(i)/2)) then
+   if(multiple(h(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -270,7 +285,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(k(i)==2*INT(k(i)/2)) then
+   !IF(k(i)==2*INT(k(i)/2)) then
+   if(multiple(k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -291,7 +307,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   !IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   if(multiple(h(i)+k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -313,7 +330,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==k(i) .AND. l(i)/=0) then
-   IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   !IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   if (multiple(h(i)+l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -334,7 +352,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(k(i)==l(i) .AND. h(i)/=0) then
-   IF(k(i)+h(i)==2*INT((k(i)+h(i))/2)) then
+   !IF(k(i)+h(i)==2*INT((k(i)+h(i))/2)) then
+   if(multiple(k(i)+h(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -355,7 +374,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==l(i) .AND. k(i)/=0) then
-   IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   !IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   if(multiple(h(i)+k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -378,7 +398,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   if(k(i)/=0 .and. l(i)/=0) then
-   IF(k(i)+l(i)==2*INT((k(i)+l(i))/2)) then
+   !IF(k(i)+l(i)==2*INT((k(i)+l(i))/2)) then
+   if(multiple(k(i)+l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -399,7 +420,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   if(h(i)/=0 .and. l(i)/=0) then
-   IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   !IF(h(i)+l(i)==2*INT((h(i)+l(i))/2)) then
+   if(multiple(h(i)+l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -420,7 +442,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   if(h(i)/=0 .and. k(i)/=0) then
-   IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   !IF(h(i)+k(i)==2*INT((h(i)+k(i))/2)) then
+   if(multiple(h(i)+k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -442,7 +465,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(h(i)+k(i)+l(i)==2*INT((h(i)+k(i)+l(i))/2)) then
+   !IF(h(i)+k(i)+l(i)==2*INT((h(i)+k(i)+l(i))/2)) then
+   if(multiple(h(i)+k(i)+l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -463,7 +487,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(h(i)==2*INT(h(i)/2) .and. k(i)==2*INT(k(i)/2) .and. l(i)==2*INT(l(i)/2)) then
+   !IF(h(i)==2*INT(h(i)/2) .and. k(i)==2*INT(k(i)/2) .and. l(i)==2*INT(l(i)/2)) then
+   if(multiple(h(i), 2) .and. multiple(k(i),2) .and. multiple(l(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -484,7 +509,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)==0) then
-   IF(h(i)==4*INT(h(i)/4) ) then
+   !IF(h(i)==4*INT(h(i)/4) ) then
+   if(multiple(h(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -505,7 +531,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(k(i)==4*INT(k(i)/4) ) then
+   !IF(k(i)==4*INT(k(i)/4) ) then
+   if(multiple(k(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -525,7 +552,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(l(i)==4*INT(l(i)/4) ) then
+   !IF(l(i)==4*INT(l(i)/4) ) then
+   if(multiple(l(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -546,7 +574,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)==0 .AND. k(i)/=0 .AND. l(i)/=0) then
-   IF(k(i)+l(i)==4*INT((k(i)+l(i))/4) ) then
+   !IF(k(i)+l(i)==4*INT((k(i)+l(i))/4) ) then
+   if(multiple(k(i)+l(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -567,7 +596,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)==0 .AND. l(i)/=0) then
-   IF(h(i)+l(i)==4*INT((h(i)+l(i))/4) ) then
+   !IF(h(i)+l(i)==4*INT((h(i)+l(i))/4) ) then
+   if(multiple(h(i)+l(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -588,7 +618,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
   IF(h(i)/=0 .AND. k(i)/=0 .AND. l(i)==0) then
-   IF(h(i)+k(i)==4*INT((h(i)+k(i))/4) ) then
+   !IF(h(i)+k(i)==4*INT((h(i)+k(i))/4) ) then
+   if(multiple(h(i)+k(i), 4)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -610,7 +641,8 @@ subroutine search_HKL_exti(rule_number)
   endif
 
   IF(h(i)==0 .or. k(i)==0 .or. h(i)+k(i) == 0 ) then
-   IF(l(i)==2*INT(l(i)/2) ) then
+   !IF(l(i)==2*INT(l(i)/2) ) then
+   if(multiple(l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -631,7 +663,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
 
-   IF(h(i)==2*INT(h(i)/2) ) then
+   !IF(h(i)==2*INT(h(i)/2) ) then
+   if(multiple(h(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -651,7 +684,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
 
-   IF(k(i)==2*INT(k(i)/2) ) then
+   !IF(k(i)==2*INT(k(i)/2) ) then
+   if(multiple(k(i), 2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -671,7 +705,8 @@ subroutine search_HKL_exti(rule_number)
     IF(F2(i) < 0.01) cycle
   endif
 
-   IF(l(i)==2*INT(l(i)/2) ) then
+   !IF(l(i)==2*INT(l(i)/2) ) then
+   if(multiple(l(i),2)) then
     n_pair = n_pair + 1
     F2_pair = F2_pair + F2(i)
     if(rule_number < 0) HKL_search_ok(i) = .true.
@@ -691,7 +726,8 @@ subroutine search_HKL_exti(rule_number)
   endif
   
   if(rule_number > 0) then ! recherche de h impair et k impair
-   if(h(i)/=2*int(h(i)/2) .and. k(i)/=2*int(k(i)/2)) then
+   !if(h(i)/=2*int(h(i)/2) .and. k(i)/=2*int(k(i)/2)) then
+   if(multiple(h(i), 2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -701,7 +737,8 @@ subroutine search_HKL_exti(rule_number)
    endif 
     
   else                     ! recherche de h pair et k pair
-   if(h(i)==2*int(h(i)/2) .and. k(i)==2*int(k(i)/2)) then
+   !if(h(i)==2*int(h(i)/2) .and. k(i)==2*int(k(i)/2)) then
+   if(multiple(h(i),2) .and. multiple(k(i),2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -723,7 +760,8 @@ subroutine search_HKL_exti(rule_number)
   endif
 
   if(rule_number > 0) then ! recherche de h impair et l impair
-   if(h(i)/=2*int(h(i)/2) .and. l(i)/=2*int(l(i)/2)) then
+   !if(h(i)/=2*int(h(i)/2) .and. l(i)/=2*int(l(i)/2)) then
+   if(.not. multiple(h(i), 2) .and. .not. multiple(l(i),2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -733,7 +771,8 @@ subroutine search_HKL_exti(rule_number)
    endif 
     
   else                     ! recherche de h pair et l pair
-   if(h(i)==2*int(h(i)/2) .and. l(i)==2*int(l(i)/2)) then
+   !if(h(i)==2*int(h(i)/2) .and. l(i)==2*int(l(i)/2)) then
+   if(multiple(h(i),2) .and. multiple(l(i), 2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -754,7 +793,8 @@ subroutine search_HKL_exti(rule_number)
   endif
 
   if(rule_number > 0) then ! recherche de k impair et l impair
-   if(k(i)/=2*int(k(i)/2) .and. l(i)/=2*int(l(i)/2)) then
+   !if(k(i)/=2*int(k(i)/2) .and. l(i)/=2*int(l(i)/2)) then
+   if(.not. multiple(k(i), 2) .and. .not. multiple(l(i), 2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -764,7 +804,8 @@ subroutine search_HKL_exti(rule_number)
    endif 
     
   else                     ! recherche de k pair et l pair
-   if(k(i)==2*int(k(i)/2) .and. l(i)==2*int(l(i)/2)) then
+   !if(k(i)==2*int(k(i)/2) .and. l(i)==2*int(l(i)/2)) then
+    if(multiple(k(i),2) .and. multiple(l(i),2)) then
     n_pair  = n_pair + 1
     F2_pair = F2_pair + F2(i)
     HKL_search_ok(i) = .true.
@@ -786,7 +827,7 @@ end subroutine search_HKL_exti
 
 !------------------------------------------------------------------------------------------------
 subroutine write_hkl_exti(exti_num, exti_string)
- USE cryscal_module, ONLY : message_text
+ USE cryscal_module, ONLY : message_text, debug_proc
  USE IO_module,      ONLY : write_info
  USE hkl_module,     ONLY : n_pair, n_impair, F2_pair, F2_impair, mean_F2_pair, mean_F2_impair, I_ratio, ratio_criteria
  implicit none
@@ -796,7 +837,7 @@ subroutine write_hkl_exti(exti_num, exti_string)
 
  !I_critere  = 0.03
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_HKL_exti")
 
  !IF(n_pair==0 .AND. n_impair==0)       return
  IF(n_pair   /=0)                      mean_F2_pair   = F2_pair/n_pair
@@ -837,7 +878,7 @@ END subroutine write_hkl_exti
 subroutine search_hkl()
  USE hkl_module
  USE IO_module,                   ONLY : write_info
- USE cryscal_module,              ONLY : message_text, keyword_FILE, SPG
+ USE cryscal_module,              ONLY : message_text, keyword_FILE, SPG, hkl_format_free, debug_proc
  USE CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv
 
  implicit none
@@ -848,6 +889,13 @@ subroutine search_hkl()
   INTEGER,           DIMENSION(3) :: ref_H
   CHARACTER (len=4), DIMENSION(3) :: ref_H_string
   LOGICAL                         :: equiv_H
+  CHARACTER (len=256)             :: fmt_1, fmt_2
+    
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_hkl")
+	
+  fmt_1 = '(1x,2I6, 2x, 3I4,2x, 2F15.2,F10.3,2x,I6)'
+  fmt_2 = '(1x,2I6, 2x, 3I4,2x, 2F8.2, F10.3,2x,I6)'
+
 
   IF(.NOT. keyword_file) then
    call write_info('')
@@ -876,7 +924,7 @@ subroutine search_hkl()
   endif 
   call write_info(TRIM(message_text))
   call write_info('')
-  call write_info('                  h   h   l      F2     sig    F2/sig')
+  call write_info('                  h   k   l        F2     sig    F2/sig    code')
   call write_info('')
    
   n_req = 0
@@ -898,7 +946,11 @@ subroutine search_hkl()
      equiv_H = HKL_equiv(INT(ref_H), INT(requested_H), SPG, search_friedel)
      IF((ref_H(1) == requested_H(1) .and. ref_H(2) == requested_H(2) .and. ref_H(3) == requested_H(3)) .or. equiv_H) then
       n_req = n_req + 1
-      WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	  if(hkl_format_free) then
+	   WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	  else
+       WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	  endif 
      else
       cycle
      endif
@@ -907,14 +959,22 @@ subroutine search_hkl()
       IF((ref_H(1) ==  requested_H(1) .And. ref_H(2) ==  requested_H(2) .and. ref_H(3) ==  requested_H(3)) .OR.     &
          (ref_H(1) == -requested_H(1) .And. ref_H(2) == -requested_H(2) .and. ref_H(3) == -requested_H(3))) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	   WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	  else
+       WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
      else
       IF(ref_H(1) == requested_H(1) .And. ref_H(2) == requested_H(2) .and. ref_H(3) == requested_H(3)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	   WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	  else
+       WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -944,7 +1004,11 @@ subroutine search_hkl()
       read(requested_H_string(3), *) requested_H(3)
       IF(ref_H(3) == requested_H(3)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -953,7 +1017,11 @@ subroutine search_hkl()
       read(requested_H_string(2), *) requested_H(2)
       IF(ref_H(2) == requested_H(2)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -963,7 +1031,11 @@ subroutine search_hkl()
       read(requested_H_string(3), *) requested_H(3)
       IF(ref_H(2) == requested_H(2) .and. ref_H(3) == requested_H(3)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -973,7 +1045,11 @@ subroutine search_hkl()
      if(requested_H_string(3) == 'L') then     ! recherche reflexion avec k et l quelconques 
       IF(ref_H(1) == requested_H(1)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -983,7 +1059,11 @@ subroutine search_hkl()
       read(requested_H_string(3), *) requested_H(3)
       IF(ref_H(1) == requested_H(1) .and. ref_H(3) == requested_H(3)) then
        n_req = n_req + 1
-       WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	   if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   endif
       else
        cycle
       endif
@@ -994,7 +1074,11 @@ subroutine search_hkl()
      read(requested_H_string(2), *) requested_H(2)
      IF(ref_H(1) == requested_H(1) .and. ref_H(2) == requested_H(2)) then
       n_req = n_req + 1
-      WRITE(message_text, '(1x,2I6, 2x, 3I4,2x, 2F8.2,F10.3)') n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i)
+	  if(hkl_format_free) then
+	    WRITE(message_text, fmt=trim(fmt_1)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	   else
+        WRITE(message_text, fmt=trim(fmt_2)) n_req, i, h(i), k(i), l(i), F2(i), sig_F2(i), F2(i)/sig_F2(i), code(i)
+	  endif
      else
       cycle
      endif     
@@ -1045,7 +1129,7 @@ end subroutine search_hkl
 subroutine search_hkl_EQUIV()
  USE hkl_module
  USE IO_module,                   ONLY : write_info
- USE cryscal_module,              ONLY : message_text, keyword_FILE, SPG
+ USE cryscal_module,              ONLY : message_text, keyword_FILE, SPG, debug_proc
  USE CFML_Reflections_Utilities,  ONLY : HKL_equiv, HKL_equiv_list
 
  implicit none
@@ -1054,6 +1138,8 @@ subroutine search_hkl_EQUIV()
   INTEGER, ALLOCATABLE, DIMENSION(:,:) :: list_equiv_H
   INTEGER                              :: mult, n_equiv_H
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_HKL_equiv")
+  
   IF(SPG%NumSpg == 0) then
    call write_info('')
    call write_info('  !! SPGR keyword mandatory for the search equivalent reflections procedure !!')
@@ -1097,8 +1183,8 @@ end subroutine search_hkl_EQUIV
 subroutine search_hkl_F2(input_string)
  USE hkl_module
  USE IO_module,                    ONLY : write_info
- USE cryscal_module,               ONLY : message_text, keyword_FILE, keyword_find_HKL_ABSENT, SPG
- Use CFML_Reflections_Utilities,   ONLY : HKL_absent,  HKL_equiv
+ USE cryscal_module,               ONLY : message_text, keyword_FILE, keyword_find_HKL_ABSENT, SPG, debug_proc
+ Use CFML_Reflections_Utilities,   ONLY : HKL_absent,  HKL_equiv 
 
  implicit none
   CHARACTER(LEN=*), INTENT(IN) :: input_string
@@ -1108,6 +1194,9 @@ subroutine search_hkl_F2(input_string)
   INTEGER, DIMENSION(3)        :: ref_H
   LOGICAL                      :: input_NEG, input_POS, input_ABSENT
 
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_hkl_F2 ("//trim(input_string)//")")
+  
   long_input_string = len_trim(input_string)
   input_POS    = .false.
   input_NEG    = .false.
@@ -1305,12 +1394,14 @@ end subroutine search_hkl_F2
 !------------------------------------------------------------
 subroutine search_HKL_list()
  USE hkl_module
- USE cryscal_module, ONLY : message_text, HKL_list_out1_unit, HKL_list_out2_unit
+ USE cryscal_module, ONLY : message_text, HKL_list_out1_unit, HKL_list_out2_unit, debug_proc
  USE IO_module,      ONLY : write_info
- implicit none
+  implicit none
   INTEGER           :: i 
   REAL              :: sig_impair, ratio_impair, sum_weight
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_HKL_list")
+  
  call write_info('')
  if(HKL_list%EXTI_number > 0) then
   WRITE(message_text, '(2a)') '  ... Search for reflections: ', TRIM(HKL_rule(HKL_list%EXTI_number))
@@ -1427,10 +1518,12 @@ end subroutine search_HKL_list
 subroutine list_EXTI_RULE
 USE HKL_module
 USE IO_module,      ONLY : write_info
-USE cryscal_module, ONLY : message_text
+USE cryscal_module, ONLY : message_text, debug_proc
  implicit none
   INTEGER             :: i
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "list_exti_rule")
+  
   call def_HKL_rule
 
   do i=1, HKL_rule_nb
@@ -1446,11 +1539,14 @@ USE cryscal_module, ONLY : message_text
 END subroutine list_EXTI_RULE
 !-------------------------------------------------------
 subroutine calcul_Rint()
+ USE cryscal_module, only : debug_proc
  USE HKL_module
  implicit none
   INTEGER             :: i
   REAL                :: F2_sum
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_Rint")
+  
   Rint = 0.
   n_ref_eff = 0
   F2_sum = 0
@@ -1469,15 +1565,16 @@ end subroutine calcul_Rint
 !-------------------------------------------------------
 subroutine calcul_global_Rint(input_string)
 ! extrait de 'datared.F90' JRC
- USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta
+ USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta, debug_proc
+ 
  USE HKL_module
  Use CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv
  USE CFML_Math_General,           ONLY : sort
  USE IO_module,                   ONLY : write_info
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: input_string
-  INTEGER                   :: i,i1, j,j2
-  REAL                      :: F2_sum
+  INTEGER                       :: i,i1, j,j2
+  REAL                          :: F2_sum
 
   INTEGER, DIMENSION(n_ref) :: itreat ! 
   INTEGER, DIMENSION(n_ref) :: n_equiv, ini, fin
@@ -1487,6 +1584,7 @@ subroutine calcul_global_Rint(input_string)
   INTEGER                   :: n_rejected ! nombre de reflections rejetees: eteintes par le groupe d'esapce
   INTEGER                   :: n_ok       ! nombre de reflections conservees
   INTEGER                   :: n_ok_2     ! nombre de reflections conservees avec I>2sig
+  INTEGER                   :: n_ok_3     ! nombre de reflections conservees avec I>3sig
   INTEGER                   :: ns
   LOGICAL                   :: merge, friedel
   REAL                      :: total, sig, sigg
@@ -1499,6 +1597,7 @@ subroutine calcul_global_Rint(input_string)
   INTEGER,  ALLOCATABLE, DIMENSION(:) :: ordered_array
   real,     ALLOCATABLE, DIMENSION(:) :: ordered_X, ordered_Y, ordered_sigY
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_global_Rint ("//trim(input_string)//")")
   
   long_input_string = len_trim(input_string)
   merge = .false.
@@ -1556,7 +1655,7 @@ subroutine calcul_global_Rint(input_string)
    call write_info('')
    call write_info('  ... Sort reflections in ascending theta values ...')
    call sort(theta_hkl, n_ref, ordered_array)
-   call sort_arrays('theta','+', ordered_array, theta_hkl)
+   call sort_arrays('theta','+', ordered_array, theta_hkl,'out')
    call write_info('')
    ordered_hkl =.true.
   END if
@@ -1568,9 +1667,10 @@ subroutine calcul_global_Rint(input_string)
 
   friedel = .true.
   IF(SPG%centred /= 2) friedel=.false.
-
+  
   n_ok       = 0
   n_ok_2     = 0
+  n_ok_3     = 0
   itreat(:)  = 0
   n_equiv(:) = 0
   F2_av(:)   = 0.
@@ -1578,6 +1678,7 @@ subroutine calcul_global_Rint(input_string)
   fin(:)     = 0
   total      = 0
   n_rejected = 0
+  F2_sum     = 0.
 
   do i=1, n_ref    ! boucle sur les n_ref reflections
    IF(itreat(i) /=0) cycle
@@ -1597,6 +1698,7 @@ subroutine calcul_global_Rint(input_string)
    !endif 
 
    IF(F2(i) > 2*sig_F2(i)) n_ok_2 = n_ok_2 + 1
+   IF(F2(i) > 3*sig_F2(i)) n_ok_3 = n_ok_3 + 1
    itreat(i) = i            ! Make this reflection treated
    sig = 1.0/sig_F2(i)**2
    ini(n_ok) = i
@@ -1629,7 +1731,7 @@ subroutine calcul_global_Rint(input_string)
    do j=ini(n_ok), fin(n_ok)
     IF(itreat(j) == i) then
      ns = ns + 1
-     F2_sum = F2_sum + F2(j)*weight(ns)      ! Somme des F2
+     F2_sum = F2_sum + F2(j)*weight(ns)      ! Somme des F2	 
     endif
    end do
 
@@ -1643,7 +1745,6 @@ subroutine calcul_global_Rint(input_string)
      F2_sum = F2_sum + weight(ns)*(F2_av(n_ok) - F2(j))**2    !
     endif
    end do
-
    sig_av(n_ok) = SQRT(F2_sum)
    sigg = SUM(sig_F2(ini(n_ok):fin(n_ok))) / MAX(1.0, REAL(fin(n_ok) - ini(n_ok)))
    IF(sig_av(n_ok) < sigg) sig_av(n_ok) = sigg
@@ -1707,6 +1808,8 @@ subroutine calcul_global_Rint(input_string)
   call write_info(TRIM(message_text))
   WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections with I>2sig: ', n_ok_2
   call write_info(TRIM(message_text))
+  WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections with I>3sig: ', n_ok_3
+  call write_info(TRIM(message_text))
 
   WRITE(message_text, '(a,I6)')   '  . Number of equivalent          reflections          : ', ns
   call write_info(TRIM(message_text))
@@ -1718,13 +1821,15 @@ subroutine calcul_global_Rint(input_string)
    WRITE(message_text, '(a,F6.2)')   '  . R_int (%)     = ', Rint
   endif
   call write_info(TRIM(message_text))
+
+  
   WRITE(message_text, '(a,F6.2)')    '  . wR_int (%)    = ', Rwint
   call write_info(TRIM(message_text))
   WRITE(message_text, '(a,F8.2)')    '  . <sig> for equiv. reflections   = ', aver_sig
   call write_info(TRIM(message_text))
 
 
-  call calcul_completude(n_ref, n_ok, n_ok_2)
+  call calcul_completude(n_ref, n_ok, n_ok_2, n_ok_3)
   !WRITE(message_text, '(a,F6.2)') '  . Rw_int = ', Rwint
   !call write_info(TRIM(message_text))
   call write_info('')
@@ -1742,10 +1847,192 @@ subroutine calcul_global_Rint(input_string)
  RETURN
 end subroutine calcul_global_Rint
 
+
+!-------------------------------------------------------
+subroutine Get_Friedel_pairs_number
+
+ USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta, debug_proc
+ USE HKL_module
+ Use CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv
+ USE CFML_Math_General,           ONLY : sort
+ USE IO_module,                   ONLY : write_info
+ implicit none
+  INTEGER                       :: i,i1, j,j2
+  REAL                          :: F2_sum
+
+  INTEGER, DIMENSION(n_ref) :: itreat ! 
+  INTEGER, DIMENSION(n_ref) :: ini, fin  
+  INTEGER, DIMENSION(3)     :: H1, H2
+  LOGICAL                   :: absent
+  INTEGER                   :: n_rejected ! nombre de reflections rejetees: eteintes par le groupe d'esapce
+  INTEGER                   :: n_ok       ! nombre de reflections conservees
+  INTEGER                   :: n_ok_2     ! nombre de reflections conservees avec I>2sig
+  INTEGER                   :: n_ok_c, n_ok_nc
+  INTEGER                   :: n_ok_2_c, n_ok_2_nc
+  INTEGER                   :: ns
+
+  INTEGER,  ALLOCATABLE, DIMENSION(:) :: ordered_array
+  real,     ALLOCATABLE, DIMENSION(:) :: ordered_X, ordered_Y, ordered_sigY
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_Friedel_pairs_number")  
+   
+  IF(SPG%NumSpg == 0) then
+   call write_info('')
+   call write_info('  !! SPGR keyword mandatory for the Rint calculation procedure !!')
+   call write_info('')
+   return
+  endif
+
+  IF(.NOT. keyword_file) then
+   call write_info('')
+   call write_info('  !! FILE keyword mandatory for the Rint calculation procedure !!')
+   call write_info('')
+   return
+  endif
+
+  IF(.NOT. keyword_CELL) then
+   call write_info('')
+   call write_info('  !! CELL keyword mandatory for the Rint calculation procedure !!')
+   call write_info('')
+   return
+  endif
+
+  IF(.NOT. keyword_WAVE) then
+   call write_info('')
+   call write_info('  !! WAVE keyword mandatory for the Rint calculation procedure !!')
+   call write_info('')
+   return
+  END if
+
+  IF(SPG%centred == 2) then
+   call write_info('')
+   call write_info('  !! Number of Friedel pairs can be calculated only for acentric space groups !!')
+   call write_info('')
+   return
+  end if
+  
+  !  
+  IF(.NOT. known_theta) call calcul_theta()
+  
+
+  ! Order the reflections by ascending Theta
+  if (.not. ordered_hkl) then
+   IF(ALLOCATED(ordered_array)) DEALLOCATE(ordered_array)
+   ALLOCATE(ordered_array(n_ref))
+   !call write_info('')
+   !call write_info('  ... Sort reflections in ascending theta values ...')
+   call sort(theta_hkl, n_ref, ordered_array)
+   call sort_arrays('theta','+', ordered_array, theta_hkl, 'no_out')
+   call write_info('')
+   ordered_hkl =.true.
+  END if
+  !
+
+  write(message_text, '(3a)') '   ... Get Friedel pairs number in ', trim(SPG%SPG_Symb), ' ...'
+  call write_info(trim(message_text))
+  call write_info('')
+
+  call get_n_ok(n_ok, n_ok_2, .true.)
+   
+  !WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections            : ', n_ok
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections with I>2sig: ', n_ok_2
+  !call write_info(TRIM(message_text))
+  
+  n_ok_nc   = n_ok
+  n_ok_2_nc = n_ok_2
+  
+  call get_n_ok(n_ok, n_ok_2, .false.)
+   
+  !WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections            : ', n_ok
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text, '(a,I6)')   '  . Number of valid independent reflections with I>2sig: ', n_ok_2
+  !call write_info(TRIM(message_text))
+  
+  n_ok_c   = n_ok
+  n_ok_2_c = n_ok_2
+  
+  WRITE(message_text, '(a,I6)')   '  . Number of valid Friedel pairs            : ', n_ok_c - n_ok_nc
+  call write_info(TRIM(message_text))
+  WRITE(message_text, '(a,I6)')   '  . Number of valid Friedel pairs with I>2sig: ', n_ok_2_c - n_ok_2_nc
+  call write_info(TRIM(message_text))
+
+  
+
+ RETURN
+end subroutine Get_Friedel_pairs_number
 !-----------------------------------------------------------------------
 
-subroutine calcul_completude(n_ref, n_ok, n_ok_2)
- USE cryscal_module,              ONLY : unit_cell, message_text, pi, wavelength, crystal_cell
+subroutine Get_n_ok(n_ok, n_ok_2, friedel)
+
+ USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta
+ USE HKL_module
+ Use CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv
+ USE CFML_Math_General,           ONLY : sort
+ USE IO_module,                   ONLY : write_info
+ implicit none
+  integer, intent(out)          :: n_ok, n_ok_2 
+  LOGICAL, intent(in)           :: friedel
+  INTEGER                       :: i,i1, j,j2
+  
+
+  INTEGER, DIMENSION(n_ref) :: itreat ! 
+  INTEGER, DIMENSION(n_ref) :: ini, fin  
+  INTEGER, DIMENSION(3)     :: H1, H2
+  LOGICAL                   :: absent
+  INTEGER                   :: n_rejected ! nombre de reflections rejetees: eteintes par le groupe d'esapce
+  INTEGER                   :: ns
+  
+     
+  
+  n_ok       = 0
+  n_ok_2     = 0
+  itreat(:)  = 0  
+  ini(:)     = 0
+  fin(:)     = 0
+  
+  n_rejected = 0
+  
+
+  do i=1, n_ref    ! boucle sur les n_ref reflections
+   IF(itreat(i) /=0) cycle
+   H1(1) = h(i)
+   H1(2) = k(i)
+   H1(3) = l(i)
+   absent = hkl_absent(H1, SPG)
+   IF(absent) then
+    n_rejected = n_rejected + 1
+    cycle
+   endif
+
+   n_ok = n_ok + 1          ! update the number of independent reflections
+   
+
+   IF(F2(i) > 2*sig_F2(i)) n_ok_2 = n_ok_2 + 1
+   itreat(i) = i            ! Make this reflection treated  
+   ini(n_ok) = i
+   fin(n_ok) = i
+   
+
+   do j = i+1, n_ref  ! boucles sur les reflections suivantes: recherche des reflections  equivalentes
+    IF(known_theta .and. (ABS(theta_hkl(i) - theta_HKL(j)) > 0.2)) exit
+    H2(1) = h(j)
+    H2(2) = k(j)
+    H2(3) = l(j)
+    if (HKL_equiv(H1, H2, SPG, friedel)) then
+     itreat(j)     = i     
+     fin(n_ok)     = j     
+    end if
+   end do
+  end do
+
+ return
+end subroutine Get_n_ok
+
+!-----------------------------------------------------------------------
+
+subroutine calcul_completude(n_ref, n_ok, n_ok_2, n_ok_3)
+ USE cryscal_module,              ONLY : unit_cell, message_text, pi, wavelength, crystal_cell, debug_proc
  Use CFML_Reflections_Utilities,  ONLY : Get_MaxNumRef, HKL_gen, reflect_type
  USE cryscal_module,              ONLY : SPG
  USE CFML_Crystal_Metrics,        ONLY : Set_Crystal_Cell
@@ -1753,7 +2040,7 @@ subroutine calcul_completude(n_ref, n_ok, n_ok_2)
  USE IO_module,                   ONLY : write_info
  implicit none
   INTEGER, INTENT(IN)  :: n_ref
-  INTEGER, INTENT(IN)  :: n_ok, n_ok_2
+  INTEGER, INTENT(IN)  :: n_ok, n_ok_2, n_ok_3
 
   ! variables pour le calcul de la completude
   TYPE(Reflect_type),         ALLOCATABLE, DIMENSION(:) :: reflex_HKL
@@ -1763,7 +2050,8 @@ subroutine calcul_completude(n_ref, n_ok, n_ok_2)
   LOGICAL                   :: Friedel
 
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_completude")
+  
    ! calcul de la completude
   theta_min = MINVAL(theta_hkl(1:n_ref))
   theta_max = MAXVAL(theta_hkl(1:n_ref))
@@ -1792,13 +2080,20 @@ subroutine calcul_completude(n_ref, n_ok, n_ok_2)
   call write_info(TRIM(message_text))
   WRITE(message_text, '(a,F6.2)')   '  . Theta_max:       ', theta_max
   call write_info(TRIM(message_text))
-  WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections            : ', n_ok
-  call write_info(TRIM(message_text))
-  WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections with I>2sig: ', n_ok_2
-  call write_info(TRIM(message_text))
+  !WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections            : ', n_ok
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections with I>2sig: ', n_ok_2
+  !call write_info(TRIM(message_text))
+  !WRITE(message_text, '(a,I6)')     '  . Number of valid independent reflections with I>2sig: ', n_ok_3
+  !call write_info(TRIM(message_text))
   WRITE(message_text, '(a,I6)')     '  . Number of expected independent reflections         : ', exp_Num_ref
   call write_info(TRIM(message_text))
+  if(n_ok < exp_num_ref) then
+  WRITE(message_text, '(a,F6.2,a,I6,a)')   '  . Completeness: ', 100.*(REAL(n_ok)/REAL(exp_Num_ref)),  &
+                                           ' (', exp_num_ref - n_ok, ' missing reflections)'
+  else
   WRITE(message_text, '(a,F6.2)')   '  . Completeness: ', 100.*(REAL(n_ok)/REAL(exp_Num_ref))
+  endif
   call write_info(TRIM(message_text))
 
 
@@ -1809,7 +2104,7 @@ end subroutine calcul_completude
 subroutine get_numref_SPG()
  USE hkl_module
  USE IO_module,                   ONLY : write_info
- USE cryscal_module,              ONLY : message_text, SPG
+ USE cryscal_module,              ONLY : message_text, SPG, debug_proc
  Use CFML_Reflections_Utilities,  ONLY : HKL_absent
 
  implicit none
@@ -1817,6 +2112,8 @@ subroutine get_numref_SPG()
   INTEGER, DIMENSION(3)       :: ref_H
 
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_numref_SPG")
+  
  n_ref_2 = 0
  n_ref_3 = 0
  n_req   = 0
@@ -1857,7 +2154,7 @@ end subroutine get_numref_SPG
 !-------------------------------------------------------
 subroutine calcul_merge_HKL()
 ! extrait de 'datared.F90' JRC
- USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta
+ USE cryscal_module,              ONLY : SPG, keyword_FILE, keyword_CELL, keyword_WAVE, message_text, known_theta, debug_proc
  USE HKL_module
  Use CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv
  USE CFML_Math_General,           ONLY : sort
@@ -1877,6 +2174,7 @@ subroutine calcul_merge_HKL()
   INTEGER,  ALLOCATABLE, DIMENSION(:) :: ordered_array
   real,     ALLOCATABLE, DIMENSION(:) :: ordered_X, ordered_Y, ordered_sigY
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_MERGE_hkl")
 
   IF(SPG%NumSpg == 0) then
    call write_info('')
@@ -1921,7 +2219,7 @@ subroutine calcul_merge_HKL()
    call write_info('')
    call write_info('  ... Sort reflections in ascending theta values ...')
    call sort(theta_hkl, n_ref, ordered_array)
-   call sort_arrays('theta','+', ordered_array, theta_hkl)
+   call sort_arrays('theta','+', ordered_array, theta_hkl, 'out')
    call write_info('')
    ordered_hkl =.true.
   END if

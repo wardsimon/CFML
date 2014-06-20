@@ -2,7 +2,7 @@
 ! lecture du fichier nreport.HTML
 
 subroutine read_nreport_html()
- USE cryscal_module,               ONLY : message_text, my_browser 
+ USE cryscal_module,               ONLY : message_text, my_browser, browse_nreport, debug_proc 
  USE macros_module,                ONLY : test_file_exist
  USE IO_module,                    ONLY : write_info
  use external_applications_module, ONLY : launch_browser
@@ -19,11 +19,13 @@ subroutine read_nreport_html()
    CHARACTER (LEN=256)                        :: DOS_command
 
 
- call test_file_exist('nreport.html', file_exist)
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_NREPORT_HTML")
+   
+ call test_file_exist('nreport.html', file_exist, 'out')
  IF(.NOT. file_exist) return
 
 
- if (my_browser%exist) then
+ if (browse_nreport .and. my_browser%exist) then
   call launch_browser('nreport.html')
  else
   OPEN(UNIT=51, FILE='nreport.html')
@@ -31,19 +33,23 @@ subroutine read_nreport_html()
    READ(UNIT=51, fmt='(a)', IOSTAT=i_error) read_line
    IF(i_error < 0) EXIT   ! fin du fichier
    call HTML_to_text(read_line)
-   call write_info('  '//TRIM(read_line))
+   call write_info('  '//TRIM(read_line))   
   END do
   close (UNIT=51)
  end if
 
+ return
 end subroutine read_nreport_html
 
 !---------------------------------------------------------------------------------
 
 subroutine HTML_to_text(string)
- USE macros_module, ONLY: replace_car, remove_car, clear_string
+ use cryscal_module, only : debug_proc
+ USE macros_module,  ONLY: replace_car, replace_car2, remove_car, clear_string
  implicit none
  CHARACTER (LEN=*), INTENT(INOUT) :: string
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "HTML_TO_TEXT")
 
 ! call replace_car(string, "&deg;"             , " deg.")
 ! call replace_car(string, "&lt;"              , " < ")
@@ -86,7 +92,7 @@ subroutine HTML_to_text(string)
 ! call remove_line(string, "<ADDRESS>")
 
 
- string = replace_car(string, "&deg;"             , " deg.")
+ string = replace_car2(string, "&deg;"             , " deg.")
  string = replace_car(string, "&lt;"              , " < ")
  string = replace_car(string, "<TD>"              , "  ")
  string = replace_car(string, "</TH>"             , "  ")
@@ -94,7 +100,7 @@ subroutine HTML_to_text(string)
  string = replace_car(string, "<TD ALIGN=RIGHT>"  , "  ")
 
  string = remove_car(string, "<P>" )
- string = remove_car(string, "<BR>")
+ string = replace_car(string, "<BR>", " ")
  string = remove_car(string, "<HR>")
  string = remove_car(string, "</TD>")
  string = remove_car(string, "<TR>")
@@ -117,9 +123,9 @@ subroutine HTML_to_text(string)
 
  string = remove_car(string, "<H1>")
  string = remove_car(string, "</H1>")
- string = remove_car(string, "<H2>")
- string = remove_car(string, "</H2>")
- string = remove_car(string, "<H3>")
+ string = replace_car(string, "<H2>" , "*** ")
+ string = replace_car(string, "</H2>", " ***" )
+ string = replace_car2(string, "<H3>" , " >> ")
  string = remove_car(string, "</H3>")
 
 
@@ -127,5 +133,5 @@ subroutine HTML_to_text(string)
 
 
 
-
+ return
 end subroutine HTML_to_text

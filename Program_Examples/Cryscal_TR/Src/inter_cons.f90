@@ -1,4 +1,5 @@
 !     Last change:  TR   17 Jul 2007    4:07 pm
+!     Last change:  TR   17 Jul 2007    4:07 pm
 subroutine interactive_mode(input_string)
  USE macros_module, ONLY : u_case 
  USE IO_module
@@ -6,12 +7,15 @@ subroutine interactive_mode(input_string)
  USE HKL_module,    ONLY : HKL_list, search_EQUIV, search_FRIEDEL, requested_H
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: input_string
+  
   CHARACTER (LEN=256)           :: read_line
-  INTEGER                       :: i_error
+  INTEGER                       :: i1, i_error
   CHARACTER (LEN=32)            :: current_keyword
   INTEGER                       :: long_input_string
   LOGICAL                       :: input_keyboard, input_file
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "interactive_mode ("//trim(input_string)//")")
+  
   long_input_string = len_trim(input_string)
   input_keyboard = .false.
   input_file     = .false.
@@ -48,8 +52,10 @@ subroutine interactive_mode(input_string)
 
   IF(LEN_TRIM(read_line) == 0) cycle
   IF(read_line(1:1) == '! ' .or. read_line(1:1) == '#' ) CYCLE  ! commentaire
-
-
+ 
+  i1 = index(read_line, '!')
+  if(i1 /=0) read_line = trim(read_line(1:i1-1))  
+  
   read_line = ADJUSTL(read_line)
   read_line = u_case(read_line)
 
@@ -111,18 +117,100 @@ END subroutine interactive_mode
  subroutine run_keyword_interactive(current_keyword)
  USE cryscal_module
  USE HKL_module
+ USE wavelength_module
  USE IO_module
  use external_applications_module, ONLY : launch_browser
+ USE CFML_crystal_metrics,     only   :  write_crystal_cell
+
  !USE realwin, ONLY : SPAWN
 
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: current_keyword
+  LOGICAL                       :: create_file
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive ("//trim(current_keyword)//")")
+ 
   select case (TRIM(current_keyword))
 
+      CASE ('EXPERT_MODE', 'EXPERT')
+	   if(expert_mode) then
+	    call write_info('')
+	    call write_info(' > Expert mode activated.')
+	    call write_info('')
+	   else
+	    call write_info('')
+	    call write_info(' > Expert mode ON.')
+	    call write_info('')	   
+	   end if
+    
+      CASE ('USER_MODE', 'USER')
+	   if(expert_mode) then
+	    call write_info('')
+	    call write_info(' > Expert mode OFF.')
+	    call write_info('')
+	   else
+	    call write_info('')
+	    call write_info(' > User mode ON.')
+	    call write_info('')	   
+	   end if
+	   
+      case ("DEBUG", "DEBUG_ON", "DEBUG ON")
+	   if(expert_mode) then
+	    call write_info('')
+	    call write_info(' > Debug mode activated.')
+	    call write_info('')
+		call write_debug_level_1
+	   else
+ 	   
+	   end if	
+      case ("&DEBUG", "&DEBUG_ON", "&DEBUG ON")	   
+	    call write_info('')
+	    call write_info(' > Debug mode activated.')
+	    call write_info('')
+		call write_debug_level_1	   
+	
+      case ("DEBUG_2", "DEBUG_2_ON", "DEBUG_2 ON", "DEBUG 2 ON")
+	   if(expert_mode) then
+	    call write_info('')
+	    call write_info(' > Debug mode (level 2) activated.')
+	    call write_info('')
+	   end if	
+      case ("&DEBUG_2", "&DEBUG_2_ON", "&DEBUG_2 ON", "&DEBUG 2 ON")	   
+	    call write_info('')
+	    call write_info(' > Debug mode (level 2) activated.')
+	    call write_info('')	   
+
+      case ("DEBUG_3", "DEBUG_3_ON", "DEBUG_3 ON", "DEBUG 3 ON")
+	   if(expert_mode) then
+	    call write_info('')
+	    call write_info(' > Debug mode (level 3) activated.')
+	    call write_info('')
+	   end if	
+
+      case ("&DEBUG_3", "&DEBUG_3_ON", "&DEBUG_3 inteON", "&DEBUG 3 ON")	   
+	    call write_info('')
+	    call write_info(' > Debug mode (level 3) activated.')
+	    call write_info('')	   
+		
+      case ("DEBUG_OFF", "DEBUG OFF")
+	   if(expert_mode) then
+   	    call write_info('')
+	    call write_info(' > Debug mode OFF.')
+	    call write_info('')
+	   end if	
+	  
+	  case ("&DEBUG_OFF", "&DEBUG OFF")	   
+   	    call write_info('')
+	    call write_info(' > Debug mode OFF.')
+	    call write_info('')
+	   	
+
+	  
       CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR', 'APPLY_SYM_OP', 'APPLY_SYMOP')
         IF(nb_atom /=0)  call apply_symm
+		
+	  CASE ('STAR_K')
+       IF(keyword_QVEC .and. keyword_SPGR) call star_K()	  
 
       case ('CELL', 'CELL_PARAMETERS')
         IF(keyword_CELL) call volume_calculation('out')
@@ -134,19 +222,59 @@ END subroutine interactive_mode
         call create_CEL_from_CIF
         
       case ('CREATE_CFL')
-        if(LEN_TRIM(CIF_file_name) /= 0) call create_CFL_file(TRIM(CIF_file_name), 'CIF')
-        if(LEN_TRIM(INS_file_name) /= 0) call create_CFL_file(TRIM(INS_file_name), 'INS')
-        if(LEN_TRIM(PCR_file_name) /= 0) call create_CFL_file(TRIM(PCR_file_name), 'PCR')
+        if(LEN_TRIM(CIF_file_name) /= 0) then 
+		 call create_CFL_file(TRIM(CIF_file_name), 'CIF')
+        elseif(LEN_TRIM(INS_file_name) /= 0) then 
+		 call create_CFL_file(TRIM(INS_file_name), 'INS')
+        elseif(LEN_TRIM(PCR_file_name) /= 0) then 
+		 call create_CFL_file(TRIM(PCR_file_name), 'PCR')
+		else
+		 !call write_info('')
+		 !call write_info('  !! A .CIF, .INS or .PCR file has to be read !!')
+		 !call write_info('')
+		 call create_CFL_file('', '')
+        end if 
         
       case ('CREATE_FST')
-        if(LEN_TRIM(CIF_file_name) /= 0) call create_FST_file(TRIM(CIF_file_name), 'CIF')
-        if(LEN_TRIM(INS_file_name) /= 0) call create_FST_file(TRIM(INS_file_name), 'INS')
-        if(LEN_TRIM(PCR_file_name) /= 0) call create_FST_file(TRIM(PCR_file_name), 'PCR')
-          
+        if(LEN_TRIM(CIF_file_name) /= 0) then 
+		 call create_FST_file(TRIM(CIF_file_name), 'CIF')
+        elseif(LEN_TRIM(INS_file_name) /= 0) then 
+		 call create_FST_file(TRIM(INS_file_name), 'INS')
+        elseif(LEN_TRIM(PCR_file_name) /= 0) then 
+		 call create_FST_file(TRIM(PCR_file_name), 'PCR')
+  		else
+		 !call write_info('')
+		 !call write_info('  !! A .CIF, .INS or .PCR file has to be read !!')
+		 !call write_info('')
+		 call create_FST_file('', '')
+        end if
+ 
       case ('CREATE_INS')     
-        if(LEN_TRIM(CIF_file_name) /= 0) call create_INS_file(TRIM(CIF_file_name), 'CIF')
-        if(LEN_TRIM(PCR_file_name) /= 0) call create_INS_file(TRIM(PCR_file_name), 'PCR')
-        
+	    create_file = .false.
+        if(LEN_TRIM(CIF_file_name) /= 0) then
+		 call create_INS_file(TRIM(CIF_file_name), 'CIF')
+		 create_file = .true.
+		endif
+        if(LEN_TRIM(PCR_file_name) /= 0) then
+		 call create_INS_file(TRIM(PCR_file_name), 'PCR')
+		 create_file = .true.
+		endif
+        if(.not. create_file) call create_INS_file('cryscal.ins', '')
+
+      case ('CREATE_TIDY', 'CREATE_TIDY_FILE', 'CREATE_TIDY_INPUT_FILE')
+	    if(LEN_TRIM(CIF_FILE_name) /=0)  then
+		 call create_TIDY_file(TRIM(CIF_file_name), 'CIF')
+		elseif(LEN_TRIM(INS_FILE_name) /=0)  then
+		 call create_TIDY_file(TRIM(INS_file_name), 'INS')
+        elseif(LEN_TRIM(PCR_FILE_name) /=0)  then
+		 call create_TIDY_file(TRIM(PCR_file_name), 'PCR')
+		else
+		 !call write_info('')
+		 !call write_info('  !! A .INS, .CIF or .PCR file has to be read !!')
+		 !call write_info('')
+		 call create_TIDY_file('', '')
+        endif		
+       	  
       case ('NIGGLI', 'NIGGLI_CELL')
         IF(keyword_NIGGLI) call Niggli_cell_CFML()
 
@@ -161,12 +289,30 @@ END subroutine interactive_mode
 
       case ('HELP', 'MAN')
         call help_on_line()
+		
+	  case ('HELP_EXPERT', 'MAN_EXPERT')
+        if(expert_mode) call expert_help	
+
+	  case ('&HELP_EXPERT', '&MAN_EXPERT')
+        call expert_help	
+		
 
       case ('KEY', 'KEYS', 'LST_KEYS', 'LIST_KEYS', 'LST_KEYWORDS', 'LIST_KEYWORDS')
         call keys_on_line()
 
-      CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS', 'WRITE_ADP', 'WRITE_UIJ')
-        IF(nb_atom /=0)  call write_atom_list   !
+      CASE ('LST_ATOMS', 'LIST_ATOMS', 'ATOM_LST', 'ATOM_LIST', 'LIST_ATOM_LIST', 'WRITE_ATOMS', 'WRITE_ATMS', &
+	         'WRITE_ADP', 'WRITE_UIJ')
+        IF(nb_atom /=0)  then
+		if(.not. write_atoms_cartesian) then
+		 call write_atom_list   !
+		else
+		 call write_atom_list_cart
+        endif		
+	    else
+		 call write_info('')
+		 call write_info(' > No input atoms !')
+		 call write_info('')
+        endif		
 
       case ('LST_LAUE', 'LIST_LAUE', 'LST_LAUE_CLASS', 'LIST_LAUE_CLASS')
         call list_Laue_class()
@@ -178,9 +324,12 @@ END subroutine interactive_mode
       case ('LST_SG', 'LIST_SG', 'LSPGR', 'LIST_SPACE_GROUPS' )
         call list_space_groups()
 
-      CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP', 'WRITE_SYM', 'WRITE_SYMM', 'WRITE_SYMMETRY_OPERATORS')
-        IF(WRITE_symm_op) call write_symm_op_mat()
-
+     CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS", "WRITE_SYMOP")
+      IF(WRITE_SHELX_symm_op) then
+		 call write_SHELX_symm_card
+        ELSEIF(WRITE_symm_op) then
+		 call write_symm_op_mat()
+		ENDIF 
 
       case ('MAN_HTML', 'HTML_MAN', 'HTML')
         call create_CRYSCAL_HTML()
@@ -220,9 +369,14 @@ END subroutine interactive_mode
           if(keyword_read_INS)        call create_TRANSF_INS()
 
          endif
+		 
+		 if(crystal%faces_nb /=0) call transf_faces
+		 
         endif
 		
-		
+      CASE ('UB_MAT', 'UB_MATRIX')
+       if(keyword_UB_MAT) call write_UB_matrix
+	   
       CASE ('DIAG', 'DIAG_MAT', 'DIAG_MATR', 'DIAG_MATRIX')
         IF (keyword_DIAG) then
          call WRITE_matrice()
@@ -245,7 +399,7 @@ END subroutine interactive_mode
       case ('REPORT', 'CREATE_REPORT')
         call create_structural_report   ! create_HTML.F90
 
-      case ('SETTING')
+      case ('SETTING', 'SETTINGS')
         call output_setting
 
       case ('SFAC', 'CONT', 'CHEM', 'CHEM_FORM', 'CHEMICAL_FORMULA')
@@ -262,7 +416,15 @@ END subroutine interactive_mode
 
       CASE ('SITE_INFO', 'LIST_SITE_INFO')
         !site_info_all_atoms = .true.
-        IF(nb_atom /=0 .AND. keyword_SPGR) call get_SITE_info()
+		IF(nb_atom /=0 .AND. keyword_SPGR) then
+		 if(write_PCR_site_info) then
+		  call get_site_info('pcr')
+		 elseif(write_PCR_mag_site_info) then
+		  call get_site_info('pcr_mag')
+		 else
+      	  call get_SITE_info('')
+		 end if
+		end if 
 
       case ('SIZE', 'CRYSTAL_SIZE')
         if (keyword_SIZE) then
@@ -298,7 +460,25 @@ END subroutine interactive_mode
        endif
 
       CASE ('GEN_HKL', 'GENERATE_HKL', 'GENERATE_HKL_LIST')   ! generation des reflections
-        call generate_HKL()
+	   if(keyword_GENHKL) call generate_HKL()
+	   
+	  CASE ('PDP', 'PATTERN', '&PDP', '&PATTERN')   ! generation des reflections
+        if(keyword_GENHKL) then
+		 if(pdp_cu) then
+		  tmp_real = wavelength
+		  wavelength = X_target(3)%wave(1)   ! Ka1_Cu
+		 endif 
+ 		 call generate_HKL()
+		 if(pdp_cu) wavelength = tmp_real
+		endif 
+		
+	  CASE ('PDP_CU', 'PATTERN_CU', '&PDP_CU', '&PATTERN_CU')   ! generation des reflections	    
+        if(keyword_GENHKL) then
+		 tmp_real = wavelength
+		 wavelength = X_target(3)%wave(1)   ! Ka1_Cu
+		 call generate_HKL()
+		 wavelength = tmp_real
+		endif 
 
 
       CASE ('ANG', 'ANGLE')
@@ -307,8 +487,14 @@ END subroutine interactive_mode
       CASE ('DIST', 'DISTANCE', 'ATOMIC_DISTANCE')            ! distances
         IF (nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
 
-      CASE ('DIST_')            ! distances
-        IF (keyword_DIST_ .and. nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
+      CASE ('DIST_', 'DIST_X', 'DIST_MULT')   ! distances
+        IF (keyword_DIST_X .and. nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
+		
+      CASE ('DIST_PLUS', 'DIST_+')            ! distances
+        IF (keyword_DIST_plus .and. nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
+		
+      CASE ('DIST_DHA', 'DHA', 'POS_H', 'CALC_POS_H')		
+        IF (keyword_DHA .and. nb_dist_calc /=0 .and. keyword_CELL)  call calcul_distances
 
       case ('CONN', 'CONNECT', 'CONNECTIVITY')  ! calcul connectivite
         if (keyword_CONN .and. keyword_CELL .and. keyword_SPGR) call calcul_connectivity_atom
@@ -347,7 +533,7 @@ END subroutine interactive_mode
        if (nb_2theta_value /=0) call X_space_calculation('2THETA')
 
 
-      CASE ('FILE')                                           ! lecture fichier.HKL ou .CIF
+      CASE ('FILE', 'FIC', '&FIC', 'FSD', '&FSD', 'FST', '&FST', 'FIT', '&FIT')       ! lecture fichier.HKL ou .CIF
        IF(keyword_FILE) then
 	    call allocate_HKL_arrays
         call def_HKL_rule()
@@ -356,7 +542,7 @@ END subroutine interactive_mode
         ! si presence du champ '_symmetry_cell_setting'
         if (crystal_system(1:1) /= '?') then
          call get_SPG(crystal_system)
-         !call calcul_global_Rint()
+		 !call calcul_global_Rint()
         endif
         ! ---------------------------------------------------------------
        endif
@@ -365,9 +551,10 @@ END subroutine interactive_mode
       case ('SEARCH_EXTI', 'FIND_EXTI')                       ! recherche des extinctions
         call search_exti()
         
-      case ("SEARCH_SPGR", "SEARCH_SPACE_GROUP", "SEARCH_GROUP",   &
-            "CHECK_SPGR",  "CHECK_SPACE_GROUP",  "CHECK_GROUP")
-        call search_SPGR()
+      case ("SEARCH_SPGR", "SEARCH_SPACE_GROUP", "SEARCH_GROUP",    &
+	        "CHECK_SPGR",  "CHECK_SPACE_GROUP",  "CHECK_GROUP",     &
+			"S_G", "&S_G", "GSG", "&GSG", "SSG", "&SSG")
+		if(keyword_search_spgr)   call search_SPGR()
 
  
       case ('FIND_HKL', 'SEARCH_HKL')
@@ -399,10 +586,16 @@ END subroutine interactive_mode
       case ('MERGE')
         call calcul_global_Rint('merge')
         !call calcul_merge_HKL
+		
+	  case ('FRIEDEL', 'FRIEDEL_PAIRS')
+        call get_Friedel_pairs_number()	  
 
-      case ('SHELL')
+      case ('SHELL', 'SD7', '&SD7', 'ST25', '&ST25')
        IF(nb_shell /=0) call read_and_sort_hkl('shell')
 
+	  !case ('SD7') ! mode expert
+      ! if(expert_mode .and. nb_shell /=0) call read_and_sort_hkl('shell')
+	   
       case ('SORT')
        IF(nb_sort /=0)  call read_and_sort_hkl('sort')
 
@@ -479,7 +672,7 @@ END subroutine interactive_mode
         if (keyword_WEB) call launch_browser(TRIM(URL_address))
 
 
-      case ('WRITE_CELL', 'OUTPUT_CELL')
+      case ('WRITE_CELL', 'OUTPUT_CELL' , 'WC', '&WC')
 	    ! oct. 2011 
 	    IF(.NOT. keyword_CELL) then
          call write_info('')
@@ -488,8 +681,12 @@ END subroutine interactive_mode
          return
         endif
         !IF (keyword_CELL) call volume_calculation('out')   ! commenté oct. 2011
-		call volume_calculation('out')
-
+		if(.not. write_cell_cart) then
+		 call volume_calculation('out')
+		else  
+		 call write_crystal_cell_Cart
+		end if 
+	
 
       case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'WRITE_MOLECULE', 'OUTPUT_CHEM', 'OUTPUT_CHEMICAL_FORMULA',  'OUTPUT_MOLECULE')
        call write_molecular_features
@@ -500,10 +697,13 @@ END subroutine interactive_mode
       case ('WRITE_SG', 'WRITE_SPACE_GROUP')
         !if (keyword_SPGR) call write_space_group(SPG%NumSPG,SPG%NumSPG )
         !if (keyword_SPGR) call write_current_space_group(SPG%NumSPG)
-        if (keyword_SPGR) call write_current_space_group(space_group_symbol)
+        if (keyword_SPGR) call write_current_space_group(space_group_symbol)		
 
       case ('WRITE_WAVE', 'OUTPUT_WAVE')
         if (keyword_WAVE) call write_wave_features()
+		
+	  case ('WRITE_Z', 'WRITE_ZUNIT')
+        if (keyword_ZUNIT) call write_ZUNIT_features()	  
         
       case ('WRITE_DEVICE', 'OUTPUT_DEVICE')
         call write_DEVICE_features
@@ -511,6 +711,7 @@ END subroutine interactive_mode
       case ('WRITE_BEAM', 'WRITE_INCIDENT_BEAM', 'OUTPUT_BEAM', 'OUTPUT_INCIDENT_BEAM')
         call write_beam_features
 
+! references --------------------------!		
       case ('REF_KCCD', 'KCCD')
         call write_REF('KCCD')
 
@@ -525,6 +726,20 @@ END subroutine interactive_mode
         
       case ('REF_SADABS', 'REF_SAD', 'SADABS')
         call write_REF('SADABS')
+		
+	  case ('REF_ABS_CRYSALIS')
+        call write_REF('ABS_CRYSALIS')
+		
+      case ('REF_X2S', 'REF_SMART_X2S')
+        call write_REF('X2S')	  
+		
+      case ('REF_SUPERNOVA')
+        call write_REF('SUPERNOVA')	  
+		
+	  case ('REF_XCALIBUR')
+        call write_REF('XCALIBUR')	  
+		
+!------------------------------------------------		
 
       case ('READ_NREPORT', 'READ_NREPORT_HTML', 'READ_HTMLREPORT')
         IF (keyword_read_NREPORT) call read_nreport_HTML()
@@ -534,15 +749,19 @@ END subroutine interactive_mode
          open(UNIT=CEL_read_unit, FILE=trim(CEL_file_name), ACTION='read')
          call read_CEL_input_file(TRIM(CEL_file_name))
          close(UNIT=CEL_read_unit)
+		 ! creation fichier CIF compatible pymol
+		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol
+		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(CEL_file_name), 'cel')
         endif
      
       case ('READ_CIF', 'READ_CIF_FILE', 'CIF_FILE')
-        if (keyword_read_CIF) THEN
+        if (keyword_read_CIF) THEN        
          OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
           call check_CIF_input_file(TRIM(CIF_file_name))
           call read_CIF_input_file(TRIM(CIF_file_name), '?')
           call read_CIF_input_file_TR(CIF_read_unit)
-         CLOSE(UNIT=CIF_read_unit)
+		 CLOSE(UNIT=CIF_read_unit)		 
+		
 		 ! >> creation de l'objet MOLECULE
 		 call atomic_identification()  
          call get_content  
@@ -551,29 +770,55 @@ END subroutine interactive_mode
 		 !
          if (keyword_SPGR )    call space_group_info
          if (keyword_SYMM)     CALL decode_sym_op
+		 
+		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol 
+		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(CIF_file_name), 'cif')
         end if
 
+	  case ('READ_FACES', 'FACES')
+	   if(keyword_read_FACES) then
+	    open(unit=INS_read_unit, file=trim(FACES_file_name), action='read')
+		call read_FACES_file(trim(FACES_file_name))
+		close(unit=INS_read_unit)
+	   end if
+	   
       case ('READ_INS', 'READ_INS_FILE', 'INS_FILE')
         if (keyword_read_INS) THEN
          OPEN(UNIT=INS_read_unit, FILE=TRIM(INS_file_name), ACTION="read")
          call read_INS_input_file(TRIM(INS_file_name), "ALL")
          call read_INS_SHELX_lines
-         !call read_input_file_KEYWORDS(TRIM(INS_file_name))
-         CLOSE(UNIT=INS_read_unit)
+         !call read_input_file_KEYWORDS(TRIM(INS_file_name))		 
+         CLOSE(UNIT=INS_read_unit)		 
+		 		 
          if (keyword_SPGR )    call space_group_info
          if (keyword_SYMM)     CALL decode_sym_op
+		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol
+		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(INS_file_name), 'ins')
         end if
 
       case ('READ_PCR', 'READ_PCR_FILE', 'PCR_FILE')
         if (keyword_read_PCR) THEN
          OPEN(UNIT=PCR_read_unit, FILE=TRIM(PCR_file_name), ACTION="read")
          call read_PCR_input_file()
-         CLOSE(UNIT=PCR_read_unit)
+         CLOSE(UNIT=PCR_read_unit)		 		 
          if (keyword_SPGR )    call space_group_info
          if (keyword_SYMM)     CALL decode_sym_op
+		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol ! creation fichier CIF compatible pymol
+		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(PCR_file_name), 'pcr')
         end if
 
 
+	  case ('READ_TIDY_OUT')
+       if(keyword_read_TIDY_out) then
+	    call write_info('')
+		call write_info('  . TIDY output file: '//trim(TIDY_out_file_name))
+		call write_info('')
+	    OPEN(unit=TIDY_read_unit, file=trim(TIDY_out_file_name), ACTION="read")
+		 call read_TIDY_out_input_file(trim(TIDY_out_file_name))
+		close (unit=TIDY_read_unit)
+		if (keyword_SPGR )    call space_group_info        
+       end if
+	   
       case ('SIR', 'SIR97')
         if (keyword_SIR) call create_SIR_file
 

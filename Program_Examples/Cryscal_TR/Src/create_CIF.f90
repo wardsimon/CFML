@@ -3,24 +3,26 @@
 subroutine write_CIF_file(input_string)
  USE cryscal_module, ONLY : CIF_unit, nb_symm_op, symm_op_string, crystal, F000,            &
                             keyword_CELL, keyword_WAVE, keyword_SIZE, wavelength, Z_unit,   &
-                            absorption, SADABS, SPG, unit_cell, molecule,                   &
+                            absorption, SADABS, ABS_CRYSALIS, SPG, unit_cell, molecule,     &
                             CIF_cell_measurement, CIF_diffrn_reflns,                        &
-                            nb_atom, atom_label, atom_typ, atom_coord, atom_Ueq, atom_occ, &
+                            nb_atom, atom_label, atom_typ, atom_coord, atom_Ueq, atom_occ,  &
                             atom_occ_perc,                                                  &
                             UB_matrix, P4P_file_name, SADABS_line_ratio, SADABS_ratio,      &
                             SADABS_line_estimated_Tmin_Tmax, SADABS_Tmin, SADABS_Tmax,      &
-                            CIF_parameter, SQUEEZE, CIF_dist, keyword_modif_ARCHIVE
+                            SADABS_absorption_coeff, CIF_parameter, SQUEEZE, CIF_dist, keyword_modif_ARCHIVE, &
+							ABS_file_name, RAW_file_name, debug_proc
  USE text_module, only     : CIF_lines_nb, CIF_title_line
-
  USE hkl_module
+ 
  implicit none
-  CHARACTER (LEN=*),                     INTENT(IN) :: input_string
+  CHARACTER (LEN=*),                     INTENT(IN) :: input_string 
   INTEGER                                           :: i, i1
   CHARACTER (LEN=16)                                :: ESD_string
   CHARACTER (LEN=36), DIMENSION(7)                  :: CELL_param_CIF_string
   CHARACTER (LEN=10)                                :: date, time
   CHARACTER (LEN=256)                               :: SHELX_HKL_file
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_file ("//trim(input_string)//")")
 
   cell_param_CIF_string(1) =  "_cell_length_a                      "
   cell_param_CIF_string(2) =  "_cell_length_b                      "
@@ -38,11 +40,15 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(a)')      "#                   ABSORPTION CORRECTION                                    #"
   WRITE(CIF_unit, '(a)')      "#----------------------------------------------------------------------------#"
   WRITE(CIF_unit, '(a)')      ""
-  IF(absorption%mu >  0.) then
-  WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_coefficient_mu  ", absorption%mu * 0.1
+  if(len_trim(SADABS_absorption_coeff) /=0) then
+   WRITE(CIF_unit, '(2a)')  "_exptl_absorpt_coefficient_mu  ", trim(SADABS_absorption_coeff)
   else
-  WRITE(CIF_unit, '(a)')      "_exptl_absorpt_coefficient_mu                        ?"
-  endif
+   IF(absorption%mu >  0.) then
+   WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_coefficient_mu  ", absorption%mu * 0.1
+   else
+   WRITE(CIF_unit, '(a)')      "_exptl_absorpt_coefficient_mu                        ?"
+   endif
+  endif 
 
       case ('TMIN')
   IF(absorption%Tmin > 0.) then
@@ -50,7 +56,7 @@ subroutine write_CIF_file(input_string)
     if(absorption%Tmax > 0. .and. SADABS_ratio > 0.) then
      WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmax*sadabs_ratio      
     else
-     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin*0.99
+     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin*0.985
     endif
    else
     WRITE(CIF_unit, '(a,F7.3)') "_exptl_absorpt_correction_T_min", absorption%Tmin
@@ -68,30 +74,35 @@ subroutine write_CIF_file(input_string)
  
   IF(LEN_TRIM(SADABS_line_ratio) /=0) then
    WRITE(CIF_unit, '(a)')  ""
-   WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------#"
-   WRITE(CIF_unit, '(a)')  "# Tmax and Tmin values correspond to EXPECTED values calculated     #"
-   WRITE(CIF_unit, '(a)')  "# from crystal size. In the case of absorption correction performed #"
-   WRITE(CIF_unit, '(a)')  "# with SADABS program, Tmax should be given as Tmax_expected and    #"
-   WRITE(CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                   #"
-   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                    #"
-   WRITE(CIF_unit, '(2a)') "# ", TRIM(SADABS_line_ratio), "      #"
-   WRITE(CIF_unit, '(a)')  "#-------------------------------------------------------------------#"
+   WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ---------------------------------#"
+   WRITE(CIF_unit, '(a)')  "# Tmax and Tmin values correspond to EXPECTED values calculated        #"
+   WRITE(CIF_unit, '(a)')  "# from crystal size. In the case of absorption correction performed    #"
+   WRITE(CIF_unit, '(a)')  "# with SADABS program, Tmax should be given as Tmax_expected and       #"
+   WRITE(CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                      #"
+   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                       #"
+   WRITE(CIF_unit, '(2a)') "# ", TRIM(SADABS_line_ratio), "         #"
+   WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------#"
   ELSEIF(LEN_TRIM(SADABS_line_estimated_Tmin_Tmax) /=0) then
    WRITE(CIF_unit, '(a)')  ""
-   WRITE(CIF_unit, '(a)')  "#----------------------------- Remark ------------------------------------#"
-   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                          #"
-   WRITE(CIF_unit, '(3a)') "# ", TRIM(SADABS_line_estimated_Tmin_Tmax), "             #"
-   WRITE(CIF_unit, '(a)')  "# The ratio of these values is more reliable than their absolute values!  #"
-   WRITE(CIF_unit, '(a)')  "#-------------------------------------------------------------------------#"
+   WRITE(CIF_unit, '(a)')  "#------------------------------- Remark -------------------------------------#"
+   WRITE(CIF_unit, '(a)')  "# SADABS output:                                                             #"
+   WRITE(CIF_unit, '(3a)') "# ", TRIM(SADABS_line_estimated_Tmin_Tmax), "                #"
+   WRITE(CIF_unit, '(a)')  "# The ratio of these values is more reliable than their absolute values!     #"
+   WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
   endif
  
 
       case ('SADABS')
   WRITE(CIF_unit, '(a)') trim(SADABS%type)
-  WRITE(CIF_unit, '(a)') trim(SADABS%details(1))
-  WRITE(CIF_unit, '(a)') trim(SADABS%details(2))
-  WRITE(CIF_unit, '(a)') trim(SADABS%details(3))
-  WRITE(CIF_unit, '(a)') trim(SADABS%details(4))
+  do i=1, 4
+   WRITE(CIF_unit, '(a)') trim(SADABS%details(i))
+  end do
+  
+      case ('ABS_CRYSALIS')
+  WRITE(CIF_unit, '(a)') trim(ABS_CRYSALIS%type)
+  do i=1, 6
+   WRITE(CIF_unit, '(a)') trim(ABS_CRYSALIS%details(i))
+  end do
   
       case ('SQUEEZE')
   write(CIF_unit, '(a)') ""
@@ -103,7 +114,7 @@ subroutine write_CIF_file(input_string)
   write(CIF_unit, '(a)') trim(SQUEEZE%read_line(i))
   end do
 
-      case ('APEX')
+      case ('APEX', 'X2S')
   WRITE(CIF_unit, '(a)') ""
   WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
   WRITE(CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
@@ -150,7 +161,7 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(2a)')"_diffrn_measurement_device_type        ", trim(CIF_parameter%diffrn_measurement_device_type)
   WRITE(CIF_unit, '(2a)')"_diffrn_measurement_method             ", trim(CIF_parameter%diffrn_measurement_method)
 
-        case ('SAPHIRE')
+        case ('SAPHIRE', 'XCALIBUR', 'SUPERNOVA')
   WRITE(CIF_unit, '(a)') ""
   WRITE(CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
   WRITE(CIF_unit, '(a)') "#                   DATA COLLECTION                                          #"
@@ -173,21 +184,14 @@ subroutine write_CIF_file(input_string)
   WRITE(CIF_unit, '(a)') "_computing_data_reduction       "
   WRITE(CIF_unit, '(10x,a)')                      trim(CIF_parameter%computing_data_reduction)
 
-  WRITE(CIF_unit, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
-  WRITE(CIF_unit, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
-  WRITE(CIF_unit, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
-
-  WRITE(*, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
-  WRITE(*, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
-  WRITE(*, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)
- !
- ! WRITE(CIF_unit, '(2a)') "_computing_publication_material ", trim(CIF_parameter%computing_publication_material)
-  
-  WRITE(CIF_unit, '(a)')  "_computing_publication_material "
-  WRITE(CIF_unit, '(a)')  ";"
-  WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_1)
-  WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_2)
-  WRITE(CIF_unit, '(a)')  ";"
+  !WRITE(CIF_unit, '(2a)') "_computing_structure_solution   ", trim(CIF_parameter%computing_structure_solution)
+  !WRITE(CIF_unit, '(2a)') "_computing_structure_refinement ", trim(CIF_parameter%computing_structure_refinement)
+  !WRITE(CIF_unit, '(2a)') "_computing_molecular_graphics   ", trim(CIF_parameter%computing_molecular_graphics)  
+  !WRITE(CIF_unit, '(a)')  "_computing_publication_material "
+  !WRITE(CIF_unit, '(a)')  ";"
+  !WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_1)
+  !WRITE(CIF_unit, '(10x,a)')  trim(CIF_parameter%computing_publication_material_2)
+  !WRITE(CIF_unit, '(a)')  ";"
   
 
 
@@ -258,10 +262,10 @@ subroutine write_CIF_file(input_string)
   if(crystal%faces_nb /=0) then
    WRITE(CIF_unit, '(a)')       ""
    WRITE(CIF_unit, '(a)')       "loop_"
-   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_h"
-   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_k"
-   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_index_l"
-   WRITE(CIF_unit, '(a)')       "_expt_crystal_face_perp_dist"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_face_index_h"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_face_index_k"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_face_index_l"
+   WRITE(CIF_unit, '(a)')       "_exptl_crystal_face_perp_dist"
    do i=1, crystal%faces_nb
     WRITE(CIF_unit, '(a)') trim(crystal%face_line(i))
    end do
@@ -325,6 +329,35 @@ subroutine write_CIF_file(input_string)
   end do
   WRITE(CIF_unit, '(a)')     ""
 
+ 
+ case ('SPACE_GROUP_PYMOL')
+ 	  
+  if(SPG%Numspg ==0) then
+   WRITE(CIF_unit, '(a)')    "_symmetry_cell_setting                   '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_space_group_name_H-M           '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_space_group_name_Hall          '?'"
+   WRITE(CIF_unit, '(a)')    "_symmetry_Int_Tables_number              '?'"
+  else
+   WRITE(CIF_unit, '(2a)')    "_symmetry_cell_setting                   ", TRIM(SPG%CrystalSys)
+   WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_H-M          '", TRIM(SPG%SPG_Symb),  "'"
+   WRITE(CIF_unit, '(3a)')    "_symmetry_space_group_name_Hall         '", TRIM(SPG%Hall),      "'"
+   WRITE(CIF_unit, '(a,I3)')  "_symmetry_Int_Tables_number              ", SPG%NumSpg
+  endif
+  WRITE(CIF_unit, '(a)')     "loop_"
+  WRITE(CIF_unit, '(a)')     "_symmetry_equiv_pos_site_id"
+  WRITE(CIF_unit, '(a)')     "_symmetry_equiv_pos_as_xyz"
+  if(nb_symm_op == 0) nb_symm_op = SPG%Multip  
+  
+  do i=1, nb_symm_op
+   if(i< 10) then
+    WRITE(CIF_unit, '(i1,1x,5a)')  i, TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i))
+   elseif(i < 100) then	
+    WRITE(CIF_unit, '(i2,1x,5a)')  i, TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i))
+   else
+    WRITE(CIF_unit, '(i3,1x,5a)')  i, TRIM(symm_op_string(1,i)), ", ", TRIM(symm_op_string(2,i)), ", ", TRIM(symm_op_string(3,i))
+   endif   
+  end do
+  
  
       case ('CRYSTAL_SYSTEM')
   IF(unit_cell%crystal_system(1:1) /= '?') then
@@ -414,6 +447,7 @@ subroutine write_CIF_file(input_string)
   write( CIF_unit, '(a)')  "_publ_contact_author_address"
   write( CIF_unit, '(a)')  ";"
   write( CIF_unit, '(a)')  "Centre de Diffractom\'etrie X"
+  write( CIF_unit, '(a)')  "Institut des Sciences Chimiques de Rennes"
   write( CIF_unit, '(a)')  "UMR6226 CNRS - Universit\'e de Rennes 1"
   write( CIF_unit, '(a)')  "B\^at. 10B, Campus de Beaulieu "
   write( CIF_unit, '(a)')  "Avenue du G\'en\'eral Leclerc"
@@ -425,6 +459,7 @@ subroutine write_CIF_file(input_string)
   write( CIF_unit, '(a)')  ""
 
       case ('ATOMS_HEADER')
+  write( CIF_unit, '(a)') ""
   write( CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
   write( CIF_unit, '(a)') "#                   ATOMIC TYPES, COORDINATES AND THERMAL PARAMETERS         #"
   write( CIF_unit, '(a)') "#----------------------------------------------------------------------------#"
@@ -447,8 +482,20 @@ subroutine write_CIF_file(input_string)
    !WRITE( CIF_unit, '(4a,4F9.5,a,F8.5)')  atom_label(i)(1:4), ' ', atom_typ(i)(1:4), ' ', &
    !                                       atom_coord(1,i), atom_coord(2,i), atom_coord(3,i), atom_Ueq(i), &
    !                                       ' Uiso ', atom_occ(i)
+   END do  
    
-  END do
+      case('ATOMS_PYMOL')
+  write( CIF_unit, '(a)') "loop_"
+  write( CIF_unit, '(a)') "_atom_site_label"
+  write( CIF_unit, '(a)') "_atom_site_type_symbol"
+  write( CIF_unit, '(a)') "_atom_site_fract_x"
+  write( CIF_unit, '(a)') "_atom_site_fract_y"
+  write( CIF_unit, '(a)') "_atom_site_fract_z"
+  do i=1, nb_atom  
+   WRITE( CIF_unit, '(4a,3F9.5)')  atom_label(i)(1:4), ' ', atom_typ(i)(1:4), ' ', &
+                                          atom_coord(1,i), atom_coord(2,i), atom_coord(3,i)
+  END do  
+  
 
       case ('P4P')
   open (CIF_unit, FILE='P4P.cif')
@@ -463,14 +510,31 @@ subroutine write_CIF_file(input_string)
   open (CIF_unit, FILE='import.cif')
   WRITE(CIF_unit, '(a)')  ""
   call date_and_time(date, time)
-  WRITE(CIF_unit, '(a)')  "# CIF file created by CRYSCAL from APEXII files (CDIFX RENNES)"
+  WRITE(CIF_unit, '(a)')  "# CIF file created by CRYSCAL from APEXII files (CDIFX-ISCR RENNES)"
   WRITE(CIF_unit, '(12a)')"# Date: " , date(7:8),'-',date(5:6),'-',date(1:4), '  at ', time(1:2),':',time(3:4),':',time(5:6)
-  WRITE(CIF_unit, '(2a)') "# P4P input file (SAINT):  ", TRIM(P4P_file_name)
+  WRITE(CIF_unit, '(2a)')    "# Sample ID              : ", trim(CIF_parameter%sample_ID)
+  WRITE(CIF_unit, '(2a)')    "# P4P file (SAINT) : ", TRIM(P4P_file_name)
   i1 = INDEX(P4P_file_name, '.')
   SHELX_HKL_file = P4P_file_name(1:i1) //'HKL'
-  WRITE(CIF_unit, '(2a)')  "# HKL input file (SADABS): ", TRIM(SHELX_HKL_file)
+  if(len_trim(RAW_file_name) /=0) then
+    WRITE(CIF_unit, '(2a)')  "# RAW file (SAINT) : ", TRIM(RAW_file_name)  
+  else
+   if(cos_exist) then
+    WRITE(CIF_unit, '(2a)')  "# HKL file (SAINT) : ", TRIM(SHELX_HKL_file)  
+   else
+    WRITE(CIF_unit, '(2a)')  "# HKL file (SADABS): ", TRIM(SHELX_HKL_file)
+   end if	
+  endif
+  if(len_trim(ABS_file_name) /=0) then
+  WRITE(CIF_unit, '(2a)')    "# ABS file (SADABS): ", TRIM(ABS_file_name)
+  endif
+  WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
   WRITE(CIF_unit, '(a)')  ""
-  WRITE(CIF_unit, '(a)')  "data_collect"
+  !if(CIF_parameter%sample_ID(1:1) == "?") then
+   WRITE(CIF_unit, '(a)')  "data_collect"
+  !else
+  ! WRITE(CIF_unit, '(2a)')  "data_", trim(CIF_parameter%sample_ID)
+  !endif  
   WRITE(CIF_unit, '(a)')  ""
 
       case ('MATRIX_SAINT')
@@ -505,6 +569,17 @@ subroutine write_CIF_file(input_string)
   do i=1, CIF_dist%n_text
    write( CIF_unit, '(a)') trim(CIF_dist%text(i))
   end do
+  
+      case ('ANG')
+  write( CIF_unit, '(a)') ''
+  write( CIF_unit, '(a)') 'loop_'
+  write( CIF_unit, '(a)') '_geom_angle_atom_site_label_1'
+  write( CIF_unit, '(a)') '_geom_angle_atom_site_label_2'
+  write( CIF_unit, '(a)') '_geom_angle_atom_site_label_3'
+  write( CIF_unit, '(a)') '_geom_angle'
+  write( CIF_unit, '(a)') '_geom_angle_site_symmetry_1'
+  write( CIF_unit, '(a)') '_geom_angle_site_symmetry_3'
+  write( CIF_unit, '(a)') '_geom_angle_publ_flag'
 
       case default
   WRITE(CIF_unit, '(a)')  ''
@@ -521,12 +596,13 @@ subroutine create_CIF_P4P_import(input_string)
 ! creation du fichier "import.CIF" apres lecture fichier .P4P et .HKL
  USE cryscal_module, ONLY : known_cell_esd, wavelength, CIF_unit,                     &
                             CIF_CELL_measurement, crystal, UB_matrix,                 &
-                            keyword_SIZE, keyword_WAVE, molecule
+                            keyword_SIZE, keyword_WAVE, molecule, debug_proc
  implicit none
   CHARACTER (LEN=*),   INTENT(IN)      :: input_string
   CHARACTER (LEN=16),  DIMENSION(7)    :: esd_string
   INTEGER                              :: i
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "create_CIF_P4P_import ("//trim(input_string)//")")
 
 
 
@@ -566,6 +642,7 @@ subroutine create_CIF_P4P_import(input_string)
   call write_CIF_file('APEX')
  close (CIF_unit)
 
+ return
 end subroutine create_CIF_P4P_import
 
 !------------------------------------------------------------
@@ -573,12 +650,13 @@ end subroutine create_CIF_P4P_import
 subroutine verif_CIF_character(input_string)
  USE macros_module,  ONLY : replace_car
  USE accents_module
- use IO_module, only : write_info
+ USE cryscal_module, ONLY : debug_proc
  implicit none
   CHARACTER (LEN=256), intent(INOUT) :: input_string
   INTEGER                            :: i, j
 
-   
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "verif_CIF_character ("//trim(input_string)//")")
+
   do i=1, LEN_TRIM(input_string)
    
    do j=1, nb_char
@@ -595,7 +673,7 @@ end subroutine verif_CIF_character
 
 !---------------------------------------------------------------
 subroutine write_CIF_cell_parameter(i)
- USE cryscal_module, ONLY : unit_cell , CIF_unit, P4P_file_name
+ USE cryscal_module, ONLY : unit_cell , CIF_unit, P4P_file_name, debug_proc
  implicit none
  INTEGER, INTENT(IN)                               :: i
  CHARACTER (LEN=16)                                :: ESD_string
@@ -604,6 +682,7 @@ subroutine write_CIF_cell_parameter(i)
  integer                                           :: m_expo
  CHARACTER (LEN=16)                                :: fmt_1, fmt_2, fmt_3
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_cell_parameter")
 
   cell_param_CIF_string(1) =  "_cell_length_a                      "
   cell_param_CIF_string(2) =  "_cell_length_b                      "
@@ -665,6 +744,7 @@ subroutine write_CIF_cell_parameter(i)
   WRITE( CIF_unit, fmt_2) CELL_param_CIF_string(i), uc_param
  endif
 
+ return
 end subroutine write_CIF_cell_parameter
 
 !-------------------------------------------------------------------------
@@ -683,11 +763,13 @@ end subroutine write_CIF
 !--------------------------------------------------------------------
 
 subroutine write_CIF_author(input_unit)
- use cryscal_module, only : AUTHOR, keyword_modif_archive
+ use cryscal_module, only : AUTHOR, keyword_modif_archive, debug_proc
  
  implicit none
   integer, intent(in)          :: input_unit
   character (len=256)          :: CIF_string
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_author")
 
 
    !call write_CIF(input_unit, "#----------------------------------------------------------------------------#")
@@ -747,17 +829,20 @@ subroutine write_CIF_author(input_unit)
     call write_CIF(input_unit, "#----------------------------------------------------------------------------#")
 
 
-
+ return
 end subroutine write_CIF_author
 !---------------------------------------------------------------------
 
 
 subroutine write_CIF_text(input_unit)
- use cryscal_module, only : CIF_parameter, SQUEEZE
+ use cryscal_module, only : CIF_parameter, SQUEEZE, debug_proc
  implicit none
   integer,   intent(in) :: input_unit
   character (len=256)   :: CIF_string
  
+ 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_text")
+
    call write_CIF(input_unit, "")
    call write_CIF(input_unit, "#")
    call write_CIF(input_unit, "#----------------------------------------------------------------------------#")
@@ -815,12 +900,15 @@ end subroutine write_CIF_text
 
 !---------------------------------------------------------------------
 subroutine write_CIF_address(input_unit, address)
+ USE cryscal_module, only : debug_proc
  implicit none
   integer,           intent(in)         :: input_unit
   character (len=*), intent(in)         :: address
   character (len=256)                   :: CIF_string, address_part  
   integer                               :: i, i1
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_address")
+
   
   ! ----------- new : sept. 2011 ---------------------
   write(address_part, '(a)') trim(address)
@@ -863,3 +951,79 @@ subroutine write_CIF_address(input_unit, address)
  
  return
 end subroutine write_CIF_address
+
+!----------------------------------------------------------------------------------------
+
+subroutine create_CIF_PYMOL_file(input_file, extension)
+ use cryscal_module, only   : CIF_PYMOL_file_name, debug_proc
+ implicit none
+ CHARACTER (LEN=*), INTENT(IN)        :: input_file, extension
+ integer                              :: i
+  
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_CIF_PYMOL_file")
+
+ i= INDEX(input_file, '.')
+ WRITE(CIF_PYMOL_file_name, '(a)') input_file(1:i-1)//'_'//TRIM(extension)//'_pml.CIF'
+ call Create_CIF_file_for_pymol
+ 
+ return
+end subroutine create_CIF_PYMOL_file
+
+!----------------------------------------------------------------------------------------
+subroutine Create_CIF_file_for_pymol
+ use cryscal_module, only : CIF_pymol_file_name, CIF_unit, CIF_parameter, debug_proc
+ use IO_module,      only : write_info
+ 
+ implicit none
+
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "create_CIF_file_for_PYMOL")
+
+ 
+ OPEN(UNIT=CIF_unit, FILE=TRIM(CIF_PYMOL_file_name), ACTION="write")
+  write(UNIT=CIF_unit, fmt='(a)') '#######################################################'
+  
+  write(unit=CIF_unit, fmt='(2a)') 'data_', trim(CIF_parameter%sample_ID)
+  call write_CIF_file("SPACE_GROUP_PYMOL")
+  call write_CIF_file("CELL_PARAM_ESD")
+  call write_CIF_file("ATOMS_PYMOL")
+  
+  write(UNIT=CIF_unit, fmt='(a)') ''
+  write(UNIT=CIF_unit, fmt='(a)') '#END'
+  write(UNIT=CIF_unit, fmt='(a)') '#######################################################'
+  
+ CLOSE(UNIT=CIF_unit)
+ 
+ call write_info('')
+ call write_info(' '//trim(CIF_PYMOL_file_name)//' CIF file for Pymol has been created.')
+ call write_info('')
+         
+ return		 
+end subroutine Create_CIF_file_for_pymol		 
+
+
+!-----------------------------------------------------------------------------------------------
+
+subroutine Get_sample_ID(CIF_unit)
+ use cryscal_module, only : CIF_parameter, debug_proc
+  implicit none
+  INTEGER          , INTENT(IN)    :: CIF_unit
+  integer                  :: i_error
+  character (len=256)      :: read_line
+ 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_sample_ID")
+
+ 
+ REWIND(UNIT=CIF_unit)
+
+ do
+   read(CIF_unit, '(a)', iostat = i_error) read_line
+  
+   if(i_error /=0) exit
+   if(index(read_line, 'data_') /=0 ) then
+    read(read_line(6:), '(a)') CIF_parameter%sample_ID
+	exit
+   endif
+  enddo   
+
+ return
+end subroutine Get_sample_ID

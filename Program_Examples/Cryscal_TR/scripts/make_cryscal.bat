@@ -57,8 +57,7 @@ rem
 rem CONSOLE
 rem
    call make_comp_g95
-   goto FIN
-
+   if x%1 == xg95 goto FIN
 rem ----------------------------------------------
 rem ---- Intel Fortran COMPILER ----
 rem ----------------------------------------------

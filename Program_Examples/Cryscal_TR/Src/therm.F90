@@ -2,13 +2,15 @@
 !-----------------------------------------------------------------
 
 subroutine calc_therm_iso()
- USE cryscal_module, ONLY : THERM_Biso, THERM_Uiso, nb_therm_values, therm_values, pi, message_text
+ USE cryscal_module, ONLY : THERM_Biso, THERM_Uiso, nb_therm_values, therm_values, pi, message_text, debug_proc
  USE IO_module
 
  implicit none
   integer                  :: i
   real                     :: new_therm_value
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calc_therm_iso")
+  
  call write_info('')
  call write_info('   >> ISOTROPIC THERMAL PARAMETERS CONVERSION:')
  call write_info('')
@@ -43,15 +45,13 @@ end subroutine calc_therm_iso
 
 subroutine calc_THERM_ANISO()
  USE cryscal_module,        ONLY : keyword_THERM_SHELX, THERM_uij, THERM_bij, THERM_beta, therm_values,  unit_cell,   &
-                                   pi, message_text, crystal_cell
+                                   pi, message_text, crystal_cell, debug_proc 
  USE CFML_Crystal_Metrics,  only : U_equiv, Convert_U_B, convert_U_betas, convert_B_U, convert_B_Betas, &
                                    convert_Betas_U, convert_Betas_B
  USE CFML_Math_General,     ONLY : acosd 
  USE CFML_math_3D,          ONLY : matrix_diageigen
  USE CFML_GlobalDeps,       ONLY : sp
  use CFML_Crystal_Metrics,  only : Set_Crystal_Cell   ! Crystal_cell_type
-
- 
  USE IO_module
 
  implicit none
@@ -64,23 +64,12 @@ subroutine calc_THERM_ANISO()
   REAL, DIMENSION(6)               :: new_ADP, new_ADP2
   REAL(kind=sp)                    :: Ueq, Uiso
 
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell, 'A')
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calc_therm_aniso")
 
-  !write(unit=message_text, fmt="(a, 1x, 3F10.5)")  ' CELL :  ', crystal_cell%cell(1:3)
-  !call write_info(trim(message_text))
-  !write(unit=message_text, fmt="(a, 1x, 3F10.5)")  ' ANG  :  ', crystal_cell%ang(1:3)
-  !call write_info(trim(message_text))
- 
- 
- 
+  call create_CELL_object  
   L=crystal_cell%Cr_Orth_cel   !Cell transforming  column vectors in direct lattice to Cartesian basis
   LT=Transpose(L)
   
-  !write(message_text, '(a, 3(x, 3F10.5))')  ' L :  ', L(1:3,1),  L(1:3, 2),  L(1:3,3)
-  !call write_info(trim(message_text))
-  !write(message_text, '(a, 3(x, 3F10.5))')  ' LT:  ', LT(1:3,1), LT(1:3, 2), LT(1:3,3)
-  !call write_info(trim(message_text))
-
  call write_info('')
  call write_info('   >> ANISOTROPIC THERMAL PARAMETERS CONVERSION:')
  call write_info('')
@@ -238,14 +227,14 @@ subroutine calc_THERM_ANISO()
   !WRITE(message_text,'(a,F10.5)')  '   >> Biso (A2):   ', Uiso*8.*pi**2.
   !call write_info(TRIM(message_text))
 
- 
+ return
 end subroutine calc_THERM_ANISO
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine diag_matrice
 ! diagonalisation d'une matric 3*3
- USE cryscal_module,        ONLY : Mat, message_text
+ USE cryscal_module,        ONLY : Mat, message_text, debug_proc
  USE CFML_math_3D,          ONLY : matrix_diageigen
  USE IO_module
  USE CFML_GlobalDeps,       ONLY : sp
@@ -254,6 +243,8 @@ subroutine diag_matrice
   REAL(kind=sp), DIMENSION(3,3)    :: M_U, eigen
   REAL(kind=sp), DIMENSION(3)      :: rms
   integer                          :: i, j
+ 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "diag_matrice")
  
   M_U = Mat 
   call matrix_diageigen(M_U, rms,eigen)

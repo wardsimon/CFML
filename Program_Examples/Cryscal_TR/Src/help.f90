@@ -104,7 +104,7 @@ subroutine HELP_on_line
      call write_help_lines(HELP_ATOM_numor)
      keyword_ok = .true.
 
-    case ("ATOM_LIST", "LIST_ATOM_LIST", "LIST_ATOMS", "LST_ATOMS", "WRITE_ATOMS", "WRITE_ATMS")
+    case ("ATOM_LIST", "ATOM_LST", "LIST_ATOM_LIST", "LIST_ATOMS", "LST_ATOMS", "WRITE_ATOMS", "WRITE_ATMS")
      call write_help_lines(HELP_ATOM_LIST_numor)
      keyword_ok = .true.
 	 
@@ -156,9 +156,12 @@ subroutine HELP_on_line
      call write_help_lines(HELP_CREATE_INS_numor)
      keyword_ok = .true.
 
-
     case ("REPORT", "CREATE_REPORT")
      call write_help_lines(HELP_CREATE_REPORT_numor)
+     keyword_ok = .true.
+	 
+	case ("CREATE_TIDY", "CREATE_TIDY_FILE", "CREATE_TIDY_INPUT_FILE") 
+	 call write_help_lines(HELP_CREATE_TIDY_numor)
      keyword_ok = .true.
 
     case ("D_HKL", "DHKL")
@@ -202,6 +205,9 @@ subroutine HELP_on_line
     case ("DIST", "DISTANCE", "ATOMIC_DISTANCE")
      call write_help_lines(HELP_DIST_numor)
      keyword_ok = .true.
+	 
+	CASE ('DIST_DHA', 'DHA', 'POS_H', 'CALC_POS_H')	
+	 call write_help_lines(HELP_DIST_DHA_numor)
      keyword_ok = .true.
 
     case ("EDIT")
@@ -224,6 +230,9 @@ subroutine HELP_on_line
      call write_help_lines(HELP_FIND_HKL_numor)
      keyword_ok = .true.
 
+	case ("FRIEDEL", "FRIEDEL_PAIRS")
+     call write_help_lines(HELP_Friedel_pairs_numor)
+     keyword_ok = .true.
     
     case ("GEN_HKL", "GENERATE_HKL", "GENERATE_HKL_LIST")
      call write_help_lines(HELP_GEN_HKL_numor)
@@ -281,8 +290,8 @@ subroutine HELP_on_line
     case ("MAN", "HELP")
      call write_help_lines(HELP_MAN_numor)
      keyword_ok = .true.
-
-    case ("MAN_HTM", "HTML_MAN", "HTML")
+	 	
+    case ("MAN_HTML", "HTML_MAN", "HTML")
      call write_help_lines(HELP_MAN_HTML_numor)
      keyword_ok = .true.
 
@@ -343,22 +352,29 @@ subroutine HELP_on_line
      call write_help_lines(HELP_READ_CEL_numor)
      keyword_ok = .true.
 
-    case ("READ_INS", "READ_INS_FILE", "INS_FILE")
+    case ("READ_FACES", "FACES")
+	 call write_help_lines(HELP_READ_FACES_numor)
+	 keyword_ok = .true.
+	 
+	case ("READ_INS", "READ_INS_FILE", "INS_FILE")
      call write_help_lines(HELP_READ_INS_numor)
      keyword_ok = .true.
 
     case ("READ_CIF", "READ_CIF_FILE", "CIF_FILE")
      call write_help_lines(HELP_READ_CIF_numor)
      keyword_ok = .true.
-
-    case ("READ_PCR", "READ_PCR_FILE", "PCR_FILE")
-     call write_help_lines(HELP_READ_PCR_numor)
-     keyword_ok = .true.
-
+    
     case ("READ_NREPORT", "READ_NREPORT_HTML", "READ_HTMLREPORT")
      call write_help_lines(HELP_READ_NREPORT_numor)
      keyword_ok = .true.
 
+	case ("READ_PCR", "READ_PCR_FILE", "PCR_FILE")
+     call write_help_lines(HELP_READ_PCR_numor)
+     keyword_ok = .true.
+
+    case ("READ_TIDY_OUT")
+     call write_help_lines(HELP_READ_TIDY_out_numor)
+     keyword_ok = .true.
 
     case ("REC_ANG", "RECANG", "RECIPROCAL_ANGLE")
      call write_help_lines(HELP_REC_ANG_numor)
@@ -367,6 +383,10 @@ subroutine HELP_on_line
     case ("REF_APEX")
      call write_help_lines(HELP_REF_APEX_numor)
      keyword_ok = .true.
+	 
+	case ("REF_X2S")
+      call write_help_lines(HELP_REF_X2S_numor)
+      keyword_ok = .true.	  
 
     case ("REF_DENZO")
      call write_help_lines(HELP_REF_DENZO_numor)
@@ -471,6 +491,10 @@ subroutine HELP_on_line
      call write_help_lines(HELP_STL_numor)
      keyword_ok = .true.
 
+	case ('STAR_K')
+     call write_help_lines(HELP_STAR_K_numor)
+     keyword_ok = .true.
+	 
     case ("SYMM", "SYM", "SYMMETRY_OPERATOR")
      call write_help_lines(HELP_SYMM_numor)
      keyword_ok = .true.
@@ -516,6 +540,10 @@ subroutine HELP_on_line
      call write_help_lines(HELP_TWIN_PSEUDO_HEXA_numor)
      keyword_ok = .true.
      
+	CASE ('UB_MAT', 'UB_MATRIX')
+	 call  write_help_lines(HELP_UB_matrix_numor)
+     keyword_ok = .true.
+	 
     CASE("UNIT")
      call write_help_lines(HELP_UNIT_numor)
      keyword_ok = .true.
@@ -553,7 +581,7 @@ subroutine HELP_on_line
      call write_help_lines(HELP_WRITE_SG_numor)
      keyword_ok = .true.
 
-    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS")
+    CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS", "WRITE_SYMOP")
      call write_help_lines(HELP_WRITE_SYM_OP_numor)
      keyword_ok = .true.
 
@@ -611,3 +639,34 @@ subroutine write_help_lines(help_numor)
 end subroutine write_help_lines
 !------------------------------------------------------------------------------------
 
+subroutine expert_help
+ use IO_module,   ONLY : write_info
+ 
+ call write_info('')
+ call write_info(' > List of specific keywords (for experts only) :')
+ call write_info('')
+ call write_info('  . DEBUG         :               access to debug mode (cryscal_debug.txt)')
+ call write_info('  . DEBUG_2       :               access to debug mode (level #2)')
+ call write_info('  . DEBUG_3       :               access to debug mode (level #3)')
+ call write_info('  . FIC           =               FILE import.cif')
+ call write_info('  . FIT           =               FILE import_trans.hkl')
+ call write_info('  . FSD           =               FILE import_shell_d.hkl')
+ call write_info('  . FST           =               FILE import_shell_theta.hkl')
+ call write_info('  . PDP           =               GEN_HKL theta_min=0. theta_max=120 pat')
+ call write_info('  . PDP_Cu        =               GEN_HKL theta_min=0. theta_max=120 pat (Ka Cu radiation)')
+ call write_info('  . SD7           =               SHELL d 0.77 7')
+ call write_info('  . ST25          =               SHELL theta 2.5 25.')
+ call write_info('  . S_G, GSG, SSG =               SEARCH_GROUP get')
+ call write_info('  . WC            =               WRITE_CELL')
+ call write_info('')
+ call write_info(' > List of expert options in cryscal.ini') 
+ call write_info('')
+ call write_info('  . bond_str_out  =               1/0') 
+ call write_info('  . debug_level_2 =               1/0')
+ call write_info('  . debug_level_3 =               1/0')
+ 
+ call write_info('')
+
+
+ return
+end subroutine expert_help

@@ -9,8 +9,9 @@ subroutine create_INS_from_SOLVE
 !     . cosmectic keywords: ACTA, BOND$H ...
 
  USE IO_module
- USE macros_module,  only : test_file_exist, u_case
- use cryscal_module, only : tmp_unit, message_text, Atm_list, unit_cell, Z_unit_ins, Create_INS_temperature, Create_INS_U_threshold
+ USE macros_module,  only : test_file_exist, u_case, Get_current_folder_name, Get_sample_ID_from_folder_name
+ use cryscal_module, only : tmp_unit, message_text, Atm_list, unit_cell, Z_unit_ins, Create_INS_temperature,   &
+                            Create_INS_U_threshold, get_sample_ID, sample_job, debug_proc
  implicit none
   logical                            :: file_exist
   character (len=256)                :: struct_CIF, job_RES, job_INS
@@ -21,13 +22,28 @@ subroutine create_INS_from_SOLVE
   real                               :: skip_level
   integer                            :: skip_at_nb
   character (len=256)                :: read_line
+  character (len=256)                :: folder_name  
   character (len=256), dimension(10) :: res_file   ! nom des fichiers .RES dans le repertoire
   real                               :: temperature
   logical                            :: shelxs_file
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_INs_file_from_solve")
+  
  shelxs_file = .false.
  
+ 
  skip_level = Create_INS_U_threshold
+ if(.not. get_sample_ID) then 
+  job_ins = 'job.ins'
+ else 
+  call Get_current_folder_name(folder_name)
+  call get_sample_ID_from_folder_name(folder_name, sample_job)
+  if(sample_job(1:3) == 'job') then
+   job_INS = 'job.ins'
+  else
+   job_INS = trim(sample_job)//'.ins'
+  endif 
+ end if
  
  call write_info(" ")
  call write_info("*****************************************************************")
@@ -35,19 +51,18 @@ subroutine create_INS_from_SOLVE
  call write_info("    . read STRUCT.CIF file and get cell parameters with esd's    ")
  call write_info("    . read import.RES file created by SIRxx or SHELXS            ")
  call write_info("")
- call write_info("    >> create job.INS file for SHELXL with correct esd's         ")
+ call write_info("    >> create .INS file for SHELXL with correct esd's            ")
  call write_info("       and different useful SHELXL keywords (ACTA, BOND$H...)    ")
  call write_info(" ")
  call write_info("*****************************************************************")
  call write_info(" ")
 
  struct_CIF = 'struct.cif'
- call test_file_exist("struct.cif",  file_exist)
+ call test_file_exist("struct.cif",  file_exist, 'out')
  if(.not. file_exist) return
  call write_info('')
  call write_info('  . CIF file : '//trim(struct_cif))
- call write_info('')
- 
+  
  job_res = 'import.res'
  inquire(file = trim(job_res), exist = file_exist)
  if(.not. file_exist) then
@@ -80,10 +95,8 @@ subroutine create_INS_from_SOLVE
    job_RES = res_file(1)
   endif
  end if  ! fin de la condition if(import.res not exist)
- call write_info('')
  call write_info('  . RES file : '//trim(job_res))
- call write_info('')
-
+ 
  if(Create_INS_temperature < -900.) then
   write(*,*) 
   write(*,*) ' > Enter temperature (in Celsius) : '
@@ -112,7 +125,7 @@ subroutine create_INS_from_SOLVE
  Create_INS_temperature = temperature
  
  call write_info('')
- write(message_text, '(a,F8.2)') '   . Temperature (C): ', temperature 
+ write(message_text, '(a,F8.2)') '  . Temperature (C): ', temperature 
  call write_info(trim(message_text))
  
  if(skip_level < -900.) then
@@ -142,17 +155,14 @@ subroutine create_INS_from_SOLVE
  if(skip) then
   if(skip_level < 0.) skip_level = 0.1
   Create_INS_U_threshold = skip_level
-  call write_info('')
-  write(message_text, '(a,F5.2)') '   . U_threshold: ', Create_INS_U_threshold
-  call write_info(trim(message_text))
+  write(message_text, '(a,F5.2)') '  . U_threshold: ', Create_INS_U_threshold
  endif 
 
  
  ! lecture fichier.INS pour recuperer Z_unit et atom_list
  ! create_ins: call read_INS_file_CFML(job_res)
  call read_INS_input_file(trim(job_res), 'NO_OUT')
-
- 
+  
  ! lecture fichier STRUCT.CIF pour recuperer cell et cell_esd
  open(unit = tmp_unit, file = trim(struct_CIF))
  call read_CIF_input_file(trim(struct_CIF), 'NO_OUT')
@@ -160,7 +170,6 @@ subroutine create_INS_from_SOLVE
  ! lecture fichier.RES
  open(unit = tmp_unit+1, file=trim(job_RES))
  
- job_INS = 'job.ins'
  open(unit = tmp_unit+2, file=trim(job_INS))
   do 
    read(unit = tmp_unit+1, fmt='(a)', iostat = i_error) read_line
@@ -232,12 +241,9 @@ subroutine create_INS_from_SOLVE
       end select
      end do
      close(unit=tmp_unit+2)
+     close(unit=tmp_unit+2)
      
-    
-    call write_info('')
-    write(message_text, fmt='(3a)') '   ', trim(job_INS), ' has been created.'
-    call write_info(trim(message_text))
-    call write_info('')
+         
     if(skip_at_nb /=0) then
      write(message_text, fmt='(a,i3,a)') '   ', skip_at_nb, ' atoms have been skipped (too large Uiso).'
      call write_info(trim(message_text))     
@@ -247,10 +253,10 @@ subroutine create_INS_from_SOLVE
     call write_info('') 
     
     call write_info('')
-    call write_info('   >>> job.ins file for SHELXL has been created.')
+    call write_info('   >>> '//trim(job_ins)//' file for SHELXL has been created.')
     call write_info('')
      
-  
+ return 
 end subroutine create_INS_from_SOLVE
 
 

@@ -2,7 +2,7 @@
 
 subroutine search_SPGR
  USE IO_module,                      ONLY : write_info
- USE cryscal_module,                 ONLY : crystal_system, unit_cell
+ USE cryscal_module,                 ONLY : crystal_system, unit_cell, Get_SPGR, space_group_symbol, SPG, debug_proc
  USE HKL_module
  USE CFML_symmetry_tables,           ONLY : spgr_info, Set_Spgr_Info, Remove_Spgr_Info
  USE CFML_crystallographic_symmetry, ONLY : Space_Group_Type, set_spacegroup
@@ -36,6 +36,7 @@ subroutine search_SPGR
   type(Space_Group_Type)                        :: Spacegroup
 
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "search_SPGR")
 
 ! cell parameters
 ! symmetry
@@ -156,17 +157,25 @@ do_group: do i=i1,i2
      write(unit=message,fmt="( a,i3   )")            "    Number of Space Group tested: ",i2-i1+1
      call write_info(trim(message))
      call write_info( "   ")
-
      call write_info( "   ")
+	 
+	 if(m ==0) then
+	  write(unit=message,fmt="(a)") " => NO POSSIBLE SPACE GROUPS ! Strange !!"
+      call write_info(trim(message))
+	  return
+	 else      
      write(unit=message,fmt="(a,i3,a)") " => LIST OF POSSIBLE SPACE GROUPS, a total of ",m," groups are possible"
      call write_info(trim(message))
+	 endif
      call write_info( "   ")
      call write_info( "     ---------------------------------------------------------------------")
      call write_info( "     Number(IT)      Hermann-Mauguin Symbol     Hall Symbol       Absences")
      call write_info( "     ---------------------------------------------------------------------")
      call write_info( "   ")
 
-     call sort(num_abs,m,ptr)
+	
+     
+	 call sort(num_abs,m,ptr)
      do i=m,1,-1
         j=num_group(ptr(i))
         hms=adjustl(spgr_info(j)%HM)
@@ -183,7 +192,16 @@ do_group: do i=i1,i2
 		 call write_info(trim(message))
 		endif        
      end do
-
+     
+	 
+	 if(get_SPGR) then
+	  space_group_symbol=adjustl(spgr_info(num_group(ptr(m)))%HM)
+	  call write_info( "   ") 
+	  write(unit=message,fmt="(a,a)") " => MOST PROBABLE SPACE GROUP: ", trim(Space_group_symbol)
+      call write_info(trim(message))
+	  
+	  call Set_spacegroup(space_group_symbol, SPG)
+	 endif 
       
  return
 end subroutine search_SPGR

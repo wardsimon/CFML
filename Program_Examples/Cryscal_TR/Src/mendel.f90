@@ -88,7 +88,8 @@ end subroutine write_shannon_lines
 !---------------------------------------------------------------
 subroutine write_atomic_features()
  USE cryscal_module,                  ONLY : mendel_atom_label, mendel_atom_nb, message_text, pi, &
-                                             known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x
+                                             known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x, &
+											 debug_proc
  USE CFML_Scattering_Chemical_Tables, ONLY : set_chem_info, set_xray_form, set_delta_fp_fpp
  USE IO_module,                       ONLY : write_info
  use atomic_data
@@ -100,6 +101,8 @@ subroutine write_atomic_features()
   CHARACTER (LEN=4)        :: symb_car
   LOGICAL                  :: ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features")
+  
   if(.not. known_atomic_label)  then
    call definition_atomic_label    ! %symbol, %name
    known_atomic_label = .true.
@@ -128,7 +131,13 @@ subroutine write_atomic_features()
   do i=1, mendel_atom_nb
 
    call verif_atomic_symbol(mendel_atom_label(i), symb_car, ok)
-   IF(.NOT. ok) return
+   if(.not. ok) then
+    call verif_atomic_number(mendel_atom_label(i), symb_car, ok)
+    if(ok) call verif_atomic_symbol(mendel_atom_label(i), symb_car, ok)
+    IF(.not. ok) return
+   end if	
+   
+   
 
    call write_atomic_features_from_CFML(symb_car)
    call write_atomic_features_from_ATOME_module(symb_car)
@@ -150,6 +159,7 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
  implicit none
   CHARACTER (LEN=*), INTENT(IN)   :: input_symb_car
   CHARACTER (LEN=*), INTENT(OUT)  :: symb_car
+  CHARACTER (LEN=6)               :: symbol
   LOGICAL,           INTENT(OUT)  :: ok
   INTEGER                         :: i1, j
 
@@ -169,8 +179,8 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
   do
    j=j+1
    if (j>201) then
-    call write_info('')
-    call write_info('   !!! '//TRIM(input_symb_car)// ': incorrect atomic symbol !!')
+    !call write_info('')
+    !call write_info('   !!! '//TRIM(input_symb_car)// ': incorrect atomic symbol !!')
     ok = .false.
     return
    end if
@@ -180,7 +190,9 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
 
   ok = .true.
   call write_info('')
-  WRITE(message_text, '(3a)')        '  >> ', TRIM(input_symb_car), ':'
+  
+  call symbol_to_write(input_symb_car,  symbol)
+  WRITE(message_text, '(3a)')        '  >> ', TRIM(symbol), ':'
   call write_info(TRIM(message_text))
   call write_info('')
 
@@ -188,26 +200,68 @@ subroutine verif_atomic_symbol(input_symb_car, symb_car, ok)
 end subroutine verif_atomic_symbol
 
 !-----------------------------------------------------------------------------
+subroutine verif_atomic_number(input_symb_car, symb_car, ok)
+ USE atome_module,   ONLY : atom
+ USE macros_module,  ONLY : u_case
+ USE IO_module,      ONLY : write_info
+ USE cryscal_module, ONLY : message_text
+
+ implicit none
+  CHARACTER (LEN=*), INTENT(INOUT) :: input_symb_car
+  CHARACTER (LEN=*), INTENT(OUT)   :: symb_car
+  LOGICAL,           INTENT(OUT)   :: ok
+  INTEGER                          :: i1, j
+  INTEGER                          :: atom_number
+
+  ok = .false.
+  
+  read(input_symb_car, *) atom_number
+  if(atom_number == 0) return
+  
+  if(atom_number == 201) then
+   input_symb_car = "D"
+   symb_car       = "D"
+  elseif(atom_number > 98) then
+   call write_info('')
+   call write_info('   !!! '//TRIM(input_symb_car)// ': incorrect atomic number !!')
+   return
+  else
+   input_symb_car = atom(atom_number)%symbol   
+  endif  
+  
+  ok = .true.
+  
+  !call write_info('')
+  !WRITE(message_text, '(3a)')        '  >> ', TRIM(input_symb_car), ':'
+  !call write_info(TRIM(message_text))
+  !call write_info('')
+
+ return
+end subroutine verif_atomic_number
+
+!-----------------------------------------------------------------------------
 
 subroutine write_atomic_features_from_ATOME_module(symb_car)
  USE atome_module,   ONLY : atom
  USE macros_module,  ONLY : u_case
  USE Io_module,      ONLY : write_info
- USE cryscal_module, ONLY : message_text, pi
+ USE cryscal_module, ONLY : message_text, pi, debug_proc
  USE wavelength_module
  implicit none
   CHARACTER (LEN=*), INTENT(IN)  :: symb_car
   INTEGER                        :: j, k
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features_from_atome_module")
+  
    j=0
    do
     j=j+1
     if (u_case(symb_car(1:))== atom(j)%symbol(1:)) exit    ! atome_module
    end do
 
-   WRITE(message_text, '(a,F8.4)')    '    . Atomic density:           ', atom(j)%density
+   WRITE(message_text, '(a,F8.4)')    '    . Atomic density           : ', atom(j)%density                                      
    call write_info(TRIM(message_text))
-   WRITE(message_text, '(2a)')        '    . Electronic configuration: ', atom(j)%config_electr
+   WRITE(message_text, '(2a)')        '    . Electronic configuration : ', atom(j)%config_electr
    call write_info(TRIM(message_text))
 
    call write_info('')
@@ -271,39 +325,48 @@ end subroutine write_atomic_features_from_ATOME_module
 !-------------------------------------------------------------------
 subroutine write_atomic_features_from_CFML(symb_car)
  USE CFML_Scattering_Chemical_Tables, ONLY : chem_info, num_chem_info
- USE macros_module,                   ONLY : u_case
+ USE macros_module,                   ONLY : u_case, l_case
  USE Io_module,                       ONLY : write_info
- USE cryscal_module,                  ONLY : message_text, mendel_atom_label
+ USE cryscal_module,                  ONLY : message_text, mendel_atom_label, debug_proc
  implicit none
   character (LEN=*), INTENT(IN) :: symb_car
   !local variables:
   INTEGER                       :: i, j, n_ox
-  CHARACTER (LEN=16)            :: fmt_
+  CHARACTER (LEN=16)            :: fmt_, symbol
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_features_from__CFML")
+  
   do j=1, Num_Chem_Info
     if (u_case(symb_car(1:))== u_case(chem_info(j)%symb(1:))) exit
   end do
 
 
   call write_info('   . Atomic features:')
-  WRITE(message_text,'(2a)')     '    . Symbole                  : ', TRIM(chem_info(j)%symb)
+  call symbol_to_write(chem_info(j)%symb, symbol)
+  !if(len_trim(chem_info(j)%symb) == 1) then
+  ! WRITE(message_text,'(2a)')      '    . Symbole                  : ', u_case(chem_info(j)%symb(1:1))
+  !else
+  ! WRITE(message_text,'(2a)')      '    . Symbole                  : ', trim(u_case(chem_info(j)%symb(1:1))//l_case(chem_info(j)%symb(2:)))
+  !end if
+  WRITE(message_text,'(2a)')      '    . Symbole                  : ', trim(symbol)
+  
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(2a)')     '    . Name                     : ', TRIM(chem_info(j)%NAME)
+  WRITE(message_text,'(2a)')      '    . Name                     : ', TRIM(chem_info(j)%NAME)
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,I3)')   '    . Atomic number            : ', chem_info(j)%Z
+  WRITE(message_text,'(a,I3)')    '    . Atomic number            : ', chem_info(j)%Z
   call write_info(TRIM(message_text))
-  WRITE(message_text,'(a,F8.4)') '    . Atomic weight            : ', chem_info(j)%AtWe
+  WRITE(message_text,'(a,F8.4)')  '    . Atomic weight            : ', chem_info(j)%AtWe
   call write_info(TRIM(message_text))
   IF(chem_info(j)%RCov > 0.01) then
-   WRITE(message_text,'(a,F8.4)') '    . Covalent radius (A)     : ', chem_info(j)%RCov
+   WRITE(message_text,'(a,F8.4)') '    . Covalent radius (A)      : ', chem_info(j)%RCov
    call write_info(TRIM(message_text))
   endif
   IF(chem_info(j)%RWaals > 0.01) then
-   WRITE(message_text,'(a,F8.4)') '    . van der Waals radius (A): ', chem_info(j)%RWaals
+   WRITE(message_text,'(a,F8.4)') '    . van der Waals radius (A) : ', chem_info(j)%RWaals
    call write_info(TRIM(message_text))
   endif
   IF(chem_info(j)%VAtm > 0.01) then
-   WRITE(message_text,'(a,F8.4)') '    . Atomic volume (A3)      : ', chem_info(j)%VAtm
+   WRITE(message_text,'(a,F8.4)') '    . Atomic volume (A3)       : ', chem_info(j)%VAtm
    call write_info(TRIM(message_text))
   endif
 
@@ -313,11 +376,11 @@ subroutine write_atomic_features_from_CFML(symb_car)
   n_ox = i
   IF(n_ox /=0) then
    WRITE(fmt_, '(a,i1,a)') '(a,', n_ox,'i3)'
-   WRITE(message_text, fmt_)      '    . Oxydation state         : ', chem_info(j)%Oxid(1:n_ox)
+   WRITE(message_text, fmt_)      '    . Oxydation state          : ', chem_info(j)%Oxid(1:n_ox)
    call write_info(TRIM(message_text))
 
    WRITE(fmt_, '(a,i1,a)') '(a,', n_ox,'F8.4)'
-   WRITE(message_text, fmt_)      '    . Ionic radius (A)        : ', chem_info(j)%Rion(1:n_ox)
+   WRITE(message_text, fmt_)      '    . Ionic radius (A)         : ', chem_info(j)%Rion(1:n_ox)
    call write_info(TRIM(message_text))
   endif
 
@@ -327,12 +390,11 @@ end subroutine write_atomic_features_from_CFML
 subroutine write_X_rays_scatt_factors(symb_car)
  USE CFML_Scattering_Chemical_Tables
  USE cryscal_module,                   ONLY : message_text, mendel_atom_nb,  mendel_atom_label, mendel_plot, PGF_file, PGF_data, &
-                                              winplotr_exe, allocate_PGF_data_arrays
+                                              winplotr_exe, allocate_PGF_data_arrays, debug_proc
  USE macros_module,                    ONLY : u_case
  USE IO_module,                        ONLY : write_info
 
-
-
+ 
     !!----    Coefficients for calculating the X-ray scattering factors
     !!----        f(s) = Sum_{i=1,4} { a(i) exp(-b(i)*s^2) } + c
     !!----
@@ -340,9 +402,13 @@ subroutine write_X_rays_scatt_factors(symb_car)
 
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: symb_car
+  CHARACTER (len=6)             :: symbol
   INTEGER                       :: i,j, k
   REAL, DIMENSION(100)          :: stl, f0
   LOGICAL                       :: ok
+
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_X_rays_scatt_factors")
 
   !call Set_Xray_Form ! definition des facteurs de diffusion
 
@@ -374,7 +440,10 @@ subroutine write_X_rays_scatt_factors(symb_car)
    !call write_info( '   => X-ray scattering coeff. (A1,A2,A3,A4,B1,B2,B3,B4,C):')
    call write_info( '   => X-ray scattering coeff. (A1,B1,A2,B2,A3,B3,A4, B4,C):')
    call write_info( '')
-   write(message_text, '(2a)')      '   Element: ', u_case(Xray_form(j)%symb)
+   
+   call symbol_to_write(Xray_form(j)%symb,  symbol)
+   write(message_text, '(2a)')      '   Element: ', trim(symbol)
+   !write(message_text, '(2a)')      '   Element: ', u_case(Xray_form(j)%symb)
    call write_info(TRIM(message_text))
    !WRITE(message_text, '(a,9F9.4)') '   coef:    ', Xray_form(j)%A(1:4), Xray_form(j)%B(1:4), Xray_form(j)%C
    WRITE(message_text, '(a,9F9.4)') '   coef:    ', Xray_form(j)%A(1), Xray_form(j)%B(1), &
@@ -413,15 +482,18 @@ end subroutine write_X_rays_scatt_factors
 !-------------------------------------------------------------------
 subroutine write_X_rays_anomalous_factors(symb_car)
  USE CFML_Scattering_Chemical_Tables
- USE cryscal_module,             ONLY : message_text, mendel_atom_nb,  mendel_atom_label
+ USE cryscal_module,             ONLY : message_text, mendel_atom_nb,  mendel_atom_label, debug_proc
  USE macros_module,              ONLY : u_case
  USE IO_module,                  ONLY : write_info
  
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: symb_car
+  CHARACTER (len=6)             :: symbol
   INTEGER                       :: i,j, i1
   LOGICAL                       :: ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_X_rays_anomalous_factors")
+  
   !call Set_Delta_Fp_Fpp ! definition des facteurs de diffusion anomale fp et fpp
 
   !do i=1, mendel_atom_nb
@@ -460,7 +532,9 @@ subroutine write_X_rays_anomalous_factors(symb_car)
    call write_info('    Wavelenghts:       Cr        Fe        Cu        Mo        Ag')
    call write_info('         Lambda   2.28962   1.93597   1.54051   0.70926  0.556363')
    call write_info('')
-   write(message_text, '(2a)')      '   Element: ', u_case(Anomalous_ScFac(j)%symb)
+   call symbol_to_write(Anomalous_ScFac(j)%symb, symbol)
+   write(message_text, '(2a)')      '   Element: ', trim(Symbol)
+   !write(message_text, '(2a)')      '   Element: ', u_case(Anomalous_ScFac(j)%symb)
    call write_info(TRIM(message_text))
    WRITE(message_text, '(a,5(2x,F8.3))') '   Fp coef:    ', Anomalous_ScFac(j)%fp(1:5)
    call write_info(TRIM(message_text))
@@ -479,7 +553,7 @@ subroutine WRITE_data(input_string)
  USE cryscal_module, ONLY : message_text, pgf_data, pgf_file,                                              &
                             known_atomic_label, known_atomic_features, known_data_neutrons, known_data_x,  &
                             data_neutrons_PLOT, data_Xrays_PLOT, data_atomic_density_PLOT, data_atomic_weight_PLOT,      &
-                            data_atomic_radius_PLOT,   winplotr_exe, allocate_PGF_data_arrays
+                            data_atomic_radius_PLOT,   winplotr_exe, allocate_PGF_data_arrays, debug_proc
  USE atome_module,   ONLY : atom
  USE wavelength_module
  use atomic_data
@@ -492,6 +566,8 @@ subroutine WRITE_data(input_string)
   REAL                          :: Xmin, Xmax, Ymin, Ymax
 
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_data ("//trim(input_string)//")")
+  
   call Allocate_PGF_data_arrays(96)
   
   if(.not. known_atomic_label)  then
@@ -780,3 +856,19 @@ subroutine WRITE_data(input_string)
   end select
  RETURN
 end subroutine write_data
+
+subroutine symbol_to_write(symbol, ws)
+ use macros_module, only : u_case, l_case
+ implicit none
+  character (len=*), intent(in)  :: symbol
+  character (len=4), intent(out) :: ws
+  
+  
+if(len_trim(symbol) == 1) then
+   ws = u_case(symbol(1:1))
+  else
+   ws = u_case(symbol(1:1))//l_case(symbol(2:)) 
+  end if
+
+   return
+end subroutine symbol_to_write

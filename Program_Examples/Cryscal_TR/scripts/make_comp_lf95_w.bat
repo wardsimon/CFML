@@ -25,23 +25,23 @@ copy c:\rw_lf95\*.mod
       lf95 -c mag_table           -o1 -info                                               -nchk  -nstchk
       lf95 -c calculs             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c therm               -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
-      lf95 -c cryscal_sfac        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
-      lf95 -c cryscal_dist        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
+      lf95 -c cryscal_sfac        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
+      lf95 -c cryscal_dist        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c X_space             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c mendel              -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c mu_calc             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c cryscal_symm        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c space_group         -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c transf              -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
-      lf95 -c cryscal_main_lf95_w -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
+      lf95 -c cryscal_main_lf95_w -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c cryscal             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
-      lf95 -c cryscal_init        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
+      lf95 -c cryscal_init        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c inter_w             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_CFL            -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_INS            -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_PCR            -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_KEYW           -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
-      lf95 -c read_CIF_file       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
+      lf95 -c read_CIF_file       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c SIR_to_INS          -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_final_y        -o1 -info  -mod  .;c:\rw_lf95                           -nchk  -nstchk
       lf95 -c read_CELL           -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
@@ -55,14 +55,16 @@ copy c:\rw_lf95\*.mod
       lf95 -c pgf_file            -o1 -info                                               -nchk  -nstchk
       lf95 -c HELP                -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c create_HTML         -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
+      lf95 -c create_report       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c create_CIF          -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c cryscal_lsg_cfml    -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
-      lf95 -c cryscal_write       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
+      lf95 -c cryscal_write       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_nreport        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c cryscal_news        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
 
  lf95 -out wcryscal *.obj   -mod %CRYSFML%\lahey\libC -lib %CRYSFML%\lahey\libC\crysfml;c:\rw_lf95\realwin.lib
  upx wcryscal.exe
+ copy wcryscal.exe wcryscal_lf.exe
 
  del *.obj
  del *.mod

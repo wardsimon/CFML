@@ -72,7 +72,7 @@ module matrix_module
 
 !------------------------------------------------------------
 
-  FUNCTION MV_product(Vi, M)  RESULT (Vo)
+  FUNCTION MV_product(Vi,M)  RESULT (Vo)
   ! calcul produit Matrice_33 * vecteur colonne
   implicit none
    REAL, DIMENSION(3),   INTENT(IN)    :: Vi   ! vecteur initial

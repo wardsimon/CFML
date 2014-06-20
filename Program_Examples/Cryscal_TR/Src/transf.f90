@@ -1,12 +1,12 @@
 !     Last change:  TR   30 Jan 2007    4:38 pm
 
 subroutine write_matrice()
- USE cryscal_module,      ONLY : M => Mat, Mat_det, message_text
+ USE cryscal_module,      ONLY : M => Mat, Mat_det, message_text, debug_proc
  USE IO_module,           ONLY : write_info
  USE MATRIX_list_module,  ONLY : matrix_num, transf_mat_text
  use matrix_module,       only : matrix_determinant_33
  
-
+if(debug_proc%level_2)  call write_debug_proc_level(2, "write_matrice")
 
  IF(matrix_num /=0) then 
   call write_info('')
@@ -29,13 +29,13 @@ subroutine write_matrice()
  call write_info(TRIM(message_text))
  call write_info('')
 
-
+ return
 end subroutine write_matrice
 !--------------------------------------------------------
 subroutine  transf_cell_parameters
  USE cryscal_module, ONLY   : M => mat, Mat_det, unit_cell, pi, message_text,   &
                               WRITE_triclinic_transf, WRITE_monoclinic_transf,  &
-                              WRITE_twin_hexa, WRITE_twin_pseudo_hexa, update_parameters
+                              WRITE_twin_hexa, WRITE_twin_pseudo_hexa, update_parameters, debug_proc
  USE IO_module,      ONLY   : write_info
  implicit none
   real                               :: cosAlfa1, cosBeta1, cosGamma1
@@ -44,6 +44,7 @@ subroutine  transf_cell_parameters
   INTEGER                            :: i
   REAL, DIMENSION(6)                 :: tmp_cell
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_cell_parameters")
 
   CosAlfa1  = COS(unit_cell%param(4)  * pi / 180.)
   Cosbeta1  = COS(unit_cell%param(5)  * pi / 180.)
@@ -189,26 +190,28 @@ subroutine  transf_cell_parameters
 
 
 
-
+ return
 end subroutine  transf_cell_parameters
 
 !----------------------------------------------------------------------
 
 subroutine transf_HKL()
- USE cryscal_module, ONLY      : M => Mat, nb_hkl, H, message_text
+ USE cryscal_module, ONLY      : M => Mat, nb_hkl, H, message_text, debug_proc
  USE IO_module,      ONLY      : write_info
  USE matrix_module,  ONLY      : MV_product
  implicit none
   !real                         :: new_h, new_k, new_l
-  REAL, DIMENSION(3)           :: new_H
+  REAL, DIMENSION(3)           :: new_H, Hr
   INTEGER                      :: i
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_hkl")
 
  do i=1, nb_hkl
 
-  new_H = MV_product(real(H(:,i)),  M)
-
+  !new_H = MV_product(real(H(:,i)),  M)  ! >> warning with IFC
+  Hr = real(H(:,i))
+  new_H = MV_product(Hr,  M)  
+    
   WRITE(message_text,'(a,3F6.2,10x,a,3F6.2)') '  h1 k1 l1 : ', H(1,i), H(2,i), H(3,i) , &
                                                '  h2 k2 l2 : ', new_H(1), new_H(2), new_H(3)
   call write_info(TRIM(message_text))
@@ -216,12 +219,14 @@ subroutine transf_HKL()
  END do
 
 call write_info('')
+ return
 end subroutine transf_HKL
 
 !----------------------------------------------------------------------
 
 subroutine transf_coord()
- USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_typ, message_text, update_parameters
+ USE cryscal_module, ONLY      : Mit, nb_atom, atom_coord, new_atom_coord, atom_label, atom_typ, message_text, update_parameters, &
+                                 debug_proc
  USE IO_module,      ONLY      : write_info
  use matrix_module,  ONLY      : MV_product
  implicit none
@@ -229,7 +234,7 @@ subroutine transf_coord()
   !REAL, DIMENSION(3)           :: new_coord
   INTEGER                      :: i
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_coord")
 
  !call inversion_matrice()
  call get_matrice_inverse_transposee()
@@ -238,20 +243,24 @@ subroutine transf_coord()
   call write_info('  New atomic coordinates: ')
   call write_info('')
   do i=1, nb_atom
-   new_atom_coord(:,i) = MV_product(atom_coord(:, i), Mit)
-   WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  new_atom_coord(:,i)
+   new_atom_coord(:,i) = MV_product(atom_coord(:, i), Mit)  
+   
+
+   WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM ', trim(atom_label(i)),trim(atom_typ(i)),  new_atom_coord(:,i)
    call write_info(TRIM(message_text))
    if(update_parameters) atom_coord(:,i) = new_atom_coord(:,i)
   END do
   call write_info('')
  endif
 
-
+ return
 end subroutine transf_coord
 !----------------------------------------------------------------------
 subroutine write_atomic_matrix()
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : Mit, message_text
+ USE cryscal_module, ONLY : Mit, message_text, debug_proc
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atomic_matrix")
 
  call write_info('')
  call write_info('  Transformation matrix for atomic coordinates:')
@@ -275,26 +284,27 @@ end subroutine write_atomic_matrix
 !----------------------------------------------------------------------
 
 subroutine transl_coord()
- USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_typ, message_text, update_parameters
+ USE cryscal_module, ONLY : translat, nb_atom, atom_coord, atom_label, atom_typ, message_text, update_parameters, debug_proc
  USE IO_module,      ONLY : write_info
  implicit none
 
   REAL, DIMENSION(3)           :: new_coord
   INTEGER                      :: i
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transl_coord")
+ 
  call write_info('')
- WRITE(message_text, '(a,3(1x,F10.6))') '  Unit cell translation:', translat(1:3)
+ WRITE(message_text, '(a,3(1x,F10.6),5x,I3)') '  Unit cell translation:', translat(1:3), INT(translat(4))
  call write_info(TRIM(message_text))
  call write_info(' ')
  call write_info('  ... new coordinates :')
  call write_info(' ')
 
  do i=1, nb_atom
+  
+  new_coord(1:3) = translat(4)*atom_coord(1:3, i) + translat(1:3)
 
-  new_coord = atom_coord(:, i) + translat
-
-  WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  new_coord
+  WRITE(message_text,'(a,2a6,3(1x,F10.6))') '  ATOM ', trim(atom_label(i)),trim(atom_typ(i)),  new_coord
   call write_info(TRIM(message_text))
 
   if(update_parameters) atom_coord(:, i) = new_coord
@@ -302,66 +312,73 @@ subroutine transl_coord()
 
  call write_info('')
 
+  return
 end subroutine transl_coord
 
 !----------------------------------------------------------------------
 
-subroutine inside_unit_cell()
- USE cryscal_module, ONLY : nb_atom, atom_coord, atom_label, atom_typ, message_text
+subroutine inside_unit_cell 
+ USE cryscal_module, ONLY : nb_atom, atom_coord, atom_label, atom_typ, message_text, debug_proc
  USE IO_module,      ONLY : write_info
  use matrix_module,  ONLY : MV_product
  implicit none
-  !real                   :: new_x, new_y, new_z
-  REAL, DIMENSION(3)      :: new_coord
-  INTEGER                 :: i, j
+  REAL, DIMENSION(3)            :: new_coord
+  INTEGER                       :: i, j
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "inside_unit_cell")
 
  call write_info('')
  call write_info(' > List of atoms with atomic coordinates inside the unit cell')
  call write_info(' -------------------------------------------------------------')
  call write_info('')
+ 
  do i=1, nb_atom
-
-  do j=1,3
-   do
-    IF(atom_coord(j,i) < 0.) then
-     atom_coord(j,i) = atom_coord(j,i) + 1
-    else
-     exit
-    endif
-   END do
-
-   do
-    IF(atom_coord(j,i) > 1.) then
-     atom_coord(j,i) = atom_coord(j,i) - 1
-    else
-     exit
-    endif
-   END do
-
-  END do
-
-  WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  ATOM: ', trim(atom_label(i)),trim(atom_typ(i)),  atom_coord(:,i)
+ 
+  do j=1,3   
+    if(atom_coord(j,i) < 0.) then
+	 atom_coord(j,i) = atom_coord(j,i) + 1.
+	elseif(atom_coord(j,i) > 1.) then
+	 atom_coord(j,i) = atom_coord(j,i) - 1.
+    end if		 
+  END do  
+  
+  WRITE(message_text,'(a,2a6,3(1x,F9.6))') '  ATOM ', trim(atom_label(i)),trim(atom_typ(i)),  atom_coord(:,i)
   call write_info(TRIM(message_text))
-
  END do
 
- call write_info('')
-
+ return
 end subroutine inside_unit_cell
+
+subroutine inside_coord(coord)
+ implicit none
+  real, dimension(3), intent(inout)  :: coord
+  integer                            :: i
+  
+  do i=1, 3
+   if(coord(i) < 0.) then
+    coord(i) = coord(i) + 1
+   elseif(coord(i) > 1.) then
+    coord(i) = coord(i) - 1.   
+   end if
+  end do  
+  
+ return
+end subroutine inside_coord
 
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine get_matrice_inverse_transposee()
- USE cryscal_module, ONLY : M => Mat, Mi => Mat_inv, message_text, Mit, Mat_det
+ USE cryscal_module, ONLY : M => Mat, Mi => Mat_inv, message_text, Mit, Mat_det, debug_proc
  USE matrix_module
  USE IO_module,      ONLY : write_info
  implicit none
   real, dimension(3,3)              :: Mp   ! matrice des complements algebriques
   REAL, DIMENSION(3,3)              :: Mpt  ! matrice transposee
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_matrice_inverse_transposee")
+  
 ! l'inversion d'une matrice 3*3 est une matrice 3*3
 ! M-1 * M = 1
 ! M-1 = 1/Det(M) * M't
@@ -424,6 +441,7 @@ subroutine  transf_HKL_file()
   implicit none
    integer                           :: i, i_error
    INTEGER, DIMENSION(3)             :: h_
+   real,    DIMENSION(3)             :: hr_
    integer                           :: code_
    real                              :: F2_, sig_F2_
    real                              :: cos1,  cos2, cos3, cos4, cos5, cos6
@@ -432,11 +450,10 @@ subroutine  transf_HKL_file()
    REAL, parameter                   :: EPS=0.001
    integer                           :: n
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_HKl_file")
 
    !lecture fichier .HKL format SHELX
    ! + creation fichier avec sintheta/l dans la 1ere colonne
-
 
    open (unit=HKL_unit, file=trim(HKL_file%HKL), iostat=i_error)
    if(i_error/=0) then
@@ -445,7 +462,6 @@ subroutine  transf_HKL_file()
     call write_info('')
     return
    endif
-
    i=index(HKL_file%NAME, '.', back=.true.)
    open(unit=23, file=HKL_file%NAME(1:i-1)//'_trans.HKL', iostat=i_error)
    if(i_error/=0) then
@@ -471,9 +487,10 @@ subroutine  transf_HKL_file()
     READ(HKL_unit,'(3I4,2F8.2,I4,6F8.5)', iostat=i_error) h_(1), h_(2), h_(3), F2_, sig_F2_, code_,  &
 	                                                      cos1,  cos2, cos3, cos4, cos5, cos6
     if (i_error < 0) exit ! fin du fichier atteinte
-    
-    new_H = MV_product(REAL(h_), Mat)
-    
+	!new_H = MV_product(real(h_), Mat)  ! >> warning with IFC 
+    hr_ = real(h_)
+    new_H = MV_product(hr_, Mat)  
+		 
     new_indices_entiers = .false.
     n=0
     do i=1, 3
@@ -520,20 +537,21 @@ subroutine  transf_HKL_file()
    close(unit=25)
    close(unit=26)
 
+  return 
 end subroutine transf_HKL_file
 
 
 !-----------------------------------------------------------------
 subroutine   transf_triclinic
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE Matrix_module,  ONLY : matrix_determinant_33
  USE MATRIX_list_module
 
  implicit none
   integer                :: mat_numor
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_triclinic")
 
   call write_info(' ')
   call write_info(' --------- Triclinic  transformations -----------')
@@ -558,14 +576,15 @@ end subroutine   transf_triclinic
 !-----------------------------------------------------------------
 subroutine   transf_monoclinic
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE Matrix_module,  ONLY : matrix_determinant_33
  USE MATRIX_list_module
 
  implicit none
   integer          :: mat_numor
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_monoclinic")
+ 
   call write_info(' ')
   call write_info(' --------- Monoclinic transformations -----------')
 
@@ -584,14 +603,29 @@ subroutine   transf_monoclinic
   call write_info('')
   call write_info('   . examples:')
   call write_info('')
-  !call write_info('      P 21/c (a<c) ==> P 21/n (a<c):   matrix M #29')
-  !call write_info('      P 21/c (a<c) ==> P 21/a (a<c):   matrix M #28')
+  !!call write_info('      P 21/c (a<c) ==> P 21/n (a<c):   matrix M #29')
+  !!call write_info('      P 21/c (a<c) ==> P 21/a (a<c):   matrix M #28')
+  !call write_info('')
+  !!call write_info('      P 21/n (a<c) ==> P 21/a (a>c):   matrix M #27')
+  !call write_info('      P 21/n (a<c) ==> P 21/c (a<c):   matrix M #28')
+  !call write_info('')
+  !!call write_info('      P 21/a (a<c) ==> P 21/n (a<c):   matrix M #28')
+  !call write_info('      P 21/a (a<c) ==> P 21/c (a>c):   matrix M #30, #32')
+  !call write_info('')
+  !call write_info('      I 2/a  (a<c) ==> C 2/c  (a>c):   matrix M #27')
+  !call write_info('      C 2/c  (a>c) ==> I 2/c  (a<c):   matrix M #28')
+  
+  
   call write_info('')
-  !call write_info('      P 21/n (a<c) ==> P 21/a (a>c):   matrix M #27')
-  call write_info('      P 21/n (a<c) ==> P 21/c (a<c):   matrix M #28')
+  call write_info('      P 21/n  ==> P 21/c :   matrix M #28')
   call write_info('')
-  !call write_info('      P 21/a (a<c) ==> P 21/n (a<c):   matrix M #28')
-  call write_info('      P 21/a (a<c) ==> P 21/c (a>c):   matrix M #30')
+  call write_info('      P 21/a  ==> P 21/c :   matrix M #30, #32')
+  call write_info('')
+  call write_info('      I 2/a   ==> C 2/c  :   matrix M #27')
+  call write_info('      C 2/c   ==> I 2/c  :   matrix M #28')
+  
+
+  
   call write_info('')
 
 
@@ -603,14 +637,14 @@ end subroutine   transf_monoclinic
 !-----------------------------------------------------------------
 subroutine   twin_hexa
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE Matrix_module,  ONLY : matrix_determinant_33
  USE MATRIX_list_module
 
  implicit none
   integer                :: mat_numor
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "twin_hexa")
 
   call write_info(' ')
   call write_info(' --------- Hexagonal transformations -----------')
@@ -635,14 +669,14 @@ end subroutine   twin_hexa
 !-----------------------------------------------------------------
 subroutine   twin_pseudo_hexa
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE Matrix_module,  ONLY : matrix_determinant_33
  USE MATRIX_list_module
 
  implicit none
   integer       :: mat_numor
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "twin_pseudo_hexa")
 
   call write_info(' ')
   call write_info(' --------- Pseudo-hexagonal twinning in a monoclinic cell -----------')
@@ -668,14 +702,14 @@ end subroutine   twin_pseudo_hexa
 !-----------------------------------------------------------------
 subroutine   permutation_abc
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, Mat_det
+ USE cryscal_module, ONLY : keyword_CELL, Mat, Mat_det, Mat_det, debug_proc
  use matrix_module,  only : matrix_determinant_33
  USE Matrix_list_module
  
  implicit none
   integer               :: mat_numor
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "permutation_abc")
 
   call write_info(' ')
   call write_info(' --------- Transformations -----------')
@@ -702,13 +736,14 @@ end subroutine   permutation_abc
 !-----------------------------------------------------------------
 subroutine   transf_rhomb_to_hex
  USE IO_module,              ONLY : write_info
- USE cryscal_module,         ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module,         ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE Matrix_module,          ONLY : matrix_determinant_33
  USE MATRIX_list_module
 
  implicit none
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "trasnf_rhomb_to_hex")
+  
   call write_info(' ')
   call write_info('  ---------Special transformations -----------')
   call write_info(' ')
@@ -732,7 +767,7 @@ subroutine   transf_rhomb_to_hex
 end subroutine   transf_rhomb_to_hex
 !-----------------------------------------------------------------
 subroutine   transf_hex_to_rhomb
- USE cryscal_module,         ONLY : keyword_CELL, Mat, Mat_det
+ USE cryscal_module,         ONLY : keyword_CELL, Mat, Mat_det, debug_proc
  USE IO_module,              ONLY : write_info
  USE Matrix_module,          ONLY : matrix_determinant_33
  USE MATRIX_list_module
@@ -740,7 +775,8 @@ subroutine   transf_hex_to_rhomb
  !USE MATRIX_list_module
  implicit none
    
- 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_hex_to_rhomb")
+  
   call write_info(' ')
   call write_info('  ---------Special transformations -----------')
   call write_info(' ')
@@ -767,12 +803,14 @@ end subroutine   transf_hex_to_rhomb
 
 subroutine write_list_matrice()
  USE IO_module,      ONLY : write_info
- USE cryscal_module, ONLY : message_text, Mat, Mat_det, Mit
+ USE cryscal_module, ONLY : message_text, Mat, Mat_det, Mit, debug_proc
  USE matrix_module,  ONLY : matrix_determinant_33
  USE MATRIX_list_module
  implicit none
   INTEGER :: i
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_list_matrice")
+  
   call write_info('')
   call write_info('  > List of transformation matrices implemented in CRYSCAL: ')
   call write_info('')
@@ -826,16 +864,14 @@ subroutine write_list_matrice()
    WRITE(message_text, '(10x,a,F5.2)') '> det = ', Mat_det
    call write_info(TRIM(message_text))
 
-
-
-
   end do
-
+  
+ return
 end subroutine write_list_matrice
 !-----------------------------------------------------------------
 
 subroutine find_new_group()
- USE cryscal_module,            ONLY : SPG, Mat, message_text, nb_symm_op, Mit
+ USE cryscal_module,            ONLY : SPG, Mat, message_text, nb_symm_op, Mit, debug_proc
  USE macros_module,             ONLY : remove_car, replace_car
  USE IO_module,                 ONLY : write_info
  use CFML_Crystallographic_Symmetry, ONLY : set_spacegroup,   get_hallsymb_from_gener
@@ -853,6 +889,9 @@ subroutine find_new_group()
   REAL, DIMENSION(3)               :: new_op_TRANS
   CHARACTER (LEN=12)               :: SPG_num_string
 
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "find_new_group")
+  
  SPG%Bravais = ADJUSTL(SPG%Bravais)
 
  ! creation de la carte des operateurs de symmetrie
@@ -980,3 +1019,54 @@ subroutine find_new_group()
 end subroutine find_new_group
 
 
+!----------------------------------------------------------------------
+
+subroutine transf_FACES()
+ USE cryscal_module, ONLY      : FACES_file_name, M => Mat, unit_cell, crystal, message_text, debug_proc, tmp_unit, &
+                                 keyword_CELL
+ USE IO_module,      ONLY      : write_info
+ USE matrix_module,  ONLY      : MV_product
+ implicit none
+  !real                         :: new_h, new_k, new_l
+  REAL, DIMENSION(3)           :: new_H, Hr
+  INTEGER                      :: i, i1
+  character (len=256)          :: new_faces_file_name
+
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "transf_faces")
+
+ i1 = index(FACES_file_name, '.', back=.true.)
+ if(i1 /=0) then
+  new_faces_file_name = FACES_file_name(1:i1-1)//'_new'//FACES_file_name(i1:)
+ else
+  new_faces_file_name = 'absorb_new.ins'
+ end if 
+ 
+ open (unit = tmp_unit, file = trim(new_faces_file_name), action='write')
+ if (keyword_CELL) then
+  write(tmp_unit, '(a)')         '# The unit cell upon which faces are based:'
+  write(tmp_unit, '(a, 6F10.4)') '# CELL ', unit_cell%new_param(1:6) 
+ end if
+ 
+ do i=1, crystal%faces_nb
+
+  Hr = real(crystal%face_index(:,i))
+  new_H = MV_product(Hr,  M)  
+    
+  WRITE(message_text,'(a,3F6.2,10x,a,3F6.2)') '  h1 k1 l1 : ', Hr(1), Hr(2), Hr(3), &
+                                              '  h2 k2 l2 : ', new_H(1), new_H(2), new_H(3)
+  call write_info(TRIM(message_text))
+
+  !write(tmp_unit, '(a,3(1x,F6.2),1x,F9.4)') 'FACE ', new_H(1), new_H(2), new_H(3), crystal%face_dim(i)
+  write(tmp_unit, '(a,3(1x,I5),1x,F9.4)') 'FACE ', int(new_H(1)), int(new_H(2)), int(new_H(3)), crystal%face_dim(i)
+ END do
+ 
+ close(unit=tmp_unit)
+
+ call write_info('')
+ call write_info(trim(new_faces_file_name)// ' has been created.')
+ call write_info('')
+ 
+ return
+end subroutine transf_FACES
+
+!----------------------------------------------------------------------

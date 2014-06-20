@@ -4,16 +4,16 @@
     *                 CRYSTALLOGRAPHIC CALCULATIONS             *
     *                                                           *
     *                                                           *
-    *                (T.R. / CDIFX - UMR6226 Rennes)            *
-    *                           Jan. 2012                       *
+    *                          T. Roisnel                       *
+    *                 (CDIFX - ISCR UMR6226 Rennes)             *
+    *                           June 2014                       *
     *                                                           *
     *            with courtesy of JRC and JGP for CFML          *
     *                                                           *
     *                                                           *
-    *              (beta version still under tests)             *
     *               contact: cdifx@univ-rennes1.fr              *
     *                                                           *
-    *      Web site : www.cdifx.univ-rennes1.fr/cryscal.htm     *
+    *         Web site : www.cdifx.univ-rennes1.fr/cryscal      *
     *                                                           *
     *************************************************************
    
@@ -21,13 +21,220 @@
   Main new features implemented in CRYSCAL:
   (for more details, see the CRYSCAL manual (MAN keyword))
 
-  T. Roisnel / CDIFX Rennes
+  T. Roisnel / CDIFX - ISCR Rennes
 
+
+   . June 14 :
+     # "create_PAT_PRF" field has been added in the "[COMMAND LINE ARGUMENTS]"
+       part in the setting file (cryscal.ini) : X-ray diffraction pattern
+       is then created (PRF file FullProf format) after reading a CIF file.
+
+
+   . May 14 :
+     # Corrections of bugs caused by the new CRYSFML library
+       specially in bond distribution routine
+     # New arguments for CONN keyword:
+        . ANG : interatomic angle calculation
+        . CONDENSED : short output
+
+   . March 14 :
+     # ALL_X argument for CONN keyword:
+       output atomic connectivity for all atoms
+       of the X species.
+       ex: CONN ALL_Cu
+     # in_A argument for WRITE_ATOMS keyword:
+       Atomic coordinates are listes in A
+     # VOL argument for CONN keyword:
+       polyedron volume calculation, based on VOLCAL program
+       of L. W. FINGER, included in CFML
+
+   . Feb 14 :
+     # BARY keyword:
+       Centroid calculation can be applied with only 2 input atoms
+     # Bug has been corrected in the HTML report combined with
+       SQUEEZE option.
+
+   . Nov 13 :
+     # STAR_K keyword:
+       Apply rotational parts of the symmetry operators of a given
+       space group on the components of a propagation wave
+       vector.
+
+   . Oct 13 :
+     # CONN keyword:
+       . new argument for GEN_HKL keyword : PM2K
+         PM2K_hkl.inp is created : its contains hkl reflections list
+         to be copied in the input file for PM2K program (M. Leoni).
+       . new MIN= and MAX= arguments (default values are defined
+         in cryscal.ini setting file ([PARAMETERS] section)
+       . calculation of effective interatomic distances
+
+   . Sept 13 :
+     # new SELF argument for CONN keyword: output interatomic
+       distance only between atoms with same labels.
+       This can be useful for M-M distances in a organometallic complex.
+     # New READ_FACES keyword : read crystal habitus .
+       ex. : READ_FACES absorb.ins
+       ex. : READ_FACES faces.Def
+
+
+   . July 13 :
+     # New DHA keyword : calculation of H position given donor and
+       acceptor atoms.
+     # Change in MENDEL argument that can be atomic number.:
+       ex: MENDEL 59
+
+   . May 13 :
+     # READ_INS keyword: by default, Q peaks are not read.
+       Q_PEAKS argument has to be specified for not skipping Q peaks
+
+   . April 13 :
+     # new arguments for CREATE_FST keyword:
+       MOLE : space group line is commented to draw
+       only atoms of the asymmetric unit cell
+       No_H : Hydrogen atoms and related bonds are excluded from the
+              drawing (lines are commented).
+       No_H argument is valid only with MOLE argument
+       POLY : includes polyedra drawing in Fp_Studio if connectivity
+              calculations have been performed
+       RUN  : launch FP_Studio
+     # argument "CART" after the "WRITE_ATOMS" keyword outputs the
+       cartesian coordinates of the atoms. Cartesian frame type can
+       be specified by "CART_A" (x//a) and "CART_C" (x//c).
+     # argument "SHAPE" after the "CONN" keyword creates an input
+       for SHAPE programm (http://www.ee.ub.es/)
+       derivative SHAPE arguments : SHAPE_A (a//x), SHAPE_C (x//c)
+     # Cartesian frame type (A: x//a or C: x//c) can be specified in the
+       setting file, through the "cartesian_frame_type" keyword in the
+       [OPTIONS] section. Default value for the cartesian frame is A (x//a)
+     # argument "CART" after the "WRITE_CELL" keyword outputs the
+       cartesian frame, metric tensors and Busing-Levy B-matrix. Cartesian
+       frame type can be specified by "CART_A" (x//a) and "CART_C" (x//c).
+       argument.
+
+   . March 13 :
+     # New keywords related to TIDY software (standardisation of inorganic
+       crystal-structure data (Acta Cryst. 1984, A40, 169-183):
+       - CREATE_TIDY   : create input file for TIDY from a .CIF or .INS file
+       - READ_TIDY_out : read output file from TIDY (default name = stidy.out)
+
+   . Feb. 13 :
+     # CONN keyword can have BVS argument for Bond Valence Sum Calculation.
+       Oxidation state of the input atoms have to be provided trough the
+       ATOM keyword.
+       ex: ATOM Fe1 Fe+3 0.11 0.22 0.33 0.4 1.
+       example of CFL file :
+         http:\\www.cdifx.univ-rennes1.fr\cryscal\cryscal_y2o3_bvs.cfl
+     # Final.y file (coming from EVALCCD) are not read anymore, since they
+       don't contain structure factors.
+     # Connectivity calculation outputs symmetry operators used to generate
+       atoms around a particular one. CFML has been modified to output this
+       list.
+     # Profile (U, V, W, eta0, eta1) and pattern (step, constant background,
+       scale factor) parameters can be specified in the [PATTERN SIMULATION]
+       section of the cryscal.ini setting file, for X-ray and neutron pattern
+       calculation.
+
+   . Jan. 13 :
+     # When creating archive_cryscal.cif file, CRYSCAL is looking for
+       output files creating by different versions of SQUEEZE procedure
+       in PLATON, as platon.sqf or platon_sqr.sqf (PLATON jan. 2013)
+     # New argument for GEN_HKL for powder diffraction pattern calculation :
+       particle size (in A) can be specified through the "SIZE=" keyword.
+       If not, particle size is considered as infinite and
+       no line broadening is calculated.
+       Example : GEN_HKl 2theta_min=20 2theta_max=120 PAT SIZE=250
+       Example of CFL file :
+         http:\\www.cdifx.univ-rennes1.fr\cryscal\cryscal_si_x_100.cfl
+     # Import.cif file can be created from .P4P file and .RAW file (output of
+       SAINT program). This has to be specified in the command line through
+       the "RAW=" keyword.
+       Example:
+         d:\data\CRYSCAL file_0m.P4P RAW=file_0m.RAW
+     # New "DIST_X" and "DIST_PLUS" keywords allow to calculate the coordinates
+       of a particular point aligned with with the input atoms
+
+   . Dec. 12 :
+     # New "FRIEDEL" keyword allows to get number pairs of Friedel
+       in hkl file
+
+   . Nov. 12 :
+     # Particular format for .hkl file (h,k,l F2, sig) can be specified
+       in the setting file in the [OPTIONS] section through the
+       hkl_format keyword.
+       example hkl_format = 3i4,2F15.2
+       If not specified, default format is : 3I4,2F8.2 (SHELX format)
+     # new argument for WRITE_SYMM keyword : if argument="SHELX"
+       the list of symmetry operators is output in a SHELX format
+     # news arguments for SITE_INFO keyword :
+        . if argument="PCR", the list of symetry equivalent atoms
+          is output in a FullProf format (.PCR)
+        . if argument="PCR_MAG", the list of magnetic atoms
+          is output in a FullProf format (.PCR)
+
+   . Oct. 12 :
+     # "CIF file for Pymol can be created by putting "PYMOL" as
+       argument of "READ_CIF", "READ_INS" and "READ_CEL"
+       keywords (example: FILE file.cif pymol) or in the command line
+       with a cif.file (example: d:\cryscal file.cif pymol
+       "create_CIF_PYMOL" keyword (value = 0/1) can also be specified
+       in the cryscal.ini setting file : file_pml.cif file is then
+       automatically created after reading a CIF file.
+     # "Skip_start_menu" keyword (value = 0/1) can be input in the cryscal.ini
+       setting file to skip the starting main menu of CRYSCAL.
+     # HTML structural report: torsion angles values greater
+      than CIF_torsion_limit are excluded. Default value
+      for CIF_torsion_limit is 170.0 but can be defined in the
+      cryscal.ini setting file in the [OPTIONS] section
+     # Special format can be specified with the FILE keyword
+      when reading .hkl file, with the FMT argument.
+       Example : FILE filename.hkl fmt=3I4,2F15.2
+
+   . Sept 12 :
+     # new argument for BARY keyword
+     # "HKL_statistics" keyword (value = 0/1) can be input in the cryscal.ini
+       setting file to output or not statistics on hkl reflections.
+
+   . July 12 :
+     # FILE keyword: .COL file created by COLL5 (ILL / format =4)
+                      can be read
+     # FILE keyword: .INT file created by DATARED can be read
+     # CELL keyword: .RED file for DATARED can be read
+     # New OUT_n argument for FILE keyword, allowing to output every
+       n reflection features (index, h,k,l,F2,sig)
+
+   . June 12 :
+     # SHIFT_2TH keyword can now be followed by three values,
+       corresponding to a constant, cos and sin dependent shifts
+       respectively.
+     # css files for structural HTML report and user's guide
+       are now available in the CRYSCAL folder (repertory that
+       contains the crysal.ini setting file. If present, these
+       css files, called cryscal_report.css and cryscal.css
+       for report and user's guide respectively, can be edited
+       and modified by the user. These css files contains
+       styles that are used in the HTML documents.
+
+   . April 12 :
+     # MOVE/TRANSLATE keyword accepts 4 arguments, as the MOVE
+       instruction on SHELXL. Optional 4th argument corresponds to
+       the sign to multiply atomic coordinates. New atomic
+       are then : sign*x + t_x, sign*y + t_z, sign*z + t_z
+       If input 3 arguments are given, they correspond to the
+       t_x, t_y and t_z translation and the 4th argument is
+       taken equal to +1.
+
+   . March 12 :
+     # GET argument can be input with SEARCH_GROUP keyword:
+       the most probable space group is then considered
+     # Cell parameters are deduced from UB matrix when P4P file or
+       import.cif file contain this information. Use WRITE_CELL
+       keyword to output these cell parameters.
 
    . January 12 :
      # CRYSCAL has been compiled with the new CRYSFML library
      # MOVE instruction for SHELXL (output of SG_INFO for acentric
-       space groupe  ) is now correct for non conventional settings
+       space group) is now correct for non conventional settings
 
    . December 11 :
      # Some minor changes have been performed in the code to be compiled
@@ -51,7 +258,7 @@
        - "chiral" and "polar" arguments can se specified to output
          chiral and polar space groups respectively
      # SG_INFO keyword outputs the MOVE instruction for SHELXL
-     # in the case of acentric space groups.
+       in the case of acentric space groups.
      # CRYSCAL has been compiled with last version of CFML (5.00)
       and changes in the space_group routine have been made to be
       to be in agreement with the CFML library.
@@ -62,7 +269,6 @@
        - "enantio" argument can se specified to output
          enantiomorphic space goups
        - Point group is output
-
      # MU keyword : explicit keyword to perform absorption coefficient
        calculation. Cell paramaters, wave and cell content has to be
        known. This keyword can be useful after reading of parameters
@@ -132,7 +338,7 @@
        in the 2theta space and neutron or Cu_K_alpha1 X-ray radiation.
        Intensity is calculated as follows:
                         I=mult * Lp * F^2
-       where : mult is the multicicity of the reflexion
+       where : mult is the multicicity of the reflection
                Lp the Lorentz-polarization factor, calculated by:
                Lp=(1-K+K*CTHM*cos2(2theta)/(2sin2(theta)cos(theta)
                 CTHM=cos2(2theta_monok) [CTHM=0.79]
@@ -155,7 +361,6 @@
      # Cosmetic changes in archive_cryscal.cif file: in the case
        of samples without H atoms, "_atom_sites_solution_hydrogens" and
        "_refine_ls_hydrogen_tretament" cif field lines are removed
-
 
    . Nov. 10 :
      # Connectivity calculations are followed by a bonds distribution list
@@ -203,7 +408,7 @@
      # GEN_HKL keyword leads to a structure factor calculation if atoms
        has been input.
      # SF_HKL keyword leads to a structure factor calculation for
-       a given hkl reflexion
+       a given hkl reflection
      # New WRITE_BEAM and WRITE_QVEC keywords
 
    . Feb. 10:

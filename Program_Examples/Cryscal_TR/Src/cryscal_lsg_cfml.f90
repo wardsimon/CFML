@@ -1,11 +1,14 @@
 !     Last change:  TR   30 Jun 2006    9:15 am
 subroutine list_space_groups()
- USE cryscal_module,            ONLY : list_sg, list_sg_enantio, list_sg_chiral, list_sg_polar,  message_text
+ USE cryscal_module,            ONLY : list_sg, list_sg_enantio, list_sg_chiral, list_sg_polar,  message_text, &
+                                       debug_proc
  USE IO_module,                 ONLY : write_info
 
   implicit none
    integer                           :: i1, i2, n_enantio, n_chiral, n_polar
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "list_space_groups")
+   
       n_enantio = 0
 	  n_chiral  = 0
 	  n_polar   = 0
@@ -99,8 +102,8 @@ subroutine list_space_groups()
 	    call write_info(' ') 
 	   end if
 	  end if 
+	  
 	 return 
-
 end subroutine list_space_groups
 !-------------------------------------------------------------
 subroutine test_Bravais(space_group, ok)
@@ -111,6 +114,7 @@ subroutine test_Bravais(space_group, ok)
   LOGICAL,           INTENT(INOUT) :: ok
   INTEGER                          :: i
 
+  
   ok=.false.
 
   IF(list_sg_bravais(1) .and. space_group(1:1) == "P") ok=.true.
@@ -259,17 +263,41 @@ subroutine test_polar(i, ok)
 
  return
 end subroutine test_polar
+
+!-------------------------------------------------------------
+subroutine test_hkl_equiv_condition(i)
+ USE IO_module,                 ONLY : write_info
+ implicit none
+ integer,  intent(in)            :: i
+ character (len=256)             :: hkl_condition_string
+  
+ hkl_condition_string = ''
+ 
+ if(i >= 195 .and. i <= 206) then
+  hkl_condition_string = '   > h,k,l cyclically permutable !!'
+ elseif(i>=207) then 
+  hkl_condition_string = '   > h,k,l permutable.'
+ else
+  return
+ end if
+ 
+ call write_info('')
+ call write_info(trim(hkl_condition_string))
+ call write_info('')
+ 
+ return
+end subroutine test_hkl_equiv_condition
 !-------------------------------------------------------------
 
 
 subroutine Get_MOVE_string(MOVE_string)
-use cryscal_module,                 ONLY :  SPG
+use cryscal_module,                 ONLY :  SPG, debug_proc
  implicit none
    
   character (len=32), intent(inout) :: MOVE_string
   character (len=6)                 :: m_a, m_b, m_c
   
-   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_MOVE_string")
    
    
   if(SPG%NumSPG == 43) then                                 ! F d d 2

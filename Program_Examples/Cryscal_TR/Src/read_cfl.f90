@@ -9,8 +9,9 @@ subroutine read_CFL_input_file(inp_unit)
  implicit none
   integer, intent(in)                      :: inp_unit
   CHARACTER (LEN=256)                      :: read_line
-  integer                                  :: i_error
+  integer                                  :: i_error, i1
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_CFL_INPUT_FILE")
 
 ! ------------------------------
  !open(unit = inp_unit, file = input_file)
@@ -24,6 +25,11 @@ subroutine read_CFL_input_file(inp_unit)
 
   IF (LEN_TRIM(read_line) == 0) cycle
   IF (read_line(1:1) == '! ' .or. read_line(1:1) == '#') cycle
+  
+  i1 = index(read_line, '!')
+  if(i1 /=0) read_line = trim(read_line(1:i1-1))
+  write(*,*) ' >> ', trim(read_line)
+  pause
 
   call identification_CFL_keywords(read_line)
   call identification_keywords(read_line)
@@ -51,15 +57,18 @@ subroutine read_CFL_input_file(inp_unit)
 !  endif
 ! endif
 
+  return
  end subroutine read_CFL_input_file
 !---------------------------------------------------------------------------------
 
 subroutine incident_beam()
- USE cryscal_module, ONLY : X_rays, neutrons, wavelength, LOCK_wave_value
+ USE cryscal_module, ONLY : X_rays, neutrons, wavelength, LOCK_wave_value, debug_proc
  USE wavelength_module
  implicit none
   integer             :: i
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "INCIDENT_BEAM")
+  
   X_rays   = .true.
   neutrons = .false.
   
@@ -100,6 +109,8 @@ end subroutine incident_beam
   integer                                  :: i1, i2, i_pos, i_error, nb_arg
   !LOGICAL                                  :: lecture_ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "IDENTIFICATION_CFL_KEYWORDS")
+  
   READ(read_line, *) input_keyword
   input_keyword = ADJUSTL(input_keyword)
   long_kw = LEN_TRIM(input_keyword)
@@ -154,6 +165,9 @@ end subroutine incident_beam
     
    case ('CREATE_FST')
     keyword_create_FST = .true.
+	
+   !case ('CREATE_CIF_PYMOL')
+   ! create_CIF_PYMOL = .true.   
      
    case ('CREATE_INS')
     keyword_create_INS = .true.  
@@ -169,6 +183,9 @@ end subroutine incident_beam
     input_CELL_P4P  = .false.
     input_CELL_M50  = .false.
     input_CELL_INS  = .false.
+	input_CELL_CIF  = .false.
+	input_CELL_RED  = .false.
+	
     input_CELL = .false.
     IF(nb_arg /=0) then
      i1 = INDEX(arg_string(1), '.')
@@ -181,6 +198,10 @@ end subroutine incident_beam
        input_CELL_M50  = .true.
        input_CELL      = .true.
        WRITE(M50_file_name, '(a)') arg_string(1)
+	  ELSEIF(arg_string(1)(i1:) == '.CIF' .OR.  arg_string(1)(i1:) == '.CIF_OD') then
+       input_CELL_CIF  = .true.
+       input_CELL      = .true.	
+       WRITE(CIF_file_name, '(a)') arg_string(1)	   
       ELSEIF(arg_string(1)(i1:) == '.INS' .OR.  arg_string(1)(i1:) == '.RES') then
        input_CELL_INS = .true.
        input_CELL     = .true.
@@ -193,6 +214,10 @@ end subroutine incident_beam
        input_CELL_RMAT = .true.
        input_CELL      = .true.
        WRITE(RMAT_file_name, '(a)') arg_string(1)
+	  ELSEIF(arg_string(1)(i1:) == '.RED') then
+       input_CELL_RED  = .true.
+       input_CELL	   = .true.
+	   WRITE(RED_file_name, '(a)') arg_string(1)
       endif
      endif
     endif
@@ -263,7 +288,7 @@ end subroutine incident_beam
 
     else
      IF(input_CELL_P4P) then
-      call read_P4P_file(TRIM(P4P_file_name), lecture_ok)
+      call read_P4P_file(TRIM(P4P_file_name))
       IF(.NOT. lecture_ok) then
        call write_info('')
        call write_info('   >>> Problem reading P4P file <<<')
@@ -278,6 +303,10 @@ end subroutine incident_beam
        call write_info('')
        return
       endif
+	 ELSEIF(input_CELL_CIF) then
+      call READ_CIF_input_file(TRIM(CIF_file_name), 'out')
+      
+	  
      ELSEIF(input_CELL_INS) then
       call read_INS_input_file(TRIM(INS_file_name), "CELL")
        !IF(.NOT. lecture_ok) then
@@ -298,6 +327,13 @@ end subroutine incident_beam
       IF(.NOT. lecture_OK) then
        call write_info('')
        call write_info('   >>> Problem reading DIRAX .rmat file')
+       call write_info('')
+      endif
+	 ELSEIF(input_CELL_RED) then
+      call READ_RED_input_file(TRIM(RED_file_name), lecture_OK)
+      IF(.NOT. lecture_OK) then
+       call write_info('')
+       call write_info('   >>> Problem reading DATARED .red file')
        call write_info('')
       endif
      endif
@@ -336,6 +372,7 @@ end subroutine incident_beam
      return
     endif
     var(1:10) = 0.
+	if(beam_type(1:7) == 'x_rays') then
     call get_X_radiation(arg_string(1))
     !if(.not. keyword_WAVE) then
     if(.not. anti_cathode) then
@@ -346,7 +383,7 @@ end subroutine incident_beam
      endif     
      wavelength = var(1)
     endif
-        
+    endif    
 
     call write_wave_features()
     keyword_WAVE = .true.
@@ -407,6 +444,7 @@ end subroutine incident_beam
      endif
     endif
     keyword_beam = .true.
+	call write_info('    . beam_type: '// trim(beam_type))
 
 
    CASE ('SPGR', 'SG', 'SPACE_GROUP')
@@ -749,7 +787,7 @@ end subroutine incident_beam
 
   end select
 
-
+ return
 end subroutine identification_CFL_keywords
 
 !----------------------------------------------------------------------------------------------
@@ -761,14 +799,15 @@ end subroutine identification_CFL_keywords
 
 !----------------------------------------------------------------
 subroutine check_matrice(M)
- USE cryscal_module, ONLY : Mat_integer, Mat_det
+ USE cryscal_module, ONLY : Mat_integer, Mat_det, debug_proc
  USE matrix_module,  ONLY : matrix_determinant_33
  implicit none
   REAL, DIMENSION(3,3), INTENT(IN)      :: M
   REAL, parameter                       :: EPS=0.001
   INTEGER                               :: i, j, n
 
-
+  if(debug_proc%level_2)  write(debug_proc%unit, '(a)') " . routine : CHECK_MATRICE"
+  
   ! verifie si la matrice (3,3) est entiere ou reelle
 
   Mat_integer = .false.
@@ -791,7 +830,7 @@ end subroutine check_matrice
 !--------------------------------------------------------------------
 
 subroutine get_atom_coord(input_line)
- USE cryscal_module, ONLY : atom_coord, atom_Biso, atom_occ, atom_occ_perc, nb_atom
+ USE cryscal_module, ONLY : atom_coord, atom_Biso, atom_occ, atom_occ_perc, nb_atom, debug_proc
  use macros_module,  only : nombre_de_colonnes
  implicit none
   CHARACTER (LEN=*), INTENT(INOUT)            :: input_line
@@ -802,6 +841,8 @@ subroutine get_atom_coord(input_line)
   real,               DIMENSION(nb_fraction)  :: ratio_real_neg,   ratio_real_pos
   INTEGER                                     :: i, nb_col
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_ATOM_COORD")
+  
   ratio_string_pos(1:nb_fraction) = (/'1/2',                            &
                                       '1/3', '2/3',                     &
                                       '1/4', '3/4',                     &
@@ -896,29 +937,26 @@ subroutine get_atom_coord(input_line)
   call nombre_de_colonnes(string, nb_col)
   if(nb_col == 1) then
    read(string, *) atom_Biso(nb_atom)
+   atom_occ_perc(nb_atom) = 1.
   elseif(nb_col == 2) then
    read(string, *) atom_Biso(nb_atom), atom_occ_perc(nb_atom)
   endif
-
-
-
-
 
  return
 end subroutine get_atom_coord
 !--------------------------------------------------------------------
 
 subroutine get_qvec_coord(input_line)
- USE cryscal_module, ONLY : qvec
+ USE cryscal_module, ONLY : qvec, debug_proc
  use macros_module,  only : nombre_de_colonnes
  USE Definition_fractions
  implicit none
   CHARACTER (LEN=*), INTENT(INOUT)            :: input_line
   CHARACTER (LEN=32)                          :: string
-
   INTEGER                                      :: i, k, nb_col
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_QVEC_COORD")
+  
   call Def_fractions
  
   
@@ -946,19 +984,13 @@ subroutine get_qvec_coord(input_line)
    input_line = input_line(i+1:)
   end do
   
- 
-  
-
-
-
-
  return
 end subroutine get_qvec_coord
 
 !-----------------------------------------------------------------
 subroutine decode_CHEM_string(arg_line, nb_arg)
  USE cryscal_module, ONLY : nb_atoms_type, SFAC_type, SFAC_number, STO, keyword_ZUNIT, Z_UNIT, &
-                            keyword_CHEM, keyword_CONT, keyword_SFAC_UNIT
+                            keyword_CHEM, keyword_CONT, keyword_SFAC_UNIT, debug_proc
  USE MACROS_module,  ONLY : check_character, nombre_de_colonnes
  USE IO_module,      ONLY : write_info
 
@@ -973,9 +1005,11 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
   LOGICAL                            :: alpha_char, numeric_char
   !INTEGER                            :: n_alpha, n_num, n_blank
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "DECODE_CHEM_STRING")
+  
 !! Insere des blancs si necessaire dans la chaine arg_line
      if(nb_arg == 1) call Insert_blank(arg_line, nb_arg)
+	  
 !    n_alpha = 0
 !    n_num   = 0
 !    n_blank = 0
@@ -1015,6 +1049,7 @@ subroutine decode_CHEM_string(arg_line, nb_arg)
      
 !! ----------------------------------------------------------
 
+   
     nb_atoms_type = nb_arg
     READ(arg_line,*) arg_string(1:nb_arg)
 
@@ -1058,7 +1093,7 @@ na: do i=1, nb_atoms_type
     keyword_SFAC_UNIT = .false.
 
 
-
+ return
 end subroutine decode_CHEM_string
 !-----------------------------------------------------------------
 subroutine get_content()
@@ -1066,18 +1101,19 @@ subroutine get_content()
  implicit none
   INTEGER             :: i
 
- molecule%content = ''
-    do i=1, nb_atoms_type
-     WRITE(molecule%content , '(4a,F6.2)') TRIM(molecule%content), ' ', TRIM(SFAC_type(i)), ' ',  SFAC_number(i)
-    end do
+   molecule%content = ''
+   do i=1, nb_atoms_type
+    WRITE(molecule%content , '(4a,F6.2)') TRIM(molecule%content), ' ', TRIM(SFAC_type(i)), ' ',  SFAC_number(i)
+   end do
 
  return
 end subroutine get_content
 
 !--------------------------------------------------------------------------------------------------
 Subroutine Insert_blank(arg_line, nb_arg)
- USE macros_module, only : check_character, nombre_de_colonnes
- USE IO_module,     ONLY : write_info
+ USE cryscal_module, only : debug_proc
+ USE macros_module,  only : check_character, nombre_de_colonnes
+ USE IO_module,      ONLY : write_info
 
  
   implicit none
@@ -1091,6 +1127,8 @@ Subroutine Insert_blank(arg_line, nb_arg)
    character (len=1)                :: car
    logical                          :: alpha_char, numeric_char
    
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "INSERT_BLANK")
+   
 !! Insere des blancs si necessaire dans la chaine arg_line
 !! ex: AA11BB22C33  ==>> AA11 BB22 C33
 
@@ -1099,7 +1137,7 @@ Subroutine Insert_blank(arg_line, nb_arg)
     n_blank = 0
     new_arg_line = arg_line
 
-    do i = 1, len_trim(arg_line)
+	do i = 1, len_trim(arg_line)
      car = arg_line(i:i)
      call check_character(car, alpha_char, numeric_char)
      if(alpha_char)   n_alpha = n_alpha + 1

@@ -102,7 +102,8 @@ program crystallographic_calculations
    input_arg = u_case(cmd_arg(1))
    i1 = INDEX(input_arg, '.', back=.true.)
    
-   IF(input_arg(1:4) == 'HELP' .or. input_arg(1:3) == 'MAN') then
+   IF((len_trim(input_arg) == 4 .and. input_arg(1:4) == 'HELP') .or. &
+      (len_trim(input_arg) == 3 .and. input_arg(1:3) == 'MAN')) then
     keyword_HELP = .true.
     arg_keyword  = .true.
     read(cmd_line(5:), '(a)') arg_string
@@ -117,18 +118,19 @@ program crystallographic_calculations
     OPEN(UNIT = 2, FILE='CRYSCAL_manual.txt', ACTION='write', STATUS='replace')
             
 
-   ELSEIF(input_arg(1:4) == 'HTML') then
+   ELSEIF(len_trim(input_arg) == 4 .and. input_arg(1:4) == 'HTML') then
     keyword_create_CRYSCAL_HTML = .true.
     arg_keyword                 = .true.
     if(input_arg(1:11) == 'HTML_BROWSE') browse_cryscal_HTML = .true.
     
-   ELSEIF(input_arg(1:4) == 'NEWS') then
+   ELSEIF(len_trim(input_arg) == 4 .and. input_arg(1:4) == 'NEWS') then
     keyword_create_CRYSCAL_news = .true.
     arg_keyword                 = .true.
     !OPEN(UNIT = NEWS_unit, FILE = 'cryscal_news.txt', ACTION='write', STATUS = 'replace')
     OPEN(UNIT = 2, FILE = 'CRYSCAL_news.txt', ACTION='write', STATUS = 'replace')
     
-   ELSEIF(input_arg(1:3) == 'KEY' .or. input_arg(1:4) == 'KEYS') then
+   ELSEIF((len_trim(input_arg)==3 .and. input_arg(1:3) == 'KEY') .or. &
+          (len_trim(input_arg)==4 .and. input_arg(1:4) == 'KEYS')) then
     keyword_KEY = .true.
     arg_keyword = .true.
     !OPEN(UNIT=KEYS_unit, FILE='CRYSCAL_keys.txt',   ACTION='write', STATUS='replace')
@@ -136,7 +138,7 @@ program crystallographic_calculations
 
     !call write_KEYWORD()
    
-   ELSEIF(input_arg(1:3) == 'CLA' ) then
+   ELSEIF(len_trim(input_arg) == 3 .and. input_arg(1:3) == 'CLA' ) then
     keyword_CLA = .true.
     arg_keyword = .true.
     open(unit = 2, FILE = 'CRYSCAL_cla.txt', ACTION = 'write', STATUS = 'replace')
@@ -190,7 +192,7 @@ program crystallographic_calculations
     input_file = input_arg(1:11)
     arg_keyword = .true.
    
-   elseif(input_arg(1:12) == 'SOLVE_TO_INS' .or. input_arg(1:10) == 'CREATE_INS') then
+   elseif(input_arg(1:12) == 'SOLVE_TO_INS' .or. input_arg(1:10) == 'CREATE_JOB_INS') then
     keyword_SOLVE_to_INS = .true.
     arg_keyword =  .true.
    endif

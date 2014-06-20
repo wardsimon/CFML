@@ -3,15 +3,19 @@
 !------------------------------------------------------------------------
 subroutine read_keywords_from_file(arg_file)
  USE macros_module
- USE cryscal_module, ONLY : input_unit, nb_help, nb_help_max, HELP_string, message_text,                      &
-                            input_INS, input_CFL, input_CIF, input_PCR, P4P_file_name, input_line,            &
-                            keyword_modif_archive, keyword_WRITE_REF_DENZO, nb_atoms_type,                    &
-                            keyword_create_CEL, keyword_create_CFL, keyword_create_INS, keyword_create_CIF,   &
-                            keyword_create_ACE, keyword_create_FST,                                           &
-                            keyword_read_CIF, keyword_read_PCR, keyword_read_INS,                             &
-                            ACE_file_name, CIF_file_name, PCR_file_name, INS_file_name,                       &
-                            PCR_read_unit, INS_read_unit, CFL_read_unit
-
+ USE cryscal_module, ONLY : input_unit, nb_help, nb_help_max, HELP_string, message_text,                         &
+                            input_INS, input_CFL, input_CIF, input_PCR, P4P_file_name, input_line,               &
+                            keyword_modif_archive, keyword_WRITE_REF_DENZO, nb_atoms_type,                       &
+                            keyword_create_CEL, keyword_create_CFL, keyword_create_INS, keyword_create_CIF,      &
+                            keyword_create_ACE, keyword_create_FST, create_CIF_PYMOL, keyword_create_PRF,        &
+                            keyword_read_CIF, keyword_read_PCR, keyword_read_INS,                                &
+                            ACE_file_name, CIF_file_name, PCR_file_name, INS_file_name,                          &
+							CIF_PYMOL_file_name,                                                                 &
+                            PCR_read_unit, INS_read_unit, CFL_read_unit,                                         &
+							INI_create_ACE, INI_create_CEL, INI_create_CFL, INI_create_CIF_pymol,                &
+							INI_create_FST, INI_create_INS, INI_create_PRF,                                      &
+							step_by_step, debug_proc
+							
  USE IO_module
 
  implicit none
@@ -21,10 +25,12 @@ subroutine read_keywords_from_file(arg_file)
   LOGICAL                                  :: CFL_file
   LOGICAL                                  :: file_exist
   INTEGER                                  :: long
-  INTEGER                                  :: i, nb_col
-  LOGICAL                                  :: step_by_step
+  INTEGER                                  :: i, i1, nb_col
+  !LOGICAL                                  :: step_by_step
   LOGICAL                                  :: lecture_ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_keywords_from_file")
+  
   step_by_step = .false.
   if (LEN_TRIM(arg_file) ==0) then    ! option #1 du menu principal
    do
@@ -49,7 +55,9 @@ subroutine read_keywords_from_file(arg_file)
      return
     ELSEIF(input_file(1:3) == 'KEY') then
      call write_KEYWORD('screen')
-    elseif(LEN_TRIM(input_file) == 0) then
+    ELSEIF(input_file(1:4) == 'QUIT' .or. input_file(1:4) == 'EXIT') then
+	 stop
+	elseif(LEN_TRIM(input_file) == 0) then
      !call write_header()
      !stop
      return
@@ -57,7 +65,7 @@ subroutine read_keywords_from_file(arg_file)
 
     i = index(input_file,'.')
     if (i==0) input_file = trim(input_file)//'.cfl'
-    call test_file_exist(input_file, file_exist)
+    call test_file_exist(input_file, file_exist, 'out')
     IF(.NOT. file_exist) then    
      input_file = ''
      cycle
@@ -83,6 +91,11 @@ subroutine read_keywords_from_file(arg_file)
  call write_info('  Input CRYSCAL file: '//trim(input_file))
  call write_info(' ')
  
+ if(create_CIF_PYMOL) then
+  i1 = index(input_file, '.', back=.true.)
+  write(CIF_pymol_file_name, '(a)') input_file(1:i1-1)//'_pml'//trim(input_file(i1:))
+ end if 
+ 
  !OPEN(UNIT=input_unit, FILE=TRIM(input_file), ACTION="read")
 
 
@@ -93,26 +106,51 @@ subroutine read_keywords_from_file(arg_file)
       open(UNIT=INS_read_unit, FILE=TRIM(input_file), ACTION='read')
       call read_INS_input_file(TRIM(input_file), "ALL")
       call read_input_file_KEYWORDS(TRIM(input_file))
-      if (keyword_create_CFL) call create_CFL_file(TRIM(input_file), extension)
-      if (keyword_create_FST) call create_FST_file(TRIM(input_file), extension)
+      if (keyword_create_CFL)  then
+       call create_CFL_file(TRIM(input_file), extension)
+	   if(INI_create_CFL) stop
+	  end if
+	  
+      if (keyword_create_FST)     then
+ 	   call create_FST_file(TRIM(input_file), extension)
+	   if(INI_create_FST) stop
+	  end if
+	  
+	  if (create_CIF_PYMOL)       then
+	   call create_CIF_PYMOL_file(TRIM(input_file), extension)
+	   if(INI_create_CIF_pymol) stop
+	  endif
+	  
       if(keyword_create_CEL) then
        keyword_read_INS = .true.
        INS_file_name = input_file
        call create_CEL_from_CIF
+	   if(INI_create_CEL) stop
       endif
+	  
       if(keyword_create_ACE) then
        keyword_read_INS = .true.
        INS_file_name = input_file
        call create_ACE_from_CIF
+	   if(INI_create_ACE) stop
       endif
+	  
+	  if(keyword_create_PRF)  then
+	   keyword_read_INS = .true.
+	   INS_file_name = input_file
+	   call create_PAT_PRF
+	   if(INI_create_PRF) stop
+	  end if 
+
 
 
      case ("pcr")
       input_PCR = .true.
       OPEN(UNIT=PCR_read_unit, FILE=TRIM(input_file), ACTION="read")
       call read_PCR_input_file(TRIM(input_file))
-      if (keyword_create_CFL)  call create_CFL_file(TRIM(input_file), extension)
-      if (keyword_create_FST)  call create_FST_file(TRIM(input_file), extension)
+      if (keyword_create_CFL)         call create_CFL_file(TRIM(input_file), extension)
+      if (keyword_create_FST)         call create_FST_file(TRIM(input_file), extension)
+      !if (create_CIF_PYMOL)           call create_CIF_PYMOL_file(TRIM(input_file), extension)
       if(keyword_create_CEL) then
        keyword_read_PCR = .true.
        PCR_file_name = input_file
@@ -126,7 +164,7 @@ subroutine read_keywords_from_file(arg_file)
 
      case ("cfl")
       input_CFL = .true.
-      IF(step_by_step) then             ! a partir de la ligne de commande
+	  IF(step_by_step) then             ! a partir de la ligne de commande
 	   close(unit=CFL_read_unit)
 	   OPEN(UNIT=CFL_read_unit, FILE=TRIM(input_file), ACTION="read")
 
@@ -138,7 +176,7 @@ subroutine read_keywords_from_file(arg_file)
        close(unit=CFL_read_unit)
        OPEN(UNIT=CFL_read_unit, FILE=TRIM(input_file), ACTION="read")
        call read_CFL_input_file(CFL_read_unit)                 ! read_CFL.F90
-       call read_input_file_KEYWORDS(TRIM(input_file))         ! read_KEYW.F90
+	   call read_input_file_KEYWORDS(TRIM(input_file))         ! read_KEYW.F90	   
       endif
 
      case ("cif")
@@ -147,22 +185,36 @@ subroutine read_keywords_from_file(arg_file)
       input_CIF = .true.
 
       call check_CIF_input_file(TRIM(input_file))
-
-      IF(input_file(:) /= 'archive.cif') then
-       call get_P4P_file_name(P4P_file_name)
-       IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
-      endif
+      !IF(input_file(:) /= 'archive.cif') then
+      ! call get_P4P_file_name(P4P_file_name)
+      ! IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
+      !endif
       call read_CIF_input_file(TRIM(input_file), '?')          ! read_CIF_file.F90
-      !call read_CIF_input_file_TR(input_file)                  ! read_CIF_file.F90
       call read_CIF_input_file_TR(input_unit)                  ! read_CIF_file.F90
  
       !call read_SQUEEZE_file
       !call read_input_file_KEYWORDS(TRIM(input_file))
       
       !if(nb_atoms_type /=0) then
-       if(keyword_create_CFL) call create_CFL_file(TRIM(input_file), extension)
-       if(keyword_create_INS) call create_INS_file(TRIM(input_file), extension)  
-       if(keyword_create_FST) call create_FST_file(TRIM(input_file), extension)     
+       if(keyword_create_CFL)     then
+ 	    call create_CFL_file(TRIM(input_file), extension)
+		if(INI_create_CFL) stop
+	   end if
+	   
+       if(keyword_create_INS)     then
+ 	    call create_INS_file(TRIM(input_file), extension)  
+		if(INI_create_INS) stop
+	   end if
+	   
+       if(keyword_create_FST)     then
+ 	    call create_FST_file(TRIM(input_file), extension)  
+		if(INI_create_FST) stop
+	   end if
+	   
+       if(create_CIF_PYMOL)       then
+  	    call create_CIF_PYMOL_file(TRIM(input_file), extension)
+		if(INI_create_CIF_pymol) stop
+	   end if
       !endif
      
      
@@ -170,13 +222,22 @@ subroutine read_keywords_from_file(arg_file)
        keyword_read_CIF = .true.
        CIF_file_name = input_file
        call create_ACE_from_CIF
+	   if(INI_create_ACE) stop
       endif
 
       if(keyword_create_CEL) then
        keyword_read_CIF = .true.
        CIF_file_name = input_file
        call create_CEL_from_CIF
+	   if(INI_create_CEL) stop
       endif
+	  
+      if(keyword_create_PRF)  then
+	   keyword_read_CIF = .true.
+	   CIF_file_name = input_file
+	   call create_PAT_PRF 	   
+	   if(INI_create_PRF)  stop
+	  endif 
 
       !if(keyword_modif_ARCHIVE) call read_and_modif_archive(input_unit)
 
@@ -196,6 +257,8 @@ subroutine run_keywords()
  USE HKL_module
  USE IO_module
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keywords")
+ 
  if(ON_SCREEN) then
   call write_info('')
   call write_info('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
@@ -237,10 +300,10 @@ subroutine run_keywords()
  IF(keyword_WRITE_CELL)                    call volume_calculation('out')   !       calculs.F90
  IF(keyword_WRITE_QVEC)                    call write_QVEC()                ! cryscal_write.F90
  if(keyword_WRITE_WAVE .and. keyword_WAVE) call write_WAVE_features()       ! cryscal_write.F90
- if(keyword_WRITE_BEAM .and. keyword_BEAM) call write_BEAM_features()       ! crsycal_write.F90     
+ if(keyword_WRITE_BEAM .and. keyword_BEAM) call write_BEAM_features()       ! cryscal_write.F90     
  if(keyword_WRITE_DEVICE)                  call write_DEVICE_features()     ! cryscal_write.F90   
  IF(keyword_WRITE_SG   .AND. keyword_SPGR) call space_group_info()          !   space_group.F90
-
+ IF(keyword_WRITE_ZUNIT .and. keyword_ZUNIT) call write_ZUNIT_features()    ! cryscal_write.F90
  IF(keyword_SIZE)                          call crystal_volume_calculation('out') ! calculs.F90
 
  IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
@@ -275,7 +338,7 @@ subroutine run_keywords()
 
  IF(keyword_TRANSL    .and. nb_atom /=0)  call transl_coord
 
- IF(keyword_INSIDE    .AND. nb_atom /=0)  call inside_unit_cell
+ IF(keyword_INSIDE    .AND. nb_atom /=0)  call inside_unit_cell()
 
  IF(keyword_ATOM_list .AND. nb_atom /=0)  call write_atom_list
  IF(keyword_ADP_list  .AND. nb_atom /=0)  call write_atom_list
@@ -333,7 +396,7 @@ subroutine run_keywords()
   endif
 !  if (nb_shell /=0)       call read_and_sort_hkl('shell')
 !  if (nb_sort  /=0)       call read_and_sort_hkl('sort')
-  IF(keyword_RINT)        call calcul_global_Rint()
+  IF(keyword_RINT)        call calcul_global_Rint('')
 
   IF(keyword_search_exti) call search_exti()     ! recherche extinctions systematiques
   IF(keyword_search_SPGR) call search_SPGR()     ! recherche d'un groupe d'espace
@@ -370,7 +433,7 @@ subroutine run_keywords()
  if (keyword_DATA_atomic_radius)    call write_data('radius')
  if (keyword_DATA_atomic_weight)    call write_data('weight')
 
- if (keyword_X_WAVE)         CALL write_Xrays_wavelength
+ if (keyword_X_WAVE)                CALL write_Xrays_wavelength
 
  call read_SQUEEZE_file
 
@@ -378,6 +441,7 @@ subroutine run_keywords()
  ! CIF file for APEX
  IF(keyword_create_CIF) then
   IF(keyword_WRITE_REF_APEX)   call write_REF('APEX')
+  IF(keyword_WRITE_REF_X2S)    call write_REF('X2S')
   IF(keyword_WRITE_REF_KCCD)   call write_REF('KCCD')
   IF(keyword_WRITE_REF_EVAL)   call write_REF('EVAL')
   IF(keyword_WRITE_REF_DENZO)  call write_REF('DENZO')
@@ -391,14 +455,15 @@ end subroutine run_keywords
 !------------------------------------------------------------------------
 
 subroutine KEYS_on_line()
- USE cryscal_module, ONLY : nb_help_max, help_string, write_keys, message_text, KEYS_unit
+ USE cryscal_module, ONLY : nb_help_max, help_string, write_keys, message_text, KEYS_unit, debug_proc
  USE IO_module
 
  implicit none
   INTEGER                       :: i , nb_keys_to_write
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "keys_on_line")
   
-   nb_keys_to_write = 0
+  nb_keys_to_write = 0
   do i=1, nb_help_max
    IF(write_keys(i)) then
     nb_keys_to_write = nb_keys_to_write + 1
@@ -424,9 +489,9 @@ end subroutine KEYS_on_line
 !--------------------------------------------------------------------
 
 subroutine check_CIF_input_file(input_file)
- USE cryscal_module, ONLY : keyword_create_CIF, CIF_unit, CIF_archive_unit, &
-                            keyword_WRITE_REF_APEX, keyword_WRITE_REF_KCCD, &
-                            AUTHOR, DEVICE
+ USE cryscal_module, ONLY : keyword_create_CIF, create_CIF_PYMOL, CIF_unit, CIF_archive_unit, &
+                            keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, keyword_WRITE_REF_KCCD, &
+                            AUTHOR, DEVICE, debug_proc
  USE text_module,    ONLY : CIF_lines_nb, CIF_title_line
  use macros_module,  only : u_case
  use Accents_module, ONLY : def_accents
@@ -437,9 +502,10 @@ subroutine check_CIF_input_file(input_file)
   character (len=256)                 :: CIF_string
   INTEGER                             :: i, i1, i2, i_error
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "check_CIF_input_file")
+  
   IF(input_file(:) == 'archive.cif') then
-   keyword_create_CIF = .true.
-
+   keyword_create_CIF = .true.   
   else
    i1 = INDEX(input_file, ':')
    IF(i1/=0) then
@@ -453,8 +519,11 @@ subroutine check_CIF_input_file(input_file)
   endif
 
   IF(keyword_create_CIF) then
+   create_CIF_PYMOL = .false.
    if(u_case(DEVICE%diffracto(1:4)) == 'APEX') then
     keyword_WRITE_REF_APEX =.true.
+   elseif(u_case(DEVICE%diffracto(1:3)) == 'X2S') then
+    keyword_WRITE_REF_X2S = .true.	
    elseif(u_case(DEVICE%diffracto(1:4)) == 'KCCD') then
     keyword_WRITE_REF_KCCD = .true.
    endif
@@ -473,8 +542,9 @@ subroutine check_CIF_input_file(input_file)
     stop
    endif
 
-   
-   call def_accents
+
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "verif_CIF_character")
+   call def_accents   
    call verif_CIF_character(AUTHOR%NAME)
    call verif_CIF_character(AUTHOR%first_name)
    call verif_CIF_character(AUTHOR%address)
@@ -494,12 +564,16 @@ END subroutine check_CIF_input_file
 !--------------------------------------------------------------------
 
 subroutine get_P4P_file_name(P4P_file_name)
+ use cryscal_module, only : debug_proc
  implicit none
   CHARACTER(LEN=*), INTENT(INOUT) :: P4P_file_name 
   INTEGER                         :: i, ier, n_P4P
   CHARACTER (LEN=256)             :: read_line
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "get_P4P_file_name")
+  
   call system('dir *.p4p /B > p4p.lst')      !! message 'fichier introuvable' si pas de fichier.P4P !
+ 
   open (UNIT=9, FILE='p4p.lst')
   n_P4P = 0
   do

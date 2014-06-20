@@ -3,13 +3,15 @@ subroutine absorption_calculation
  USE Neutrons_data
  USE Xrays_data
  USE cryscal_module, ONLY : ON_SCREEN, neutrons, X_rays, wavelength,  message_text, keyword_BEAM,   &
-                            known_data_neutrons
+                            known_data_neutrons, debug_proc
  USE wavelength_module
  USE IO_module ,     ONLY : write_info
 
  implicit none
   INTEGER             :: k
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "absorption_calculation")
+  
  if(ON_SCREEN) then
  call write_info( '                                                    ')
  call write_info( '         Absorption coefficient calculation  (mu)   ')
@@ -105,12 +107,14 @@ subroutine calcul_X_mu(input_string)
  USE Neutrons_data
  USE Xrays_data
  USE cryscal_module, ONLY : ON_SCREEN, neutrons, X_rays, wavelength,  message_text, keyword_BEAM, &
-                            known_data_x
+                            known_data_x, debug_proc
  USE wavelength_module
  USE IO_module ,     ONLY : write_info
  implicit none
   CHARACTER (LEN=*), INTENT(IN)   :: input_string
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_X_mu ("//trim(input_string)//")")
+  
   if(ON_SCREEN) then
    IF(input_string(1:2) == 'Ag') then
     WRITE(message_text, '(a,F10.5,a)')  '      ----  Wavelength Ka_Ag = ', X_target(1)%wave(1), ' A '
@@ -145,7 +149,8 @@ end subroutine calcul_X_mu
 subroutine write_mu(input_string)
  USE cryscal_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,      &
                             keyword_TRANSMISSION, nb_dim_transmission, dim_transmission, keyword_create_CIF, &
-                            keyword_WRITE_REF_APEX, absorption, SADABS_ratio, SADABS_Tmin, SADABS_Tmax
+                            keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, absorption, SADABS_ratio,         &
+							SADABS_Tmin, SADABS_Tmax, debug_proc
  USE IO_module,      ONLY : write_info
  USE math_module,    ONLY : transmission
 
@@ -153,7 +158,10 @@ subroutine write_mu(input_string)
   CHARACTER (LEN=*), INTENT(IN)   :: input_string
   REAL                            :: d_min, d_max, T_min, T_max, T
   INTEGER                         :: i
-
+  REAL, parameter                 :: EPS=0.001
+  
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_mu ("//trim(input_string)//")")
+ 
  if(ON_SCREEN) then
   call write_info(' ')
   WRITE(message_text,'(a,F10.5,a)') '   > mu:   ',absorption%mu,     ' cm-1'
@@ -165,9 +173,10 @@ subroutine write_mu(input_string)
  IF(keyword_create_CIF)  call write_CIF_file('ABSORPTION')
 
  if (keyword_SIZE) then
-  if(ON_SCREEN) then
+  if(ON_SCREEN .and. crystal%radius < eps) then
    call write_info(' ')
-   WRITE(message_text,'(a,F10.5)')  '   > mu*R: ',0.1*absorption%mu*  crystal%radius
+   WRITE(message_text,'(a,F10.5,a)')  '   > R   : ', crystal%radius, ' mm'
+   WRITE(message_text,'(a,F10.5)')    '   > mu*R: ',0.1*absorption%mu*  crystal%radius
    call write_info(TRIM(message_text))
    call write_info(' ')
   endif
@@ -188,6 +197,7 @@ subroutine write_mu(input_string)
 
   IF(keyword_create_CIF) then
    IF(keyword_WRITE_REF_APEX)  call write_CIF_file('SADABS')
+   IF(keyword_WRITE_REF_X2S)   call write_CIF_file('SADABS')
    call Get_SADABS_ratio()
 
    call write_CIF_file('TMIN')
@@ -246,7 +256,7 @@ end subroutine write_mu
 subroutine neutron_cross_section()
  USE atome_module
  USE cryscal_module, ONLY          : ON_SCREEN, nb_atoms_type, wavelength, atom_typ, SFAC_type, sfac_number, num_atom, &
-                                     message_text
+                                     message_text, debug_proc
  USE IO_module,  ONLY              : write_info
 
   implicit none
@@ -255,6 +265,8 @@ subroutine neutron_cross_section()
   REAL, parameter                  :: pi = 3.14159
   REAL                             :: neutron_velocity
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "neutron_cross_section")
+  
   neutron_velocity = 3952. / wavelength
   if(ON_SCREEN) then
    WRITE(message_text,'(1x,a,F7.2)')        '    neutron velocity (m/s): ', neutron_velocity
@@ -373,6 +385,7 @@ end subroutine X_attenuation_calculation
 !--------------------------------------------------------------
 subroutine F000_calculation(beam)
  USE cryscal_module
+ USE atomic_data 
  USE IO_module, ONLY : write_info
 
  implicit none
@@ -383,7 +396,8 @@ subroutine F000_calculation(beam)
   if (beam(1:1)=='X') then
    ! F000: nombre total d'electrons dans la maille
    do i=1, nb_atoms_type
-    F000 = F000 + SFAC_number(i)*num_atom(i)
+    !F000 = F000 + SFAC_number(i)*num_atom(i)
+	F000 = F000 + SFAC_number(i)*atom(Num_atom(i))%Z
    end do
   else
    ! F000: somme des
@@ -407,10 +421,12 @@ end subroutine F000_calculation
 
 
 subroutine Absorption_routine
- use CRYSCAL_module, only : keyword_CELL, keyword_WAVE, keyword_CONT, keyword_CHEM, message_text
+ use CRYSCAL_module, only : keyword_CELL, keyword_WAVE, keyword_CONT, keyword_CHEM, message_text, debug_proc
  USE IO_module ,     ONLY : write_info
 
  implicit none
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "absorption_routine")
  
  if(.not. keyword_CELL) then
   write(unit=message_text, fmt='(2a)') ' Cell parameters are mandatory for a absorption coefficient calculation.', & 

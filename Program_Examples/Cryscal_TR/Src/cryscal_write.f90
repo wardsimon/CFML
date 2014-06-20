@@ -2,11 +2,13 @@
 !------------------------------------------------------------------------
 
 subroutine Write_HELP 
- USE cryscal_module, ONLY : nb_help, nb_help_max
+ USE cryscal_module, ONLY : nb_help, nb_help_max, debug_proc
  USE IO_module,      ONLY : write_info
 
  implicit none
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_help")
+ 
   IF(nb_help == nb_help_max) call write_header 
   call HELP_on_line
 
@@ -26,10 +28,12 @@ end subroutine Write_HELP
 
 !------------------------------------------------------------------------
  subroutine Write_cryscal_HTML
-  use cryscal_module,               ONLY : my_browser, browse_cryscal_HTML
+  use cryscal_module,               ONLY : my_browser, browse_cryscal_HTML, debug_proc
   use IO_module,                    ONLY : write_info
   USE external_applications_module, ONLY : launch_browser
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_cryscal_HTML")
+  
   !browse_cryscal_HTML = .false. 
   call create_CRYSCAL_HTML
   call write_info(' ')
@@ -76,7 +80,7 @@ end subroutine Write_KEYWORD
 
 
 subroutine write_wave_features()
- USE cryscal_module, ONLY: ON_SCREEN, wavelength, keyword_beam, message_text, wavelength, pi, neutrons, DEVICE
+ USE cryscal_module, ONLY: ON_SCREEN, wavelength, keyword_beam, message_text, wavelength, pi, neutrons, DEVICE, debug_proc
  USE IO_module,      ONLY: write_info
   implicit none
    REAL                  :: Ki
@@ -85,6 +89,8 @@ subroutine write_wave_features()
    REAL                  :: neutron_temperature
    REAL                  :: X_energy
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "write_wave_features")
+   
    Ki = 2.*pi/wavelength
    neutron_velocity    =  3.956 / wavelength              ! vitesse des neutrons
    neutron_energy      = (9.045 / wavelength) ** 2        ! energie des neutrons
@@ -141,10 +147,12 @@ end subroutine write_wave_features
 
 !-----------------------------------------------------------------------------------------------------------------------
 subroutine write_device_features()
- USE cryscal_module, ONLY: ON_SCREEN, wavelength, message_text, DEVICE
+ USE cryscal_module, ONLY: ON_SCREEN, wavelength, message_text, DEVICE, debug_proc
  USE IO_module,      ONLY: write_info
   implicit none
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_device_features")
+  
    if(.not. ON_SCREEN) return
    
    if(DEVICE%diffracto(1:1) /= "?") then
@@ -168,15 +176,19 @@ end subroutine write_device_features
 
 !-------------------------------------------------------------------------
 subroutine write_BEAM_features
- USE cryscal_module, ONLY: ON_SCREEN, beam_type
+ USE cryscal_module, ONLY: ON_SCREEN, beam_type, debug_proc
  USE IO_module,      ONLY: write_info
   implicit none
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_beam_features")
  
   if(.not. ON_SCREEN) return
   call write_info('')
   if(beam_type(1:8) == 'neutrons') then
    call write_info(' > Incident radiation beam : neutrons')
-  else
+  elseif(beam_type(1:9) == 'electrons') then
+   call write_info(' > Incident radiation beam : electrons')
+  else 
    call write_info(' > Incident radiation beam : X-rays')
   endif
   
@@ -186,7 +198,7 @@ end subroutine write_BEAM_features
 !-------------------------------------------------------------------------
 
 subroutine write_Xrays_wavelength()
- USE cryscal_module,            ONLY : message_text
+ USE cryscal_module,            ONLY : message_text, debug_proc
  USE IO_module,                 ONLY : write_info
  USE CFML_Scattering_Chemical_Tables
  USE wavelength_module
@@ -194,6 +206,8 @@ subroutine write_Xrays_wavelength()
   INTEGER           :: i, n
   REAL              :: mean_Ka
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_xrays_wavelength")
+  
   call write_info('')
   call write_info('  >> Main Xrays wavelength (A):')
   call write_info('')
@@ -217,9 +231,11 @@ end subroutine write_Xrays_wavelength
 !-------------------------------------------------------------------------
  subroutine Write_QVEC
   USE IO_module,               ONLY : write_info
-  USE cryscal_module,          ONLY : message_text, qvec
+  USE cryscal_module,          ONLY : message_text, qvec, debug_proc
   implicit none
     
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_QVEC")
+  
    call write_info('')
    write(message_text, '(a,3F6.2)') '  > Modulation wave vector Qvec = ', qvec(1:3)
    call write_info(trim(message_text))
@@ -227,12 +243,30 @@ end subroutine write_Xrays_wavelength
    
   return
  end subroutine Write_QVEC
+ 
+!-------------------------------------------------------------------------
+subroutine write_ZUNIT_features
+ USE cryscal_module, ONLY: ON_SCREEN, molecule, message_text, debug_proc
+ USE IO_module,      ONLY: write_info
+  implicit none
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_Zunit_features")
+ 
+  if(.not. ON_SCREEN) return
+  call write_info('')
+   write(message_text, '(a,F3.0)') '  > Z unit number of molecular unit) = ', molecule%Z_unit
+  call write_info(trim(message_text))
+  call write_info('')
+   
+ return
+end subroutine  write_ZUNIT_features
+
 !-------------------------------------------------------------------------
 
 subroutine write_space_group(i1, i2, n_enantio, n_chiral, n_polar)
  use CFML_crystallographic_symmetry, only : set_spacegroup
  USE cryscal_module,            ONLY : list_sg, list_sg_centric, list_sg_multip, list_sg_enantio, list_sg_chiral, &
-                                       list_sg_polar, message_text, SPG
+                                       list_sg_polar, message_text, SPG, debug_proc
  USE IO_module,                 ONLY : write_info
  implicit none
   INTEGER, INTENT(IN)       :: i1, i2    ! numero du groupe d'espace
@@ -245,6 +279,8 @@ subroutine write_space_group(i1, i2, n_enantio, n_chiral, n_polar)
   INTEGER                   :: i, n
   LOGICAL                   :: ok, enantio, chiral, polar
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_space_group")
+  
   ! numero du groupe d'espace: 		    SPG%NumSpg
   ! symbole:                            SPG%SPG_Symb
   ! centro:                             SPG%Centred  =0 Centric(-1 no at origin)
@@ -332,7 +368,7 @@ end subroutine write_space_group
 subroutine write_current_space_group(SG_symbol)
  USE IO_module,                      ONLY : write_info
  USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, searchop, write_sym
- USE cryscal_module,                 ONLY : SPG, message_text
+ USE cryscal_module,                 ONLY : SPG, message_text, debug_proc
  USE CFML_symmetry_tables,           ONLY : intsymoh,x_oh, intsymd6h,x_d6h
 
  implicit none
@@ -342,6 +378,8 @@ subroutine write_current_space_group(SG_symbol)
   INTEGER                         :: i, j, i1, i2
   INTEGER, DIMENSION(192)         :: indx_op
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_current_space_group")
+  
   !WRITE(string_numor, '(i3)') SG_numor
   !call set_spacegroup(string_numor, SPG)
 
@@ -373,18 +411,20 @@ end subroutine write_current_space_group
 
 subroutine write_atom_list()
  USE cryscal_module, ONLY : message_text, nb_atom, keyword_SPGR, keyword_ADP_list,         &
-                            atom_label, atom_typ, atom_coord, atom_occ, atom_occ_perc,    &
+                            atom_label, atom_typ, atom_coord, atom_occ, atom_occ_perc,     &
                             atom_mult, atom_Biso,  atom_occ, atom_Ueq, SPG, input_PCR,     &
-                            keyword_create_CIF, keyword_read_PCR, atom_adp_aniso
- use CFML_Crystallographic_Symmetry,        only : Get_Multip_Pos
-
- USE IO_module,      ONLY : write_info
+                            keyword_create_CIF, write_atoms_in_A, keyword_read_PCR,        &
+							atom_adp_aniso, unit_cell, keyword_CELL, debug_proc
+ use CFML_Crystallographic_Symmetry,    ONLY : Get_Multip_Pos
+  USE IO_module,                         ONLY : write_info
 
  implicit none
   INTEGER              :: i
   REAL                 :: occ_perc  ! % occ. site
   REAL                 :: f1, f
-
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atoms_list")
+ 
  call write_info('')
  call write_info('  > ATOMS LIST:')
  call write_info('')
@@ -394,12 +434,26 @@ subroutine write_atom_list()
  else
   IF(keyword_SPGR) then
    if(input_PCR .or. keyword_read_PCR) then
-    call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
+    if(.not. write_atoms_in_A) then
+     call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
+	else
+	 call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult' // &
+                     '         x(A)      y(A)      z(A)')
+    endif	
    else
-    call write_info('         NAME     LABEL    x         y         z         Biso      Occ(%)    Mult')
+    if(.not. write_atoms_in_A) then   
+     call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult')
+	else
+	 call write_info('         NAME     LABEL    x         y         z         Biso      Occ       Occ(%)    Mult' // &
+                     '         x(A)      y(A)      z(A)')	
+    endif	
    endif
   else
-   call write_info( '         NAME     LABEL    x         y         z         Beq       Occ')
+   if(.not. write_atoms_in_A) then
+    call write_info( '         NAME     LABEL    x         y         z         Beq       Occ')
+   else
+    call write_info( '         NAME     LABEL    x         y         z         Beq       Occ         x(A)      y(A)      z(A)')
+   endif   
   endif
  endif 
  call write_info('')
@@ -412,6 +466,7 @@ subroutine write_atom_list()
  endif
 
  do i= 1, nb_atom
+  
  if(keyword_ADP_list) then
    write(message_text,'(3x,a4,5x,a4,2x,6F10.5)')     atom_label(i), atom_typ (i) , atom_adp_aniso(1:3,i), &
                                                      atom_adp_aniso(6,i), atom_adp_aniso(5,i), atom_adp_aniso(4,i)
@@ -427,24 +482,53 @@ subroutine write_atom_list()
     occ_perc = atom_occ(i) *  f * f1
     atom_occ_perc(i) =  occ_perc
     
-    write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,I4)')  i, atom_label(i), atom_typ (i) , atom_coord(1:3,i), &
-                                                               atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i)
+	if(write_atoms_in_A .and. keyword_CELL) then
+	 write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,3x,I4,3x,3F10.5)')  i, atom_label(i), atom_typ (i) , atom_coord(1:3,i), &
+                                                                       atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i), &
+																	   atom_coord(1,i)*unit_cell%param(1), &
+																	   atom_coord(2,i)*unit_cell%param(2), &
+																	   atom_coord(3,i)*unit_cell%param(3)	     
+	else	
+     write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,3x,I4)')  i, atom_label(i), atom_typ (i) , atom_coord(1:3,i), &
+                                                                atom_Biso(i),  atom_occ(i),    occ_perc, atom_mult(i)
+	endif	
+															   
    else
-    !write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+    !write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,3x,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
     !                                                           atom_Biso(i),  atom_occ_perc(i),    atom_mult(i)
-	write(message_text,'(3x,i3,3x,a4,5x,a4,2x,5F10.5,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
-                                                               atom_Biso(i),  atom_occ(i),    atom_mult(i)
-	
+
+	 
+    atom_occ(i) = real(atom_mult(i))/SPG%multip	
+    if(write_atoms_in_A .and. keyword_CELL) then	
+	 write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,3x,I4,3x,3F10.5)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+                                                               atom_Biso(i),  atom_occ(i),  atom_occ_perc(i),  atom_mult(i), &
+															   atom_coord(1,i)*unit_cell%param(1), &
+															   atom_coord(2,i)*unit_cell%param(2), &
+															   atom_coord(3,i)*unit_cell%param(3)
+    else	
+	 write(message_text,'(3x,i3,3x,a4,5x,a4,2x,6F10.5,3x,I4)')  i, atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+                                                               atom_Biso(i),  atom_occ(i),  atom_occ_perc(i),  atom_mult(i)	
+	endif
 
    endif
   else
-   
-   write(message_text,'(3x,a4,5x,a4,2x,5F10.5)')     atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
-                                                     atom_Biso(i),  atom_occ_perc(i)
-
+   if(write_atoms_in_A .and. keyword_CELL) then
+   write(message_text,'(3x,a4,5x,a4,2x,5F10.5,3x,3F10.5)')  atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+                                                             atom_Biso(i),  atom_occ_perc(i),    &
+      													     atom_coord(1,i)*unit_cell%param(1), &
+															 atom_coord(2,i)*unit_cell%param(2), &
+															 atom_coord(3,i)*unit_cell%param(3)	
+   else
+    write(message_text,'(3x,a4,5x,a4,2x,5F10.5)')     atom_label(i), atom_typ(i) , atom_coord(1:3,i), &
+                                                      atom_Biso(i),  atom_occ_perc(i)       														
+   endif
   endif
  end if 
-  call write_info(TRIM(message_text))
+ call write_info(TRIM(message_text))
+ if(write_atoms_in_A .and. keyword_CELL .and. keyword_read_PCR) then
+  write(message_text, '(97x,a)') '0.00000   0.00000   0.00000'
+  call write_info(message_text)
+ end if 
  
  end do
   
@@ -456,14 +540,75 @@ subroutine write_atom_list()
 
 end subroutine write_atom_list
 
+!-----------------------------------------------------------------------------------------------------
+subroutine write_atom_list_cart
+ use io_module
+ USE cryscal_module,       ONLY : message_text, nb_atom, atom_label, atom_typ, atom_coord, crystal_cell, &
+                                  debug_proc,                                                            &       
+                                  cartesian_frame, create_SHAPE_file, tmp_unit, main_title
+ USE CFML_crystal_metrics, only : cart_vector
+ USE CFML_GlobalDeps,      ONLY : sp
+ implicit none
+  integer         :: i
+  real (kind=sp), dimension(3)   :: cart_vect
+  character (len=12)             :: string
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_atoms_list_cart")
 
+ 
+ call  create_CELL_object
+
+ call write_info('') 
+ !call write_info(' Cartesian frame type : '//cartesian_frame%type//' ' //trim(cartesian_frame%string))
+ call write_info(' Cartesian frame type : ' //trim(cartesian_frame%string))
+ call write_info('') 
+ 
+ if(create_SHAPE_file) then
+  open(unit = tmp_unit, file="cryscal_shape.dat")
+  write(unit = tmp_unit, fmt='(a)')    '! Input file for SHAPE, created by CRYSCAL (TR/CDIFX-ISCR Rennes)'
+  write(unit = tmp_unit, fmt='(2a)') '$ ', trim(main_title)
+  write(unit = tmp_unit, fmt='(a)')  '! Ligands    central atom (line 1 in the atoms list)' 
+  write(string, fmt='(2(1x,i3))') nb_atom-1, 1
+  write(unit = tmp_unit, fmt='(a)') adjustl(string)
+  write(unit = tmp_unit, fmt='(a)')  '! Polyedron will be compared to any kind of polyedra'
+  write(unit = tmp_unit, fmt='(a)') '1 2 3 4 5 6 7 8 9 10 11 12 13'
+  write(unit = tmp_unit, fmt='(a)')  '! Label for the structure'
+  if(len_trim(main_title) < 16) then
+   write(unit = tmp_unit, fmt='(a)') trim(main_title)
+  else 
+   write(unit = tmp_unit, fmt='(a)') main_title(1:15)
+  end if 
+  write(unit = tmp_unit, fmt='(a)')  '! List of cartesian atomic coordinates' 
+ end if   
+ 
+  
+ do i= 1, nb_atom
+  cart_vect(1:3) = cart_vector('D', atom_coord(1:3, i), crystal_cell)
+  
+  write(message_text,'(3x,i3,3x,a4,5x,a4,2x,3F12.6)')     i, atom_label(i), atom_typ(i) , cart_vect(1:3)
+  call write_info(TRIM(message_text))
+  
+  if(create_SHAPE_file) write(unit = tmp_unit, fmt='(a4,2x,3F12.6)')     atom_label(i) , cart_vect(1:3)
+ end do					
+
+  if(create_SHAPE_file) then
+   close(unit=tmp_unit)
+   call write_info('')
+   call write_info('   > cryscal_shape.dat for SHAPE has been created.')
+   call write_info('')   
+  end if  
+  
+ return
+end subroutine write_atom_list_cart
 !-----------------------------------------------------------------------------------------------------
 
 subroutine write_molecular_features
- use cryscal_module, only : molecule, message_text
+ use cryscal_module, only : molecule, message_text, debug_proc
  use IO_module,      only : write_info
  implicit none
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_molecular_features")
+ 
  call write_info('')
  call write_info('  >> Molecular features:')
  call write_info('')
@@ -500,31 +645,49 @@ end subroutine write_molecular_features
 
 !-----------------------------------------------------------------------------------------------------
 subroutine write_REF(input_string)
- USE cryscal_module, ONLY: keyword_create_CIF, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_XCALIBUR, EVAL, SADABS
+ USE cryscal_module, ONLY: keyword_create_CIF, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_X2S, CIF_parameter_XCALIBUR, &
+                           CIF_parameter_SUPERNOVA, EVAL, SADABS, ABS_CRYSALIS, debug_proc
  USE IO_module,      ONLY: write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string
- INTEGER                      :: long_input_string
- LOGICAL                      :: input_KCCD, input_APEX, input_EVAL, input_DENZO, input_SADABS
+ INTEGER                      :: long_input_string, i
+ LOGICAL                      :: input_KCCD, input_APEX, input_X2S, input_XCALIBUR, input_SUPERNOVA
+ LOGICAL                      :: input_EVAL, input_DENZO, input_SADABS, input_ABS_CRYSALIS
 
- long_input_string = len_trim(input_string)
- input_KCCD   = .false.
- input_APEX   = .false.
- input_EVAL   = .false.
- input_DENZO  = .false.
- input_SADABS = .false.
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_ref ("//trim(input_string)//")")
  
- if(long_input_string == 4) then
-  if(input_string(1:4) == 'KCCD') input_KCCD = .true.
-  if(input_string(1:4) == 'APEX') input_APEX = .true.
-  if(input_string(1:4) == 'EVAL') input_EVAL = .true.
+ long_input_string = len_trim(input_string)
+ input_KCCD         = .false.
+ input_APEX         = .false.
+ input_X2S          = .false.
+ input_XCALIBUR     = .false.
+ input_SUPERNOVA    = .false. 
+ input_EVAL         = .false.
+ input_DENZO        = .false.
+ input_SADABS       = .false.
+ input_ABS_CRYSALIS = .false.
+
+ if(long_input_string == 3) then 
+  if(input_string(1:3)  == 'X2S')          input_X2S = .true.
+ elseif(long_input_string == 4) then
+  if(input_string(1:4)  == 'KCCD')         input_KCCD = .true.
+  if(input_string(1:4)  == 'APEX')         input_APEX = .true.
+  if(input_string(1:4)  == 'EVAL')         input_EVAL = .true.
  elseif(long_input_string == 5) then 
-  if(input_string(1:5) == 'DENZO') input_DENZO = .true.
+  if(input_string(1:5)  == 'DENZO')        input_DENZO = .true.
  elseif(long_input_string == 6) then
-  if(input_string(1:6) == 'SADABS') input_KCCD = .true.
+  if(input_string(1:6)  == 'SADABS')       input_SADABS = .true.
+ elseif(long_input_string == 8)  then
+  if(input_string(1:8)  == 'XCALIBUR')     input_XCALIBUR = .true.
+ elseif(long_input_string == 9)  then
+  if(input_string(1:9)  == 'SUPERNOVA')    input_SUPERNOVA    = .true.
+ elseif(long_input_string == 12)  then
+  if(input_string(1:12) == 'ABS_CRYSALIS') input_ABS_CRYSALIS = .true.
+  
  endif 
   
- 
+  
+  
  IF(input_KCCD) then
 
   IF(keyword_create_CIF) then
@@ -581,7 +744,67 @@ subroutine write_REF(input_string)
    call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_APEX%diffrn_detector_area_resol_mean))
   endif
 
+ ELSEIF(input_X2S) then
+  IF(keyword_create_CIF)   then
+   call write_CIF_file('X2S')
+  else
+   call write_info("")   
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   DATA COLLECTION                                          #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_X2S%diffrn_measurement_device_type))
+   call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_X2S%diffrn_measurement_method))
+   call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_X2S%diffrn_radiation_wavelength))
+   call write_info("_diffrn_radiation_type            "//trim(CIF_parameter_X2S%diffrn_radiation_type))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_X2S%diffrn_radiation_source))
+   call write_info("_diffrn_radiation_monochromator   "//trim(CIF_parameter_X2S%diffrn_radiation_monochromator))
+   call write_info("_diffrn_radiation_probe           "//trim(CIF_parameter_X2S%diffrn_radiation_probe))
+   call write_info("_diffrn_detector                  "//trim(CIF_parameter_X2S%diffrn_detector))
+   call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_X2S%diffrn_detector_area_resol_mean))
+  endif
 
+ ELSEIF(input_XCALIBUR) then
+  IF(keyword_create_CIF)   then
+   call write_CIF_file('XCALIBUR')
+  else
+   call write_info("")   
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   DATA COLLECTION                                          #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_XCALIBUR%diffrn_measurement_device_type))
+   call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_XCALIBUR%diffrn_measurement_method))
+   call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_XCALIBUR%diffrn_radiation_wavelength))
+   call write_info("_diffrn_radiation_type            "//trim(CIF_parameter_XCALIBUR%diffrn_radiation_type))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_XCALIBUR%diffrn_radiation_source))
+   call write_info("_diffrn_radiation_monochromator   "//trim(CIF_parameter_XCALIBUR%diffrn_radiation_monochromator))
+   call write_info("_diffrn_radiation_probe           "//trim(CIF_parameter_XCALIBUR%diffrn_radiation_probe))
+   call write_info("_diffrn_detector                  "//trim(CIF_parameter_XCALIBUR%diffrn_detector))
+   call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_XCALIBUR%diffrn_detector_area_resol_mean))
+  endif
+ 
+ ELSEIF(input_SUPERNOVA) then
+  IF(keyword_create_CIF)   then
+   call write_CIF_file('SUPERNOVA')
+  else
+   call write_info("")   
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   DATA COLLECTION                                          #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info("_diffrn_measurement_device_type   "//trim(CIF_parameter_SUPERNOVA%diffrn_measurement_device_type))
+   call write_info("_diffrn_measurement_method        "//trim(CIF_parameter_SUPERNOVA%diffrn_measurement_method))
+   call write_info("_diffrn_radiation_wavelength      "//trim(CIF_parameter_SUPERNOVA%diffrn_radiation_wavelength))
+   call write_info("_diffrn_radiation_type            "//trim(CIF_parameter_SUPERNOVA%diffrn_radiation_type))
+   call write_info("_diffrn_radiation_source          "//trim(CIF_parameter_SUPERNOVA%diffrn_radiation_source))
+   call write_info("_diffrn_radiation_monochromator   "//trim(CIF_parameter_SUPERNOVA%diffrn_radiation_monochromator))
+   call write_info("_diffrn_radiation_probe           "//trim(CIF_parameter_SUPERNOVA%diffrn_radiation_probe))
+   call write_info("_diffrn_detector                  "//trim(CIF_parameter_SUPERNOVA%diffrn_detector))
+   call write_info("_diffrn_detector_area_resol_mean  "//trim(CIF_parameter_SUPERNOVA%diffrn_detector_area_resol_mean))
+  endif
+
+  
  ELSEIF(input_EVAL) then
 
   IF(keyword_create_CIF) then
@@ -630,10 +853,25 @@ subroutine write_REF(input_string)
    call write_info("#----------------------------------------------------------------------------#")
    call write_info("")
    call write_info(trim(SADABS%type))
-   call write_info(trim(SADABS%details(1)))
-   call write_info(trim(SADABS%details(2)))
-   call write_info(trim(SADABS%details(3)))
-   call write_info(trim(SADABS%details(4)))
+   do i=1, 4
+    call write_info(trim(SADABS%details(i)))
+   end do	
+   
+  endif
+  
+  ELSEIF(input_ABS_CRYSALIS) then
+  if(keyword_create_CIF) then
+   call write_CIF_file('ABS_CRYSALIS')
+  else
+   call write_info("")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("#                   ABSORPTION CORRECTION                                    #")
+   call write_info("#----------------------------------------------------------------------------#")
+   call write_info("")
+   call write_info(trim(ABS_CRYSALIS%type))
+   do i=1, 6
+    call write_info(trim(ABS_CRYSALIS%details(i)))
+   end do	   
   endif
  endif
 
@@ -641,3 +879,30 @@ subroutine write_REF(input_string)
  return
 END subroutine write_REF
 
+!------------------------------------------------------------------------------------------------------------------------------------------
+subroutine write_crystal_cell_Cart
+ use cryscal_module,       only : tmp_unit, crystal_cell
+ use CFML_crystal_metrics, only : write_crystal_cell
+ USE IO_module,            ONLY: write_info
+
+ implicit none
+ integer                        :: i_error, i
+ character (len=256)            :: read_line
+ 
+ call create_cell_object
+ open(unit=tmp_unit, file='cfml_cell.out')
+   call write_crystal_cell(crystal_cell, tmp_unit)
+ close(unit=tmp_unit)  
+ 
+ open(unit=tmp_unit, file='cfml_cell.out')
+  do 
+   read(unit=tmp_unit, fmt='(a)', iostat=i_error) read_line
+   if(i_error /=0) exit
+   call write_info(' '//trim(read_line))
+  end do
+ close(unit=tmp_unit)  
+ 
+ call system("del cfml_cell.out")
+ 
+ return
+end subroutine write_crystal_cell_Cart

@@ -23,13 +23,24 @@ module IO_module
  !-----------------------------------------------------------
  subroutine write_info(string_info)
    character (len=*) , intent(in) :: string_info
+   integer                        :: i_error
 
   if(len_trim(string_info) == 0) then
    write(*,'(2x,a)') ' '
-   write(2,'(2x,a)') ' '
+   write(2,'(2x,a)', iostat=i_error) ' '
+   if(i_error /=0) then
+    write(*,*) ' Unable to write in cryscal.log file. Please check permissions in the current folder !'
+	write(*,*) ' Program will be stopped !'
+	stop
+   endif
   else
    write(*,'(2x,a)') string_info
-   write(2,'(2x,a)') string_info
+   write(2,'(2x,a)', iostat=i_error) string_info
+   if(i_error /=0) then
+    write(*,*) ' Unable to write in cryscal.log file. Please check permissions in the current folder !'
+	write(*,*) ' Program will be stopped !'
+	stop
+   endif
   endif
   return
 

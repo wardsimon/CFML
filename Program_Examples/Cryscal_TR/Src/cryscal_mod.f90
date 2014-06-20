@@ -6,40 +6,48 @@ module cryscal_module
  use CFML_crystallographic_symmetry, ONLY  : space_group_type
  use CFML_Atom_TypeDef,              only  : Atom_list_Type
  USE CFML_Crystal_Metrics,           ONLY  : Crystal_cell_type
- USE CFML_GlobalDeps,                 ONLY : sp, cp
+ USE CFML_GlobalDeps,                ONLY  : sp, cp
 
  
   implicit none
 
-  character (len=256), parameter               :: cryscal_version = 'Feb. 2012'
+  character (len=256), parameter               :: cryscal_version = 'June 2014'
   character (len=256), parameter               :: cryscal_author  = 'T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)'
   character (len=256), parameter               :: CFML_version = "version 5.0 (JRC, JGP)"
   character (LEN=256)                          :: cryscal_ini
   character (LEN=256)                          :: winplotr_exe
+  character (LEN=256)                          :: cryscal_css
+  character (LEN=256)                          :: cryscal_report_css
+  
+  character (len=256)                          :: cryscal_path_name
+  character (len=256)                          :: winplotr_path_name
 
   CHARACTER (LEN=512)                          :: message_text
   character (len=256)                          :: input_line
   character (len=256)                          :: CIF_string
-
+  
 
   LOGICAL                                      :: input_INS               ! fichier d'entree INS
   LOGICAL                                      :: input_CFL               ! fichier d'entree CFL
-  LOGICAL                                      :: input_PCR               ! fichier d'entree CFL
+  LOGICAL                                      :: input_PCR               ! fichier d'entree PCR
   LOGICAL                                      :: input_CIF               ! fichier d'entree CIF
   LOGICAL                                      :: input_CELL_P4P          ! fichier .P4P (lecture des parametres de maille)
   LOGICAL                                      :: input_CELL_m50          ! fichier .m50 Jana (lecture des parametres de maille)
   LOGICAL                                      :: input_CELL_INS          ! fichier .INS/.TES Shelx (lecture des parametres de maille)
   LOGICAL                                      :: input_CELL_x            ! fichier .x cree par DENZO
   LOGICAL                                      :: input_CELL_rmat         ! fichier .rmat cree par DIRAX
+  LOGICAL                                      :: input_CELL_CIF          ! fichier .CIF
+  LOGICAL                                      :: input_CELL_RED          ! ficheir .RED pour DATARED
   LOGICAL                                      :: input_CELL              ! fichier contenant les parametres de maille
-
-
+  LOGICAL                                      :: step_by_step
+  
   CHARACTER (LEN=80)                           :: main_title              ! Title in the INS.file
   character (len=16)                           :: keyword                 ! mot clé dans le fichier d'entree
   LOGICAL                                      :: unknown_keyword
   LOGICAL                                      :: unknown_CFL_keyword
   LOGICAL                                      :: mode_interactif         ! mode interactif
   LOGICAL                                      :: tmp_logical
+  real                                         :: tmp_real
 
  ! real,               dimension(6)             :: cell_param              ! parametres de maille
  ! real,               dimension(6)             :: cell_param_ESD          ! ESD des parametres de maille
@@ -50,7 +58,9 @@ module cryscal_module
   REAL,               DIMENSION(3,3)           :: GMD
   REAL,               DIMENSION(3,3)           :: GMR
 
-  REAL,               DIMENSION(3,3)           :: UB_matrix ! matrice d'orientation
+  REAL,               DIMENSION(3,3)           :: UB_matrix    ! matrice d'orientation
+  LOGICAL                                      :: UB_mat_log
+  LOGICAL                                      :: keyword_UB_mat
 
   real                                         :: wavelength              ! longueur d'onde
   real                                         :: Z_unit                  ! Z: nombre de molecules dans la maille
@@ -62,17 +72,18 @@ module cryscal_module
   REAL(KIND=sp),      dimension(3,nb_atom_max)         :: atom_coord              ! coordonnees atomiques
   REAL,               DIMENSION(6,nb_atom_max)         :: atom_adp_aniso          ! parametres de deplacements atomiques
   REAL,               DIMENSION(nb_atom_max)           :: atom_adp_equiv          ! parametre de deplacements atomiques equivalent
-  character (len=10), dimension(nb_atom_max)           :: atom_label              ! label des atomes (ATOM)
+  character (len=8),  dimension(nb_atom_max)           :: atom_label              ! label des atomes (ATOM)
   character (len=4),  dimension(nb_atom_max)           :: atom_typ                ! symbole des atomes (ATOM)
+  logical,            dimension(nb_atom_max)           :: CONN_out                ! 
   real,               dimension(nb_atom_max)           :: atom_occ_perc           ! % occupation du site
   real,               dimension(nb_atom_max)           :: atom_occ                ! occupation du site = mult. site / mult. generale
   real,               dimension(nb_atom_max)           :: atom_Ueq                ! U
   real,               dimension(nb_atom_max)           :: atom_Biso               ! Biso
   integer,            dimension(nb_atom_max)           :: atom_mult               ! multiplicite du site
   REAL(KIND=sp),      dimension(3,nb_atom_max)         :: new_atom_coord          ! nouvelles coordonnees atomiques (apres MATR)
-  REAL(KIND=sp),      DIMENSION(3)             :: new_coord               ! nouvelles coordonnes atomiques
+  REAL(KIND=sp),      DIMENSION(3)                     :: new_coord               ! nouvelles coordonnes atomiques
 
-  integer                                      :: nb_atoms_type           ! nombre de type d'atomes de nature differente
+  integer                                              :: nb_atoms_type           ! nombre de type d'atomes de nature differente
   character (len=6),  dimension(nb_atom_max)           :: sfac_type               ! type des atomes (SFAC)
   real,               dimension(nb_atom_max)           :: sfac_number             ! nombre d'atomes de chaque espece (UNIT)
   REAL,               DIMENSION(nb_atom_max)           :: sto                     ! stoechiometrie
@@ -82,15 +93,16 @@ module cryscal_module
   !real,               dimension(500)           :: h, k, l                 ! indices des reflections
   real,               dimension(3,500)         :: H                       ! indices des reflections entrees au clavier
 
-  character (len=6),  dimension(500)           :: atom1_dist, atom2_dist  ! label de l'atome 1 et de l'atome 2 pour calculer la distance entre 1 et 2
-  character (LEN=6),  DIMENSION(500)           :: atom1_ang,  atom2_ang,  atom3_ang, atom4_ang   ! labels des atomes 1,2,3 et 4 pour calculaer les angles
-  character (len=6),  dimension(500, 100)      :: atom_bary               ! labels des atomes pour le calcul du barycentre
+  character (len=8),  dimension(500)           :: atom1_dist, atom2_dist  ! label de l'atome 1 et de l'atome 2 pour calculer la distance entre 1 et 2
+  character (LEN=8),  DIMENSION(500)           :: atom1_ang,  atom2_ang,  atom3_ang, atom4_ang   ! labels des atomes 1,2,3 et 4 pour calculaer les angles
+  character (len=8),  dimension(500, 100)      :: atom_bary               ! labels des atomes pour le calcul du barycentre
 
   TYPE, PUBLIC :: ATOM_CONN_type                         ! caracteristiques de l'atome pour le calcul de la connectivité
-   character (len=6)     :: label                        ! label
-   character (len=6)     :: type                         ! type
+   character (len=8)     :: label                        ! label
+   character (len=9)     :: type                         ! type
   end type ATOM_CONN_type
   type (ATOM_CONN_TYPE) :: ATOM_CONN
+  character (len=8)     :: CONN_species
 
   REAL,               dimension(3,3)           :: MAT                     ! composantes de la matrice de transformation 3*3
   REAL,               dimension(3,3)           :: MAT_inv                 ! composantes de la matrice inverse
@@ -107,17 +119,24 @@ module cryscal_module
   CHARACTER (LEN=256)                          :: ACE_file_name           ! nom du fichier.ACE
   CHARACTER (LEN=256)                          :: CEL_file_name           ! nom du fichier.CEL
   CHARACTER (LEN=256)                          :: CIF_file_name           ! nom du fichier.CIF
+  CHARACTER (LEN=256)                          :: CIF_pymol_file_name     ! nom du fichier.CIF compatible Pymol
+  
   CHARACTER (LEN=256)                          :: archive_CIF             ! nom de l'archive.CIF
   CHARACTER (LEN=256)                          :: INS_file_name           ! nom du fichier.INS
   CHARACTER (LEN=256)                          :: PCR_file_name           ! nom du fichier.PCR
   CHARACTER (LEN=256)                          :: P4P_file_name           ! nom du fichier.P4P (SAINT)
+  CHARACTER (LEN=256)                          :: HKL_file_name           ! nom du fichier.HKL
   CHARACTER (LEN=256)                          :: RAW_file_name           ! nom du fichier.RAW
   CHARACTER (LEN=256)                          :: M50_file_name           ! nom du fichier.m50 (JANA)
   CHARACTER (LEN=256)                          :: X_file_name             ! nom du fichier.x (DENZO)
   CHARACTER (LEN=256)                          :: RMAT_file_name          ! nom du fichier.rmat (DIRAX)
   CHARACTER (LEN=256)                          :: ABS_file_name           ! nom du fichier.ABS (SADABS)
+  CHARACTER (LEN=256)                          :: RED_file_name           ! nom du fichier.RED (DATARED)
+  CHARACTER (LEN=256)                          :: TIDY_out_file_name      ! nom du fichier TIDY_out
+  CHARACTER (LEN=256)                          :: FACES_file_name
   CHARACTER (LEN=256)                          :: SADABS_line_ratio                ! Ratio of minimum to maximum apparent transmission (SADABS output)
   CHARACTER (LEN=256)                          :: SADABS_line_estimated_Tmin_Tmax  ! Estimated Tmin and Tmax values (SADABS output)
+  CHARACTER (LEN=256)                          :: SADABS_absorption_coeff    
   real                                         :: SADABS_ratio            ! value of the ratio Tmin/Tmax
   real                                         :: SADABS_Tmin
   real                                         :: SADABS_Tmax
@@ -148,17 +167,28 @@ module cryscal_module
   LOGICAL                                      :: keyword_MU              ! calcul du coef. d'absorption
 
   LOGICAL                                      :: keyword_WRITE_CELL      ! ecriture des parametres de maille
+  LOGICAL                                      :: write_cell_cart
   LOGICAL                                      :: keyword_WRITE_CHEM      ! ecriture des caracteristiques de la molecule: formule, weight ...
   LOGICAL                                      :: keyword_WRITE_WAVE      ! ecriture de la longueur d'onde
   LOGICAL                                      :: keyword_WRITE_DEVICE    ! ecriture appareillage
   LOGICAL                                      :: keyword_WRITE_SG        ! ecriture du groupe d'espace
   LOGICAL                                      :: keyword_WRITE_BEAM      ! ecriture faisceau incident
   LOGICAL                                      :: keyword_WRITE_QVEC      ! ecriture vecteur de modulation
+  LOGICAL                                      :: keyword_WRITE_ZUNIT     ! ecriture Zunit
   logical                                      :: keyword_SPGR            ! connaissance du groupe d'espace
+  LOGICAL                                      :: get_SPGR                ! recuperation du automatique du G.E. apres SEARCH_GROUP
   LOGICAL                                      :: keyword_LSPGR           ! liste des groupes d'espace
   LOGICAL                                      :: keyword_LAUE            ! liste des classes de Laue
   CHARACTER (LEN=48), DIMENSION(14)            :: laue_class              !
   LOGICAL                                      :: keyword_ATOM_list       ! liste des atomes
+  LOGICAL                                      :: write_atoms_cartesian  
+  LOGICAL                                      :: write_atoms_in_A
+  TYPE, PUBLIC :: cartesian_type
+   CHARACTER (len=1)                            :: type
+   CHARACTER (len=12)                           :: string  
+  end type cartesian_type
+  type (cartesian_type) :: cartesian_frame
+
   LOGICAL                                      :: keyword_ADP_list        ! liste des ADP des atomes
   CHARACTER (LEN=32), DIMENSION(250)           :: sg                      ! groupes d'espaces
   LOGICAL,            DIMENSION(7)             :: list_sg                 ! symmetry des groupes d'espace
@@ -171,9 +201,9 @@ module cryscal_module
   LOGICAL                                      :: list_sg_polar           ! liste des groupes polaires
   logical                                      :: keyword_SIZE            ! connaissance de la taille de l'echantillon
   LOGICAL                                      :: keyword_MAT             ! connaissance d'une matrice de transformation
-  LOGICAL                                      :: keyword_LST_MAT         ! liste les principales matrices de transformation
+  LOGICAL                                      :: keyword_LST_MAT         ! liste les principales matrices de transformation  
   LOGICAL                                      :: keyword_TRANSL          ! connaissance d'une translation
-  REAL,               DIMENSION(3)             :: translat                ! translation
+  REAL,               DIMENSION(4)             :: translat                ! translation
   LOGICAL                                      :: keyword_MATMUL          ! multiplication de 2 matrices 3*3
   LOGICAL                                      :: keyword_DIAG            ! diagonalisation d'une matrice 3*3
 
@@ -205,6 +235,7 @@ module cryscal_module
   LOGICAL                                      :: keyword_find_HKL_ABSENT    ! recherche des reflections qui devraient etre absentes
   LOGICAL                                      :: keyword_Rint               ! calcul du Rint
   LOGICAL                                      :: keyword_merge_HKL          !
+  LOGICAL                                      :: keyword_get_Friedel_pairs_number ! determination du nombre de paires de Friedel
 
   LOGICAL                                      :: keyword_EDIT
   CHARACTER (LEN=256)                          :: file_to_edit
@@ -235,8 +266,10 @@ module cryscal_module
   REAL,              DIMENSION(3)              :: qvec
   LOGICAL                                      :: keyword_BARY            ! calcul du barycentre
   LOGICAL                                      :: keyword_DIST            ! calcul de distances interatomiques
-  LOGICAL                                      :: keyword_DIST_
-  logical                                      :: keyword_CONN            ! connectivite autour d'un atome
+  LOGICAL                                      :: keyword_DIST_X
+  LOGICAL                                      :: keyword_DIST_plus
+  LOGICAL                                      :: keyword_DHA             ! calcul de la position d'H
+  logical                                      :: keyword_CONN            ! connectivite autour d'un atome  
   LOGICAL                                      :: keyword_ANG             ! calcul d'angles
   LOGICAL                                      :: keyword_TRANSMISSION    ! calcul du coef. de transmission
   LOGICAL                                      :: keyword_GENHKL          ! generation de HKL
@@ -250,18 +283,23 @@ module cryscal_module
   LOGICAL                                      :: keyword_read_CEL        ! lecture fichier.CEL (PowderCELL)
   LOGICAL                                      :: keyword_read_CIF        ! lecture fichier.CIF
   LOGICAL                                      :: keyword_read_INS        ! lecture fichier.INS
+  LOGICAL                                      :: keyword_read_FACES      ! lecture fichier absorb.ins
+  LOGICAL                                      :: read_Q_peaks            ! lecture Q peaks dans fichier.INS/.RES
   LOGICAL                                      :: keyword_read_PCR        ! lecture fichier.PCR
   LOGICAL                                      :: keyword_read_NREPORT    ! lecture fichier nreport.HTML
+  LOGICAL                                      :: keyword_read_TIDY_out   ! lecture fichier de sortie de TIDY
+  LOGICAL                                      :: browse_nreport
   LOGICAL                                      :: keyword_SIR             ! creation d'un fichier pour SIR97
 
   LOGICAL                                      :: keyword_NEWS            ! nouveautes de CRYSCAL
   character (len=4)                            :: news_year               ! annee
   LOGICAL                                      :: keyword_SH_2th          ! decalage de 2theta
-  REAL                                         :: shift_2theta            ! valeur du decalage en 2theta
+  REAL, dimension(3)                           :: shift_2theta            ! valeur du decalage en 2theta (constant, cosTheta, sinTheta)
 
   LOGICAL                                      :: lecture_ok
   LOGICAL                                      :: write_HKL               ! sortie des HKL
   LOGICAL                                      :: create_PAT              ! creation d'un diagramme
+  LOGICAL                                      :: PM2K_out                ! creation d'un fichier reflexions pour PM2K (M. Leoni)
   LOGICAL                                      :: HKL_2THETA
   LOGICAL                                      :: HKL_THETA
   LOGICAL                                      :: HKL_STL
@@ -279,12 +317,15 @@ module cryscal_module
   LOGICAL                                      :: WRITE_SPG_subgroups     ! liste les subgroups
 
   LOGICAL                                      :: WRITE_SYMM_op           ! liste les operateurs de symetrie
+  LOGICAL                                      :: WRITE_SHELX_SYMM_op     ! liste les op. de symetrie au format SHELX (LATT ; SYMM)
   LOGICAL                                      :: WRITE_APPLY_symm        ! applique les oper. de sym. à tous les atomes
   LOGICAL                                      :: WRITE_SITE_info         ! liste informations sur la symetrie du site des atomes
    INTEGER                                     :: nb_atom_site_info       ! nb d'atomes pour lesquels on ecrit les "site infos"
    CHARACTER (LEN=6), DIMENSION(500)           :: site_info_label         ! liste des atomes pour lesquels on ecrit les "site infos"
    LOGICAL                                     :: site_info_all_atoms     ! "site infos" pour tous les "nb_atom" atomes de la liste
-
+  LOGICAL                                      :: WRITE_STAR_K            ! applique les parties rot. des op. sym. sur le vecteur de propagation
+  LOGICAL                                      :: WRITE_PCR_SITE_info     ! liste des atomes equivalents par symetrie (format FullProf)
+  LOGICAL                                      :: WRITE_PCR_mag_SITE_info ! idem pour atome magnetique
   LOGICAL                                      :: WRITE_triclinic_transf  ! matrices de transformation maille triclinique
   LOGICAL                                      :: WRITE_monoclinic_transf ! matrices de transformation systeme monoclinique
   LOGICAL                                      :: WRITE_rhomb_hex_transf  ! matrice  de transformation rhomboedrique ==> hexagonal
@@ -295,7 +336,7 @@ module cryscal_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max = 122       ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_help_max = 134       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -314,17 +355,39 @@ module cryscal_module
   LOGICAL                                      :: keyword_X_WAVE          ! write X-rays Kalpha1, Kalpha2 wavelength
   REAL                                         :: LOCK_wave_value         ! comparaison with targets wavelength values
   LOGICAL                                      :: CIF_format80            ! 
+  REAL                                         :: CIF_torsion_limit       ! 
   LOGICAL                                      :: include_RES_file        !
+  LOGICAL                                      :: include_SQUEEZE
   LOGICAL                                      :: update_parameters       ! update cell parameters, atomic coordinates ... after a matrix transdformation
-
+  LOGICAL                                      :: report_header           ! write header in HTML report
+  LOGICAL                                      :: expert_mode             ! allows specific instructions (ex: fic  = FILE import.cif)
+  LOGICAL                                      :: skip_start_menu         ! skip start menu 
+  LOGICAL                                      :: hkl_statistics          ! output statistics on hkl reflections
+  LOGICAL                                      :: hkl_format_free         ! format libre pour un fichier .hkl
+  LOGICAL                                      :: hkl_format_SHELX        ! format SHELX pour un fichier .hkl  
+  CHARACTER (LEN=32)                           :: hkl_format              ! format de lecture d'un fichier .hkl (si non libre)
+  CHARACTER (LEN=32)                           :: hkl_SHELX_format        ! format SHEXL de lecture d'un fichier .hkl (3I4,2F8.2)
+  LOGICAL                                      :: keep_bond_str_out       ! keep bond_str.out file
+  
+  LOGICAL                                      :: pdp_cu                  ! use of Ka cu radiation for powder diffration pattern simulation
+  
   integer                                      :: nb_atom                 ! nombre d'atomes dans la liste
   integer                                      :: nb_hkl                  ! nombre de reflections
   integer                                      :: nb_hkl_SFAC_calc        ! nombre de reflections pour le calcul de facteur de structure
-  integer                                      :: nb_dist_calc            ! nombre de distances a calculer
-  real                                         :: CONN_dmax_ini           ! valeur initiale de CONN_dmax
-  real                                         :: CONN_dmax               ! dist. max. pour calcul de la connectivité
+  integer                                      :: nb_dist_calc            ! nombre de distances a calculer  
+  real(kind=cp)                                :: CONN_dmax_ini           ! valeur initiale de CONN_dmax
+  real(kind=cp)                                :: CONN_dmax               ! dist. max. pour calcul de la connectivité
+  real(kind=cp)                                :: CONN_dmin               ! dist. min. pour calcul de la connectivité
+  real(kind=cp)                                :: CONN_dmin_ini           ! valeur initiale de dist. min. pour calcul de la connectivité
   logical                                      :: CONN_all                ! calcul de connectivite pour tous les atomes
+  logical                                      :: CONN_all_X              ! calcul de connectivite pour tous les atomes d'une meme espece
+  logical                                      :: CONN_self               ! calcul de la connectivite par un atome identique
+  LOGICAL                                      :: CONN_ang                ! calcul des angles
+  LOGICAL                                      :: CONN_out_condensed      ! short output
+  logical                                      :: calcul_BVS              ! calcul des BVS
   REAL                                         :: dist_coef
+  REAL                                         :: DIST_plus
+  REAL                                         :: DIST_AH
   integer                                      :: nb_ang_calc             ! nombre d'angles a calculer
   integer                                      :: nb_bary_calc            ! nombre de barycentres a calculer
   integer, dimension(100)                      :: nb_atom_bary            ! nombre d'atomes a considerer dans le calcul du barycentre
@@ -338,7 +401,9 @@ module cryscal_module
   LOGICAL,           DIMENSION(100)            :: sort_plot               ! trace du fichier apres SORT
   LOGICAL,           DIMENSION(100)            :: sort_out                !
   INTEGER,           DIMENSION(100)            :: sort_out_n
-
+  LOGICAL                                      :: file_out
+  INTEGER                                      :: file_out_n
+  
   INTEGER                                      :: nb_shell                ! nombre de SHELL
   CHARACTER (LEN=6), DIMENSION(100)            :: shell_type              ! type de SHELL (d, stl, I)
   LOGICAL,           DIMENSION(100)            :: shell_plot              ! trace du fichier apres SHELL
@@ -351,6 +416,8 @@ module cryscal_module
   REAL                                         :: expected_cut_off_min    ! valeur min. attendue de la coupure
   REAL                                         :: expected_cut_off_max    ! valeur max. attendue de la coupure
 
+  CHARACTER (len=256)                          :: sample_job
+  LOGICAL                                      :: get_sample_ID
   REAL                                         :: Create_INS_temperature, Create_INS_U_threshold
 
   real                                         :: max_res, expected_max_res
@@ -375,15 +442,24 @@ module cryscal_module
 
   LOGICAL                                      :: keyword_create_REPORT
   LOGICAL                                      :: long_report
+  LOGICAL                                      :: HTML_report
+  LOGICAL                                      :: text_report
+  LOGICAL                                      :: latex_report
   LOGICAL                                      :: keyword_create_CIF
   LOGICAL                                      :: keyword_create_CRYSCAL_HTML
   LOGICAL                                      :: keyword_create_CRYSCAL_NEWS
   LOGICAL                                      :: browse_cryscal_HTML
-  LOGICAL                                      :: keyword_WRITE_REF_KCCD
+  
   LOGICAL                                      :: keyword_WRITE_REF_APEX
-  LOGICAL                                      :: keyword_WRITE_REF_EVAL
   LOGICAL                                      :: keyword_WRITE_REF_DENZO
+  LOGICAL                                      :: keyword_WRITE_REF_EVAL  
+  LOGICAL                                      :: keyword_WRITE_REF_KCCD
   LOGICAL                                      :: keyword_WRITE_REF_SADABS
+  LOGICAL                                      :: keyword_WRITE_REF_SUPERNOVA
+  LOGICAL                                      :: keyword_WRITE_REF_ABS_CRYSALIS
+  LOGICAL                                      :: keyword_WRITE_REF_X2S
+  LOGICAL                                      :: keyword_WRITE_REF_XCALIBUR
+  
   LOGICAL                                      :: keyword_modif_ARCHIVE
   LOGICAL                                      :: keyword_SOLVE_to_INS
 
@@ -392,11 +468,23 @@ module cryscal_module
   LOGICAL                                      :: keyword_create_INS  !  creation d'un fichier.INS pour SHELXL
   LOGICAL                                      :: keyword_create_CFL  !  creation d'un fichier.CFL pour CRYSCAL
   LOGICAL                                      :: keyword_create_FST  !  creation d'un fichier.FST pour FP Studio
+  LOGICAL                                      :: keyword_create_PRF  !  creation d'un fichier.PRF pour FullProf
+  LOGICAL                                      :: create_FST_POLY     !
+  LOGICAL                                      :: create_FST_MOLE     !
+  LOGICAL                                      :: FST_no_H            !
+  LOGICAL                                      :: launch_FP_Studio    ! 
+  
+  LOGICAL                                      :: keyword_create_TIDY ! creation d'un fichier TIDY.dat pour STIDY  
+  LOGICAL                                      :: create_CIF_PYMOL    ! creation d'un fichier.CIF compatible Pymol
+  LOGICAL                                      :: create_SHAPE_file   ! creation d'un fichier.SHP pour SHAPE
+  LOGICAL                                      :: poly_vol_calc       ! calcul du volume d'un polyedre de coordination
   LOGICAL                                      :: INI_create_ACE
   LOGICAL                                      :: INI_create_CEL
   LOGICAL                                      :: INI_create_CFL
   LOGICAL                                      :: INI_create_FST
+  LOGICAL                                      :: INI_create_CIF_PYMOL
   LOGICAL                                      :: INI_create_INS
+  LOGICAL                                      :: INI_create_PRF
 
   LOGICAL                                      :: keyword_WEB
   CHARACTER (LEN=256)                          :: URL_address
@@ -407,32 +495,38 @@ module cryscal_module
   INTEGER, parameter                           :: HKL_list_out1_unit  = 31
   INTEGER, parameter                           :: HKL_list_out2_unit  = 32
 
-  INTEGER, parameter                           :: HELP_unit           = 38    ! unité logique attribue au fichier cryscal_manual.txt
-  INTEGER, parameter                           :: KEYS_unit           = 39    ! unité logique attribue au fichier cryscal_keys.txt
-  INTEGER, parameter                           :: INI_unit            = 40
-  INTEGER, parameter                           :: CIF_unit            = 41    ! unite logique attribuée au fichier CRYSCAL.CIF
-  INTEGER, parameter                           :: CIF_archive_unit    = 42
-  INTEGER, parameter                           :: IMPORT_CIF_unit     = 43
-  INTEGER, parameter                           :: CFL_unit            = 44    ! unite logique attribuee au fichier CRYSCAL.CFL
-  INTEGER, parameter                           :: INS_unit            = 45    ! unite logique attribuee au fichier CRYSCAL_new.INS
-  INTEGER, parameter                           :: HTML_unit           = 46    ! unite logique attribuee au fichier CRYSCAL.HTML
-  INTEGER, parameter                           :: CEL_unit            = 47    ! unite logique attribuee au fichier .CEL
-  INTEGER, parameter                           :: ACE_unit            = 48    ! unite logique attribuee au fichier .ACE
-  INTEGER, parameter                           :: NEWS_unit           = 49    ! unité logique attribuee au fichier cryscal_news.txt
+  INTEGER, parameter          :: HELP_unit           = 38    ! unité logique attribue au fichier cryscal_manual.txt
+  INTEGER, parameter          :: KEYS_unit           = 39    ! unité logique attribue au fichier cryscal_keys.txt
+  INTEGER, parameter          :: INI_unit            = 40
+  INTEGER, parameter          :: CIF_unit            = 41    ! unite logique attribuée au fichier CRYSCAL.CIF
+  INTEGER, parameter          :: CIF_archive_unit    = 42
+  INTEGER, parameter          :: IMPORT_CIF_unit     = 43
+  INTEGER, parameter          :: CFL_unit            = 44    ! unite logique attribuee au fichier CRYSCAL.CFL
+  INTEGER, parameter          :: INS_unit            = 45    ! unite logique attribuee au fichier CRYSCAL_new.INS
+  INTEGER, parameter          :: HTML_unit           = 46    ! unite logique attribuee au fichier .HTML
+  INTEGER, parameter          :: TEXT_unit           = 47    ! unite logique attribuee au fichier .TXT
+  INTEGER, parameter          :: LATEX_unit          = 48    ! unite logique attribuee au fichier .LTX (LATEX)
+  INTEGER, parameter          :: CEL_unit            = 49    ! unite logique attribuee au fichier .CEL
+  INTEGER, parameter          :: ACE_unit            = 50    ! unite logique attribuee au fichier .ACE
+  INTEGER, parameter          :: NEWS_unit           = 51    ! unité logique attribuee au fichier cryscal_news.tx      
 
-  INTEGER, parameter                           :: CFL_read_unit   = 50
-  INTEGER, parameter                           :: CEL_read_unit   = 51      ! unite logique attribuee au fichier .CEL (en lecture)
-  INTEGER, parameter                           :: CIF_read_unit   = 52      ! unite logique attribuee au fichier .CIF (en lecture)
-  INTEGER, parameter                           :: INS_read_unit   = 53      ! unite logique attribuee au fichier .INS (en lecture)
-  INTEGER, parameter                           :: PCR_read_unit   = 54      ! unite logique attribuee au fichier .PCR (en lecture)
-  INTEGER, parameter                           :: P4P_read_unit   = 55      ! unite logique attribuee au fichier .P4P (en lecture)
-  INTEGER, parameter                           :: M50_read_unit   = 56      ! unite logique attribuee au fichier .m50 de Jana (en lecture)
-  INTEGER, parameter                           :: X_read_unit     = 57      ! unite logique attribuee au fichier.x (DENZO)
-  INTEGER, parameter                           :: RMAT_read_unit  = 58      ! unite logique attribuee au fichier.RMAT (DIRAX)
-  INTEGER, parameter                           :: ABS_read_unit   = 59      ! unite logique attribuee au fichier.ABS (SADABS)
-
-  INTEGER, parameter                           :: PAT_unit        = 60      ! unite logique attribuee au fichier CRYSCAL_pat.xy
-  INTEGER, parameter                           :: PRF_unit        = 61      ! unite logique attribuee au fichier CRYSCAL_pat.PRF
+  INTEGER, parameter          :: CFL_read_unit       = 52
+  INTEGER, parameter          :: CEL_read_unit       = 53      ! unite logique attribuee au fichier .CEL (en lecture)
+  INTEGER, parameter          :: CIF_read_unit       = 54      ! unite logique attribuee au fichier .CIF (en lecture)
+  INTEGER, parameter          :: CIF_pymol_unit      = 55      ! unite logique attribuee au fichier .CIF (en lecture)
+  INTEGER, parameter          :: INS_read_unit       = 56      ! unite logique attribuee au fichier .INS (en lecture)
+  INTEGER, parameter          :: PCR_read_unit       = 57      ! unite logique attribuee au fichier .PCR (en lecture)
+  INTEGER, parameter          :: P4P_read_unit       = 58      ! unite logique attribuee au fichier .P4P (en lecture)
+  INTEGER, parameter          :: M50_read_unit       = 59      ! unite logique attribuee au fichier .m50 de Jana (en lecture)
+  INTEGER, parameter          :: X_read_unit         = 60      ! unite logique attribuee au fichier.x (DENZO)
+  INTEGER, parameter          :: RMAT_read_unit      = 61      ! unite logique attribuee au fichier.RMAT (DIRAX)
+  INTEGER, parameter          :: ABS_read_unit       = 62      ! unite logique attribuee au fichier.ABS (SADABS)
+  INTEGER, parameter          :: RED_read_unit       = 63      ! unite logique attribuee au fichier.RED (DATARED)
+  INTEGER, parameter          :: TIDY_read_unit      = 64      ! unite logique attribuee au fichier TIDY_out 
+  
+  INTEGER, parameter          :: PAT_unit            = 65      ! unite logique attribuee au fichier CRYSCAL_pat.xy
+  INTEGER, parameter          :: PRF_unit            = 66      ! unite logique attribuee au fichier CRYSCAL_pat.PRF
+  INTEGER, parameter          :: PM2K_unit           = 67      ! unite logique attribuee au fichier CRYSCAL_PM2K.inp
 
 
 
@@ -441,6 +535,7 @@ module cryscal_module
   
   LOGICAL                                      :: keyword_P4P               ! lecture fichier.P4P: extraction cell_param, wave, ...
   logical                                      :: keyword_RAW               ! lecture fichier.RAW + creation fichier.HKL format SHELX
+  logical                                      :: keyword_HKL               !
 
   !real                                         :: unit_cell_volume        ! volume de la maille
   !REAL                                         :: unit_cell_volume_esd
@@ -507,6 +602,7 @@ module cryscal_module
   INTEGER         :: HELP_CREATE_FST_numor
   INTEGER         :: HELP_CREATE_INS_numor
   INTEGER         :: HELP_CREATE_REPORT_numor
+  INTEGER         :: HELP_CREATE_TIDY_numor
   INTEGER         :: HELP_D_HKL_numor
   INTEGER         :: HELP_D_STAR_numor
   INTEGER         :: HELP_DATA_ATOMIC_DENSITY_numor
@@ -517,12 +613,14 @@ module cryscal_module
   INTEGER         :: HELP_DIAG_MAT_numor
   INTEGER         :: HELP_DIR_ANG_numor
   INTEGER         :: HELP_DIST_numor
+  INTEGER         :: HELP_DIST_DHA_numor
   INTEGER         :: HELP_EDIT_numor
   INTEGER         :: HELP_EQUIV_numor
   INTEGER         :: HELP_EXIT_numor
   INTEGER         :: HELP_FILE_numor
   INTEGER         :: HELP_FIND_HKL_numor
   INTEGER         :: HELP_FIND_HKL_LIST_numor
+  INTEGER         :: HELP_FRIEDEL_PAIRS_numor
   INTEGER         :: HELP_GEN_HKL_numor
   INTEGER         :: HELP_HEADER_numor
   INTEGER         :: HELP_HKL_numor
@@ -555,15 +653,21 @@ module cryscal_module
   INTEGER         :: HELP_QVEC_numor
   INTEGER         :: HELP_READ_CEL_numor
   INTEGER         :: HELP_READ_CIF_numor
+  INTEGER         :: HELP_READ_FACES_numor
   INTEGER         :: HELP_READ_INS_numor
-  INTEGER         :: HELP_READ_PCR_numor
   INTEGER         :: HELP_READ_NREPORT_numor
+  INTEGER         :: HELP_READ_PCR_numor
+  INTEGER         :: HELP_READ_TIDY_out_numor
   INTEGER         :: HELP_REC_ANG_numor
-  INTEGER         :: HELP_REF_APEX_numor
+  INTEGER         :: HELP_REF_ABS_CRYSALIS_numor
+  INTEGER         :: HELP_REF_APEX_numor  
   INTEGER         :: HELP_REF_DENZO_numor
   INTEGER         :: HELP_REF_EVAL_numor
   INTEGER         :: HELP_REF_KCCD_numor
   INTEGER         :: HELP_REF_SADABS_numor
+  INTEGER         :: HELP_REF_SUPERNOVA_numor
+  INTEGER         :: HELP_REF_X2S_numor
+  INTEGER         :: HELP_REF_XCALIBUR_numor
   INTEGER         :: HELP_RESET_numor
   INTEGER         :: HELP_RINT_numor
   INTEGER         :: HELP_RHOMB_HEX_numor
@@ -584,6 +688,7 @@ module cryscal_module
   INTEGER         :: HELP_SITE_INFO_numor
   INTEGER         :: HELP_SIZE_numor
   INTEGER         :: HELP_SORT_numor
+  INTEGER         :: HELP_STAR_K_numor
   INTEGER         :: HELP_STL_numor
   INTEGER         :: HELP_SYMM_numor
   INTEGER         :: HELP_SYST_numor
@@ -597,6 +702,7 @@ module cryscal_module
   INTEGER         :: HELP_TWIN_HEXA_numor
   INTEGER         :: HELP_TWIN_PSEUDO_HEXA_numor
   INTEGER         :: HELP_TWO_THETA_numor
+  INTEGER         :: HELP_UB_matrix_numor
   INTEGER         :: HELP_UNIT_numor
   INTEGER         :: HELP_USER_MAT_numor
   INTEGER         :: HELP_WAVE_numor
@@ -609,6 +715,7 @@ module cryscal_module
   INTEGER         :: HELP_WRITE_QVEC_numor
   INTEGER         :: HELP_WRITE_SG_numor
   INTEGER         :: HELP_WRITE_WAVE_numor
+  INTEGER         :: HELP_WRITE_ZUNIT_numor
   INTEGER         :: HELP_X_WAVE_numor
   INTEGER         :: HELP_ZUNIT_numor
 
@@ -621,11 +728,14 @@ module cryscal_module
 
   !---------------- type ---------------------------------------------------------------------------------
 
-  TYPE, PUBLIC :: DEBUG_file_type
+  TYPE, PUBLIC :: debug_proc_type
    INTEGER           :: unit
    LOGICAL           :: write
-  end type DEBUG_file_type
-  type (DEBUG_file_type) :: DEBUG_file
+   LOGICAL           :: level_1
+   LOGICAL           :: level_2
+   LOGICAL           :: level_3
+  end type debug_proc_type
+  type (debug_proc_type) :: debug_proc
 
 
   TYPE, PUBLIC :: my_appli_type
@@ -635,6 +745,7 @@ module cryscal_module
   type (my_appli_type) :: my_editor
   type (my_appli_type) :: my_browser
   type (my_appli_type) :: my_word
+  type (my_appli_type) :: my_pdflatex
 
   TYPE, PUBLIC :: unit_cell_type
    real,               dimension(6)      :: param              ! parametres de maille
@@ -663,7 +774,9 @@ module cryscal_module
    REAL                 :: radius
    CHARACTER (LEN=32)   :: morph
    CHARACTER (LEN=32)   :: color
-   CHARACTER (LEN=256), dimension(100) :: face_line
+   CHARACTER (LEN=256), dimension(100)   :: face_line
+   integer,             dimension(3,100) :: face_index
+   real,                dimension(100)   :: face_dim
    INTEGER              :: faces_nb
   END TYPE crystal_type
   TYPE (crystal_type) :: crystal
@@ -706,6 +819,8 @@ module cryscal_module
    CHARACTER (LEN=256)              :: address
    CHARACTER (LEN=256)              :: email
    CHARACTER (LEN=256)              :: web
+   CHARACTER (LEN=256)              :: team
+   CHARACTER (LEN=256)              :: init
   END TYPE AUTHOR_type
   TYPE (AUTHOR_type) :: AUTHOR
 
@@ -721,7 +836,7 @@ module cryscal_module
   type, public  :: PROGRAM_type
    CHARACTER (len=256)               :: name      ! programme utilise
    CHARACTER (len=256)               :: reference ! reference associée
-   CHARACTER (len=80)                :: CIF_ref   ! reference associée pour fichier.CIF (max = 80 car)
+   CHARACTER (len=256)                :: CIF_ref   ! reference associée pour fichier.CIF (max = 80 car)
   END type PROGRAM_type
   type (PROGRAM_type) :: Structure_solution
   type (PROGRAM_type) :: Structure_refinement
@@ -730,86 +845,95 @@ module cryscal_module
 
   ! parametres CIF (utiles pour generer le fichier structural_REPORT.html) -----------------------
 
-  TYPE, PUBLIC  :: CIF_parameter_type
-   CHARACTER (LEN=80)    :: formula_moiety
-   CHARACTER (LEN=80)    :: formula_sum
-   CHARACTER (LEN=80)    :: formula_weight
-   CHARACTER (LEN=80)    :: formula_units_Z
-   CHARACTER (LEN=80)    :: diffracto_device
-   CHARACTER (LEN=80)    :: diffracto_radiation_type
-   CHARACTER (LEN=80)    :: diffracto_radiation_source
-   CHARACTER (LEN=80)    :: diffracto_radiation_wavelength
-   CHARACTER (LEN=80)    :: diffracto_temperature
+  TYPE, PUBLIC  :: CIF_parameter_type 
+   CHARACTER (LEN=256)    :: sample_ID  
+   CHARACTER (LEN=256)    :: formula_moiety
+   CHARACTER (LEN=256)    :: formula_sum
+   CHARACTER (LEN=256)    :: formula_weight
+   CHARACTER (LEN=256)    :: formula_units_Z
+   CHARACTER (LEN=256)    :: diffracto_device
+   CHARACTER (LEN=256)    :: diffracto_radiation_type
+   CHARACTER (LEN=256)    :: diffracto_radiation_source
+   CHARACTER (LEN=256)    :: diffracto_radiation_wavelength
+   CHARACTER (LEN=256)    :: diffracto_temperature
 
-   CHARACTER (LEN=80)    :: diffrn_source
-   CHARACTER (LEN=80)    :: diffrn_radiation_wavelength
-   CHARACTER (LEN=80)    :: diffrn_radiation_type
-   CHARACTER (LEN=80)    :: diffrn_radiation_source
-   CHARACTER (LEN=80)    :: diffrn_radiation_monochromator
-   CHARACTER (LEN=80)    :: diffrn_radiation_probe
-   CHARACTER (LEN=80)    :: diffrn_measurement_device
-   CHARACTER (LEN=80)    :: diffrn_measurement_device_type
-   CHARACTER (LEN=80)    :: diffrn_measurement_method
-   CHARACTER (LEN=80)    :: diffrn_detector
-   CHARACTER (LEN=80)    :: diffrn_detector_area_resol_mean
+   CHARACTER (LEN=256)    :: diffrn_source
+   CHARACTER (LEN=256)    :: diffrn_radiation_wavelength
+   CHARACTER (LEN=256)    :: diffrn_radiation_type
+   CHARACTER (LEN=256)    :: diffrn_radiation_source
+   CHARACTER (LEN=256)    :: diffrn_radiation_monochromator
+   CHARACTER (LEN=256)    :: diffrn_radiation_probe
+   CHARACTER (LEN=256)    :: diffrn_measurement_device
+   CHARACTER (LEN=256)    :: diffrn_measurement_device_type
+   CHARACTER (LEN=256)    :: diffrn_measurement_method
+   CHARACTER (LEN=256)    :: diffrn_detector
+   CHARACTER (LEN=256)    :: diffrn_detector_area_resol_mean
 
-   CHARACTER (LEN=80)    :: computing_data_collection
-   CHARACTER (LEN=80)    :: computing_cell_refinement
-   CHARACTER (LEN=80)    :: computing_data_reduction
-   CHARACTER (LEN=80)   :: computing_structure_solution
-   CHARACTER (LEN=80)   :: computing_structure_refinement
-   CHARACTER (LEN=80)    :: computing_molecular_graphics
+   CHARACTER (LEN=256)    :: computing_data_collection
+   CHARACTER (LEN=256)    :: computing_cell_refinement
+   CHARACTER (LEN=256)    :: computing_data_reduction
+   CHARACTER (LEN=256)    :: computing_structure_solution
+   CHARACTER (LEN=256)    :: computing_structure_refinement
+   CHARACTER (LEN=256)    :: computing_molecular_graphics
    !CHARACTER (LEN=80)    :: computing_publication_material
-   CHARACTER (LEN=80)    :: computing_publication_material_1
-   CHARACTER (LEN=80)    :: computing_publication_material_2
+   CHARACTER (LEN=256)    :: computing_publication_material_1
+   CHARACTER (LEN=256)    :: computing_publication_material_2
 
-   CHARACTER (LEN=80)    :: symmetry_cell_setting
-   CHARACTER (LEN=80)    :: symmetry_space_group
-   CHARACTER (LEN=80)    :: symmetry_IT_number
-   CHARACTER (LEN=80)    :: cell_length_a
-   CHARACTER (LEN=80)    :: cell_length_b
-   CHARACTER (LEN=80)    :: cell_length_c
-   CHARACTER (LEN=80)    :: cell_angle_alpha
-   CHARACTER (LEN=80)    :: cell_angle_beta
-   CHARACTER (LEN=80)    :: cell_angle_gamma
-   CHARACTER (LEN=80)    :: cell_volume
-   CHARACTER (LEN=80)    :: exptl_density
-   CHARACTER (LEN=80)    :: exptl_mu
-   CHARACTER (LEN=80)    :: diffrn_reflns_number
-   CHARACTER (LEN=80)    :: diffrn_reflns_av_R_equivalents
-   CHARACTER (LEN=80)    :: reflns_number_total
-   CHARACTER (LEN=80)    :: reflns_number_gt
-   CHARACTER (LEN=80)    :: refine_ls_number_parameters
-   CHARACTER (LEN=80)    :: refine_ls_wR_factor_gt
-   CHARACTER (LEN=80)    :: refine_ls_R_factor_gt
-   CHARACTER (LEN=80)    :: refine_ls_R_factor_all
-   CHARACTER (LEN=80)    :: refine_ls_wR_factor_ref
-   CHARACTER (LEN=80)    :: refine_diff_density_max
-   CHARACTER (LEN=80)    :: refine_diff_density_min
-   CHARACTER (LEN=80)    :: H_treatment
-   CHARACTER (LEN=80)    :: atom
-   CHARACTER (LEN=80)    :: distance
-   CHARACTER (LEN=80)    :: angle
-   CHARACTER (LEN=80)    :: torsion_angle
-   CHARACTER (LEN=80)    :: Hbond
-   CHARACTER (LEN=80)    :: theta_min
-   CHARACTER (LEN=80)    :: theta_max
-   CHARACTER (LEN=80)    :: F000
-   CHARACTER (LEN=80)    :: crystal_size_min, crystal_size_mid, crystal_size_max
-   CHARACTER (LEN=80)    :: crystal_colour
-   CHARACTER (LEN=80)    :: h_min, h_max, k_min, k_max, l_min, l_max
-   CHARACTER (LEN=80)    :: completeness
-   CHARACTER (LEN=80)    :: absorption_correction_type
-   CHARACTER (LEN=80)    :: T_min, T_max
-   CHARACTER (LEN=80)    :: restraints_number
-   CHARACTER (LEN=80)    :: Chi2
-   CHARACTER (len=80)    :: crystal_system
-   CHARACTER (LEN=80)    :: Bravais
+   CHARACTER (LEN=256)    :: symmetry_cell_setting
+   CHARACTER (LEN=256)    :: symmetry_space_group
+   CHARACTER (LEN=256)    :: symmetry_IT_number
+   CHARACTER (LEN=256)    :: cell_length_a
+   CHARACTER (LEN=256)    :: cell_length_b
+   CHARACTER (LEN=256)    :: cell_length_c
+   CHARACTER (LEN=256)    :: cell_angle_alpha
+   CHARACTER (LEN=256)    :: cell_angle_beta
+   CHARACTER (LEN=256)    :: cell_angle_gamma
+   CHARACTER (LEN=256)    :: cell_volume
+   CHARACTER (LEN=256)    :: exptl_density
+   CHARACTER (LEN=256)    :: exptl_mu
+   CHARACTER (LEN=256)    :: diffrn_reflns_number
+   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_equivalents
+   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_sigma
+   CHARACTER (LEN=256)    :: reflns_number_total
+   CHARACTER (LEN=256)    :: reflns_number_gt
+   CHARACTER (LEN=256)    :: refine_ls_number_parameters
+   CHARACTER (LEN=256)    :: refine_ls_wR_factor_gt
+   CHARACTER (LEN=256)    :: refine_ls_R_factor_gt
+   CHARACTER (LEN=256)    :: refine_ls_R_factor_all
+   CHARACTER (LEN=256)    :: refine_ls_wR_factor_ref
+   CHARACTER (LEN=256)    :: refine_diff_density_max
+   CHARACTER (LEN=256)    :: refine_diff_density_min
+   CHARACTER (LEN=256)    :: refine_diff_density_rms
+   CHARACTER (LEN=256)    :: H_treatment
+   CHARACTER (LEN=256)    :: atom
+   CHARACTER (LEN=256)    :: distance
+   CHARACTER (LEN=256)    :: angle
+   CHARACTER (LEN=256)    :: torsion_angle
+   CHARACTER (LEN=256)    :: Hbond
+   CHARACTER (LEN=256)    :: theta_min
+   CHARACTER (LEN=256)    :: theta_max
+   CHARACTER (LEN=256)    :: cell_theta_min
+   CHARACTER (LEN=256)    :: cell_theta_max
+   CHARACTER (LEN=256)    :: cell_reflns_used
+   CHARACTER (LEN=256)    :: F000
+   CHARACTER (LEN=256)    :: crystal_size_min, crystal_size_mid, crystal_size_max
+   CHARACTER (LEN=256)    :: crystal_colour
+   CHARACTER (LEN=256)    :: h_min, h_max, k_min, k_max, l_min, l_max
+   CHARACTER (LEN=256)    :: completeness
+   CHARACTER (LEN=256)    :: absorption_correction_type
+   CHARACTER (LEN=256)    :: T_min, T_max
+   CHARACTER (LEN=256)    :: restraints_number
+   CHARACTER (LEN=256)    :: Chi2
+   CHARACTER (len=256)    :: crystal_system
+   CHARACTER (LEN=256)    :: Bravais
   END TYPE CIF_parameter_type
   TYPE (CIF_parameter_type) :: CIF_parameter
-  TYPE (CIF_parameter_type) :: CIF_parameter_KCCD
   TYPE (CIF_parameter_type) :: CIF_parameter_APEX
+  TYPE (CIF_parameter_type) :: CIF_parameter_KCCD  
+  TYPE (CIF_parameter_type) :: CIF_parameter_SUPERNOVA
+  TYPE (CIF_parameter_type) :: CIF_parameter_X2S
   TYPE (CIF_parameter_type) :: CIF_parameter_XCALIBUR
+  
 
 
 
@@ -822,15 +946,18 @@ module cryscal_module
   TYPE (Diffracto_sw_type) :: EVAL
   TYPE (Diffracto_sw_type) :: DENZO
   TYPE (Diffracto_sw_type) :: APEX
-  TYPE (Diffracto_sw_type) :: CRYSALIS
+  TYPE (Diffracto_sw_type) :: X2S
+  TYPE (Diffracto_sw_type) :: SUPERNOVA
+  TYPE (Diffracto_sw_type) :: XCALIBUR
 
 !---------------------------------------------------------------------------------
 
  TYPE, public :: Absorption_correction_features
   CHARACTER (len=80)                :: type
-  CHARACTER (len=80), dimension(4)  :: details
+  CHARACTER (len=80), dimension(6)  :: details
  END TYPE Absorption_correction_features
  TYPE (Absorption_correction_features) :: SADABS
+ TYPE (Absorption_correction_features) :: ABS_CRYSALIS
 
 
 !----------------------------------------------------------------------------------
@@ -1038,6 +1165,8 @@ module hkl_module
   LOGICAL                                      :: RAW            ! fichier .RAW cree par SAINT
   LOGICAL                                      :: M91            ! fichier .M91 cree par JANA
   LOGICAL                                      :: M95            ! fichier .M95 cree par JANA
+  LOGICAL                                      :: INT            ! fichier .INT cree par DATARED
+  LOGICAL                                      :: COL            ! fichier .COL cree par COLL5 (ILL, format 4)
   LOGICAL                                      :: plot           ! trace de F2=f(sinTheta/lambda)
   LOGICAL                                      :: read_NEG       ! lecture intensites negatives
  end type HKL_file_features
@@ -1191,6 +1320,42 @@ module hkl_module
  
 END module hkl_module
 
+
+!--------------------------------------------------------------------
+
+module pattern_profile_module
+ implicit none
+ 
+  real              :: HG, HL, H
+  real              :: FWHM, eta
+  real              :: particle_size 
+  logical           :: size_broadening
+
+  type, public :: profile_param
+   real                     :: U
+   real                     :: V
+   real                     :: W
+   real                     :: X
+   real                     :: Y
+   real                     :: Z
+   real                     :: eta0
+   real                     :: eta1
+  end type profile_param 
+  type (profile_param) :: PV, X_PV, N_PV
+  type (profile_param) :: TCH, X_TCH, N_TCH
+  
+  type, public :: pattern_param
+   real                   :: step
+   real                   :: wdt
+   real                   :: background
+   real                   :: scale    
+  end type pattern_param
+  type (pattern_param) :: pattern
+  type (pattern_param) :: X_pattern
+  type (pattern_param) :: N_pattern
+  
+
+end module pattern_profile_module
 
 
 

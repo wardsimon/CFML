@@ -1,12 +1,15 @@
 !     Last change:  TR    5 Sep 2007    6:21 pm
 subroutine read_input_file_KEYWORDS()
- USE cryscal_module, ONLY : input_unit, keyword_BEAM, keyword_SFAC_UNIT, keyword_CONT, keyword_CHEM, keyword_ZUNIT
+ USE cryscal_module, ONLY : input_unit, keyword_BEAM, keyword_SFAC_UNIT, keyword_CONT, keyword_CHEM, keyword_ZUNIT, &
+                            debug_proc
  USE macros_module,  ONLY : u_case
  USE IO_module,      ONLY : write_info
  implicit none
   CHARACTER (LEN=256)                      :: read_line
-  INTEGER                                  :: i_error
+  INTEGER                                  :: i, i_error
 
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_input_file_KEYWORDS")
 
   REWIND(UNIT=input_unit)
 
@@ -19,8 +22,7 @@ subroutine read_input_file_KEYWORDS()
   IF (LEN_TRIM(read_line) == 0)                           CYCLE  ! ligne vide
   IF (read_line(1:1) == '! ' .or. read_line(1:1) == '#' ) CYCLE  ! commentaire
   !IF (read_line(1:1) == '_')                              CYCLE  ! cas d'un fichier.CIF
-
-  
+    
   call identification_keywords(read_line)
  ! call run_keyword_interactive(current_keyword)
 
@@ -48,6 +50,7 @@ end subroutine read_input_file_KEYWORDS
 !----------------------------------------------------------------------
 subroutine identification_keywords(read_line)
  USE cryscal_module
+ USE Pattern_profile_module,    ONLY : size_broadening, particle_size
  USE hkl_module,                ONLY : n_sig, threshold, ratio_criteria, requested_H, requested_H_string, search_H_string,    &
                                        HKL_list, HKL_list_NEG, HKL_list_POS,   HKL_file,                           &
                                        HKL_data_known, HKL_list_ABSENT, search_equiv, search_friedel, HKL_rule_nb
@@ -68,12 +71,20 @@ subroutine identification_keywords(read_line)
   CHARACTER (LEN=12), DIMENSION(nb_help_max) :: temp_string
   INTEGER                                    :: i, j, i1, i2, num, i_error, nb_arg
   INTEGER                                    :: current_i, i_ok
+  INTEGER                                    :: i_CONN_dmin, i_CONN_dmax
   REAL,               DIMENSION(10)          :: var
   CHARACTER (LEN=64), DIMENSION(20)          :: arg_string
   CHARACTER (LEN=64)                         :: arg
-  LOGICAL                                    :: file_exist
+  LOGICAL                                    :: file_exist, string_ok
+  LOGICAL                                    :: UB_mat_1i2i3i
+  LOGICAL                                    :: bary_ALL
 
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "identification_keywords ("//trim(read_line)//")")
+  
   arg_string = ''
+  var        = 0.
+  bary_ALL   = .false.
 
   READ(read_line, *) input_keyword
   input_keyword = ADJUSTL(input_keyword)
@@ -95,26 +106,94 @@ subroutine identification_keywords(read_line)
    arg_line = ADJUSTL(arg_line)
   endif
 
+  
   call nombre_de_colonnes(arg_line, nb_arg)
   IF(nb_arg/=0)  then
-   READ(arg_line, *, IOSTAT=i_error) arg_string(1:nb_arg)
-
-   IF(i_error /=0) then
-    call write_info('')
-    WRITE(message_text, '(2a)') '  input line: ', TRIM(read_line)
-    call write_info(TRIM(message_text))
-    WRITE(message_text, '(3a)') '  ... Error reading ', TRIM(input_keyword), ' arguments ...'
-    call write_info(TRIM(message_text))
-    return
-   endif
+   !READ(arg_line, *, IOSTAT=i_error) arg_string(1:nb_arg)    !!  << pb si presence d'une , dans l'argument (ex: FMT=(3i4,2f8.2)
+   !IF(i_error /=0) then
+   ! call write_info('')
+   ! WRITE(message_text, '(2a)') '  input line: ', TRIM(read_line)
+   ! call write_info(TRIM(message_text))
+   ! WRITE(message_text, '(3a)') '  ... Error reading ', TRIM(input_keyword), ' arguments ...'
+   ! call write_info(TRIM(message_text))
+   ! return
+   !endif
+  
+   call get_arg_string(arg_line, nb_arg, arg_string)          !!  << new routine de lecture des arguments (fev. 2013)
    do i=1, nb_arg
-    arg_string(i) = u_case(arg_string(i))
+    arg_string(i) = u_case(arg_string(i))	
    end do
   endif
-
+  
 
   select case (TRIM(input_keyword))
 
+   case ('EXPERT_MODE', 'EXPERT', 'EXPERT_ON')
+    expert_mode = .true.
+	
+   case	('USER_MODE', 'USER', 'EXPERT_OFF')
+    if(expert_mode) expert_mode = .false.    
+	
+   case ("DEBUG", "DEBUG_ON", "DEBUG ON")
+    if(expert_mode) then
+	 if(.not. debug_proc%write) call open_debug_file
+     debug_proc%write   = .true.
+     debug_proc%level_1 = .true.
+     debug_proc%level_3 = .false.	 
+	end if
+	
+   case ("&DEBUG", "&DEBUG_ON", "&DEBUG ON")    
+	 if(.not. debug_proc%write) call open_debug_file 
+     debug_proc%write   = .true.
+     debug_proc%level_1 = .true.	
+	 debug_proc%level_3 = .false.
+
+   case ("DEBUG_2", "DEBUG_2_ON", "DEBUG_2 ON", "DEBUG 2 ON")
+    if(expert_mode) then
+	 if(.not. debug_proc%write) call open_debug_file	 
+     debug_proc%write   = .true.
+     debug_proc%level_2 = .true. 
+     debug_proc%level_3 = .false.  	 
+    end if
+
+   case ("&DEBUG_2", "&DEBUG_2_ON", "&DEBUG_2 ON", "&DEBUG 2 ON")    
+	 if(.not. debug_proc%write) call open_debug_file 
+     debug_proc%write   = .true.
+     debug_proc%level_2 = .true.    
+	 debug_proc%level_3 = .false.
+
+   case ("DEBUG_3", "DEBUG_3_ON", "DEBUG_3 ON", "DEBUG 3 ON")
+    if(expert_mode) then
+     if(.not. debug_proc%write) call open_debug_file
+     debug_proc%write   = .true.
+     debug_proc%level_2 = .true.    
+	 debug_proc%level_3 = .true.
+	end if 
+  
+   case ("&DEBUG_3", "&DEBUG_3_ON", "&DEBUG_3 ON", "&DEBUG 3 ON")    
+	 if(.not. debug_proc%write) call open_debug_file
+     debug_proc%write   = .true.
+     debug_proc%level_2 = .true.    
+	 debug_proc%level_3 = .true.
+    
+	
+   case ("DEBUG_OFF", "DEBUG OFF")
+    if(expert_mode) then
+     debug_proc%write   = .false.
+     debug_proc%level_1 = .false.	
+     debug_proc%level_2 = .false.
+	 debug_proc%level_3 = .false.
+	 close(unit = debug_proc%unit)
+	end if
+	
+   case ("&DEBUG_OFF", "&DEBUG OFF")    
+     debug_proc%write   = .false.
+     debug_proc%level_1 = .false.	
+     debug_proc%level_2 = .false.
+	 debug_proc%level_3 = .false.
+	 close(unit = debug_proc%unit)	
+
+	
    case ('ACTA', 'CIF', 'CREATE_CIF')
     keyword_create_CIF = .true.
     !OPEN(UNIT=CIF_unit, FILE='cryscal.cif')
@@ -125,6 +204,9 @@ subroutine identification_keywords(read_line)
     !WRITE(CIF_unit, '(a)') 'data_cryscal'
     !WRITE(CIF_unit, '(a)') ''
     
+   case ('ACTA_OFF', 'CIF_OFF')
+    keyword_create_CIF = .false.
+	
    case ('CREATE_ACE')
     keyword_create_ACE = .true.  
 
@@ -136,13 +218,52 @@ subroutine identification_keywords(read_line)
 
    case ('CREATE_FST')
     keyword_create_FST = .true.
+	create_FST_poly    = .false.
+	create_FST_mole    = .false.
+	FST_no_H           = .false.
+	launch_FP_STUDIO   = .false.
+	if(nb_arg /=0) then	 
+	 do i=1, nb_arg
+	  if(len_trim(arg_string(i))== 4 .and. arg_string(i)(1:4) == "POLY") create_FST_POLY  = .true.
+	  if(len_trim(arg_string(i))== 4 .and. arg_string(i)(1:4) == "MOLE") create_FST_MOLE  = .true.
+	  if(len_trim(arg_string(i))== 4 .and. arg_string(i)(1:4) == "NO_H") FST_no_H         = .true.
+	  if(len_trim(arg_string(i))== 3 .and. arg_string(i)(1:3) == "RUN")  launch_FP_STUDIO = .true.	   
+	 end do		
+	end if
+		
+   !case ('CREATE_CIF_PYMOL')
+   ! create_CIF_PYMOL = .true.
         
    case ('CREATE_INS')
-    keyword_create_INS = .true.  
+    keyword_create_INS = .true.  	
+	
+   case ('CREATE_TIDY', 'CREATE_TIDY_FILE', 'CREATE_TIDY_INPUT_FILE')
+    keyword_create_TIDY = .true.   
 
-   CASE ('LST_ATOMS', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS')
+   CASE ('LST_ATOMS', 'ATOM_LST', 'ATOM_LIST', 'LIST_ATOM_LIST', 'LIST_ATOMS', 'WRITE_ATOMS', 'WRITE_ATMS')
     keyword_atom_list = .true.
 	keyword_ADP_list  = .false.
+	write_atoms_cartesian = .false.
+	if(nb_arg /=0) then
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:4) == 'CART') then
+	   write_atoms_cartesian = .true.
+	   if(len_trim(arg_string(i)) > 5 .and. arg_string(i)(5:5) == '_') then
+	    if (arg_string(i)(6:6) == "A") then
+		 cartesian_frame%type   = "A"
+		 cartesian_frame%string = "x // a"
+		elseif (arg_string(i)(6:6) == "C") then 
+		 cartesian_frame%type = "C"
+		 cartesian_frame%string = "x // c"
+		end if 
+	   end if	
+	  !elseif(arg_string(i)(1:3) == 'SHP' .or. arg_string(i)(1:5) == 'SHAPE') then
+	  ! create_SHAPE_file = .true.
+	   elseif(arg_string(i)(1:4) == 'IN_A') then
+	    write_atoms_in_A = .true.
+	  end if
+	 end do
+	end if
 
    CASE ('WRITE_ADP')
     keyword_ADP_list  = .true.
@@ -154,7 +275,7 @@ subroutine identification_keywords(read_line)
      return
     endif
     file_to_edit = arg_string(1)
-    call test_file_exist(file_to_edit, file_exist)
+    call test_file_exist(file_to_edit, file_exist, 'out')
     IF(.not. file_exist) then
      file_to_edit = ''
      return
@@ -172,6 +293,9 @@ subroutine identification_keywords(read_line)
     HKL_file%RAW      = .false.
     HKL_file%M91      = .false.
     HKL_file%M95      = .false.
+	HKL_file%INT      = .false.
+	HKL_file%COL      = .false.
+	file_out          = .false.
     nb_shell = 0
     nb_sort  = 0
 
@@ -196,24 +320,281 @@ subroutine identification_keywords(read_line)
      IF(HKL_file%NAME(long-2:long) == 'RAW')     HKL_file%RAW     = .true.
      IF(HKL_file%NAME(long-2:long) == 'M91')     HKL_file%M91     = .true.
      IF(HKL_file%NAME(long-2:long) == 'M95')     HKL_file%M95     = .true.
-     IF(HKL_file%NAME(1:long)      == 'FINAL.Y') HKL_file%final_y = .true.
+     ! IF(HKL_file%NAME(1:long)      == 'FINAL.Y') HKL_file%final_y = .true.  ! feb. 2013 : final_y ne contient pas les F2 !!
+	 IF(HKL_file%NAME(long-2:long) == 'INT')     HKL_file%INT     = .true.
+	 IF(HKL_file%NAME(long-2:long) == 'COL')     HKL_file%COL     = .true.
     endif
-    call test_file_exist(trim(HKL_file%NAME), file_exist)
+    call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
     IF(.NOT. file_exist) then
      HKL_file%name = ''
      return
     endif
     keyword_FILE = .true.
 
-
+	!if(HKL_file%SHELX) hkl_format = hkl_SHELX_format
+	
     do i=2, nb_arg
      IF(arg_string(i)(1:4) == 'PLOT')     then
       HKL_file%plot     = .true.
      elseIF(arg_string(i)(1:3) == 'NEG')  then
       HKL_file%read_NEG = .false.
-     endif
+	 elseif(arg_string(i)(1:4) == 'OUT_') then
+	  file_out = .true. 
+      read(arg_string(i)(5:),*) file_out_n
+     elseif(arg_string(i)(1:4) == 'STAT') then
+	  hkl_statistics = .true.
+	 elseif(arg_string(i)(1:7) == 'NO_STAT') then
+	  hkl_statistics = .false.
+	 elseif(arg_string(i)(1:4) == 'FREE') then
+      hkl_format_free = .true.	 
+	 elseif(arg_string(i)(1:5) == 'SHELX') then
+      hkl_format_SHELX = .true.	
+	  hkl_format = hkl_SHELX_format
+     elseif(arg_string(i)(1:4) == 'FMT=') then
+	  i1 = index(read_line, 'FMT=')
+	  if(i1/=0) then
+       !read(read_line(i1+4:), '(a)') hkl_format	 
+	   read(arg_string(i)(5:), '(a)') hkl_format	 
+       call verif_format(hkl_format)	
+	   if(hkl_format(1:4) == 'FREE') then
+	    hkl_format_free = .true.
+	   else	
+        hkl_format = verif_hkl_format(hkl_format)   	   
+	   endif	
+	  endif 
+	 endif	 
     end do
+	
 
+! mode expert	----------------
+   case('FIC')   ! 'FILE import.cif
+    if(expert_mode) then
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import.cif'
+     HKL_file%CIF  = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	end if 
+	
+   case('&FIC')   ! 'FILE import.cif   
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import.cif'
+     HKL_file%CIF  = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	
+	
+	case('FST')   ! FILE import_shell_theta.hkl
+    if(expert_mode) then
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_shell_theta.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	end if 
+
+	case('&FST')   ! FILE import_shell_theta.hkl    
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_shell_theta.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	 
+	case('FSD')   ! FILE import_shell_d.hkl
+    if(expert_mode) then
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_shell_d.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	end if 
+
+	case('&FSD')   ! FILE import_shell_d.hkl    
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_shell_d.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	 
+	case('FIT')   ! FILE import_trans.hkl
+    if(expert_mode) then
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_trans.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+	else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	end if 
+
+	case('&FIT')   ! FILE import_trans.hkl    
+     HKL_file%NAME    = ''
+     HKL_file%plot     = .false.
+     HKL_file%read_NEG = .true.
+     HKL_data_known    = .false.
+     HKL_file%cif      = .false.
+     HKL_file%SHELX    = .false.
+     HKL_file%final_y  = .false.
+     HKL_file%RAW      = .false.
+     HKL_file%M91      = .false.
+     HKL_file%M95      = .false.
+	 HKL_file%INT      = .false.
+	 HKl_file%COL      = .false.
+	 file_out          = .false.
+     nb_shell = 0
+     nb_sort  = 0
+     HKL_file%NAME = 'import_trans.hkl'
+     HKL_file%SHELX = .true.	
+     call test_file_exist(trim(HKL_file%NAME), file_exist, 'out')
+     IF(.NOT. file_exist) then
+      HKL_file%name = ''
+      return
+     endif
+     keyword_FILE = .true.
+
+
+!-----------------------------------
+	
    case ('P4P', 'READ_P4P')
     keyword_P4P = .true.
     if(nb_arg/=0) then
@@ -226,7 +607,7 @@ subroutine identification_keywords(read_line)
     else
      P4P_file_name = ""
     endif
-    keyword_read_INS = .true.
+    keyword_P4P = .true.
 
    case ('SEARCH_EXTI', 'FIND_EXTI')
     !n_sig = 0.
@@ -241,11 +622,17 @@ subroutine identification_keywords(read_line)
     endif
     keyword_search_exti = .true.
     
-    case ("SEARCH_SPGR", "SEARCH_SPACE_GROUP", "SEARCH_GROUP",   &
+    case ("SEARCH_SPGR", "SEARCH_SPACE_GROUP", "SEARCH_GROUP",    &
           "CHECK_SPGR",  "CHECK_SPACE_GROUP",  "CHECK_GROUP")
      
      if (nb_arg /=0) then
-     
+      do i=1, nb_arg
+	   if(len_trim(arg_string(i)) > 2 .and. arg_string(i)(1:3) == 'GET') then
+	    get_SPGR = .true.
+		exit
+	   end if	
+	  end do
+	 
       current_i = 0
       do i=1, nb_arg
        IF(arg_string(i)(1:4) == 'TRIC') then
@@ -323,7 +710,21 @@ subroutine identification_keywords(read_line)
      end if  ! fin de la condition if(n_arg /=0
      keyword_search_spgr = .true.
    
-
+   case ('SG', 'S_G', 'GSG', 'SSG')    ! S_G = SEARCH_GROUP GET
+    if (expert_mode) then
+	 get_SPGR             = .true.
+	 keyword_search_spgr  = .true.
+    else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	end if
+   
+   case ('&S_G', '&GSG', '&SSG')   ! S_G = SEARCH_GROUP GET    
+	get_SPGR             = .true.
+	keyword_search_spgr  = .true.
+   
+   
    case ('FIND_HKL', 'SEARCH_HKL')
     IF(nb_arg < 3) then
      call check_arg('3', 'FIND_HKL')
@@ -388,7 +789,10 @@ subroutine identification_keywords(read_line)
       elseIF(arg_string(i)(1:5) == 'WRITE')   then
        HKL_list_ABSENT%WRITE = .true.
       else
-       READ(arg_string(i),*) n_sig
+	   read(arg_string(i),*, iostat=i_error) var(1)
+	   if(i_error /=0) cycle
+	   if(i_error == 0) n_sig = var(1)
+	   !READ(arg_string(i),*) n_sig
        HKL_list_ABSENT%ALL = .false.
       endif
      end do
@@ -421,6 +825,11 @@ subroutine identification_keywords(read_line)
        HKL_list_NEG%WRITE = .true.
       !else
       ! READ(arg_string(i),*) n_sig
+	  else
+	   read(arg_string(i), *, iostat=i_error) var(i)
+	   if(i_error /= 0) cycle
+	   if(i_error == 0) n_sig = var(i)
+	   HKL_list_NEG%ALL   = .false.
       endif
      end do
     endif
@@ -451,7 +860,11 @@ subroutine identification_keywords(read_line)
       elseIF(arg_string(i)(1:5) == 'WRITE')   then
        HKL_list_POS%WRITE = .true.
       else
-       READ(arg_string(i),*) n_sig
+       !READ(arg_string(i),*) n_sig
+	   read(arg_string(i), *, iostat=i_error) var(i)
+	   if(i_error /=0) cycle
+	   if(i_error == 0) n_sig = var(i)
+	   HKL_list_POS%ALL   = .true.
       endif
      end do
     END if
@@ -505,7 +918,11 @@ subroutine identification_keywords(read_line)
      endif
     end if
 
-
+	case ('FRIEDEL', 'FRIEDEL_PAIRS')
+	 keyword_get_Friedel_pairs_number = .true.
+     if (nb_arg /=0) then
+      call get_SPG(trim(arg_string(1)))
+     end if
 
    !case ('LIST_HKL', 'LST_HKL', 'LIST_HKL_EXTI', 'LST_HKL_EXTI')
    !CASE ("WRITE_HKL", "WRITE_HKL_LIST", "WRITE_HKL_LST")
@@ -695,9 +1112,15 @@ subroutine identification_keywords(read_line)
      if(i1 /=0) then ! elements fractionnaires
       call Get_matrix_coord(arg_line)
      else
-      READ(arg_string(1:3), *) Mat(1,1:3)
-      READ(arg_string(4:6), *) Mat(2,1:3)
-      READ(arg_string(7:9), *) Mat(3,1:3)
+      READ(arg_string(1), *) Mat(1,1)
+	  READ(arg_string(2), *) Mat(1,2)
+	  READ(arg_string(3), *) Mat(1,3)
+      READ(arg_string(4), *) Mat(2,1)
+      READ(arg_string(5), *) Mat(2,2)
+      READ(arg_string(6), *) Mat(2,3)
+      READ(arg_string(7), *) Mat(3,1)
+	  READ(arg_string(8), *) Mat(3,2)
+	  READ(arg_string(9), *) Mat(3,3)      
      endif 
     endif
     keyword_MAT = .true.
@@ -763,6 +1186,52 @@ subroutine identification_keywords(read_line)
     call write_info(TRIM(message_text))
     call write_info('')
 	
+   CASE ('UB_MAT', 'UB_MATRIX')    
+    ! UB matrix
+    keyword_UB_MAT = .false.    
+    if(nb_arg <9) then
+     call check_arg('9', 'UB_MATRIX')
+     return
+    endif
+	
+	if(nb_arg == 9) then
+	 UB_mat_1i2i3i = .true.
+	elseif(nb_arg == 10) then
+	 if(arg_string(10) == '112131122232132333') then
+	  UB_mat_1i2i3i = .true.
+	 elseif(arg_string(10) == '111213212223313233' .or. arg_string(10)=='P4P') then
+	  UB_mat_1i2i3i = .false.
+	 else
+	  return
+	 endif
+    else
+     return	
+	endif 
+	
+	if(UB_mat_1i2i3i) then
+     READ(arg_string(1), *) UB_matrix(1,1)
+	 READ(arg_string(2), *) UB_matrix(2,1)
+	 READ(arg_string(3), *) UB_matrix(3,1)
+     READ(arg_string(4), *) UB_matrix(1,2)
+     READ(arg_string(5), *) UB_matrix(2,2)
+     READ(arg_string(6), *) UB_matrix(3,2)
+     READ(arg_string(7), *) UB_matrix(1,3)
+	 READ(arg_string(8), *) UB_matrix(2,3)
+	 READ(arg_string(9), *) UB_matrix(3,3)      	
+	else
+	 READ(arg_string(1), *) UB_matrix(1,1)
+	 READ(arg_string(2), *) UB_matrix(1,2)
+	 READ(arg_string(3), *) UB_matrix(1,3)
+     READ(arg_string(4), *) UB_matrix(2,1)
+     READ(arg_string(5), *) UB_matrix(2,2)
+     READ(arg_string(6), *) UB_matrix(2,3)
+     READ(arg_string(7), *) UB_matrix(3,1)
+	 READ(arg_string(8), *) UB_matrix(3,2)
+	 READ(arg_string(9), *) UB_matrix(3,3)      	 	
+    endif	
+    keyword_UB_MAT = .true.
+  
+	
 	
    CASE ('LST_MAT', 'LST_MATR', 'LST_MATRIX',  'LIST_MAT',  'LIST_MATR',  'LIST_MATRIX', 'LIST_TRANSFORMATION_MATRIX')
     keyword_LST_MAT  = .true.
@@ -806,11 +1275,21 @@ subroutine identification_keywords(read_line)
 
    CASE ('TRANSLATION', 'TRANS', 'TRANSLATE', 'MOVE')
     ! translation
-    if (nb_arg/=3) then
+    if (nb_arg <3) then
      call check_arg('3', 'TRANSLATION')
      return
     end if
-    READ(arg_string(1:3), *) translat(1:3)
+	if(nb_arg == 3)  then
+     READ(arg_string(1:3), *) translat(1:3)
+	 translat(4) = 1.
+	else
+	 READ(arg_string(1:4), *) translat(1:4)
+	 if(translat(4) > 0. ) then
+	  translat(4) = 1.
+	 else
+      translat(4) = -1.
+     endif	  
+	endif
     keyword_TRANSL = .true.
 
 
@@ -823,11 +1302,13 @@ subroutine identification_keywords(read_line)
      my_browser%name = arg_string(2)
     elseIF(arg_string(1)(1:6) == 'EDITOR')  then
      my_editor%name  = arg_string(2)
-    else
+    elseIF(arg_string(1)(1:8) == 'PDFLATEX')  then
+     my_pdflatex%name  = arg_string(2)    
+	else
      call check_arg('unknown', 'SET')
      return
     endif
-    IF(LEN_TRIM(my_browser%name) == 0 .AND. LEN_TRIM(my_editor%name) == 0) return
+    IF(LEN_TRIM(my_browser%name) == 0 .AND. LEN_TRIM(my_editor%name) == 0 .and. LEN_TRIM(my_pdflatex%name) == 0) return
     keyword_set    = .true.
 
    case ('REPORT', 'CREATE_REPORT')
@@ -838,19 +1319,43 @@ subroutine identification_keywords(read_line)
      IF(arg_string(1)(1:4)=='LONG' .OR. arg_string(1)(1:3)=='EXT') then
       long_report = .TRUE.
       archive_CIF = 'archive.cif'
+	 elseif(arg_string(1)(1:3) == 'TXT') then
+      text_report  = .true.
+	  long_report = .true.
+	  archive_CIF = 'archive.cif'
+	 elseif(arg_string(1)(1:5) == 'LATEX') then
+      latex_report = .true.
+      long_report  = .true.
+      archive_cif  = 'archive.cif'	  
      endif
     ELSEIF(nb_arg==2) then
      IF(arg_string(1)(1:4)=='LONG' .OR. arg_string(1)(1:3)=='EXT') then
       long_report = .true.
       archive_CIF = arg_string(2)
+	 ELSEIF(arg_string(1)(1:3) == 'TXT') then
+      long_report  = .true.
+      text_report  = .true.
+      archive_cif  = arg_string(2)
+     ELSEIF(arg_string(1)(1:5) == 'LATEX') then
+      long_report  = .true.
+      latex_report = .true.	  
+	  archive_cif = arg_string(2)
      ELSEIF(arg_string(2)(1:4)=='LONG' .OR. arg_string(2)(1:3)=='EXT') then
       long_report = .true.
       archive_CIF = arg_string(1)
-     endif
+	 ELSEIF(arg_string(2)(1:3) == 'TXT') then
+      long_report  = .true.
+      text_report  = .true.
+      archive_cif  = arg_string(1)	   
+     ELSEIF(arg_string(2)(1:5) == 'LATEX') then
+      long_report  = .true.
+      latex_report = .true.	  
+	  archive_cif = arg_string(1)
+	 endif
     end if
     keyword_create_REPORT = .true.
 
-   CASE ('SETTING')
+   CASE ('SETTING', 'SETTINGS')
     keyword_setting = .true.
 
    CASE ('SHELL')
@@ -888,7 +1393,48 @@ subroutine identification_keywords(read_line)
 
     IF(nb_arg > 1 .AND. arg_string(2)(1:4) == 'PLOT') shell_plot(nb_shell) = .true.
 
+!-----------------------------------------------------
+   CASE ('SD7')   ! mode expert : SD7 = SHELL d 0.77 7.
+    if(expert_mode) then
+	 nb_shell = 1
+	 shell_type(nb_shell) = 'd'
+	 shell_min(1) = 0.77
+	 shell_max(1) = 7.
+	 shell_arg_min_max = .true.	 
+    else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	endif	
+   CASE ('&SD7')   ! mode expert : SD7 = SHELL d 0.77 7.    
+	nb_shell = 1
+	shell_type(nb_shell) = 'd'
+	shell_min(1) = 0.77
+	shell_max(1) = 7.
+	shell_arg_min_max = .true.	 
+    
+   CASE ('ST25')   ! mode expert : ST25 : SHELL THETA 2.5 25	
+    if(expert_mode) then
+	 nb_shell = 1
+	 shell_type(nb_shell) = 'theta'
+	 shell_min(1) = 0.25
+	 shell_max(1) = 25.
+	 shell_arg_min_max = .true.	 
+    else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	endif	
 
+    CASE ('&ST25')   ! mode expert : ST25 : SHELL THETA 2.5 25	
+ 	 nb_shell = 1
+	 shell_type(nb_shell) = 'theta'
+	 shell_min(1) = 0.25
+	 shell_max(1) = 25.
+	 shell_arg_min_max = .true.	 
+ !------------------------------------------------------------------
+ 
+ 
    CASE ('SORT')
     IF(nb_arg ==0) then
      call check_arg('0', 'SORT')
@@ -951,9 +1497,9 @@ subroutine identification_keywords(read_line)
 
     READ(read_line(i1+1:), *) X_min
 
-    i2 = INDEX(read_line, '=', back=.TRUE.)
+    i2 = INDEX(read_line, 'MAX=', back=.TRUE.)
     IF(i2==0) return
-    new_line = read_line(i2+1:)
+    new_line = read_line(i2+4:)
     call nombre_de_colonnes(new_line, nb_arg)
     !if(nb_arg == 1) then
     ! read(new_line, *) X_max
@@ -963,16 +1509,22 @@ subroutine identification_keywords(read_line)
 	!endif
 	
     !!  - fev. 2011 !!
-	write_HKL  = .false.
-	create_PAT = .false.
+	write_HKL       = .false.
+	create_PAT      = .false.
+	size_broadening = .false.
 	read(new_line, *) arg_string(1:nb_arg)
 	read(arg_string(1), *) X_max
 	if(nb_arg /=1) then
-	 do i=2, nb_arg
+	 do i=2, nb_arg	 
 	  if(arg_string(i)(1:3) == 'OUT') write_HKL  = .true.
 	  if(arg_string(i)(1:7) == 'PATTERN' .or. arg_string(i)(1:3) == 'PAT'   .or.    &
 	     arg_string(i)(1:7) == 'PROFILE' .or. arg_string(i)(1:4) == 'PROF'  .or.    &
 		 arg_string(i)(1:3) == 'PRF')       create_PAT = .true.
+	  if(arg_string(i)(1:5) == 'SIZE=') then
+	   read(arg_string(i)(6:), *) particle_size
+	   if (create_pat) size_broadening = .true.	  
+      endif	 
+      if(arg_string(i)(1:4) == 'PM2K') pm2k_out = .true.	  
 	 end do
 	end if
 	if(create_PAT) write_HKL=.true.
@@ -995,6 +1547,25 @@ subroutine identification_keywords(read_line)
     call write_info('  > GEN_HKL ')
     call write_info('')
 
+!--- expert mode ---------------
+   CASE ('PDP', 'PATTERN', 'PDP_CU', 'PATTERN_Cu')
+    if(expert_mode) then
+     HKL_2THETA     = .true.
+     X_min          = 0.
+     X_max          = 120.
+	 create_PAT     = .true.
+	 write_HKL      = .true.
+	 keyword_GENHKL = .true.
+	end if 
+   CASE ('&PDP', '&PATTERN', '&PDP_CU', '&PATTERN_Cu')    
+     HKL_2THETA = .true.
+     X_min          = 0.
+     X_max          = 120.
+	 create_PAT     = .true.
+	 write_HKL      = .true.
+	 keyword_GENHKL = .true.
+!------------------------------
+	 
    CASE ('GEN_SAT')
     keyword_GENSAT = .true.
 
@@ -1012,19 +1583,31 @@ subroutine identification_keywords(read_line)
      call write_info('')
      return
     endif
-    nb_dist_calc = nb_dist_calc + 1
+	if(step_by_step) then
+	 nb_dist_calc = 1
+	else 
+     nb_dist_calc = nb_dist_calc + 1
+	end if 
+	
     READ(arg_string(1:2), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
     atom1_dist(nb_dist_calc) = ADJUSTL(atom1_dist(nb_dist_calc))
     atom2_dist(nb_dist_calc) = ADJUSTL(atom2_dist(nb_dist_calc))
 
-   CASE ('CONN', 'CONNECT', 'CONNECTIVITY')
+    CASE ('CONN', 'CONNECT', 'CONNECTIVITY')
     !if(nb_arg < 1) then
     ! call check_arg('1', 'CONN')
     ! return
     !end if
-    CONN_all = .false.
+    CONN_all           = .false.
+	CONN_all_X         = .false.
+	CONN_self          = .false.
+	CONN_ang           = .false.
+	CONN_out_condensed = .false.
+	calcul_BVS         = .false.
+	create_SHAPE_file  = .false.
+	poly_vol_calc      = .false.
     CIF_dist%n_text = 0
-    if(nb_arg == 0) CONN_all = .true.
+   
     if(.not. keyword_CELL) then
      call write_info('')
      call write_info(' CELL keyword is mandatory for connectivity calculations')
@@ -1043,27 +1626,134 @@ subroutine identification_keywords(read_line)
      call write_info('')
      return
     end if
-    
+	
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('BVS',arg_string, nb_arg, string_ok)
+	 if(string_ok) calcul_BVS = .true.
+	end if 
+
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('SHAPE',arg_string, nb_arg, string_ok)
+	 if(string_ok) create_SHAPE_file = .true.
+	end if 
+	
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('VOL',arg_string, nb_arg, string_ok)
+	 if(string_ok) poly_vol_calc = .true.
+	end if 
+	
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('ANG',arg_string, nb_arg, string_ok)
+	 if(string_ok) CONN_ang = .true.
+	end if 
+
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('CONDENSED',arg_string, nb_arg, string_ok)
+	 if(string_ok) then
+	  CONN_out_condensed = .true.
+	 else 
+	  call test_arg_string('SHORT',arg_string, nb_arg, string_ok)
+	  if(string_ok) CONN_out_condensed = .true.
+	 end if 
+	end if 
+	
+		
+	if(nb_arg /=0) then
+	 string_ok = .false.
+	 call test_arg_string('SELF',arg_string, nb_arg, string_ok)
+	 if(.not. string_OK) call test_arg_string('AUTO',arg_string, nb_arg, string_ok)
+	 if(string_ok) then
+	  CONN_self          = .true.
+	  CONN_all           = .false.
+	  CONN_all_X         = .false.
+	  CONN_ang           = .false.
+	  CONN_out_condensed = .false.
+	  calcul_BVS         = .false.
+	  create_SHAPE_file  = .false.
+	  poly_vol_calc      = .false.
+	 end if
+	end if 
+	
+		
+	! test if CONN_dmin= is present
+	i_CONN_dmin = 0
+	if(nb_arg /=0) then	 
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:4) == 'MIN=') then
+	   read(arg_string(i)(5:), *, iostat=i_error) CONN_dmin
+	   if(i_error /=0) CONN_dmin = CONN_dmin_ini
+       if(CONN_dmin < 0.05) CONN_dmin = CONN_dmin_ini
+	   i_CONN_dmin = i
+	  end if
+	 end do
+	 if(i_CONN_dmin /=0) then
+	  if(i_CONN_dmin /= nb_arg) then
+	   do i=i_CONN_dmin, nb_arg
+	    arg_string(i) = arg_string(i+1)
+	   end do
+	  end if
+	  nb_arg = nb_arg - 1
+	 end if
+	endif 
+	
+	! test if CONN_dmax= is present
+	i_CONN_dmax = 0
+	if(nb_arg /=0) then	 
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:4) == 'MAX=') then
+	   read(arg_string(i)(5:), *, iostat=i_error) CONN_dmax
+	   if(i_error /=0) CONN_dmax = CONN_dmax_ini
+       if(CONN_dmax > 25.) CONN_dmax = CONN_dmax_ini
+	   i_CONN_dmax = i
+	  end if
+	 end do
+	  if(i_CONN_dmax /=0) then
+	  if(i_CONN_dmax /= nb_arg) then
+	   do i=i_CONN_dmax, nb_arg
+	    arg_string(i) = arg_string(i+1)
+	   end do
+	  end if
+	  nb_arg = nb_arg - 1
+	 end if
+	endif 
+	
+	
+	if(nb_arg == 0) CONN_all = .true.
+	
     if (nb_arg /=0) then
-     if(arg_string(1)(1:3) == 'ALL') then
+     if(len_trim(arg_string(1)) == 3 .and. arg_string(1)(1:3) == 'ALL') then
       CONN_all = .true.
+	 elseif(len_trim(arg_string(1)) > 4 .and. arg_string(1)(1:4) == 'ALL_') then
+      CONN_all_X = .true.
+	  read(arg_string(1)(5:), *) CONN_species
      else
       read(arg_string(1), *) atom_CONN%label
-      atom_CONN%label = adjustl(atom_CONN%label)
+	  atom_CONN%label = adjustl(atom_CONN%label)	  	  
      endif
     endif 
+	
     
     if(nb_arg > 1) then
      read(arg_string(nb_arg), *, iostat=i_error) CONN_dmax
      if(i_error /=0) CONN_dmax = CONN_dmax_ini
      if(CONN_dmax < 0.1 .or. CONN_dmax > 15.) CONN_dmax = CONN_dmax_ini
     endif
-    keyword_CONN = .true.
+	if(CONN_dmin > CONN_dmax) then
+	 CONN_dmin = CONN_dmin_ini
+	 CONN_dmax = CONN_dmax_ini
+	end if 
+	
+	keyword_CONN = .true.
 
-   CASE ('DIST_')
-    keyword_DIST_ = .false.
+   CASE ('DIST_', 'DIST_X', 'DIST_MULT')
+    keyword_DIST_X = .false.
     IF(nb_arg < 3) then
-     call check_arg('3', 'DIST_')
+     call check_arg('3', 'DIST_X')
      return
     endif
     IF(.NOT. keyword_CELL) then
@@ -1072,13 +1762,62 @@ subroutine identification_keywords(read_line)
      call write_info('')
      return
     endif
-    nb_dist_calc = nb_dist_calc + 1
-    READ(arg_string(1)  , *) DIST_coef
-    READ(arg_string(2:3), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
+    !nb_dist_calc = nb_dist_calc + 1
+	nb_dist_calc = 1
+	call get_arg_ABx(arg_string, DIST_coef, atom1_dist, atom2_dist, lecture_ok)
+    !READ(arg_string(1)  , *) DIST_coef
+    !READ(arg_string(2:3), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
     atom1_dist(nb_dist_calc) = ADJUSTL(atom1_dist(nb_dist_calc))
     atom2_dist(nb_dist_calc) = ADJUSTL(atom2_dist(nb_dist_calc))
-    keyword_DIST_ = .true.
+    keyword_DIST_X = .true.
 
+   CASE ('DIST_PLUS', 'DIST_+')
+    keyword_DIST_plus = .false.
+    IF(nb_arg < 3) then
+     call check_arg('3', 'DIST_+')
+     return
+    endif
+    IF(.NOT. keyword_CELL) then
+     call write_info('')
+     call write_info('  CELL keyword is mandatory for interatomic distance calculations')
+     call write_info('')
+     return
+    endif
+    !nb_dist_calc = nb_dist_calc + 1
+	nb_dist_calc = 1
+	lecture_ok = .false.
+	call get_arg_ABx(arg_string, DIST_plus, atom1_dist, atom2_dist, lecture_ok)
+    if(.not. lecture_ok) then
+	 call write_info('')
+	 call write_info(' ! Wrong arguments for DIST_plus keyword !')
+	 call write_info('')
+	 return	
+	end if 
+	
+    !READ(arg_string(1)  , *) DIST_plus
+    !READ(arg_string(2:3), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
+    atom1_dist(nb_dist_calc) = ADJUSTL(atom1_dist(nb_dist_calc))
+    atom2_dist(nb_dist_calc) = ADJUSTL(atom2_dist(nb_dist_calc))
+    keyword_DIST_plus = .true.
+	
+   CASE ('DIST_DHA', 'DHA', 'POS_H', 'CALC_POS_H')	
+    keyword_DHA = .false.
+	if(nb_arg < 2) then
+	 call check_arg('2', 'DHA')
+	 return
+	end if
+	IF(.NOT. keyword_CELL) then
+     call write_info('')
+     call write_info('  CELL keyword is mandatory for interatomic distance calculations')
+     call write_info('')
+     return
+    endif
+	nb_dist_calc = 1
+	READ(arg_string(1:2), *) atom1_dist(nb_dist_calc), atom2_dist(nb_dist_calc)
+    atom1_dist(nb_dist_calc) = ADJUSTL(atom1_dist(nb_dist_calc))
+    atom2_dist(nb_dist_calc) = ADJUSTL(atom2_dist(nb_dist_calc))
+	if(nb_arg > 3)  read(arg_string(3), *) DIST_AH
+	keyword_DHA = .true.
 
    CASE ('ANG', 'ANGLE')
     IF(nb_arg < 2) then
@@ -1092,7 +1831,8 @@ subroutine identification_keywords(read_line)
      return
     endif
 
-    nb_ang_calc = nb_ang_calc + 1
+    !nb_ang_calc = nb_ang_calc + 1
+	nb_ang_calc = 1
 
     if (nb_arg == 3) then
      READ(arg_string(1:3),*) atom1_ang(nb_ang_calc),  atom2_ang(nb_ang_calc), atom3_ang(nb_ang_calc)
@@ -1153,13 +1893,26 @@ subroutine identification_keywords(read_line)
     keyword_REC_ANG = .true.
 
    CASE ('BARY', 'CENTROID')
-    IF(nb_arg < 3) then
-     call check_arg('at least 3', 'BARY')
-     return
-    endif
+    if(nb_arg == 1 .and. arg_string(1) == 'ALL') then
+	 if(nb_atom /=0) then
+	  nb_arg = nb_atom
+	  bary_all = .true.
+	 else
+	  call write_info('! No input atoms !')
+     endif	 
+	else 
+     IF(nb_arg < 2) then
+      call check_arg('at least 2', 'BARY')
+      return
+     endif
+	end if 
     nb_bary_calc = nb_bary_calc + 1
     nb_atom_bary(nb_bary_calc) = nb_arg
-    read(arg_string(1:nb_arg), *) atom_bary(nb_bary_calc,1:nb_arg)
+	if(bary_all) then
+	 atom_bary(nb_bary_calc, 1:nb_arg) = atom_label(1:nb_arg)
+	else
+     read(arg_string(1:nb_arg), *) atom_bary(nb_bary_calc,1:nb_arg)
+	endif 
 
    case ('STL', 'STL_HKL', 'SINTHETA/WAVE', 'SINTHETA/LAMBDA')
     IF(nb_arg == 0) then
@@ -1323,26 +2076,59 @@ subroutine identification_keywords(read_line)
 
 
    !CASE ('SYM_OP', 'SYMM_OP', 'SYM_OPERATOR', 'SYMM_OPERATOR')
-   CASE ('WRITE_SYM_OP', 'WRITE_SYMM_OP',  'WRITE_SYM', 'WRITE_SYMM', 'WRITE_SYMMETRY_OPERATORS')
-    WRITE_symm_op  = .true.
+   CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS", "WRITE_SYMOP")
+    WRITE_symm_op       = .true.
+	WRITE_SHELX_symm_op = .false.
+	if (nb_arg /=0) then
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:5) == 'SHELX') then
+	   WRITE_SHELX_symm_op  = .true.
+	    exit
+	  end if 
+	 end do
+	endif
 
 
    CASE ('APPLY_OP', 'APPLY_SYMMETRY_OPERATOR', 'APPLY_SYM_OP', 'APPLY_SYMOP')    
     WRITE_APPLY_symm = .true.
 
+   CASE ('STAR_K')
+    WRITE_STAR_K = .true.   
 
    CASE ('SITE_INFO', 'LIST_SITE_INFO')
-    WRITE_site_info = .true.
-
+    WRITE_site_info         = .true.
+	WRITE_PCR_site_info     = .false.
+	WRITE_PCR_mag_site_info = .false.
+	
+	if(nb_arg /=0) then
+	 do i=1, nb_arg
+	  if(len_trim(arg_string(i)) == 3 .and. arg_string(i)(1:3) == 'PCR')     WRITE_PCR_site_info     = .true.
+	  if(len_trim(arg_string(i)) == 3 .and. arg_string(i)(1:3) == 'MAG')     WRITE_PCR_mag_site_info = .true.
+	  if(len_trim(arg_string(i)) == 7 .and. arg_string(i)(1:7) == 'PCR_MAG') WRITE_PCR_mag_site_info = .true.
+	  if(arg_string(i)(1:3) == 'ALL')     site_info_all_atoms = .true.
+	 end do
+	end if
+		
     IF(nb_arg==0 .or. arg_string(1)(1:3) == 'ALL') then
      site_info_all_atoms = .true.
+	ELSEIF(nb_arg == 1 .and. len_trim(arg_string(1))==3 .and. arg_string(1)(1:3) == 'PCR' ) then
+	 WRITE_PCR_mag_site_info = .false.
+	 WRITE_PCR_site_info     = .true.
+	 site_info_all_atoms     = .true.
+	ELSEIF(nb_arg == 1 .and. len_trim(arg_string(1))==7 .and. arg_string(1)(1:7) == 'PCR_MAG' ) then
+	 WRITE_PCR_mag_site_info = .true.
+	 WRITE_PCR_site_info     = .false.
+	 site_info_all_atoms     = .true.
+	ELSEIF(nb_arg == 1 .and. len_trim(arg_string(1))==3 .and. arg_string(1)(1:3) == 'MAG' ) then
+	 WRITE_PCR_mag_site_info = .true.
+	 WRITE_PCR_site_info     = .false.
+	 site_info_all_atoms     = .true.
     else
      site_info_all_atoms = .false.
      nb_atom_site_info = nb_arg
      READ(arg_string(1:nb_arg),*) site_info_label(1:nb_arg)
      site_info_label(1:nb_arg) = ADJUSTL(site_info_label(1:nb_arg))
     endif
-
 
    CASE ('SHIFT_2TH', 'SHIFT_2THETA', '2TH_SHIFT', '2THETA_SHIFT')
     IF(nb_arg == 0) then
@@ -1357,9 +2143,32 @@ subroutine identification_keywords(read_line)
      return
     endif
 
-    shift_2theta = var(1)
+	if(nb_arg > 1) then
+	 READ(arg_string(2),*, iostat=i_error) var(2)
+     IF(i_error /=0) then
+      call error_message('SHIFT_2TH')
+      return
+     endif	 
+	endif
+	
+	if(nb_arg > 2) then
+	 READ(arg_string(3),*, iostat=i_error) var(3)
+     IF(i_error /=0) then
+      call error_message('SHIFT_2TH')
+      return
+     endif	 
+	endif
+	
+	shift_2theta(1) = var(1)
+	shift_2theta(2) = var(2)
+	shift_2theta(3) = var(3)
+	
     call write_info('')
-    WRITE(message_text,'( a,F10.5)') '  > Shift 2theta (deg):', shift_2theta
+    WRITE(message_text,'( a,F10.5)') '  > Shift 2theta (deg):', shift_2theta(1)
+    call write_info(TRIM(message_text))
+	WRITE(message_text,'( a,F10.5)') '     . cosTheta shift :', shift_2theta(2)
+    call write_info(TRIM(message_text))
+	WRITE(message_text,'( a,F10.5)') '     . sinTheta shift :', shift_2theta(3)
     call write_info(TRIM(message_text))
     keyword_SH_2th = .true.
 
@@ -1402,8 +2211,17 @@ subroutine identification_keywords(read_line)
     keyword_create_CRYSCAL_HTML = .true.
     browse_cryscal_HTML         = .false.
     IF(arg_string(1)(1:6) == 'BROWSE') browse_cryscal_HTML = .true.
+	
+   case	('MAN_EXPERT', 'HELP_EXPERT')    
+    if(.not. expert_mode) then
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+	endif
 
-   case ('NEWS')
+    case ('&MAN_EXPERT', '&HELP_EXPERT')    
+
+	case ('NEWS')
     keyword_NEWS = .true.
     if(nb_arg /=0) then
      read(arg_string(1), *) news_year
@@ -1702,6 +2520,8 @@ subroutine identification_keywords(read_line)
     URL_address = ''
     if (arg_string(1)(1:5) == 'CDIFX') then
      URL_address = 'www.cdifx.univ-rennes1.fr'
+	elseif(arg_string(1)(1:7) == 'CRYSCAL') then 
+	 URL_address = 'www.cdifx.univ-rennes1.fr/cryscal'
     else
      long1 = LEN_TRIM(arg_string(1))
      do i = 1, WEB%num_site
@@ -1715,14 +2535,56 @@ subroutine identification_keywords(read_line)
     end if
     keyword_WEB = .true.
 
-   case ('WRITE_CELL', 'OUTPUT_CELL')
+   case ('WRITE_CELL', 'OUTPUT_CELL', '&WC')
     !IF(.NOT. keyword_CELL) then
     ! call write_info('')
     ! call write_info('  Cell parameters has to be known for WRITE_CELL keyword')
     ! call write_info('')
     ! return
     !endif
-    keyword_WRITE_CELL = .true.
+	if(nb_arg /=0) then
+	 write_cell_cart = .false.
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:4) == 'CART') then
+	   write_cell_cart = .true.
+	   if (arg_string(i)(6:6) == "A") then
+		cartesian_frame%type = "A"
+		cartesian_frame%string = "a // x"
+	   elseif (arg_string(i)(6:6) == "C") then 
+	    cartesian_frame%type = "C"
+	    cartesian_frame%string = "c // x"
+	   end if
+	  end if	  	 
+	 end do
+	end if
+	keyword_WRITE_CELL = .true.
+	
+	
+   case ('WC')
+    if(expert_mode)  then
+     if(nb_arg /=0) then
+	  write_cell_cart = .false.
+	  do i=1, nb_arg
+	   if(arg_string(i)(1:4) == 'CART') then
+	    write_cell_cart = .true.
+	    if(len_trim(arg_string(i)) > 5 .and. arg_string(i)(5:5) == '_') then
+	     if (arg_string(i)(6:6) == "A") then
+		  cartesian_frame%type = "A"
+		  cartesian_frame%string = "a // x"
+		 elseif (arg_string(i)(6:6) == "C") then 
+		  cartesian_frame%type = "C"
+		  cartesian_frame%string = "c // x"
+		 end if 
+	    end if	
+	   end if	  
+	  end do
+	 end if
+	 keyword_WRITE_CELL = .true.
+	else
+	 call write_info('')
+	 call write_info(' > Unknown '//TRIM(input_keyword)//' keyword !')
+	 call write_info('')
+    endif	 
 
  
    case ('WRITE_CHEM', 'WRITE_CHEMICAL_FORMULA', 'WRITE_MOLECULE', 'OUTPUT_CHEM', 'OUTPUT_CHEMICAL_FORMULA',  'OUTPUT_MOLECULE')
@@ -1763,6 +2625,15 @@ subroutine identification_keywords(read_line)
     endif
     keyword_WRITE_WAVE = .true.
     
+   case ('WRITE_Z', 'WRITE_ZUNIT')
+    if(.not. keyword_Zunit) then
+	 call write_info('')
+     call write_info('  ZUNIT has to be known for WRITE_ZUNIT keyword')
+     call write_info('')
+     return
+	endif
+	keyword_write_zunit = .true.
+	
    case ('WRITE_DEVICE', 'OUTPUT_DEVICE')
     keyword_WRITE_DEVICE =.true. 
 
@@ -1779,11 +2650,22 @@ subroutine identification_keywords(read_line)
     endif
     keyword_NIGGLI = .true.
 
+! references --------- !	
    case ('REF_KCCD', 'KCCD')
     keyword_WRITE_REF_KCCD = .true.
 
    case ('REF_APEX', 'REF_APEXII' , 'WRITE_APEX', 'WRITE_APEXII',  'APEX', 'APEXII')
     keyword_WRITE_REF_APEX = .true.
+	
+   case ('REF_X2S', 'REF_SMART_X2S')
+    keyword_WRITE_REF_X2S = .true.
+	
+   case ('REF_SUPERNOVA')
+    keyword_WRITE_REF_SUPERNOVA = .true.
+
+   case ('REF_XCALIBUR')
+    keyword_WRITE_REF_XCALIBUR = .true.
+	
 
    case ('REF_EVAL', 'REF_EVALCCD', 'WRITE_EVAL', 'WRITE_EVALCCD', 'EVAL', 'EVALCCD')
     keyword_WRITE_REF_EVAL = .true.
@@ -1793,9 +2675,16 @@ subroutine identification_keywords(read_line)
     
    case ('REF_SADABS', 'REF_SAD', 'SADABS')
     keyword_WRITE_REF_SADABS = .true.   
-
+	
+   case ('REF_ABS_CRYSALIS')
+    keyword_WRITE_REF_ABS_CRYSALIS = .true.   
+! ------------------- !
+	
+	
    case ('READ_NREPORT', 'READ_NREPORT_HTML', 'READ_HTMLREPORT')
     keyword_read_NREPORT = .true.
+	browse_nreport       = .false.
+	if(nb_arg /=0 .and. arg_string(1) (1:6) == 'BROWSE') browse_nreport = .true.
 
    case ('READ_CEL', 'READ_CEL_FILE', 'READ_POWDERCELL')    
     if(nb_arg == 0) then
@@ -1808,11 +2697,22 @@ subroutine identification_keywords(read_line)
     else
      READ(arg_string(1), *) CEL_file_name
     endif
-    call test_file_exist(trim(CEL_file_name), file_exist)
+    call test_file_exist(trim(CEL_file_name), file_exist, 'out')
     if(.not. file_exist) then
      CEL_file_name = ''
      return
     endif 
+	create_CIF_pymol = .false.
+	if (nb_arg > 1) then
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:5) == 'PYMOL') then
+	   create_CIF_PYMOL = .true.
+	  end if 
+	 end do
+	 i1 = index(CEL_file_name, '.', back=.true.)
+	 write(CIF_pymol_file_name, '(a)') CEL_file_name(1:i1-1)//'_'//trim(CEL_file_name(i1+1:))//'_pml.CIF'
+	end if 
+	
     keyword_read_CEL  = .true.
     
    case ('READ_CIF', 'READ_CIF_FILE', 'CIF_FILE')
@@ -1826,13 +2726,48 @@ subroutine identification_keywords(read_line)
     else
      READ(arg_string(1), *) CIF_file_name
     end if
-    call test_file_exist(TRIM(CIF_file_name), file_exist)
+    call test_file_exist(TRIM(CIF_file_name), file_exist, 'out')
     if(.not. file_exist) then
      CIF_file_name = ''
      return
     endif 
+	create_CIF_pymol = .false.
+	if (nb_arg > 1) then
+	 do i=1, nb_arg
+	  if(arg_string(i)(1:5) == 'PYMOL') then
+	   create_CIF_PYMOL = .true.
+	  end if 
+	 end do
+	 i1 = index(CIF_file_name, '.', back=.true.)
+	 write(CIF_pymol_file_name, '(a)') CIF_file_name(1:i1-1)//'_pml'//trim(CIF_file_name(i1:))
+	end if 
+	
+    keyword_read_CIF = .true.
     keyword_read_CIF = .true.
 
+   case ('READ_FACES', 'FACES')
+    !if(nb_arg == 0) then
+	! call check_arg('0', 'READ_FACES')
+	! return
+	!end if    
+	if(nb_arg == 0) then
+	 FACES_file_name = "absorb.ins"
+	else 
+	 i1 = index(arg_string(1), '.')
+	 if(i1 == 0) then
+	  FACES_file_name = trim(arg_string(1))//'.INS'
+	 else
+	  read(arg_string(1), *, iostat=i_error) FACES_file_name
+	 end if
+	end if 
+	call test_file_exist(trim(FACES_file_name), file_exist, 'out')
+	if(.not. file_exist) then
+	 FACES_file_name = ''
+	 return
+	end if
+	keyword_READ_FACES = .true.
+	
+	
    case ('READ_INS', 'READ_INS_FILE', 'INS_FILE')
     IF(nb_arg == 0)  then
      call check_arg('0', 'READ_INS')
@@ -1844,7 +2779,29 @@ subroutine identification_keywords(read_line)
     else
      READ(arg_string(1), *, iostat=i_error) INS_file_name
     end if
+	create_CIF_pymol = .false.
+	read_Q_peaks     = .false.
+	if (nb_arg > 1) then
+	 do i=1, nb_arg
+	  long = len_trim(arg_string(i))
+	  if(long==5 .and. arg_string(i)(1:5) == 'PYMOL') then
+	   create_CIF_PYMOL = .true.
+	  elseif(long==7 .and. arg_string(i)(1:7) == 'Q_PEAKS') then
+       read_Q_peaks = .true.	  
+	  end if 
+	 end do
+	 i1 = index(INS_file_name, '.', back=.true.)
+	 write(CIF_pymol_file_name, '(a)') INS_file_name(1:i1-1)//'_'//trim(INS_file_name(i1+1:))//'_pml.CIF'
+	end if 
+	
+	call test_file_exist(trim(INS_file_NAME), file_exist, 'out')
+    IF(.NOT. file_exist) then
+     INS_file_name = ''
+     return
+    endif
+		
     keyword_read_INS = .true.
+	keyword_CELL     = .true.
 
    case ('READ_PCR', 'READ_PCR_FILE', 'PCR_FILE')
     IF(nb_arg == 0)  then
@@ -1857,13 +2814,28 @@ subroutine identification_keywords(read_line)
     else
      READ(arg_string(1), *, iostat=i_error) PCR_file_name
     end if
-    call test_file_exist(PCR_file_name, file_exist)
+    call test_file_exist(trim(PCR_file_name), file_exist, 'out')
     IF(.NOT. file_exist) then
      PCR_file_name = ''
      return
     endif
     keyword_read_PCR = .true.
 
+  case ('READ_TIDY_OUT')
+    IF(nb_arg == 0)  then
+     !call check_arg('0', 'READ_TIDY_OUT')
+     !return
+	  TIDY_out_file_name = 'stidy.out'
+	else  
+	 READ(arg_string(1), *, iostat=i_error) TIDY_out_file_name
+    endif
+    
+    call test_file_exist(trim(TIDY_out_file_name), file_exist, 'out')
+    IF(.NOT. file_exist) then
+     TIDY_out_file_name = ''
+     return
+    endif
+    keyword_read_TIDY_out = .true.
 
 
    case ('SIR', 'SIR97')
@@ -1945,7 +2917,8 @@ end subroutine check_arg
 !------------------------------------------------------------------------------------------------
 
 subroutine get_SPG(input_string)
- use cryscal_module,                 only  : space_group_symbol, SPG
+ use cryscal_module,                 only  : space_group_symbol, SPG, unit_cell
+ use macros_module,                  only  : l_case
  use CFML_crystallographic_symmetry, only  : set_spacegroup
 
  implicit none
@@ -1963,39 +2936,79 @@ subroutine get_SPG(input_string)
   
   long_input_string = len_trim(input_string)
   
-  if(long_input_string == 4) then
-   if(input_string(1:4) == 'TRIC') input_tricl = .true.
-   if(input_string(1:4) == 'MONO') input_mono  = .true.
-   if(input_string(1:4) == 'TRIG') input_trig  = .true.
-   if(input_string(1:4) == 'HEXA') input_hexa  = .true.
-  elseif(long_input_string == 5) then
-   if(input_string(1:5) == 'ORTHO') input_ortho = .true.
-   if(input_string(1:5) == 'TETRA') input_tetra = .true.
-  elseif(long_input_string == 3) then
-   if(input_string(1:3) == 'CUB')   input_cub = .true.
-  endif   
+  
+  select case(l_case(trim(input_string)))
+   
+    case('tricl', 'triclinic')
+	 input_tricl = .true.
+	 
+	case('mono', 'monocl', 'monoclinic', 'monoclinique')
+     input_mono = .true.
+
+    case('trig', 'trigonal')
+     input_trig = .true.
+
+    case('hexa', 'hexagonal')
+     input_hexa = .true.
+
+    case('ortho', 'orthorhombic', 'orthorhombique')
+	 input_ortho = .true.
+	 
+	case('tetra', 'tetrag', 'tetragonal')
+     input_tetra = .true.
+
+    case('cub', 'cubic', 'cubique')
+     input_cub = .true.
+
+	case default
+     input_tricl = .true.	
+  
+  end select
+  
+  !if(long_input_string == 4) then
+  ! if(input_string(1:4) == 'TRIC') input_tricl = .true.
+  ! if(input_string(1:4) == 'MONO') input_mono  = .true.
+  ! if(input_string(1:4) == 'TRIG') input_trig  = .true.
+  ! if(input_string(1:4) == 'HEXA') input_hexa  = .true.
+  !elseif(long_input_string == 5) then
+  ! if(input_string(1:5) == 'ORTHO') input_ortho = .true.
+  ! if(input_string(1:5) == 'TETRA') input_tetra = .true.
+  !elseif(long_input_string == 3) then
+  ! if(input_string(1:3) == 'CUB')   input_cub = .true.
+  !endif   
 
   
-     IF(input_tricl) then
+    IF(input_tricl) then
        space_group_symbol = 'P 1'
        call set_spacegroup(space_group_symbol, SPG)
      ELSEIF(input_mono)  then
       space_group_symbol = 'P 2'
+	  if(unit_cell%H_M(1:1) == 'C') space_group_symbol = 'C 2'
       call set_spacegroup(space_group_symbol, SPG)
      ELSEIF(input_ortho) then
       space_group_symbol = 'P 2 2 2'
+ 	  if(unit_cell%H_M(1:1) == 'F') space_group_symbol = 'F 2 2 2'
+ 	  if(unit_cell%H_M(1:1) == 'I') space_group_symbol = 'I 2 2 2'
+ 	  if(unit_cell%H_M(1:1) == 'C') space_group_symbol = 'C 2 2 2'
+ 	  if(unit_cell%H_M(1:1) == 'B') space_group_symbol = 'B 2 2 2'
+ 	  if(unit_cell%H_M(1:1) == 'A') space_group_symbol = 'A 2 2 2' 
       call set_spacegroup(space_group_symbol, SPG)
-     ELSEIF(input_tetra) then
+	 ELSEIF(input_tetra) then
       space_group_symbol = 'P 4'
-      call set_spacegroup(space_group_symbol, SPG)
+   	  if(unit_cell%H_M(1:1) == 'I') space_group_symbol = 'I 4'
+      call set_spacegroup(space_group_symbol, SPG)	 
      ELSEIF(input_trig)  then
       space_group_symbol = 'P 3'
+  	  if(unit_cell%H_M(1:1) == 'R') space_group_symbol = 'R 3'
       call set_spacegroup(space_group_symbol, SPG)
      ELSEIF(input_hexa)  then
       space_group_symbol = 'P 6'
       call set_spacegroup(space_group_symbol, SPG)
      ELSEIF(input_cub)   then
       space_group_symbol = 'P 2 3'
+  	  if(unit_cell%H_M(1:1) == 'I') space_group_symbol = 'I 2 3'
+  	  if(unit_cell%H_M(1:1) == 'F') space_group_symbol = 'F 2 3'
+
       call set_spacegroup(space_group_symbol, SPG)
      endif
 
@@ -2050,3 +3063,146 @@ subroutine get_matrix_coord(input_line)
 
  return
 end subroutine get_matrix_coord
+
+
+subroutine verif_format(hkl_format)
+ use macros_module, only : remove_car
+ implicit none
+  character (len=*) , intent(inout)  :: hkl_format
+  character (len=32) :: new_format
+  integer                            :: i1, i2, long
+  
+  
+  long = len_trim(hkl_format)
+  
+  i1 = index(hkl_format, "'")
+  if(i1 /=0)   hkl_format = remove_car(hkl_format, "'")
+    
+  i1 = index(hkl_format, '"')
+  if(i1 /=0)   hkl_format = remove_car(hkl_format, '"')
+  
+  i1 = index(hkl_format, '(')
+  if(i1 /=0)   hkl_format = remove_car(hkl_format, '(')
+  
+  i1 = index(hkl_format, ')')
+  if(i1 /=0)   hkl_format = remove_car(hkl_format, ')')   
+ 
+  write(new_format , '(3a)') '(', trim(hkl_format), ')'
+  hkl_format = trim(new_format)
+   
+ 
+ return
+end subroutine verif_format
+
+subroutine get_arg_string(arg_line, nb_arg, arg_string)
+ implicit none
+  character (len=*),                 intent(in)    :: arg_line
+  integer,                           intent(in)    :: nb_arg
+  character (len=64), dimension(20), intent(inout) :: arg_string
+  character (len=256)                              :: tmp_line
+  integer                                          :: i, i1
+  
+  tmp_line = arg_line    
+  do i = 1, nb_arg
+   tmp_line = adjustl(tmp_line)
+   i1 = index(tmp_line, ' ')   
+   arg_string(i) = tmp_line(1:i1-1)
+   tmp_line = tmp_line(i1:)
+  end do 
+
+ return
+end subroutine Get_arg_string
+
+!----------------------------------------------------------------------
+subroutine test_arg_string(input_string,arg_string, nb_arg, string_ok)
+ use cryscal_module, only  : cartesian_frame
+ implicit none
+  character (len=*)                   , intent(in)    :: input_string
+  integer                             , intent(inout) :: nb_arg
+  character (len=*), dimension(nb_arg), intent(inout) :: arg_string
+  logical                             , intent(inout) :: string_ok
+  integer         :: i, i1, i_string, l1, l2
+  
+   
+
+	! test if input_string is present
+	i_string  = 0	
+	
+	
+	l1 = len_trim(input_string)
+	do i = 1, nb_arg
+	 i1 = index(arg_string(i), '_')	
+	 l2 = len_trim(arg_string(i))
+	 
+	 if(i1==0) then
+	  if(arg_string(i)(1:l2) == input_string(1:l1)) then
+	   string_ok = .true.
+	   i_string    = i
+	   exit
+	  end if
+	 else
+	  if(arg_string(i)(1:i1-1) == input_string(1:l1)) then
+	   string_ok = .true.	   
+	   i_string  = i
+	   if(arg_string(i)(1:7) == "SHAPE_A") then
+        cartesian_frame%type = "A"
+        cartesian_frame%string = "a // x"
+       elseif (arg_string(i)(1:7) == "SHAPE_C") then
+        cartesian_frame%type = "C"
+        cartesian_frame%string = "c // x" 
+	   end if	   
+	  end if 
+     endif	 
+	end do
+	
+    if(string_ok) then
+	 if(i_string /= nb_arg) then
+	  do i=i_string, nb_arg 
+	   arg_string(i) = arg_string(i+1)
+	  end do
+	 end if	 
+	 nb_arg = nb_arg - 1
+	end if
+	
+
+ return
+end subroutine test_arg_string
+!------------------------------------------------------------------------------------------- 
+subroutine get_arg_ABx(arg_string, DIST_real, atm_1, atm_2, lecture_OK)
+ implicit none
+  character(len=*), dimension(3), intent(in)      :: arg_string
+  real,                           intent(inout)   :: DIST_real
+  character(len=8),               intent(inout)   :: atm_1, atm_2
+  logical,                        intent(out)     :: lecture_OK                       
+  integer                                         :: i_error
+  character(len=8)                                :: loc_str
+  real                                            :: loc_real
+  real, parameter                                 :: eps = 0.0000001
+  
+  lecture_ok = .false.
+  
+  ! teste A B x
+  read(arg_string(1), *, iostat = i_error) loc_str  
+  if(i_error /=0) return
+  atm_1 = loc_str
+  read(arg_string(2), *, iostat = i_error) loc_str  
+  if(i_error /=0) return
+  atm_2 = loc_str
+  read(arg_string(3), *, iostat = i_error) loc_real
+  if(i_error /=0) then ! teste x A B
+   read(arg_string(1), *, iostat = i_error) loc_real
+   if(i_error /=0) return
+   if(ABS(loc_real) > eps)  DIST_real = loc_real
+   read(arg_string(2), *, iostat = i_error) loc_str  
+   if(i_error /=0) return
+   atm_1 = loc_str
+   read(arg_string(3), *, iostat = i_error) loc_str
+   atm_2 = loc_str 
+  else  
+   if(ABS(loc_real) > eps)  DIST_real = loc_real 
+  end if
+  
+  lecture_ok = .true. 
+ 
+ return
+end subroutine get_arg_ABx

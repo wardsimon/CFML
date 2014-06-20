@@ -37,7 +37,7 @@ subroutine read_INS_input_file(input_file, input_string)
   CHARACTER(LEN=48)                          :: op_string
   !type (Crystal_Cell_Type)                   :: crystal_cell
 
-
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_INS_input_file ("//trim(input_string)//")")
    
   long_input_string = len_trim(input_string)
   input_out    = .true.
@@ -54,7 +54,11 @@ subroutine read_INS_input_file(input_file, input_string)
  ! extract space group from the lattice and symmetry operators
  !  source: EDPCR (JGP)
 
-  call number_lines(trim(input_file),nb_lines)
+  if(read_Q_peaks) then
+   call number_lines(trim(input_file),nb_lines)
+  else 
+   call number_lines(trim(input_file),nb_lines, 'END') ! new routine in CFML : TR may 2013
+  end if
   
   if (nb_lines ==0) then
    call write_info(' > No lines could be read. Program will be stopped')
@@ -80,7 +84,13 @@ subroutine read_INS_input_file(input_file, input_string)
  !---- CELL / ZERR ----!
   call Read_Shx_Cell(fileshx, npos, nb_lines, unit_cell%param, unit_cell%param_esd, wavelength, Z_unit_INS)
   known_cell_esd = .true.
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  
+  call create_CELL_object()
+  !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  !crystal_cell%cell_std(1:3) = unit_cell%param_esd(1:3)  
+  !crystal_cell%ang_std(1:3)  = unit_cell%param_esd(4:6)  
+  
   IF(unit_cell%volume < 0.1) call volume_calculation('no_out')  ! << oct. 2011
   
   keyword_CELL  = .true.
@@ -321,9 +331,13 @@ subroutine read_INS_input_file(input_file, input_string)
    !------------------------------------------------------------------------------------
 
 
-
+ open(unit = tmp_unit, file=trim(input_file), iostat=i_error) 
+ if(i_error /=0) then
+  close(unit=tmp_unit)
+  return
+ endif
  do        ! lecture du fichier d'entree
-  READ(1, '(a)', IOSTAT=i_error) read_line
+  READ(unit = tmp_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
@@ -336,12 +350,13 @@ subroutine read_INS_input_file(input_file, input_string)
    IF(i_error /=0) then
     call error_message('SIZE')
      return
-    endif
+   endif
 
    crystal%size(1:3) = var(1:3)
    keyword_SIZE = .true.
   end if
  END do
+ close(unit=tmp_unit)
 
  return
 end subroutine read_INS_input_file
@@ -349,13 +364,15 @@ end subroutine read_INS_input_file
 !--------------------------------------------------------------------------------------------------
 subroutine read_INS_SHELX_lines() 
  USE SHELX_module,   only : SHELX_line_nb, SHELX_line
- use cryscal_module, only : INS_read_unit
+ use cryscal_module, only : INS_read_unit, debug_proc
  use macros_module,  only : u_case
   
  implicit none
   character (len=256)                      :: read_line
   integer                                  :: i_error
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_INS_SHELX_lines")
+
   read_line = ''  
   SHELX_line(:) = ''
   SHELX_line_nb = 0
@@ -387,13 +404,16 @@ end subroutine read_INS_SHELX_lines
 !----------------------------------------------------------------
 subroutine create_TRANSF_ins
  use cryscal_module, only : INS_unit, unit_cell, SPG, wavelength, Z_unit, Mat, nb_atom, &
-                            ATOM_typ, Atom_Ueq, Atom_occ, ATOM_label, new_atom_coord
+                            ATOM_typ, Atom_Ueq, Atom_occ, ATOM_label, new_atom_coord, debug_proc
  use SHELX_module 
  use macros_module,  only : u_case
  use IO_module
 
  implicit none
   integer           :: i, atom_order
+ 
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "create_TRANSF_INS")
  
  open (unit = INS_unit, file = 'CRYSCAL_transf.ins')
   !WRITE(UNIT = INS_unit, '(3(a, 3(1x,F7.4)))')  'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
@@ -421,8 +441,8 @@ subroutine create_TRANSF_ins
   write(INS_unit, fmt_sfac) 'SFAC ', elem_atm(1:n_elem_atm)
   write(INS_unit, fmt_unit) 'UNIT ', n_elem(1:n_elem_atm)
   !--- non interpreted lines -----------
-  if(SHELX_line_nb /=0) then
-   do i=1, SHELX_line_nb
+  if(SHELX_line_nb > 1) then
+   do i=2, SHELX_line_nb
     write(INS_unit, '(a)') trim(SHELX_line(i))
    end do
   endif 
@@ -438,20 +458,21 @@ subroutine create_TRANSF_ins
 
   WRITE(ins_unit, '(a)') 'HKLF  4'
   WRITE(ins_unit, '(a)') 'END'
-
   call write_info('')
   call write_info('   >> The CRYSCAL_transf.ins file has been created.')
   call write_info('')
  
  close (unit = INS_unit)
+ 
+ return
 end subroutine create_TRANSF_ins 
 
 !----------------------------------------------------------------
 
 subroutine create_NEW_ins
  USE cryscal_module
- USE macros_module,                    ONLY : remove_car, replace_car, l_case
- use CFML_Crystallographic_Symmetry,        only : set_spacegroup,   get_hallsymb_from_gener
+ USE macros_module,                    ONLY : remove_car, replace_car, l_case 
+ use CFML_Crystallographic_Symmetry,   only : set_spacegroup,   get_hallsymb_from_gener
  USE SHELX_module
  USE IO_module
 
@@ -464,8 +485,8 @@ subroutine create_NEW_ins
   REAL, DIMENSION(3,3)             :: new_op_ROT
   REAL, DIMENSION(3)               :: new_op_TRANS
 
-
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "create_NEW_ins")
+ 
  OPEN(UNIT = INS_unit, FILE='CRYSCAL_new.ins')
   WRITE(INS_unit, '(3(a, 3(1x,F7.4)))')   'TITL  after transformation with matrix: ', Mat(1,:), '  ', Mat(2,:), '  ', Mat(3,:)
   WRITE(INS_unit, '(a,F8.5,6F9.4)')  'CELL ', wavelength, unit_cell%new_param(1:6)
@@ -529,10 +550,10 @@ subroutine create_NEW_ins
 
  END do
   ! deduction du nouveau symbol du groupe
-do op_num = 1, symm_nb
+ do op_num = 1, symm_nb
    WRITE(message_text, *) op_num, car_symop(op_num)
    call write_info(trim(message_text))
-end do
+ end do
 
 !  call set_spacegroup(' ', SPG, car_symop, nb_symm_op, 'gen')
   call set_spacegroup(' ', SPG, car_symop, symm_nb, 'gen')
@@ -594,4 +615,173 @@ subroutine get_atom_order(atom_string, atom_order)
  RETURN
 end subroutine get_atom_order
 
+!--------------------------------------------------------------
+subroutine read_TIDY_out_input_file(input_file)
+ USE macros_module
+ use cryscal_module
+ USE IO_module
+ use CFML_Crystallographic_Symmetry   , only : set_spacegroup
+ 
+ implicit none
+  CHARACTER (LEN=*), INTENT(IN)            :: input_file
+  character (len=256)                      :: read_line, new_line
+  character (len=20)                       :: new_SG
+  integer                                  :: i_error, i1, i2, long
+  real, dimension(3)                       :: coord
+  
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_TIDY_out_input_file")
+  
+  
+  nb_atom = 0
+  do
+   READ(UNIT=TIDY_read_unit, fmt='(a)', IOSTAT=i_error) read_line
+   IF(i_error < 0) return   ! fin du fichier
+   read_line = ADJUSTL(read_line)
+   read_line = u_case(TRIM(read_line))
+   if(len_trim(read_line) == 5  .and. read_line(1:5)  == 'TRANS') exit
+   if(len_trim(read_line) == 5  .and. read_line(1:5)  == 'OTHER') exit
+   if(len_trim(read_line) == 12 .and. read_line(1:12) == 'END OF STIDY') exit
+      
+   
+   IF(read_line(1:1) == '(') then
+    i1 = INDEX(read_line, ')')
+    i2 = INDEX(read_line, '-')  
+	if (i1/=0 .and. i2/=0 .and. i2 > i1+1) then      
+	  READ(read_line(i1+1:i2-1), fmt='(a)') Space_group_symbol
+	  Space_group_symbol = adjustl(Space_group_symbol)	  
+      call set_spacegroup(Space_group_symbol, SPG)	     
+	  write(main_title, '(2a)')  ' TIDY output in ', trim(Space_group_symbol)	  
+      keyword_SPGR = .true.	  
+	  Z_unit = SPG%multip
+	  keyword_Zunit = .true.
+    end if	
+	
+   elseif(read_line(1:4) == 'CELL') then
+	 unit_cell%param(4:6) = 90.
+     READ(read_line(5:), '(a)')new_line   
+	 
+	 IF(SPG%CrystalSys(1:9) == 'Triclinic') then
+      READ(read_line(5:), *) unit_cell%param(1:6)
 
+     elseif(SPG%CrystalSys(1:10) == 'Monoclinic') then
+      READ(read_line(5:), *) unit_cell%param(1:3), unit_cell%param(5)
+
+     elseif(SPG%CrystalSys(1:12) == 'Orthorhombic') then
+      READ(read_line(5:), *) unit_cell%param(1:3)
+
+     elseif(SPG%CrystalSys(1:10) == 'Tetragonal') then
+      READ(read_line(5:), *) unit_cell%param(1), unit_cell%param(3)
+      unit_cell%param(2) = unit_cell%param(1)
+
+     elseif(SPG%CrystalSys(1:12) == 'Rhombohedral') then
+      READ(read_line(5:), *) unit_cell%param(1), unit_cell%param(4)
+      unit_cell%param(2) = unit_cell%param(1)
+      unit_cell%param(3) = unit_cell%param(1)
+      unit_cell%param(5) = unit_cell%param(4)
+      unit_cell%param(6) = unit_cell%param(4)
+
+     elseif(SPG%CrystalSys(1:9)  == 'Hexagonal') then
+      READ(read_line(5:), *) unit_cell%param(1), unit_cell%param(3) 
+      unit_cell%param(2) = unit_cell%param(1)
+      unit_cell%param(6) = 120.     
+
+     elseif(SPG%CrystalSys(1:5)  == 'Cubic') then
+      READ(read_line(5:), *) unit_cell%param(1)
+      unit_cell%param(2) = unit_cell%param(1)
+      unit_cell%param(3) = unit_cell%param(1)
+     endif
+	 
+	 keyword_CELL = .true.
+	 
+	elseif(read_line(1:4) == 'ATOM') then
+	 nb_atom = nb_atom + 1
+     read(read_line(5:),'(a)') new_line
+     new_line = adjustl(new_line)
+     read(new_line,*)  atom_label(nb_atom)
+     i1 = index(new_line, '(')
+     i2 = index(new_line, ')')
+     if (i1 /=0 .and. i2/=0 .and. i1/=i2) then
+      read(new_line(i1-3:i1-1),*)  atom_mult(nb_atom)
+	  long = len_trim(new_line)
+      new_line = new_line(i2+1:long-4)
+	  call get_atom_coord(new_line)
+	  
+	  atom_occ(nb_atom) = real(atom_mult(nb_atom))/SPG%multip	
+	 end if 
+ 
+	end if  	
+  end do
+
+  return   
+end subroutine read_TIDY_out_input_file
+
+!--------------------------------------------------------------
+
+subroutine create_CELL_object()
+ use CFML_crystal_metrics, only   : set_crystal_cell
+ use cryscal_module      , only   : unit_cell, crystal_cell, cartesian_frame 
+
+  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell, cartesian_frame%type)
+  crystal_cell%cell_std(1:3) = unit_cell%param_esd(1:3)  
+  crystal_cell%ang_std(1:3)  = unit_cell%param_esd(4:6)  
+    
+  return
+end subroutine create_CELL_object  
+
+!-----------------------------------------------------------------
+
+subroutine read_FACES_file(input_file)
+ use cryscal_module, only : INS_read_unit, crystal, unit_cell, keyword_CELL
+ USE IO_module,      ONLY : write_info
+
+ implicit none
+ character (len=*), intent(in)             :: input_file
+ character (len=256)                       :: read_line
+ integer                                   :: ier
+ integer                                   :: h, k, l
+ real                                      :: dim 
+ real                                      :: a,b,c,alpha,beta,gamma
+
+ open(unit=INS_READ_unit, file=trim(input_file))
+ 
+ crystal%faces_nb = 0
+ do  
+  read(unit = INS_read_unit, fmt= '(a)', iostat = ier) read_line
+  if(ier /=0) return
+  read_line = adjustl(read_line)
+    
+  if(read_line(1:1) == "#") then
+   cycle
+  
+  elseif(read_line(1:4) == 'CELL') then
+   read(read_line(5:),* ,  iostat=ier) a,b,c,alpha,beta, gamma
+   if(ier==0) then
+    unit_cell%param(1) = a
+	unit_cell%param(2) = b
+	unit_cell%param(3) = c
+	unit_cell%param(4) = alpha
+	unit_cell%param(5) = beta
+	unit_cell%param(6) = gamma
+	keyword_CELL = .true.
+   end if
+  
+  elseif(read_line(1:4) == 'FACE') then 
+   if(crystal%faces_nb == 0) call write_info('')
+   call write_info('     '//trim(read_line))  
+   !read(read_line(5:),'(3I5,F9.4)', iostat=ier) h, k, l, dim
+   read(read_line(5:),*, iostat=ier) h, k, l, dim 
+    if(ier==0) then
+    crystal%faces_nb = crystal%faces_nb + 1
+    crystal%face_index(1, crystal%faces_nb) = h
+	crystal%face_index(2, crystal%faces_nb) = k
+	crystal%face_index(3, crystal%faces_nb) = l
+    crystal%face_dim(crystal%faces_nb) = dim 	
+   end if	
+  end if
+  
+ end do
+ 
+ close(unit=INS_read_unit)
+ 
+ return
+end subroutine read_FACES_file

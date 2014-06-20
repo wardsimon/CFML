@@ -52,6 +52,7 @@ del *.map
       lf95 -c pgf_file          -o1 -info                                           -nchk  -nstchk
       lf95 -c HELP              -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c create_HTML       -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
+      lf95 -c create_report     -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c create_CIF        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal_lsg_cfml  -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c cryscal_write     -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
@@ -60,6 +61,7 @@ del *.map
 
  lf95 -out cryscal *.obj   -mod %CRYSFML%\lahey\libC -lib %CRYSFML%\lahey\libC\crysfml
  upx cryscal.exe
+ copy cryscal.exe cryscal_lf.exe
 
 rem del *.obj
 rem del *.mod

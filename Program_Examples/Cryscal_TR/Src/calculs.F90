@@ -3,14 +3,14 @@
 
 !------------------------------------------------------------------------------
 !
-subroutine get_label_atom_coord(input_string, i,n, ok)
+subroutine get_label_atom_coord(input_string, i, n, ok)
 ! determination des coord. atomiques a partir du label
 ! rq: le label peut etre de la forme AA_$n, ou:
 !                                     AA: label de l'atome dans la liste des atomes
 !                                     $n: numero de l'operateur de symetrie (dans la liste) a appliquer a l'atome
  use cryscal_module, ONLY       : R => symm_op_rot,  T => symm_op_trans, nb_dist_calc, nb_symm_op,              &
                                   nb_atom, atom1_dist, atom2_dist, atom1_ang, atom2_ang, atom3_ang, atom4_ang,  &
-                                  atom_label, atom_coord, new_coord, message_text
+                                  atom_label, atom_coord, new_coord, message_text, debug_proc
  USE IO_module
  USE macros_module, only        : u_case
 
@@ -20,15 +20,16 @@ subroutine get_label_atom_coord(input_string, i,n, ok)
  LOGICAL, INTENT(INOUT)       :: ok
  INTEGER                      :: i1, j, atom_index, long, num_sym_op
  CHARACTER(LEN=6)             :: label
- integer                      :: long_input_string
  logical                      :: input_dist, input_ang
  
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "get_label_atom_coord ("//trim(input_string)//")")
+  
  input_dist = .false.
  input_ang  = .false.
  
- if(long_input_string == 4) then
+ if(len_trim(input_string) == 4) then
   if(input_string(1:4) == 'dist') input_dist = .true.
- elseif(long_input_string == 3) then
+ elseif(len_trim(input_string) == 3) then
   if(input_string(1:3) == 'ang') input_ang = .true.
  endif
   
@@ -92,6 +93,7 @@ subroutine get_label_atom_coord(input_string, i,n, ok)
                   R(3,3, num_sym_op) * atom_coord(3, atom_index)  + T(3, num_sym_op)
  else
   atom_index = 0
+  
   do j= 1, nb_atom
     if (u_case(label) == u_case(atom_label(j)) ) atom_index = j
   end do
@@ -115,7 +117,8 @@ END subroutine get_label_atom_coord
 !-------------------------------------------------------------------------------
 
 subroutine  calcul_angles
- use cryscal_module,          ONLY : nb_ang_calc, atom1_ang, atom2_ang, atom3_ang, atom4_ang, SP_value, new_coord, message_text
+ use cryscal_module,          ONLY : nb_ang_calc, atom1_ang, atom2_ang, atom3_ang, atom4_ang, SP_value, new_coord, message_text, &
+                                     debug_proc
  USE CFML_Math_General,       ONLY : acosd
  !USE CFML_Constants,          ONLY : sp
  USE CFML_GlobalDeps,                 ONLY : sp
@@ -129,6 +132,7 @@ subroutine  calcul_angles
   CHARACTER(LEN=16)       :: label_1, label_2, label_3, label_4
   LOGICAL                 :: ok
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_angles")
 
   call write_info('')
   call write_info('    . ANGLES CALCULATIONS')
@@ -188,15 +192,13 @@ subroutine  calcul_angles
 
   END do
 
-
-
   return
 end subroutine  calcul_angles
 
 !-------------------------------------------------------------------------------
 
 subroutine angle_calculation(coord_1, coord_2, coord_3, coord_4, angle)
- USE cryscal_module,          ONLY : SP_value
+ USE cryscal_module,          ONLY : SP_value, debug_proc
  USE CFML_Math_General,       ONLY : acosd
  !USE CFML_Constants,          ONLY : sp
  USE CFML_GlobalDeps,         ONLY : sp
@@ -207,6 +209,9 @@ subroutine angle_calculation(coord_1, coord_2, coord_3, coord_4, angle)
   real                              :: dist_12, dist_34
   real                              :: cos_angle
 
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "angle_calculation")
+
+  
   if(coord_4(1) < -98. .and. coord_4(2) < -98. .and. coord_4(3) < -98.) then
     ! distance entre 1 et 2
     call distance_calculation(coord_1(:), coord_2(:), dist_12)
@@ -244,19 +249,28 @@ end subroutine angle_calculation
 subroutine volume_calculation(input_string)
  use cryscal_module,  only        :  ON_SCREEN, pi, unit_cell, keyword_create_CIF, CIF_unit, &
                                      DC_ort, ort_DC, RC_ort, ort_RC, GMD, GMR, keyword_CELL, &
-									 known_cell_ESD, message_text
+									 known_cell_ESD, message_text, UB_mat_log, debug_proc,   &
+									 crystal_cell
 
- USE CFML_Math_General      ,  ONLY        :  cosd, sind, acosd
- USE math_module,     ONLY        :  orthog, metric, matinv
+ USE CFML_Math_General      ,  ONLY   :  cosd, sind, acosd
+ USE math_module,              ONLY   :  orthog, metric, matinv
+ USE CFML_crystal_metrics,     only   :  Set_Crystal_Cell, write_crystal_cell
  USE IO_module
-
+ 
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: input_string
   REAL                          :: CosAlfa, CosBeta, CosGamma
   REAL                          :: cosa2, cosb2, cosg2
-  INTEGER                       :: i
+  character (len=256)           :: read_line
+  INTEGER                       :: i, ier
   INTEGER                       :: ifail
+  !type (crystal_cell_type)      :: celda
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "volume_calculation ("//trim(input_string)//")")
+
+  !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
+  call create_CELL_object()
+  
   if(ON_SCREEN) then
    IF(input_string=='out') then
     call write_info(' ')
@@ -287,10 +301,14 @@ subroutine volume_calculation(input_string)
    cosg2 = cosGamma ** 2
   endif
 
+  if(debug_proc%level_3) call write_debug_proc_level(3, "volume (direct space)")
+
   unit_cell%volume = SQRT(1 + 2 * CosAlfa * cosbeta * cosgamma - cosa2 - cosb2 - cosg2)
   unit_cell%volume = unit_cell%volume * unit_cell%param(1) * unit_cell%param(2) * unit_cell%param(3)
 
   ! reciprocal parameters
+  if(debug_proc%level_3) call write_debug_proc_level(3, "reciprocal parameters")
+
   unit_cell%rec_param(1) = unit_cell%param(2)*unit_cell%param(3)*sind(unit_cell%param(4))/unit_cell%volume
   unit_cell%rec_param(2) = unit_cell%param(3)*unit_cell%param(1)*sind(unit_cell%param(5))/unit_cell%volume
   unit_cell%rec_param(3) = unit_cell%param(1)*unit_cell%param(2)*sind(unit_cell%param(6))/unit_cell%volume
@@ -306,6 +324,7 @@ subroutine volume_calculation(input_string)
   do i=4,6
    unit_cell%rec_param(i) = acosd(unit_cell%rec_param(i))
   end do
+  if(debug_proc%level_3) call write_debug_proc_level(3, "volume (reciprocal space)")
 
   unit_cell%rec_volume = 1./unit_cell%volume
 
@@ -369,7 +388,7 @@ subroutine volume_calculation(input_string)
   end if
   end if
 
-  if(keyword_create_CIF) then
+  if(keyword_create_CIF .and. input_string== "out") then
    call write_CIF_file('UNIT_CELL_INFO')
    IF(known_cell_ESD) then
     call write_CIF_file('CELL_PARAM_ESD')
@@ -377,17 +396,64 @@ subroutine volume_calculation(input_string)
     call write_CIF_file('CELL_PARAM')
    endif
   endif
-
+  
+  
+  if(UB_mat_log .And. input_string=='out')  call write_UB_matrix
+   
+  !if(input_string =='out') call write_crystal_cell(crystal_cell)
+   
  return
 end subroutine volume_calculation
 
+
+!------------------------------------------------------------------------------
+
+subroutine write_UB_matrix
+ USE cryscal_module,           only  : tmp_unit, UB_matrix, message_text, debug_proc
+ USE CFML_Geometry_SXTAL,      ONLY  : CELL_fr_UB
+ USE IO_module
+
+
+ implicit none
+  integer               :: i, ier
+  character (len=256)   :: read_line
+ 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_UB_matrix")
+
+ 
+  write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 11 12 13: ', UB_matrix(1,1),   UB_matrix(1,2),  UB_matrix(1,3)
+  call write_info(trim(message_text))
+  write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 21 22 23: ', UB_matrix(2,1),   UB_matrix(2,2),  UB_matrix(2,3)
+  call write_info(trim(message_text))
+  write (message_text, '(a,3(1x,F10.5))') '  UB_matrix 31 32 33: ', UB_matrix(3,1),   UB_matrix(3,2),  UB_matrix(3,3) 
+  call write_info(trim(message_text))
+  
+  open(unit=tmp_unit, file='tmp_ub.txt')
+   call CELL_fr_UB(UB_matrix, tmp_unit)	
+  close(unit=tmp_unit)
+  
+  open(unit=tmp_unit, file='tmp_ub.txt')
+    do i=1,5
+	 read(unit=tmp_unit, fmt='(a)', iostat=ier) read_line
+	 if(ier ==0) then
+	 call write_info(trim(read_line))
+	 end if
+	end do
+   close(unit=tmp_unit)  
+   call system('del tmp_ub.txt')
+
+ return
+end subroutine write_UB_matrix
 !------------------------------------------------------------------------------
 subroutine get_crystal_SIZE_min_max()
- USE cryscal_module, ONLY : crystal
+ USE cryscal_module, ONLY : crystal, debug_proc
   implicit none
    INTEGER               :: i, i_mid
    INTEGER, DIMENSION(1) :: i_min, i_max
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "get_crystal_size_min_max")
+
+   
    i_max = MAXLOC(crystal%size)
    i_min = MINLOC(crystal%size)
    do i = 1, 3
@@ -405,13 +471,17 @@ subroutine get_crystal_SIZE_min_max()
 end subroutine get_crystal_SIZE_min_max
 !-------------------------------------------------------------------------------
 subroutine crystal_volume_calculation()
- USE cryscal_module,    ONLY : ON_SCREEN, crystal, pi, keyword_create_CIF, CIF_unit, keyword_SIZE, message_text
+ USE cryscal_module,    ONLY : ON_SCREEN, crystal, pi, keyword_create_CIF, CIF_unit, keyword_SIZE, message_text, &
+                               debug_proc
  USE IO_module
 
  implicit none
    INTEGER                  :: i, i_mid
    INTEGER, DIMENSION(1)    :: i_min, i_max
 
+   if(debug_proc%level_2)  call write_debug_proc_level(2, "crystal_volume_calculation")
+
+   
    if(ON_SCREEN) then
    call write_info(' ')
    call write_info('          Crystal dimensions ')
@@ -450,8 +520,10 @@ END subroutine crystal_volume_calculation
 
 
 subroutine calcul_dhkl
- use cryscal_module, only          : pi, unit_cell, wavelength, keyword_WAVE,  keyword_SPGR, &
-                                     nb_hkl, H, shift_2theta, keyword_QVEC, Qvec, message_text, SPG
+ use cryscal_module, only          : pi, unit_cell, wavelength, keyword_WAVE,  keyword_SPGR,          &
+                                     nb_hkl, H, shift_2theta, keyword_QVEC, Qvec, message_text, SPG,  &
+									 debug_proc
+									 
  USE CFML_Math_General,              ONLY : sind
  USE CFML_Reflections_Utilities,     ONLY : HKL_Absent
  USE CFML_crystallographic_symmetry, ONLY : Space_Group_Type, set_spacegroup
@@ -470,6 +542,7 @@ subroutine calcul_dhkl
  CHARACTER (len=1)                    :: ind_H
  logical                              :: absent
 
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_dhkl")
 
  IF(unit_cell%volume < 0.1) call volume_calculation('out')
 
@@ -556,7 +629,8 @@ subroutine calcul_dhkl
    else
     angle_2theta = 180.
    endif
-   angle_2theta = angle_2theta + shift_2theta
+   angle_2theta = angle_2theta + shift_2theta(1) + shift_2theta(2)*COS(Angle_2theta*pi/180) +  &
+                                                   shift_2theta(3)*SIN(Angle_2theta*pi/180) 
 
    if(keyword_QVEC) then
     write(message_text, '(4x,a1,3(1x,F6.2),5x,5(5x,F10.4))') ind_H(:), HQ(1:3), d_hkl, stl_hkl, Q_hkl, angle_2theta/2., angle_2theta
@@ -582,13 +656,16 @@ end subroutine calcul_dhkl
 
 !----------------------------------------------------------
 subroutine atomic_density_calculation()
- USE cryscal_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, nb_at, unit_cell, message_text 
+ USE cryscal_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, nb_at, unit_cell, message_text, &
+                            debug_proc 
  USE IO_module
 
  implicit none  
  !local variables
  REAL                                      :: density
  INTEGER                                   :: i
+
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "atomic_density_calculation")
 
  if(ON_SCREEN ) then
   call write_info(' ')
@@ -630,12 +707,15 @@ END subroutine atomic_density_calculation
 
 subroutine atomic_identification()
  USE atomic_data
- USE cryscal_module, only           : nb_atoms_type, SFAC_type, num_atom, known_atomic_label, known_atomic_features
+ USE cryscal_module, only           : nb_atoms_type, SFAC_type, num_atom, known_atomic_label, known_atomic_features, &
+                                      debug_proc
  USE macros_module, ONLY            : u_case
  USE IO_module
 
  implicit none
   INTEGER                          :: i, j
+
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "atomic_identification")
 
   if(.not. known_atomic_label)    then
    call definition_atomic_label    ! %symbol, %name
@@ -678,7 +758,7 @@ subroutine molecular_weight()
  USE atomic_data
  USE cryscal_module, only           : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, sto, num_atom, Z_unit,       &
                                       keyword_CHEM, neutrons, keyword_create_CIF, CIF_unit, message_text, &
-                                      molecule
+                                      molecule, debug_proc
  USE IO_module,      only           : write_info
  USE macros_module,  only           : l_case
 
@@ -690,12 +770,16 @@ subroutine molecular_weight()
   INTEGER                                     :: n_electrons
   CHARACTER (LEN=16)                          :: fmt_
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "molecular_weight")
+
  if(ON_SCREEN) then
  call write_info(' ')
  call write_info('          Molecular features ')
  call write_info('          ------------------')
  endif
 
+ labl = '?'
+  
  do i=1, nb_atoms_type
 
   ! molecular formula
@@ -706,8 +790,7 @@ subroutine molecular_weight()
   !else
   ! sto(i) = SFAC_number(i)
   endif
-  
-
+   
   IF(INT(sto(i)) < 10) then
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
     WRITE(labl(i), '(a,I1)') trim(SFAC_type(i)), INT(sto(i))
@@ -757,7 +840,7 @@ subroutine molecular_weight()
  else
   write(fmt_, '(a,i2,a)') '(', nb_atoms_type, '(1x,a))'
  endif
- write(molecule%formula, fmt_) (TRIM(labl(i)),i=1,nb_atoms_type)
+ if(nb_atoms_type /=0)  write(molecule%formula, fmt_) (TRIM(labl(i)),i=1,nb_atoms_type)
 
  if(ON_SCREEN) then
  call write_info('')
@@ -796,12 +879,15 @@ end subroutine molecular_weight
 !------------------------------------------------------------------------------
 
 subroutine density_calculation()
- USE cryscal_module, ONLY         : ON_SCREEN, molecule, Z_unit, unit_cell, keyword_create_CIF, CIF_unit, message_text
+ USE cryscal_module, ONLY         : ON_SCREEN, molecule, Z_unit, unit_cell, keyword_create_CIF, CIF_unit, message_text, &
+                                    debug_proc
  USE IO_module
 
  implicit none
   REAL, parameter                 :: avogadro = 6.022
   REAL                            :: density
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "density_calculation")
 
   molecule%density = (Z_unit * Molecule%weight) / (0.1* avogadro * unit_cell%volume  )
 
@@ -824,11 +910,14 @@ subroutine calcul_barycentre
  USE IO_module
 
   implicit none
-   integer                      :: i , j , f
-   real, dimension(3)           :: bary_coord
+   integer                      :: i , j , f, t
+   real, dimension(3)           :: bary_coord, inside_coord
    integer, dimension(500)      :: bary_atom    ! numero des atomes dans le calcul du barycentre
+   integer, dimension(3)        :: move
+   
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "barycentre")
 
-
+ 
  do i = 1, nb_bary_calc
   ! quels atomes
   do j= 1, nb_atom
@@ -847,15 +936,43 @@ subroutine calcul_barycentre
    call write_info(TRIM(message_text))
   call write_info('')
   do j=1, nb_atom_bary(i)
-   write(message_text,'(5x,2a,3F10.5)')       atom_label(j)(1:4), ': '  ,  atom_coord(1,bary_atom(j)) , &
+   write(message_text,'(5x,2a,3F10.5, 5x, a,3F10.5)')       atom_label(bary_atom(j))(1:4), ': '  ,  atom_coord(1,bary_atom(j)) , &
                                                                            atom_coord(2,bary_atom(j)) , &
-                                                                           atom_coord(3,bary_atom(j))
+                                                                           atom_coord(3,bary_atom(j)) , 'v = ',  &
+																		   bary_coord(1)-atom_coord(1,bary_atom(j)), &
+																		   bary_coord(2)-atom_coord(2,bary_atom(j)), &
+																		   bary_coord(3)-atom_coord(3,bary_atom(j))
+																		   
    call write_info(TRIM(message_text))
   end do
   call write_info('')
   write(message_text,'(5x,a,3F10.5)')   'centroid coordinates: ', bary_coord(1:3)
-   call write_info(TRIM(message_text))
+  call write_info(TRIM(message_text))
+  
+  inside_coord = bary_coord
+  move = 0 
+  t    = 0
+  do j=1, 3
+   do while (inside_coord(j) < 0.0)
+    move(j) = move(j) + 1
+	inside_coord(j) = inside_coord(j)  + 1
+	t = t + 1
+   end do	
+   do while (inside_coord(j) > 1.0)
+    move(j) = move(j) - 1  
+	inside_coord(j) = inside_coord(j)  - 1
+	t = t + 1
+   end do	
+  end do
+  
+  if(t /=0) then
+   call write_info('')
+   write(message_text, '(a,3(2x,i2))') '  SHELX instruction : MOVE ', move(1:3)
+   call write_info(trim(message_text))
+  endif
+  
 
+ 
 
  end do
 
@@ -864,12 +981,14 @@ end subroutine calcul_barycentre
 !----------------------------------------------------------------
 
 subroutine calcul_2theta(stl, angle_2theta)
- use cryscal_module, only       : pi, wavelength
+ use cryscal_module, only       : pi, wavelength, debug_proc
  implicit none
   real, intent(in)             :: stl
   real, intent(out)            :: angle_2theta
 
   real                         :: Z
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_2theta")
 
    Z = stl * wavelength
    if (Z**2 <1) then
@@ -976,7 +1095,8 @@ end subroutine calcul_2theta
 !--------------------------------------------------------------------------
 ! calcul de l'angle entre 2 vecteurs
 subroutine  calcul_vector_angle(input_string)
- USE cryscal_module, ONLY : DC_ort, RC_ort, nb_da, nb_ra, U1_da, U2_da, U1_ra, U2_ra, gmd, gmr, message_text
+ USE cryscal_module, ONLY : DC_ort, RC_ort, nb_da, nb_ra, U1_da, U2_da, U1_ra, U2_ra, gmd, gmr, message_text, &
+                            debug_proc
  USE math_module,    ONLY : length, matvec, scalpr
  USE CFML_Math_General,       ONLY : acosd      ! crysfml
  USE IO_module
@@ -991,15 +1111,17 @@ subroutine  calcul_vector_angle(input_string)
   real                          :: aux
   REAL                          :: angle
   CHARACTER (LEN=12)            :: space_string
-  integer                       :: long_input_string
   logical                       :: input_direct, input_reciprocal
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_vector_angle ("//trim(input_string)//")")
+
   input_direct     = .false.
   input_reciprocal = .false.
   
-  if(long_input_string == 6) then
+  
+  if(len_trim(input_string) == 6) then
    if(input_string(1:6) == 'direct') input_direct = .true.
-  elseif(long_input_string ==  10) then
+  elseif(len_trim(input_string) ==  10) then
    if(input_string(1:10) == 'reciprocal') input_reciprocal = .true.
   endif
   
@@ -1047,7 +1169,7 @@ end subroutine   calcul_vector_angle
 
 subroutine calcul_theta()
  USE HKL_module
- USE cryscal_module, ONLY : unit_cell, wavelength, known_theta, keyword_CELL, keyword_WAVE
+ USE cryscal_module, ONLY : unit_cell, wavelength, known_theta, keyword_CELL, keyword_WAVE, debug_proc
  USE IO_module
  implicit none
   INTEGER                        :: i
@@ -1055,6 +1177,9 @@ subroutine calcul_theta()
   real, parameter                :: pi=3.1415926535897932
   real, parameter                :: eps = 0.000001
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_theta")
+
+  
   IF(.NOT. keyword_CELL) then
    call write_info('')
    call write_info('  !! CELL keyword mandatory for the Rint calculation procedure !!')
@@ -1069,6 +1194,8 @@ subroutine calcul_theta()
    return
   END if
 
+
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "CALCUL_Q for all reflections")
 
   do i=1, n_ref
    call calcul_Q(real(h(i)), real(k(i)), real(l(i)),unit_cell%param, Q)
@@ -1096,12 +1223,14 @@ end subroutine calcul_theta
 
 !----------------------------------------------------------
 subroutine multi_matrix
- USE cryscal_module, ONLY : message_text, input_line
+ USE cryscal_module, ONLY : message_text, input_line, debug_proc
  USE IO_module
 
  implicit none
   INTEGER                     :: i_error, i, j, k
   REAL, DIMENSION(3,3)        :: M1, M2, M
+
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "multi_matrix")
 
  do
   call write_info('')
@@ -1172,7 +1301,7 @@ END subroutine multi_matrix
 
 subroutine verif_linearity(str, linear)
 ! verification de la linearite de str1-str2-str3 et str2-str3-str4
- use cryscal_module, only : atom1_ang, atom2_ang, atom3_ang, atom4_ang,  new_coord
+ use cryscal_module, only : atom1_ang, atom2_ang, atom3_ang, atom4_ang,  new_coord, debug_proc
 
  implicit none
   character (len=*), dimension(4), intent(in)    :: str
@@ -1180,6 +1309,8 @@ subroutine verif_linearity(str, linear)
   REAL, DIMENSION(3)                             :: atom_1_coord, atom_2_coord, atom_3_coord, atom_4_coord
   real                                           :: angle
   logical                                        :: ok
+
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "verif_linearity")
 
   linear = .false.
 

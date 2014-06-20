@@ -21,9 +21,15 @@ MODULE MACROS_module
               remove_car,                &
               clear_string,              &
               replace_car,               &
+              replace_car2,              &
+			  verif_hkl_format,          &
+			  multiple,                  &
+			  answer_yes,                &
+			  answer_no,                 &
               write_message,             &
               check_character,           &
 			  Get_current_folder_name,   &
+			  Get_sample_ID_from_folder_name, &
               Get_Wingx_job
 
 
@@ -160,10 +166,11 @@ MODULE MACROS_module
 
 !-------------------------------------------------------------------
 
- subroutine test_file_exist(file_name, file_exist)
+ subroutine test_file_exist(file_name, file_exist, input_string)
   use IO_module
   CHARACTER(LEN=*), INTENT(IN)          :: file_name
   LOGICAL,          INTENT(INOUT)       :: file_exist
+  CHARACTER(LEN=*), INTENT(IN)          :: input_string
   character(len=256)                    :: text_info
 
   inquire (FILE=TRIM(file_name), EXIST=file_exist)
@@ -185,7 +192,8 @@ MODULE MACROS_module
   ! call write_info('')
   ! return
   !endif
-  if(.not. file_exist) then
+  
+  if(.not. file_exist .and. input_string(1:3) == 'out') then
    call write_info('')
    write(text_info, '(3a)') ' >>> ', trim(file_name), ' does not exist !'
    call write_info(trim(text_info))
@@ -372,9 +380,57 @@ end subroutine error_message
    CHARACTER (LEN=*),    INTENT(IN)    :: chaine
    CHARACTER (LEN=*),    INTENT(IN)    :: car1, car2
    CHARACTER (LEN=len(chaine))         :: new_chaine
+   character (len=1)                   :: new_car
    INTEGER                             :: i
    integer                             :: len_car1
+   logical                             :: modif_car2
 
+
+   new_chaine = chaine
+   !len_car1 = len_trim(car1)
+
+   !do
+   ! i = INDEX(new_chaine,car1)
+
+   ! if (i==0) exit
+   ! IF (i> LEN_TRIM(new_chaine)) exit
+   ! new_chaine = new_chaine(1:i-1)//car2//new_chaine(i+len_car1:)
+   !END do
+
+   modif_car2 = .false.
+   do i = 1, len_trim(car2)
+    if(index(car1, car2(i:i)) /=0) then	  
+     if(index(chaine, '/') /=0) then
+	  new_car = "/"
+	 else
+      if(index(chaine, '/') /=0) then
+	   new_car ="!"
+      endif	  
+     endif	 
+	 new_chaine = replace_car2(chaine, car1(1:1), new_car)
+	 new_chaine = replace_car2(new_chaine, new_car, car2)
+	 
+	 modif_car2 = .true.
+	 exit
+    end if
+   end do	
+   
+   if(.not. modif_car2)  new_chaine =  replace_car2(chaine, car1, car2)
+
+   return
+ end function replace_car
+ 
+  !-------------------------------------------------------------------
+ function replace_car2(chaine, car1, car2) result(new_chaine)
+  ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
+  ! dans une chaine
+
+  implicit none
+   CHARACTER (LEN=*),    INTENT(IN)    :: chaine
+   CHARACTER (LEN=*),    INTENT(IN)    :: car1, car2
+   CHARACTER (LEN=len(chaine))         :: new_chaine
+   INTEGER                             :: i
+   integer                             :: len_car1
 
    new_chaine = chaine
    len_car1 = len_trim(car1)
@@ -389,7 +445,75 @@ end subroutine error_message
 
 
   return
- end function replace_car
+ end function replace_car2
+
+!-------------------------------------------------------------------
+function verif_hkl_format(hkl_format) result(new_format)
+
+ implicit none
+  character (len=*) , intent(in)  :: hkl_format
+  CHARACTER (LEN=32)              :: new_format
+ 
+  integer                            :: i1, i2, long
+  
+  new_format = hkl_format
+  
+  long = len_trim(new_format)
+  
+  i1 = index(new_format, "'")
+  if(i1 /=0)   new_format = remove_car(new_format, "'")
+    
+  i1 = index(new_format, '"')
+  if(i1 /=0)   new_format = remove_car(new_format, '"')
+  
+  i1 = index(new_format, '(')
+  if(i1 /=0)   new_format = remove_car(new_format, '(')
+  
+  i1 = index(new_format, ')')
+  if(i1 /=0)   new_format = remove_car(new_format, ')')
+  new_format = '('//trim(new_format)//')'
+   
+ 
+ return
+end function verif_hkl_format
+!-------------------------------------------------------------------
+
+function multiple(n, m) result(multipl)   ! n multiple de m ?
+
+ implicit none
+  integer, intent(in)   :: n, m
+  logical               :: multipl
+  
+  
+  multipl = .false.
+  if(m*int(n/m) == n) multipl = .true.
+
+end function multiple
+
+!-------------------------------------------------------------------
+function answer_yes(input_string) result(answer_y)
+ 
+ implicit none
+  character (*), intent(in)  :: input_string
+  logical                    :: answer_y
+ 
+  answer_y = .false.
+  if(input_string(1:1) == '1' .or. Input_string(1:1) == 'y'  .or. input_string(1:1) == 'Y') answer_y = .true.
+ 
+end function answer_yes
+
+!-------------------------------------------------------------------
+function answer_no(input_string) result(answer_n)
+ 
+ implicit none
+  character (*), intent(in)  :: input_string
+  logical                    :: answer_n
+ 
+  answer_n = .false.
+  if(input_string(1:1) == '0' .or. Input_string(1:1) == 'n'  .or. input_string(1:1) == 'n') answer_n = .true.
+ 
+end function answer_no
+
 
 !-------------------------------------------------------------------
 
@@ -411,7 +535,7 @@ end subroutine error_message
 
 
 !---------------------------------------------------------------------
-
+! verif. si un caractere est une lettre, symbole, chiffre
 
 subroutine  check_character(input_character, alpha_char, numeric_char)
  implicit none
@@ -482,7 +606,7 @@ subroutine Get_current_folder_name(folder_name)
  character(len=256)              :: read_line
 
  folder_name = '?'
- call system("dir folder_name > temp_file")
+ call system("dir   > temp_file")
   open (unit=22, file="temp_file")
    do i=1, 4
     read(22,'(a)', iostat=i_error) read_line
@@ -496,6 +620,25 @@ subroutine Get_current_folder_name(folder_name)
   call system("del temp_file")
 
 end subroutine Get_current_folder_name
+
+!-------------------------------------------------------------------------
+subroutine Get_sample_ID_from_folder_name(current_folder, sample_ID)
+ character (len=*),   intent(in)    :: current_folder
+ character (len=256), intent(out)   :: sample_ID
+ integer                            :: i1, i2
+ 
+   sample_ID = 'job'
+   i1 = index(current_folder, '\', back=.true.) 
+   if(i1 /=0) then
+	i2 = index(current_folder(i1+1:),"_")
+    if(i2 /=0) then	 
+	  write(sample_ID, '(a)') current_folder(i1+1:i1+i2-1)
+	 endif 
+	endif
+	
+ return
+end subroutine Get_sample_ID_from_folder_name 
+	 
 !------------------------------------------------------------------------------------
 subroutine Get_WinGX_job(job, wingx_structure_directory)
  use IO_module
@@ -509,7 +652,8 @@ subroutine Get_WinGX_job(job, wingx_structure_directory)
   character (len=256)             :: read_line
   integer                         :: i_error, long, i1
 
-  job = '?'
+  job                       = '?'
+  wingx_structure_directory = '?'
 
   ! recherche de la variable d'environnement wingxdir
   call getenv('WINGXDIR', wingx_path_name)

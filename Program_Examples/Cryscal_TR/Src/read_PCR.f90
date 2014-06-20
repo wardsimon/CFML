@@ -14,6 +14,8 @@ subroutine read_PCR_input_file
   integer                                  :: so_1, so_2, N_t
   real                                     :: f, f1
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_PCR_input_file")
+  
   !REWIND(UNIT=PCR_read_unit)
 
 
@@ -36,6 +38,7 @@ subroutine read_PCR_input_file
  do
   READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
+  read_line = l_case(read_line)
 
   i = INDEX(read_line,'! lambda1')
   if (i/=0) then
@@ -61,14 +64,16 @@ subroutine read_PCR_input_file
    exit
   end if
  END do
+ 
 
 
  !"!Atom Typ"
  do
   READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
+  read_line = l_case(read_line)
 
-  i = INDEX(read_line,'!Atom')
+  i = INDEX(read_line,'!atom')
 
   if (i/=0) then
    do
@@ -138,6 +143,7 @@ subroutine read_PCR_input_file
  do
   READ(UNIT=PCR_read_unit, fmt='(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
+  read_line = l_case(read_line)
   i = INDEX(read_line,'!     a          b         c        alpha      beta       gamma')
 
   if (i/=0) then
@@ -159,7 +165,7 @@ end subroutine read_PCR_input_file
 subroutine read_CEL_input_file(input_file)
  USE CRYSCAL_module, only          : CEL_read_unit, unit_cell, SPG, space_group_symbol, nb_atom, &
                                      atom_label, atom_typ, atom_coord, atom_occ_perc, atom_occ, atom_Biso, &
-                                     keyword_CELL, keyword_SPGR
+                                     keyword_CELL, keyword_SPGR, debug_proc
  USE macros_module,  only          : u_case, nombre_de_colonnes
  USE IO_module
  !use CFML_crystallographic_symmetry, ONLY : set_spacegroup
@@ -171,6 +177,7 @@ subroutine read_CEL_input_file(input_file)
   integer                          :: i, n_atom
   integer                          :: atomic_number
   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "read_CEL_input_file")
   
  ! do 
  !  read(unit = CEL_read_unit, '(a)', iostat=i_error) read_line
@@ -230,6 +237,7 @@ subroutine read_CEL_input_file(input_file)
    close(unit=CEL_read_unit)
    return
   endif 
+  keyword_CELL = .true.
   
   ! line 2 : natoms
    read(unit = CEL_read_unit, fmt='(a)', iostat=i_error) read_line

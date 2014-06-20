@@ -1,24 +1,319 @@
 !     Last change:  TR   17 Jul 2007    4:52 pm
 subroutine write_cryscal_NEWS(input_string)
- use cryscal_module, only : news_year
+ use cryscal_module, only : news_year, expert_mode, debug_proc
  USE IO_module, ONLY : write_info
 
   implicit none
    character (len=*), intent(in) :: input_string
 
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_cryscal_news ("//trim(input_string)//")")
+   
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '  Main new features implemented in CRYSCAL:')
   call write_cryscal_news_line(input_string,  '  (for more details, see the CRYSCAL manual (MAN keyword))')
   call write_cryscal_news_line(input_string,  ' ')
-  call write_cryscal_news_line(input_string,  '  T. Roisnel / CDIFX Rennes')
+  call write_cryscal_news_line(input_string,  '  T. Roisnel / CDIFX - ISCR Rennes')
   call write_cryscal_news_line(input_string,  '')
 
+  if(news_year(1:3) == 'all' .or. news_year(1:2) == '14' .or. news_year(1:4) == '2014') then
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . June 14 :') 
+   call write_cryscal_news_line(input_string,  '     # "create_PAT_PRF" field has been added in the "[COMMAND LINE ARGUMENTS]"')
+   call write_cryscal_news_line(input_string,  '       part in the setting file (cryscal.ini) : X-ray diffraction pattern')
+   call write_cryscal_news_line(input_string,  '       is then created (PRF file FullProf format) after reading a CIF file.')
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . May 14 :') 
+   call write_cryscal_news_line(input_string,  '     # Corrections of bugs caused by the new CRYSFML library')
+   call write_cryscal_news_line(input_string,  '       specially in bond distribution routine')
+   call write_cryscal_news_line(input_string,  '     # New arguments for CONN keyword:')
+   call write_cryscal_news_line(input_string,  '        . ANG : interatomic angle calculation')
+   call write_cryscal_news_line(input_string,  '        . CONDENSED : short output')
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . March 14 :') 
+   call write_cryscal_news_line(input_string,  '     # ALL_X argument for CONN keyword:')
+   call write_cryscal_news_line(input_string,  '       output atomic connectivity for all atoms')
+   call write_cryscal_news_line(input_string,  '       of the X species.')
+   call write_cryscal_news_line(input_string,  '       ex: CONN ALL_Cu')   
+   call write_cryscal_news_line(input_string,  '     # in_A argument for WRITE_ATOMS keyword:')
+   call write_cryscal_news_line(input_string,  '       Atomic coordinates are listes in A')
+   call write_cryscal_news_line(input_string,  '     # VOL argument for CONN keyword:')
+   call write_cryscal_news_line(input_string,  '       polyedron volume calculation, based on VOLCAL program')
+   call write_cryscal_news_line(input_string,  '       of L. W. FINGER, included in CFML')
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Feb 14 :') 
+   call write_cryscal_news_line(input_string,  '     # BARY keyword:')
+   call write_cryscal_news_line(input_string,  '       Centroid calculation can be applied with only 2 input atoms')
+   call write_cryscal_news_line(input_string,  '     # Bug has been corrected in the HTML report combined with ')
+   call write_cryscal_news_line(input_string,  '       SQUEEZE option.')   
+  end if
+  
+  if(news_year(1:3) == 'all' .or. news_year(1:2) == '13' .or. news_year(1:4) == '2013') then
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Nov 13 :') 
+   call write_cryscal_news_line(input_string,  '     # STAR_K keyword:')
+   call write_cryscal_news_line(input_string,  '       Apply rotational parts of the symmetry operators of a given')
+   call write_cryscal_news_line(input_string,  '       space group on the components of a propagation wave')
+   call write_cryscal_news_line(input_string,  '       vector.')
+
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Oct 13 :') 
+   call write_cryscal_news_line(input_string,  '     # CONN keyword:')
+   call write_cryscal_news_line(input_string,  '       . new argument for GEN_HKL keyword : PM2K')
+   call write_cryscal_news_line(input_string,  '         PM2K_hkl.inp is created : its contains hkl reflections list')
+   call write_cryscal_news_line(input_string,  '         to be copied in the input file for PM2K program (M. Leoni).')
+   call write_cryscal_news_line(input_string,  '       . new MIN= and MAX= arguments (default values are defined')
+   call write_cryscal_news_line(input_string,  '         in cryscal.ini setting file ([PARAMETERS] section)')
+   call write_cryscal_news_line(input_string,  '       . calculation of effective interatomic distances')
+   
+   
+
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Sept 13 :') 
+   call write_cryscal_news_line(input_string,  '     # new SELF argument for CONN keyword: output interatomic')
+   call write_cryscal_news_line(input_string,  '       distance only between atoms with same labels.')
+   call write_cryscal_news_line(input_string,  '       This can be useful for M-M distances in a organometallic complex.')   
+   call write_cryscal_news_line(input_string,  '     # New READ_FACES keyword : read crystal habitus .')
+   call write_cryscal_news_line(input_string,  '       ex. : READ_FACES absorb.ins')
+   call write_cryscal_news_line(input_string,  '       ex. : READ_FACES faces.Def')
+   
+   
+    
+   call write_cryscal_news_line(input_string,  '')
+
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . July 13 :') 
+   call write_cryscal_news_line(input_string,  '     # New DHA keyword : calculation of H position given donor and')
+   call write_cryscal_news_line(input_string,  '       acceptor atoms.')
+   
+   call write_cryscal_news_line(input_string,  '     # Change in MENDEL argument that can be atomic number.:')
+   call write_cryscal_news_line(input_string,  '       ex: MENDEL 59')
+    
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . May 13 :') 
+   call write_cryscal_news_line(input_string,  '     # READ_INS keyword: by default, Q peaks are not read.')
+   call write_cryscal_news_line(input_string,  '       Q_PEAKS argument has to be specified for not skipping Q peaks')
+
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . April 13 :') 
+   
+   call write_cryscal_news_line(input_string,  '     # new arguments for CREATE_FST keyword:')
+   call write_cryscal_news_line(input_string,  '       MOLE : space group line is commented to draw')
+   call write_cryscal_news_line(input_string,  '       only atoms of the asymmetric unit cell')
+   call write_cryscal_news_line(input_string,  '       No_H : Hydrogen atoms and related bonds are excluded from the ')
+   call write_cryscal_news_line(input_string,  '              drawing (lines are commented).')
+   call write_cryscal_news_line(input_string,  '       No_H argument is valid only with MOLE argument')
+   call write_cryscal_news_line(input_string,  '       POLY : includes polyedra drawing in Fp_Studio if connectivity')
+   call write_cryscal_news_line(input_string,  '              calculations have been performed')
+   call write_cryscal_news_line(input_string,  '       RUN  : launch FP_Studio')
+   
+   call write_cryscal_news_line(input_string,  '     # argument "CART" after the "WRITE_ATOMS" keyword outputs the')
+   call write_cryscal_news_line(input_string,  '       cartesian coordinates of the atoms. Cartesian frame type can')
+   call write_cryscal_news_line(input_string,  '       be specified by "CART_A" (x//a) and "CART_C" (x//c). ')
+   call write_cryscal_news_line(input_string,  '     # argument "SHAPE" after the "CONN" keyword creates an input')
+   call write_cryscal_news_line(input_string,  '       for SHAPE programm (http://www.ee.ub.es/)')
+   call write_cryscal_news_line(input_string,  '       derivative SHAPE arguments : SHAPE_A (a//x), SHAPE_C (x//c)')
+   call write_cryscal_news_line(input_string,  '     # Cartesian frame type (A: x//a or C: x//c) can be specified in the')
+   call write_cryscal_news_line(input_string,  '       setting file, through the "cartesian_frame_type" keyword in the')
+   call write_cryscal_news_line(input_string,  '       [OPTIONS] section. Default value for the cartesian frame is A (x//a)')
+   
+   
+   call write_cryscal_news_line(input_string,  '     # argument "CART" after the "WRITE_CELL" keyword outputs the')
+   call write_cryscal_news_line(input_string,  '       cartesian frame, metric tensors and Busing-Levy B-matrix. Cartesian')
+   call write_cryscal_news_line(input_string,  '       frame type can be specified by "CART_A" (x//a) and "CART_C" (x//c).')
+   call write_cryscal_news_line(input_string,  '       argument.')
+   
+	
+   if(expert_mode) then    
+    call write_cryscal_news_line(input_string,  '     # DEBUG, DEBUG_2 and DEBUG_3 keywords : access to debug modes and create')
+	call write_cryscal_news_line(input_string,  '       cryscal_debug.txt file. In level_2 debug mode, this file contains')
+	call write_cryscal_news_line(input_string,  '       the name of main called routines. In level_3 mode, this file')
+	call write_cryscal_news_line(input_string,  '       contains more explanations.') 
+	call write_cryscal_news_line(input_string,  '       [only in EXPERT mode]') 
+   endif
+
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . March 13 :')   
+   call write_cryscal_news_line(input_string,  '     # New keywords related to TIDY software (standardisation of inorganic')
+   call write_cryscal_news_line(input_string,  '       crystal-structure data (Acta Cryst. 1984, A40, 169-183):')
+   call write_cryscal_news_line(input_string,  '       - CREATE_TIDY   : create input file for TIDY from a .CIF or .INS file')
+   call write_cryscal_news_line(input_string,  '       - READ_TIDY_out : read output file from TIDY (default name = stidy.out)')
+   
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Feb. 13 :')   
+   call write_cryscal_news_line(input_string,  '     # CONN keyword can have BVS argument for Bond Valence Sum Calculation.')
+   call write_cryscal_news_line(input_string,  '       Oxidation state of the input atoms have to be provided trough the ')
+   call write_cryscal_news_line(input_string,  '       ATOM keyword.')
+   call write_cryscal_news_line(input_string,  '       ex: ATOM Fe1 Fe+3 0.11 0.22 0.33 0.4 1.')
+   call write_cryscal_news_line(input_string,  '       example of CFL file : ')
+   call write_cryscal_news_line(input_string,  '         http:\\www.cdifx.univ-rennes1.fr\cryscal\cryscal_y2o3_bvs.cfl')
+   call write_cryscal_news_line(input_string,  "     # Final.y file (coming from EVALCCD) are not read anymore, since they")
+   call write_cryscal_news_line(input_string,  "       don't contain structure factors.")
+   call write_cryscal_news_line(input_string,  '     # Connectivity calculation outputs symmetry operators used to generate')
+   call write_cryscal_news_line(input_string,  '       atoms around a particular one. CFML has been modified to output this')
+   call write_cryscal_news_line(input_string,  '       list.')
+   call write_cryscal_news_line(input_string,  '     # Profile (U, V, W, eta0, eta1) and pattern (step, constant background, ')
+   call write_cryscal_news_line(input_string,  '       scale factor) parameters can be specified in the [PATTERN SIMULATION]')   
+   call write_cryscal_news_line(input_string,  '       section of the cryscal.ini setting file, for X-ray and neutron pattern')   
+   call write_cryscal_news_line(input_string,  '       calculation.')     
+   
+   
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Jan. 13 :')
+   call write_cryscal_news_line(input_string,  '     # When creating archive_cryscal.cif file, CRYSCAL is looking for ')   
+   call write_cryscal_news_line(input_string,  '       output files creating by different versions of SQUEEZE procedure ')   
+   call write_cryscal_news_line(input_string,  '       in PLATON, as platon.sqf or platon_sqr.sqf (PLATON jan. 2013)')   
+   call write_cryscal_news_line(input_string,  '     # New argument for GEN_HKL for powder diffraction pattern calculation : ')
+   call write_cryscal_news_line(input_string,  '       particle size (in A) can be specified through the "SIZE=" keyword.')
+   call write_cryscal_news_line(input_string,  '       If not, particle size is considered as infinite and ')
+   call write_cryscal_news_line(input_string,  '       no line broadening is calculated.')
+   call write_cryscal_news_line(input_string,  '       Example : GEN_HKl 2theta_min=20 2theta_max=120 PAT SIZE=250')
+   call write_cryscal_news_line(input_string,  '       Example of CFL file : ')
+   call write_cryscal_news_line(input_string,  '         http:\\www.cdifx.univ-rennes1.fr\cryscal\cryscal_si_x_100.cfl')
+  
+   call write_cryscal_news_line(input_string,  '     # Import.cif file can be created from .P4P file and .RAW file (output of')
+   call write_cryscal_news_line(input_string,  '       SAINT program). This has to be specified in the command line through')
+   call write_cryscal_news_line(input_string,  '       the "RAW=" keyword.')
+   call write_cryscal_news_line(input_string,  '       Example:')
+   call write_cryscal_news_line(input_string,  '         d:\data\CRYSCAL file_0m.P4P RAW=file_0m.RAW')
+   
+   call write_cryscal_news_line(input_string,  '     # New "DIST_X" and "DIST_PLUS" keywords allow to calculate the coordinates ')
+   call write_cryscal_news_line(input_string,  '       of a particular point aligned with with the input atoms')
+   
+  end if
+  
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '12' .or. news_year(1:4) == '2012') then
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Dec. 12 :')
+   call write_cryscal_news_line(input_string,  '     # New "FRIEDEL" keyword allows to get number pairs of Friedel')
+   call write_cryscal_news_line(input_string,  '       in hkl file')
+   
+   
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Nov. 12 :')
+   call write_cryscal_news_line(input_string,  '     # Particular format for .hkl file (h,k,l F2, sig) can be specified')
+   call write_cryscal_news_line(input_string,  '       in the setting file in the [OPTIONS] section through the')
+   call write_cryscal_news_line(input_string,  '       hkl_format keyword.')
+   call write_cryscal_news_line(input_string,  '       example hkl_format = 3i4,2F15.2')
+   call write_cryscal_news_line(input_string,  '       If not specified, default format is : 3I4,2F8.2 (SHELX format)')
+   
+   call write_cryscal_news_line(input_string,  '     # new argument for WRITE_SYMM keyword : if argument="SHELX"')
+   call write_cryscal_news_line(input_string,  '       the list of symmetry operators is output in a SHELX format')
+   call write_cryscal_news_line(input_string,  '     # news arguments for SITE_INFO keyword : ')
+   call write_cryscal_news_line(input_string,  '        . if argument="PCR", the list of symetry equivalent atoms')
+   call write_cryscal_news_line(input_string,  '          is output in a FullProf format (.PCR)')
+   call write_cryscal_news_line(input_string,  '        . if argument="PCR_MAG", the list of magnetic atoms')
+   call write_cryscal_news_line(input_string,  '          is output in a FullProf format (.PCR)')
+
+  
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Oct. 12 :')
+   call write_cryscal_news_line(input_string,  '     # "CIF file for Pymol can be created by putting "PYMOL" as' )
+   call write_cryscal_news_line(input_string,  '       argument of "READ_CIF", "READ_INS" and "READ_CEL"')
+   call write_cryscal_news_line(input_string,  '       keywords (example: FILE file.cif pymol) or in the command line')
+   call write_cryscal_news_line(input_string,  '       with a cif.file (example: d:\cryscal file.cif pymol')
+   call write_cryscal_news_line(input_string,  '       "create_CIF_PYMOL" keyword (value = 0/1) can also be specified')
+   call write_cryscal_news_line(input_string,  '       in the cryscal.ini setting file : file_pml.cif file is then')
+   call write_cryscal_news_line(input_string,  '       automatically created after reading a CIF file.')
+   
+
+   call write_cryscal_news_line(input_string,  '     # "Skip_start_menu" keyword (value = 0/1) can be input in the cryscal.ini')
+   call write_cryscal_news_line(input_string,  '       setting file to skip the starting main menu of CRYSCAL. ')
+
+   call write_cryscal_news_line(input_string,  '     # HTML structural report: torsion angles values greater')
+   call write_cryscal_news_line(input_string,  '      than CIF_torsion_limit are excluded. Default value')
+   call write_cryscal_news_line(input_string,  '      for CIF_torsion_limit is 170.0 but can be defined in the')
+   call write_cryscal_news_line(input_string,  '      cryscal.ini setting file in the [OPTIONS] section')
+   
+   call write_cryscal_news_line(input_string,  '     # Special format can be specified with the FILE keyword')
+   call write_cryscal_news_line(input_string,  '      when reading .hkl file, with the FMT argument. ')
+   call write_cryscal_news_line(input_string,  '       Example : FILE filename.hkl fmt=3I4,2F15.2')
+   
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . Sept 12 :')
+   call write_cryscal_news_line(input_string,  '     # new argument for BARY keyword')
+   call write_cryscal_news_line(input_string,  '     # "HKL_statistics" keyword (value = 0/1) can be input in the cryscal.ini')
+   call write_cryscal_news_line(input_string,  '       setting file to output or not statistics on hkl reflections. ')
+     
+   if(expert_mode) then
+    call write_cryscal_news_line(input_string,  '     # Export mode can be specified in the setting file through the expert_mode')
+    call write_cryscal_news_line(input_string,  '       string in the setting file. If active, this mode allows to enter new ')
+    call write_cryscal_news_line(input_string,  '       specific keywords. This mode can also be activated through the ')
+    call write_cryscal_news_line(input_string,  '       "EXPERT_MODE" keyword and put OFF with "USER_mode" keyword.')
+    call write_cryscal_news_line(input_string,  '       Examples:')
+    call write_cryscal_news_line(input_string,  '        FIC   : "FILE import.cif"')
+    call write_cryscal_news_line(input_string,  '        ST25  : "SHELL THETA 2.5 25"')
+    call write_cryscal_news_line(input_string,  '       MAN_EXPERT keyword has been added to output the list of instructions in ')
+    call write_cryscal_news_line(input_string,  '       this expert mode.')
+    call write_cryscal_news_line(input_string,  '       The list of expert mode keywords can be output through the "MAN_EXPERT" ')
+    call write_cryscal_news_line(input_string,  '       keyword if this kind of mode is activated.')
+	call write_cryscal_news_line(input_string,  '       [only in EXPERT mode]') 
+   endif
+  
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . July 12 :')
+   call write_cryscal_news_line(input_string,  '     # FILE keyword: .COL file created by COLL5 (ILL / format =4)')
+   call write_cryscal_news_line(input_string,  '                      can be read')
+   call write_cryscal_news_line(input_string,  '     # FILE keyword: .INT file created by DATARED can be read')
+   call write_cryscal_news_line(input_string,  '     # CELL keyword: .RED file for DATARED can be read')
+   
+   if(expert_mode) then   
+   call write_cryscal_news_line(input_string,  '     # REPORT_LATEX argument can be specified when launching CRYSCAL')
+   call write_cryscal_news_line(input_string,  '       for the command line. In such a case: ')
+   call write_cryscal_news_line(input_string,  '       . structural_report.ltx file is created, in a LATEX format')   
+   call write_cryscal_news_line(input_string,  '       . pdflatex is launched to create a .pdf file.')
+   call write_cryscal_news_line(input_string,  '         If a .GIF file is present in the current folder for crystal')
+   call write_cryscal_news_line(input_string,  '         structure visualisation, it is first converted in .png file')
+   call write_cryscal_news_line(input_string,  '         to be included in the final pdf document.')
+   call write_cryscal_news_line(input_string,  '       [only in EXPERT mode]') 
+  endif  
+   
+   
+
+   call write_cryscal_news_line(input_string,  "     # New OUT_n argument for FILE keyword, allowing to output every")
+   call write_cryscal_news_line(input_string,  "       n reflection features (index, h,k,l,F2,sig)")
+     
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . June 12 :')
+   call write_cryscal_news_line(input_string,  "     # SHIFT_2TH keyword can now be followed by three values, ")
+   call write_cryscal_news_line(input_string,  "       corresponding to a constant, cos and sin dependent shifts")
+   call write_cryscal_news_line(input_string,  "       respectively.")
+   
+   call write_cryscal_news_line(input_string,  "     # css files for structural HTML report and user's guide")
+   call write_cryscal_news_line(input_string,  "       are now available in the CRYSCAL folder (repertory that")
+   call write_cryscal_news_line(input_string,  "       contains the crysal.ini setting file. If present, these" )
+   call write_cryscal_news_line(input_string,  "       css files, called cryscal_report.css and cryscal.css")   
+   call write_cryscal_news_line(input_string,  "       for report and user's guide respectively, can be edited")
+   call write_cryscal_news_line(input_string,  "       and modified by the user. These css files contains")
+   call write_cryscal_news_line(input_string,  "       styles that are used in the HTML documents.")
+   
+
+  
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . April 12 :')
+   call write_cryscal_news_line(input_string,  '     # MOVE/TRANSLATE keyword accepts 4 arguments, as the MOVE')
+   call write_cryscal_news_line(input_string,  '       instruction on SHELXL. Optional 4th argument corresponds to')
+   call write_cryscal_news_line(input_string,  '       the sign to multiply atomic coordinates. New atomic' )
+   call write_cryscal_news_line(input_string,  '       are then : sign*x + t_x, sign*y + t_z, sign*z + t_z')   
+   call write_cryscal_news_line(input_string,  '       If input 3 arguments are given, they correspond to the')
+   call write_cryscal_news_line(input_string,  '       t_x, t_y and t_z translation and the 4th argument is')
+   call write_cryscal_news_line(input_string,  '       taken equal to +1.')
+
+  
+   call write_cryscal_news_line(input_string,  '')
+   call write_cryscal_news_line(input_string,  '   . March 12 :')
+   call write_cryscal_news_line(input_string,  '     # GET argument can be input with SEARCH_GROUP keyword:')   
+   call write_cryscal_news_line(input_string,  '       the most probable space group is then considered')
+   call write_cryscal_news_line(input_string,  '     # Cell parameters are deduced from UB matrix when P4P file or')
+   call write_cryscal_news_line(input_string,  '       import.cif file contain this information. Use WRITE_CELL')
+   call write_cryscal_news_line(input_string,  '       keyword to output these cell parameters.')
+
+
    call write_cryscal_news_line(input_string,  '')
    call write_cryscal_news_line(input_string,  '   . January 12 :')
    call write_cryscal_news_line(input_string,  '     # CRYSCAL has been compiled with the new CRYSFML library')   
    call write_cryscal_news_line(input_string,  '     # MOVE instruction for SHELXL (output of SG_INFO for acentric')
-   call write_cryscal_news_line(input_string,  '       space groupe  ) is now correct for non conventional settings')
+   call write_cryscal_news_line(input_string,  '       space group) is now correct for non conventional settings')
   endif
 
 
@@ -45,11 +340,8 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '     # LST_SG keyword : ')
   call write_cryscal_news_line(input_string,  '       - "chiral" and "polar" arguments can se specified to output ')  
   call write_cryscal_news_line(input_string,  '         chiral and polar space groups respectively')
-
   call write_cryscal_news_line(input_string,  '     # SG_INFO keyword outputs the MOVE instruction for SHELXL')
-  call write_cryscal_news_line(input_string,  '     # in the case of acentric space groups.')
-  
-  
+  call write_cryscal_news_line(input_string,  '       in the case of acentric space groups.')
   call write_cryscal_news_line(input_string,  '     # CRYSCAL has been compiled with last version of CFML (5.00)')  
   call write_cryscal_news_line(input_string,  '      and changes in the space_group routine have been made to be ')  
   call write_cryscal_news_line(input_string,  '      to be in agreement with the CFML library.')
@@ -61,7 +353,6 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '       - "enantio" argument can se specified to output ')  
   call write_cryscal_news_line(input_string,  '         enantiomorphic space goups')
   call write_cryscal_news_line(input_string,  '       - Point group is output')
-  call write_cryscal_news_line(input_string,  '  ')  
   call write_cryscal_news_line(input_string,  '     # MU keyword : explicit keyword to perform absorption coefficient')  
   call write_cryscal_news_line(input_string,  '       calculation. Cell paramaters, wave and cell content has to be')  
   call write_cryscal_news_line(input_string,  '       known. This keyword can be useful after reading of parameters')  
@@ -84,7 +375,6 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '       matrices are defined through the "MAT_n" keyword followed by the 9')  
   call write_cryscal_news_line(input_string,  '       components of the matrix m11 m12 m13 m21 m22 m23 m31 m32 m33 .')
   call write_cryscal_news_line(input_string,  '       and a comment text.')
-  
   call write_cryscal_news_line(input_string,  '       New "USER_MAT" keyword has been added to select a particular matrix')
   call write_cryscal_news_line(input_string,  '       provided by the user in the cryscal.ini setting file. ')  
   call write_cryscal_news_line(input_string,  '       The matrix to be selected can be input either by the numor preceded by')
@@ -141,7 +431,7 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '       in the 2theta space and neutron or Cu_K_alpha1 X-ray radiation.')
   call write_cryscal_news_line(input_string,  '       Intensity is calculated as follows:')
   call write_cryscal_news_line(input_string,  '                        I=mult * Lp * F^2')
-  call write_cryscal_news_line(input_string,  '       where : mult is the multicicity of the reflexion')
+  call write_cryscal_news_line(input_string,  '       where : mult is the multicicity of the reflection')
   call write_cryscal_news_line(input_string,  '               Lp the Lorentz-polarization factor, calculated by:')
   call write_cryscal_news_line(input_string,  '               Lp=(1-K+K*CTHM*cos2(2theta)/(2sin2(theta)cos(theta)')
   call write_cryscal_news_line(input_string,  '                CTHM=cos2(2theta_monok) [CTHM=0.79]')
@@ -170,7 +460,6 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '     # Cosmetic changes in archive_cryscal.cif file: in the case')
   call write_cryscal_news_line(input_string,  '       of samples without H atoms, "_atom_sites_solution_hydrogens" and ')
   call write_cryscal_news_line(input_string,  '       "_refine_ls_hydrogen_tretament" cif field lines are removed')
-  call write_cryscal_news_line(input_string,  '')
 
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '   . Nov. 10 :')
@@ -220,7 +509,7 @@ subroutine write_cryscal_NEWS(input_string)
   call write_cryscal_news_line(input_string,  '     # GEN_HKL keyword leads to a structure factor calculation if atoms')
   call write_cryscal_news_line(input_string,  '       has been input.')
   call write_cryscal_news_line(input_string,  '     # SF_HKL keyword leads to a structure factor calculation for')
-  call write_cryscal_news_line(input_string,  '       a given hkl reflexion')
+  call write_cryscal_news_line(input_string,  '       a given hkl reflection')
   call write_cryscal_news_line(input_string,  '     # New WRITE_BEAM and WRITE_QVEC keywords')
   call write_cryscal_news_line(input_string,  '')
   call write_cryscal_news_line(input_string,  '   . Feb. 10:')
@@ -406,6 +695,7 @@ end subroutine write_cryscal_NEWS
  subroutine write_cryscal_news_line(input_string, input_line)
   USE CRYSCAL_module, ONLY : HTML_unit, NEWS_unit
   USE IO_module,      ONLY : write_info
+  USE Macros_module,  ONLY : l_case
 
   implicit none
    character (len=*), intent(in)    :: input_string
@@ -419,10 +709,10 @@ end subroutine write_cryscal_NEWS
    
    long_input_string = len_trim(input_string)
    if(long_input_string == 4) then
-    if(input_string(1:4) == 'html') input_html = .true.
-	if(input_string(1:4) == 'text') input_text = .true.
+    if(l_case(input_string(1:4)) == 'html') input_html = .true.
+	if(l_case(input_string(1:4)) == 'text') input_text = .true.
    elseif(long_input_string == 6) then
-    if(input_string(1:6) == 'screen') input_screen = .true.   
+    if(l_case(input_string(1:6)) == 'screen') input_screen = .true.   
    endif
    
   if(input_screen) then

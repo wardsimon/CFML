@@ -1,9 +1,12 @@
 !     Last change:  TR   27 Oct 2006    3:19 pm
 
 subroutine decode_sym_op
- USE cryscal_module, ONLY : symm_op_mat, write_symm_op, nb_atom, keyword_SPGR, write_site_info, write_APPLY_symm
+ USE cryscal_module, ONLY : symm_op_mat, write_symm_op, nb_atom, keyword_SPGR, write_site_info, write_PCR_site_info, &
+                            write_PCR_mag_site_info, write_APPLY_symm, debug_proc
  implicit none
 
+ if(debug_proc%level_3)  call write_debug_proc_level(3, "decode_sym_op")
+ 
    IF(symm_op_mat) THEN    ! forme matricielle
     call get_op_xyz()
    ELSE                    ! forme x,y,z
@@ -13,8 +16,14 @@ subroutine decode_sym_op
 
    IF(WRITE_symm_op) call write_symm_op_mat()
    IF(nb_atom /=0) then
-    if(keyword_SPGR) then
-     IF(WRITE_SITE_info ) call get_SITE_info()
+    if(keyword_SPGR) then     
+	 if(WRITE_PCR_SITE_info)  then
+	  call get_SITE_info('pcr') 
+	 elseif(WRITE_PCR_MAG_SITE_INFO) then
+      call get_SITE_info('pcr_mag') 
+	 elseif(WRITE_site_info) then
+	  call get_SITE_info('') 
+     end if	 
     else
      IF(WRITE_APPLY_symm) call apply_symm()
     endif
@@ -25,11 +34,13 @@ end subroutine decode_sym_op
 !-------------------------------------------------------------------------------
 
 subroutine write_symm_op_xyz()
- USE cryscal_module, ONLY : symm_op_string, nb_symm_op, message_text
+ USE cryscal_module, ONLY : symm_op_string, nb_symm_op, message_text, debug_proc
  USE IO_module,      ONLY : write_info
  implicit none
   integer       :: i, num
 
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "write_symm_op_xyz")
+  
  do num = 1, nb_symm_op
   call write_info('')
   WRITE(message_text,'(a,i3,4a)') '   SYMM #',num,': ', (symm_op_string(i, num), i=1,3)
@@ -37,21 +48,20 @@ subroutine write_symm_op_xyz()
   call write_info('')
  end do
 
+ return
 end subroutine write_symm_op_xyz
-
-
 
 !--------------------------------------------------------------
 ! determination de la matrice 3*3 et de la translation associées à un operateur de symetrie
 subroutine get_op_mat
- USE cryscal_module, ONLY : symm_op_string , R => symm_op_rot,  T => symm_op_trans, nb_symm_op
+ USE cryscal_module, ONLY : symm_op_string , R => symm_op_rot,  T => symm_op_trans, nb_symm_op, debug_proc
  implicit none
   INTEGER                             :: num
   CHARACTER (LEN=12), DIMENSION(3)    :: op_STRING
   REAL,               DIMENSION(3,3)  :: op_ROT
   REAL,               DIMENSION(3)    :: op_TRANS
 
-
+ if(debug_proc%level_3)  call write_debug_proc_level(3, "get_op_mat")
 
  do num= 1, nb_symm_op
   op_STRING(:) = symm_op_string(:,num)
@@ -64,7 +74,7 @@ subroutine get_op_mat
 
  end do
 
-
+ return
 END subroutine get_op_mat
 
 !-----------------------------------------------------------------------------------------
@@ -590,13 +600,14 @@ end subroutine get_new_string
 subroutine write_symm_op_mat()
  USE  cryscal_module, ONLY :    keyword_SPGR, R => symm_op_rot,  T => symm_op_trans, nb_symm_op, symm_op_mat,   &
                                 symm_op_string, symm_op_xyz, space_group_symbol, message_text, Mat_det,         &
-								keyword_create_CIF
+								keyword_create_CIF, debug_proc
  USE  IO_module,      ONLY :    write_info
  implicit none
   integer                :: i, num
   CHARACTER (LEN=64)     :: operation_string
 
-
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "write_symm_op_mat")
+ 
  call write_info('')
  call write_info('')
  if(keyword_SPGR) then
@@ -666,17 +677,46 @@ subroutine write_symm_op_mat()
 
 end subroutine write_symm_op_mat
 !------------------------------------------------------------------------------------
+subroutine write_SHELX_symm_card
+
+ USE cryscal_module
+ USE SHELX_module
+ USE  IO_module,      ONLY :    write_info
+ implicit none  
+  integer                     :: i 
+  
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "write_SHELX_symm_card")
+  
+  call get_SHELX_nlatt()  
+  if(SPG%centred == 2) then
+   WRITE(message_text, '(a,I6,5x, 2a,1x,a)')   '   LATT ', n_latt , '! Bravais ',  SPG%spg_lat,  '(centric)' 
+  else 
+   WRITE(message_text, '(a,I6,5x, 2a,1x,a)')   '   LATT ', n_latt , '! Bravais ',  SPG%spg_lat,  '(acentric)' 
+  endif 
+  call write_info(trim(message_text))
+  
+  do i=2, SPG%NumOps    ! reduced set of sym. op.
+   write(message_text, '(3x,2a)') 'SYMM ', SPG%SymopSymb(i)
+   call write_info(trim(message_text))
+  end do  
+ 
+ return
+end subroutine write_SHELX_symm_card
+
+!------------------------------------------------------------------------------------
 
 subroutine apply_symm()
  USE cryscal_module, ONLY      : R => symm_op_rot,  T => symm_op_trans, nb_atom, atom_coord, atom_label, atom_typ,         &
-                                 nb_symm_op, message_text,                                                                  &
-                                 keyword_create_CIF, CIF_unit
+                                 nb_symm_op, message_text,  symm_op_string,                                                &
+                                 keyword_create_CIF, CIF_unit, debug_proc
  USE IO_module,      ONLY      : write_info
  implicit none
   !real                         :: new_x, new_y, new_z
   real, dimension(3)            :: new_coord
-  INTEGER                      :: i, num
+  INTEGER                      :: i, j, num
+  CHARACTER (LEN=64)           :: operation_string
 
+ if(debug_proc%level_3)  call write_debug_proc_level(3, "apply_symm")
 
  !call write_info('')
  !call write_info('  > New coordinates:')
@@ -718,16 +758,22 @@ subroutine apply_symm()
    !new_coord(3) = R(3,1, num) * atom_coord(1, i)  +  R(3,2, num) * atom_coord(2, i) +  R(3,3, num) * atom_coord(3,i) &
    !             + T(3, num)
 
+   
+  WRITE(message_text,'(a,i3,6a)') '   . SYMM #',num,':    ', trim(symm_op_string(1, num)), ',', trim(symm_op_string(2, num)),  &
+                                                                                           ',', trim(symm_op_string(3, num))
+  call write_info(TRIM(message_text))
+
+
    if(num<10) then
-    write(message_text,'(a,I3,a,a6,a,i1,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+    write(message_text,'(10x,a,a6,a,i1,a6,3(1x,F8.5))') '  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_typ(i)),  new_coord(1:3)
    elseif(num < 100) then
-    write(message_text,'(a,I3,a,a6,a,i2,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+    write(message_text,'(10x,a,a6,a,i2,a6,3(1x,F8.5))') '  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_typ(i)),  new_coord(1:3)
    else
-    write(message_text,'(a,I3,a,a6,a,i3,a6,3(1x,F8.5))') '  Symmetry operator # ',num, ':  ATOM: ', &
+    write(message_text,'(10x,a,a6,a,i3,a6,3(1x,F8.5))') '  ATOM: ', &
 	                                                   trim(atom_label(i)),'_',num,                 &
                                                        trim(atom_typ(i)),  new_coord(1:3)
    endif
@@ -754,6 +800,91 @@ subroutine apply_symm()
 
 
 end subroutine apply_symm
+
+!------------------------------------------------------------------------------------
+
+subroutine star_K()
+ ! applique les parties rotationnelles des operateurs de symétrie du groupe d'espace sur les composantes
+ ! du vecteur de propagation
+ USE cryscal_module, ONLY      : R => symm_op_rot,  T => symm_op_trans, qvec, nb_symm_op, message_text, symm_op_string, &
+                                 keyword_create_CIF, CIF_unit, debug_proc
+ USE IO_module,      ONLY      : write_info
+ implicit none
+  real, dimension(3,nb_symm_op)  :: new_coord
+  real, dimension(3)             :: v_diff
+  INTEGER                        :: i, j, num, num_new_k, nb_k
+  REAL, parameter                :: eps = .0001 
+  CHARACTER (LEN=64)             :: operation_string
+  logical, dimension(nb_symm_op) :: new_k
+  real, dimension(3,nb_symm_op)  :: new_coord_k
+  logical                        ::   same
+
+  if(debug_proc%level_3)  call write_debug_proc_level(3, "star_K")
+
+ 
+  call write_info('')
+  write(message_text,'(a,3F8.4)') ' * Qvect : ', Qvec(1:3)
+  call write_info(trim(message_text))
+
+  call write_info('')
+  call write_info('  > K star:')
+  call write_info('')
+
+  ! determination des vecteurs K
+  do num = 1, nb_symm_op   
+   new_coord(1, num) = R(1,1, num) * Qvec(1)  +  R(1,2, num) * Qvec(2) +  R(1,3, num) * Qvec(3) 
+   new_coord(2, num) = R(2,1, num) * Qvec(1)  +  R(2,2, num) * Qvec(2) +  R(2,3, num) * Qvec(3)
+   new_coord(3, num) = R(3,1, num) * Qvec(1)  +  R(3,2, num) * Qvec(2) +  R(3,3, num) * Qvec(3) 
+  END do 
+  
+
+  ! recherche des K identiques
+  nb_k = 0
+  num_new_k = 1
+  new_coord_k(1:3, num_new_k) = qvec(1:3)
+  
+  same =.false.
+  do num=1, nb_symm_op
+   same=.false.
+   if(num>1) then
+   do j=1, num-1
+    v_diff(1:3) = new_coord(1:3, j) - new_coord(1:3, num)
+    if( abs(v_diff(1)) < eps .and.  abs(v_diff(2)) < eps .and. abs(v_diff(3)) < eps) then
+     new_k(num) = .false.
+     same = .true.	
+	 exit
+    else
+     same = .false.
+     new_k(num) = .true. 
+    end if   	
+   end do
+   else
+    v_diff(1:3) = 0.
+   endif	
+ 
+   if (.not. same) then
+    if(num_new_k/=1) num_new_k = num_new_k + 1
+    new_coord_k(1:3, num_new_k) = new_coord(1:3, num)
+    nb_k = nb_k + 1   ! nombre total de vecteurs K
+   
+    if(num < 10) then
+	 write(message_text,'(10x,a,I1,2x,a,3(1x,F8.5), a)') 'K', num,' = [',  new_coord(1:3, num), ']'
+	elseif(num < 100) then
+     write(message_text,'(10x,a,I2,1x,a,3(1x,F8.5), a)') 'K', num,' = [',  new_coord(1:3, num), ']'
+	else
+     write(message_text,'(10x,a,I3,   a,3(1x,F8.5), a)') 'K', num,' = [',  new_coord(1:3, num), ']'	
+    end if	
+    call write_info(trim(message_text))
+  end if 
+   
+  end do
+  
+
+ call write_info('')
+
+ return
+end subroutine star_K
+
 
 !--------------------------------------------------------------------------------------
 subroutine get_operation(operation_string, mat_33, translation)
@@ -873,5 +1004,5 @@ subroutine Get_new_coord(i, num, new_coord)
   new_coord(2) = R(2,1, num) * atom_coord(1, i)  +  R(2,2, num) * atom_coord(2, i) +  R(2,3, num) * atom_coord(3,i)  + T(2, num)
   new_coord(3) = R(3,1, num) * atom_coord(1, i)  +  R(3,2, num) * atom_coord(2, i) +  R(3,3, num) * atom_coord(3,i)  + T(3, num)
 
-
+ return
 end subroutine Get_new_coord
