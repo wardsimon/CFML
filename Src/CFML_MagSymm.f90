@@ -253,8 +253,8 @@
        Integer                                        :: Parent_num
        Character(len=20)                              :: Parent_spg
        logical                                        :: standard_setting  !true or false
-       logical                                        :: mcif !true if mx,my,mz notation is used , false is u,v,w notation is used
-       logical                                        :: m_cell !true if magnetic cell is used for symmetry operators
+       logical                                        :: mcif     !true if mx,my,mz notation is used , false is u,v,w notation is used
+       logical                                        :: m_cell   !true if magnetic cell is used for symmetry operators
        logical                                        :: m_constr !true if constraints have been provided
        Character(len=40)                              :: trn_from_parent
        Character(len=40)                              :: trn_to_standard
@@ -271,15 +271,15 @@
        integer                                        :: NumOps           ! Number of reduced set of S.O. (removing lattice centring and anticentrings and centre of symmetry)
        Integer                                        :: Multip
        integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
-       Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
+       Integer                                        :: n_wyck           ! Number of Wyckoff positions of the magnetic group
        Integer                                        :: n_kv
        Integer                                        :: n_irreps
-       Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
-       Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
-       Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
-       Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
-       Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
-       Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
+       Integer,             dimension(:),allocatable  :: irrep_dim          ! Dimension of the irreps
+       Integer,             dimension(:),allocatable  :: small_irrep_dim    ! Dimension of the small irrep
+       Integer,             dimension(:),allocatable  :: irrep_modes_number ! Number of the mode of the irrep
+       Character(len=15),   dimension(:),allocatable  :: irrep_id           ! Labels for the irreps
+       Character(len=20),   dimension(:),allocatable  :: irrep_direction    ! Irrep direction in representation space
+       Character(len=20),   dimension(:),allocatable  :: irrep_action       ! Irrep character primary or secondary
        Character(len=15),   dimension(:),allocatable  :: kv_label
        real(kind=cp),     dimension(:,:),allocatable  :: kv
        character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
@@ -340,7 +340,7 @@
     !!----    integer                                  :: nkv        ! Number of independent propagation vectors
     !!----    real(kind=cp),       dimension(3,12)     :: kvec       ! Propagation vectors
     !!----    Character(len=15),   dimension(12)       :: kv_label
-    !!----    integer                                  :: Num_Lat     ! Number of centring lattice vectors
+    !!----    integer                                  :: Num_Lat    ! Number of centring lattice vectors
     !!----    real(kind=cp), dimension(3,4)            :: Ltr        ! Centring translations
     !!----    integer                                  :: Numops     ! Reduced number of crystallographic Symm. Op.
     !!----    integer                                  :: Multip     ! General multiplicity of the space group
@@ -348,7 +348,7 @@
     !!----    integer,             dimension(12,4)     :: icomp      ! Indicator (0 pure real/ 1 pure imaginary) for coefficients of basis fucntions
     !!----    Complex(kind=cp),    dimension(3,12,48,4):: basf       ! Basis functions of the irreps of Gk
     !!----    character(len=40),   dimension(:),   allocatable :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----    type(Sym_Oper_Type), dimension(:),   allocatable :: SymOp       ! Crystallographic symmetry operators (48)
+    !!----    type(Sym_Oper_Type), dimension(:),   allocatable :: SymOp      ! Crystallographic symmetry operators (48)
     !!----    character(len=40),   dimension(:,:), allocatable :: MSymopSymb ! Alphanumeric Symbols for MSYMM (48,8)
     !!----    type(MSym_Oper_Type),dimension(:,:), allocatable :: MSymOp     ! Magnetic symmetry operators (48,8)
     !!---- End Type MagSymm_k_Type
@@ -809,14 +809,14 @@
        real(kind=cp),dimension(3,12) :: br,bi
        real(kind=cp),dimension(3,3)  :: cart_to_cryst
        real(kind=cp),dimension(12)   :: coef
-       character(len=132)   :: lowline,line
-       character(len=30)    :: magmod, shubk
-       character(len=2)     :: lattice, chardom
-       character(len=4)     :: symbcar
-       character(len=30)    :: msyr
-       logical              :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
-                               irreps_begin, bfcoef_begin, magdom_begin, done
-       type(Magnetic_Group_Type)  :: SG
+       character(len=132)            :: lowline,line
+       character(len=30)             :: magmod, shubk
+       character(len=2)              :: lattice, chardom
+       character(len=4)              :: symbcar
+       character(len=30)             :: msyr
+       logical                       :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
+                                        irreps_begin, bfcoef_begin, magdom_begin, done
+       type(Magnetic_Group_Type)     :: SG
 
        call init_err_MagSym()
 

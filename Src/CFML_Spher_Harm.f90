@@ -512,7 +512,7 @@
     !!----    normalized to unit, this version calculates ylmp along the unit vector defined by
     !!----    the given vector that is not modified on output
     !!-->>
-    !!---- Update: February - 2005
+    !!---- Update: February - 2005, June - 2014 (JRC, simplify the calculation when l=m=0)
     !!
     Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
        !---- Arguments ----!
@@ -522,10 +522,15 @@
 
        !---- Local Variables ----!
        real(kind=dp)             :: norm
+       real(kind=dp),parameter   :: sqrt_pi=sqrt(pi)
        real(kind=cp)             :: pphi,x,ss
        integer                   :: i
        real(kind=cp),dimension(3):: v
 
+       if(l == m .and. m == 0) then !for trivial zero-order give the value and return
+         ylmp=0.5_dp/sqrt_pi
+         return
+       end if
        v=u
        ss=dot_product(v,v)
        if (abs(ss-1.0_cp) > 2.0_cp*eps) then  !Test the provided unit vector
@@ -550,13 +555,13 @@
        ylmp=plgndr(l,m,x)*pphi
        norm=real(2*l+1,kind=dp)
 
-       do i=l-m+1,l+m
+       do i=l-m+1,l+m  !this is not executed when l=m=0 !!!
           norm=norm/real(i,kind=dp)
        end do
        if (m == 0) then
-          norm=sqrt(norm/(4.0_dp*pi))
+          norm=sqrt(norm)/(2.0_dp*sqrt_pi)
        else
-          norm=sqrt(norm/(2.0_dp*pi))
+          norm=sqrt(norm/2.0_dp)/sqrt_pi
        end if
        ylmp=norm*ylmp
 
@@ -718,7 +723,7 @@
        if( i < 1) i = 2
 
        Dlmp=Clmp(l,m,i)*Real_Spher_Harm_Ucvec(L,M,P,U)
-
+       !Write(*,"(3i4,3f14.5,10x,3f14.5)") l,m,i,Dlmp, Clmp(l,m,i), Real_Spher_Harm_Ucvec(L,M,P,U), u
        return
     End Function Real_Spher_HarmCharge_Ucvec
 

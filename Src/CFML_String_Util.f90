@@ -2937,7 +2937,7 @@
     !!----    Subroutine to replace a substring by another one within
     !!----    a given string. The original string is modified on output.
     !!----    If len_trim(warning) /= one of the substrings will not be complete,
-    !!----    it works as an Warning or error condition without interrupting the
+    !!----    it works as a warning or error condition without interrupting the
     !!----    procedure.
     !!----
     !!---- Updated: May - 2014
@@ -2948,9 +2948,8 @@
       character(len=*), intent(in)     :: rep_string
       character(len=*), intent(out)    :: warning
       ! --- Local variables ---!
-      integer :: i,j,lstr,ncount,nsubs,d,dmax
-      integer, dimension(:),allocatable :: pos
-      character(len=len(string)) :: aux
+      integer                                      :: i,j,lstr,ncount,nsubs,d,dmax
+      integer,            dimension(:),allocatable :: pos
       character(len=1024),dimension(:),allocatable :: splitted_string
 
       lstr=len(substr)
