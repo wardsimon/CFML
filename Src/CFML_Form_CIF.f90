@@ -2593,17 +2593,14 @@
        ip=nlines
        ip(1)=1
 
-       !---- Calculating number of atoms and Phases ----!
+       !---- Calculating number of Phases ----!
        do i=1,nlines
           line=adjustl(file_dat(i))
-          if (l_case(line(1:4)) == "atom")  nauas=nauas+1
           if (l_case(line(1:6)) == "phase_")  then
              ndata=ndata+1
              ip(ndata)=i
           end if
        end do
-
-       if (nauas > 0) call Allocate_atom_list(nauas,A)  !allocation space for Atom list
 
        !---- Reading Phase Information ----!
        iph=1
@@ -2665,7 +2662,15 @@
        !---- Read Atoms Information ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
+
+       !---- Calculating number of Atoms in the Phase ----!
+       do i=n_ini,n_end
+          line=adjustl(file_dat(i))
+          if (l_case(line(1:4)) == "atom")  nauas=nauas+1
+       end do
+
        if (nauas > 0) then
+          call Allocate_atom_list(nauas,A)  !allocation space for Atom list
           call read_File_Atom(file_dat,n_ini,n_end,A)
           if (err_form) return
 
