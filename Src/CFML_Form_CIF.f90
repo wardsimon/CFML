@@ -2704,22 +2704,51 @@
     !!--++
     !!--++ Update: April - 2005
     !!
-    Subroutine Readn_Set_XTal_CFL_Molec(file_dat, nlines, Molcrys)
+    Subroutine Readn_Set_XTal_CFL_Molec(file_dat, nlines, Molcrys, Nphase)
        !---- Arguments ----!
        character(len=*),dimension(:),  intent(in)     :: file_dat
        integer,                        intent(in)     :: nlines
        type (Molecular_Crystal_Type),  intent(in out) :: Molcrys
+       Integer, optional,              intent(in)     :: Nphase
 
        !---- Local variables ----!
        character(len=132)            :: line
-       integer                       :: i,n,nmol,npos,n_ini,n_end,ierr
+       integer                       :: i,n,nmol,npos,n_ini,n_end,ierr,nauas, iph, ndata
+       integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
+       integer, dimension(maxph)        :: ip
        real(kind=cp)                 :: theta,phi,chi
        real(kind=cp), dimension(3)   :: x1f,x2f,x3f
        real(kind=cp), dimension(3,3) :: EuM
 
+       !---- Standard CrysFML file *.CFL ----!
+       nauas=0
+       ndata=0
+       ip=nlines
+       ip(1)=1
+
+       !---- Calculating number of Phases ----!
+       do i=1,nlines
+          line=adjustl(file_dat(i))
+          if (l_case(line(1:6)) == "phase_")  then
+             ndata=ndata+1
+             ip(ndata)=i
+          end if
+       end do
+
+       !---- Reading Phase Information ----!
+
+       if (present(nphase)) then
+           iph=nphase
+       else
+           iph=1
+       end if
+
+       n_ini=ip(iph)
+       n_end=ip(iph+1)
+
        !---- Detecting the Molecules defined in the file ----!
        nmol=0
-       do i=1,nlines
+       do i=n_ini,n_end
           line=u_case(adjustl(file_dat(i)))
           if (line(1:1) == " ") cycle
           if (line(1:1) == "!") cycle
@@ -2734,8 +2763,6 @@
        allocate(molcrys%mol(nmol))
 
        !---- Reading Molecules ----!
-       n_ini=1
-       n_end=nlines
 
        do n=1,nmol
           !---- Read ----!
