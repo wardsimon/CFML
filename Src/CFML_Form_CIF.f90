@@ -3429,9 +3429,12 @@
                     end if
                  end if
               end if
-
               !---- Reading molecules ----!
-              call readn_set_xtal_cfl_molec(file_dat,nlines,molcrys)
+              if (present(iphase)) then
+                call readn_set_xtal_cfl_molec(file_dat,nlines,molcrys,NPhase=IPhase)
+              else
+                call readn_set_xtal_cfl_molec(file_dat,nlines,molcrys)
+              end if
 
        end select
        if (err_form) return
