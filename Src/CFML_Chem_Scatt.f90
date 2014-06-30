@@ -349,6 +349,7 @@
     !!---- Type, public :: Xray_Wavelength_Type
     !!----    character (len= 2)                :: Symb  ! Symbol of the Chemical species
     !!----    real(kind=cp), dimension(2)       :: Kalfa ! K-Serie for X-ray
+    !!----    real(kind=cp)                     :: Kbeta ! K-Serie for X-ray
     !!---- End Type Xray_Wavelength_Type
     !!----
     !!---- Update: February - 2005
@@ -356,6 +357,7 @@
     Type, public :: Xray_Wavelength_Type
        character (len= 2)         :: Symb
        real(kind=cp), dimension(2):: Kalfa
+       real(kind=cp)              :: Kbeta
     End Type Xray_Wavelength_Type
 
     !!----
@@ -366,14 +368,14 @@
     !!----
     !!---- Update: February - 2005
     !!
-    Type(Xray_Wavelength_Type), dimension(7), public :: Xray_Wavelengths =(/                    &
-                                                Xray_Wavelength_type("CR",(/2.28988,2.29428/)), &
-                                                Xray_Wavelength_type("FE",(/1.93631,1.94043/)), &
-                                                Xray_Wavelength_type("CU",(/1.54059,1.54431/)), &
-                                                Xray_Wavelength_type("MO",(/0.70932,0.71360/)), &
-                                                Xray_Wavelength_type("AG",(/0.55942,0.56380/)), &
-                                                Xray_Wavelength_type("CO",(/1.78919,1.79321/)), &
-                                                Xray_Wavelength_type("NI",(/1.65805,1.66199/))  /)
+    Type(Xray_Wavelength_Type), dimension(7), public :: Xray_Wavelengths =(/                            &
+                                                Xray_Wavelength_type("CR",(/2.28988,2.29428/),2.08480), &
+                                                Xray_Wavelength_type("FE",(/1.93631,1.94043/),1.75650), &
+                                                Xray_Wavelength_type("CU",(/1.54059,1.54431/),1.39220), &
+                                                Xray_Wavelength_type("MO",(/0.70932,0.71360/),0.63225), &
+                                                Xray_Wavelength_type("AG",(/0.55942,0.56380/),0.49708), &
+                                                Xray_Wavelength_type("CO",(/1.78919,1.79321/),1.62083), &
+                                                Xray_Wavelength_type("NI",(/1.65805,1.66199/),1.50017)  /)
 
  Contains
 
