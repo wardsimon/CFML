@@ -1885,6 +1885,7 @@
             n=SpG%Numops * SpG%Centred
             MGp%Centred=SpG%Centred
             MGp%MCentred=1  !Same rotation matrices as that of the space group
+            MGp%Latt=SpG%SPG_Symb(1:1)
             num_xsym=SpG%Numops
             num_msym=1
             num_k=1
@@ -1896,10 +1897,11 @@
             allocate(MGp%SymopSymb(n))
             allocate(MGp%MSymop(n,1))
             allocate(MGp%MSymopSymb(n,1))
-            MGp%SymopSymb(1:num_xsym)=SpG%SymopSymb(1:num_xsym)
-            MGp%MSymopSymb(1:num_xsym,1)=SpG%SymopSymb(1:num_xsym)
+
             do i=1,num_xsym
-              call symmetry_symbol(Spg%Symop(i)%Rot,(/0.0,0.0,0.0/),lowline)
+              lowline=" "
+              MGp%SymopSymb(i)=SpG%SymopSymb(i)
+              call Get_SymSymb(Spg%Symop(i)%Rot,(/0.0,0.0,0.0/),lowline)
               do j=1,len_trim(lowline)
                  if(lowline(j:j) == "x") lowline(j:j) = "u"
                  if(lowline(j:j) == "y") lowline(j:j) = "v"
@@ -3716,10 +3718,10 @@
                      chit=matmul(MGp%SymOp(k)%Rot,chi)
                      chit=matmul(chit,transpose(MGp%SymOp(k)%Rot))
                      Mom=matmul(Chit,u_vect)
-                     Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: ",Mom
+                     Write(unit=ipr,fmt="(a,i2,2(a,3f8.5))") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: ",Mom
                      Write(unit=ipr,fmt="(a)")            "             Local Susceptibility Tensor: "
                      do j=1,3
-                        Write(unit=ipr,fmt="(a,3f14.5)")   "                                          ",chit(j,:)
+                        Write(unit=ipr,fmt="(a,3f14.5)")  "                                          ",chit(j,:)
                      end do
                   end do ! symmetry
                 end do ! Atoms

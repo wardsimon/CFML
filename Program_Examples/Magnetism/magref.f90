@@ -101,7 +101,11 @@ Program MagRef
          write(unit=*,fmt="(a)") "   "//err_MagSym_Mess
          stop
        end if
-       call Write_Magnetic_Structure(lun,MGp,Am)
+       if(Am%suscept) then
+          call Write_Magnetic_Structure(lun,MGp,Am,cell=Cell)
+       else
+          call Write_Magnetic_Structure(lun,MGp,Am)
+       end if
 
       do
 
