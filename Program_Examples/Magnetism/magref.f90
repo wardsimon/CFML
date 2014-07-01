@@ -108,11 +108,17 @@ Program MagRef
        end if
 
       do
-
-         write(unit=*,fmt="(a,i2,a)",advance="no") &
-         " => Enter a magnetic reflections as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
-         read(unit=*,fmt=*) ih,ik,il,m
-         if( m == 0) exit
+         if(Am%suscept) then
+           write(unit=*,fmt="(a)",advance="no") &
+           " => Enter a reflections as 3 integers -> (h,k,l) : "
+           read(unit=*,fmt=*) ih,ik,il
+           m=1
+         else
+           write(unit=*,fmt="(a)",advance="no") &
+           " => Enter a magnetic reflection as 4 integers -> (h,k,l,m)=H+sign(m)*k(abs(m)): "
+           read(unit=*,fmt=*) ih,ik,il,m
+         end if
+         if( m == 0 .or. abs(ih)+abs(ik)+abs(il) == 0 ) exit
          !construct partially the object Mh
          j=sign(1,m)
          sig="+"

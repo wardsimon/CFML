@@ -3520,11 +3520,12 @@
        !---- Local Variables ----!
        character (len=100), dimension( 4):: texto
        character (len=40)                :: aux
-       integer :: i,j,k,l, nlines,n,m
+       integer :: i,j,k,l, nlines,n,m,mult,nt
        real(kind=cp)                  :: x
        complex                        :: ci
-       real(kind=cp), dimension(3)    :: xp,xo,u_vect,Mom
+       real(kind=cp), dimension(3)    :: xp,xo,u_vect,Mom,v
        real(kind=cp), dimension(3,3)  :: chi,chit
+       real(kind=cp), dimension(3,48) :: orb
        complex, dimension(3)          :: Sk
 
 
@@ -3640,10 +3641,10 @@
                     "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
                   do j=1,Am%Atom(i)%nvk
                      if (K_Equiv_Minus_K(MGp%kvec(:,j),MGp%latt)) then
-                        Write(unit=ipr,fmt="(a,i2,a,3f10.5,a,i4)")  &
+                        Write(unit=ipr,fmt="(a,i2,a,3f11.5,a,i4)")  &
                         "     Sk(",j,") =  (", Am%Atom(i)%Skr(:,j),")  -> MagMatrix #", Am%Atom(i)%imat(j)
                      else
-                        Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a,i4)")  &
+                        Write(unit=ipr,fmt="(a,i2,a,2(3f11.5,a),f9.5,a,i4)")  &
                         "     Sk(",j,") = 1/2 {(", Am%Atom(i)%Skr(:,j),") + i (",Am%Atom(i)%Ski(:,j),")}  exp { -2pi i ",&
                         Am%Atom(i)%MPhas(j),"}  -> MagMatrix #", Am%Atom(i)%imat(j)
                      end if
@@ -3665,7 +3666,7 @@
                   m=Am%Atom(i)%imat(j)
                   n=abs(MGp%nbas(m))
                   !1234567890123456789012345678
-                  aux="(a,i2,a,  f10.5,a,f9.5,a,i4)"
+                  aux="(a,i2,a,  f11.5,a,f9.5,a,i4)"
                   write(unit=aux(9:10),fmt="(i2)") n
                   Write(unit=ipr,fmt=aux)  &
                      "  Coef_BasF(",j,") = 1/2 {(", Am%Atom(i)%cbas(1:n,j),")}  exp { -2pi i ",&
@@ -3683,9 +3684,17 @@
          if (MGp%nirreps /= 0 ) then
             do i=1,Am%natoms
                xo=Am%Atom(i)%x
-               do k=1,MGp%NumOps
+               mult=0
+               orb=0.0
+               SOps: do k=1,MGp%NumOps
                   xp=ApplySO(MGp%SymOp(k),xo)
-                  Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
+                  do nt=1,mult
+                    v=orb(:,nt)-xp(:)
+                    if (Lattice_trans(v,MGp%latt)) cycle SOps
+                  end do
+                  mult=mult+1
+                  orb(:,mult)=xp(:)
+                  Write(unit=ipr,fmt="(a,i2,a,3f9.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
                   do j=1,Am%Atom(i)%nvk
                      m=Am%Atom(i)%imat(j)
                      n=abs(MGp%nbas(m))
@@ -3697,10 +3706,10 @@
                      end do
                      x=-tpi*Am%atom(i)%mphas(j)
                      Sk=Sk*cmplx(cos(x),sin(x))
-                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
+                     Write(unit=ipr,fmt="(a,i2,a,2(3f11.5,a),f9.5,a)")  &
                       "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
                   end do
-               end do  !Ops
+               end do  SOps !Ops
                Write(unit=ipr,fmt="(a)") "  "
             end do  !atoms
 
@@ -3710,28 +3719,47 @@
                 u_vect=Am%MagField * Am%dir_MField / Veclength(Cell%Cr_Orth_cel,Am%dir_MField)
                 do i=1,Am%natoms
                   xo=Am%Atom(i)%x
+                  xo=modulo_lat(xo)
                   chi=reshape((/am%atom(i)%chi(1),am%atom(i)%chi(4), am%atom(i)%chi(5), &
                                 am%atom(i)%chi(4),am%atom(i)%chi(2), am%atom(i)%chi(6), &
                                 am%atom(i)%chi(6),am%atom(i)%chi(6), am%atom(i)%chi(3) /),(/3,3/))
-                  do k=1,MGp%Numops
+                  mult=0
+                  orb=0.0
+                  sym: do k=1,MGp%Numops
                      xp=ApplySO(MGp%SymOp(k),xo)
+                     xp=modulo_lat(xp)
+                     do nt=1,mult
+                       v=orb(:,nt)-xp(:)
+                       if (Lattice_trans(v,MGp%latt)) cycle sym
+                     end do
+                     mult=mult+1
+                     orb(:,mult)=xp(:)
                      chit=matmul(MGp%SymOp(k)%Rot,chi)
                      chit=matmul(chit,transpose(MGp%SymOp(k)%Rot))
                      Mom=matmul(Chit,u_vect)
-                     Write(unit=ipr,fmt="(a,i2,2(a,3f8.5))") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: ",Mom
+
+                     Write(unit=ipr,fmt="(a,i2,2(a,3f11.5),a)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: [",Mom," ]"
                      Write(unit=ipr,fmt="(a)")            "             Local Susceptibility Tensor: "
                      do j=1,3
-                        Write(unit=ipr,fmt="(a,3f14.5)")  "                                          ",chit(j,:)
+                        Write(unit=ipr,fmt="(a,3f14.5)")  "                            ",chit(j,:)
                      end do
-                  end do ! symmetry
+                  end do sym ! symmetry
                 end do ! Atoms
 
             else !suscept
 
               do i=1,Am%natoms
                  xo=Am%Atom(i)%x
-                 do k=1,MGp%NumOps
+                 mult=0
+                 orb=0.0
+                 Ops: do k=1,MGp%NumOps
                     xp=ApplySO(MGp%SymOp(k),xo)
+                    do nt=1,mult
+                      v=orb(:,nt)-xp(:)
+                      if (Lattice_trans(v,MGp%latt)) cycle Ops
+                    end do
+                    mult=mult+1
+                    orb(:,mult)=xp(:)
                     Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
                     do j=1,Am%Atom(i)%nvk
                        m=Am%Atom(i)%imat(j)
@@ -3742,7 +3770,7 @@
                        Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
                         "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
                     end do
-                 end do  !Ops
+                 end do Ops
                  Write(unit=ipr,fmt="(a)") "  "
               end do  !atoms
             end if !suscept
