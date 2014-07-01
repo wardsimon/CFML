@@ -153,7 +153,7 @@
     !!----                                                   al_sigma, &
     !!----                                                   al_istat
     !!----
-    !!----    real(kind=cp), dimension (3)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+    !!----    real(kind=cp), dimension (5)                :: conv          ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
     !!----    real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
     !!----    real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
     !!----    real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
@@ -198,7 +198,7 @@
                                                       al_sigma=.false., &
                                                       al_istat=.false.
 
-       real(kind=cp), dimension (3)                :: conv=0.0      ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
+       real(kind=cp), dimension (5)                :: conv=0.0      ! Wavelengths or Dtt1, Dtt2 for converting to Q,d, etc
        real(kind=cp), dimension (:), allocatable   :: x             ! Scattering variable (2theta...)
        real(kind=cp), dimension (:), allocatable   :: y             ! Experimental intensity
        real(kind=cp), dimension (:), allocatable   :: sigma         ! observations VARIANCE (it is the square of sigma!)
@@ -2778,6 +2778,10 @@
 
           !Kbeta
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
+          i1= index(XRDML_line(1), '<kBeta unit="Angstrom">')
+          if (i1==0) cycle
+          i2= index(XRDML_line(1), "</kBeta>")
+          read(unit=XRDML_line(1)(i1+25:i2-1), fmt=*) pat%conv(4)
 
           !Kratio
           read(unit=i_dat, fmt="(a)", iostat=ier) XRDML_line(1)
