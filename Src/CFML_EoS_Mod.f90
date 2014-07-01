@@ -3520,9 +3520,9 @@ Contains
 
       !> set up the labels in order
       integer, parameter           :: ini=4,iend=21
-      character(len=5),dimension(ini:iend) :: lab=(/'T','sigT','P','sigP','V','sigV',  &
-                                                    'A','sigA','B','sigB','C','sigC',  &
-                                                    'ALPHA','sigAL','BETA','sigBE','GAMMA','sigGA'/)
+      character(len=5),dimension(ini:iend) :: lab=(/'T    ','sigT ','P    ','sigP ','V    ','sigV ',  &
+                                                    'A    ','sigA ','B    ','sigB ','C    ','sigC ',  &
+                                                    'ALPHA','sigAL','BETA ','sigBE','GAMMA','sigGA'/)
 
       !>
       !> assume that unit is connected and open.

@@ -3633,7 +3633,7 @@
                Write(unit=ipr,fmt="(a)")  &
                "  The Fourier coefficients are of the form: Sk(j) = 1/2 { Rk(j) + i Ik(j) } exp {-2pi i Mphask(j)}"
                Write(unit=ipr,fmt="(a)")  &
-               "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz) + i ( Ix Iy Iz)} exp {-2pi i Mphask} -> MagMatrix # imat"
+               "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz)+i( Ix Iy Iz)} exp{-2pi i Mphask} -> MagMatrix # imat"
                Write(unit=ipr,fmt="(a)")  "  In case of k=2H (H reciprocal lattice vector) Sk(j)= (Rx Ry Rz)"
 
                do i=1,Am%Natoms
@@ -3738,7 +3738,8 @@
                      chit=matmul(chit,transpose(MGp%SymOp(k)%Rot))
                      Mom=matmul(Chit,u_vect)
 
-                     Write(unit=ipr,fmt="(a,i2,2(a,3f11.5),a)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: [",Mom," ]"
+                     Write(unit=ipr,fmt="(a,i2,2(a,3f11.5),a)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp, &
+                                                                "   Induced moment: [",Mom," ]"
                      Write(unit=ipr,fmt="(a)")            "             Local Susceptibility Tensor: "
                      do j=1,3
                         Write(unit=ipr,fmt="(a,3f14.5)")  "                            ",chit(j,:)
