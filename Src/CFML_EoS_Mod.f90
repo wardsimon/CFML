@@ -3356,6 +3356,7 @@ Contains
       !---- Variables ----!
       character(len=255), dimension(:), allocatable :: flines
       character(len=255)                            :: text
+      character(len=10)                             :: forma
       character(len=512)                            :: filedat
 
       integer                         :: c,ierr,i,j,imax,idoc
@@ -3448,8 +3449,14 @@ Contains
 
          else if(index(text,'VARIANCE') /= 0)then
             ierr=0
+            forma="(   e12.5)"
+            write(unit=forma(2:4),fmt="(i3)") imax
             do i=1,imax
-               read(unit=flines(nl+i),fmt='(<imax>e12.5)',iostat=ierr)eos%vcv(i,1:imax)
+               ! The variable format <> is a VAX extension that is taken into account by Intel Fortran
+               ! however Gfortran does not support it. It is better to use a general variable for writing
+               ! dynamically whatever kind of format.
+               !read(unit=flines(nl+i),fmt='(<imax>e12.5)',iostat=ierr)eos%vcv(i,1:imax)
+               read(unit=flines(nl+i),fmt=forma,iostat=ierr) eos%vcv(i,1:imax)
                if (ierr /= 0)exit
             end do
             if (ierr /= 0)then
