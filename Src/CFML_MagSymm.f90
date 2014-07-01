@@ -44,7 +44,7 @@
 !!---- DEPENDENCIES
 !!--++    Use CFML_GlobalDeps,                only: cp, tpi
 !!--++    Use CFML_Math_General,              only: Modulo_Lat
-!!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher
+!!--++    Use CFML_Math_3D,                   only: Get_Cart_From_Spher, matrix_inverse, Veclength
 !!--++    Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f
 !!--++    Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb, axes_rotation, &
 !!--++                                              Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
@@ -54,7 +54,7 @@
 !!--++                                              Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
 !!--++                                              Err_String_Mess,setnum_std, getword
 !!--++    Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
-!!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
+!!--++    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type, Get_Atom_2nd_Tensor_Ctr
 !!--++    Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
 !!--++                                              Magnetic_Form
 !!--++    Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
@@ -75,6 +75,7 @@
 !!----       APPLYMSO
 !!----
 !!----    Subroutines:
+!!----       CALC_INDUCED_SK
 !!----       INIT_ERR_MAGSYM
 !!----       INIT_MAGSYMM_K_TYPE             !OZ made it public to use in Read_Refcodes_Magnetic_Structure
 !!----       READN_SET_MAGNETIC_STRUCTURE
@@ -91,7 +92,7 @@
     Use CFML_GlobalDeps,                only: cp, tpi,Write_Date_Time
     Use CFML_Math_General,              only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
                                               Equal_Vector,Sort
-    Use CFML_Math_3D,                   only: Get_Cart_From_Spher,Determ_A, matrix_inverse
+    Use CFML_Math_3D,                   only: Get_Cart_From_Spher,Determ_A, matrix_inverse, Veclength
     Use CFML_Symmetry_Tables,           only: ltr_a,ltr_b,ltr_c,ltr_i,ltr_r,ltr_f,Sys_cry,LATT
     Use CFML_Crystallographic_Symmetry, only: Space_Group_Type, Read_Xsym, Get_SymSymb,axes_rotation, &
                                               Sym_Oper_Type, Set_SpaceGroup,read_msymm, symmetry_symbol, &
@@ -102,7 +103,7 @@
                                               Frac_Trans_2Dig, Get_Mat_From_Symb, getnum_std, Err_String,     &
                                               Err_String_Mess,setnum_std, getword, Get_Transf,ucase
     Use CFML_IO_Formats,                only: file_list_type, File_To_FileList
-    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type
+    Use CFML_Atom_TypeDef,              only: Allocate_mAtom_list, mAtom_List_Type, Get_Atom_2nd_Tensor_Ctr
     Use CFML_Scattering_Chemical_Tables,only: Set_Magnetic_Form, Remove_Magnetic_Form, num_mag_form, &
                                               Magnetic_Form
     Use CFML_Propagation_Vectors,       only: K_Equiv_Minus_K
@@ -118,7 +119,8 @@
 
     !---- List of public subroutines ----!
     public :: Readn_Set_Magnetic_Structure, Write_Magnetic_Structure, Set_Shubnikov_Group, &
-              Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor
+              Write_Shubnikov_Group, Init_MagSymm_k_Type, Write_MCIF, get_magnetic_form_factor, &
+              Calc_Induced_Sk
 
 
     !---- Definitions ----!
@@ -448,10 +450,401 @@
        return
     End Function ApplyMSO
 
+    !!---- Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
+    !!----    !---- Argument ----!
+    !!----    real(kind=cp), dimension(3),   intent( in) :: v
+    !!----    real(kind=cp), dimension(:,:), intent( in) :: Ltr
+    !!----    integer,                       intent( in) :: nlat
+    !!----    integer,                       intent(out) :: nl
+    !!----    logical                                    :: Lattice_Transl
+    !!----
+    !!----  Logical function that provides the value .true. if the vector V is a
+    !!----  lattice vector.
+    !!----
+    !!----  Created: February 2014 (JRC)
+    !!----
+    Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
+       !---- Argument ----!
+       real(kind=cp), dimension(3),   intent( in) :: v
+       real(kind=cp), dimension(:,:), intent( in) :: Ltr
+       integer,                       intent( in) :: nlat
+       integer,                       intent(out) :: nl
+       logical                                    :: Lattice_Transl
+
+       !---- Local variables ----!
+       real(kind=cp)   , dimension(3) :: vec
+       integer                        :: i
+
+       Lattice_Transl=.false.
+       nl=0
+
+       if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
+          Lattice_Transl=.true.
+       else                       ! if not look for lattice type
+          do i=1,nlat
+            vec=Ltr(:,i)-v
+            if (Zbelong(vec)) then
+              Lattice_Transl=.true.
+              nl=i
+              exit
+            end if
+          end do
+       end if
+       return
+    End Function is_Lattice_vec
+
+    !!---- Function get_magnetic_form_factor(element) result(formf)
+    !!----   character(len=*),intent(in) :: element
+    !!----   character(len=6)            :: formf
+    !!----
+    !!----   Function to get the symbol for the magnetic scattering vector corresponding to the
+    !!----   input symbol (element + valence state). Useful for transforming magCIF files to PCR.
+    !!----
+    !!----  Created: February 2014 (JRC)
+    !!----
+    Function get_magnetic_form_factor(element) result(formf)
+      character(len=*),intent(in) :: element
+      character(len=6)            :: formf
+      ! Local variables
+      logical :: is_re
+      integer :: i,valence,ier
+      character(len=6)   :: melem,aux
+      integer, parameter :: n_re =12
+      character(len=*), parameter, dimension(n_re) :: re=(/"ce","pr","nd","sm","eu","gd","tb","dy","ho","er","tm","yb"/)
+
+      melem=l_case(element)
+      is_re=.false.
+      do i=1,n_re
+        if(index(melem,re(i)) /= 0) then
+          is_re=.true.
+           exit
+        end if
+      end do
+      if(is_re) then
+        aux=melem(3:)
+        i=index(aux,"+")
+        if(i /= 0) then
+          aux(i:i)=" "
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+        else
+           valence=3
+        end if
+        write(unit=formf,fmt="(a,i1)") "J"//melem(1:2),valence
+      else
+        i=index(melem,"+")
+        if(i /= 0) then
+          melem(i:i)=" "
+          aux=melem(i-1:i-1)
+          read(unit=aux,fmt=*,iostat=ier) valence
+          if(ier /= 0) valence=3
+          melem(i-1:i-1)=" "
+        else
+           valence=2
+        end if
+        write(unit=formf,fmt="(a,i1)") "M"//trim(melem),valence
+      end if
+      formf=u_case(formf)
+      return
+    End Function get_magnetic_form_factor
+
 
     !---------------------!
     !---- Subroutines ----!
     !---------------------!
+
+    !!---- Subroutine Calc_Induced_Sk(cell,SpG,MField,dir_MField,Atm)
+    !!----    !---- Arguments ----!
+    !!----   type(Crystal_Cell_type),    intent(in)     :: Cell
+    !!----   type(Space_Group_Type),     intent(in)     :: SpG
+    !!----   real(kind=cp),              intent(in)     :: MField
+    !!----   real(kind=cp),dimension(3), intent(in)     :: dir_MField
+    !!----   type(Matom_list_type),    intent(in out)   :: Atm
+    !!----
+    !!----  This subroutine completes the object Am by calculating the
+    !!----  induced magnetic moments of the representant atoms in the asymmetric unit.
+    !!----  It modifies also the Chi tensor according to the symmetry constraints of
+    !!----  the crystallographic site.
+    !!----
+    !!----  Created: June 2014 (JRC)
+    !!----
+    Subroutine Calc_Induced_Sk(cell,SpG,MField,dir_MField,Atm,ipr)
+       !---- Arguments ----!
+       type(Crystal_Cell_type),    intent(in)     :: Cell
+       type(Space_Group_Type),     intent(in)     :: SpG
+       real(kind=cp),              intent(in)     :: MField
+       real(kind=cp),dimension(3), intent(in)     :: dir_MField
+       type(Matom_list_type),    intent(in out)   :: Atm
+       integer, optional,          intent(in)     :: ipr
+       !--- Local variables ---!
+       integer                          :: i,codini
+       integer, dimension(6)            :: icodes
+       real(kind=cp)                    :: s
+       real(kind=cp),    dimension(6)   :: multip
+       real(kind=cp),    dimension(3)   :: u_vect,x
+       real(kind=cp),    dimension(3,3) :: chi
+
+       !
+       u_vect=MField * dir_MField / Veclength(Cell%Cr_Orth_cel,dir_MField)
+       if(present(ipr)) write(unit=ipr,fmt="(a,3f8.4)") " => Applied Magnetic Field: ",u_vect
+       icodes=(/1,2,3,4,5,6/); multip=(/1.0,1.0,1.0,1.0,1.0,1.0/)
+       codini=1
+       do i=1,Atm%natoms
+          x=atm%atom(i)%x
+          call Get_Atom_2nd_Tensor_Ctr(x,atm%atom(i)%chi,SpG,Codini,Icodes,Multip)
+          chi=reshape((/atm%atom(i)%chi(1),atm%atom(i)%chi(4), atm%atom(i)%chi(5), &
+                        atm%atom(i)%chi(4),atm%atom(i)%chi(2), atm%atom(i)%chi(6), &
+                        atm%atom(i)%chi(6),atm%atom(i)%chi(6), atm%atom(i)%chi(3) /),(/3,3/))
+          Atm%atom(i)%SkR(:,1)=matmul(Chi,u_vect)
+          Atm%atom(i)%SkI(:,1)=0.0
+          if(present(ipr)) then
+             write(unit=ipr,fmt="(a,i3,a,6f8.4)")     " Atom # ",i," Chi      values: ",atm%atom(i)%chi
+             write(unit=ipr,fmt="(a,6i4,6f6.2)")      "            Chi constraints: ",Icodes,multip
+             write(unit=ipr,fmt="(a,3f8.4)")          "            Induced  Moment: ",Atm%atom(i)%SkR(:,1)
+          end if
+       end do ! Atoms
+
+       return
+    End Subroutine Calc_Induced_Sk
+
+    !!---- Subroutine Cleanup_Symmetry_Operators(MSpG)
+    !!----   Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+    !!----
+    !!----  Subroutine to re-organize symmetry operators extrancting lattice translations
+    !!----  and anti-translations and reordering the whole set of operators.
+    !!----  (Still under development)
+    !!----
+    !!----  Created: February 2014 (JRC)
+    !!----
+    Subroutine Cleanup_Symmetry_Operators(MSpG)
+      Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
+      !--- Local variables ---!
+      integer,      dimension(3,3,MSpG%Multip) :: ss
+      real(kind=cp),dimension(3,  MSpG%Multip) :: ts
+      integer,      dimension(    MSpG%Multip) :: p,ip,it
+      logical,      dimension(    MSpG%Multip) :: nul
+      real(kind=cp),dimension(3,192)           :: Lat_tr
+      real(kind=cp),dimension(3,192)           :: aLat_tr
+      integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
+      !integer :: Ibravl,Isystm, out
+     ! character(len=1) :: Latsym
+     ! character(len=2) :: Latsy
+      integer, dimension(3,3) :: identity, nulo, inver,mat,imat
+      real(kind=cp),dimension(3) ::  v !Co,
+      character(len=80)          :: ShOp_symb ! SpaceGen ,
+      logical                    :: centrosymm
+      character (len=*),dimension(0:2), parameter  :: Centro = &
+                                         (/"Centric (-1 not at origin)", &
+                                           "Acentric                  ", &
+                                           "Centric (-1 at origin)    "/)
+      !Type(Magnetic_Space_Group_Type) :: MSpGn
+
+      !MSpGn=MSpG  !copy with allocation in F2003
+      identity=0; nulo=0
+      do i=1,3
+        identity(i,i)=1
+      end do
+      inver=-identity
+      num_lat=0; num_alat=0
+      p=0
+      i=0
+      k=0
+      centrosymm=.false.
+      nul=.false.
+      do j=2,MSpG%Multip
+        invt= nint(MSpG%MSymOp(j)%phas)
+        if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
+           i=i+1
+           if(invt == 1) then
+              num_lat=num_lat+1
+              Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
+              p(j)=10
+              nul(j)=.true.
+           else
+              num_alat=num_alat+1
+              aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
+              p(j)=-10
+              nul(j)=.true.
+           end if
+        else if (equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
+           k=k+1
+           if(invt == 1) then
+             p(j)=20
+             if(.not. centrosymm) then
+               centrosymm=.true.
+               i_centre=j
+             end if
+           else
+             p(j)=-20
+           end if
+           nul(j)=.true.
+        else
+           p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
+        end if
+      end do
+      if(num_lat > 0) then
+        if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
+        allocate(MSpG%Latt_trans(3,num_lat+1))
+         MSpG%Latt_trans=0.0
+         m=1
+        do j=1,num_lat
+          m=m+1
+          MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
+        end do
+        MSpG%Num_Lat=num_lat+1
+      end if
+      if(num_alat > 0) then
+        if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
+        allocate(MSpG%aLatt_trans(3,num_alat))
+        MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
+        MSpG%Num_aLat=num_alat
+      end if
+      !do i=1,num_lat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
+      !end do
+      !do i=1,num_alat
+      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
+      !end do
+
+      !Nullify the operators that can be deduced from others by applying translations,
+      !anti-translations and centre of symmetry
+      ip=0; it=0
+      do j=2,MSpG%Multip-1
+         if(nul(j)) cycle
+         do i=j+1,MSpG%Multip
+           if(nul(i)) cycle
+           mat=MSpG%SymOp(i)%Rot(:,:)-MSpG%SymOp(j)%Rot(:,:)
+           if(equal_matrix(mat,nulo,3) ) then
+              v=MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+
+              if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                 nul(i)=.true.
+                 ip(i)=j
+                 it(i)=nl
+                 cycle
+              end if
+
+
+              if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                 nul(i)=.true.
+                 ip(i)=j
+                 it(i)=-nl
+                 cycle
+              end if
+
+           end if
+
+           if(centrosymm) then
+              imat=MSpG%SymOp(i)%Rot(:,:)+MSpG%SymOp(j)%Rot(:,:)
+              if(equal_matrix(imat,nulo,3)) then
+                 v=MSpG%SymOp(i_centre)%tr(:)-MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
+
+                 if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
+                    nul(i)=.true.
+                    ip(i)=i_centre
+                    it(i)=nl
+                    cycle
+                 end if
+
+                 if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
+                    nul(i)=.true.
+                    ip(i)=j
+                    it(i)=-nl
+                    cycle
+                 end if
+              end if
+
+           end if
+         end do
+      end do
+      j=0
+      do i=1,MSpG%Multip
+        if(nul(i) .or. i==i_centre) cycle
+        j=j+1
+        ss(:,:,j)=MSpG%SymOp(i)%Rot
+        ts(:,j) = MSpG%SymOp(i)%tr
+        ip(j)   = nint(MSpG%MSymOp(i)%phas)
+        !write(*,"(i6,a,t70,4i4)") j, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i)
+      end do
+      MSpG%Numops=j !This is the reduced set of symmetry operators
+
+      !Construct in an ordered way all the symmetry operators in MSpG
+      !Replacing the operators in the proper order
+      do i=1,MSpG%Numops
+        MSpG%SymOp(i)%Rot= ss(:,:,i)
+        MSpG%SymOp(i)%tr= ts(:,i)
+        MSpG%MSymOp(i)%phas= ip(i)
+        MSpG%MSymOp(i)%Rot=determ_A(ss(:,:,i))*ip(i)*ss(:,:,i)
+      end do
+      m=MSpG%Numops
+      if(centrosymm) then   !First apply the centre of symmetry
+        v=MSpG%SymOp(i_centre)%tr
+        do i=1,MSpG%Numops
+          m=m+1
+          MSpG%SymOp(m)%Rot  = -MSpG%SymOp(i)%Rot
+          MSpG%SymOp(m)%tr   =  modulo_lat(-MSpG%SymOp(i)%tr+v)
+          MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
+          MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
+        end do
+      end if
+      ng=m
+      if(MSpG%Num_Lat > 1) then  !Second apply the lattice centring translations
+        do L=2,MSpG%Num_Lat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
+             MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
+           end do
+        end do
+      end if
+      if(MSpG%Num_aLat > 0) then   !Third apply the lattice centring anti-translations
+        do L=1,MSpG%Num_aLat
+           do i=1,ng
+             m=m+1
+             v=MSpG%SymOp(i)%tr(:) + MSpG%aLatt_trans(:,L)
+             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
+             MSpG%SymOp(m)%tr   = modulo_lat(v)
+             MSpG%MSymOp(m)%Rot = -MSpG%MSymOp(i)%Rot
+             MSpG%MSymOp(m)%phas= -MSpG%MSymOp(i)%phas
+           end do
+        end do
+      end if
+      !Normally here the number of operators should be equal to multiplicity
+      ng=m
+      if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
+      !now generate all symbols for symmetry operators and magnetic matrices
+      do i=1,MSpG%Multip
+         call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
+        !write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+        !write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
+      end do
+      !write(*,"(a)")
+     !do i=1,MSpG%Multip
+     ! Select Case (p(i))
+     !   Case(10)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "     Translation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(-10)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, " Antitranslation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(20)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "          Centre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case(-20)
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "      Anticentre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     !   Case Default
+     !     write(*,"(i6,a,t70,4i4,L4)") i, "       Other Op.: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
+     ! End Select
+     !end do
+
+      !write(*,"(2i8,a,i4)")k,j,"   Centre at:  "//trim(MSpG%SymOpSymb(j))//"   "//trim(MSpG%MSymOpSymb(j)), invt
+      !do j=1,NG
+      !  i=p(j)
+      !  if(i == 0) exit
+      !  write(*,"(2i6,a,i4)")j,i, "    "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
+      !end do
+      return
+    End Subroutine Cleanup_Symmetry_Operators
 
     !!----
     !!---- Subroutine Init_Err_MagSym()
@@ -804,6 +1197,7 @@
        integer :: i,no_iline,no_eline, num_k, num_xsym, num_irrep, num_dom, num_defdom, &
                   num_msym, ier, j, m, n, num_matom, num_skp, ik,im, ip, ncar
        integer,      dimension(5)    :: pos
+       real(kind=cp), parameter      :: epsi=0.00001
        real(kind=cp)                 :: ph
        real(kind=cp),dimension(3)    :: rsk,isk,car,side
        real(kind=cp),dimension(3,12) :: br,bi
@@ -815,8 +1209,9 @@
        character(len=4)              :: symbcar
        character(len=30)             :: msyr
        logical                       :: msym_begin, kvect_begin, skp_begin, shub_given, irreps_given, &
-                                        irreps_begin, bfcoef_begin, magdom_begin, done
+                                        irreps_begin, bfcoef_begin, magdom_begin, done, spg_given
        type(Magnetic_Group_Type)     :: SG
+       type(Space_Group_Type)        :: SpG
 
        call init_err_MagSym()
 
@@ -919,6 +1314,7 @@
        msym_begin  =.false.
        skp_begin   =.false.
        bfcoef_begin=.false.
+       spg_given   =.false.
        if (present(mag_dom)) then  !Initialise Mag_dom
           Mag_dom%nd=1
           Mag_dom%Chir=.false.
@@ -955,6 +1351,20 @@
                 return
              end if
              MGp%MagModel= adjustl(magmod)
+             cycle
+          end if
+
+          ! Read magnetic field for paramagnetic-induced magnetic moments
+          ! The first item is the strength of the magnetic field in Tesla and the three other
+          ! items correspond to the vector (in crystallographic space) of the direction of applied field.
+          if (lowline(1:9) == "mag_field") then
+             read(unit=lowline(10:),fmt=*,iostat=ier) Am%MagField, Am%dir_MField
+             if (ier /= 0) then
+                err_magsym=.true.
+                ERR_MagSym_Mess=" Error reading magnetic field in magnetic phase"
+                return
+             end if
+             if( Am%MagField > 0.0001) Am%suscept=.true.
              cycle
           end if
 
@@ -1388,6 +1798,22 @@
              end do
           end if
 
+          ! Read Local Susceptibility coefficients in cryst. axes
+          if (lowline(1:3) == "chi") then
+             read(unit=lowline(4:),fmt=*,iostat=ier) coef(1:6)
+             if (ier /= 0) then
+                err_magsym=.true.
+                write(unit=ERR_MagSym_Mess,fmt="(a,i3)") " Error reading Local Susceptibility Coefficient for atom #", num_matom
+                return
+             end if
+               Am%atom(num_matom)%chi= coef(1:6)
+               if(abs(coef(1)-coef(2)) < epsi .and. abs(coef(2)-coef(3)) < epsi .and. sum(abs(coef(4:6))) < epsi ) then
+                 Am%atom(num_matom)%chitype="isotr"
+               else
+                 Am%atom(num_matom)%chitype="aniso"
+               end if
+          end if
+
           if (lowline(1:6) == "bfcoef" .and. bfcoef_begin) then
              num_skp=num_skp+1
              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
@@ -1438,6 +1864,53 @@
        end do
 
        !Arriving here we have exhausted reading magnetic phase
+
+       !Check if it is an induced paramagnetic magnetic structure due to an applied magnetic field
+       !In such a case use the crystal space group to construct the magnetic matrices. If the symbol
+       !of the space group is not provided it is supposed that the symmetry operators have been provided
+       !together with th SYMM and MSYM matrices
+       if(Am%suscept) then
+         do i=1,file_cfl%nlines
+            lowline=adjustl(l_case(file_cfl%line(i)))
+            if (lowline(1:4) == "spgr" .or. lowline(1:3) == "spg" .or. lowline(1:6) == "spaceg") then
+               lowline=adjustl(file_cfl%line(i))
+               j=index(lowline," ")
+               lowline=lowline(j+1:)
+               call Set_SpaceGroup(trim(lowline),SpG)
+               spg_given   =.true.
+               exit
+            end if
+         end do
+         if(spg_given) then
+            n=SpG%Numops * SpG%Centred
+            MGp%Centred=SpG%Centred
+            MGp%MCentred=1  !Same rotation matrices as that of the space group
+            num_xsym=SpG%Numops
+            num_msym=1
+            num_k=1
+            if(allocated(MGp%Symop))      deallocate(MGp%Symop)
+            if(allocated(MGp%SymopSymb))  deallocate(MGp%SymopSymb)
+            if(allocated(MGp%MSymop))     deallocate(MGp%MSymop)
+            if(allocated(MGp%MSymopSymb)) deallocate(MGp%MSymopSymb)
+            allocate(MGp%Symop(n))
+            allocate(MGp%SymopSymb(n))
+            allocate(MGp%MSymop(n,1))
+            allocate(MGp%MSymopSymb(n,1))
+            MGp%SymopSymb(1:num_xsym)=SpG%SymopSymb(1:num_xsym)
+            MGp%MSymopSymb(1:num_xsym,1)=SpG%SymopSymb(1:num_xsym)
+            do i=1,num_xsym
+              call symmetry_symbol(Spg%Symop(i)%Rot,(/0.0,0.0,0.0/),lowline)
+              do j=1,len_trim(lowline)
+                 if(lowline(j:j) == "x") lowline(j:j) = "u"
+                 if(lowline(j:j) == "y") lowline(j:j) = "v"
+                 if(lowline(j:j) == "z") lowline(j:j) = "w"
+              end do
+              MGp%MSymopSymb(i,1) = trim(lowline)//", 0.0"
+            end do
+         else
+           !No action to be taken ... the symmetry operators are read in SYMM cards
+         end if
+       end if
 
        !Get pointers to the magnetic form factors
        !Stored for each atom in the component ind(1)
@@ -2262,338 +2735,6 @@
        return
     End Subroutine Readn_Set_Magnetic_Structure_MCIF
 
-    Subroutine Cleanup_Symmetry_Operators(MSpG)
-      Type(Magnetic_Space_Group_Type), intent(in out) :: MSpG
-      !--- Local variables ---!
-      integer,      dimension(3,3,MSpG%Multip) :: ss
-      real(kind=cp),dimension(3,  MSpG%Multip) :: ts
-      integer,      dimension(    MSpG%Multip) :: p,ip,it
-      logical,      dimension(    MSpG%Multip) :: nul
-      real(kind=cp),dimension(3,192)           :: Lat_tr
-      real(kind=cp),dimension(3,192)           :: aLat_tr
-      integer :: i,j,k,L,m, Ng,num_lat, num_alat,invt,nl,i_centre
-      !integer :: Ibravl,Isystm, out
-     ! character(len=1) :: Latsym
-     ! character(len=2) :: Latsy
-      integer, dimension(3,3) :: identity, nulo, inver,mat,imat
-      real(kind=cp),dimension(3) ::  v !Co,
-      character(len=80)          :: ShOp_symb ! SpaceGen ,
-      logical                    :: centrosymm
-      character (len=*),dimension(0:2), parameter  :: Centro = &
-                                         (/"Centric (-1 not at origin)", &
-                                           "Acentric                  ", &
-                                           "Centric (-1 at origin)    "/)
-      !Type(Magnetic_Space_Group_Type) :: MSpGn
-
-      !MSpGn=MSpG  !copy with allocation in F2003
-      identity=0; nulo=0
-      do i=1,3
-        identity(i,i)=1
-      end do
-      inver=-identity
-      num_lat=0; num_alat=0
-      p=0
-      i=0
-      k=0
-      centrosymm=.false.
-      nul=.false.
-      do j=2,MSpG%Multip
-        invt= nint(MSpG%MSymOp(j)%phas)
-        if(equal_matrix(identity,MSpG%SymOp(j)%Rot(:,:),3)) then
-           i=i+1
-           if(invt == 1) then
-              num_lat=num_lat+1
-              Lat_tr(:,num_lat)=MSpG%SymOp(j)%tr(:)
-              p(j)=10
-              nul(j)=.true.
-           else
-              num_alat=num_alat+1
-              aLat_tr(:,num_alat)=MSpG%SymOp(j)%tr(:)
-              p(j)=-10
-              nul(j)=.true.
-           end if
-        else if (equal_matrix(inver,MSpG%SymOp(j)%Rot(:,:),3)) then
-           k=k+1
-           if(invt == 1) then
-             p(j)=20
-             if(.not. centrosymm) then
-               centrosymm=.true.
-               i_centre=j
-             end if
-           else
-             p(j)=-20
-           end if
-           nul(j)=.true.
-        else
-           p(j)=axes_rotation(MSpG%SymOp(j)%Rot(:,:))    ! Determine the order of the operator
-        end if
-      end do
-      if(num_lat > 0) then
-        if(allocated(MSpG%Latt_trans)) deallocate(MSpG%Latt_trans)
-        allocate(MSpG%Latt_trans(3,num_lat+1))
-         MSpG%Latt_trans=0.0
-         m=1
-        do j=1,num_lat
-          m=m+1
-          MSpG%Latt_trans(:,m)   = Lat_tr(:,j)
-        end do
-        MSpG%Num_Lat=num_lat+1
-      end if
-      if(num_alat > 0) then
-        if(allocated(MSpG%aLatt_trans)) deallocate(MSpG%aLatt_trans)
-        allocate(MSpG%aLatt_trans(3,num_alat))
-        MSpG%aLatt_trans   = aLat_tr(:,1:num_alat)
-        MSpG%Num_aLat=num_alat
-      end if
-      !do i=1,num_lat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Translation:  (",Lat_tr(:,i),")"
-      !end do
-      !do i=1,num_alat
-      !   write(*,"(i6,a,3f12.5,a)")i," Lattice Centring Anti-Translation:  (",aLat_tr(:,i),")"
-      !end do
-
-      !Nullify the operators that can be deduced from others by applying translations,
-      !anti-translations and centre of symmetry
-      ip=0; it=0
-      do j=2,MSpG%Multip-1
-         if(nul(j)) cycle
-         do i=j+1,MSpG%Multip
-           if(nul(i)) cycle
-           mat=MSpG%SymOp(i)%Rot(:,:)-MSpG%SymOp(j)%Rot(:,:)
-           if(equal_matrix(mat,nulo,3) ) then
-              v=MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
-
-              if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
-                 nul(i)=.true.
-                 ip(i)=j
-                 it(i)=nl
-                 cycle
-              end if
-
-
-              if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
-                 nul(i)=.true.
-                 ip(i)=j
-                 it(i)=-nl
-                 cycle
-              end if
-
-           end if
-
-           if(centrosymm) then
-              imat=MSpG%SymOp(i)%Rot(:,:)+MSpG%SymOp(j)%Rot(:,:)
-              if(equal_matrix(imat,nulo,3)) then
-                 v=MSpG%SymOp(i_centre)%tr(:)-MSpG%SymOp(i)%tr(:)-MSpG%SymOp(j)%tr(:)
-
-                 if(is_Lattice_vec(V,Lat_tr,num_lat,nl)) then
-                    nul(i)=.true.
-                    ip(i)=i_centre
-                    it(i)=nl
-                    cycle
-                 end if
-
-                 if(is_Lattice_vec(V,aLat_tr,num_alat,nl)) then
-                    nul(i)=.true.
-                    ip(i)=j
-                    it(i)=-nl
-                    cycle
-                 end if
-              end if
-
-           end if
-         end do
-      end do
-      j=0
-      do i=1,MSpG%Multip
-        if(nul(i) .or. i==i_centre) cycle
-        j=j+1
-        ss(:,:,j)=MSpG%SymOp(i)%Rot
-        ts(:,j) = MSpG%SymOp(i)%tr
-        ip(j)   = nint(MSpG%MSymOp(i)%phas)
-        !write(*,"(i6,a,t70,4i4)") j, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i)
-      end do
-      MSpG%Numops=j !This is the reduced set of symmetry operators
-
-      !Construct in an ordered way all the symmetry operators in MSpG
-      !Replacing the operators in the proper order
-      do i=1,MSpG%Numops
-        MSpG%SymOp(i)%Rot= ss(:,:,i)
-        MSpG%SymOp(i)%tr= ts(:,i)
-        MSpG%MSymOp(i)%phas= ip(i)
-        MSpG%MSymOp(i)%Rot=determ_A(ss(:,:,i))*ip(i)*ss(:,:,i)
-      end do
-      m=MSpG%Numops
-      if(centrosymm) then   !First apply the centre of symmetry
-        v=MSpG%SymOp(i_centre)%tr
-        do i=1,MSpG%Numops
-          m=m+1
-          MSpG%SymOp(m)%Rot  = -MSpG%SymOp(i)%Rot
-          MSpG%SymOp(m)%tr   =  modulo_lat(-MSpG%SymOp(i)%tr+v)
-          MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
-          MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
-        end do
-      end if
-      ng=m
-      if(MSpG%Num_Lat > 1) then  !Second apply the lattice centring translations
-        do L=2,MSpG%Num_Lat
-           do i=1,ng
-             m=m+1
-             v=MSpG%SymOp(i)%tr(:) + MSpG%Latt_trans(:,L)
-             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
-             MSpG%SymOp(m)%tr   = modulo_lat(v)
-             MSpG%MSymOp(m)%Rot = MSpG%MSymOp(i)%Rot
-             MSpG%MSymOp(m)%phas= MSpG%MSymOp(i)%phas
-           end do
-        end do
-      end if
-      if(MSpG%Num_aLat > 0) then   !Third apply the lattice centring anti-translations
-        do L=1,MSpG%Num_aLat
-           do i=1,ng
-             m=m+1
-             v=MSpG%SymOp(i)%tr(:) + MSpG%aLatt_trans(:,L)
-             MSpG%SymOp(m)%Rot  = MSpG%SymOp(i)%Rot
-             MSpG%SymOp(m)%tr   = modulo_lat(v)
-             MSpG%MSymOp(m)%Rot = -MSpG%MSymOp(i)%Rot
-             MSpG%MSymOp(m)%phas= -MSpG%MSymOp(i)%phas
-           end do
-        end do
-      end if
-      !Normally here the number of operators should be equal to multiplicity
-      ng=m
-      if(ng /= MSpG%Multip) write(*,*) "  Problem! the multiplicity has not been recovered, value of ng=",ng
-      !now generate all symbols for symmetry operators and magnetic matrices
-      do i=1,MSpG%Multip
-         call Get_Shubnikov_Operator_Symbol(MSpG%SymOp(i)%Rot,MSpG%MSymOp(i)%Rot,MSpG%SymOp(i)%tr,ShOp_symb,.true.)
-        !write(*,"(i6,a,i4)") i, "  "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
-        !write(*,"(i6,a)") i, "  "//trim(ShOp_symb)
-      end do
-      !write(*,"(a)")
-     !do i=1,MSpG%Multip
-     ! Select Case (p(i))
-     !   Case(10)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "     Translation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(-10)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, " Antitranslation: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(20)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "          Centre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case(-20)
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "      Anticentre: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     !   Case Default
-     !     write(*,"(i6,a,t70,4i4,L4)") i, "       Other Op.: "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas),p(i),ip(i),it(i),nul(i)
-     ! End Select
-     !end do
-
-      !write(*,"(2i8,a,i4)")k,j,"   Centre at:  "//trim(MSpG%SymOpSymb(j))//"   "//trim(MSpG%MSymOpSymb(j)), invt
-      !do j=1,NG
-      !  i=p(j)
-      !  if(i == 0) exit
-      !  write(*,"(2i6,a,i4)")j,i, "    "//trim(MSpG%SymOpSymb(i))//"   "//trim(MSpG%MSymOpSymb(i)), nint(MSpG%MSymOp(i)%phas)
-      !end do
-    !!----   character(len=12)                              :: CrystalSys       ! Crystal system
-    !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
-    !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
-    !!----   integer                                        :: Num_Lat           ! Number of lattice points in a cell
-    !!----   real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations (3,12)
-    !!----   character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
-    !!----   integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-    !!----   real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
-    !!----   integer                                        :: NumOps           ! Number of reduced set of S.O.
-    !!----   Integer                                        :: Multip
-    !!----   integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
-    !!----   Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
-    !!----   Integer                                        :: n_kv
-    !!----   Integer                                        :: n_irreps
-    !!----   Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
-    !!----   Integer,             dimension(:),allocatable  :: small_irrep_dim !Dimension of the small irrep
-    !!----   Integer,             dimension(:),allocatable  :: irrep_modes_number !Number of the mode of the irrep
-    !!----   Character(len=15),   dimension(:),allocatable  :: irrep_id        !Labels for the irreps
-    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_direction !Irrep direction in representation space
-    !!----   Character(len=20),   dimension(:),allocatable  :: irrep_action    !Irrep character primary or secondary
-    !!----   Character(len=15),   dimension(:),allocatable  :: kv_label
-    !!----   real(kind=cp),     dimension(:,:),allocatable  :: kv
-    !!----   character(len=40),   dimension(:),allocatable  :: Wyck_Symb  ! Alphanumeric Symbols for first representant of Wyckoff positions
-    !!----   character(len=40),   dimension(:),allocatable  :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----   type(Sym_Oper_Type), dimension(:),allocatable  :: SymOp      ! Crystallographic symmetry operators
-    !!----   character(len=40),   dimension(:),allocatable  :: MSymopSymb ! Alphanumeric Symbols for MSYMM
-    !!----   type(MSym_Oper_Type),dimension(:),allocatable  :: MSymOp     ! Magnetic symmetry operators
-    !!---- End Type Magnetic_Space_Group_Type
-      return
-    End Subroutine Cleanup_Symmetry_Operators
-
-    Function is_Lattice_vec(V,Ltr,nlat,nl) Result(Lattice_Transl)
-       !---- Argument ----!
-       real(kind=cp), dimension(3),   intent( in) :: v
-       real(kind=cp), dimension(:,:), intent( in) :: Ltr
-       integer,                       intent( in) :: nlat
-       integer,                       intent(out) :: nl
-       logical                                    :: Lattice_Transl
-
-       !---- Local variables ----!
-       real(kind=cp)   , dimension(3) :: vec
-       integer                        :: i
-
-       Lattice_Transl=.false.
-       nl=0
-
-       if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
-          Lattice_Transl=.true.
-       else                       ! if not look for lattice type
-          do i=1,nlat
-            vec=Ltr(:,i)-v
-            if (Zbelong(vec)) then
-              Lattice_Transl=.true.
-              nl=i
-              exit
-            end if
-          end do
-       end if
-       return
-    End Function is_Lattice_vec
-
-    Function get_magnetic_form_factor(element) result(formf)
-      character(len=*),intent(in) :: element
-      character(len=6)            :: formf
-      !
-      logical :: is_re
-      integer :: i,valence,ier
-      character(len=6)   :: melem,aux
-      integer, parameter :: n_re =12
-      character(len=*), parameter, dimension(n_re) :: re=(/"ce","pr","nd","sm","eu","gd","tb","dy","ho","er","tm","yb"/)
-      melem=l_case(element)
-      is_re=.false.
-      do i=1,n_re
-        if(index(melem,re(i)) /= 0) then
-          is_re=.true.
-           exit
-        end if
-      end do
-      if(is_re) then
-        aux=melem(3:)
-        i=index(aux,"+")
-        if(i /= 0) then
-          aux(i:i)=" "
-          read(unit=aux,fmt=*,iostat=ier) valence
-          if(ier /= 0) valence=3
-        else
-           valence=3
-        end if
-        write(unit=formf,fmt="(a,i1)") "J"//melem(1:2),valence
-      else
-        i=index(melem,"+")
-        if(i /= 0) then
-          melem(i:i)=" "
-          aux=melem(i-1:i-1)
-          read(unit=aux,fmt=*,iostat=ier) valence
-          if(ier /= 0) valence=3
-          melem(i-1:i-1)=" "
-        else
-           valence=2
-        end if
-        write(unit=formf,fmt="(a,i1)") "M"//trim(melem),valence
-      end if
-      formf=u_case(formf)
-      return
-    End Function get_magnetic_form_factor
 
 
 
@@ -3364,14 +3505,15 @@
     !!----    Subroutine to write out the information about the magnetic symmetry
     !!----    and mangnetic structure in unit Ipr.
     !!----
-    !!---- Update: November 2006
+    !!---- Updated: November 2006, June 2014
     !!
-    Subroutine Write_Magnetic_Structure(Ipr,MGp,Am,Mag_Dom)
+    Subroutine Write_Magnetic_Structure(Ipr,MGp,Am,Mag_Dom,cell)
        !---- Arguments ----!
        Integer,                    intent(in)           :: Ipr
        type(MagSymm_k_Type),       intent(in)           :: MGp
        type(mAtom_List_Type),      intent(in)           :: Am
        type(Magnetic_Domain_Type), intent(in), optional :: Mag_Dom
+       type(Crystal_Cell_type),    intent(in), optional :: cell
 
        !---- Local Variables ----!
        character (len=100), dimension( 4):: texto
@@ -3379,7 +3521,8 @@
        integer :: i,j,k,l, nlines,n,m
        real(kind=cp)                  :: x
        complex                        :: ci
-       real(kind=cp), dimension(3)    :: xp,xo
+       real(kind=cp), dimension(3)    :: xp,xo,u_vect,Mom
+       real(kind=cp), dimension(3,3)  :: chi,chit
        complex, dimension(3)          :: Sk
 
 
@@ -3469,26 +3612,42 @@
          Write(unit=ipr,fmt="(a,/)")  " "
 
          if (MGp%nirreps == 0) then
-            Write(unit=ipr,fmt="(a)")  &
-            "  The Fourier coefficients are of the form: Sk(j) = 1/2 { Rk(j) + i Ik(j) } exp {-2pi i Mphask(j)}"
-            Write(unit=ipr,fmt="(a)")  &
-            "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz) + i ( Ix Iy Iz)} exp {-2pi i Mphask} -> MagMatrix # imat"
-            Write(unit=ipr,fmt="(a)")  "  In case of k=2H (H reciprocal lattice vector) Sk(j)= (Rx Ry Rz)"
 
-            do i=1,Am%Natoms
-               Write(unit=ipr,fmt="(a,a,5f10.5)")  &
-                 "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
-               do j=1,Am%Atom(i)%nvk
-                  if (K_Equiv_Minus_K(MGp%kvec(:,j),MGp%latt)) then
-                     Write(unit=ipr,fmt="(a,i2,a,3f10.5,a,i4)")  &
-                     "     Sk(",j,") =  (", Am%Atom(i)%Skr(:,j),")  -> MagMatrix #", Am%Atom(i)%imat(j)
-                  else
-                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a,i4)")  &
-                     "     Sk(",j,") = 1/2 {(", Am%Atom(i)%Skr(:,j),") + i (",Am%Atom(i)%Ski(:,j),")}  exp { -2pi i ",&
-                     Am%Atom(i)%MPhas(j),"}  -> MagMatrix #", Am%Atom(i)%imat(j)
-                  end if
+            if(Am%suscept) then
+               Write(unit=ipr,fmt="(a,f8.3,a)")  &
+               "  The magnetic structure is induced by an applied magnetic field of ",Am%MagField," Tesla"
+               Write(unit=ipr,fmt="(a,3f8.3,a)")  &
+               "  The direction of the applied magnetic field is: [",Am%dir_MField," ] in crystal space"
+               do i=1,Am%Natoms
+                  Write(unit=ipr,fmt="(a,a,5f10.5)")  &
+                    "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
+                  Write(unit=ipr,fmt="(a,6f10.5,a)")  &
+                        "     Chi-Tensor( Chi11,Chi22,Chi33,Chi12,Chi13,Chi23) =  (", Am%Atom(i)%chi(:),")"
                end do
-            end do
+
+            else
+
+               Write(unit=ipr,fmt="(a)")  &
+               "  The Fourier coefficients are of the form: Sk(j) = 1/2 { Rk(j) + i Ik(j) } exp {-2pi i Mphask(j)}"
+               Write(unit=ipr,fmt="(a)")  &
+               "  They are written for each atom j as Sk( j)= 1/2 {(Rx Ry Rz) + i ( Ix Iy Iz)} exp {-2pi i Mphask} -> MagMatrix # imat"
+               Write(unit=ipr,fmt="(a)")  "  In case of k=2H (H reciprocal lattice vector) Sk(j)= (Rx Ry Rz)"
+
+               do i=1,Am%Natoms
+                  Write(unit=ipr,fmt="(a,a,5f10.5)")  &
+                    "   Atom "//Am%Atom(i)%Lab, Am%Atom(i)%SfacSymb, Am%Atom(i)%x,Am%Atom(i)%Biso,Am%Atom(i)%occ
+                  do j=1,Am%Atom(i)%nvk
+                     if (K_Equiv_Minus_K(MGp%kvec(:,j),MGp%latt)) then
+                        Write(unit=ipr,fmt="(a,i2,a,3f10.5,a,i4)")  &
+                        "     Sk(",j,") =  (", Am%Atom(i)%Skr(:,j),")  -> MagMatrix #", Am%Atom(i)%imat(j)
+                     else
+                        Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a,i4)")  &
+                        "     Sk(",j,") = 1/2 {(", Am%Atom(i)%Skr(:,j),") + i (",Am%Atom(i)%Ski(:,j),")}  exp { -2pi i ",&
+                        Am%Atom(i)%MPhas(j),"}  -> MagMatrix #", Am%Atom(i)%imat(j)
+                     end if
+                  end do
+               end do
+            end if
 
          else
 
@@ -3543,24 +3702,48 @@
                Write(unit=ipr,fmt="(a)") "  "
             end do  !atoms
 
-         else
-            do i=1,Am%natoms
-               xo=Am%Atom(i)%x
-               do k=1,MGp%NumOps
-                  xp=ApplySO(MGp%SymOp(k),xo)
-                  Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
-                  do j=1,Am%Atom(i)%nvk
-                     m=Am%Atom(i)%imat(j)
-                     n=abs(MGp%nbas(m))
-                     x=-tpi*Am%atom(i)%mphas(j)
-                     Sk=cmplx(Am%Atom(i)%Skr(:,j),Am%Atom(i)%Ski(:,j))
-                     Sk= ApplyMSO(MGp%MSymOp(k,j),Sk)*cmplx(cos(x),sin(x))
-                     Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
-                      "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
-                  end do
-               end do  !Ops
-               Write(unit=ipr,fmt="(a)") "  "
-            end do  !atoms
+         else !MGp%nirreps == 0
+
+            if(Am%suscept .and. present(cell)) then
+                u_vect=Am%MagField * Am%dir_MField / Veclength(Cell%Cr_Orth_cel,Am%dir_MField)
+                do i=1,Am%natoms
+                  xo=Am%Atom(i)%x
+                  chi=reshape((/am%atom(i)%chi(1),am%atom(i)%chi(4), am%atom(i)%chi(5), &
+                                am%atom(i)%chi(4),am%atom(i)%chi(2), am%atom(i)%chi(6), &
+                                am%atom(i)%chi(6),am%atom(i)%chi(6), am%atom(i)%chi(3) /),(/3,3/))
+                  do k=1,MGp%Numops
+                     xp=ApplySO(MGp%SymOp(k),xo)
+                     chit=matmul(MGp%SymOp(k)%Rot,chi)
+                     chit=matmul(chit,transpose(MGp%SymOp(k)%Rot))
+                     Mom=matmul(Chit,u_vect)
+                     Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp,"   Induced moment: ",Mom
+                     Write(unit=ipr,fmt="(a)")            "             Local Susceptibility Tensor: "
+                     do j=1,3
+                        Write(unit=ipr,fmt="(a,3f14.5)")   "                                          ",chit(j,:)
+                     end do
+                  end do ! symmetry
+                end do ! Atoms
+
+            else !suscept
+
+              do i=1,Am%natoms
+                 xo=Am%Atom(i)%x
+                 do k=1,MGp%NumOps
+                    xp=ApplySO(MGp%SymOp(k),xo)
+                    Write(unit=ipr,fmt="(a,i2,a,3f8.5)") " =>  Atom "//Am%Atom(i)%lab//"(",k,") :",xp
+                    do j=1,Am%Atom(i)%nvk
+                       m=Am%Atom(i)%imat(j)
+                       n=abs(MGp%nbas(m))
+                       x=-tpi*Am%atom(i)%mphas(j)
+                       Sk=cmplx(Am%Atom(i)%Skr(:,j),Am%Atom(i)%Ski(:,j))
+                       Sk= ApplyMSO(MGp%MSymOp(k,j),Sk)*cmplx(cos(x),sin(x))
+                       Write(unit=ipr,fmt="(a,i2,a,2(3f10.5,a),f9.5,a)")  &
+                        "     Sk(",j,") = 1/2 {(", real(Sk),") + i (",aimag(Sk),")}"
+                    end do
+                 end do  !Ops
+                 Write(unit=ipr,fmt="(a)") "  "
+              end do  !atoms
+            end if !suscept
          end if
 
        End If !Am%Natoms > 0

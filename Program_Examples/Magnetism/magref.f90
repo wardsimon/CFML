@@ -1,6 +1,9 @@
 Program MagRef
- use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup
- use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List, MAtom_list_Type
+ use CFML_GlobalDeps
+ use CFML_Math_3D,                  only: Veclength
+ use CFML_crystallographic_symmetry,only: space_group_type, Write_SpaceGroup, get_stabilizer
+ use CFML_Atom_TypeDef,             only: Atom_List_Type, Write_Atom_List, MAtom_list_Type, &
+                                          Get_Atom_2nd_Tensor_Ctr
  use CFML_crystal_metrics,          only: Crystal_Cell_Type, Write_Crystal_Cell
  use CFML_Reflections_Utilities,    only: Hkl_s
  use CFML_IO_Formats,               only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
@@ -21,6 +24,7 @@ Program MagRef
  character(len=256)          :: filcod     !Name of the input file
  character(len=1)            :: sig
  real                        :: sn,sf2
+ real, dimension(3)          :: u_vect
  integer                     :: Num, lun=1, ier,i,j,m,ih,ik,il,iv, n_ini,n_end
  complex                     :: fc
 
@@ -34,14 +38,15 @@ Program MagRef
               arggiven=.true.
       end if
 
-      write(unit=*,fmt="(/,/,6(a,/))")                                                 &
+      write(unit=*,fmt="(/,/,7(a,/))")                                                 &
            "              ------ P r o g r a m     M a g R e f  ------"               , &
-           "                    ---- Version 0.2 April-2005 ----"                    , &
+           "                    ---- Version 0.3 June-2014 ----"                    , &
            "    ******************************************************************"  , &
            "    * Calculates magnetic structure factors, and magnetic interaction*"  , &
            "    * vectors from magnetic structures by reading a *.CFL file       *"  , &
+           "    * Calculates also Induced Magnetic Structure Factor Tensors      *"  , &
            "    ******************************************************************"  , &
-           "                    (JRC- April 2005, testing stage )"
+           "                            (JRC- June 2014)"
     write(unit=*,fmt=*) " "
 
      if(.not. arggiven) then
@@ -51,14 +56,15 @@ Program MagRef
      end if
 
      open(unit=lun,file=trim(filcod)//".cal", status="replace",action="write")
-     write(unit=lun,fmt="(/,/,6(a,/))")                                                &
+     write(unit=lun,fmt="(/,/,7(a,/))")                                                &
            "              ------ P r o g r a m     M a g R e f  ------"               , &
-           "                    ---- Version 0.2 April-2005 ----"                    , &
+           "                    ---- Version 0.3 June-2014 ----"                    , &
            "    ******************************************************************"  , &
            "    * Calculates magnetic structure factors, and magnetic interaction*"  , &
            "    * vectors from magnetic structures by reading a *.CFL file       *"  , &
+           "    * Calculates also Induced Magnetic Structure Factor Tensors      *"  , &
            "    ******************************************************************"  , &
-           "                    (JRC- April 2005, testing stage )"
+           "                            (JRC- June 2014)"
 
      inquire(file=trim(filcod)//".cfl",exist=esta)
      if( .not. esta) then
@@ -96,41 +102,6 @@ Program MagRef
          stop
        end if
        call Write_Magnetic_Structure(lun,MGp,Am)
-    !!---- TYPE :: MAGSYMM_K_TYPE
-    !!--..
-    !!---- Type, Public :: MagSymm_k_Type
-    !!----    character(len=31)                   :: MagModel   ! Name to characterize the magnetic symmetry
-    !!----    character(len=1)                    :: Latt       ! Symbol of the crystallographic lattice
-    !!----    integer                             :: nmsym      ! Number of magnetic operators per crystallographic operator
-    !!----    integer                             :: centred    ! =0 centric centre not at origin, =1 acentric, =2 centric (-1 at origin)
-    !!----    integer                             :: mcentred   ! =1 Anti/a-centric Magnetic symmetry, = 2 centric magnetic symmetry
-    !!----    integer                             :: nkv        ! Number of independent propagation vectors
-    !!----    real(kind=sp),dimension(3,12)       :: kvec       ! Propagation vectors
-    !!----    integer                             :: Num_Lat    ! Number of centring lattice vectors
-    !!----    real(kind=sp), dimension(3,4)       :: Ltr        ! Centring translations
-    !!----    integer                             :: Numops     ! Reduced number of crystallographic Symm. Op.
-    !!----    integer                             :: Multip     ! General multiplicity of the space group
-    !!----    character(len=40),   dimension(48)  :: SymopSymb  ! Alphanumeric Symbols for SYMM
-    !!----    type( Sym_Oper_Type),dimension(48)  :: SymOp      ! Crystallographic symmetry operators
-    !!----    character(len=40),   dimension(48,8):: MSymopSymb ! Alphanumeric Symbols for MSYMM
-    !!----    type(MSym_Oper_Type),dimension(48,8):: MSymOp     ! Magnetic symmetry operators
-    !!---- End Type MagSymm_k_Type
-    !!----
-    !!----  MAGH_TYPE
-    !!----     Type, Public  :: MagH_Type
-    !!----        logical              :: keqv_minus  !True if k equivalent to -k
-    !!----        integer              :: mult    !Multiplicity of the reflection (useful for powder calculations)
-    !!----        integer              :: num_k   !number of the propagation vector vk
-    !!----        real                 :: signp   !+1 for -vk   and -1 for +vk
-    !!----        real                 :: s       !sinTheta/Lambda
-    !!----        real                 :: sqMiV   !Square of the Magnetic Interaction vector
-    !!----        real, dimension(3)   :: H       ! H +/- k
-    !!----        complex,dimension(3) :: MsF     !magnetic structure factor
-    !!----        complex,dimension(3) :: MiV     !magnetic interaction vector
-    !!----     End Type HR_Type
-    !!----
-    !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
-    !!----    Includes the magnetic interaction vector MiV = Mper = M
 
       do
 
@@ -148,18 +119,50 @@ Program MagRef
          Mh%h= real((/ih,ik,il/)) - Mh%signp*MGp%kvec(:,iv)
          Mh%s = hkl_s(Mh%h,Cell)
          Mh%keqv_minus=K_Equiv_Minus_K(MGp%kvec(:,iv),MGp%latt)
-         !Calculate magnetic structure factor and magnetic interaction vector
-         call Calc_Magnetic_StrF_MiV(Cell,MGp,Am,Mh)
-         write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
-         write(unit=lun,fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
-         write(unit=*,  fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
-         write(unit=*,  fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
-         write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
-         write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
-         write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
-         write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
-         write(unit=lun,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
-         write(unit=*  ,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
+
+         if(Am%suscept) then
+            !write(unit=*,fmt="(a,i2,a)",advance="no") &
+            !" => Enter the strength(in Tesla) and direction of applied magnetic field: "
+            !read(unit=*,fmt=*) Am%MagField, Am%dir_MField
+            call Calc_Induced_Sk(cell,SpG,Am%MagField,Am%dir_MField,Am,6)
+            call Calc_Magnetic_Strf_Tensor(SpG,Am,Mh)
+            write(unit=lun,fmt="(/,a,3i4,a)")  "  Reflection: (",ih,ik,il,") "
+            write(unit=*,  fmt="(/,a,3i4,a)")  "  Reflection: (",ih,ik,il,") "
+            write(unit=lun,fmt="(a)")          "  Real part of Tensorial Magnetic Structure Factor: "
+            write(unit=*,  fmt="(a)")          "  Real part of Tensorial Magnetic Structure Factor: "
+            do i=1,3
+              write(unit=lun,fmt="(a,3f12.5)") "       ",real(Mh%TMsF(i,:))
+              write(unit=*  ,fmt="(a,3f12.5)") "       ",real(Mh%TMsF(i,:))
+            end do
+            write(unit=lun,fmt="(a)")          "  Imaginary part of Tensorial Magnetic Structure Factor: "
+            write(unit=*  ,fmt="(a)")          "  Imaginary part of Tensorial Magnetic Structure Factor: "
+            do i=1,3
+              write(unit=lun,fmt="(a,3f12.5)") "       ",aimag(Mh%TMsF(i,:))
+              write(unit=*  ,fmt="(a,3f12.5)") "       ",aimag(Mh%TMsF(i,:))
+            end do
+            call Calc_Induced_MsF_MiV(cell,Am%MagField,Am%dir_MField,Mh)
+            write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
+            write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
+            write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
+            write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
+            write(unit=lun,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
+            write(unit=*  ,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
+
+         else
+
+            !Calculate magnetic structure factor and magnetic interaction vector
+            call Calc_Magnetic_StrF_MiV(Cell,MGp,Am,Mh)
+            write(unit=lun,fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
+            write(unit=lun,fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
+            write(unit=*,  fmt="(/,a,3i4,a,3f8.4,a)") "  Reflection: (",ih,ik,il,") "//sig//" (",MGp%kvec(:,iv),")"
+            write(unit=*,  fmt="(a,3f8.4,a)")         "              (",Mh%h,")"
+            write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
+            write(unit=lun,fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
+            write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Structure   Factor : (",real(Mh%MsF),")+i(",aimag(Mh%MsF),") "
+            write(unit=*,  fmt="(a,2(3f8.4,a))") "  Magnetic Interaction Vector : (",real(Mh%MiV),")+i(",aimag(Mh%MiV),") "
+            write(unit=lun,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
+            write(unit=*  ,fmt="(a,f12.5 )")     "  Square of Mag. int.  Vector : ",Mh%sqMiV
+         end if
        end do
 
 
@@ -168,5 +171,48 @@ Program MagRef
      end if
 
      close(unit=lun)
+
+    contains
+
+
+
+    !!---- Subroutine Calc_Induced_MsF_MiV(cell,MField,dir_MField,Mh)
+    !!----    !---- Arguments ----!
+    !!----    type(Crystal_Cell_type),    intent(in)     :: Cell
+    !!----    real(kind=cp),              intent(in)     :: MField
+    !!----    real(kind=cp),dimension(3), intent(in)     :: dir_MField
+    !!----    type(MagH_Type),            intent(in out) :: Mh
+    !!----
+    !!----  This subroutine completes the object Mh when the tensorial magnetic structure
+    !!----  factor has been previously calculated.
+    !!----
+    !!----  Created: June 2014 (JRC)
+    !!----
+    Subroutine Calc_Induced_MsF_MiV(cell,MField,dir_MField,Mh)
+       !---- Arguments ----!
+       type(Crystal_Cell_type),    intent(in)     :: Cell
+       real(kind=cp),              intent(in)     :: MField
+       real(kind=cp),dimension(3), intent(in)     :: dir_MField
+       type(MagH_Type),            intent(in out) :: Mh
+       !--- Local variables ---!
+       real(kind=cp)                  :: s
+       real(kind=cp),    dimension(3) :: u_vec,er,ed
+       complex(kind=cp), dimension(3) :: Mc, MiV
+
+       !
+       u_vect=MField * dir_MField / Veclength(Cell%Cr_Orth_cel,dir_MField)
+       Mh%MsF=matmul(Mh%TMsF,u_vect)  !Magnetic structure factor from TMsF tensor
+       !---- Calculation of the Magnetic Interaction vector ----!
+       s  = 2.0*Mh%s            !1/d=r*, M = M// + Mp   => Mp = M - M// = M - (M.e)e
+       er = Mh%h/s              !unitary vector referred to the reciprocal basis
+       ed = matmul(cell%GR,er)  !  "        "       "             direct    "
+       Mc  = Mh%MsF / Cell%cell                !Magnetic structure factor in basis {a,b,c}
+       MiV = Mc - dot_product(er,Mc) * ed      !Magnetic interaction vector in basis {a,b,c}
+       Mh%MiV  =  MiV * Cell%cell              !Magnetic interaction vector in basis {e1,e2,e3}
+       Mh%MiVC = matmul(Cell%Cr_Orth_cel,MiV)  !Magnetic interaction vector in Cartesian components
+       Mh%sqMiV= dot_product(Mh%MiVC, Mh%MiVC)
+       return
+    End Subroutine Calc_Induced_MsF_MiV
+
 End Program MagRef
 

@@ -78,6 +78,7 @@
 !!----       CALC_MAG_INTERACTION_VECTOR
 !!----       CALC_MAGNETIC_STRF_MIV
 !!----       CALC_MAGNETIC_STRF_MIV_DOM
+!!----       CALC_MAGNETIC_STRF_TENSOR
 !!--++       CALC_TABLE_MAB              [Private]
 !!--++       CALC_TABLE_TH               [Private]
 !!--++       CREATE_TABLE_HR_HT          [Private]
@@ -116,7 +117,8 @@
     !---- List of public subroutines ----!
     public :: Calc_Mag_Interaction_Vector, Gen_satellites, Init_Mag_Structure_Factors, &
               Mag_Structure_Factors, Modify_MSF, Write_Mag_Structure_Factors,          &
-              Calc_Magnetic_StrF_MiV, Calc_Magnetic_StrF_MiV_dom, Init_Err_MSfac
+              Calc_Magnetic_StrF_MiV, Calc_Magnetic_StrF_MiV_dom, Init_Err_MSfac,      &
+              Calc_Magnetic_Strf_Tensor
 
     !---- List of private functions ----!
     private :: mFj
@@ -147,34 +149,36 @@
     !!---- TYPE :: MAGH_TYPE
     !!--..
     !!----    Type, Public  :: MagH_Type
-    !!----       logical                        :: keqv_minus  !True if k equivalent to -k
-    !!----       integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
-    !!----       integer                        :: num_k       !number of the propagation vector vk
-    !!----       real(kind=cp)                  :: signp       !+1 for -vk   and -1 for +vk
-    !!----       real(kind=cp)                  :: s           !sinTheta/Lambda
-    !!----       real(kind=cp)                  :: sqMiV       !Square of the Magnetic Interaction vector
-    !!----       real(kind=cp), dimension(3)    :: H           ! H +/- k
-    !!----       complex(kind=cp), dimension(3) :: MsF         !magnetic structure factor
-    !!----       complex(kind=cp), dimension(3) :: MiV         !magnetic interaction vector
-    !!----       complex(kind=cp), dimension(3) :: MiVC        !magnetic interaction vector in Cartesian components
+    !!----       logical                         :: keqv_minus  !True if k equivalent to -k
+    !!----       integer                         :: mult        !Multiplicity of the reflection (useful for powder calculations)
+    !!----       integer                         :: num_k       !number of the propagation vector vk
+    !!----       real(kind=cp)                   :: signp       !+1 for -vk   and -1 for +vk
+    !!----       real(kind=cp)                   :: s           !sinTheta/Lambda
+    !!----       real(kind=cp)                   :: sqMiV       !Square of the Magnetic Interaction vector
+    !!----       real(kind=cp),    dimension(3)  :: H           ! H +/- k
+    !!----       complex(kind=cp), dimension(3)  :: MsF         !magnetic structure factor
+    !!----       complex(kind=cp), dimension(3,3):: TMsF        !tensorial magnetic structure factor
+    !!----       complex(kind=cp), dimension(3)  :: MiV         !magnetic interaction vector
+    !!----       complex(kind=cp), dimension(3)  :: MiVC        !magnetic interaction vector in Cartesian components
     !!----    End Type  MagH_Type
     !!----
     !!----    Define the scatering vector vector  H+k and the sign -1 for H+k and +1 for H-k.
     !!----    Includes the magnetic interaction vector MiV = Mper = M
     !!----
-    !!---- Updated: April-2005, June - 2012
+    !!---- Updated: April-2005, June - 2012, June -2014
     !!
     Type, Public  :: MagH_Type
-       logical                        :: keqv_minus  !True if k equivalent to -k
-       integer                        :: mult        !Multiplicity of the reflection (useful for powder calculations)
-       integer                        :: num_k       !number of the propagation vector vk
-       real(kind=cp)                  :: signp       !+1 for -vk   and -1 for +vk
-       real(kind=cp)                  :: s           !sinTheta/Lambda
-       real(kind=cp)                  :: sqMiV       !Square of the Magnetic Interaction vector
-       real(kind=cp), dimension(3)    :: H           ! H +/- k
-       complex(kind=cp), dimension(3) :: MsF         !Magnetic structure factor w.r.t. unitary Crystal Frame
-       complex(kind=cp), dimension(3) :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
-       complex(kind=cp), dimension(3) :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
+       logical                          :: keqv_minus  !True if k equivalent to -k
+       integer                          :: mult        !Multiplicity of the reflection (useful for powder calculations)
+       integer                          :: num_k       !number of the propagation vector vk
+       real(kind=cp)                    :: signp       !+1 for -vk   and -1 for +vk
+       real(kind=cp)                    :: s           !sinTheta/Lambda
+       real(kind=cp)                    :: sqMiV       !Square of the Magnetic Interaction vector
+       real(kind=cp),    dimension(3)   :: H           ! H +/- k
+       complex(kind=cp), dimension(3)   :: MsF         !Magnetic structure factor w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3,3) :: TMsF        !tensorial magnetic structure factor
+       complex(kind=cp), dimension(3)   :: MiV         !Magnetic interaction vector w.r.t. unitary Crystal Frame
+       complex(kind=cp), dimension(3)   :: MiVC        !Magnetic interaction vector in Cartesian components w.r.t. Crystal Frame
     End Type  MagH_Type
 
     !!----
@@ -770,6 +774,69 @@
 
        return
     End Subroutine Calc_Magnetic_Strf_Miv_Dom
+
+    !!----
+    !!---- Subroutine Calc_Magnetic_Strf_Tensor(SpG,Atm,Mh)
+    !!----    type(Space_Group_Type),   intent(in)     :: SpG
+    !!----    type(Matom_list_type),    intent(in)     :: Atm
+    !!----    type(MagH_Type),          intent(in out) :: Mh
+    !!----
+    !!----    Calculate the Tensorial Magnetic Structure factor of the
+    !!----    reflection provided in Mh.
+    !!----    The components are given with respect to the crystallographic
+    !!----    unitary direct cell system: {e1,e2,e3} and with respect to the
+    !!----    Cartesian frame defined in Cell.
+    !!----
+    !!---- Created: June - 2014 (JRC)
+    !!
+    Subroutine Calc_Magnetic_Strf_Tensor(SpG,Atm,Mh)
+       !---- Arguments ----!
+       type(Space_Group_Type),   intent(in)     :: SpG
+       type(Matom_list_type),    intent(in)     :: Atm
+       type(MagH_Type),          intent(in out) :: Mh
+
+       !---- Local Variables ----!
+       integer                            :: i,j,k
+       real(kind=cp)                      :: arg,anis,s,b,ht,mFF,tho
+       real(kind=cp),    dimension(3)     :: h
+       real(kind=cp),    dimension(6)     :: beta
+       real(kind=cp),    dimension(3,3)   :: Mcos,Msin,chi,chit
+
+       s=Mh%s
+       Mh%TMsF=0.0
+
+       do i=1,Atm%natoms
+          !---- Isotropic Debye-Waller factor * occupation * p=0.5*re*gamma * Magnetic form-factors mFF
+          b=atm%atom(i)%biso
+          j=atm%atom(i)%ind(1)  !pointer to the magnetic form factor coefficients
+          mFF=mfj(s,Magnetic_Form(j)%SctM)
+          tho= 0.2696*atm%atom(i)%occ*mFF*exp(-b*s*s)
+          chi=reshape((/atm%atom(i)%chi(1),atm%atom(i)%chi(4), atm%atom(i)%chi(5), &
+                        atm%atom(i)%chi(4),atm%atom(i)%chi(2), atm%atom(i)%chi(6), &
+                        atm%atom(i)%chi(6),atm%atom(i)%chi(6), atm%atom(i)%chi(3) /),(/3,3/))
+          Mcos=0.0 ; Msin=0.0
+          do k=1,SpG%Numops
+             h=Hkl_R(Mh%h,SpG%symop(k))
+             ht=dot_product(Mh%h,SpG%SymOp(k)%Tr)
+             arg=tpi*(dot_product(h,Atm%atom(i)%x)+ht)
+             anis=1.0
+             if (Atm%atom(i)%thtype == "aniso") then
+                beta=Atm%atom(i)%u(1:6)
+                anis=     h(1)*h(1)*beta(1)+     h(2)*h(2)*beta(2)+    h(3)*h(3)*beta(3) &
+                     +2.0*h(1)*h(2)*beta(4)+ 2.0*h(1)*h(3)*beta(5)+2.0*h(2)*h(3)*beta(6)
+                anis=exp(-anis)
+             end if
+             chit=matmul(SpG%SymOp(k)%Rot,chi)
+             chit=matmul(chit,transpose(SpG%SymOp(k)%Rot))
+             Mcos(:,:)=Mcos(:,:)+cos(arg)*anis*chit
+             if(SpG%Centred /= 2) Msin(:,:)=Msin(:,:)+sin(arg)*anis*chit
+             !write(*,"(a,10f10.4)") "  arg, Mcos_part: ",arg,cos(arg)*anis*chit
+          end do ! symmetry
+          Mh%TMsF=Mh%TMsF+tho*cmplx(Mcos,Msin)
+       end do ! Atoms
+       Mh%TMsF=Mh%TMsF*SpG%Centred*SpG%NumLat
+       return
+    End Subroutine Calc_Magnetic_StrF_Tensor
 
     !!--++
     !!--++ Subroutine Calc_Table_MAB(Mlist,Atm,Mgp)
