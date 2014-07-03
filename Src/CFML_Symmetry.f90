@@ -905,7 +905,7 @@
     !!----    Obtain the ordinal number corresponding to the Point Group
     !!----    symbol according to Point_Group array. Zero if Error is present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: July - 2014: added m3 and m3m for compatibility with Laue_class
     !!
     Function Get_Pointgroup_Num(Pgname) Result(Ipg)
        !---- Arguments ----!
@@ -919,13 +919,17 @@
        ipg=0
        pg=adjustl(pgname)
 
-       do i=1,39
+       do i=1,41                ! was 39, now 41 to accomodate m3 and m3m
           if (pg(1:5) == point_group(i)) then
              ipg=i
              exit
           end if
        end do
-
+       
+       !> return previous numbers for m3 and m3m
+       if(ipg == 40)ipg=36      ! m3 now m-3
+       if(ipg == 41)ipg=39      ! m3m now m-3m
+       
        return
     End Function Get_PointGroup_Num
 
@@ -3406,7 +3410,7 @@
     !!----
     !!----    Obtain the string for the Point Group. Error control is present
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: Update: July - 2014: added m3 and m3m for compatibility with Laue_class
     !!
     Subroutine Get_Pointgroup_Str(Ipg,Str)
        !---- Arguments ----!
@@ -3414,7 +3418,7 @@
        character(len=*), intent(out) :: str
 
        call init_err_symm()
-       if (ipg < 1 .or. ipg > 39) then
+       if (ipg < 1 .or. ipg > 41) then
           err_symm=.true.
           ERR_Symm_Mess=" Point Group Number Incorrect"
        else

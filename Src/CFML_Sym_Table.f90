@@ -530,14 +530,15 @@
     !!----
     !!----    Point Group Symbols
     !!----
-    !!---- Update: February - 2005
+    !!---- Update: July - 2014: added m3 and m3m for compatibility with Laue_class
     !!
-    character(len=*), dimension(39), parameter, public :: point_group=(/  &
+    character(len=*), dimension(41), parameter, public :: point_group=(/  &
        "1    ","-1   ","2    ","m    ","2/m  ","222  ","mm2  ","m2m  ",   &
        "2mm  ","mmm  ","4    ","-4   ","4/m  ","422  ","4mm  ","-42m ",   &
        "-4m2 ","4/mmm","3    ","-3   ","32   ","3m   ","-3m  ","312  ",   &
        "31m  ","-31m ","6    ","-6   ","6/m  ","622  ","6mm  ","-62m ",   &
-       "-6m2 ","6/mmm","23   ","m-3  ","432  ","-43m ","m-3m " /)
+       "-6m2 ","6/mmm","23   ","m-3  ","432  ","-43m ","m-3m ","m3   ",   &
+       "m3m  "/)
 
     !!--++
     !!--++ SPG_GEN
