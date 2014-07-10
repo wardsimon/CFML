@@ -87,9 +87,7 @@
 !!----       READ_BIN_ATOM_LIST
 !!----       SET_ATOM_EQUIV_LIST
 !!----       WRITE_ATOM_LIST
-!!----       WRITE_ATOMS_CFL
 !!----       WRITE_BIN_ATOM_LIST
-!!----       WRITE_CFL
 !!----
 !!
  Module CFML_Atom_TypeDef
@@ -111,6 +109,8 @@
 
     private
 
+    !---- List of public overloaded procedures: subroutines ----!
+
     !---- List of public functions ----!
     public :: Equiv_Atm, Wrt_Lab
 
@@ -119,9 +119,11 @@
               Atoms_Cell_To_List, Atom_List_To_Cell, Atom_Uequi_List, Copy_Atom_list, &
               Deallocate_Atoms_Cell, Deallocate_Atom_List, Init_Atom_Type,            &
               Init_Err_Atmd, Merge_Atoms_Peaks, Multi, Write_Atom_List,               &
-              Write_Atoms_CFL, Write_CFL, Allocate_mAtom_list, Deallocate_mAtom_list, &
+              Allocate_mAtom_list, Deallocate_mAtom_list,                             &
               Init_mAtom_Type, Read_Bin_Atom_List, Write_Bin_Atom_List,               &
               Set_Atom_Equiv_List, Get_Atom_2nd_Tensor_Ctr
+
+    !---- List of private Subroutines ----!
 
     !---- Definitions ----!
 
@@ -447,7 +449,6 @@
        real(kind=cp), dimension(3)               :: dir_MField ! Direction of magnetic field in crystallographic system
        type(mAtom_Type),dimension(:),allocatable :: Atom
     End type mAtom_List_Type
-
     !!----
     !!---- ERR_ATMD
     !!----    logical, public  :: err_atmd
@@ -479,7 +480,7 @@
     !!
     real(kind=cp), parameter, private :: r_atom=1.1
 
- Contains
+Contains
 
     !---- Functions ----!
 
@@ -1918,113 +1919,6 @@
 
        return
     End Subroutine Write_atom_list
-
-    !!----
-    !!---- Subroutine Write_Atoms_CFL(Ats,Lun,Cell)
-    !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
-    !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
-    !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
-    !!----
-    !!----    Write the atoms in the asymmetric unit for a CFL file
-    !!----
-    !!---- Update: February - 2003
-    !!
-    Subroutine Write_Atoms_CFL(Ats,Lun,cell)
-       !---- Arguments ----!
-       type (atom_list_type),            intent(in) :: Ats
-       integer, optional,                intent(in) :: Lun
-       Type(Crystal_Cell_Type), optional,intent(in) :: Cell
-
-       !---- Local Variables ----!
-       character(len=30),dimension(6) :: text
-       character(len=36)              :: forma,fom
-       integer                        :: i, j, iunit, leng, maxl,ish
-       real(kind=cp), dimension(6)    :: u,bet,sb
-
-       iunit=6
-       if (present(lun)) iunit=lun
-
-       if(ats%natoms == 0) then
-         write (unit=iunit,fmt="(a)") "!  No atoms ..."
-         return
-       end if
-       !Determine the maximum length of the atom labels
-       maxl=0
-       do i=1,ats%natoms
-         leng=len_trim(ats%atom(i)%lab)
-         if(leng > maxl) maxl=leng
-       end do
-       maxl=max(maxl,4)+1
-       ish=maxl-4
-       fom   ="(a,tr  ,a)"
-       Select Case(ish)
-          Case(:9)
-            write(unit=fom(6:6),fmt="(i1)") ish
-          Case(10:)
-            write(unit=fom(6:7),fmt="(i2)") ish
-       End Select
-       forma="(a,a  ,tr2,a,tr3,5a14,2f8.2,tr3,a)"
-       Select Case(maxl)
-         Case(:9)
-             write(unit=forma(5:5),fmt="(i1)") maxl
-         Case(10:)
-             write(unit=forma(5:6),fmt="(i2)") maxl
-       End Select
-       write (unit=iunit,fmt=fom) "!     ", &
-             "Atom  Type     x/a           y/b           z/c           Biso          Occ           Spin    Charge    Info"
-       do i=1,ats%natoms
-
-          do j=1,3
-             call SetNum_Std(ats%atom(i)%x(j), ats%atom(i)%x_std(j), text(j))
-          end do
-          call SetNum_Std(ats%atom(i)%Biso, ats%atom(i)%Biso_std, text(4))
-          call SetNum_Std(ats%atom(i)%Occ, ats%atom(i)%Occ_std, text(5))
-
-          write (unit=iunit,fmt=forma) &
-                "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
-                 ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
-
-          if (ats%atom(i)%thtype == "aniso") then
-
-             if (ats%atom(i)%utype == "beta") then
-                bet=ats%atom(i)%u(1:6)
-                sb=ats%atom(i)%u_std(1:6)
-                do j=1,6
-                   call SetNum_Std(bet(j), sb(j), text(j))
-                end do
-                write (unit=iunit,fmt="(a,tr1,6a14)") "Beta  ", text
-                if (present(Cell)) then
-                   u=convert_betas_u(bet,cell)
-                   sb=convert_betas_u(ats%atom(i)%u_std,cell)
-                   do j=1,6
-                      call SetNum_Std(u(j), sb(j), text(j))
-                   end do
-                   write(unit=iunit,fmt="(a,6a14)") "!U_ij  ", text
-                end if
-
-             else if(ats%atom(i)%thtype == "u_ij") then
-                u=ats%atom(i)%u(1:6)
-                sb=ats%atom(i)%u_std(1:6)
-                do j=1,6
-                   call SetNum_Std(u(j), sb(j), text(j))
-                end do
-                write(unit=iunit,fmt="(a,6a14)") "U_ij  ", text
-                if (present(Cell)) then
-                   bet=convert_u_betas(u,cell)
-                   sb=convert_u_betas(ats%atom(i)%u_std,cell)
-                   do j=1,6
-                      call SetNum_Std(bet(j), sb(j), text(j))
-                   end do
-                   write(unit=iunit,fmt="(a,6a14)") "!Beta  ", text
-                end if
-             end if
-
-          end if
-       end do
-
-       return
-    End Subroutine Write_Atoms_CFL
-
     !!----
     !!---- Subroutine Write_Bin_Atom_List(Ats,Lun)
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
@@ -2082,49 +1976,5 @@
        end do
        return
     End Subroutine Write_Bin_atom_list
-
-    !!----
-    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
-    !!----    integer,                  intent(in)    :: lun
-    !!----    type (Space_Group_Type),  intent(in)    :: SpG
-    !!----    type (Crystal_Cell_Type), intent(in)    :: Cel
-    !!----    type (atom_list_type),    intent(in)    :: Atm
-    !!----    character(len=*),optional,intent(in)    :: comment
-    !!----
-    !!----    Write a file CFL
-    !!----
-    !!---- Update: May - 2009
-    !!
-    Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
-       !---- Arguments ----!
-       integer,                  intent(in)    :: lun
-       type (Space_Group_Type),  intent(in)    :: SpG
-       type (Crystal_Cell_Type), intent(in)    :: Cel
-       type (atom_list_type),    intent(in)    :: Atm
-       character(len=*),optional,intent(in)    :: comment
-
-       !----- Local variables -----!
-       integer                         :: j !,loc
-       real(kind=cp), dimension(6)     :: a,sa
-       character(len=30), dimension(6) :: text
-
-       if(present(comment)) write(unit=lun,fmt="(a)") "TITLE "//trim(comment)
-       write(unit=lun,fmt="(a)") "!  Automatically generated CFL file (Write_CFL)"
-
-       a(1:3)=Cel%Cell
-       a(4:6)=Cel%ang
-       sa(1:3)=Cel%Cell_std
-       sa(4:6)=Cel%ang_std
-       do j=1,6
-          call SetNum_Std(a(j), sa(j), text(j))
-       end do
-       write(unit=lun,fmt="(a)") "!        a           b           c         alpha        beta        gamma"
-       write(unit=lun,fmt="(a,6a12)") "Cell ",text
-       write(unit=lun,fmt="(a,i3)")"!     Space Group # ",SpG%NumSpg
-       write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
-       call Write_Atoms_CFL(Atm,Lun,cel)
-
-       return
-    End Subroutine Write_CFL
 
  End Module CFML_Atom_TypeDef
