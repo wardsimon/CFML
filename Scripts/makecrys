@@ -7,7 +7,7 @@ if [ a$1 = a ]
 then
 cat << !
 makecrys  : Make the Libraries CrysFML (Console , Winteracter) and CrysFGL using Fortran Linux Compilers
-Syntax    : makecrys [af95:g95:gfortran:ifort:lf95] [all]
+Syntax    : makecrys [af95:g95:gfortran:ifort:lf95] [all/deb]
 !
 exit
 fi
@@ -33,14 +33,13 @@ then
    fi
 fi
 #
-# Console version
-#
-../Scripts/Linux/make_crysfml $1
-#
-# Winteracter version
-#
-if [ a$2 = "aall" ]
-then
+
+if [ a$2 = "adeb" ]
+then # Console version (Degugging)
+    ../Scripts/Linux/make_crysfml $1 $2
+elif [ a$2 = "aall" ]
+then # Winteracter version
    ./Linux/make_crysfml $1 win
-##   ./Linux/make_crysfgl $1
+else # Console version
+    ../Scripts/Linux/make_crysfml $1
 fi
