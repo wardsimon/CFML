@@ -64,7 +64,7 @@ CostNam  |Fobs-Fcalc|+Dist-restraints
 TemParM     8.0       0.95       80
 
 !         Nalgor  Nconf nm_cycl   num_therm   accept
-Algor_T     0       1    150         0         0.005
+Algor_T     0       5    150         0         0.005
 
 !         Value of Seed (if SeedVAL = 0, random seed)
 SeedVAL     0

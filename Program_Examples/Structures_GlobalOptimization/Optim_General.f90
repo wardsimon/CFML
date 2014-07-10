@@ -3,11 +3,11 @@ Program Optimizing_structures
    !use f2kcli  !comment for non-Lahey
    use CFML_crystallographic_symmetry, only: space_group_type, Write_SpaceGroup
    use CFML_string_utilities,          only: u_case, Get_LogUnit
-   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, Write_CFL, Copy_Atom_List
+   use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List, Copy_Atom_List
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflection_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,&
-                                             file_list_type, File_To_FileList
+                                             file_list_type, File_To_FileList, Write_CFL
    use CFML_BVS_Energy_Calc,           only: calc_BVS
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
                                              Init_Structure_Factors, err_sfac,err_sfac_mess
@@ -41,6 +41,7 @@ Program Optimizing_structures
    character(len=256)                 :: line       !Text line
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
    integer                            :: MaxNumRef, Num, lun=1, ier,i,j,k, i_hkl=2, n, i_cfl
+   integer, dimension(:),allocatable  :: i_bvs
    real                               :: start,fin, mindspc, maxsintl
    integer                            :: narg,iargc
    Logical                            :: esta, arggiven=.false.,sthlgiven=.false., &
@@ -130,6 +131,21 @@ Program Optimizing_structures
         else
            call allocate_restparam(fich_cfl)
         end if
+     end if
+     if(icost(5) == 1) then !Look for restrictions in the calculation of Bond-Valence
+        allocate(i_bvs(A%natoms))
+        i_bvs=0
+        do i=1,fich_cfl%nlines
+          line=adjustl(u_case(fich_cfl%line(i)))
+          if(line(1:9) == "BVS_RESTR") then
+            j=index(line,"!")
+            if(j /= 0) line=trim(line(1:j-1))
+             read(unit=line(10:),fmt=*,iostat=ier) i_bvs(1:A%natoms)
+             if(ier /= 0) exit
+             A%Atom(:)%VarF(5) = real(i_bvs)
+             exit
+          end if
+        end do
      end if
 
      !Determine the refinement codes from vary/fix instructions

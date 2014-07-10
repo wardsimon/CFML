@@ -2127,11 +2127,11 @@
 
     !!----
     !!---- Subroutine Get_Transf_List(Trans,Ox,Pl,Npl,Ifail)
-    !!----   real(kind=cp), dimension(3,3), intent(in) :: trans   !Matrix transforming the basis
-    !!----   real(kind=cp), dimension(3  ), intent(in) :: ox      !Coordinates of origin of the new basis
-    !!----   type(point_list_type),         intent(in) :: pl      !Input List of points
+    !!----   real(kind=cp), dimension(3,3), intent(in)     :: trans   !Matrix transforming the basis
+    !!----   real(kind=cp), dimension(3  ), intent(in)     :: ox      !Coordinates of origin of the new basis
+    !!----   type(point_list_type),         intent(in)     :: pl      !Input List of points
     !!----   type(point_list_type),         intent(in out) :: npl     !Output list of transformed points
-    !!----   integer,                       intent(out):: ifail   !If ifail/=0 matrix inversion failed
+    !!----   integer,                       intent(out)    :: ifail   !If ifail/=0 matrix inversion failed
     !!----
     !!----  Subroutine to get the fractional coordinates of the points of the input list "pl" in the
     !!----  new transformed cell ( a'= trans a) displaced to the new origing "ox". The coordinates
@@ -2142,11 +2142,11 @@
     !!
     Subroutine Get_Transf_List(trans,ox,pl,npl,ifail)
        !---- Arguments ----!
-       real(kind=cp),         dimension(3,3), intent(in) :: trans
-       real(kind=cp),         dimension(3  ), intent(in) :: ox
-       type(point_list_type),                 intent(in) :: pl
+       real(kind=cp),         dimension(3,3), intent(in)     :: trans
+       real(kind=cp),         dimension(3  ), intent(in)     :: ox
+       type(point_list_type),                 intent(in)     :: pl
        type(point_list_type),                 intent(in out) :: npl
-       integer,                               intent(out):: ifail
+       integer,                               intent(out)    :: ifail
 
        !---- local variables ----!
        integer                       :: i,j,ia,ib,ic,nat,mm
@@ -2496,7 +2496,7 @@
        character (len=*), optional,   intent(in    ) :: matkind
        character (len=*), optional,   intent(in    ) :: debug
        ! Local variables
-       integer                           :: i,j,k,m,ifail,L,n,Ls,ip
+       integer                           :: i,j,k,m,ifail,L,n,Ls,ip,L1
        integer                           :: i1,i2,i3,maxa,maxp,maxm,mult
        real(kind=cp), dimension (3,3)    :: S,Sinv
        real(kind=cp)                     :: determ
@@ -2627,14 +2627,17 @@
 
          !Determine the number of independent orbits for this point
          call Set_Orbits_Inlist(Spgn,pl)
-         L=1
+         L=1; L1=1
          do j=2,n
            if(pl%p(j) > L) then
             Ls=Ls+1
             A%atom(Ls)%x(:)=pl%x(:,j)
-            A%atom(Ls)%Lab =trim(pl%nam(i))//let(L)
+            !write(unit=let,fmt="(i3.3)") L
+            A%atom(Ls)%Lab =trim(pl%nam(i))//let(L1)
            ! write(*,"(2i5,a,i5,a)") i,Ls, "  "//Ate%Atm(i)%Lab(1), Ate%Atm(i)%mult,"   "//A%atom(Ls)%Lab
             L=L+1
+            L1=L1+1  !using a different counter for the label
+            if(L1 > 26) L1=1 !re-start the labelling with the same letter
            end if
          end do
 

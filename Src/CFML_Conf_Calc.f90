@@ -905,7 +905,7 @@
     !!----    All items corresponding to the bond-valence parameters contained in A have to
     !!----    be properly set before calling this procedure.
     !!----
-    !!---- Update: April - 2005
+    !!---- Update: April - 2005, July -2104 (JRC, calculation only for the subset having VarF(5) = 0)
     !!
     Subroutine Cost_BVS(A, GII, ERep,gic)
        !---- Arguments ----!
@@ -927,6 +927,7 @@
        gii_c=0.0
        rep=0.0
        do i=1,A%natoms
+          if(A%Atom(i)%VarF(5) > 0.01) cycle
           icm=coord_info%coord_num(i)
           l=A%Atom(i)%ind(1)
           q1=A%Atom(i)%charge
