@@ -8144,7 +8144,7 @@
 
              !---- Main Directive: FIX ----!
              case ("fix ", "fixe") ! FIX
-                call cutst(line,nlong)
+                !call cutst(line,nlong)
 
                 !---- Molecule Information ----!
                 if (u_case(line(1:3)) =="MOL") then
@@ -8188,7 +8188,7 @@
 
              !---- Main Directive: VARY ----!
              case ("vary") ! VARY
-                call cutst(line,nlong)
+                !call cutst(line,nlong)
 
                 !---- Molecule Information ----!
                 if (u_case(line(1:3)) =="MOL") then
