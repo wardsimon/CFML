@@ -209,15 +209,17 @@
     !!----   character(len=12)                              :: CrystalSys       ! Crystal system
     !!----   character(len= 1)                              :: SPG_lat          ! Lattice type
     !!----   character(len= 2)                              :: SPG_latsy        ! Lattice type Symbol
-    !!----   integer                                        :: Num_Lat           ! Number of lattice points in a cell
+    !!----   integer                                        :: Num_Lat          ! Number of lattice points in a cell
+    !!----   integer                                        :: Num_aLat         ! Number of anti-lattice points in a cell
     !!----   real(kind=cp), allocatable,dimension(:,:)      :: Latt_trans       ! Lattice translations (3,12)
+    !!----   real(kind=cp), allocatable,dimension(:,:)      :: aLatt_trans      ! Lattice anti-translations
     !!----   character(len=80)                              :: Centre           ! Alphanumeric information about the center of symmetry
     !!----   integer                                        :: Centred          ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
     !!----   real(kind=cp), dimension(3)                    :: Centre_coord     ! Fractional coordinates of the inversion centre
     !!----   integer                                        :: NumOps           ! Number of reduced set of S.O.
     !!----   Integer                                        :: Multip
     !!----   integer                                        :: Num_gen          ! Minimum number of operators to generate the Group
-    !!----   Integer                                        :: n_wyck   !Number of Wyckoff positions of the magnetic group
+    !!----   Integer                                        :: n_wyck           !Number of Wyckoff positions of the magnetic group
     !!----   Integer                                        :: n_kv
     !!----   Integer                                        :: n_irreps
     !!----   Integer,             dimension(:),allocatable  :: irrep_dim       !Dimension of the irreps
@@ -2025,6 +2027,7 @@
     !!----    The magnetic atom list and the magnetic cell reading an mCIF file.
     !!----
     !!----  Created: January-2014 (JRC)
+    !!----  Updated: August-2014 (JRC)
     !!
     Subroutine Readn_Set_Magnetic_Structure_MCIF(file_mcif,mCell,MGp,Am)
        character(len=*),               intent (in)  :: file_mcif
@@ -2033,17 +2036,18 @@
        type(mAtom_List_Type),          intent (out) :: Am
 
        !---- Local Variables ----!
-       integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat,  &
-                  ier, j, m, n, k, ncar,mult,nitems,iv, num_irreps, nitems_irreps
+       integer :: i,num_sym, num_constr, num_kvs,num_matom, num_mom, num_magscat, ier, j, m, n, k, L,   &
+                  ncar,mult,nitems,iv, num_irreps, nitems_irreps, num_rsym, num_centering
        integer,   dimension(9)             :: lugar
-       integer,   dimension(6)             :: irrep_pos
+       integer,   dimension(7)             :: irrep_pos
        integer,   dimension(5)             :: pos
-       real(kind=cp),dimension(3)          :: cel,ang,cel_std,ang_std
+       integer,   dimension(3,3)           :: Rot
+       real(kind=cp),dimension(3)          :: cel,ang,cel_std,ang_std,tr,v
        real(kind=cp),dimension(6)          :: values,std
        real(kind=cp),dimension(3,3)        :: matr
        real(kind=cp),dimension(3,384)      :: orb
-       character(len=132)                  :: lowline,keyword,line
-       character(len=132),dimension(384)   :: sym_strings
+       character(len=132)                  :: lowline,keyword,line, mxmymz_op
+       character(len=132),dimension(384)   :: sym_strings, cent_strings
        character(len=132),dimension(384)   :: atm_strings
        character(len=132),dimension(384)   :: mom_strings
        character(len=132),dimension(30)    :: constr_strings, mag_scatt_string
@@ -2054,7 +2058,7 @@
        character(len=2)     :: chars
        character(len=10)    :: label
        character(len=4)     :: symbcar
-       logical              :: ktag
+       logical              :: ktag,no_symop_mxmymz,no_cent_mxmymz
 
        !type(Magnetic_Group_Type)  :: SG
        type(file_list_type)       :: mcif
@@ -2068,11 +2072,14 @@
            if(mcif%line(i)(j:j) == char(9)) mcif%line(i)(j:j)=" "
          end do
        end do
-       num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0
+       num_constr=0; num_kvs=0; num_matom=0; num_mom=0; num_sym=0; num_magscat=0; num_rsym=0; num_centering=0
        cel=0.0; ang=0.0
        i=0
        call Init_Magnetic_Space_Group_Type(MGp)
        ktag=.false.
+       no_symop_mxmymz=.false.
+       no_cent_mxmymz=.false.
+
        do
           i=i+1
           if(i > mcif%nlines) exit
@@ -2102,20 +2109,20 @@
                 end if
                 MGp%Parent_num=m
 
-             Case("_magnetic_space_group_bns_number")
+             Case("_magnetic_space_group_bns_number","_space_group.magn_number_bns")
                 shubk=adjustl(line(j+1:))
                 MGp%BNS_number=shubk
 
-             Case("_magnetic_space_group_bns_name")
+             Case("_magnetic_space_group_bns_name","_space_group.magn_name_bns")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%BNS_symbol=shubk(2:m-1)
 
-             Case("_magnetic_space_group_og_number")
+             Case("_magnetic_space_group_og_number","_space_group.magn_number_og")
                 shubk=adjustl(line(j+1:))
                 MGp%OG_number=shubk
 
-             Case("_magnetic_space_group_og_name")
+             Case("_magnetic_space_group_og_name","_space_group.magn_name_og")
                 shubk=adjustl(line(j+1:))
                 m=len_trim(shubk)
                 MGp%OG_symbol=shubk(2:m-1)
@@ -2130,7 +2137,7 @@
                 m=len_trim(shubk)
                 MGp%trn_to_standard=shubk(2:m-1)
 
-             Case("_magnetic_cell_length_a")
+             Case("_magnetic_cell_length_a","_cell_length_a")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2141,7 +2148,7 @@
                 cel_std(1)=std(1)
                 MGp%m_cell=.true.
 
-             Case("_magnetic_cell_length_b")
+             Case("_magnetic_cell_length_b","_cell_length_b")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2151,7 +2158,7 @@
                 cel(2)=values(1)
                 cel_std(2)=std(1)
 
-             Case("_magnetic_cell_length_c")
+             Case("_magnetic_cell_length_c","_cell_length_c")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2161,7 +2168,7 @@
                 cel(3)=values(1)
                 cel_std(3)=std(1)
 
-             Case("_magnetic_cell_angle_alpha")
+             Case("_magnetic_cell_angle_alpha","_cell_angle_alpha")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2171,7 +2178,7 @@
                 ang(1)=values(1)
                 ang_std(1)=std(1)
 
-             Case("_magnetic_cell_angle_beta")
+             Case("_magnetic_cell_angle_beta","_cell_angle_beta")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2181,7 +2188,7 @@
                 ang(2)=values(1)
                 ang_std(2)=std(1)
 
-             Case("_magnetic_cell_angle_gamma")
+             Case("_magnetic_cell_angle_gamma","_cell_angle_gamma")
                 call getnum_std(lowline(j:),values,std,iv)
                 if(err_string) then
                   err_magsym=.true.
@@ -2211,7 +2218,8 @@
                             irrep_pos(2)=j
                             cycle
                          end if
-                         if(index(mcif%line(i),"_small_irrep_dimension") /= 0) then
+                         if(index(mcif%line(i),"_small_irrep_dimension") /= 0 .or.  &
+                            index(mcif%line(i),"_irrep_small_dimension") /= 0) then
                             j=j+1
                             irrep_pos(3)=j
                             cycle
@@ -2229,6 +2237,11 @@
                          if(index(mcif%line(i),"_irrep_modes_number") /= 0) then
                             j=j+1
                             irrep_pos(6)=j
+                            cycle
+                         end if
+                         if(index(mcif%line(i),"_irrep_presence") /= 0) then
+                            j=j+1
+                            irrep_pos(7)=j
                             cycle
                          end if
                          exit
@@ -2279,9 +2292,9 @@
                    Case("_atom_type_symbol")
                       do k=1,3
                         i=i+1
-                        if(index(mcif%line(i),"_magnetic_atom_type_symbol") == 0) then
+                        if(index(mcif%line(i),"_atom_type_symbol") == 0) then
                           err_magsym=.true.
-                          ERR_MagSym_Mess=" Error reading the _magnetic_atom_type_symbol in loop"
+                          ERR_MagSym_Mess=" Error reading the _atom_type_symbol in loop"
                           return
                         end if
                       end do
@@ -2316,9 +2329,9 @@
                    Case("_magnetic_space_group_symop_id")
                       do k=1,3
                         i=i+1
-                        if(index(mcif%line(i),"_magnetic_space_group_symop_operation") == 0) then
+                        if(index(mcif%line(i),"_magnetic_space_group_symop_operation") == 0 ) then
                           err_magsym=.true.
-                          ERR_MagSym_Mess=" Error reading the magnetic_space_group_symop_operation loop"
+                          ERR_MagSym_Mess=" Error reading the _magnetic_space_group_symop_operation loop"
                           return
                         end if
                       end do
@@ -2332,16 +2345,55 @@
                       !now allocate the list of symmetry operators
                       num_sym=k
                       MGp%Multip=k
-                      if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
-                      allocate(Mgp%SymopSymb(k))
-                      if(allocated(Mgp%Symop)) deallocate(Mgp%Symop)
-                      allocate(Mgp%Symop(k))
-                      if(allocated(Mgp%MSymopSymb)) deallocate(Mgp%MSymopSymb)
-                      allocate(Mgp%MSymopSymb(k))
-                      if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
-                      allocate(Mgp%MSymop(k))
 
-                   Case("_magnetic_atom_site_label")
+
+                   Case("_space_group_symop.magn_id")   !here the symmetry operators are separated from the translations
+                      do k=1,2
+                        i=i+1
+                        if(index(mcif%line(i),"_space_group_symop.magn_operation") == 0) then
+                          err_magsym=.true.
+                          ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_operation loop"
+                          return
+                        end if
+                      end do
+                      if(index(mcif%line(i),"_space_group_symop.magn_operation_mxmymz") == 0) then
+                         i=i-1
+                         no_symop_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        sym_strings(k)=mcif%line(i)
+                      end do
+
+                      num_rsym=k
+
+
+                   Case("_space_group_symop.magn_centering_id")   !here we read the translations and anti-translations
+                      do k=1,2
+                        i=i+1
+                        if(index(mcif%line(i),"_space_group_symop.magn_centering") == 0) then
+                          err_magsym=.true.
+                          ERR_MagSym_Mess=" Error reading the _space_group_symop.magn_centering loop"
+                          return
+                        end if
+                      end do
+                      if(index(mcif%line(i),"_space_group_symop.magn_centering_mxmymz") == 0) then
+                         i=i-1
+                         no_cent_mxmymz=.true.
+                      end if
+                      k=0
+                      do
+                        i=i+1
+                        if(len_trim(mcif%line(i)) == 0) exit
+                        k=k+1
+                        cent_strings(k)=mcif%line(i)
+                      end do
+                      num_centering=k
+
+                   Case("_magnetic_atom_site_label","_atom_site_label")
                       lugar=0
                       lugar(1)=1
                       j=1
@@ -2440,39 +2492,145 @@
        end if
 
        !Treat symmetry operators
-       if(num_sym == 0) then
+
+       if(num_sym == 0 .and. num_rsym == 0) then
           err_magsym=.true.
           ERR_MagSym_Mess=" No symmetry operators have been provided in the MCIF file "//trim(file_mcif)
           return
-       else  !Decode the symmetry operators
-         do i=1,num_sym
-           line=adjustl(sym_strings(i))
-           j=index(line," ")
-           line=adjustl(line(j+1:))
-           j=index(line," ")
-           MGp%SymopSymb(i)=line(1:j-1)
-           line=adjustl(line(j+1:))
-           j=index(line," ")
-           MGp%MSymopSymb(i)=line(1:j-1)
-           read(unit=line(j:),fmt=*,iostat=ier) n
-           if(ier /= 0) then
-              err_magsym=.true.
-              ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(sym_strings(i))
-              return
-           else
-              MGp%MSymOp(i)%phas=real(n)
-           end if
-           call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
-           line=MGp%MSymopSymb(i)
-           do k=1,len_trim(line)
-             if(line(k:k) == "m") line(k:k)=" "
-           end do
-           line=Pack_String(line)
-           call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
-         end do
+       else
+          if(num_sym /= 0) then  !Full number of symmetry operators is not separated from the centering
+
+            if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
+            allocate(Mgp%SymopSymb(num_sym))
+            if(allocated(Mgp%Symop)) deallocate(Mgp%Symop)
+            allocate(Mgp%Symop(num_sym))
+            if(allocated(Mgp%MSymopSymb)) deallocate(Mgp%MSymopSymb)
+            allocate(Mgp%MSymopSymb(num_sym))
+            if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
+            allocate(Mgp%MSymop(num_sym))
+
+            ! Decode the symmetry operators
+            do i=1,num_sym
+              line=adjustl(sym_strings(i))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%SymopSymb(i)=line(1:j-1)
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%MSymopSymb(i)=line(1:j-1)
+              read(unit=line(j:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 err_magsym=.true.
+                 ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(sym_strings(i))
+                 return
+              else
+                 MGp%MSymOp(i)%phas=real(n)
+              end if
+              call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
+              line=MGp%MSymopSymb(i)
+              do k=1,len_trim(line)
+                if(line(k:k) == "m") line(k:k)=" "
+              end do
+              line=Pack_String(line)
+              call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
+            end do
+
+          else
+            ! First allocate the full number of symmetry operators after decoding if centering lattice
+            ! have been provided and if the group is centred or not
+            if(num_centering == 0) then
+               MGp%Multip=num_rsym
+            else
+               MGp%Multip=num_rsym*num_centering
+            end if
+            num_sym=MGp%Multip
+            if(allocated(Mgp%SymopSymb)) deallocate(Mgp%SymopSymb)
+            allocate(Mgp%SymopSymb(num_sym))
+            if(allocated(Mgp%Symop)) deallocate(Mgp%Symop)
+            allocate(Mgp%Symop(num_sym))
+            if(allocated(Mgp%MSymopSymb)) deallocate(Mgp%MSymopSymb)
+            allocate(Mgp%MSymopSymb(num_sym))
+            if(allocated(Mgp%MSymop)) deallocate(Mgp%MSymop)
+            allocate(Mgp%MSymop(num_sym))
+            ! Decode the symmetry operators
+            do i=1,num_rsym
+              line=adjustl(sym_strings(i))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%SymopSymb(i)=line(1:j-1)
+              k=index(MGp%SymopSymb(i),",",back=.true.)
+              read(unit=MGp%SymopSymb(i)(k+1:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 err_magsym=.true.
+                 ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(sym_strings(i))
+                 return
+              else
+                 MGp%MSymOp(i)%phas=real(n)
+              end if
+              MGp%SymopSymb(i)=MGp%SymopSymb(i)(1:k-1)
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              MGp%MSymopSymb(i)=line(1:j-1)
+              call Read_Xsym(MGp%SymopSymb(i),1,MGp%Symop(i)%Rot,MGp%Symop(i)%tr)
+              line=MGp%MSymopSymb(i)
+              do k=1,len_trim(line)
+                if(line(k:k) == "m") line(k:k)=" "
+              end do
+              line=Pack_String(line)
+              call Read_Xsym(line,1,MGp%MSymop(i)%Rot)
+            end do
+            !Decode lattice translations and anti-translations
+            m=num_rsym
+            do L=2,num_centering
+              line=adjustl(cent_strings(L))
+              j=index(line," ")
+              line=adjustl(line(j+1:))
+              j=index(line," ")
+              line=line(1:j-1)
+              k=index(line,",",back=.true.)
+              read(unit=line(k+1:),fmt=*,iostat=ier) n
+              if(ier /= 0) then
+                 err_magsym=.true.
+                 ERR_MagSym_Mess=" Error reading the time inversion in line: "//trim(cent_strings(i))
+                 return
+              end if
+              line=line(1:k-1)
+              call Read_Xsym(line,1,Rot,tr)
+
+              do j=1,num_rsym
+                m=m+1
+                v=MGp%SymOp(j)%tr(:) + tr
+                MGp%SymOp(m)%Rot  = MGp%SymOp(j)%Rot
+                MGp%SymOp(m)%tr   = modulo_lat(v)
+                MGp%MSymOp(m)%Rot = n*MGp%MSymOp(j)%Rot
+                MGp%MSymOp(m)%phas= n*MGp%MSymOp(j)%phas
+                call Get_Symsymb(MGp%SymOp(m)%Rot,MGp%SymOp(m)%tr,MGp%SymopSymb(m))
+                call Get_Symsymb(MGp%MSymOp(m)%Rot,(/0.0,0.0,0.0/),line)
+                !Expand the operator "line" to convert it to mx,my,mz like
+                mxmymz_op=" "
+                do i=1,len_trim(line)
+                  Select Case(line(i:i))
+                    case("x")
+                       mxmymz_op=trim(mxmymz_op)//"mx"
+                    case("y")
+                       mxmymz_op=trim(mxmymz_op)//"my"
+                    case("z")
+                       mxmymz_op=trim(mxmymz_op)//"mz"
+                    case default
+                       mxmymz_op=trim(mxmymz_op)//line(i:i)
+                  End Select
+                end do
+                MGp%MSymopSymb(m)=trim(mxmymz_op)
+              end do
+            end do
+          end if
        end if
        ! Symmetry operators treatment done!
-
+       !write(*,"(a)") " Cleaning up symmetry operators: "
+       Call cleanup_symmetry_operators(MGp)
+       !write(*,"(a)") " Cleaning up done! "
 
        !Treating irreps
 
@@ -2561,10 +2719,6 @@
          end do
        end if
        ! Propagation vectors treatment done!
-
-       !write(*,"(a)") " Cleaning up symmetry operators: "
-       Call cleanup_symmetry_operators(MgP)
-       !write(*,"(a)") " Cleaning up done! "
 
        !Treating magnetic atoms
        if(num_matom == 0) then
@@ -3855,13 +4009,13 @@
        write(unit=Ipr,fmt="(a)")    "_magnetic_space_group.transform_to_standard_Pp_abc  '"//trim(MSGp%trn_to_standard)//"'"
        write(unit=Ipr,fmt="(a)")
        if(len_trim(MSGp%BNS_number) /= 0) &
-       write(unit=Ipr,fmt="(a)") "_magnetic_space_group_BNS_number  "//trim(MSGp%BNS_number)
+       write(unit=Ipr,fmt="(a)") "_space_group.magn_number_BNS  "//trim(MSGp%BNS_number)
        if(len_trim(MSGp%BNS_symbol) /= 0) &
-       write(unit=Ipr,fmt="(a)") '_magnetic_space_group_BNS_name  "'//trim(MSGp%BNS_symbol)//'"'
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_name_BNS  "'//trim(MSGp%BNS_symbol)//'"'
        if(len_trim(MSGp%OG_number) /= 0) &
-       write(unit=Ipr,fmt="(a)") '_magnetic_space_group_OG_number '//trim(MSGp%OG_number)
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_number_OG '//trim(MSGp%OG_number)
        if(len_trim(MSGp%OG_symbol) /= 0) &
-       write(unit=Ipr,fmt="(a)") '_magnetic_space_group_OG_name  "'//trim(MSGp%OG_symbol)//'"'
+       write(unit=Ipr,fmt="(a)") '_space_group.magn_name_OG  "'//trim(MSGp%OG_symbol)//'"'
        write(unit=Ipr,fmt="(a)")
 
        if(MSGp%n_irreps /= 0) then
@@ -3904,12 +4058,12 @@
             call setnum_std(mCell%Cell(i),mCell%cell_std(i),text(i))
             call setnum_std(mCell%ang(i),mCell%ang_std(i),text(i+3))
           end do
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_a    "//trim(text(1))
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_b    "//trim(text(2))
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_length_c    "//trim(text(3))
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_alpha "//trim(text(4))
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_beta  "//trim(text(5))
-          write(unit=Ipr,fmt="(a)") "_magnetic_cell_angle_gamma "//trim(text(6))
+          write(unit=Ipr,fmt="(a)") "_cell_length_a    "//trim(text(1))
+          write(unit=Ipr,fmt="(a)") "_cell_length_b    "//trim(text(2))
+          write(unit=Ipr,fmt="(a)") "_cell_length_c    "//trim(text(3))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_alpha "//trim(text(4))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_beta  "//trim(text(5))
+          write(unit=Ipr,fmt="(a)") "_cell_angle_gamma "//trim(text(6))
           write(unit=Ipr,fmt="(a)")
        else
           if(present(Cell)) then
@@ -3949,26 +4103,25 @@
        end if
        write(unit=Ipr,fmt="(a)")
        write(unit=Ipr,fmt="(a)")  "loop_"
-       write(unit=Ipr,fmt="(a)")  "_magnetic_space_group_symop_id"
-       write(unit=Ipr,fmt="(a)")  "_magnetic_space_group_symop_operation_xyz"
-       write(unit=Ipr,fmt="(a)")  "_magnetic_space_group_symop_operation_mxmymz"
-       write(unit=Ipr,fmt="(a)")  "_magnetic_space_group_symop_operation_timereversal"
-       do i=1,MSGp%Multip
+       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_id"
+       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_operation_xyz"
+       write(unit=Ipr,fmt="(a)")  "_space_group.magn_symop_operation_mxmymz"
+       do i=1,MSGp%Multip            !New mCIF format
           write(unit=invc,fmt="(i2)") nint(MSgp%MSymop(i)%Phas)
           if(invc(1:1) == " ") invc(1:1)="+"
-          write(unit=Ipr,fmt="(i3,a)") i," "//trim(MSgp%SymopSymb(i))//" "//trim(MSgp%MSymopSymb(i))//" "//invc
+          write(unit=Ipr,fmt="(i3,a)") i," "//trim(MSgp%SymopSymb(i))//","//invc//" "//trim(MSgp%MSymopSymb(i))
        end do
        write(unit=Ipr,fmt="(a)")
        write(unit=Ipr,fmt="(a)") "loop_"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_label"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_type_symbol"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_x"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_y"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_fract_z"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_U_iso_or_equiv"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_occupancy"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_symmetry_multiplicity"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_Wyckoff_label"
+       write(unit=Ipr,fmt="(a)") "_atom_site_label"
+       write(unit=Ipr,fmt="(a)") "_atom_site_type_symbol"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_x"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_y"
+       write(unit=Ipr,fmt="(a)") "_atom_site_fract_z"
+       write(unit=Ipr,fmt="(a)") "_atom_site_U_iso_or_equiv"
+       write(unit=Ipr,fmt="(a)") "_atom_site_occupancy"
+       write(unit=Ipr,fmt="(a)") "_atom_site_symmetry_multiplicity"
+       write(unit=Ipr,fmt="(a)") "_atom_site_Wyckoff_label"
        line=" "
        do i=1,Am%natoms
           do j=1,3
@@ -3985,10 +4138,10 @@
        end do
        write(unit=Ipr,fmt="(a)")
        write(unit=Ipr,fmt="(a)") "loop_"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_label"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_mx"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_my"
-       write(unit=Ipr,fmt="(a)") "_magnetic_atom_site_moment_crystalaxis_mz"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_label"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_x"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_y"
+       write(unit=Ipr,fmt="(a)") "_atom_site_moment_crystalaxis_z"
        do i=1,Am%natoms
           !if(sum(abs(Am%Atom(i)%Skr(:,1))) < 0.0001) cycle
           if(Am%Atom(i)%moment < 0.01) cycle
