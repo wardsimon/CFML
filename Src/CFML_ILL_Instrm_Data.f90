@@ -230,7 +230,7 @@ Module CFML_ILL_Instrm_Data
    !---- Use Modules ----!
    !use f2kcli !Comment for compliant F2003 compilers
    Use CFML_GlobalDeps
-   Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint
+   Use CFML_Math_General,         only: cosd,sind, equal_vector, locate, second_derivative, splint, sort
    use CFML_String_Utilities,     only: u_case, lcase, Get_LogUnit, Number_Lines, Reading_Lines, GetNum
    use CFML_Math_3D,              only: err_math3d,err_math3d_mess, Cross_Product, Determ_A, Determ_V, &
                                         invert => Invert_A
@@ -804,6 +804,17 @@ Module CFML_ILL_Instrm_Data
    character(len=512), public ::  ILL_Temp_directory = "c:\diffraction_Windows\illdata\"
 
    !!--++
+   !!--++ IPOINT
+   !!--++    integer, dimension(:), allocatable, private :: ipoint
+   !!--++
+   !!--++    (Private)
+   !!--++    Integer vector used to reorder arrays
+   !!--++
+   !!--++ Update: September - 2014
+   !!
+   integer, dimension(:), allocatable, private :: ipoint
+
+   !!--++
    !!--++ IVALUES
    !!--++    integer, dimension(:), allocatable, private :: ivalues
    !!--++
@@ -895,7 +906,7 @@ Module CFML_ILL_Instrm_Data
    !!--++ NL_KEYTYPES
    !!--++    Integer, dimension(:,:,:), allocatable, private :: NL_KEYTYPES
    !!--++
-   !!--++    Integer array where write the initial and final lines for each
+   !!--++    Integer array where it is written the initial and final lines for each
    !!--++    keytype group.
    !!--++    Index 1: [1-7]
    !!--++    Index 2: Number of Blocks of this keytype
@@ -2396,24 +2407,26 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
-    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm)
+    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm, Cal)
     !!--++    type(powder_numor_type),                   intent(in)  :: N
     !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
     !!--++    real(kind=cp),  optional,                  intent(in)  :: VNorm
+    !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal
     !!--++
     !!--++ Pass the information from D1B/D20 Numor to DiffPat object
     !!--++
     !!--++
     !!--++ 30/04/2011
     !!
-    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm)
+    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm,Cal)
        !---- Arguments ----!
        type(powder_numor_type),                   intent(in)  :: N
        type(diffraction_pattern_type),            intent(out) :: Pat
        real(kind=cp),  optional,                  intent(in)  :: VNorm
+       type(calibration_detector_type), optional, intent(in)  :: Cal
 
        !---- Local Variables ----!
-       integer                           :: i
+       integer                           :: i,j
        integer                           :: np
        real(kind=cp)                     :: xmin,xmax,xstep,cnorm
 
@@ -2423,11 +2436,21 @@ Module CFML_ILL_Instrm_Data
        xmin=n%scans(1)
        xstep=n%scans(2)
 
-       do i=1,np    ! Points
-          Pat%x(i)=xmin + (i-1)*xstep
-          Pat%y(i)=n%counts(i,1)
-          Pat%sigma(i)=Pat%y(i)
-       end do
+       if(present(Cal)) then
+         do i=1,np    ! Points
+            j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
+            Pat%x(i)=xmin + Cal%PosX(j)
+            Pat%y(i)=n%counts(j,1)
+            Pat%sigma(i)=Pat%y(i)
+         end do
+       else
+         do i=1,np    ! Points
+            Pat%x(i)=xmin + (i-1)*xstep
+            Pat%y(i)=n%counts(i,1)
+            Pat%sigma(i)=Pat%y(i)
+         end do
+       end if
+
        xmax=Pat%x(np)
        Pat%title=trim(n%title)//", Instr: "//trim(n%instrm)//", Header:"//trim(n%header)
        Pat%diff_Kind="neutrons_cw"
@@ -2447,10 +2470,15 @@ Module CFML_ILL_Instrm_Data
        Pat%Conv(1)=n%wave
 
        if(present(VNorm)) then
-          Pat%Norm_Mon=VNorm
-          cnorm = VNorm/Pat%monitor
-          Pat%y=Pat%y*cnorm
-          Pat%sigma=Pat%sigma*cnorm*cnorm
+         if(VNorm < 0.0) then
+           cnorm = abs(VNorm)/n%time
+           Pat%Norm_Mon=n%monitor*cnorm
+         else
+           Pat%Norm_Mon=VNorm
+           cnorm = VNorm/Pat%monitor
+         end if
+         Pat%y=Pat%y*cnorm
+         Pat%sigma=Pat%sigma*cnorm*cnorm
        else
           Pat%Norm_Mon=n%monitor
        end if
@@ -2526,13 +2554,18 @@ Module CFML_ILL_Instrm_Data
           case ('D1B','D20')
              if(present(cal)) then
                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,Cal)
+               if (present(VNorm)) then
+                  call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm,Cal)
+               else
+                  call NumorD1BD20_to_DiffPattern(PPNum, Pat,Cal=Cal)
+               end if
              else
                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)
-             end if
-             if (present(VNorm)) then
-                call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm)
-             else
-                call NumorD1BD20_to_DiffPattern(PPNum, Pat)
+               if (present(VNorm)) then
+                  call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm)
+               else
+                  call NumorD1BD20_to_DiffPattern(PPNum, Pat)
+               end if
              end if
 
           case ('D1A')
@@ -3411,7 +3444,7 @@ Module CFML_ILL_Instrm_Data
          call read_I_keyType(filevar,nl_keytypes(5,2,1),nl_keytypes(5,2,2))
          if (nval_i /= n%nbdata) then
             err_illdata=.true.
-            write(unit=err_illdata_mess,fmt="(a,i6.6)") 'Problem reading Counts in in Numor:',n%numor
+            write(unit=err_illdata_mess,fmt="(a,i6.6)") 'Problem reading Counts in Numor:',n%numor
             return
          end if
          if (nval_i > 0) then
@@ -4527,7 +4560,7 @@ Module CFML_ILL_Instrm_Data
        call Number_KeyTypes_on_File(filevar,nlines)
        if (.not. equal_vector(n_keytypes,(/1,2,1,6,0,1,0/),7)) then
           err_illdata=.true.
-          err_illdata_mess='This numor does not correspond with D20 Format'
+          err_illdata_mess='This numor: '//trim(fileinfo)//' does not correspond with D20 Format'
           return
        end if
 
@@ -4790,7 +4823,7 @@ Module CFML_ILL_Instrm_Data
        call Number_KeyTypes_on_File(filevar,nlines)
        if (.not. equal_vector(n_keytypes,(/1,2,1,6,0,1,0/),7)) then
           err_illdata=.true.
-          err_illdata_mess='This numor does not correspond with D20 Format'
+          err_illdata_mess='This numor: '//trim(fileinfo)//' does not correspond with D20 Format'
           return
        end if
 
@@ -4802,9 +4835,8 @@ Module CFML_ILL_Instrm_Data
 
        ! Fixed Some values
        n%nframes=1
-       n%nbdata=1600
+       !n%nbdata=1600
        n%scantype='2theta'
-       n%scans(2)=0.1
 
        ! Numor
        call read_R_keyType(filevar,nl_keytypes(1,1,1),nl_keytypes(1,1,2),numor,idum)
@@ -4876,6 +4908,9 @@ Module CFML_ILL_Instrm_Data
 
        ! Counts Information
        call read_J_keyType(filevar,nl_keytypes(6,1,1),nl_keytypes(6,1,2))
+       n%nbdata = nval_i
+       n%scans(2)=160.0/real(nval_i)
+
        if (nval_i > 0) then
           if (n%nbdata == nval_i) then
              allocate(n%counts(n%nbdata,1))
@@ -6766,8 +6801,8 @@ Module CFML_ILL_Instrm_Data
         type(calibration_detector_type), intent(out) :: Cal
 
         !---- Local Variables ----!
-        character(len=160)               :: txt
-        integer                          :: i,lun, ier
+        character(len=160)                     :: txt
+        integer                                :: i,j,lun, ier
 
         ! Init
         err_illdata=.false.
@@ -6779,19 +6814,29 @@ Module CFML_ILL_Instrm_Data
         open(unit=lun,file=trim(FileCal),status='old',action="read",position="rewind",iostat=ier)
         if (ier /= 0) then
            err_illdata=.true.
-           err_illdata_mess=' Problems reading Calibration File for D20 Instrument'
+           err_illdata_mess=' Problems reading Calibration File: '//trim(FileCal)//', for D20 Instrument'
            return
         end if
-        read(unit=lun,fmt="(a)") txt  !First line is a text indentifying the file
+        read(unit=lun,fmt="(a)") txt  !First line is a text indentifying the file containing the number of points
+        i=index(txt,"(")+1
+        j=index(txt,")")-1
+        read(unit=txt(i:j),fmt=*,iostat=ier) Cal%NDet
+        if(ier /= 0) then
+           err_illdata=.true.
+           err_illdata_mess=' Problem reading the number of points of the D20 detector in calibration file: '//trim(FileCal)
+           return
+        end if
 
         ! Load Information on Cal Object
         Cal%Name_Instrm='D20'
-        Cal%NDet=1600
+        !Cal%NDet=1600
         Cal%NPointsDet=1
         if (allocated(Cal%Active)) deallocate(Cal%Active)
         if (allocated(Cal%PosX))   deallocate(Cal%PosX)
         if (allocated(Cal%Effic))  deallocate(Cal%Effic)
+        if (allocated(ipoint))     deallocate(ipoint)  !This pointer is globally accessed within the module (private)
 
+        allocate(ipoint(Cal%NDet))
         allocate(Cal%PosX(Cal%NDet))
         allocate(Cal%Effic(Cal%NPointsDet,Cal%NDet))
         allocate(Cal%Active(Cal%NPointsDet,Cal%NDet))
@@ -6799,22 +6844,25 @@ Module CFML_ILL_Instrm_Data
         Cal%Active=.true.
         Cal%PosX=0.0
         Cal%Effic=1.0
-        read(unit=lun,fmt=*,iostat=ier) Cal%PosX(1:1600)
+        read(unit=lun,fmt=*,iostat=ier) Cal%PosX(1:Cal%NDet)
         if(ier /= 0) then
            err_illdata=.true.
-           err_illdata_mess=' Problem reading cell positions of D20 detector'
+           err_illdata_mess=' Problem reading cell positions of D20 detector in calibration file: '//trim(FileCal)
            return
         end if
-        read(unit=lun,fmt=*,iostat=ier) Cal%Effic(1,1:1600)
+        read(unit=lun,fmt=*,iostat=ier) Cal%Effic(1,1:Cal%NDet)
         if(ier /= 0) then
            err_illdata=.true.
-           err_illdata_mess=' Problem reading efficiencies of D20 detector'
+           err_illdata_mess=' Problem reading efficiencies of D20 detector in calibration file: '//trim(FileCal)
            return
         end if
 
-        ! Mask for Points to be used or not
+        ! Mask for Points to be used or not and order the angles
+        call sort(Cal%PosX,Cal%NDet,ipoint)
+
         do i=1,Cal%NDet
-           if (Cal%Effic(1,i) < 0.0)  Cal%Active(1,i)=.false.
+           if (Cal%Effic(1,i) <= 0.0)  Cal%Active(1,i)=.false.
+           if (Cal%Effic(1,i) > 0.0)   Cal%Effic(1,i) = 1.0/Cal%Effic(1,i)
         end do
 
         set_calibration_detector =.true.
