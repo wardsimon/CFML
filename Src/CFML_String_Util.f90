@@ -2934,9 +2934,9 @@
     !!----    character(len=*), intent(in)     :: rep_string
     !!----    character(len=*), intent(out)    :: warning
     !!----
-    !!----    Subroutine to replace a substring by another one within
-    !!----    a given string. The original string is modified on output.
-    !!----    If len_trim(warning) /= one of the substrings will not be complete,
+    !!----    Subroutine to replace a substring (substr) by another one (rep_string)
+    !!----    within a given string (string). The original string is modified on output.
+    !!----    If len_trim(warning) /= 0, one of the substrings will not be complete,
     !!----    it works as a warning or error condition without interrupting the
     !!----    procedure.
     !!----
@@ -2955,7 +2955,8 @@
       lstr=len(substr)
       warning=" "
       i=index(rep_string,substr)
-      if(i /= 0) then !The short code doesn't work ... we have to use a longer analysis
+      if(i /= 0) then !Check if the substring to be replaced is contained in the replacing string
+         !In such case the alternative short code doesn't work ... we have to use the longer analysis below
          ncount=String_Count(string,trim(substr))+1
          allocate(pos(ncount))
          allocate(splitted_string(ncount))
@@ -2982,7 +2983,7 @@
          end do
          string=trim(string)//trim(splitted_string(ncount))
 
-      else  !The following code works easily
+      else  !The following short code works easily when substr is not contained in rep_string
 
          do
            i=index(string,substr)
