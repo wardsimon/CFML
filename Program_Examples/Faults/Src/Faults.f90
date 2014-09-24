@@ -39,7 +39,7 @@
         if (namepar(i) ==  'cell_c')     cell_c = state(i)
         if (namepar(i) ==  'num_layers') l_cnt  = state(i)
         if (namepar(i) ==  "diameter_a") Wa = state(i)
-        if (namepar(i) ==  "diameter_b") Wa = state(i)
+        if (namepar(i) ==  "diameter_b") Wb = state(i)
         if (namepar(i) ==  'zero_shift') crys%zero_shift  = state(i)
         if (namepar(i) ==  'sycos')      crys%sycos  = state(i)
         if (namepar(i) ==  'sysin')      crys%sysin  = state(i)
@@ -628,6 +628,7 @@
              if(iter > 0) then
               write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
                                                shift(crys%p(i)),crys%p(i)
+              if(Cond%nprint < 0) &
               write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
                                                shift(crys%p(i)),crys%p(i)
              end if
