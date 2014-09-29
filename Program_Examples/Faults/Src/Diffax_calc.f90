@@ -2297,8 +2297,8 @@
       CHARACTER (LEN=*), INTENT(IN OUT)        :: infile
 
       LOGICAL :: ok,  on_bndry, l_axis, shrp
-      INTEGER*4 h, k, h_lower, h_upper, k_lower, k_upper
-      INTEGER*4 m, i, max_indx
+      INTEGER*4 h, k, h_lower, h_upper, k_lower, k_upper, i_th, i_thm
+      INTEGER*4 m, i, max_indx, lz, lzf
       REAL*8 s, q, theta, tmp, tmp2, tmp3, fact, h_val, k_val, tmpa, tmpb, tmpc, tmpd, tmpe, tmpf , tmpg, tmph
       REAL*8  :: hkangl, ll, angle , angles
       REAL*8 l, hk_th, x,  l_max, min_th, max_th
@@ -2453,7 +2453,10 @@
              ! IF(full_shrp == 1 .OR. full_brd == 1)  &
                !   WRITE(op,300) 'Full adaptive integration'
 ! integrate each d_theta's range of reciprocal space
-              DO  theta = tmp, max_th-eps10, d_theta
+              !DO  theta = tmp, max_th-eps10, d_theta
+              i_thm=nint((max_th-eps10-tmp)/d_theta+1.0d0)
+              DO  i_th = 1,i_thm
+                theta=tmp+(i_th-1)*d_theta
                 l0 = l1
                 tmp2 = MIN(d_theta, max_th-theta)
                 l1 = ll(theta+tmp2, h, k)
@@ -2513,7 +2516,11 @@
               END IF
               l_max = ll(max_th, h, k)
 ! avoid trouble by ignoring l = l_max
-              DO  l = l00, l_max, d_l
+
+              lzf=nint((l_max-l00)/d_l+1.0d0)
+              !DO  l = l00, l_max, d_l
+              DO  lz = 1, lzf
+                l=l00+(lz-1)*d_l
                 IF(l == l_max) CYCLE
                 theta = angle(h,k,l)
                 CALL get_f(f, s(h,k,l), l)
@@ -4339,7 +4346,7 @@
 
 
       LOGICAL :: divided
-      INTEGER*4 h, k
+      INTEGER*4 h, k, i_th, i_thm
       REAL*8 l0, l1, max_th, x, w4, angle, theta, l, s, q2
       REAL*8 t1, sum, tmp, ll, fact, d_th, l_tmp
 
@@ -4430,7 +4437,11 @@
 
       CALL pre_mat(h, k)
 ! integrate each d_th's range of reciprocal space
-      DO  theta = t1, max_th-eps14, d_th
+
+      !DO  theta = t1, max_th-eps14, d_th
+      i_thm=nint((max_th-eps14-t1)/d_th+1.0d0)
+      DO  i_th = 1, i_thm
+        theta=t1+(i_th-1)*d_th
         l0 = l1
         tmp = MIN(d_th, max_th-theta)
         l1 = ll(theta+tmp,h,k)
@@ -4544,7 +4555,8 @@
 ! Count down to the first layer (we know l_cnt is greater than 1)
 ! Initialize wavefunction to the scattering factor of the last layer
       wavefn = f(l_seq(nint(l_cnt)))
-      DO  m = l_cnt - 1, 1, -1
+
+      DO  m = nint(l_cnt) - 1, 1, -1
         i = l_seq(m)
         j = l_seq(m+1)
         wavefn = f(i) + wavefn * phi(j,i)
@@ -6918,7 +6930,7 @@
       LOGICAL, INTENT(IN OUT)                  :: ok
 
       LOGICAL :: its_hot
-      INTEGER*4 h, k, i, i_step
+      INTEGER*4 h, k, i, i_step, lz, lzf
       REAL*8 l, theta, x, angle, s, q2, l0, l1
       REAL*8 dl, w4
       REAL*8, PARAMETER :: intervals = twenty
@@ -6980,8 +6992,13 @@
       i_step = nint( (l1 - l0) / (dl * intervals) )
 ! Immune system to the rescue!
       IF(i_step <= 0) i_step = 10
+
       i = 0
-      DO  l = l0, l1, dl
+!      DO  l = l0, l1, dl
+      lzf=nint((l1-l0)/dl+1.0D0)
+
+      DO  lz = 1, lzf
+        l=l0+(lz-1)*dl
 ! If we are dealing with electrons, make sure we avoid the origin
         IF(its_hot .AND. l*(l+dl) <= zero) THEN
           x = zero

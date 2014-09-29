@@ -5,6 +5,7 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
+      use CFML_Math_General,          only : sind, asind
       use read_data
       use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
 
@@ -336,7 +337,7 @@
               write(i_ftls,"(a,i5,i5,i5,i5)") " SEQ", fls, lls, otls, stls
             elseif(spcfc) then
               write(i_ftls,"(a)") " SPECIFIC"
-              write(i_ftls, "(25i2)") crys%l_seq(1:crys%l_cnt)
+              write(i_ftls, "(25i2)") crys%l_seq(1:nint(crys%l_cnt))
             elseif(randm) then
              write(i_ftls,"(a)") "!number of layers"
               write(i_ftls,"(a)", advance="no") " RANDOM "
@@ -588,7 +589,7 @@
     use CFML_Diffraction_patterns , only : diffraction_pattern_type
     use CFML_Optimization_LSQ,      only : Levenberg_Marquardt_Fit
     use CFML_LSQ_TypeDef,           only : LSQ_Conditions_type, LSQ_State_Vector_Type
-    use CFML_Math_General,          only : spline, splint, sind, cosd
+    use CFML_Math_General,          only : spline, splint, sind, cosd, asind
     use diffax_mod
     use read_data,                  only : crys, read_structure_file, length,   opti , cond, vs, &
                                            bgr_patt, calculate_Aberrations

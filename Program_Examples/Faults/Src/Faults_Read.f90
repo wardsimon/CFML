@@ -1080,7 +1080,7 @@
             else
               read(unit=txt ,fmt= * , iostat = ier)crys%l_cnt
               val_glb(17) = crys%l_cnt
-              if (crys%l_cnt>=1023.0) then
+              if (crys%l_cnt >= 1023.0) then
                 crys%inf_thick = .true.
               else
                 crys%inf_thick = .false.
