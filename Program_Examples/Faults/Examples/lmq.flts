@@ -10,10 +10,15 @@ Instrumental  And  Size  Broadening
  Aberrations                   0.0000    0.0000    0.0000
                                  0.00      0.00      0.00
 !instr. broadening       u           v           w           x         Dg         Dl
- Pseudo-Voigt       0.032948   -0.003558    0.227400    0.000000     479.26     459.87 Trim
+ Pseudo-Voigt       0.0329   -0.003558    0.227400    0.000000     479.26     459.87 Trim
                         1.00        0.00        0.00        0.00       1.00       1.00
 
  Structural
+
+ avercell   3.128608    3.128608    4.608609   90  90  120
+
+ spgr     P 3 m 1
+
  !         a            b            c          gamma
  Cell      3.128608    3.128608    4.608609      120.00
               21.00       21.00        1.00        0.00
@@ -149,7 +154,7 @@ FW       0.00      0.00      0.00      0.00      0.00      0.00
  Corrmax      30
  Maxfun     2400
  Tol       0.100000E-04
- Nprint      0
+ Nprint      -1
 
  Experimental
 !Filename                    Scale factor     code

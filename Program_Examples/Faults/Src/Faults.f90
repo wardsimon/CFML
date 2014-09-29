@@ -5,7 +5,7 @@
       use CFML_GlobalDeps,            only : sp
       use CFML_Diffraction_Patterns , only : diffraction_pattern_type
       use CFML_Optimization_General,  only : Opt_Conditions_Type
-      use read_data!,                  only : opti, crys_2d_type, crys, cond
+      use read_data
       use CFML_LSQ_TypeDef,           only : LSQ_State_Vector_Type
 
       implicit none
@@ -57,7 +57,7 @@
           do k=1, n_atoms
             if (index (namepar(i) , 'pos_x' )== 1)     then
                 read (unit = namepar(i)(6:9), fmt = "(2i2)" ) a,b
-                a_pos(1,a,b)  = state(i) * pi2                         !need to invert conversion done by routine nmcoor (diffax_calc)
+                a_pos(1,a,b)  = state(i) * pi2       !need to invert conversion done by routine nmcoor (diffax_calc)
             end if
             if (index (namepar(i) ,'pos_y' )== 1)    then
                 read (unit = namepar(i)(6:9), fmt = "(2i2)" ) a,b
@@ -124,19 +124,17 @@
 
     Subroutine vs2faults(vs, crys)
        !This subroutine calculates the final values of crys before writing the new flts-file
-       type(crys_2d_type),     intent(in out)   :: crys
-       type(LSQ_State_Vector_type), Intent(In)  :: Vs
+       type(crys_2d_type),          intent(in out) :: crys
+       type(LSQ_State_Vector_type), Intent(In)     :: Vs
 
        !local variables
        integer                  :: n, j, i
        real, dimension(max_npar):: shift
 
-       do i=1, opti%npar
-         shift(1:opti%npar) = vs%pv(1:opti%npar) - crys%Pv_refi(1:opti%npar)
-       end do
+       shift(1:opti%npar) = vs%pv(1:opti%npar) - crys%Pv_refi(1:opti%npar)
 
        do i = 1, crys%npar
-             crys%list(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
+           crys%list(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
        end do
 
        call Var_assign(crys%list)
@@ -216,9 +214,9 @@
        !-----------------------------------------------
        !   D u m m y   A r g u m e n t s
        !-----------------------------------------------
-       Type(crys_2d_type),     intent(in  out) :: crys
-       integer,                intent(in)      :: i_ftls
-       type(LSQ_State_Vector_type), Intent(In) :: Vs
+       Type(crys_2d_type),          intent(in  out) :: crys
+       integer,                     intent(in)      :: i_ftls
+       type(LSQ_State_Vector_type), intent(in)      :: Vs
 
 
        integer                            :: a,b,c, j, l,i ,n, print_width
@@ -280,7 +278,15 @@
 
        write(i_ftls,"(a)")              "  "
        write(i_ftls,"(a)")          " STRUCTURAL  "
-       write(i_ftls,"(a)")          " !         a            b            c          gamma "
+       if(aver_cellgiven) then
+          write(i_ftls,"(/,a)")        "!    Average cell parameters (for Bragg positions in PRF file) "
+          write(i_ftls,"(a,6f12.5)")   "AverCell ", aver_cell, aver_ang
+       end if
+       if(aver_spggiven) then
+          write(i_ftls,"(/,a)") "!    Average Space Group (for Bragg positions in PRF file) "
+          write(i_ftls,"(a,/)")   "SpGR "//trim(spgsymb)
+       end if
+       write(i_ftls,"(a)")          "!         a            b            c          gamma "
        write(i_ftls,"(a,3f12.6,f12.2)")   " Cell  ", cell_a, cell_b, cell_c, cell_gamma*rad2deg
        write(i_ftls,"(tr7,4f12.2)")  ref_glb(11:14)
        write(i_ftls,"(a)")        "!Laue symmetry"
@@ -310,8 +316,8 @@
           !WRITE(dmp,100) 'symmetry = ', list(l_symmetry(i)+1)
            write(i_ftls,"(a)")        "!Layer symmetry   "
            write(i_ftls,"(2a)")      " LSYM   ", list(l_symmetry(c)+1)
+           write(i_ftls,"(/a)")      "!Atom name   number   x         y         z         Biso      Occ  "
            do a=1, crys%l_n_atoms(c)
-             write(i_ftls,"(2a)")      "!Atom name   number   x         y         z         Biso      Occ  "
              write(i_ftls,"(2a,i9, 5f10.5)") " Atom ", a_name(a,c), a_number(a,c), a_pos(1, a,c)/pi2, &
                                         a_pos(2, a,c)/pi2,a_pos(3, a,c)/pi2, a_B (a,c), a_occup(a,c)
              write(i_ftls,"(tr19,5f10.2)") ref_atom(1:5,a,c)
@@ -418,7 +424,7 @@
              write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code        hkl-file"
            else
              write(i_ftls,"(a)")                  "!Pattern file           Filename      Scale factor     code"
-         end if
+           end if
            do i=1, crys%num_bgrpatt
              write(i_ftls,"(2a, g18.5,f10.2,tr4,a)")  " BgrPatt    ",adjustr(crys%bfilepat(i)), crys%bscalpat(i), &
                                                     ref_glb(17+crys%cheb_nump+i), trim(crys%bfilehkl(i))
@@ -441,9 +447,9 @@
        !-----------------------------------------------
        !   L o c a l   V a r i a b l e s
        !-----------------------------------------------
-       integer ::  i, j,k, iposr, ihkl, irc, nvk,nphase,ideltr
+       integer ::  i, j,k, iposr, ihkl, irc, nvk,nphase,ideltr,MaxNumRef
 
-       real :: twtet, dd, scl,yymi,yyma,t1,t2
+       real :: twtet, dd, scl,yymi,yyma,t1,t2,sintlm
        character (len=1)   :: tb
        character (len=50)  :: forma1,forma2
        integer, dimension(max_bgr_num+1) :: nref
@@ -459,6 +465,31 @@
        nref=0
        ibgr =0
        nphase=1
+
+       !Calculate average Bragg positions in case the average cell and space group has been given
+       if(aver_cellgiven .and. aver_spggiven) then
+          sintlm=sind(0.5*(thmax+2.0))/lambda
+          MaxNumRef = get_maxnumref(sintlm,aCell%CellVol,mult=spg%Multip)
+          if (allocated(reflections)) then
+            deallocate(reflections)
+            allocate (reflections(MaxNumRef))
+          else
+            allocate (reflections(MaxNumRef))
+          end if
+
+          !> Procedure to calculation all reflections
+          !call HKL_GEN(cell,grp_espacial,.true.,val1,val2,num,reflections) !Not ordered
+          call HKL_UNI(acell,spg,.true.,0.0,sintlm,"s",n_hkl,reflections) !Ordered
+          if(allocated(dos_theta))   deallocate(dos_theta)
+          allocate(dos_theta(n_hkl))
+          if(allocated(hkl_list))   deallocate(hkl_list)
+          allocate(hkl_list(3,n_hkl))
+          dos_theta=0.0; hkl_list=0
+          do i=1,n_hkl
+            dos_theta(i)=2.0*asind(reflections(i)%S*lambda)+crys%zero_shift
+            hkl_list(:,i)=reflections(i)%h
+          end do
+       end if
        nref(1)=n_hkl
        ibgr(1)=1
        do
@@ -536,7 +567,7 @@
          iposr=-(i-1)*ideltr
          k=ibgr(i)
          do j=1,nref(i)
-           twtet=bgr_hkl_pos(j,k)+zero
+           twtet=bgr_hkl_pos(j,k)+crys%zero_shift
            write(i_prf,'(f12.4,9a,i8,a,3i3,a,2i3)')  &
              twtet,tb,'        ',tb,'        ',tb,'        ',  &
              tb,'        ',tb,iposr, tb//'(',bgr_hkl_ind(:,j,k),')'//tb,ihkl,irc
@@ -582,9 +613,9 @@
 !!--..            Real (Kind=cp),              Intent(out)     :: chi2     !final Chi2
 !!--..            character(len=*),            Intent(out)     :: infout   !Information about the refinement (min length 256)
 !!--..            Real (Kind=cp), dimension(:),optional, intent(out) :: residuals
-!!--..         End Subroutine
+!! End Subroutine
 
-!!Interface No_Fderivatives
+!!Interface No_derivatives
 !!--..           Subroutine Model_Functn(m, n, x, fvec, iflag)             !Model Function subroutine
 !!--..             Use CFML_GlobalDeps, Only: cp
 !!--..             Integer,                       Intent(In)    :: m, n    !Number of observations and free parameters
@@ -605,9 +636,8 @@
       logical                  :: ok
       integer                  :: j ,i, k, a, b
       real, dimension(max_npar):: shift, state
-      !real, dimension(max_sp),save  :: svdfvec
       real                     :: rf
-      real, save               :: chi2
+      real, save               :: chi2,chiold=1.0e35
       integer, save            :: iter=-1
 
       shift(1:npar) = v(1:npar) - vector(1:npar)
@@ -617,21 +647,8 @@
         Case(1)  !Calculation of fvec and updating completely the parameters
 
            fvec=0.0
-           iter = iter + 1
-           if(iter > 0) then
-              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
-              write(i_out,"(a)")"              Parameter Name           New_Value     Old_Value    Multiplier         Shift ParNum"
-              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
-           end if
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
-             if(iter > 0) then
-              write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
-                                               shift(crys%p(i)),crys%p(i)
-              if(Cond%nprint < 0) &
-              write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
-                                               shift(crys%p(i)),crys%p(i)
-             end if
            end do
            crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
@@ -643,9 +660,22 @@
              call calc_fullpat_lmq(difpat, fvec, chi2,rf)
            end if
            numcal = numcal + 1  !Counter for optimz, detun, etc
-           if(iter > 0) then
-              write(*,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
-              write(i_out,"(a,i4,2(a,f14.4))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+           if(chi2 < chiold) then
+              chiold=chi2
+              iter = iter + 1
+              chiold=chi2
+              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+              write(i_out,"(a)")"              Parameter Name           New_Value     Old_Value    Multiplier         Shift ParNum"
+              write(i_out,"(a)")" ------------------------------------------------------------------------------------------------"
+              do i = 1, crys%npar
+                 write(i_Out,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+                                                  shift(crys%p(i)),crys%p(i)
+                 if(Cond%nprint < 0) &
+                 write(*,"(a,i3,a,4f14.5,i5)") " State(",i,"):  "//namepar(i),state(i), crys%list(i), mult(i), &
+                                                  shift(crys%p(i)),crys%p(i)
+              end do
+              write(*,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
+              write(i_out,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
            end if
            !svdfvec(1:m)=fvec(1:m)
 
@@ -739,75 +769,10 @@
         c = c + fvec(j)*fvec(j)
       end do do_a
       r =  b/a *100.0
-      chi2= c/(punts-opti%npar)
-      return
+      !chi2= c/(punts-opti%npar)
+      chi2= c/(pat%npts-opti%npar)  !Use all points => this makes Chi2 smaller but consistent with
+      return                        !the calculation in CrysFML
     End subroutine calc_fullpat_lmq
-
- !   Subroutine  F_cost(n_plex,v,rplex,g)      !SIMPLEX
- !     use CFML_GlobalDeps,  only: cp
- !     integer,                        intent (in    ) :: n_plex
- !     real(kind=cp),  dimension(:),   intent (in    ) :: v
- !     real(kind=cp),                  intent (   out) :: rplex
- !     real(kind=cp),dimension(:),optional, intent(out):: g
- !
- !     logical                 :: ok
- !     integer                 :: j ,i, k, a, b
- !     real, dimension(300)    :: shift, state
- !     real                    :: chi2
- !
- !     write(*,*)"--------FCOST-------"
- !
- !      !--- to avoid warnings
- !     if(present(g)) g=0.0
- !     do i= 1, opti%npar
- !           shift(i) = v(i) - vector(i)
- !     end do
- !
- !     do i = 1, crys%npar
- !        state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
- !     end do
- !
- !     !update
- !
- !     crys%list(:) = state(:)
- !
- !     do i=1, opti%npar
- !            vector(i) = v(i)
- !     end do
- !
- !     do i=1, crys%npar
- !       write(*,*)  namepar(i), state(i)
- !     end do
- !
- !     call Pattern_Calculation(state,ok)
- !
- !     if(.not. ok) then
- !       print*, "Error calculating spectrum, please check input parameters"
- !     else
- !       call scale_factor(difpat,rplex, chi2)
- !     end if
- !     numcal = numcal + 1
- !     write(*,*) ' => Calculated Rp    :   ' , rplex
- !     write(*,*) ' => Best Rp up to now:   ' , rpo
- !
- !
- !     if (rplex < rpo ) then                  !To keep calculated intensity for the best value of rplex
- !       rpo = rplex
- !       statok(1:crys%npar) = state( 1:crys%npar)
- !
- !       write(*,*)  ' => Writing the best calculated pattern up to now. Rp : ', rpo
- !       do j = 1, n_high
- !         ycalcdef(j) = difpat%ycalc(j)
- !       end do
- !       do j=1, l_cnt
- !         l_seqdef(j) = l_seq(j)
- !       end do
- !     end if
- !     ok = .true.
- !
- !     IF(cfile) CLOSE(UNIT = cntrl)
- !     return
- !   End subroutine F_cost
 
     Subroutine Pattern_Calculation(state,ok)
       real, dimension(:), intent(in) :: state
@@ -932,11 +897,10 @@
       open(unit=i_out, file=trim(filenam)//".out",status="replace",action="write")
       CALL salute(i_out)
 
-
       call read_structure_file(infile, gol)
 
       if (err_crys) then
-        write(unit=*,fmt="(a)") " ERROR in "//trim(infile)//": "//trim(err_crys_mess)
+        write(unit=*,fmt="(a)") " => ERROR in "//trim(infile)//": "//trim(err_crys_mess)
         stop
       else
         write(op, fmt=*) "=> Structure input file read in"
@@ -1073,49 +1037,7 @@
                    IF(fn_menu == 1) GO TO 10
               END IF
 
-  !        Case (3) !Local optimizer
-  !
-  !
-  !            rpo = 1000                         !initialization of agreement factor
-  !          !  rpl = 0
-  !            do i=1, opti%npar                       !creation of the step sizes
-  !              vector(i) = crys%Pv_refi(i)
-  !              write(*,*) "crys%vlim1(i)", crys%vlim1(i)
-  !            end do
-  !
-  !            open (unit=23, file='local_optimizer.out', status='replace', action='write')
-  !            if (opti%method == "DFP_NO-DERIVATIVES" .or. opti%method == "LOCAL_RANDOM" .or. opti%method == "UNIRANDI" &
-  !                 .or. opti%method =="SIMPLEX") then
-  !              call Lcase(opti%method )
-  !
-  !              call Local_Optimize( F_cost,crys%Pv_refi(1:opti%npar) ,  rpl, opti, mini=crys%vlim1(1:opti%npar),&
-  !                                  maxi=crys%vlim2(1:opti%npar),ipr=23  )
-  !            else
-  !              write(*,*) "Error in optimization method"
-  !              stop
-  !            end if
-  !            write(*,*)'Rp', rpo
-  !            write(*,*) '______________________________________'
-  !            write(*,'(3a)') ' Parameter     refined value     '
-  !            write(*,*) '______________________________________'
-  !            do i = 1, numpar
-  !                  write(*,*)  namepar(i)  ,statok(i)
-  !            end do
-  !
-  !            CALL getfnm(filenam, outfile, '.prf', ok)
-  !            if (ok) then
-  !              OPEN(UNIT = out, FILE = outfile, STATUS = 'replace')
-  !              call Write_Prf(difpat,out)
-  !            else
-  !              write(*,*) 'The outfile cannot be created'
-  !            end if
-  !            if (ok) then
-  !             OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
-  !             call Write_ftls(crys,i_flts)
-  !           else
-  !             write(*,*) 'The outfile .flts cannot be created'
-  !           end if
-  !
+!
           Case (4) !LMQ
 
             chi2o = 1.0E10                         !initialization of agreement factor
@@ -1127,8 +1049,8 @@
             call Levenberg_Marquardt_Fit(cost_LMQ, difpat%npts, cond, Vs, chi2, infout)
 
             !Output the final list of refined parameters
-           !  Call Info_LSQ_LM(Chi2,op,Cond,Vs)
-           ! Call Info_LSQ_LM(Chi2,i_out,Cond,Vs)
+            Call Info_LSQ_LM(Chi2,op,Cond,Vs)
+            Call Info_LSQ_LM(Chi2,i_out,Cond,Vs)
 
             write(*,"(a)") " => "// trim(infout)
 
@@ -1146,29 +1068,6 @@
                if(i /= 0) filenam=filenam(1:i-1)
                OPEN(UNIT = i_flts, FILE = trim(filenam)//"_new.flts", STATUS = 'replace',action="write")
                call Write_ftls(crys,i_flts, vs)
-
-
-               !writing the final list of refined parameters in *.out file
-               write(unit=i_out,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS",&
-                                           "      ------------------------------------"
-               write(unit=i_out,fmt="(/,a,/)") &
-                 "    Parameter name     No.(LSQ)         Final-Value"
-               do i=1,crys%npar
-                 write(unit=i_out,fmt="(a,i6,1f20.5)") "    "//namepar(i),i,crys%list(i)
-               end do
-               write(unit=i_out,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
-
-
-               !writing the final list of refined parameters in the screen
-               write(unit=op,fmt="(/,/,a,/,a,/)") "      FINAL LIST OF REFINED PARAMETERS",&
-                                           "      ------------------------------------"
-               write(unit=op,fmt="(/,a,/)") &
-                 "    Parameter name     No.(LSQ)         Final-Value"
-               do i=1,crys%npar
-                 write(unit=op,fmt="(a,i6,1f20.5)") "    "//namepar(i),i,crys%list(i)
-               end do
-               write(unit=op,fmt="(/,a,f10.5)") " => Final value of Chi2: ",chi2
-
              else
                write(*,*) 'The outfile .flts cannot be created'
              end if

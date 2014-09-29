@@ -187,7 +187,7 @@ Module CFML_LSQ_TypeDef
      !!----  This subroutine should be called with the arguments corresponding to
      !!----  the components  Lcodes=LSQ_State_Vector%code, Multip=LSQ_State_Vector%mul
      !!----  and Lcode_max=maxval(LSQ_State_Vector%code) before using the LSQ methods
-     !!----  in which and object of LSQ_State_Vector_type exist and LSQ_State_Vector%code=.true.
+     !!----  in which and object of LSQ_State_Vector_type exist and LSQ_State_Vector%code_comp=.true.
      !!----  This allows the use of constraints once the codes have been attributed.
      !!----
      Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
@@ -196,14 +196,14 @@ Module CFML_LSQ_TypeDef
        integer,                    intent (in out) :: Lcode_max
        !--- Local variables ---!
        integer    ::  k, L , j, n_given, Lcm, n_att,ndisp, nn, ni, ndispm,maxs
-       integer, dimension(Lcode_max) :: disp
+       integer, dimension(Lcode_max) :: dispo
        real(kind=cp), parameter      :: e=0.001
        !
        !  Check correlated parameters and already used codes
        !
        ndisp=0
        n_given=0
-       disp(:)=0
+       dispo(:)=0
        Lcm=size(Lcodes)
        ! First Pass
         Do L=1, Lcode_max
@@ -213,7 +213,7 @@ Module CFML_LSQ_TypeDef
           end do
           if(ni == 0) then
             ndisp=ndisp+1  !number of disponible codes
-            disp(ndisp)=L  !disponible code number
+            dispo(ndisp)=L  !disponible code number
           else
             n_given=n_given+1  !number of given codes
           end if
@@ -223,7 +223,7 @@ Module CFML_LSQ_TypeDef
 
        !
        ! Attributing numbers to parameters (not already attributed) with multipliers
-       ! different from zero. First the attribution is taken from the vector disp() and
+       ! different from zero. First the attribution is taken from the vector dispo() and
        ! continued, after finishing the disponible codes, from Lcode_max+1, ...
        ! If after attributing the codes ndisp /=0, then a displacement of all parameters
        ! is done and the maximum number of parameters to be refined is diminished by
@@ -244,7 +244,7 @@ Module CFML_LSQ_TypeDef
              n_att=n_att+1
            else
              ni=ni+1
-             Lcodes(j)=disp(ni)
+             Lcodes(j)=dispo(ni)
              n_att=n_att+1
              ndisp=ndisp-1
            end if
@@ -265,7 +265,7 @@ Module CFML_LSQ_TypeDef
         nn=0
          do j =1,Lcm
            if (L == Lcodes(j)) then
-             Lcodes(j)=disp(n_att)
+             Lcodes(j)=dispo(n_att)
              nn=nn+1
            end if
          end do

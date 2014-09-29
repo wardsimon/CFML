@@ -1,11 +1,11 @@
   Module diffax_calc
 
-   use CFML_GlobalDeps,       only: sp
-   use CFML_String_Utilities, only: number_lines, reading_lines,  init_findfmt, findfmt , &
-                                    iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
+   use CFML_GlobalDeps,           only : sp
+   use CFML_String_Utilities,     only : number_lines, reading_lines,  init_findfmt, findfmt , &
+                                         iErr_fmt, getword, err_string, err_string_mess, getnum, Ucase
    use CFML_Optimization_General, only : Opt_Conditions_Type
    use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type
-   use read_data,             only: crys_2d_type, read_structure_file, length, opti, cond
+   use read_data,                 only : crys_2d_type, read_structure_file, length, opti, cond
    use diffax_mod
 
    implicit none
@@ -2596,7 +2596,8 @@
 
         delta=abs(real(nint(l),kind=8) - l)
         if( delta < eps2 ) then
-          ela=nint(l)
+        !if( l < eps2 ) then
+          ela=nint(l)   ! ela is now zero
           hkl=(/ h, k, nint(ela) /)
           esta=.false.
           do j=1,n_hkl

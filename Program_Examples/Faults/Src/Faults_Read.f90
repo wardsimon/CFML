@@ -1,15 +1,23 @@
     Module read_data
-       use CFML_GlobalDeps,           only : sp , cp
-       use CFML_String_Utilities,     only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
-                                             err_string_mess, getnum, U_case, cutst
-       use CFML_Optimization_General, only : Opt_Conditions_Type
-       use CFML_LSQ_TypeDef,          only : LSQ_Conditions_type, LSQ_State_Vector_Type
+       use CFML_GlobalDeps,               only : sp , cp
+       use CFML_String_Utilities,         only : number_lines , reading_lines , findfmt ,iErr_fmt, getword, err_string, &
+                                                 err_string_mess, getnum, U_case, cutst
+       use CFML_Optimization_General,     only : Opt_Conditions_Type
+       use CFML_LSQ_TypeDef,              only : LSQ_Conditions_type, LSQ_State_Vector_Type
+       use CFML_Crystal_Metrics,          only : Crystal_Cell_Type, Set_Crystal_Cell
+       use CFML_Reflections_utilities,    only : Reflect_Type, get_maxnumref, HKL_uni
+       use CFML_Crystallographic_Symmetry,only : Space_Group_Type, set_SpaceGroup, ERR_Symm_Mess, &
+                                                 Err_Symm
        use diffax_mod
        implicit none
 
        !private
        !public subroutines
        !public:: read_structure_file, length, Read_Bgr_patterns
+       Type(Crystal_Cell_Type),                        public :: acell
+       Type (Reflect_Type), dimension(:), allocatable, public :: reflections
+       character(len=20),                              public :: spgsymb
+       Type(Space_Group_Type),                         public :: SpG
 
        integer, parameter :: max_bgr_num=15 !maximum number of background patterns
        integer, parameter :: max_n_cheb =24 !maximum number of Chebychev coefficients
@@ -33,7 +41,7 @@
                                                                  "Dg          ","Dl          ", &
                                                                  "cell_a      ","cell_b      ", &
                                                                  "cell_c      ","cell_gamma  ", &
-                                                                 "diameter_a  ", "diameter_b  ", &
+                                                                 "diameter_a  ","diameter_b  ", &
                                                                  "num_layers  "]
 !      Declaration of diffraction_pattern_type
 
@@ -126,11 +134,13 @@
       type (Opt_Conditions_Type),      save,  public  :: opti
       type (LSQ_Conditions_type),      save,  public  :: cond
       type (LSQ_State_Vector_Type),    save,  public  :: Vs
+      real, dimension (3),                    public  :: aver_cell, aver_ang
       Real, dimension(:,:),     allocatable,  public  :: bgr_patt
       Real, dimension(:,:),     allocatable,  public  :: bgr_hkl_pos
       integer, dimension(:,:,:),allocatable,  public  :: bgr_hkl_ind
       integer, dimension(:),    allocatable,  public  :: bgr_hkl_nref
       logical,                                public  :: calculate_aberrations=.false.
+      logical, save,                          public  :: aver_cellgiven=.false.,aver_spggiven=.false.
 
    contains
 
@@ -195,7 +205,6 @@
         tfile=" "
         call reading_lines(namef, numberl, tfile)   ! we 'charge' the file in tfile  so we can close the unit
       end if
-      close(unit=i_data)
       !do i = 1, numberl                 ! To read in case insensitive mode
       !  call u_case(tfile(i))
       !end do
@@ -563,6 +572,31 @@
 
         Select Case(key)
 
+          Case("SPGR")
+                txt=adjustl(tfile(i))
+                spgsymb=adjustl(txt(5:))  !read symbol of space group
+                j=index(spgsymb,"!")
+                if(j /= 0) spgsymb=trim(spgsymb(1:j-1))
+                call Set_SpaceGroup(spgsymb, SpG)
+                if (Err_Symm)then
+                  Err_crys=.true.
+                  Err_crys_mess="Error in space group symbol: "//trim(spgsymb)
+                  logi = .false.
+                  return
+                end if
+                aver_spggiven=.true.
+
+          Case("AVERCELL")
+                read(unit=txt,fmt=*,iostat=ier) aver_cell, aver_ang   !read average cell parameters
+                if (ier /= 0)then
+                  Err_crys=.true.
+                  Err_crys_mess="ERROR reading average cell parameters"
+                  logi = .false.
+                  return
+                end if
+                aver_cellgiven=.true.
+                call Set_Crystal_Cell(aver_cell, aver_ang, aCell)
+
           Case("CELL")
                 read(unit=txt,fmt=*,iostat=ier) crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma   !read cell parameters
                 val_glb(11:14)=[crys%cell_a, crys%cell_b, crys%cell_c, crys%cell_gamma ]
@@ -655,7 +689,6 @@
                read(unit=txt,fmt=*, iostat=ier)  crys%layer_a, crys%layer_b
                val_glb(15:16)=[crys%layer_a, crys%layer_b]
                crys%finite_width=.true.
-
 
                if (crys%layer_a==0 .or. crys%layer_b==0) then
                  Err_crys=.true.
@@ -799,7 +832,6 @@
             crys%n_actual = r
             n_layers=j
 
-
           Case("LSYM")
             if(INDEX(txt, 'CENTROSYMMETRIC') == 1) then
               crys%centro(r) = CENTRO
@@ -835,7 +867,9 @@
             read(unit=citem(2),fmt=*,iostat=ier) crys%a_num (d(r),r)
             read(unit=citem(6),fmt=*,iostat=ier) crys%a_B (d(r),r)
             val_atom(4,d(r),r)=crys%a_B (d(r),r)
-            read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
+
+            call read_fraction(citem(7), crys%a_occup (d(r),r))
+            !read(unit=citem(7),fmt=*,iostat=ier) crys%a_occup (d(r),r)
             val_atom(5,d(r),r)=crys%a_occup (d(r),r)
              if(crys%a_occup(d(r),r)<0 .or. crys%a_occup(d(r),r)>1) then
                Err_crys=.true.
@@ -878,14 +912,12 @@
 
        end do
 
-
        if(abs(crys%n_typ - n_layers) >= 1.0) then                      !NIK
             Err_crys=.true.                                            !
             Err_crys_mess="ERROR with the number of layer types."      !
             logi=.false.                                               !
             return                                                     !
        end if                                                          !
-
 
        ! make sure we have genuine lowest and highest atoms in each layer.
        DO  i = 1, crys%n_actual
@@ -906,9 +938,6 @@
          Err_crys_mess="ERROR: layer symmetry or layer atomic parameters missing!"
          logi=.false.
        end if
-
-
-
 
     End Subroutine Read_LAYER
 
@@ -1498,27 +1527,27 @@
               ok_file=.true.
 
           Case("EXCLUDED_REGIONS")
-            read(unit=txt,fmt=*, iostat=ier) nexcrg
+              read(unit=txt,fmt=*, iostat=ier) nexcrg
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading number of excluded region"
                   logi=.false.
                   return
               end if
-            do j=1,nexcrg
-               i=i+1; if(i > i2) exit
-               txt=adjustl(tfile(i))
-               read(unit=txt,fmt=*, iostat=ier)   alow(j),ahigh(j)
-               if(ier /= 0 ) then
-                   Err_crys=.true.
-                   write(unit=Err_crys_mess,fmt="(a,i3)"),"ERROR reading the excluded region number ",j
-                   logi=.false.
-                   return
-               end if
-            end do
+              do j=1,nexcrg
+                 i=i+1; if(i > i2) exit
+                 txt=adjustl(tfile(i))
+                 read(unit=txt,fmt=*, iostat=ier)   alow(j),ahigh(j)
+                 if(ier /= 0 ) then
+                     Err_crys=.true.
+                     write(unit=Err_crys_mess,fmt="(a,i3)"),"ERROR reading the excluded region number ",j
+                     logi=.false.
+                     return
+                 end if
+              end do
 
           Case("FFORMAT")
-            read(unit=txt,fmt=*,iostat=ier) fmode
+              read(unit=txt,fmt=*,iostat=ier) fmode
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading file format instruction"
@@ -1544,7 +1573,7 @@
               crys%bgrcheb=.true.
               read(unit=txt,fmt=*,iostat=ier)  crys%cheb_nump
               do
-                 i=i+1
+                i=i+1
                 txt=adjustl(tfile(i))
                 if(txt(1:1) == "!") cycle
                 exit
@@ -1552,7 +1581,7 @@
               read (unit=txt,fmt=*,iostat=ier) crys%chebp(1:crys%cheb_nump)
               val_glb(18:17+crys%cheb_nump)=crys%chebp(1:crys%cheb_nump)
               do
-                 i=i+1
+                i=i+1
                 txt=adjustl(tfile(i))
                 if(txt(1:1) == "!") cycle
                 exit
@@ -1567,7 +1596,7 @@
               ok_bgrcheb=.true.
 
           Case("BGRNUM")
-            read(unit=txt,fmt=*,iostat=ier)  crys%num_bgrpatt
+              read(unit=txt,fmt=*,iostat=ier)  crys%num_bgrpatt
               if(ier /= 0 ) then
                   Err_crys=.true.
                   Err_crys_mess="ERROR reading number of background patterns "
@@ -1577,27 +1606,23 @@
               ok_bgrnum=.true.
 
           Case("BGRPATT")
-
-              if (crys%num_bgrpatt /= 0) then
-                                                                                         !NIK
-                  crys%bgrpatt=.true.
-                  m=m+1
-                  !First try to read the name of the hkl file
-                  read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+            crys%bgrpatt=.true.
+            m=m+1
+            !First try to read the name of the hkl file
+            read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m),crys%bfilehkl(m)
-                  if(ier /= 0) then !if not re-read only the background file name the scale factor and the code
-                    read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
+            if(ier /= 0) then !if not re-read only the background file name the scale factor and the code
+               read(unit=tfile(i)(k+1:),fmt=*, iostat=ier)crys%bfilepat(m), crys%bscalpat(m), &
                                                        ref_glb(17+crys%cheb_nump+m)
-                  end if
-                  if(ier /= 0 ) then
-                    Err_crys=.true.
-                    Err_crys_mess="ERROR reading background pattern instruction"
-                    logi=.false.
-                    return
-                  end if
-                  val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
-                  ok_bgrpatt=.true.
-              end if
+            end if
+            if(ier /= 0 ) then
+                Err_crys=.true.
+                Err_crys_mess="ERROR reading background pattern instruction"
+                logi=.false.
+                return
+            end if
+            val_glb(17+crys%cheb_nump+m)= crys%bscalpat(m)
+              ok_bgrpatt=.true.
 
           Case Default
 
@@ -1789,14 +1814,14 @@
           Err_crys_mess="ERROR :  The file "//trim(namef)//" doesn't exist"
           logi=.false.
           return
-        else
-          open(unit=i_data,file=trim(namef),status="old",action="read",position="rewind",iostat=ier)
-          if(ier /= 0) then
-            Err_crys=.true.
-            Err_crys_mess="ERROR opening the file "//trim(namef)
-            logi=.false.
-            return
-          end if
+        !else
+        !  open(unit=i_data,file=trim(namef),status="old",action="read",position="rewind",iostat=ier)
+        !  if(ier /= 0) then
+        !    Err_crys=.true.
+        !    Err_crys_mess="ERROR opening the file "//trim(namef)
+        !    logi=.false.
+        !    return
+        !  end if
         end if
 
         call Set_TFile(namef,logi)
@@ -1869,9 +1894,6 @@
         call Update_all(Lcode_max)
         crys%npar=np
 
-
-
-
         if (opt == 4) then         !construction of some optimization variables  (LMQ)
           if (np==0) then                                                        !
             write(*,"(a)") "WARNING: No parameters are being refined!"  !NIK
@@ -1892,6 +1914,7 @@
        integer, intent (out)     :: Lcode_max
        integer                   :: k, i, j, iyy
 
+        Lcode_max=0
         do k=1, LGBLT
            Lglb(k) =  int(abs(ref_glb(k)/10.0))  !ordinal
            iyy= Lglb(k)
@@ -1953,14 +1976,14 @@
        integer, intent (in out) :: Lcode_max
        integer                  :: n_pat, k, l , kk, i, j, iof, n_given,  &
                                    n_att, ndisp, nn, ni, ndispm,nd,maxs
-       integer, dimension(Lcode_max) :: disp
+       integer, dimension(Lcode_max) :: dispo
        real(kind=cp), parameter      :: e=0.001
        !
        !  Check correlated parameters and already used codes
        !
        ndisp=0
        n_given=0
-       disp(:)=0
+       dispo(:)=0
        ! First Pass
         Do L=1, Lcode_max
           ni=0
@@ -1986,14 +2009,14 @@
 
           if(ni==0) then
             ndisp=ndisp+1  !number of disponible codes
-            disp(ndisp)=L  !disponible code number
+            dispo(ndisp)=L  !disponible code number
           else
             n_given=n_given+1  !number of given codes
           end if
 !
        End Do !=1,Lcode_max
 !
-       if(ndisp == 0) return  !all codes have been attributed
+       !if(ndisp == 0) return  !all codes have been attributed
 
         !
         ! Attributing numbers to parameters (not already attributed) with multipliers
@@ -2019,7 +2042,7 @@
                n_att=n_att+1
              else
                ni=ni+1
-               lglb(j)=disp(ni)
+               lglb(j)=dispo(ni)
                n_att=n_att+1
                ndisp=ndisp-1
              end if
@@ -2041,7 +2064,7 @@
                     n_att=n_att+1
                   else
                     ni=ni+1
-                    Latom(j,i,k)=disp(ni)
+                    Latom(j,i,k)=dispo(ni)
                     n_att=n_att+1
                     ndisp=ndisp-1
                   end if
@@ -2065,7 +2088,7 @@
                     n_att=n_att+1
                   else
                     ni=ni+1
-                    Ltrans(j,i,k)=disp(ni)
+                    Ltrans(j,i,k)=dispo(ni)
                     n_att=n_att+1
                     ndisp=ndisp-1
                   end if
@@ -2075,7 +2098,8 @@
          end do
 
          if(ndisp == 0) then
-           maxs=nn
+           !maxs=nn   !this is an error!!!!
+           if(nn > Lcode_max) Lcode_max=nn
            return  !all parameters have been attributed
          end if
 
@@ -2090,7 +2114,7 @@
         nn=0
          do j =1,LGBLT
            if (L == lglb(j)) then
-             lglb(j)=disp(n_att)
+             lglb(j)=dispo(n_att)
              nn=nn+1
            end if
          end do
@@ -2099,7 +2123,7 @@
            do i=1, crys%l_n_atoms(k)
              do j=1,5
                 if(L == Latom(j,i,k)) then
-                  Latom(j,i,k)=disp(n_att)
+                  Latom(j,i,k)=dispo(n_att)
                   nn=nn+1
                 end if
              end do
@@ -2110,7 +2134,7 @@
            do i=1, crys%n_typ
              do j=1, 10
                 if(L == Ltrans(j,i,k)) then
-                  Ltrans(j,i,k)=disp(n_att)
+                  Ltrans(j,i,k)=dispo(n_att)
                   nn=nn+1
                 end if
              end do
