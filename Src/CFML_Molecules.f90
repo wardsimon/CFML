@@ -348,7 +348,8 @@
     use CFML_Math_General,              only: acosd, asind, cosd, sind
     use CFML_Math_3D,                   only: cross_product, Get_Spheric_Coord
     use CFML_Crystallographic_Symmetry, only: Space_Group_type, Write_SpaceGroup
-    use CFML_Atom_TypeDef,              only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List
+    use CFML_Atom_TypeDef,              only: Atom_Type, Atom_List_Type, Allocate_Atom_List, Deallocate_Atom_List,&
+                                              Init_Atom_Type
     use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Set_Crystal_Cell,Err_crys, Err_Crys_Mess, &
                                               Write_Crystal_Cell
     use CFML_String_Utilities,          only: u_case, l_case, getword, getnum, cutst
@@ -372,7 +373,7 @@
               Zmatrix_to_Cartesian, Zmatrix_to_Fractional, Zmatrix_to_Spherical,         &
               Spherical_to_Cartesian, Spherical_to_Zmatrix,Spherical_to_Fractional,      &
               Fix_Reference,Fix_Orient_Cartesian, Set_Euler_Matrix, Molcrys_to_AtomList, &
-              Molec_to_AtomList, Empiric_Formula
+              Molec_to_AtomList, Empiric_Formula,Init_Mol_Crys
 
     !---- List of private functions ----!
 
@@ -2277,7 +2278,49 @@
 
        return
     End Subroutine Init_Molecule
+    !!----
+    !!---- Subroutine Init_Molecule(Molx,Natm,Nmol)
+    !!----    type(Molecular_Crystal_Type), intent(out) :: Molx
+    !!----    integer, optional,            intent(in)  :: Natm
+    !!----    integer, optional,            intent(in)  :: Nmol
+    !!----
+    !!----    Initialization for Molecular Crystal
+    !!----
+    !!---- Update: October - 2014
+    !!
+    Subroutine Init_Mol_Crys(Molx,Natm,Nmol)
+        !---- Argument ----!
+        type(Molecular_Crystal_Type), intent(out) :: Molx
+        integer, optional,            intent(in)  :: Natm
+        integer, optional,            intent(in)  :: Nmol
 
+        integer :: i
+
+        molx%N_Free    = 0
+        molx%N_Mol     = 0
+        molx%N_Species = 0
+        molx%Npat      = 0
+
+        if (allocated(molx%atm))  deallocate(molx%atm)
+        if (allocated(molx%mol))  deallocate(molx%mol)
+
+        if (present(nmol) .and. nmol > 0) then
+            molx%N_Mol = nmol
+            allocate(molx%mol(nmol))
+            do i=1,nmol
+                call init_molecule(molx%mol(i))
+            end do
+        end if
+
+        if (present(natm) .and. natm > 0) then
+            molx%N_Free = natm
+            allocate (molx%atm(natm))
+            do i=1,natm
+                call init_atom_type(molx%atm(i))
+            end do
+        end if
+        return
+    End Subroutine Init_Mol_Crys
     !!----
     !!---- Subroutine Molcrys_to_AtomList(Molcrys,Atm)
     !!----    type (Molecular_Crystal_Type), intent(in)  :: Molec
