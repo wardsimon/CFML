@@ -438,6 +438,14 @@
 
     End Subroutine Write_ftls
 
+    Subroutine Write_FST(fst_file,v,cost)
+       Use CFML_GlobalDeps, only: Cp
+       character(len=*),     intent(in):: fst_file
+       real(kind=cp),dimension(:),    intent(in):: v
+       real(kind=cp),                 intent(in):: cost
+       return
+    End Subroutine Write_FST
+
 
     Subroutine Write_Prf(diff_pat,i_prf)
        !-----------------------------------------------
@@ -1101,13 +1109,4 @@
       write(i_out,"(a,i4,a,f8.4,a)") " => Total CPU-time: ",int(tfin)," minutes and ",tini," seconds"
       stop
    END PROGRAM FAULTS
-
-
-    Subroutine Write_FST(fst_file,v,cost)
-       Use CFML_GlobalDeps, only: Cp
-       character(len=*),     intent(in):: fst_file
-       real(kind=cp),dimension(:),    intent(in):: v
-       real(kind=cp),                 intent(in):: cost
-       return
-    End Subroutine Write_FST
 

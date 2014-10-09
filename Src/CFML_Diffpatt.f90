@@ -3781,18 +3781,20 @@
     End Subroutine Write_Pattern_INSTRM5
 
     !!----
-    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat)
+    !!---- Subroutine Write_Pattern_XYSig(Filename,Pat,excl)
     !!----    character (len=*),               intent(in) :: Filename
     !!----    type (diffraction_pattern_type), intent(in) :: Pat
+    !!----    logical, dimension(:),optional,  intent(in) :: excl
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
     !!---- Update: March - 2007
     !!
-    Subroutine Write_Pattern_XYSig(Filename,Pat)
+    Subroutine Write_Pattern_XYSig(Filename,Pat,excl)
        !---- Arguments ----!
        character (len=*),               intent(in) :: filename
        type (diffraction_pattern_type), intent(in) :: Pat
+       logical, dimension(:),optional,  intent(in) :: excl
 
        !---- Local Variables ----!
        integer                                      :: i, ier, i_dat
@@ -3820,9 +3822,16 @@
        write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, pat%npts
        write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
        write(unit=i_dat,fmt="(a,a10,a)") "!     ",pat%scat_var,"        Y          Sigma "
-       do i=1,pat%npts
-          write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
-       end do
+       if(present(excl)) then
+         do i=1,pat%npts
+            if(excl(i)) cycle
+            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+         end do
+       else
+         do i=1,pat%npts
+            write(unit=i_dat,fmt="(3f14.5)") pat%x(i),pat%y(i),sqrt(pat%sigma(i))
+         end do
+       end if
        close(unit=i_dat)
 
        return
