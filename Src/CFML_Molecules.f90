@@ -500,7 +500,7 @@
        real(kind=cp), dimension(3,3)                   :: mS_TLS       !Refinement codes (or multipliers) of TL-correlation Thermal factor
        integer,       dimension(3,3)                   :: lS_TLS       !Numbers of LSQ parameters for TL-correlation Thermal factor
        real(kind=cp), dimension(3,3)                   :: Euler        !Euler matrix
-       character(len=6),  allocatable, dimension(  :)  :: AtName       !Atom Name
+       character(len=20), allocatable, dimension(  :)  :: AtName       !Atom Name
        character(len=4),  allocatable, dimension(  :)  :: AtSymb       !Atom species
        integer,           allocatable, dimension(  :)  :: AtZ          !Atomic Number
        integer,           allocatable, dimension(:,:)  :: Ptr          !Pointer to scat.factors (first index -> pattern)
