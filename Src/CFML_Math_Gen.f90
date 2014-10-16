@@ -112,9 +112,12 @@
 !!--++       IMINLOC_R                 [OVerloaded]
 !!----       LOCATE
 !!--++       LOCATE_I                  [Overloaded]
-!!--++       LOCATE_IB                  [Overloaded]
+!!--++       LOCATE_IB                 [Overloaded]
 !!--++       LOCATE_R                  [Overloaded]
 !!--++       LOCATE_RB                 [Overloaded]
+!!----       LOWER_TRIANGULAR
+!!--++       LOWER_TRIANGULAR_I        [Overloaded]
+!!--++       LOWER_TRIANGULAR_R        [Overloaded]
 !!----       MODULO_LAT
 !!----       NORM
 !!--++       NORM_I                    [Overloaded]
@@ -129,6 +132,9 @@
 !!--++       TRACE_C                   [Overloaded]
 !!--++       TRACE_I                   [Overloaded]
 !!--++       TRACE_R                   [Overloaded]
+!!----       UPPER_TRIANGULAR
+!!--++       UPPER_TRIANGULAR_I        [Overloaded]
+!!--++       UPPER_TRIANGULAR_R        [Overloaded]
 !!----       ZBELONG
 !!--++       ZBELONGM                  [Overloaded]
 !!--++       ZBELONGN                  [Overloaded]
@@ -215,9 +221,10 @@
               Euclidean_Norm
 
     !---- List of public overloaded procedures: functions ----!
-    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,  &
-              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,    &
-              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits
+    public :: Acosd, Asind, Atan2d, Atand, Cosd, Sind, Tand, Negligible, Pythag,   &
+              Co_Linear, Equal_Matrix, Equal_Vector, Locate, Outerprod, Trace,     &
+              Zbelong, Imaxloc, Iminloc, Norm, Scalar, In_limits, Lower_Triangular,&
+              Upper_Triangular
 
     !---- List of private functions ----!
     private :: Acosd_dp, Acosd_sp, Asind_dp, Asind_sp, Atan2d_dp, Atan2d_sp,       &
@@ -228,7 +235,8 @@
                Outerprod_dp, Outerprod_sp, Trace_C, Trace_I, Trace_R, ZbelongM,    &
                ZbelongN, ZbelongV, Imaxloc_I, Imaxloc_R, Iminloc_R, Iminloc_I,     &
                Norm_I, Norm_R, Scalar_I, Scalar_R, Locate_Ib, Locate_Rb,           &
-               In_limits_dp, In_limits_sp, In_Limits_int
+               In_limits_dp, In_limits_sp, In_Limits_int, Lower_Triangular_I,      &
+               Lower_Triangular_R, Upper_Triangular_I, Upper_Triangular_R
 
     !---- List of public subroutines ----!
     public ::  Init_Err_Mathgen, Invert_Matrix, LU_Decomp, LU_Backsub, Matinv,        &
@@ -483,6 +491,11 @@
        Module Procedure Locate_Rb
     End Interface
 
+    Interface  Lower_Triangular
+       Module Procedure Lower_Triangular_I
+       Module Procedure Lower_Triangular_R
+    End Interface
+
     Interface Norm
        Module Procedure Norm_I
        Module Procedure Norm_R
@@ -502,6 +515,11 @@
        Module Procedure Trace_C
        Module Procedure Trace_I
        Module Procedure Trace_R
+    End Interface
+
+    Interface  Upper_Triangular
+       Module Procedure Upper_Triangular_I
+       Module Procedure Upper_Triangular_R
     End Interface
 
     Interface  Zbelong
@@ -2290,13 +2308,62 @@
     End Function Locate_Rb
 
     !!----
+    !!---- Function Lower_Triangular_I(A,n) Result (T)
+    !!----   integer, dimension(:,:), intent(in) :: A
+    !!----   integer,                 intent(in) :: n
+    !!----   integer, dimension(n,n)             :: T
+    !!----
+    !!----   Updated: October - 2014
+    !!----
+    Function Lower_Triangular_I(A,n) Result (T)
+       !---- Argument ----!
+       integer, dimension(:,:), intent(in) :: A
+       integer,                 intent(in) :: n
+       integer, dimension(n,n)             :: T
+       integer :: i,j,p,q,m
+       m=n
+       p=size(A(:,1)); q=size(A(1,:))
+       if(n > p .or. n > q) m=min(p,q)
+       T=0
+       do j=1,m
+         do i=j,m
+           T(i,j)=A(i,j)
+         end do
+       end do
+    End Function  Lower_Triangular_I
+
+    !!----
+    !!---- Function Lower_Triangular_R(A,n) Result (T)
+    !!----   real(kind=cp), dimension(:,:), intent(in) :: A
+    !!----   integer,                       intent(in) :: n
+    !!----   real(kind=cp), dimension(n,n)             :: T
+    !!----
+    !!----   Updated: October - 2014
+    !!----
+    Function Lower_Triangular_R(A,n) Result (T)
+       !---- Argument ----!
+       real(kind=cp), dimension(:,:), intent(in) :: A
+       integer,                       intent(in) :: n
+       real(kind=cp), dimension(n,n)             :: T
+       integer :: i,j,p,q,m
+       m=n
+       p=size(A(:,1)); q=size(A(1,:))
+       if(n > p .or. n > q) m=min(p,q)
+       T=0
+       do j=1,m
+         do i=j,m
+           T(i,j)=A(i,j)
+         end do
+       end do
+    End Function  Lower_Triangular_R
+
     !!---- Function Modulo_Lat(U)
     !!----    real(kind=cp), dimension(:), intent(in) :: u
     !!----
     !!----    Reduces a real vector to another with components in
     !!----    the interval [0,1)
     !!----
-    !!---- Update: February - 2005
+    !!---- Updated: February - 2005
     !!
     Function Modulo_Lat(u) result(v)
        !---- Argument ----!
@@ -2582,6 +2649,57 @@
 
        return
     End Function Trace_R
+
+
+    !!----
+    !!---- Function Upper_Triangular_I(A,n) Result (T)
+    !!----   integer, dimension(:,:), intent(in) :: A
+    !!----   integer,                 intent(in) :: n
+    !!----   integer, dimension(n,n)             :: T
+    !!----
+    !!----   Updated: October - 2014
+    !!----
+    Function Upper_Triangular_I(A,n) Result (T)
+       !---- Argument ----!
+       integer, dimension(:,:), intent(in) :: A
+       integer,                 intent(in) :: n
+       integer, dimension(n,n)             :: T
+       integer :: i,j,p,q,m
+       m=n
+       p=size(A(:,1)); q=size(A(1,:))
+       if(n > p .or. n > q) m=min(p,q)
+       T=0
+       do j=1,m
+         do i=1,j
+           T(i,j)=A(i,j)
+         end do
+       end do
+    End Function  Upper_Triangular_I
+
+    !!----
+    !!---- Function Upper_Triangular_R(A,n) Result (T)
+    !!----   real(kind=cp), dimension(:,:), intent(in) :: A
+    !!----   integer,                       intent(in) :: n
+    !!----   real(kind=cp), dimension(n,n)             :: T
+    !!----
+    !!----   Updated: October - 2014
+    !!----
+    Function Upper_Triangular_R(A,n) Result (T)
+       !---- Argument ----!
+       real(kind=cp), dimension(:,:), intent(in) :: A
+       integer,                       intent(in) :: n
+       real(kind=cp), dimension(n,n)             :: T
+       integer :: i,j,p,q,m
+       m=n
+       p=size(A(:,1)); q=size(A(1,:))
+       if(n > p .or. n > q) m=min(p,q)
+       T=0
+       do j=1,m
+         do i=1,j
+           T(i,j)=A(i,j)
+         end do
+       end do
+    End Function  Upper_Triangular_R
 
     !!----
     !!---- Logical Function Zbelong(V)

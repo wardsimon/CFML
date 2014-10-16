@@ -2407,23 +2407,26 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
-    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm, Cal)
+    !!--++ Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm, Cal,angcor,perm)
     !!--++    type(powder_numor_type),                   intent(in)  :: N
     !!--++    type(diffraction_pattern_type),            intent(out) :: Pat
     !!--++    real(kind=cp),  optional,                  intent(in)  :: VNorm
     !!--++    type(calibration_detector_type), optional, intent(in)  :: Cal
+    !!--++    logical, optional,                         intent(in)  :: angcor,perm
     !!--++
     !!--++ Pass the information from D1B/D20 Numor to DiffPat object
+    !!--++ angcor: correction of wires positions applied (perm is assumed in this case)
+    !!--++ per: permutation of alphas for wires positions applied even if the angles positios are not corrected
     !!--++
-    !!--++
-    !!--++ 30/04/2011
+    !!--++ Updated: 13/10/2013
     !!
-    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm,Cal)
+    Subroutine NumorD1BD20_To_DiffPattern(N, Pat, VNorm,Cal,angcor,perm)
        !---- Arguments ----!
        type(powder_numor_type),                   intent(in)  :: N
        type(diffraction_pattern_type),            intent(out) :: Pat
        real(kind=cp),  optional,                  intent(in)  :: VNorm
        type(calibration_detector_type), optional, intent(in)  :: Cal
+       logical, optional,                         intent(in)  :: angcor,perm
 
        !---- Local Variables ----!
        integer                           :: i,j
@@ -2437,12 +2440,29 @@ Module CFML_ILL_Instrm_Data
        xstep=n%scans(2)
 
        if(present(Cal)) then
-         do i=1,np    ! Points
-            j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
-            Pat%x(i)=xmin + Cal%PosX(j)
-            Pat%y(i)=n%counts(j,1)
-            Pat%sigma(i)=Pat%y(i)
-         end do
+         if(present(angcor)) then
+            do i=1,np    ! Points
+               j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
+               Pat%x(i)=xmin + Cal%PosX(j)
+               Pat%y(i)=n%counts(j,1)
+               Pat%sigma(i)=Pat%y(i)
+            end do
+         else
+            if(present(perm)) then
+                do i=1,np    ! Points
+                   j=ipoint(i)   !The pointer has been set on Read_Calibration_File_D20
+                   Pat%x(i)=xmin + (i-1)*xstep !Cal%PosX(j)
+                   Pat%y(i)=n%counts(j,1)
+                   Pat%sigma(i)=Pat%y(i)
+                end do
+            else
+                do i=1,np
+                   Pat%x(i)=xmin + (i-1)*xstep
+                   Pat%y(i)=n%counts(i,1)
+                   Pat%sigma(i)=Pat%y(i)
+                end do
+            end if
+         end if
        else
          do i=1,np    ! Points
             Pat%x(i)=xmin + (i-1)*xstep
@@ -2488,20 +2508,21 @@ Module CFML_ILL_Instrm_Data
 
 
     !!----
-    !!---- Subroutine PowderNumors_To_DiffPattern(PNumors, N, ActList, Pat, VNorm, Cal)
+    !!---- Subroutine PowderNumors_To_DiffPattern(PNumors, N, ActList, Pat, VNorm, Cal, Cal,angcor, perm)
     !!----    type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
     !!----    integer,                                   intent(in)  :: N          ! Number of Numors
     !!----    logical,dimension(:),                      intent(in)  :: ActList    ! Active list for Numors
     !!----    type (Diffraction_Pattern_Type),           intent(out) :: Pat        ! Pattern Diffraction
     !!----    real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
     !!----    type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+    !!----    logical, optional,                         intent(in)  :: angcor,perm
     !!----
     !!---- Pass the information from Powder_Numor_Type to Diffraction_Pattern_type
     !!----
     !!----
     !!---- Date: 25/03/2011
     !!
-    Subroutine PowderNumors_To_DiffPattern(PNumors,N,ActList,Pat, VNorm, Detect,Cal)
+    Subroutine PowderNumors_To_DiffPattern(PNumors,N,ActList,Pat, VNorm, Detect,Cal,angcor,perm)
        !---- Arguments ----!
        type(Powder_Numor_Type),dimension(:),      intent(in)  :: PNumors    ! Powder Numors Vector
        integer,                                   intent(in)  :: N          ! Number of Numors
@@ -2510,6 +2531,7 @@ Module CFML_ILL_Instrm_Data
        real(kind=cp), optional,                   intent(in)  :: VNorm      ! Normalization value
        integer, optional ,                        intent(in)  :: Detect     ! Select a particular detector (for D4)
        type(calibration_detector_type), optional, intent(in)  :: Cal        ! Calibration Information
+       logical, optional,                         intent(in)  :: angcor,perm
 
        !---- Local Variables ----!
        character(len=4)        :: inst
@@ -2555,9 +2577,25 @@ Module CFML_ILL_Instrm_Data
              if(present(cal)) then
                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum,Cal)
                if (present(VNorm)) then
-                  call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm,Cal)
+                  if(present(angcor)) then
+                    call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm,Cal,angcor)
+                  else
+                    if(present(perm)) then
+                      call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm,Cal,perm=perm)
+                    else
+                      call NumorD1BD20_to_DiffPattern(PPNum, Pat,VNorm,Cal)
+                    end if
+                  end if
                else
-                  call NumorD1BD20_to_DiffPattern(PPNum, Pat,Cal=Cal)
+                  if(present(angcor)) then
+                    call NumorD1BD20_to_DiffPattern(PPNum, Pat,Cal=Cal,angcor=angcor)
+                  else
+                    if(present(perm)) then
+                      call NumorD1BD20_to_DiffPattern(PPNum, Pat,Cal=Cal,perm=perm)
+                    else
+                      call NumorD1BD20_to_DiffPattern(PPNum, Pat,Cal=Cal)
+                    end if
+                  end if
                end if
              else
                call Adding_Numors_D1B_D20(PNumors,N,ActList,PPNum)

@@ -306,7 +306,7 @@
     !---- Use Files ----!
     Use CFML_GlobalDeps,   only: Cp, Dp
     Use CFML_LSQ_TypeDef
-    Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm
+    Use CFML_Math_General, only: Invert_Matrix, enorm => Euclidean_Norm, Upper_Triangular
 
     !---- Variables ----!
     implicit none
@@ -1442,7 +1442,8 @@
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
-       curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+       !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+       curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
        end do
@@ -1669,7 +1670,8 @@
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
-       curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
+       !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )  !this is Rt.R
+       curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
        end do
@@ -1897,7 +1899,8 @@
        !           t            t     t
        ! cvm = (jac *jac) = p*(r *r)*p     -> Permutation matrices are orthogonal
        ! See the documentation of lmder1 and lmdif1 for why we use only the (n,n) submatrix of fjac
-       curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+       !curv_mat(1:n,1:n)=matmul( transpose( fjac(1:n,1:n) ) , fjac(1:n,1:n) )
+       curv_mat(1:n,1:n)=matmul( transpose( Upper_Triangular(fjac,n)) , Upper_Triangular(fjac,n) )
        do j=1,n
           p(1:n,j) = id(1:n,ipvt(j))
        end do
@@ -1915,8 +1918,8 @@
        end do
 
        if(present(idebug)) then
-         formt="(    g10.3)"
-         write(unit=formt(2:5),fmt="(i4)") n/12
+         formt="(100g10.3)"
+         !write(unit=formt(2:5),fmt="(i4)") n/12
          write(unit=idebug,fmt="(a,i5,a,/)") "  Output pseudo-Jacobian for ",n," free parameters"
          do j=1,n
            write(unit=idebug,fmt=formt) fjac(j,1:n)
