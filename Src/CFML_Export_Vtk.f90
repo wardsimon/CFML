@@ -43,7 +43,7 @@
 Module CFML_Export_VTK
 
   use CFML_Globaldeps,                only: cp, dp
- use  CFML_Crystal_Metrics,           only: Crystal_Cell_Type
+  use  CFML_Crystal_Metrics,          only: Crystal_Cell_Type
   use CFML_Atom_TypeDef,              only: Atom_List_Type
   use CFML_Crystallographic_Symmetry, only: Space_Group_Type, ApplySo
   use CFML_String_Utilities,          only: Pack_String
@@ -217,8 +217,8 @@ Module CFML_Export_VTK
     ! crystallographic coordinates
     !---------------------------------------------------------------------------------------------
     write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE1",cell% Orth_Cr_cel(:,1), 0.0
-    write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE2",  cell% Orth_Cr_cel(:,2), 0.0
-    write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE3", cell% Orth_Cr_cel(:,3), 0.0
+    write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE2",cell% Orth_Cr_cel(:,2), 0.0
+    write(unit=pdb_id,fmt='(A6,4X,3F10.6,5X,F10.5)') "SCALE3",cell% Orth_Cr_cel(:,3), 0.0
     ! Loop on atoms
     g=0
     allocate(xtemp(3,spaceg%multip))
@@ -245,6 +245,6 @@ Module CFML_Export_VTK
     close(unit=pdb_id)
   End Subroutine unitCell_to_PDBfile
 
-end Module CFML_Export_Vtk
+End Module CFML_Export_Vtk
 
 
