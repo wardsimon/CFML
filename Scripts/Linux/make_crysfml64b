@@ -88,22 +88,22 @@ in
        fi
        ;;
    'ifort')
-       if [ -d "./ifort" ]
+       if [ -d "./ifort64" ]
        then
-          if [ -d "./ifort/LibC" ]
+          if [ -d "./ifort64/LibC" ]
           then
              echo " "
           else
-             mkdir "./ifort/LibC"
-             mkdir "./ifort/LibW"
+             mkdir "./ifort64/LibC"
+             mkdir "./ifort64/LibW"
           fi
        else
           mkdir "ifort"
-          mkdir "./ifort/LibC"
-          mkdir "./ifort/LibW"
+          mkdir "./ifort64/LibC"
+          mkdir "./ifort64/LibW"
        fi
        ;;
-   'lf95')
+   'lf95')makecrys64b
        if [ -d "./Lahey" ]
        then
           if [ -d "./Lahey/LibC" ]
@@ -146,7 +146,7 @@ fi
 #
 if [ $DEBUG = "deb" ]
 then
-   case $COMP
+   case $COMPmakecrys64b
    in
       'f95')
           OPT1="-c -g -O0"
@@ -287,7 +287,7 @@ $COMP $OPT1  CFML_ILL_Instrm_Data.f90
 $COMP $OPT1  CFML_EoS_Mod.f90
 $COMP $OPT1  CFML_Reflct_Util.f90
 $COMP $OPT1  CFML_Atom_Mod.f90
-$COMP $OPT1  CFML_Export_Vtk.f90
+$COMP $OPT1  CFML_Export_Vtk.f90 
 $COMP $OPT1  CFML_Sfac.f90
 $COMP $OPT1  CFML_Geom_Calc.f90
 $COMP $OPT1  CFML_Propagk.f90
@@ -319,14 +319,14 @@ then
           mv *.a ../G95/LibC
           ;;
       'gfortran')
-          ar cr libcrysfml.a *.o
+          ar cr libcrysfml.a *.omake_fps64
           mv *.mod ../GFortran/LibC/
           mv *.a ../GFortran/LibC/
           ;;
       'ifort')
           ar cr libcrysfml.a *.o
-          mv *.mod ../ifort/LibC
-          mv *.a ../ifort/LibC
+          mv *.mod ../ifort64/LibC
+          mv *.a ../ifort64/LibC
           ;;
       'lf95')
           $COMP *.o --out libcrysfml.a --nshared
@@ -354,8 +354,8 @@ else
           ;;
       'ifort')
           ar cr libwcrysfml.a *.o
-          mv *.mod ../ifort/LibW
-          mv *.a ../ifort/LibW
+          mv *.mod ../ifort64/LibW
+          mv *.a ../ifort64/LibW
           ;;
       'lf95')
           $COMP *.o --out libwcrysfml.a --nshared

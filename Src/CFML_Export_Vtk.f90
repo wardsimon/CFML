@@ -279,9 +279,7 @@ Module CFML_Export_VTK
     Character(len=*),                intent(in) :: code        ! 'P' -> pgrid, 'G' -> ggrid
 
     ! Local variables
-    integer :: nx, ny, nz
     integer :: vesta_id, ier
-    integer :: i,j,k
     character(len=len(filename)+10) :: filegrid
     integer(kind=4)              :: gType, fType=0, nVal=1, ndim=3, nASYM != ngrid(1)*ngrid(2)*ngrid(3)
     integer(kind=4), dimension(4):: version=[3,0,0,0]

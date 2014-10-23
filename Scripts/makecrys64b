@@ -1,0 +1,45 @@
+#! /bin/sh
+# Compilation for CrysFML + CrysFGL libraries
+# Author: Javier Gonzalez-Platas
+# Date: Dic-2008
+#
+if [ a$1 = a ]
+then
+cat << !
+makecrys  : Make the Libraries CrysFML (Console , Winteracter) and CrysFGL using Fortran Linux Compilers
+Syntax    : makecrys [af95:g95:gfortran:ifort:lf95] [all/deb]
+!
+exit
+fi
+#
+# Compiler Name
+#
+COMP=$1
+if [ $COMP != "lf95" ]
+then
+   if [ $COMP != "g95" ]
+   then
+      if [ $COMP != "gfortran" ]
+      then
+         if [ $COMP != "ifort" ]
+         then
+            if [ $COMP != "af95" ]
+            then
+               echo "Compiler Name was wrong!!!"
+               exit
+            fi
+         fi
+      fi
+   fi
+fi
+#
+
+if [ a$2 = "adeb" ]
+then # Console version (Degugging)
+    ../Scripts/Linux/make_crysfml64b $1 $2
+elif [ a$2 = "aall" ]
+then # Winteracter version
+   ./Linux/make_crysfml64b $1 win
+else # Console version
+    ../Scripts/Linux/make_crysfml64b $1
+fi
