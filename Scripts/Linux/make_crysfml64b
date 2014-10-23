@@ -98,7 +98,7 @@ in
              mkdir "./ifort64/LibW"
           fi
        else
-          mkdir "ifort"
+          mkdir "ifort64"
           mkdir "./ifort64/LibC"
           mkdir "./ifort64/LibW"
        fi
