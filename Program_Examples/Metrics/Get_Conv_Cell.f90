@@ -129,6 +129,7 @@
       end do
       prod=matmul(trans,transfm)
       metr= "    Pseudo-"
+      ntwot=0
       if( twofold%ntwo > 0) then
         write(unit=io,fmt="(a)")        " => Two-fold axes (indices in the Niggli cell)"
         write(unit=io,fmt="(a)")        " =>       Direct       Reciprocal    Dot    Cross      Length "

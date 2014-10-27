@@ -925,11 +925,11 @@
              exit
           end if
        end do
-       
+
        !> return previous numbers for m3 and m3m
        if(ipg == 40)ipg=36      ! m3 now m-3
        if(ipg == 41)ipg=39      ! m3m now m-3m
-       
+
        return
     End Function Get_PointGroup_Num
 
@@ -4171,14 +4171,14 @@
 
              if (tt(1) == 0 .and. tt(2) == 0 .and. tt(3) == 0) then
                 isymce=2       ! Centric with -1 at origin
-                ss(:,:,i)=0
-                ts(:,i)=0.0
              else
-                isymce=0       ! Centric without -1 at origin
-                co=0.5*ts(:,i)
-                ss(:,:,i)=0
-                ts(:,i)=0.0
+                if(isymce /= 2) then !do that only if a centre has not been found at the origin
+                  isymce=0       ! Centric without -1 at origin
+                  co=0.5*ts(:,i)
+                end if
              end if
+             ss(:,:,i)=0
+             ts(:,i)=0.0
           end if
        end do
 
@@ -7011,7 +7011,7 @@
              ltr(2,4)=0.5
              ltr(3,4)=0.5
 
-          case ("Z","z")
+          case ("Z","z","X","x")
              if(present(numL) .and. present(latc)) then
               lat="Z"
               nlat=numL+1
