@@ -127,7 +127,7 @@
                 mlt=Get_Multip_Pos(vet,grp_espacial)
                 occ=real(mlt,kind=cp)/real(grp_espacial%Multip,kind=cp)
                 write(unit=*,fmt=*) " "
-                write(*,'(a,i4,a,f3.6)') " Multiplicity: ",mlt, "     Occupancy(SHELX/FullProf) proportional to: ",occ
+                write(unit=*,fmt='(a,i4,a,f7.4)') " Multiplicity: ",mlt, "     Occupancy(SHELX/FullProf) proportional to: ",occ
                 call Wait_Message(" => Press <enter> to continue ...")
              end if
           end do
