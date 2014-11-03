@@ -177,7 +177,7 @@
     !---- Used External Modules ----!
     Use CFML_GlobalDeps,       only: cp
     Use CFML_Math_General,     only: Trace, Zbelong, Modulo_Lat, equal_matrix,             &
-                                     Equal_Vector,Sort
+                                     Equal_Vector,Sort,Set_Epsg,Set_Epsg_Default
     Use CFML_Math_3D,          only: Determ_A, matrix_inverse, Resolv_Sist_3x3
     Use CFML_String_Utilities, only: Equal_Sets_Text, Pack_String, Get_Fraction_2Dig,      &
                                      Get_Fraction_1Dig, Frac_Trans_1Dig, L_Case,           &
@@ -856,6 +856,9 @@
        real(kind=cp), dimension(3)            :: xx,v
        real(kind=cp), dimension(3,Spg%multip) :: u
 
+       !> Init Epss
+       call set_epsg(1.0e-3)
+
        mult=1
        u(:,1)=x(:)
 
@@ -871,6 +874,9 @@
        end do ext
 
        mult=mult*Spg%Numlat
+
+       !> Reset value for epss
+       call set_epsg_default()
 
        return
     End Function Get_Multip_Pos
@@ -892,7 +898,14 @@
        real(kind=cp)                          :: Occ
 
        !---- Local Variables ----!
+
+       !> Init Epss
+       call set_epsg(1.0e-3)
+
        Occ=real(Get_Multip_pos(pto,Spg))/real(Spg%multip)
+
+       !> Reset value Epss
+       call set_epsg_default()
 
        return
     End Function Get_Occ_Site
