@@ -37,6 +37,13 @@ fi
 if [ a$2 = "adeb" ]
 then # Console version (Degugging)
     ../Scripts/Linux/make_crysfml $1 $2
+    if [ -d "../GFortran_debug" ]
+    then
+        rm -vfr ../GFortran_debug
+        mv -vf ../GFortran ../GFortran_debug
+    else
+        mv -vf ../GFortran ../GFortran_debug
+    fi
 elif [ a$2 = "aall" ]
 then # Winteracter version
    ./Linux/make_crysfml $1 win
