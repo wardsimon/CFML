@@ -1161,20 +1161,26 @@
               call read_fraction(citem(1+m), crys%l_r (m,j,l))
               val_trans(m+1,j,l)=crys%l_r (m,j,l)
               if(ERR_String) then
-                write(unit=*,fmt="(a)") trim(ERR_String_Mess)
+                write(unit=*,fmt="(a)") "ERROR reading transition vectors coordinates", trim(ERR_String_Mess)
                 logi=.false.
                 return
               end if
             end do
 
-            read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
+            call read_fraction(citem(1), crys%l_alpha (j,l))
+           !read(unit=citem(1),fmt=*,iostat=ier) crys%l_alpha (j,l)
             val_trans(1,j,l) = crys%l_alpha (j,l)
-            if(ier /= 0) then
-                   Err_crys=.true.
-                   Err_crys_mess="ERROR reading layer probabilities"
-                   logi=.false.
-                   return
+            if(ERR_String) then
+                write(unit=*,fmt="(a)") "ERROR reading layer probabilities", trim(ERR_String_Mess)
+                logi=.false.
+                return
             end if
+           !if(ier /= 0) then
+           !       Err_crys=.true.
+           !       Err_crys_mess="ERROR reading layer probabilities"
+           !       logi=.false.
+           !       return
+           !end if
 
             i=i+1
             txt=adjustl(tfile(i))

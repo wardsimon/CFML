@@ -1346,9 +1346,9 @@
       !WRITE(op,200) 'Enter 1 for full atomic position dump: '
       !READ(cntrl,*,ERR=99,END=9999) i2
       !IF(cfile) WRITE(op,'(1x,i3)') i2
-      WRITE(dmp,"(/a)") ' --------------------------------------------------------'
-      WRITE(dmp,"(a)")  ' Writing input data parameter read in file'//trim(infile)
-      WRITE(dmp,"(a/)") ' --------------------------------------------------------'
+      WRITE(dmp,"(/a)") ' ---------------------------------------------------------------------'
+      WRITE(dmp,"(a)")  ' Writing input data parameter read in file '//trim(infile)
+      WRITE(dmp,"(a/)") ' ---------------------------------------------------------------------'
 
 !title
       WRITE(dmp,"(a)") 'TITLE:', ttl
@@ -1730,18 +1730,20 @@
         integer :: ln, i
 
         ok=.false.
+
         i=index(name1,".",back=.true.)
         if(i == 0) then
            bname=name1
         else
            bname=name1(1:i-1)
         end if
-        ln=len_trim(bname) + len_trim(APPEND) + 3
-        if(ln > length(name2) ) return
+        !ln=len_trim(bname) + len_trim(APPEND) + 3
+        !if(ln > length(name2) ) return
 
         i=1
         WRITE(name2,"(a,i1)") trim(bname),i
         name2=trim(name2)//trim(append)
+
 
         do
           INQUIRE(FILE = name2, EXIST = fexist)
@@ -1761,6 +1763,8 @@
             exit
           end if
         end do
+
+
         ok=.true.
         return
       END SUBROUTINE getfnm
@@ -5853,7 +5857,7 @@
                 WRITE(op,420) 'Their combined occupancy is ', sum_occ
                 err_no = err_no + 1
                 IF(err_no > max_err) GO TO 999
-              END IF
+               END IF
             END IF
           END DO
         END DO
@@ -5871,6 +5875,10 @@
           END IF
         END DO
       END DO
+
+      if(err_no == 0) then
+      WRITE(op,fmt="(a)") ' No overlap of atoms has been detected'
+      end if
 
       RETURN
       999 WRITE(op,401) 'WARNING: Number of errors exceeds ', max_err
@@ -6520,17 +6528,19 @@
       else
         iw=op
       end if
-      WRITE(iw,"(a)") ' ______________________________________________'
-      WRITE(iw,"(a)") ' ______________________________________________'
-      WRITE(iw,"(a)") '         _______ FAULTS 2013 _______           '
-      WRITE(iw,"(a)") ' ______________________________________________'
-      WRITE(iw,"(a)") ' ______________________________________________'
-      WRITE(iw,"(a)") '                                               '
-      WRITE(iw,"(a)") '     A computer program based in DIFFax for    '
-      WRITE(iw,"(a)") '     refining faulted layered structures       '
-      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas  (CIC energiGUNE)'
-      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal (ILL)       '
-      WRITE(iw,"(a)") ' ______________________________________________'
+      WRITE(iw,"(a)") ' _________________________________________________'
+      WRITE(iw,"(a)") ' _________________________________________________'
+      WRITE(iw,"(a)") '            _______ FAULTS 2014 _______           '
+      WRITE(iw,"(a)") ' _________________________________________________'
+      WRITE(iw,"(a)") ' _________________________________________________'
+      WRITE(iw,"(a)") '                                                  '
+      WRITE(iw,"(a)") '     A computer program based in DIFFax for       '
+      WRITE(iw,"(a)") '     refining faulted layered structures          '
+      WRITE(iw,"(a)") '     Authors: M.Casas-Cabanas  (CIC energiGUNE)   '
+      WRITE(iw,"(a)") '              J.Rodriguez-Carvajal (ILL)          '
+      WRITE(iw,"(a)") '                                                  '
+      WRITE(iw,"(a)") '                [version: Nov. 2014]              '
+      WRITE(iw,"(a)") ' _________________________________________________'
       WRITE(iw,"(a)")
       WRITE(iw,"(a)")
 

@@ -659,7 +659,7 @@
            do i = 1, crys%npar
              state(i) = crys%list(i) +  mult(i) * shift(crys%p(i))
            end do
-           crys%list(:) = state(:)
+          !crys%list(:) = state(:)
            vector(1:npar) = v(1:npar) !vector upload
            crys%Pv_refi(1:npar) = v(1:npar)
            call Pattern_Calculation(state,ok)
@@ -686,6 +686,7 @@
               write(*,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
               write(i_out,"(a,i4,2(a,f12.5))")  " => Iteration ",iter,"   R-Factor = ",rf,"   Chi2 = ",chi2
            end if
+           crys%list(:) = state(:)
            !svdfvec(1:m)=fvec(1:m)
 
         Case(2)  !Calculation of numerical derivatives
@@ -902,8 +903,13 @@
       !WRITE(op,fmt=*) "=> Opening scattering factor data file '",  sfname(:),"'"
 
       filenam = trim(infile(1:(index(infile,'.')-1)))
+      if (index(infile,'_new')>0) then
+      filenam = trim(filenam(1:(index(infile,'_new')-1)))
+      end if
 
-      open(unit=i_out, file=trim(filenam)//".out",status="replace",action="write")
+     Call getfnm(filenam,outfile, '.out', ok)            !check for any existing .out file, if any choose another filename not to overwrite the existing one.
+     open(unit=i_out, file=trim(outfile),status="replace",action="write")
+    ! open(unit=i_out, file=trim(filenam)//".out",status="replace",action="write")
       CALL salute(i_out)
 
       call read_structure_file(infile, gol)
@@ -970,7 +976,7 @@
       IF(symgrpno == UNKNOWN) THEN
         symgrpno = get_sym(ok)
         IF(.NOT. ok) GO TO 999
-        WRITE(op,"(a)") 'Diffraction point symmetry is '//pnt_grp
+        WRITE(op,"(a)") ' Diffraction point symmetry is '//pnt_grp
         IF(symgrpno /= 1) THEN
           WRITE(op,"(a,i6)") '  to within a tolerance of one part in ',  &
               nint(one / tolerance)
@@ -996,6 +1002,7 @@
 
           Case (0)
 
+            WRITE(op,"(a)") ' => Start simulation'
           ! What type of intensity output does the user want?
            10  IF(ok) THEN
               ! WRITE(op,"(a)") 'Enter function number: '
@@ -1049,6 +1056,7 @@
 !
           Case (4) !LMQ
 
+            WRITE(op,"(a)") ' => Start LMQ refinement'
             chi2o = 1.0E10                         !initialization of agreement factor
           !  rpl = 0
             do i=1, opti%npar                       !creation of the step sizes
