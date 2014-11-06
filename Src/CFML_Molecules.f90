@@ -3321,12 +3321,12 @@
              call getnum(line,vet,ivet,ic)
              select case (ic)
                 case (3)
-                   Molecule%lI_Coor(:,i)=ivet(1:3)
+                   Molecule%mI_Coor(:,i)=vet(1:3)
 
                 case (5)
-                   Molecule%lI_Coor(:,i)=ivet(1:3)
-                   Molecule%lbiso(i)  =ivet(4)
-                   Molecule%locc(i)   =ivet(5)
+                   Molecule%mI_Coor(:,i)=vet(1:3)
+                   Molecule%mbiso(i)  =vet(4)
+                   Molecule%mocc(i)   =vet(5)
 
                 case default
                    err_molec=.true.
@@ -3857,12 +3857,12 @@
              call getnum(line,vet,ivet,ic)
              select case (ic)
                 case (3)
-                   Molecule%lI_Coor(:,i)=ivet(1:3)
+                   Molecule%mI_Coor(:,i)=vet(1:3)
 
                 case (5)
-                   Molecule%lI_Coor(:,i)=ivet(1:3)
-                   Molecule%lbiso(i)  =ivet(4)
-                   Molecule%locc(i)   =ivet(5)
+                   Molecule%mI_Coor(:,i)=vet(1:3)
+                   Molecule%mbiso(i)  =vet(4)
+                   Molecule%mocc(i)   =vet(5)
 
                 case default
                    err_molec=.true.
