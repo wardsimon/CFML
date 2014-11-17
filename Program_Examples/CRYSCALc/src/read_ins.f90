@@ -86,6 +86,7 @@ subroutine read_INS_input_file(input_file, input_string)
  !---- CELL / ZERR ----!
   call Read_Shx_Cell(fileshx, npos, nb_lines, unit_cell%param, unit_cell%param_esd, wavelength, Z_unit_INS)
   known_cell_esd = .true.
+  if(Z_unit_INS == 0) Z_unit_INS = 1
   !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
   
   call create_CELL_object()
@@ -138,33 +139,33 @@ subroutine read_INS_input_file(input_file, input_string)
  select case (abs(n_latt))
     case (2) ! I
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/2,Y+1/2,Z+1/2'
+       car_symop(nb_symm_op)='x+1/2,y+1/2,z+1/2'
        nlatt_string = 'I centred)'
     case (3) ! Rom, Hex
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+2/3,Y+1/3,Z+1/3'
+       car_symop(nb_symm_op)='x+2/3,y+1/3,y+1/3'
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/3,Y+2/3,Z+2/3'
+       car_symop(nb_symm_op)='x+1/3,y+2/3,y+2/3'
        nlatt_string = 'Rhomb. Hex)'
     case (4) ! F
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X,Y+1/2,Z+1/2'
+       car_symop(nb_symm_op)='x,y+1/2,z+1/2'
+       nb_symm_op=nb_symm_op+1
+       car_symop(nb_symm_op)='x+1/2,y,z+1/2'
+       nb_symm_op=nb_symm_op+1
+       car_symop(nb_symm_op)='x+1/2,y+1/2,z'
        nlatt_string = 'F centred)'
-    case (5) ! A
-       nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X,Y+1/2,Z+1/2'
-       nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/2,Y,Z+1/2'
-       nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/2,Y+1/2,Z'
+    case (5) ! A 
+	   nb_symm_op=nb_symm_op+1
+       car_symop(nb_symm_op)='x,y+1/2,z+1/2'
        nlatt_string = 'A centred)'
     case (6) ! B
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/2,Y,Z+1/2'
+       car_symop(nb_symm_op)='x+1/2,y,z+1/2'
        nlatt_string = 'B centred)'
     case (7) ! C
        nb_symm_op=nb_symm_op+1
-       car_symop(nb_symm_op)='X+1/2,Y+1/2,Z'
+       car_symop(nb_symm_op)='x+1/2,y+1/2,z'
        nlatt_string = 'C centred)'
  end select ! nl
  symm_nb = nb_symm_op
@@ -210,6 +211,7 @@ subroutine read_INS_input_file(input_file, input_string)
   call set_spacegroup(car_gsp, SPG, car_symop, nb_symm_op, 'gen')
   call get_hallsymb_from_gener(SPG)
   space_group_symbol = SPG%Spg_Symb
+
   !space_group_multip = SPG%multip
   if(input_OUT) then 
    IF(LEN_TRIM(space_group_symbol) /=0) then
@@ -320,8 +322,8 @@ subroutine read_INS_input_file(input_file, input_string)
 
   ! pour compatibilite avec CRYSCALC
    nb_atoms_type                = n_elem_atm
-   SFAC_type(1:nb_atoms_type)   = elem_atm(1:n_elem_atm)
-   SFAC_number(1:nb_atoms_type) = n_elem(1:nb_atoms_type)
+   SFAC%type(1:nb_atoms_type)   = elem_atm(1:n_elem_atm)
+   SFAC%number(1:nb_atoms_type) = n_elem(1:nb_atoms_type)
    !atom_label(1:nb_atom)        = atom_typ(1:nb_atom)
    Z_unit                       = REAL(Z_unit_INS)
    ! ------------------------------
@@ -606,7 +608,7 @@ END subroutine create_NEW_ins
 
 !--------------------------------------------------------------
 subroutine get_atom_order(atom_string, atom_order)
- USE cryscalc_module, ONLY : nb_atoms_type , SFAC_type
+ USE cryscalc_module, ONLY : nb_atoms_type , SFAC 
  USE SHELX_module
  implicit none
   CHARACTER (LEN=*), INTENT(IN)         :: atom_string
@@ -615,7 +617,7 @@ subroutine get_atom_order(atom_string, atom_order)
   INTEGER                               :: i, j
 
    do j=1, nb_atoms_type
-    IF(atom_string(1:) == elem_atm(j)(1:) .or. atom_string(1:) == SFAC_type(j)(1:)) then
+    IF(atom_string(1:) == elem_atm(j)(1:) .or. atom_string(1:) == SFAC%type(j)(1:)) then
      atom_order = j
      return
     endif

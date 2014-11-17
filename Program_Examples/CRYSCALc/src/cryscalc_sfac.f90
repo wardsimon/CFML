@@ -273,13 +273,19 @@ subroutine generate_HKL()
   
   character(len=256)                            :: read_line, pm2k_string, SPG_string
   integer                                       :: i_error
+  LOGICAL                                       :: tmp_on_screen
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "generate_HKL")
 
   Friedel = .true.
 
-
- if(ON_screen) then 
+ tmp_on_screen = on_screen 
+ IF (INI_create_PRF .and. .not. ON_SCREEN_PRF) then
+  tmp_on_screen = on_screen
+  on_screen = .false.
+ end if 
+  
+  IF(ON_screen) then 
   IF(keyword_WAVE) then  
    call write_info('')
    WRITE(message_text, '(a,F8.5,a)')'    . hkl list generation (l=',wavelength,' A)'
@@ -299,12 +305,14 @@ subroutine generate_HKL()
   call write_info('')
   call write_info(' SPGR parameter (space group) is a mandatory parameter for this calculation !')
   call write_info('')
+  on_screen = tmp_on_screen
   return
  endif
  IF(.NOT. keyword_CELL) then
   call write_info('')
   call write_info(' CELL parameters (in A) are mandatory parameters for this calculation !')
   call write_info('')
+  on_screen = tmp_on_screen
   return
  endif
 
@@ -312,6 +320,7 @@ subroutine generate_HKL()
   call write_info('')
   call write_info(' WAVE parameter (wavelength in A) is a mandatory parameter for this calculation !')
   call write_info('')
+  on_screen = tmp_on_screen
   return
  endif
 
@@ -361,49 +370,52 @@ subroutine generate_HKL()
 
  IF(SPG%centred /= 2) friedel=.false.
 
+ if(.not. on_screen) call write_info('     ... generation of hkl reflexions ...')
+ 
  call HKL_gen(crystal_cell, SPG, Friedel, STL_min, STL_max, Num_ref, reflex_HKL )
 
  if(on_screen) then
- call write_info(' ')
- if(HKL_STL) then
-  write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
-                                             ' SinTheta/lambda (A-1) range: ' , Num_ref
+  call write_info(' ')
+  if(HKL_STL) then
+   write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
+                                               ' SinTheta/lambda (A-1) range: ' , Num_ref
 
- elseif(HKL_Q) then
-  write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
-                                             ' Q (A-1) range: ' , Num_ref
- elseif(HKL_D) then
-  write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
-                                             ' d_hkl(A) range: ' , Num_ref
+  elseif(HKL_Q) then
+   write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
+                                               ' Q (A-1) range: ' , Num_ref
+  elseif(HKL_D) then
+   write(message_text, '(a,F8.5,a,F8.5,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
+                                               ' d_hkl(A) range: ' , Num_ref
 
- elseif(HKL_2theta) then
-  write(message_text, '(a,F7.2,a,F7.2,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
-                                             ' 2Theta (deg.) range: ' , Num_ref
+  elseif(HKL_2theta) then
+   write(message_text, '(a,F7.2,a,F7.2,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
+                                               ' 2Theta (deg.) range: ' , Num_ref
 
- elseif(HKL_theta) then
-  write(message_text, '(a,F7.2,a,F7.2,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
-                                             ' Theta (deg.) range: ' , Num_ref
- endif
- call write_info(trim(message_text))
- call write_info(' ')
+  elseif(HKL_theta) then
+   write(message_text, '(a,F7.2,a,F7.2,a,I6)') '   Nb of reflections in the ',X_min, ' - ', X_max,  &
+                                               ' Theta (deg.) range: ' , Num_ref
+  endif
+  call write_info(trim(message_text))
+  call write_info(' ')
  end if
 
  if(Num_ref ==0) return
 
  if(on_screen) then
- call write_info('')
- WRITE(message_text, '(a,2i4)') '  h range: ', MINVAL(reflex_HKL(1:Num_ref)%h(1)), MAXVAL(reflex_HKL(1:Num_ref)%h(1))
- call write_info(TRIM(message_text))
- WRITE(message_text, '(a,2i4)') '  k range: ', MINVAL(reflex_HKL(1:Num_ref)%h(2)), MAXVAL(reflex_HKL(1:Num_ref)%h(2))
- call write_info(TRIM(message_text))
- WRITE(message_text, '(a,2i4)') '  l range: ', MINVAL(reflex_HKL(1:Num_ref)%h(3)), MAXVAL(reflex_HKL(1:Num_ref)%h(3))
- call write_info(TRIM(message_text))
- call write_info('')
+  call write_info('')
+  WRITE(message_text, '(a,2i4)') '  h range: ', MINVAL(reflex_HKL(1:Num_ref)%h(1)), MAXVAL(reflex_HKL(1:Num_ref)%h(1))
+  call write_info(TRIM(message_text))
+  WRITE(message_text, '(a,2i4)') '  k range: ', MINVAL(reflex_HKL(1:Num_ref)%h(2)), MAXVAL(reflex_HKL(1:Num_ref)%h(2))
+  call write_info(TRIM(message_text))
+  WRITE(message_text, '(a,2i4)') '  l range: ', MINVAL(reflex_HKL(1:Num_ref)%h(3)), MAXVAL(reflex_HKL(1:Num_ref)%h(3))
+  call write_info(TRIM(message_text))
+  call write_info('')
  end if
 
  if(.not. write_HKL) then
   DEALLOCATE (reflex_HKL)
   deallocate (ordered_array)
+  on_screen = tmp_on_screen
   return
  endif
  
@@ -468,6 +480,12 @@ subroutine generate_HKL()
 
 ! call sort(Num_ref,reflex_HKL%S, ordered_array )
   call sort(reflex_HKL%S, Num_ref, ordered_array )
+
+  if(.not. on_screen) then
+   write(message_text, '(3a,I6,a)') '     ... calculation of (', trim(beam_type), ') structure factors for the ',&
+                                    Num_ref, ' reflexions ...'
+   call write_info(trim(message_text))
+  end if 
 
  ! calcul du facteur de structure -----------------------------
   if (nb_atom /=0 .and. keyword_WAVE) then
@@ -552,14 +570,14 @@ subroutine generate_HKL()
     calcul_I = .true.
     if(beam_type(1:9) == 'electrons') calcul_I = .false.
 	if(on_screen) then
-    if(calcul_I) then
-     write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
-                                 '         Phase        F-Real        F-Imag           Lp         |Fc|^2       I/Imax'
-    else
-     write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
-                                 '         Phase        F-Real        F-Imag        |Fc|^2'
-    endif	
-    call write_info(trim(message_text))
+     if(calcul_I) then
+      write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
+                                  '         Phase        F-Real        F-Imag           Lp         |Fc|^2       I/Imax'
+     else
+      write(message_text, '(2a)') '           H   K   L   Mult        2Theta     SinTh/Lda          dspc          |Fc|',&
+                                  '         Phase        F-Real        F-Imag        |Fc|^2'
+     endif	
+     call write_info(trim(message_text))
 	end if
    else
     if(on_screen) then
@@ -568,7 +586,7 @@ subroutine generate_HKL()
     call write_info(trim(message_text))
 	end if
    endif
-   call write_info('')
+   if(on_screen) call write_info('')
     
 
   ! calcul des facteurs de structure des reflections (new : 09.05.2012 idem powpat.F90)
@@ -602,10 +620,10 @@ subroutine generate_HKL()
      endif
      F2 = reflex_list_HKL%ref(i)%Fc*reflex_list_HKL%ref(i)%Fc
      if(calcul_I) then      
-      if(beam_type(1:8) == 'neutrons') then
+	  if(beam_type(1:8) == 'neutrons') then
        call Calcul_Lp("N", angle_2theta(i), Lp(i))
        scale = 0.1
-      elseif(beam_type(1:6) == 'x_rays') then
+      elseif(beam_type(1:6) == 'x-rays') then
        call Calcul_Lp("X", angle_2theta(i), Lp(i))
        scale = 0.00001      
       endif
@@ -654,9 +672,11 @@ subroutine generate_HKL()
 	 end if      
 	end if 	 
    end do
-   call write_info('')
+   !call write_info('')
       
    if(HKL_2theta .and. create_PAT) then
+     if(.not. on_screen) call write_info('     ... calculation of powder diffraction profiles ...')
+
      if(beam_type(1:8) == 'neutrons') then
       !call create_diffraction_pattern("n", wavelength, X_min, X_max, reflex_list_HKL%Nref, angle_2theta, II)
       call create_diffraction_pattern("n", wavelength, X_min, X_max, reflex_list_HKL, angle_2theta, II)
@@ -674,6 +694,7 @@ subroutine generate_HKL()
 	call write_info('')
    end if 
     
+   on_screen = tmp_on_screen
    return
   endif   
  !------------------------------------------------------------ calcul Facteurs de structures  -------------------------------
@@ -771,6 +792,7 @@ subroutine generate_HKL()
  DEALLOCATE (II)
  DEALLOCATE (Angle_2theta)
 
+ on_screen = tmp_on_screen
  return
 end subroutine generate_HKL
 
@@ -848,12 +870,12 @@ subroutine calcul_Lp(input_string, angle_2theta, Lp)
 
 
  if(input_string(1:1) == 'X') then
-  K    = 0.5
   CTHM = 0.79
   K     = 1     !pour etre identique à FullProf
-  CTHM  = SQRT(CTHM) ! ???
+  !CTHM  = SQRT(CTHM) ! ???
  else
   K    = 0.
+  CTHM = 1.
  endif
 
 
@@ -976,6 +998,11 @@ subroutine create_diffraction_pattern(input_string, wavelength, X_min, X_max, re
   end if  
  else
   write(unit=PAT_unit, fmt='(a)')         '! Simulation of neutrons diffraction pattern. XY file created by CRYSCALC'
+  if(keyword_read_CIF .and. len_trim(CIF_file_name) /=0) then
+   write(unit=PAT_unit, fmt='(2a)')         '! Input CIF file : ', trim(CIF_file_name)
+  elseif(keyword_read_INS .and. len_trim(INS_file_name) /=0) then
+   write(unit=PAT_unit, fmt='(2a)')         '! Input INS file : ', trim(INS_file_name)
+  end if
   if(.not. size_broadening) then
    write(unit=PRF_unit, fmt='(a)') 'Simulation of neutrons diffraction pattern. PRF file created by CRYSCALC'
   else
@@ -985,7 +1012,9 @@ subroutine create_diffraction_pattern(input_string, wavelength, X_min, X_max, re
  endif
 
  write(unit=PAT_unit, fmt='(a,F12.5,a)')  '! Wavelength  = ', wavelength, ' A'
- write(unit=PAT_unit, fmt='(3(a,F8.3))')  '! 2theta_min  = ', X_min, ' 2theta_max  = ', X_max , ' 2theta_step = ', pattern%step
+ write(unit=PAT_unit, fmt='(1(a,F8.3))')  '! 2theta_min  = ', X_min
+ write(unit=PAT_unit, fmt='(1(a,F8.3))')  '! 2theta_max  = ', X_max
+ write(unit=PAT_unit, fmt='(1(a,F8.3))')  '! 2theta_step = ', pattern%step
  write(unit=PAT_unit, fmt='(a)')          '! Profile function : pseudo-Voigt (PV =  eta*L + (1-eta)*G'
  write(unit=PAT_unit, fmt='(a)')          '!                                  eta = eta0 + 2Theta*eta1'
  write(unit=PAT_unit, fmt='(a,2F8.3)')     '! Pseudo-Voigt profile : eta = ', PV%eta0, PV%eta1

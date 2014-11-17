@@ -232,6 +232,11 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
 		endif
         if(.not. create_file) call create_INS_file('cryscalc.ins', '')
 
+	  case ('CREATE_SOLVE', 'CREATE_TO_SOLVE', 'CREATE_FILES_TO_SOLVE', 'SOLVE')
+		if(Z_UNIT==1)               call estimate_Zunit        ! calculs
+        call create_SOLVE_input_files
+		call create_Struct_CIF
+	  
       case ('CREATE_TIDY', 'CREATE_TIDY_FILE', 'CREATE_TIDY_INPUT_FILE')
 	    if(LEN_TRIM(CIF_FILE_name) /=0)  then
 		 call create_TIDY_file(TRIM(CIF_file_name), 'CIF')
@@ -391,12 +396,22 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
 		 else
       	  call get_SITE_info('')
 		 end if
+		else
+		 if(.not. keyword_SPGR) then
+		  call write_info('')
+		  call write_info('  ! No input space group !')
+		  call write_info('')
+		 elseif(nb_atom == 0) then 
+		  call write_info('')
+		  call write_info('  ! No input atoms !')
+		  call write_info('')
+		 end if
 		end if 
 
       case ('SIZE', 'CRYSTAL_SIZE')
         if (keyword_SIZE) then
          call get_crystal_SIZE_min_max
-         call crystal_volume_calculation
+         call crystal_volume_calculation('out')
         endif
 
 
@@ -496,7 +511,7 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
        if (nb_2theta_value /=0) call X_space_calculation('2THETA')
 
 
-      CASE ('FILE', 'FIC', '&FIC', 'FSD', '&FSD', 'FST', '&FST', 'FIT', '&FIT')                              ! lecture fichier.HKL ou .CIF
+      CASE ('FILE', 'FIC', '&FIC', 'FSD', '&FSD', 'FST', '&FST', 'FIT', '&FIT', 'READ_HKL')                              ! lecture fichier.HKL ou .CIF
        IF(keyword_FILE) then
 	    call allocate_HKL_arrays
         call def_HKL_rule()
@@ -661,6 +676,12 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
 
       case ('WRITE_WAVE', 'OUTPUT_WAVE')
         if (keyword_WAVE) call write_wave_features()
+
+	  case ('WRITE_Z', 'WRITE_ZUNIT')
+        if (keyword_ZUNIT) then
+	     SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit  ! sept. 2014
+		 call write_ZUNIT_features()	  
+		end if
         
       case ('WRITE_DEVICE', 'OUTPUT_DEVICE')
         call write_DEVICE_features
@@ -712,16 +733,27 @@ if(debug_proc%level_2)  call write_debug_proc_level(2, "run_keyword_interactive 
         endif
 
       case ('READ_CIF', 'READ_CIF_FILE', 'CIF_FILE')
-        if (keyword_read_CIF) THEN
+       if (keyword_read_CIF) THEN        
          OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
-         call check_CIF_input_file(TRIM(CIF_file_name))
-         call read_CIF_input_file(TRIM(CIF_file_name), '?')
-         call read_CIF_input_file_TR(CIF_read_unit)
-         CLOSE(UNIT=CIF_read_unit)
-		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol
+          call check_CIF_input_file(TRIM(CIF_file_name))
+          call read_CIF_input_file(TRIM(CIF_file_name), '?')
+          call read_CIF_input_file_TR(CIF_read_unit, TRIM(CIF_file_name))
+		 CLOSE(UNIT=CIF_read_unit)		 
+		
+		 ! >> creation de l'objet MOLECULE		 
+		 if(molecule%formula(1:1) /= '?') then
+		  call atomic_identification()  
+          call get_content  
+          call molecular_weight
+          call density_calculation
+		 end if
+		 
+		 !
+		 if (keyword_SPGR .and. SPG%NumSpg /=0)    call space_group_info
+         if (keyword_SYMM .and. SPG%NumSpg /=0)    CALL decode_sym_op
+		 
+		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol 
 		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(CIF_file_name), 'cif')
-         if (keyword_SPGR )    call space_group_info
-         if (keyword_SYMM)     CALL decode_sym_op
         end if
 		
       case ('READ_FACES', 'FACES')

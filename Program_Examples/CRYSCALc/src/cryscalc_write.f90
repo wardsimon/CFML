@@ -382,7 +382,12 @@ subroutine write_current_space_group(SG_symbol)
   
   !WRITE(string_numor, '(i3)') SG_numor
   !call set_spacegroup(string_numor, SPG)
-
+  if(SPG%numSPG == 0) then
+   call write_info("  !! Unknown space group !!")
+   call write_info("")
+   return
+  end if
+  
   call set_spacegroup(SG_symbol, SPG)
 
   call write_info('')
@@ -535,6 +540,7 @@ subroutine write_atom_list()
 
  IF(keyword_create_CIF) then
    call write_CIF_file('ATOMS_HEADER')
+   call write_CIF_file('ATOMS_HEADER_LOOP')   
    call write_CIF_file('ATOM')
  endif
 
@@ -645,8 +651,9 @@ end subroutine write_molecular_features
 
 !-----------------------------------------------------------------------------------------------------
 subroutine write_REF(input_string)
- USE cryscalc_module, ONLY: keyword_create_CIF, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_X2S, CIF_parameter_XCALIBUR, &
-                            CIF_parameter_SUPERNOVA, EVAL, SADABS, ABS_CRYSALIS, debug_proc
+ USE cryscalc_module, ONLY : keyword_create_CIF, EVAL, SADABS, ABS_CRYSALIS, debug_proc
+ USE CIF_module,      ONLY : CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_X2S, CIF_parameter_XCALIBUR, &
+                             CIF_parameter_SUPERNOVA
  USE IO_module,       ONLY: write_info
  implicit none
  CHARACTER(LEN=*), INTENT(IN) :: input_string

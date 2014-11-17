@@ -4,15 +4,17 @@ subroutine interactive_mode(input_string)
  USE macros_module, ONLY : u_case 
  USE IO_module
  USE cryscalc_module
+ use USER_module
  USE HKL_module,    ONLY : HKL_list, search_EQUIV, search_FRIEDEL, requested_H
  implicit none
   CHARACTER (LEN=*), INTENT(IN) :: input_string
   
   CHARACTER (LEN=256)           :: read_line
-  INTEGER                       :: i1, i_error
+  INTEGER                       :: i, i1, i_error
   CHARACTER (LEN=32)            :: current_keyword
   INTEGER                       :: long_input_string
   LOGICAL                       :: input_keyboard, input_file
+  INTEGER                       :: l1, l2
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "interactive_mode ("//trim(input_string)//")")
   
@@ -80,6 +82,21 @@ subroutine interactive_mode(input_string)
    IF(read_line(1:2) =='XX' .OR. read_line(1:2) == 'QQ' .or. read_line(1:2) == '00') call end_of_program
   endif 
 
+
+  if(nb_shortcuts /=0) then
+   read(read_line, *) current_keyword
+   l1 = len_trim(current_keyword)
+   do i=1, nb_shortcuts
+    l2 = len_trim(shortcut_kw(i))
+    if(l1 == l2 .and. current_keyword(1:l1) == shortcut_kw(i)(1:l1)) then 
+	  read_line =  trim(shortcut_details(i))
+	  read_line = u_case(read_line)     	  
+	  exit
+    end if
+   end do	
+  end if 
+
+  
   READ(read_line, *) current_keyword
   current_keyword = ADJUSTL(current_keyword)
   current_keyword = u_case(current_keyword)
@@ -88,13 +105,17 @@ subroutine interactive_mode(input_string)
   unknown_keyword     = .false.
   unknown_CFL_keyword = .false.
 
+
   call write_info('')
   call write_info('    >> Input command: '//trim(read_line))
   call write_info('')
-
+ 
   call identification_CFL_keywords(read_line)       ! read_CFL_.F90
   call identification_keywords(read_line)           ! read_KEYW.F90
 
+  
+
+  
   IF(unknown_keyword .and. unknown_CFL_keyword) then
    call write_info('')
    call write_info('  > Unknown '//TRIM(current_keyword)//' keyword !')
@@ -261,6 +282,11 @@ END subroutine interactive_mode
 		endif
         if(.not. create_file) call create_INS_file('cryscalc.ins', '')
 
+	  case ('CREATE_SOLVE', 'CREATE_TO_SOLVE', 'CREATE_FILES_TO_SOLVE', 'SOLVE')  	    
+		if(molecule%Z_UNIT==1)               call estimate_Zunit        ! calculs
+        call create_SOLVE_input_files
+		call create_Struct_CIF
+	  
       case ('CREATE_TIDY', 'CREATE_TIDY_FILE', 'CREATE_TIDY_INPUT_FILE')
 	    if(LEN_TRIM(CIF_FILE_name) /=0)  then
 		 call create_TIDY_file(TRIM(CIF_file_name), 'CIF')
@@ -326,10 +352,10 @@ END subroutine interactive_mode
 
      CASE ("WRITE_SYM_OP", "WRITE_SYMM_OP", "WRITE_SYM", "WRITE_SYMM", "WRITE_SYMMETRY_OPERATORS", "WRITE_SYMOP")
       IF(WRITE_SHELX_symm_op) then
-		 call write_SHELX_symm_card
-        ELSEIF(WRITE_symm_op) then
-		 call write_symm_op_mat()
-		ENDIF 
+	   call write_SHELX_symm_card
+      ELSEIF(WRITE_symm_op) then
+	   call write_symm_op_mat()
+	  ENDIF 
 
       case ('MAN_HTML', 'HTML_MAN', 'HTML')
         call create_CRYSCALC_HTML()
@@ -364,7 +390,7 @@ END subroutine interactive_mode
           !else
           ! IF (keyword_SPGR )   call find_new_group()
           !endif
-          IF (keyword_SPGR )  call find_new_group()
+          IF (keyword_SPGR )          call find_new_group()
           !IF (keyword_read_INS)      call create_NEW_INS()
           if(keyword_read_INS)        call create_TRANSF_INS()
 
@@ -403,9 +429,9 @@ END subroutine interactive_mode
         call output_setting
 
       case ('SFAC', 'CONT', 'CHEM', 'CHEM_FORM', 'CHEMICAL_FORMULA')
-       IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
+	   IF(keyword_SFAC_UNIT .or. keyword_CONT .or. keyword_CHEM)  then
         call atomic_identification()
-        IF(keyword_CELL)                      call atomic_density_calculation()
+		IF(keyword_CELL)                      call atomic_density_calculation()
         IF(keyword_ZUNIT)	                  call molecular_weight()
         IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()
         IF(keyword_CELL)                      call absorption_calculation()
@@ -424,12 +450,22 @@ END subroutine interactive_mode
 		 else
       	  call get_SITE_info('')
 		 end if
+		else
+		 if(.not. keyword_SPGR) then
+		  call write_info('')
+		  call write_info('  ! No input space group !')
+		  call write_info('')
+		 elseif(nb_atom == 0) then 
+		  call write_info('')
+		  call write_info('  ! No input atoms !')
+		  call write_info('')
+		 end if
 		end if 
 
       case ('SIZE', 'CRYSTAL_SIZE')
         if (keyword_SIZE) then
          call get_crystal_SIZE_min_max
-         call crystal_volume_calculation
+         call crystal_volume_calculation('out')
         endif
 
 
@@ -464,20 +500,22 @@ END subroutine interactive_mode
 	   
 	  CASE ('PDP', 'PATTERN', '&PDP', '&PATTERN')   ! generation des reflections
         if(keyword_GENHKL) then
-		 if(pdp_cu) then
+		 if(pdp_simu%cu) then
 		  tmp_real = wavelength
 		  wavelength = X_target(3)%wave(1)   ! Ka1_Cu
 		 endif 
  		 call generate_HKL()
-		 if(pdp_cu) wavelength = tmp_real
+		 if(pdp_simu%cu) wavelength = tmp_real
 		endif 
 		
 	  CASE ('PDP_CU', 'PATTERN_CU', '&PDP_CU', '&PATTERN_CU')   ! generation des reflections	    
         if(keyword_GENHKL) then
-		 tmp_real = wavelength
-		 wavelength = X_target(3)%wave(1)   ! Ka1_Cu
-		 call generate_HKL()
-		 wavelength = tmp_real
+		 if(pdp_simu%cu) then
+		  tmp_real = wavelength
+		  wavelength = X_target(3)%wave(1)   ! Ka1_Cu
+		 endif 
+ 		 call generate_HKL()
+		 if(pdp_simu%cu) wavelength = tmp_real
 		endif 
 
 
@@ -531,9 +569,8 @@ END subroutine interactive_mode
 
       case ('2THETA', '2TH', '2TH_HKL', '2THETA_HKL', 'TWO_THETA', 'TWO_THETA_HKL')
        if (nb_2theta_value /=0) call X_space_calculation('2THETA')
-
-
-      CASE ('FILE', 'FIC', '&FIC', 'FSD', '&FSD', 'FST', '&FST', 'FIT', '&FIT')       ! lecture fichier.HKL ou .CIF
+       
+      CASE ('FILE', 'FIC', '&FIC', 'FSD', '&FSD', 'FST', '&FST', 'FIT', '&FIT', 'READ_HKL')       ! lecture fichier.HKL ou .CIF
        IF(keyword_FILE) then
 	    call allocate_HKL_arrays
         call def_HKL_rule()
@@ -697,13 +734,16 @@ END subroutine interactive_mode
       case ('WRITE_SG', 'WRITE_SPACE_GROUP')
         !if (keyword_SPGR) call write_space_group(SPG%NumSPG,SPG%NumSPG )
         !if (keyword_SPGR) call write_current_space_group(SPG%NumSPG)
-        if (keyword_SPGR) call write_current_space_group(space_group_symbol)		
+		 if (keyword_SPGR) call write_current_space_group(space_group_symbol)		
 
       case ('WRITE_WAVE', 'OUTPUT_WAVE')
         if (keyword_WAVE) call write_wave_features()
 		
 	  case ('WRITE_Z', 'WRITE_ZUNIT')
-        if (keyword_ZUNIT) call write_ZUNIT_features()	  
+        if (keyword_ZUNIT) then
+	     !SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit  ! sept. 2014
+		 call write_ZUNIT_features()	  
+		end if
         
       case ('WRITE_DEVICE', 'OUTPUT_DEVICE')
         call write_DEVICE_features
@@ -757,19 +797,22 @@ END subroutine interactive_mode
       case ('READ_CIF', 'READ_CIF_FILE', 'CIF_FILE')
         if (keyword_read_CIF) THEN        
          OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
-          call check_CIF_input_file(TRIM(CIF_file_name))
-          call read_CIF_input_file(TRIM(CIF_file_name), '?')
-          call read_CIF_input_file_TR(CIF_read_unit)
+		  call check_CIF_input_file(TRIM(CIF_file_name))
+		  call read_CIF_input_file(TRIM(CIF_file_name), '?')
+		  call read_CIF_input_file_TR(CIF_read_unit, TRIM(CIF_file_name))
 		 CLOSE(UNIT=CIF_read_unit)		 
 		
-		 ! >> creation de l'objet MOLECULE
-		 call atomic_identification()  
-         call get_content  
-         call molecular_weight
-         call density_calculation
+		 ! >> creation de l'objet MOLECULE	
+		 if(molecule%formula(1:1) /= '?') then
+		  call atomic_identification()  
+          call get_content  
+          call molecular_weight
+          call density_calculation
+		 end if
+		 
 		 !
-         if (keyword_SPGR )    call space_group_info
-         if (keyword_SYMM)     CALL decode_sym_op
+		 if (keyword_SPGR .and. SPG%NumSpg /=0)    call space_group_info
+         if (keyword_SYMM .and. SPG%NumSpg /=0)    CALL decode_sym_op
 		 
 		 !if (create_CIF_PYMOL) call Create_CIF_file_for_pymol   ! creation fichier CIF compatible pymol 
 		 if (create_CIF_PYMOL) call create_CIF_PYMOL_file(TRIM(CIF_file_name), 'cif')

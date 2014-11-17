@@ -5,7 +5,7 @@ subroutine read_keywords_from_file(arg_file)
  USE macros_module
  USE cryscalc_module, ONLY : input_unit, nb_help, nb_help_max, HELP_string, message_text,                         &
                              input_INS, input_CFL, input_CIF, input_PCR, P4P_file_name, input_line,               &
-                             keyword_modif_archive, keyword_WRITE_REF_DENZO, nb_atoms_type,                       &
+							 keyword_modif_archive, keyword_WRITE_REF_DENZO, nb_atoms_type,                       &
                              keyword_create_CEL, keyword_create_CFL, keyword_create_INS, keyword_create_CIF,      &
                              keyword_create_ACE, keyword_create_FST, create_CIF_PYMOL, keyword_create_PRF,        &
                              keyword_read_CIF, keyword_read_PCR, keyword_read_INS,                                &
@@ -85,10 +85,8 @@ subroutine read_keywords_from_file(arg_file)
  long = LEN_TRIM(input_file)
  extension = input_file(i+1:long)
 
- 
-
  call write_info(' ')
- call write_info('  Input CRYSCALC file: '//trim(input_file))
+ call write_info('  Input CRYSCALC file: '//trim(input_file)) 
  call write_info(' ')
  
  if(create_CIF_PYMOL) then
@@ -108,40 +106,42 @@ subroutine read_keywords_from_file(arg_file)
       call read_input_file_KEYWORDS(TRIM(input_file))
       if (keyword_create_CFL)  then
        call create_CFL_file(TRIM(input_file), extension)
-	   if(INI_create_CFL) stop
+	   !if(INI_create_CFL) stop
 	  end if
 	  
       if (keyword_create_FST)     then
  	   call create_FST_file(TRIM(input_file), extension)
-	   if(INI_create_FST) stop
+	   !if(INI_create_FST) stop
 	  end if
 	  
 	  if (create_CIF_PYMOL)       then
 	   call create_CIF_PYMOL_file(TRIM(input_file), extension)
-	   if(INI_create_CIF_pymol) stop
+	   !if(INI_create_CIF_pymol) stop
 	  endif
 	  
       if(keyword_create_CEL) then
        keyword_read_INS = .true.
        INS_file_name = input_file
        call create_CEL_from_CIF
-	   if(INI_create_CEL) stop
+	   !if(INI_create_CEL) stop
       endif
 	  
       if(keyword_create_ACE) then
        keyword_read_INS = .true.
        INS_file_name = input_file
        call create_ACE_from_CIF
-	   if(INI_create_ACE) stop
+	   !if(INI_create_ACE) stop
       endif
 	  
 	  if(keyword_create_PRF)  then
 	   keyword_read_INS = .true.
 	   INS_file_name = input_file
 	   call create_PAT_PRF
-	   if(INI_create_PRF) stop
+	   !if(INI_create_PRF) stop
 	  end if 
-
+   	    
+      if(INI_create_CFL .or. INI_create_FST .or. INI_create_CIF_pymol .or. INI_create_CEL .or. &
+	     INI_create_ACE .or. INI_create_PRF)	 stop 
 
 
      case ("pcr")
@@ -189,31 +189,34 @@ subroutine read_keywords_from_file(arg_file)
       ! call get_P4P_file_name(P4P_file_name)
       ! IF(LEN_TRIM(P4P_file_name) /=0) call read_P4P_file(P4P_file_name, lecture_OK)
       !endif
-      call read_CIF_input_file(TRIM(input_file), '?')          ! read_CIF_file.F90
-      call read_CIF_input_file_TR(input_unit)                  ! read_CIF_file.F90
- 
+	  	  
+	  call read_CIF_input_file(TRIM(input_file), '?')             ! read_CIF_file.F90	  	  
+	  call read_CIF_input_file_TR(input_unit, trim(input_file))   ! read_CIF_file.F90
+	  
+	  
       !call read_SQUEEZE_file
       !call read_input_file_KEYWORDS(TRIM(input_file))
       
       !if(nb_atoms_type /=0) then
+	  
        if(keyword_create_CFL)     then
  	    call create_CFL_file(TRIM(input_file), extension)
-		if(INI_create_CFL) stop
+		!if(INI_create_CFL) stop
 	   end if
 	   
        if(keyword_create_INS)     then
  	    call create_INS_file(TRIM(input_file), extension)  
-		if(INI_create_INS) stop
+		!if(INI_create_INS) stop
 	   end if
 	   
        if(keyword_create_FST)     then
  	    call create_FST_file(TRIM(input_file), extension)  
-		if(INI_create_FST) stop
+		!if(INI_create_FST) stop
 	   end if
 	   
        if(create_CIF_PYMOL)       then
   	    call create_CIF_PYMOL_file(TRIM(input_file), extension)
-		if(INI_create_CIF_pymol) stop
+		!if(INI_create_CIF_pymol) stop
 	   end if
       !endif
      
@@ -222,24 +225,29 @@ subroutine read_keywords_from_file(arg_file)
        keyword_read_CIF = .true.
        CIF_file_name = input_file
        call create_ACE_from_CIF
-	   if(INI_create_ACE) stop
+	   !if(INI_create_ACE) stop
       endif
 
       if(keyword_create_CEL) then
        keyword_read_CIF = .true.
        CIF_file_name = input_file
        call create_CEL_from_CIF
-	   if(INI_create_CEL) stop
+	   !if(INI_create_CEL) stop
       endif
 	  
       if(keyword_create_PRF)  then
 	   keyword_read_CIF = .true.
 	   CIF_file_name = input_file
 	   call create_PAT_PRF 	   
-	   if(INI_create_PRF)  stop
+	   !if(INI_create_PRF)  stop
 	  endif 
+	     
+      if(INI_create_CFL .or. INI_create_FST .or. INI_create_CIF_pymol .or. INI_create_CEL .or. &
+	     INI_create_ACE .or. INI_create_PRF)	 stop 
+
 
       !if(keyword_modif_ARCHIVE) call read_and_modif_archive(input_unit)
+	   
 
      case default
       !call read_CFL_input_file(TRIM(input_file))
@@ -262,7 +270,7 @@ subroutine run_keywords()
  if(ON_SCREEN) then
   call write_info('')
   call write_info('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-  endif
+ endif
 
  IF(keyword_READ_INS) then
   OPEN(UNIT=INS_read_unit, FILE=TRIM(INS_file_name), ACTION="read")
@@ -277,15 +285,15 @@ subroutine run_keywords()
   OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
    call check_CIF_input_file(TRIM(CIF_file_name))
    call read_CIF_input_file(TRIM(CIF_file_name), '?')
-   call read_CIF_input_file_TR(CIF_read_unit)
+   call read_CIF_input_file_TR(CIF_read_unit, trim(CIF_file_name))
   CLOSE(UNIT=CIF_read_unit)
-  ! >> creation de l'objet MOLECULE
+  ! >> creation de l'objet MOLECULE  
 	call atomic_identification()  
     call get_content  
     call molecular_weight
     call density_calculation
 	
-  if (keyword_SPGR )    call space_group_info
+  if (keyword_SPGR .and. SPG%numSpg /=0)    call space_group_info
   if (keyword_SYMM)     CALL decode_sym_op
  endif
   
@@ -313,7 +321,6 @@ subroutine run_keywords()
   IF(keyword_CELL .and. keyword_ZUNIT)  call density_calculation()               ! calculs.F90
   IF(keyword_CELL)                      call absorption_calculation()            ! mu_calc.F90
  END if
-
 
  ! liste groupes d'espace
  IF(keyword_LSPGR)  call list_space_groups()              ! cryscalc_lsg.F90
@@ -435,7 +442,7 @@ subroutine run_keywords()
 
  if (keyword_X_WAVE)                CALL write_Xrays_wavelength
 
- call read_SQUEEZE_file
+ if (keyword_modif_ARCHIVE)         call read_SQUEEZE_file('')
 
 
  ! CIF file for APEX

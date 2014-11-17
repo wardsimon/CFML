@@ -39,8 +39,8 @@ subroutine create_CFL_file(input_file, extension)
     WRITE(fmt_UNIT, '(a,i2,a)') "(a,", nb_atoms_type,"(1x,F6.1))"
    endif
    IF(keyword_SFAC_UNIT) then
-    WRITE(4, fmt_SFAC) 'SFAC ', (SFAC_type(i)  ,i=1,nb_atoms_type)
-    WRITE(4, fmt_UNIT) 'UNIT ', (SFAC_number(i),i=1,nb_atoms_type)
+    WRITE(4, fmt_SFAC) 'SFAC ', (SFAC%type(i)  ,i=1,nb_atoms_type)
+    WRITE(4, fmt_UNIT) 'UNIT ', (SFAC%number(i),i=1,nb_atoms_type)
    END if
 
    IF(keyword_SPGR) then
@@ -620,7 +620,7 @@ subroutine create_INS_file(input_file, extension)
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "create_INS_file")
 
-  if(input_file(1:11) == 'cryscalc.ins') then
+  if(input_file(1:12) == 'cryscalc.ins') then
    created_INS_file = 'cryscalc.ins'
   else
    i= INDEX(input_file, '.')
@@ -666,8 +666,8 @@ subroutine create_INS_file(input_file, extension)
      WRITE(fmt_SFAC, '(a,i2,a)') "(a,", nb_atoms_type,"(1x,a6))"
      WRITE(fmt_UNIT, '(a,i2,a)') "(a,", nb_atoms_type,"(1x,F6.1))"
     ENDIF 
-    WRITE(4, fmt_SFAC) 'SFAC ', (SFAC_type(i)  ,i=1,nb_atoms_type)
-    WRITE(4, fmt_UNIT) 'UNIT ', (SFAC_number(i),i=1,nb_atoms_type)
+    WRITE(4, fmt_SFAC) 'SFAC ', (SFAC%type(i)  ,i=1,nb_atoms_type)
+    WRITE(4, fmt_UNIT) 'UNIT ', (SFAC%number(i),i=1,nb_atoms_type)
    endif
    
    write(4, "(a)")    'ACTA'   
@@ -755,47 +755,38 @@ subroutine create_TIDY_file(input_file, extension)
    call write_info('')
    
   return
+  
 end subroutine create_TIDY_file
+
+!------------------------------------------------------------------------
+subroutine create_SOLVE_input_files
+
+ call create_SIR_file
+ call create_SHELXS_file
+ call create_SUPERFLIP_file
+ 
+ return
+end subroutine create_SOLVE_input_files
 !------------------------------------------------------------------------
 subroutine create_SIR_file()
- USE cryscalc_module, ONLY : keyword_CELL, keyword_SPGR, keyword_FILE, keyword_CONT, keyword_SFAC_UNIT, keyword_CHEM,   &
-                             keyword_ZUNIT, SPG, molecule, unit_cell, debug_proc
+ USE cryscalc_module, ONLY : SPG, molecule, unit_cell, debug_proc
  USE HKL_module,      ONLY : HKL_file
  USE IO_module
  implicit none
   INTEGER :: i1
+  LOGICAL :: ok
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_SIR_file")
 
- IF(.NOT. keyword_CELL) then
-  call write_info('')
-  call write_info('  >>> CELL keyword is mandatory to create an input file for SIR97 <<<')
-  call write_info('')
-  return
- endif
-
- IF(.NOT. keyword_SPGR) then
-  call write_info('')
-  call write_info('  >>> SPGR keyword is mandatory to create an input file for SIR97 <<<')
-  call write_info('')
-  return
- endif
-
- IF(.NOT. keyword_FILE) then
-  call write_info('')
-  call write_info('  >>> FILE keyword is mandatory to create an input file for SIR97 <<<')
-  call write_info('')
-  return
- endif
-
- IF(.NOT. keyword_CONT .and. .not. keyword_SFAC_UNIT ) then
-  IF(.NOT. keyword_CHEM .or. (keyword_CHEM .and. .not. keyword_ZUNIT)) then
-   call write_info('')
-   call write_info('  >>> Atom content (keywords: CONT, SFAC/UNIT, CHEM/ZUNIT) is mandatory to create an input file for SIR97 <<<')
-   call write_info('')
-   return
-  endif
- endif
+ call mandatory_keyword('CELL', 'SIR97', ok)
+ if(.not. ok) return
+ call mandatory_keyword('SPGR', 'SIR97', ok)
+ if(.not. ok) return
+ call mandatory_keyword('FILE', 'SIR97', ok)
+ if(.not. ok) return
+ call mandatory_keyword('CHEM', 'SIR97', ok)
+ if(.not. ok) return
+  
 
  i1 = INDEX(HKL_file%name, '.')
 
@@ -806,9 +797,9 @@ subroutine create_SIR_file()
    WRITE(51, '(4a)')       '%job ',  HKL_file%name(1:i1-1), '   in ', TRIM(SPG%SPG_symb)
    WRITE(51, '(a)' )       '%data'
    WRITE(51, '(a,6F12.5)') '      Cell         ',  unit_cell%param(1:6)
-   WRITE(51, '(a)' )       '      Space        ',  TRIM(SPG%SPG_symb)
-   WRITE(51, '(a)' )       '      Content      ',  molecule%content
-   WRITE(51, '(2a)')       '      Reflections  ',  TRIM(HKl_file%name)
+   WRITE(51, '(2a)')       '      Space        ',  TRIM(SPG%SPG_symb)
+   WRITE(51, '(2a)')       '      Content      ',  molecule%content
+   WRITE(51, '(2a)')       '      Reflections  ',  TRIM(HKL_file%HKL)
    WRITE(51, '(a)' )       '      Format (3i4,2F8.2)'
    WRITE(51, '(a)' )       '      Fosquare'
    WRITE(51, '(a)' )       '%normal'
@@ -816,15 +807,264 @@ subroutine create_SIR_file()
    WRITE(51, '(a)' )       '%phase'
    WRITE(51, '(a)' )       '%fourier'
    WRITE(51, '(a)' )       '%menu'
-   WRITE(51, '(2a)')       '      shelx  ',   HKl_file%name(1:i1-1)//'.res'
+   WRITE(51, '(2a)')       '      shelx  ',   HKL_file%name(1:i1-1)//'.res'
    WRITE(51, '(a)' )       '%end'
   close (51)
+  
+  call write_info('')
+  call write_info('   >> cryscalc_SIR97.in input file for SIR97 has been created')
+  call write_info('')
+  
+  
 
  RETURN
 end subroutine create_SIR_file
+!------------------------------------------------------------------------
+subroutine create_SHELXS_file()
+ USE cryscalc_module, ONLY : main_title, keyword_SIZE, SPG, molecule, unit_cell, wavelength, &
+                             keyword_Zunit, Z_unit, &
+							 crystal, nb_atoms_type, SFAC, Create_INS, debug_proc
+ USE HKL_module,      ONLY : HKL_file
+ USE SHELX_module 
+
+ USE IO_module
+ implicit none
+  INTEGER :: i, i1
+  LOGICAL :: ok
+  
+
+ if(debug_proc%level_2)  call write_debug_proc_level(2, "create_SHELXS_file")
+
+ call mandatory_keyword('CELL', 'SHELXS', ok)
+ if(.not. ok) return
+ call mandatory_keyword('SPGR', 'SHELXS', ok)
+ if(.not. ok) return
+ call mandatory_keyword('FILE', 'SHELXS', ok)
+ if(.not. ok) return
+ call mandatory_keyword('CHEM', 'SHELXS', ok)
+ if(.not. ok) return
+
+ i1 = INDEX(HKL_file%name, '.')
+
+   
+   OPEN(UNIT=51, FILE='cryscalc_SHELXS.ins')
+
+  
+    WRITE(51, '(2a)')                                   'TITL ', TRIM(main_title)
+    if ((wavelength < 0.01)) then
+     WRITE(51, '(a,F8.5, 3(1x,F8.4),3(1x,F8.3))')        'CELL ', 0.71073, unit_cell%param(1:3), unit_cell%param(4:6)
+    else
+     WRITE(51, '(a,F8.5, 3(1x,F8.4),3(1x,F8.3))')        'CELL ', wavelength, unit_cell%param(1:3), unit_cell%param(4:6)
+    endif
+    IF(keyword_ZUNIT)  then
+	 WRITE(51, '(a,F8.2,3(1x,F8.4),3(1x,F8.3))')   'ZERR ', Z_unit, unit_cell%param_ESD(1:3), &
+                                                                    unit_cell%param_ESD(4:6)
+    else
+	 WRITE(51, '(a,F8.2,3(1x,F8.4),3(1x,F8.3))')   'ZERR ', molecule%Z_unit, unit_cell%param_ESD(1:3), &
+                                                                             unit_cell%param_ESD(4:6)    
+    end if	
+
+   call get_SHELX_nlatt()
+   WRITE(51, '(a,I6)')   'LATT ', n_latt
+   do i=2, SPG%NumOps    ! reduced set of sym. op. 
+    write(51, '(2a)') 'SYMM ', SPG%SymopSymb(i)
+   end do
+
+   IF(nb_atoms_type == 0) then
+    WRITE(51, '(a)') 'SFAC ?'
+    WRITE(51, '(a)') 'UNIT ?'
+   ELSE
+    IF(nb_atoms_type < 10) then
+     WRITE(fmt_SFAC, '(a,i1,a)') "(a,", nb_atoms_type,"(1x,a6))"
+     WRITE(fmt_UNIT, '(a,i1,a)') "(a,", nb_atoms_type,"(1x,F6.1))"
+    ELSE
+     WRITE(fmt_SFAC, '(a,i2,a)') "(a,", nb_atoms_type,"(1x,a6))"
+     WRITE(fmt_UNIT, '(a,i2,a)') "(a,", nb_atoms_type,"(1x,F6.1))"
+    ENDIF 
+    WRITE(51, fmt_SFAC) 'SFAC ', (SFAC%type(i)  ,i=1,nb_atoms_type)
+    WRITE(51, fmt_UNIT) 'UNIT ', (SFAC%number(i),i=1,nb_atoms_type)
+   endif
+   
+   WRITE(51, '(a,F8.0)') 'TEMP ', Create_INS%temperature
+   IF(keyword_SIZE) then
+    WRITE(51, '(a,3(1x,F6.3))')      'SIZE  ', crystal%size(1:3)
+   endif
+   WRITE(51, '(a)') 'PATT'
+   WRITE(51, '(a)') 'HKLF  4'
+   WRITE(51, '(a)') 'END'
+
+   
+
+  
+  call write_info('')
+  call write_info('   >> cryscalc_SHELXS.ins input file for SHELXS/T has been created')
+  call write_info('')
+  
+  
+
+ RETURN
+end subroutine create_SHELXS_file
 
 !------------------------------------------------------------------------
-!-------------------------------------------------------------
+ subroutine create_SUPERFLIP_file
+  use cryscalc_module, only : main_title, unit_cell, SPG, molecule, wavelength
+  USE HKL_module,      ONLY : HKL_file
+  use macros_module,   only : replace_car, replace_car1 
+  use IO_module,       only : write_info
+  
+  implicit none
+   character(len=48)              :: spf_symop
+   integer                        :: i
+   logical                        :: ok
+      
+  
+  call mandatory_keyword('CELL', 'SUPERFLIP', ok)
+  if(.not. ok) return
+  call mandatory_keyword('SPGR', 'SUPERFLIP', ok)
+  if(.not. ok) return
+  call mandatory_keyword('FILE', 'SUPERFLIP', ok)
+  if(.not. ok) return
+  call mandatory_keyword('CHEM', 'SUPERFLIP', ok)
+  if(.not. ok) return
+
+  
+  OPEN(UNIT=51, FILE='cryscalc_SUPERFLIP.in')
+      WRITE(51,'(a)') '# Superflip input file from CRYSCALc'
+	  WRITE(51,'(a)') ''
+      WRITE(51,'(2a)') 'title ',trim(main_title)      
+      WRITE(51,'(a)') 'perform CF'
+      WRITE(51,'(a)') 'terminal yes'
+	  WRITE(51,'(a)') ''      
+      WRITE(51,'(a)') '# keywords describing the file output'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') 'outputfile superflip.xplor'
+      WRITE(51,'(a)') 'outputformat xplor'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') '# keywords describing crystallographic data'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') 'dimension 3'
+      WRITE(51,'(a)') 'realdimension 3'
+      WRITE(51,'(a)') 'voxel  AUTO'
+      WRITE(51,'(a,6f10.4)')'cell ',unit_cell%param(1:6)
+	  WRITE(51,'(a,F10.5)') 'lambda ', wavelength
+      WRITE(51,'(a)') ''
+      WRITE(51,'(2a)') '# Space group  ',trim(SPG%SPG_symb)
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') 'symmetry'
+      do i=1, SPG%Multip
+       WRITE(spf_symop, '(a)') trim(SPG%SymopSymb(i))
+       spf_symop = replace_car(spf_symop, ",", "  ")
+	   spf_symop = replace_car1(spf_symop, "x", "x1")
+	   spf_symop = replace_car1(spf_symop, "y", "x2")
+	   spf_symop = replace_car1(spf_symop, "z", "x3")	   	   
+       WRITE(51,'(a)') spf_symop
+      end do
+      WRITE(51,'(a)') 'endsymmetry'
+      WRITE(51,'(a)') 'centers'
+      WRITE(51,'(a)') ' 0.00000 0.00000 0.00000'
+      WRITE(51,'(a)') 'endcenters'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') '# keywords influencing the algorithm'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') 'derivesymmetry yes'
+      WRITE(51,'(a)') 'searchsymmetry average'
+      WRITE(51,'(a)') 'delta AUTO'
+      WRITE(51,'(a)') 'weakratio   0.00'
+      WRITE(51,'(a)') 'biso        2.500'
+      WRITE(51,'(a)') 'randomseed  AUTO'
+      WRITE(51,'(a)') 'maxcycles 10000'
+      WRITE(51,'(a)') 'normalize no'
+
+      !if(len_trim(molecule%content) /=0) then
+      ! WRITE(51,'(2a)') 'composition ', trim(molecule%content)
+	  if(len_trim(molecule%formula) /=0) then
+       WRITE(51,'(2a)') 'composition ', trim(molecule%formula)
+      else
+       WRITE(51,'(a)') '#composition C62 H46 N14 (cell content !)'
+      endif
+      WRITE(51,'(a)') 'polish yes'
+      WRITE(51,'(a)') 'coverage yes'
+      WRITE(51,'(a)') 'convergencemode normal       0.80'
+      WRITE(51,'(a)') 'expandedlog no'
+      WRITE(51,'(a)') 'bestdensities 1'
+      WRITE(51,'(a)') 'repeatmode  1'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') '# Reflection list, as intensities (F**2)'
+      WRITE(51,'(a)') ''
+      WRITE(51,'(a)') 'dataformat shelx'
+      WRITE(51,'(2a)') 'fbegin  ', TRIM(HKL_file%HKL)
+      WRITE(51,'(a)') 'endf'
+
+
+  call write_info('')
+  call write_info('   >> cryscalc_SUPERFLIP.in input file for SUPERFLIP has been created')
+  call write_info('')
+ 	  
+  return
+ end subroutine create_SUPERFLIP_file
+ 
+!------------------------------------------------------------------------
+ subroutine mandatory_keyword(input_string, prog, ok)
+  use cryscalc_module, only  : keyword_CELL, keyword_SPGR, keyword_CONT, keyword_SFAC_UNIT, keyword_CHEM, keyword_ZUNIT, &
+                               keyword_FILE, SPG 
+  use IO_module,       only  : write_info
+  implicit none
+  character (len=*), intent(in)  :: input_string
+  character (len=*), intent(in)  :: prog
+  logical,           intent(out) :: ok
+  
+  ok = .false. 
+   
+ select case(trim(input_string))
+  case ('CELL')   
+   IF(.NOT. keyword_CELL) then
+    call write_info('')
+    call write_info('  >>> CELL keyword is mandatory to create an input file for '//trim(prog)//' <<<')
+    call write_info('')
+   else	
+    ok = .true.
+   endif
+   
+  case ('SPGR')
+   !IF(.NOT. keyword_SPGR) then
+   if(SPG%numSPG ==0) then
+    call write_info('')
+    call write_info('  >>> SPGR keyword is mandatory to create an input file for '//trim(prog)//' <<<')
+    call write_info('')
+   else	
+    ok = .true.
+   endif
+   
+  case ('FILE')
+   IF(.NOT. keyword_FILE) then
+    call write_info('')
+    call write_info('  >>> FILE keyword is mandatory to create an input file for '//trim(prog)//' <<<')
+    call write_info('')
+   else	
+    ok = .true.
+   endif
+ 
+  case ('CHEM')
+   IF(.NOT. keyword_CONT .and. .not. keyword_SFAC_UNIT ) then
+    IF(.NOT. keyword_CHEM .or. (keyword_CHEM .and. .not. keyword_ZUNIT)) then
+     call write_info('')
+     call write_info('  >>> Atom content (keywords: CONT, SFAC/UNIT, CHEM/ZUNIT) is mandatory to create an input file ' &
+	                    // trim(prog) // ' <<<')
+     call write_info('')
+    else
+	 ok = .true.
+    endif
+   endif
+  
+ end select
+ 
+ 
+
+
+  return
+ end subroutine mandatory_keyword 
+
+!------------------------------------------------------------------------
 
 subroutine get_SHELX_nlatt()
  USE cryscalc_module, ONLY : SPG, debug_proc

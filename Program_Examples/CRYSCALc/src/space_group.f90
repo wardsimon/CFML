@@ -1,13 +1,12 @@
 !     Last change:  TR   14 Feb 2007    2:20 pm
 subroutine space_group_info
- use cryscalc_module,                ONLY : ON_SCREEN, space_group_symbol, symm_op_string,        &
-                                            keyword_SYMM, symm_op_xyz, symm_op_mat, nb_symm_op,   &
-                                            WRITE_SPG_info, Write_SPG_info_all, WRITE_SPG_EXTI,   &
-                                            write_SPG_subgroups, message_text,                    &
-                                            SPG, keyword_create_CIF,                              &
-                                            keyword_CELL, unit_cell, CIF_cell_measurement,        &
-                                            CIF_diffrn_reflns, input_PCR, known_cell_esd, keyword_read_INS, &
-											keyword_ATOM_list, nb_atom, debug_proc
+ use cryscalc_module,                ONLY : ON_SCREEN, space_group_symbol, symm_op_string,               &
+                                            keyword_SYMM, symm_op_xyz, symm_op_mat, nb_symm_op,          &
+                                            WRITE_SPG_info, Write_SPG_info_all, WRITE_SPG_EXTI,          &
+                                            write_SPG_subgroups, message_text, SPG, keyword_create_CIF,  &                        
+                                            keyword_CELL, unit_cell, input_PCR, known_cell_esd,          &
+											keyword_read_INS, keyword_ATOM_list, nb_atom, debug_proc
+ use CIF_module,                     ONLY : CIF_cell_measurement, CIF_diffrn_reflns
  
  use CFML_crystallographic_symmetry, ONLY : set_spacegroup, write_spacegroup,  Symmetry_Symbol,   &
                                             Wyckoff_Type, Wyck_Pos_Type,                          &
@@ -320,7 +319,7 @@ subroutine get_SITE_info(input_string)
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_INFO ("//trim(input_string)//")")
 
-  call set_epsg(0.001_cp)  !In mathematical comparisons -> CFML_Math_General
+  call set_epsg(0.0011_cp)  !In mathematical comparisons -> CFML_Math_General
 
   !call set_spacegroup(space_group_symbol, SPG)     ! <<<<<<<<<
 
@@ -345,6 +344,7 @@ subroutine get_SITE_info(input_string)
    IF(.NOT. write_site_info_label(i)) cycle
 
    text80 = ''
+   
    r(1:3)= atom_coord(1:3,i)  ! coord. atomiques
 
    call write_info(' ')
@@ -353,12 +353,13 @@ subroutine get_SITE_info(input_string)
    call write_info(trim(message_text))
    call write_info(' ')
 
+   
 
  !  call Get_Orbit(r, SPG, Wyck_mult, orbit, effsym, ss_ptr )
 
    call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
-!   SITE_multiplicity = Get_Multip_Pos(r, SPG)
-
+!!   SITE_multiplicity = Get_Multip_Pos(r, SPG)
+!
    ! oct. 2011
    call Get_stabilizer(r, SPG, order, ss_ptr, atr)
 
@@ -366,6 +367,9 @@ subroutine get_SITE_info(input_string)
    !call write_info(trim(message_text))
    
    site_multiplicity = Get_Multip_Pos(r, SPG)
+   atom_mult(i) = site_multiplicity
+
+
    WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
    call write_info(trim(message_text))
    
@@ -405,6 +409,7 @@ subroutine get_SITE_info(input_string)
     call write_info(trim(message_text))  
    END do
    
+   if(len_trim(input_string) /=0) then
    if(len_trim(input_string)==3 .and. input_string(1:3) == 'pcr') then
     call write_info('')
 	call write_info('!Atom Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes')
@@ -434,7 +439,7 @@ subroutine get_SITE_info(input_string)
 	 call write_info(trim(message_text))
 	end do
    end if
-   
+   end if
 
    
    ! constrains on ADP
@@ -458,6 +463,127 @@ subroutine get_SITE_info(input_string)
  return
 
 end subroutine get_site_info
+
+!-----------------------------------------------------------------------------------
+subroutine get_SITE_mult()
+ USE cryscalc_module 
+ USE IO_module,                      ONLY : write_info
+ USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
+                                            symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
+											Get_symSymb
+ USE macros_module,                  ONLY : u_case
+ USE CFML_Math_General,              ONLY : set_epsg, set_epsg_default
+
+ USE CFML_GlobalDeps,                 ONLY : sp, cp
+
+ implicit none
+  
+ ! local variables
+  INTEGER                            :: i, j, k
+  REAL (kind=cp), DIMENSION(3)       :: r
+  INTEGER                            :: site_multiplicity
+  INTEGER                            :: Wyck_mult
+
+  type(wyckoff_type)   :: wyckoff
+
+  real (kind=cp) , dimension(3,192)  :: orbit
+  CHARACTER (LEN=80)                 :: text80
+  CHARACTER (LEN=40)                 :: Symm_Symb
+  integer, dimension(192)            :: effsym  ! Pointer to effective symops
+  integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
+  !integer                            :: ss_ptr  
+  integer                            :: order
+  real(kind=cp),     dimension(3,48) :: atr
+  integer, dimension(3,3)            :: Rsym
+  real,    dimension(3)      :: tt
+
+  
+  LOGICAL, DIMENSION(nb_atom)        :: write_site_info_label
+   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_MULTIPLICITY")
+
+  call set_epsg(0.0011_cp)  !In mathematical comparisons -> CFML_Math_General
+
+
+  do i=1, nb_atom
+   r(1:3)= atom_coord(1:3,i)  ! coord. atomiques
+
+   call write_info(' ')
+   !WRITE(message_text,'(a,3F10.5)') '  ATOM POSITIONS: ',r(1:3)
+   WRITE(message_text,'(a,i4, a6)') '  ATOM #: ',i, trim(atom_label(i))
+   call write_info(trim(message_text))
+   call write_info(' ')
+
+ 
+   call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
+   call Get_stabilizer(r, SPG, order, ss_ptr, atr)
+   site_multiplicity = Get_Multip_Pos(r, SPG)
+   atom_mult(i) = site_multiplicity
+   
+   
+
+   WRITE(message_text,'(a,I5)')     '     . site multiplicity: ', site_multiplicity
+   call write_info(trim(message_text))
+
+  end do
+  
+ 
+  call set_epsg_default()
+ return
+
+end subroutine get_site_mult
+
+!-----------------------------------------------------------------------------------
+subroutine get_SITE_multiplicity(r, site_multiplicity)
+ USE cryscalc_module 
+ USE IO_module,                      ONLY : write_info
+ USE CFML_crystallographic_symmetry, ONLY : set_spacegroup, Get_orbit, Get_Multip_Pos, &
+                                            symmetry_symbol, Wyckoff_Type, Get_stabilizer, &
+											Get_symSymb
+ USE macros_module,                  ONLY : u_case
+ USE CFML_Math_General,              ONLY : set_epsg, set_epsg_default
+
+ USE CFML_GlobalDeps,                 ONLY : sp, cp
+
+ implicit none
+  
+ ! local variables  
+  REAL (kind=cp), DIMENSION(3), intent(in)       :: r
+  INTEGER,                      intent(out)      :: site_multiplicity
+  INTEGER                            :: j, k
+  
+  INTEGER                            :: Wyck_mult
+  type(wyckoff_type)                 :: wyckoff
+
+  real (kind=cp) , dimension(3,192)  :: orbit
+  CHARACTER (LEN=80)                 :: text80
+  CHARACTER (LEN=40)                 :: Symm_Symb
+  integer, dimension(192)            :: effsym  ! Pointer to effective symops
+  integer, dimension(192)            :: ss_ptr  ! Pointer to stabilizer    >> oct. 2011
+  integer                            :: order
+  real(kind=cp),     dimension(3,48) :: atr
+  integer, dimension(3,3)            :: Rsym
+  
+
+  
+   
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "GET_SITE_MULTIPLICITY")
+
+  
+  call set_epsg(0.0011_cp)  !In mathematical comparisons -> CFML_Math_General
+
+   call Get_Orbit(r, SPG, wyckoff%num_orbit, orbit, effsym)
+   call Get_stabilizer(r, SPG, order, ss_ptr, atr)
+   site_multiplicity = Get_Multip_Pos(r, SPG)
+      
+  call set_epsg_default()
+  
+  
+ return
+
+end subroutine get_site_multiplicity
+
+
 !---------------------------------------------------------------------------
 
 subroutine write_symm_op_reduced_set()
@@ -471,7 +597,7 @@ subroutine write_symm_op_reduced_set()
   INTEGER                         :: i, j, i1, i2
   INTEGER, DIMENSION(192)         :: indx_op
 
-  if(debug_proc%level_2)  call write_debug_proc_level(2, "WRItE_SYMM_OP_REDUCED_SET")
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "WRITE_SYMM_OP_REDUCED_SET")
   
   !open (unit=3, file="sg.out", status="replace")
   !do i=1, SPG%multip

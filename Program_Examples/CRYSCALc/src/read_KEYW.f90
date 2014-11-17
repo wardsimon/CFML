@@ -16,6 +16,12 @@ subroutine read_input_file_KEYWORDS()
  do        ! lecture du fichier d'entree
   READ(input_unit, '(a)', IOSTAT=i_error) read_line
   IF(i_error < 0) EXIT   ! fin du fichier
+  if(i_error > 0) then
+   call write_info('')
+   call write_info('Error reading file')
+   call write_info('')
+   return
+  end if
   read_line = ADJUSTL(read_line)
   read_line = u_case(TRIM(read_line))
 
@@ -50,9 +56,10 @@ end subroutine read_input_file_KEYWORDS
 !----------------------------------------------------------------------
 subroutine identification_keywords(read_line)
  USE cryscalc_module
- USE Pattern_profile_module,    ONLY : size_broadening, particle_size
+ USE CIF_module
+ USE Pattern_profile_module,    ONLY : size_broadening, particle_size, X_pattern, N_pattern
  USE hkl_module,                ONLY : n_sig, threshold, ratio_criteria, requested_H, requested_H_string, search_H_string,    &
-                                       HKL_list, HKL_list_NEG, HKL_list_POS,   HKL_file,                           &
+                                       HKL_list, HKL_list_NEG, HKL_list_POS, HKL_file,                              &
                                        HKL_data_known, HKL_list_ABSENT, search_equiv, search_friedel, HKL_rule_nb
 
  use CFML_crystallographic_symmetry, only : set_spacegroup
@@ -236,6 +243,9 @@ subroutine identification_keywords(read_line)
         
    case ('CREATE_INS')
     keyword_create_INS = .true.  	
+
+   case ('CREATE_SOLVE', 'CREATE_TO_SOLVE', 'CREATE_FILES_TO_SOLVE', 'SOLVE')
+    keyword_create_SOLVE = .true.
 	
    case ('CREATE_TIDY', 'CREATE_TIDY_FILE', 'CREATE_TIDY_INPUT_FILE')
     keyword_create_TIDY = .true.   
@@ -282,7 +292,7 @@ subroutine identification_keywords(read_line)
     endif
     keyword_EDIT = .true.
 
-   CASE ('FILE')
+   CASE ('FILE', 'READ_HKL')
     HKL_file%NAME    = ''
     HKL_file%plot     = .false.
     HKL_file%read_NEG = .true.
@@ -1551,16 +1561,20 @@ subroutine identification_keywords(read_line)
    CASE ('PDP', 'PATTERN', 'PDP_CU', 'PATTERN_Cu')
     if(expert_mode) then
      HKL_2THETA     = .true.
-     X_min          = 0.
-     X_max          = 120.
+     !X_min          = 0.
+     !X_max          = 120.
+	 !X_min          = X_pattern%xmin 
+	 !X_max          = X_pattern%xmax
 	 create_PAT     = .true.
 	 write_HKL      = .true.
 	 keyword_GENHKL = .true.
 	end if 
    CASE ('&PDP', '&PATTERN', '&PDP_CU', '&PATTERN_Cu')    
-     HKL_2THETA = .true.
-     X_min          = 0.
-     X_max          = 120.
+     HKL_2THETA     = .true.
+     !X_min          = 0.
+     !X_max          = 120.
+	 !X_min          = X_pattern%xmin
+	 !X_max          = X_pattern%xmax
 	 create_PAT     = .true.
 	 write_HKL      = .true.
 	 keyword_GENHKL = .true.
@@ -2094,7 +2108,7 @@ subroutine identification_keywords(read_line)
 	 do i=1, nb_arg
 	  if(arg_string(i)(1:5) == 'SHELX') then
 	   WRITE_SHELX_symm_op  = .true.
-	    exit
+	   exit
 	  end if 
 	 end do
 	endif
@@ -2532,7 +2546,7 @@ subroutine identification_keywords(read_line)
     if (arg_string(1)(1:5) == 'CDIFX') then
      URL_address = 'www.cdifx.univ-rennes1.fr'
 	elseif(arg_string(1)(1:7) == 'CRYSCALC') then 
-	 URL_address = 'www.cdifx.univ-rennes1.fr/cryscalc'
+	 URL_address = trim(CRYSCALC%url)
     else
      long1 = LEN_TRIM(arg_string(1))
      do i = 1, WEB%num_site

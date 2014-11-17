@@ -127,7 +127,7 @@ program crystallographic_calculations
     keyword_create_CRYSCALc_news = .true.
     arg_keyword                  = .true.
     !OPEN(UNIT = NEWS_unit, FILE = 'cryscalc_news.txt', ACTION='write', STATUS = 'replace')
-    OPEN(UNIT = 2, FILE = 'CRYSCALC_news.txt', ACTION='write', STATUS = 'replace')
+    OPEN(UNIT = 2, FILE = 'cryscalc_news.txt', ACTION='write', STATUS = 'replace')
     
    ELSEIF((len_trim(input_arg)==3 .and. input_arg(1:3) == 'KEY') .or. &
           (len_trim(input_arg)==4 .and. input_arg(1:4) == 'KEYS')) then
@@ -195,6 +195,9 @@ program crystallographic_calculations
    elseif(input_arg(1:12) == 'SOLVE_TO_INS' .or. input_arg(1:10) == 'CREATE_JOB_INS') then
     keyword_SOLVE_to_INS = .true.
     arg_keyword =  .true.
+    create_INS%ANIS = .false.
+    if(nb_arg > 1 .and. u_case(cmd_arg(2)(1:4)) == 'ANIS') create_INS%ANIS = .true.
+	
    endif
 
    if(.not. keyword_HELP .and. .not. keyword_KEY .and. .not. keyword_create_CRYSCALC_HTML &
@@ -429,14 +432,14 @@ program crystallographic_calculations
         
        CASE('6')
         CLOSE(UNIT=2)
-        OPEN(UNIT=2, FILE='CRYSCALC_news.txt', ACTION='write', status='replace')
+        OPEN(UNIT=2, FILE='cryscalc_news.txt', ACTION='write', status='replace')
          call write_CRYSCALC_title         
          call write_info('')
          call write_cryscalc_NEWS('screen') 
         close(unit = 2)
         open(UNIT=2, FILE='CRYSCALC.out',        ACTION='write', position='append')
         call WRITE_info(' ')
-        call WRITE_info('   CRYSCALC news in CRYSCALC_news.txt file. ')
+        call WRITE_info('   CRYSCALC news in cryscalc_news.txt file. ')
         call WRITE_info(' ')
         call write_cryscalc_title()
         

@@ -270,7 +270,8 @@ subroutine volume_calculation(input_string)
 
   !call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
   call create_CELL_object()
-  
+
+
   if(ON_SCREEN) then
    IF(input_string=='out') then
     call write_info(' ')
@@ -470,44 +471,44 @@ subroutine get_crystal_SIZE_min_max()
   RETURN
 end subroutine get_crystal_SIZE_min_max
 !-------------------------------------------------------------------------------
-subroutine crystal_volume_calculation()
+subroutine crystal_volume_calculation(input_string)
  USE cryscalc_module,   ONLY : ON_SCREEN, crystal, pi, keyword_create_CIF, CIF_unit, keyword_SIZE, message_text, &
                                debug_proc
  USE IO_module
 
  implicit none
-   INTEGER                  :: i, i_mid
-   INTEGER, DIMENSION(1)    :: i_min, i_max
+   CHARACTER (len=*), intent(in) :: input_string
+   INTEGER                       :: i, i_mid
+   INTEGER, DIMENSION(1)         :: i_min, i_max
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "crystal_volume_calculation")
 
    
-   if(ON_SCREEN) then
-   call write_info(' ')
-   call write_info('          Crystal dimensions ')
-   call write_info('          ------------------')
-   call write_info(' ')
+   if(input_string(1:3) == 'OUT') then
+    call write_info(' ')
+    call write_info('          Crystal dimensions ')
+    call write_info('          ------------------')
+    call write_info(' ')
    endif
 
    crystal%volume =  crystal%size(1)* crystal%size(2)* crystal%size(3)
    crystal%radius =  ((3.*crystal%volume) / (4.*pi) )  ** (1./3.)
 
-   if(ON_SCREEN) then
-   call write_info('')
-   write(message_text,'(10x,a,3(1x,F6.3))')'  > Crystal size (mm)   : ',  crystal%size(1:3)
-   call write_info(TRIM(message_text))
-   call write_info('')
-   write(message_text,'(a,F8.5)')      '      . Crystal volume (mm3)             : ',  &
+   if(input_string(1:3) == 'OUT') then
+    call write_info('')
+    write(message_text,'(10x,a,3(1x,F6.3))')'  > Crystal size (mm)   : ',  crystal%size(1:3)
+    call write_info(TRIM(message_text))
+    call write_info('')
+    write(message_text,'(a,F8.5)')      '      . Crystal volume (mm3)             : ',  &
                                        crystal%size(1)* crystal%size(2)* crystal%size(3)
-   call write_info(TRIM(message_text))
-   crystal%radius = ((3.*crystal%volume) / (4.*pi) )  ** (1./3.)
-   write(message_text,'(a,F8.5)')      '      . Crystal equiv. radius <Req> (mm) : ', crystal%radius
-   call write_info(TRIM(message_text))
-   call write_info('')
+    call write_info(TRIM(message_text))
+    crystal%radius = ((3.*crystal%volume) / (4.*pi) )  ** (1./3.)
+    write(message_text,'(a,F8.5)')      '      . Crystal equiv. radius <Req> (mm) : ', crystal%radius
+    call write_info(TRIM(message_text))
+    call write_info('')
    end if
 
    IF(keyword_create_CIF)  call write_CIF_file('CRYSTAL_INFORMATION')
-
 
   return
 END subroutine crystal_volume_calculation
@@ -656,7 +657,7 @@ end subroutine calcul_dhkl
 
 !----------------------------------------------------------
 subroutine atomic_density_calculation()
- USE cryscalc_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, nb_at, unit_cell, message_text, &
+ USE cryscalc_module, ONLY : ON_SCREEN, nb_atoms_type, SFAC, nb_at, unit_cell, message_text, &
                              debug_proc 
  USE IO_module
 
@@ -683,10 +684,10 @@ subroutine atomic_density_calculation()
 ! calcul du nombre d'atomes i/cm3
  density = 0.
  do i = 1, nb_atoms_type
-  nb_at(i) = SFAC_number(i) / unit_cell%volume * 1.E24
+  nb_at(i) = SFAC%number(i) / unit_cell%volume * 1.E24
 
   if(ON_SCREEN) then
-   write(message_text, '(a8,10x,F9.2)') TRIM(SFAC_type(i)),  nb_at(i)/1.e22
+   write(message_text, '(a8,10x,F9.2)') TRIM(SFAC%type(i)),  nb_at(i)/1.e22
    call write_info(TRIM(message_text))
   endif
 
@@ -707,7 +708,7 @@ END subroutine atomic_density_calculation
 
 subroutine atomic_identification()
  USE atomic_data
- USE cryscalc_module, only          : nb_atoms_type, SFAC_type, num_atom, known_atomic_label, known_atomic_features, &
+ USE cryscalc_module, only          : nb_atoms_type, SFAC, num_atom, known_atomic_label, known_atomic_features, &
                                       debug_proc
  USE macros_module, ONLY            : u_case
  USE IO_module
@@ -729,18 +730,18 @@ subroutine atomic_identification()
 
 ! reconnaissance des atomes
  do i=1, nb_atoms_type
-  SFAC_type(i) = ADJUSTL(SFAC_type(i))
+  SFAC%type(i) = ADJUSTL(SFAC%type(i))
   !
   j=0
   do
     j=j+1
     if (j>201) then
      call write_info('')
-     call write_info('   !!! '//TRIM(SFAC_type(i))// ': incorrect atomic symbol !!')
+     call write_info('   !!! '//TRIM(SFAC%type(i))// ': incorrect atomic symbol !!')
      return
     end if
 
-    if (u_case(SFAC_type(i)(1:))==atom(j)%symbol(1:)) exit
+    if (u_case(SFAC%type(i)(1:))==atom(j)%symbol(1:)) exit
 
   end do
   Num_atom(i) = j
@@ -756,7 +757,7 @@ end subroutine atomic_identification
 
 subroutine molecular_weight()
  USE atomic_data
- USE cryscalc_module, only          : ON_SCREEN, nb_atoms_type, SFAC_number, SFAC_type, sto, num_atom, Z_unit,       &
+ USE cryscalc_module, only          : ON_SCREEN, nb_atoms_type, SFAC, sto, num_atom, Z_unit,              &
                                       keyword_CHEM, neutrons, keyword_create_CIF, CIF_unit, message_text, &
                                       molecule, debug_proc
  USE IO_module,      only           : write_info
@@ -783,31 +784,31 @@ subroutine molecular_weight()
  do i=1, nb_atoms_type
 
   ! molecular formula
-  IF(LEN_TRIM(SFAC_type(i))==2) SFAC_type(i)(2:2) = l_case(SFAC_type(i)(2:2))
+  IF(LEN_TRIM(SFAC%type(i))==2) SFAC%type(i)(2:2) = l_case(SFAC%type(i)(2:2))
 
   IF(.NOT. keyword_CHEM)  then
-   sto(i) = SFAC_number(i) / Z_unit
+   sto(i) = SFAC%number(i) / Z_unit
   !else
-  ! sto(i) = SFAC_number(i)
+  ! sto(i) = SFAC%number(i)
   endif
    
   IF(INT(sto(i)) < 10) then
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
-    WRITE(labl(i), '(a,I1)') trim(SFAC_type(i)), INT(sto(i))
+    WRITE(labl(i), '(a,I1)') trim(SFAC%type(i)), INT(sto(i))
    else
-    WRITE(labl(i), '(a,F5.2)') trim(SFAC_type(i)), sto(i)
+    WRITE(labl(i), '(a,F5.2)') trim(SFAC%type(i)), sto(i)
    endif
   ELSEIF(INT(sto(i)) < 100) THEN
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
-    WRITE(labl(i), '(a,I2)') TRIM(SFAC_type(i)), INT(sto(i))
+    WRITE(labl(i), '(a,I2)') TRIM(SFAC%type(i)), INT(sto(i))
    else
-    WRITE(labl(i), '(a,F6.2)') trim(SFAC_type(i)), sto(i)
+    WRITE(labl(i), '(a,F6.2)') trim(SFAC%type(i)), sto(i)
    endif
   ELSEIF(INT(sto(i)) < 1000) THEN
    if (ABS(INT(sto(i))-sto(i)) < 0.01) then
-    WRITE(labl(i), '(a,I3)') TRIM(SFAC_type(i)), INT(sto(i))
+    WRITE(labl(i), '(a,I3)') TRIM(SFAC%type(i)), INT(sto(i))
    else
-    WRITE(labl(i), '(a,F7.2)') trim(SFAC_type(i)), sto(i)
+    WRITE(labl(i), '(a,F7.2)') trim(SFAC%type(i)), sto(i)
    endif
   endif
 
@@ -861,15 +862,18 @@ subroutine molecular_weight()
  write(message_text,'(a)')      ' '
   call write_info(TRIM(message_text))
  do i=1, nb_atoms_type
-  write(message_text, '(a8,4x,I4,11x,F8.4,11x,F6.2, 2(10x,F6.2))') TRIM(SFAC_type(i)),  atom(Num_atom(i))%Z, &
+  write(message_text, '(a8,4x,I4,11x,F8.4,11x,F6.2, 2(10x,F6.2))') TRIM(SFAC%type(i)),  atom(Num_atom(i))%Z, &
                                                                    atom(Num_atom(i))%weight, &
                                                                    sto(i), Atomic_percent(i), Weight_percent(i)
   call write_info(TRIM(message_text))
  end do
  endif
 
- IF(keyword_create_CIF)  call write_CIF_file('CHEMICAL_INFORMATION')
-
+ IF(keyword_create_CIF)  then 
+  call write_CIF_file('CHEMICAL_INFORMATION')
+  call write_CIF_file('CHEMICAL_2')
+ END IF
+ 
  ! calcul du F000
  !if (.not. neutrons) call F000_calculation('X')
 
@@ -1373,3 +1377,18 @@ subroutine verif_linearity(str, linear)
 
  return
 end subroutine verif_linearity
+
+!--------------------------------------------------------------------
+subroutine estimate_Zunit
+ use Cryscalc_module, only : molecule, unit_cell, SFAC, sto, nb_atoms_type, Z_unit, keyword_Zunit
+ implicit none
+  real                 :: estimated_Z
+  
+  estimated_Z = 1.5 * 0.6023 * unit_cell%volume / molecule%weight
+  Z_unit = nint(estimated_Z + 0.5)
+  
+  SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit  
+  call get_content               ! molecule%content
+  keyword_Zunit = .true.
+
+end subroutine estimate_Zunit

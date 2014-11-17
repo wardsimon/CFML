@@ -864,7 +864,7 @@ subroutine symbol_to_write(symbol, ws)
   character (len=4), intent(out) :: ws
   
   
-if(len_trim(symbol) == 1) then
+  if(len_trim(symbol) == 1) then
    ws = u_case(symbol(1:1))
   else
    ws = u_case(symbol(1:1))//l_case(symbol(2:)) 

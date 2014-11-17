@@ -28,8 +28,6 @@ subroutine read_CFL_input_file(inp_unit)
   
   i1 = index(read_line, '!')
   if(i1 /=0) read_line = trim(read_line(1:i1-1))
-  write(*,*) ' >> ', trim(read_line)
-  pause
 
   call identification_CFL_keywords(read_line)
   call identification_keywords(read_line)
@@ -52,7 +50,7 @@ subroutine read_CFL_input_file(inp_unit)
 !   stop
 !  !else
 !  !do i = 1, nb_atoms_type
-!  !  SFAC_number(i) = SFAC_number(i) * Z_unit
+!  !  SFAC%number(i) = SFAC%number(i) * Z_unit
 !  ! END do
 !  endif
 ! endif
@@ -366,13 +364,13 @@ end subroutine incident_beam
     crystal%size(1:3) = var(1:3)
     keyword_SIZE = .true.
 
-   CASE ('WAVE', 'WAVELENGTH', 'WL')
+   CASE ('WAVE', 'WAVELENGTH', 'WL', 'LAMBDA')
     IF(nb_arg ==0) then
      call check_arg('0', 'WAVE')
      return
     endif
     var(1:10) = 0.
-	if(beam_type(1:7) == 'x_rays') then
+	if(beam_type(1:7) == 'x-rays') then
     call get_X_radiation(arg_string(1))
     !if(.not. keyword_WAVE) then
     if(.not. anti_cathode) then
@@ -399,7 +397,7 @@ end subroutine incident_beam
     IF(keyword_FILE .AND. .NOT. known_theta) call calcul_theta()
 
 
-   CASE ('BEAM')
+   CASE ('BEAM', 'JOBTYPE', 'JOBTYP')
     IF(nb_arg ==0) then
      call check_arg('0', 'BEAM')
      return
@@ -414,7 +412,7 @@ end subroutine incident_beam
      X_rays    = .true.
      neutrons  = .false.
      electrons = .false.
-     beam_type = 'x_rays'
+     beam_type = 'x-rays'
      !call get_X_radiation(beam_type)
 	 call get_X_radiation(trim(input_arg))
      keyword_wave = .true.
@@ -479,7 +477,7 @@ end subroutine incident_beam
     call write_info('')
     keyword_ZUNIT = .true.
 
-    IF(keyword_CHEM) sfac_number(1:nb_atoms_type) = sto(1:nb_atoms_type) * Z_unit
+    IF(keyword_CHEM) sfac%number(1:nb_atoms_type) = sto(1:nb_atoms_type) * Z_unit
 
     IF(keyword_create_CIF)  call write_CIF_file('ZUNIT')
     molecule%Z_unit = int(Z_unit)
@@ -490,12 +488,12 @@ end subroutine incident_beam
      return
     endif
     nb_atoms_type = nb_arg
-    READ(arg_string(1:nb_arg),*) SFAC_type(1:nb_arg)
+    READ(arg_string(1:nb_arg),*) SFAC%type(1:nb_arg)
     call write_info('')
     WRITE(message_text,'(2a)') '  > ',TRIM(read_line)
     call write_info(TRIM(message_text))
     do i = 1, nb_atoms_type
-     SFAC_type(i) = u_case(SFAC_type(i))
+     SFAC%type(i) = u_case(SFAC%type(i))
     end do
 
 
@@ -503,12 +501,12 @@ end subroutine incident_beam
      call write_info('')
      call write_info('  > Enter UNIT values:  ')
      call read_input_line(input_line)
-     READ(input_line,*) (SFAC_number(i),i=1,nb_atoms_type)
+     READ(input_line,*) (SFAC%number(i),i=1,nb_atoms_type)
 
     else
      READ(1, '(a)') new_line
      if (new_line(1:4)=='UNIT') then
-      READ(new_line(5:), *) (SFAC_number(i),i=1,nb_atoms_type)
+      READ(new_line(5:), *) (SFAC%number(i),i=1,nb_atoms_type)
 
       WRITE(message_text,'(2a)') '  > ',TRIM(read_line)
       call write_info(TRIM(message_text))
@@ -534,13 +532,13 @@ end subroutine incident_beam
     endif
 
     nb_atoms_type = INT(nb_arg / 2.)
-    READ(arg_line, *)( SFAC_type(i), SFAC_number(i), i = 1, nb_atoms_type)
+    READ(arg_line, *)( SFAC%type(i), SFAC%number(i), i = 1, nb_atoms_type)
     call write_info('')
     WRITE(message_text,'(2a)') '  > ',TRIM(read_line)
     call write_info(TRIM(message_text))
 
     do i = 1, nb_atoms_type
-     SFAC_type(i) = u_case(SFAC_type(i))
+     SFAC%type(i) = u_case(SFAC%type(i))
     end do
     keyword_CONT      = .true.
     keyword_CHEM      = .false.
@@ -989,7 +987,7 @@ end subroutine get_qvec_coord
 
 !-----------------------------------------------------------------
 subroutine decode_CHEM_string(arg_line, nb_arg)
- USE cryscalc_module, ONLY : nb_atoms_type, SFAC_type, SFAC_number, STO, keyword_ZUNIT, Z_UNIT, &
+ USE cryscalc_module, ONLY : nb_atoms_type, SFAC, STO, keyword_ZUNIT, Z_UNIT, &
                              keyword_CHEM, keyword_CONT, keyword_SFAC_UNIT, debug_proc
  USE MACROS_module,   ONLY : check_character, nombre_de_colonnes
  USE IO_module,       ONLY : write_info
@@ -1066,13 +1064,13 @@ na: do i=1, nb_atoms_type
       endif
 
       IF(numeric_char) then
-       READ(arg_string(i)(1:j-1),*) SFAC_type(i)        
+       READ(arg_string(i)(1:j-1),*) SFAC%type(i)        
        READ(arg_string(i)(j:),   *) STO(i)
        CYCLE na
       endif
 
       IF(j==LEN_TRIM(arg_string(i)) .AND. .NOT. numeric_char) then
-       READ(arg_string(i)(1:j),*) SFAC_type(i)
+       READ(arg_string(i)(1:j),*) SFAC%type(i)
        STO(i) = 1
        CYCLE na
       endif
@@ -1084,7 +1082,7 @@ na: do i=1, nb_atoms_type
      Z_unit = 1
      keyword_ZUNIT = .true.
     end if
-    SFAC_number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit
+    SFAC%number(1:nb_atoms_type) =  sto(1:nb_atoms_type) * Z_unit
 
     call get_Content()
 
@@ -1097,13 +1095,13 @@ na: do i=1, nb_atoms_type
 end subroutine decode_CHEM_string
 !-----------------------------------------------------------------
 subroutine get_content()
- USE cryscalc_module, ONLY : SFAC_type, SFAC_number, nb_atoms_type, molecule
+ USE cryscalc_module, ONLY : SFAC, nb_atoms_type, molecule
  implicit none
   INTEGER             :: i
 
    molecule%content = ''
    do i=1, nb_atoms_type
-    WRITE(molecule%content , '(4a,F6.2)') TRIM(molecule%content), ' ', TRIM(SFAC_type(i)), ' ',  SFAC_number(i)
+    WRITE(molecule%content , '(4a,F6.2)') TRIM(molecule%content), ' ', TRIM(SFAC%type(i)), ' ',  SFAC%number(i)
    end do
 
  return

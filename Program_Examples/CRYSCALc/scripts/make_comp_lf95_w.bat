@@ -42,6 +42,7 @@ copy c:\rw_lf95\*.mod
       lf95 -c read_PCR             -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_KEYW            -o1 -info  -mod  .;%CRYSFML%\Lahey\libC                 -nchk  -nstchk
       lf95 -c read_CIF_file        -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
+      lf95 -c create_archive_CIF   -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c SIR_to_INS           -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk
       lf95 -c read_final_y         -o1 -info  -mod  .;c:\rw_lf95                           -nchk  -nstchk
       lf95 -c read_CELL            -o1 -info  -mod  .;%CRYSFML%\Lahey\libC;c:\rw_lf95      -nchk  -nstchk

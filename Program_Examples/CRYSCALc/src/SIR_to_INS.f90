@@ -10,8 +10,8 @@ subroutine create_INS_from_SOLVE
 
  USE IO_module
  USE macros_module,   only : test_file_exist, u_case, Get_current_folder_name, Get_sample_ID_from_folder_name
- use cryscalc_module, only : tmp_unit, message_text, Atm_list, unit_cell, Z_unit_ins, Create_INS_temperature,   &
-                             Create_INS_U_threshold, get_sample_ID, sample_job, debug_proc
+ use cryscalc_module, only : tmp_unit, message_text, Atm_list, unit_cell, Z_unit_ins, Create_INS,   &
+                             get_sample_ID, sample_job, debug_proc
  implicit none
   logical                            :: file_exist
   character (len=256)                :: struct_CIF, job_RES, job_INS
@@ -25,14 +25,15 @@ subroutine create_INS_from_SOLVE
   character (len=256)                :: folder_name  
   character (len=256), dimension(10) :: res_file   ! nom des fichiers .RES dans le repertoire
   real                               :: temperature
-  logical                            :: shelxs_file
+  logical                            :: shelxs_file, shelx_solve
+  character (len=256)                :: SHELX_title
 
-  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_INs_file_from_solve")
+  if(debug_proc%level_2)  call write_debug_proc_level(2, "create_INS_file_from_solve")
   
  shelxs_file = .false.
  
  
- skip_level = Create_INS_U_threshold
+ skip_level = Create_INS%U_threshold
  if(.not. get_sample_ID) then 
   job_ins = 'job.ins'
  else 
@@ -97,7 +98,7 @@ subroutine create_INS_from_SOLVE
  end if  ! fin de la condition if(import.res not exist)
  call write_info('  . RES file : '//trim(job_res))
  
- if(Create_INS_temperature < -900.) then
+ if(Create_INS%temperature < -900.) then
   write(*,*) 
   write(*,*) ' > Enter temperature (in Celsius) : '
   read(*, '(a)') read_line
@@ -120,9 +121,9 @@ subroutine create_INS_from_SOLVE
   end if 
   if(abs(temperature) < .1) temperature = 20.
  else
-  temperature = Create_INS_temperature 
+  temperature = Create_INS%temperature 
  endif
- Create_INS_temperature = temperature
+ Create_INS%temperature = temperature
  
  call write_info('')
  write(message_text, '(a,F8.2)') '  . Temperature (C): ', temperature 
@@ -154,8 +155,8 @@ subroutine create_INS_from_SOLVE
  
  if(skip) then
   if(skip_level < 0.) skip_level = 0.1
-  Create_INS_U_threshold = skip_level
-  write(message_text, '(a,F5.2)') '  . U_threshold: ', Create_INS_U_threshold
+  Create_INS%U_threshold = skip_level
+  write(message_text, '(a,F5.2)') '  . U_threshold: ', Create_INS%U_threshold
  endif 
 
  
@@ -166,7 +167,7 @@ subroutine create_INS_from_SOLVE
  ! lecture fichier STRUCT.CIF pour recuperer cell et cell_esd
  open(unit = tmp_unit, file = trim(struct_CIF))
  call read_CIF_input_file(trim(struct_CIF), 'NO_OUT')
- 
+
  ! lecture fichier.RES
  open(unit = tmp_unit+1, file=trim(job_RES))
  
@@ -177,17 +178,34 @@ subroutine create_INS_from_SOLVE
    if(len_trim(read_line) == 0) shelxs_file = .true.
    
    select case (read_line(1:4))
+     case ('TITL')
+	   read(read_line(5:), '(a)') SHELX_title
+	   SHELX_title = adjustl(SHELX_title)
+	   if(SHELX_title(1:12) == 'import_a.res') shelx_solve = .true.
+	   write(unit=tmp_unit+2, fmt='(a)') trim(read_line)
+	   
      case ('CELL')
+	 if(shelx_solve) then
+	   write(unit=tmp_unit+2, fmt='(a)') trim(read_line)
+	 else
        write(unit=tmp_unit+2, fmt='(a,6F10.4)') 'CELL    0.71073', (unit_cell%param(i), i=1,6)
-       
+     end if
+	 
      case ('ZERR')
+	  if(shelx_solve) then
+  	   write(unit=tmp_unit+2, fmt='(a)') trim(read_line)
+      else
        write(unit=tmp_unit+2, fmt='(a6,I8,6F10.4)') 'ZERR  ',Z_unit_INS, (unit_cell%param_ESD(i),i=1,6) 
+	  end if 
        
      case ('OMIT')   ! l'instruction OMIT n'existe pas dans le fichier cree par SIR2004
      
      case ('LIST')
        write(unit=tmp_unit+2, fmt='(a)') 'LIST 4'
-       
+ 
+     case ('L.S.')
+       write(unit=tmp_unit+2, fmt='(a)') 'L.S. 4'
+ 
      case ('PLAN')
        WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  PLAN -20  : Fourier peak list'  
        WRITE(unit=tmp_unit+2, fmt='(a)')         'PLAN -20'  
@@ -200,6 +218,9 @@ subroutine create_INS_from_SOLVE
        WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  CONF      : all torsion angles except involving hydrogen'
        WRITE(unit=tmp_unit+2, fmt='(a)')         'CONF'
        WRITE(unit=tmp_unit+2, fmt='(a)')         'WPDB -2     !'
+	   if(create_INS%ANIS) then
+	    WRITE(unit=tmp_unit+2, fmt='(a)')         'ANIS        !'
+	   end if
        WRITE(unit=tmp_unit+2, fmt='(a)')         'REM  TEMP      : temperature in celcius'
        WRITE(unit=tmp_unit+2, fmt='(a6,F8.0,a)') 'TEMP  ', temperature, '    ! temperature in celcius'
        if(shelxs_file) then

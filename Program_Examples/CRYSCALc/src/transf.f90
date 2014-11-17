@@ -590,7 +590,7 @@ subroutine   transf_monoclinic
 
 
   !do mat_numor = 27, 28
-  do mat_numor = 27, 32
+  do mat_numor = 27, 33
    matrix_num = mat_numor
    call write_info('')
    !call write_info('  *** M '//trim(transf_mat_text(mat_numor))//' ***')
@@ -617,7 +617,7 @@ subroutine   transf_monoclinic
   
   
   call write_info('')
-  call write_info('      P 21/n  ==> P 21/c :   matrix M #28')
+  call write_info('      P 21/n  ==> P 21/c :   matrix M #28, #33')
   call write_info('')
   call write_info('      P 21/a  ==> P 21/c :   matrix M #30, #32')
   call write_info('')
@@ -871,16 +871,17 @@ end subroutine write_list_matrice
 !-----------------------------------------------------------------
 
 subroutine find_new_group()
- USE cryscalc_module,           ONLY : SPG, Mat, message_text, nb_symm_op, Mit, debug_proc
- USE macros_module,             ONLY : remove_car, replace_car
+ USE cryscalc_module,           ONLY : SPG, Mat, message_text, nb_symm_op, Mit, Space_group_symbol, debug_proc
+ USE macros_module,             ONLY : remove_car, replace_car, replace_car2
  USE IO_module,                 ONLY : write_info
- use CFML_Crystallographic_Symmetry, ONLY : set_spacegroup,   get_hallsymb_from_gener
+ use CFML_Crystallographic_Symmetry, ONLY : set_spacegroup,   get_hallsymb_from_gener, space_group_type
+ 
  USE SHELX_module,              ONLY : car_symop
  USE matrix_module,             ONLY : MATMUL_33, MV_product
 
  implicit none
   INTEGER                          :: op_num
-  INTEGER                          :: i1, i2
+  INTEGER                          :: i, i1, i2 
   CHARACTER (LEN=40)               :: input_line
   CHARACTER (LEN=12), DIMENSION(3) :: op_STRING
   REAL, DIMENSION(3,3)             :: op_ROT
@@ -888,35 +889,18 @@ subroutine find_new_group()
   REAL, DIMENSION(3,3)             :: new_op_ROT
   REAL, DIMENSION(3)               :: new_op_TRANS
   CHARACTER (LEN=12)               :: SPG_num_string
+  LOGICAL                          :: trigonal, hexagonal, tetragonal, cubic, permut
+  
+  TYPE (space_group_type)                      :: new_SPG
 
   
   if(debug_proc%level_2)  call write_debug_proc_level(2, "find_new_group")
   
  SPG%Bravais = ADJUSTL(SPG%Bravais)
+ new_SPG%NumSPG = 0
 
  ! creation de la carte des operateurs de symmetrie
  
- !write(*,*) ' num op : ', SPG%numops, SPG%multip
- !write(*,*) ' centro : ', SPG%centred
- 
- ! SPG%NumOps : nombre d'operateurs de symetrie reduit, y compris l'identite
- !              
- !nb_symm_op = SPG%NumOps  - 1
- !do op_num = 1, nb_symm_op
- ! car_symop(op_num) = SPG%SymopSymb(op_num+1)
- ! write(*,*) op_num, car_symop(op_num)
- !end do
- 
- !do op_num= 1, SPG%Multip
- ! WRITE(*,*)   op_num, SPG%SymopSymb(op_num)
- !end do
-
- 
-! IF(SPG%Centred  /=1)  then
-!  nb_symm_op = nb_symm_op + 1
-!  car_symop(nb_symm_op)='-X,-Y,-Z'
-! endif
-
  select case (SPG%Bravais(1:1))
     case ('I') ! I
        nb_symm_op=nb_symm_op+1
@@ -949,10 +933,36 @@ subroutine find_new_group()
        car_symop(nb_symm_op)='X+1/2,Y+1/2,Z'
   END select
 
-
+  SPG%hexa = .false.
+  permut   = .true.
+  trigonal = .false.
+  if(len_trim(SpG%CrystalSys) == 8 .and. SpG%CrystalSys(1:8) == "Trigonal")  then
+   trigonal = .true.
+   permut   = .false.
+  end if 
+  hexagonal = .false.
+  if(len_trim(SpG%CrystalSys) == 9 .and. SpG%CrystalSys(1:9) == "Hexagonal") then
+   hexagonal = .true.
+   permut    = .false.
+  end if 
+  if(trigonal .or. hexagonal) SPG%hexa = .true.
+  tetragonal = .false.
+  if(len_trim(SpG%CrystalSys) == 10 .and. SpG%CrystalSys(1:10) == "Tetragonal") then
+   tetragonal = .true.
+   permut     = .false.
+  end if 
+  cubic = .false.
+  if(len_trim(SpG%CrystalSys) == 5 .and. SpG%CrystalSys(1:5) == "Cubic") then
+   cubic  = .true.
+   permut = .false.
+  end if 
+  
+  
   !do op_num =2, SPG%NumOps
-   do op_num=1, SPG%multip
+  do op_num=1, SPG%multip
 
+   !write(*,*) 'sym op. : ', TRIM(SPG%SymopSymb(op_num))
+   !write(*,*) '  ', TRIM(SPG%SymopSymb(op_num))
    input_line = TRIM(SPG%SymopSymb(op_num))
    input_line = remove_car(input_line, ' ')
    input_line = replace_car(input_line, ',', ' ')
@@ -969,50 +979,97 @@ subroutine find_new_group()
    new_op_TRANS = MATMUL(Mit, op_TRANS)
 
    !new_op_ROT   = MATMUL(ABS(MAT), op_ROT)
-   !new_op_TRANS = MATMUL(MAT, op_TRANS)
-
+   !new_op_TRANS = MATMUL(MAT, op_TRANS)   
+   !new_op_trans = op_trans
+   
    call get_op_STRING(new_op_ROT, new_op_TRANS, op_string)
    op_string = ADJUSTL(op_string)
+   
+   
+   if(permut) then
+   
+	op_string(1) = replace_car(op_string(1), "y", "x")
+    op_string(1) = replace_car(op_string(1), "z", "x")
+ 	op_string(2) = replace_car(op_string(2), "x", "y")
+    op_string(2) = replace_car(op_string(2), "z", "y")
+    op_string(3) = replace_car(op_string(3), "x", "z")
+    op_string(3) = replace_car(op_string(3), "y", "z")   
+   end if   
+   
+   if(trigonal) then
+    do i=1, 3
+     i1 = index(op_string(i), "-1/3")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-1/3", "+1/3")
+	 IF(op_string(i)(1:1) == '+') op_string(i) = op_string(i)(2:)
+	 i1 = index(op_string(i), "-2/3")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-2/3", "+2/3")
+	 IF(op_string(i)(1:1) == '+') op_string(i) = op_string(i)(2:)	 
+    end do	
+   else
+    do i=1, 3
+     i1 = index(op_string(i), "-1/2")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-1/2", "+1/2")
+     i1 = index(op_string(i), "-1/4")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-1/4", "+3/4")
+     i1 = index(op_string(i), "-3/4")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-3/4", "+1/4")
 
-   op_string(1) = replace_car(op_string(1), "y", "x")
-   op_string(1) = replace_car(op_string(1), "z", "x")
-   op_string(2) = replace_car(op_string(2), "x", "y")
-   op_string(2) = replace_car(op_string(2), "z", "y")
-   op_string(3) = replace_car(op_string(3), "x", "z")
-   op_string(3) = replace_car(op_string(3), "y", "z")
 
-   IF(op_string(1)(1:1) == '+') op_string(1) = op_string(1)(2:)
-   IF(op_string(2)(1:1) == '+') op_string(2) = op_string(2)(2:)
-   IF(op_string(3)(1:1) == '+') op_string(3) = op_string(3)(2:)
-
+	 IF(op_string(i)(1:1) == '+') op_string(i) = op_string(i)(2:)
+	 
+	 i1 = index(op_string(i), "x+x")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "x+x", "x")
+	 i1 = index(op_string(i), "-x-x")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-x-x", "-x")
+	 i1 = index(op_string(i), "y+y")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "y+y", "y")
+	 i1 = index(op_string(i), "-y-y")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-y-y", "-y")
+	 i1 = index(op_string(i), "z+z")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "z+z", "z")
+	 i1 = index(op_string(i), "-z-z")
+	 if(i1 /=0) op_string(i) = replace_car2(op_string(i), "-z-z", "-z")
+	 
+    end do	
+	
+   endif
+    
+   
    WRITE(car_symop(op_num), '(5a)')  op_string(1),  ',',  op_string(2), ',', op_string(3)
    car_symop(op_num) = remove_car(car_symop(op_num), ' ')
-   
   end do
 
 
   ! deduction du nouveau symbol du groupe  
- WRITE(SPG_num_string, '(i3)')SPG%NumSpg
- !write(*,*) SPG%numspg, SPG_num_string
- !nb_symm_op = nb_symm_op + 1
- !car_symop(1)="x,y,z"
+ !WRITE(SPG_num_string, '(i3)')SPG%NumSpg
  
  nb_symm_op = SPG%multip
- !write(*,*) ' nb_sym_op :  ', nb_symm_op
- !do op_num=1, nb_symm_op
- ! write(*,*) op_num, car_symop(op_num)
- !end do
- call set_spacegroup(TRIM(SPG_num_string), SPG, car_symop, nb_symm_op, 'GEN') 
- 
- !call set_spacegroup(TRIM(SPG_num_string), SPG)
-  
-  call get_hallsymb_from_gener(SPG)
+ call write_info('  > New symmetry operators list: ') 
+ do op_num=1, nb_symm_op
+  write(message_text,'(5x,i3,2x,a)') op_num, car_symop(op_num)
+  call write_info(TRIM(message_text))
+ end do
+ !call set_spacegroup(TRIM(SPG_num_string), SPG, car_symop, nb_symm_op, 'GEN') 
+ call set_spacegroup(" ", new_SPG, car_symop, nb_symm_op, 'GEN') 
 
-  WRITE(message_text, '(2a)') '  > New Space group: ', TRIM(SPG%SPG_Symb)
+  
+  ! call get_hallsymb_from_gener(new_SPG) ! pas necessaire car routine deja appelee par "set_spacegroup" avec option "GEN"
+  
+  if(new_SPG%NumSPG == 0) then
+   WRITE(message_text, '(a)') '  > New Space group: can not be deduced from symmetry operators list'
+  else
+   WRITE(message_text, '(2a)') '  > New Space group: ', TRIM(new_SPG%SPG_Symb)
+  end if
   call write_info('')
   call write_info(TRIM(message_text))
 
-  IF(SPG%NumSPG /=0)  call write_symm_op_reduced_set()
+  
+  IF(new_SPG%NumSPG /=0)  then
+   SPG = new_SPG
+   space_group_symbol = new_SPG%SPG_Symb
+   call set_spacegroup(new_SPG%SPG_Symb, SPG)
+   call write_symm_op_reduced_set()
+  end if 
 
 
  RETURN

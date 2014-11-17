@@ -14,6 +14,8 @@ module cryscalc_module
   TYPE, PUBLIC :: CRYSCALC_type                 ! caracteristiques du programme CRYSCALC
    character (len=256)     :: version                ! version
    character (len=256)     :: author                 ! author
+   character (len=256)     :: mail                   ! mail 
+   character (len=256)     :: url                    ! cryscalc url
    character (len=256)     :: ini                    ! setting file
    character (len=256)     :: css                    ! css for HTML user's guide
    character (len=256)     :: report_css             ! css for HTML structural report
@@ -87,8 +89,14 @@ module cryscalc_module
   REAL(KIND=sp),      DIMENSION(3)                     :: new_coord               ! nouvelles coordonnes atomiques
 
   integer                                              :: nb_atoms_type           ! nombre de type d'atomes de nature differente
-  character (len=6),  dimension(nb_atom_max)           :: sfac_type               ! type des atomes (SFAC)
-  real,               dimension(nb_atom_max)           :: sfac_number             ! nombre d'atomes de chaque espece (UNIT)
+  
+  TYPE, public :: SFAC_type
+   character (len=6),  dimension(nb_atom_max)          :: type               ! type des atomes (SFAC)
+   real,               dimension(nb_atom_max)          :: number             ! nombre d'atomes de chaque espece (UNIT)  
+  end type SFAC_type
+  type (SFAC_type) :: SFAC
+  !character (len=6),  dimension(nb_atom_max)           :: sfac_type               ! type des atomes (SFAC)
+  !real,               dimension(nb_atom_max)           :: sfac_number             ! nombre d'atomes de chaque espece (UNIT)
   REAL,               DIMENSION(nb_atom_max)           :: sto                     ! stoechiometrie
   INTEGER,            DIMENSION(201)                   :: num_atom                ! numero atomique de l'atome
   real,               dimension(nb_atom_max)           :: nb_at                   ! nb_at= sfac_number/unit_cell_volume
@@ -124,6 +132,9 @@ module cryscalc_module
   CHARACTER (LEN=256)                          :: CEL_file_name           ! nom du fichier.CEL
   CHARACTER (LEN=256)                          :: CIF_file_name           ! nom du fichier.CIF
   CHARACTER (LEN=256)                          :: CIF_pymol_file_name     ! nom du fichier.CIF compatible Pymol
+  CHARACTER (LEN=256), dimension(10)           :: input_CIF_file          ! fichiers .CIF utilises pour creer l'archive.CIF
+  LOGICAL,             dimension(10)           :: CIF_file_exist          ! fichiers .CIF utilises pour creer l'archive.CIF
+  INTEGER                                      :: nb_input_CIF_files      ! nombre de fichiers .CIF 
   
   CHARACTER (LEN=256)                          :: archive_CIF             ! nom de l'archive.CIF
   CHARACTER (LEN=256)                          :: INS_file_name           ! nom du fichier.INS
@@ -340,7 +351,7 @@ module cryscalc_module
 
 
   logical                                      :: keyword_HELP            ! aide en ligne
-  INTEGER, PARAMETER                           :: nb_help_max = 134       ! nombre max. d'arguments de HELP
+  INTEGER, PARAMETER                           :: nb_help_max = 135       ! nombre max. d'arguments de HELP
   character (len=19), dimension(nb_help_max)   :: HELP_string             ! liste des HELP
   character (len=19), dimension(nb_help_max)   :: HELP_arg                ! arguments de HELP
 
@@ -361,6 +372,9 @@ module cryscalc_module
   LOGICAL                                      :: CIF_format80            ! 
   REAL                                         :: CIF_torsion_limit       ! 
   LOGICAL                                      :: include_RES_file        !
+  CHARACTER (LEN=256)                          :: RES_file
+  LOGICAL                                      :: include_HKL_file        !
+  
   LOGICAL                                      :: include_SQUEEZE
   LOGICAL                                      :: update_parameters       ! update cell parameters, atomic coordinates ... after a matrix transdformation
   LOGICAL                                      :: report_header           ! write header in HTML report
@@ -373,7 +387,14 @@ module cryscalc_module
   CHARACTER (LEN=32)                           :: hkl_SHELX_format        ! format SHEXL de lecture d'un fichier .hkl (3I4,2F8.2)
   LOGICAL                                      :: keep_bond_str_out       ! keep bond_str.out file
   
-  LOGICAL                                      :: pdp_cu                  ! use of Ka cu radiation for powder diffration pattern simulation
+  
+  TYPE, PUBLIC :: pdp_simulation_type                 
+   LOGICAL                                      :: cu                  ! use of Ka cu radiation for powder diffration pattern simulation
+   character (len=16)                           :: beam
+   REAL                                         :: wave  
+  end type pdp_simulation_type
+  type (pdp_simulation_type) :: pdp_simu
+
   
   integer                                      :: nb_atom                 ! nombre d'atomes dans la liste
   integer                                      :: nb_hkl                  ! nombre de reflections
@@ -423,7 +444,15 @@ module cryscalc_module
 
   CHARACTER (len=256)                          :: sample_job
   LOGICAL                                      :: get_sample_ID
-  REAL                                         :: Create_INS_temperature, Create_INS_U_threshold
+
+  TYPE, public :: CREATE_INS_type
+   REAL                                         :: temperature
+   REAL                                         :: U_threshold
+   logical                                      :: ANIS
+  end type CREATE_INS_type
+  type (CREATE_INS_type) :: CREATE_INS
+
+  !REAL                                         :: Create_INS%temperature, Create_INS%U_threshold
 
   real                                         :: max_res, expected_max_res
   real                                         :: min_res, expected_min_res
@@ -466,23 +495,25 @@ module cryscalc_module
   LOGICAL                                      :: keyword_WRITE_REF_XCALIBUR
   
   LOGICAL                                      :: keyword_modif_ARCHIVE
+  LOGICAL                                      :: keyword_create_ARCHIVE 
   LOGICAL                                      :: keyword_SOLVE_to_INS
 
-  LOGICAL                                      :: keyword_create_ACE  !  creation d'un fichier.ACE pour Carine
-  LOGICAL                                      :: keyword_create_CEL  !  creation d'un fichier.CEL pour powdercell
-  LOGICAL                                      :: keyword_create_INS  !  creation d'un fichier.INS pour SHELXL
-  LOGICAL                                      :: keyword_create_CFL  !  creation d'un fichier.CFL pour CRYSCALC
-  LOGICAL                                      :: keyword_create_FST  !  creation d'un fichier.FST pour FP Studio
-  LOGICAL                                      :: keyword_create_PRF  !  creation d'un fichier.PRF pour FullProf
-  LOGICAL                                      :: create_FST_POLY     !
-  LOGICAL                                      :: create_FST_MOLE     !
-  LOGICAL                                      :: FST_no_H            !
-  LOGICAL                                      :: launch_FP_Studio    ! 
+  LOGICAL                                      :: keyword_create_ACE    !  creation d'un fichier.ACE pour Carine
+  LOGICAL                                      :: keyword_create_CEL    !  creation d'un fichier.CEL pour powdercell
+  LOGICAL                                      :: keyword_create_INS    !  creation d'un fichier.INS pour SHELXL
+  LOGICAL                                      :: keyword_create_CFL    !  creation d'un fichier.CFL pour CRYSCALC
+  LOGICAL                                      :: keyword_create_FST    !  creation d'un fichier.FST pour FP Studio
+  LOGICAL                                      :: keyword_create_PRF    !  creation d'un fichier.PRF pour FullProf
+  LOGICAL                                      :: create_FST_POLY       !
+  LOGICAL                                      :: create_FST_MOLE       !
+  LOGICAL                                      :: FST_no_H              !
+  LOGICAL                                      :: launch_FP_Studio      !  
   
-  LOGICAL                                      :: keyword_create_TIDY ! creation d'un fichier TIDY.dat pour STIDY  
-  LOGICAL                                      :: create_CIF_PYMOL    ! creation d'un fichier.CIF compatible Pymol
-  LOGICAL                                      :: create_SHAPE_file   ! creation d'un fichier.SHP pour SHAPE
-  LOGICAL                                      :: poly_vol_calc       ! calcul du volume d'un polyedre de coordination
+  LOGICAL                                      :: keyword_create_TIDY   ! creation d'un fichier TIDY.dat pour STIDY  
+  LOGICAL                                      :: keyword_create_SOLVE  ! creation de fichiers d'entree pour SHELXS, SIR, Superflip  
+  LOGICAL                                      :: create_CIF_PYMOL      ! creation d'un fichier.CIF compatible Pymol
+  LOGICAL                                      :: create_SHAPE_file     ! creation d'un fichier.SHP pour SHAPE
+  LOGICAL                                      :: poly_vol_calc         ! calcul du volume d'un polyedre de coordination
   LOGICAL                                      :: INI_create_ACE
   LOGICAL                                      :: INI_create_CEL
   LOGICAL                                      :: INI_create_CFL
@@ -607,6 +638,7 @@ module cryscalc_module
   INTEGER         :: HELP_CREATE_FST_numor
   INTEGER         :: HELP_CREATE_INS_numor
   INTEGER         :: HELP_CREATE_REPORT_numor
+  INTEGER         :: HELP_CREATE_SOLVE_numor
   INTEGER         :: HELP_CREATE_TIDY_numor
   INTEGER         :: HELP_D_HKL_numor
   INTEGER         :: HELP_D_STAR_numor
@@ -728,6 +760,7 @@ module cryscalc_module
   ! variables dependent of command line arguments
 
   logical         :: ON_SCREEN                            ! affichage du texte à l'ecran
+  logical         :: ON_screen_PRF
   logical         :: CIFdep
   logical         :: acta
 
@@ -779,6 +812,10 @@ module cryscalc_module
    REAL                 :: radius
    CHARACTER (LEN=32)   :: morph
    CHARACTER (LEN=32)   :: color
+   CHARACTER (LEN=32)   :: density_meas
+   CHARACTER (LEN=32)   :: density_diffrn
+   CHARACTER (LEN=32)   :: density_method
+   CHARACTER (LEN=32)   :: F000
    CHARACTER (LEN=256), dimension(100)   :: face_line
    integer,             dimension(3,100) :: face_index
    real,                dimension(100)   :: face_dim
@@ -794,22 +831,7 @@ module cryscalc_module
   TYPE (absorption_type) :: absorption
 
 
-  TYPE, PUBLIC:: CIF_reflns_type
-   REAL                    :: theta_min
-   REAL                    :: theta_max
-   INTEGER                 :: reflns_used
-   CHARACTER (LEN=74)      :: temperature
-  END TYPE cif_reflns_type
-  TYPE (CIF_reflns_type) :: CIF_diffrn_reflns
-  TYPE (CIF_reflns_type) :: CIF_cell_measurement
-
-  TYPE, PUBLIC :: CIF_dist_type
-   integer                                        :: max_text
-   integer                                        :: n_text
-   character (len=132), dimension(:), allocatable :: text
-  END TYPE CIF_DIST_type
-  type (CIF_DIST_type) :: CIF_DIST
-
+ 
   TYPE, PUBLIC :: WEB_type
    INTEGER                               :: num_site
    CHARACTER (LEN=16),  DIMENSION(10)    :: name
@@ -848,96 +870,6 @@ module cryscalc_module
   type (PROGRAM_type) :: Absorption_correction
 
 
-  ! parametres CIF (utiles pour generer le fichier structural_REPORT.html) -----------------------
-
-  TYPE, PUBLIC  :: CIF_parameter_type 
-   CHARACTER (LEN=256)    :: sample_ID  
-   CHARACTER (LEN=256)    :: formula_moiety
-   CHARACTER (LEN=256)    :: formula_sum
-   CHARACTER (LEN=256)    :: formula_weight
-   CHARACTER (LEN=256)    :: formula_units_Z
-   CHARACTER (LEN=256)    :: diffracto_device
-   CHARACTER (LEN=256)    :: diffracto_radiation_type
-   CHARACTER (LEN=256)    :: diffracto_radiation_source
-   CHARACTER (LEN=256)    :: diffracto_radiation_wavelength
-   CHARACTER (LEN=256)    :: diffracto_temperature
-
-   CHARACTER (LEN=256)    :: diffrn_source
-   CHARACTER (LEN=256)    :: diffrn_radiation_wavelength
-   CHARACTER (LEN=256)    :: diffrn_radiation_type
-   CHARACTER (LEN=256)    :: diffrn_radiation_source
-   CHARACTER (LEN=256)    :: diffrn_radiation_monochromator
-   CHARACTER (LEN=256)    :: diffrn_radiation_probe   
-   CHARACTER (LEN=256)    :: diffrn_measurement_device
-   CHARACTER (LEN=256)    :: diffrn_measurement_device_type
-   CHARACTER (LEN=256)    :: diffrn_measurement_method
-   CHARACTER (LEN=256)    :: diffrn_detector
-   CHARACTER (LEN=256)    :: diffrn_detector_area_resol_mean
-
-   CHARACTER (LEN=256)    :: computing_data_collection
-   CHARACTER (LEN=256)    :: computing_cell_refinement
-   CHARACTER (LEN=256)    :: computing_data_reduction
-   CHARACTER (LEN=256)    :: computing_structure_solution
-   CHARACTER (LEN=256)    :: computing_structure_refinement
-   CHARACTER (LEN=256)    :: computing_molecular_graphics
-   !CHARACTER (LEN=80)    :: computing_publication_material
-   CHARACTER (LEN=256)    :: computing_publication_material_1
-   CHARACTER (LEN=256)    :: computing_publication_material_2
-
-   CHARACTER (LEN=256)    :: symmetry_cell_setting
-   CHARACTER (LEN=256)    :: symmetry_space_group
-   CHARACTER (LEN=256)    :: symmetry_IT_number
-   CHARACTER (LEN=256)    :: cell_length_a
-   CHARACTER (LEN=256)    :: cell_length_b
-   CHARACTER (LEN=256)    :: cell_length_c
-   CHARACTER (LEN=256)    :: cell_angle_alpha
-   CHARACTER (LEN=256)    :: cell_angle_beta
-   CHARACTER (LEN=256)    :: cell_angle_gamma
-   CHARACTER (LEN=256)    :: cell_volume
-   CHARACTER (LEN=256)    :: exptl_density
-   CHARACTER (LEN=256)    :: exptl_mu
-   CHARACTER (LEN=256)    :: diffrn_reflns_number
-   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_equivalents
-   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_sigma
-   CHARACTER (LEN=256)    :: reflns_number_total
-   CHARACTER (LEN=256)    :: reflns_number_gt
-   CHARACTER (LEN=256)    :: refine_ls_number_parameters
-   CHARACTER (LEN=256)    :: refine_ls_wR_factor_gt
-   CHARACTER (LEN=256)    :: refine_ls_R_factor_gt
-   CHARACTER (LEN=256)    :: refine_ls_R_factor_all
-   CHARACTER (LEN=256)    :: refine_ls_wR_factor_ref
-   CHARACTER (LEN=256)    :: refine_diff_density_max
-   CHARACTER (LEN=256)    :: refine_diff_density_min
-   CHARACTER (LEN=256)    :: refine_diff_density_rms
-   CHARACTER (LEN=256)    :: H_treatment
-   CHARACTER (LEN=256)    :: atom
-   CHARACTER (LEN=256)    :: distance
-   CHARACTER (LEN=256)    :: angle
-   CHARACTER (LEN=256)    :: torsion_angle
-   CHARACTER (LEN=256)    :: Hbond
-   CHARACTER (LEN=256)    :: theta_min
-   CHARACTER (LEN=256)    :: theta_max
-   CHARACTER (LEN=256)    :: cell_theta_min
-   CHARACTER (LEN=256)    :: cell_theta_max
-   CHARACTER (LEN=256)    :: cell_reflns_used
-   CHARACTER (LEN=256)    :: F000
-   CHARACTER (LEN=256)    :: crystal_size_min, crystal_size_mid, crystal_size_max
-   CHARACTER (LEN=256)    :: crystal_colour
-   CHARACTER (LEN=256)    :: h_min, h_max, k_min, k_max, l_min, l_max
-   CHARACTER (LEN=256)    :: completeness
-   CHARACTER (LEN=256)    :: absorption_correction_type
-   CHARACTER (LEN=256)    :: T_min, T_max
-   CHARACTER (LEN=256)    :: restraints_number
-   CHARACTER (LEN=256)    :: Chi2
-   CHARACTER (len=256)    :: crystal_system
-   CHARACTER (LEN=256)    :: Bravais
-  END TYPE CIF_parameter_type
-  TYPE (CIF_parameter_type) :: CIF_parameter
-  TYPE (CIF_parameter_type) :: CIF_parameter_APEX
-  TYPE (CIF_parameter_type) :: CIF_parameter_KCCD  
-  TYPE (CIF_parameter_type) :: CIF_parameter_SUPERNOVA
-  TYPE (CIF_parameter_type) :: CIF_parameter_X2S
-  TYPE (CIF_parameter_type) :: CIF_parameter_XCALIBUR
   
 
 
@@ -1088,7 +1020,7 @@ module hkl_module
  integer                           :: n_ref_3        ! nombre de reflections avec I > 3sig
  INTEGER                           :: n_ref_eff      ! nombre de reflections dans le fichier final
  INTEGER                           :: n_ref_neg      ! nombre de reflections d'intensite negative
-
+ 
 
  !type, public :: reflexion_type
   integer,             dimension(:),   allocatable   :: h, k, l, code
@@ -1105,20 +1037,7 @@ module hkl_module
  !end type reflexion_type
  !type (reflexion_type) :: HKL
 
- integer, parameter                         :: MAX_allowed = 500000
- !integer, parameter                        :: max_ref = 500000
- !INTEGER,             DIMENSION(max_ref)   :: h, k, l, code
- !REAL,                DIMENSION(max_ref)   :: F2, sig_F2, E, E2, E3, E4, E5, E6
- !REAL,                DIMENSION(max_ref)   :: sinTheta_lambda, d_hkl, theta_hkl
- !LOGICAL,             DIMENSION(max_ref)   :: HKL_impair
- !CHARACTER (LEN=20),  DIMENSION(max_ref)   :: HKL_string
- !CHARACTER (LEN=256), DIMENSION(max_ref)   :: HKL_line
- !INTEGER,             DIMENSION(max_ref,3) :: HKL_flag
- !INTEGER,             DIMENSION(max_ref)   :: HKL_good
- !REAL,                DIMENSION(max_ref,6) :: cos_dir
- !REAL,                DIMENSION(max_ref)   :: I_sigma,I_
- !LOGICAL,             DIMENSION(max_ref)   :: HKL_search_ok
-
+ integer, parameter                       :: MAX_allowed = 500000
  CHARACTER (LEN=256), DIMENSION(10)       :: M95_comment_line
  INTEGER                                  :: M95_comment_line_nb
 
@@ -1354,6 +1273,8 @@ module pattern_profile_module
    real                   :: wdt
    real                   :: background
    real                   :: scale    
+   real                   :: Xmin
+   real                   :: Xmax
   end type pattern_param
   type (pattern_param) :: pattern
   type (pattern_param) :: X_pattern
@@ -1361,8 +1282,6 @@ module pattern_profile_module
   
 
 end module pattern_profile_module
-
-
 
 
 !--------------------------------------------------------------------
@@ -1439,6 +1358,167 @@ module SHELX_module
 
 end module SHELX_module
 
+!-------------------------------------------------------------------------------------------------------
+
+module CIF_module
+  ! parametres CIF (utiles pour generer le fichier structural_REPORT.html) -----------------------
+
+  TYPE, PUBLIC  :: CIF_parameter_type 
+   CHARACTER (LEN=256)    :: sample_ID  
+   CHARACTER (LEN=256)    :: formula_moiety
+   CHARACTER (LEN=256)    :: formula_sum
+   CHARACTER (LEN=256)    :: formula_weight
+   CHARACTER (LEN=256)    :: formula_units_Z
+   CHARACTER (LEN=256)    :: diffracto_device
+   CHARACTER (LEN=256)    :: diffracto_radiation_type
+   CHARACTER (LEN=256)    :: diffracto_radiation_source
+   CHARACTER (LEN=256)    :: diffracto_radiation_wavelength
+   CHARACTER (LEN=256)    :: diffracto_temperature
+
+   CHARACTER (LEN=256)    :: diffrn_source
+   CHARACTER (LEN=256)    :: diffrn_radiation_wavelength
+   CHARACTER (LEN=256)    :: diffrn_radiation_type
+   CHARACTER (LEN=256)    :: diffrn_radiation_source
+   CHARACTER (LEN=256)    :: diffrn_radiation_monochromator
+   CHARACTER (LEN=256)    :: diffrn_radiation_probe   
+   CHARACTER (LEN=256)    :: diffrn_measurement_device
+   CHARACTER (LEN=256)    :: diffrn_measurement_device_type
+   CHARACTER (LEN=256)    :: diffrn_measurement_method
+   CHARACTER (LEN=256)    :: diffrn_detector
+   CHARACTER (LEN=256)    :: diffrn_detector_area_resol_mean
+   CHARACTER (LEN=256)    :: diffrn_theta_full
+   CHARACTER (LEN=256)    :: diffrn_theta_max
+
+   CHARACTER (LEN=256)    :: computing_data_collection
+   CHARACTER (LEN=256)    :: computing_cell_refinement
+   CHARACTER (LEN=256)    :: computing_data_reduction
+   CHARACTER (LEN=256)    :: computing_structure_solution
+   CHARACTER (LEN=256)    :: computing_structure_refinement
+   CHARACTER (LEN=256)    :: computing_molecular_graphics
+   !CHARACTER (LEN=80)    :: computing_publication_material
+   CHARACTER (LEN=256)    :: computing_publication_material_1
+   CHARACTER (LEN=256)    :: computing_publication_material_2
+
+   CHARACTER (LEN=256)    :: symmetry_cell_setting
+   CHARACTER (LEN=256)    :: symmetry_space_group
+   CHARACTER (LEN=256)    :: symmetry_IT_number
+   CHARACTER (LEN=256)    :: cell_length_a
+   CHARACTER (LEN=256)    :: cell_length_b
+   CHARACTER (LEN=256)    :: cell_length_c
+   CHARACTER (LEN=256)    :: cell_angle_alpha
+   CHARACTER (LEN=256)    :: cell_angle_beta
+   CHARACTER (LEN=256)    :: cell_angle_gamma
+   CHARACTER (LEN=256)    :: cell_volume
+   CHARACTER (LEN=256)    :: cell_formula_units_Z
+   CHARACTER (LEN=256)    :: exptl_density
+   CHARACTER (LEN=256)    :: exptl_mu
+   CHARACTER (LEN=256)    :: diffrn_reflns_number
+   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_equivalents
+   CHARACTER (LEN=256)    :: diffrn_reflns_av_R_sigma
+   CHARACTER (LEN=256)    :: reflns_number_total
+   CHARACTER (LEN=256)    :: reflns_number_gt
+   CHARACTER (LEN=256)    :: refine_ls_wR_factor_ref
+   CHARACTER (LEN=256)    :: refine_ls_wR_factor_gt
+   CHARACTER (LEN=256)    :: refine_ls_R_factor_gt
+   CHARACTER (LEN=256)    :: refine_ls_R_factor_all
+   CHARACTER (LEN=256)    :: refine_ls_goodness_of_fit_ref
+   CHARACTER (len=256)    :: refine_ls_restrained_S_all
+   CHARACTER (len=256)    :: refine_ls_shift_su_max
+   CHARACTER (len=256)    :: refine_ls_shift_su_mean
+   CHARACTER (LEN=256)    :: refine_diff_density_max
+   CHARACTER (LEN=256)    :: refine_diff_density_min
+   CHARACTER (LEN=256)    :: refine_diff_density_rms
+   CHARACTER (LEN=256)    :: refine_ls_weighting_details
+   CHARACTER (LEN=256)    :: atom_sites_solution_1
+   CHARACTER (LEN=256)    :: atom_sites_solution_2
+   CHARACTER (LEN=256)    :: atom_sites_solution_H
+   CHARACTER (LEN=256)    :: refine_ls_H_treatment
+   CHARACTER (LEN=256)    :: refine_ls_extinction_method
+   CHARACTER (LEN=256)    :: refine_ls_extinction_coef
+   CHARACTER (LEN=256)    :: refine_ls_number_reflns 
+   CHARACTER (LEN=256)    :: refine_ls_number_parameters
+   CHARACTER (LEN=256)    :: refine_ls_number_restraints
+   CHARACTER (LEN=256)    :: H_treatment
+   CHARACTER (LEN=256)    :: atom
+   CHARACTER (LEN=256)    :: distance
+   CHARACTER (LEN=256)    :: angle
+   CHARACTER (LEN=256)    :: torsion_angle
+   CHARACTER (LEN=256)    :: Hbond
+   CHARACTER (LEN=256)    :: theta_min
+   CHARACTER (LEN=256)    :: theta_max
+   CHARACTER (LEN=256)    :: theta_full
+   CHARACTER (LEN=256)    :: cell_theta_min
+   CHARACTER (LEN=256)    :: cell_theta_max
+   CHARACTER (LEN=256)    :: cell_reflns_used
+   CHARACTER (LEN=256)    :: F000
+   CHARACTER (LEN=256)    :: crystal_size_min, crystal_size_mid, crystal_size_max
+   CHARACTER (LEN=256)    :: crystal_colour
+   CHARACTER (LEN=256)    :: h_min, h_max, k_min, k_max, l_min, l_max
+   CHARACTER (LEN=256)    :: completeness
+   CHARACTER (LEN=256)    :: absorption_correction_type
+   CHARACTER (LEN=256)    :: absorption_coefficient_mu
+   CHARACTER (LEN=256)    :: T_min, T_max
+   CHARACTER (LEN=256)    :: restraints_number
+   CHARACTER (LEN=256)    :: Chi2
+   CHARACTER (len=256)    :: crystal_system
+   CHARACTER (LEN=256)    :: Bravais
+   LOGICAL                :: WinGX_used
+  END TYPE CIF_parameter_type
+  TYPE (CIF_parameter_type) :: CIF_parameter
+  TYPE (CIF_parameter_type) :: CIF_parameter_APEX
+  TYPE (CIF_parameter_type) :: CIF_parameter_KCCD  
+  TYPE (CIF_parameter_type) :: CIF_parameter_SUPERNOVA
+  TYPE (CIF_parameter_type) :: CIF_parameter_X2S
+  TYPE (CIF_parameter_type) :: CIF_parameter_XCALIBUR
+
+  
+  TYPE, PUBLIC:: CIF_reflns_type
+   REAL                    :: theta_min
+   REAL                    :: theta_max
+   INTEGER                 :: reflns_used
+   CHARACTER (LEN=64)      :: temperature
+   REAL                    :: wavelength
+  END TYPE cif_reflns_type
+  TYPE (CIF_reflns_type) :: CIF_diffrn_reflns
+  TYPE (CIF_reflns_type) :: CIF_cell_measurement
+
+  TYPE, PUBLIC :: CIF_dist_type
+   integer                                        :: max_text
+   integer                                        :: n_text
+   character (len=132), dimension(:), allocatable :: text
+  END TYPE CIF_DIST_type
+  type (CIF_DIST_type) :: CIF_DIST
+
+
+  ! caracteristiques de la boucle _atom_site  
+   integer                           :: CIF_atom_site_item_nb                ! nombre de champs dans la boucle _atom_site_ 
+   integer                           :: CIF_atom_site_label_numor
+   integer                           :: CIF_atom_site_type_symbol_numor      ! numero du champ
+   integer                           :: CIF_atom_site_fract_x_numor
+   integer                           :: CIF_atom_site_fract_y_numor
+   integer                           :: CIF_atom_site_fract_z_numor
+   integer                           :: CIF_atom_site_U_numor
+   integer                           :: CIF_atom_adp_type_numor
+   integer                           :: CIF_atom_site_calc_flag_numor        ! numero du champ
+   integer                           :: CIF_atom_site_refinement_flags_numor ! numero du champ
+   integer                           :: CIF_atom_site_loop_numor             ! numero de la ligne du champ _loop   
+   integer                           :: CIF_atom_site_occupancy_numor
+   integer                           :: CIF_atom_site_symm_multiplicity_numor 
+   integer                           :: CIF_atom_site_disorder_assembly_numor
+   integer                           :: CIF_atom_site_disorder_group_numor
+   
+   
+   ! caracteristiques de la boucle _atom_type_
+   integer                           :: CIF_atom_type_loop_numor
+   integer                           :: CIF_atom_type_item_nb                   ! nombre de champs dans la boucle
+   integer                           :: CIF_atom_type_symbol_numor              ! numero du champ _symbol dans la boucle
+
+   ! caracteristiques de la boucle _atom_site_aniso
+   integer                           :: CIF_atom_site_aniso_item_nb
+   integer                           :: CIF_atom_site_aniso_label_numor
+   integer                           :: CIF_atom_site_aniso_loop_numor          ! numero de la ligne du champ _loop   
+
+end module CIF_module
 
 !-------------------------------------------------------------------
 subroutine def_laue_class()
@@ -1564,7 +1644,7 @@ end subroutine def_HKL_rule
 !-----------------------------------------------------------------------------------------------
  module MATRIX_list_module
   implicit none
-  integer, parameter                                               :: max_mat_nb      = 32
+  integer, parameter                                               :: max_mat_nb      = 33
   integer, parameter                                               :: max_user_mat_nb = 5
   integer                                                          :: user_mat_nb
   REAL,                 DIMENSION(3,3,max_mat_nb+max_user_mat_nb)  :: transf_mat
@@ -1575,6 +1655,16 @@ end subroutine def_HKL_rule
   CHARACTER (len=256)                                              :: matrix_text
 
  end module MATRIX_list_module
+!-----------------------------------------------------------------------------------------------
+
+module USER_module
+ implicit none
+ integer, parameter                                 :: user_shortcut_max = 10
+ integer                                            :: nb_shortcuts
+ CHARACTER (LEN=32), dimension(user_shortcut_max)   :: shortcut_kw
+ CHARACTER (LEN=32), dimension(user_shortcut_max)   :: shortcut_details
+ 
+end module USER_module 
 !-----------------------------------------------------------------------------------------------
 
 subroutine def_transformation_matrix()
@@ -1794,10 +1884,10 @@ subroutine def_transformation_matrix()
   transf_mat(2,:,32) = (/ 0.,  -1.,  0./)      !
   transf_mat(3,:,32) = (/ 1.,   0.,  0./)      !
 
-  !transf_mat_text(33) = '#33: a b c  ==>    a   -b  -a-c (mono. setting)'
-  !transf_mat(1,:,33) = (/ 1.,   0.,  0./)      !
-  !transf_mat(2,:,33) = (/ 0.,  -1.,  0./)      !
-  !transf_mat(3,:,33) = (/-1.,   0., -1./)      !
+  transf_mat_text(33) = '#33: a b c  ==>    a   -b  -a-c (mono. setting)'
+  transf_mat(1,:,33) = (/ 1.,   0.,  0./)      !
+  transf_mat(2,:,33) = (/ 0.,  -1.,  0./)      !
+  transf_mat(3,:,33) = (/-1.,   0., -1./)      !
 
   ! initialisation des matrices utilisateurs
   do i=1, 5
@@ -1905,3 +1995,5 @@ Module Accents_module
   end subroutine def_accents
 									  
 End Module Accents_module
+
+

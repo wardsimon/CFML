@@ -150,7 +150,7 @@ subroutine write_mu(input_string)
  USE cryscalc_module, ONLY : ON_SCREEN, message_text, keyword_SIZE, crystal, X_rays, neutrons,      &
                              keyword_TRANSMISSION, nb_dim_transmission, dim_transmission, keyword_create_CIF, &
                              keyword_WRITE_REF_APEX, keyword_WRITE_REF_X2S, absorption, SADABS_ratio,         &
-					 		SADABS_Tmin, SADABS_Tmax, debug_proc
+					 		 SADABS_Tmin, SADABS_Tmax, keyword_create_archive, debug_proc
  USE IO_module,       ONLY : write_info
  USE math_module,     ONLY : transmission
 
@@ -162,7 +162,7 @@ subroutine write_mu(input_string)
   
  if(debug_proc%level_2)  call write_debug_proc_level(2, "write_mu ("//trim(input_string)//")")
  
- if(ON_SCREEN) then
+ if(ON_SCREEN  .and. .not. keyword_create_archive) then
   call write_info(' ')
   WRITE(message_text,'(a,F10.5,a)') '   > mu:   ',absorption%mu,     ' cm-1'
    call write_info(TRIM(message_text))
@@ -173,10 +173,12 @@ subroutine write_mu(input_string)
  IF(keyword_create_CIF)  call write_CIF_file('ABSORPTION')
 
  if (keyword_SIZE) then
-  if(ON_SCREEN .and. crystal%radius < eps) then
+  if(ON_SCREEN  .and. .not. keyword_create_archive .and. crystal%radius < eps) then
    call write_info(' ')
-   WRITE(message_text,'(a,F10.5,a)')  '   > R   : ', crystal%radius, ' mm'
-   WRITE(message_text,'(a,F10.5)')    '   > mu*R: ',0.1*absorption%mu*  crystal%radius
+   WRITE(message_text,'(a,F10.5,a)')  '   > <R>   : ', crystal%radius, ' mm'
+   call write_info(TRIM(message_text))
+   
+   WRITE(message_text,'(a,F10.5)')    '   > mu*<R>: ',0.1*absorption%mu*  crystal%radius
    call write_info(TRIM(message_text))
    call write_info(' ')
   endif
@@ -187,22 +189,26 @@ subroutine write_mu(input_string)
   absorption%Tmin = transmission(0.1*absorption%mu, d_max)
   absorption%Tmax = transmission(0.1*absorption%mu, d_min)
 
-  if(ON_SCREEN) then
+  if(ON_SCREEN .and. .not. keyword_create_archive) then
    call write_info('')
-   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Min of transmission (for x =  ',d_max, ' mn) = ', absorption%Tmin
+   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Min of transmission (for x =  ',d_max, ' mm) = ', absorption%Tmin
    call write_info(TRIM(message_text))
-   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Max of transmission (for x =  ',d_min, ' mn) = ', absorption%Tmax
+   WRITE(message_text, '(a,F7.4,a,F10.4)') '    . Max of transmission (for x =  ',d_min, ' mm) = ', absorption%Tmax
    call write_info(TRIM(message_text))
   end if
 
-  IF(keyword_create_CIF) then
+  IF(keyword_create_CIF .or. keyword_create_archive) then
    IF(keyword_WRITE_REF_APEX)  call write_CIF_file('SADABS')
    IF(keyword_WRITE_REF_X2S)   call write_CIF_file('SADABS')
    call Get_SADABS_ratio()
 
-   call write_CIF_file('TMIN')
-   call write_CIF_file('TMAX')
-   if(ON_SCREEN) then
+   if(keyword_create_archive ) then
+    if(sadabs_ratio >0.) absorption%Tmin = absorption%Tmax *sadabs_ratio	
+   else
+    call write_CIF_file('TMIN')
+    call write_CIF_file('TMAX')
+   end if	
+   if(ON_SCREEN .and. .not. keyword_create_archive) then
     call write_info("")
     call write_info("   Tmax and Tmin values correspond to EXPECTED values calculated from crystal size." )
     if(SADABS_ratio > 0.) then
@@ -255,7 +261,7 @@ end subroutine write_mu
 
 subroutine neutron_cross_section()
  USE atome_module
- USE cryscalc_module, ONLY         : ON_SCREEN, nb_atoms_type, wavelength, atom_typ, SFAC_type, sfac_number, num_atom, &
+ USE cryscalc_module, ONLY         : ON_SCREEN, nb_atoms_type, wavelength, atom_typ, SFAC, num_atom, &
                                      message_text, debug_proc
  USE IO_module,  ONLY              : write_info
 
@@ -283,7 +289,7 @@ subroutine neutron_cross_section()
    atom(num_atom(i))%N_SE_absorption = atom(num_atom(i))%SEA*2200./neutron_velocity
 
    if(ON_SCREEN) then
-    WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC_type(i), num_atom(i), sfac_number(i),                 &
+    WRITE(message_text,'(2x,a,i8,F8.2,4(10x,F8.3))') SFAC%type(i), num_atom(i), sfac%number(i),                 &
                                                      atom(num_atom(i))%N_SED_coh,  atom(num_atom(i))%N_SED_inc, &
 													 atom(num_atom(i))%SEA,                                     &
                                                      atom(num_atom(i))%N_SE_absorption
@@ -322,7 +328,7 @@ end subroutine    neutron_absorption
 
 subroutine X_attenuation_calculation()
  USE atome_module,    ONLY : atom
- USE cryscalc_module,  ONLY : ON_SCREEN, absorption, nb_atoms_type, SFAC_type, SFAC_number, num_atom, nb_at, message_text
+ USE cryscalc_module,  ONLY : ON_SCREEN, absorption, nb_atoms_type, SFAC, num_atom, nb_at, message_text
  USE wavelength_module
  USE IO_module,       ONLY : write_info
 
@@ -369,8 +375,8 @@ subroutine X_attenuation_calculation()
  absorption%mu = 0.
  do i=1, nb_atoms_type
   if(ON_SCREEN) then
-   !WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), num_atom(i), SFAC_number(i), atom(num_atom(i))%X_attenuation
-   WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC_type(i), atom(num_atom(i))%Z, SFAC_number(i),  &
+   !WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC%type(i), num_atom(i), SFAC%number(i), atom(num_atom(i))%X_attenuation
+   WRITE(message_text,'(2x,a,i8,F8.2,1(10x,F12.3))') SFAC%type(i), atom(num_atom(i))%Z, SFAC%number(i),  &
                                                      atom(num_atom(i))%X_attenuation
    call write_info(trim(message_text))
   endif
@@ -396,8 +402,8 @@ subroutine F000_calculation(beam)
   if (beam(1:1)=='X') then
    ! F000: nombre total d'electrons dans la maille
    do i=1, nb_atoms_type
-    !F000 = F000 + SFAC_number(i)*num_atom(i)
-	F000 = F000 + SFAC_number(i)*atom(Num_atom(i))%Z
+    !F000 = F000 + SFAC%number(i)*num_atom(i)
+	F000 = F000 + SFAC%number(i)*atom(Num_atom(i))%Z
    end do
   else
    ! F000: somme des

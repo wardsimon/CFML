@@ -17,7 +17,63 @@ subroutine write_cryscalc_neWS(input_string)
 
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '14' .or. news_year(1:4) == '2014') then
    call write_cryscalc_news_line(input_string,  '')
+   call write_cryscalc_news_line(input_string,  '. Nov. 14 :')      
+   call write_cryscalc_news_line(input_string,  '  # New PAT command line argument after .CIF or . INS file ')
+   call write_cryscalc_news_line(input_string,  '    allows to calculate a diffraction pattern from features given by ')
+   call write_cryscalc_news_line(input_string,  '    PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]')
+   call write_cryscalc_news_line(input_string,  '    section of the setting file.')
+   call write_cryscalc_news_line(input_string,  '    Example: cryscalc job.cif PAT')
+   call write_cryscalc_news_line(input_string,  '')
+   call write_cryscalc_news_line(input_string,  '. Oct. 14 :')      
+   call write_cryscalc_news_line(input_string,  '  # New [USER SHORTCUTS] section of the cryscalc.ini, defining')
+   call write_cryscalc_news_line(input_string,  '    some keywords shortcuts (max. = 10). The shortcut and its')
+   call write_cryscalc_news_line(input_string,  '    details (CRYSCALC keyword) has to be separated by "=" character.')
+   call write_cryscalc_news_line(input_string,  '    Example: RJC = READ_CIF job.cif')
+   
+   
+   call write_cryscalc_news_line(input_string,  '  # New parameters in [OPTIONS] section of the cryscalc.ini')
+   call write_cryscalc_news_line(input_string,  '    setting file. These parameters are used for simulation')
+   call write_cryscalc_news_line(input_string,  '    of powder diffraction file from command line and .CIF/.INS')
+   call write_cryscalc_news_line(input_string,  '    file (create_PAT_PRF=1)')
+   call write_cryscalc_news_line(input_string,  '     pdp_beam   = N    ! N for neutrons / X for X-rays')
+   call write_cryscalc_news_line(input_string,  '     pdp_wave   = 1.22 ! wavelength used for diffraction pattern')
+   call write_cryscalc_news_line(input_string,  '                        simulation')
+   call write_cryscalc_news_line(input_string,  '    If not specified, simulation pattern is calculated for ')
+   call write_cryscalc_news_line(input_string,  '    X-rays and Copper K_alpha1 radiation (1.5406 A)')
+   
+   
+   
+   
+   
+   call write_cryscalc_news_line(input_string,  '  # New command line argument:')
+   call write_cryscalc_news_line(input_string,  '    CREATE_ARCHIVE argument, followed by the name of CIF files')
+   call write_cryscalc_news_line(input_string,  '    (without extension), allows to create a whole archive.cif file.')
+   call write_cryscalc_news_line(input_string,  '    First cif file corresponds to the main CIF file created by ')
+   call write_cryscalc_news_line(input_string,  '    refinement software and next ones to supplementary cif files')
+   call write_cryscalc_news_line(input_string,  '    to complete the archive.')
+   call write_cryscalc_news_line(input_string,  '    ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import')
+   call write_cryscalc_news_line(input_string,  '         . my_job : main .CIF file, used to extract structural ')
+   call write_cryscalc_news_line(input_string,  '                    parameters')
+   call write_cryscalc_news_line(input_string,  '         . import : secondary .CIF file, containing experimental')
+   call write_cryscalc_news_line(input_string,  '                    parameters (crystal and experimental features, ...)')
+   
+   call write_cryscalc_news_line(input_string,  '. Sept. 14 :') 
+   call write_cryscalc_news_line(input_string,  '  # new CREATE_SOLVE keyword:')
+   call write_cryscalc_news_line(input_string,  '    . create input files for structure solving software as SIR97, ')
+   call write_cryscalc_news_line(input_string,  '      SHELXS/T and SUPERFLIP.')
+   call write_cryscalc_news_line(input_string,  '  # bugs corrections:')
+   call write_cryscalc_news_line(input_string,  '    . site multiplicity calculation')
+   call write_cryscalc_news_line(input_string,  '    . CRYSCALC reports (html, txt, latex): adp are in A^2')
+   call write_cryscalc_news_line(input_string,  '      and not in A^2x10^3 !')
+   call write_cryscalc_news_line(input_string,  '  # Some statistics on F2_mean, sig_mean ... have been added in the')
+   call write_cryscalc_news_line(input_string,  '     output of the FILE keyword.')
+   
+   call write_cryscalc_news_line(input_string,  '')
    call write_cryscalc_news_line(input_string,  '. July 14 :') 
+   call write_cryscalc_news_line(input_string,  '  # "include_HKL_file" field can be input in the cryscalc.ini setting file to')
+   call write_cryscalc_news_line(input_string,  '    embed the contain of hkl SHEXL file in the archive_cryscalc.cif file.')
+   call write_cryscalc_news_line(input_string,  '    The SHELXL hkl file name corresponds to the last project ID in WinGX.')
+
    call write_cryscalc_news_line(input_string,  '  # NOT TO CONFUSE, CRYSCAL PROGRAM HAS BEEN RENAMED AS')
    call write_cryscalc_news_line(input_string,  '    CRYSCALC. FEATURES OF THE SOFTWARE HAVE TO BE CHANGED')
    call write_cryscalc_news_line(input_string,  '    CONSEQUENTLY : ')

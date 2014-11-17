@@ -13,7 +13,7 @@ program crystallographic_calculations
   CHARACTER (LEN=4)                        :: choice
   LOGICAL                                  :: file_exist
   LOGICAL                                  :: arg_keyword
-  INTEGER                                  :: len_cmd_line, nb_arg
+  INTEGER                                  :: len_cmd_line, nb_arg, long
   INTEGER                                  :: i, i1, i2, nb_col
   INTEGER                                  :: i_error
   character (len=256), dimension(10)       :: cmd_arg
@@ -70,50 +70,65 @@ program crystallographic_calculations
    i_arg_PYMOL      = 0
    i_arg_NO_SQUEEZE = 0
    do i = 1, nb_arg
-    if(u_case(cmd_arg(i)(1:5)) == 'DEBUG' .or. u_case(cmd_arg(i)(1:3)) == 'LOG')  then
+    long = len_trim(cmd_arg(i))
+    if((long >= 5 .and. u_case(cmd_arg(i)(1:5)) == 'DEBUG') .or. &
+	   (long == 3 .and. u_case(cmd_arg(i)(1:3)) == 'LOG'))  then
      debug_proc%write   = .true.
 	 debug_proc%level_1 = .true.
-	 if(u_case(cmd_arg(i)(1:7)) == 'DEBUG_2') debug_proc%level_2 = .true.
-	 if(u_case(cmd_arg(i)(1:7)) == 'DEBUG_3') then
+	 if(long ==7 .and. u_case(cmd_arg(i)(1:7)) == 'DEBUG_2') debug_proc%level_2 = .true.
+	 if(long ==7 .and. u_case(cmd_arg(i)(1:7)) == 'DEBUG_3') then
 	  debug_proc%level_2 = .true. 
 	  debug_proc%level_3 = .true.
 	 end if 
      i_arg_DEBUG    = i
     end if
-    if(u_case(cmd_arg(i)(1:6)) == 'NO_OUT') then
+    if(long ==6 .and. u_case(cmd_arg(i)(1:6)) == 'NO_OUT') then
      ON_SCREEN      = .false.
      i_arg_NOOUT    = i
-    endif 
-    if(u_case(cmd_arg(i)(1:6)) == 'CIFDEP') then
+    endif
+    if(long ==6 .and. u_case(cmd_arg(i)(1:6)) == 'CIFDEP') then
      CIFDEP         = .true.
      i_arg_CIFDEP   = i
     endif
-    if(u_case(cmd_arg(i)(1:4)) == 'ACTA')   then
+    if(long ==4 .and. u_case(cmd_arg(i)(1:4)) == 'ACTA')   then
      ACTA           = .true.
 	 !CIFDEP         = .true.
      i_arg_ACTA     = i
     endif
-	if(u_case(cmd_arg(i)(1:5)) == 'PYMOL') then
+	if(long ==5 .and. u_case(cmd_arg(i)(1:5)) == 'PYMOL') then
 	 create_CIF_PYMOL = .true.
-	 i_arg_PYMOL    = i
+	 i_arg_PYMOL    = i	 
 	endif
-	if(u_case(cmd_arg(i)(1:10)) == 'NO_SQUEEZE' .or. u_case(cmd_arg(i)(1:6)) == 'NO_SQZ') then
+	if((long ==10 .and. u_case(cmd_arg(i)(1:10)) == 'NO_SQUEEZE') .or. &
+	   (long ==6  .and.  u_case(cmd_arg(i)(1:6)) == 'NO_SQZ')) then
 	 include_SQUEEZE  = .false.
 	 i_arg_NO_SQUEEZE = i
 	end if 
-	if(u_case(cmd_arg(i)(1:4)) == 'RAW=' ) then
+	
+	if(long ==4 .and. u_case(cmd_arg(i)(1:4)) == 'RAW=' ) then
 	 RAW_file_name = cmd_arg(i)(5:)
 	 keyword_RAW = .true.	
 	end if 
-	if(u_case(cmd_arg(i)(1:4)) == 'HKL=' ) then
+	!if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'ABS=' ) then
+	! ABS_file_name = cmd_arg(i)(5:)
+	! keyword_ABS = .true.	 
+	!end if 
+	if(long ==4 .and. u_case(cmd_arg(i)(1:4)) == 'HKL=' ) then
 	 HKL_file_name = cmd_arg(i)(5:)
-	 keyword_HKL = .true.	
+	 keyword_HKL = .true.	 
 	end if 
-	if(u_case(cmd_arg(i)(1:4)) == 'P4P=' ) then
+	if(long ==4 .and. u_case(cmd_arg(i)(1:4)) == 'P4P=' ) then
 	 P4P_file_name = cmd_arg(i)(5:)
 	 keyword_P4P = .true.	
 	end if 
-   end do 
+	if(long >=3 .and. u_case(cmd_arg(i)(1:3)) == 'PAT') then
+     INI_create_PRF     = .true.
+     keyword_create_PRF = .true.
+	 if(long ==5 .and. u_case(cmd_arg(i)(1:5)) == 'PAT_X') pdp_simu%beam = "x-rays"
+	 if(long ==5 .and. u_case(cmd_arg(i)(1:5)) == 'PAT_N') pdp_simu%beam = "neutrons"
+	end if
+	
+   end do
    
    if(debug_proc%write) call open_debug_file
    if(debug_proc%write) then   
@@ -229,7 +244,9 @@ program crystallographic_calculations
     endif
 
     
-   ELSEIF(input_arg(1:6) == 'REPORT' .or. input_arg(1:11) == 'REPORT_LONG' .or. input_arg(1:10) == 'REPORT_TEX' .or. input_arg(1:12) == 'REPORT_LATEX') then
+   ELSEIF(input_arg(1:6)  == 'REPORT'      .or. input_arg(1:11) == 'REPORT_LONG' .or. &
+          input_arg(1:10) == 'REPORT_TEX'  .or. input_arg(1:10) == 'REPORT_TXT'  .or. &
+		  input_arg(1:11) == 'REPORT_TEXT' .or. input_arg(1:12) == 'REPORT_LATEX') then
     keyword_create_report = .true.
     arg_keyword   = .true.
 	HTML_report   = .true.
@@ -237,8 +254,8 @@ program crystallographic_calculations
 	text_report   = .false.
 	latex_report  = .false.
     if(input_arg(1:11) == 'REPORT_LONG') long_report = .true.
-	if(input_arg(1:10) == 'REPORT_TEX')  then
-	 long_report = .true.
+	if(input_arg(1:10) == 'REPORT_TEX' .or. input_arg(1:10) == 'REPORT_TXT' .or. input_arg(1:11) == 'REPORT_TEXT')  then
+	 long_report  = .true.
 	 text_report  = .true.
 	 HTML_report  = .false.
 	endif
@@ -262,11 +279,40 @@ program crystallographic_calculations
    ELSEIF(input_arg(1:11) == 'ARCHIVE.CIF') then
     keyword_modif_archive = .true.
     input_file = input_arg(1:11)
+	archive_cif = input_arg(1:11)
     arg_keyword = .true.
+
+	ELSEIF(input_arg(1:14) == 'CREATE_ARCHIVE') then
+    keyword_create_archive = .true.
+	if(nb_arg > 1) then
+	 nb_input_cif_files = nb_arg -1
+	 do i=2, nb_arg
+	  i1=index(cmd_arg(i), '.')
+	  if(i1==0) then
+	   input_CIF_file(i-1) = trim(cmd_arg(i))//'.cif'
+	  else
+	   input_CIF_file(i-1) = cmd_arg(i)(1:i1-1)//'.cif'	  
+      endif	  	  
+	 end do	 
+	 if(nb_arg == 2) then
+	  nb_input_cif_files = 2
+	  input_CIF_file(2) = 'import.cif'
+	 end if
+	else
+	 nb_input_CIF_files = 2
+	 !input_CIF_file(1) = 'struct.cif'
+	 input_CIF_file(1) = 'job.cif'
+	 input_CIF_file(2) = 'import.cif'
+	endif
+	arg_keyword = .true.
+
    
    elseif(input_arg(1:12) == 'SOLVE_TO_INS' .or. input_arg(1:10) == 'CREATE_INS') then
     keyword_SOLVE_to_INS = .true.
     arg_keyword =  .true.
+	create_INS%ANIS = .false.
+    if(nb_arg > 1 .and. u_case(cmd_arg(2)(1:4)) == 'ANIS') create_INS%ANIS = .true.
+
    endif
 
    if(.not. keyword_HELP .and. .not. keyword_KEY .and. .not. keyword_create_CRYSCALC_HTML &
@@ -434,7 +480,7 @@ program crystallographic_calculations
  ! OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
  !  call check_CIF_input_file(TRIM(CIF_file_name))
  !  call read_CIF_input_file(TRIM(CIF_file_name), '?')
- !  call read_CIF_input_file_TR(CIF_read_unit)
+ !  call read_CIF_input_file_TR(CIF_read_unit, TRIM(CIF_file_name))
  ! CLOSE(UNIT=CIF_read_unit)
  ! keyword_read_CIF = .true.
  ! call create_CEL_from_CIF
@@ -443,6 +489,17 @@ program crystallographic_calculations
  elseif(keyword_SOLVE_to_INS) then
   call create_INS_from_SOLVE()
   stop 
+
+ elseif(keyword_modif_ARCHIVE) then
+  call read_and_modif_archive(input_unit)
+  call read_keywords_from_file(TRIM(input_file))                      ! cryscalc.F90
+  call run_keywords()                                                 ! cryscalc.F90 
+  stop
+  
+ elseif(keyword_create_ARCHIVE) then 
+  call read_cif_and_create_ARCHIVE()       ! create_archive_cif_file.F90
+  stop
+
  END IF
 
 
@@ -451,8 +508,8 @@ program crystallographic_calculations
    call read_keywords_from_file(TRIM(input_file))
   else
    call read_keywords_from_file(TRIM(input_file))                      ! cryscalc.F90
-   call run_keywords()                                                 ! cryscalc.F90 
-   if(keyword_modif_ARCHIVE) call read_and_modif_archive(input_unit)   ! read_cif_file.F90
+   !call run_keywords()                                                 ! cryscalc.F90 
+   !if(keyword_modif_ARCHIVE) call read_and_modif_archive(input_unit)   ! read_cif_file.F90
    
   endif
 

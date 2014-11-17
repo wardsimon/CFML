@@ -56,7 +56,8 @@ end subroutine create_structural_report
 subroutine Get_CIF_parameters()
  USE structural_report_module,     ONLY : job, op_string
  USE MACROS_module,                ONLY : test_file_exist,  l_case                                            
- USE cryscalc_module,              ONLY : CIF_unit, CIF_parameter, archive_CIF, debug_proc, include_squeeze, debug_proc
+ USE cryscalc_module,              ONLY : CIF_unit, archive_CIF, debug_proc, include_squeeze, debug_proc
+ use CIF_module,                   ONLY : CIF_parameter
  USE IO_module
  
  implicit none
@@ -102,8 +103,9 @@ subroutine Get_CIF_parameters()
     return
    endif
    IF(LEN_TRIM(CIF_input_line) == 0) cycle
+   if(CIF_input_line(1:32) == '#  CIF produced by WinGX routine') CIF_parameter%WinGX_used = .true.
    IF(CIF_input_line(1:1) == "#")    cycle
-   
+    
      
    !read(CIF_input_line, '(a)', IOSTAT=i_error) CIF_field   
    !IF(i_error /=0) then
@@ -144,7 +146,6 @@ subroutine Get_CIF_parameters()
 
    select case (CIF_field(1:long_field))
       
-       
        case ('_chemical_formula_moiety')
 	    call Get_CIF_value(CIF_unit, CIF_field_value, CIF_parameter%formula_moiety)		
 		        
@@ -500,12 +501,14 @@ end subroutine create_report_header
 subroutine  create_report
  USE structural_report_module
  USE MACROS_module,                ONLY : test_file_exist, remove_car, nombre_de_colonnes, l_case, u_case,             &
-                                          check_character, Get_wingx_job,  Get_current_folder_name, replace_car, multiple
- USE cryscalc_module,              ONLY : CIF_unit, HTML_unit, text_unit, LATEX_unit, CIF_parameter, archive_CIF, long_report, &
-                                          CIF_CELL_measurement, CIF_torsion_limit, text_report, HTML_report, LATEX_report,     &
-                                          SQUEEZE, my_browser, my_pdflatex, cryscalc, message_text, debug_proc,            &
-										  cryscalc, structure_solution, structure_refinement, author, &
-										  report_header, include_SQUEEZE, debug_proc
+                                          check_character, Get_wingx_job,  Get_current_folder_name, replace_car, multiple, &
+										  replace_car2
+ USE cryscalc_module,              ONLY : CIF_unit, HTML_unit, text_unit, LATEX_unit, archive_CIF, long_report,        &
+                                          CIF_torsion_limit, text_report, HTML_report, LATEX_report,                   &
+                                          SQUEEZE, my_browser, my_pdflatex, cryscalc, message_text, debug_proc,        &
+										  cryscalc, structure_solution, structure_refinement, author,                  &
+										  report_header, include_SQUEEZE, debug_proc 
+ USE CIF_module,                   ONLY : CIF_parameter, CIF_CELL_measurement										  
  USE external_applications_module, ONLY : launch_browser, launch_word, launch_pdflatex
  USE IO_module
  USE LATEX_module,                 ONLY : logo
@@ -515,7 +518,7 @@ subroutine  create_report
  implicit none 
  LOGICAL                             :: file_exist
  CHARACTER (LEN=256)                 :: CIF_input_line, CIF_field, CIF_field_value
- CHARACTER (LEN=256)                 :: HTML_string, new_HTML_string
+ CHARACTER (LEN=512)                 :: HTML_string, new_HTML_string
  CHARACTER (LEN=256), dimension(4)   :: report_string
  CHARACTER (LEN=256)                 :: LATEX_string
  CHARACTER (LEN=256)                 :: DOS_command
@@ -659,14 +662,18 @@ subroutine  create_report
   long = len_trim(HTML_string)
   
   if(HTML_report) then   
-   HTML_string = CIF_parameter%symmetry_space_group   
+   HTML_string = CIF_parameter%symmetry_space_group      
+   call check_letter_string(HTML_string, .false.)
    call check_indice_string(HTML_string) 
-   WRITE(HTML_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " <i>", trim(HTML_string),  &
-                           "</i> (I.T.#", TRIM(CIF_parameter%symmetry_IT_number), "), "
+   !WRITE(HTML_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " <i>", trim(HTML_string),  &
+   !                        "</i> (I.T.#", TRIM(CIF_parameter%symmetry_IT_number), "), "
+   WRITE(HTML_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " ", trim(HTML_string),  &
+                           " (I.T.#", TRIM(CIF_parameter%symmetry_IT_number), "), "
   endif
   
   if(LATEX_report) then
    LATEX_string = CIF_parameter%symmetry_space_group
+   call check_letter_string(LATEX_string, .false.)
    call check_indice_string(LATEX_string)
    WRITE(LATEX_unit, '(6a)') TRIM(CIF_parameter%symmetry_cell_setting), " $", trim(LATEX_string),  &
                            "$ (I.T.\#", TRIM(CIF_parameter%symmetry_IT_number), "), "
@@ -713,9 +720,13 @@ subroutine  create_report
    !WRITE(HTML_unit, '(a)') "The structure was solved by direct methods using the SIR97 program [1], "
    WRITE(HTML_unit, '(3a)') "The structure was solved by direct methods using the <i>",  &
                              u_case(trim(structure_solution%name)), "</i> program [1], "
-   WRITE(HTML_unit, '(3a)') "and then refined with full-matrix least-square methods based on <i>F</i><sup>2</sup> (<i>", &
-                             u_case(trim(structure_refinement%name)), "</i>) [2] "
-   WRITE(HTML_unit, '(a)')  "with the aid of the <i>WINGX</i> [3] program."
+   WRITE(HTML_unit, '(a)')  "and then refined with full-matrix least-square methods based on <i>F</i><sup>2</sup>"
+   if(CIF_parameter%WinGX_used) then
+     WRITE(HTML_unit, '(4a)') "(<i>", u_case(trim(structure_refinement%name)), "</i>) [2] ", &
+	                          "with the aid of the <i>WINGX</i> [3] program."
+   else
+    WRITE(HTML_unit, '(3a)') "(<i>", u_case(trim(structure_refinement%name)), "</i>) [2]."
+   endif   
 
    !if(SQUEEZE%procedure) then
    if(include_SQUEEZE) then
@@ -744,8 +755,13 @@ subroutine  create_report
    if(LATEX_report) then
     WRITE(LATEX_unit, '(3a)') "The structure was solved by direct methods using the ",  &
                               u_case(trim(structure_solution%name)), " program [1], "
-    WRITE(LATEX_unit, '(3a)') "and then refined with full-matrix least-square methods based on $F^2$ (", &
-                              u_case(trim(structure_refinement%name)), ") [2] with the aid of the WINGX [3] program."
+    if(CIF_parameter%WinGX_used) then
+     WRITE(LATEX_unit, '(3a)') "and then refined with full-matrix least-square methods based on $F^2$ (", &
+                               u_case(trim(structure_refinement%name)), ") [2] with the aid of the WINGX [3] program."
+	else
+	 WRITE(LATEX_unit, '(3a)') "and then refined with full-matrix least-square methods based on $F^2$ (", &
+                               u_case(trim(structure_refinement%name)), " program [2])."	
+    endif	
     !if(SQUEEZE%procedure) then
 	if(include_SQUEEZE) then
      WRITE(LATEX_unit, '(a)') "The contribution of the disordered solvents to the calculated structure factors was "
@@ -775,8 +791,10 @@ subroutine  create_report
    WRITE(HTML_unit, '(a)') "<p class='retrait_1'>"
    WRITE(HTML_unit, '(3a)') "[1] &nbsp; ", trim(structure_solution%reference),   "<br>"
    WRITE(HTML_unit, '(3a)') "[2] &nbsp; ", trim(structure_refinement%reference), "<br>"
+   if(CIF_parameter%WinGX_used) then
    !WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 1999, 32, 837-838<br>"
    WRITE(HTML_unit, '(a)') "[3] &nbsp; L. J. Farrugia, J. Appl. Cryst., 2012, 45, 849-854<br>"
+   end if
    !if(SQUEEZE%procedure) then
    if(include_SQUEEZE) then
     WRITE(HTML_unit, '(a)') "[4] &nbsp; P. v.d. Sluis and A.L. Spek, Acta Cryst. (1990) A46, 194-201<br>"
@@ -817,10 +835,13 @@ subroutine  create_report
    WRITE(HTML_unit, '(10x,3a)') "Temperature                            ", TRIM(CIF_parameter%diffracto_temperature)," <i>K</i>"
    WRITE(HTML_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), " Å "
    HTML_string = CIF_parameter%symmetry_space_group
+   call check_letter_string(HTML_string, .false.)
    call check_indice_string(HTML_string)
    
-   WRITE(HTML_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
-                                "<i>",TRIM(HTML_string),"</i>"							   
+   !WRITE(HTML_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
+   !                             "<i>",TRIM(HTML_string),"</i>"							   
+   WRITE(HTML_unit, '(10x,4a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
+                                TRIM(HTML_string) 						   
    WRITE(HTML_unit, '(10x,6a)') "Unit cell dimensions                   ", "a = ", TRIM(CIF_parameter%cell_length_a), &
                                 " Å, &alpha; = ", TRIM(CIF_parameter%cell_angle_alpha), " °"
    WRITE(HTML_unit, '(10x,6a)') "                                       ", "b = ", TRIM(CIF_parameter%cell_length_b), &
@@ -909,6 +930,7 @@ subroutine  create_report
    WRITE(LATEX_unit, '(10x,3a)') "Wavelength                             ", TRIM(CIF_parameter%diffracto_radiation_wavelength), &
                                  " \AA "
    LATEX_string = CIF_parameter%symmetry_space_group
+   call check_letter_string(LATEX_string, .true.)
    call check_indice_string(LATEX_string)
    
    WRITE(LATEX_unit, '(10x,6a)') "Crystal system, space group            ", TRIM(CIF_parameter%symmetry_cell_setting), ", ", &
@@ -995,6 +1017,7 @@ subroutine  create_report
   if(text_report) then
    write(text_unit, '(a)') ''	
    write(text_unit, '(2x,3a)') 'Table 1. Crystal data and structure refinement for ', trim(job),'.'
+   write(text_unit, '(a)') ''	
    write(text_unit, '(a)') ''	
    WRITE(text_unit, '(10x,2a)') "Empirical formula                      ", TRIM(CIF_parameter%formula_sum)
    write(text_unit, '(a)') ''	
@@ -1087,7 +1110,7 @@ subroutine  create_report
    ! positions atomiques
    WRITE(HTML_unit, '(a)')  "<p class='title_2'>"
    WRITE(HTML_unit, '(2a)') "&nbsp;&nbsp;Atomic coordinates, site occupancy (%) and equivalent isotropic displacement ", &
-                            " parameters (Å<sup>2</sup> x 10<sup>3</sup>). "
+                            " parameters (Å<sup>2</sup>). "
    WRITE(HTML_unit, '(a)')  "U(eq) is defined as one third of the trace of the orthogonalized U<sub>ij</sub> tensor."
    WRITE(HTML_unit, '(a)')  "</p>"
    WRITE(HTML_unit, '(a)') "<pre style='font-size:14' class='color_grey1'>"
@@ -1097,7 +1120,7 @@ subroutine  create_report
    WRITE(text_unit, '(a)')  ""
    WRITE(text_unit, '(a)')  ""
    WRITE(text_unit, '(2x,a)')  "Table 2. Atomic coordinates, site occupancy (%) and equivalent isotropic displacement " 
-   WRITE(text_unit, '(2x,3a)') "         parameters (Å^2 x 10^3) for ", trim(job), "."
+   WRITE(text_unit, '(2x,3a)') "         parameters (Å^2) for ", trim(job), "."
    WRITE(text_unit, '(2x,a)')  "         U(eq) is defined as one third of the trace of the orthogonalized Uij tensor."
    WRITE(text_unit, '(a)')  ""
   endif
@@ -1105,7 +1128,7 @@ subroutine  create_report
   if(LATEX_report) then   ! positions atomiques
    WRITE(LATEX_unit, '(a)')   "\newpage"
    WRITE(LATEX_unit, '(3a)')  "\SousTitre{Atomic coordinates, site occupancy (\%) and equivalent isotropic displacement ", &
-                              "parameters ($A^2$ x $10^3$). U(eq) is defined as one third of the trace of the ",           &
+                              "parameters ($\AA^2$). U(eq) is defined as one third of the trace of the ",           &
 						 	  "orthogonalized $U_{ij}$ tensor.}"
    WRITE(LATEX_unit, '(a)')  ""
    WRITE(LATEX_unit, '(a)') "\begin{verbatim}"
@@ -1203,6 +1226,7 @@ subroutine  create_report
 	 WRITE(LATEX_unit, '(a)') '\end{verbatim}'
 	 WRITE(LATEX_unit, '(a)') '' 
     end if 
+    if(TEXT_report) WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
 
 
 !-----------------------------------------------------------------------------
@@ -1303,8 +1327,10 @@ subroutine  create_report
      end select
     end do
     close (UNIT = CIF_unit)
-	if(HTML_report   .and. n /=0)   WRITE(HTML_unit, '(a)')  "</pre>"
+	if(HTML_report   .and. n /=0)  WRITE(HTML_unit, '(a)')  "</pre>"
     if(LATEX_report  .and. n /=0)  WRITE(LATEX_unit, '(a)')  "\end{verbatim}"
+	if(TEXT_report   .and. n /=0)  WRITE(text_unit, '(5x,100a1)')  ("-",i=1,100)
+
 
 !-----------------------------------------------------------------------------
 
@@ -1408,9 +1434,8 @@ subroutine  create_report
     WRITE(HTML_unit, '(a)')  "</pre>"
     WRITE(HTML_unit, '(a)')  "<br>"
    endif
-   if(LATEX_report .and. n /=0) then
-    WRITE(LATEX_unit, '(a)') "\end{verbatim} "
-   endif	
+   if(LATEX_report .and. n /=0)   WRITE(LATEX_unit, '(a)') "\end{verbatim} "
+
 
    if(n_sym_dist /=0) then
     if(HTML_report) then
@@ -1420,7 +1445,7 @@ subroutine  create_report
 	endif 
     if(text_report) then
 	 write(text_unit, '(a)')  ""
-     write(text_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
+     write(text_unit, '(a)')  "   Symmetry transformations used to generate equivalent atoms:"
      WRITE(text_unit, '(a)') ""
 	endif
 	if(LATEX_report) then
@@ -1541,30 +1566,31 @@ subroutine  create_report
     WRITE(HTML_unit, '(a)')  "</pre>"
     WRITE(HTML_unit, '(a)')  "<br>"
    endif
-   if(LATEX_report .and. n /=0) then
-    WRITE(LATEX_unit, '(a)') "\end{verbatim}"
-   endif
+   if(LATEX_report .and. n /=0) WRITE(LATEX_unit, '(a)') "\end{verbatim}"
+
 
   if(n_sym_ang /=0) then
+   if(HTML_report) then
     WRITE(HTML_unit, '(a)')  "</pre>"
     write(HTML_unit, '(a)')  ""
     write(HTML_unit, '(a)')  "<p class='retrait_1'>Symmetry transformations used to generate equivalent atoms:</p>"
     WRITE(HTML_unit, '(a)') "<pre style='font-size:14' class='color_grey1'>"
-    if(text_report) then
-	 write(text_unit, '(a)')  ""
-     write(text_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
-     WRITE(text_unit, '(a)') ""
-	endif
-	if(LATEX_report) then
-	 write(LATEX_unit, '(a)')  ""
-     write(LATEX_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
-     WRITE(LATEX_unit, '(a)')  ""
-	endif
-    if(HTML_report)  call write_sym_transf(maxval(num_site_sym), op_n, op_t)
-	if(LATEX_report) call write_sym_transf(maxval(num_site_sym), op_n, op_t)
-	if(TEXT_report)  call write_sym_transf(maxval(num_site_sym), op_n, op_t)
+   end if	
+   if(text_report) then
+	write(text_unit, '(a)')  ""
+    write(text_unit, '(a)')  "   Symmetry transformations used to generate equivalent atoms:"
+    WRITE(text_unit, '(a)') ""
    endif
-   if(HTML_report)    WRITE(HTML_unit, '(a)')  "</pre></ul>"
+   if(LATEX_report) then
+	write(LATEX_unit, '(a)')  ""
+    write(LATEX_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
+    WRITE(LATEX_unit, '(a)')  ""
+   endif
+   if(HTML_report)  call write_sym_transf(maxval(num_site_sym), op_n, op_t)
+   if(LATEX_report) call write_sym_transf(maxval(num_site_sym), op_n, op_t)
+   if(TEXT_report)  call write_sym_transf(maxval(num_site_sym), op_n, op_t)
+  endif
+  if(HTML_report)    WRITE(HTML_unit, '(a)')  "</pre></ul>"
 
 
 !-------------------------------------------------------------------------
@@ -1682,8 +1708,9 @@ subroutine  create_report
      end select
     END do
    close (UNIT = CIF_unit)
-   if(HTML_report  .and. n /=0)    WRITE(HTML_unit, '(a)')   "</pre><br>"
-   if(LATEX_report .and. n /=0)    WRITE(LATEX_unit, '(a)')  "\end{verbatim}"
+   if(HTML_report  .and. n /=0)   WRITE(HTML_unit, '(a)')   "</pre><br>"
+   if(LATEX_report .and. n /=0)   WRITE(LATEX_unit, '(a)')  "\end{verbatim}"
+
 
   if(n_sym_tor /=0) then
     if(HTML_report) then
@@ -1693,7 +1720,7 @@ subroutine  create_report
 	endif 
     if(text_report) then
 	 write(text_unit, '(a)')  ""
-     write(text_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
+     write(text_unit, '(a)')  "   Symmetry transformations used to generate equivalent atoms:"
      WRITE(text_unit, '(a)') ""
 	endif
 	if(LATEX_report) then
@@ -1821,7 +1848,7 @@ subroutine  create_report
 	endif 
     if(text_report) then
 	 write(text_unit, '(a)')  ""
-     write(text_unit, '(a)')  " Symmetry transformations used to generate equivalent atoms:"
+     write(text_unit, '(a)')  "   Symmetry transformations used to generate equivalent atoms:"
      WRITE(text_unit, '(a)') ""
 	endif
     if(LATEX_report) then 
@@ -1841,8 +1868,9 @@ subroutine  create_report
   
 
   ! recherche de la presence de fichier.GIF
- 
-   file_exist = .false.
+  if(.not. TEXT_report) then
+
+  file_exist = .false.
   do  
    i1 = index(CIF_parameter%diffracto_temperature, "(")  
    if(i1 /=0) then
@@ -1895,18 +1923,19 @@ subroutine  create_report
     write(LATEX_unit, '(a)')  '\end{figure}'
    endif   
   endif
-  
+  end if ! fin de la condition if (.not. TXT_report) 
   
 
 
   if(HTML_report) then
    WRITE(HTML_unit, '(a)')  "<HR>"
    WRITE(HTML_unit, '(a)')  "<p class='retrait_1'>"
-   WRITE(HTML_unit, '(4a)') "<i>This HTML report has been created through ",                        &
-                            "<A HREF='http://www.cdifx.univ-rennes1.fr/cryscalc.htm'>CRYSCALC</A> (", &
+   WRITE(HTML_unit, '(6a)') "<i>This HTML report has been created through ",                        &
+                            "<A HREF='http://", trim(CRYSCALC%url), "'>CRYSCALC</A> (", &
                             trim(cryscalc%version), ")."
-   WRITE(HTML_unit, '(2a)') "Please report bugs and problems to <A HREF='mailto:cdifx@univ-rennes1.fr'>", &
-                            "cdifx@univ-rennes1.fr</A></p>"
+   WRITE(HTML_unit, '(5a)') "Please report bugs and problems to <A HREF='mailto:", &
+                             trim(CRYSCALC%mail), "'>", trim(CRYSCALC%mail), "/A></p>"
+   
    WRITE(HTML_unit, '(a)')  "</BODY>"
    WRITE(HTML_unit, '(a)')  "</HTML>"
    CLOSE(UNIT=HTML_unit)
@@ -1925,7 +1954,7 @@ subroutine  create_report
   endif 
  
   if(HTML_report) then
-    call write_info('')
+   call write_info('')
    call write_info('    >>> '//TRIM(HTML_structural_report_file)//' file has been created.')
    call write_info('')
   endif 
@@ -2024,7 +2053,7 @@ subroutine TRANSF_moiety_string(code, input_string, output_string)
  implicit none
   character (len=*),   intent(in)     :: code             !(HTML/CIF/HTML)
   character (len=*),   intent(inout)  :: input_string
-  character (len=256), intent(out)    :: output_string
+  character (len=512), intent(out)    :: output_string
   character (len=256)                 :: tmp_string
   character (len=8), dimension(2)     :: balise
   integer                             :: i, j, i1, long, nb_col, num, num_alpha 
@@ -2340,6 +2369,7 @@ subroutine check_indice_string(string)
  implicit none
  character (len=*), intent(inout)  :: string
 
+
  if(HTML_report) then
   if(index(string, "21") /= 0)   string = replace_car2(string, "21", "2<sub>1</sub>")
   if(index(string, "31") /= 0)   string = replace_car2(string, "31", "3<sub>1</sub>")
@@ -2376,7 +2406,71 @@ subroutine check_indice_string(string)
  end subroutine Check_indice_string
 
 
+!--------------------------------------------------------------------------
 
+subroutine Check_letter_string(string, latexTT)
+ ! met un caractere en indice si necessaire (chaine = groupe d'espace)
+ use cryscalc_module, only : HTML_report, LATEX_report
+ use macros_module,   only : remove_car, check_character
+ implicit none
+ character (len=*), intent(inout)  :: string
+ logical, intent(in)               :: latexTT
+ character (len=256)               :: SG_string, str2
+ integer                           :: i,j,k1, k2,k,l
+ logical                           :: alpha_car, numeric_car
+ 
+ 
+ !string = remove_car(string, ' ')
+ !SG_string = string
+ SG_string = ''
+  
+ do i=1 , len_trim(string)
+  if(string(i:i) == '/') then
+   SG_string = trim(SG_string)//string(i:i)
+   cycle
+  elseif(string(i:i) == ' ') then
+   if(HTML_report) then
+    SG_string = trim(SG_string)//"&nbsp;"
+    cycle
+   elseif(LATEX_report) then
+    SG_string = trim(SG_string)//'~'   
+	cycle
+   endif	
+  end if	 
+  
+  alpha_car   = .false.
+  numeric_car = .false.   
+  call check_character(string(i:i), alpha_car, numeric_car)
+  if(alpha_car) then
+   if(HTML_report) then
+    SG_string = trim(SG_string)//"<i>"//string(i:i)//"</i>"
+   elseif(LATEX_report) then
+    SG_string = trim(SG_string)//"\textit{"//string(i:i)//"}"    
+   endif
+   if(i==1) then 
+    if(HTML_report) then
+	 SG_string = trim(SG_string)//"&nbsp;"
+	elseif(LATEX_report) then
+     if(latexTT) then
+	  SG_string = trim(SG_string)//' '
+	 else 
+	  SG_string = trim(SG_string)//'~'
+	 endif 
+    end if	
+   end if
+  else
+   if(i==2 .and. LATEX_report .and. latexTT) then
+    SG_string = trim(SG_string)//' '//string(i:i)
+   else
+    SG_string = trim(SG_string)//string(i:i)
+   end if
+  end if
+ end do
+ 
+ string = SG_string
+
+  return
+end subroutine Check_letter_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2412,6 +2506,7 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') "\usepackage{graphicx}            % insertion d'images"
  write(LATEX_unit, '(a)') '\usepackage{fancybox}            % fonctions encadrement'
  write(LATEX_unit, '(a)') '\renewcommand{\thefootnote}{\*}  % supprime le numero de la footnote'
+ write(LATEX_unit, '(a)') "\usepackage[flushmargin]{footmisc} % supprime l'indentation de la footnote" 
  write(LATEX_unit, '(a)') "\usepackage[pdftex,colorlinks=true,urlcolor=gris50,pdfstartview=FitH]{hyperref}   % hyperliens"
  write(LATEX_unit, '(a)') ''
  write(LATEX_unit, '(a)') "\usepackage{alltt}  % permet l'ecriture mathematique a l'interieur de l'environnement verbatim"
@@ -2485,7 +2580,7 @@ subroutine Latex_preambule
    write(LATEX_unit, '(a)') ''
    write(LATEX_unit, '(a)') '\begin{figure}[h]'
    !write(LATEX_unit, '(a)') '% \includegraphics[width=50.pt]{img/ISCR_logo.png} \includegraphics[width=40.pt]{img/cdifx_logo.jpg}'
-   write(LATEX_unit, '(5a)') ' \includegraphics[width=50.pt]{', trim(logo(1)), '}  \includegraphics[width=50.pt]{', &
+   write(LATEX_unit, '(5a)') ' \includegraphics[height=30.pt]{', trim(logo(1)), '}  \includegraphics[height=30.pt]{', &
                              trim(logo(2)), '}'
    write(LATEX_unit, '(a)') '\end{figure}'
    write(LATEX_unit, '(a)') ''
@@ -2509,9 +2604,11 @@ subroutine Latex_End
  if(debug_proc%level_2)  call write_debug_proc_level(2, "latex_end")
 
  write(LATEX_unit, '(a)')''
- write(LATEX_unit, '(4a)') '\footnote{\textcolor{gris50}{This structural report has been created through ', &
-                           '\href{http://www.cdifx.univ-rennes1.fr/CRYSCALC}{CRYSCALC} (', trim(cryscalc%version), ').'
- write(LATEX_unit, '(a)') 'Please report bugs and problems to \href{mailto:cdifx@univ-rennes1.fr}{cdifx@univ-rennes1.fr}}}'
+ write(LATEX_unit, '(6a)') '\footnote{\noindent \textcolor{gris50}{This structural report has been created through ', &
+                           '\href{http://', trim(CRYSCALC%url), '}{CRYSCALC} (', trim(cryscalc%version), ').'
+ 
+ write(LATEX_unit, '(5a)') 'Please report bugs and problems to \href{mailto:', &
+                           trim(cryscalc%mail), "}{", trim(CRYSCALC%mail), "}.}}"
 
  write(LATEX_unit, '(a)') '\end{document}'
 
@@ -2538,7 +2635,8 @@ end subroutine check_LATEX_file_name
 !------------------------------------------------------------------------------------
 subroutine report_crystal_study(diffracto)
  use structural_report_module, only : job
- use cryscalc_module,          only : HTML_unit, LATEX_unit, CIF_parameter, HTML_report, LATEX_report, LATEX_unit, debug_proc
+ use cryscalc_module,          only : HTML_unit, LATEX_unit, HTML_report, LATEX_report, LATEX_unit, debug_proc
+ use CIF_module,               only : CIF_parameter
  use special_characters_module
  implicit none
   character (len=*), intent(in)    :: diffracto    ! APEX, KCCD, X2S
@@ -2699,7 +2797,8 @@ subroutine report_crystal_study(diffracto)
 end subroutine report_crystal_study
 !------------------------------------------------------------------------------------
 subroutine report_cell_parameters(doc_type)
- use cryscalc_module, only  : HTML_unit, LATEX_unit, CIF_parameter, debug_proc
+ use CRYSCALC_module, only  : HTML_unit, LATEX_unit, debug_proc
+ use CIF_module,      only  : CIF_parameter
  implicit none
   character (len=*), intent(in)     :: doc_type
   

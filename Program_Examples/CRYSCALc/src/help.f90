@@ -160,7 +160,11 @@ subroutine HELP_on_line
      call write_help_lines(HELP_CREATE_REPORT_numor)
      keyword_ok = .true.
 	 
-	case ("CREATE_TIDY", "CREATE_TIDY_FILE", "CREATE_TIDY_INPUT_FILE") 
+    case ('CREATE_SOLVE', 'CREATE_TO_SOLVE', 'CREATE_FILES_TO_SOLVE', 'SOLVE')
+      call write_help_lines(HELP_CREATE_SOLVE_numor)
+	  keyword_ok = .true.
+	  
+    case ("CREATE_TIDY", "CREATE_TIDY_FILE", "CREATE_TIDY_INPUT_FILE") 
 	 call write_help_lines(HELP_CREATE_TIDY_numor)
      keyword_ok = .true.
 

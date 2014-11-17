@@ -312,11 +312,11 @@ subroutine read_data_file(ok)
   call write_info(' ')
   ok = .false.
 
-  n_ref     = 0
-  n_ref_2   = 0
-  n_ref_3   = 0
-  n_ref_neg = 0
-  cosdir    = 0.
+  n_ref      = 0
+  n_ref_2    = 0
+  n_ref_3    = 0
+  n_ref_neg  = 0
+  cosdir     = 0.
   HKL_file%HKL = ''
 
   IF(HKL_file%SHELX) THEN     ! lecture d'un fichier.HKL 
@@ -404,11 +404,11 @@ subroutine read_data_file(ok)
    keyword_WAVE = .true.
    call get_cell_parameters_from_CIF_file(HKL_unit, unit_cell%param, unit_cell%param_esd )
    call get_UB_matrix_from_CIF_file(HKL_unit, UB_matrix)
-      
    call volume_calculation('no_out')
    !call volume_calculation('out')
    call get_crystal_system_from_CIF_file(HKL_unit, crystal_system)
    keyword_CELL = .true.
+   call get_CIF_parameters_from_import_CIF(HKL_unit)
      
    call get_H_M_from_CIF_file(HKL_unit, unit_cell%H_M)
    
@@ -426,7 +426,7 @@ subroutine read_data_file(ok)
 	else
 	 call write_debug_proc_level(2, "READ (without dir. cos.) and CHECK HKL") 
 	endif
-endif	
+   endif	
    do
     if (.not. cos_exist) then
      READ(HKL_unit, '(i4,2i5,2F9.2,I5)', IOSTAT=ier) h_,k_,l_,F2_, sig_F2_, code_  ! sans les cos. dir.
@@ -711,6 +711,24 @@ endif
     call write_info(TRIM(message_text))
     call write_info('')
    endif
+   
+   ! <i>, <sig>
+   write(message_text, '(a,F15.2)')   '                           . Max. of intensity: ', MAXVAL(F2(1:n_ref))
+   call write_info(trim(message_text))
+   write(message_text, '(a,F15.2)')   '                           . Min. of intensity: ', MINVAL(F2(1:n_ref))
+   call write_info(trim(message_text))
+   write(message_text, '(a,F15.2)')   '                           . <F2>             : ', SUM(F2(1:n_ref))/n_ref
+   call write_info(trim(message_text))
+   write(message_text, '(a,F15.2)')   '                           . <sig>            : ', SUM(SIG_F2(1:n_ref))/n_ref
+   call write_info(trim(message_text))
+   write(message_text, '(a,F15.2)')   '                           . <F2/sig>         : ', SUM(F2(1:n_ref)/sig_F2(1:n_ref))/n_ref
+   call write_info(trim(message_text))
+   write(message_text, '(a,F15.2)')   '                           . <F2>/<sig>       : ', SUM(F2(1:n_ref))/SUM(sig_F2(1:n_ref))
+   call write_info(trim(message_text))
+   call write_info('')
+
+
+
 
    IF(keyword_CELL) then
     WRITE(message_text,'(a,F6.3,2x,F6.3)')  '                           . STL_min, STL_max (A-1)     :  ',  & 
@@ -813,6 +831,9 @@ subroutine check_HKL(H_h, H_k, H_l, H_F2, H_sig, code_, H_cos)
     I_(n_ref)              = H_F2
     code(n_ref)            = code_
     cos_dir(n_ref,1:6)     = H_cos(1:6)
+	som_F2                 = som_F2 + F2(n_ref)
+	som_sig                = som_sig + sig_F2(n_ref)
+	som_F2_sig             = som_F2_sig + I_sigma(n_ref)
 
     WRITE(HKL_string(n_ref), '(a,3I4,a)') '(', H_h, H_k, H_l, ')'
 	

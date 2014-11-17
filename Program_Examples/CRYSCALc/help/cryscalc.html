@@ -1,25 +1,22 @@
-<!-- CRYSCALC user's guide (HTML file) created by CRYSCALC.exe
+<!-- CRYSCALc user's guide (HTML file) created by CRYSCALc.exe
      Web site : http://www.cdifx.univ-rennes/cryscalc.htm
-     Version : July 2014
+     Version : 7 Nov. 2014
      Author  : T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)
 !-->
 <HTML>
 <HEAD>
 <style TYPE='text/css'>
-  .title_main { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }
-  .title_1    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
-  .title_2    { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; margin-right:50px; background-color:#f5f5f5; }
-  .title_3    { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
-  .header   { font-family:'Trebuchet MS',Arial; font-size:10px; color:#CCCCCC; margin-left:50px; line-height: 10pt;}
-  .retrait_1  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt;  }
-  .retrait_2  { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
-  .item       { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
-  .item_2     { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
-  .ligne_1    { background-color : #FAFAFA;}
-  .ligne_2    { background-color : #EEEEEE;}
-  .color_grey1{color:#323232;}
-  hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0; margin-left:50px; margin-right:50px;}
-
+  .title_main  { font-family:'Trebuchet MS',Arial; font-size:24px; color:#AA0000; margin-left:50px; margin-right:50px; text-align:center; font-weight:bold; }
+  .title_1     { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:20px; background-color:#f5f5f5; }
+  .title_2     { font-family:'Trebuchet MS',Arial; font-size:20px; color:#880000; margin-left:50px; margin-right:50px; background-color:#f5f5f5; }
+  .title_3     { font-family:'Courier new';        font-size:14px; color:#660000; font-weight:bold; margin-left:30px;}
+  .header      { font-family:'Trebuchet MS',Arial; font-size:10px; color:#CCCCCC; margin-left:50px; line-height: 10pt;}
+  .retrait_1   { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#323232; }
+  .retrait_2   { font-family:'Trebuchet MS',Arial; font-size:14px; margin-left:50px; margin-right:50px; text-align:justify; line-height:18.0pt; color:#AAAAAA; }
+  .item        { font-family:'Trebuchet MS',Arial; font-size:14px; color:#aa0000;}
+  .item_2      { font-family:'Trebuchet MS',Arial; font-size:16px; color:#aa0000;}
+  .color_grey1 {color:#323232;}
+ hr {border-color: #CCC; background-color: #CCC; height:1px; padding: 0; border:0; margin-left:50px; margin-right:50px;}
  a:link,
   a:active
     { color:#666666;
@@ -36,11 +33,11 @@
       background-color:transparent;}
 </style>
 <A NAME="cryscalc_main"></A>
-<TITLE>CRYSCALC user's guide</TITLE>
+<TITLE>CRYSCALc user's guide</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 <br><br>
-<p class='title_main'>CRYSCALC</p>
+<p class='title_main'>CRYSCALc</p>
 <pre style='font-size:14' class='color_grey1'>
 <center>
   *************************************************************
@@ -50,12 +47,12 @@
   *                                                           *
   *                          T. Roisnel                       *
   *                 (CDIFX - ISCR UMR6226 Rennes)             *
-  *                           July 2014                       *
+  *                           7 Nov. 2014                     *
   *                                                           *
   *            with courtesy of JRC and JGP for CFML          *
   *                                                           *
   *                                                           *
-  *               contact: cdifx@univ-rennes1.fr              *
+  *         contact: thierry.roisnel@univ-rennes1.fr          *
   *                                                           *
   *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
   *                                                           *
@@ -65,13 +62,13 @@
 
 <ul>
 <li class="item_2"><A HREF="#intro">&nbsp;&nbsp;Introduction</A>
-<li class="item_2"><A HREF="#kw_list">&nbsp;&nbsp;List of CRYSCALC keywords</A>
-<li class="item_2"><A HREF="#kw_details">&nbsp;&nbsp;Details of CRYSCALC keywords</A>
-<li class="item_2"><A HREF="#cla_section">&nbsp;&nbsp;List of CRYSCALC command line arguments</A>
+<li class="item_2"><A HREF="#kw_list">&nbsp;&nbsp;List of CRYSCALc keywords</A>
+<li class="item_2"><A HREF="#kw_details">&nbsp;&nbsp;Details of CRYSCALc keywords</A>
+<li class="item_2"><A HREF="#cla_section">&nbsp;&nbsp;List of CRYSCALc command line arguments</A>
 <li class='item_2'><A HREF='#cryscalc_news'>&nbsp;&nbsp;What's new ?</A>
-<li class="item_2"><A HREF="#cryscalc_ini">&nbsp;&nbsp;CRYSCALC.ini setting file</A>
-<li class="item_2"><A HREF="#cryscalc_cfl">&nbsp;&nbsp;Examples of .CFL input files</A>
-<li class="item_2"><A HREF="#cryscalc_links">&nbsp;&nbsp;CRYSCALC download and links</a>
+<li class="item_2"><A HREF="#cryscalc_ini">&nbsp;&nbsp;<font face="courier"><b>cryscalc.ini</b></font> setting file</A>
+<li class="item_2"><A HREF="#cryscalc_cfl">&nbsp;&nbsp;Examples of <b><font face="courier"><b>.CFL</b></font></b> input files</A>
+<li class="item_2"><A HREF="#cryscalc_links">&nbsp;&nbsp;CRYSCALc download and links</a>
 <li class="item_2"><A HREF="#cryscalc_linux">&nbsp;&nbsp;Linux version</a>
 </ul>
 
@@ -79,15 +76,15 @@
 <A NAME="intro"></A><p class="title_1">&nbsp;&nbsp;Introduction :<br></p>
 
 
-   CRYSCALC has been created to perform basic crystallographic calculations or
+   CRYSCALc has been created to perform basic crystallographic calculations or
    get crystallographic informations.
-   CRYSCALC has been written in Fortran 95, and uses the crystallographic
+   CRYSCALc has been written in Fortran 95, and uses the crystallographic
    calculations facilities of the Crystallographic Fortran Modules Librairies
    written by J. Rodriguez-Carvajal (ILL-Grenoble, France) and J. Gonzalez
    (Univ. La Laguna, Spain).
 
 
-    Facilities implemented in CRYSCALC:
+    Facilities implemented in CRYSCALc:
      . unit cell volume calculation
      . space group informations: space group features, Wyckoff positions,
        symmetry operators, extinctions ...
@@ -111,9 +108,9 @@
      . create HTML report from a CIF file
      ...
 
-   CRYSCALC can be run through an input file containing a list of keywords,
+   CRYSCALc can be run through an input file containing a list of keywords,
    defining the type of crystallographic calculations that will be performed,
-   or in an interactive mode, by entering keywords at the CRYSCALC prompt.
+   or in an interactive mode, by entering keywords at the CRYSCALc prompt.
 
    Crystallographic features can be read from different types of input files :
                                                .CFL
@@ -122,25 +119,25 @@
                                                .PCR file (FullProf)
                                                .CEL file (PowderCELL)
 
-   Alternatively, particular jobs can be performed by CRYSCALC when special
-   arguments are passed to CRYSCALC through the command line (see CRYSCALC
+   Alternatively, particular jobs can be performed by CRYSCALc when special
+   arguments are passed to CRYSCALc through the command line (see CRYSCALc
    command line arguments section).
 
    Online help can be obtained by typing "MAN" or "HELP" at the "Enter input
    file" (menu option #1) or "Enter keyword:" (menu option #2) prompt:
       d:> cryscalc
           > Enter keyword : man
-   or launching CRYSCALC program with "MAN" or "HELP" as argument:
+   or launching CRYSCALc program with "MAN" or "HELP" as argument:
       d:> cryscacl man
    Details on the meaning of keywords can be obtained by typing the
-   corresponding keyword at the "Enter keyword :" prompt or launching CRYSCALC
+   corresponding keyword at the "Enter keyword :" prompt or launching CRYSCALc
    program with the corresponding keyword(s) as argument(s):
       d:> cryscalc MAN CELL
 
 
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
-<A NAME="kw_list"></A><p class="title_1">&nbsp;&nbsp;List of CRYSCALC keywords :<br></p>
+<A NAME="kw_list"></A><p class="title_1">&nbsp;&nbsp;List of CRYSCALc keywords :<br></p>
 <ul><ul>
    <li class="item"><A HREF="#ABSENT_HKL">ABSENT_HKL</A>
    <li class="item"><A HREF="#ABSORPTION">ABSORPTION</A>
@@ -161,6 +158,7 @@
    <li class="item"><A HREF="#CREATE_FST">CREATE_FST</A>
    <li class="item"><A HREF="#CREATE_INS">CREATE_INS</A>
    <li class="item"><A HREF="#CREATE_REPORT">CREATE_REPORT</A>
+   <li class="item"><A HREF="#CREATE_SOLVE">CREATE_SOLVE</A>
    <li class="item"><A HREF="#CREATE_TIDY">CREATE_TIDY</A>
    <li class="item"><A HREF="#D_HKL">D_HKL</A>
    <li class="item"><A HREF="#D_STAR">D_STAR</A>
@@ -279,7 +277,7 @@
 </ul></ul><br>
 <pre style='font-size:14' class='color_grey1'> 
 <A HREF="#cryscalc_main">[return]</a>
-<A NAME="kw_details"></A><p class="title_1">&nbsp;&nbsp;Details of CRYSCALC keywords :<br></p>
+<A NAME="kw_details"></A><p class="title_1">&nbsp;&nbsp;Details of CRYSCALc keywords :<br></p>
 <A NAME="ABSENT_HKL"></A>
 <p class='title_3'>  > ABSENT_HKL:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
@@ -423,6 +421,7 @@
                              - X_Fe for X Rays (Iron K_alpha)
                              - X_Cr for X Rays (Chromium K_alpha)
     . example:            BEAM X_Mo
+    . identical keyword:  BEAM, JOBTYPE, JPBTYP
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -535,7 +534,7 @@
     . dependent parameter: CREATE_ACE parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .ACE file will
                            be automatically created if a .CIF file is
-                           given as argument when CRYSCALC is launching
+                           given as argument when CRYSCALc is launching
                            from a command line :
                            > cryscalc file.cif
 
@@ -550,7 +549,7 @@
     . dependent parameter: CREATE_CEL parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .CEL file will
                            be automatically created if a .CIF file is
-                           given as argument when CRYSCALC is launching
+                           given as argument when CRYSCALc is launching
                            from a command line :
                            > cryscalc file.cif
 
@@ -560,12 +559,12 @@
 <p class='title_3'>  > CREATE_CFL</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . argument:            no
-    . meaning:             create .CFL file for CRYSCALC from a CIF file
+    . meaning:             create .CFL file for CRYSCALc from a CIF file
     . mandatory keyword:   READ_CIF file.cif
     . dependent parameter: CREATE_CFL parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .CFL file will
                            be automatically created if a .CIF file is
-                           given as argument when CRYSCALC is launching
+                           given as argument when CRYSCALc is launching
                            from a command line :
                            > cryscalc file.cif
 
@@ -588,7 +587,7 @@
     . dependent parameter: CREATE_fst parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .fst file will
                            be automatically created if a .CIF file is
-                           given as argument when CRYSCALC is launching
+                           given as argument when CRYSCALc is launching
                            from a command line :
                            > cryscalc file.cif
 
@@ -603,7 +602,7 @@
     . dependent parameter: CREATE_INS parameter value in the CRYSCALC.INI
                            setting file. If equal to 1, a .INS file will
                            be automatically created if a .CIF file is
-                           given as argument when CRYSCALC is launching
+                           given as argument when CRYSCALc is launching
                            from a command line :
                            > cryscalc file.cif
 
@@ -625,6 +624,20 @@
     . identical keywords:  REPORT, CREATE_REPORT
     . examples:            report
                            report long my_struct.cif
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="CREATE_SOLVE"></A>
+<p class='title_3'>  > CREATE_SOLVE:</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                output keyword
+    . meaning:             create input files for structure solving software as
+                           SIR97; SHELXS/T and SUPERFLIP
+    . optional argument:   no
+    . dependent parameter: CELL parameters, cell content, space group and
+                           hkl file has to be provided
+
+    . identical keywords:  CREATE_SOLVE, CREATE_TO_SOLVE, CREATE_FILES_TO_SOLVE,
+                           SOLVE
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -850,7 +863,7 @@
      . type:               OUTPUT keyword
      . argument:           no
      . meaning:            exit from the "enter keyword" procedure to come
-                           back to the CRYSCALC main menu
+                           back to the CRYSCALc main menu
      . identical keywords: EXIT, X, QUIT, END, STOP
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -891,6 +904,7 @@
     . examples:            FILE my_HKL_FILE.HKL
                            FILE import.CIF plot
                            FILE file.HKL FMT=(3i4,2f15.2)
+    . identical keywords:  FILE, READ_HKL
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -1040,7 +1054,7 @@
 <p class='title_3'> > HEADER:</p> <pre style='font-size:14' class='color_grey1'>
    . type:                 OUTPUT keyword
    . argument:             no
-   . meaning:              write header text of CRYSCALC
+   . meaning:              write header text of CRYSCALc
    . identical keywords:   HEADER, HEAD
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1119,7 +1133,7 @@
 <p class='title_3'> > LIST_EXTI_RULE:</p> <pre style='font-size:14' class='color_grey1'>
    . type:                 OUTPUT keyword
    . argument:             no
-   . meaning:              list the extinction rules implemented in CRYSCALC
+   . meaning:              list the extinction rules implemented in CRYSCALc
    . identical keywords:   LIST_EXTI, LIST_EXTI_RULE, LST_EXTI, LST_EXTI_RULE
 
 <A HREF="#kw_list">[return to keywords list]</a>
@@ -1215,8 +1229,8 @@
 <p class='title_3'>  > MAN:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . optional arguments:  character strings
-    . meaning:             get the CRYSCALC manual
-    . output:              list the meaning and use of CRYSCALC keywords
+    . meaning:             get the CRYSCALc manual
+    . output:              list the meaning and use of CRYSCALc keywords
                            . if no arguments: all the keywords are listed
                            . optional arguments are keywords name
                            . if "*" character in the character string: all the
@@ -1232,9 +1246,9 @@
 <p class='title_3'>  > MAN_HTML:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
     . optionnal argument:  'browse'
-    . meaning:             get the CRYSCALC manual in HTML format
+    . meaning:             get the CRYSCALc manual in HTML format
                            open the HTML file with the current browser
-    . output:              list the meaning and use of CRYSCALC keywords
+    . output:              list the meaning and use of CRYSCALc keywords
     . examples:            MAN_HTML
     . identical keywords:  MAN_HTML, HTML_MAN, HTML
 
@@ -1261,7 +1275,7 @@
   or
     . arguments:           "#" 1 integer
     . meaning:             number of matrix in the matrices list implemented in
-                           CRYSCALC (see LIST_MATR keyword)
+                           CRYSCALc (see LIST_MATR keyword)
     . example:             MATR  #3
     . special arguments  :     "I"  : identity matrix
                               "-I" : inverse matrix
@@ -1342,7 +1356,7 @@
 <A NAME="MONOCLINIC"></A>
 <p class='title_3'>  > NEWS:</p> <pre style='font-size:14' class='color_grey1'>
     . type:                OUTPUT keyword
-    . outputs:             list the last new facilities implemented in CRYSCALC
+    . outputs:             list the last new facilities implemented in CRYSCALc
     . optionnal argument:  specified year
     . example:             NEWS 2010
     . identical keywords:  NEWS
@@ -1509,6 +1523,18 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="READ_PCR"></A>
+<p class='title_3'>  > READ_PCR</p> <pre style='font-size:14' class='color_grey1'>
+    . type:                input keyword
+    . argument:            1 character string corresponding to a PCR file name
+    . meaning:             read a PCR FullProf format file to extract structural
+                           features as: space group and/or symmetry operators,
+                           cell parameters, atomic positions, wave ...
+    . identical keywords:  READ_PCR, READ_PCR_FILE, PCR_FILE
+    . example:             READ_PCR my_file.pcr
+
+<A HREF="#kw_list">[return to keywords list]</a>
+<hr></pre>
+<A NAME="READ_TIDY_OUT"></A>
 <p class='title_3'>  > READ_TIDY_OUT</p> <pre style='font-size:14' class='color_grey1'>
     . type:                input keyword
     . optional argument:   1 character string corresponding to the TIDY output f
@@ -1519,10 +1545,6 @@
     . identical keywords:  READ_TIDY_OUT, READ_TIDY_OUTPUT, READ_TIDY_OUTPUT_FIL
     . example:             READ_TIDY_OUT
 
-<A HREF="#kw_list">[return to keywords list]</a>
-<hr></pre>
-<A NAME="READ_TIDY_OUT"></A>
-<p class='title_3'>                                                                                </p> <pre style='font-size:14' class='color_grey1'>
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A NAME="REC_ANG"></A>
@@ -2251,7 +2273,7 @@
                               - "X_Cr" or "XCR": wavelength = 2.28962 A
     . examples:            WAVE 0.71073
                            WAVE XMO
-    . identical keywords:  WAVE, WAVELENGTH, WL
+    . identical keywords:  WAVE, WAVELENGTH, WL, LAMBDA
 
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
@@ -2398,7 +2420,7 @@
 <A HREF="#kw_list">[return to keywords list]</a>
 <hr></pre>
 <A HREF="#cryscalc_main">[return]</a>
-<A NAME="cla_section"></A><p class="title_1"> List of CRYSCALC command line arguments :<br></p>
+<A NAME="cla_section"></A><p class="title_1"> List of CRYSCALc command line arguments :<br></p>
 <p class='title_3'>   > MAN  :</p><pre style='font-size:14' class='color_grey1'>
        Create 'cryscalc.txt' file user's guide (text format).
        ex : > cryscalc man
@@ -2450,6 +2472,12 @@
                 in the 'cryscalc.ini' setting file in the [DEVICE] and [PROGRAMS
                 parts respectively.
 </pre>
+<p class='title_3'>   > CREATE_ARCHIVE :</p><pre style='font-size:14' class='color_grey1'>
+       . create global 'cryscalc_archive.cif' CIF file from CIF files
+         given as arguments, first argument being related to structural
+         parameters file created by the refinement program.
+       Example : CRYSCALC ambi struct
+</pre>
 <p class='title_3'>   > CIFDEP :</p><pre style='font-size:14' class='color_grey1'>
        Combined with 'ARCHIVE.CIF' argument, this optional argument
        completes the 'cryscalc_archive.cif' file with CIF fields related
@@ -2465,19 +2493,19 @@
 <p class='title_3'>   > DEBUG:</p><pre style='font-size:14' class='color_grey1'>
        Combined with all previous arguments, this optional argument
        will create a 'cryscalc_debug.txt' file containing informations
-       about the values of some variables during the CRYSCALC run.
+       about the values of some variables during the CRYSCALc run.
        This argument can be useful to detect the origin of the bug
-       in a CRYSCALC crash.
+       in a CRYSCALc crash.
 </pre>
 <p class='title_3'>   > NO_OUT :</p><pre style='font-size:14' class='color_grey1'>
        Combined with all previous arguments, this optional argument
-       avoids to write CRYSCAL results lines in the screen and
+       avoids to write CRYSCALc cresults lines in the screen and
        in the 'cryscalc.log' file.
 </pre>
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
 <br>
-<A NAME='cryscalc_news'></A><p class='title_1'>&nbsp;&nbsp;What's new in CRYSCALC ?<br></p>
+<A NAME='cryscalc_news'></A><p class='title_1'>&nbsp;&nbsp;What's new in CRYSCALc ?<br></p>
 <pre>
    
      Main new features implemented in CRYSCALC:
@@ -2486,7 +2514,53 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
+   . Nov. 14 :
+     # New PAT command line argument after .CIF or . INS file
+       allows to calculate a diffraction pattern from features given by
+       PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]
+       section of the setting file.
+       Example: cryscalc job.cif PAT
+   
+   . Oct. 14 :
+     # New [USER SHORTCUTS] section of the cryscalc.ini, defining
+       some keywords shortcuts (max. = 10). The shortcut and its
+       details (CRYSCALC keyword) has to be separated by "=" character.
+       Example: RJC = READ_CIF job.cif
+     # New parameters in [OPTIONS] section of the cryscalc.ini
+       setting file. These parameters are used for simulation
+       of powder diffraction file from command line and .CIF/.INS
+       file (create_PAT_PRF=1)
+        pdp_beam   = N    ! N for neutrons / X for X-rays
+        pdp_wave   = 1.22 ! wavelength used for diffraction pattern
+                           simulation
+       If not specified, simulation pattern is calculated for
+       X-rays and Copper K_alpha1 radiation (1.5406 A)
+     # New command line argument:
+       CREATE_ARCHIVE argument, followed by the name of CIF files
+       (without extension), allows to create a whole archive.cif file.
+       First cif file corresponds to the main CIF file created by
+       refinement software and next ones to supplementary cif files
+       to complete the archive.
+       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import
+            . my_job : main .CIF file, used to extract structural
+                       parameters
+            . import : secondary .CIF file, containing experimental
+                       parameters (crystal and experimental features, ...)
+   . Sept. 14 :
+     # new CREATE_SOLVE keyword:
+       . create input files for structure solving software as SIR97,
+         SHELXS/T and SUPERFLIP.
+     # bugs corrections:
+       . site multiplicity calculation
+       . CRYSCALC reports (html, txt, latex): adp are in A^2
+         and not in A^2x10^3 !
+     # Some statistics on F2_mean, sig_mean ... have been added in the
+        output of the FILE keyword.
+   
    . July 14 :
+     # "include_HKL_file" field can be input in the cryscalc.ini setting file to
+       embed the contain of hkl SHEXL file in the archive_cryscalc.cif file.
+       The SHELXL hkl file name corresponds to the last project ID in WinGX.
      # NOT TO CONFUSE, CRYSCAL PROGRAM HAS BEEN RENAMED AS
        CRYSCALC. FEATURES OF THE SOFTWARE HAVE TO BE CHANGED
        CONSEQUENTLY :
@@ -3046,13 +3120,13 @@
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
 <br>
-<A NAME="cryscalc_ini"></A><p class="title_1">&nbsp;&nbsp;CRYSCALC.ini setting file :<br></p>
-<p class="retrait_1">A setting file can be used by <b>CRYSCALC</b>, containing 
+<A NAME="cryscalc_ini"></A><p class="title_1">&nbsp;&nbsp;<font face="courier"><b>cryscalc.ini</b></font> setting file :<br></p>
+<p class="retrait_1">A setting file can be used by <b>CRYSCALc</b>, containing 
 the definition of different parameters such as external applications that can be
-launched from <b>CRYSCALC</b> (browser, editor ...) or defaut values about
+launched from <b>CRYSCALc</b> (browser, editor ...) or defaut values about
 diffractometer, author, structure solution and refinement programs  ... 
-This setting file, called <font face="courier">cryscalc.ini</font> has to be located
-in the folder related to <b>CRYSCALC</b> through the <font face="courier">CRYSCALC</font>
+This setting file, called <font face="courier"><b>cryscalc.ini</b></font> has to be located
+in the folder related to <b>CRYSCALc</b> through the <font face="courier"><b>CRYSCALC</b></font>
 environment variable.</p>
 <p class="retrait_1">Example of setting file:</p>
 <pre>
@@ -3099,10 +3173,11 @@ environment variable.</p>
     <font color="darkred">[COMMAND LINE ARGUMENTS]</font>
     create_ACE       = 1          ! .ACE file for Carine
     create_CEL       = 1          ! .CEL file for PowderCELL
-    create_CFL       = 1          ! .CFL file for CRYSCALC
+    create_CFL       = 1          ! .CFL file for CRYSCALc
     create_INS       = 1          ! .INS file for SHELXL
     create_FST       = 1          ! .FST file for FP Studio
     create_CIF_pymol = 0          ! X_pml.CIF for PYMOL
+    create_PAT_PRF   = 1          ! .PRF file for FullProf
 
     <font color="darkred">[PROGRAMS]</font>
     structure_solution_name         = SIR97
@@ -3116,16 +3191,19 @@ environment variable.</p>
     absorption_correction_cif_ref   = Sheldrick G.M. (2002), SADABS Bruker AXS Inc., Madison, Wisconsin, USA
 
     <font color="darkred">[OPTIONS]</font>
-    LOCK_wave_value              = 0.02      ! lock current wavelength to anticathode value
-    CIF_format80                 = 0         ! formatted line, when creating a CIF file,  if more than 80 characters
-    CIF_torsion_limit            = 170.      ! exclude torsion angle if greater than this limit
-    include_RES_file             = 1         ! include .RES file in the archive_cryscalc.cif file
-    update_parameters            = 1         ! update parameters after transformation(cell parameters, atomic coordinates) 
-    report_header                = 1         ! Write header in structural report
-    skip_start_menu              = 0         ! Skip start menu
-    hkl_statistics               = 1         ! Ouput statistics on hkl reflections
-    hkl_format                   = 3I4,2F8.2 ! format for .hkl file (h,k,l,F2,sig)
-    cartesian_frame_type         = A         ! A: x//a ; C: x //c
+    LOCK_wave_value             = 0.02      ! lock current wavelength to anticathode value
+    CIF_format80                = 0         ! formatted line, when creating a CIF file,  if more than 80 characters
+    CIF_torsion_limit           = 170.      ! exclude torsion angle if greater than this limit
+    include_RES_file            = 1         ! include .RES file in the archive_cryscalc.cif file
+    include_HKL_file            = 1         ! include .HKL file in the archive_cryscalc.cif file
+    update_parameters           = 1         ! update parameters after transformation(cell parameters, atomic coordinates) 
+    report_header               = 1         ! Write header in structural report
+    skip_start_menu             = 1         ! Skip start menu
+    hkl_statistics              = 1         ! Ouput statistics on hkl reflections
+    hkl_format                  = 3I4,2F8.2 ! format for .hkl file (h,k,l,F2,sig)
+    cartesian_frame_type        = A         ! A: x//a ; C: x //c
+    pdp_beam                    = X         ! Beam for powder diffraction pattern calculation (N for neutrons / X for X-rays)
+    pdp_wave                    = 1.5406    ! Wavelength used for powder diffraction pattern calculation
 
     <font color="darkred">[PATTERN SIMULATION (Pseudo-Voigt profile)]  </font>
     X_profile_U                  = 0.0055    ! U value of the Cagliotti formula : FWHM2 = U*TAN**2(theta) + V*TAN(theta) + W
@@ -3134,7 +3212,9 @@ environment variable.</p>
     X_profile_eta0               = 0.3       ! Lorentzian components : eta = eta° + 2theta * eta1
     X_profile_eta1               = 0.         
     X_pattern_step               = 0.01       
-    X_pattern_scale              = 1000.      
+    X_pattern_xmin               = 0.         
+    X_pattern_xmax               = 120.       
+    X_pattern_scale              = 100.       
     X_pattern_background         = 50.        
     N_profile_U                  = 0.0146     
     N_profile_V                  = -0.0375    
@@ -3142,6 +3222,8 @@ environment variable.</p>
     N_profile_eta0               = 0.01       
     N_profile_eta1               = 0.         
     N_pattern_step               = 0.025      
+    N_pattern_xmin               = 0.         
+    N_pattern_xmax               = 120.       
     N_pattern_scale              = 1000.      
     N_pattern_background         = 50.        
 
@@ -3150,10 +3232,15 @@ environment variable.</p>
     MAT_2                        =     1.  0.  0.    0.  2.  0.    0.  0.  1.   !  a2bc
     MAT_3                        =     1.  0.  0.    0.  1.  0.    0.  0.  2.   !  ab2c
 
+
+    <font color="darkred">[USER SHORTCUTS]</font>
+    RCJ                  = READ_CIF job.cif
+    RIJ                  = READ_INS job.ins
+
 <A HREF="#cryscalc_main">[return]</a>
 </pre>
 <br>
-<A NAME="cryscalc_cfl"></A><p class="title_1">&nbsp;&nbsp;Examples of .CFL input files :<br></p>
+<A NAME="cryscalc_cfl"></A><p class="title_1">&nbsp;&nbsp;Examples of <font face="courier"><b>.CFL</b></font> input files :<br></p>
 <ul>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/rint.cfl">  Calculation of internal R factor from hkl data included in a import.cif file</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_pnma.cfl">  Pnma space group information</a><p>
@@ -3162,29 +3249,29 @@ environment variable.</p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_si_x_100.cfl">  Simulation of a X-ray diffraction pattern for Si (particles size=100A)</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_si_n.cfl">  Simulation of a neutron diffraction pattern for Si</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_y2o3.cfl">  Atom connectivity in Y2O3</a><p>
- <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_y2o3_bvs.cfl">  Bond valence calculation in Y2O3</a>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_y2o3_bvs.cfl">  Bond valence calculation in Y2O3</a><p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_ambi_mu.cfl">  X-ray absorption coefficient calculation (case of ammonium bitartrate)</a>
 <p>
 </ul>
 <br>
-<A NAME="cryscalc_links"></A><p class="title_1">&nbsp;&nbsp;CRYSCALC links :<br></p>
+<A NAME="cryscalc_links"></A><p class="title_1">&nbsp;&nbsp;CRYSCALc links :<br></p>
 <ul>
- <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.exe">CRYSCAL.exe (for Windows)</a>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.exe">CRYSCALc.exe (for Windows)</a>
 <p>
- <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.ini">Example of CRYSCAL setting file</a>
+ <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.ini">Example of CRYSCALc setting file</a>
 <p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc.css">Example of CSS file for HTML user's guide</a>
 <p>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/cryscalc_report.css">Example of CSS file for HTML structural report</a>
 <p>
- <li class="item"><a href="https://forge.epn-campus.eu/projects/crysfml">CRYSFML repository</a>
+ <li class="item"><a href="https://forge.epn-campus.eu/projects/crysfml" target="_blank">CRYSFML repository</a>
 <p>
  <li class="item"><a href="http://www.iucr.org/resources/commissions/crystallographic-computing/newsletters/1/crysfml" target="_blank">CrysFML:</A>
  <font color="black">Crystallographic Fortran Modules Library by J. Rodriguez-Carvajal and J. González-Platas</font>
 </ul>
 
 <br>
-<A NAME="cryscalc_linux"></A><p class="title_1">&nbsp;&nbsp;CRYSCALC under Linux:<br></p>
+<A NAME="cryscalc_linux"></A><p class="title_1">&nbsp;&nbsp;CRYSCALc under Linux:<br></p>
 <ul>
  <li class="item"><a href="http://www.cdifx.univ-rennes1.fr/progs/cryscalc/linux/readme.txt"> Readme.txt</a>
 <p>
@@ -3197,6 +3284,6 @@ environment variable.</p>
 </ul>
 
 <br><br><hr>
-<p class='retrait_2'>last updated: <i>TR / CDIFX - July 2014</i></P>
+<p class='retrait_2'>last updated: <i>TR / CDIFX - 7 Nov. 2014</i></P>
 </BODY>
 </HTML>

@@ -6,12 +6,12 @@
     *                                                           *
     *                          T. Roisnel                       *
     *                 (CDIFX - ISCR UMR6226 Rennes)             *
-    *                           July 2014                       *
+    *                           7 Nov. 2014                     *
     *                                                           *
     *            with courtesy of JRC and JGP for CFML          *
     *                                                           *
     *                                                           *
-    *               contact: cdifx@univ-rennes1.fr              *
+    *         contact: thierry.roisnel@univ-rennes1.fr          *
     *                                                           *
     *         Web site : www.cdifx.univ-rennes1.fr/cryscalc     *
     *                                                           *
@@ -24,7 +24,53 @@
      T. Roisnel / CDIFX - ISCR Rennes
    
    
+   . Nov. 14 :
+     # New PAT command line argument after .CIF or . INS file
+       allows to calculate a diffraction pattern from features given by
+       PDP_BEAM/PDP_WAVE keywords and details in the [PATTERN SIMULATION]
+       section of the setting file.
+       Example: cryscalc job.cif PAT
+   
+   . Oct. 14 :
+     # New [USER SHORTCUTS] section of the cryscalc.ini, defining
+       some keywords shortcuts (max. = 10). The shortcut and its
+       details (CRYSCALC keyword) has to be separated by "=" character.
+       Example: RJC = READ_CIF job.cif
+     # New parameters in [OPTIONS] section of the cryscalc.ini
+       setting file. These parameters are used for simulation
+       of powder diffraction file from command line and .CIF/.INS
+       file (create_PAT_PRF=1)
+        pdp_beam   = N    ! N for neutrons / X for X-rays
+        pdp_wave   = 1.22 ! wavelength used for diffraction pattern
+                           simulation
+       If not specified, simulation pattern is calculated for
+       X-rays and Copper K_alpha1 radiation (1.5406 A)
+     # New command line argument:
+       CREATE_ARCHIVE argument, followed by the name of CIF files
+       (without extension), allows to create a whole archive.cif file.
+       First cif file corresponds to the main CIF file created by
+       refinement software and next ones to supplementary cif files
+       to complete the archive.
+       ex : d:\> CRYSCALC  CREATE_ARCHIVE my_job import
+            . my_job : main .CIF file, used to extract structural
+                       parameters
+            . import : secondary .CIF file, containing experimental
+                       parameters (crystal and experimental features, ...)
+   . Sept. 14 :
+     # new CREATE_SOLVE keyword:
+       . create input files for structure solving software as SIR97,
+         SHELXS/T and SUPERFLIP.
+     # bugs corrections:
+       . site multiplicity calculation
+       . CRYSCALC reports (html, txt, latex): adp are in A^2
+         and not in A^2x10^3 !
+     # Some statistics on F2_mean, sig_mean ... have been added in the
+        output of the FILE keyword.
+   
    . July 14 :
+     # "include_HKL_file" field can be input in the cryscalc.ini setting file to
+       embed the contain of hkl SHEXL file in the archive_cryscalc.cif file.
+       The SHELXL hkl file name corresponds to the last project ID in WinGX.
      # NOT TO CONFUSE, CRYSCAL PROGRAM HAS BEEN RENAMED AS
        CRYSCALC. FEATURES OF THE SOFTWARE HAVE TO BE CHANGED
        CONSEQUENTLY :

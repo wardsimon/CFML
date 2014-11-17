@@ -4,6 +4,8 @@ subroutine cryscalc_init()
  USE pattern_profile_module
  USE wavelength_module
  USE HKL_module
+ USE CIF_module
+ USE MATRIX_list_module, only : user_mat_nb
 
 
   implicit none
@@ -12,8 +14,10 @@ subroutine cryscalc_init()
  ! initialisation ---------------------------------------
   winplotr_exe        = ''
   
-  CRYSCALC%version      = 'July 2014'          
-  CRYSCALC%author       = 'T. Roisnel (CDIFX / ISCR UMR6226 - Rennes)'         
+  CRYSCALC%version      = 'Nov. 2014'          
+  CRYSCALC%author       = 'Thierry Roisnel (CDIFX / ISCR UMR6226 - Rennes)'    
+  CRYSCALC%mail         = "thierry.roisnel@univ-rennes1.fr"
+  CRYSCALC%url          = "www.cdifx.univ-rennes1.fr/cryscalc"  
   CRYSCALC%ini          = ''
   CRYSCALC%css          = ''
   CRYSCALC%report_css   = ''
@@ -71,6 +75,7 @@ subroutine cryscalc_init()
   
 
   ON_SCREEN          = .true.
+  ON_SCREEN_PRF      = .false.
   CIFdep             = .false.
   ACTA               = .false.
   step_by_step       = .true.
@@ -79,6 +84,9 @@ subroutine cryscalc_init()
   CEL_file_name       = ''
   CIF_file_name       = ''
   CIF_pymol_file_name = ''
+  input_CIF_file      = ''
+  CIF_file_exist      = .false.  
+  nb_input_CIF_files  = 0
   archive_CIF         = ''
   INS_file_name       = ''
   PCR_file_name       = ''
@@ -93,9 +101,9 @@ subroutine cryscalc_init()
   ABS_file_name       = ''
   FACES_file_name     = ''
   main_title          = ''
-  SADABS_line_ratio               = ''
-  SADABS_line_estimated_Tmin_Tmax = ''
-  SADABS_absorption_coeff         = ''
+  SADABS_line_ratio               = '?'
+  SADABS_line_estimated_Tmin_Tmax = '?'
+  SADABS_absorption_coeff         = '?'
   SADABS_ratio   = -999.
   SADABS_Tmin    = -999.
   SADABS_Tmax    = -999.
@@ -134,21 +142,23 @@ subroutine cryscalc_init()
 
   n_sig         = 3.
   threshold     = 0.03
+  user_mat_nb   = 0
 
   sample_job             = "job"
   get_sample_ID          = .false.
-  Create_INS_temperature = -999.
-  Create_INS_u_threshold = -999.
+  Create_INS%temperature = -999.
+  Create_INS%U_threshold = -999.
 
   Max_ref                = Max_allowed   ! Max. number of hkl reflections
   LOCK_wave_value        = 0.02
   CIF_format80           = .true.
   CIF_torsion_limit      = 170.
   include_RES_file       = .false.
+  include_HKL_file       = .false.
   update_parameters      = .true.
   report_header          = .true.
   expert_mode            = .false.
-  skip_start_menu        = .false.
+  skip_start_menu        = .true.
   hkl_statistics         = .true.
   hkl_format_free        = .false.
   hkl_format_SHELX       = .true.
@@ -156,9 +166,14 @@ subroutine cryscalc_init()
   hkl_SHELX_format       = hkl_format
   cartesian_frame%type   = "A"
   cartesian_frame%string = "x // a"
-  pdp_cu                 = .true.
+  
+  pdp_simu%cu            = .true.
+  pdp_simu%beam          = "x-rays"
+  pdp_simu%wave          = 1.5406
+  
   keep_bond_str_out      = .false.
-
+  
+  
 
   X_PV%U                  = 0.0055
   X_PV%V                  = -0.0015
@@ -168,7 +183,9 @@ subroutine cryscalc_init()
   X_pattern%WDT           = 20.
   X_pattern%background    = 50.
   X_pattern%scale         = 100.
-  X_pattern%step          = 0.05
+  X_pattern%step          = 0.01
+  X_pattern%xmin          = 0
+  X_pattern%xmax          = 120.
 
 
   N_PV%U                  = 0.0055
@@ -180,6 +197,8 @@ subroutine cryscalc_init()
   N_pattern%background    = 50.
   N_pattern%scale         = 100.
   N_pattern%step          = 0.025
+  N_pattern%xmin          = 0
+  N_pattern%xmax          = 140.
 
 
 
@@ -305,10 +324,11 @@ subroutine cryscalc_init()
   keyword_create_FST       = .false.
   keyword_create_PRF       = .false.
   create_FST_POLY          = .false.
-  create_FST_MOLE          = .false.
+  create_FST_MOLE          = .false.  
   FST_no_H                 = .false.
   launch_FP_Studio         = .false.
   keyword_create_INS       = .false.
+  keyword_create_SOLVE     = .false.
   keyword_create_TIDY      = .false.  
   create_CIF_PYMOL         = .false.
   create_SHAPE_file        = .false.
@@ -322,14 +342,15 @@ subroutine cryscalc_init()
   INI_create_PRF           = .false.
   include_SQUEEZE          = .true.
 
-  keyword_create_REPORT = .false.
-  keyword_read_NREPORT  = .false.
-  browse_nreport        = .false.
-  keyword_modif_ARCHIVE = .false.
-  keyword_SOLVE_to_INS  = .false.
-  keyword_SIR           = .false.
-  keyword_NEWS          = .false.
-  news_year             = 'all'
+  keyword_create_REPORT  = .false.
+  keyword_read_NREPORT   = .false.
+  browse_nreport         = .false.
+  keyword_modif_ARCHIVE  = .false.
+  keyword_create_ARCHIVE = .false.
+  keyword_SOLVE_to_INS   = .false.
+  keyword_SIR            = .false.
+  keyword_NEWS           = .false.
+  news_year              = 'all'
 
   keyword_EDIT         = .false.
   file_to_edit         = ''
@@ -372,12 +393,13 @@ subroutine cryscalc_init()
   X_min                = 0.
   X_max                = 0.
 
-  CIF_diffrn_reflns%theta_min       = 0.
-  CIF_diffrn_reflns%theta_max       = 0.
-  CIF_cell_measurement%theta_min    = 0.
-  CIF_cell_measurement%theta_max    = 0.
-  CIF_cell_measurement%reflns_used  = 0
+  CIF_diffrn_reflns%theta_min       = -1.
+  CIF_diffrn_reflns%theta_max       = -1. 
+  CIF_cell_measurement%theta_min    = -1.
+  CIF_cell_measurement%theta_max    = -1.
+  CIF_cell_measurement%reflns_used  = -1.
   CIF_cell_measurement%temperature  = '?'
+  CIF_cell_measurement%wavelength   = -1.
 
   CIF_dist%n_text          = 0
   CIF_dist%max_text        = 2000
@@ -412,11 +434,15 @@ subroutine cryscalc_init()
   CIF_parameter%cell_angle_beta                  = '?'
   CIF_parameter%cell_angle_gamma                 = '?'
   CIF_parameter%cell_volume                      = '?'
+  CIF_parameter%cell_formula_units_Z             = '?'
   CIF_parameter%exptl_density                    = '?'
   CIF_parameter%exptl_mu                         = '?'
   CIF_parameter%diffrn_reflns_number             = '?'
   CIF_parameter%diffrn_reflns_av_R_equivalents   = '?'
   CIF_parameter%diffrn_reflns_av_R_sigma         = '?'
+  CIF_parameter%diffrn_theta_full                = '?'
+  CIF_parameter%diffrn_theta_max                 = '?'
+
   CIF_parameter%reflns_number_total              = '?'
   CIF_parameter%reflns_number_gt                 = '?'
   CIF_parameter%refine_ls_number_parameters      = '?'
@@ -427,6 +453,21 @@ subroutine cryscalc_init()
   CIF_parameter%refine_diff_density_max          = '?'
   CIF_parameter%refine_diff_density_min          = '?'
   CIF_parameter%refine_diff_density_rms          = '?'
+  CIF_parameter%refine_ls_weighting_details      = '?'
+  CIF_parameter%atom_sites_solution_1            = '?'
+  CIF_parameter%atom_sites_solution_2            = '?'   
+  CIF_parameter%atom_sites_solution_H            = '?'
+  CIF_parameter%refine_ls_H_treatment            = '?'
+  CIF_parameter%refine_ls_extinction_method      = '?'
+  CIF_parameter%refine_ls_extinction_coef        = '?'
+  CIF_parameter%refine_ls_number_reflns          = '?'
+  CIF_parameter%refine_ls_number_parameters      = '?'
+  CIF_parameter%refine_ls_number_restraints      = '?'
+  CIF_parameter%refine_ls_goodness_of_fit_ref    = '?'
+  CIF_parameter%refine_ls_restrained_S_all       = '?'
+  CIF_parameter%refine_ls_shift_su_max           = '?'
+  CIF_parameter%refine_ls_shift_su_mean          = '?'
+
   CIF_parameter%H_treatment                      = 'constr'
   CIF_parameter%atom                             = '?'
   CIF_parameter%distance                         = '?'
@@ -442,15 +483,18 @@ subroutine cryscalc_init()
   CIF_parameter%crystal_size_min                 = '?'
   CIF_parameter%crystal_size_mid                 = '?'
   CIF_parameter%crystal_size_max                 = '?'
-  CIF_parameter%crystal_colour                   = '?'
+  CIF_parameter%crystal_colour                   = '?'  
   CIF_parameter%h_min                            = '?'
   CIF_parameter%h_max                            = '?'
   CIF_parameter%k_min                            = '?'
   CIF_parameter%k_max                            = '?'
   CIF_parameter%l_min                            = '?'
   CIF_parameter%l_max                            = '?'
+  CIF_parameter%theta_full                       = '?'
+  CIF_parameter%theta_max                        = '?'
   CIF_parameter%completeness                     = '?'
   CIF_parameter%absorption_correction_type       = '?'
+  CIF_parameter%absorption_coefficient_mu        = '?'
   CIF_parameter%T_min                            = '?'
   CIF_parameter%T_max                            = '?'
   CIF_parameter%restraints_number                = '?'
@@ -473,9 +517,10 @@ subroutine cryscalc_init()
   write(CIF_parameter%computing_structure_refinement, '(3a)') "'", trim(structure_refinement%CIF_ref), "'"
 
   CIF_parameter%computing_molecular_graphics         = "'Ortep-3 for Windows (Farrugia, 1997)'"
-  !CIF_parameter%computing_publication_material_1     = " WinGX publication routines (Farrugia, 1999),"
-  CIF_parameter%computing_publication_material_1     = " WinGX publication routines (Farrugia, 2012),"
-  CIF_parameter%computing_publication_material_2     = " CRYSCALC (T. Roisnel, local program)"
+  !CIF_parameter%computing_publication_material_1     = "WinGX publication routines (Farrugia, 1999),"
+  CIF_parameter%computing_publication_material_1     = "WinGX publication routines (Farrugia, 2012),"
+  CIF_parameter%computing_publication_material_2     = "CRYSCALc (T. Roisnel, local program, 2014)"
+  CIF_parameter%WinGX_used                           = .false.
 
 
   DENZO%data_collection                              = "'Collect (Nonius BV, 1997-2000)'"
@@ -507,8 +552,7 @@ subroutine cryscalc_init()
   CIF_parameter_KCCD%diffrn_radiation_type                = 'MoK\a'
   CIF_parameter_KCCD%diffrn_radiation_source              = 'fine-focus sealed tube'
   CIF_parameter_KCCD%diffrn_radiation_monochromator       = 'graphite'
-  CIF_parameter_KCCD%diffrn_radiation_probe               = 'x-ray'
-  CIF_parameter_KCCD%diffrn_radiation_source              = 'seated X-ray tube'
+  CIF_parameter_KCCD%diffrn_radiation_probe               = 'x-ray'  
   CIF_parameter_KCCD%diffrn_detector                      = "'CCD plate'"
   CIF_parameter_KCCD%diffrn_detector_area_resol_mean      = '9'
   CIF_parameter_KCCD%diffrn_measurement_device            = "'95mm CCD camera on \k-goniostat'"
@@ -526,8 +570,7 @@ subroutine cryscalc_init()
   CIF_parameter_APEX%diffrn_radiation_type                = 'MoK\a'
   CIF_parameter_APEX%diffrn_radiation_source              = 'fine-focus sealed tube'
   CIF_parameter_APEX%diffrn_radiation_monochromator       = 'graphite'
-  CIF_parameter_APEX%diffrn_radiation_probe               = 'x-ray'
-  CIF_parameter_APEX%diffrn_radiation_source              = 'seated X-ray tube'
+  CIF_parameter_APEX%diffrn_radiation_probe               = 'x-ray'  
   CIF_parameter_APEX%diffrn_measurement_device            = '?'
   CIF_parameter_APEX%diffrn_source                        = '?'
   CIF_parameter_APEX%diffrn_detector_area_resol_mean      = '?'
@@ -548,8 +591,7 @@ subroutine cryscalc_init()
   CIF_parameter_X2S%diffrn_radiation_type                = 'MoK\a'
   CIF_parameter_X2S%diffrn_radiation_source              = "'XOS X-beam microfocus source'"
   CIF_parameter_X2S%diffrn_radiation_monochromator       = "'doubly curved silicon crystal'"
-  CIF_parameter_X2S%diffrn_radiation_probe               = 'x-ray'
-  CIF_parameter_X2S%diffrn_radiation_source              = 'seated X-ray tube'
+  CIF_parameter_X2S%diffrn_radiation_probe               = 'x-ray'  
   CIF_parameter_X2S%diffrn_measurement_device            = '?'
   CIF_parameter_X2S%diffrn_source                        = '?'
   CIF_parameter_X2S%diffrn_detector_area_resol_mean      = '?'
@@ -572,7 +614,7 @@ subroutine cryscalc_init()
   CIF_parameter_XCALIBUR%diffrn_radiation_wavelength      = '0.71073'
   CIF_parameter_XCALIBUR%diffrn_radiation_monochromator   = 'graphite'
   CIF_parameter_XCALIBUR%diffrn_radiation_probe           = 'x-ray'
-  CIF_parameter_XCALIBUR%diffrn_radiation_source          = 'seated X-ray tube'
+  CIF_parameter_XCALIBUR%diffrn_radiation_source          = 'sealed X-ray tube'
   CIF_parameter_XCALIBUR%diffrn_detector_area_resol_mean  = '19.64'
   CIF_parameter_XCALIBUR%computing_data_collection        = XCALIBUR%data_collection
   CIF_parameter_XCALIBUR%computing_cell_refinement        = XCALIBUR%cell_refinement
@@ -597,13 +639,13 @@ subroutine cryscalc_init()
   CIF_parameter_SUPERNOVA%computing_publication_material_2 = CIF_parameter%computing_publication_material_2
 
 
-  SADABS%type       = "_exptl_absorpt_correction_type                              multi-scan"
+  SADABS%type       = "_exptl_absorpt_correction_type                       multi-scan"
   SADABS%details(1) = "_exptl_absorpt_process_details"
   SADABS%details(2) = ";"
   SADABS%details(3) = "  [Sheldrick, G.M. (2002). SADABS Bruker AXS Inc., Madison, Wisconsin, USA]"
   SADABS%details(4) = ";"
   
-  ABS_CRYSALIS%type       = "_exptl_absorpt_correction_type                              multi-scan"
+  ABS_CRYSALIS%type       = "_exptl_absorpt_correction_type                          multi-scan"
   ABS_CRYSALIS%details(1) = "_exptl_absorpt_process_details"
   ABS_CRYSALIS%details(2) = ";"
   ABS_CRYSALIS%details(3) = "  CrysAlisPro, Agilent Technologies, Version 1.171.36.28c"
@@ -639,14 +681,19 @@ subroutine cryscalc_init()
   keyword_UB_mat = .false.
 
 
-  crystal%size         = 0.
-  crystal%size_min     = 0.
-  crystal%size_max     = 0.
-  crystal%size_mid     = 0.
-  crystal%volume       = 0.
-  crystal%radius       = 0.
-  crystal%morph        = '?'
-  crystal%color        = '?'
+  crystal%size           = 0.
+  crystal%size_min       = 0.
+  crystal%size_max       = 0.
+  crystal%size_mid       = 0.
+  crystal%volume         = 0.
+  crystal%radius         = 0.
+  crystal%morph          = '?'
+  crystal%color          = '?'
+  crystal%density_meas   = '?'
+  crystal%density_diffrn = '?'
+  crystal%density_method = '?'
+  crystal%F000           = '?'
+   
   crystal_system       = '?'
   crystal%face_line(:) = '?'
   crystal%faces_nb     = 0
@@ -665,13 +712,14 @@ subroutine cryscalc_init()
   molecule%density     = 0.0
   molecule%Z           = 0
   molecule%Z_unit      = 1
+  Z_unit_INS           = 1
 
 
 
 
   F000                 = 0.
 
-  beam_type               = 'x_rays'
+  beam_type               = 'x-rays'
   X_rays                  = .true.
   neutrons                = .false.
   electrons               = .false.
@@ -728,7 +776,7 @@ subroutine cryscalc_init()
   keyword_create_CRYSCALC_news   = .false.
   keyword_create_CRYSCALC_HTML   = .false.
   browse_cryscalc_HTML           = .false.
-  keyword_create_CIF             = .false.
+
   keyword_WRITE_REF_APEX         = .false.
   keyword_WRITE_REF_DENZO        = .false.
   keyword_WRITE_REF_EVAL         = .false.
@@ -826,30 +874,30 @@ subroutine cryscalc_init()
   (/'ABSENT_HKL         ', 'ABSORPTION         ', 'ACTA               ', 'ANG                ', 'APPLY_OP           ', &
     'ATOM               ', 'ATOM_LIST          ', 'BARY               ', 'BEAM               ', 'CELL               ', &
     'CHEM               ', 'CONN               ', 'CONT               ', 'CREATE_ACE         ', 'CREATE_CEL         ', &
-    'CREATE_CFL         ', 'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'CREATE_TIDY        ', &
-    'D_HKL              ', 'D_STAR             ', 'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', 'DATA_ATOMIC_WEIGHT ', &
-    'DATA_NEUTRONS      ', 'DATA_XRAYS         ', 'DIAG_MAT           ', 'DIR_ANG            ', 'DIST               ', &
-    'DIST_DHA           ', 'EDIT               ', 'EQUIV_HKL          ', 'EXIT               ', 'FILE               ', &
-	'FIND_HKL           ', 'FIND_HKL_LIST      ', 'FRIEDEL            ', 'GEN_HKL            ', 'HEADER             ', &
-	'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', 'HKL_POS            ', 'INSIDE             ', &
-	'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', 'LIST_MATR          ', 'LIST_SG            ', &
-	'MAG                ', 'MAN                ', 'MAN_HTML           ', 'MATMUL             ', 'MATR               ', &
-	'OBV_REV            ', 'MENDEL             ', 'MERGE              ', 'MONOCLINIC         ', 'NEWS               ', &
-	'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', 'Q_HKL              ', &
-	'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_FACES         ', 'READ_INS           ', &
-	'READ_NREPORT       ', 'READ_PCR           ', 'READ_TIDY_OUT      ', 'REC_ANG            ', 'REF_ABS_CRYSALIS   ', &
-	'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', 'REF_KCCD           ', 'REF_SADABS         ', &
-	'REF_SUPERNOVA      ', 'REF_X2S            ', 'REF_XCALIBUR       ', 'RESET              ', 'RINT               ', &
-	'RHOMB_HEX          ', 'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', 'SETTING            ', &
-	'SFAC               ', 'SF_HKL             ', 'SG                 ', 'SG_ALL             ', 'SG_EXTI            ', &
-	'SG_INFO            ', 'SG_SUB             ', 'SHANNON            ', 'SHELL              ', 'SHIFT_2TH          ', &
-	'SITE_INFO          ', 'SIZE               ', 'SORT               ', 'STAR_K             ', 'STL                ', &
-	'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', 'THETA              ', &
-	'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', 'UB_MATRIX          ', 'USER_MAT           ', &
-	'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', 'UNIT               ', &
-	'WAVE               ', 'WEB                ', 'WRITE_ADP          ', 'WRITE_BEAM         ', 'WRITE_CELL         ', &
-	'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_QVEC         ', 'WRITE_SYM_OP       ', 'WRITE_WAVE         ', &
-	'WRITE_ZUNIT        ', 'X_WAVE             ', 'ZUNIT              ', 'WRITE_SG           '  /)
+    'CREATE_CFL         ', 'CREATE_FST         ', 'CREATE_INS         ', 'CREATE_REPORT      ', 'CREATE_SOLVE       ', &
+	'CREATE_TIDY        ', 'D_HKL              ', 'D_STAR             ', 'DATA_ATOMIC_DENSITY', 'DATA_ATOMIC_RADIUS ', &
+	'DATA_ATOMIC_WEIGHT ', 'DATA_NEUTRONS      ', 'DATA_XRAYS         ', 'DIAG_MAT           ', 'DIR_ANG            ', &
+	'DIST               ', 'DIST_DHA           ', 'EDIT               ', 'EQUIV_HKL          ', 'EXIT               ', &
+	'FILE               ', 'FIND_HKL           ', 'FIND_HKL_LIST      ', 'FRIEDEL            ', 'GEN_HKL            ', &
+	'HEADER             ', 'HEX_RHOMB          ', 'HKL                ', 'HKL_NEG            ', 'HKL_POS            ', &
+	'INSIDE             ', 'LIST_EXTI          ', 'LIST_KEYS          ', 'LIST_LAUE          ', 'LIST_MATR          ', &
+	'LIST_SG            ', 'MAG                ', 'MAN                ', 'MAN_HTML           ', 'MATMUL             ', &
+	'MATR               ', 'OBV_REV            ', 'MENDEL             ', 'MERGE              ', 'MONOCLINIC         ', &
+	'NEWS               ', 'NIGGLI             ', 'P4P                ', 'PAUSE              ', 'PERMUT             ', &
+	'Q_HKL              ', 'QVEC               ', 'READ_CEL           ', 'READ_CIF           ', 'READ_FACES         ', &
+	'READ_INS           ', 'READ_NREPORT       ', 'READ_PCR           ', 'READ_TIDY_OUT      ', 'REC_ANG            ', &
+	'REF_ABS_CRYSALIS   ', 'REF_APEX           ', 'REF_DENZO          ', 'REF_EVAL           ', 'REF_KCCD           ', &
+	'REF_SADABS         ', 'REF_SUPERNOVA      ', 'REF_X2S            ', 'REF_XCALIBUR       ', 'RESET              ', &
+	'RINT               ', 'RHOMB_HEX          ', 'SEARCH_EXTI        ', 'SEARCH_SPGR        ', 'SET                ', &
+	'SETTING            ', 'SFAC               ', 'SF_HKL             ', 'SG                 ', 'SG_ALL             ', &
+	'SG_EXTI            ', 'SG_INFO            ', 'SG_SUB             ', 'SHANNON            ', 'SHELL              ', &
+	'SHIFT_2TH          ', 'SITE_INFO          ', 'SIZE               ', 'SORT               ', 'STAR_K             ', &
+	'STL                ', 'SYMM               ', 'SYST               ', 'THERM              ', 'THERM_SHELX        ', &
+	'THETA              ', 'TITL               ', 'TRANSLATION        ', 'TRANSMISSION       ', 'UB_MATRIX          ', &
+	'USER_MAT           ', 'TRICLINIC          ', 'TWIN_HEXA          ', 'TWIN_PSEUDO_HEXA   ', 'TWO_THETA          ', &
+	'UNIT               ', 'WAVE               ', 'WEB                ', 'WRITE_ADP          ', 'WRITE_BEAM         ', &
+	'WRITE_CELL         ', 'WRITE_CHEM         ', 'WRITE_DEVICE       ', 'WRITE_QVEC         ', 'WRITE_SYM_OP       ', &
+	'WRITE_WAVE         ', 'WRITE_ZUNIT        ', 'X_WAVE             ', 'ZUNIT              ', 'WRITE_SG           '  /)
 
   HELP_arg(1:nb_help_max) = HELP_string(1:nb_help_max)
 
@@ -872,121 +920,122 @@ subroutine cryscalc_init()
   numor = numor + 1;    HELP_CREATE_FST_numor          =  numor  ! 17
   numor = numor + 1;    HELP_CREATE_INS_numor          =  numor  ! 18
   numor = numor + 1;    HELP_CREATE_REPORT_numor       =  numor  ! 19
-  numor = numor + 1;    HELP_CREATE_TIDY_numor         =  numor  ! 20
-  numor = numor + 1;    HELP_D_HKL_numor               =  numor  ! 21
-  numor = numor + 1;    HELP_D_STAR_numor              =  numor  ! 22
-  numor = numor + 1;    HELP_DATA_ATOMIC_DENSITY_numor =  numor  ! 23
-  numor = numor + 1;    HELP_DATA_ATOMIC_RADIUS_numor  =  numor  ! 24
-  numor = numor + 1;    HELP_DATA_ATOMIC_WEIGHT_numor  =  numor  ! 25
-  numor = numor + 1;    HELP_DATA_NEUTRONS_numor       =  numor  ! 26
-  numor = numor + 1;    HELP_DATA_XRAYS_numor          =  numor  ! 27
-  numor = numor + 1;    HELP_DIAG_MAT_numor            =  numor  ! 28
-  numor = numor + 1;    HELP_DIR_ANG_numor             =  numor  ! 29
-  numor = numor + 1;    HELP_DIST_numor                =  numor  ! 30
-  numor = numor + 1;    HELP_DIST_DHA_numor            =  numor  ! 31
-  numor = numor + 1;    HELP_EDIT_numor                =  numor  ! 32
-  numor = numor + 1;    HELP_EQUIV_numor               =  numor  ! 33
-  numor = numor + 1;    HELP_EXIT_numor                =  numor  ! 34
-  numor = numor + 1;    HELP_FILE_numor                =  numor  ! 35
-  numor = numor + 1;    HELP_FIND_HKL_numor            =  numor  ! 36
-  numor = numor + 1;    HELP_FIND_HKL_LIST_numor       =  numor  ! 37
-  numor = numor + 1;    HELP_FRIEDEL_pairs_numor       =  numor  ! 38
-  numor = numor + 1;    HELP_GEN_HKL_numor             =  numor  ! 39
-  numor = numor + 1;    HELP_HEADER_numor              =  numor  ! 40
-  numor = numor + 1;    HELP_HEX_RHOMB_numor           =  numor  ! 41
-  numor = numor + 1;    HELP_HKL_numor                 =  numor  ! 42
-  numor = numor + 1;    HELP_HKL_NEG_numor             =  numor  ! 43
-  numor = numor + 1;    HELP_HKL_POS_numor             =  numor  ! 44
-  numor = numor + 1;    HELP_INSIDE_numor              =  numor  ! 45
-  numor = numor + 1;    HELP_LIST_EXTI_numor           =  numor  ! 46
-  numor = numor + 1;    HELP_LIST_KEYS_numor           =  numor  ! 47
-  numor = numor + 1;    HELP_LIST_LAUE_numor           =  numor  ! 48
-  numor = numor + 1;    HELP_LIST_MATR_numor           =  numor  ! 49
-  numor = numor + 1;    HELP_LIST_SG_numor             =  numor  ! 50
-  numor = numor + 1;    HELP_MAG_numor                 =  numor  ! 51
-  numor = numor + 1;    HELP_MAN_numor                 =  numor  ! 52
-  numor = numor + 1;    HELP_MAN_HTML_numor            =  numor  ! 53
-  numor = numor + 1;    HELP_MATMUL_numor              =  numor  ! 54
-  numor = numor + 1;    HELP_MATR_numor                =  numor  ! 55
-  numor = numor + 1;    HELP_MENDEL_numor              =  numor  ! 56
-  numor = numor + 1;    HELP_MERGE_numor               =  numor  ! 57
-  numor = numor + 1;    HELP_MONOCLINIC_numor          =  numor  ! 58
-  numor = numor + 1;    HELP_NEWS_numor                =  numor  ! 59
-  numor = numor + 1;    HELP_NIGGLI_CELL_numor         =  numor  ! 60
-  numor = numor + 1;    HELP_OBV_REV_numor             =  numor  ! 61
-  numor = numor + 1;    HELP_P4P_numor                 =  numor  ! 62
-  numor = numor + 1;    HELP_PAUSE_numor               =  numor  ! 63
-  numor = numor + 1;    HELP_PERMUT_numor              =  numor  ! 64
-  numor = numor + 1;    HELP_Q_HKL_numor               =  numor  ! 65
-  numor = numor + 1;    HELP_QVEC_numor                =  numor  ! 66
-  numor = numor + 1;    HELP_READ_CEL_numor            =  numor  ! 67
-  numor = numor + 1;    HELP_READ_CIF_numor            =  numor  ! 68
-  numor = numor + 1;    HELP_READ_FACES_numor          =  numor  ! 69
-  numor = numor + 1;    HELP_READ_INS_numor            =  numor  ! 70
-  numor = numor + 1;    HELP_READ_NREPORT_numor        =  numor  ! 71
-  numor = numor + 1;    HELP_READ_PCR_numor            =  numor  ! 72
-  numor = numor + 1;    HELP_READ_TIDY_out_numor       =  numor  ! 73
-  numor = numor + 1;    HELP_REC_ANG_numor             =  numor  ! 74 
-  numor = numor + 1;    HELP_REF_ABS_CRYSALIS_numor    =  numor  ! 75
-  numor = numor + 1;    HELP_REF_APEX_numor            =  numor  ! 76
-  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 77
-  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 78
-  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 79
-  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 80
-  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 81
-  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  ! 82
-  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  ! 83
-  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 84
-  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 85
-  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 86
-  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 87
-  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 88
-  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 89
-  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 90
-  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 91
-  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 92
-  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 93
-  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 94
-  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 95
-  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 96
-  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  ! 97
-  numor = numor + 1;    HELP_SHANNON_numor             =  numor  ! 98
-  numor = numor + 1;    HELP_SHELL_numor               =  numor  ! 99
-  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !100
-  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !101
-  numor = numor + 1;    HELP_SIZE_numor                =  numor  !102
-  numor = numor + 1;    HELP_SORT_numor                =  numor  !103 
-  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !104
-  numor = numor + 1;    HELP_STL_numor                 =  numor  !105
-  numor = numor + 1;    HELP_SYMM_numor                =  numor  !106
-  numor = numor + 1;    HELP_SYST_numor                =  numor  !107
-  numor = numor + 1;    HELP_THERM_numor               =  numor  !108
-  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !109
-  numor = numor + 1;    HELP_THETA_numor               =  numor  !110
-  numor = numor + 1;    HELP_TITL_numor                =  numor  !111
-  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !112
-  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !113
-  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !114
-  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !115
-  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !116
-  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !117
-  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !118
-  numor = numor + 1;    HELP_UNIT_numor                =  numor  !119
-  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !120
-  numor = numor + 1;    HELP_WAVE_numor                =  numor  !121
-  numor = numor + 1;    HELP_WEB_numor                 =  numor  !122
-  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !123
-  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !124
-  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !125
-  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !126
-  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !127
-  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !128
-  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !129
-  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !130
-  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !131
-  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !132
-  numor = numor + 1;    HELP_X_wave_numor              =  numor  !133
-  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !134
+  numor = numor + 1;    HELP_CREATE_SOLVE_numor        =  numor  ! 20 
+  numor = numor + 1;    HELP_CREATE_TIDY_numor         =  numor  ! 21
+  numor = numor + 1;    HELP_D_HKL_numor               =  numor  ! 22
+  numor = numor + 1;    HELP_D_STAR_numor              =  numor  ! 23
+  numor = numor + 1;    HELP_DATA_ATOMIC_DENSITY_numor =  numor  ! 24
+  numor = numor + 1;    HELP_DATA_ATOMIC_RADIUS_numor  =  numor  ! 25
+  numor = numor + 1;    HELP_DATA_ATOMIC_WEIGHT_numor  =  numor  ! 26
+  numor = numor + 1;    HELP_DATA_NEUTRONS_numor       =  numor  ! 27
+  numor = numor + 1;    HELP_DATA_XRAYS_numor          =  numor  ! 28
+  numor = numor + 1;    HELP_DIAG_MAT_numor            =  numor  ! 29
+  numor = numor + 1;    HELP_DIR_ANG_numor             =  numor  ! 30
+  numor = numor + 1;    HELP_DIST_numor                =  numor  ! 31
+  numor = numor + 1;    HELP_DIST_DHA_numor            =  numor  ! 32
+  numor = numor + 1;    HELP_EDIT_numor                =  numor  ! 33
+  numor = numor + 1;    HELP_EQUIV_numor               =  numor  ! 34
+  numor = numor + 1;    HELP_EXIT_numor                =  numor  ! 35
+  numor = numor + 1;    HELP_FILE_numor                =  numor  ! 36
+  numor = numor + 1;    HELP_FIND_HKL_numor            =  numor  ! 37
+  numor = numor + 1;    HELP_FIND_HKL_LIST_numor       =  numor  ! 38
+  numor = numor + 1;    HELP_FRIEDEL_pairs_numor       =  numor  ! 39
+  numor = numor + 1;    HELP_GEN_HKL_numor             =  numor  ! 40
+  numor = numor + 1;    HELP_HEADER_numor              =  numor  ! 41
+  numor = numor + 1;    HELP_HEX_RHOMB_numor           =  numor  ! 42
+  numor = numor + 1;    HELP_HKL_numor                 =  numor  ! 43
+  numor = numor + 1;    HELP_HKL_NEG_numor             =  numor  ! 44
+  numor = numor + 1;    HELP_HKL_POS_numor             =  numor  ! 45
+  numor = numor + 1;    HELP_INSIDE_numor              =  numor  ! 46
+  numor = numor + 1;    HELP_LIST_EXTI_numor           =  numor  ! 47
+  numor = numor + 1;    HELP_LIST_KEYS_numor           =  numor  ! 48
+  numor = numor + 1;    HELP_LIST_LAUE_numor           =  numor  ! 49
+  numor = numor + 1;    HELP_LIST_MATR_numor           =  numor  ! 50
+  numor = numor + 1;    HELP_LIST_SG_numor             =  numor  ! 51
+  numor = numor + 1;    HELP_MAG_numor                 =  numor  ! 52
+  numor = numor + 1;    HELP_MAN_numor                 =  numor  ! 53
+  numor = numor + 1;    HELP_MAN_HTML_numor            =  numor  ! 54
+  numor = numor + 1;    HELP_MATMUL_numor              =  numor  ! 55
+  numor = numor + 1;    HELP_MATR_numor                =  numor  ! 56
+  numor = numor + 1;    HELP_MENDEL_numor              =  numor  ! 57
+  numor = numor + 1;    HELP_MERGE_numor               =  numor  ! 58
+  numor = numor + 1;    HELP_MONOCLINIC_numor          =  numor  ! 59
+  numor = numor + 1;    HELP_NEWS_numor                =  numor  ! 60
+  numor = numor + 1;    HELP_NIGGLI_CELL_numor         =  numor  ! 61
+  numor = numor + 1;    HELP_OBV_REV_numor             =  numor  ! 62
+  numor = numor + 1;    HELP_P4P_numor                 =  numor  ! 63
+  numor = numor + 1;    HELP_PAUSE_numor               =  numor  ! 64
+  numor = numor + 1;    HELP_PERMUT_numor              =  numor  ! 65
+  numor = numor + 1;    HELP_Q_HKL_numor               =  numor  ! 66
+  numor = numor + 1;    HELP_QVEC_numor                =  numor  ! 67
+  numor = numor + 1;    HELP_READ_CEL_numor            =  numor  ! 68
+  numor = numor + 1;    HELP_READ_CIF_numor            =  numor  ! 69
+  numor = numor + 1;    HELP_READ_FACES_numor          =  numor  ! 70
+  numor = numor + 1;    HELP_READ_INS_numor            =  numor  ! 71
+  numor = numor + 1;    HELP_READ_NREPORT_numor        =  numor  ! 72
+  numor = numor + 1;    HELP_READ_PCR_numor            =  numor  ! 73
+  numor = numor + 1;    HELP_READ_TIDY_out_numor       =  numor  ! 74
+  numor = numor + 1;    HELP_REC_ANG_numor             =  numor  ! 75 
+  numor = numor + 1;    HELP_REF_ABS_CRYSALIS_numor    =  numor  ! 76
+  numor = numor + 1;    HELP_REF_APEX_numor            =  numor  ! 77
+  numor = numor + 1;    HELP_REF_DENZO_numor           =  numor  ! 78
+  numor = numor + 1;    HELP_REF_EVAL_numor            =  numor  ! 79
+  numor = numor + 1;    HELP_REF_KCCD_numor            =  numor  ! 80
+  numor = numor + 1;    HELP_REF_SADABS_numor          =  numor  ! 81
+  numor = numor + 1;    HELP_REF_SUPERNOVA_numor       =  numor  ! 82
+  numor = numor + 1;    HELP_REF_X2S_numor             =  numor  ! 83
+  numor = numor + 1;    HELP_REF_XCALIBUR_numor        =  numor  ! 84
+  numor = numor + 1;    HELP_RESET_numor               =  numor  ! 85
+  numor = numor + 1;    HELP_RINT_numor                =  numor  ! 86
+  numor = numor + 1;    HELP_RHOMB_HEX_numor           =  numor  ! 87
+  numor = numor + 1;    HELP_SEARCH_EXTI_numor         =  numor  ! 88
+  numor = numor + 1;    HELP_SEARCH_SPGR_numor         =  numor  ! 89
+  numor = numor + 1;    HELP_SET_numor                 =  numor  ! 90
+  numor = numor + 1;    HELP_SETTING_numor             =  numor  ! 91
+  numor = numor + 1;    HELP_SFAC_numor                =  numor  ! 92
+  numor = numor + 1;    HELP_SFHKL_numor               =  numor  ! 93
+  numor = numor + 1;    HELP_SG_numor                  =  numor  ! 94
+  numor = numor + 1;    HELP_SG_ALL_numor              =  numor  ! 95
+  numor = numor + 1;    HELP_SG_EXTI_numor             =  numor  ! 96
+  numor = numor + 1;    HELP_SG_INFO_numor             =  numor  ! 97
+  numor = numor + 1;    HELP_SG_SUB_numor              =  numor  ! 98
+  numor = numor + 1;    HELP_SHANNON_numor             =  numor  ! 99
+  numor = numor + 1;    HELP_SHELL_numor               =  numor  !100
+  numor = numor + 1;    HELP_SHIFT_2TH_numor           =  numor  !101
+  numor = numor + 1;    HELP_SITE_INFO_numor           =  numor  !102
+  numor = numor + 1;    HELP_SIZE_numor                =  numor  !103
+  numor = numor + 1;    HELP_SORT_numor                =  numor  !104 
+  numor = numor + 1;    HELP_STAR_K_numor              =  numor  !105
+  numor = numor + 1;    HELP_STL_numor                 =  numor  !106
+  numor = numor + 1;    HELP_SYMM_numor                =  numor  !107
+  numor = numor + 1;    HELP_SYST_numor                =  numor  !108
+  numor = numor + 1;    HELP_THERM_numor               =  numor  !109
+  numor = numor + 1;    HELP_THERM_SHELX_numor         =  numor  !110
+  numor = numor + 1;    HELP_THETA_numor               =  numor  !111
+  numor = numor + 1;    HELP_TITL_numor                =  numor  !112
+  numor = numor + 1;    HELP_TRANSLATION_numor         =  numor  !113
+  numor = numor + 1;    HELP_TRANSMISSION_numor        =  numor  !114
+  numor = numor + 1;    HELP_TRICLINIC_numor           =  numor  !115
+  numor = numor + 1;    HELP_TWIN_HEXA_numor           =  numor  !116
+  numor = numor + 1;    HELP_TWIN_PSEUDO_HEXA_numor    =  numor  !117
+  numor = numor + 1;    HELP_TWO_THETA_numor           =  numor  !118
+  numor = numor + 1;    HELP_UB_matrix_numor           =  numor  !119
+  numor = numor + 1;    HELP_UNIT_numor                =  numor  !120
+  numor = numor + 1;    HELP_USER_MAT_numor            =  numor  !121
+  numor = numor + 1;    HELP_WAVE_numor                =  numor  !122
+  numor = numor + 1;    HELP_WEB_numor                 =  numor  !123
+  numor = numor + 1;    HELP_WRITE_ADP_numor           =  numor  !124
+  numor = numor + 1;    HELP_WRITE_BEAM_numor          =  numor  !125
+  numor = numor + 1;    HELP_WRITE_CELL_numor          =  numor  !126
+  numor = numor + 1;    HELP_WRITE_CHEM_numor          =  numor  !127
+  numor = numor + 1;    HELP_WRITE_DEVICE_numor        =  numor  !128
+  numor = numor + 1;    HELP_WRITE_QVEC_numor          =  numor  !129
+  numor = numor + 1;    HELP_WRITE_SG_numor            =  numor  !130
+  numor = numor + 1;    HELP_WRITE_SYM_OP_numor        =  numor  !131
+  numor = numor + 1;    HELP_WRITE_WAVE_numor          =  numor  !132
+  numor = numor + 1;    HELP_WRITE_ZUNIT_numor         =  numor  !133
+  numor = numor + 1;    HELP_X_wave_numor              =  numor  !134
+  numor = numor + 1;    HELP_ZUNIT_numor               =  numor  !135
 
 
 
@@ -995,25 +1044,25 @@ subroutine cryscalc_init()
 
  subroutine read_cryscalc_ini()
   USE cryscalc_module, ONLY : debug_proc, INI_unit, cryscalc, winplotr_exe, my_editor, my_browser, my_word, &
-                              my_pdflatex, WEB, AUTHOR, DEVICE, cryscalc,                                       &
-                              CIF_parameter, CIF_parameter_APEX, CIF_parameter_KCCD, CIF_parameter_SUPERNOVA,   &
-					   		  CIF_parameter_XCALIBUR, CIF_parameter_X2S, CIF_CELL_measurement,                  &
+                              my_pdflatex, WEB, AUTHOR, DEVICE, cryscalc,                                       &                              
                               wavelength, keyword_beam, keyword_WAVE, neutrons, X_rays,                         &
                               DENZO, EVAL, APEX, X2S, SUPERNOVA, XCALIBUR,                                      &
                               CONN_dmax_ini, CONN_dmax, CONN_dmin_ini, CONN_dmin,                               &
-							  CIF_format80, include_RES_file, update_parameters,                                &
+							  CIF_format80, include_RES_file, include_HKL_file, update_parameters,              &
                               report_header, LOCK_wave_value,  Max_ref,  expert_mode, hkl_statistics,           &
                               hkl_format, cartesian_frame, keep_bond_str_out,                                   &
-                              skip_start_menu, pdp_cu, CIF_torsion_limit,                                       &
+                              skip_start_menu, pdp_simu, CIF_torsion_limit,                                       &
                               keyword_create_ACE, keyword_create_CEL, keyword_create_CFL, keyword_create_FST,   &
                               keyword_create_INS, keyword_create_PRF,                                           &
                               create_CIF_PYMOL, INI_create_CIF_PYMOL,                                           &
                               INI_create_ACE,     INI_create_CEL,     INI_create_CFL,     INI_create_FST,       &
                               INI_create_INS, INI_create_PRF,                                                   &
                               structure_solution, structure_refinement, absorption_correction,                  &
-                              Create_INS_temperature, Create_INS_U_threshold, get_sample_ID,                    &
-                              message_text, winplotr_path_name, on_screen
+                              Create_INS, get_sample_ID,                    &
+                              message_text, winplotr_path_name, on_screen, on_screen_prf
   USE HKL_module,     ONLY : n_sig, threshold, MAX_allowed
+  USE USER_module
+  USE CIF_module
   USE pattern_profile_module
   USE macros_module,  ONLY : u_case, l_case, verif_hkl_format, answer_yes, answer_no
   USE MATRIX_list_module
@@ -1021,7 +1070,7 @@ subroutine cryscalc_init()
 
 
   implicit none   
-   INTEGER                :: long, iostat_err, i, i1, i2
+   INTEGER                :: long, iostat_err, i, i1, i2, n_s
    LOGICAL                :: file_exist
    CHARACTER (LEN=256)    :: read_line, message2_text
    CHARACTER (len=256)    :: INI_string
@@ -1033,24 +1082,41 @@ subroutine cryscalc_init()
    call getenv('CRYSCALC', cryscalc%path_name)
    long = len_trim(cryscalc%path_name)
    if(long /=0) then
+    if(cryscalc%path_name(1:1) == '"' .and. cryscalc%path_name(long:long) == '"') then
+	 cryscalc%path_name = cryscalc%path_name(2:long-1)
+	 long = len_trim(cryscalc%path_name)
+	end if
     if(cryscalc%path_name(long:long) == '\') then
      cryscalc%path_name = cryscalc%path_name(1:long-1)
     endif
-    cryscalc%css = trim(cryscalc%path_name)//'\cryscalc.css'
-    cryscalc%report_css = trim(cryscalc%path_name) // '\cryscalc_report.css'
+    cryscalc%css        = trim(cryscalc%path_name)//'\cryscalc.css'
+    cryscalc%report_css = trim(cryscalc%path_name)//'\cryscalc_report.css'
    endif
 
   ! recherche du fichier cryscalc.ini
+  !1. dans le repertoire courant
   inquire(file='cryscalc.ini', exist = file_exist)
   if(file_exist) then
    cryscalc%ini = 'cryscalc.ini'
   else
 
    ! >>
-   if(len_trim(cryscalc%path_name) /=0) then
-    cryscalc%ini = trim(cryscalc%path_name) // '\cryscalc.ini'
-    cryscalc%css = trim(cryscalc%path_name) // '\cryscalc.css'
-    cryscalc%report_css = trim(cryscalc%path_name) // '\cryscalc_report.css'
+   ! 2. dans le repertoire ou est installe CRYSCALC
+   long = len_trim(cryscalc%path_name)
+   if(long /=0) then
+    if(cryscalc%path_name(1:1) == '"' .and. cryscalc%path_name(long:long) == '"') then
+	 cryscalc%ini        = cryscalc%path_name(1:long-1) // '\cryscalc.ini"'
+     cryscalc%css        = cryscalc%path_name(1:long-1) // '\cryscalc.css"'
+     cryscalc%report_css = cryscalc%path_name(1:long-1) // '\cryscalc_report.css"'
+    elseif(cryscalc%path_name(1:1) == "'" .and. cryscalc%path_name(long:long) == '"') then
+	 cryscalc%ini        = cryscalc%path_name(1:long-1) // "\cryscalc.ini'"
+     cryscalc%css        = cryscalc%path_name(1:long-1) // "\cryscalc.css'"
+     cryscalc%report_css = cryscalc%path_name(1:long-1) // "\cryscalc_report.css'"
+	else
+     cryscalc%ini        = trim(cryscalc%path_name) // '\cryscalc.ini'
+     cryscalc%css        = trim(cryscalc%path_name) // '\cryscalc.css'
+     cryscalc%report_css = trim(cryscalc%path_name) // '\cryscalc_report.css'
+	end if 
    endif
 
    call getenv('WINPLOTR', winplotr_path_name)
@@ -1061,6 +1127,7 @@ subroutine cryscalc_init()
     endif
     winplotr_exe = trim(winplotr_path_name) // '\winplotr.exe'
     if(len_trim(cryscalc%ini) == 0) then
+	! 3. dans le repertoire ou est installe WinPLOTR
       cryscalc%ini  = trim(winplotr_path_name)//'\cryscalc.ini'
      !cryscalc%css = trim(cryscal%path_name) // '\cryscalc.css'
      !cryscalc%report_css = trim(cryscal%path_name) // '\cryscalc_report.css'
@@ -1081,29 +1148,35 @@ subroutine cryscalc_init()
 
    if(debug_proc%write) then
     call write_debug_proc('','')
-    call write_debug_proc('CRYSCALC_ini        :', trim(cryscalc%ini))
+    call write_debug_proc('CRYSCALC_ini', trim(cryscalc%ini))
     !call write_debug_proc('','')
-    call write_debug_proc('CRYSCALC_css        :', trim(cryscalc%css))
+    call write_debug_proc('CRYSCALC_css', trim(cryscalc%css))
     !call write_debug_proc('','')
-    call write_debug_proc('CRYSCALC_report_css :', trim(cryscalc%report_css))
+    call write_debug_proc('CRYSCALC_report_css', trim(cryscalc%report_css))
     call write_debug_proc('','')
    endif
-
+ 
+   long = len_trim(cryscalc%ini)
+   if(cryscalc%ini(1:1) == '"' .and. cryscalc%ini(long:long) == '"') cryscalc%ini = cryscalc%ini(2:long-1)   
 
    INQUIRE(FILE=TRIM(cryscalc%ini), EXIST=file_exist)
    IF(.NOT. file_exist) then
-    if(debug_proc%write) then
+    call write_info('')
+	call write_info('!! '//trim(CRYSCALC%ini)//' does not exist. Default values will be used.')	
+	call write_info('')
+	call CIF_default_values
+	if(debug_proc%write) then
      call write_debug_proc('','')
-     call write_debug_proc('!! CRYSCALC.ini does not exist.','')
+     call write_debug_proc('!! '//trim(CRYSCALC%ini)//' does not exist. Default values will be used.','')
      call write_debug_proc('','')
-
-     call CIF_default_values
+     
      call write_default_values
     endif
     cryscalc%ini = ""
     return
    endif
-
+   
+ 
 
    OPEN(UNIT=INI_unit, FILE=TRIM(cryscalc%ini))
 
@@ -1536,7 +1609,7 @@ subroutine cryscalc_init()
      call WRITE_debug_proc('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
      call WRITE_debug_proc('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
      call WRITE_debug_proc('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_source))
      call WRITE_debug_proc('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
      call WRITE_debug_proc('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
 
@@ -1547,7 +1620,7 @@ subroutine cryscalc_init()
      call WRITE_debug_proc('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
      call WRITE_debug_proc('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
      call WRITE_debug_proc('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_source))
      call WRITE_debug_proc('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
      call WRITE_debug_proc('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
 
@@ -1558,7 +1631,7 @@ subroutine cryscalc_init()
      call WRITE_debug_proc('DIFFRACTION_detector_area', trim(CIF_parameter%diffrn_detector_area_resol_mean))
      call WRITE_debug_proc('RADIATION_wavelength',      trim(CIF_parameter%diffrn_radiation_wavelength))
      call WRITE_debug_proc('RADIATION_type',            trim(CIF_parameter%diffrn_radiation_type))
-     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_type))
+     call WRITE_debug_proc('RADIATION_source',          trim(CIF_parameter%diffrn_radiation_source))
      call WRITE_debug_proc('RADIATION_monochromator',   trim(CIF_parameter%diffrn_radiation_monochromator))
      call WRITE_debug_proc('RADIATION_probe',           trim(CIF_parameter%diffrn_radiation_probe))
 
@@ -1713,17 +1786,17 @@ subroutine cryscalc_init()
        if(u_case(INI_string(long:long)) == 'K') then
         read(INI_string(1:long-1), *, iostat=iostat_err) INI_real
         if(iostat_err /=0) exit
-        Create_INS_temperature = INI_real - 273
+        Create_INS%temperature = INI_real - 273
        else
         read(INI_string, *, iostat = iostat_err) INI_real
         if(iostat_err /=0) exit
-        Create_INS_temperature = INI_real
+        Create_INS%temperature = INI_real
        endif
        cycle
       elseif(l_case(read_line(1:11)) == 'u_threshold') then
        read(ini_string, *, iostat=iostat_err) INI_real
        if(iostat_err/=0) exit
-       Create_INS_U_threshold = INI_real
+       Create_INS%U_threshold = INI_real
        cycle
 
       end if
@@ -1737,9 +1810,9 @@ subroutine cryscalc_init()
     else
      call write_debug_proc ('get sample_ID',  '             0     ! sample_ID = job')
     endif
-    write(read_line, '(F8.2,a)') Create_INS_temperature,      '  ! experimental temperature'
+    write(read_line, '(F8.2,a)') Create_INS%temperature,      '  ! experimental temperature'
     call write_debug_proc ('temperature',      trim(read_line))
-    write(read_line, '(F8.2,a)') Create_INS_U_threshold,      '    ! atoms with Uiso > u_threshold are excluded'
+    write(read_line, '(F8.2,a)') Create_INS%U_threshold,      '    ! atoms with Uiso > u_threshold are excluded'
     call write_debug_proc ('U_threshold',  trim(read_line))
    endif
 
@@ -1798,7 +1871,7 @@ subroutine cryscalc_init()
 	  ELSEIF(l_case(read_line(1:14)) == 'create_pat_prf' .and. answer_yes(trim(INI_string))) then
        INI_create_PRF     = .true.
        keyword_create_PRF = .true.
-	   if(l_case(read_line(15:16)) == '_0') on_screen = .false.
+	   if(l_case(read_line(15:16)) == '_1' .or. l_case(read_line(15:18)) == '_out' ) on_screen_prf = .true.	   
        cycle
       endif
      end do
@@ -1881,6 +1954,9 @@ subroutine cryscalc_init()
       ELSEIF(l_case(read_line(1:16)) == 'include_res_file' .and. answer_yes(trim(INI_string))) then
        include_RES_file = .true.
        cycle
+     ELSEIF(l_case(read_line(1:16)) == 'include_hkl_file' .and. answer_yes(trim(INI_string))) then
+       include_HKL_file = .true.
+       cycle
       ELSEIF(l_case(read_line(1:17)) == 'update_parameters' .and. answer_no(trim(INI_string))) then
        update_parameters = .false.
        cycle
@@ -1926,12 +2002,22 @@ subroutine cryscalc_init()
        !hkl_format = trim(INI_string)
        hkl_format = verif_hkl_format(trim(INI_string))
        cycle
-      elseif(l_case(read_line(1:15)) == 'skip_start_menu' .and. answer_yes(trim(INI_string))) then
-       skip_start_menu = .true.
+      elseif(l_case(read_line(1:15)) == 'skip_start_menu' .and. answer_no(trim(INI_string))) then
+       skip_start_menu = .false.
        cycle
       elseif(l_case(read_line(1:6)) == 'pdp_cu' .and. answer_no(trim(INI_string))) then
-       pdp_cu = .false.
+       pdp_simu%cu = .false.
        cycle
+	  elseif(l_case(read_line(1:8)) == 'pdp_beam') then
+	    if(ini_string(1:1) == "n" .or. ini_string(1:1) == "N") then
+		 pdp_simu%beam = "neutrons"
+		end if 
+		cycle
+	  elseif(l_case(read_line(1:8)) == 'pdp_wave') then
+       read(ini_string, *, iostat=iostat_err) INI_real
+       if(iostat_err /=0) exit	   
+	   pdp_simu%wave = INI_real
+	   cycle
 	  elseif(l_case(read_line(1:20)) == "cartesian_frame%type") then
 	   if(ini_string(1:1) == "c" .or. ini_string(1:1) == "C") then
 	    cartesian_frame%type   = "C"	   
@@ -1963,6 +2049,11 @@ subroutine cryscalc_init()
      call write_debug_proc ('Include_RES_file',      '1     ! ')
     else
      call write_debug_proc ('Include_RES_file',      '0     ! ')
+    endif
+    if (include_hkl_file) then
+     call write_debug_proc ('Include_HKL_file',      '1     ! ')
+    else
+     call write_debug_proc ('Include_HKL_file',      '0     ! ')
     endif
     if (update_parameters) then
      call write_debug_proc ('Update_parameters',     '1     ! ')
@@ -2002,11 +2093,18 @@ subroutine cryscalc_init()
     call write_debug_proc('hkl_format'          ,     trim(hkl_format)//'  !')
 	call write_debug_proc('cartesian_frame_type',     cartesian_frame%type// ' '//trim(cartesian_frame%string))
     if(expert_mode) then
-     if(pdp_cu) then
+     if(pdp_simu%cu) then
       call write_debug_proc('Ka1 Cu for pdp simulation'     ,    '1     ! ')
      else
       call write_debug_proc('Ka1 Cu for pdp simulation'     ,    '0     ! ')
      endif
+     if(pdp_simu%beam == 'neutrons') then
+      call write_debug_proc('Pattern simulation',  'N  ! Neutrons')
+     else
+      call write_debug_proc('Pattern simulation',  'X  ! X-rays')
+     endif
+     write(message2_text, '(F10.5,a)') pdp_simu%wave, '   ! wavelength'
+     call write_debug_proc ('Pattern simulation', trim(message2_text))	 
     endif
    endif
 
@@ -2056,6 +2154,13 @@ subroutine cryscalc_init()
       ELSEIF(l_case(read_line(1:14)) == 'x_pattern_step') then
        read(INI_string, *) X_pattern%step
        cycle
+      ELSEIF(l_case(read_line(1:14)) == 'x_pattern_xmin') then
+       read(INI_string, *) X_pattern%xmin
+       cycle
+      ELSEIF(l_case(read_line(1:14)) == 'x_pattern_xmax') then
+       read(INI_string, *) X_pattern%xmax
+       cycle
+
       ELSEIF(l_case(read_line(1:20)) == 'x_pattern_background') then
        read(INI_string, *) X_pattern%background
        cycle
@@ -2081,6 +2186,13 @@ subroutine cryscalc_init()
       ELSEIF(l_case(read_line(1:14)) == 'n_pattern_step') then
        read(INI_string, *) N_pattern%step
        cycle
+      ELSEIF(l_case(read_line(1:14)) == 'n_pattern_xmin') then
+       read(INI_string, *) N_pattern%xmin
+       cycle
+      ELSEIF(l_case(read_line(1:14)) == 'n_pattern_xmax') then
+       read(INI_string, *) N_pattern%xmax
+       cycle
+
       ELSEIF(l_case(read_line(1:20)) == 'n_pattern_background') then
        read(INI_string, *) N_pattern%background
        cycle
@@ -2093,35 +2205,43 @@ subroutine cryscalc_init()
    end do
 
    if(debug_proc%write) then
-    write(message2_text, '(F8.5,a)') X_PV%U, '   ! '
+    write(message2_text, '(F10.5,a)') X_PV%U, '   ! '
     call write_debug_proc ('X_profile_U', trim(message2_text))
-    write(message2_text, '(F8.5,a)') X_PV%V, '   ! '
+    write(message2_text, '(F10.5,a)') X_PV%V, '   ! '
     call write_debug_proc ('X_profile_V', trim(message2_text))
-    write(message2_text, '(F8.5,a)') X_PV%W, '   ! '
+    write(message2_text, '(F10.5,a)') X_PV%W, '   ! '
     call write_debug_proc ('X_profile_W', trim(message2_text))
-    write(message2_text, '(F8.5,a)') X_PV%eta0,'   ! '
+    write(message2_text, '(F10.5,a)') X_PV%eta0,'   ! '
     call write_debug_proc ('X_profile_eta0', trim(message2_text))
-    write(message2_text, '(F8.5,a)') X_PV%eta1,'   ! '
+    write(message2_text, '(F10.5,a)') X_PV%eta1,'   ! '
     call write_debug_proc ('X_profile_eta1', trim(message2_text))
-    write(message2_text, '(F8.5,a)') X_pattern%step, '   ! '
+    write(message2_text, '(F10.5,a)') X_pattern%step, '   ! '
     call write_debug_proc ('Pattern step', trim(message2_text))
+	write(message2_text, '(F10.5,a)') X_pattern%xmin, '   ! '
+    call write_debug_proc ('Pattern Xmin', trim(message2_text))
+	write(message2_text, '(F10.5,a)') X_pattern%xmax, '   ! '
+    call write_debug_proc ('Pattern Xmax', trim(message2_text))  
     write(message2_text, '(F10.5,a)') X_pattern%background, '   ! '
     call write_debug_proc ('X_pattern background', trim(message2_text))
     write(message2_text, '(F10.5,a)') X_pattern%scale, '   ! '
     call write_debug_proc ('X_pattern scale', trim(message2_text))
 
-    write(message2_text, '(F8.5,a)') N_PV%U, '   ! '
+    write(message2_text, '(F10.5,a)') N_PV%U, '   ! '
     call write_debug_proc ('N_profile_U', trim(message2_text))
-    write(message2_text, '(F8.5,a)') N_PV%V, '   ! '
+    write(message2_text, '(F10.5,a)') N_PV%V, '   ! '
     call write_debug_proc ('N_profile_V', trim(message2_text))
-    write(message2_text, '(F8.5,a)') N_PV%W, '   ! '
+    write(message2_text, '(F10.5,a)') N_PV%W, '   ! '
     call write_debug_proc ('N_profile_W', trim(message2_text))
-    write(message2_text, '(F8.5,a)') N_PV%eta0,'   ! '
+    write(message2_text, '(F10.5,a)') N_PV%eta0,'   ! '
     call write_debug_proc ('N_profile_eta0', trim(message2_text))
-    write(message2_text, '(F8.5,a)') N_PV%eta1,'   ! '
+    write(message2_text, '(F10.5,a)') N_PV%eta1,'   ! '
     call write_debug_proc ('N_profile_eta1', trim(message2_text))
-    write(message2_text, '(F8.5,a)') N_pattern%step, '   ! '
+    write(message2_text, '(F10.5,a)') N_pattern%step, '   ! '
     call write_debug_proc ('Pattern step', trim(message2_text))
+    write(message2_text, '(F10.5,a)') N_pattern%xmin, '   ! '
+    call write_debug_proc ('Pattern Xmin', trim(message2_text))
+    write(message2_text, '(F10.5,a)') N_pattern%xmax, '   ! '
+    call write_debug_proc ('Pattern Xmax', trim(message2_text))
     write(message2_text, '(F10.5,a)') N_pattern%background, '   ! '
     call write_debug_proc ('Neutron pattern background', trim(message2_text))
     write(message2_text, '(F10.5,a)') N_pattern%scale, '   ! '
@@ -2142,15 +2262,16 @@ subroutine cryscalc_init()
      read_line = read_line(1:i1-1)
     endif
     read_line = ADJUSTL(read_line)
-    user_mat_nb = 0
+    
 
     IF(read_line(1:30) == '[USER TRANSFORMATION MATRICES]') then
-
+	 user_mat_nb = 0
      do
       READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
       IF(iostat_err /=0)           exit
       IF(LEN_TRIM(read_line) == 0) exit
       long = len_trim(read_line)
+
       !i1 = index(read_line, '!')
       !if(i1 /=0) then
       ! if(i1 == 1) cycle
@@ -2161,7 +2282,7 @@ subroutine cryscalc_init()
       IF(i2 ==0) exit
       READ(read_line(i2+1:), '(a)') INI_string
       INI_string = adjustl(INI_string)
-      IF(l_case(read_line(1:5)) == 'mat_1') then
+      IF(l_case(read_line(1:5)) == 'mat_1') then  
        arg_mat(:,:) = 0.
        read(INI_string, *, iostat=iostat_err) arg_mat(:,1), arg_mat(:,2), arg_mat(:,3)
        if(iostat_err ==0)   transf_mat(:,:,max_mat_nb+1) = arg_mat(:,:)
@@ -2239,8 +2360,8 @@ subroutine cryscalc_init()
       endif
      end do
     endif
+	 
    end do
-
 
 
    if(debug_proc%write) then
@@ -2251,7 +2372,56 @@ subroutine cryscalc_init()
     end do
    endif
 
+!-------- USER's SHORTCUTS --------------------------------------------------------------------
+  rewind(unit=INI_unit)
+   do
+    READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+    IF(iostat_err /=0)           exit
+    if(len_trim(read_line) == 0) cycle
+    i1 = index(read_line, '!')
+    if(i1 /=0) then
+     if(i1 == 1) cycle
+     read_line = read_line(1:i1-1)
+    endif
+    read_line = ADJUSTL(read_line)
+    
+    nb_shortcuts = 0
+    IF(read_line(1:16) == '[USER SHORTCUTS]') then!
+	
+     n_s = 0
+     do
+      READ(INI_unit, '(a)', IOSTAT=iostat_err) read_line
+      IF(iostat_err /=0)           exit
+      IF(LEN_TRIM(read_line) == 0) exit
+      i1 = INDEX(read_line, '=')
+      IF(i1 ==0) exit
+	  i2 = index(read_line, '!')
+	  if(i2 /=0 .and. i2 > i1) then
+	   i2 = i2 -1
+	  else
+	   i2 = len_trim(read_line)
+	  endif
+	  if(n_s == user_shortcut_max) exit
+	  n_s = n_s  + 1
+	  READ(read_line(1:i1-1), '(a)') shortcut_kw(n_s)
+	  shortcut_kw(n_s) = trim(shortcut_kw(n_s))
+	  READ(read_line(i1+1:i2),  '(a)') shortcut_details(n_s)
+	  shortcut_details(n_s) = adjustl(shortcut_details(n_s))
+	  shortcut_details(n_s) = trim(shortcut_details(n_s))
+	 end do 
+	 nb_shortcuts = n_s
+	end if
+   end do	
 
+   if(debug_proc%write) then
+    do i=1, nb_shortcuts
+     write(message_text,  '(a,i2)')        'User shortcut #', i
+     write(message2_text, '(3a)')          shortcut_kw(i)(1:20)," = " , trim(shortcut_details(i))	 
+     call write_debug_proc (trim(message_text), trim(message2_text))
+    end do
+   endif
+
+      
 !-------- STRUCTURE PROGRAMS --------------------------------------------------------------------
    rewind(unit=INI_unit)
    do
@@ -2350,16 +2520,17 @@ subroutine cryscalc_init()
 
 !-----------------------------------------------------
 subroutine output_setting
- USE cryscalc_module, ONLY :  INI_unit, cryscalc, my_browser, my_editor, my_pdflatex, WEB, DEVICE, AUTHOR, message_text,     &
+ USE cryscalc_module, ONLY :  INI_unit, cryscalc, my_browser, my_editor, my_pdflatex, WEB, DEVICE, AUTHOR, message_text,        &
                               CONN_dmax_ini, INI_create_ACE, INI_create_CEL, INI_create_CFL, INI_create_FST, INI_create_INS,    &
-							  INI_create_PRF,                                                       &
-                              CIF_cell_measurement, INI_create_CIF_PYMOL,                           & 
-                              structure_solution, structure_refinement, absorption_correction,      &
-                              Create_INS_temperature, Create_INS_U_threshold, max_ref,              &
-                              lock_wave_value, CIF_format80, include_RES_file, update_parameters , report_header, expert_mode,  &
-                              hkl_statistics, hkl_format, skip_start_menu, pdp_cu, CIF_torsion_limit, debug_proc,               &
+							  INI_create_PRF, INI_create_CIF_PYMOL,                                                             & 
+                              structure_solution, structure_refinement, absorption_correction, Create_INS, max_ref,             &
+                              lock_wave_value, CIF_format80, include_RES_file, include_HKL_file,                                &
+							  update_parameters , report_header, expert_mode,                                                   &
+                              hkl_statistics, hkl_format, skip_start_menu, pdp_simu, CIF_torsion_limit, debug_proc,             &
 							  cartesian_frame, keep_bond_str_out 
  USE pattern_profile_module
+ USE CIF_module
+ USE USER_module
  USE MATRIX_list_module, only : user_mat_text, user_mat_nb, transf_mat, max_mat_nb
  USE HKL_module,     ONLY :  n_sig, threshold
  USE IO_module,      ONLY :  write_info
@@ -2433,9 +2604,9 @@ subroutine output_setting
  call write_info('')
 
  call write_info(' [CREATE INS]')
- write(message_text, '(F8.2)') Create_INS_temperature
+ write(message_text, '(F8.2)') Create_INS%temperature
  call write_info('   > Temperature    = '//   trim(message_text))
- write(message_text, '(F4.1)') Create_INS_U_threshold
+ write(message_text, '(F4.1)') Create_INS%U_threshold
  call write_info('   > U_threshold    ='//  trim(message_text))
  call write_info('')
 
@@ -2509,6 +2680,11 @@ subroutine output_setting
  else
   call write_info('   > include_RES_file           = 0           ! include .RES file in the archive_cryscalc.cif file')
  endif
+ if(include_HKL_file) then
+  call write_info('   > include_HKL_file           = 1           ! include .HKL file in the archive_cryscalc.cif file')
+ else
+  call write_info('   > include_HKL_file           = 0           ! include .HKL file in the archive_cryscalc.cif file')
+ endif
  if(update_parameters) then
   call write_info('   > update_parameters          = 1           ! update parameters after transformation (cell parameters,' // &
                                                                 ' atomic coordinates) ')
@@ -2552,54 +2728,72 @@ subroutine output_setting
   call write_info('   > hkl_format                 = '//trim(hkl_format) // '   ! format for .hkl file (h,k,lF2,sig)')
   call write_info('   > Cartesian frame type       = '//trim(cartesian_frame%type) // '   ! A: x//A ; C:x//c')  
 
- if(pdp_cu) then
+ if(pdp_simu%cu) then
   call write_info('   > pdp_cu                     = 1           ! Ka Cu for powder diffraction pattern simulation')
  else
   call write_info('   > pdp_cu                     = 0           ! Current wavelength for powder diffraction pattern simulation')
  endif
-
+ if(pdp_simu%beam == 'neutrons') then
+  call write_info('   > pdp_beam                   = N           ! ' & 
+                //'Simulation of powder diffraction pattern : N for neutrons / X for X-rays')
+ else
+  call write_info('   > pdp_beam                   = X           ! ' &
+                //'Simulation of powder diffraction pattern : N for neutrons / X for X-rays')
+ endif
+ write(message_text, '(a,F10.5,a)') '   > pdp_wave                   = ', pdp_simu%wave, &
+                                    '  ! Wavelength used for powder diffraction pattern simulation'
+ call write_info(trim(message_text))
+ 
  call write_info('')
  call write_info('[PATTERN SIMULATION (Pseudo-Voigt function)]')
  call write_info(' X-ray pattern profile :')
- write(message_text, '(a,F8.5,a)') '   > X_profile_U            = ', X_PV%U,    &
+ write(message_text, '(a,F10.5,a)') '   > X_profile_U            = ', X_PV%U,    &
                                    '       ! U value of the Cagliotti formula : FWHM2 = U*TAN**2(theta) + V*TAN(theta) + W'
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > X_profile_V            = ', X_PV%V
+ write(message_text, '(a,F10.5)')   '   > X_profile_V            = ', X_PV%V
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > X_profile_W            = ', X_PV%W
+ write(message_text, '(a,F10.5)')   '   > X_profile_W            = ', X_PV%W
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5,a)') '   > X_profile_eta0         = ', X_PV%eta0, &
+ write(message_text, '(a,F10.5,a)') '   > X_profile_eta0         = ', X_PV%eta0, &
                                    '       ! Lorentzian components : eta = eta° + 2theta * eta1'
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > X_profile_eta1         = ', X_PV%eta1
+ write(message_text, '(a,F10.5)')   '   > X_profile_eta1         = ', X_PV%eta1
  call write_info(trim(message_text))
  call write_info(' X-ray Diffraction pattern :')
- write(message_text, '(a,F8.5)')   '   > X_Pattern_background     = ', X_pattern%background
+ write(message_text, '(a,F10.5)')   '   > X_Pattern_background     = ', X_pattern%background
  call write_info(trim(message_text))
  write(message_text, '(a,F10.5)')  '   > X_Pattern_scale          = ', X_pattern%scale
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > X_Pattern_step           = ', X_pattern%step
+ write(message_text, '(a,F10.5)')   '   > X_Pattern_step           = ', X_pattern%step
+ call write_info(trim(message_text))
+ write(message_text, '(a,F10.5)')   '   > X_Pattern_xmin           = ', X_pattern%xmin
+ call write_info(trim(message_text))
+ write(message_text, '(a,F10.5)')   '   > X_Pattern_xmax           = ', X_pattern%xmax
  call write_info(trim(message_text))
 
  call write_info(' Neutron pattern profile :')
- write(message_text, '(a,F8.5,a)') '   > N_profile_U            = ', N_PV%U,    &
+ write(message_text, '(a,F10.5,a)') '   > N_profile_U            = ', N_PV%U,    &
                                    '       ! U value of the Cagliotti formula : FWHM2 = U*TAN**2(theta) + V*TAN(theta) + W'
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > N_profile_V            = ', N_PV%V
+ write(message_text, '(a,F10.5)')   '   > N_profile_V            = ', N_PV%V
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > N_profile_W            = ', N_PV%W
+ write(message_text, '(a,F10.5)')   '   > N_profile_W            = ', N_PV%W
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5,a)') '   > N_profile_eta0         = ', N_PV%eta0, &
+ write(message_text, '(a,F10.5,a)') '   > N_profile_eta0         = ', N_PV%eta0, &
                                    '       ! Lorentzian components : eta = eta0 + 2theta * eta1'
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > N_profile_eta1         = ', N_PV%eta1
+ write(message_text, '(a,F10.5)')   '   > N_profile_eta1         = ', N_PV%eta1
  call write_info(trim(message_text))
  call write_info(' Neutron diffraction pattern :')
- write(message_text, '(a,F8.5)')   '   > N_Pattern_background     = ', N_pattern%background
+ write(message_text, '(a,F10.5)')   '   > N_Pattern_background     = ', N_pattern%background
  call write_info(trim(message_text))
  write(message_text, '(a,F10.5)')  '   > N_Pattern_scale          = ', N_pattern%scale
  call write_info(trim(message_text))
- write(message_text, '(a,F8.5)')   '   > N_Pattern_step           = ', N_pattern%step
+ write(message_text, '(a,F10.5)')   '   > N_Pattern_step           = ', N_pattern%step
+ call write_info(trim(message_text))
+ write(message_text, '(a,F10.5)')   '   > N_Pattern_xmin           = ', N_pattern%xmin
+ call write_info(trim(message_text))
+ write(message_text, '(a,F10.5)')   '   > N_Pattern_xmax           = ', N_pattern%xmax
  call write_info(trim(message_text))
 
 
@@ -2614,6 +2808,16 @@ subroutine output_setting
   call write_info(trim(message_text))
   enddo
  end if
+ 
+ if(debug_proc%write) then
+  call write_info('')
+  call write_info('[USER SHORTCUTS]')
+  do i=1, nb_shortcuts   
+   write(message_text, '(3a)')          shortcut_kw(i)(1:20)," = " , trim(shortcut_details(i))	 
+   call write_info(trim(message_text))
+  end do
+ endif
+
 
 
 end subroutine output_setting
@@ -2773,6 +2977,7 @@ end subroutine write_debug_proc_level
 !-------------------------------------------------------------------------------
 subroutine write_debug_level_1
  use cryscalc_module
+ use CIF_module
  use pattern_profile_module
  use hkl_module
  use MATRIX_list_module
@@ -2864,9 +3069,9 @@ subroutine write_debug_level_1
 
     write(string, '(I10,a)') Max_ref,      '    ! Max. number of hkl reflections in a file'
     call write_debug_proc ('Max_ref',  trim(string))
-    write(string, '(F8.2,a)') Create_INS_temperature,      '  ! experimental temperature'
+    write(string, '(F8.2,a)') Create_INS%temperature,      '  ! experimental temperature'
     call write_debug_proc ('temperature',      trim(string))
-    write(string, '(F8.2,a)') Create_INS_U_threshold,      '    ! atoms with Uiso > u_threshold are excluded'
+    write(string, '(F8.2,a)') Create_INS%U_threshold,      '    ! atoms with Uiso > u_threshold are excluded'
     call write_debug_proc ('U_threshold',  trim(string))
 
     if (keyword_create_ACE) then
@@ -2919,6 +3124,11 @@ subroutine write_debug_level_1
     else
      call write_debug_proc ('Include_RES_file',      '0     ! ')
     endif
+    if (include_HKL_file) then
+     call write_debug_proc ('Include_HKL_file',      '1     ! ')
+    else
+     call write_debug_proc ('Include_HKL_file',      '0     ! ')
+    endif
     if (update_parameters) then
      call write_debug_proc ('Update_parameters',     '1     ! ')
     else
@@ -2947,7 +3157,7 @@ subroutine write_debug_level_1
     call write_debug_proc('hkl_format'          ,     trim(hkl_format)//'  !')
 	call write_debug_proc('cartesian_frame_type',     trim(cartesian_frame%type)//'  !')
     if(expert_mode) then
-    if(pdp_cu) then
+    if(pdp_simu%cu) then
      call write_debug_proc('Ka1 Cu for pdp simulation'     ,    '1     ! ')
     else
      call write_debug_proc('Ka1 Cu for pdp simulation'     ,    '0     ! ')
@@ -3010,9 +3220,8 @@ end subroutine write_debug_level_1
 
 !-------------------------------------------------------------------------------
 subroutine CIF_default_values
- use cryscalc_module, only : CIF_parameter, CIF_parameter_KCCD, CIF_parameter_APEX, CIF_parameter_XCALIBUR, &
-                             CIF_parameter_X2S,                                                             &
-                             debug_proc, my_browser, my_editor, my_word, my_pdflatex, AUTHOR, DEVICE
+ use cryscalc_module, only : debug_proc, my_browser, my_editor, my_word, my_pdflatex, AUTHOR, DEVICE
+ use CIF_module							 
  implicit none
 
  !CIF_parameter = CIF_parameter_APEX
@@ -3093,9 +3302,9 @@ subroutine write_default_values
     write(string, '(I10,a)') Max_ref,      '    ! Max. number of hkl reflections in a file'
     call write_DEBUG_proc ('Max_ref',  trim(string))
 
-    write(string, '(F8.2,a)') Create_INS_temperature,      '  ! experimental temperature'
+    write(string, '(F8.2,a)') Create_INS%temperature,      '  ! experimental temperature'
     call write_DEBUG_proc ('temperature',      trim(string))
-    write(string, '(F8.2,a)') Create_INS_U_threshold,      '  ! atoms with Uiso > u_threshold are excluded'
+    write(string, '(F8.2,a)') Create_INS%U_threshold,      '  ! atoms with Uiso > u_threshold are excluded'
     call write_DEBUG_proc ('U_threshold',  trim(string))
 
 
@@ -3116,6 +3325,7 @@ subroutine write_default_values
     write(string, '(F6.2,a)') CIF_torsion_limit,    '   ! '
     call write_DEBUG_proc ('CIF_torsion_limit' , trim(string))
     call write_DEBUG_proc ('Include_RES_file'  ,    '0     ! ')
+    call write_DEBUG_proc ('Include_HKL_file'  ,    '0     ! ')
     call write_DEBUG_proc ('Update_parameters' ,    '1     ! ')
     call write_DEBUG_proc ('Report_header'     ,    '1     ! ')
     call write_DEBUG_proc ('Expert_mode'       ,    '0     ! ')
@@ -3173,6 +3383,7 @@ subroutine open_debug_file
  implicit none
   integer             :: i_error
  
+ 
   open(unit = debug_proc%unit, file = 'cryscalc_debug.txt', status = "replace", iostat=i_error)
 	if(i_error /=0) then
      call write_info('')
@@ -3180,8 +3391,8 @@ subroutine open_debug_file
      call write_info('')	
 	 debug_proc%write = .false.
 	end if
-	
-  return
+
+	return
  end subroutine open_debug_file
  
 	

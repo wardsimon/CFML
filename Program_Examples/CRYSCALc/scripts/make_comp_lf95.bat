@@ -39,6 +39,7 @@ del *.map
       lf95 -c read_PCR           -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c read_KEYW          -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c read_CIF_file      -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
+      lf95 -c create_archive_cif -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c SIR_to_INS         -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk
       lf95 -c read_final_y       -o1 -info                                           -nchk  -nstchk
       lf95 -c read_CELL          -o1 -info  -mod  .;%CRYSFML%\Lahey\libC             -nchk  -nstchk

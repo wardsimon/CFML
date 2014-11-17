@@ -43,6 +43,7 @@ del *.map
       gfortran -c -O3 -funroll-loops  -msse2  read_PCR.f90            -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_KEYW.f90           -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_CIF_file.f90       -I%CRYSFML%\GFORTRAN\libC
+      gfortran -c -O3 -funroll-loops  -msse2  create_archive_cif.f90  -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  SIR_to_INS.f90          -I%CRYSFML%\GFORTRAN\libC
       gfortran -c -O3 -funroll-loops  -msse2  read_final_y.f90
       gfortran -c -O3 -funroll-loops  -msse2  read_CELL.f90           -I%CRYSFML%\GFORTRAN\libC

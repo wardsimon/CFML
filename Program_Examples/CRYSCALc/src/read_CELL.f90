@@ -87,10 +87,10 @@ end subroutine read_P4P
 !-------------------------------------------------------------------------------------------------------------------
 
 subroutine read_P4P_file(P4P_file)
- USE cryscalc_module,     ONLY : P4P_read_unit, known_cell_esd, wavelength, keyword_WAVE,    &
-                                 unit_cell, CIF_cell_measurement, message_text,              &
-                                 keyword_SIZE, crystal, UB_matrix, UB_mat_log, molecule,     &
- 	 						     CIF_string, CIF_parameter, lecture_OK, debug_proc
+ USE cryscalc_module,     ONLY : P4P_read_unit, known_cell_esd, wavelength, keyword_WAVE, unit_cell,       &
+                                 message_text, keyword_SIZE, crystal, UB_matrix, UB_mat_log, molecule,     &
+ 	 						     CIF_string, lecture_OK, debug_proc							 
+ USE CIF_module,          ONLY : CIF_cell_measurement, CIF_parameter								 
  USE macros_module,       ONLY : test_file_exist, nombre_de_colonnes, l_case, u_case
  USE IO_module,           ONLY : write_info
  USE CFML_Geometry_SXTAL, ONLY : CELL_Fr_UB
@@ -506,9 +506,9 @@ subroutine read_SADABS_file()
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "READ_SADABS_FILE")
   
-  SADABS_line_ratio               = ''
-  SADABS_line_estimated_Tmin_Tmax = ''
-  SADABS_absorption_coeff    = ''
+  SADABS_line_ratio               = '?'
+  SADABS_line_estimated_Tmin_Tmax = '?'
+  SADABS_absorption_coeff         = '?'
   i1 = INDEX(P4P_file_name, '_0M.P4P')
   IF(i1 == 0)   return
   

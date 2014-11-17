@@ -133,7 +133,7 @@ end subroutine scalar_product
 !------------------------------------------------------------------
 
  subroutine calcul_connectivity_atom
-  use cryscalc_module,                ONLY : keyword_create_CIF, CIF_DIST, CONN_all, CONN_all_X, CONN_self, nb_atom, atom_CONN,  &
+  use cryscalc_module,                ONLY : keyword_create_CIF, CONN_all, CONN_all_X, CONN_self, nb_atom, atom_CONN,  &
                                              CONN_species, CONN_out, CONN_excluded, calcul_BVS,                                  &
                                              CONN_dmin, CONN_dmax, CONN_ang, CONN_out_condensed,                                 &
 											 SPG, crystal_cell, Atm_list, Atom_label, Atom_typ,                                  &
@@ -141,6 +141,7 @@ end subroutine scalar_product
 											 unit_cell, space_group_symbol,                                                      &
 											 create_SHAPE_file, poly_vol_calc,                                                   &
 											 message_text, debug_proc, keep_bond_str_out
+  use CIF_module,                     ONLY : CIF_DIST											 
   use CFML_geometry_calc,             ONLY : calc_dist_angle , calc_dist_angle_sigma, Coord_info
   use CFML_atom_TypeDef,              ONLY : allocate_Atom_list, deallocate_Atom_list, Atoms_cell_type, write_atom_list
   use CFML_BVS_energy_calc
@@ -713,14 +714,12 @@ end subroutine scalar_product
 
 subroutine calcul_connect()  
  USE IO_module
- USE cryscalc_module, ONLY : message_text, nb_atom, atom_label, atom_coord,  &
-                             SPG, keyword_create_CIF,                        &
-                             atom_CONN, CONN_dmax, CONN_excluded,            &
-                             new_coord, SP_value, atom1_dist, atom2_dist, unit_cell, &
-                             CIF_unit, keyword_create_CIF, CIF_DIST, debug_proc, &
-							 tmp_unit, main_title, crystal_cell,                 &
-							 create_shape_file, poly_vol_calc, cartesian_frame, message_text 
-                             
+ USE cryscalc_module, ONLY : message_text, nb_atom, atom_label, atom_coord, SPG, keyword_create_CIF, &
+                             atom_CONN, CONN_dmax, CONN_excluded, new_coord, SP_value,               &
+							 atom1_dist, atom2_dist, unit_cell, CIF_unit, keyword_create_CIF,        &
+							 debug_proc, tmp_unit, main_title, crystal_cell, create_shape_file,      &
+							 poly_vol_calc, cartesian_frame, message_text 
+ USE CIF_module,      ONLY : CIF_DIST                            
  
  USE CFML_crystallographic_symmetry, only : Get_orbit, Wyckoff_Type, ApplySO
  USE CFML_GlobalDeps,                ONLY : cp, sp

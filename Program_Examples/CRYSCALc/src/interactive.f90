@@ -195,7 +195,7 @@ END subroutine interactive_mode
       case ('SIZE', 'CRYSTAL_SIZE')
         if (keyword_SIZE) then
          call get_crystal_SIZE_min_max
-         call crystal_volume_calculation
+         call crystal_volume_calculation('out')
         endif
 
 
@@ -444,7 +444,7 @@ END subroutine interactive_mode
          OPEN(UNIT=CIF_read_unit, FILE=TRIM(CIF_file_name), ACTION="read")
          call check_CIF_input_file(TRIM(CIF_file_name))
          call read_CIF_input_file(TRIM(CIF_file_name), '?')
-         call read_CIF_input_file_TR(CIF_read_unit)
+         call read_CIF_input_file_TR(CIF_read_unit, TRIM(CIF_file_name))
          CLOSE(UNIT=CIF_read_unit)
          if (keyword_SPGR )    call space_group_info
          if (keyword_SYMM)     CALL decode_sym_op

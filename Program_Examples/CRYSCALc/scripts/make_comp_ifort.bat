@@ -39,6 +39,7 @@ del *.map
       ifort      read_PCR.f90            /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      read_KEYW.f90           /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      read_CIF_file.f90       /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
+      ifort      create_archive_CIF.f90  /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      SIR_to_INS.f90          /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      read_final_y.f90        /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc
       ifort      read_CELL.f90           /c /debug:full /check /traceback    /nologo   /F100000000    /I"%CRYSFML%"\ifort\libc

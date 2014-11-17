@@ -21,6 +21,7 @@ MODULE MACROS_module
               remove_car,                &
               clear_string,              &
               replace_car,               &
+              replace_car1,              &
               replace_car2,              &
 			  verif_hkl_format,          &
 			  multiple,                  &
@@ -347,7 +348,7 @@ end subroutine error_message
  end function clear_string
 
 !-------------------------------------------------------------------
-! subroutine replace_car(chaine, car1, car2)
+! subroutine replace_car3(chaine, car1, car2)
 !  ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
 !  ! dans une chaine
 
@@ -359,10 +360,10 @@ end subroutine error_message
 
 
 !   len_car1 = len_trim(car1)
-
-!   do
+!
+!  do
 !    i = INDEX(chaine,car1)
-
+!
 !    if (i==0) exit
 !    IF (i> LEN_TRIM(chaine)) exit
 !    chaine = chaine(1:i-1)//car2//chaine(i+len_car1:)
@@ -370,7 +371,7 @@ end subroutine error_message
 
 
 !  return
-! end subroutine replace_car
+! end subroutine replace_car3
  !-------------------------------------------------------------------
  function replace_car(chaine, car1, car2) result(new_chaine)
   ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
@@ -419,6 +420,45 @@ end subroutine error_message
 
    return
  end function replace_car
+ !-------------------------------------------------------------------
+ function replace_car1(chaine, car1, car2) result(new_chaine)
+  ! remplace un caractere (ou une chaine de caractere) par un autre (ou par une autre chaine de caractere)
+  ! dans une chaine
+
+  implicit none
+   CHARACTER (LEN=*),    INTENT(IN)    :: chaine
+   CHARACTER (LEN=*),    INTENT(IN)    :: car1, car2
+   CHARACTER (LEN=len(chaine))         :: new_chaine
+   character (len=1)                   :: new_car
+   INTEGER                             :: i
+   integer                             :: len_car1
+   logical                             :: modif_car2
+
+
+   new_chaine = chaine
+   modif_car2 = .false.
+   do i = 1, len_trim(car2)
+    if(index(car1, car2(i:i)) /=0) then	  
+     !if(index(chaine, '/') /=0) then
+	 ! new_car = "/"
+	 !else
+     ! if(index(chaine, '/') /=0) then
+	 !  new_car ="!"
+     ! endif	  
+     !endif	 
+	 new_chaine = replace_car2(chaine, car1(1:1), new_car)
+	 new_chaine = replace_car2(new_chaine, new_car, car2)
+	 
+	 modif_car2 = .true.
+	 exit
+    end if
+   end do
+   
+   
+   if(.not. modif_car2)  new_chaine =  replace_car2(chaine, car1, car2)
+
+   return
+ end function replace_car1
  
   !-------------------------------------------------------------------
  function replace_car2(chaine, car1, car2) result(new_chaine)
@@ -446,6 +486,8 @@ end subroutine error_message
 
   return
  end function replace_car2
+ 
+
 
 !-------------------------------------------------------------------
 function verif_hkl_format(hkl_format) result(new_format)
